@@ -2,7 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 设计与审核修订已收口，作为后续开发的设计基线。尚无业务实现、可运行服务或通过的业务测试；Phase 1 未启动，等待另行授权。**
+**当前阶段：Phase 0 设计与审核修订已收口并合入 main；Phase 1 主控规划已启动，6 个任务 Issue 已建立，任务实现待授权。尚无业务实现、可运行服务或通过的业务测试。**
+
+任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。本轮只交付规划；不会据此启动业务编码、CI workflow 或真实平台联调。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
@@ -28,7 +30,7 @@
 
 当前仓库仅有设计文档及基础文件。启动命令、依赖锁文件和 Compose 将在用户另行授权开发阶段后创建。
 
-Phase 1 开始即建立基础 CI/敏感检查，尽早完成 Docker、LangGraph Checkpoint、飞书真实回调三个闸门；当前仅规划。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
+Phase 1 任务实现获准后，首批建立基础 CI/敏感检查，尽早验证 Docker、LangGraph Checkpoint、飞书真实回调三个闸门；当前仅规划。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
 
 ## 版本管理与审核
 
