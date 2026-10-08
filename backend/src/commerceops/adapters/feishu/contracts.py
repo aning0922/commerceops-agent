@@ -247,6 +247,39 @@ def parse_message(payload: object, policy: ProbePolicy) -> MessageProbe:
 
 
 @dataclass(frozen=True)
+class ProbeBinding:
+    """PG 保存的技术合同；只有 nonce hash，不保存按钮中的明文 nonce。"""
+
+    probe_id: str
+    task_id: str
+    approval_id: str
+    plan_id: str
+    plan_version: int
+    plan_hash: str
+    required_assumption_keys: tuple[str, ...]
+    nonce_sha256: str
+    expires_at: datetime
+    chat_id: str
+    message_id: str
+
+    def __post_init__(self) -> None:
+        for value in (self.probe_id, self.task_id, self.approval_id, self.plan_id):
+            _uuid(value)
+        if type(self.plan_version) is not int or self.plan_version <= 0:
+            raise _invalid()
+        for digest in (self.plan_hash, self.nonce_sha256):
+            if re.fullmatch(r"[a-f0-9]{64}", _string(digest)) is None:
+                raise _invalid()
+        if type(self.required_assumption_keys) is not tuple or not self.required_assumption_keys:
+            raise _invalid()
+        _keys(list(self.required_assumption_keys))
+        if not isinstance(self.expires_at, datetime) or self.expires_at.utcoffset() is None:
+            raise _invalid()
+        _string(self.chat_id)
+        _string(self.message_id)
+
+
+@dataclass(frozen=True)
 class ProbePlan:
     """受信技术样例合同；未来从 PG 读取，不得从 callback value 构造 expected。"""
 
@@ -261,6 +294,21 @@ class ProbePlan:
     expires_at: datetime
     chat_id: str
     message_id: str
+
+    def binding(self) -> ProbeBinding:
+        return ProbeBinding(
+            self.probe_id,
+            self.task_id,
+            self.approval_id,
+            self.plan_id,
+            self.plan_version,
+            self.plan_hash,
+            self.required_assumption_keys,
+            hashlib.sha256(self.nonce.encode()).hexdigest(),
+            self.expires_at,
+            self.chat_id,
+            self.message_id,
+        )
 
     def __post_init__(self) -> None:
         for value in (self.probe_id, self.task_id, self.approval_id, self.plan_id):
@@ -329,7 +377,7 @@ class CardProbe:
 
 
 def parse_card(
-    payload: object, policy: ProbePolicy, expected: ProbePlan, now: datetime
+    payload: object, policy: ProbePolicy, expected: ProbePlan | ProbeBinding, now: datetime
 ) -> CardProbe:
     event_id, event = _envelope(payload, policy, "card.action.trigger")
     operator = _object(event.get("operator"))
@@ -360,7 +408,8 @@ def parse_card(
     nonce = _string(value.get("nonce"))
     if re.fullmatch(r"[A-Za-z0-9_-]{32,128}", nonce) is None:
         raise _invalid()
-    if not hmac.compare_digest(nonce, expected.nonce):
+    bound = expected.binding() if isinstance(expected, ProbePlan) else expected
+    if not hmac.compare_digest(hashlib.sha256(nonce.encode()).hexdigest(), bound.nonce_sha256):
         raise ProbeContractError(ContractCode.NONCE_MISMATCH)
     if not isinstance(now, datetime) or now.utcoffset() is None:
         raise _invalid()
