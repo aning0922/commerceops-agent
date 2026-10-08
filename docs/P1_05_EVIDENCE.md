@@ -21,7 +21,7 @@
 
 模式分别标识：合成字段/SDK使用 source_mode=offline_synthetic、model_mode=not_used、approval_mode=simulated_probe；PG技术样例为 source_mode=postgres_technical（外部transport仍offline_stub）、model_mode=not_used、approval_mode=simulated_probe。原P1-02持久恢复为approval_mode=not_applicable。技术结果不表示正式T3/A01–A08/AC10验收。
 
-## 3. 本地最终检查
+## 3. 原冻结 3ae3 的本地检查
 
 环境：macOS arm64；uv0.11.25、CPython3.12.13；项目固定Node24.21.0/Gitleaks8.30.1已SHA256校验。Docker daemon29.6.2、Compose5.3.1；实际PG为17.11 Debian/aarch64，镜像digest沿用已验证基线 `sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826`。
 
@@ -63,3 +63,19 @@ SDK会输出payload/INFO连接URL/异常原文，本项目禁用相应SDK/传输
 本实现只有隔离technical schema；部署owner是高权限角色，runtime无新增DDL/DELETE权限，但不声称生产RLS/DBA隔离完成。没有生产outbox/审批服务/完整备份恢复/正式Graph恢复合同。SDK静态与离线EVENT帧行为不能替代真实wire方式确认；若长连接失败先核对配置/发布，不能自行开HTTP或隧道。
 
 不关闭Issue、不自行合并/APPROVE；最终离线PR须精确SHA CI、独立审核与主控核对。main与Phase1完整验收仍依赖真实G3和其他Gate。
+
+## 6. 已验证 Worker 基线的组合回归
+
+2026-10-08 22:41，主控解锁本轮组合回归。原冻结3ae3已获[独立COMMENT review5458198970](https://github.com/aning0922/commerceops-agent/pull/14#pullrequestreview-5458198970)，离线范围无P1/P2阻断；[基线澄清5458257465](https://github.com/aning0922/commerceops-agent/pull/14#pullrequestreview-5458257465)明确该证据只覆盖原aab4上下文，不能代替新Worker组合。
+
+先核对Worktree干净，fetch后普通merge主控指定、已验证的 `9e8ee8ff3f8fe3f1e665ca502a5f2d275577d346`；核对其[push CI37793721715](https://github.com/aning0922/commerceops-agent/actions/runs/37793721715) SUCCESS。所得组合merge为 `dda228b3c0dd5549c8547ca5a045585e945f675f`，两个parent分别为原P105 head3ae3与9e8。原SDK/技术schema/业务入口实现不变；相对3ae3新增内容只来自已验证P103与控制文档，pyproject/uv.lock差异为零。沒有rebase/amend/force，也没有手工修改Worker/RunnerPort/正式migration/STATUS/CI。
+
+实际组合命令与结果（macOS arm64，沿用上述固定工具/PG镜像）：
+
+- `uv sync --frozen`，成功，88已安装包检查；没有新依赖或锁变更。
+- `uv run --frozen --no-sync python -m scripts.check`，退出0，22:43:23前核对完成：**112 offline passed /45.73秒**，58integration按marker deselected，无skipped；22Markdown，76Python文件格式一致，mypy54文件通过，固定Node/TS通过，npm/Python87锁包已知漏洞0、无skip，dir/index/完整可达history扫描0。
+- `uv run --frozen --no-sync python -m scripts.pg_smoke`，退出0，**22:41:29–22:42:39**：**58真实PG integration passed /13.49秒**，112offline按marker deselected，无skipped。实跑包含19P103、13P102、26P105，未由数量猜测通过；Worker与Feishu在同一固定SDK/websockets锁中回归。
+- 原PG空库/重复migration/setup/grant、约束权限/真实故障、重启、同卷重建、停库非零失败和恢复回读通过。稳定task/thread `8175618f-c896-4641-9077-f895f948ca9f`，三次回读inbox/jobs/audit=1与官方checkpoint一致；随机项目p102-0c137f8e1eba，cleanup_exit=0，自有资源/秘密文件清理完成。
+- 两条上游SDK DeprecationWarning仍保留；没有Graph runtime/模型websocket的新增验证，也没有真实飞书/G3证据。新的精确head/checkout合并context/CI结果记录在PR14与Issue6，不能沿用原CI37789136767代替新head检查；本轮增量独立审查仍由主控安排。
+
+真实Base原client_token重投仍是外部闸门：必须有首次受控明确拒绝的HTTP/业务code、持久token指纹与ProbeID/request hash、第二次使用原键的脱敏SDK请求，以及唯一行/字段读回。当前fake只证明本地原键传递，不制造平台known-rejection条件，不计真实重投通过。资源未准备，#6保持OPEN、G3blocked_external。

@@ -155,3 +155,9 @@ uv run --frozen python -m commerceops.entrypoints.feishu_probe base-update --pro
 Base fields 文件必须含六个指定列，ProbeID 与 --probe-id 相同；State 仅 created/updated/probe_complete，UpdatedAt 为 UTC ISO 时间。prepare 在 PG 固定 token/请求 hash，create_once 只处理 ready；只有明确1254290/1254291已拒绝状态可以由显式 `--retry-known-rejection` 使用原 token 重试。succeeded 不重新创建；1255006停为conflict；unknown/inflight只对账。base-reconcile读完整分页验证唯一行和请求内容；更新未知不能由“行存在”判已更新，须匹配持久 pending_fields/hash。分页异常/重复/未找到不会回到ready。测试表状态改动不反向授权业务。
 
 technical schema 仅含 cards、receipts、event_keys、base_operations。接收记录与事件别名 append-only；runtime 不可DDL/DELETE，卡片与Base技术状态仅必要更新。业务 migration/checkpoint schema不变。PG integration fixtures只在既有 smoke 创建的随机测试项目中初始化该schema和技术身份；清理仅该项目/卷/镜像/秘密文件。
+
+## 10. 组合基线与真实重投证据边界
+
+主控已于2026-10-08解锁普通merge已验证Worker/控制文档集成基线 `9e8ee8ff3f8fe3f1e665ca502a5f2d275577d346`。本轮仅同步基线并实跑组合回归，SDK/uv.lock、技术schema和Feishu实现不变；新head须新CI及独立增量审查，原3ae3/aab4的结果不能覆盖该合并context。实际结果见证据页第6节。
+
+真实Base原client_token重投必须取得：首次受控明确拒绝的HTTP/业务code（当前入口仅允许已得到1254290/1254291后显式重试）、持久ProbeID/request hash与token指纹、第二次使用同一原键的脱敏SDK请求、随后唯一行和字段读回。入口不会自行制造平台拒绝；fake transport只证明本地传入原键。专用资源未准备时继续blocked_external，不尝试限流/并发写等平台条件。
