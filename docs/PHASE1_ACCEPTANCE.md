@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-08（Asia/Shanghai）。状态：**G1/G2 已在集成分支验收，G3 blocked_external；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。**
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 已在集成分支验收，G3 配置准备已推进、完整平台测试仍 blocked_external；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–7节的代码/运行计数保留为原验收快照，最新集成与真实配置准备见第8节及 [STATUS第10节](STATUS.md#10-2026-10-09-真实飞书配置准备与安全补强)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -37,7 +37,7 @@
 |---|---|---|
 | G1 Docker/PostgreSQL | verified_on_integration | 真 Docker daemon/Compose、PG17.11、业务迁移与官方checkpointer setup、约束/受限runtime角色、重复初始化、PG重启、保留卷重建、停库预期非零失败和恢复回读。当前cc06合后CI复验成功；不是备份恢复或生产RLS/DBA安全验收 |
 | G2 LangGraph Checkpoint | verified_on_integration | 官方AsyncPostgresSaver、durability sync、固定workflow_version/interrupt、等待落盘释放全局单槽、同thread跨OS进程恢复、receipt COMMIT与checkpoint间精确SIGKILL重放、异hash拒绝、S01–S03及DB/身份/版本故障。技术receipt不等于正式业务审批/补货R11或跨平台exactly-once |
-| G3 飞书消息/卡片/Base | blocked_external / not_run | 用户明确测试应用、身份/群/Base未准备。真实私聊/群@、新版callback/真机动作、权限/断线/响应时延、Base平台读写及原client_token重投均未执行。SDK fake/真实技术PG/源码与官方文档不计真实平台通过 |
+| G3 飞书消息/卡片/Base | blocked_external / not_run | 2026-10-09已完成真实只读Bot身份诊断、专用PG和原生UI探针表准备；资源标识/真人范围及运行授权仍待补。真实私聊/群@、新版callback/真机动作、断线/响应时延、Base平台读写及原client_token重投均未执行。SDK fake、技术PG、只读身份API或UI建表均不等于完整Gate通过 |
 
 G2的最终合后CI：112offline/57.34秒、79真实PG/74.91秒，23Markdown/mypy59、三层敏感扫描、90Python锁包/npm已知漏洞查询、Node工具/TypeScript和完整G1均成功；保留两条上游SDK DeprecationWarning，无skipped冒充通过。
 
@@ -97,3 +97,12 @@ uv run --frozen python -m scripts.pg_smoke
 ROADMAP的Phase2确定性库存范围与3–4工作日计划量暂不调整：本阶段已消除PG/Graph底座的主要验证不确定性，但没有新的库存业务估算证据，外部资源等待也不能给可靠完成日期。后续需要以G3结果/用户新阶段授权重估，不能从当前底座进度推导新交付承诺。
 
 主控继续完成现阶段证据/报告审核与集成；所有安全独立工作完成后，如专用G3资源仍缺，按Goal阻塞审计报告解锁条件，目标保持未完成。用户准备好资源后接续原P1-05执行者及同一任务链，不重复派发已有实现，不降低Gate或自动切换Phase。
+
+
+## 8. 2026-10-09 接续事实
+
+已保留并接续原P1-05会话/Worktree，用户本地手填凭据，机器人身份诊断真实HTTP200/code0；专用PG初始化与受限角色检查完成，新P1_05_Probe六文本字段由原生UI建立。原六项API权限保持；Wiki底层Base标识、tenant/用户/群范围尚未全部核实，verify-config未通过，正式Gateway/消息/卡片/Base记录测试未运行。具体模式、时间、复核限度和解锁条件见[STATUS第10节](STATUS.md#10-2026-10-09-真实飞书配置准备与安全补强)，不公开真实资源值或秘密。
+
+原P1-02另完成[#20](https://github.com/aning0922/commerceops-agent/issues/20)凭据路径安全补强，经[PR21独立审查](https://github.com/aning0922/commerceops-agent/pull/21#issuecomment-6066333962)、定向28项和实际CI后合入41323ec。其[合后push CI37824425891](https://github.com/aning0922/commerceops-agent/actions/runs/37824425891)140offline/79真实PG成功；[最终Draft PR19](https://github.com/aning0922/commerceops-agent/pull/19)的[main候选CI37824438717](https://github.com/aning0922/commerceops-agent/actions/runs/37824438717)也成功，但main仍a0d521e。新报告提交自身的审核/CI/集成记录继续由Issue7追加，不循环改写自身提交事实。
+
+上述新事实不改变第7节阶段判定：G3全部必要平台证据仍缺，不推荐全Phase1通过、main合并或进入Phase2。

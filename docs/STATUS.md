@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 已内部集成，P1-04/G2 已内部集成验收，P1-05 离线已内部集成、真实 G3 外部阻塞；P1-06 正在整理阶段证据**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 已在集成分支验收，P1-05 已完成安全本地配置、真实机器人身份诊断、专用 PG 和探针表准备；真实 G3 仍待资源标识、测试身份范围及联调授权；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–8节保留规划、交付和批准前的历史证据；其逐项等待用户/main 的旧合同由第9节及 GitHub 当前已批准合同取代。阶段实际运行状态以第9节与 Issue/PR 最新记录为准。
+第1–9节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第10节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -192,3 +192,22 @@ SDK类型/dispatcher/WS帧/出站HTTP为离线替身，PG技术接收/决定/幂
 全局Worker可以跨组织领取，P1-04须依据RunRequest的organization/shop scope执行服务端校验，不能把WorkerCLI组织参数当领取过滤或用户授权。跨PID namespace无supervisor适配时继续保守阻止恢复；锁释放、lease过期和stopped均非旧进程死亡证明。任务级事实以GitHub当前记录为准，本节是重要交付快照。
 
 P1-04/G2最终集成：PR17冻结9e21与mergecc06的tree均f507db243718452555b458ccaf7a4dc948cdf710；[独立Review5459150452](https://github.com/aning0922/commerceops-agent/pull/17#pullrequestreview-5459150452)实际冻结安装/112offline/79真实PG45.11秒/G1/5必需进程场景，own Docker cleanup0/no残留。主控读取[PRCI37800561828](https://github.com/aning0922/commerceops-agent/actions/runs/37800561828)的ab32f46=9e21into c59、112offline71.51秒/79真实PG82.96秒与6条G2 evidence；[合后37802303314](https://github.com/aning0922/commerceops-agent/actions/runs/37802303314)真实112offline57.34秒/79PG74.91秒、23Markdown/mypy59/扫描/90Python及npm已知漏洞0/G1成功。一次checkpoint权限故障测试错误等待barrier已解释一轮修复，未放宽timeout/跳过窗口；旧过程计数不抵最终源码。G1/G2已验收仅在集成分支，真实G3未执行，main当前a0；阶段判定与解锁条件见验收报告。
+
+
+## 10. 2026-10-09 真实飞书配置准备与安全补强
+
+本节更新阶段事实，保留第9节的 2026-10-08 快照；任务细节仍以 [Issue #6](https://github.com/aning0922/commerceops-agent/issues/6)、[Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 最新记录为准。main 仍为 `a0d521ed79505287fa61bb6ddf82640e97824257`；已验证集成基线为 `41323ec0d8a4ad1bd1b9a6eb2b70fc820f67ae94`。
+
+| 项目 | 实际结果及证据边界 |
+|---|---|
+| 凭据准备补强 / [#20](https://github.com/aning0922/commerceops-agent/issues/20) | 原 P1-02 会话在原 Worktree 接续；[PR #21](https://github.com/aning0922/commerceops-agent/pull/21) 仅改准备脚本、定向测试和开发说明，独立[审查评论](https://github.com/aning0922/commerceops-agent/pull/21#issuecomment-6066333962)无阻断，独立28项定向测试通过；普通合入41323ec，Issue已关闭 |
+| 最新集成 CI | [push37824425891](https://github.com/aning0922/commerceops-agent/actions/runs/37824425891)实际checkout41323ec并成功：140offline/57.02秒、79真实PG/65.37秒，24Markdown、mypy60及完整G1/G2/敏感和漏洞检查通过；两项既有SDK弃用warning保留 |
+| 最终阶段候选 | [PR #19](https://github.com/aning0922/commerceops-agent/pull/19)仍为Draft/Open；[CI37824438717](https://github.com/aning0922/commerceops-agent/actions/runs/37824438717)实际checkout23ef5e7（41323ec合入main a0）成功：140offline/71.41秒、79真实PG/79.36秒。这是候选上下文，不是main已合并或G3已通过 |
+| 唯一配置目录 | 原P1-05会话及WT4094保留，接续分支codex/phase1-05-live-probe；联调操作目录为该WT，实际Gateway拟在Compose运行容器的/app内执行。gitignored本地JSON字面量env配置及独立AppSecret文件均0600，目录0700；显式加载，Compose使用受控空env文件，过滤COMPOSE_*，不跨WT复制配置 |
+| 真实只读机器人诊断 | 用户手填AppSecret/AppID后，官方bot info于01:37:03–01:37:06（北京时间）实际返回HTTP200/business code0，CPython3.12.13/lark-oapi1.7.3。经独立审查的诊断只将最小身份结果保存在本地并核对AppID；[回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6065776671)。不等于消息、卡片或Base Gate |
+| 专用PG准备 | 01:46–01:51实际执行迁移→官方checkpoint setup→受限角色授权→feishu_probe schema；PG17.11 healthy、revision0001_task_foundation，commerceops_app实际连接/权限检查通过。业务身份和probe数据仍为空；仅该PG服务运行，无host端口映射，专用数据卷保留。独立复核源码、文件权限和Docker元数据；没有把未独立连接DB的复核说成独立SQL实跑 |
+| Base技术表 | 02:01经原生UI自行定位指定台账，创建P1_05_Probe，ProbeID/ProbeMarker/SourceMode/ApprovalMode/State/UpdatedAt六文本字段已保存；原ReplenishmentTasks保留。只有真实UI字段证据，SDK字段/应用访问验证尚未执行；没有Base记录创建或更新 |
+| 当前阻塞 | 台账是Wiki链接，Wiki节点标识不是Base app_token；底层Base标识尚待受控取得。tenant_key、指定群chat_id、本应用用户open_id及A/B/C真人范围仍待核实，PG身份映射未seed。原六项API权限未扩大，未调用未授权Wiki/通讯录/群列表API |
+| 正式入口检查 | 本地准备检查verify-config返回2/INCOMPLETE_CONFIG，尚未执行完整结构验证，不能写成passed；EXTERNAL_READY=false。有限只读身份采样只在准备/独立审查阶段，真实长连接仍待明确范围和运行授权；正式Gateway未启动 |
+
+G1/G2保持verified_on_integration；G3必要消息/卡片回调/Base读写和原键重投仍为not_run。离线SDK、真实只读Bot API、原生UI、真实PG和后续真人平台测试分别记账。#6/#7保持OPEN，不推荐全阶段通过或进入Phase2。最终main合并仍须所有必要Gate、独立最终审查、实际CI及合后核对，现有委托不降低这些条件。
