@@ -1,8 +1,9 @@
 name: Foundation quality
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
-    branches: [main]
+    branches: [main, phase/1-integration]
 permissions:
   contents: read
 concurrency:
