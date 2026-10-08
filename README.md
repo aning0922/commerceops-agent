@@ -2,7 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 首次外部架构审核有条件通过，本次文档修订等待最终确认。尚无业务实现、可运行服务或通过的业务测试，不开始 Phase 1。**
+**当前阶段：Phase 0 设计与审核修订已收口，作为后续开发的设计基线。尚无业务实现、可运行服务或通过的业务测试；Phase 1 未启动，等待另行授权。**
+
+收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
 推荐方案：Python + FastAPI + Pydantic、LangGraph、PostgreSQL 持久任务队列与独立 Worker、飞书官方 SDK、MockCommerce，随后接入 WooCommerce 测试店铺。Next.js 提供精简操作台；pgvector 和 RAG 延后至 P1。
 
@@ -24,10 +26,10 @@
 - 飞书使用企业自建应用、新版卡片回调与长连接；真实租户接入仍需 Phase 1 技术验证。
 - Mock 数据、受控模型替身和真实测试店数据全程标识；不能用离线测试冒充真实联调。
 
-当前仓库仅有设计文档及基础文件。启动命令、依赖锁文件和 Compose 将在评审通过后的阶段创建。
+当前仓库仅有设计文档及基础文件。启动命令、依赖锁文件和 Compose 将在用户另行授权开发阶段后创建。
 
 Phase 1 开始即建立基础 CI/敏感检查，尽早完成 Docker、LangGraph Checkpoint、飞书真实回调三个闸门；当前仅规划。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
 
 ## 版本管理与审核
 
-GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 作为首次 `main` 提交供架构审核；从下一阶段起使用独立分支和 PR，修复外部审核问题，经用户确认后合并。具体规范见 [AGENTS.md](AGENTS.md)。GitHub 接入不代表架构已通过，也不授权开始 Phase 1。
+GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段继续使用独立分支和 PR，修复外部审核问题，经用户确认后合并。具体规范见 [AGENTS.md](AGENTS.md)。本次收口不授权开始 Phase 1。
