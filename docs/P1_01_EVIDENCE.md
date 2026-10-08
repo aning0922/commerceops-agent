@@ -101,8 +101,10 @@
 
 移除上游 allowlist 的第一次真实本仓扫描暴露两处格式误报（数据模型公开字段行、规则自身声明行），退出 1，未写作通过。随后增加上面两个精确 AND 豁免；没有排除 docs 或整个 `.gitleaks.toml`。源码 location 会把前导换行包含在 Line 中，第一次精确豁免未匹配、检查仍失败，修正为只允许这个换行后重新验证。新扫描 dir/index/git 实际 0 命中。规则来源与派生 hash、inventory、两条豁免行 hash 见 [provenance](../scripts/gitleaks_rules.json)，MIT 通知见 [LICENSE](../third_party/gitleaks/LICENSE)；源码与生成步骤可重复核对，没有降低 regex/entropy 或移除规则。
 
-本地修复相关验证：`uv run --frozen python -m pytest tests/test_quality_gates.py` 实际 34 passed（38.98 秒），包含原 9 项与新增 25 项；ruff/format/mypy strict（19 文件）通过。文档/转换器绝对 marker 细化后，实际运行一次 `uv run --frozen python -m scripts.check`，退出 0：42 passed（41.51 秒）、mypy 19 文件、16 Markdown、ruff/format、Node frozen install/typecheck 通过；dir/index/git 0 命中；Python57包和 npm 查询均 0 已知漏洞、0 跳过。新 head Actions 尚未运行，本段不将旧 head 的 CI 当作修复成功。
+本地修复相关验证：`uv run --frozen python -m pytest tests/test_quality_gates.py` 实际 34 passed（38.98 秒），包含原 9 项与新增 25 项；ruff/format/mypy strict（19 文件）通过。文档/转换器绝对 marker 细化后，实际运行一次 `uv run --frozen python -m scripts.check`，退出 0：42 passed（41.51 秒）、mypy 19 文件、16 Markdown、ruff/format、Node frozen install/typecheck 通过；dir/index/git 0 命中；Python57包和 npm 查询均 0 已知漏洞、0 跳过。本地记录时尚未取得修复 head 的 Actions，后续真实结果见下段；旧 head CI 不替代此证据。
 
 二进制/不可达对象/外部 Gate 边界保持开发说明：不承诺归档递归、加密或任意二进制嵌入的完整检测；以 Git 属性标记为 binary 的文本仍强制检测。没有新增业务实现或改主控阶段文件；PR #9 保持 OPEN，等待独立复审、用户确认合并及 main 证据核对。
 
 审核修复本地记录时间：2026-10-08T18:00:45+08:00。初次安装/业务边界证据保留；本轮只修敏感扫描与必要工具/回归，不开展下一任务。新 commit/同 head CI 以 PR 与 Issue 的逐项修复交付记录核对。
+
+修复 commit `c9ed5f64e68d3c1dd3a4b036950c0ac485d1a94c` 的实际 [Actions run 37760638043](https://github.com/aning0922/commerceops-agent/actions/runs/37760638043) 返回 SUCCESS：2026-10-08 18:01:04–18:02:11（Asia/Shanghai），Ubuntu24.04/Linux x64，job67秒，annotations=0。42 passed（38.34秒）、mypy strict19文件、16文档、锁安装/ruff/format/Node tooling均通过；修复后的dir/index/git扫描实际0命中，Python57包/npm已知漏洞查询实际0命中。此后仅文档证据提交的最终head/run由PR checks与Issue逐项交付评论核对；不把c9ed5f6的CI冒充最终head通过。三项修复等待原独立审核会话复审，不自行给出approval或合并。
