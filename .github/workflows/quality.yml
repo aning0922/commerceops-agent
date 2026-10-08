@@ -11,7 +11,7 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,3 +32,5 @@ jobs:
         run: uv sync --frozen
       - name: Foundation checks
         run: uv run --frozen python -m scripts.check
+      - name: Real PostgreSQL migration setup constraints and persistence
+        run: uv run --frozen python -m scripts.pg_smoke
