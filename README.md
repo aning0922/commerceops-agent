@@ -2,9 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 已收口；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 已内部集成，P1-04 已接续 G2 实施与测试，P1-05 离线已内部集成验收、真实 G3 外部阻塞。main 仍为 P1-01 基线，G2/G3 尚待验收。用户已委托主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并，不进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
+**当前阶段：Phase 0 已收口；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 已内部集成，P1-04/G2 已内部集成验收，P1-05 离线已内部集成、真实 G3 外部阻塞；P1-06 正在整理阶段证据。main 仍为 P1-01 基线，G1/G2 已在集成分支验收，G3 尚待真实平台证据。用户已委托主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并，不进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
 
-任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；主控按用户已委托的 Phase 1 合并门禁裁决；真实 Gate、独立审核和实际 CI 齐备前不确认最终 main 合并。
+任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)；阶段证据、判定与外部解锁清单见 [验收报告](docs/PHASE1_ACCEPTANCE.md)。实现与实际测试通过独立 PR 交付；主控按用户已委托的 Phase 1 合并门禁裁决；真实 Gate、独立审核和实际 CI 齐备前不确认最终 main 合并。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
