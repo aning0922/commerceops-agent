@@ -192,6 +192,7 @@ dev = [
     { name = "pip-audit" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "tomli-w" },
 ]
 
 [package.metadata]
@@ -211,6 +212,7 @@ dev = [
     { name = "pip-audit", specifier = "==2.10.1" },
     { name = "pytest", specifier = "==9.1.1" },
     { name = "ruff", specifier = "==0.16.10" },
+    { name = "tomli-w", specifier = "==1.2.0" },
 ]
 
 [[package]]

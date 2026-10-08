@@ -1,10 +1,12 @@
 """当前可提交内容 + 全部可达 Git 历史；只输出命中位置，丢弃扫描器原始输出。"""
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
 import tempfile
+import tomllib
 from pathlib import Path
 
 from scripts.repository_files import indexed_files, versionable_files
@@ -24,7 +26,32 @@ def sensitive_path(path: Path) -> bool:
     )
 
 
+def validate_rules() -> None:
+    """不能依靠覆盖 extend 的空 allowlist；校验无继承的完整配置及两处可审查精确行豁免。"""
+    content = (ROOT / ".gitleaks.toml").read_bytes()
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    config = tomllib.loads(content.decode())
+    rules = config["rules"]
+    inventory = "\n".join(sorted(rule["id"] for rule in rules)).encode()
+    if (
+        hashlib.sha256(content).hexdigest() != provenance["config_sha256"]
+        or len(rules) != provenance["rule_count"]
+        or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
+        or any(key in config for key in {"extend", "allowlist", "allowlists"})
+        or any("allowlist" in rule for rule in rules)
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 2
+        or {rule["id"] for rule in rules if rule.get("allowlists")}
+        != {
+            "generic-api-key",
+            "aws-amazon-bedrock-api-key-short-lived",
+        }
+        or len(provenance["exceptions"]) != 2
+    ):
+        raise ValueError("invalid scanner rules")
+
+
 def scan(root: Path) -> int:
+    validate_rules()
     if not SCANNER.is_file():
         print("ERROR: 先执行 python -m scripts.bootstrap_tools")
         return 2
@@ -43,6 +70,16 @@ def scan(root: Path) -> int:
         return 2
     files = versionable_files(root)
     index = indexed_files(root)
+    # Gitleaks 会另读 source/.gitleaksignore；检查包含 ignored/untracked 的根路径。
+    ignore_path = root / ".gitleaksignore"
+    if (
+        ignore_path.exists()
+        or ignore_path.is_symlink()
+        or any(path.name == ".gitleaksignore" for path in files)
+        or any(path.name == ".gitleaksignore" for _, _, path in index)
+    ):
+        print("BLOCK scanner-ignore-policy: .gitleaksignore 不允许参与扫描")
+        return 1
     blocked = [str(p) for p in files if sensitive_path(p) or (root / p).is_symlink()]
     blocked += [str(path) for mode, _, path in index if mode not in {"100644", "100755"}]
     for blocked_path in sorted(set(blocked)):
@@ -69,12 +106,23 @@ def scan(root: Path) -> int:
             destination = indexed / path
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(blob.stdout)
+        # 扫描器 source 使用隔离入口；原仓库根文件不会被自动读取。
+        history = staging / "history"
+        history.mkdir()
+        gitdir = subprocess.run(
+            ["git", "rev-parse", "--absolute-git-dir"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        (history / ".git").write_text(f"gitdir: {gitdir}\n")
         ignore = staging / "empty-ignore"
         ignore.touch()
         for scope, mode, source in [
             ("dir", "dir", snapshot),
             ("index", "dir", indexed),
-            ("git", "git", root),
+            ("git", "git", history),
         ]:
             report = staging / f"{scope}.json"
             command = [
@@ -95,13 +143,13 @@ def scan(root: Path) -> int:
                 str(ignore),
             ]
             if mode == "git":
-                command += ["--log-opts=--all --full-history -m"]
-            process = subprocess.run(command, capture_output=True)
+                command += ["--log-opts=--all --full-history -m --text --no-textconv --no-ext-diff"]
+            process = subprocess.run(command, cwd=staging, capture_output=True)
             if process.returncode not in (0, 1) or not report.exists():
                 print(f"ERROR {scope}: 扫描器未成功完成（原始输出已抑制）")
                 return 2
             findings = json.loads(report.read_text()) or []
-            if findings and process.returncode == 0:
+            if not isinstance(findings, list) or bool(findings) != bool(process.returncode):
                 print(f"ERROR {scope}: 命中与退出码不一致")
                 return 2
             for item in findings:
@@ -129,7 +177,7 @@ def main() -> None:
     args = parser.parse_args()
     try:
         code = scan(args.repo.resolve())
-    except (OSError, ValueError, subprocess.SubprocessError):
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # 工具错误也 fail closed，避免异常包含输入秘密。
         print("ERROR: 敏感检查未完成（异常内容已抑制）")
         code = 2

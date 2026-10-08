@@ -62,7 +62,15 @@ PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
 
 当前工作区扫描集合是 `git ls-files --cached --others --exclude-standard`：含已跟踪文件和未忽略的新文件。已跟踪敏感文件即使在 `.gitignore` 中也会阻断；本地未跟踪且忽略的 `.env`/`.tools`/`.audit` 等不进入可提交扫描。秘密只应保留在这样的本地配置中。另从 index 的 Git blob 构建暂存内容快照，防止已暂存内容与工作区不同（例如暂存秘密后只清理工作区）漏检。敏感文件名（`.env*`，明确 `.example` 模板除外；私钥/证书容器等）和可提交 symlink 会阻断。
 
-历史扫描使用 `--all --full-history -m`，含所有可达 refs、root commit 和 merge 相对父提交的差异；浅克隆直接失败。不可达/已被远端删除的对象不属于“可达历史”，不会声称已扫描。Gitleaks 固定 8.30.1 的内置规则，无项目级 allowlist、baseline 或 docs 整体豁免；禁止内联 `gitleaks:allow` 和 `.gitleaksignore` 绕过。任何将来的误报豁免须具体、可审查。
+历史扫描使用 `--all --full-history -m --text --no-textconv --no-ext-diff`，含所有可达 refs、root commit 和 merge 相对父提交的原始差异；强制文本 patch，不能由 `.gitattributes` 的 `-diff`、textconv 或 external diff 掩盖历史文本。浅克隆直接失败。不可达/已被远端删除的对象不属于“可达历史”，不会声称已扫描。
+
+Gitleaks 8.30.1 会额外读取 source 根的 `.gitleaksignore`，显式指定空 ignore 文件并不能关闭这个行为。脚本拒绝仓库根存在的该文件（包括未跟踪、被 `.git/info/exclude` 等忽略的文件和 symlink），也拒绝可提交/index 中的同名文件。三个扫描 source 均在临时目录；历史入口只有指向原 Git 元数据的 `.git` 指针，扫描器不直接以原工作区根为 source，因而不会自动加载其 ignore 文件。没有 baseline，`--ignore-gitleaks-allow` 禁止内联绕过。
+
+[.gitleaks.toml](../.gitleaks.toml) 是固定官方配置的完整规则副本，不使用 `extend/useDefault`。已删除上游 1 个全局和 13 个规则级 allowlist，保留全部 222 条规则的正向 regex/path/entropy 等条件；没有锁文件、SVG 或 docs 的整类排除。仅保留两个明确误报豁免，均为指定规则 + 指定文件路径 + 精确整行的 AND：`generic-api-key` 在 `docs/DATA_MODEL.md` 的公开 identities 字段说明行；`aws-amazon-bedrock-api-key-short-lived` 在 `.gitleaks.toml` 的该规则自身固定 regex 声明行。只允许扫描器 location 带上的一个前导换行，不允许任意附加内容。相同文件的其他行、同一规则的合成值仍阻断；不能按路径跳过整个文件。豁免依据与行 SHA256 可审查于 [gitleaks_rules.json](../scripts/gitleaks_rules.json)，Gitleaks MIT 通知保留在 [LICENSE](../third_party/gitleaks/LICENSE)。后续豁免必须作为配置/证据变更评审。
+
+规则生成命令是 `uv run --frozen python -m scripts.vendor_gitleaks_rules <已下载的上游配置>`，只接受官方 v8.30.1 配置 SHA256 `e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf`，不在 CI 动态下载或继承默认配置。生成时校验 TOML 语义 round-trip；运行时校验入库配置 hash、222 条规则 inventory 与豁免结构，变更不符会 fail closed。tomli-w 1.2.0 为显式固定 dev 依赖，已包含在漏洞检查。
+
+当前工程的锁文件和 UTF-8 文本资产实际进入 dir/index/history 规则检测。原始二进制仅有扫描器能识别的特征检查，不承诺压缩包内条目、图片/PDF 嵌入内容、加密或任意编码数据的完整覆盖；未启用归档递归。私钥/证书容器的文件名策略仍独立阻断。此边界不用于排除以 `-diff` 标记的文本，Git 历史已强制原始文本差异。
 
 扫描器原始 stdout/stderr 被捕获并丢弃，临时 JSON 在退出后删除；用户输出只含 scope（dir/index/git）/rule/file/line/commit 和计数，不含 Secret/Match。真实凭据命中时停止推送，只报告位置/类别，并由用户决定轮换和历史处理；不强推清历史。合成测试运行在临时 Git 仓库，运行时拼接无效随机值，既不提交到本仓库也不联系 GitHub 凭据 API。
 
