@@ -33,3 +33,7 @@ Phase 1 开始即建立基础 CI/敏感检查，尽早完成 Docker、LangGraph 
 ## 版本管理与审核
 
 GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段继续使用独立分支和 PR，修复外部审核问题，经用户确认后合并。具体规范见 [AGENTS.md](AGENTS.md)。本次收口不授权开始 Phase 1。
+
+## P1-01 工程底座使用
+
+本任务的本机 liveness 入口、锁文件安装和统一质量检查见 [开发说明](docs/DEVELOPMENT.md)，实际技术运行与保留边界见 [实施证据](docs/P1_01_EVIDENCE.md)。这份底座交付不代表业务、数据库恢复或真实平台 Gate 已通过。

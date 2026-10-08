@@ -22,3 +22,6 @@ backups/
 *.log
 *.pem
 *.key
+
+.tools/
+.audit/

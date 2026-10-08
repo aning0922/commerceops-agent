@@ -1,0 +1,3 @@
+# 固定 Gitleaks 8.30.1 的内置规则；无项目级豁免。
+[extend]
+useDefault = true
