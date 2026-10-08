@@ -1,6 +1,6 @@
 # 整体架构
 
-状态：Phase 0 推荐设计，待评审。技术事实来源见 [调研记录](RESEARCH.md)。
+状态：Phase 0 首次外部审核有条件通过后的修订设计，待最终确认。技术事实来源见 [调研记录](RESEARCH.md)。
 
 ## 1. 部署形态与技术选择
 
@@ -77,19 +77,25 @@ PostgreSQL 内分为业务表和 checkpointer 管理表（推荐独立 schema）
 
 ## 4. 队列与并发
 
-jobs 至少包含 kind、task_id、dedupe_key、status、attempts、available_at、lease_until、lease_owner、lease_epoch。通过短事务 `FOR UPDATE SKIP LOCKED` 领取，提交后才执行网络/模型调用。初始租约 60 秒、每 15 秒心跳，参数可调；续租和完成操作必须匹配 owner+epoch。重试沿用同一逻辑键，只增加 attempt。
+**初始基线为单 Worker、全局单 Graph 执行并发，从 Phase 1 延续至 M1/M2。** analyze/resume/recover 共用一个串行执行入口；不同 task 也不同时运行图，不启用图内并行分支或并行 Tool。等待人工审批时 checkpoint 落盘并释放执行槽，其他任务可继续。API/Gateway 独立接收入站并落库，不能直接调用 graph。
 
-P0 默认一个 Worker，最多 2 个读分析并发。每个 graph thread 的整次调用还需独占的 PostgreSQL session advisory lock（独立连接持有，绝不使用连接池的随意归还连接），避免同一任务的 analyze/resume/recover jobs 同时操作 checkpoint。过期租约不等于锁已释放；回收者拿不到锁不得接管。
+jobs 至少包含 kind、task_id、dedupe_key、status、attempts、available_at、lease_until、lease_owner。短事务领取后再执行网络/模型调用；可保留 `FOR UPDATE SKIP LOCKED` 领取形式，但不据此宣称支持多消费者。初始租约 60 秒、15 秒心跳，续租/完成校验 owner；重试沿用同一逻辑键。租约用于检测遗留任务，不负责多 Worker 自动接管。
 
-若持锁连接失效，立即取消本次运行；所有业务写再次检查租约 epoch。官方 checkpointer 不原生提供本项目的 fencing，不能声称仅加 epoch 就解决 checkpoint 竞争。P0 对无法证实旧运行终止的线程进入 `needs_attention`，停止旧 Worker 后才恢复；不热启动多个同线程写者。Phase 1 需用双 Worker 和进程终止试验验证该边界。
+用一个数据库 session advisory lock 作 Worker 启动互斥，专用连接在进程存活期间持有，第二个误启动进程拿不到锁即退出，不做任务分摊。锁连接失效时停止领取、取消当前调用并退出；若无法证实旧进程结束，标记 needs_attention，先停止/确认旧容器终止再启动恢复。部署禁止滚动重叠和仅按 lease 过期启动替代 Worker。业务写仍复核所有权，官方 checkpoint 不被假设具有 fencing。
 
-Outbox 按目标表/消息串行发送。Bitable 同一 table_id 只允许一个发送者；任务内的投影版本递增，旧版本不得覆盖新状态。小规模轮询足够，暂不用 LISTEN/NOTIFY、Redis、Kafka、Celery、Temporal。
+Phase 1 只验证单实例启动互斥、单执行槽、待审批释放槽、进程确实终止后的 checkpoint 恢复与业务提交后重放。保留数据库唯一约束、审批 CAS 和幂等：单 Worker 并不消除并发 HTTP 审批和重复消息。
+
+**后续并发扩展单列为 C-EXT 验证项，不是 Phase 1 或 M1/M2/M3 的交付前置。** 有吞吐证据并经评审后，才设计 per-thread 锁、lease_epoch/fencing、多 Worker 领取、旧进程失联接管及 checkpoint 双写防护；对应测试见 TEST_PLAN R02–R04。不能通过调大一个并发参数直接开启。
+
+Outbox 由同一 Worker 在图调用之间串行处理，不新增发送服务；网络失败持久延期，不能无限占槽。Bitable 同一 table_id 只允许一个发送者；任务内投影版本递增，旧版本不得覆盖新状态。扫描恢复与过期任务也在该串行调度循环处理。小规模轮询足够，暂不用 LISTEN/NOTIFY、Redis、Kafka、Celery、Temporal。
 
 ## 5. API 与错误合同
 
-规划端点：`POST /tasks`（客户端请求键、返回 202/task_id），`GET /tasks/{id}`，`GET /tasks/{id}/report`，`GET /tasks/{id}/events`，`POST /approvals/{id}/decision`，`POST /tasks/{id}/retry`（仅允许恢复操作），`GET /health/live` 与 `/health/ready`。飞书 HTTP 回调仅作必要时的备选入口，不预先部署公网服务。
+规划端点：`POST /tasks`（客户端请求键、返回 202/task_id），`GET /tasks/{id}`，`GET /tasks/{id}/report`，`GET /tasks/{id}/events`，`POST /approvals/{id}/decision`，`POST /tasks/{id}/retry`（仅允许恢复操作），`POST /replenishment-items/{id}/resolve`（显式完成/关闭），`GET /health/live` 与 `/health/ready`。飞书 HTTP 回调仅作必要时的备选入口，不预先部署公网服务。
 
-统一错误：`code, safe_message, retryable, task_id?, trace_id, details`。常见类别包括 `UNAUTHORIZED_ACTOR`、`APPROVAL_EXPIRED`、`PLAN_CHANGED`、`DATA_INCOMPLETE`、`UPSTREAM_TIMEOUT`、`RATE_LIMITED`、`UNKNOWN_EXTERNAL_RESULT`、`BUDGET_EXCEEDED`。4xx 校验/授权错误不通过重试掩盖；未知外部写结果是单独状态，不归类为普通超时。
+resolve 请求必须有 action=complete/close、reason、expected_version、request_key，由当前同店铺 approver 操作；状态及审计/outbox 同事务更新，不经过 LLM。终态不重开，旧执行回执永久去重；下一周期须新分析和新审批。具体状态及错误语义见 DATA_MODEL T6。
+
+统一错误：`code, safe_message, retryable, task_id?, trace_id, details`。常见类别包括 `UNAUTHORIZED_ACTOR`、`APPROVAL_EXPIRED`、`PLAN_CHANGED`、`ASSUMPTION_ACK_REQUIRED`、`DECISION_CONFLICT`、`ITEM_STATE_CONFLICT`、`DATA_INCOMPLETE`、`UPSTREAM_TIMEOUT`、`RATE_LIMITED`、`UNKNOWN_EXTERNAL_RESULT`、`BUDGET_EXCEEDED`。4xx 校验/授权错误不通过重试掩盖；未知外部写结果是单独状态，不归类为普通超时。
 
 API 禁止接受客户端传来的 trusted actor/role/approved=true 作为授权。Web 第一版使用少量预置账号的服务端会话（密码哈希、HttpOnly/SameSite Cookie、CSRF 防护、允许源列表），会话映射到同一 principal；不在浏览器存平台密钥。开发身份替身只在显式 test 模式启用并醒目标识，不能用于真实审批验收。飞书 OAuth 登录延后，不成为 P0 前置条件。
 
@@ -103,6 +109,10 @@ JSON 日志用标准 logging 即可；统一 task_id、trace_id、job_id、tool_
 
 开发 Compose 使用持久卷、健康检查和一次性 migration/setup 任务；数据库不默认暴露公网；配置由 `.env`/secret 文件注入，仓库只提交占位模板。运行时数据不进 Git；备份/恢复文档与演练在 P0 验收阶段完成。外部 HTTPS 校验证书，不为了本地便利关闭 TLS 验证。
 
+Phase 1 开始即规划基础 CI：PR 与 main push 运行文档校验、敏感信息扫描；后端最小骨架出现后增加 lint/typecheck、离线 pytest 和真实 PG checkpoint smoke。只读仓库权限、不提供真实飞书/Woo/模型密钥；缺失实测凭证保持明确的未验证状态。后续新增前端/RAG 时增量扩展 CI，不等到 Phase 5 才建立流水线；本轮只修订设计，不创建 workflow 文件。
+
 ## 7. 明确简化
 
 暂不引入向量库服务、独立调度服务、多 Agent 平台、MCP、通用 Skill 执行器、Kubernetes、全链路可观测平台。P1 定时器沿用 PG jobs，`(schedule_id, due_at)` 唯一键；本地关机不能按时发日报，恢复后按“每个计划最多补最近一期”策略并明确迟到。外部要求全天运行时再讨论部署。
+
+Phase 6 的求职展示可增加受限动态只读工具组合，复用同一主 Agent、ToolSpec 与串行 Worker。读工具由模型选择，边界/预算/计算由程序控制；写工具及完成/关闭接口均不进入可选集合。详见 AGENT_DESIGN 第 9 节，不改变 P0 审批工作流。

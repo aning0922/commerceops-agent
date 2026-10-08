@@ -58,17 +58,34 @@ SDK 调试日志可能打印回调 payload，联调也需脱敏；不在 INFO/DE
 
 ## 4. 卡片与快速审批
 
-审批卡片包含 task_id、计划版本、数据窗口/来源标识、库存观测时点、最多 20 条 SKU/建议数量、确定性风险、规则参数、假设、审批期限，以及明确的“创建内部补货任务”按钮。完整批准范围必须能在卡片看到；大批量先缩小范围，不能只显示 top-N 却批准隐藏条目。
+审批卡片包含 task_id、计划版本、数据窗口/来源标识、库存观测时点、最多 20 条 SKU/建议数量、确定性风险、规则参数、假设、审批期限。无未知在途时使用普通“批准创建内部补货任务”；存在未知在途时必须使用下述专用确认动作。完整批准范围必须能在卡片看到；大批量先缩小范围，不能只显示 top-N 却批准隐藏条目。
 
-JSON 2.0 的 elements 放在 body 内，unsupported 属性会报错；共享更新不能用于隐藏不同用户的敏感信息。批准/拒绝按钮 value 用对象：`approval_id, plan_id, plan_hash, action, nonce`，没有客户端决定的执行数量或角色。nonce 在数据库验证并绑定审批，不能替代平台身份认证。
+JSON 2.0 的 elements 放在 body 内，unsupported 属性会报错；共享更新不能用于隐藏不同用户的敏感信息。按钮 value 用对象：`approval_id, plan_id, plan_version, plan_hash, action, acknowledged_assumption_keys, nonce`，没有客户端决定的执行数量或角色。nonce 在数据库验证并绑定审批，不能替代平台身份认证。
 
-handler 在 3 秒内完成 T3 或返回明确失败/处理中 Toast；SDK 负责长连接响应帧，不能把 Webhook 的 HTTP 200 机械套进 ws handler。成功记录决定后返回“已记录审批，执行中”，最终执行结果异步通知。
+### 4.1 在途未知卡片合同
+
+逐项展示未知在途 SKU、建议数量和“按 0 估算可能造成重复补货；仅创建内部工作项”的风险。选择明确命名的两个按钮，避免默认勾选及额外的中间确认状态：
+
+| 可见动作 | action | 确认键 | 服务端结果 |
+|---|---|---|---|
+| 确认在途未知按 0 估算并批准本版本 | `approve_with_assumptions` | 当前计划全部 `inbound_unknown_zero:{sku_key}` | T3 校验后一次保存确认+approved+resume job |
+| 拒绝此假设并拒绝计划 | `reject_assumptions` | 空集合 | T3 保存 rejected，原因 `INBOUND_ASSUMPTION_DECLINED`；零补货 |
+
+确认键和按钮 action 都是不可信请求值。服务端从数据库读取 required_assumptions，检查真实 operator、组织/店铺/角色、当前 pending、plan_id/version/hash、有效期、nonce、硬性数据质量；确认键必须精确匹配，不允许只确认部分 SKU。客户端传普通 approve 或缺确认键返回 `ASSUMPTION_ACK_REQUIRED`，保持 pending，不入执行队列。原始在途字段保持 null，不因确认改为“已知零”。Web 入口使用同一合同，不设置免确认通道。
+
+同版本同操作者相同有效动作重复投递/点击，只返回已有决定，不重复产生确认记录、决定审计或 resume job；不同操作者/相反动作/不同确认集合返回已决定或冲突。旧卡片不能确认新版本，执行前复核到在途从未知变已知也需重批。未点击或退出卡片不改变状态。身份认证失败直接拒绝；nonce 校验失败不能因任务已结束而绕过认证。
+
+Phase 1 的 G3 真实回调探针至少验证上述 action 和对象确认键能往返；最终 AC10 还需 Phase 3/4 的真实审批服务、重复/拒绝/篡改验收。专用按钮是本项目交互设计，不将其描述为已实现的飞书原生审批能力。
+
+### 4.2 响应与更新
+
+handler 在 3 秒内完成 T3 或返回明确失败/处理中 Toast；SDK 负责长连接响应帧，不能把 Webhook 的 HTTP 200 机械套进 ws handler。批准成功返回“已记录审批，执行中”，拒绝返回“已拒绝，不创建补货项”，重复请求显示既有决定；最终执行结果异步通知。
 
 卡片 JSON 版本与更新保持一致。回调 token 的延时更新能力为 30 分钟内最多 2 次，不适合作为持久恢复凭据；长等待后优先用持久 message_id 的更新 API（先实测可更新条件）或发送新的结果消息。卡片 UI 更新失败不会回滚业务审批。参考 [回调结构](https://open.feishu.cn/document/feishu-cards/card-callback-communication.md)、[处理卡片回调](https://open.feishu.cn/document/uAjLw4CM/ukzMukzMukzM/feishu-cards/handle-card-callbacks.md) 与 [JSON 2.0 变更](https://open.feishu.cn/document/uAjLw4CM/ukzMukzMukzM/feishu-cards/card-json-v2-breaking-changes-release-notes.md)。
 
 ## 5. 多维表格投影
 
-每个补货项一行，字段：CommerceOpsItemID（文本）、TaskID、SKU、Quantity、Risk、Window、SourceMode、ApprovalStatus、ApprovedBy（P0 用文本映射名）、BusinessStatus、SyncVersion、UpdatedAt。初期不用人员、附件、关联列以免追加通讯录权限和复杂字段适配。
+每个补货项一行，字段：CommerceOpsItemID（文本）、TaskID、SKU、Quantity、Risk、Window、SourceMode、ApprovalStatus、ApprovedBy（P0 用文本映射名）、BusinessStatus、ResolutionReason、ResolvedBy、ResolvedAt、SyncVersion、UpdatedAt。BusinessStatus 对应内部 item 的 open/completed/closed；关闭由受鉴权 Web/API 触发后单向投影，不在 Base 人工修改来反向授权。初期不用人员、附件、关联列以免追加通讯录权限和复杂字段适配。
 
 PG 保存 row external_id；首次创建使用固定 client_token，后续对 external_id 更新。创建 API 文档支持 UUIDv4 幂等参数，但没有在本次读取中确认长期保留期限，不将其当作永久唯一约束。同一 table_id 串行写，按最新 projection_version 收敛；PG 仍是业务真值，表内人工改动不反向批准或执行。
 
