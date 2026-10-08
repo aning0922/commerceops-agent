@@ -19,7 +19,12 @@ class Seed:
     tenant: str
 
 
-def seed(connection: Connection[dict[str, Any]], *, task: UUID | None = None) -> Seed:
+def seed(
+    connection: Connection[dict[str, Any]],
+    *,
+    task: UUID | None = None,
+    workflow_version: str = "g1-fixture-v1",
+) -> Seed:
     data = Seed(uuid4(), uuid4(), uuid4(), uuid4(), task or uuid4(), str(uuid4()), str(uuid4()))
     connection.execute(
         """INSERT INTO business.organizations(id,name,feishu_app_id,feishu_tenant_key)
@@ -53,7 +58,7 @@ def seed(connection: Connection[dict[str, Any]], *, task: UUID | None = None) ->
         """INSERT INTO business.business_tasks
         (id,organization_id,shop_id,conversation_id,requester_id,kind,
         normalized_request,workflow_version,thread_id)
-        VALUES (%s,%s,%s,%s,%s,'technical_fixture',%s,'g1-fixture-v1',%s)""",
+        VALUES (%s,%s,%s,%s,%s,'technical_fixture',%s,%s,%s)""",
         (
             data.task,
             data.organization,
@@ -61,6 +66,7 @@ def seed(connection: Connection[dict[str, Any]], *, task: UUID | None = None) ->
             data.conversation,
             data.principal,
             Jsonb({"schema_version": 1, "source_mode": "postgres_technical"}),
+            workflow_version,
             str(data.task),
         ),
     )
