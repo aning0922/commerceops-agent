@@ -22,7 +22,7 @@
 
 本轮所有数据库技术结果：`source_mode=postgres_technical`、`model_mode=not_used`、`approval_mode=not_applicable`。technical_fixture principal/shop/inbox/task 是隔离数据库样例，不是平台身份验证或真实审批；没有飞书/Woo/模型调用、库存写入、补货项或外部发送。
 
-官方文档核查：[PG 官方镜像](https://hub.docker.com/_/postgres)、[SQLAlchemy psycopg dialect](https://docs.sqlalchemy.org/en/21/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg)、[Alembic tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)、[官方 async setup](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver/setup)。Python 支持范围来自 PyPI 元数据（SQLAlchemy >=3.11、Alembic/psycopg/checkpoint-postgres >=3.10），项目限制 3.12。官方源码验证为实际安装包的 setup/from_conn_string：autocommit、dict_row、prepare_threshold=0，setup 根据官方 checkpoint_migrations 顺序继续执行；不是 Graph crash 运行证据。serializer 明确 `allowed_msgpack_modules=[]`、默认不启用 pickle fallback，只接受所需原生数据；无 LangSmith tracing/托管依赖授权（其包是上游 transitive dependency，未调用）。
+官方文档核查：[PG 官方镜像](https://hub.docker.com/_/postgres)、[SQLAlchemy psycopg dialect](https://docs.sqlalchemy.org/en/21/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg)、[Alembic tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)、[官方 async setup](https://reference.langchain.com/python/langgraph.checkpoint.postgres/aio/AsyncPostgresSaver/setup)。Python 支持范围来自 PyPI 元数据（SQLAlchemy >=3.11、Alembic/psycopg/checkpoint-postgres >=3.10），项目限制 3.12。官方源码验证为实际安装包的 setup/from_conn_string：autocommit、dict_row、prepare_threshold=0，setup 根据官方 checkpoint_migrations 顺序继续执行；不是 Graph crash 运行证据。serializer 明确 `allowed_msgpack_modules=[]`、默认不启用 pickle fallback，不额外放行自定义类（仍允许官方 SAFE_MSGPACK_TYPES），本轮只验证原生 marker；无 LangSmith tracing/托管依赖授权（其包是上游 transitive dependency，未调用）。
 
 ## DATA_MODEL 到首批迁移映射
 
@@ -69,6 +69,8 @@ normalized_request/sanitized_payload 为 JSONB object，要求 schema_version �
 最终本机 `uv run --frozen python -m scripts.check` 返回 0：18 Markdown、ruff lint/49 Python文件 format、mypy31文件、offline `42 passed, 13 deselected in 43.09s`，项目 Node24.21.0/npm11.19.0、实际 tooling typecheck、npm audit0命中；Python runtime/dev/build audit85包、已知漏洞0、无skip。`uv lock --check` 成功；敏感 dir/index/全部可达history0命中（提交前再以真实暂存内容扫描）。SQL公开字段及测试变量/fixture类型曾触发 generic-api-key 误报，改为常规SQL引用标识符/更清楚的变量写法；未修改scanner/规则/两项精确行豁免，没有加入真实秘密豁免。新增直接依赖许可证：SQLAlchemy/Alembic/checkpoint-postgres MIT，psycopg LGPL-3.0-only（公开包元数据）；二进制发行仍须遵循上游许可证。
 
 [quality workflow](../.github/workflows/quality.yml) 保持只读权限/固定ActionSHA/完整history扫描，增加与本地一致的真实 PG smoke。实际CI的 run URL、head、平台与结果在 [Issue #3](https://github.com/aning0922/commerceops-agent/issues/3) 和交付PR留最终回执，只有同head实际成功才称CI通过；本页本地结果不替代远端结果。CI不接平台/模型secret；integration 必选且无PG配置会失败。
+
+实施代码 head `d9c34bd1a744be8c22fa7c398f0091d99fb2ea99` 的 [Actions run 37768392902](https://github.com/aning0922/commerceops-agent/actions/runs/37768392902) 实际 SUCCESS（2026-10-08 19:11:12–19:14:24 Asia/Shanghai，quality 3分12秒）。Ubuntu24.04/Linux x86_64，PG17.11 Debian，42 offline/61.90秒、13真实PG/2.72秒，18Markdown、mypy31文件、Python85包与npm漏洞0、dir/index/history敏感0。远端任务/thread `26ecb769-2a62-4102-a4f8-b86533aa14b1` 三次恢复回读一致、inbox/jobs/audit=1、官方checkpoint marker一致；独立项目 `p102-a19a56fbb400` 最终清理成功。此处是已运行代码head的证据；随后仅文档收录/边界措辞提交，最终PR head的实际CI回执以Issue/PR为准，不将旧head结果冒充新head结果。
 
 ## 范围、风险与后继交接
 
