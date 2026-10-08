@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续 Goal active；P1-01 已完成，P1-02 已交付 PR #11 待独立审核**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续 Goal active；P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 已内部集成，P1-04 已派发，P1-05 离线交付审查中、真实 G3 外部阻塞**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
 第1–8节保留规划、交付和批准前的历史证据；其逐项等待用户/main 的旧合同由第9节及 GitHub 当前已批准合同取代。阶段实际运行状态以第9节与 Issue/PR 最新记录为准。
 
@@ -158,9 +158,31 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 
 ## 9. 托管执行获批与当前调度
 
-本节取代第8节批准前快照的待授权结论。2026-10-08 用户回复按最新混合方案执行、合入由主控确认；随后明确“包含 main：全部必要 Gate、独立审查和实际 CI 通过后，由主控确认合入 main；不进入 Phase 2”。没有授权跳过 G1/G2/G3 或改变架构/权限边界。
+本节取代第1–8节历史快照中的待授权/待交付结论。2026-10-08 用户批准顶层实施会话＋子 Agent 审核，随后明确“包含 main：全部必要 Gate、独立审查和实际 CI 通过后，由主控确认合入 main；不进入 Phase 2”。持续 Goal 为 active，没有降低 Gate 或扩大架构/平台权限。
 
-- 持续 Goal 已创建，status=active；不设置未经要求的预算。P1-02–P1-05 主体开发由独立顶层会话和隔离 Worktree 承担，审查/专项检查由独立子 Agent 承担；主控不写主体代码。
-- phase/1-integration 已从 main a0d521e 创建/推送；#3–#7 阶段内依赖合同已开始同步。#10 的控制文档提交/推送后释放分支，交独立 CI 会话在单独 Worktree 接续，补触发配置再独立审查。
-- P1-02 原会话保留；独立子 Agent p1_02_independent_review 已派发，Worktree /Users/aipuli/.codex/worktrees/phase1-postgres-review/commerceops-agent、branch codex/review-phase1-02，冻结 bcbd933；结论与 CI 绑定 PR/head，审核/测试结果尚待返回。后续同步/修复交回原实施者，同一 PR 不改历史。
-- #4/#5 等已验证集成依赖；#6 离线准备可并行，真实 G3 仍待专用测试资源/配置核对，缺失不关闭 Issue。最终阶段 PR 须全必要 Gate 后才由主控确认合入 main；合入后核对 main CI，再结束 Phase 1。Phase 2 未授权。
+| 当前基线 / Gate | 实际结果 |
+|---|---|
+| main | a0d521ed79505287fa61bb6ddf82640e97824257，仍为已验收 P1-01；尚未纳入 PG |
+| 已验证集成代码 | phase/1-integration / 003d34b1cc9d02764feba3f4dcb298e3b5dd7422；PR #10/#11/#12/#13 普通 merge，无历史改写；本状态提交尚待独立审核/CI/内部集成 |
+| 集成 CI 迁移 | PR #10 head db7b255，经[独立审查](https://github.com/aning0922/commerceops-agent/pull/10#pullrequestreview-5456864791)，synchronize/edited CI成功；merge a25b95f 的[push run37780282904](https://github.com/aning0922/commerceops-agent/actions/runs/37780282904)真实42offline/质量检查成功 |
+| G1 | verified_on_integration；PR #11 head be572862，原/增量独立审查及新base CI通过，merge 662fb575 的[push run37782046504](https://github.com/aning0922/commerceops-agent/actions/runs/37782046504)真实42offline/13realPG、迁移/setup/卷恢复全部成功；19Markdown/mypy31/三层扫描与已知漏洞查询通过 |
+| G2 | not_run；P1-04已派发技术Graph/harness，runtime依赖等待SDK锁交接；受控runner与saver回读不能计为Graph恢复 |
+| G3 | blocked_external，未执行；用户确认测试应用/身份/群/Base 尚未准备，先离线探针与配置清单 |
+
+P1-02 两轮独立审查：[bcbd933 原审](https://github.com/aning0922/commerceops-agent/pull/11#pullrequestreview-5456701505)、[be572862 增量复审](https://github.com/aning0922/commerceops-agent/pull/11#pullrequestreview-5457032632)。独立 Review Worktree 实际运行13真实PG和42offline，PG17.11/固定digest、business revision0001_task_foundation、checkpoints官方migration9、初始化失败恢复/重启/同卷重建/停库恢复证据已核对。P1-02首次集成push实际42offline/44.97秒、13realPG/2.13秒；原P1-02本机与独立Reviewer实际运行分别归档，不冒充主控重跑。被并发策略取消的旧同步run37780942365不计通过，当前PR依据完整成功edited run37781023124；集成证据使用662fb575的push run。
+
+| 任务 | 当前状态 / 责任与依赖 |
+|---|---|
+| P1-02 / #3 | integrated，Issue已关闭；G1已验收，main状态单独记录；原实施会话与Worktree保留为后续migration协调负责人 |
+| P1-03 / #4 | integrated，Issue已关闭；原独立顶层ID01a11bae-bea8-77f3-97ec-b30d41f14946、Worktree /Users/aipuli/.codex/worktrees/778c/commerceops-agent、codex/phase1-03-worker保留为Worker/runner合同负责人；真实Graph尚未验证 |
+| P1-04 / #5 | in_progress（技术Graph/harness准备）、coordination_wait（runtime锁窗口）；source01a11be2-fca5-7cf3-8c2b-71ce554439a3，handoff后当前ID01a11be5-e2f4-7e22-b097-8e8fba3e92ff，Worktree /Users/aipuli/.codex/worktrees/102d/commerceops-agent，从003d34b建立codex/phase1-04-checkpoint；[派发回执](https://github.com/aning0922/commerceops-agent/issues/5#issuecomment-6062046708)，G2实际未执行 |
+| P1-05 / #6 | in_review（完整离线交付），blocked_external（真实）；顶层ID01a11b89-ef8f-7160-93ae-2faef97647be，Worktree /Users/aipuli/.codex/worktrees/4094/commerceops-agent、codex/phase1-05-feishu；[PR #14](https://github.com/aning0922/commerceops-agent/pull/14)冻结3ae3ee2，独立Review进行中、尚未集成，Issue保留OPEN；暂唯一负责SDK依赖/uv.lock |
+| P1-06 / #7 | CI启动子任务已内部完成；完整集成验收waiting_dependencies，须全部必要G1/G2/G3及最终阶段PR/审核/CI，不关闭Issue |
+
+P1-03 [PR #13](https://github.com/aning0922/commerceops-agent/pull/13)冻结cab9db1，经[独立审核](https://github.com/aning0922/commerceops-agent/pull/13#pullrequestreview-5457933209)无P1/P2阻断，Review Agent在独立Worktree实际复跑32真实PG/7.56秒、两个OS进程/barrier及完整G1。其[精确PR CI](https://github.com/aning0922/commerceops-agent/actions/runs/37787269476)以cab9合入aab4的merge5515113执行42offline/52.48秒、32realPG/23.69秒。主控普通merge到003d34b后读取[push CI](https://github.com/aning0922/commerceops-agent/actions/runs/37791470878)：42offline/51.68秒、32realPG/12.30秒、20Markdown/mypy40/固定工具链/已知漏洞查询/三层敏感扫描与完整G1均成功。[主控验收回执](https://github.com/aning0922/commerceops-agent/issues/4#issuecomment-6062002082)关闭Issue #4并放行#5，不把受控runner记为G2。PR #12状态文档也已独立审核并合入aab4fed，其[push CI](https://github.com/aning0922/commerceops-agent/actions/runs/37786599406)通过。
+
+P1-05完整离线交付见[实施回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6061706475)。[PR CI37789136767](https://github.com/aning0922/commerceops-agent/actions/runs/37789136767)SUCCESS：112offline/45.52秒、39realPG/10.09秒。SDK类型/dispatcher/WS帧/出站HTTP使用离线替身；PG技术接收/决定/幂等使用真实数据库；真实消息、真机卡片和Base平台操作全部未执行。独立Review Agent在phase1-feishu-review/codex/review-phase1-feishu冻结3ae3审查中；新base的集成检查仍待后续，不能由现有CI推导已经集成。配置清单见PR内docs/P1_05_SETUP.md，涵盖专用应用、A/B/C身份、群、Base六列、最小scope、两处订阅、本地未跟踪配置及未来命令；真实秘密不进聊天/Issue/PR/日志。
+
+最多两个实施并行，当前是Checkpoint主线＋Feishu离线审核/可能修复。migration仍协调原P1-02；Worker/runner归P1-03，SDK dependency/uv.lock暂归P1-05，P1-04新增Graph runtime须等P1-05审后验证集成与主控交接窗口，禁止并改锁或临时未锁依赖替代验收。共享配置/CI变更先主控协调单一负责人；独立Review Agent与实施者分开、绑定冻结SHA。每项完整交付通过实际测试/CI/独立审核与集成核对后自动接续。没有真实G3不推荐阶段通过、不最终合入main；满足全Gate后由主控按委托裁决最终阶段PR并核对main CI，结束Phase1，Phase2仍未授权。
+
+全局Worker可以跨组织领取，P1-04须依据RunRequest的organization/shop scope执行服务端校验，不能把WorkerCLI组织参数当领取过滤或用户授权。跨PID namespace无supervisor适配时继续保守阻止恢复；锁释放、lease过期和stopped均非旧进程死亡证明。任务级事实以GitHub当前记录为准，本节是重要交付快照。
