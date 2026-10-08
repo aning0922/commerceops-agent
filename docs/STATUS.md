@@ -1,6 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 P1-01 已完成；P1-02 已交付 PR #11 待独立审核；托管/受限自动集成方案待用户批准**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续 Goal active；P1-01 已完成，P1-02 已交付 PR #11 待独立审核**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+
+第1–8节保留规划、交付和批准前的历史证据；其逐项等待用户/main 的旧合同由第9节及 GitHub 当前已批准合同取代。阶段实际运行状态以第9节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -153,3 +155,12 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 - 能力实测：`get_goal` 返回 null，阶段 Goal 还未创建；独立上下文子 Agent 完成只读可行性审计。`send_message_to_thread` 与 `wait_threads` 已实际接续/收到原 P1-02 顶层会话结果，确认 bcbd933、干净工作树与成功 CI，未改变成果。子 Agent 与顶层会话均可驱动/等待，前者默认共享文件系统，必须显式分配独立分支/Worktree，reviewer 与开发者分开。GitHub 权限 admin、main protected=false；工具可用不扩大权限，也不承诺主机休眠/应用离线时持续执行。
 - 拟迁移：批准后从最新 main 创建 `phase/1-integration`；#10 改 base 后，主控交接分支给独立 CI 执行 Agent 的独立 Worktree，取得实际 trigger 修改/新 CI/独立审核再内部合入，让集成 push 获得 CI；#11 随后改 base，由原实施者处理必要同步/修复，独立 reviewer 审核，门禁通过后内部合入并验证集成 commit，再放行 #4。原 P1-02 Worktree/提交/PR 保留，不 force/rebase，不改仓库可见性或保护策略。
 - 核对发现：workflow 的 push 过滤仅 main、PR 默认不含 edited，改 base 或重跑旧 workflow 不能直接证明新合并上下文。批准后由独立执行者补 CI 触发，再核对实际 run；#3–#7 原依赖/正式完成合同绑定 main，须经本次批准改为阶段内已验证集成 commit，最终 main 仍由用户确认。没有真实飞书/卡片/Base证据时，G3保持未通过。
+
+## 9. 托管执行获批与当前调度
+
+本节取代第8节批准前快照的待授权结论。2026-10-08 用户回复按最新混合方案执行、合入由主控确认；随后明确“包含 main：全部必要 Gate、独立审查和实际 CI 通过后，由主控确认合入 main；不进入 Phase 2”。没有授权跳过 G1/G2/G3 或改变架构/权限边界。
+
+- 持续 Goal 已创建，status=active；不设置未经要求的预算。P1-02–P1-05 主体开发由独立顶层会话和隔离 Worktree 承担，审查/专项检查由独立子 Agent 承担；主控不写主体代码。
+- phase/1-integration 已从 main a0d521e 创建/推送；#3–#7 阶段内依赖合同已开始同步。#10 的控制文档提交/推送后释放分支，交独立 CI 会话在单独 Worktree 接续，补触发配置再独立审查。
+- P1-02 原会话保留；独立子 Agent p1_02_independent_review 已派发，Worktree /Users/aipuli/.codex/worktrees/phase1-postgres-review/commerceops-agent、branch codex/review-phase1-02，冻结 bcbd933；结论与 CI 绑定 PR/head，审核/测试结果尚待返回。后续同步/修复交回原实施者，同一 PR 不改历史。
+- #4/#5 等已验证集成依赖；#6 离线准备可并行，真实 G3 仍待专用测试资源/配置核对，缺失不关闭 Issue。最终阶段 PR 须全必要 Gate 后才由主控确认合入 main；合入后核对 main CI，再结束 Phase 1。Phase 2 未授权。
