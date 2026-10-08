@@ -2,7 +2,7 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 已收口并合入 main；Phase 1 实施已获用户授权，P1-01 的三项审核修复、CI、主控复验及独立技术复审通过，PR #9 等待用户明确合并确认，其余任务等待依赖。main 尚无业务实现或业务运行验收结果。**
+**当前阶段：Phase 0 已收口；Phase 1 托管执行中，P1-01 已完成，P1-02 已交付 PR #11 待独立审核。main 已有工程骨架、依赖锁和基础 CI，G1–G3 尚待验收。用户已委托主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并，不进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
 
 任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；本会话负责阶段主控，合并仍待用户明确确认。
 
@@ -28,13 +28,13 @@
 - 飞书使用企业自建应用、新版卡片回调与长连接；真实租户接入仍需 Phase 1 技术验证。
 - Mock 数据、受控模型替身和真实测试店数据全程标识；不能用离线测试冒充真实联调。
 
-当前仓库仅有设计文档及基础文件。启动命令、依赖锁文件和 Compose 将在用户另行授权开发阶段后创建。
+工程底座已交付，实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移由 P1-02 实施，未合入及实测前不宣称可用。
 
-Phase 1 任务实现获准后，首批建立基础 CI/敏感检查，尽早验证 Docker、LangGraph Checkpoint、飞书真实回调三个闸门；当前仅规划。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
+Phase 1 已建立基础 CI/敏感检查，继续按依赖验证 Docker/PG、LangGraph Checkpoint、飞书真实回调三个闸门。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
 
 ## 版本管理与审核
 
-GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段继续使用独立分支和 PR，修复外部审核问题，经用户确认后合并。具体规范见 [AGENTS.md](AGENTS.md)。本次收口不授权开始 Phase 1。
+GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段使用独立分支和 PR，修复独立审核问题，按当前授权裁决合并。Phase 1 全必要 Gate/审核/CI 通过后的合并裁决已委托主控，具体规范见 [AGENTS.md](AGENTS.md)。每次合并不自动授权进入下一 Phase。
 
 ## P1-01 工程底座使用
 

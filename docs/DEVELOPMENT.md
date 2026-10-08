@@ -81,3 +81,46 @@ Gitleaks 8.30.1 会额外读取 source 根的 `.gitleaksignore`，显式指定�
 修改直接版本后在独立分支运行 `uv lock` / 项目 Node 的 npm install 更新锁，复验统一检查，禁止只改 manifest 省略锁。固定版本不是永久安全承诺；CI 每次查询已知漏洞，服务不可用同样失败。
 
 Python 检查将全部 runtime/dev/build 锁依赖导出到忽略的 `.audit/requirements.txt`，用 pip-audit 2.10.1、PyPI advisory 服务、`--require-hashes --disable-pip --strict` 查询并检查 JSON 无命中/无跳过。项目自身没有 PyPI 发布记录，以源码检查和测试验收，不以 editable skip 冒充已审计。npm 对完整 tooling 依赖树查询，包含 dev；不只审计不存在的生产依赖。报告是查询时的已知漏洞结果，不等于代码安全证明。直接依赖许可证及兼容范围见证据页。
+
+## P1-02 PostgreSQL 与一次性初始化
+
+数据库能力见 [P1_02_EVIDENCE](P1_02_EVIDENCE.md)；阶段文件由主控维护。Compose 默认仅启用 PostgreSQL，不发布宿主端口。`init` / `test` profiles 是一次性管理和技术验证，不是长期 Worker/Gateway。当前 API `/health/live` 的语义保持进程 liveness，没有 DB readiness。数据库 healthcheck 的 `pg_isready` 仅证明 PG 接受连接；业务 revision 与 checkpoint setup 另行验证，不能把 healthy 当成初始化成功。
+
+从本仓库根目录运行（需要已有可连接 Docker daemon、Compose、uv；不安装全局服务）：
+
+```sh
+uv sync --frozen
+uv run --frozen python -m scripts.prepare_pg
+# 用明确项目名隔离开发容器/网络/持久卷。
+docker compose -p commerceops-pg-dev up -d --wait postgres
+docker compose -p commerceops-pg-dev build db-init
+docker compose -p commerceops-pg-dev run --rm db-init
+# 业务与 checkpoint 初始化是两个独立部署动作。
+docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database setup-checkpointer
+docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database grant-runtime
+docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database revision
+```
+
+`prepare_pg` 在忽略的 `runtime/pg` 生成两个随机密码文件，权限 0600；已有非空文件保留，禁止把内容粘贴到日志或提交。Compose 用 file secrets 挂载，数据库设置不隐式加载 `.env`。`COMMERCEOPS_PG_RUNTIME_DIR` 可指定本项目秘密目录。不要运行带秘密的 `docker inspect` 全输出、打印 settings/env/DSN 或启用 SQL 参数日志。修改密码文件不会自动轮换已有 PG owner 密码；需要先安排安全的 DB 角色密码变更，不能靠删除卷解决。
+
+配置合同是 `COMMERCEOPS_DB_HOST`、`PORT`（默认 5432）、`NAME`、`USER`、`PASSWORD_FILE`；`grant-runtime` 另要求 `RUNTIME_PASSWORD_FILE`。其余四个连接字段均必填，无配置的 integration 测试失败；常规离线测试不选 integration。迁移目录默认 `backend/migrations`，命令从仓库/容器 `/app` 根运行。秘密读取用 `SecretStr`，仅在连接时解封；不存入业务表。初始化命令失败返回非零及固定错误类别，避免数据库错误原文泄漏参数。
+
+`commerceops_owner` 是本地初始化管理角色（官方镜像的初始用户），用于创建 schema、迁移、官方 setup、授予受限权限。业务调用使用 `commerceops_app` 与 `app_password`：无超级用户/建库/建角色权限；业务 schema 无 CREATE，业务表无 DELETE/TRUNCATE，审计只有 SELECT/INSERT。checkpointer schema 的现有表授予官方运行所需 SELECT/INSERT/UPDATE/DELETE；业务与 checkpoint 不共用事务。新实体迁移后须明确审查新增权限，重新执行 grant，不用全业务 schema 的未来默认授权。此配置只面向本地技术开发；不声称提供生产 DBA 隔离或租户 RLS。
+
+关闭开发容器保留卷：
+
+```sh
+docker compose -p commerceops-pg-dev down
+```
+
+不要对未知项目运行 `down --volumes` 或 `docker volume prune`。本任务自动 smoke 使用随机 `p102-*` 项目及独立卷，结束仅清理自己创建的容器/网络/卷/构建镜像与秘密文件：
+
+```sh
+uv run --frozen python -m scripts.pg_smoke
+```
+
+本地与 CI 使用同一个真实 PG 流程：构建锁依赖镜像、空库初始化及重复初始化、真实约束/失败恢复测试、提交持久样例、PG 重启、保留卷重建容器、数据库不可用非零失败和恢复回读。记录落到忽略的 `.audit/pg-smoke.json`，包含模式、时间、随机项目/卷和检查项。Docker 构建缓存与共享基础镜像保留。需要独立数据库权限的失败注入测试只在本任务 PG 实例中随机建库，并在 finally 删除自己创建的库；不得向共享或生产 DB 直接运行。
+
+迁移恢复：Alembic 将 schema/version 表和整次 revision 放在同一 PG 事务。失败后查询 `business.alembic_version`，核对实际 revision 和冲突对象；修复原因再重跑 migrate，禁止手工 stamp 到 head 或把部分结构当成功。技术测试通过预置 `business.jobs` 冲突断言该次新表和版本表均回滚，移除测试冲突后重跑两次成功。真实 DB 遇到未知对象时先核对来源，不能直接套用测试里的 DROP。checkpointer 官方 setup 使用 autocommit，允许部分迁移已记录，须原版本官方 setup 重跑；测试注入中途失败并恢复，不能据此保证所有 DDL/网络故障都自动恢复。不要手改 checkpoint 内部列/迁移号。版本升级先在隔离库验证；破坏性 Alembic downgrade 明确禁用，业务历史恢复走备份流程（完整备份还原演练后续交付）。
+
+后继任务合同：`connect` 的 connection context 成功提交、异常回滚，不内建重试；`TaskRepository.get` 按 organization/shop/task 精确限定，`enqueue` 在调用者事务内追加 job，同 key 同 task/kind/payload_ref 返回原 UUID，不同语义抛 `PersistenceConflict`。Scope 必须由应用已验证身份构造，repository 本身不授权。事务中查询/追加后由调用者负责提交；不得在事务内调用模型/网络。未实现 task 创建入口、ACK、job 领取/调度、Graph、中断恢复、正式审批或任何外部发送。待审批恢复/G2 仍由后继任务验证；本轮只验证官方 saver 数据读写与初始化。
