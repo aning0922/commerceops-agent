@@ -165,3 +165,12 @@ uv run --frozen python -m commerceops.entrypoints.worker confirm-termination --o
 该命令还会获取启动互斥、读取原 started 回执并用 OS PID 查询确认旧 PID 已不存在；旧进程仍存活/被 SIGSTOP、权限不足、跨 namespace 或 PID 被复用时全部拒绝，不接受 flag 或证据文字作为唯一死亡证明。同 owner/同证据重投返回原确认且不重复审计。跨容器 namespace 的终止验证尚无 supervisor adapter，必须保持阻塞，不能绕过闸门；后继若需要该能力须经主控协调合同。确认成功后，下一 Worker 才重排该 owner 的遗留 running job。needs_attention 的业务恢复解释由 runner 处理，技术队列不会伪造业务 completed/审批成功。
 
 P1-04 接入 `application/runner.py` 的 `RunnerPort`：公开支持的 workflow_versions，接受稳定 RunRequest 中的 job/task/thread/scope/version/kind/payload_ref/owner/attempt。在 run 返回 interrupted 前真实 checkpoint 必须已持久化；取消必须让所有底层调用停止，不能启动脱离调用生命周期的后台 graph/写入，也不能开启图内并行。业务事务与 checkpoint 分开，副作用须以业务键重放收敛并检查 ownership。若 PG/checkpoint 客户端不能及时停止，进程硬退出后等待 supervisor 终止确认再恢复；本任务不证明真实 SDK 的取消/恢复行为。
+
+
+## P1-04 真实 Graph / Checkpoint 技术探针
+
+G2 实施源码、恢复策略、故障窗口和实际结果见 [G2_EVIDENCE](G2_EVIDENCE.md)。复现使用 `uv run --frozen python -m scripts.pg_smoke`，沿用隔离 Docker 项目、官方 setup、受限 app 角色和全部原 G1/integration 测试。无需平台密钥、模型服务或 PG host 端口。该命令实际启动 tests.checkpoint_process 的独立 OS Worker/真实 Graph；现有 worker test-run 仍为 P1-03 的受控替身，不是正式业务 runner。
+
+probe 的 checkpoint_probe schema 只存在于各测试自建随机库；正式 Alembic/grant-runtime 不部署它。决定由技术 fixture 在 PG持久保存并标为 simulated，当前 test principal/operator 规则不替代正式 approver授权。线程与取消行为仅覆盖本文技术 Graph；新增真实同步工具/平台 SDK前须补取消和未知副作用合同。
+
+pg-smoke.json 保留原 G1 的 not_applicable 标签，在 g2_process_evidence 中另存 simulated 的 OS PID/退出、稳定thread、kill前后 checkpoint、receipt唯一性记录。缺少必需记录会失败。测试失败也仅清理自建项目，不得用 prune、killall 或删除未知卷补救。
