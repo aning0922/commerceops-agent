@@ -74,7 +74,9 @@
 
 ## 外部 CI 与保留边界
 
-PR 和真实 Actions run 在创建后追加，本节当前不把未运行远程检查写成通过。workflow 固定 Action SHA、Python/uv/Node/scanner 版本与扫描器发布 SHA256，PR/main push、只读权限、完整历史；不提供飞书/Woo/模型密钥。
+交付 [PR #9](https://github.com/aning0922/commerceops-agent/pull/9) 已建立并保持 OPEN。首个实际 [Actions run 37755417919](https://github.com/aning0922/commerceops-agent/actions/runs/37755417919) 对 head `91146d375abdd6e47dd76ce46900fa2b6b12760c` 返回 success；2026-10-08 17:15:44–17:16:32（Asia/Shanghai），Ubuntu 24.04/Linux x64，job 48 秒。下载 SHA256、frozen 安装、dir/index/git 0 命中、17 passed（14.39 秒）、mypy 18 文件、16 文档、Node24/TS tooling、Python57包/npm漏洞查询全部实际通过。
+
+首个 run 提示旧 Action 声明 Node20、runner 强制 Node24 的弃用警告。根据官方 tag/ref 与 action.yml 的源码核对，现改为原生 Node24 Action：checkout v7.0.1 (`3d3c42e5aac5ba805825da76410c181273ba90b1`)、setup-python v7.0.0 (`5fda3b95a4ea91299a34e894583c3862153e4b97`)、setup-uv v10.2.0 (`c18668ad3cf93ea998bef934396af7bb5c839dc7`)。各自官方发布与 action.yml 均显示 Node24；这是源码证据，新 workflow 的远程运行结果须另取得后追加。发布来源：[checkout](https://github.com/actions/checkout/releases/tag/v7.0.1)、[setup-python](https://github.com/actions/setup-python/releases/tag/v7.0.0)、[setup-uv](https://github.com/astral-sh/setup-uv/releases/tag/v10.2.0)。workflow 固定 Action SHA、Python/uv/Node/scanner 版本与扫描器发布 SHA256，PR/main push、只读权限、完整历史；不提供飞书/Woo/模型密钥。
 
 无业务 migration/checkpointer/持久 Worker/Graph/库存/审批/补货/真实平台调用；PG migration/checkpoint smoke 不适用。无前端应用，build/Playwright 不适用。Docker daemon 不可用时 G1 仍 blocked_external，G2/G3 未执行，不因本 PR 创建或 CI 通过而标绿。仓库分支保护未变更；外部审核、用户确认合并及主控 main 证据核对仍是正式完成条件。
 
