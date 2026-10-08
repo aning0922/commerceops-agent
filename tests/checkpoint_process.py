@@ -25,7 +25,8 @@ async def serve(organization: UUID) -> None:
         raise ValueError("explicit test process required")
     reader = asyncio.StreamReader()
     await asyncio.get_running_loop().connect_read_pipe(
-        lambda: asyncio.StreamReaderProtocol(reader), sys.stdin,
+        lambda: asyncio.StreamReaderProtocol(reader),
+        sys.stdin,
     )
     stop = asyncio.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):
@@ -43,18 +44,26 @@ async def serve(organization: UUID) -> None:
     async def hook(event: str, data: dict[str, Any]) -> None:
         emit(event, **data)
         if event in barriers:
+            if os.environ.get("P104_ONCE_BARRIERS") == "1":
+                barriers.remove(event)
             emit("barrier", point=event, task=data.get("task"))
-            try:
-                if (await reader.readline()).decode().strip() != "release":
-                    raise ValueError("explicit barrier release required")
-            except asyncio.CancelledError:
-                emit("barrier_cancelled", point=event)
-                raise
+            while True:
+                try:
+                    if (await reader.readline()).decode().strip() != "release":
+                        raise ValueError("explicit barrier release required")
+                    break
+                except asyncio.CancelledError:
+                    emit("barrier_cancelled", point=event)
+                    if os.environ.get("P104_IGNORE_CANCEL") != "1":
+                        raise
 
     try:
         await Worker(
-            session, ProbeRunner(ProbeStore(session.settings, session, mode="test"), hook=hook),
-            heartbeat_seconds=0.05, poll_seconds=0.02, cancel_seconds=1,
+            session,
+            ProbeRunner(ProbeStore(session.settings, session, mode="test"), hook=hook),
+            heartbeat_seconds=0.05,
+            poll_seconds=0.02,
+            cancel_seconds=1,
         ).run(stop)
     except UnsafeShutdown:
         emit("unsafe_shutdown")

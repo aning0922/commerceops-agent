@@ -1,5 +1,6 @@
 """G2 技术 Graph：一个固定 interrupt，无模型、正式审批或库存副作用。"""
 
+import asyncio
 from collections.abc import Awaitable, Callable
 from typing import Any, TypedDict
 
@@ -13,6 +14,7 @@ from commerceops.infrastructure.checkpoint_probe import ProbeStore, ProbeUnsafe
 from commerceops.infrastructure.repository import PersistenceConflict
 
 WORKFLOW_VERSION = "p104-checkpoint-v1"
+RETIRED_PROBE_VERSION = "p104-checkpoint-v0"
 Hook = Callable[[str, dict[str, Any]], Awaitable[None]]
 
 
@@ -33,7 +35,9 @@ async def no_hook(event: str, data: dict[str, Any]) -> None:
 
 
 class ProbeRunner:
-    workflow_versions = frozenset({WORKFLOW_VERSION})
+    # 识别 v0 仅用于持久拒绝/needs_attention，不构建旧图或迁移中断。
+    # 未知的非本探针版本继续遵循既有 Worker unsupported/dead 合同。
+    workflow_versions = frozenset({WORKFLOW_VERSION, RETIRED_PROBE_VERSION})
 
     def __init__(self, store: ProbeStore, *, hook: Hook = no_hook):
         self.store = store
@@ -44,12 +48,33 @@ class ProbeRunner:
         if self.active:
             raise ProbeUnsafe("global graph slot already occupied")
         self.active += 1
+        existing_tasks = asyncio.all_tasks()
         try:
+            await self.hook(
+                "runner_entered",
+                {"task": str(request.task_id), "kind": request.kind, "active": self.active},
+            )
             return await self._run(request)
         except (ProbeUnsafe, PersistenceConflict):
             await self.store.mark(request, "needs_attention")
             return RunResult()
+        except Exception as error:
+            await self.hook(
+                "runner_failed", {"task": str(request.task_id), "code": type(error).__name__}
+            )
+            raise
         finally:
+            # 锁定版 AsyncPregelLoop 的取消可携带独立 exit_task。技术进程没有
+            # 其他 Graph 调用；保守等待本调用期间新增的库/节点/写入任务全部停止。
+            # 不能因主协程 CancelledError 已返回就放行。取消预算由 Worker 管理，
+            # 不合作的底层任务仍在时保持等待，交由 entrypoint 硬退出和 OS 确认。
+            pending = asyncio.all_tasks() - existing_tasks
+            while pending:
+                try:
+                    await asyncio.wait(pending)
+                except asyncio.CancelledError:
+                    pass
+                pending = {task for task in pending if not task.done()}
             self.active -= 1
             await self.hook("runner_left", {"task": str(request.task_id), "active": self.active})
 
@@ -67,8 +92,14 @@ class ProbeRunner:
             # 固定位置、固定一个 interrupt；本节点从头重跑。所有节点为 async，
             # 不让同步节点/to_thread 的后台线程在取消后继续业务写入。
             await self.hook("wait_entered", {"task": str(r.task_id)})
-            ref = interrupt({"task_id": str(r.task_id), "workflow_version": WORKFLOW_VERSION,
-                             "request_hash": hashed, "approval_mode": "simulated"})
+            ref = interrupt(
+                {
+                    "task_id": str(r.task_id),
+                    "workflow_version": WORKFLOW_VERSION,
+                    "request_hash": hashed,
+                    "approval_mode": "simulated",
+                }
+            )
             if not isinstance(ref, str):
                 raise ProbeUnsafe("resume must contain only decision_ref")
             approved = await self.store.decision(r, ref, hashed)
@@ -76,9 +107,15 @@ class ProbeRunner:
 
         async def execute(state: ProbeState) -> ProbeState:
             await self.hook("execute_entered", {"task": str(r.task_id)})
-            if not state.get("approved"):
+            ref = state.get("decision_ref")
+            if not isinstance(ref, str):
+                raise ProbeUnsafe("unfinished execution lacks persisted decision reference")
+            approved = await self.store.decision(r, ref, hashed)
+            if state.get("approved") is not approved:
+                raise ProbeUnsafe("checkpoint decision differs from durable decision")
+            if not approved:
                 return {"outcome": "rejected"}
-            result = await self.store.receipt(r, hashed, state["decision_ref"])
+            result = await self.store.receipt(r, hashed, ref)
             # 尚未返回节点输出，因此对应的 result_ref checkpoint 不可能已写。
             await self.hook("receipt_committed", {"task": str(r.task_id), "result_ref": result})
             return {"result_ref": result, "outcome": "receipt_saved"}
@@ -98,27 +135,46 @@ class ProbeRunner:
             receipt = await self.store.existing_receipt(r, hashed)
             payload: Any = None
             if snapshot.created_at is None:
-                if row["started"] or receipt or r.kind != "analyze":
+                if row["started"] or receipt:
                     raise ProbeUnsafe("missing checkpoint after start or recovery request")
+                if r.kind == "resume":
+                    return RunResult("retry", 1)
+                if r.kind != "analyze":
+                    raise ProbeUnsafe("recovery cannot create a new graph")
                 await self.store.mark(r, "running", started=True)
-                payload = {"schema_version": 1, "workflow_version": WORKFLOW_VERSION,
-                           "task_id": str(r.task_id), "request_hash": hashed,
-                           "approval_mode": "simulated"}
+                payload = {
+                    "schema_version": 1,
+                    "workflow_version": WORKFLOW_VERSION,
+                    "task_id": str(r.task_id),
+                    "request_hash": hashed,
+                    "approval_mode": "simulated",
+                }
                 action = "start"
             else:
                 values = snapshot.values
-                if not isinstance(values, dict) or any(values.get(k) != v for k, v in {
-                    "schema_version": 1, "workflow_version": WORKFLOW_VERSION,
-                    "task_id": str(r.task_id), "request_hash": hashed,
-                    "approval_mode": "simulated",
-                }.items()):
+                if not isinstance(values, dict) or any(
+                    values.get(k) != v
+                    for k, v in {
+                        "schema_version": 1,
+                        "workflow_version": WORKFLOW_VERSION,
+                        "task_id": str(r.task_id),
+                        "request_hash": hashed,
+                        "approval_mode": "simulated",
+                    }.items()
+                ):
                     raise ProbeUnsafe("checkpoint identity/version mismatch")
                 pending = [i for task in snapshot.tasks for i in task.interrupts]
                 if pending:
-                    expected = {"task_id": str(r.task_id), "workflow_version": WORKFLOW_VERSION,
-                                "request_hash": hashed, "approval_mode": "simulated"}
-                    if len(pending) != 1 or pending[0].value != expected or (
-                        snapshot.next != ("wait_decision",) or receipt
+                    expected = {
+                        "task_id": str(r.task_id),
+                        "workflow_version": WORKFLOW_VERSION,
+                        "request_hash": hashed,
+                        "approval_mode": "simulated",
+                    }
+                    if (
+                        len(pending) != 1
+                        or pending[0].value != expected
+                        or (snapshot.next != ("wait_decision",) or receipt)
                     ):
                         raise ProbeUnsafe("pending interrupt cannot be explained")
                     if row["decision_ref"] is None:
@@ -137,15 +193,35 @@ class ProbeRunner:
                         raise ProbeUnsafe("unknown unfinished node")
                     action = "continue"
                 else:
+                    finished_ref = values.get("decision_ref")
+                    if not isinstance(finished_ref, str):
+                        raise ProbeUnsafe("finished graph lacks durable decision reference")
+                    approved = await self.store.decision(r, finished_ref, hashed)
+                    if values.get("approved") is not approved:
+                        raise ProbeUnsafe("finished decision mismatch")
                     if values.get("outcome") == "rejected" and receipt is None:
+                        if approved:
+                            raise ProbeUnsafe("approved decision cannot have rejected outcome")
                         await self.store.mark(r, "finished")
                         return RunResult()
-                    if not receipt or values.get("result_ref") != receipt:
+                    if (
+                        not approved
+                        or values.get("outcome") != "receipt_saved"
+                        or not receipt
+                        or values.get("result_ref") != receipt
+                    ):
                         raise ProbeUnsafe("finished checkpoint lacks matching receipt")
                     await self.store.mark(r, "finished")
                     return RunResult()
-            await self.hook("invoke", {"task": str(r.task_id), "thread": r.thread_id,
-                                       "action": action, "active": self.active})
+            await self.hook(
+                "invoke",
+                {
+                    "task": str(r.task_id),
+                    "thread": r.thread_id,
+                    "action": action,
+                    "active": self.active,
+                },
+            )
             await compiled.ainvoke(payload, config=config, durability="sync")
             # 必须重新从真实 saver 读到中断 checkpoint 才能释放 Worker 槽。
             saved = await compiled.aget_state(config)
@@ -154,8 +230,9 @@ class ProbeRunner:
                 if saved.next != ("wait_decision",) or len(pending) != 1:
                     raise ProbeUnsafe("unexpected saved interrupt")
                 await self.store.mark(r, "waiting")
-                await self.hook("interrupt_persisted", {"task": str(r.task_id),
-                                                        "checkpoint": saved.config})
+                await self.hook(
+                    "interrupt_persisted", {"task": str(r.task_id), "checkpoint": saved.config}
+                )
                 # 决定可能先于 runner 观察中断到达；持久延期，不能将 resume 丢弃。
                 current = await self.store.load(r)
                 if current["decision_ref"] is not None:

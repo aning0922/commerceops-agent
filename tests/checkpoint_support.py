@@ -11,13 +11,11 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID, uuid4
 
-from psycopg.types.json import Jsonb
-
 from commerceops.entrypoints.database import grant_runtime, migrate, setup_checkpointer
-from commerceops.infrastructure.checkpoint_probe import request_hash
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.repository import TaskRepository, TaskScope
 from commerceops.workflows.checkpoint_probe import WORKFLOW_VERSION
+
 from tests.pg_support import Seed, seed
 
 DDL = """
@@ -36,7 +34,8 @@ CREATE TABLE checkpoint_probe.decisions (
  approved boolean NOT NULL,approval_mode text NOT NULL CHECK(approval_mode='simulated')
 );
 CREATE TABLE checkpoint_probe.receipts (
- operation_key text PRIMARY KEY,task_id uuid NOT NULL UNIQUE REFERENCES checkpoint_probe.runs(task_id),
+ operation_key text PRIMARY KEY,
+ task_id uuid NOT NULL UNIQUE REFERENCES checkpoint_probe.runs(task_id),
  organization_id uuid NOT NULL,shop_id uuid NOT NULL,request_hash text NOT NULL,
  result_ref text NOT NULL UNIQUE
 );
@@ -59,22 +58,34 @@ class Fixture:
 
     def enqueue(self, data: Seed, kind: str = "analyze", ref: str = "technical_fixture") -> UUID:
         with connect(self.app) as db:
-            return TaskRepository(db, TaskScope(data.organization,data.shop)).enqueue(
-                data.task, kind, str(uuid4()), ref,
+            return TaskRepository(db, TaskScope(data.organization, data.shop)).enqueue(
+                data.task,
+                kind,
+                str(uuid4()),
+                ref,
             )
 
-    def decide(self, data: Seed, *, approved: bool = True) -> str:
-        ref = str(uuid4())
+    def decide(self, data: Seed, *, approved: bool = True, ref: str | None = None) -> str:
+        ref = ref or str(uuid4())
         with connect(self.owner) as db:
             row = db.execute(
-                "SELECT * FROM checkpoint_probe.runs WHERE task_id=%s", (data.task,),
+                "SELECT * FROM checkpoint_probe.runs WHERE task_id=%s",
+                (data.task,),
             ).fetchone()
             assert row
             db.execute(
                 """INSERT INTO checkpoint_probe.decisions VALUES
                 (%s,%s,%s,%s,%s,%s,%s,%s,'simulated')""",
-                (data.task, ref, data.organization,data.shop,data.principal,
-                 row["workflow_version"],row["request_hash"],approved),
+                (
+                    data.task,
+                    ref,
+                    data.organization,
+                    data.shop,
+                    data.principal,
+                    row["workflow_version"],
+                    row["request_hash"],
+                    approved,
+                ),
             )
         return ref
 
@@ -91,8 +102,9 @@ class Fixture:
 
 def initialize(owner: DatabaseSettings) -> Fixture:
     assert owner.runtime_password_file
-    app = owner.model_copy(update={"user":"commerceops_app",
-                                   "password_file":owner.runtime_password_file})
+    app = owner.model_copy(
+        update={"user": "commerceops_app", "password_file": owner.runtime_password_file}
+    )
     migrate(owner)
     asyncio.run(setup_checkpointer(owner))
     grant_runtime(owner)
@@ -106,22 +118,40 @@ def initialize(owner: DatabaseSettings) -> Fixture:
 
 
 class Process:
-    def __init__(self, f: Fixture, *, barriers: str = ""):
+    def __init__(
+        self,
+        f: Fixture,
+        *,
+        barriers: str = "",
+        ignore_cancel: bool = False,
+        once: bool = False,
+    ):
         environment = os.environ.copy()
         s = f.app
-        environment.update(COMMERCEOPS_DB_HOST=s.host,COMMERCEOPS_DB_PORT=str(s.port),
-                           COMMERCEOPS_DB_NAME=s.name,COMMERCEOPS_DB_USER=s.user,
-                           COMMERCEOPS_DB_PASSWORD_FILE=str(s.password_file),
-                           COMMERCEOPS_MODE="test",P104_BARRIERS=barriers,
-                           LANGSMITH_TRACING="false")
+        environment.update(
+            COMMERCEOPS_DB_HOST=s.host,
+            COMMERCEOPS_DB_PORT=str(s.port),
+            COMMERCEOPS_DB_NAME=s.name,
+            COMMERCEOPS_DB_USER=s.user,
+            COMMERCEOPS_DB_PASSWORD_FILE=str(s.password_file),
+            COMMERCEOPS_MODE="test",
+            P104_BARRIERS=barriers,
+            LANGSMITH_TRACING="false",
+            P104_IGNORE_CANCEL="1" if ignore_cancel else "0",
+            P104_ONCE_BARRIERS="1" if once else "0",
+        )
         self.process = subprocess.Popen(
-            [sys.executable,"-m","tests.checkpoint_process",str(f.data.organization)],
-            env=environment,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,text=True,bufsize=1,
+            [sys.executable, "-m", "tests.checkpoint_process", str(f.data.organization)],
+            env=environment,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            bufsize=1,
         )
         self.events: queue.Queue[dict[str, Any]] = queue.Queue()
         self.history: list[dict[str, Any]] = []
-        self.thread = threading.Thread(target=self._read,daemon=True)
+        self.thread = threading.Thread(target=self._read, daemon=True)
         self.thread.start()
 
     def _read(self) -> None:
@@ -131,9 +161,10 @@ class Process:
 
     def until(self, name: str) -> dict[str, Any]:
         import time
+
         deadline = time.monotonic() + 15
         while time.monotonic() < deadline:
-            event = self.events.get(timeout=max(0.01,deadline-time.monotonic()))
+            event = self.events.get(timeout=max(0.01, deadline - time.monotonic()))
             self.history.append(event)
             if event["event"] == name:
                 return event
@@ -154,6 +185,6 @@ class Process:
         if self.process.poll() is None:
             self.process.kill()
             self.wait()
-        for stream in (self.process.stdin,self.process.stdout):
+        for stream in (self.process.stdin, self.process.stdout):
             if stream:
                 stream.close()

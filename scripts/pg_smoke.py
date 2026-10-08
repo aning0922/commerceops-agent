@@ -46,6 +46,22 @@ def main() -> None:
                 # Docker/pytest 诊断不使用秘密参数，仍不打印环境或完整配置。
                 print(result.stderr, flush=True)
                 raise RuntimeError(f"{label}: exit {result.returncode}")
+            if label == "real PG constraints and failure recovery":
+                records = [
+                    json.loads(line.removeprefix("G2 EVIDENCE: "))
+                    for line in result.stdout.splitlines()
+                    if line.startswith("G2 EVIDENCE: ")
+                ]
+                required = {
+                    "cross_process_resume",
+                    "receipt_commit_checkpoint_gap",
+                    "graph_lock_loss_cancel",
+                    "graph_noncooperative_exit",
+                    "checkpoint_db_failure_recovered",
+                }
+                if not required.issubset({record["scenario"] for record in records}):
+                    raise RuntimeError("G2 process evidence missing from real PG suite")
+                evidence["g2_process_evidence"] = records
         checks.append(label)
 
     def init(action: str) -> list[str]:
@@ -95,7 +111,22 @@ def main() -> None:
         for repeat in range(2):
             for action in ("migrate", "setup-checkpointer", "grant-runtime", "revision"):
                 run(f"initialize {repeat + 1}: {action}", init(action))
-        run("real PG constraints and failure recovery", ["run", "--rm", "--no-deps", "pg-test"])
+        run(
+            "real PG constraints and failure recovery",
+            [
+                "run",
+                "--rm",
+                "--no-deps",
+                "pg-test",
+                "python",
+                "-m",
+                "pytest",
+                "-m",
+                "integration",
+                "-q",
+                "-rP",
+            ],
+        )
         run("commit stable persistence fixture", probe("seed"))
         run("restart PostgreSQL", ["restart", "postgres"])
         run("restart healthy", ["up", "-d", "--wait", "postgres"])

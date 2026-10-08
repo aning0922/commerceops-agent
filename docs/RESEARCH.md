@@ -101,3 +101,12 @@ Phase 1 使用项目虚拟环境与容器，解析依赖后提交 uv.lock 和前
 ## 6. 本轮文档交付检查
 
 十份指定核心文档及附加 RESEARCH 均已生成，README/AGENTS 本地链接可解析，Markdown 代码围栏成对；无遗留 TODO/TBD 和工具内部引用标识。人工交叉检查了任务/审批/执行状态、审批有效期与数据新鲜度、来源标识及阶段闸门。仅产生 Markdown 和 .gitignore，未生成业务代码、依赖清单或容器配置；Phase 0 首次交付时 Git 为无提交的本地 main，remote 为空。后续 GitHub 接入与审核规范见 [README](../README.md) 和 [AGENTS](../AGENTS.md)，不改变上述技术验证状态。
+
+
+## 7. Phase 1 后续技术验证：P1-04 / G2（2026-10-08）
+
+本节追加后续证据，不改写前述 Phase0 的“未执行”历史。P1-04 在锁定 LangGraph1.2.14、checkpoint4.2.0、官方 AsyncPostgresSaver3.1.2、PG17.11 下已实际运行技术 Graph的中断落盘、单Worker全局单槽、OS终止后同thread恢复、receipt提交/checkpoint前SIGKILL重放和DB失败矩阵；完整命令/模式/时间、第一次失败与修复、DB/checkpoint/OS结构化记录及限制见 [G2_EVIDENCE](G2_EVIDENCE.md)。精确CI、独立审核和主控Gate裁决另外记录，不以本节或代码合入直接标记G2/阶段完成。
+
+源代码核验：LangGraph async执行器等待后台tasks，取消可能携带清理task；official saver的to_thread用于纯序列化，PG SQL仍在async连接。探针使用async节点并等待底层tasks，不合作时进程硬退出，确认旧PID消失及持久终止后才恢复。checkpoint的sync模式没有合并receipt业务事务；稳定operation_key/hash/result_ref负责提交后重放收敛，不能声称外部exactly-once。
+
+模拟审批、没有模型/平台调用；未验证正式T2–T4、A01–A08或补货R11，多Worker/C-EXT和跨namespace supervisor仍在范围外。没有真实G3资源不能由此探针替代。

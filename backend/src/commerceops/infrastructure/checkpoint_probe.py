@@ -31,7 +31,11 @@ class ProbeStore:
         self.session = session
 
     async def guard(
-        self, db: AsyncConnection[dict[str, Any]], r: RunRequest, *, authorize: bool = True,
+        self,
+        db: AsyncConnection[dict[str, Any]],
+        r: RunRequest,
+        *,
+        authorize: bool = True,
     ) -> dict[str, Any]:
         await self.session.check()
         if r.owner != self.session.owner or r.thread_id != str(r.task_id):
@@ -39,14 +43,22 @@ class ProbeStore:
         cursor = await db.execute(
             """SELECT t.*,p.enabled,p.roles,s.environment FROM business.jobs j
             JOIN business.business_tasks t ON t.id=j.task_id
-            JOIN business.principals p ON p.id=t.requester_id AND p.organization_id=t.organization_id
+            JOIN business.principals p ON p.id=t.requester_id
+            AND p.organization_id=t.organization_id
             JOIN business.shops s ON s.id=t.shop_id AND s.organization_id=t.organization_id
             WHERE j.id=%s AND j.task_id=%s AND j.organization_id=%s AND j.shop_id=%s
             AND j.status='running' AND j.lease_owner=%s
             AND t.organization_id=j.organization_id AND t.shop_id=j.shop_id
             AND t.workflow_version=%s AND t.thread_id=%s FOR UPDATE OF j""",
-            (r.job_id, r.task_id, r.organization_id, r.shop_id, r.owner,
-             r.workflow_version, r.thread_id),
+            (
+                r.job_id,
+                r.task_id,
+                r.organization_id,
+                r.shop_id,
+                r.owner,
+                r.workflow_version,
+                r.thread_id,
+            ),
         )
         row = await cursor.fetchone()
         if not row:
@@ -64,20 +76,32 @@ class ProbeStore:
                 """INSERT INTO checkpoint_probe.runs
                 (task_id,organization_id,shop_id,thread_id,workflow_version,request_hash)
                 VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT (task_id) DO NOTHING""",
-                (r.task_id, r.organization_id, r.shop_id, r.thread_id, r.workflow_version,
-                 request_hash(task["normalized_request"])),
+                (
+                    r.task_id,
+                    r.organization_id,
+                    r.shop_id,
+                    r.thread_id,
+                    r.workflow_version,
+                    request_hash(task["normalized_request"]),
+                ),
             )
             cursor = await db.execute(
                 """SELECT x.*,d.decision_ref,d.approved FROM checkpoint_probe.runs x
                 LEFT JOIN checkpoint_probe.decisions d ON d.task_id=x.task_id
-                WHERE x.task_id=%s""", (r.task_id,),
+                WHERE x.task_id=%s""",
+                (r.task_id,),
             )
             row = await cursor.fetchone()
-            if not row or any(row[k] != v for k, v in {
-                "organization_id": r.organization_id, "shop_id": r.shop_id,
-                "thread_id": r.thread_id, "workflow_version": r.workflow_version,
-                "request_hash": request_hash(task["normalized_request"]),
-            }.items()):
+            if not row or any(
+                row[k] != v
+                for k, v in {
+                    "organization_id": r.organization_id,
+                    "shop_id": r.shop_id,
+                    "thread_id": r.thread_id,
+                    "workflow_version": r.workflow_version,
+                    "request_hash": request_hash(task["normalized_request"]),
+                }.items()
+            ):
                 raise ProbeUnsafe("probe manifest mismatch")
             return row
 
@@ -86,13 +110,15 @@ class ProbeStore:
             await self.guard(db, r, authorize=status != "needs_attention")
             await db.execute(
                 """UPDATE checkpoint_probe.runs SET status=%s,started=started OR %s
-                WHERE task_id=%s""", (status, started, r.task_id),
+                WHERE task_id=%s""",
+                (status, started, r.task_id),
             )
             if status == "needs_attention":
                 await db.execute(
                     """UPDATE business.business_tasks SET state='needs_attention',
                     failure_code='CHECKPOINT_PROBE_UNSAFE',version=version+1,
-                    updated_at=clock_timestamp() WHERE id=%s""", (r.task_id,),
+                    updated_at=clock_timestamp() WHERE id=%s""",
+                    (r.task_id,),
                 )
 
     async def decision(self, r: RunRequest, ref: str, hashed: str) -> bool:
@@ -109,8 +135,15 @@ class ProbeStore:
                 WHERE task_id=%s AND decision_ref=%s AND organization_id=%s AND shop_id=%s
                 AND principal_id=%s AND workflow_version=%s AND request_hash=%s
                 AND approval_mode='simulated'""",
-                (r.task_id, parsed, r.organization_id, r.shop_id, task["requester_id"],
-                 r.workflow_version, hashed),
+                (
+                    r.task_id,
+                    parsed,
+                    r.organization_id,
+                    r.shop_id,
+                    task["requester_id"],
+                    r.workflow_version,
+                    hashed,
+                ),
             )
             row = await cursor.fetchone()
             if not row:
@@ -132,12 +165,20 @@ class ProbeStore:
                 (key, r.task_id, r.organization_id, r.shop_id, hashed, str(uuid4())),
             )
             cursor = await db.execute(
-                "SELECT * FROM checkpoint_probe.receipts WHERE operation_key=%s", (key,),
+                "SELECT * FROM checkpoint_probe.receipts WHERE operation_key=%s",
+                (key,),
             )
             row = await cursor.fetchone()
-            if not row or (row["task_id"], row["organization_id"], row["shop_id"],
-                           row["request_hash"]) != (
-                r.task_id, r.organization_id, r.shop_id, hashed,
+            if not row or (
+                row["task_id"],
+                row["organization_id"],
+                row["shop_id"],
+                row["request_hash"],
+            ) != (
+                r.task_id,
+                r.organization_id,
+                r.shop_id,
+                hashed,
             ):
                 raise PersistenceConflict("probe operation key semantics conflict")
             result = str(row["result_ref"])
@@ -154,8 +195,11 @@ class ProbeStore:
             row = await cursor.fetchone()
             if row is None:
                 return None
-            if (row["task_id"],row["organization_id"],row["shop_id"],row["request_hash"]) != (
-                r.task_id,r.organization_id,r.shop_id,hashed,
+            if (row["task_id"], row["organization_id"], row["shop_id"], row["request_hash"]) != (
+                r.task_id,
+                r.organization_id,
+                r.shop_id,
+                hashed,
             ):
-                raise ProbeUnsafe("existing receipt binding mismatch")
+                raise PersistenceConflict("existing receipt binding mismatch")
             return str(row["result_ref"])
