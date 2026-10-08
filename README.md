@@ -2,9 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 已收口；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 与 P1-05 离线实施中。main 仍为 P1-01 基线，G2/G3 尚待验收。用户已委托主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并，不进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
+**当前阶段：Phase 0 已收口；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 已内部集成，P1-04 已派发，P1-05 离线交付审查中、真实 G3 外部阻塞。main 仍为 P1-01 基线，G2/G3 尚待验收。用户已委托主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并，不进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
 
-任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；本会话负责阶段主控，合并仍待用户明确确认。
+任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；主控按用户已委托的 Phase 1 合并门禁裁决；真实 Gate、独立审核和实际 CI 齐备前不确认最终 main 合并。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
@@ -28,7 +28,7 @@
 - 飞书使用企业自建应用、新版卡片回调与长连接；真实租户接入仍需 Phase 1 技术验证。
 - Mock 数据、受控模型替身和真实测试店数据全程标识；不能用离线测试冒充真实联调。
 
-工程底座已交付，实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移由 P1-02 实施，未合入及实测前不宣称可用。
+工程底座已交付，实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移与持久 Worker 已在集成分支实际验证；main 仍为 P1-01，当前可用范围与证据见 STATUS。
 
 Phase 1 已建立基础 CI/敏感检查，继续按依赖验证 Docker/PG、LangGraph Checkpoint、飞书真实回调三个闸门。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
 
