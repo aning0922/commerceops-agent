@@ -101,7 +101,7 @@ docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entr
 docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database revision
 ```
 
-`prepare_pg` 在忽略的 `runtime/pg` 生成两个随机密码文件，权限 0600；已有非空文件保留，禁止把内容粘贴到日志或提交。Compose 用 file secrets 挂载，数据库设置不隐式加载 `.env`。`COMMERCEOPS_PG_RUNTIME_DIR` 可指定本项目秘密目录。不要运行带秘密的 `docker inspect` 全输出、打印 settings/env/DSN 或启用 SQL 参数日志。修改密码文件不会自动轮换已有 PG owner 密码；需要先安排安全的 DB 角色密码变更，不能靠删除卷解决。
+`prepare_pg` 在忽略的 `runtime/pg` 生成两个随机密码文件。秘密目录必须非 symlink、当前有效用户所有且 mode 恰为 0700；文件必须是非 symlink 的普通 UTF-8 非空白文件、同用户所有且 mode 恰为 0600。脚本先预检全部现存文件，再排他创建缺项；合法重复运行不覆写既有内容，不 chmod 修复不安全路径。禁止把内容粘贴到日志或提交。Compose 用 file secrets 挂载，数据库设置不隐式加载 `.env`。`COMMERCEOPS_PG_RUNTIME_DIR` 可指定本项目秘密目录。不要运行带秘密的 `docker inspect` 全输出、打印 settings/env/DSN 或启用 SQL 参数日志。修改密码文件不会自动轮换已有 PG owner 密码；需要先安排安全的 DB 角色密码变更，不能靠删除卷解决。
 
 配置合同是 `COMMERCEOPS_DB_HOST`、`PORT`（默认 5432）、`NAME`、`USER`、`PASSWORD_FILE`；`grant-runtime` 另要求 `RUNTIME_PASSWORD_FILE`。其余四个连接字段均必填，无配置的 integration 测试失败；常规离线测试不选 integration。迁移目录默认 `backend/migrations`，命令从仓库/容器 `/app` 根运行。秘密读取用 `SecretStr`，仅在连接时解封；不存入业务表。初始化命令失败返回非零及固定错误类别，避免数据库错误原文泄漏参数。
 
@@ -174,3 +174,25 @@ G2 实施源码、恢复策略、故障窗口和实际结果见 [G2_EVIDENCE](G2
 probe 的 checkpoint_probe schema 只存在于各测试自建随机库；正式 Alembic/grant-runtime 不部署它。决定由技术 fixture 在 PG持久保存并标为 simulated，当前 test principal/operator 规则不替代正式 approver授权。线程与取消行为仅覆盖本文技术 Graph；新增真实同步工具/平台 SDK前须补取消和未知副作用合同。
 
 pg-smoke.json 保留原 G1 的 not_applicable 标签，在 g2_process_evidence 中另存 simulated 的 OS PID/退出、稳定thread、kill前后 checkpoint、receipt唯一性记录。缺少必需记录会失败。测试失败也仅清理自建项目，不得用 prune、killall 或删除未知卷补救。
+
+
+## Issue #20 凭据路径与保留合同
+
+2026-10-09 的安全补强仅修改准备脚本、针对性测试及本运行说明；[Issue #20](https://github.com/aning0922/commerceops-agent/issues/20) 单独记账，原 G1 验收不倒推失败，不改变业务 schema、权限、Worker/Graph/飞书、依赖锁或 CI。当前 P1-05 的实际资源不用于本任务测试。
+
+支持 macOS/Linux 的 POSIX `dir_fd`、`O_DIRECTORY`、`O_NOFOLLOW`、`O_EXCL`。调用路径须为可信 canonical 目录（或者从 canonical cwd 出发的相对路径），不得包含 `..` 或任意 symlink 组件。脚本不自动 resolve 可疑路径；macOS `/tmp`、`/var` 等系统别名也需由可信调用者明确选定真实路径，例如临时测试 fixture 使用 `tmp_path.resolve()`。仅秘密目标目录/新建目录要求 0700/当前用户；普通既有父目录允许正常 0755、系统 owner 等，不对全部祖先机械要求私有权限。既有 `pg_smoke` 从 resolved 项目根构造独立随机 runtime 目录，仍使用相同 prepare 接口。
+
+目录逐级 no-follow 打开，文件操作相对于已打开的目标目录描述符；入口 lstat 等价 `stat(..., follow_symlinks=False)` 与打开后的 fstat 校验类型/mode/uid/device/inode。现存文件先验证、再 no-follow 打开，NONBLOCK 防止被换成 FIFO 时阻塞，读取非空白后再次核对 metadata 与路径绑定。缺项创建使用 0600 + O_EXCL/O_NOFOLLOW，写入前后 fstat 校验；并发出现的 symlink/普通文件不得被覆盖。失败只给固定类别，不输出目录、秘密、密码 hash 或原异常。
+
+不安全的既有目录/文件不会被 chmod、截断或替换；全部现存文件未预检成功前不创建任何缺项。未知权限/所有者请由资源负责人检查并决定处理，不能直接靠脚本修复。针对性测试只在自己创建的临时目录内使用 chmod/合成 canary；foreign-owner 场景通过从真实 stat 结果注入不同 uid 模拟，不使用提权/chown 或真实凭据。
+
+边界：描述符/no-follow 防止写入被重定向到末级或祖先 symlink，不承诺与同 uid/root 的并发改动进行文件系统事务。正常预检发现不合格资源时保持全部原内容且不新增密码；若创建过程中出现磁盘/权限/并发替换故障，已成功创建的本任务安全文件可保留供负责人检查，下次先重新预检，不删除未知路径回滚。只校验 POSIX 类型/mode/uid，不声称审计 ACL、网络文件系统权限语义或平台凭据的有效性；重复准备不自动轮换数据库已持久化密码。
+
+针对性复现（无 Docker、无平台凭据）：
+
+```sh
+uv run --frozen python -m pytest tests/test_prepare_pg.py -q
+uv run --frozen python -m scripts.check
+```
+
+实际 targeted 结果：28 tests passed / 0.21 秒，覆盖新建/重复保留、两种文件名的 symlink/目录/FIFO/宽权限/owner/空白拒绝、预检后缺项无新增、普通父目录与 canonical 调用、读取/创建时替换、fstat owner 校验、CLI canary/原异常不输出。本机完整 `scripts.check` 已实际返回 0：140 offline passed / 46.19 秒（79 deselected、2 个既有 SDK deprecation warnings）、24 Markdown、mypy60文件、lint/format/typecheck通过，Python90包及npm已知漏洞0、dir/index/history敏感0。精确 PR CI/G1/G2 回归的最终结果在 Issue #20/PR 回执记录，不以本机离线结果替代真实 PG。
