@@ -1,22 +1,24 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 P1-01 三项审核问题已解决，CI/主控复验/独立技术复审通过，等待用户明确合并确认**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 P1-01 已合入 main 并正式完成，P1-02 独立实施中**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
 ## 1. 基线与授权
 
 | 事项 | 核对结果与证据 |
 |---|---|
-| 事实基线 | GitHub main `3179dbad9eea0b632a65642cd134d850506fbbf6`；fetch 后本地 main 与 origin/main 一致，规划前工作树干净 |
+| 当前 main | `a0d521ed79505287fa61bb6ddf82640e97824257`；用户确认后合入 PR #8/#9，main 实际 CI 通过。Phase 0 设计基线 3179dba 保留为历史证据 |
 | Phase 0 收口 | [PR #1](https://github.com/aning0922/commerceops-agent/pull/1) 为 MERGED，2026-10-08 16:34:06（Asia/Shanghai）合入；归档见 [PHASE0_CLOSEOUT](PHASE0_CLOSEOUT.md) |
 | 审核证据边界 | 首次外部架构审核“有条件通过”及六项修订见归档；GitHub PR #1 的 reviews、review comments、conversation comments 当前均为空，不能声称外部二审已通过 |
-| 用户授权 | 首轮只授权规划；随后明确“好的，开始吧”，由本会话担任 Phase 1 主控并开启具体实施会话、选择推理强度；据此启动 P1-01，后继按依赖安排，未获 PR 合并或下一 Phase 授权 |
+| 用户授权 | 首轮规划后授权主控实施编排与独立会话；本轮明确“确认合并”，授权按顺序合入 PR #8/#9。后续任务按 Phase 1 依赖安排，后续 PR 与下一 Phase 仍须用户明确确认 |
 | 本轮主控改动 | GitHub Issues 的授权/派发状态、阶段状态与导航、规划复核；业务骨架/依赖锁/CI 由独立实施会话完成，本主控不写业务代码 |
-| 当前实现 | main 只有设计文档与 .gitignore；无业务代码、迁移、服务、锁文件、CI workflow 或业务测试结果 |
+| 当前实现 | main 已有工程骨架/本机 liveness、Python/Node 锁、检查工具和基础 CI；尚无业务功能、PG migration/持久 Worker/Graph/飞书真实联调，后者不能由底座通过推导 |
 | GitHub 条件 | 仓库仍为 Private；Actions enabled=true；main protected=false。合并前人工核查 CI 与审核，用户明确确认后才合并 |
 
-Phase 0 历史记录保持原样。Phase 1 已获实施编排授权，所有 Gate 仍待实际证据。[规划 PR #8](https://github.com/aning0922/commerceops-agent/pull/8) 在 `codex/phase1-plan` 分支更新；主控复核未发现阻断 P1-01 的问题，外部审核/用户合并确认尚未完成，不自动合并。P1-01 无实现前置，从最新 main 独立 Worktree 开始，不依赖未合并的规划分支编码。
+Phase 0 历史记录保持原样。[规划 PR #8](https://github.com/aning0922/commerceops-agent/pull/8) 与 [实现 PR #9](https://github.com/aning0922/commerceops-agent/pull/9) 已依用户确认顺序合并，main 集成证据见 7.3。此次合并后的阶段状态在 `codex/phase1-status-p1-01` 独立分支/状态 PR 交付，用户对 #8/#9 的确认不扩大为自动合并后续 PR。G1–G3 仍待所属任务实际证据。
 
-实施 chat：`01a11aba-4314-7b03-8403-2ac70ab16f88`（本机），标题“Phase 1 · P1-01 工程骨架与基础 CI”，推理强度 `high`，模型沿用用户配置默认值。首次交付 head 为 `206c907b7892e33b3ea9d2f296a4d1bbc8700998`；同一 PR 修复后交付 head 为 `ac773b8dc8ec4e7a7f45a5ca46360d3065bb4afa`（代码修复 c9ed5f6），会话现 idle。Worktree 为 `/Users/aipuli/.codex/worktrees/phase1-foundation/commerceops-agent`，分支 `codex/phase1-01-foundation`，未合入 main。
+P1-01 实施 chat：`01a11aba-4314-7b03-8403-2ac70ab16f88`（本机），标题“Phase 1 · P1-01 工程骨架与基础 CI”，推理强度 `high`，模型沿用用户默认值。首次 head 206c907、修复 head ac773b8 已保留，最终内容经 PR #9 合入 main a0d521e；会话现 idle，原 Worktree/分支保留，没有擅自删除或改写历史。
+
+P1-02 实施 chat：`01a11b26-75bf-7ca2-9735-d48553a3af78`（本机），请求标题“Phase 1 · P1-02 Docker、PostgreSQL 与迁移”，推理强度 `high`，模型沿用默认值。已派发从最新 main 独立 Worktree 实施 Issue #3，为迁移/数据模型合同唯一负责人；当前不并行派发其他会修改 schema/锁文件/CI 的实施任务。接单 Worktree/分支及实际结果由会话写回 Issue/PR，主控回读核对。
 
 独立技术审核 chat：`01a11adc-3510-75f1-a299-bc23e9bbf278`（本机），标题“Phase 1 · P1-01 独立技术审核”，推理强度 `high`，模型沿用默认值。首轮发现见 [原 COMMENT review](https://github.com/aning0922/commerceops-agent/pull/9#pullrequestreview-5454598608)；对 ac773b8 的 [独立复审](https://github.com/aning0922/commerceops-agent/pull/9#pullrequestreview-5455091549) 已完成，原三项均已解决，未发现新的可复现阻断问题，可进入用户明确合并确认。复审为独立 Codex 技术 COMMENT，不冒充人工外审、平台 approval 或合并授权。
 
@@ -26,8 +28,8 @@ Phase 0 历史记录保持原样。Phase 1 已获实施编排授权，所有 Gat
 
 | 编号 / Issue | 交付目标 | 启动依赖 | 当前状态 | 交付 PR / 运行证据 |
 |---|---|---|---|---|
-| P1-01 [#2](https://github.com/aning0922/commerceops-agent/issues/2) | 工程骨架、Python/Node 项目工具链与锁、基础 CI/敏感检查 | 用户授权已满足，无实现前置 | in_review；技术复审通过，等待用户合并确认 | [PR #9](https://github.com/aning0922/commerceops-agent/pull/9) / ac773b8 同 head CI、主控 42 项复验及独立复审通过 |
-| P1-02 [#3](https://github.com/aning0922/commerceops-agent/issues/3) | Docker/PG、最小业务迁移、独立 checkpointer setup，G1 | P1-01 代码合入；可用 Docker | waiting_dependencies；环境前置受阻 | 无 / 仅环境可用性检查失败 |
+| P1-01 [#2](https://github.com/aning0922/commerceops-agent/issues/2) | 工程骨架、Python/Node 项目工具链与锁、基础 CI/敏感检查 | 依赖/审核/用户合并确认已满足 | completed；Issue 已关闭 | [PR #9](https://github.com/aning0922/commerceops-agent/pull/9) MERGED / main a0d521e 实际 CI 通过 |
+| P1-02 [#3](https://github.com/aning0922/commerceops-agent/issues/3) | Docker/PG、最小业务迁移、独立 checkpointer setup，G1 | P1-01 已合入；Docker daemon 已可连接 | in_progress；独立会话已派发 | 无 / G1 的 PG/迁移/卷/setup 尚未验收 |
 | P1-03 [#4](https://github.com/aning0922/commerceops-agent/issues/4) | 持久任务、单 Worker 启动互斥与统一串行 runner | P1-02 代码合入及真实 PG 可用 | waiting_dependencies | 无 / 未执行 |
 | P1-04 [#5](https://github.com/aning0922/commerceops-agent/issues/5) | 真实 PG Checkpoint interrupt/resume/crash，G2 | P1-03 代码合入、G1 和 runner 合同稳定 | waiting_dependencies | 无 / 未执行 |
 | P1-05 [#6](https://github.com/aning0922/commerceops-agent/issues/6) | 飞书官方 SDK 消息/新版卡片/Base，G3 | 离线：P1-01；真测：另需 P1-02、指定测试资源与配置 | waiting_dependencies；真测外部前置未满足 | 无 / 未执行 |
@@ -56,9 +58,9 @@ Phase 0 历史记录保持原样。Phase 1 已获实施编排授权，所有 Gat
 
 | 条件 | 当前结论 | 必须取得的证据 / 责任任务 |
 |---|---|---|
-| 基础 CI/敏感检查 | verified_on_pr_branch；技术复审通过，待用户确认合入 | ac773b8 的 42 项回归、同 head CI/主控复验通过；原审核会话确认三项均解决。P1-02/04 仍须补真实 PG smoke |
-| 依赖锁与项目隔离 | P1-01 verified_on_pr_branch；PG 镜像尚未实测 | P1-01 已交付 Python/Node 锁、安装/许可证记录；P1-02 的实测 PG 镜像 digest 仍未完成，不据此将 G1 标绿 |
-| G1 Docker/PG | blocked_environment；未达到 | P1-02：daemon/Compose/PG 健康、持久卷重启、业务 migration 与 checkpointer setup 可复现 |
+| 基础 CI/敏感检查 | verified_on_main；P1-01 基础部分通过 | main a0d521e 的实际 CI/42 回归/17 文档与扫描通过；P1-02/04 仍须补真实 PG migration/checkpoint smoke |
+| 依赖锁与项目隔离 | P1-01 verified_on_main；PG 镜像尚未实测 | Python/Node 锁、安装/许可证随实现合入；P1-02 的 PG 镜像 digest 仍待实测，不据此将 G1 标绿 |
+| G1 Docker/PG | in_progress；daemon 阻塞已解除，整体未达到 | 已启动既有 Docker Desktop，daemon 可连接；PG 健康/卷/业务 migration/checkpointer setup 由 P1-02 实测，不能将只连接 daemon 算通过 |
 | 单 Worker/单 Graph 基线 | not_run | P1-03/04：S01–S03，第二进程拒绝启动、全局活跃 Graph ≤1、待审批释放槽、锁丢失停止与确认旧进程终止后恢复 |
 | G2 Checkpoint | not_run；依赖 G1 与 Worker | P1-04：真实 PG interrupt、同 thread 跨进程恢复、业务探针提交后/checkpoint 前 kill、原幂等回执与图版本防错 |
 | G3 飞书消息/回调/Base | blocked_external；未达到 | P1-05：真实私聊/群 @、card.action.trigger、专用确认/拒绝 action 与对象确认键往返、operator/event/时延、Base 创建/读回/更新与重复 |
@@ -90,8 +92,8 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 
 | 项目 | 当前影响 | 处理边界 |
 |---|---|---|
-| 任务授权与派发 | P1-01 已交付待审核/合并；后继未派发 | 已获得 Phase 1 主控实施编排授权，后继仍按依赖/Gate 安排；不重复索取普通实施授权，不擅自合并或进入下一 Phase |
-| Docker daemon | 阻塞 G1、真实 PG、G2 运行 | 用户正常启动可用 daemon；执行会话重新核对，不擅自修改全局设置或安装替代运行环境 |
+| 任务授权与派发 | P1-01 已完成，P1-02 已派发 | 已获得 Phase 1 实施编排及本轮 #8/#9 合并授权；其余按依赖/Gate 安排，不重复索取普通实施授权，不擅自合并后续 PR 或进入下一 Phase |
+| Docker/PG 环境 | daemon 已可用；G1 的 PG/迁移/setup 仍待完成 | 主控正常启动已安装 Docker Desktop，没有安装/更改全局工具；执行会话使用独立项目名/测试库/卷，不能删除未知用户资源 |
 | 飞书测试资源 | G3 未具备可验证凭证/组织/发布/最小权限/Base 资源证据 | 专用测试组织、自建应用、允许测试身份/群和 Base；秘密只填本地未跟踪配置，不在 Issue/聊天中索取或保存值 |
 | 真实平台操作范围 | 当前只派发离线工程底座，未执行真实联调 | 后续仅在指定测试资源与配置齐备后执行受控探针；扩权限、HTTP 公网/隧道、云部署另行确认，不得接生产表或修改库存/订单 |
 | 版本组合与容器接入 | P1-01 最小依赖/工具链有实证；SDK/PG 尚未选入 | 后续任务增量锁定并实测；当前 API 仅 loopback liveness，P1-02 容器入口/配置须协调扩展，不能将当前 liveness 当 DB readiness |
@@ -131,4 +133,13 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 - 新 head CI：[Actions run 37761121449](https://github.com/aning0922/commerceops-agent/actions/runs/37761121449) headSha 与 PR 一致、success；2026-10-08 18:05:14–18:06:58（Asia/Shanghai），Ubuntu 24.04/Linux x64，job 1 分 44 秒。主控读取日志确认 42 passed（61.11 秒）、mypy 19 文件、16 Markdown、三层扫描 0 命中、Python57包/npm 已知漏洞查询通过。
 - 主控实际复验：在 ac773b8 的实施 Worktree 执行 `uv run --frozen python -m scripts.check`，exit 0，42 passed（39.78 秒），mypy strict 19 文件、16 Markdown、ruff/format、Python/Node 锁安装、tooling typecheck 与两类漏洞查询通过。dir/index/git 均 0 命中；此为本会话运行，实施会话原/新脚本对照及配置再生成见其交接，不混淆来源。
 - 独立复审：[新的 COMMENT review](https://github.com/aning0922/commerceops-agent/pull/9#pullrequestreview-5455091549) 与 [Issue 交接](https://github.com/aning0922/commerceops-agent/issues/2#issuecomment-6057741261) 精确绑定 ac773b8。原 1 个 P1、2 个 P2 均已解决，未发现新的可复现阻断问题。审核会话在完全临时副本实际运行 25 项修复回归（25 passed、9 deselected，31.64 秒，exit 0），并完成 15 次原/新扫描与悬空 ignore symlink/豁免整行及路径对照；全部符合预期，输出不含无效合成值。所有 222 条正向规则与官方固定配置语义一致，生成器配置/provenance 与 MIT 通知均核对；两处豁免无整文件排除。主控已回读该证据，未冒称这些对照由主控重跑。
-- 当前判断：技术交付、修复、CI、主控复验和独立复审已达到进入合并确认的条件。建议用户确认后先合入规划 PR #8，再合入实现 PR #9，合入时重新核对各自最新 head/checks。两个 PR 目前保持 OPEN，main 仍 3179dba；P1-01 尚未记 completed。用户明确确认合并及主控 main 集成证据核对后再派发 P1-02。Docker daemon 本轮复查仍不可连接，G1–G3/Phase 1 阶段验收未通过；未进入下一 Phase。
+- 合并前判断：当时技术交付、修复、CI、主控复验和独立复审已达到合并确认条件，建议先 #8 再 #9；未擅自合并或把任务记完成。随后用户明确确认，实际合并/main 核对及 Docker 前置变更见 7.3；旧证据保持各自版本边界。
+
+### 7.3 用户确认合并、main 验证与 P1-02 启动
+
+- 用户本轮明确“确认合并”。主控按顺序以 merge commit 合入 PR #8（`56d2101e7a6c01a44991961ee757d8502b15c78c`，2026-10-08 18:48:28）与 PR #9（`a0d521ed79505287fa61bb6ddf82640e97824257`，18:50:39），时间为 Asia/Shanghai。没有强推、改写原提交或删除分支/Worktree。
+- 主控 fast-forward 本地 main 到 origin/main a0d521e；`git merge-base --is-ancestor` 确认规划 head d3bb429 和复审 head ac773b8 均已纳入，`git diff --exit-code` 确认 backend/frontend/scripts/tests/锁/scanner/workflow 与已复审实现一致。规划文档和实现正式集成，main 不再只有设计文件。
+- 合并后的 [main Actions run 37766147330](https://github.com/aning0922/commerceops-agent/actions/runs/37766147330) headSha=a0d521e、SUCCESS，主控读取实际日志确认 42 passed（49.69 秒）、mypy strict 19 文件、17 Markdown、三层扫描 0 命中、Python57包/npm 已知漏洞查询通过。不是将 PR 分支检查冒充 main 检查。
+- P1-01 满足交付/必要测试/修复/独立技审/用户确认合并/main 核对合同，Issue #2 已更新 completed 并关闭。只表示本任务正式完成；没有 PG/Checkpoint/飞书真测或 Phase 1 全 Gate 通过结论。
+- 主控正常启动已安装 Docker Desktop 4.83.0，随后 `docker info --format '{{.ServerVersion}}'` 返回 29.6.2、exit 0；Compose v5.3.1。仅启动应用，未安装/升级全局工具或修改系统配置。此前 daemon 不可连接的证据保留为当时状态，当前阻塞已解除；PG/卷/迁移/setup 仍待 P1-02 运行证据。
+- P1-02 已从此 main 派发独立 high 推理会话，Issue #3 的代码与 daemon 前置已满足。范围仅 Compose/PG/最小迁移/独立 checkpointer setup 和持久层约束，禁止提前实现 Worker/业务 Graph/审批/补货或真实平台写操作。后继 #4/#5 仍等待依赖，#6 未因允许并行就提前派发；未进入 Phase 2。
