@@ -1,0 +1,24 @@
+{
+  "version": "8.30.1",
+  "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
+  "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
+  "config_sha256": "0d770559bfee720a586f7a3bc360ca32327796b023bc4d432f6f5c64f16fe963",
+  "rule_count": 222,
+  "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
+  "removed_global_allowlists": 1,
+  "removed_rule_allowlists": 13,
+  "exceptions": [
+    {
+      "rule": "aws-amazon-bedrock-api-key-short-lived",
+      "path": "(?:^|/)\\.gitleaks\\.toml$",
+      "reason": "该规则自身固定 regex 声明的精确 TOML 行",
+      "exact_line_sha256": "9d040becc66343baff7c507a4941e130ee7cfc96298d2be04650b11391389e40"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "(?:^|/)docs/DATA_MODEL\\.md$",
+      "reason": "公开 identities 字段说明的精确 Markdown 行",
+      "exact_line_sha256": "3716668c9be9e82d8924d3b13323c5296acb4a80402598a6e4c157dee7628838"
+    }
+  ]
+}
