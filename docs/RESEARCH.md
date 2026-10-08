@@ -88,13 +88,15 @@ Phase 1 使用项目虚拟环境与容器，解析依赖后提交 uv.lock 和前
 
 | 闸门 | 需取得的证据 | 当前状态 |
 |---|---|---|
-| G1 运行环境 | Docker/PG 可启动，依赖解析及锁文件 | 未执行；daemon 不可连接 |
-| G2 图恢复 | 实际 PG checkpoint、节点重放、事务提交后 kill、双 Worker | 未执行 |
-| G3 飞书 | 私聊/群 @、新版回调、真实最小权限、Base 读写 | 无凭证，未执行 |
+| G1 Docker / 本地环境 | Phase 1：Docker/PG 健康、卷重启、迁移/setup、依赖解析及锁文件 | 未执行；首次检查时 daemon 不可连接 |
+| G2 LangGraph Checkpoint | Phase 1：单 Worker/单 Graph、真实 PG interrupt、旧进程终止后的同 thread 恢复、提交后 kill 幂等 | 未执行；多 Worker R02–R04 已移至后续 C-EXT |
+| G3 飞书真实回调 | Phase 1：私聊/群 @、新版回调、专用确认/拒绝 action 及确认键往返、身份与延迟、Base 读写 | 无凭证，未执行；正式 AC10 在 Phase 3/4 验证 |
 | G4 Woo | 测试店认证、分页、退款/变体/时间与金额样本 | 无测试店，未执行 |
 | G5 模型 | 指定 provider 的结构化输出/usage、固定评测 | 无配置，未执行 |
 
 所有闸门安排在架构评审之后；本轮没有用未发生的实验填补不确定性。
+
+首次外部审核后的范围修订以 ROADMAP 为准：G4 Woo 安排 Phase 5/M2；G5 基础模型说明安排 Phase 2/M1，动态 Tool calling 再于 Phase 6 验证。多 Worker 接管与 checkpoint 双写为独立 C-EXT，没有运行证据，也不作为初始闸门。Phase 1 基础 CI/敏感检查属新增实施计划，本轮未配置或运行。
 
 ## 6. 本轮文档交付检查
 

@@ -19,6 +19,8 @@ CommercePort 提供 `list_products`、`list_order_lines`、`list_refunds`、`get
 
 不人为构造 Woo 不提供的 reserved 或可靠在途库存。核心按 adapter 明确的库存语义计算，不能再减一次已由平台扣掉的订单。共享父商品库存要识别同一个 stock_pool；P0 对无法准确聚合的共享库存池仅生成“需人工核对”，不对每个变体各生成一份补货。
 
+未知在途保留 `inbound_units=null`，计划单独记录 effective_inbound_units=0 和每 SKU 的 required_assumptions；只有 PRD 4.1 定义的当前版本显式确认才允许创建内部工作项。确认不是平台在途事实，不能回写来源为已知零；执行前在途状态变化必须重批。内部项完成/关闭也不改变平台库存或在途字段。
+
 ## 2. 可复现 MockCommerce
 
 未来 fixture 固定 `dataset_version=inventory-v1`、随机种子、业务时区 Asia/Shanghai、冻结 now（如 `2026-10-08T10:00:00+08:00`）。所有日期从显式 clock 生成，不用当前系统日期让测试每天变化。提供 fixture manifest、预期 totals、原始数据及黄金结果。
@@ -83,6 +85,8 @@ Woo 多请求不构成数据库一致快照。保存 collection_started_at/colle
 
 内部补货用例位于 application/replenishment，不属于 CommercePort。无论 Mock 还是真实测试 Woo，批准之后只创建 PG 工作项并同步 Bitable；Woo API key 继续只读。真实库存变更或采购集成属于后续单独评审范围。
 
-## 7. Phase 1 / Woo 接入前的验证清单
+## 7. Phase 5 / M2 的 Woo 接入验证清单
 
 锁定店铺版本与插件；HTTPS key 认证；分页超过一页；跨时区订单；变体/父库存；空 SKU；退款金额/数量；错误与超时；只读权限确实禁止写入；标准模型输出与 Woo 后台样本核对。保留脱敏录制响应而非客户数据；当前这些均未实测。
+
+M1 首个可面试版本采用 MockCommerce，真实飞书审批必须验证；不以 Woo 待配置阻塞 M1，也不能把 Mock 结果称为真实店结果。Phase 6 动态只读展示复用此契约，白名单参数和范围由服务端限制，不向模型暴露 Woo 原始请求或任何写接口。
