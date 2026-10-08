@@ -1,6 +1,6 @@
 # 工程约束
 
-- 当前 Phase 0 设计及审核修订已收口并合入 main，记录见 docs/PHASE0_CLOSEOUT.md。用户已授权 Phase 1 主控规划与 GitHub Issues 建立；任务实现仍待明确授权，本轮不得编写业务代码或 CI workflow。阶段状态见 docs/STATUS.md。
+- 当前 Phase 0 设计及审核修订已收口并合入 main，记录见 docs/PHASE0_CLOSEOUT.md。用户已授权 Phase 1 主控启动实施并开启独立实施会话；P1-01（Issue #2）已派发，其余任务按依赖安排。阶段状态见 docs/STATUS.md；不自行进入下一 Phase，PR 合并仍须用户明确确认。
 - 工程独立运行；旧项目只读研究，不复制整项目、不依赖旧项目绝对路径。不擅自修改全局开发环境。
 - 确定性代码负责金额、统计、库存规则、权限与幂等；LLM 负责意图、解释及受限流程路由。
 - PostgreSQL 为业务权威来源。副作用必须有身份校验、审批约束、持久幂等键及失败恢复；不能把 checkpoint 当作副作用事务。

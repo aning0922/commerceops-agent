@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 规划完成、任务实现待授权**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 实施启动，P1-01 进行中**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
 ## 1. 基线与授权
 
@@ -9,12 +9,14 @@
 | 事实基线 | GitHub main `3179dbad9eea0b632a65642cd134d850506fbbf6`；fetch 后本地 main 与 origin/main 一致，规划前工作树干净 |
 | Phase 0 收口 | [PR #1](https://github.com/aning0922/commerceops-agent/pull/1) 为 MERGED，2026-10-08 16:34:06（Asia/Shanghai）合入；归档见 [PHASE0_CLOSEOUT](PHASE0_CLOSEOUT.md) |
 | 审核证据边界 | 首次外部架构审核“有条件通过”及六项修订见归档；GitHub PR #1 的 reviews、review comments、conversation comments 当前均为空，不能声称外部二审已通过 |
-| 用户本轮授权 | 明确启动 Phase 1 主控规划：研究依赖、建立最小计划和 Issues，完成后等待任务执行授权；尚未授权任何实现任务 |
-| 本轮改动范围 | GitHub Issues、阶段状态和导航/授权说明、规划文档 PR；不创建业务代码、依赖锁、CI workflow，不连接真实平台 |
+| 用户授权 | 首轮只授权规划；随后明确“好的，开始吧”，由本会话担任 Phase 1 主控并开启具体实施会话、选择推理强度；据此启动 P1-01，后继按依赖安排，未获 PR 合并或下一 Phase 授权 |
+| 本轮主控改动 | GitHub Issues 的授权/派发状态、阶段状态与导航、规划复核；业务骨架/依赖锁/CI 由独立实施会话完成，本主控不写业务代码 |
 | 当前实现 | main 只有设计文档与 .gitignore；无业务代码、迁移、服务、锁文件、CI workflow 或业务测试结果 |
 | GitHub 条件 | 仓库仍为 Private；Actions enabled=true；main protected=false。合并前人工核查 CI 与审核，用户明确确认后才合并 |
 
-Phase 0 历史记录保持原样。“Phase 1 规划启动”不等于任务实现已获准，也不等于任何 Gate 已通过。阶段规划在 `codex/phase1-plan` 分支交付，通过 PR 等待审核；不得自动合并。
+Phase 0 历史记录保持原样。Phase 1 已获实施编排授权，所有 Gate 仍待实际证据。[规划 PR #8](https://github.com/aning0922/commerceops-agent/pull/8) 在 `codex/phase1-plan` 分支更新；主控复核未发现阻断 P1-01 的问题，外部审核/用户合并确认尚未完成，不自动合并。P1-01 无实现前置，从最新 main 独立 Worktree 开始，不依赖未合并的规划分支编码。
+
+实施 chat：`01a11aba-4314-7b03-8403-2ac70ab16f88`（本机），请求标题“Phase 1 · P1-01 工程骨架与基础 CI”，推理强度 `high`，模型沿用用户配置默认值。已通过会话状态确认正在执行；Worktree 为 `/Users/aipuli/.codex/worktrees/phase1-foundation/commerceops-agent`，分支 `codex/phase1-01-foundation`，起点 main 3179dba。交付结果须落到 Issue/PR，不能以会话已启动替代验收。
 
 ## 2. 最小任务与当前状态
 
@@ -22,14 +24,14 @@ Phase 0 历史记录保持原样。“Phase 1 规划启动”不等于任务实�
 
 | 编号 / Issue | 交付目标 | 启动依赖 | 当前状态 | 交付 PR / 运行证据 |
 |---|---|---|---|---|
-| P1-01 [#2](https://github.com/aning0922/commerceops-agent/issues/2) | 工程骨架、Python/Node 项目工具链与锁、基础 CI/敏感检查 | 用户授权本任务 | pending_authorization | 无 / 未执行 |
-| P1-02 [#3](https://github.com/aning0922/commerceops-agent/issues/3) | Docker/PG、最小业务迁移、独立 checkpointer setup，G1 | P1-01 代码合入；可用 Docker | pending_authorization；环境前置受阻 | 无 / 仅环境可用性检查失败 |
-| P1-03 [#4](https://github.com/aning0922/commerceops-agent/issues/4) | 持久任务、单 Worker 启动互斥与统一串行 runner | P1-02 代码合入及真实 PG 可用 | pending_authorization | 无 / 未执行 |
-| P1-04 [#5](https://github.com/aning0922/commerceops-agent/issues/5) | 真实 PG Checkpoint interrupt/resume/crash，G2 | P1-03 代码合入、G1 和 runner 合同稳定 | pending_authorization | 无 / 未执行 |
-| P1-05 [#6](https://github.com/aning0922/commerceops-agent/issues/6) | 飞书官方 SDK 消息/新版卡片/Base，G3 | 离线：P1-01；真测：另需 P1-02、测试资源与授权 | pending_authorization；真测外部前置未满足 | 无 / 未执行 |
-| P1-06 [#7](https://github.com/aning0922/commerceops-agent/issues/7) | main 集成、证据索引、风险与外部阶段验收 | 各实现 PR 合入；全 Gate 验收还需 G1–G3 实测 | pending_authorization | 无 / 未执行 |
+| P1-01 [#2](https://github.com/aning0922/commerceops-agent/issues/2) | 工程骨架、Python/Node 项目工具链与锁、基础 CI/敏感检查 | 用户授权已满足，无实现前置 | in_progress；独立会话已接单 | 无 / 尚无交付测试结果 |
+| P1-02 [#3](https://github.com/aning0922/commerceops-agent/issues/3) | Docker/PG、最小业务迁移、独立 checkpointer setup，G1 | P1-01 代码合入；可用 Docker | waiting_dependencies；环境前置受阻 | 无 / 仅环境可用性检查失败 |
+| P1-03 [#4](https://github.com/aning0922/commerceops-agent/issues/4) | 持久任务、单 Worker 启动互斥与统一串行 runner | P1-02 代码合入及真实 PG 可用 | waiting_dependencies | 无 / 未执行 |
+| P1-04 [#5](https://github.com/aning0922/commerceops-agent/issues/5) | 真实 PG Checkpoint interrupt/resume/crash，G2 | P1-03 代码合入、G1 和 runner 合同稳定 | waiting_dependencies | 无 / 未执行 |
+| P1-05 [#6](https://github.com/aning0922/commerceops-agent/issues/6) | 飞书官方 SDK 消息/新版卡片/Base，G3 | 离线：P1-01；真测：另需 P1-02、指定测试资源与配置 | waiting_dependencies；真测外部前置未满足 | 无 / 未执行 |
+| P1-06 [#7](https://github.com/aning0922/commerceops-agent/issues/7) | main 集成、证据索引、风险与外部阶段验收 | 各实现 PR 合入；全 Gate 验收还需 G1–G3 实测 | waiting_dependencies | 无 / 未执行 |
 
-`pending_authorization` 表示实现尚未获准。环境/外部配置阻塞和依赖未满足是独立事实；当前不把“尚未执行”写成“测试失败”，也不把 PR 创建或 Issue 关闭视为正式完成。
+`in_progress` 表示已派发实施；`waiting_dependencies` 表示尚未具备任务启动前置。环境/外部配置阻塞是独立事实；不把“尚未执行”写成“测试失败”，也不把 PR 创建或 Issue 关闭视为正式完成。
 
 ## 3. 建议执行顺序与并行边界
 
@@ -52,8 +54,8 @@ Phase 0 历史记录保持原样。“Phase 1 规划启动”不等于任务实�
 
 | 条件 | 当前结论 | 必须取得的证据 / 责任任务 |
 |---|---|---|
-| 基础 CI/敏感检查 | not_run；无 workflow | P1-01：实际 Actions run、当前内容与完整历史扫描、合成当前/历史凭据阻断且不回显值；随后 P1-02/04 补真实 PG smoke |
-| 依赖锁与项目隔离 | not_run；无 lockfile | P1-01/02：独立环境 frozen install、实际兼容版本/许可证、实测镜像 digest；Node 工具链在项目环境固定，不改全局环境 |
+| 基础 CI/敏感检查 | implementation_in_progress；无已交付 CI 证据 | P1-01：实际 Actions run、当前内容与完整历史扫描、合成当前/历史凭据阻断且不回显值；随后 P1-02/04 补真实 PG smoke |
+| 依赖锁与项目隔离 | implementation_in_progress；无已交付 lock/安装证据 | P1-01/02：独立环境 frozen install、实际兼容版本/许可证、实测镜像 digest；Node 工具链在项目环境固定，不改全局环境 |
 | G1 Docker/PG | blocked_environment；未达到 | P1-02：daemon/Compose/PG 健康、持久卷重启、业务 migration 与 checkpointer setup 可复现 |
 | 单 Worker/单 Graph 基线 | not_run | P1-03/04：S01–S03，第二进程拒绝启动、全局活跃 Graph ≤1、待审批释放槽、锁丢失停止与确认旧进程终止后恢复 |
 | G2 Checkpoint | not_run；依赖 G1 与 Worker | P1-04：真实 PG interrupt、同 thread 跨进程恢复、业务探针提交后/checkpoint 前 kill、原幂等回执与图版本防错 |
@@ -80,14 +82,16 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 
 上述计数对应规划提交前工作树，规划提交会新增文档 blob，不改写历史；结果同时写入本规划 PR。没有 pytest、业务 CI、PG/Checkpoint crash 或真实飞书运行结果。该临时文档检查不能计入 P1-01 的版本锁定扫描器/合成阻断验收。
 
+实施启动更新时再次核对：`git diff --check`、15 份 Markdown/46 个本地链接与围栏检查通过；当前 16 个文件和 42 个本地可达历史 blob 的临时敏感模式检查未发现疑似凭据。独立实施会话处于 active，已建立上述 Worktree/分支；这些证据不代表实施测试已通过。
+
 ## 6. 阻塞、风险与下一步
 
 | 项目 | 当前影响 | 处理边界 |
 |---|---|---|
-| 任务执行授权 | 所有实现任务尚未开始 | 建议先授权 P1-01（#2）；主控再按依赖安排接单，不能把本轮规划指令扩大为整阶段实现授权 |
+| 任务授权与派发 | P1-01 已授权并启动；后继未派发 | 已获得 Phase 1 主控实施编排授权，后继仍按依赖/Gate 安排；不重复索取普通实施授权，不擅自合并或进入下一 Phase |
 | Docker daemon | 阻塞 G1、真实 PG、G2 运行 | 用户正常启动可用 daemon；执行会话重新核对，不擅自修改全局设置或安装替代运行环境 |
 | 飞书测试资源 | G3 未具备可验证凭证/组织/发布/最小权限/Base 资源证据 | 专用测试组织、自建应用、允许测试身份/群和 Base；秘密只填本地未跟踪配置，不在 Issue/聊天中索取或保存值 |
-| 真实平台操作范围 | 本轮未授权真实联调，后续只允许明确的测试资源探针 | 扩权限、HTTP 公网/隧道、云部署另行确认；不得接生产表或修改库存/订单 |
+| 真实平台操作范围 | 当前只派发离线工程底座，未执行真实联调 | 后续仅在指定测试资源与配置齐备后执行受控探针；扩权限、HTTP 公网/隧道、云部署另行确认，不得接生产表或修改库存/订单 |
 | 未经运行验证的版本组合 | 锁文件/SDK/PG 兼容性尚无证据 | 由 P1-01/02 实测固定，官方资料/源码证据与运行证据分层，不能照抄版本快照当 lock |
 | main 无分支保护 | 远程尚未自动强制 Gate | 合并前人工核查，不自行修改保护设置；无成功 CI/审核/用户确认不得合并 |
 | 共享文件集成 | 迁移、锁文件、runner 和 workflow 易产生冲突 | 单一负责人、Issue/PR 合同、串行合入；发现架构差异暂停相关修改并交主控审核 |

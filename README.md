@@ -2,9 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 设计与审核修订已收口并合入 main；Phase 1 主控规划已启动，6 个任务 Issue 已建立，任务实现待授权。尚无业务实现、可运行服务或通过的业务测试。**
+**当前阶段：Phase 0 已收口并合入 main；Phase 1 实施已获用户授权，P1-01（Issue #2）在独立实施会话/Worktree 中进行，其余任务按依赖安排。main 尚无业务实现或业务运行验收结果。**
 
-任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。本轮只交付规划；不会据此启动业务编码、CI workflow 或真实平台联调。
+任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；本会话负责阶段主控，合并仍待用户明确确认。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
