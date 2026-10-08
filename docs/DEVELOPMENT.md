@@ -1,6 +1,6 @@
-# P1-01 开发与检查说明
+# 开发与检查说明
 
-本页只描述已实现的工程底座。API 是本机 liveness 技术入口，没有业务 API、数据库、Worker、Graph 或真实平台连接。阶段状态由主控维护；任务事实见 [Issue #2](https://github.com/aning0922/commerceops-agent/issues/2)，实际证据见 [P1_01_EVIDENCE](P1_01_EVIDENCE.md)。
+本页只描述已实现的工程底座。API 是本机 liveness 技术入口；PG 与单 Worker 技术基础见后文，没有正式业务 API、库存 Graph 或真实平台连接。阶段状态由主控维护；任务事实见 [Issue #2](https://github.com/aning0922/commerceops-agent/issues/2)，实际证据见 [P1_01_EVIDENCE](P1_01_EVIDENCE.md)。
 
 ## 环境与安装
 
@@ -39,9 +39,9 @@ curl --fail http://127.0.0.1:8000/health/live
 
 ## 包边界与测试合同
 
-实际包路径为 `backend/src/commerceops`：`domain`、`application`、`workflows`、`tools`、`adapters`、`infrastructure`、`entrypoints`。目前除 `infrastructure/config.py` 和 `entrypoints/api.py` 外均为分层包说明。依赖方向沿用 [ARCHITECTURE](ARCHITECTURE.md)；业务、持久化和外部操作由后续 Issue 实施，不在底座中预设假的实现。
+实际包路径为 `backend/src/commerceops`：`domain`、`application`、`workflows`、`tools`、`adapters`、`infrastructure`、`entrypoints`。P1-01 时除 `infrastructure/config.py` 和 `entrypoints/api.py` 外均为分层包说明；当前 PG/Worker 的后继实现见后文。依赖方向沿用 [ARCHITECTURE](ARCHITECTURE.md)；业务、持久化和外部操作由后续 Issue 实施，不在底座中预设假的实现。
 
-后续任务使用 `Settings` 的环境前缀与显式类型校验约定，按任务扩展配置；机密字段使用 secret 类型并保持日志脱敏。pytest markers：`offline`（无外部服务）、`integration`（真实 PG 等基础设施）、`external`（真实平台配置）。未选中的测试不会当作通过；当前只有 offline 测试，不创建缺 PG 时恒绿的 integration smoke。
+后续任务使用 `Settings` 的环境前缀与显式类型校验约定，按任务扩展配置；机密字段使用 secret 类型并保持日志脱敏。pytest markers：`offline`（无外部服务）、`integration`（真实 PG 等基础设施）、`external`（真实平台配置）。未选中的测试不会当作通过；P1-01 时只有 offline 测试；当前 integration 已由真实 PG smoke 运行，不创建缺 PG 时恒绿的测试。
 
 单独检查命令：
 
@@ -123,4 +123,45 @@ uv run --frozen python -m scripts.pg_smoke
 
 迁移恢复：Alembic 将 schema/version 表和整次 revision 放在同一 PG 事务。失败后查询 `business.alembic_version`，核对实际 revision 和冲突对象；修复原因再重跑 migrate，禁止手工 stamp 到 head 或把部分结构当成功。技术测试通过预置 `business.jobs` 冲突断言该次新表和版本表均回滚，移除测试冲突后重跑两次成功。真实 DB 遇到未知对象时先核对来源，不能直接套用测试里的 DROP。checkpointer 官方 setup 使用 autocommit，允许部分迁移已记录，须原版本官方 setup 重跑；测试注入中途失败并恢复，不能据此保证所有 DDL/网络故障都自动恢复。不要手改 checkpoint 内部列/迁移号。版本升级先在隔离库验证；破坏性 Alembic downgrade 明确禁用，业务历史恢复走备份流程（完整备份还原演练后续交付）。
 
-后继任务合同：`connect` 的 connection context 成功提交、异常回滚，不内建重试；`TaskRepository.get` 按 organization/shop/task 精确限定，`enqueue` 在调用者事务内追加 job，同 key 同 task/kind/payload_ref 返回原 UUID，不同语义抛 `PersistenceConflict`。Scope 必须由应用已验证身份构造，repository 本身不授权。事务中查询/追加后由调用者负责提交；不得在事务内调用模型/网络。未实现 task 创建入口、ACK、job 领取/调度、Graph、中断恢复、正式审批或任何外部发送。待审批恢复/G2 仍由后继任务验证；本轮只验证官方 saver 数据读写与初始化。
+后继任务合同：`connect` 的 connection context 成功提交、异常回滚，不内建重试；`TaskRepository.get` 按 organization/shop/task 精确限定，`enqueue` 在调用者事务内追加 job，同 key 同 task/kind/payload_ref 返回原 UUID，不同语义抛 `PersistenceConflict`。Scope 必须由应用已验证身份构造，repository 本身不授权。事务中查询/追加后由调用者负责提交；不得在事务内调用模型/网络。P1-02 本身未实现 task 创建入口、ACK、job 领取/调度、Graph、中断恢复、正式审批或任何外部发送；P1-03 技术 T1/队列合同见下一节。待审批恢复/G2 仍由后继任务验证；本轮只验证官方 saver 数据读写与初始化。
+
+
+## P1-03 T1 技术入口与单 Worker
+
+实际实现/测试边界见 [P1_03_EVIDENCE](P1_03_EVIDENCE.md) 和 [Issue #4](https://github.com/aning0922/commerceops-agent/issues/4)。T1 仅为 Python application 用例：`TestIntakeService` 注入 `PgTestIntakeStore`，调用者显式提供可信 `TrustedTestContext(mode="test")`。它校验当前 operator、enabled、组织/店铺/conversation 及 test 店铺；没有 HTTP 路由、平台 SDK ACK 或可由客户端传入的授权布尔值。入站语义 hash 绑定 actor、scope、conversation、规范请求和 workflow_version，event/message 键冲突返回原 task/job 或明确冲突；不同事件拼接两个既有去重键被拒绝。仅脱敏技术标记进入 inbox，调用者的 normalized_request 必须已脱敏。
+
+一次 T1 原子提交 inbox + task + analyze job + audit，返回发生在 commit 后。技术 hook 只用于确定故障窗口，提交前抛错全部回滚；提交后丢响应重投取回同 UUID。`thread_id = task_id`，`workflow_version` 不修改；正式认证/真实 SDK 投递由后继入口完成。
+
+Worker 使用 `python -m commerceops.entrypoints.worker`，未改共享依赖或 console script。当前只有显式 `test-run`；`COMMERCEOPS_MODE=test` 及既有测试 organization UUID 必填，不默认启用正式 Graph。只在独立测试数据库/进程 namespace 中运行技术 runner，禁止用它消费真实业务队列。先按上一节初始化独立 PG，再以受限 `commerceops_app` 与 app password file 配置连接（不是 owner）；本机配置好连接后：
+
+```sh
+COMMERCEOPS_MODE=test uv run --frozen python -m commerceops.entrypoints.worker test-run --organization <测试组织UUID>
+```
+
+将尖括号占位值替换为该测试库已创建的 UUID。当前 runner 只支持 `p103-technical-v1`，不使用模型/审批/checkpoint，不把 task 写为 completed。无需为了本机命令改变 PG 公网暴露策略。实际自动验证入口可直接使用现有 Compose test profile：
+
+```sh
+uv run --frozen python -m scripts.pg_smoke
+```
+
+该入口仍执行全部原 G1 初始化/持久卷/故障恢复，同时 `pytest -m integration` 自动选择 `tests/test_worker_pg.py` 的真实 PG/两个 OS 进程测试；不额外安装服务或增加 CI workflow。缺 DB 配置直接失败，未选择的 offline 测试不计为 integration 通过。子进程以 stdin/stdout barrier 控制，明确是受控 runner，不能推导 LangGraph 中断或 G2。
+
+运行合同：专用 autocommit PG session 持固定全局 advisory lock，第二实例拿不到即退出。所有 analyze/resume/recover 共用一个 `Worker` 调度循环及一个 `RunnerPort.run` 调用槽；领取/续租/完成/延期是独立短事务。60 秒 lease、15 秒心跳、1 秒轮询、5 秒取消预算、最多 3 次 runner 尝试；延期存 available_at，释放槽，不在事务内 sleep。`done` 仅表示本 job 调用结束；受控 interrupted 也释放槽，业务状态由正式 runner 自行持久化。未知 kind/version 不运行，job dead 保存固定错误码，不覆盖旧 workflow_version。
+
+### 停机与恢复
+
+只停止自己的 Worker PID（SIGTERM/SIGINT）或自己的容器，禁止 killall、滚动重叠、未知数据卷删除。正常停机停止领取、取消当前调用并等待其停止，追加 `stopped` 生命周期后关闭锁连接；随后 supervisor 必须 wait 确认 OS 进程退出，再启动下一实例。下一实例还必须匹配原 hostname/PID namespace 并查询旧 PID 已消失，才将 stopped 收敛为 termination_confirmed；stopped 回执单独存在仍不能启动。中途取消的 running job 在终止已核实后的后继启动时重新排队，job UUID/kind/payload_ref 不变，attempts 增加。
+
+异常失联/锁连接丢失：心跳或领取/写入前 check 发现失效后停止领取、取消调用并退出。取消预算耗尽时在协程启动层硬退出 75，避免 asyncio.run 收尾无限等待；保留 running 与未结束 started 回执。DB 尚可用时 task 标记 needs_attention，DB 不可用时 started 回执在数据库恢复后仍阻止新实例；不能仅按锁释放或 lease 超时重排。
+
+生命周期使用既有 append-only `audit_events`，`source=worker / entity_type=worker_runtime / entity_id=owner UUID`；started 保存 PID、hostname、Linux PID namespace。它是部署启动/恢复闸门，不是业务审批/checkpoint/fencing。出现未知 running owner 且缺生命周期时保守拒绝，需先查明来源，不提供盲目自动修复。
+
+异常停止后，supervisor 先 wait 确认该 OS 子进程结束。在**同 hostname 和同 PID namespace** 内，可信部署操作员可以执行：
+
+```sh
+uv run --frozen python -m commerceops.entrypoints.worker confirm-termination --owner <原owner UUID> --evidence-reference <非敏感停机证据编号> --confirm-old-process-terminated
+```
+
+该命令还会获取启动互斥、读取原 started 回执并用 OS PID 查询确认旧 PID 已不存在；旧进程仍存活/被 SIGSTOP、权限不足、跨 namespace 或 PID 被复用时全部拒绝，不接受 flag 或证据文字作为唯一死亡证明。同 owner/同证据重投返回原确认且不重复审计。跨容器 namespace 的终止验证尚无 supervisor adapter，必须保持阻塞，不能绕过闸门；后继若需要该能力须经主控协调合同。确认成功后，下一 Worker 才重排该 owner 的遗留 running job。needs_attention 的业务恢复解释由 runner 处理，技术队列不会伪造业务 completed/审批成功。
+
+P1-04 接入 `application/runner.py` 的 `RunnerPort`：公开支持的 workflow_versions，接受稳定 RunRequest 中的 job/task/thread/scope/version/kind/payload_ref/owner/attempt。在 run 返回 interrupted 前真实 checkpoint 必须已持久化；取消必须让所有底层调用停止，不能启动脱离调用生命周期的后台 graph/写入，也不能开启图内并行。业务事务与 checkpoint 分开，副作用须以业务键重放收敛并检查 ownership。若 PG/checkpoint 客户端不能及时停止，进程硬退出后等待 supervisor 终止确认再恢复；本任务不证明真实 SDK 的取消/恢复行为。
