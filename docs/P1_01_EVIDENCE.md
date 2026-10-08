@@ -6,7 +6,7 @@
 
 ## 实际本地运行
 
-记录时间：2026-10-08 17:08（Asia/Shanghai，以下命令在本轮此前实际执行）。机器：macOS / Darwin arm64；Python 3.12.13、uv 0.11.25、项目 Node 24.21.0/npm 11.19.0、Gitleaks 8.30.1。全局 Node 仍为 20.20.1，未升级；没有全局依赖安装。
+本地运行日期：2026-10-08（Asia/Shanghai；以下汇总本轮实际执行结果，统一检查最终复验时间见页末记录）。机器：macOS / Darwin arm64；Python 3.12.13、uv 0.11.25、项目 Node 24.21.0/npm 11.19.0、Gitleaks 8.30.1。全局 Node 仍为 20.20.1，未升级；没有全局依赖安装。
 
 证据模式：`source_mode=not_applicable`（技术骨架无电商数据），`model_mode=not_used`，`approval_mode=not_used`。合成扫描值是无效随机测试数据；实际 HTTP 进程 smoke 是本机技术运行，不是业务或真实平台联调。
 
