@@ -2,7 +2,7 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 已收口；Phase 1 的 P1-01 已经用户确认合入 main、main CI 通过并正式完成，P1-02 Docker/PG/迁移正在独立实施。main 已有工程骨架、依赖锁和基础 CI，尚无业务功能或 PG/Checkpoint/飞书 Gate 通过结论。**
+**当前阶段：Phase 0 已收口；Phase 1 的 P1-01 已经用户确认合入 main、main CI 通过并正式完成，P1-02 已交付 PR #11 待独立审核。main 已有工程骨架、依赖锁和基础 CI，尚无业务功能或 PG/Checkpoint/飞书 Gate 通过结论。托管与受限自动集成方案待用户批准，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
 
 任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；本会话负责阶段主控，合并仍待用户明确确认。
 

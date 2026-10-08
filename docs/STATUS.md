@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 P1-01 已合入 main 并正式完成，P1-02 独立实施中**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-08（Asia/Shanghai）。当前处于 **Phase 1 P1-01 已完成；P1-02 已交付 PR #11 待独立审核；托管/受限自动集成方案待用户批准**。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
 ## 1. 基线与授权
 
@@ -18,7 +18,7 @@ Phase 0 历史记录保持原样。[规划 PR #8](https://github.com/aning0922/c
 
 P1-01 实施 chat：`01a11aba-4314-7b03-8403-2ac70ab16f88`（本机），标题“Phase 1 · P1-01 工程骨架与基础 CI”，推理强度 `high`，模型沿用用户默认值。首次 head 206c907、修复 head ac773b8 已保留，最终内容经 PR #9 合入 main a0d521e；会话现 idle，原 Worktree/分支保留，没有擅自删除或改写历史。
 
-P1-02 实施 chat：`01a11b26-75bf-7ca2-9735-d48553a3af78`（本机），请求标题“Phase 1 · P1-02 Docker、PostgreSQL 与迁移”，推理强度 `high`，模型沿用默认值。已派发从最新 main 独立 Worktree 实施 Issue #3，为迁移/数据模型合同唯一负责人；当前不并行派发其他会修改 schema/锁文件/CI 的实施任务。接单 Worktree/分支及实际结果由会话写回 Issue/PR，主控回读核对。
+P1-02 实施 chat：`01a11b26-75bf-7ca2-9735-d48553a3af78`（本机），标题“Phase 1 · P1-02 Docker、PostgreSQL 与迁移”，推理强度 `high`。已交付 PR #11 后 idle，Worktree `/Users/aipuli/.codex/worktrees/phase1-postgres/commerceops-agent` 干净、head `bcbd9331257d3285234c47a22ecefe29815a582b`。保留原实施者为迁移/模型合同唯一负责人，不重复派发或并行写其工作目录；CI/G1 技术记录见 8。
 
 独立技术审核 chat：`01a11adc-3510-75f1-a299-bc23e9bbf278`（本机），标题“Phase 1 · P1-01 独立技术审核”，推理强度 `high`，模型沿用默认值。首轮发现见 [原 COMMENT review](https://github.com/aning0922/commerceops-agent/pull/9#pullrequestreview-5454598608)；对 ac773b8 的 [独立复审](https://github.com/aning0922/commerceops-agent/pull/9#pullrequestreview-5455091549) 已完成，原三项均已解决，未发现新的可复现阻断问题，可进入用户明确合并确认。复审为独立 Codex 技术 COMMENT，不冒充人工外审、平台 approval 或合并授权。
 
@@ -29,7 +29,7 @@ P1-02 实施 chat：`01a11b26-75bf-7ca2-9735-d48553a3af78`（本机），请求�
 | 编号 / Issue | 交付目标 | 启动依赖 | 当前状态 | 交付 PR / 运行证据 |
 |---|---|---|---|---|
 | P1-01 [#2](https://github.com/aning0922/commerceops-agent/issues/2) | 工程骨架、Python/Node 项目工具链与锁、基础 CI/敏感检查 | 依赖/审核/用户合并确认已满足 | completed；Issue 已关闭 | [PR #9](https://github.com/aning0922/commerceops-agent/pull/9) MERGED / main a0d521e 实际 CI 通过 |
-| P1-02 [#3](https://github.com/aning0922/commerceops-agent/issues/3) | Docker/PG、最小业务迁移、独立 checkpointer setup，G1 | P1-01 已合入；Docker daemon 已可连接 | in_progress；独立会话已派发 | 无 / G1 的 PG/迁移/卷/setup 尚未验收 |
+| P1-02 [#3](https://github.com/aning0922/commerceops-agent/issues/3) | Docker/PG、最小业务迁移、独立 checkpointer setup，G1 | P1-01 已合入；Docker daemon 已可连接 | in_review；原会话已交付后 idle，尚未独立审核/合并 | [PR #11](https://github.com/aning0922/commerceops-agent/pull/11) / bcbd933 同 head CI SUCCESS，42 offline/13 real PG |
 | P1-03 [#4](https://github.com/aning0922/commerceops-agent/issues/4) | 持久任务、单 Worker 启动互斥与统一串行 runner | P1-02 代码合入及真实 PG 可用 | waiting_dependencies | 无 / 未执行 |
 | P1-04 [#5](https://github.com/aning0922/commerceops-agent/issues/5) | 真实 PG Checkpoint interrupt/resume/crash，G2 | P1-03 代码合入、G1 和 runner 合同稳定 | waiting_dependencies | 无 / 未执行 |
 | P1-05 [#6](https://github.com/aning0922/commerceops-agent/issues/6) | 飞书官方 SDK 消息/新版卡片/Base，G3 | 离线：P1-01；真测：另需 P1-02、指定测试资源与配置 | waiting_dependencies；真测外部前置未满足 | 无 / 未执行 |
@@ -59,8 +59,8 @@ P1-02 实施 chat：`01a11b26-75bf-7ca2-9735-d48553a3af78`（本机），请求�
 | 条件 | 当前结论 | 必须取得的证据 / 责任任务 |
 |---|---|---|
 | 基础 CI/敏感检查 | verified_on_main；P1-01 基础部分通过 | main a0d521e 的实际 CI/42 回归/17 文档与扫描通过；P1-02/04 仍须补真实 PG migration/checkpoint smoke |
-| 依赖锁与项目隔离 | P1-01 verified_on_main；PG 镜像尚未实测 | Python/Node 锁、安装/许可证随实现合入；P1-02 的 PG 镜像 digest 仍待实测，不据此将 G1 标绿 |
-| G1 Docker/PG | in_progress；daemon 阻塞已解除，整体未达到 | 已启动既有 Docker Desktop，daemon 可连接；PG 健康/卷/业务 migration/checkpointer setup 由 P1-02 实测，不能将只连接 daemon 算通过 |
+| 依赖锁与项目隔离 | P1-01 verified_on_main；PG 镜像证据已提交待审核 | Python/Node 锁、安装/许可证已随 P1-01 合入；PR #11 提交 PG17.11/digest 实测证据，未审核/集成，不据此将 G1 标绿 |
+| G1 Docker/PG | evidence_submitted；待独立审核/集成核对 | PR #11 有 PG17.11/digest、revision、13真实PG测试及卷/迁移/setup恢复实证；当前只核对交付/head/CI与原记录，不提前宣布正式 Gate 通过 |
 | 单 Worker/单 Graph 基线 | not_run | P1-03/04：S01–S03，第二进程拒绝启动、全局活跃 Graph ≤1、待审批释放槽、锁丢失停止与确认旧进程终止后恢复 |
 | G2 Checkpoint | not_run；依赖 G1 与 Worker | P1-04：真实 PG interrupt、同 thread 跨进程恢复、业务探针提交后/checkpoint 前 kill、原幂等回执与图版本防错 |
 | G3 飞书消息/回调/Base | blocked_external；未达到 | P1-05：真实私聊/群 @、card.action.trigger、专用确认/拒绝 action 与对象确认键往返、operator/event/时延、Base 创建/读回/更新与重复 |
@@ -93,10 +93,10 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 | 项目 | 当前影响 | 处理边界 |
 |---|---|---|
 | 任务授权与派发 | P1-01 已完成，P1-02 已派发 | 已获得 Phase 1 实施编排及本轮 #8/#9 合并授权；其余按依赖/Gate 安排，不重复索取普通实施授权，不擅自合并后续 PR 或进入下一 Phase |
-| Docker/PG 环境 | daemon 已可用；G1 的 PG/迁移/setup 仍待完成 | 主控正常启动已安装 Docker Desktop，没有安装/更改全局工具；执行会话使用独立项目名/测试库/卷，不能删除未知用户资源 |
+| Docker/PG 环境 | daemon 已可用；G1 的 PG/迁移/setup 证据已提交待审核 | 主控正常启动已安装 Docker Desktop，没有安装/更改全局工具；PR #11 提交真实 PG/卷/迁移/setup 记录，仍待独立审核和集成；执行者使用独立测试资源，不删除未知用户资源 |
 | 飞书测试资源 | G3 未具备可验证凭证/组织/发布/最小权限/Base 资源证据 | 专用测试组织、自建应用、允许测试身份/群和 Base；秘密只填本地未跟踪配置，不在 Issue/聊天中索取或保存值 |
 | 真实平台操作范围 | 当前只派发离线工程底座，未执行真实联调 | 后续仅在指定测试资源与配置齐备后执行受控探针；扩权限、HTTP 公网/隧道、云部署另行确认，不得接生产表或修改库存/订单 |
-| 版本组合与容器接入 | P1-01 最小依赖/工具链有实证；SDK/PG 尚未选入 | 后续任务增量锁定并实测；当前 API 仅 loopback liveness，P1-02 容器入口/配置须协调扩展，不能将当前 liveness 当 DB readiness |
+| 版本组合与容器接入 | P1-01 工具链已有实证；PG 依赖与镜像在 PR #11 待审核，飞书 SDK 尚未选入 | 后续任务增量锁定并实测；main API 仅 loopback liveness，P1-02 容器入口/配置随 PR #11 审核，不能将当前 liveness 当 DB readiness |
 | main 无分支保护 | 远程尚未自动强制 Gate | 合并前人工核查，不自行修改保护设置；无成功 CI/审核/用户确认不得合并 |
 | 共享文件集成 | 迁移、锁文件、runner 和 workflow 易产生冲突 | 单一负责人、Issue/PR 合同、串行合入；发现架构差异暂停相关修改并交主控审核 |
 
@@ -143,3 +143,13 @@ P1-04 的幂等写入是隔离 test schema 中的技术 receipt，不是正式�
 - P1-01 满足交付/必要测试/修复/独立技审/用户确认合并/main 核对合同，Issue #2 已更新 completed 并关闭。只表示本任务正式完成；没有 PG/Checkpoint/飞书真测或 Phase 1 全 Gate 通过结论。
 - 主控正常启动已安装 Docker Desktop 4.83.0，随后 `docker info --format '{{.ServerVersion}}'` 返回 29.6.2、exit 0；Compose v5.3.1。仅启动应用，未安装/升级全局工具或修改系统配置。此前 daemon 不可连接的证据保留为当时状态，当前阻塞已解除；PG/卷/迁移/setup 仍待 P1-02 运行证据。
 - P1-02 已从此 main 派发独立 high 推理会话，Issue #3 的代码与 daemon 前置已满足。范围仅 Compose/PG/最小迁移/独立 checkpointer setup 和持久层约束，禁止提前实现 Worker/业务 Graph/审批/补货或真实平台写操作。后继 #4/#5 仍等待依赖，#6 未因允许并行就提前派发；未进入 Phase 2。
+
+## 8. 托管模式核对与待批准迁移
+
+本轮用户要求持续目标驱动、优先子代理、主控不承担主体编码，并在明确批准后启用受限自动集成。方案见 [PHASE1_MANAGED_EXECUTION](PHASE1_MANAGED_EXECUTION.md)，随已有 PR #10 供审查。本轮只修改文档；CI 触发改动批准后交独立执行 Agent 的隔离 Worktree 实现。当前未激活阶段 Goal、创建远端集成分支、改变 #10/#11 base 或执行自动合并。
+
+- 实际 GitHub：main a0d521e、Private；#10 OPEN/原 804cc54 CI SUCCESS；#11 OPEN、base main、head bcbd933、[run 37768892191](https://github.com/aning0922/commerceops-agent/actions/runs/37768892191) head 一致/SUCCESS。#11 尚无独立 review，Issue #3 不关闭；当前 main 的旧阶段状态介绍因 #10 未合入而滞后，任务事实以 GitHub 合并/Issue/PR 当前记录为准。
+- P1-02 [最终交付](https://github.com/aning0922/commerceops-agent/issues/3#issuecomment-6058737457) 包含 42 offline/13 real PG、本机 arm64 与远端 Linux、PG17.11 固定 digest、business revision0001_task_foundation、checkpoint migrations max(v)=9、空库/重复初始化、组织/店铺约束、迁移失败回滚、setup部分失败恢复、持久卷重启/重建及停库恢复断言。它们是已提交技术运行证据；独立审查/集成未完成，不将 saver 存储回读计为 G2。
+- 能力实测：`get_goal` 返回 null，阶段 Goal 还未创建；独立上下文子 Agent 完成只读可行性审计。`send_message_to_thread` 与 `wait_threads` 已实际接续/收到原 P1-02 顶层会话结果，确认 bcbd933、干净工作树与成功 CI，未改变成果。子 Agent 与顶层会话均可驱动/等待，前者默认共享文件系统，必须显式分配独立分支/Worktree，reviewer 与开发者分开。GitHub 权限 admin、main protected=false；工具可用不扩大权限，也不承诺主机休眠/应用离线时持续执行。
+- 拟迁移：批准后从最新 main 创建 `phase/1-integration`；#10 改 base 后，主控交接分支给独立 CI 执行 Agent 的独立 Worktree，取得实际 trigger 修改/新 CI/独立审核再内部合入，让集成 push 获得 CI；#11 随后改 base，由原实施者处理必要同步/修复，独立 reviewer 审核，门禁通过后内部合入并验证集成 commit，再放行 #4。原 P1-02 Worktree/提交/PR 保留，不 force/rebase，不改仓库可见性或保护策略。
+- 核对发现：workflow 的 push 过滤仅 main、PR 默认不含 edited，改 base 或重跑旧 workflow 不能直接证明新合并上下文。批准后由独立执行者补 CI 触发，再核对实际 run；#3–#7 原依赖/正式完成合同绑定 main，须经本次批准改为阶段内已验证集成 commit，最终 main 仍由用户确认。没有真实飞书/卡片/Base证据时，G3保持未通过。
