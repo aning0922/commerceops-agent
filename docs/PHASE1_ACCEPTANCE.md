@@ -106,3 +106,5 @@ ROADMAP的Phase2确定性库存范围与3–4工作日计划量暂不调整：�
 原P1-02另完成[#20](https://github.com/aning0922/commerceops-agent/issues/20)凭据路径安全补强，经[PR21独立审查](https://github.com/aning0922/commerceops-agent/pull/21#issuecomment-6066333962)、定向28项和实际CI后合入41323ec。其[合后push CI37824425891](https://github.com/aning0922/commerceops-agent/actions/runs/37824425891)140offline/79真实PG成功；[最终Draft PR19](https://github.com/aning0922/commerceops-agent/pull/19)的[main候选CI37824438717](https://github.com/aning0922/commerceops-agent/actions/runs/37824438717)也成功，但main仍a0d521e。新报告提交自身的审核/CI/集成记录继续由Issue7追加，不循环改写自身提交事实。
 
 上述新事实不改变第7节阶段判定：G3全部必要平台证据仍缺，不推荐全Phase1通过、main合并或进入Phase2。
+
+当前组合复验另有未解异常：[PR22 CI37833575792](https://github.com/aning0922/commerceops-agent/actions/runs/37833575792)在25分钟job上限后cancelled，140offline/60.14秒通过，但没有PG组合汇总和cleanup完成证据。相关源码只有文档差异，不能据此认定故障原因或沿用旧成功结案。[Issue23](https://github.com/aning0922/commerceops-agent/issues/23)已建立有界隔离调查合同；按用户异常CI需人工确认的边界，等待受控诊断授权，PR22和最终PR19均不合入。细节见[STATUS第11节](STATUS.md#11-pr22-组合复验超时待受控诊断)。

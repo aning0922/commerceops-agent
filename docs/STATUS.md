@@ -211,3 +211,9 @@ P1-04/G2最终集成：PR17冻结9e21与mergecc06的tree均f507db243718452555b45
 | 正式入口检查 | 本地准备检查verify-config返回2/INCOMPLETE_CONFIG，尚未执行完整结构验证，不能写成passed；EXTERNAL_READY=false。有限只读身份采样只在准备/独立审查阶段，真实长连接仍待明确范围和运行授权；正式Gateway未启动 |
 
 G1/G2保持verified_on_integration；G3必要消息/卡片回调/Base读写和原键重投仍为not_run。离线SDK、真实只读Bot API、原生UI、真实PG和后续真人平台测试分别记账。#6/#7保持OPEN，不推荐全阶段通过或进入Phase2。最终main合并仍须所有必要Gate、独立最终审查、实际CI及合后核对，现有委托不降低这些条件。
+
+## 11. PR22 组合复验超时，待受控诊断
+
+[PR22](https://github.com/aning0922/commerceops-agent/pull/22)冻结8f5572778d136ee2348915d60a419965db66c7be相对41323ec只改两份阶段文档，独立文档审查无问题；[CI37833575792](https://github.com/aning0922/commerceops-agent/actions/runs/37833575792)实际checkout a6ee1108b593454a92e61974c6dd03e7a022e4d3（8f合入413），2026-10-09 03:39:30–04:04:50（北京时间）超过25分钟job上限，Actions终态cancelled。140offline/60.14秒、两项既有SDK warning及24Markdown/Foundation checks成功；PG healthy与两轮migrate/checkpointer/grant/revision成功，03:42:14进入组合测试，04:04:47被终止。没有PG测试汇总、完整新G1/G2或cleanup完成证据，不计本次CI通过。
+
+只读核查与原P104接续准备已完成：相关源码与旧通过版本一致，输出捕获、SQL/async/子进程等待存在待查窗口，但目前未定位具体用例或根因。调查合同见[Issue23](https://github.com/aning0922/commerceops-agent/issues/23)，采用全新隔离自有PG项目、有界逐组/单例采样和仅自有资源清理；主控按用户“无法解释CI/恢复测试失败须人工确认”的边界暂停新实跑、修复推送和合入，等待确认受控诊断。历史413成功证据保留，不能覆盖本次超时；PR22保持OPEN未合入，PR19保持Draft，main仍a0。G3的身份/群范围、Wiki最小权限选择和只读采样授权也仍待回复，不进入Phase2。
