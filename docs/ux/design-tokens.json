@@ -184,5 +184,19 @@
       "not_all_spacing_type_radius_bound": true
     },
     "delivery": "c2-b1b-delivery.md"
+  },
+  "m1_freeze_candidate": {
+    "revision": "m1-ui/0.4.0-b3",
+    "status": "pending_final_review",
+    "native_token_catalog": {
+      "set_name": "CommerceOps/M1-B1a",
+      "set_id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "active": true,
+      "count": 33
+    },
+    "component_count": 18,
+    "source_palette_and_geometry": "m1_candidate",
+    "current_mapping": "evidence/c2-b3/design-map.json",
+    "reuse": "same existing tokens/components; color fills bound; not all geometry/type properties bound; no code synchronization claim"
   }
 }

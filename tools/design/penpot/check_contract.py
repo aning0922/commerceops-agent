@@ -83,7 +83,10 @@ def check_b1b(screens, interactions):
         not screens["followup_authorization"]["C2-B2"] or screens.get("b2_delivery"),
         "B2授权必须有独立交付记录",
     )
-    require(not screens["followup_authorization"]["C2-B3"], "不得启动B3")
+    require(
+        not screens["followup_authorization"]["C2-B3"] or screens.get("b3_delivery"),
+        "B3授权必须有独立交付记录",
+    )
     print("M1 B1b：原生UUID/命名版本/冻结清单与实际Viewer记录一致；业务未实现")
 
 
@@ -94,9 +97,12 @@ def check_b2(screens, interactions):
     previous = read(UX / "evidence/c2-b1b/design-map.json")
     events = read(UX / "evidence/c2-b2/prototype-ui-events.json")["events"]
     summary = read(UX / "evidence/c2-b2/verification-summary.json")
-    require(screens["authorization_scope"] == "C2-B2", "B2授权范围错误")
+    require(screens["authorization_scope"] in {"C2-B2", "C2-B3"}, "B2历史授权范围错误")
     require("C2-B2" in screens["authorized_design_batches"], "缺B2明确授权")
-    require(not screens["followup_authorization"]["C2-B3"], "不得启动B3")
+    require(
+        not screens["followup_authorization"]["C2-B3"] or screens.get("b3_delivery"),
+        "B3授权必须有独立交付记录",
+    )
     require(sample["revision"] == saved["revision"] == "m1-ui/0.3.0-b2", "B2版本错误")
     require(sample["revn"] == saved["revn"], "B2持久版本不一致")
     require(sample["file"]["id"] == saved["fileId"] == previous["file"]["id"], "正式文件改变")
@@ -118,6 +124,8 @@ def check_b2(screens, interactions):
     require(sum(t["count"] for t in sample["tokenSets"]) == 33, "既有Token数量改变")
     require(not any(c["stableId"] == "M1-B09" for c in controls.values()), "禁止通用恢复入口")
     for screen in screens["planned_screens"]:
+        if screens["authorization_scope"] == "C2-B3":
+            continue  # 当前映射由check_b3检查；本函数保留B2历史证据核对。
         if not screen["penpot"]:
             continue
         require(screen["implementation_status"] == "not_implemented", "设计不是业务实现")
@@ -126,6 +134,8 @@ def check_b2(screens, interactions):
         )
     for event in interactions["planned_interactions"]:
         for instance in event.get("penpot_instances", []):
+            if instance["revision"] != sample["revision"]:
+                continue
             c = controls[instance["shape_id"]]
             require(
                 c["stableId"] == event["control_id"] and c["eventId"] == event["id"],
@@ -200,6 +210,74 @@ def check_b2(screens, interactions):
         "最终关键窄屏/飞书转Web路径未通过",
     )
     print("M1 B2：当前UUID/禁用卡片/完整清单/角色与390实点一致；真实后端及飞书未验收")
+
+
+def check_b3(screens, interactions):
+    """核对B3当前映射、受限控件和持久版本；不将Viewer当作真实业务验收。"""
+    sample = read(UX / "evidence/c2-b3/design-map.json")
+    saved = read(UX / "evidence/c2-b3/after-reload-read.json")
+    previous = read(UX / "evidence/c2-b2/design-map.json")
+    require(screens["authorization_scope"] == "C2-B3", "缺B3明确授权")
+    require(sample["revision"] == saved["revision"] == "m1-ui/0.4.0-b3", "B3版本错误")
+    require(sample["file"]["id"] == saved["fileId"] == previous["file"]["id"], "正式文件改变")
+    require(sample["revn"] == saved["revn"], "B3持久版本不一致")
+    persisted = read(UX / "evidence/c2-b3/persisted-version-metadata.json")
+    require(persisted["mcp_api_reported_revn"] == saved["revn"], "MCP回报版本记录不一致")
+    require(
+        persisted["database_persisted_revn"] == sample["persisted_native_revn"]
+        and any(
+            v["label"] == sample["named_version"]
+            and v["persisted_revn"] == sample["persisted_native_revn"]
+            for v in persisted["versions"]
+        ),
+        "缺数据库命名快照持久化核对",
+    )
+    require(sample["validation"] == saved["validation"] == [], "B3原生校验失败")
+    require(not saved["overflow"] and not saved["outside"], "B3可见布局溢出")
+    require(sample["counts"]["imageFills"] == 0, "B3必须使用原生对象")
+    require(any(v["label"] == sample["named_version"] for v in saved["versions"]), "B3版本缺失")
+    boards = {b["shapeId"]: b for b in sample["screens"]}
+    controls = {c["shapeId"]: c for c in sample["controls"]}
+    require(set(boards) == {b["shapeId"] for b in saved["screens"]}, "B3页面UUID改变")
+    require(set(controls) == {c["shapeId"] for c in saved["controls"]}, "B3控件UUID改变")
+    require({b["shapeId"] for b in previous["screens"]} <= boards.keys(), "已有页面丢失")
+    removed = {c["shapeId"] for c in previous["controls"]} - controls.keys()
+    require(removed == {"b806b597-0eb0-80b2-8008-c38740d37e69"}, "仅允许删除重复返回控件")
+    require(sample["components"] == previous["components"], "不得创建第二套组件库")
+    require(sample["tokenSets"] == previous["tokenSets"], "不得变更既有Token体系")
+    require(
+        saved["narrow"] == read(UX / "evidence/c2-b2/after-reload-read.json")["narrow"],
+        "冻结SKU清单改变",
+    )
+    targets = {b["shapeId"] for b in saved["rootOrder"]}
+    reread = {c["shapeId"]: c for c in saved["controls"]}
+    for c in controls.values():
+        require(c["interactions"] == reread[c["shapeId"]]["interactions"], "刷新后连接改变")
+        require(c["interactions"] or c["disabled"], "缺动作及禁用原因")
+        for a in c["interactions"]:
+            require(a.get("destination") in targets or a["type"] == "close-overlay", "目标缺失")
+        if c["stableId"] in {"M1-B36", "M1-B47", "M1-B32", "M1-B34"}:
+            require(not c["interactions"] and c["disabled"], "未确认操作不得模拟业务成功")
+    for s in screens["planned_screens"]:
+        require(boards[s["penpot"]["shape_id"]]["stableId"] == s["id"], "逻辑页面映射错误")
+        require(s["implementation_status"] == "not_implemented", "设计不是实现")
+    for e in interactions["planned_interactions"]:
+        instances = e.get("penpot_instances", [])
+        require(bool(instances) == (e["control_id"] != "M1-B09"), "控件覆盖缺失或恢复入口误启用")
+        for i in instances:
+            c = controls[i["shape_id"]]
+            require(c["eventId"] == e["id"] and c["stableId"] == e["control_id"], "事件映射错误")
+    events = read(UX / "evidence/c2-b3/prototype-ui-events.json")["events"]
+    require(sum(e["action"] == "click" and e["passed"] for e in events) >= 50, "B3实点记录不足")
+    for label in [
+        "关闭解释，返回报告",
+        "查看 report v0（Mock）",
+        "打开下一周期草稿",
+        "查看只读管理说明",
+        "关联回复 · 待 BC02 确认",
+    ]:
+        require(any(e.get("label") == label and e["passed"] for e in events), "关键实点缺失")
+    print("M1 B3：18逻辑页面、46可渲染事件、当前UUID/禁用合同与实际Viewer证据一致；候选待外审")
 
 
 def main():
@@ -293,10 +371,16 @@ def main():
         require(
             all(not s["textOverflow"] and not s["outOfBoard"] for s in samples.values()), "样板溢出"
         )
-        if screens.get("m1_visual_revision") in {"m1-ui/0.2.0-b1b", "m1-ui/0.3.0-b2"}:
+        if screens.get("m1_visual_revision") in {
+            "m1-ui/0.2.0-b1b",
+            "m1-ui/0.3.0-b2",
+            "m1-ui/0.4.0-b3",
+        }:
             check_b1b(screens, interactions)
-            if screens.get("m1_visual_revision") == "m1-ui/0.3.0-b2":
+            if screens.get("m1_visual_revision") in {"m1-ui/0.3.0-b2", "m1-ui/0.4.0-b3"}:
                 check_b2(screens, interactions)
+            if screens.get("m1_visual_revision") == "m1-ui/0.4.0-b3":
+                check_b3(screens, interactions)
         else:
             require(screens["authorization_scope"] == "C2-B1a_only", "设计授权范围错误")
             require(not any(screens["followup_authorization"].values()), "后续批次未获授权")

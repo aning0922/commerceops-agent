@@ -1,0 +1,39 @@
+{
+  "events": 59,
+  "click_attempts": 55,
+  "clicks_dispatched_and_asserted": 53,
+  "failures": [
+    {
+      "event": 1,
+      "action": "viewer_entry",
+      "label": null,
+      "expected": null
+    },
+    {
+      "event": 48,
+      "action": "click",
+      "label": "读取当前事实（模拟）",
+      "expected": "当前版本 v2"
+    },
+    {
+      "event": 50,
+      "action": "click",
+      "label": "读取当前事实（模拟）",
+      "expected": "当前版本 v2"
+    }
+  ],
+  "failure_explanation": "First entry read was a transient incomplete AX snapshot; two conflict assertions incorrectly expected current v2 while preserved native target is a read-only existing v1 receipt. Failures retained and corrected target rechecked.",
+  "failure_rechecks": {
+    "1": 55,
+    "48": 51,
+    "50": 51
+  },
+  "native_layouts": "6 existing 390px boards independently identified and captured",
+  "viewer_viewport": {
+    "height": 1224,
+    "width": 639
+  },
+  "viewport_override": "requested sizes did not take effect in IAB; do not claim real 1440/390 viewport or responsive frontend pass",
+  "editor_reload": false,
+  "viewer_reload": true
+}

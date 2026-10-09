@@ -1,11 +1,16 @@
 {
-  "status": "partial design candidate only",
+  "status": "B3 design freeze candidate checks passed; business and platform acceptance pending",
   "checks": [
     {
-      "name": "historical POC/B1a/B1b/B2 design contract",
+      "name": "POC/B1/B2 history and current B3 contract",
       "passed": true,
-      "command": "python3 tools/design/penpot/check_contract.py",
-      "scope": "Existing B2 machine contracts untouched; not B3 final acceptance"
+      "command": ".venv/bin/python tools/design/penpot/check_contract.py",
+      "scope": "UUID/events/disabled contracts/named version plus isolated database metadata and actual Viewer records"
+    },
+    {
+      "name": "Python lint and format",
+      "passed": true,
+      "command": ".venv/bin/ruff check tools/design/penpot/check_contract.py; .venv/bin/ruff format --check tools/design/penpot/check_contract.py"
     },
     {
       "name": "Markdown links/fences and Git whitespace",
@@ -25,14 +30,14 @@
     }
   ],
   "initial_environment_failures": [
-    "system python check_docs missing markdown_it",
-    "script direct invocation missing scripts package path"
+    "system python missing markdown_it",
+    "direct script invocation missing scripts package path"
   ],
-  "correction": "Used existing project .venv and module entry points; no global environment changes.",
+  "correction": "Existing project venv and module entrypoints; no global environment changes",
   "not_run": [
-    "B3 final contract acceptance",
-    "business tests",
-    "Next.js tests",
-    "real Feishu tests"
+    "real Next.js keyboard/focus/input/responsive/authorization tests",
+    "real M1 Feishu card capacity/approval/clarification tests",
+    "native penpot archive round trip",
+    "off-host backup restore"
   ]
 }

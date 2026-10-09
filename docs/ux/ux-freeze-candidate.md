@@ -1,6 +1,6 @@
 # M1 UX 设计冻结候选与前端交接
 
-**状态：中断草稿，未就绪；最终Viewer/命名版本/刷新回读未完成。**
+**状态：本轮设计、合同检查与原型交接已完成，冻结候选待最终外部评审；未正式冻结或合main。**
 
 候选：`m1-ui/0.4.0-b3`，C1 合同 `0.2.1-c1-revision`。用户在 2026-10-09（Asia/Shanghai）确认 B2 外部产品与交互评审通过并授权 B3。**这是设计冻结候选，不是业务 Gate 或正式冻结结论；最终评审及用户合并确认尚未取得。**
 
@@ -11,7 +11,7 @@
 1. [C1 产品合同](c1-product-design.md)、[修订决策](c1-decisions.md)是产品语义依据。
 2. [screens.yaml](screens.yaml)定义 18 个逻辑页面/辅助层、角色、状态和数据边界；一个逻辑页面可以对应多个布局/局部面板 UUID。
 3. [interactions.yaml](interactions.yaml)定义 B01–B47 / E01–E47；B09 历史保留但不可渲染，不接通用恢复动作。
-4. 当前原生 UUID、控件所属页面及实际 navigation/overlay 目标以本批回读映射为准；历史 B1/B2 证据不能冒充 B3 的保存后回读或实点结果。
+4. 当前原生 UUID、控件所属页面及实际 navigation/overlay 目标以[全量B3映射](evidence/c2-b3/design-map.json)和[前端索引](evidence/c2-b3/frontend-map.json)为准；历史 B1/B2 证据不能冒充 B3 的保存后回读或实点结果。
 5. 本文件规定 Next.js 组件、数据需求和待确认协议；所有业务 implementation 仍为 `not_implemented`。
 
 ## 2. 页面、路由、组件与数据

@@ -1,0 +1,98 @@
+[
+  {
+    "index": 46,
+    "frame": "approval-expired",
+    "observed": "Browser tab: 2, Title: \"▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot\", URL: \"http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=46\".\n1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=46\n\t2 image\n\t3 image\n\t4 image\n\t5 container viewer-layout\n\t\t6 container viewer-section\n\t\t\t7 button 前一项\n\t\t\t\t8 image\n\t\t\t9 button 下一项\n\t\t\t\t10 image\n\t\t\t11 container\n\t\t\t\t12 button\n\t\t\t\t\t13 image\n\t\t\t\t14 text 47 / 112\n\t\t\t15 container\n\t\t\t\t16 image\n\t\t\t\t17 image\n\t\t\t\t\t56 text CommerceOps · Mock 原型 / 状态样例\n\t\t\t\t\t57 text 审批期限已过\n\t\t\t\t\t58 text DEMO-PLAN-008 / v1 · Mock\n\t\t\t\t\t59 text 按服务端期限判定，不使用固定前端期限。\n\t\t\t\t\t60 text 旧批准入口关闭；旧确认不可复用。\n\t\t\t\t\t61 text 重新发起合同待 B3 / BC03，不在这里重算。\n\t\t\t\t\t62 text 仅验证设计交互 · 后端与飞书合同待验收\n\t\t\t\t\t63 text 返回状态评审\n\t\t\t\t\t64 text 返回状态评审\n\t\t35 container\n\t\t\t36 container 站点地图\n\t\t\t\t37 text DRAFTS\n\t\t\t\t38 container\n\t\t\t\t\t39 text CommerceOps M1 · C2-B1a 视觉样板 / 01 / M1 · 主闭环、身份与异常\n\t\t\t\t\t40 image\n\t\t\t\t\t41 text /\n\t\t\t\t42 container current-frame\n\t\t\t\t\t43 text M1-S04 / B2 · approval-expired · 390px\n\t\t\t\t\t44 image\n\t\t\t45 button 交互（G V）\n\t\t\t\t46 image\n\t\t\t47 button 评论（G C）\n\t\t\t\t48 image\n\t\t\t49 button 检查（G I）\n\t\t\t\t50 image\n\t\t\t51 container\n\t\t\t\t52 text 交互\n\t\t\t\t53 image\n\t\t\t54 text 100%\n\t\t\t55 button 分享\n\nThe focused UI element is 1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=46",
+    "passed": true,
+    "requestedViewport": {
+      "width": 390,
+      "height": 1000
+    },
+    "actualViewport": {
+      "width": 639,
+      "height": 1224
+    },
+    "nativeBoardWidth": 390,
+    "scope": "native 390 layout and Viewer observation; no responsive frontend claim"
+  },
+  {
+    "index": 43,
+    "frame": "approval-version",
+    "observed": "Browser tab: 2, Title: \"▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot\", URL: \"http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=43\".\n1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=43\n\t2 image\n\t3 image\n\t4 image\n\t5 container viewer-layout\n\t\t6 container viewer-section\n\t\t\t7 button 前一项\n\t\t\t\t8 image\n\t\t\t9 button 下一项\n\t\t\t\t10 image\n\t\t\t11 container\n\t\t\t\t12 button\n\t\t\t\t\t13 image\n\t\t\t\t14 text 44 / 112\n\t\t\t15 container\n\t\t\t\t16 image\n\t\t\t\t17 image\n\t\t\t\t\t56 text CommerceOps · Mock 原型 / 状态样例\n\t\t\t\t\t57 text 计划版本已变化\n\t\t\t\t\t58 text 正在查看 v1；当前计划已是 v2（Mock）。\n\t\t\t\t\t59 text 旧审批和未知在途确认只绑定 v1。\n\t\t\t\t\t60 text 先读取当前事实；不把旧批准迁移到新版本。\n\t\t\t\t\t61 text 当前 v2 完整披露未完成，决定入口保持关闭。\n\t\t\t\t\t62 text 仅验证设计交互 · 后端与飞书合同待验收\n\t\t\t\t\t63 text 读取当前事实（模拟）\n\t\t\t\t\t64 text 返回状态评审\n\t\t35 container\n\t\t\t36 container 站点地图\n\t\t\t\t37 text DRAFTS\n\t\t\t\t38 container\n\t\t\t\t\t39 text CommerceOps M1 · C2-B1a 视觉样板 / 01 / M1 · 主闭环、身份与异常\n\t\t\t\t\t40 image\n\t\t\t\t\t41 text /\n\t\t\t\t42 container current-frame\n\t\t\t\t\t43 text M1-S04 / B2 · approval-version · 390px\n\t\t\t\t\t44 image\n\t\t\t45 button 交互（G V）\n\t\t\t\t46 image\n\t\t\t47 button 评论（G C）\n\t\t\t\t48 image\n\t\t\t49 button 检查（G I）\n\t\t\t\t50 image\n\t\t\t51 container\n\t\t\t\t52 text 交互\n\t\t\t\t53 image\n\t\t\t54 text 100%\n\t\t\t55 button 分享\n\nThe focused UI element is 1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=43",
+    "passed": true,
+    "requestedViewport": {
+      "width": 390,
+      "height": 1000
+    },
+    "actualViewport": {
+      "width": 639,
+      "height": 1224
+    },
+    "nativeBoardWidth": 390,
+    "scope": "native 390 layout and Viewer observation; no responsive frontend claim"
+  },
+  {
+    "index": 41,
+    "frame": "approval-duplicate",
+    "observed": "Browser tab: 2, Title: \"▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot\", URL: \"http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=41\".\n1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=41\n\t2 image\n\t3 image\n\t4 image\n\t5 container viewer-layout\n\t\t6 container viewer-section\n\t\t\t7 button 前一项\n\t\t\t\t8 image\n\t\t\t9 button 下一项\n\t\t\t\t10 image\n\t\t\t11 container\n\t\t\t\t12 button\n\t\t\t\t\t13 image\n\t\t\t\t14 text 42 / 112\n\t\t\t15 container\n\t\t\t\t16 image\n\t\t\t\t17 image\n\t\t\t\t\t56 text CommerceOps · Mock 原型 / 状态样例\n\t\t\t\t\t57 text 此决定已有记录\n\t\t\t\t\t58 text APR-DEMO-008 / v1 已批准（Mock）。\n\t\t\t\t\t59 text 陈审批 · 16:35 · 原决定与版本一致。\n\t\t\t\t\t60 text 展示既有回执；本次没有新的批准或执行。\n\t\t\t\t\t61 text 内部项创建事实另行读取，不由重复点击推断。\n\t\t\t\t\t62 text 仅验证设计交互 · 后端与飞书合同待验收\n\t\t\t\t\t63 text 查看既有回执\n\t\t\t\t\t64 text 返回状态评审\n\t\t35 container\n\t\t\t36 container 站点地图\n\t\t\t\t37 text DRAFTS\n\t\t\t\t38 container\n\t\t\t\t\t39 text CommerceOps M1 · C2-B1a 视觉样板 / 01 / M1 · 主闭环、身份与异常\n\t\t\t\t\t40 image\n\t\t\t\t\t41 text /\n\t\t\t\t42 container current-frame\n\t\t\t\t\t43 text M1-S04 / B2 · approval-duplicate · 390px\n\t\t\t\t\t44 image\n\t\t\t45 button 交互（G V）\n\t\t\t\t46 image\n\t\t\t47 button 评论（G C）\n\t\t\t\t48 image\n\t\t\t49 button 检查（G I）\n\t\t\t\t50 image\n\t\t\t51 container\n\t\t\t\t52 text 交互\n\t\t\t\t53 image\n\t\t\t54 text 100%\n\t\t\t55 button 分享\n\nThe focused UI element is 1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=41",
+    "passed": true,
+    "requestedViewport": {
+      "width": 390,
+      "height": 1000
+    },
+    "actualViewport": {
+      "width": 639,
+      "height": 1224
+    },
+    "nativeBoardWidth": 390,
+    "scope": "native 390 layout and Viewer observation; no responsive frontend claim"
+  },
+  {
+    "index": 39,
+    "frame": "approval-conflict",
+    "observed": "Browser tab: 2, Title: \"▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot\", URL: \"http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=39\".\n1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=39\n\t2 image\n\t3 image\n\t4 image\n\t5 container viewer-layout\n\t\t6 container viewer-section\n\t\t\t7 button 前一项\n\t\t\t\t8 image\n\t\t\t9 button 下一项\n\t\t\t\t10 image\n\t\t\t11 container\n\t\t\t\t12 button\n\t\t\t\t\t13 image\n\t\t\t\t14 text 40 / 112\n\t\t\t15 container\n\t\t\t\t16 image\n\t\t\t\t17 image\n\t\t\t\t\t56 text CommerceOps · Mock 原型 / 状态样例\n\t\t\t\t\t57 text 审批状态已被更新\n\t\t\t\t\t58 text 刚才的意图未提交为新的决定（Mock）。\n\t\t\t\t\t59 text 其他有效决定或版本变化已发生。\n\t\t\t\t\t60 text 先核对当前事实，不再展示批准 / 拒绝。\n\t\t\t\t\t61 text 不会自动换请求键或改 payload。\n\t\t\t\t\t62 text 仅验证设计交互 · 后端与飞书合同待验收\n\t\t\t\t\t63 text 读取当前事实（模拟）\n\t\t\t\t\t64 text 返回状态评审\n\t\t35 container\n\t\t\t36 container 站点地图\n\t\t\t\t37 text DRAFTS\n\t\t\t\t38 container\n\t\t\t\t\t39 text CommerceOps M1 · C2-B1a 视觉样板 / 01 / M1 · 主闭环、身份与异常\n\t\t\t\t\t40 image\n\t\t\t\t\t41 text /\n\t\t\t\t42 container current-frame\n\t\t\t\t\t43 text M1-S04 / B2 · approval-conflict · 390px\n\t\t\t\t\t44 image\n\t\t\t45 button 交互（G V）\n\t\t\t\t46 image\n\t\t\t47 button 评论（G C）\n\t\t\t\t48 image\n\t\t\t49 button 检查（G I）\n\t\t\t\t50 image\n\t\t\t51 container\n\t\t\t\t52 text 交互\n\t\t\t\t53 image\n\t\t\t54 text 100%\n\t\t\t55 button 分享\n\nThe focused UI element is 1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=39",
+    "passed": true,
+    "requestedViewport": {
+      "width": 390,
+      "height": 1000
+    },
+    "actualViewport": {
+      "width": 639,
+      "height": 1224
+    },
+    "nativeBoardWidth": 390,
+    "scope": "native 390 layout and Viewer observation; no responsive frontend claim"
+  },
+  {
+    "index": 36,
+    "frame": "approval-unknown",
+    "observed": "Browser tab: 2, Title: \"▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot\", URL: \"http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=36\".\n1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=36\n\t2 image\n\t3 image\n\t4 image\n\t5 container viewer-layout\n\t\t6 container viewer-section\n\t\t\t7 button 前一项\n\t\t\t\t8 image\n\t\t\t9 button 下一项\n\t\t\t\t10 image\n\t\t\t11 container\n\t\t\t\t12 button\n\t\t\t\t\t13 image\n\t\t\t\t14 text 37 / 112\n\t\t\t15 container\n\t\t\t\t16 image\n\t\t\t\t17 image\n\t\t\t\t\t56 text CommerceOps · Mock 原型 / 状态样例\n\t\t\t\t\t57 text 审批结果暂无法确认\n\t\t\t\t\t58 text 响应未取得；原决定可能已经保存。\n\t\t\t\t\t59 text 保留原 request_key 与决定内容（Mock 引用）。\n\t\t\t\t\t60 text 先读取原审批记录；不换键重发或选择相反动作。\n\t\t\t\t\t61 text 未知不等于失败，也不等于业务执行成功。\n\t\t\t\t\t62 text 仅验证设计交互 · 后端与飞书合同待验收\n\t\t\t\t\t63 text 读取当前事实（模拟）\n\t\t\t\t\t64 text 返回状态评审\n\t\t35 container\n\t\t\t36 container 站点地图\n\t\t\t\t37 text DRAFTS\n\t\t\t\t38 container\n\t\t\t\t\t39 text CommerceOps M1 · C2-B1a 视觉样板 / 01 / M1 · 主闭环、身份与异常\n\t\t\t\t\t40 image\n\t\t\t\t\t41 text /\n\t\t\t\t42 container current-frame\n\t\t\t\t\t43 text M1-S04 / B2 · approval-unknown · 390px\n\t\t\t\t\t44 image\n\t\t\t45 button 交互（G V）\n\t\t\t\t46 image\n\t\t\t47 button 评论（G C）\n\t\t\t\t48 image\n\t\t\t49 button 检查（G I）\n\t\t\t\t50 image\n\t\t\t51 container\n\t\t\t\t52 text 交互\n\t\t\t\t53 image\n\t\t\t54 text 100%\n\t\t\t55 button 分享\n\nThe focused UI element is 1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=36",
+    "passed": true,
+    "requestedViewport": {
+      "width": 390,
+      "height": 1000
+    },
+    "actualViewport": {
+      "width": 639,
+      "height": 1224
+    },
+    "nativeBoardWidth": 390,
+    "scope": "native 390 layout and Viewer observation; no responsive frontend claim"
+  },
+  {
+    "index": 23,
+    "frame": "platform-capacity",
+    "observed": "Browser tab: 2, Title: \"▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot\", URL: \"http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=23\".\n1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=23\n\t2 image\n\t3 image\n\t4 image\n\t5 container viewer-layout\n\t\t6 container viewer-section\n\t\t\t7 button 前一项\n\t\t\t\t8 image\n\t\t\t9 button 下一项\n\t\t\t\t10 image\n\t\t\t11 container\n\t\t\t\t12 button\n\t\t\t\t\t13 image\n\t\t\t\t14 text 24 / 112\n\t\t\t15 container\n\t\t\t\t16 image\n\t\t\t\t17 image\n\t\t\t\t\t56 text CommerceOps · Mock 原型 / 状态样例\n\t\t\t\t\t57 text 真实飞书容量待验收\n\t\t\t\t\t58 text 保留 1 / 20 项全部 SKU 与风险。\n\t\t\t\t\t59 text 真实 G3 待确认：支持完整披露时可直接审批；\n\t\t\t\t\t60 text 不支持或截断时转同版本 Web 并重新鉴权。\n\t\t\t\t\t61 text 当前容量未验收，卡片直接决定保持禁用。\n\t\t\t\t\t62 text 此回退不永久删除 M1 飞书真实审批能力。\n\t\t\t\t\t63 text 仅验证设计交互 · 后端与飞书合同待验收\n\t\t\t\t\t64 text 打开 Web：先鉴权（模拟无权）\n\t\t\t\t\t65 text 返回状态评审\n\t\t35 container\n\t\t\t36 container 站点地图\n\t\t\t\t37 text DRAFTS\n\t\t\t\t38 container\n\t\t\t\t\t39 text CommerceOps M1 · C2-B1a 视觉样板 / 01 / M1 · 主闭环、身份与异常\n\t\t\t\t\t40 image\n\t\t\t\t\t41 text /\n\t\t\t\t42 container current-frame\n\t\t\t\t\t43 text M1-F01 / B2 · platform-capacity · 390px\n\t\t\t\t\t44 image\n\t\t\t45 button 交互（G V）\n\t\t\t\t46 image\n\t\t\t47 button 评论（G C）\n\t\t\t\t48 image\n\t\t\t49 button 检查（G I）\n\t\t\t\t50 image\n\t\t\t51 container\n\t\t\t\t52 text 交互\n\t\t\t\t53 image\n\t\t\t54 text 100%\n\t\t\t55 button 分享\n\nThe focused UI element is 1 AXWebArea ▶ CommerceOps M1 · C2-B1a 视觉样板 - 预览模式 - Penpot, URL: localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&index=23",
+    "passed": true,
+    "requestedViewport": {
+      "width": 390,
+      "height": 1000
+    },
+    "actualViewport": {
+      "width": 639,
+      "height": 1224
+    },
+    "nativeBoardWidth": 390,
+    "scope": "native 390 layout and Viewer observation; no responsive frontend claim"
+  }
+]
