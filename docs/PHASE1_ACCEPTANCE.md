@@ -210,3 +210,7 @@ Base实际组已具备原创建unknown后的唯一行恢复、同原key/payload�
 独立审核确认G3受控真实技术证据满足原目标，分类为 `satisfied_with_documented_platform_boundary`。DB专项READ ONLY/RR回读完整before/after M3快照相等，原决定、三receipt/三event key及完整binding未变，回收/锁/barrier/容器收敛。W1私聊/群@、新版卡片显式确认/拒绝及完整value、重复/相反动作/C角色拒绝/自然过期/DB失败、受控重启后同卡实际投递与Base必要读写和原键观察均有实际证据。non@/self-bot按最小权限的上游非投递边界记录，后端分支仍not_run；其他未测能力没有由探针外推。
 
 PR27初始cb52的源码独审和实际CI已成功（322offline/79真实PG/三G1/六必要G2/cleanup0），最后DB专项核心及证据将在同PR的新head完成增量审查和实际CI；旧CI不替未来提交背书。完整hash、证据精度和剩余交付见[STATUS第27节](STATUS.md#27-g3-必要真实技术证据齐备)。当前尚未将功能交付/main状态记为完成，不再增加真人样本或旧超时诊断，不进入Phase2。
+
+## 24. 公开接口 P2 阻断与新提交门禁
+
+2459实际CI后续成功，但独立审核发现公开M3差异纯函数未核对before_sha256，任意占位摘要fixture仍可通过。原P105正在最小修正；阶段交付/main不得越过该P2或沿用旧CI给修正版背书。旧实跑main在解析before文件前已检查完整原字节摘要，实际归档及一次SQL结果保留；新v2纯接口需在连接前绑定raw bytes、严格摘要格式及解析对象，只离线回归和source-map更新，不重跑真实PG/飞书。最新事实与审核链接见[STATUS第28节](STATUS.md#28-公开差异接口审核阻断实际归档保持)。必要技术证据和公开源码门禁分别裁决，阶段尚未完成。

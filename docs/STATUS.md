@@ -437,3 +437,9 @@ PR27首个冻结cb52eb0经[独立review5472556446](https://github.com/aning0922/
 原P105将DB专项纯核心/有限证据及平台边界集中更新同一PR27，再按最终新head做增量独审和实际CI，不能沿用cb52 CI给未来提交背书。之后只做内部集成、阶段文档和最终PR19/main验收，不再采样已满足的飞书Gate。#6/#7保持OPEN至各自交付门禁完成，阶段未记完成，不进入Phase2。
 
 最终公开提交已冻结为2459dbce8561f91961d31cb47e7b492183a49fdc，九组原版/公开whole-file SHA与25项核心AST映射、M3纯差异和有限实测证据齐备；作者当前精确组合332offline/79deselected、strict mypy84通过，公开harness171项。新head增量独审与实际CI37958401146进行中；同head的先行37958400934被并发策略取消，不计成功。没有增加联调样本或改冻结运行checkout；阶段交付仍待该head门禁完成。
+
+## 28. 公开差异接口审核阻断，实际归档保持
+
+2459实际CI37958401146后来成功，但[独立增量review5472680299](https://github.com/aning0922/commerceops-agent/pull/27#pullrequestreview-5472680299)发现P2阻断：公开inspect_m3接收before_sha256却未核对，合成正向fixture用任意全零摘要仍通过。主控已退回原P105做最小修正及错摘要/非法格式连接前拒绝回归，PR27不合并，最终交付必须新head独审及实际CI，不能以旧成功CI代替审查。
+
+证据合同须区分whole-file原字节摘要与canonical对象摘要。旧实跑leaf main已在json.loads前检查before原字节大小和SHA匹配输入，故公开接口P2不自动推翻旧实际差异/DB_FAILURE；原source/runner/inputs/once-only attempt/archive均不覆盖或重置。新纯接口接收原字节，在DB连接前校验64位小写hex、实际摘要并解析，修正版单独v2映射、只做离线，不追加PG/SDK/真人样本。[主控公开协调与边界](https://github.com/aning0922/commerceops-agent/pull/27#issuecomment-6084941799)。第27节技术运行证据与公开源码交付门禁分开；当前阶段/main仍未完成，不进入Phase2。
