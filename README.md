@@ -2,7 +2,7 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 已收口；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1，P1-03 已内部集成，P1-04/G2 已内部集成验收，P1-05 离线已内部集成、真实 G3 外部阻塞；P1-06 正在整理阶段证据。main 仍为 P1-01 基线，G1/G2 已在集成分支验收，G3 尚待真实平台证据。用户已委托主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并，不进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
+**当前阶段：Phase 0 已收口；Phase 1 集中交付。G1/G2 已在集成分支验证，G3 必要真实技术探针证据已独立核对齐备，最后公开源码/证据与阶段集成门禁正在完成。G3 的 non@/self-bot 按最小权限的平台非投递边界记录，应用对应过滤分支未真机执行；不宣称正式业务审批、库存闭环或完整求职应用已经完成。main 合并和合后 CI 事实见 [STATUS](docs/STATUS.md) 及最终阶段 [PR #19](https://github.com/aning0922/commerceops-agent/pull/19)。用户已委托主控裁决本阶段合并，不自动进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
 
 任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)；阶段证据、判定与外部解锁清单见 [验收报告](docs/PHASE1_ACCEPTANCE.md)。实现与实际测试通过独立 PR 交付；主控按用户已委托的 Phase 1 合并门禁裁决；真实 Gate、独立审核和实际 CI 齐备前不确认最终 main 合并。
 
@@ -28,7 +28,7 @@
 - 飞书使用企业自建应用、新版卡片回调与长连接；真实租户接入仍需 Phase 1 技术验证。
 - Mock 数据、受控模型替身和真实测试店数据全程标识；不能用离线测试冒充真实联调。
 
-工程底座已交付，实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移与持久 Worker 已在集成分支实际验证；main 仍为 P1-01，当前可用范围与证据见 STATUS。
+工程底座实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移、持久 Worker 和 Checkpoint 已在集成分支实际验证；当前 main/集成提交及合并证据见 STATUS，不能把另一提交的测试直接算作当前 main 实跑。
 
 Phase 1 已建立基础 CI/敏感检查，继续按依赖验证 Docker/PG、LangGraph Checkpoint、飞书真实回调三个闸门。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
 

@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，b8的PR25唯一CI成功但原异常根因未定位、尚未合入；G3真实W1六消息与独立PG回读、单节点/六字段只读和Base v2结构配置完成，卡片/C角色反例/Base全链路未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–14节保留原验收及接续快照，最新结果与证据限度见第15节及 [STATUS第19节](STATUS.md#19-w1-持久接收的独立-pg-只读回验)。
+更新：2026-10-10（Asia/Shanghai）。状态：**G1/G2 已在集成分支验收；G3 必要真实技术探针证据已独立核对齐备，平台边界明确记录。公开功能/证据最终提交的审核和实际 CI、阶段汇总与 main 合并仍待完成，Phase 1 尚未记交付完成，不进入 Phase 2。** Issue #23 已关闭为 risk_accepted / root_cause=not_identified，PR25 与 PR22 已合入；不把新成功 CI 改写成旧根因已解决。第1–22节是历史验收及接续快照，最新结果见第23节及 [STATUS当前Gate记录](STATUS.md#27-g3-必要真实技术证据齐备)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -190,3 +190,23 @@ Issue23原驱动方案追加预算待用户确认，未新代码/CI；原根因�
 G3最少还缺：M3的A确认/明确重复/B相反动作及具体Toast/响应样本；C白名单通过后原DAL无角色拒绝；必要自然过期/真实DB失败/重启投递与过滤；Base创建的可靠原键读回、更新/读回及真实同client_token重投；一次批量持久关联核对和原P105功能交付/阶段独审/最终CI。W1、M1/M2已有结果保留，不重复发消息或补造旧客户端观察。Base默认创建结果unknown，R1只读对账READ_TIMEOUT；最后R2 query-only已实际HTTP200/code0、唯一原行六字段/marker完整匹配并关联PG succeeded，原创建unknown已解除。原行update/readback与第二次原client_token平台请求仍未执行，不把恢复读回升级为完整Base/G3通过。最新阶段事实见[Issue7收口评估](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6082095686)。
 
 目标为两个有效开发日；当前条件顺利时预计剩余4–6有效小时，外部等待另计。若Base等仍阻塞，停止同类无限尝试，列阻塞/预计时间/最小风险替代，保持P1未完成。低风险只读按稳定源码批量验证，不逐微动作新增多层流程；真实写入身份、密钥、幂等/unknown及恢复一致性检查保留。正式T3/A01–A08和100事件p95仍后置；不自动进入Phase2。当前任务/证据详见[STATUS集中收口](STATUS.md#24-两个有效开发日集中收口当前快照)。
+
+## 21. Base 恢复及 M3/C1 回调证据（阶段仍未完成）
+
+Base实际组已具备原创建unknown后的唯一行恢复、同原key/payload第二真实create的1254608重复拒绝与原行不变、一次update READ_TIMEOUT后的完整pending_fields/hash读回恢复。独立Gate核查支持原Issue6高层技术观察；不得写为create/update成功ACK或accepted replay，1254290/91与1255006特定分支未触发，长期TTL未知。M3服务器三动作由首次窗口A确认和受控消费者重启后A明确重复/B冲突组成，用户提示与计时/目测分别记录，不声称平台同event重投或wire测量。C1实际同callback原DAL无角色拒绝见证合格、用户观察拒绝提示/计时1秒，C零decision/receipt仍待末批PG。
+
+当前剩余必要项：已有卡的DB故障无伪成功/自然过期、非@/bot投递与过滤证据边界、一次批量PG持久关联、P105公开最小源码/独审/实际CI与阶段验收。同冻结receiver允许将三项负向操作集中在已有callback窗口，未经当前时刻就绪确认不启动60秒DB锁；不增卡或权限、不改Gate。细节及安全证据hash见[STATUS第25节](STATUS.md#25-base-实测组与-m3c1-真实回调收口进展)。完整G3/Phase1仍未完成，main a0/integration75ef、PR19 Draft，不自动Phase2。
+
+## 22. 批量关联与最后负向样本
+
+末批实际app-role READ ONLY/REPEATABLE READ核九身份和四卡全部binding，M1/M2/M3分别四/一/三receipt及event key，C零决定/receipt/key且同callback资格witness合格；独立证据核对支持M3首次确认/重复/冲突与C白名单通过后的无角色拒绝。该快照先于最后DB故障，不重置已消耗的once-only attempt。旧M1另有真实EXPIRED/无commit-return和客户端拒绝约1秒；普通非@人工发送但平台没有投递，不能宣称Gateway过滤分支实跑。
+
+最后DB样本已取得A/M3的DB_FAILURE，handler-return=false、commit-return=false、DTO未见、内部异常路径362.493417ms；客户端“出错了，请稍后重试”、计时1秒。SDK/锁仍原300/60秒边界，补测后M3持久状态的最小专项差异及收敛证据正在核对。[公开交付PR27](https://github.com/aning0922/commerceops-agent/pull/27)为Draft，公开适配源码与冻结实跑版分别记SHA，独立源码审核及当前head实际CI进行中。
+
+平台non@/bot按原最小权限的系统边界验收：普通非@真实人工发送后未投递，self-bot卡不属当前机器人可接收事件，均与官方权限说明一致；应用收到后filter分支仍not_run、仅离线证明，不能称后端实测。独立评估支持此“按约束过滤”解释，主控采用该裁决，不扩大权限、不增加第二bot、不改原安全目标。当前G3/Phase1仍未完成，DB专项差异/收敛及代码/证据独审/实际CI待齐备；完整摘要、hash与剩余动作见[STATUS第26节](STATUS.md#26-最后负向样本与批量-pg-核对)。正式T3、业务审批/库存、自然网络故障与100事件p95没有由本技术探针推导通过；不再扩已验G1/G2或诊断旧超时，不进入Phase2。
+
+## 23. G3 技术 Gate 已具备，交付门禁待完成
+
+独立审核确认G3受控真实技术证据满足原目标，分类为 `satisfied_with_documented_platform_boundary`。DB专项READ ONLY/RR回读完整before/after M3快照相等，原决定、三receipt/三event key及完整binding未变，回收/锁/barrier/容器收敛。W1私聊/群@、新版卡片显式确认/拒绝及完整value、重复/相反动作/C角色拒绝/自然过期/DB失败、受控重启后同卡实际投递与Base必要读写和原键观察均有实际证据。non@/self-bot按最小权限的上游非投递边界记录，后端分支仍not_run；其他未测能力没有由探针外推。
+
+PR27初始cb52的源码独审和实际CI已成功（322offline/79真实PG/三G1/六必要G2/cleanup0），最后DB专项核心及证据将在同PR的新head完成增量审查和实际CI；旧CI不替未来提交背书。完整hash、证据精度和剩余交付见[STATUS第27节](STATUS.md#27-g3-必要真实技术证据齐备)。当前尚未将功能交付/main状态记为完成，不再增加真人样本或旧超时诊断，不进入Phase2。
