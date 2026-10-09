@@ -18,6 +18,18 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Register absolute diagnostic deadline
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          directory = Path(".audit")
+          directory.mkdir(exist_ok=True)
+          (directory / "ci-deadline").write_text(
+              (datetime.now(timezone.utc) + timedelta(minutes=23)).isoformat()
+          )
+          PY
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12.13'
@@ -34,4 +46,8 @@ jobs:
       - name: Foundation checks
         run: uv run --frozen python -m scripts.check
       - name: Real PostgreSQL migration setup constraints and persistence
-        run: uv run --frozen python -m scripts.pg_smoke
+        shell: bash
+        run: |
+          uv run --frozen python -m scripts.pg_diagnostic \
+            --session ci --round 1 --combined --full-smoke --no-child-trace \
+            --deadline "$(cat .audit/ci-deadline)"
