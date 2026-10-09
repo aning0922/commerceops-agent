@@ -1,0 +1,1 @@
+只使用 penpot MCP，禁止其他工具、shell、委派及业务操作。先 high_level_overview，然后 execute_code 读取 version、currentFile.id、currentFile.pages、currentPage.getSharedPluginData("commerceops-ux","revision")。仅在 file id 等于 ad74bff8-48e8-8141-8008-c31715c76703 且 revision 等于 ux-poc/0.1.1 时，写 currentPage.setPluginData("commerceops.cli-smoke", "CLI-MCP-20261009-v0.1.1") 并立即回读。返回真实 IDs 和回读值。

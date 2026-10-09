@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "contract_version": "0.1.0-draft",
+  "status": "tool_poc_and_m1_planning_only",
+  "product_scope": "M1",
+  "source_commit": "a0d521e",
+  "visual_revision": "ux-poc/0.1.1",
+  "visual_map": "evidence/design-map.json",
+  "poc_interactions": [
+    {
+      "id": "POC-E01",
+      "control_id": "POC-B02",
+      "label": "查看数据口径",
+      "screen_id": "POC-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "open-overlay",
+      "target_screen": "POC-M01",
+      "state_change": {
+        "from": "overlay_closed",
+        "to": "overlay_open"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c31964610c13"
+    },
+    {
+      "id": "POC-E02",
+      "control_id": "POC-B03",
+      "label": "返回任务中心",
+      "screen_id": "POC-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "navigate-to",
+      "target_screen": "POC-S01",
+      "state_change": {
+        "from": "displayed",
+        "to": "displayed"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c319646714fb"
+    },
+    {
+      "id": "POC-E03",
+      "control_id": "POC-B01",
+      "label": "查看分析报告",
+      "screen_id": "POC-S01",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "navigate-to",
+      "target_screen": "POC-S02",
+      "state_change": {
+        "from": "displayed",
+        "to": "displayed"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c3188f5266e7"
+    },
+    {
+      "id": "POC-E04",
+      "control_id": "POC-B04",
+      "label": "关闭数据口径",
+      "screen_id": "POC-M01",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "close-overlay",
+      "target_screen": "POC-M01",
+      "state_change": {
+        "from": "displayed",
+        "to": "displayed"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c319646a7adb"
+    }
+  ],
+  "planned_interactions": [
+    {
+      "id": "M1-E01",
+      "control_id": "M1-B01",
+      "label": "创建分析",
+      "screen_id": "M1-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "submit",
+      "target_screen": "M1-S06",
+      "business_action": "POST /tasks",
+      "state_change": "accepted → queued; request_key retry returns original task",
+      "exceptions": [
+        "UNAUTHORIZED_ACTOR",
+        "DATA_INCOMPLETE",
+        "BUDGET_EXCEEDED"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E02",
+      "control_id": "M1-B02",
+      "label": "批准创建内部补货任务",
+      "screen_id": "M1-S04",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "POST /approvals/{id}/decision action=approve",
+      "guards": [
+        "same shop",
+        "pending",
+        "no required_assumptions",
+        "plan id/version/hash/nonce valid",
+        "not expired",
+        "quality complete"
+      ],
+      "state_change": "decision recorded → executing; does not assert completion",
+      "exceptions": [
+        "APPROVAL_EXPIRED",
+        "PLAN_CHANGED",
+        "ASSUMPTION_ACK_REQUIRED",
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E03",
+      "control_id": "M1-B03",
+      "label": "确认在途未知按 0 估算并批准本版本",
+      "screen_id": "M1-S04",
+      "also_on": "M1-F01",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "action=approve_with_assumptions",
+      "guards": [
+        "all unknown inbound SKUs disclosed",
+        "exact acknowledged_assumption_keys equals frozen required_assumptions",
+        "plan_id/version/hash/nonce",
+        "same shop/current approver/pending/expiry/quality checks"
+      ],
+      "state_change": "single explicit decision + assumptions + resume job in T3; raw inbound remains null",
+      "exceptions": [
+        "ASSUMPTION_ACK_REQUIRED",
+        "PLAN_CHANGED",
+        "APPROVAL_EXPIRED",
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E04",
+      "control_id": "M1-B04",
+      "label": "拒绝此假设并拒绝计划",
+      "screen_id": "M1-S04",
+      "also_on": "M1-F01",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "action=reject_assumptions; acknowledged_assumption_keys=[]",
+      "state_change": "rejected; INBOUND_ASSUMPTION_DECLINED; zero replenishment items",
+      "exceptions": [
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR",
+        "APPROVAL_EXPIRED"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E05",
+      "control_id": "M1-B05",
+      "label": "拒绝计划",
+      "screen_id": "M1-S04",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "action=reject (known inbound only)",
+      "state_change": "rejected; zero internal items",
+      "exceptions": [
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E06",
+      "control_id": "M1-B06",
+      "label": "重新分析",
+      "screen_id": "M1-S03",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "target_screen": "M1-S06",
+      "business_action": "new plan version and new approval; final API contract remains Phase 2–3 owner decision",
+      "state_change": "old confirmation never inherited",
+      "exceptions": [
+        "UNAUTHORIZED_ACTOR",
+        "DATA_INCOMPLETE"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E07",
+      "control_id": "M1-B07",
+      "label": "标记内部跟进完成",
+      "screen_id": "M1-S05",
+      "roles": [
+        "approver"
+      ],
+      "event": "submit_reason",
+      "target_screen": "M1-S05",
+      "business_action": "POST /replenishment-items/{id}/resolve action=complete",
+      "guards": [
+        "same shop",
+        "open",
+        "nonempty reason",
+        "expected_version",
+        "request_key"
+      ],
+      "state_change": "open → completed + audit/outbox; no inventory mutation",
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "UNAUTHORIZED_ACTOR",
+        "reason_required"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E08",
+      "control_id": "M1-B08",
+      "label": "关闭内部工作项",
+      "screen_id": "M1-S05",
+      "roles": [
+        "approver"
+      ],
+      "event": "submit_reason",
+      "target_screen": "M1-S05",
+      "business_action": "POST /replenishment-items/{id}/resolve action=close",
+      "guards": [
+        "same shop",
+        "open",
+        "nonempty reason",
+        "expected_version",
+        "request_key"
+      ],
+      "state_change": "open → closed + audit/outbox; no reopen/bulk close",
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "UNAUTHORIZED_ACTOR",
+        "reason_required"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    },
+    {
+      "id": "M1-E09",
+      "control_id": "M1-B09",
+      "label": "恢复原任务",
+      "screen_id": "M1-S06",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "target_screen": "M1-S06",
+      "business_action": "POST /tasks/{id}/retry; server decides whether recoverable",
+      "guards": [
+        "authorized task scope",
+        "recoverable condition",
+        "UNKNOWN_EXTERNAL_RESULT requires reconciliation, not blind retry"
+      ],
+      "state_change": "same task and logical idempotency key",
+      "exceptions": [
+        "UNKNOWN_EXTERNAL_RESULT",
+        "UNAUTHORIZED_ACTOR",
+        "not_retryable"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null
+    }
+  ],
+  "approval_request_fields": [
+    "approval_id",
+    "plan_id",
+    "plan_version",
+    "plan_hash",
+    "action",
+    "acknowledged_assumption_keys",
+    "nonce"
+  ],
+  "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
+  "pending_design_decisions": [
+    "keyboard/focus behavior",
+    "mobile Feishu card geometry",
+    "retry ownership by error class",
+    "login form details"
+  ]
+}

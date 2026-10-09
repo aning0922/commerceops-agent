@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"result\": {\n    \"purpose\": \"tool-verification-only\",\n    \"revision\": \"ux-poc/0.1.1\",\n    \"fileId\": \"ad74bff8-48e8-8141-8008-c31715c76703\",\n    \"validation\": []\n  },\n  \"log\": \"\"\n}"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

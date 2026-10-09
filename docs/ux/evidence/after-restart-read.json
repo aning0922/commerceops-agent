@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"result\": {\n    \"fileId\": \"ad74bff8-48e8-8141-8008-c31715c76703\",\n    \"revision\": \"ux-poc/0.1.1\",\n    \"purpose\": \"tool-verification-only\",\n    \"pages\": [\n      {\n        \"id\": \"ad74bff8-48e8-8141-8008-c31715c76704\",\n        \"name\": \"00 / Tool verification\"\n      },\n      {\n        \"id\": \"4fc54c35-c3b2-804c-8008-c3188eda85b6\",\n        \"name\": \"01 / POC components\"\n      }\n    ],\n    \"controls\": [\n      {\n        \"id\": \"4fc54c35-c3b2-804c-8008-c31964610c13\",\n        \"name\": \"POC-B02 / 查看数据口径\",\n        \"targets\": [\n          {\n            \"type\": \"open-overlay\",\n            \"destination\": \"4fc54c35-c3b2-804c-8008-c3188f020ccf\"\n          }\n        ]\n      },\n      {\n        \"id\": \"4fc54c35-c3b2-804c-8008-c319646714fb\",\n        \"name\": \"POC-B03 / 返回任务中心\",\n        \"targets\": [\n          {\n            \"type\": \"navigate-to\",\n            \"destination\": \"4fc54c35-c3b2-804c-8008-c3188efd0d39\"\n          }\n        ]\n      },\n      {\n        \"id\": \"4fc54c35-c3b2-804c-8008-c3188f5266e7\",\n        \"name\": \"POC-B01 / 查看分析报告\",\n        \"targets\": [\n          {\n            \"type\": \"navigate-to\",\n            \"destination\": \"4fc54c35-c3b2-804c-8008-c3188efec6f4\"\n          }\n        ]\n      },\n      {\n        \"id\": \"4fc54c35-c3b2-804c-8008-c319646a7adb\",\n        \"name\": \"POC-B04 / 关闭数据口径\",\n        \"targets\": [\n          {\n            \"type\": \"close-overlay\",\n            \"destination\": \"4fc54c35-c3b2-804c-8008-c3188f020ccf\"\n          }\n        ]\n      }\n    ],\n    \"validation\": []\n  },\n  \"log\": \"\"\n}"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

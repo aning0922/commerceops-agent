@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "contract_version": "0.1.0-draft",
+  "status": "tool_poc_and_m1_planning_only",
+  "product_scope": "M1",
+  "source_commit": "a0d521e",
+  "visual_revision": "ux-poc/0.1.1",
+  "visual_map": "evidence/design-map.json",
+  "roles": {
+    "operator": {
+      "create_analysis": true,
+      "approve": false,
+      "resolve_item": false
+    },
+    "approver": {
+      "create_analysis": false,
+      "approve": true,
+      "resolve_item": true
+    },
+    "admin": {
+      "configure_and_handle_exceptions": true,
+      "approve": false,
+      "resolve_item": false
+    },
+    "unauthorized": {
+      "business_access": false
+    }
+  },
+  "poc_screens": [
+    {
+      "id": "POC-S01",
+      "name": "任务中心",
+      "status": "prototype_verified",
+      "penpot": {
+        "file_id": "ad74bff8-48e8-8141-8008-c31715c76703",
+        "page_id": "ad74bff8-48e8-8141-8008-c31715c76704",
+        "shape_id": "4fc54c35-c3b2-804c-8008-c3188efd0d39",
+        "revision": "ux-poc/0.1.1"
+      },
+      "roles": [
+        "operator"
+      ],
+      "states": [
+        "mock_demo"
+      ],
+      "business_effect": "none"
+    },
+    {
+      "id": "POC-M01",
+      "name": "数据口径",
+      "status": "prototype_verified",
+      "penpot": {
+        "file_id": "ad74bff8-48e8-8141-8008-c31715c76703",
+        "page_id": "ad74bff8-48e8-8141-8008-c31715c76704",
+        "shape_id": "4fc54c35-c3b2-804c-8008-c3188f020ccf",
+        "revision": "ux-poc/0.1.1"
+      },
+      "roles": [
+        "operator"
+      ],
+      "states": [
+        "mock_demo"
+      ],
+      "business_effect": "none"
+    },
+    {
+      "id": "POC-S02",
+      "name": "库存分析报告",
+      "status": "prototype_verified",
+      "penpot": {
+        "file_id": "ad74bff8-48e8-8141-8008-c31715c76703",
+        "page_id": "ad74bff8-48e8-8141-8008-c31715c76704",
+        "shape_id": "4fc54c35-c3b2-804c-8008-c3188efec6f4",
+        "revision": "ux-poc/0.1.1"
+      },
+      "roles": [
+        "operator"
+      ],
+      "states": [
+        "mock_demo"
+      ],
+      "business_effect": "none"
+    }
+  ],
+  "planned_screens": [
+    {
+      "id": "M1-S01",
+      "name": "登录",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "signed_out",
+        "submitting",
+        "invalid_credentials",
+        "session_expired"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S02",
+      "name": "任务中心",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "loading",
+        "empty",
+        "queued",
+        "analyzing",
+        "awaiting_approval",
+        "executing",
+        "completed",
+        "rejected",
+        "expired",
+        "needs_reapproval",
+        "failed",
+        "needs_attention"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S03",
+      "name": "库存分析报告",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "loading",
+        "ready",
+        "no_action",
+        "data_incomplete",
+        "unknown_inventory",
+        "unknown_inbound_draft",
+        "scope_over_20",
+        "narrative_fallback"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S04",
+      "name": "审批详情",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "loading",
+        "pending_known_inbound",
+        "pending_unknown_inbound",
+        "submitting",
+        "approved_execution_pending",
+        "rejected",
+        "expired",
+        "superseded",
+        "decision_conflict",
+        "permission_revoked",
+        "plan_changed",
+        "assumption_ack_required"
+      ],
+      "roles": [
+        "approver",
+        "operator",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S05",
+      "name": "内部补货管理",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "loading",
+        "empty",
+        "open",
+        "completed",
+        "closed",
+        "resolution_submitting",
+        "reason_required",
+        "item_state_conflict"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S06",
+      "name": "Agent 执行轨迹",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "loading",
+        "queued",
+        "running",
+        "interrupted",
+        "recovering",
+        "failed",
+        "needs_attention",
+        "completed",
+        "usage_unknown",
+        "sync_pending",
+        "sync_failed",
+        "sync_unknown"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S07",
+      "name": "无权限/跨范围",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "forbidden",
+        "session_expired"
+      ],
+      "roles": [
+        "unauthorized",
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-S08",
+      "name": "管理员最小配置/异常说明",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "read_config",
+        "permission_restricted",
+        "recovery_requires_attention"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-F01",
+      "name": "飞书审批卡片",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "pending_known_inbound",
+        "pending_unknown_inbound",
+        "submitting",
+        "approved_execution_pending",
+        "rejected",
+        "expired",
+        "superseded",
+        "duplicate_existing_decision",
+        "unauthorized",
+        "conflict",
+        "sync_failed"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    },
+    {
+      "id": "M1-M01",
+      "name": "内部工作项完成/关闭原因",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "states": [
+        "reason_empty",
+        "reason_valid",
+        "submitting",
+        "success",
+        "conflict"
+      ],
+      "roles": [
+        "approver"
+      ],
+      "visibility_guard": "server principal + organization/shop + authorized entity scope",
+      "responsive_status": "not_designed"
+    }
+  ]
+}

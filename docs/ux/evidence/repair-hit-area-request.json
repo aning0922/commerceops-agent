@@ -1,0 +1,9 @@
+{
+  "method": "tools/call",
+  "params": {
+    "name": "execute_code",
+    "arguments": {
+      "code": "if(penpot.currentFile.id!==\"ad74bff8-48e8-8141-8008-c31715c76703\")throw new Error(\"Wrong file\");\nconst page=penpot.currentPage;\nconst names=[['POC-B02 / 查看数据口径','POC-B02-LABEL'],['POC-B03 / 返回任务中心','POC-B03-LABEL'],['POC-B04 / 关闭数据口径','POC-B04-LABEL']];\nconst controls=[];\nfor(const [name,labelName] of names){\n const shape=page.findShapes({name})[0],label=page.findShapes({name:labelName})[0];\n if(!shape||!label||shape.type!==\"rectangle\")throw new Error(\"Unexpected repair target\");\n const interaction=shape.interactions[0];\n const action=interaction.action;\n const group=penpot.group([shape,label]);if(!group)throw new Error(\"Group failed\");\n shape.removeInteraction(interaction);\n shape.name=name.split(' / ')[0]+'-BG';\n shape.setSharedPluginData(\"commerceops-ux\",\"stable-id\",shape.name);\n group.name=name;group.setSharedPluginData(\"commerceops-ux\",\"stable-id\",name);group.addInteraction('click',action);\n controls.push({id:group.id,stableId:group.name,interactions:group.interactions.map(i=>({trigger:i.trigger,type:i.action.type,destination:i.action.destination?.id}))});\n}\nfor(const shape of page.findShapes())shape.setSharedPluginData(\"commerceops-ux\",\"revision\",\"ux-poc/0.1.1\");\npage.setSharedPluginData(\"commerceops-ux\",\"revision\",\"ux-poc/0.1.1\");\nreturn {revision:'ux-poc/0.1.1',controls,validation:penpot.currentFile.validate()};"
+    }
+  }
+}
