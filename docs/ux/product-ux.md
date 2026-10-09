@@ -1,6 +1,6 @@
-# M1 产品交互原则草案
+# M1 产品交互原则 · C1评审稿
 
-范围依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[FEISHU_INTEGRATION](../FEISHU_INTEGRATION.md)、[STATUS](../STATUS.md)。本轮已阅读这些文件；本稿用于后续产品设计评审，尚未完成 M1 全部屏幕、角色或异常交互原型。
+范围依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[FEISHU_INTEGRATION](../FEISHU_INTEGRATION.md)、[STATUS](../STATUS.md)。合同版本 `0.2.0-c1-review`；完整产品提案见 [C1方案](c1-product-design.md)。页面、角色与异常已形成规格，尚未经用户确认或制作正式原型。
 
 先把任务、报告、审批、内部工作项和轨迹的用户旅程确定，再连接 Penpot 原型，最后由 Phase 3–4 的负责人实现 Next.js。Penpot 是视觉基线，结构化规范是行为基线。静态截图、原型跳转和自动生成的 HTML/CSS 都不能代替可鉴权、可恢复的业务实现。
 
@@ -24,7 +24,7 @@ operator 可以创建分析、查看授权任务和提出重算。approver 可�
 
 加载、空结果、未登录、过期会话、权限撤销、审批过期、计划变化、数据不完整、模型说明降级、429/超时、同步失败和外部结果未知各有独立状态。恢复沿用原任务和幂等键；重新分析明确产生新版本。未知外部写入结果先对账，UI 不给出会盲目重发的普通重试。
 
-正式 M1 设计须补键盘导航、可见焦点、弹窗 focus trap/返回触发器、错误文本关联、颜色以外的状态标识和飞书窄屏可读性。本次 Penpot POC 只验证鼠标原型，不声称这些已通过。
+C1已规定、C2仍须实测键盘导航、可见焦点、弹窗 focus trap/返回触发器、错误文本关联、颜色以外的状态标识和飞书窄屏可读性。本次 Penpot POC 只验证鼠标原型，不声称这些已通过。
 
 ## 4. 稳定 ID 与变更流程
 
@@ -39,4 +39,12 @@ screen/control/event 分别使用 `M1-S* / M1-B* / M1-E*`，飞书为 `M1-F*`，
 5. Playwright 验证导航、弹窗、角色拒绝、过期/冲突/失败，业务集成测试核对 T3/T4/T6；视觉和行为各自附结果。失败、skipped、Mock 和真实飞书分别记录。
 6. 外部审核及用户明确合并确认后才进入 main。基线清单绑定设计版本、合同 commit、实现 commit 和测试 run；设计合入不自动通过 M1 Gate。
 
-阶段 C 再研究 Prediko、Shopify Sidekick、Triple Whale Moby 的任务与证据呈现模式；本轮没有完成该竞品交互研究，不复制其外观或引入预测采购、通用 BI、全渠道或动态只读 Agent 等后续范围。
+[竞品官方研究](c1-research.md)已完成文档核实，借鉴具体问题入口、上下文解释、可查看口径与动作范围；不照搬自动批准、预测采购、通用BI或全渠道业务。
+
+## 5. C1新增约束
+
+- 三个主入口为任务中心、审批、内部补货；报告/轨迹归入具体任务，不重复建设聊天历史和任务记录。
+- 沿用T2自动准备审批：创建分析前说明，有效计划生成后显示“查看审批”，不凭UI增加人工送审状态。改变流程是D06评审项。
+- 读权限不由角色名自动推导。D01给出最小范围提案，admin单角色只读运维元信息；清单的roles表示可能参与身份，不授权读取每个对象。
+- 澄清续答D02、重算D03、人工恢复D04存在接口/状态映射缺口，本轮标明待决策，不伪造已实现API。投影unknown必须先对账。
+- C1完成后暂停，用户确认前不执行C2。POC工具链及design-tokens原样保留，M1视觉版本与UUID映射待C2建立。

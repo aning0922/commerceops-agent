@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "contract_version": "0.1.0-draft",
-  "status": "tool_poc_and_m1_planning_only",
+  "contract_version": "0.2.0-c1-review",
+  "status": "c1_design_review_required_c2_not_authorized",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -104,22 +104,32 @@
     {
       "id": "M1-E01",
       "control_id": "M1-B01",
-      "label": "创建分析",
-      "screen_id": "M1-S02",
+      "label": "创建分析并按规则送审",
+      "screen_id": "M1-M02",
       "roles": [
         "operator"
       ],
       "event": "submit",
-      "target_screen": "M1-S06",
+      "target_screen": "M1-S09",
       "business_action": "POST /tasks",
-      "state_change": "accepted → queued; request_key retry returns original task",
+      "state_change": "T1 accepted -> queued; T2 later prepares approval automatically if eligible; no manual submit stage",
       "exceptions": [
         "UNAUTHORIZED_ACTOR",
-        "DATA_INCOMPLETE",
+        "invalid_input",
+        "unsupported_intent",
+        "request_result_unknown",
         "BUDGET_EXCEEDED"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "guards": [
+        "operator and authorized shop",
+        "valid supported request",
+        "fixed client request_id reused on uncertain response"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E02",
@@ -133,14 +143,12 @@
       "target_screen": "M1-S04",
       "business_action": "POST /approvals/{id}/decision action=approve",
       "guards": [
-        "same shop",
-        "pending",
-        "no required_assumptions",
-        "plan id/version/hash/nonce valid",
-        "not expired",
-        "quality complete"
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
       ],
-      "state_change": "decision recorded → executing; does not assert completion",
+      "state_change": "T3 records approved + resume job; UI says approval recorded; task advances only from server facts",
       "exceptions": [
         "APPROVAL_EXPIRED",
         "PLAN_CHANGED",
@@ -149,14 +157,22 @@
         "UNAUTHORIZED_ACTOR"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E03",
       "control_id": "M1-B03",
       "label": "确认在途未知按 0 估算并批准本版本",
       "screen_id": "M1-S04",
-      "also_on": "M1-F01",
+      "also_on": [
+        "M1-F01"
+      ],
       "roles": [
         "approver"
       ],
@@ -164,10 +180,10 @@
       "target_screen": "M1-S04",
       "business_action": "action=approve_with_assumptions",
       "guards": [
-        "all unknown inbound SKUs disclosed",
-        "exact acknowledged_assumption_keys equals frozen required_assumptions",
-        "plan_id/version/hash/nonce",
-        "same shop/current approver/pending/expiry/quality checks"
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
       ],
       "state_change": "single explicit decision + assumptions + resume job in T3; raw inbound remains null",
       "exceptions": [
@@ -178,14 +194,19 @@
         "UNAUTHORIZED_ACTOR"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E04",
       "control_id": "M1-B04",
       "label": "拒绝此假设并拒绝计划",
       "screen_id": "M1-S04",
-      "also_on": "M1-F01",
+      "also_on": [
+        "M1-F01"
+      ],
       "roles": [
         "approver"
       ],
@@ -199,7 +220,16 @@
         "APPROVAL_EXPIRED"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "guards": [
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E05",
@@ -218,7 +248,19 @@
         "UNAUTHORIZED_ACTOR"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "guards": [
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E06",
@@ -229,26 +271,33 @@
         "operator"
       ],
       "event": "click",
-      "target_screen": "M1-S06",
-      "business_action": "new plan version and new approval; final API contract remains Phase 2–3 owner decision",
-      "state_change": "old confirmation never inherited",
+      "target_screen": "M1-M05",
+      "business_action": "none; open recalculation impact review",
+      "state_change": "UI only; no version invalidation until explicit server operation",
       "exceptions": [
         "UNAUTHORIZED_ACTOR",
         "DATA_INCOMPLETE"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "navigation_proposal; commit blocked by D03",
+      "guards": [
+        "current server identity and object scope",
+        "latest permitted object state"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E07",
       "control_id": "M1-B07",
       "label": "标记内部跟进完成",
-      "screen_id": "M1-S05",
+      "screen_id": "M1-M01",
       "roles": [
         "approver"
       ],
-      "event": "submit_reason",
-      "target_screen": "M1-S05",
+      "event": "submit",
+      "target_screen": "M1-S11",
       "business_action": "POST /replenishment-items/{id}/resolve action=complete",
       "guards": [
         "same shop",
@@ -261,21 +310,25 @@
       "exceptions": [
         "ITEM_STATE_CONFLICT",
         "UNAUTHORIZED_ACTOR",
-        "reason_required"
+        "reason_required",
+        "request_result_unknown"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E08",
       "control_id": "M1-B08",
       "label": "关闭内部工作项",
-      "screen_id": "M1-S05",
+      "screen_id": "M1-M01",
       "roles": [
         "approver"
       ],
-      "event": "submit_reason",
-      "target_screen": "M1-S05",
+      "event": "submit",
+      "target_screen": "M1-S11",
       "business_action": "POST /replenishment-items/{id}/resolve action=close",
       "guards": [
         "same shop",
@@ -288,10 +341,14 @@
       "exceptions": [
         "ITEM_STATE_CONFLICT",
         "UNAUTHORIZED_ACTOR",
-        "reason_required"
+        "reason_required",
+        "request_result_unknown"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "existing_business_design_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     },
     {
       "id": "M1-E09",
@@ -305,18 +362,1157 @@
       "target_screen": "M1-S06",
       "business_action": "POST /tasks/{id}/retry; server decides whether recoverable",
       "guards": [
-        "authorized task scope",
-        "recoverable condition",
-        "UNKNOWN_EXTERNAL_RESULT requires reconciliation, not blind retry"
+        "manual retry permission and recoverable error allowlist must be confirmed",
+        "same task and logical idempotency key",
+        "UNKNOWN_EXTERNAL_RESULT requires reconciliation, never blind retry"
       ],
-      "state_change": "same task and logical idempotency key",
+      "state_change": "disabled until D04; existing approved recovery may resume same task; never create a fresh business operation",
       "exceptions": [
         "UNKNOWN_EXTERNAL_RESULT",
         "UNAUTHORIZED_ACTOR",
         "not_retryable"
       ],
       "status": "planned_unmapped",
-      "penpot_shape_id": null
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "blocked_pending_D04",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E10",
+      "control_id": "M1-B10",
+      "label": "新建库存分析",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "open unsent draft",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "permission_revoked"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E11",
+      "control_id": "M1-B11",
+      "label": "登录",
+      "screen_id": "M1-S01",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "submit",
+      "business_action": "session authentication; endpoint not yet specified",
+      "state_change": "validated safe return_to else operator/approver S02; admin-only S08; no business permission S07",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "invalid_credentials",
+        "rate_limited",
+        "service_unavailable"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "alternate_targets": [
+        "M1-S08",
+        "M1-S07",
+        "M1-S01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "also_on": [
+        "M1-S07"
+      ]
+    },
+    {
+      "id": "M1-E12",
+      "control_id": "M1-B12",
+      "label": "退出登录",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S01",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "session logout; endpoint not yet specified",
+      "state_change": "clear principal-scoped cache; never cancel existing tasks",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "logout_failed"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S07",
+        "M1-S08",
+        "M1-S09",
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E13",
+      "control_id": "M1-B13",
+      "label": "任务筛选与分页",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized tasks only; list API pending",
+      "state_change": "URL filters/page; no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "read_failure",
+        "filter_empty"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E14",
+      "control_id": "M1-B14",
+      "label": "打开任务",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}",
+      "state_change": "navigate to task overview",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "not_found_or_forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E15",
+      "control_id": "M1-B15",
+      "label": "查看报告",
+      "screen_id": "M1-S09",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}/report",
+      "state_change": "read specified immutable report/version",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "not_generated",
+        "read_failure",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S06"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E16",
+      "control_id": "M1-B16",
+      "label": "查看执行轨迹",
+      "screen_id": "M1-S09",
+      "target_screen": "M1-S06",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}/events",
+      "state_change": "read safe facts only",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "read_failure",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E17",
+      "control_id": "M1-B17",
+      "label": "查看审批",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none; read existing approval; detail API pending",
+      "state_change": "navigation only; T2 already prepares approval; no manual submission endpoint",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "not_prepared",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S09"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E18",
+      "control_id": "M1-B18",
+      "label": "数据口径与来源",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-M03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read frozen report facts",
+      "state_change": "open read-only panel",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "missing_evidence",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E19",
+      "control_id": "M1-B19",
+      "label": "解释本报告",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-M04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none; open context-bound panel",
+      "state_change": "show task/report context; no business mutation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "context_expired",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E20",
+      "control_id": "M1-B20",
+      "label": "审批筛选与分页",
+      "screen_id": "M1-S10",
+      "target_screen": "M1-S10",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read eligible/authorized approvals; list API pending",
+      "state_change": "no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "read_failure",
+        "filter_empty"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E21",
+      "control_id": "M1-B21",
+      "label": "打开审批详情",
+      "screen_id": "M1-S10",
+      "target_screen": "M1-S04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "read existing approval; detail API pending",
+      "state_change": "Feishu deep link requires session and reauthorization",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "session_expired",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E22",
+      "control_id": "M1-B22",
+      "label": "关闭辅助面板",
+      "screen_id": "M1-M03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "close M03/M04/M05; restore focus to trigger; no decision or recalculation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "none"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-M04",
+        "M1-M05"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E23",
+      "control_id": "M1-B23",
+      "label": "核实审批结果",
+      "screen_id": "M1-S04",
+      "target_screen": "M1-S04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read original approval and decision",
+      "state_change": "unknown -> server result; never send opposite action automatically",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "read_failure",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E24",
+      "control_id": "M1-B24",
+      "label": "内部工作项筛选",
+      "screen_id": "M1-S05",
+      "target_screen": "M1-S05",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized items; list API pending",
+      "state_change": "no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "read_failure",
+        "filter_empty"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E25",
+      "control_id": "M1-B25",
+      "label": "查看内部工作项",
+      "screen_id": "M1-S05",
+      "target_screen": "M1-S11",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized item; detail API pending",
+      "state_change": "navigate to item detail",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "not_found_or_forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S09"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E26",
+      "control_id": "M1-B26",
+      "label": "打开完成原因弹窗",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-M01",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "open complete reason form; no mutation until B07",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "permission_revoked"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S05"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E27",
+      "control_id": "M1-B27",
+      "label": "打开关闭原因弹窗",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-M01",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "open close reason form; no mutation until B08",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "permission_revoked"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S05"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E28",
+      "control_id": "M1-B28",
+      "label": "取消完成/关闭",
+      "screen_id": "M1-M01",
+      "target_screen": "M1-S11",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "close without decision; submitting/unknown cannot imply cancellation of request",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "result_unknown"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E29",
+      "control_id": "M1-B29",
+      "label": "返回任务结果",
+      "screen_id": "M1-S06",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}",
+      "state_change": "read current business receipt; Feishu link requires login/scope",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "session_expired"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S04",
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E30",
+      "control_id": "M1-B30",
+      "label": "管理说明",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S08",
+      "roles": [
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read redacted configuration/exception metadata; API pending",
+      "state_change": "navigation only; no global config mutation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "read_failure"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "also_on": [
+        "M1-S08",
+        "M1-S09",
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S10",
+        "M1-S11"
+      ]
+    },
+    {
+      "id": "M1-E31",
+      "control_id": "M1-B31",
+      "label": "返回有权首页",
+      "screen_id": "M1-S07",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "operator/approver S02; admin-only S08; unauthorized stays safe shell or S01",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "no_authorized_destination"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "alternate_targets": [
+        "M1-S08",
+        "M1-S07",
+        "M1-S01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E32",
+      "control_id": "M1-B32",
+      "label": "发送报告解释问题",
+      "screen_id": "M1-M04",
+      "target_screen": "M1-M04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "submit",
+      "business_action": "explain_report read-only; conversation endpoint pending",
+      "state_change": "answer cites frozen report/SKU; no new analysis/approval/SQL/RAG",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "explanation_failed",
+        "unsupported_request",
+        "budget_exceeded",
+        "context_expired"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E33",
+      "control_id": "M1-B33",
+      "label": "查看历史版本",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized immutable version; version query contract pending",
+      "state_change": "historical badge; active version explicit; old approval never reused",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "version_not_found"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S04"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E34",
+      "control_id": "M1-B34",
+      "label": "复制安全编号",
+      "screen_id": "M1-S06",
+      "target_screen": "M1-S06",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "copy displayed task/item/trace ID only, no token/nonce",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "clipboard_unavailable"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S09",
+        "M1-S11",
+        "M1-S08"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E35",
+      "control_id": "M1-B35",
+      "label": "补充澄清信息",
+      "screen_id": "M1-M02",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator"
+      ],
+      "event": "submit",
+      "business_action": "proposal only; persistence/continuation protocol pending D02",
+      "state_change": "disabled in final prototype until D02; no fabricated business task state",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "ambiguous_sku",
+        "unsupported_intent",
+        "scope_over_capacity"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "blocked_pending_D02",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E36",
+      "control_id": "M1-B36",
+      "label": "确认重算影响",
+      "screen_id": "M1-M05",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator"
+      ],
+      "event": "submit",
+      "business_action": "proposal only; new immutable version and approval; API pending D03",
+      "state_change": "not retry; old confirmation never reused; completed next cycle new task; pending supersession atomic contract required",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "version_conflict",
+        "permission_revoked",
+        "request_result_unknown"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "blocked_pending_D03",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E37",
+      "control_id": "M1-B37",
+      "label": "查看工作项来源",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read approved source report/version",
+      "state_change": "show historical source, not unrelated latest report",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "missing_evidence"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E38",
+      "control_id": "M1-B38",
+      "label": "查看同步详情",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-S06",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read parent task events",
+      "state_change": "focus projection section; completed stays completed; no external resend",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden",
+        "read_failure"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S05",
+        "M1-S09"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E39",
+      "control_id": "M1-B39",
+      "label": "导航到任务中心",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized tasks",
+      "state_change": "navigation; preserve filters",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E40",
+      "control_id": "M1-B40",
+      "label": "导航到审批",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S10",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized approvals",
+      "state_change": "navigation; no approval from menu",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E41",
+      "control_id": "M1-B41",
+      "label": "导航到内部补货",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S05",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized items",
+      "state_change": "navigation; no manual item creation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E42",
+      "control_id": "M1-B42",
+      "label": "重读当前区域",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET/read only; target is current instance",
+      "state_change": "refresh failed read; never regenerate plan or write projection",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "read_failure",
+        "session_expired",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S02",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E43",
+      "control_id": "M1-B43",
+      "label": "展开事实详情",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read safe selected record",
+      "state_change": "expand SKU/tool/exception/definition; no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "missing_evidence",
+        "forbidden"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S04",
+        "M1-S06",
+        "M1-S08",
+        "M1-M03",
+        "M1-M04"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E44",
+      "control_id": "M1-B44",
+      "label": "打开账号菜单",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "show current identity/assigned roles and logout; no role switching",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label"
+      ],
+      "exceptions": [
+        "session_expired"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+    },
+    {
+      "id": "M1-E45",
+      "control_id": "M1-B45",
+      "label": "关闭新建草稿",
+      "screen_id": "M1-M02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "discard unsubmitted draft after confirmation if edited; accepted task not cancelled",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "close during unknown submission cannot imply cancellation; do not create new request key until original result is reconciled"
+      ],
+      "exceptions": [
+        "request_result_unknown"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "review_required",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
     }
   ],
   "approval_request_fields": [
@@ -330,9 +1526,24 @@
   ],
   "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
   "pending_design_decisions": [
-    "keyboard/focus behavior",
-    "mobile Feishu card geometry",
-    "retry ownership by error class",
-    "login form details"
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07",
+    "D08",
+    "D09"
+  ],
+  "design_status": "review_required",
+  "design_document": "c1-product-design.md",
+  "visual_scope": "POC only; M1 unmapped",
+  "baseline_ux_commit": "77b69d3",
+  "shared_control_mapping": "One stable semantic control ID may have multiple UI/Penpot instances; C2 must map each instance UUID and source/target. All M1 UUIDs remain null.",
+  "api_contract_gaps": [
+    "List/detail reads for tasks/approvals/items and version selection need Phase 3 contract; existing ARCHITECTURE only names some endpoints.",
+    "D02 clarification continuation; D03 reanalysis/version activation; D04 retry authorization; read-only admin metadata; login/logout session endpoints; explain_report transport.",
+    "No endpoint is implemented or newly authorized by C1 design."
   ]
 }

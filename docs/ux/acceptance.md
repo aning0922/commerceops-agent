@@ -31,9 +31,9 @@
 
 ## 3. 阶段 C/D 后续必须补齐
 
-以下全部 pending，不能用 POC 勾选：
+下列原型/业务项保持pending，不能用POC勾选。C1文档覆盖见 [C1检查](c1-validation.md)，不替代原型验收：
 
-- [ ] Prediko、Shopify Sidekick、Triple Whale Moby 官方交互研究与引用，明确仅借鉴 M1 相关模式。
+- [x] C1已完成 [Prediko Pia、Sidekick、Moby官方研究](c1-research.md)，只借鉴M1相关模式；没有竞品账户实操证据。
 - [ ] 任务、报告、审批/内部补货、轨迹、飞书卡片及登录/权限/加载/空结果/失败/过期完整画布。
 - [ ] operator、approver、admin、无权限身份的全部旅程；admin 不自动获得审批权。
 - [ ] 未知在途逐项披露、绑定 version/hash/完整确认键的专用确认和拒绝；硬质量错误不可确认豁免。
@@ -44,4 +44,4 @@
 - [ ] 后续 Next.js 的路由/组件/测试映射及 Playwright 状态/角色/异常验证；真实业务 T3/T4/T6 与飞书测试另附证据。
 - [ ] 便携原生归档导出/导入 round-trip，以及异机/新卷 PG+assets 备份恢复。
 
-本轮 `screens.yaml / interactions.yaml / design-tokens.json` 是草案和 POC 映射。审阅、PR 创建或 main 合并都不自动升级为 M1 产品基线或业务 Gate。
+`screens.yaml / interactions.yaml`现为C1待评审规格，`design-tokens.json`仍是原POC设计值。原生导出/异机恢复缺口本轮只记录，不扩大基础设施工作。审阅、PR 创建或 main 合并都不自动升级为 M1 产品基线或业务 Gate。
