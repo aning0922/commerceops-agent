@@ -27,3 +27,7 @@
 本分支基于 main `a0d521e`，不修改 Phase 1 主控的 STATUS、G3、CI、业务数据库或真实飞书配置。该 commit 的 STATUS 仍包含较早的“PR #9 待合并”记录，而实际 Git 已含 PR #9 merge；本轮以产品文档为范围依据，不代替主控修订阶段事实。
 
 ![两个原生界面与弹窗在画布中平铺](evidence/poc-canvas.jpg)
+
+## C2-B2 当前交接
+
+2026-10-09 用户转述 B1b 外审有条件通过，明确授权本轮 B2。当前候选版本为 `m1-ui/0.3.0-b2`，见 [B2 交付、实际验证与未完成项](c2-b2-delivery.md)。本文件早期授权/批次状态为历史记录；最新授权以本节及机器合同为准。设计候选待外部评审，BC01–07 与全部业务 implementation 仍 pending / not_implemented；未合 main，B3 未授权。

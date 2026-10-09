@@ -22,3 +22,7 @@
 ## C2-B1b检查追加
 
 B1a视觉通过后的B1b设计与原型检查见[完整交付](c2-b1b-delivery.md)和[实际仓库结果](evidence/c2-b1b/repository-validation.json)。复用现有.venv，未安装全局依赖。设计合同、Ruff、32份Markdown和差异检查通过；敏感扫描当前/index/全部可达历史均0。三处非凭据文本初次匹配已消除，扫描规则不变。保留77次Viewer点击中的4次失败及复验；不计业务测试。Phase1、共享锁和CI未修改。
+
+## C2-B2 当前交接
+
+2026-10-09 用户转述 B1b 外审有条件通过，明确授权本轮 B2。当前候选版本为 `m1-ui/0.3.0-b2`，见 [B2 交付、实际验证与未完成项](c2-b2-delivery.md)。本文件早期授权/批次状态为历史记录；最新授权以本节及机器合同为准。设计候选待外部评审，BC01–07 与全部业务 implementation 仍 pending / not_implemented；未合 main，B3 未授权。

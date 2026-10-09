@@ -1,0 +1,79 @@
+{
+  "method": "WCAG relative luminance of reused token values; active text pairs only; not full accessibility certification",
+  "pairs": [
+    {
+      "foreground": "ink",
+      "background": "white",
+      "ratio": 14.55,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "ink",
+      "background": "canvas",
+      "ratio": 13.67,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "text",
+      "background": "white",
+      "ratio": 9.88,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "text",
+      "background": "canvas",
+      "ratio": 9.28,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "muted",
+      "background": "white",
+      "ratio": 5.22,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "muted",
+      "background": "canvas",
+      "ratio": 4.9,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "red",
+      "background": "white",
+      "ratio": 6.51,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "red",
+      "background": "canvas",
+      "ratio": 6.11,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "amber",
+      "background": "white",
+      "ratio": 6.1,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "amber",
+      "background": "canvas",
+      "ratio": 5.73,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "white",
+      "background": "teal",
+      "ratio": 5.47,
+      "passes_normal_text": true
+    },
+    {
+      "foreground": "teal",
+      "background": "tealSoft",
+      "ratio": 4.91,
+      "passes_normal_text": true
+    }
+  ],
+  "keyboard_focus_screenreader": "not_verified",
+  "disabled_controls_and_decorative_borders": "excluded; real frontend non-text contrast and focus require acceptance"
+}

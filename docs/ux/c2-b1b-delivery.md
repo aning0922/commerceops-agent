@@ -122,3 +122,7 @@ PG与assets顺序捕获，不是跨存储原子事务；本批没有异机/新�
 本批提交前运行设计合同检查（含B1a历史保持、B1b UUID/连接/回读、确定性 fixture、命名版本与实际实点记录）、Ruff、文档链接/围栏检查、git diff --check和当前/index/可达Git历史敏感扫描。实际命令结果见[仓库检查记录](evidence/c2-b1b/repository-validation.json)。GitHub CI须核对本次新head，不转记旧head成功；PR更新中登记实际结果。
 
 本批到此停写，等待视觉与交互评审。不合并main，不开发Next.js正式业务，不修改Phase 1 STATUS/实现/真实飞书，不启动B2/B3。
+
+## C2-B2 承接（2026-10-09）
+
+用户已转述 B1b 外部视觉与交互评审为有条件通过，并明确授权 B2。三项必要修订与本批当前版本见 [B2 交付](c2-b2-delivery.md)。本文件此前的截图、UUID 和测试是历史证据；不改写为 B2 验证。B3 仍未授权。

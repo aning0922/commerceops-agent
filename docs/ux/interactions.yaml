@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract_version": "0.2.1-c1-revision",
-  "status": "c1_approved_b1a_visual_approved_b1b_review_required",
+  "status": "c1_approved_b1b_conditionally_passed_b2_review_required",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -120,9 +120,9 @@
         "request_result_unknown",
         "BUDGET_EXCEEDED"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "operator and authorized shop",
@@ -143,16 +143,31 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
-          "screen_id": "M1-M02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B01 / 创建分析并按规则送审",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
               "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5735",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B01 / 提交本人分析（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386cb9bbbe9"
             }
           ]
         }
@@ -164,7 +179,8 @@
       },
       "b1a_availability": "mapped_sample",
       "prototype_simulation": "Navigate to precomputed Mock overview/report fixture; no actual task acceptance, queue, analysis or approval. Backend state contract unchanged.",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E02",
@@ -194,9 +210,9 @@
         "DECISION_CONFLICT",
         "UNAUTHORIZED_ACTOR"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -215,12 +231,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B02 / 批准创建内部补货工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -230,18 +246,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d93a889d",
-          "screen_id": "M1-F01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B02 / 批准创建内部补货工作项",
-          "actions": [
-            {
-              "trigger": "click",
-              "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
-            }
-          ]
+          "ui_disabled": "platform_capacity_pending",
+          "prototype_actions": []
         }
       ],
       "prototype_validation": {
@@ -249,7 +259,9 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
     },
     {
       "id": "M1-E03",
@@ -282,9 +294,9 @@
         "DECISION_CONFLICT",
         "UNAUTHORIZED_ACTOR"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -300,12 +312,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -315,12 +327,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373c7f8f2e7",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -330,18 +342,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d3a53223",
-          "screen_id": "M1-F01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
-          "actions": [
-            {
-              "trigger": "click",
-              "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
-            }
-          ]
+          "ui_disabled": "platform_capacity_pending",
+          "prototype_actions": []
         }
       ],
       "prototype_validation": {
@@ -349,7 +355,9 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
     },
     {
       "id": "M1-E04",
@@ -371,9 +379,9 @@
         "UNAUTHORIZED_ACTOR",
         "APPROVAL_EXPIRED"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "trusted current identity + same organization/shop + current approver + eligible principal",
@@ -398,12 +406,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -413,12 +421,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373c80c7d79",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -428,18 +436,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d3c1c5e0",
-          "screen_id": "M1-F01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
-          "actions": [
-            {
-              "trigger": "click",
-              "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c3757acca614"
-            }
-          ]
+          "ui_disabled": "platform_capacity_pending",
+          "prototype_actions": []
         }
       ],
       "prototype_validation": {
@@ -447,7 +449,9 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
     },
     {
       "id": "M1-E05",
@@ -465,9 +469,9 @@
         "DECISION_CONFLICT",
         "UNAUTHORIZED_ACTOR"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -495,12 +499,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B05 / 拒绝计划",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -510,18 +514,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d95d19b5",
-          "screen_id": "M1-F01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B05 / 拒绝计划",
-          "actions": [
-            {
-              "trigger": "click",
-              "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
-            }
-          ]
+          "ui_disabled": "platform_capacity_pending",
+          "prototype_actions": []
         }
       ],
       "prototype_validation": {
@@ -529,7 +527,9 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
     },
     {
       "id": "M1-E06",
@@ -593,9 +593,9 @@
         "reason_required",
         "request_result_unknown"
       ],
-      "status": "prototype_sample_verified",
-      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751d3dec1e",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c652854",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -608,17 +608,32 @@
       "b1a_availability": "not_in_authorized_batch",
       "penpot_instances": [
         {
-          "shape_id": "448723ff-8a21-80dc-8008-c3751d3dec1e",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c652854",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "M1-B07 / 提交完成（模拟）",
-          "actions": [
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B07 / 空原因触发校验",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c3757f0f161d"
+              "destination": "b806b597-0eb0-80b2-8008-c388192889f8"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751d3dec1e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B07 / 提交完成（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38819e1ef46"
             }
           ]
         }
@@ -628,7 +643,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E08",
@@ -656,9 +672,9 @@
         "reason_required",
         "request_result_unknown"
       ],
-      "status": "prototype_sample_verified",
-      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751ef12389",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751e049c6e",
+      "design_status": "b2_external_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -671,17 +687,32 @@
       "b1a_availability": "not_in_authorized_batch",
       "penpot_instances": [
         {
-          "shape_id": "448723ff-8a21-80dc-8008-c3751ef12389",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
+          "shape_id": "448723ff-8a21-80dc-8008-c3751e049c6e",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "M1-B08 / 提交关闭（模拟）",
-          "actions": [
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B08 / 空原因触发校验",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c3757fd0a65a"
+              "destination": "b806b597-0eb0-80b2-8008-c3881f358c35"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ef12389",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B08 / 提交关闭（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3881fefd1bc"
             }
           ]
         }
@@ -691,7 +722,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E09",
@@ -749,9 +781,9 @@
       "exceptions": [
         "permission_revoked"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -764,33 +796,91 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B10 / 新建库存分析",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1",
-              "position": "top-right"
+              "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373be45b85a",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B10 / 开始提问 →",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1",
-              "position": "manual"
+              "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc48452b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "e4d7ead3-2ddf-806b-8008-c38b0aee5730"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ccba2822",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "e4d7ead3-2ddf-806b-8008-c38b0aee5730"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd1b8cf4",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "e4d7ead3-2ddf-806b-8008-c38b0aee5730"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd8f458c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "e4d7ead3-2ddf-806b-8008-c38b0aee5730"
             }
           ]
         }
@@ -801,7 +891,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E11",
@@ -828,9 +919,9 @@
         "rate_limited",
         "service_unavailable"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386bddb9653",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "alternate_targets": [
         "M1-S08",
@@ -849,7 +940,280 @@
         "BC05"
       ],
       "c2_batch": "C2-B2",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bddb9653",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 登录（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bf776abe",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 登录（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c13e8398",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / operator",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c24a0281",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / approver",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c1e33ce5"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c3552592",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / admin",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c2eea5f1"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c45f3a2a",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / unauthorized",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c3fa8f4f"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c5729706",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / operator + approver",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c5068b0f"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c687edae",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / admin + operator",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c61cc36e"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c7a15afb",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / admin + approver",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c732abaa"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c8bde8a9",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / admin + operator + approver",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c84c1f27"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d27e914a",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 退出并返回登录",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ceecf94e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 返回登录",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d021c770",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 返回登录",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d13dc6ff",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 返回登录",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d25ec2cc",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 返回登录",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886cafbc3e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 返回登录与身份样例",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c03349ab"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5bd",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 模拟鉴权成功：查看完整详情",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc302285e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B11 / 模拟鉴权成功：查看完整详情",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+            }
+          ]
+        }
+      ],
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E12",
@@ -874,9 +1238,9 @@
       "exceptions": [
         "logout_failed"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386c1576432",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S07",
@@ -898,7 +1262,130 @@
         "BC05"
       ],
       "c2_batch": "C2-B2",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c1576432",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c2615610",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c36ca93e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c4776723",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c58b41b7",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c69fa2c7",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c7b91787",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c8d6b900",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B12 / 退出当前身份",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386bce478fe"
+            }
+          ]
+        }
+      ],
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E13",
@@ -923,9 +1410,9 @@
         "read_failure",
         "filter_empty"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -939,12 +1426,12 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B13 / 关闭预览",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -954,17 +1441,16 @@
         },
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B13 / 全部状态  ⌄",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c",
-              "position": "center"
+              "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
             }
           ]
         }
@@ -976,7 +1462,8 @@
       },
       "b1a_availability": "mapped_sample",
       "prototype_simulation": "Open/close read-only options preview, not actual filtering or query execution.",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E14",
@@ -1001,9 +1488,9 @@
         "forbidden",
         "not_found_or_forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1017,12 +1504,12 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B14 / 查看任务",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1037,7 +1524,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E15",
@@ -1063,9 +1551,9 @@
         "read_failure",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1084,12 +1572,12 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B15 / 查看分析报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1099,12 +1587,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373bf78d954",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B15 / 查看来源报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1114,16 +1602,61 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f8fb3dbc",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B15 / 查看授权来源报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
               "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc625793",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B15 / 查看本人只读报告",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ca75bab2"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd38c24c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B15 / 查看本人只读报告",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ca75bab2"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc1118c9",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B15 / 查看预生成报告样例",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ca75bab2"
             }
           ]
         }
@@ -1134,7 +1667,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E16",
@@ -1159,9 +1693,9 @@
         "read_failure",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1180,12 +1714,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B16 / 执行轨迹",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1195,12 +1729,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375e9df3a83",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B16 / 查看执行轨迹",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1214,7 +1748,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E17",
@@ -1239,9 +1774,9 @@
         "not_prepared",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
@@ -1259,12 +1794,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B17 / 查看审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1274,16 +1809,31 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375e9c45b7e",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B17 / 查看审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
               "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cae9b656",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B17 / 查看只读审批",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c96b1b7f"
             }
           ]
         }
@@ -1293,7 +1843,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E18",
@@ -1318,9 +1869,9 @@
         "missing_evidence",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1333,17 +1884,16 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B18 / 数据口径",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "7e34228d-e3a9-80dc-8008-c344b0081036",
-              "position": "center"
+              "destination": "7e34228d-e3a9-80dc-8008-c344b0081036"
             }
           ]
         }
@@ -1354,7 +1904,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E19",
@@ -1416,9 +1967,9 @@
         "read_failure",
         "filter_empty"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1433,44 +1984,42 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B20 / 待我处理 · 2",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374bd6118c1",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B20 / 已处理 · 2",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3763d583848",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B20 / 关闭筛选预览",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -1484,7 +2033,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E21",
@@ -1510,9 +2060,9 @@
         "session_expired",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-F01"
@@ -1530,12 +2080,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 查看飞书卡片样例",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1545,42 +2095,42 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d3ee71cf",
-          "screen_id": "M1-F01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 在 Web 查看同版本完整详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+              "destination": "e4d7ead3-2ddf-806b-8008-c38cc395b5b8"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d98fd50f",
-          "screen_id": "M1-F01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 在 Web 查看同版本完整详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
-              "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+              "destination": "e4d7ead3-2ddf-806b-8008-c38cc3022859"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374bdd147b1",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1590,12 +2140,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374be0e05ad",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 390px 完整详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1605,12 +2155,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374be50cb3f",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 已知在途详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1620,12 +2170,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374be94485a",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 只读历史记录",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1635,12 +2185,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37578644adc",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 返回完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1650,12 +2200,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37579498593",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 返回完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1665,12 +2215,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757a51685c",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 返回完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1680,12 +2230,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757b4deccb",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 返回完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1695,12 +2245,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757c670054",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 返回完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1710,16 +2260,106 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757d8983da",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B21 / 返回完整审批详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
               "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc9c5db1",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ccf279a4",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd73810d",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cdc8ef25",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874237973e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B21 / 打开 Web：先鉴权（模拟无权）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c523",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B21 / 打开 Web：先鉴权（模拟无权）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
             }
           ]
         }
@@ -1729,7 +2369,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E22",
@@ -1753,9 +2394,9 @@
       "exceptions": [
         "none"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-M04",
@@ -1772,12 +2413,12 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
-          "screen_id": "M1-M03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B22 / 返回报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -1792,7 +2433,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E23",
@@ -1817,9 +2459,9 @@
         "read_failure",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-F01"
@@ -1837,12 +2479,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 查看审批记录",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1852,12 +2494,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375786ebe7e",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 查看创建结果（Mock）",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1867,12 +2509,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37579559819",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1882,12 +2524,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757a5ded27",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1897,12 +2539,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757b59f82f",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1912,12 +2554,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757c7480a9",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1927,12 +2569,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757d9a00a1",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B23 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -1946,7 +2588,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E24",
@@ -1971,9 +2614,9 @@
         "read_failure",
         "filter_empty"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1988,28 +2631,27 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B24 / 状态：待跟进 ⌄",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c3763de19817",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c3763de19817"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3763dfc871b",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B24 / 关闭筛选预览",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -2023,7 +2665,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E25",
@@ -2048,9 +2691,9 @@
         "forbidden",
         "not_found_or_forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
@@ -2068,12 +2711,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B25 / 执行后工作项（Mock）",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2083,12 +2726,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374c0047ca6",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B25 / 查看工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2098,12 +2741,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374c04e4e31",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B25 / 查看工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2113,12 +2756,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c374c09dcab7",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B25 / 查看工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2128,12 +2771,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757e6ec32b",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B25 / 查看内部工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2143,12 +2786,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f9d419fa",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B25 / 查看内部工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2162,7 +2805,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E26",
@@ -2185,9 +2829,9 @@
         "ITEM_STATE_CONFLICT",
         "permission_revoked"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
@@ -2204,17 +2848,16 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B26 / 记录内部跟进完成",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c3751c128013",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c3751c128013"
             }
           ]
         }
@@ -2224,7 +2867,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E27",
@@ -2247,9 +2891,9 @@
         "ITEM_STATE_CONFLICT",
         "permission_revoked"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
@@ -2266,17 +2910,16 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B27 / 关闭内部工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c3751da663dd",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c3751da663dd"
             }
           ]
         }
@@ -2286,7 +2929,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E28",
@@ -2308,9 +2952,9 @@
       "exceptions": [
         "result_unknown"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -2324,12 +2968,27 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B28 / 取消并返回工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c388192889ff",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2339,12 +2998,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751d2e6ec1",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B28 / 取消并返回工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2354,12 +3013,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751df7ce6a",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B28 / 取消并返回工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c3c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2369,12 +3043,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751ee03cc8",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B28 / 取消并返回工作项",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2388,7 +3062,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E29",
@@ -2414,9 +3089,9 @@
         "forbidden",
         "session_expired"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -2436,12 +3111,12 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 任务概览",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2451,12 +3126,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373bf67a3bb",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回任务概览",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2466,12 +3141,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373c829093f",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2481,12 +3156,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c373d6c040d4",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2496,12 +3171,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37519ed212a",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2511,12 +3186,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751aff1471",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回内部补货列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2526,12 +3201,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751b9228ef",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回内部补货列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2541,12 +3216,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757e814178",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回任务概览",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2556,12 +3231,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3757f5451f6",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回内部补货列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2571,12 +3246,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37580161c98",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回内部补货列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2586,12 +3261,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37580d38f17",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回任务结果",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b0",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回任务结果",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2601,12 +3291,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f861f99a",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2616,12 +3306,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f9079fa1",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2631,12 +3321,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f9c73b98",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回任务结果",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -2646,12 +3336,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fa72cb84",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回执行轨迹",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -2661,16 +3351,421 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37b12690495",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B29 / 返回审批列表",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
               "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e806bee",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ebc3bac",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ef68a14",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d592ede",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f327f00",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf085",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回版本变化说明",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c387305f5b64"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf086",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e78",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f6e1e00",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d74",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873faa0c22",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886da59555",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740028b4d",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b2d",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387403e2871",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740796a0c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740b70b5e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740f165a6",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387412c54a4",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387416975dc",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741a574dd",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741dd8055",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742199589",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874254d85c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c524",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881e6eda98",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3882499828c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
             }
           ]
         }
@@ -2681,7 +3776,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E30",
@@ -2752,9 +3848,9 @@
       "exceptions": [
         "no_authorized_destination"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386c9dd12ac",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "alternate_targets": [
         "M1-S08",
@@ -2769,7 +3865,70 @@
         "BC01"
       ],
       "c2_batch": "C2-B2",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c9dd12ac",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B31 / 返回本人授权任务",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cb0485dd",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B31 / 返回本人授权任务",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc2e185f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B31 / 返回本人授权任务",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cf09babd",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B31 / 返回授权首页",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c3fa8f4f"
+            }
+          ]
+        }
+      ],
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E32",
@@ -2917,9 +4076,9 @@
         "preparse_protocol_pending",
         "scope_over_capacity"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "ui_draft_only_backend_preparse_pending",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -2933,28 +4092,27 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
-          "screen_id": "M1-M02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B35 / 确认以上草稿参数",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab",
-              "position": "center"
+              "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab"
             }
           ]
         },
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344afad46ed",
-          "screen_id": "M1-M02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B35 / 返回新建分析",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -2970,7 +4128,8 @@
       },
       "b1a_availability": "mapped_sample",
       "prototype_simulation": "Acknowledge prefilled Mock draft only; native Viewer is not a real editable form or parser.",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E36",
@@ -3034,9 +4193,9 @@
         "forbidden",
         "missing_evidence"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -3051,12 +4210,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B37 / 查看来源报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3066,12 +4225,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751b0b34b1",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B37 / 查看来源报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3081,12 +4240,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751b9f40da",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B37 / 查看来源报告",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3100,7 +4259,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E38",
@@ -3125,9 +4285,9 @@
         "forbidden",
         "read_failure"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05",
@@ -3147,33 +4307,46 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B38 / 查看同步详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e"
             }
           ]
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37583756e3d",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B38 / 查看飞书投影状态",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b5",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B38 / 查看飞书投影状态",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e"
             }
           ]
         }
@@ -3183,7 +4356,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E39",
@@ -3207,9 +4381,9 @@
       "exceptions": [
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -3233,12 +4407,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3248,12 +4422,12 @@
         },
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 返回任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3263,12 +4437,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb43bb01",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3278,12 +4452,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb85b865",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3293,12 +4467,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fbcd115e",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3308,12 +4482,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc10b80e",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3323,12 +4497,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc556299",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3338,12 +4512,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc990682",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b6",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3353,12 +4542,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fabe341e",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B39 / 导航到任务中心",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3373,7 +4562,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E40",
@@ -3397,9 +4587,9 @@
       "exceptions": [
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -3424,12 +4614,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3439,12 +4629,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb4ebdf2",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3454,12 +4644,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb9035f6",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3469,12 +4659,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fbd83868",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3484,12 +4674,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc1b2c2b",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3499,12 +4689,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc60eb28",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3514,12 +4704,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fca4e70b",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b7",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B40 / 导航到审批",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3529,12 +4734,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fac8ff00",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B40 / 导航到审批",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3548,7 +4753,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E41",
@@ -3572,9 +4778,9 @@
       "exceptions": [
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -3599,12 +4805,12 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
-          "screen_id": "M1-S03",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3614,12 +4820,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb57e09a",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3629,12 +4835,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fb9bdaa0",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3644,12 +4850,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fbe1ca99",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3659,12 +4865,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc26ece4",
-          "screen_id": "M1-S05",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3674,12 +4880,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fc6bfb32",
-          "screen_id": "M1-S11",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3689,12 +4895,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fcae66a1",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b8",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3704,12 +4925,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375fad2fde2",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B41 / 导航到内部补货",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3723,7 +4944,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E42",
@@ -3749,9 +4971,9 @@
         "session_expired",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S02",
@@ -3777,16 +4999,31 @@
       "penpot_instances": [
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
-          "screen_id": "M1-S04",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B42 / 读取同版本完整详情（模拟）",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
               "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e9d31b6",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B42 / 重读数据（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872cb47f65"
             }
           ]
         }
@@ -3796,7 +5033,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E43",
@@ -3821,9 +5059,9 @@
         "missing_evidence",
         "forbidden"
       ],
-      "status": "prototype_sample_verified",
-      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f91222b6",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c3886d3f9adb",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -3845,13 +5083,43 @@
       "b1a_availability": "not_in_authorized_batch",
       "penpot_instances": [
         {
-          "shape_id": "448723ff-8a21-80dc-8008-c375f91222b6",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d3f9adb",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 数据 / 模型异常样例（Mock 评审）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d0d7d1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 异常状态样例（Mock 评审）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f91222b6",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B43 / 查看披露阻断样例",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3861,12 +5129,12 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c375f91e8ab3",
-          "screen_id": "M1-S10",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B43 / operator 只读样例",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3876,12 +5144,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751c78b2c3",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B43 / 选择 Mock 示例原因",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3751cdf0876"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38819288a01",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3891,12 +5174,27 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c3751e18cc1b",
-          "screen_id": "M1-M01",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B43 / 选择 Mock 示例原因",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3751e8a0b15"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c3e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "navigate-to",
@@ -3906,17 +5204,1021 @@
         },
         {
           "shape_id": "448723ff-8a21-80dc-8008-c37582da7542",
-          "screen_id": "M1-S06",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B43 / 展开工具安全详情",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
-              "destination": "448723ff-8a21-80dc-8008-c375fa549906",
-              "position": "center"
+              "destination": "448723ff-8a21-80dc-8008-c375fa549906"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d234b69",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模型降级 / 用量未知样例",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38738cee306"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80f5",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 展开工具安全详情",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c375fa549906"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ba",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模型降级 / 用量未知样例",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38738cee306"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bdf39c14",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 查看身份与异常样例（评审）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c03349ab"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bf90843e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 查看身份与异常样例（评审）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c03349ab"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886cc91ee4",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 查看共用异常状态",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d29ad7a8",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 非 eligible 对象：安全拒绝",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d2b86072",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 非 eligible 对象：安全拒绝",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742aeed6b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 正在读取授权内容",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872cb47f65"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742cc0bf2",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 当前范围没有结果",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872da051d9"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742e9771f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 暂时无法读取",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872e87aa56"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874307bc53",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 审批期限已过",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872f70da65"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743264b88",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 计划版本已变化",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c387305f5b64"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387434578bf",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 此决定已有记录",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873145441d"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743632455",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 审批状态已被更新",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873235d58c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743819e9b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 正在记录审批意见",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38733275367"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387439fc54f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 审批结果暂无法确认",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873414b78a"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743bcf52b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 已核实既有结果",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743dbe53e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 内部项已创建 · 飞书同步失败",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38735f2870e"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743fce351",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 外部结果未知 · 等待安全对账",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38736e3afb7"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387441b81a2",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 智能说明已降级为模板",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38737d9249d"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387443abe54",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模型用量与费用未知",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38738cee306"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874458a631",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 数据不完整 · 暂不能审批",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38739c749c7"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874477e7ec",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 工作项版本发生冲突",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873ac57e0c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744971522",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 此内部项已经完成",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873bc261a1"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744b41145",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 此内部项已经关闭",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873cc489a2"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744d245da",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 真实飞书容量待验收",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873dcafcbf"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744f0daa1",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 权限撤销",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386cfa20c01"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387450f3a4e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 会话过期",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386d0c1353b"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387452f39e2",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 无权深链",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387454cf052",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 登录失败",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386d1dc4960"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e43a585",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742719ca2",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：读取成功但为空",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872da051d9"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e61ad37",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ed8caba",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d592edd",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f139bc8",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e77",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f4ed5a1",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 查看既有回执",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d73",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 查看既有回执",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f8a64ae",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886da59554",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873fc5e03f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742900fb2",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：结果未知",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873414b78a"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873fe46662",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b2c",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387401fe86d",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387405b441a",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387409723c5",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740d37e69",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387410eecae",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387414aa11f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741856ee1",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前记录（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873bc261a1"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741c14c32",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741fb513b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 返回状态评审",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5be",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟无权结果",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc302285f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟无权结果",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386ce71898c"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881dad7989",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：已保存回执",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757f0f161d"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881dc58a3a",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：版本冲突",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3881bdfcc50"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881ddf1a15",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：结果未知",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3881ae3ee27"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881df69000",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取原请求回执（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3881ce07c18"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881e0fac7a",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前工作项（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873bc261a1"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38823cf88aa",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：已保存回执",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757fd0a65a"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38823eaaee3",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：版本冲突",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38821f7fac6"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38824026f4e",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 模拟响应：结果未知",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38820f73994"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c388241ca53d",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取原请求回执（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c38822fd8afb"
+            }
+          ]
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3882435086f",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B43 / 读取当前工作项（模拟）",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c3873cc489a2"
             }
           ]
         }
@@ -3926,7 +6228,8 @@
         "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E44",
@@ -3996,9 +6299,9 @@
       "exceptions": [
         "request_result_unknown"
       ],
-      "status": "prototype_sample_verified",
+      "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
-      "design_status": "b1b_visual_interaction_pending_review",
+      "design_status": "b2_external_review_required",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -4011,12 +6314,12 @@
       "penpot_instances": [
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
-          "screen_id": "M1-M02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B45 / ×",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
@@ -4026,16 +6329,31 @@
         },
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af929b26",
-          "screen_id": "M1-M02",
-          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
           "meaning": "M1-B45 / 取消",
-          "actions": [
+          "ui_disabled": null,
+          "prototype_actions": [
             {
               "trigger": "click",
               "type": "close-overlay",
               "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+            }
+          ]
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5736",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "revision": "m1-ui/0.3.0-b2",
+          "meaning": "M1-B45 / 取消草稿",
+          "ui_disabled": null,
+          "prototype_actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "b806b597-0eb0-80b2-8008-c386c0db21de"
             }
           ]
         }
@@ -4046,7 +6364,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "b1b_availability": "mapped"
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only"
     },
     {
       "id": "M1-E46",
@@ -4137,9 +6456,9 @@
   ],
   "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
   "pending_design_decisions": [],
-  "design_status": "b1b_visual_interaction_review_required",
+  "design_status": "b2_visual_interaction_review_required",
   "design_document": "c1-product-design.md",
-  "visual_scope": "POC preserved; existing M1 file extended with B1b; Mock only",
+  "visual_scope": "Native M1 B1 retained; B2 login/access and compact shared permission/error variants; Mock design only",
   "baseline_ux_commit": "77b69d3",
   "shared_control_mapping": "Stable semantic ID can have multiple source instances; latest instance UUID/action map is authoritative; reserved B09 has no UI",
   "api_contract_gaps": [
@@ -4151,7 +6470,7 @@
     "BC06 full SKU disclosure and client fallback",
     "BC07 actual expiry/freshness configuration; no hardcoded 24h/15min guarantee"
   ],
-  "review_status": "C1_approved_B1a_visual_passed_B1b_waiting_review",
+  "review_status": "C1_approved_B1a_passed_B1b_conditional_B2_waiting_external_review",
   "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",
@@ -4198,7 +6517,9 @@
       "客户端不支持完整呈现"
     ],
     "fallback": "去有权Web查看同版本完整披露后再决定；不能在截断卡片批准隐藏条目；具体平台合同pending BC06",
-    "client_is_not_authorization": true
+    "client_is_not_authorization": true,
+    "real_feishu_capacity": "pending_real_platform_acceptance",
+    "current_card_direct_decision": "disabled_pending_capacity; authenticated same-version full Web only"
   },
   "interaction_counts": {
     "registered": 47,
@@ -4207,18 +6528,21 @@
     "implemented": 0
   },
   "batch_semantics": "页面c2_batch为首批出现；事件批次决定该操作首次接入。共用事件also_on在各来源页面/辅助层已纳入对应批次后才创建实例，不因共用ID提前生成B3页面。",
-  "authorization_scope": "C2-B1b",
+  "authorization_scope": "C2-B2",
   "authorized_design_batches": [
     "C2-B1a",
-    "C2-B1b"
+    "C2-B1b",
+    "C2-B2"
   ],
   "followup_authorization": {
     "C2-B1b": true,
-    "C2-B2": false,
+    "C2-B2": true,
     "C2-B3": false
   },
-  "m1_visual_revision": "m1-ui/0.2.0-b1b",
-  "m1_visual_map": "evidence/c2-b1b/design-map.json",
+  "m1_visual_revision": "m1-ui/0.3.0-b2",
+  "m1_visual_map": "evidence/c2-b2/design-map.json",
   "b1a_delivery": "c2-b1a-delivery.md",
-  "b1b_delivery": "c2-b1b-delivery.md"
+  "b1b_delivery": "c2-b1b-delivery.md",
+  "b2_delivery": "c2-b2-delivery.md",
+  "b2_mock_fixture_policy": "B43 evaluator choices and B11 role/auth fixtures are review-only. Real principal remains server supplied; no API or effect inferred from prototype."
 }

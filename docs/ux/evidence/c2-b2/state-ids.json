@@ -1,0 +1,206 @@
+[
+  {
+    "state": "identity-operator",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c0db21de"
+  },
+  {
+    "state": "identity-approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5"
+  },
+  {
+    "state": "identity-admin",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1"
+  },
+  {
+    "state": "identity-unauthorized",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f"
+  },
+  {
+    "state": "identity-operator-approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c5068b0f"
+  },
+  {
+    "state": "identity-admin-operator",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c61cc36e"
+  },
+  {
+    "state": "identity-admin-approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c732abaa"
+  },
+  {
+    "state": "identity-admin-operator-approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c84c1f27"
+  },
+  {
+    "state": "operator-readonly",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c96b1b7f"
+  },
+  {
+    "state": "operator-report",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386ca75bab2"
+  },
+  {
+    "state": "operator-accepted",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386cb9bbbe9"
+  },
+  {
+    "state": "access",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386ce71898c"
+  },
+  {
+    "state": "revoked",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386cfa20c01"
+  },
+  {
+    "state": "expired-session",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386d0c1353b"
+  },
+  {
+    "state": "login-failure",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386d1dc4960"
+  },
+  {
+    "state": "review-hub",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb"
+  },
+  {
+    "state": "loading",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65"
+  },
+  {
+    "state": "empty",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9"
+  },
+  {
+    "state": "read-failure",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56"
+  },
+  {
+    "state": "approval-expired",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3872f70da65"
+  },
+  {
+    "state": "approval-version",
+    "shape_id": "b806b597-0eb0-80b2-8008-c387305f5b64"
+  },
+  {
+    "state": "approval-duplicate",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873145441d"
+  },
+  {
+    "state": "approval-conflict",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873235d58c"
+  },
+  {
+    "state": "approval-submitting",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38733275367"
+  },
+  {
+    "state": "approval-unknown",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873414b78a"
+  },
+  {
+    "state": "verified-history",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873503e7cb"
+  },
+  {
+    "state": "sync-failed",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38735f2870e"
+  },
+  {
+    "state": "sync-unknown",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38736e3afb7"
+  },
+  {
+    "state": "model-fallback",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38737d9249d"
+  },
+  {
+    "state": "usage-unknown",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38738cee306"
+  },
+  {
+    "state": "data-incomplete",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38739c749c7"
+  },
+  {
+    "state": "item-conflict",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873ac57e0c"
+  },
+  {
+    "state": "item-completed",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873bc261a1"
+  },
+  {
+    "state": "item-closed",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873cc489a2"
+  },
+  {
+    "state": "platform-capacity",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3873dcafcbf"
+  },
+  {
+    "state": "complete-validation",
+    "shape_id": "b806b597-0eb0-80b2-8008-c388192889f8"
+  },
+  {
+    "state": "complete-submitting",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38819e1ef46"
+  },
+  {
+    "state": "complete-unknown",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3881ae3ee27"
+  },
+  {
+    "state": "complete-conflict",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3881bdfcc50"
+  },
+  {
+    "state": "complete-verified",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3881ce07c18"
+  },
+  {
+    "state": "close-validation",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c35"
+  },
+  {
+    "state": "close-submitting",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3881fefd1bc"
+  },
+  {
+    "state": "close-unknown",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38820f73994"
+  },
+  {
+    "state": "close-conflict",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38821f7fac6"
+  },
+  {
+    "state": "close-verified",
+    "shape_id": "b806b597-0eb0-80b2-8008-c38822fd8afb"
+  },
+  {
+    "state": "approval-expired-390",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3886d592ed8"
+  },
+  {
+    "state": "approval-version-390",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e72"
+  },
+  {
+    "state": "approval-conflict-390",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3886da5954f"
+  },
+  {
+    "state": "approval-unknown-390",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b27"
+  },
+  {
+    "state": "approval-duplicate-390",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d6e"
+  },
+  {
+    "state": "platform-capacity-390",
+    "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c51e"
+  }
+]
