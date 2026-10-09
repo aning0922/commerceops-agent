@@ -1,0 +1,333 @@
+{
+  "Base_R1": {
+    "PG_status": "unknown",
+    "classification": "READ_TIMEOUT",
+    "create": 0,
+    "list": 1,
+    "update": 0
+  },
+  "Base_R2": {
+    "CLI_seconds": 12.076884207985131,
+    "PG_status": "succeeded",
+    "business_code": 0,
+    "create": 0,
+    "http_status": 200,
+    "list": 1,
+    "parent_seconds": 9.588481792015955,
+    "unique_original_six_fields_and_marker_verified": true,
+    "update": 0
+  },
+  "Base_second_original_create": {
+    "CLI_seconds": 12.364919792016735,
+    "Gate_verdict": "independent_review_and_main_controller_support_high_level_Base_technical_observation_not_ACK_or_long_term_TTL",
+    "business_code": 1254608,
+    "create": 1,
+    "http_status": 403,
+    "list": 2,
+    "no_replay_retry_or_delete": true,
+    "parent_seconds": 10.6015920000209,
+    "pre_and_post_current_original_anchor_unique_full_fields_verified": true,
+    "previous_start_window_refusal_consumed_no_attempt": true,
+    "runner_replay_status": "unknown",
+    "same_original_key_and_payload_verified": true,
+    "update": 0
+  },
+  "Base_update": {
+    "CLI_seconds": 12.328133250004612,
+    "PG_status": "succeeded",
+    "create": 0,
+    "list": 1,
+    "no_update_HTTP_ACK_success_claim": true,
+    "parent_seconds": 10.168843042018125,
+    "readback_business_code": 0,
+    "readback_http_status": 200,
+    "unique_updated_six_fields_pending_hash_original_anchor_verified": true,
+    "update": 1,
+    "update_exception_category": "READ_TIMEOUT",
+    "update_http_and_code": null,
+    "update_method_status": "unknown"
+  },
+  "C1": {
+    "CLI_seconds": 299.73951720798505,
+    "DTO_toast_type": "error",
+    "NoFake_ACK": true,
+    "PG_zero_decision_receipt_verified": true,
+    "SDK_activity_upper_bound_seconds": 294.5090820089972,
+    "actor": "C",
+    "actual_enabled_C_empty_roles": true,
+    "callbacks": 1,
+    "commit_return": false,
+    "final_PG_zero_decision_receipt_not_yet_verified": false,
+    "full_rendering": "not_reported",
+    "handler_return": true,
+    "handler_to_DTO_ready_ms": 10.987042,
+    "human_reported_seconds": 1,
+    "human_timing_instrument_resolution_not_reported": true,
+    "human_toast_text": "技术探针已拒绝",
+    "new_cards_sent": 1,
+    "original_authorize_denied_and_exception_propagated_rollback": true,
+    "pure_full_binding_nonce_context_expiry_valid": true,
+    "qualified_same_callback_witness_count": 1,
+    "result": "IDENTITY_DENIED",
+    "same_callback_witness_plus_PG_zero_combined_verified": true,
+    "same_original_DAL_connection": true,
+    "wire_observed": false
+  },
+  "DB_failure_supplement": {
+    "DTO": "unobserved",
+    "M3_post_failure_PG_delta": "not_run",
+    "actor": "A",
+    "callback_count": 1,
+    "commit_return": false,
+    "handler_return": false,
+    "handler_to_observer_result_ms": 362.493417,
+    "human_hint_text": "出错了，请稍后重试",
+    "human_reported_timed_seconds": 1,
+    "measurement_instrument_resolution_not_reported": true,
+    "new_cards": 0,
+    "original_batch_PG_before_supplement_once_attempt_preserved": true,
+    "result": "DB_FAILURE",
+    "status": "callback_observed_original_stop_pending",
+    "wire_observed": false
+  },
+  "G3": "incomplete",
+  "M1": {
+    "B_card_callbacks": 4,
+    "PG_cards": 1,
+    "PG_event_keys": 4,
+    "PG_identity_rows": 9,
+    "PG_receipts": 4,
+    "distinct_human_intents_not_inferred_from_callback_count": true,
+    "failed_readback_v1_preserved": true,
+    "human_toast_type_or_wire_not_verified": true,
+    "new_cards_sent": 1,
+    "results": [
+      "probe_recorded:approve_with_assumptions",
+      "duplicate_decision:approve_with_assumptions",
+      "decision_conflict",
+      "duplicate_decision:approve_with_assumptions"
+    ]
+  },
+  "M2": {
+    "B_reject_callbacks": 1,
+    "PG_cards": 1,
+    "PG_event_keys": 1,
+    "PG_identity_rows": 9,
+    "PG_receipts": 1,
+    "handler_to_DTO_ready_ms": 24.190792,
+    "human_full_render_reported": true,
+    "human_hint_type": "not_observed",
+    "human_under2s_is_visual_estimate_not_precision": true,
+    "late_coordination_notice_not_callback_causality": true,
+    "new_cards_sent": 1,
+    "strict_client_Toast_lt3s_or_wire_verified": false
+  },
+  "M3": {
+    "PG_event_keys": 3,
+    "PG_receipts": 3,
+    "actors": [
+      "A",
+      "A",
+      "B"
+    ],
+    "callback_only_restart_callbacks": 2,
+    "controlled_dead_consumer_restart_same_card_delivery_verified": true,
+    "final_PG_batch_not_run": false,
+    "first_window_callbacks": 1,
+    "handler_and_commit_return_each": true,
+    "handler_to_DTO_ready_ms": [
+      24.336667,
+      15.403833,
+      4.01525
+    ],
+    "human_duplicate_and_conflict_approximately_1s_visual_estimates": true,
+    "human_first_confirmation_reported_seconds": 1.5,
+    "human_first_timing_instrument_resolution_not_reported": true,
+    "natural_disconnect_or_same_event_replay_not_claimed": true,
+    "new_cards_sent": 1,
+    "results": [
+      "probe_recorded:approve_with_assumptions",
+      "duplicate_decision:approve_with_assumptions",
+      "decision_conflict"
+    ]
+  },
+  "W1": {
+    "A_private_and_group_receipts_each": 1,
+    "B_and_C_private_and_group_receipts_each": 0,
+    "baseline_C_allowlist_denial_is_not_role_qualification": true,
+    "message_callbacks": 6
+  },
+  "all_completed_windows": {
+    "CLI_dead_reaped": true,
+    "barrier_absent": true,
+    "four_locks_reacquired_released": true,
+    "no_followup_API_after_stop": true,
+    "owned_container_absent": true
+  },
+  "closeout_scope_totals": {
+    "create": 1,
+    "list": 3,
+    "update": 1
+  },
+  "evidence_artifacts": {
+    "BASE_CLOSEOUT_EXPIRED_NOT_RUN_EVIDENCE.json": {
+      "sha256": "730ea74de198bbe7ec1ba9e80258a741ca7252a88dfd718ae598f76ff259fc7b",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "BASE_CLOSEOUT_REPLAY_UPDATE_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "bc486640567cce763584494cce87fce2c27c5b9e8656dce3af28c949d62227a5",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "BASE_DEFAULT_UPDATE_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "6039e690dab14b9e8111733839bf805da66f117665b66b7ee44ffc15863ad525",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "BASE_QUERY_R1_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "f5375f8e17d7616b910878e4bd8c3f289fb70ce2ff0942a23e8c7b8f8ee88c03",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "BASE_QUERY_R2_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "8cff763e8a6273a5e7913a2277a82fda4755236919a1c6b73da08be5b515f8cf",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "C1_HUMAN_OBSERVATIONS_ROOT_REPORTED_EVIDENCE.json": {
+      "sha256": "20fd05177e8ec2dbee86f2afda2b81737bf7a176103db11f58b1c9eabe8b2247",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "C1_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "663ecb73690854ec6e9fcd1e1af5e1a3cd8293cc52202827ec5669d4490a2935",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M1_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "95b86c8199b38a3cd07f79053b782fef25099d0cadffb3be564d4d6cda37c5a9",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M1_PG_READBACK_V2_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "d26ad17ee55337ded4ff7b52cee297f800a15803498ebbb678283a81396aaf30",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M2_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "3b813f0cbb28d0169602809e229d876ab186cc2f0ea93c6f2d2b86fcddbff483",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M2_PG_READBACK_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "27c9fdafa18178e4ab20e79c1b9d79b6b6c4fff6e2a16f46ddc3881b38c03842",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M3_CALLBACK_RESTART_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "0e16f24b8fbc471f77343e4c9b8c284f054e1bbfdbe7f32a3a35983840a8899e",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M3_HUMAN_OBSERVATIONS_ROOT_REPORTED_EVIDENCE.json": {
+      "sha256": "74dc78c96fbc512af98370439d3d73080ee132607e49e9de034a51c7656346ed",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M3_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "5466c6ff7f60d7e9076d8c34d4a0a29ddcf7dc80b9a1797666028669db03a85a",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "NEGATIVE_HUMAN_OBSERVATIONS_ROOT_REPORTED_EVIDENCE.json": {
+      "sha256": "6a4bda58f1cce995643b9a9325c691623e85219435c4fc836152ab6ec92296c5",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "NEGATIVE_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "8dd06163efe7432bb54866a5d549ba27dcc48c87de88fba65dd1f1fb43e44709",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "REMAINING_PG_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "1af623c0178671c5212c607274e9b462dc07d0aa66ba3e05f2393e158b07c279",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "W1_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "3042372068149cbf69d71325b4dea6b151845de2ed71ccce0d88c748b1d6be18",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "W1_PG_READBACK_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "5cd4e80ed716f1b88f1f0d764efe3ca85396f95fd373bad0c31ca52806fb3e37",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    }
+  },
+  "final_four_card_PG_readback": {
+    "CLI_seconds": 2.88119633399765,
+    "C_decision": "none",
+    "C_receipts_and_keys": 0,
+    "M1_receipts_and_keys": 4,
+    "M2_receipts_and_keys": 1,
+    "M3_receipts_and_keys": 3,
+    "SDK_API_WS_or_card": false,
+    "all_full_card_bindings_verified": true,
+    "before_DB_failure_supplement": true,
+    "card_count": 4,
+    "identity_rows": 9,
+    "once_attempt_consumed": true,
+    "parent_seconds": 1.0019950830028392,
+    "readonly": true,
+    "repeatable_read": true,
+    "same_callback_C_witness_combined_verified": true,
+    "status": "verified_readonly_not_Gate"
+  },
+  "issue_comments": {
+    "Base_R2": 6082073975,
+    "Base_second_original_create": 6082936681,
+    "Base_update": 6083163142
+  },
+  "main_controller_Gate_review_comments": {
+    "Issue6": 6083307234,
+    "Issue7": 6083307807
+  },
+  "mode": "real_platform_technical_probe_with_simulated_approval",
+  "negative_window": {
+    "DB_failure_sample": "not_obtained_human_notice_not_timely",
+    "DB_lock_max_seconds": 60,
+    "DB_lock_ready": true,
+    "DTO_toast_type": "error",
+    "actor": "A",
+    "backend_filter_pass_NOT_claimed": true,
+    "commit_return": false,
+    "handler_return": true,
+    "handler_to_DTO_ready_ms": 13.479209,
+    "human_approximately_1s_measurement_unspecified": true,
+    "human_hint_text": "技术探针已拒绝",
+    "natural_M1_expired_callback_count": 1,
+    "new_cards": 0,
+    "non_mention_message_callback_observed": false,
+    "non_mention_message_human_sent_reported": true,
+    "result": "EXPIRED"
+  },
+  "not_run": [
+    "delivered_non_mention_or_bot_filter_actual",
+    "strict_client_Toast_lt3s_or_wire",
+    "long_term_idempotency_or_100_event_p95",
+    "known_rejection1254290_1254291_retry",
+    "specific_client_token_conflict1255006_branch",
+    "M3_scoped_PG_delta_after_DB_failure"
+  ],
+  "private_archive_uploaded": false,
+  "public_validation": {
+    "SDK_warnings": 2,
+    "actual_private_value_scan_matches": 0,
+    "adapted_core_tests": 161,
+    "directory_index_all_reachable_history_secret_findings": 0,
+    "integration_base": "75efbbab3a13007636b94504b5ca94a06a7cd07f",
+    "integration_base_plus_public_integration_deselected": 79,
+    "integration_base_plus_public_offline_passed": 322,
+    "normalized_AST_equivalent_definitions": 22,
+    "precise_PR_head_CI": "pending_creation",
+    "public_platform_execution": "not_run",
+    "ruff_check_passed": true,
+    "ruff_formatted_files": 109,
+    "source_SHA_pairs": 7,
+    "strict_mypy_files": 82
+  },
+  "raw_ID_token_nonce_secret_URL_or_payload_included": false,
+  "schema": "P1_05_PUBLIC_LIVE_SUMMARY_V1",
+  "slots": {
+    "C_cap": 1,
+    "C_consumed": 1,
+    "baseline_cap": 3,
+    "baseline_consumed": 3,
+    "unknown_slot_never_reset": true
+  },
+  "snapshot_date": "2026-10-10",
+  "timezone": "Asia/Shanghai"
+}
