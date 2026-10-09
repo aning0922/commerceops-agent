@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase 1 已完成技术验收并合入 main，等待用户另行授权 Phase 2。** 最终PR19经精确提交独立审核、候选CI后普通合并，main合后CI成功；G1/G2和G3受控真实技术证据均已核对，G3平台最小权限边界及未测分支明确保留。Issue23风险接受/根因未知结论保持，P1-01至04不再扩展。主控没有实施Phase2业务、创建下一阶段会话或自动切换阶段。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1正式冻结、PR24已合main；Phase2已授权并由总控派发新独立顶层/WT，阶段in_progress_p2_01，01执行中未交付Gate，02–04未开始。** main为f19281f1163f828448ad9404620d68e0f1afaa66，合后CI37977821884已成功并经总控核checkout。正式付费模型/飞书扩权限/生产与后续Phase未授权，P2 main合并仍需Gate与届时有效用户授权。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；新事实见第32节，执行状态据Issue29回执更新。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -488,3 +488,18 @@ P1-05合后push37960884776与main候选37960891231均已实际SUCCESS，head f46
 G1/G2为真实Docker/PG、单Worker/单Graph与Checkpoint技术验证；G3为真实接入/技术卡/角色拒绝/重复冲突/过期/DB失败/受控重启/Base读写和原键观察，non@/self-bot按最小权限的平台非投递边界，应用后端分支仍not_run。wire/p95/自然断线/部分Toast逐字内容、长期幂等TTL和特定Base retry分支不宣称通过；旧timeout根因仍not_identified/risk_accepted。本阶段不是正式T3、库存/订单/模型闭环，也不是M1完整面试应用。
 
 建议下一步Phase2确定性库存垂直切片，原3–4有效日估算待授权接单细化；用户未授权下一阶段，主控不创建Phase2实现任务或开始编码。两有效开发日集中收口目标内已完成必要Gate和main交付，本节只同步实际结果，最后文档提交的审核/CI由Issue7记录。
+
+
+## 32. 2026-10-10 Phase2正式授权与设计/规划交接
+
+用户在既有总控明确正式冻结`m1-ui/0.4.1-freeze-rc`为M1产品设计基线，包含18逻辑页及交互；[freeze回执](https://github.com/aning0922/commerceops-agent/pull/24#issuecomment-6087443283)取代原候选“待最终确认”状态，原生revn58/47语义（B09不渲染）、历史证据与资源保留，不追加M1视觉设计批次。BC01–07未实现部分仍pending，原型/设计冻结不等于业务或真实平台测试通过。
+
+[PR24](https://github.com/aning0922/commerceops-agent/pull/24)于2026-10-10 03:05:25正常MERGED，main `f19281f1163f828448ad9404620d68e0f1afaa66`，parents为P1收口f8与UX候选255，tree `880ff67e0ec395992fbb4d06993a4271ba402764`与候选[CI37967247093](https://github.com/aning0922/commerceops-agent/actions/runs/37967247093)实际测试树一致。main[合后CI37977821884](https://github.com/aning0922/commerceops-agent/actions/runs/37977821884)SUCCESS，总控已核实际checkout f192/tree880、345offline/73.74s、79PG/86.75s、三G1/六G2/cleanup0，不用候选CI或f8旧计数代替该实跑。历史CI37965530018等保持原提交对应关系；本规划会话未新增运行上述测试。
+
+用户正式批准[Issue29](https://github.com/aning0922/commerceops-agent/issues/29)已审01→04合同的项目代码、自有Mock、隔离测试资源及正常测试/独审。最初preparing_handoff/authorized_preparing_dispatch由实际派发取代：总控工具已创建P2新独立顶层thread `01a12214-9d7b-74e0-8017-374d8ca5ceb1`，独立WT `/Users/aipuli/.codex/worktrees/5fdb/commerceops-agent`、branch `codex/phase2-inventory`、base f192（创建时最新已验证main），实际模型gpt-6.1-sol/high。当前ACTIVE、Issue29为`in_progress_p2_01`，DTO/Mock代码生成中；本交接未取得测试/PR/CI/独审通过证据，不标01完成，02–04未开始。新主体为唯一schema owner，复用P1基础、不接原P105库；原规划/UX/P1会话与资源保留，不重复派发，不由主控内部coding子Agent替代。PR26合入后，主体在安全边界普通merge新main，由总控协调，本规划者不操作其WT。
+
+P2-01可D1提前工作；固定窗口2026-10-10至11-08与D3–D6（10月12–15日）目标绝不重编号/顺延，P2总预算30–40h，提前实绩计当日H/L并扣任务剩余，不额外叠加40h。300h总预算及修订后的高值独立52h/后续缓冲≤26h、E1 M1前22h/后非核心2h保持，人工小时未报告不填满。规划交接见[执行计划](plans/30_DAY_EXECUTION.md)和[扩展规范](plans/EXTENSIBILITY_DESIGN.md)。本[PR26](https://github.com/aning0922/commerceops-agent/pull/26)只集中五文档交接；用户已授权在重核独审/实际CI门禁后正常合main，尚未合入，不将文档提交记为P2实现。
+
+正式付费模型、飞书扩权限、生产资源及后续Phase未获授权；P2-04真实模型证据需单独运行许可/配置/预算，未跑保持blocked，替身或模板不抵用。P2 main合入仍须完整Gate、独立Review、精确CI与届时有效用户授权，不沿用P1托管合并权限。正式T3/补货/模型闭环不由P1技术Gate或UI原型外推。
+
+本交接不修改原M1/M2/M3核心、ROADMAP Gate、P1第1–31节历史或失败证据，不新增业务/依赖/UX资产/权限/运行测试。G3最小权限非投递边界、后端not_run、自然网络/wire/p95/长期TTL未测和#23根因未知/风险接受原值继续保留。本规划提交者负责这一次文档同步；总控负责派发、独审/CI核对和合入，主体编码由新P2执行者承担。

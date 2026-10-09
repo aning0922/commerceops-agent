@@ -1,6 +1,6 @@
 # 分阶段路线图与外部配置
 
-状态：2026-10-10 Phase0/Phase1已收口。Phase1必要G1/G2和受控真实G3技术证据经独立审核、精确CI及main合后CI验收，PR19已普通合入main；平台最小权限边界、未测分支和残留风险明确保留。当前等待用户另行授权Phase2，不自动切换。实际提交/测试/审核/风险见[STATUS](STATUS.md)、[验收报告](PHASE1_ACCEPTANCE.md)及[执行方案](PHASE1_MANAGED_EXECUTION.md)；以下阶段目标和原验收条件保持设计基线。P0/P1/P2为产品业务优先级，Phase0–6为开发阶段，审核P0/P1为整改优先级。
+状态：2026-10-10 Phase0/Phase1已结案，有限技术Gate/独审/精确main CI与残余风险保持。用户正式冻结M1设计0.4.1（18页/交互），PR24已普通合main f19281f；设计冻结不是业务通过。Phase2按[Issue29](https://github.com/aning0922/commerceops-agent/issues/29)代码/自有Mock/隔离测试及独审已授权，当前in_progress_p2_01：总控已派新独立顶层/WT，01执行中未交付Gate，02–04未开始；正式付费模型/飞书扩权限/生产及后续Phase未授权，P2 main合入仍需Gate与届时有效用户授权。实际状态/CI/边界见[STATUS](STATUS.md)、[验收报告](PHASE1_ACCEPTANCE.md)及[30天计划](plans/30_DAY_EXECUTION.md)。以下原目标/Gate/估算和历史结论保留，当前授权以上方及STATUS新交接节为准；P0/P1/P2为产品优先级，Phase0–6为开发阶段，审核P0/P1为整改优先级。
 
 ## 1. 交付目标与推荐顺序
 
