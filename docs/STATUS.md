@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，当前组合 CI 超时待诊断；P1-05 已完成真实身份采样及人工交叉核验，PG 映射、正式 Gateway/卡片与 Base 尚待完成；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，当前组合 CI 超时待诊断；P1-05 真实身份、PG 映射与受限权限核验、A/B 配置和结构检查已完成，正式 Gateway/卡片与 Base 尚待完成；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–11节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第12节与 Issue/PR 最新记录为准。
+第1–12节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第13节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -225,3 +225,20 @@ G1/G2保持verified_on_integration；G3必要消息/卡片回调/Base读写和�
 经冻结源码/计划/依赖的独立61fake复审后，11:38:05–11:42:09实际运行官方SDK1.7.3，一次最多300秒只读采样在244.115秒内完成，session88798 exit0。真实收到三私聊与三群@，同app/tenant、三不同open_id、逐人私聊/群一致和唯一chat_id均核对通过；父子进程退出、锁释放。原候选回执保持identity_verified=false且未改写，人类确认另存0600回执绑定原hash；所有实际标识/marker/秘密仅本地保管。[脱敏任务回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6073952244)。该证据是实际身份/消息投递诊断，未验证正式Gateway持久接收、卡片或完整G3。
 
 已审本地verify-gateway-config沿用实际Settings中Base目标可选合同，输出Base未验证/G3未通过；61项是fake，真实Gateway配置/连接核验仍待映射完成。执行者正在准备短事务幂等组织/店铺/principal/identity映射与配置写入供独立审查；默认配置目标A/B、C映射无approver且仅在独立限时白名单overlay验证角色拒绝，不能用名单/缺映射拒绝替代。尚未seed、启动正式Gateway、配置卡片回调或运行Base。Base标识仍缺，不调用未授权Wiki API/发布；旧六scope不变。主控本地阶段文档继续留待合规推送，PR22未合入、PR19 Draft、maina0，不进入Phase2。
+
+## 13. 真实身份映射及配置校验
+
+原P105会话/WT4094完成实际身份部署，覆盖第10–12节尚未seed和结构未通过的快照；[任务回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6074750586)及[阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6074750888)记录来源、模式和证据。main仍a0、集成仍413、PR22未合入、PR19 Draft；完整G3和Issue23组合复验尚未解决。
+
+映射准备独立79fake通过；执行入口第一轮发现容器project/service/network来源核验缺口，修复后独立39fake通过。首次真实入口exit2，保留原失败；只读定位及独立控制流核对证明只读Compose config遗漏init profile，在owner容器/SQL/COMMIT前停止，session退出且锁释放，分类preflight_failed_no_owner_started。仅修复config的profile选项，新增真实profile过滤回归后独立40fake/2既有SDK warnings/3.74秒通过。上述合成结果不是实际PG证据。
+
+| 实际步骤（2026-10-09，北京时间） | 结果与限度 |
+|---|---|
+| 13:05:14–13:05:19 owner单短事务 | exit0/SEED_COMMITTED，创建九行、验证已有行零行；固定组织/模拟店铺/三principal/三identity/部署审计，不创建业务任务或修改订单库存 |
+| 13:05:48–13:05:52 app只读核验 | exit0，九行精确匹配，A operator+approver、B仅approver、C enabled/roles=[]；app无五项提升权限，规定schema有USAGE无CREATE，探针/audit权限符合限定，无DELETE/TRUNCATE |
+| 13:06:12–13:06:15 本地配置发布 | exit0，baseline仅A/B与唯一已确认群；C overlay未armed、expires_at=null、max_seconds=300，PG的C角色未提升，baseline EXTERNAL_READY=false |
+| 13:06:49–13:06:53 实际结构检查 | exit0，已审helper调用实际feishu_probe verify-config，GATEWAY_STRUCTURE_VALID_ONLY；未验证本次SDK认证/transport/Base，不计G3 |
+
+两次一次性容器已清理，CLI退出，operation/config两锁释放，仅专用postgres健康且无宿主端口。主控只读核对私有成功回执、冻结hash、来源绑定、A/B和唯一群、C未armed、文件0600以及两锁可持有；没有将回执复核描述为主控独立重跑SQL。实际执行tracked HEAD为9d9ae5cd17f8db53153d737f75a8d19f1359372e，入口f94be7ac0b4deb5efe8c5e8568207272683e78b24d51f0957bf7b4df24539533，manifest463a426e67b7ccf770d2ef24e93095bba453a07aa7288785f85a3d4e86829a19；脱敏实际证据hash9762bb50c513d6dc3530717f1856d96af3951349d572e5c9d9e8c257ff465c0a。所有真实标识、配置和秘密仅本地保存。
+
+后继已派原执行者单独准备限时单消费者setup/readiness runner，冻结独立审查后再安排后台事件/回调配置；setup与行为窗口分开，setup不发送新测试消息/卡片、不计G3。正式Gateway持久接收、卡片对象/Toast/时延、重复/冲突/过期/DB故障/重连、C白名单通过后DAL角色拒绝仍待实际验证。Base app_token未取得、不调用未授权Wiki API或发布版本；原六scope不变。#6/#7保持OPEN，不推荐全阶段通过或进入Phase2。

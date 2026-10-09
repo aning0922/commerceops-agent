@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，当前组合CI超时待诊断；G3真实身份采样已完成、完整平台测试尚未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–7节的代码/运行计数保留为原验收快照，最新集成、异常CI与受限G3接续见第8节及 [STATUS第12节](STATUS.md#12-真实身份已核验接续受限-g3)。
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，当前组合CI超时待诊断；G3真实身份及PG映射/配置前置已完成、完整平台测试尚未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–8节保留原验收及接续快照，最新身份部署与证据限度见第9节及 [STATUS第13节](STATUS.md#13-真实身份映射及配置校验)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -110,3 +110,11 @@ ROADMAP的Phase2确定性库存范围与3–4工作日计划量暂不调整：�
 当前组合复验另有未解异常：[PR22 CI37833575792](https://github.com/aning0922/commerceops-agent/actions/runs/37833575792)在25分钟job上限后cancelled，140offline/60.14秒通过，但没有PG组合汇总和cleanup完成证据。相关源码只有文档差异，不能据此认定故障原因或沿用旧成功结案。[Issue23](https://github.com/aning0922/commerceops-agent/issues/23)已建立有界隔离调查合同；按用户异常CI需人工确认的边界，等待受控诊断授权，PR22和最终PR19均不合入。细节见[STATUS第11节](STATUS.md#11-pr22-组合复验超时待受控诊断)。
 
 用户随后明确A/B/C角色、唯一群和受限测试授权，原P105于11:38:05–11:42:09真实官方SDK身份采样exit0，三私聊/三群@及一致性通过、244.115秒内停止；用户明确交叉核验，原候选未改写、确认另存。[实际回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6073952244)。该诊断不替代正式Gateway持久接收/卡片/Base；PG映射正在准备独立审查，尚未seed，Base标识和Issue23解锁仍待完成。配置与进度见[STATUS第12节](STATUS.md#12-真实身份已核验接续受限-g3)，完整G3仍不计通过。
+
+## 9. 真实身份部署与 Gateway 前置
+
+原P105于2026-10-09 13:05:14–13:06:53（北京时间）按独立审查的冻结来源实际完成四步exit0：owner单短事务创建九行、commerceops_app只读精确核验九行与受限权限、仅A/B和唯一群的baseline发布、实际verify-config结构检查。A为operator+approver，B仅approver，C enabled/roles=[]；C overlay未armed，EXTERNAL_READY=false。主控复核本地回执、hash与绑定、私有权限和锁释放，没有冒称独立重跑SQL。[可核对的阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6074750888)及[STATUS第13节](STATUS.md#13-真实身份映射及配置校验)列实际时间、来源与生命周期证据。
+
+首次入口exit2已保留，安全定位为只读profile预检失败、owner容器/SQL/COMMIT均未启动；最小修复经独立40fake/2既有SDK warnings/3.74秒复审后才重新实际执行。合成测试、真实PG部署、真实SDK身份采样和配置结构分别记账；此次结构成功不证明SDK认证、正式Gateway持久消息、卡片回调或Base。
+
+正式Gateway的有界runner与安全trace尚待冻结审查、执行和人类后台配置。B的消息无operator应拒绝、B卡片approver成功需单独实证；C默认名单拒绝与隔离白名单通过后DAL roles=[]拒绝分别验收，不能由已有映射推导。重复/冲突/过期、真实DB故障无伪成功、断线/重连与真实callback时延仍待补证；Base app_token缺失及全链路not_run，Issue23组合CI受控诊断未批准。第7节阶段判定保持：#6/#7 OPEN、PR19 Draft、当前不合入main、不进入Phase2。
