@@ -2,7 +2,7 @@
 
 更新日期：2026-10-10（Asia/Shanghai）。当前处于 **Phase 1 集中交付中：G1/G2 已在集成分支验证，G3 必要真实技术证据已经独立核对齐备（含文档化的最小权限平台边界）。公开源码/证据最终提交的独立审核、实际 CI、阶段汇总与 main 合并门禁仍待完成；最终 PR #19 保持 Draft，阶段尚未记完成，main 未合入。** Issue #23 已按用户裁决关闭为 risk_accepted / root_cause=not_identified，不再追加旧超时诊断。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–26节保留规划、交付和批准前后的历史快照；其中未合入、未执行及逐项等待用户/main 的旧状态由后续事实和已批准托管合同取代。当前 main 为 a0d521ed79505287fa61bb6ddf82640e97824257，integration 为 75efbbab3a13007636b94504b5ca94a06a7cd07f。当前收口状态以第27节及 Issue/PR 最新记录为准，历史测试失败和未知根因仍保留。
+第1–26节保留规划、交付和批准前后的历史快照；其中未合入、未执行及逐项等待用户/main 的旧状态由后续事实和已批准托管合同取代。当前 main 为 a0d521ed79505287fa61bb6ddf82640e97824257，integration 为 f46e74c1158c33e495f4fb078025804174921afa。当前收口状态以第29节及 Issue/PR 最新记录为准，历史测试失败和未知根因仍保留。
 
 ## 1. 基线与授权
 
@@ -443,3 +443,18 @@ PR27首个冻结cb52eb0经[独立review5472556446](https://github.com/aning0922/
 2459实际CI37958401146后来成功，但[独立增量review5472680299](https://github.com/aning0922/commerceops-agent/pull/27#pullrequestreview-5472680299)发现P2阻断：公开inspect_m3接收before_sha256却未核对，合成正向fixture用任意全零摘要仍通过。主控已退回原P105做最小修正及错摘要/非法格式连接前拒绝回归，PR27不合并，最终交付必须新head独审及实际CI，不能以旧成功CI代替审查。
 
 证据合同须区分whole-file原字节摘要与canonical对象摘要。旧实跑leaf main已在json.loads前检查before原字节大小和SHA匹配输入，故公开接口P2不自动推翻旧实际差异/DB_FAILURE；原source/runner/inputs/once-only attempt/archive均不覆盖或重置。新纯接口接收原字节，在DB连接前校验64位小写hex、实际摘要并解析，修正版单独v2映射、只做离线，不追加PG/SDK/真人样本。[主控公开协调与边界](https://github.com/aning0922/commerceops-agent/pull/27#issuecomment-6084941799)。第27节技术运行证据与公开源码交付门禁分开；当前阶段/main仍未完成，不进入Phase2。
+
+## 29. P1-05 最终公开交付已内部合入
+
+原公开接口P2在新冻结f7a50ecfb1e6646b8244855265b7e2c6ece0603c修复：纯核心只接受≤1MiB raw bytes，连接前严格验证64位小写whole-file SHA及解析，metadata/格式/非bytes/非法JSON/超限/错误摘要拒绝，非canonical空白按实际bytes摘要处理。历史v1实跑与2459公开映射保留，新v2仅离线；原真实源码、inputs、attempt、archive不变。独立[复审5472795235](https://github.com/aning0922/commerceops-agent/pull/27#pullrequestreview-5472795235)解除原P2，无新P1/P2；23专项独立通过，Ruff/mypy/三层敏感0。
+
+精确[CI37960034155](https://github.com/aning0922/commerceops-agent/actions/runs/37960034155)SUCCESS：345offline/75.02秒、79真实PG/88.81秒、27Markdown/strict mypy84、三G1 count_one真、六必要G2 call通过、cleanup0、敏感三层0。actual checkout2bca956985b9013e7555294b8d70953a7ade6ea9的父为75ef/f7，treebee5085ded81247369c4c770d6aca23fd13c68cd与f7一致；37960030704因并发取消未计通过。主控复核base75ef/headf7/mergeable及同树证据后于2026-10-10 00:41:05普通merge PR27至f46e74c1158c33e495f4fb078025804174921afa，无强推、改历史或带入PR24/26。
+
+| 当前任务 | 已核对的交付 | 当前阶段边界 |
+|---|---|---|
+| P1-01 | main a0、PR9与合后CI | 已完成，底座冻结 |
+| P1-02/G1、P1-03、P1-04/G2 | 已审内部集成，最后PR27同树CI完整保持 | 能力冻结，不新增恢复/调度框架 |
+| P1-05/G3 | PR27最终独审/精确CI、真实技术Gate及平台边界已核，内部merge f46 | 合后push37960884776正在运行，成功后核对任务集成交付 |
+| P1-06 | 五文件阶段状态批次及已审证据，最终PR19仍Draft | 还需最终集成SHA审查/实际CI、main合并及合后CI |
+
+原P105顶层会话已完成交付并idle，WT4094原HEAD9d及私有配置/运行历史保留，不再派发采样或主体开发。Root仅继续阶段文档、依赖/Issue、审核协调及最终PR19门禁。G1/G2/G3必要技术证据已齐，Phase1主线可形成通过候选；最终阶段交付/main仍未完成，不进入Phase2。Phase2确定性库存切片可在本阶段正式收口后建议启动，原3–4有效日估算暂保留，必须另获用户授权。
