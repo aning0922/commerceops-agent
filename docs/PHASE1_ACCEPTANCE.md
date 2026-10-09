@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-10（Asia/Shanghai）。状态：**G1/G2 已在集成分支验收；G3 必要真实技术探针证据已独立核对齐备，平台边界明确记录。公开功能/证据最终提交的审核和实际 CI、阶段汇总与 main 合并仍待完成，Phase 1 尚未记交付完成，不进入 Phase 2。** Issue #23 已关闭为 risk_accepted / root_cause=not_identified，PR25 与 PR22 已合入；不把新成功 CI 改写成旧根因已解决。第1–22节是历史验收及接续快照，最新结果见第26节及 [STATUS最终候选](STATUS.md#30-最终阶段-pr-候选与验收建议)。
+更新：2026-10-10（Asia/Shanghai）。结论：**Phase 1 已通过必要 G1/G2/G3、独立审核和实际 CI，并经 PR19 合入 main078390c；该提交合后 CI 已成功。** G3使用文档化最小权限平台边界，不扩大未测能力结论；Issue23 root_cause=not_identified/risk_accepted保持。当前等待用户新授权Phase2，不自动切换。第1–26节为历史验收快照，最后结论见第27节及[STATUS最终收口](STATUS.md#31-phase-1-main-验收完成)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -228,3 +228,9 @@ PR27最终f7a50ec经独立review5472795235解除公开SHA绑定P2，精确CI3796
 G3接入证据不等于正式T3、业务审批或库存操作；non@/self-bot是平台最小权限非投递，应用filter仍not_run。Base创建/更新响应unknown通过完整字段恢复，原键第二请求1254608后保守停止；特定retry业务码和长期TTL未验证。自然网络断线、wire/p95及完整产品演示仍后续范围。旧CI超时根因未知风险接受结论保留，不再追加诊断。
 
 技术前置具备后建议下一步启动Phase2确定性库存切片，只有用户新授权才执行；Phase1收口本身不表示已经交付M1可面试业务应用。
+
+## 27. 正式阶段验收结论
+
+**Phase1通过，推荐后续Phase2，执行须新用户授权。** 最终候选770经独立阶段review5472976596与实际候选CI37962244961、integration push37962112839通过后，PR19于2026-10-10 01:00:03普通合入main078390c557bbd21a4dd36b98064894abe9bc0f2a；同提交main push37963130675成功345offline/79真实PG、三G1/六必要G2/cleanup0和敏感三层0。Git树/父提交/退出结果已核，不以其他提交CI或替身推导main通过；实际时间和完整索引见[STATUS第31节](STATUS.md#31-phase-1-main-验收完成)。
+
+G1/G2及受控真实G3技术能力已完成本阶段验收。风险与未测限制保持第30/31节及公开G3摘要原值，旧CI未知根因没有虚构为已定位；公开修正版v2只有离线验证，旧实跑/真实PG归档分别映射保留。最终文档事实更新不增业务或实际调用，Issue7记录其独立审核/CI/main提交回执后关闭。Phase1完成不等于正式库存Agent/M1产品交付，不自动进入下一阶段。
