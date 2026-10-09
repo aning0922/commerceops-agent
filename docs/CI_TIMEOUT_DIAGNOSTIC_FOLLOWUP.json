@@ -1,0 +1,1146 @@
+{
+  "issue": 23,
+  "baseline": "c959f4573335ea84f6ef569ddde5502343c179d4",
+  "budget_started_at": "2026-10-09T07:02:35+00:00",
+  "budget_deadline": "2026-10-09T07:32:35+00:00",
+  "root_cause": "not_identified",
+  "purpose": "diagnostic supervisor P1 repair; not business Worker recovery",
+  "source_mode": "postgres_technical",
+  "model_mode": "not_used",
+  "approval_mode": "simulated",
+  "rounds": [
+    {
+      "session": "followup",
+      "round": 1,
+      "project": "p123-090cba6d67dd",
+      "started_at": "2026-10-09T07:12:46.948518+00:00",
+      "finished_at": "2026-10-09T07:13:10.204011+00:00",
+      "deadline": "2026-10-09T07:32:35+00:00",
+      "result": "expected_diagnostic_timeout_confirmed",
+      "cleanup_exit": 0,
+      "stopping_confirmed": true,
+      "g1_complete": null,
+      "evidence": [
+        {
+          "event": "cli_term",
+          "pid": 92658,
+          "already_absent": true,
+          "at": "2026-10-09T07:12:48.902881+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92658,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:12:48.903445+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:12:48.903642+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "build",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:12:48.903834+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 92680,
+          "already_absent": true,
+          "at": "2026-10-09T07:12:54.834190+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92680,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:12:54.834839+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:12:54.835343+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "healthy",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:12:54.835545+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-090cba6d67dd-init-0",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:12:56.427932+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 92688,
+          "already_absent": true,
+          "at": "2026-10-09T07:12:56.428621+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92688,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:12:56.428936+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:12:56.429126+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "migrate",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:12:56.429285+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-090cba6d67dd-init-1",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:12:57.969432+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 92697,
+          "already_absent": true,
+          "at": "2026-10-09T07:12:57.969877+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92697,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:12:57.970070+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:12:57.970325+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "setup-checkpointer",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:12:57.970501+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-090cba6d67dd-init-2",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:12:59.504364+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 92704,
+          "already_absent": true,
+          "at": "2026-10-09T07:12:59.504939+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92704,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:12:59.505298+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:12:59.505556+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "grant-runtime",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:12:59.505794+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-090cba6d67dd-init-3",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:13:01.027437+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 92711,
+          "already_absent": true,
+          "at": "2026-10-09T07:13:01.027994+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92711,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:13:01.028353+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:13:01.028830+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "revision",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:13:01.029041+00:00"
+        },
+        {
+          "event": "command_timeout",
+          "label": "fault-probe",
+          "cli_pid": 92718,
+          "at": "2026-10-09T07:13:03.035907+00:00"
+        },
+        {
+          "event": "sample_error",
+          "code": "RuntimeError",
+          "injected": true,
+          "at": "2026-10-09T07:13:03.037637+00:00"
+        },
+        {
+          "event": "container_stop",
+          "container": "p123-090cba6d67dd-fault",
+          "exit": 0,
+          "at": "2026-10-09T07:13:06.254348+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-090cba6d67dd-fault",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 137,
+          "at": "2026-10-09T07:13:06.316420+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 92718,
+          "at": "2026-10-09T07:13:06.316994+00:00"
+        },
+        {
+          "event": "cli_kill",
+          "pid": 92718,
+          "at": "2026-10-09T07:13:09.318780+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 92718,
+          "confirmed": true,
+          "exit": -9,
+          "at": "2026-10-09T07:13:09.321316+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:13:09.322163+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "fault-probe",
+          "exit": -9,
+          "timed_out": true,
+          "stopping_confirmed": true,
+          "sample_error": true,
+          "at": "2026-10-09T07:13:09.322782+00:00"
+        }
+      ]
+    },
+    {
+      "session": "followup",
+      "round": 2,
+      "project": "p123-65bd2e2fd2a7",
+      "started_at": "2026-10-09T07:15:51.011171+00:00",
+      "finished_at": "2026-10-09T07:17:32.426808+00:00",
+      "deadline": "2026-10-09T07:32:35+00:00",
+      "result": "passed_no_hang_reproduced",
+      "cleanup_exit": 0,
+      "stopping_confirmed": true,
+      "g1_complete": true,
+      "evidence": [
+        {
+          "event": "cli_term",
+          "pid": 93142,
+          "already_absent": true,
+          "at": "2026-10-09T07:15:52.768278+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93142,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:15:52.768687+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:15:52.768858+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "build",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:15:52.769004+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93165,
+          "already_absent": true,
+          "at": "2026-10-09T07:15:58.700328+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93165,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:15:58.701345+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:15:58.702045+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "healthy",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:15:58.702343+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-0",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:00.295870+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93169,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:00.296990+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93169,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:00.297218+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:00.297402+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "migrate",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:00.297558+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-1",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:01.844133+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93176,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:01.844584+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93176,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:01.844966+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:01.845181+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "setup-checkpointer",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:01.845362+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-2",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:03.366225+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93188,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:03.366758+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93188,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:03.367067+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:03.367290+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "grant-runtime",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:03.367503+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-3",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:04.884226+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93195,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:04.884697+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93195,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:04.885090+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:04.885327+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "revision",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:04.885515+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-4",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:06.424368+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93202,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:06.424927+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93202,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:06.425316+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:06.425590+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "migrate",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:06.425824+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-5",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:07.950210+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93209,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:07.950783+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93209,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:07.951494+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:07.951839+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "setup-checkpointer",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:07.952204+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-6",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:09.537028+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93218,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:09.537664+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93218,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:09.537984+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:09.538299+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "grant-runtime",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:09.538595+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-init-7",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:11.051283+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93225,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:11.051819+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93225,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:11.052144+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:11.052396+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "revision",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:11.052635+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 229 items / 150 deselected / 79 selected",
+          "at": "2026-10-09T07:16:18.887112+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-collection",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:16:19.815356+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93232,
+          "already_absent": true,
+          "at": "2026-10-09T07:16:19.815995+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93232,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:16:19.816327+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:16:19.816651+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "collection",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:16:19.817426+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 229 items / 150 deselected / 79 selected",
+          "at": "2026-10-09T07:16:26.005879+00:00"
+        },
+        {
+          "event": "g2_evidence",
+          "data": {
+            "approval_mode": "simulated",
+            "interrupt_checkpoint": {
+              "configurable": {
+                "checkpoint_id": "1f1c3b15-754c-6d6e-8001-5cf39ba06428",
+                "checkpoint_ns": "",
+                "thread_id": "de8176c3-b851-4f16-b74e-564f6c9b99e8"
+              }
+            },
+            "maximum_graph_active": 1,
+            "model_mode": "not_used",
+            "new_pid": 19,
+            "old_exit": 0,
+            "old_pid": 11,
+            "other_thread": "b44ded99-d29f-496c-94ea-c915fd1cbe3b",
+            "prepare_node_runs": 1,
+            "result_ref": "4a3bdbee-14db-4a6f-a306-3406a55750fb",
+            "scenario": "cross_process_resume",
+            "source_mode": "postgres_technical",
+            "task": "de8176c3-b851-4f16-b74e-564f6c9b99e8",
+            "thread": "de8176c3-b851-4f16-b74e-564f6c9b99e8",
+            "wait_node_runs": 2
+          },
+          "at": "2026-10-09T07:16:27.546086+00:00"
+        },
+        {
+          "event": "g2_evidence",
+          "data": {
+            "after_checkpoint": {
+              "configurable": {
+                "checkpoint_id": "1f1c3b15-8cd0-6750-8003-d002ce2cd148",
+                "checkpoint_ns": "",
+                "thread_id": "a7eb39ac-e384-4cd4-a957-cb8a56c5c715"
+              }
+            },
+            "approval_mode": "simulated",
+            "attempts": 2,
+            "before_checkpoint": {
+              "configurable": {
+                "checkpoint_id": "1f1c3b15-8361-6df0-8002-4fa1ca2c5e74",
+                "checkpoint_ns": "",
+                "thread_id": "a7eb39ac-e384-4cd4-a957-cb8a56c5c715"
+              }
+            },
+            "job": "10d747f5-72ce-4829-9bf8-aaec3d7904c7",
+            "model_mode": "not_used",
+            "new_pid": 38,
+            "old_exit": -9,
+            "old_pid": 26,
+            "receipt_count": 1,
+            "recovery_action": "continue",
+            "result_ref": "61018785-264f-4aa5-adbb-45bb39113291",
+            "scenario": "receipt_commit_checkpoint_gap",
+            "source_mode": "postgres_technical",
+            "start_repeated": false,
+            "task": "a7eb39ac-e384-4cd4-a957-cb8a56c5c715",
+            "thread": "a7eb39ac-e384-4cd4-a957-cb8a56c5c715"
+          },
+          "at": "2026-10-09T07:16:29.320103+00:00"
+        },
+        {
+          "event": "g2_evidence",
+          "data": {
+            "approval_mode": "simulated",
+            "cancellation_complete": true,
+            "checkpoint": {
+              "configurable": {
+                "checkpoint_id": "1f1c3b15-9319-6d11-8000-be8e2bbddecd",
+                "checkpoint_ns": "",
+                "thread_id": "b763bfef-4910-4ee1-916c-998be6f75f17"
+              }
+            },
+            "model_mode": "not_used",
+            "old_exit": 2,
+            "old_pid": 47,
+            "receipt_count": 0,
+            "scenario": "graph_lock_loss_cancel",
+            "source_mode": "postgres_technical",
+            "unconfirmed_start_refused": true
+          },
+          "at": "2026-10-09T07:16:31.682108+00:00"
+        },
+        {
+          "event": "g2_evidence",
+          "data": {
+            "approval_mode": "simulated",
+            "model_mode": "not_used",
+            "old_exit": 75,
+            "old_pid": 212,
+            "receipt_count": 0,
+            "runner_returned": false,
+            "scenario": "graph_noncooperative_exit",
+            "source_mode": "postgres_technical",
+            "unconfirmed_start_refused": true
+          },
+          "at": "2026-10-09T07:16:46.981474+00:00"
+        },
+        {
+          "event": "g2_evidence",
+          "data": {
+            "approval_mode": "simulated",
+            "checkpoint": {
+              "configurable": {
+                "checkpoint_id": "1f1c3b16-3bd9-6236-8001-1c2e9b7fdf7c",
+                "checkpoint_ns": "",
+                "thread_id": "2d1c9c50-2b80-4341-b518-4a5f2f93a438"
+              }
+            },
+            "false_interrupt_reported": false,
+            "model_mode": "not_used",
+            "receipt_count": 0,
+            "scenario": "checkpoint_db_failure_recovered",
+            "source_mode": "postgres_technical",
+            "task": "2d1c9c50-2b80-4341-b518-4a5f2f93a438"
+          },
+          "at": "2026-10-09T07:16:49.723941+00:00"
+        },
+        {
+          "event": "g2_evidence",
+          "data": {
+            "approval_mode": "simulated",
+            "checkpoint_created": false,
+            "model_mode": "not_used",
+            "scenario": "retired_probe_version_refused",
+            "source_mode": "postgres_technical",
+            "start_called": false,
+            "task": "427c4bf7-4d2e-4c51-a55f-57a63a2c6363",
+            "version": "p104-checkpoint-v0"
+          },
+          "at": "2026-10-09T07:16:53.080173+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "=============== 79 passed, 150 deselected, 2 warnings in 42.06s ================",
+          "at": "2026-10-09T07:17:03.148495+00:00"
+        },
+        {
+          "event": "container_wait",
+          "container": "p123-65bd2e2fd2a7-combined",
+          "confirmed": true,
+          "exit": 0,
+          "container_exit": 0,
+          "at": "2026-10-09T07:17:04.183603+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93257,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:04.187600+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93257,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:04.191176+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:04.194647+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "combined",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:04.197968+00:00"
+        },
+        {
+          "event": "g1_persistence",
+          "kind": "fixture committed",
+          "task": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "thread": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "count_one": false,
+          "at": "2026-10-09T07:17:05.854604+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93358,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:06.093788+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93358,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:06.097748+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:06.101330+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "seed",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:06.104799+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93365,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:06.397676+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93365,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:06.402250+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:06.405885+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "restart",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:06.409297+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93368,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:11.572858+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93368,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:11.585902+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:11.593392+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "restart-healthy",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:11.600027+00:00"
+        },
+        {
+          "event": "g1_persistence",
+          "kind": "verified",
+          "task": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "thread": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "count_one": true,
+          "at": "2026-10-09T07:17:13.216237+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93376,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:13.523202+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93376,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:13.527359+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:13.530996+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "verify-restart",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:13.534832+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93382,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:19.573400+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93382,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:19.582763+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:19.591154+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "recreate",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:19.597607+00:00"
+        },
+        {
+          "event": "g1_persistence",
+          "kind": "verified",
+          "task": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "thread": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "count_one": true,
+          "at": "2026-10-09T07:17:21.245281+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93385,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:21.479333+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93385,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:21.488658+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:21.492975+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "verify-recreate",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:21.496617+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93395,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:21.736718+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93395,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:21.747023+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:21.750808+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "stop-db",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:21.754518+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93398,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:23.323448+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93398,
+          "confirmed": true,
+          "exit": 1,
+          "at": "2026-10-09T07:17:23.332780+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:23.336312+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "unavailable",
+          "exit": 1,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:23.339692+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93401,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:29.093581+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93401,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:29.104351+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:29.107827+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "recover",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:29.112385+00:00"
+        },
+        {
+          "event": "g1_persistence",
+          "kind": "verified",
+          "task": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "thread": "18a4fc37-898b-4b06-a513-e136b6e8c4a5",
+          "count_one": true,
+          "at": "2026-10-09T07:17:30.688098+00:00"
+        },
+        {
+          "event": "cli_term",
+          "pid": 93411,
+          "already_absent": true,
+          "at": "2026-10-09T07:17:30.936467+00:00"
+        },
+        {
+          "event": "cli_os_wait",
+          "pid": 93411,
+          "confirmed": true,
+          "exit": 0,
+          "at": "2026-10-09T07:17:30.940386+00:00"
+        },
+        {
+          "event": "reader_end",
+          "confirmed": true,
+          "at": "2026-10-09T07:17:30.944332+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "verify-outage",
+          "exit": 0,
+          "timed_out": false,
+          "stopping_confirmed": true,
+          "sample_error": false,
+          "at": "2026-10-09T07:17:30.948056+00:00"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+name: commerceops-pg-dev
+services:
+  postgres:
+    image: postgres:17.11-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+    environment:
+      POSTGRES_USER: commerceops_owner
+      POSTGRES_DB: commerceops
+      POSTGRES_PASSWORD_FILE: /run/secrets/owner_password
+      # SQL 参数即使失败也不落入数据库日志；技术失败由调用者分类报告。
+    command: [postgres, -c, log_statement=none, -c, log_min_error_statement=panic, -c, log_parameter_max_length_on_error=0]
+    secrets: [owner_password]
+    volumes: [pg_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U commerceops_owner -d commerceops']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+  db-init:
+    profiles: [init]
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile
+      target: runtime
+    environment: &db_environment
+      COMMERCEOPS_DB_HOST: postgres
+      COMMERCEOPS_DB_NAME: commerceops
+      COMMERCEOPS_DB_USER: commerceops_owner
+      COMMERCEOPS_DB_PASSWORD_FILE: /run/secrets/owner_password
+      COMMERCEOPS_DB_RUNTIME_PASSWORD_FILE: /run/secrets/app_password
+      LANGSMITH_TRACING: 'false'
+    secrets: [owner_password, app_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: [python, -m, commerceops.entrypoints.database, migrate]
+  pg-test:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile
+      target: test
+    environment: *db_environment
+    secrets: [owner_password, app_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: [python, -m, pytest, -m, integration, -q]
+volumes:
+  pg_data: {}
+secrets:
+  owner_password:
+    file: ${COMMERCEOPS_PG_RUNTIME_DIR:-./runtime/pg}/owner_password
+  app_password:
+    file: ${COMMERCEOPS_PG_RUNTIME_DIR:-./runtime/pg}/app_password

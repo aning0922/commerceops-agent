@@ -1,0 +1,32 @@
+{
+  "schema": "2.0",
+  "header": {
+    "event_id": "probe-card-event-1",
+    "event_type": "card.action.trigger",
+    "app_id": "probe-app",
+    "tenant_key": "probe-tenant",
+    "token": "REDACTED"
+  },
+  "event": {
+    "operator": {"tenant_key": "probe-tenant", "open_id": "probe-user-a"},
+    "token": "REDACTED",
+    "action": {
+      "tag": "button",
+      "value": {
+        "probe_id": "00000000-0000-4000-8000-000000000001",
+        "task_id": "00000000-0000-4000-8000-000000000002",
+        "approval_id": "00000000-0000-4000-8000-000000000003",
+        "plan_id": "00000000-0000-4000-8000-000000000004",
+        "plan_version": 1,
+        "plan_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "action": "approve_with_assumptions",
+        "acknowledged_assumption_keys": [
+          "inbound_unknown_zero:probe_sku_1",
+          "inbound_unknown_zero:probe_sku_2"
+        ],
+        "nonce": "probe-only-synthetic-nonce-00000001"
+      }
+    },
+    "context": {"open_message_id": "probe-card-message", "open_chat_id": "probe-group"}
+  }
+}
