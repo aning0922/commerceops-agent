@@ -639,5 +639,9 @@
       "complete": true,
       "suggested_units": null
     }
-  }
+  },
+  "schema_version": "commerce-v1",
+  "fixture_version": "inventory-v1",
+  "canonical_version": "canonical-facts-v1",
+  "now": "2026-10-08T10:00:00+08:00"
 }

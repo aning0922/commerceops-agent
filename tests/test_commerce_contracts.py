@@ -179,3 +179,16 @@ def test_safe_errors_frozen_dto_and_false_completeness() -> None:
         setattr(fixture.orders[0], field, 1)
     assert error(ErrorCode.INVALID_DATA).retryable is False
     assert "untrusted" not in str(failure)
+
+
+def test_midnight_fallback_uses_first_midnight_not_current_fold() -> None:
+    from zoneinfo import ZoneInfo
+
+    now = utc_time("2026-11-01T00:30:00-05:00")
+    assert now.astimezone(ZoneInfo("America/Havana")).fold == 1
+    start, end = complete_days(now, "America/Havana")
+    assert start == utc_time("2026-10-25T04:00:00Z")
+    assert end == utc_time("2026-11-01T04:00:00Z")
+    window = Window(start=start, end=end)
+    assert not window.contains(utc_time("2026-11-01T00:15:00-04:00"))
+    assert window.contains(utc_time("2026-10-31T23:59:59-04:00"))

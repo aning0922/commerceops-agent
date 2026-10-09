@@ -72,3 +72,16 @@ uv run --frozen pytest tests/test_commerce_contracts.py tests/test_commerce_mock
 仓库全套 `uv run --frozen python -m scripts.check` 已实际 passed（75.26秒墙钟）：全局ruff/format、strict mypy、Markdown、锁一致性、469离线测试通过/79非离线未选择（52.91秒、既有SDK两项deprecation warnings）、Node安装/工具/typecheck、前后端漏洞查询通过，Python audit 90包零已知漏洞。初次全套检查因6个新合成SKU标识被generic-api-key扫描命中而failed（9.21秒），确认均为本包合成标识后缩短演示父/变体ID、重冻结manifest；未改scanner规则/豁免，后续当前/index/完整可达history扫描均零命中。文档48文件零错误，git diff检查通过。暂存后追加index敏感扫描及远端 CI 的精确结果由本包 PR/Issue29 的提交回执记录，避免在代码提交前编造冻结 SHA。独立 Review pending，由总控读取冻结提交协调。DB/模型/平台实测为本包 not_run；远端现有 CI 仍原样运行其真实 PG 门禁，不改 CI 跳过。
 
 估计6～10有效开发小时保留为规划值。本会话开始核对约2026-10-10 03:12（Asia/Shanghai）；Agent实际墙钟、机器测试耗时、CI等待在PR回执分别记录，不能把6～10小时伪填为人工工作量。D1仍10-10、D30仍11-08，P201提前开工不改D3～D6目标。
+
+
+## 独审反馈修复回执（2026-10-10）
+
+总控转达独立 Reviewer 对首批 c4976e8 的结论：专项124及隔离全469 offline/ruff/format/strict mypy通过，18组数值和其余样本独立复算一致，但发现3项P2合同缺陷。已授权同PR最小修复；此记录保留首批测试/Bootstrap/扫描失败历史，不把最初通过外推为无缺陷。
+
+1. complete_days 改用店铺日期分别构造首次午夜（fold=0），不继承回拨后now.fold。Havana 2026-11-01 00:30 -05的窗口end为04:00Z，当天第一次00:15 -04排除；原NY DST167/169小时测试保留。
+2. Fixture.load同时校验raw/golden字节哈希、raw/golden/manifest的dataset/schema/fixture/rule/canonical支持版本及aware clock一致，scope/source_mode一致；Provenance使用已验证fixture_version/clock。不支持的版本或不一致为安全INVALID_DATA，不静默重标v1。goldens仅补顶层schema/fixture/canonical/now，25组expectations逐项与c497相同，raw datasets字节未改，manifest仅更新golden hash。
+3. fixture加载校验商品pool、订单/库存SKU和库存pool的canonical分段店铺归属；库存必须映射已知商品且pool与该商品一致，矛盾或未映射库存安全拒绝。允许同店铺已删商品订单，保留DELETED_PRODUCT不完整警告；同店铺共享池unresolved样本保持原硬质量阻断，不伪造exact。
+
+修复前新增26项定向回归实际24 failed/2 passed（0.19秒），复现独审问题；修复后全部P201专项150 passed（0.34秒），适用ruff/strict mypy通过。修复后的原样scripts.check实际passed（63.58秒），495 offline passed/79 deselected，全局ruff/format/strict mypy、50份Markdown、锁/工具/漏洞检查通过；本轮检查中的当前/index/可达history敏感扫描零命中。暂存后敏感扫描与新SHA/CI精确结果见同PR/Issue29新回执，复审仍由原独立Reviewer进行。
+
+已按总控授权普通merge最新main caffe11770a54135900633edf4db0df5458fd195，仅带入5份交接文档，merge commit 72aec94a1b54cb3338bc129df414c76e25687a1f；未直接改写AGENTS/ROADMAP/STATUS或两个规划文件。实际运行模型/档位由总控工具核实为gpt-6.1-sol/high，补充首批上下文not_observable记录；业务model_mode仍not_used。没有P202/SQL/Worker/模型scope扩展，没有main业务合并或历史改写。

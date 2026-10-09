@@ -3,7 +3,7 @@
 import hashlib
 import json
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from decimal import Decimal
 from fractions import Fraction
 from urllib.parse import quote
@@ -62,8 +62,11 @@ def complete_days(now: datetime, timezone: str, days: int = 7) -> tuple[datetime
     if integer(days) <= 0:
         raise ValueError("INVALID_WINDOW")
     local = utc_time(now).astimezone(ZoneInfo(shop_timezone(timezone)))
-    end = local.replace(hour=0, minute=0, second=0, microsecond=0)
-    return (end - timedelta(days=days)).astimezone(UTC), end.astimezone(UTC)
+    zone = ZoneInfo(shop_timezone(timezone))
+    # 根据日期分别构造首次午夜（fold=0），不能继承回拨后 now 的 fold。
+    end = datetime.combine(local.date(), time.min, tzinfo=zone)
+    start = datetime.combine(local.date() - timedelta(days=days), time.min, tzinfo=zone)
+    return start.astimezone(UTC), end.astimezone(UTC)
 
 
 def money(value: object) -> Decimal:

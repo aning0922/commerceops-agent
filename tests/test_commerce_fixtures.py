@@ -179,7 +179,7 @@ def test_refund_gold_quantity_completeness(case: str) -> None:
     ],
 )
 def test_invalid_fixture_is_safe_failure_not_empty(mutation: str, tmp_path: Path) -> None:
-    for name in ("datasets.json", "manifest.json"):
+    for name in ("datasets.json", "goldens.json", "manifest.json"):
         shutil.copyfile(DIRECTORY / name, tmp_path / name)
     path = tmp_path / "datasets.json"
     root = json.loads(path.read_text())
@@ -211,3 +211,82 @@ def test_invalid_fixture_is_safe_failure_not_empty(mutation: str, tmp_path: Path
         Fixture.load(tmp_path)
     assert not raised.value.error.retryable
     assert str(tmp_path) not in str(raised.value)
+
+
+def _copy_fixture() -> dict[str, dict[str, Any]]:
+    return {
+        name: json.loads((DIRECTORY / name).read_text())
+        for name in ("datasets.json", "goldens.json", "manifest.json")
+    }
+
+
+def _write_fixture(directory: Path, files: dict[str, dict[str, Any]]) -> None:
+    for name in ("datasets.json", "goldens.json"):
+        path = directory / name
+        path.write_text(json.dumps(files[name]))
+        files["manifest.json"]["files"][name] = hashlib.sha256(path.read_bytes()).hexdigest()
+    (directory / "manifest.json").write_text(json.dumps(files["manifest.json"]))
+
+
+@pytest.mark.parametrize("name", ["datasets.json", "goldens.json", "manifest.json"])
+@pytest.mark.parametrize(
+    "field",
+    [
+        "dataset_version",
+        "schema_version",
+        "fixture_version",
+        "rule_version",
+        "canonical_version",
+        "now",
+    ],
+)
+def test_fixture_rejects_inconsistent_metadata_even_with_updated_hash(
+    name: str, field: str, tmp_path: Path
+) -> None:
+    files = _copy_fixture()
+    files[name][field] = "2030-01-01T00:00:00Z" if field == "now" else "unsupported-v2"
+    _write_fixture(tmp_path, files)
+    with pytest.raises(CommerceFailure, match="^INVALID_DATA$"):
+        Fixture.load(tmp_path)
+
+
+def test_unsupported_fixture_version_cannot_be_relabelled_v1(tmp_path: Path) -> None:
+    files = _copy_fixture()
+    for name in files:
+        files[name]["fixture_version"] = "inventory-v2"
+    _write_fixture(tmp_path, files)
+    with pytest.raises(CommerceFailure, match="^INVALID_DATA$"):
+        Fixture.load(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "inventory_pool_mismatch",
+        "inventory_other_shop",
+        "order_other_shop",
+        "product_pool_other_shop",
+        "inventory_unmapped_sku",
+        "malformed_sku",
+    ],
+)
+def test_fixture_rejects_contradictory_stock_pool_or_shop(mutation: str, tmp_path: Path) -> None:
+    files = _copy_fixture()
+    case = files["datasets.json"]["cases"]["baseline"]
+    inventory = case["inventories"][0]
+    if mutation == "inventory_pool_mismatch":
+        inventory["stock_pool_key"] = "pool/demo/101"
+    elif mutation == "inventory_other_shop":
+        inventory["sku_key"] = "sku/other/100/p"
+        inventory["stock_pool_key"] = "pool/other/100"
+    elif mutation == "order_other_shop":
+        case["orders"][0]["sku_key"] = "sku/other/100/p"
+    elif mutation == "product_pool_other_shop":
+        case["products"][0]["stock_pool_key"] = "pool/other/100"
+    elif mutation == "inventory_unmapped_sku":
+        inventory["sku_key"] = "sku/demo/101/p"
+    else:
+        inventory["sku_key"] = "sku/demo/100/v/"
+    _write_fixture(tmp_path, files)
+    with pytest.raises(CommerceFailure, match="^INVALID_DATA$"):
+        Fixture.load(tmp_path)

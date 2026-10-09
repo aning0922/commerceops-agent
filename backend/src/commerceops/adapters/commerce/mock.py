@@ -8,11 +8,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import unquote
 
 from pydantic import ValidationError
 
 from commerceops.application.commerce.contracts import (
     DTO,
+    SCHEMA_VERSION,
     Capabilities,
     CommerceFailure,
     ErrorCode,
@@ -28,9 +30,44 @@ from commerceops.application.commerce.contracts import (
     Window,
     error,
 )
-from commerceops.domain.commerce_values import CURRENCIES, canonical_bytes, facts_hash, integer
+from commerceops.domain.commerce_values import (
+    CURRENCIES,
+    canonical_bytes,
+    facts_hash,
+    integer,
+    sku_key,
+    stock_pool_key,
+    utc_time,
+)
 
 Endpoint = Literal["products", "orders", "refunds", "inventory"]
+SUPPORTED_METADATA = {
+    "dataset_version": "inventory-v1",
+    "fixture_version": "inventory-v1",
+    "schema_version": SCHEMA_VERSION,
+    "rule_version": "inventory-rule-v1",
+    "canonical_version": "canonical-facts-v1",
+}
+
+
+def _sku_in_shop(key: str, shop_id: str) -> bool:
+    parts = key.split("/")
+    if len(parts) == 4 and parts[0] == "sku" and parts[3] == "p":
+        variant = None
+    elif len(parts) == 5 and parts[0] == "sku" and parts[3] == "v":
+        variant = unquote(parts[4], errors="strict")
+    else:
+        return False
+    return key == sku_key(shop_id, unquote(parts[2], errors="strict"), variant)
+
+
+def _pool_in_shop(key: str, shop_id: str) -> bool:
+    parts = key.split("/")
+    return (
+        len(parts) == 3
+        and parts[0] == "pool"
+        and key == stock_pool_key(shop_id, unquote(parts[2], errors="strict"))
+    )
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -65,18 +102,33 @@ class Fixture:
         try:
             raw = (directory / "datasets.json").read_bytes()
             manifest = _decode((directory / "manifest.json").read_bytes())
-            if manifest["files"]["datasets.json"] != hashlib.sha256(raw).hexdigest():
-                raise ValueError("HASH_MISMATCH")
+            golden_bytes = (directory / "goldens.json").read_bytes()
+            for name, payload in (("datasets.json", raw), ("goldens.json", golden_bytes)):
+                if manifest["files"][name] != hashlib.sha256(payload).hexdigest():
+                    raise ValueError("HASH_MISMATCH")
             root = _decode(raw)
-            if root["dataset_version"] != "inventory-v1" or root["schema_version"] != "commerce-v1":
-                raise ValueError("UNSUPPORTED_FIXTURE")
+            golden = _decode(golden_bytes)
+            for metadata in (root, golden, manifest):
+                if any(
+                    metadata.get(field) != version for field, version in SUPPORTED_METADATA.items()
+                ):
+                    raise ValueError("UNSUPPORTED_FIXTURE")
+            now = utc_time(root["now"])
+            if any(utc_time(metadata["now"]) != now for metadata in (golden, manifest)):
+                raise ValueError("CLOCK_MISMATCH")
+            if (
+                manifest["source_mode"] != "mock"
+                or set(manifest["scope"]) != set(root["cases"])
+                or set(golden["expectations"]) != set(root["cases"])
+            ):
+                raise ValueError("METADATA_MISMATCH")
             data = root["cases"][case]
-            now = root["now"]
+            fixture_version = root["fixture_version"]
 
             def provenance(record: object) -> Provenance:
                 return Provenance(
                     source_kind="mock",
-                    fixture_version="inventory-v1",
+                    fixture_version=fixture_version,
                     captured_at=now,
                     raw_hash=facts_hash(record),
                 )
@@ -99,8 +151,25 @@ class Fixture:
             orders = records("orders", OrderLine)
             refunds = records("refunds", Refund)
             inventories = records("inventories", Inventory)
-            if any(product.shop_id != source.shop_id for product in products):
+            if any(
+                product.shop_id != source.shop_id
+                or not _pool_in_shop(product.stock_pool_key, source.shop_id)
+                for product in products
+            ):
                 raise ValueError("SHOP_MISMATCH")
+            if any(not _sku_in_shop(row.sku_key, source.shop_id) for row in orders) or any(
+                not _sku_in_shop(item.sku_key, source.shop_id) for item in inventories
+            ):
+                raise ValueError("SHOP_MISMATCH")
+            products_by_key = {product.sku_key: product for product in products}
+            for item in inventories:
+                product = products_by_key.get(item.sku_key)
+                if (
+                    not _pool_in_shop(item.stock_pool_key, source.shop_id)
+                    or product is None
+                    or item.stock_pool_key != product.stock_pool_key
+                ):
+                    raise ValueError("STOCK_POOL_MISMATCH")
             if any(row.currency != source.currency for row in orders) or any(
                 row.currency != source.currency for row in refunds
             ):
