@@ -97,20 +97,29 @@ def finish(
         note({"event": "observation_failed", "code": type(error).__name__})
     finally:
         try:
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-                note({"event": "cli_term", "pid": process.pid})
-            except ProcessLookupError:
-                note({"event": "cli_term", "pid": process.pid, "already_absent": True})
-            try:
-                process.wait(timeout=remaining(deadline, 3))
-            except subprocess.TimeoutExpired:
+            # returncode 已设置表示本 Popen 已 wait/reap，数字 PID/PGID 可复用。
+            # 正常完成或观察期间恰好完成时只记录既有结果，不再对该数字发信号。
+            # 本 supervisor 是该 Popen 唯一 reaper；reader 只读取 stdout。
+            live = process.returncode is None and process.poll() is None
+            if live:
                 try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                    note({"event": "cli_kill", "pid": process.pid})
+                    os.killpg(process.pid, signal.SIGTERM)
+                    note({"event": "cli_term", "pid": process.pid})
                 except ProcessLookupError:
-                    note({"event": "cli_kill", "pid": process.pid, "already_absent": True})
-                process.wait(timeout=remaining(deadline, 5))
+                    note({"event": "cli_term", "pid": process.pid, "already_absent": True})
+                try:
+                    process.wait(timeout=remaining(deadline, 3))
+                except subprocess.TimeoutExpired:
+                    # poll 可 reap 已结束进程；只有仍未完成的自有 child 才发 KILL。
+                    if process.returncode is None and process.poll() is None:
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                            note({"event": "cli_kill", "pid": process.pid})
+                        except ProcessLookupError:
+                            note({"event": "cli_kill", "pid": process.pid, "already_absent": True})
+                    process.wait(timeout=remaining(deadline, 5))
+            else:
+                note({"event": "cli_existing_wait", "pid": process.pid, "exit": process.returncode})
             cli = process.returncode is not None
             note(
                 {

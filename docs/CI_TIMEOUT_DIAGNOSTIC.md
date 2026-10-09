@@ -56,3 +56,16 @@ uv run --frozen python -m scripts.pg_diagnostic --deadline 2026-10-09T06:46:45+0
 拟唯一CI入口（须增量独立Review和主控核对后才启用，当前不推送）：在job最早的普通shell步骤保存当前UTC+23分钟的绝对预算文件，PG步骤调用pg_diagnostic --session ci --round1 --combined --full-smoke --no-child-trace --deadline该文件；原Foundation checks保留、job timeout-minutes25保持。collection30秒、组合测试300秒、45秒无locals栈、命令/终止/清理期限及G1完整生命周期均由本工具约束。禁止只因状态修改PR描述导致edited再触发；一次CI失败即保留证据并停，不自动重复。
 
 任何未确认停止/reader/cleanup都非零，不释放业务槽或产生业务死亡确认。原CI根因仍未解释；即使唯一新CI成功，也不能将未定位改为根因已解决。此本地候选只修复诊断工具P1，等待主控增量独立复审；不合并/关闭Issue/Gate、不进入Phase2。
+
+
+## 第三段最小normal/reaped修正与实际workflow候选
+
+新授权预算2026-10-09 15:48:28–15:58:28，最多10分钟，仅源码/fake/离线检查，不进行本地PG/Docker。独立增量审核指出6e的finish会对已正常wait/reap的PID/PGID发送信号，存在数字复用风险；这是诊断工具P1，不是原CI根因。
+
+最小修正先检查returncode；若已wait/reap，观察成功/失败均不killpg、不重复wait，只记录existing returncode，container/reader仍必须独立确认。若returncode None，只有本supervisor唯一reaper的Popen.poll仍None（活自有child）才TERM；TERM等待超时后再poll，仍未完成才KILL并wait。reader仅读stdout、不调用poll/wait；异常观察仍finally处理未完成自有child，未知确认仍非零。
+
+新增6个completed returncode0×观察成功/异常/未确认×reader是否结束的fake，全部断言不得killpg或重复wait，不能借正常CLI返回绕过container/reader确认；原13项异常/timeout回归保留。另2项静态workflow测试检查只读权限、原触发条件/Foundation checks、job25min、唯一诊断步骤、预算步骤顺序及嵌入Python语法。因此本文件fake+workflow共21项，结果和全offline精确计数在最终Issue回执记录。
+
+此次同预算内准备了实际 .github/workflows/quality.yml diff，尚未推送/触发：checkout之后、安装之前的最早普通shell保存UTC+23min绝对deadline；Foundation checks不变，原PG步骤一次调用pg_diagnostic --session ci --round1 --combined --full-smoke --no-child-trace，job25min及原事件触发列表保持。SafeLoader解析/static检查与嵌入PythonAST仅证明配置结构，不等于Actions已运行。独立统一Review/主控核对后才允许消费尚未触发的一次CI；description一次写完整，不edited反复触发，失败不自动重跑。
+
+与前次realPG snapshot差异明确：本段无任何新的PG/Docker/故障注入，6e之前两轮证据及缺失imageID限制保留；本新源码normal/reaped策略和workflow只由fake/静态/离线检查验证，不能称最终SHA已实跑新的realPG或CI。业务Graph/Worker/G1/原79断言/迁移/权限/锁无变化。原CI具体阻塞/根因仍未定位，即使一次新CI成功也保留该事实。

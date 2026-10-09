@@ -1,5 +1,6 @@
 """停止控制流 fake 回归：观察错误不得漏 TERM/KILL/OSwait，未知不得报确认。"""
 
+import ast
 import io
 import signal
 import subprocess
@@ -9,11 +10,53 @@ from pathlib import Path
 from typing import cast
 
 import pytest
+import yaml  # type: ignore[import-untyped]  # 已锁定依赖，仅SafeLoader解析。
 
 from scripts import pg_diagnostic
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
 
 pytestmark = pytest.mark.offline
+
+
+def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
+    data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
+    job = data["jobs"]["quality"]
+    assert job["timeout-minutes"] == 25
+    assert data["permissions"] == {"contents": "read"}
+    # PyYAML YAML1.1 将键 on 解析为True；不改变Actions文件的on字段。
+    triggers = data.get("on", data.get(True))
+    assert triggers["pull_request"]["types"] == ["opened", "synchronize", "reopened", "edited"]
+    steps = job["steps"]
+    assert sum(step.get("run") == "uv run --frozen python -m scripts.check" for step in steps) == 1
+    runs = [step for step in steps if "scripts.pg_diagnostic" in step.get("run", "")]
+    assert len(runs) == 1
+    command = runs[0]["run"]
+    for flag in (
+        "--session ci",
+        "--round 1",
+        "--combined",
+        "--full-smoke",
+        "--no-child-trace",
+        '--deadline "$(cat .audit/ci-deadline)"',
+    ):
+        assert flag in command
+
+
+def test_workflow_registers_deadline_before_install_and_valid_python() -> None:
+    data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
+    steps = data["jobs"]["quality"]["steps"]
+    deadline_index = next(
+        i for i, s in enumerate(steps) if s.get("name") == "Register absolute diagnostic deadline"
+    )
+    install_index = next(
+        i for i, s in enumerate(steps) if s.get("name") == "Install locked Python environment"
+    )
+    assert deadline_index == 1 and deadline_index < install_index
+    lines = steps[deadline_index]["run"].splitlines()
+    assert lines[0] == "python3 - <<'PY'" and lines[-1] == "PY"
+    source = "\n".join(lines[1:-1])
+    ast.parse(source)
+    assert "timedelta(minutes=23)" in source and "datetime.now(timezone.utc)" in source
 
 
 def test_expired_entry_creates_no_resources(
@@ -46,6 +89,9 @@ class Process:
         self.returncode: int | None = None
         self.stdout = io.StringIO()
 
+    def poll(self) -> int | None:
+        return self.returncode
+
     def wait(self, *, timeout: float) -> int:
         self.calls.append("wait")
         if self.hang:
@@ -64,6 +110,43 @@ class Reader:
 
     def is_alive(self) -> bool:
         return self.alive
+
+
+@pytest.mark.parametrize("observation", ["success", "exception", "unconfirmed"])
+@pytest.mark.parametrize("reader_alive", [False, True])
+def test_completed_reaped_process_never_signals_reusable_pgid(
+    monkeypatch: pytest.MonkeyPatch,
+    observation: str,
+    reader_alive: bool,
+) -> None:
+    calls: list[str] = []
+
+    def forbidden(pid: int, sig: int) -> None:
+        calls.append("signal")
+        raise AssertionError("reaped PGID must never be signalled")
+
+    monkeypatch.setattr("scripts.pg_diag_shutdown.os.killpg", forbidden)
+    process = Process(calls)
+    process.returncode = 0
+
+    def observe() -> bool:
+        if observation == "exception":
+            raise RuntimeError("fake observation failed")
+        return observation == "success"
+
+    result = finish(
+        cast(subprocess.Popen[str], process),
+        cast(threading.Thread, Reader(alive=reader_alive)),
+        time.monotonic() + 20,
+        observe,
+        lambda record: None,
+    )
+    assert calls == []  # 既有 wait 结果不重复wait，更不能killpg。
+    assert result.cli_confirmed
+    assert result.reader_confirmed is not reader_alive
+    assert result.observation_confirmed is (observation == "success")
+    assert result.confirmed is (observation == "success" and not reader_alive)
+    assert process.stdout.closed is not reader_alive
 
 
 @pytest.mark.parametrize("failure", [RuntimeError, ValueError, subprocess.TimeoutExpired])
