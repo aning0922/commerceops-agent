@@ -2,7 +2,7 @@
 
 更新日期：2026-10-10（Asia/Shanghai）。当前处于 **Phase 1 集中交付中：G1/G2 已在集成分支验证，G3 必要真实技术证据已经独立核对齐备（含文档化的最小权限平台边界）。公开源码/证据最终提交的独立审核、实际 CI、阶段汇总与 main 合并门禁仍待完成；最终 PR #19 保持 Draft，阶段尚未记完成，main 未合入。** Issue #23 已按用户裁决关闭为 risk_accepted / root_cause=not_identified，不再追加旧超时诊断。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–26节保留规划、交付和批准前后的历史快照；其中未合入、未执行及逐项等待用户/main 的旧状态由后续事实和已批准托管合同取代。当前 main 为 a0d521ed79505287fa61bb6ddf82640e97824257，integration 为 f46e74c1158c33e495f4fb078025804174921afa。当前收口状态以第29节及 Issue/PR 最新记录为准，历史测试失败和未知根因仍保留。
+第1–29节保留规划、交付和批准前后的历史快照；其中未合入、未执行及逐项等待用户/main 的旧状态由后续事实和已批准托管合同取代。当前 main 为 a0d521ed79505287fa61bb6ddf82640e97824257，integration 为 f46e74c1158c33e495f4fb078025804174921afa。当前收口状态以第30节及 Issue/PR 最新记录为准，历史测试失败和未知根因仍保留。
 
 ## 1. 基线与授权
 
@@ -458,3 +458,21 @@ PR27首个冻结cb52eb0经[独立review5472556446](https://github.com/aning0922/
 | P1-06 | 五文件阶段状态批次及已审证据，最终PR19仍Draft | 还需最终集成SHA审查/实际CI、main合并及合后CI |
 
 原P105顶层会话已完成交付并idle，WT4094原HEAD9d及私有配置/运行历史保留，不再派发采样或主体开发。Root仅继续阶段文档、依赖/Issue、审核协调及最终PR19门禁。G1/G2/G3必要技术证据已齐，Phase1主线可形成通过候选；最终阶段交付/main仍未完成，不进入Phase2。Phase2确定性库存切片可在本阶段正式收口后建议启动，原3–4有效日估算暂保留，必须另获用户授权。
+
+## 30. 最终阶段 PR 候选与验收建议
+
+P1-05合后push37960884776与main候选37960891231均已实际SUCCESS，head f46e74c1158c33e495f4fb078025804174921afa。Root只读核push checkout为f46、345offline/45.11秒、79真实PG/74.81秒、三G1 count_one=true、六必要G2 call通过、cleanup0；没有用原PR的CI代替合后实跑。P1-05实现交付可记integrated，Issue6由主控同步；必要真实G3不是这次CI替身生成，原实跑版本/安全证据与公开适配源码按映射分列。
+
+| Gate / 交付 | 最终候选结论 | 可验证索引 |
+|---|---|---|
+| G1 Docker/PostgreSQL | verified_on_integration | PR11原证据及f46合后CI：真实迁移/setup、卷重启/保留卷重建与三次回读 |
+| G2 LangGraph Checkpoint | verified_on_integration | PR17原证据及f46合后CI：六必要进程/锁/故障场景与唯一回执 |
+| G3 Feishu technical probe | satisfied_with_documented_platform_boundary | W1/M1/M2/M3/C/expiry/DB failure与差异/Base读写和原键，PR27源码/脱敏索引及Issue6实际回执 |
+| P1-01至P1-05 | 已完成相应main/内部集成交付 | PR9/11/13/14/17/21/25/27及对应独立审核、精确CI、合后CI；未引入PR24/26 |
+| P1-06最终main交付 | candidate_ready，仍待最终提交门禁 | PR19最终集成SHA独立审核、实际候选CI、正常main merge、main同提交push CI |
+
+本批最终阶段文档不新增业务代码，仅将已核对的三Gate、任务/版本/测试/审核/风险集中为PR19验收材料。阶段候选基于完整f46已审代码与本批控制文档；最终精确integration/main SHA及最后CI由PR19/Issue7回执记录，当前main仍a0，不假称main已合入。原运行主机macOS arm64/容器Linux aarch64，实际远端CI为Ubuntu x86_64；Python/Node/PG镜像与SDK锁版本及执行命令见DEVELOPMENT/P1_05_SETUP与各证据索引。
+
+推荐在最终候选独立审核和实际CI成功后按已授权范围合入main，合后CI成功再记Phase1交付完成。残留限制保留：#23旧timeout根因not_identified且risk_accepted；Base长期TTL未知、unknown只对账/停止，不称成功ACK或accepted replay；non@/self-bot后端分支not_run；自然网络故障/wire/p95与部分Toast逐字内容未测；单Worker/单Graph，不宣称正式T3/审批/库存/模型或M1业务闭环。以上不是追加通用框架的理由，也不擅自降低原Gate。
+
+下一阶段建议是Phase2确定性库存垂直切片，现有底座已消除主要PG/Graph/飞书接入不确定性，原3–4有效工作日估算待接单细化；必须用户另行授权，不创建Phase2会话/分支或自动实施。两个有效开发日集中收口目标已完成必要技术验证，最后等待属于交付CI/审查；没有再延长旧诊断或要求重复真人操作。
