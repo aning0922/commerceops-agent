@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，组合CI仍未定位，诊断工具修正已获第二段有界授权；G3真实W1六消息与安全停止已完成，卡片/C角色反例/Base未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–11节保留原验收及接续快照，最新结果与证据限度见第12节及 [STATUS第16节](STATUS.md#16-实际六消息结果及第二段诊断授权)。
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，组合CI原异常未定位，第二段诊断独审有新P1阻断；G3真实W1六消息及单节点/六字段只读完成，卡片/C角色反例/Base全链路未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–12节保留原验收及接续快照，最新结果与证据限度见第13节及 [STATUS第17节](STATUS.md#17-台账只读验证完成与诊断候选冻结)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -138,3 +138,9 @@ W1独立41fake/4.57秒未发现真实平台结果；审核发现SafeTrace容量/
 原P105的W1并发修复独立52fake/3.84秒通过后，实际单窗口session9219于14:58:26.195（北京时间）exit0。A私聊/群@各message_received并观察到原Repository COMMIT后返回，B两条拒绝、C两条基线准入拒绝；六条序号唯一/delegate各一次/observer完整，C仍inconclusive、PG独立回读未执行。DTO-ready 0.252–18.470ms不含SDK wire/Toast，不能替代真实回传时限。SDK活动294.386秒/死亡reaped，容器/CLI/四锁/barrier清理由执行者及主控分别核对。[真实阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076170796)和[STATUS第16节](STATUS.md#16-实际六消息结果及第二段诊断授权)列来源与限度；卡片、C完整资格/角色反例、故障重连、Base全链路均待实跑。
 
 Wiki只读包已独立26fake审核，但父控30秒声明与最长37秒等待/清理不符P1，原P105修正后须重冻Review，实际API/字段/ACL仍未执行。Issue23诊断工具timeout清理也有独立P1，用户批准原P10415:02:35–15:32:35本地新增30分钟/两轮，最小修复/自有容器故障注入/独立复审后最多一次CI；原job25分钟/G1与恢复合同不弱化，原异常未定位事实保留。当前#6/#7/#23 OPEN，完整G3/Phase1不通过，PR19 Draft、不合入main、不进入Phase2。
+
+## 13. 已验证的台账读取与诊断证据限度
+
+Wiki父期限修复独立33fake/3.83秒后，实际session65994 exit0、15:23:55.598完成（北京时间）：唯一node与既有表fields各一次HTTP200/business0，来源/bitable/table/六text字段匹配；父4.246秒、入口4.313秒、30秒内reaped/四锁free/barrier无。候选仍未验证标记，真实result另记字段访问true，未发布.env/未BaseCRUD。[实际任务](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6076469241)及[主控复核](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076576053)说明只解除标识/字段读取待核验，不等于记录读写或完整G3。原P105准备新v2配置绑定供Review，旧setup/W1永久保持历史证据。
+
+Issue23第二段6e62ae0在15:29:42预算内冻结，故障注入确证诊断CLI/container终止；本地79PG/42.06秒和G1/六G2通过，最终13fake/153offline通过。实跑后日志/KILL竞态/过期守卫新增仅fake/offline覆盖，没有保存实跑image ID/tree，不称final同镜像实跑。独立增量Review发现正常已wait PID仍killpg的P1，当前暂停原P104/CI，预算到期不自动续期；P1修复、新冻结审核及唯一CI实际workflow仍待取得，原CI根因未定位/当前复验未结案。[审核阻断](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076634334)及详细实际/最终源码差异见[候选回执](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076536625)和[STATUS第17节](STATUS.md#17-台账只读验证完成与诊断候选冻结)。maina0/int413，#6/#7/#23 OPEN、PR19 Draft；卡片/C角色反例/独立PG回读/Base全链路仍缺证据，Phase1不通过、不合main、不进Phase2。

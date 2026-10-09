@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，组合 CI 仍未定位，诊断工具修正已获第二段有界授权；P1-05 真实 W1 六消息和安全停止已完成，卡片/C角色反例/Base 尚待验收，Wiki只读入口期限问题正在修复；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，组合 CI 原异常仍未定位，诊断修正第二段独审有新P1阻断；P1-05 真实 W1 六消息与单节点/六字段只读均已完成，Base配置发布待审，卡片/C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–15节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第16节与 Issue/PR 最新记录为准。
+第1–16节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第17节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -286,3 +286,17 @@ Wiki/六字段只读包独立26fake/2既有warnings/4.45秒发现parent期限P1�
 Issue23候选c959f45独立静态审查确认两轮准备证据准确，另发现诊断工具P1：timeout采样/inspect异常可能绕过自有CLI group终止与OSwait，修前不能新实跑。用户[批准下一段](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076121755)，原P104登记[15:02:35–15:32:35](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076164145)本地30分钟/最多两轮，新自有容器故障注入与最小修复、独立复审后最多一次CI，原25分钟上限/G1生命周期/恢复断言保持。不得访问P105或自动续跑，不将工具P1冒作原CI根因，当前仍未定位/未结案。
 
 main仍a0、集成413，主控文档尚未推送，PR22远端8f未合，PR19 Draft；#6/#7/#23 OPEN。上述实际部分结果及新授权不推导完整G3/阶段通过，不合入main，不进入Phase2。
+
+## 17. 台账只读验证完成与诊断候选冻结
+
+Wiki父期限第1轮修复独立33fake/2既有SDK warnings/3.83秒通过后，原P105执行一次授权的单节点及字段读取，session65994 exit0；15:23:49观察开始，result于15:23:55.598完成（北京时间）。SDK1.7.3/机器人身份核验通过，node GET一次与既有P1_05_Probe fields GET一次均HTTP200/business0，无重试/分页/其他节点。node来源/title/bitable和table匹配，ProbeID/ProbeMarker/SourceMode/ApprovalMode/State/UpdatedAt恰六文本字段type1通过；这里只实证字段读取权限，不推导记录读写权限。[任务结果](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6076469241)及[阶段复核](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076576053)。
+
+父监督4.246秒/入口总4.313秒，子进程在绝对30秒内死亡reaped，wrapper退出/四锁可取/barrier无；once attempt保留，candidate仍field_access_verified=false，真实result另记true，候选未写.env。主控只读另核对结果/evidence hash6fbf849a6108c8c7820bcdeb50854c3dc3558d23dae2f1207d3e6659de3bf637、manifest e239956d75df3121b798f7ea461a6622cf922c0a506cd246bc8466d80d942007/target绑定、次数/200及0/字段/预算reaped/锁；没有重跑API/SDK或读AppSecret/密码。baseline/setup31/W1保持历史绑定，真实Token/ID仅本地600文件，不进入GitHub或日志。
+
+原P105自动接续最小Base配置发布源码/fake/冻结准备，尚未发布；只更已有Base token/table键，六字段合同放新v2绑定，不新增模型不识别的env键。A/B/tenant/bot/chat/C未armed/external_ready=false/受限PG不变，config短锁/原子600写，保留v1配置及旧manifest/receipt，不将旧绑定冒称新配置。卡片/C资格角色反例、独立PG回读、Base创建/记录查询/更新/原client_token重投仍待真实验收。
+
+Issue23第二段在预算内15:29:42冻结6e62ae0f755a517d449f5c90ec7d8f7400065447（parentc959，tree f31fa4f36f71e062863ef9892af4b575fec21953，clean/未推送）。[精确候选与证据](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076536625)：15:12:46–15:13:10自有故障注入确认containerwait137、忽略TERM的CLI经必要KILL/OSwait为−9、reader结束/cleanup0；15:15:51–15:17:32完整入口79PG/42.06秒、当时150deselected/2warnings、六G2/原G1及三次恢复回读1、cleanup0。最终13fake/0.02秒、153offline/44.92秒通过，lint/format/mypy64与prepost扫描0；正式Graph/Worker/原79断言/模型迁移权限锁/Compose/原pg_smoke及workflow未改。
+
+最终新增日志失败/KILL竞态/过期保护只由fake/offline覆盖，实跑镜像已随自有资源清理，未保留image ID或当时提交tree，不补造final image hash/同镜像最终源码证据。第二段本地实现/诊断结束，独立增量审核发现新P1：finish对正常已经wait/reaped的PID仍killpg，未来PGID复用可误伤非自有进程；现fake缺正常完成绝不发信号回归。主控暂停原P104后续实现/推送/CI，等待新增最小源码/fake预算确认；最小方案为仅活自有child需要终止时signal，正常已wait不发signal，观察失败仍不确认，timeout的finally/OSwait保持。[阻断及范围](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076634334)。原CI仍未复现/根因未定位。最多一次CI尚未触发，入口仍为方案，需P1修复/实际workflow差异/冻结Review；保持原job25分钟、G1/79恢复断言及预算前置，不因新授权/本地通过解除#23。
+
+maina0/int413，#6真实in_progress_live、#7in_progress_acceptance、#23 OPEN；主控文档仍本地未推送，PR22远端8f未合、PR19 Draft。完整G3/Phase1尚未通过，不合main、不进Phase2。
