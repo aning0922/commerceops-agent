@@ -1,0 +1,155 @@
+{
+  "scope": "UX only; no business tests inferred",
+  "checks": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "M1 B1b：原生UUID/命名版本/冻结清单与实际Viewer记录一致；业务未实现\nM1 B2：当前UUID/禁用卡片/完整清单/角色与390实点一致；真实后端及飞书未验收\nM1 B3：18逻辑页面、46可渲染事件、当前UUID/禁用合同与实际Viewer证据一致；候选待外审\n最终冻结修订：18逻辑页面、47语义事件、B30/B31、S08原UUID、重载持久版本一致；业务未实现\nM1 B1a：5个原生样板/辅助层、14控件实例、28实点；业务未实现\n合同/画布引用一致：3 POC 屏幕、4 控制件、14 点击记录；M1 业务未实现\n"
+    },
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "All checks passed!\n"
+    },
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "format",
+        "--check",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "1 file already formatted\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.scan_secrets"
+      ],
+      "exit_code": 1,
+      "output": "{\"scope\": \"dir\", \"rule\": \"generic-api-key\", \"file\": \"/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/commerceops-scan-s53qvw7c/current/docs/ux/evidence/m1-ux-final/mcp-executions.json\", \"line\": 13, \"commit\": \"\"}\ndir: findings=1, exit=1\nindex: findings=0, exit=0\ngit: findings=0, exit=0\n"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.check_docs"
+      ],
+      "exit_code": 0,
+      "output": "Markdown: 36 files, errors=0\n"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.scan_secrets"
+      ],
+      "exit_code": 0,
+      "output": "dir: findings=0, exit=0\nindex: findings=0, exit=0\ngit: findings=0, exit=0\n"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.check_docs"
+      ],
+      "exit_code": 0,
+      "output": "Markdown: 36 files, errors=0\n"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "M1 B1b：原生UUID/命名版本/冻结清单与实际Viewer记录一致；业务未实现\nM1 B2：当前UUID/禁用卡片/完整清单/角色与390实点一致；真实后端及飞书未验收\nM1 B3：18逻辑页面、46可渲染事件、当前UUID/禁用合同与实际Viewer证据一致；候选待外审\n最终冻结修订：18逻辑页面、47语义事件、B30/B31、S08原UUID、重载持久版本一致；业务未实现\nM1 B1a：5个原生样板/辅助层、14控件实例、28实点；业务未实现\n合同/画布引用一致：3 POC 屏幕、4 控制件、14 点击记录；M1 业务未实现\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "stage": "independent review P2 clarification",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.scan_secrets"
+      ],
+      "exit_code": 0,
+      "output": "dir: findings=0, exit=0\nindex: findings=0, exit=0\ngit: findings=0, exit=0\n"
+    },
+    {
+      "stage": "independent review P2 clarification",
+      "command": [
+        ".venv/bin/python",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "M1 B1b：原生UUID/命名版本/冻结清单与实际Viewer记录一致；业务未实现\nM1 B2：当前UUID/禁用卡片/完整清单/角色与390实点一致；真实后端及飞书未验收\nM1 B3：18逻辑页面、46可渲染事件、当前UUID/禁用合同与实际Viewer证据一致；候选待外审\n最终冻结修订：18逻辑页面、47语义事件、B30/B31、S08原UUID、重载持久版本一致；业务未实现\nM1 B1a：5个原生样板/辅助层、14控件实例、28实点；业务未实现\n合同/画布引用一致：3 POC 屏幕、4 控制件、14 点击记录；M1 业务未实现\n"
+    },
+    {
+      "stage": "independent review P2 clarification",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "scripts.check_docs"
+      ],
+      "exit_code": 0,
+      "output": "Markdown: 37 files, errors=0\n"
+    },
+    {
+      "stage": "independent review P2 clarification",
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "All checks passed!\n"
+    },
+    {
+      "stage": "independent review P2 clarification",
+      "command": [
+        ".venv/bin/ruff",
+        "format",
+        "--check",
+        "tools/design/penpot/check_contract.py"
+      ],
+      "exit_code": 0,
+      "output": "1 file already formatted\n"
+    },
+    {
+      "stage": "independent review P2 clarification",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "initial_scan_resolution": "Generic overview SDK token library sample omitted from repository, raw response preserved in private backup; no rule override. Initial findings retained above."
+}

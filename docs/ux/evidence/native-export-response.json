@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Tool execution failed: Error: Error handling task: No matching clause: "
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

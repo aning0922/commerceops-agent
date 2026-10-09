@@ -1,0 +1,112 @@
+{
+  "file": {
+    "id": "ad74bff8-48e8-8141-8008-c31715c76703",
+    "name": "CommerceOps · 官方 MCP 最小验证 v0.1",
+    "revn": 3
+  },
+  "pages": [
+    {
+      "id": "ad74bff8-48e8-8141-8008-c31715c76704",
+      "name": "00 / Tool verification"
+    },
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c3188eda85b6",
+      "name": "01 / POC components"
+    }
+  ],
+  "revision": "ux-poc/0.1.1",
+  "components": [
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c3188ef46d53",
+      "name": "Primary button",
+      "main": "4fc54c35-c3b2-804c-8008-c3188ee3240d",
+      "flex": {
+        "dir": "row",
+        "horizontalPadding": 16,
+        "verticalPadding": 10
+      }
+    }
+  ],
+  "screens": [
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c3188efd0d39",
+      "name": "POC-S01 / 任务中心"
+    },
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c3188f020ccf",
+      "name": "POC-M01 / 数据口径"
+    },
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c3188efec6f4",
+      "name": "POC-S02 / 库存分析报告"
+    }
+  ],
+  "controls": [
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c31964610c13",
+      "name": "POC-B02 / 查看数据口径",
+      "stableId": "POC-B02 / 查看数据口径",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "4fc54c35-c3b2-804c-8008-c3188f020ccf",
+          "position": "center",
+          "closeWhenClickOutside": true,
+          "addBackgroundOverlay": true
+        }
+      ]
+    },
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c319646714fb",
+      "name": "POC-B03 / 返回任务中心",
+      "stableId": "POC-B03 / 返回任务中心",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "4fc54c35-c3b2-804c-8008-c3188efd0d39"
+        }
+      ]
+    },
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c3188f5266e7",
+      "name": "POC-B01 / 查看分析报告",
+      "stableId": "POC-B01 / 查看分析报告",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "4fc54c35-c3b2-804c-8008-c3188efec6f4"
+        }
+      ]
+    },
+    {
+      "id": "4fc54c35-c3b2-804c-8008-c319646a7adb",
+      "name": "POC-B04 / 关闭数据口径",
+      "stableId": "POC-B04 / 关闭数据口径",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "4fc54c35-c3b2-804c-8008-c3188f020ccf"
+        }
+      ]
+    }
+  ],
+  "textFonts": [
+    {
+      "fontFamily": "sourcesanspro",
+      "fontSize": "16"
+    },
+    {
+      "fontFamily": "sourcesanspro",
+      "fontSize": "23"
+    },
+    {
+      "fontFamily": "sourcesanspro",
+      "fontSize": "16"
+    }
+  ],
+  "validation": []
+}

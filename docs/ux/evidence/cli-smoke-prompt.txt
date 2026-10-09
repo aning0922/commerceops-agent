@@ -1,0 +1,1 @@
+只使用本次配置的 penpot 官方 MCP，禁止其他工具、文件写入、shell、委派。先调用 high_level_overview，然后 execute_code 读取 Penpot version、currentFile.id、currentFile.pages 的 id/name。再通过 execute_code 调用 penpot.currentPage.setPluginData("commerceops.cli-smoke", "CLI-MCP-20261009-v0.1.0")，并立即 getPluginData 回读此键。返回实际文件/page ID 与回读值。此操作仅为独立本地设计工具验证，不是业务实现。

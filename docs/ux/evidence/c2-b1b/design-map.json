@@ -1,0 +1,3698 @@
+{
+  "fileId": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+  "pageId": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+  "revision": "m1-ui/0.2.0-b1b",
+  "revn": 32,
+  "screens": [
+    {
+      "stableId": "M1-S03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+      "name": "M1-S03 / 库存分析报告 · Desktop 1440",
+      "instance": null,
+      "state": null,
+      "role": null,
+      "bounds": {
+        "x": 1600,
+        "y": 0,
+        "width": 1440,
+        "height": 1080
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+      "name": "M1-M02 / 新建库存分析 · 原生抽屉",
+      "instance": null,
+      "state": null,
+      "role": null,
+      "bounds": {
+        "x": 4800,
+        "y": 0,
+        "width": 600,
+        "height": 1000
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+      "name": "M1-S09 / 任务概览与关联结果 · Desktop",
+      "instance": null,
+      "state": null,
+      "role": null,
+      "bounds": {
+        "x": 3200,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-M03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b0081036",
+      "name": "M1-M03 / 数据口径与来源 · B1a 最小弹窗",
+      "instance": null,
+      "state": null,
+      "role": null,
+      "bounds": {
+        "x": 5480,
+        "y": 0,
+        "width": 560,
+        "height": 580
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf383a49",
+      "name": "M1-S04 / 审批详情 · 3 项未知在途 · Desktop",
+      "instance": "审批详情 · 3 项未知在途 · Desktop",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 0,
+        "y": 1300,
+        "width": 1440,
+        "height": 1100
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c1095dce",
+      "name": "M1-S04 / 390px · 20 项 / 4 项未知在途",
+      "instance": "390px · 20 项 / 4 项未知在途",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 1600,
+        "y": 1300,
+        "width": 390,
+        "height": 4348
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+      "name": "M1-F01 / 飞书 390px · 20 项 / 4 项未知在途",
+      "instance": "飞书 390px · 20 项 / 4 项未知在途",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 2050,
+        "y": 1300,
+        "width": 390,
+        "height": 4348
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d4721f57",
+      "name": "M1-S04 / 390px · 1 项 / 已知在途",
+      "instance": "390px · 1 项 / 已知在途",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 2500,
+        "y": 1300,
+        "width": 390,
+        "height": 1118
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d743cc7c",
+      "name": "M1-F01 / 飞书 390px · 1 项 / 已知在途",
+      "instance": "飞书 390px · 1 项 / 已知在途",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 2950,
+        "y": 1300,
+        "width": 390,
+        "height": 1118
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd2e0442",
+      "name": "M1-S10 / 审批列表 · Desktop",
+      "instance": "审批列表 · Desktop",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 3600,
+        "y": 1300,
+        "width": 1440,
+        "height": 1000
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bef22ae3",
+      "name": "M1-S05 / 内部补货列表 · Desktop",
+      "instance": "内部补货列表 · Desktop",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 5200,
+        "y": 1300,
+        "width": 1440,
+        "height": 1000
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c37519b581cc",
+      "name": "M1-S11 / 内部工作项详情 · SKU-A",
+      "instance": "内部工作项详情 · SKU-A",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 6800,
+        "y": 1300,
+        "width": 1440,
+        "height": 1000
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ae3259a",
+      "name": "M1-S11 / 只读详情 · SKU-B",
+      "instance": "只读详情 · SKU-B",
+      "state": "readonly",
+      "role": "operator",
+      "bounds": {
+        "x": 9050,
+        "y": 1300,
+        "width": 600,
+        "height": 470
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b73c291",
+      "name": "M1-S11 / 只读详情 · SKU-C",
+      "instance": "只读详情 · SKU-C",
+      "state": "readonly",
+      "role": "operator",
+      "bounds": {
+        "x": 9700,
+        "y": 1300,
+        "width": 600,
+        "height": 470
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c128013",
+      "name": "M1-M01 / 完成原因 · 未填写",
+      "instance": "完成原因 · 未填写",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 0,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751cdf0876",
+      "name": "M1-M01 / 完成原因 · 显式选择 Mock 示例",
+      "instance": "完成原因 · 显式选择 Mock 示例",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 650,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751da663dd",
+      "name": "M1-M01 / 关闭原因 · 未填写",
+      "instance": "关闭原因 · 未填写",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 1300,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+      "name": "M1-M01 / 关闭原因 · 显式选择 Mock 示例",
+      "instance": "关闭原因 · 显式选择 Mock 示例",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 1950,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37577fd2aba",
+      "name": "M1-S09 / DEMO-PLAN-008 · approved回执",
+      "instance": "DEMO-PLAN-008 · approved回执",
+      "state": "approved",
+      "role": "approver",
+      "bounds": {
+        "x": 3000,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37578d79ec0",
+      "name": "M1-S09 / DEMO-PLAN-008 · rejected回执",
+      "instance": "DEMO-PLAN-008 · rejected回执",
+      "state": "rejected",
+      "role": "approver",
+      "bounds": {
+        "x": 3450,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37579c80a4c",
+      "name": "M1-S09 / DEMO-PLAN-N20 · approved回执",
+      "instance": "DEMO-PLAN-N20 · approved回执",
+      "state": "approved",
+      "role": "approver",
+      "bounds": {
+        "x": 3900,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757acca614",
+      "name": "M1-S09 / DEMO-PLAN-N20 · rejected回执",
+      "instance": "DEMO-PLAN-N20 · rejected回执",
+      "state": "rejected",
+      "role": "approver",
+      "bounds": {
+        "x": 4350,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757bcf0817",
+      "name": "M1-S09 / DEMO-PLAN-K01 · approved回执",
+      "instance": "DEMO-PLAN-K01 · approved回执",
+      "state": "approved",
+      "role": "approver",
+      "bounds": {
+        "x": 4800,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757ce7d800",
+      "name": "M1-S09 / DEMO-PLAN-K01 · rejected回执",
+      "instance": "DEMO-PLAN-K01 · rejected回执",
+      "state": "rejected",
+      "role": "approver",
+      "bounds": {
+        "x": 5250,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e23934a",
+      "name": "M1-S09 / 内部创建结果 · 主任务",
+      "instance": "内部创建结果 · 主任务",
+      "state": "executed",
+      "role": "approver",
+      "bounds": {
+        "x": 5800,
+        "y": 6000,
+        "width": 560,
+        "height": 530
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757f0f161d",
+      "name": "M1-S11 / 已完成回执 · 终态",
+      "instance": "已完成回执 · 终态",
+      "state": "completed",
+      "role": "approver",
+      "bounds": {
+        "x": 6500,
+        "y": 6000,
+        "width": 560,
+        "height": 480
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757fd0a65a",
+      "name": "M1-S11 / 已关闭回执 · 终态",
+      "instance": "已关闭回执 · 终态",
+      "state": "closed",
+      "role": "approver",
+      "bounds": {
+        "x": 7150,
+        "y": 6000,
+        "width": 560,
+        "height": 480
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375809431d6",
+      "name": "M1-S06 / Agent 执行轨迹 · Desktop",
+      "instance": "Agent 执行轨迹 · Desktop",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 0,
+        "y": 7600,
+        "width": 1440,
+        "height": 1180
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f839e836",
+      "name": "M1-S04 / 披露不完整 / 版本变化 · 局部阻断",
+      "instance": "披露不完整 / 版本变化 · 局部阻断",
+      "state": "disclosure_incomplete",
+      "role": "approver",
+      "bounds": {
+        "x": 8100,
+        "y": 6000,
+        "width": 560,
+        "height": 460
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f8de4538",
+      "name": "M1-S04 / operator 只读动作区 · 局部样例",
+      "instance": "operator 只读动作区 · 局部样例",
+      "state": "readonly",
+      "role": "operator",
+      "bounds": {
+        "x": 8700,
+        "y": 6000,
+        "width": 560,
+        "height": 418
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+      "name": "M1-S06 / 飞书投影详情 · 局部事实",
+      "instance": "飞书投影详情 · 局部事实",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 9400,
+        "y": 6000,
+        "width": 600,
+        "height": 500
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fa549906",
+      "name": "M1-S06 / 工具安全详情 · 局部事实",
+      "instance": "工具安全详情 · 局部事实",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 10050,
+        "y": 6000,
+        "width": 640,
+        "height": 510
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c3763d397cf2",
+      "name": "M1-S10 / 筛选只读预览",
+      "instance": "筛选只读预览",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 11200,
+        "y": 6000,
+        "width": 440,
+        "height": 320
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c3763de19817",
+      "name": "M1-S05 / 筛选只读预览",
+      "instance": "筛选只读预览",
+      "state": "mock",
+      "role": "approver",
+      "bounds": {
+        "x": 11680,
+        "y": 6000,
+        "width": 440,
+        "height": 320
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c37b1249a935",
+      "name": "M1-S04 / 历史审批 APR-DEMO-H01 · 只读",
+      "instance": "历史审批 APR-DEMO-H01 · 只读",
+      "state": "rejected",
+      "role": "operator",
+      "bounds": {
+        "x": 10800,
+        "y": 7600,
+        "width": 600,
+        "height": 440
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    },
+    {
+      "stableId": "M1-S02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343160c8626",
+      "name": "M1-S02 / 任务中心 · Desktop 1440",
+      "instance": null,
+      "state": null,
+      "role": null,
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "revision": "m1-ui/0.2.0-b1b",
+      "textOverflow": [],
+      "outOfBoard": []
+    }
+  ],
+  "controls": [
+    {
+      "stableId": "M1-B13",
+      "eventId": "M1-E13",
+      "screenId": "M1-S02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
+      "name": "M1-B13 / 关闭预览",
+      "bounds": {
+        "x": 6124,
+        "y": 192,
+        "width": 272,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
+        }
+      ],
+      "stableIdReadback": "M1-B13",
+      "eventIdReadback": "M1-E13"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
+      "name": "M1-B29 / 任务概览",
+      "bounds": {
+        "x": 1856,
+        "y": 205,
+        "width": 140,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B18",
+      "eventId": "M1-E18",
+      "screenId": "M1-S03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343f1694397",
+      "name": "M1-B18 / 数据口径",
+      "bounds": {
+        "x": 2864,
+        "y": 906,
+        "width": 120,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344b0081036",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B18",
+      "eventIdReadback": "M1-E18"
+    },
+    {
+      "stableId": "M1-B16",
+      "eventId": "M1-E16",
+      "screenId": "M1-S03",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f7941498",
+      "name": "M1-B16 / 执行轨迹",
+      "bounds": {
+        "x": 2144,
+        "y": 205,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375809431d6"
+        }
+      ],
+      "stableIdReadback": "M1-B16",
+      "eventIdReadback": "M1-E16"
+    },
+    {
+      "stableId": "M1-B17",
+      "eventId": "M1-E17",
+      "screenId": "M1-S03",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f7aee6bc",
+      "name": "M1-B17 / 查看审批",
+      "bounds": {
+        "x": 2324,
+        "y": 205,
+        "width": 184,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ],
+      "stableIdReadback": "M1-B17",
+      "eventIdReadback": "M1-E17"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S03",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb002a00",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 1612,
+        "y": 139,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S03",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb0acdbd",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 1612,
+        "y": 195,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S03",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb14f5da",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 1612,
+        "y": 247,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B45",
+      "eventId": "M1-E45",
+      "screenId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af0a7009",
+      "name": "M1-B45 / ×",
+      "bounds": {
+        "x": 5324,
+        "y": 28,
+        "width": 44,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ],
+      "stableIdReadback": "M1-B45",
+      "eventIdReadback": "M1-E45"
+    },
+    {
+      "stableId": "M1-B35",
+      "eventId": "M1-E35",
+      "screenId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af79ea11",
+      "name": "M1-B35 / 确认以上草稿参数",
+      "bounds": {
+        "x": 4832,
+        "y": 696,
+        "width": 240,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B35",
+      "eventIdReadback": "M1-E35"
+    },
+    {
+      "stableId": "M1-B45",
+      "eventId": "M1-E45",
+      "screenId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af929b26",
+      "name": "M1-B45 / 取消",
+      "bounds": {
+        "x": 4832,
+        "y": 926,
+        "width": 120,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ],
+      "stableIdReadback": "M1-B45",
+      "eventIdReadback": "M1-E45"
+    },
+    {
+      "stableId": "M1-B01",
+      "eventId": "M1-E01",
+      "screenId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af98787a",
+      "name": "M1-B01 / 创建分析并按规则送审",
+      "bounds": {
+        "x": 4976,
+        "y": 926,
+        "width": 392,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B01",
+      "eventIdReadback": "M1-E01"
+    },
+    {
+      "stableId": "M1-B35",
+      "eventId": "M1-E35",
+      "screenId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afad46ed",
+      "name": "M1-B35 / 返回新建分析",
+      "bounds": {
+        "x": 6624,
+        "y": 156,
+        "width": 372,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab"
+        }
+      ],
+      "stableIdReadback": "M1-B35",
+      "eventIdReadback": "M1-E35"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S09",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
+      "name": "M1-B39 / 返回任务中心",
+      "bounds": {
+        "x": 4448,
+        "y": 116,
+        "width": 160,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B15",
+      "eventId": "M1-E15",
+      "screenId": "M1-S09",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
+      "name": "M1-B15 / 查看分析报告",
+      "bounds": {
+        "x": 3480,
+        "y": 485,
+        "width": 192,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ],
+      "stableIdReadback": "M1-B15",
+      "eventIdReadback": "M1-E15"
+    },
+    {
+      "stableId": "M1-B17",
+      "eventId": "M1-E17",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375e9c45b7e",
+      "name": "M1-B17 / 查看审批详情",
+      "bounds": {
+        "x": 3456,
+        "y": 818,
+        "width": 224,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ],
+      "stableIdReadback": "M1-B17",
+      "eventIdReadback": "M1-E17"
+    },
+    {
+      "stableId": "M1-B16",
+      "eventId": "M1-E16",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375e9df3a83",
+      "name": "M1-B16 / 查看执行轨迹",
+      "bounds": {
+        "x": 3696,
+        "y": 818,
+        "width": 224,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375809431d6"
+        }
+      ],
+      "stableIdReadback": "M1-B16",
+      "eventIdReadback": "M1-E16"
+    },
+    {
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
+      "name": "M1-B25 / 执行后工作项（Mock）",
+      "bounds": {
+        "x": 3936,
+        "y": 818,
+        "width": 288,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757e23934a"
+        }
+      ],
+      "stableIdReadback": "M1-B25",
+      "eventIdReadback": "M1-E25"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375ea098b75",
+      "name": "M1-B21 / 查看飞书卡片样例",
+      "bounds": {
+        "x": 4240,
+        "y": 818,
+        "width": 368,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c88a718a"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb43bb01",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 3212,
+        "y": 139,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb4ebdf2",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 3212,
+        "y": 195,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb57e09a",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 3212,
+        "y": 247,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B22",
+      "eventId": "M1-E22",
+      "screenId": "M1-M03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b03271ad",
+      "name": "M1-B22 / 返回报告",
+      "bounds": {
+        "x": 5508,
+        "y": 510,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344b0081036"
+        }
+      ],
+      "stableIdReadback": "M1-B22",
+      "eventIdReadback": "M1-E22"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf67a3bb",
+      "name": "M1-B29 / 返回任务概览",
+      "bounds": {
+        "x": 256,
+        "y": 1502,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B15",
+      "eventId": "M1-E15",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf78d954",
+      "name": "M1-B15 / 查看来源报告",
+      "bounds": {
+        "x": 428,
+        "y": 1502,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ],
+      "stableIdReadback": "M1-B15",
+      "eventIdReadback": "M1-E15"
+    },
+    {
+      "stableId": "M1-B03",
+      "eventId": "M1-E03",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c0afb61a",
+      "name": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+      "bounds": {
+        "x": 256,
+        "y": 2168,
+        "width": 424,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37577fd2aba"
+        }
+      ],
+      "stableIdReadback": "M1-B03",
+      "eventIdReadback": "M1-E03"
+    },
+    {
+      "stableId": "M1-B04",
+      "eventId": "M1-E04",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c0bb894a",
+      "name": "M1-B04 / 拒绝此假设并拒绝计划",
+      "bounds": {
+        "x": 696,
+        "y": 2168,
+        "width": 288,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37578d79ec0"
+        }
+      ],
+      "stableIdReadback": "M1-B04",
+      "eventIdReadback": "M1-E04"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c0c8653a",
+      "name": "M1-B23 / 查看审批记录",
+      "bounds": {
+        "x": 1140,
+        "y": 2168,
+        "width": 244,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37577fd2aba"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb85b865",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 12,
+        "y": 1439,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb9035f6",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 12,
+        "y": 1495,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb9bdaa0",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 12,
+        "y": 1547,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B03",
+      "eventId": "M1-E03",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c7f8f2e7",
+      "name": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+      "bounds": {
+        "x": 1620,
+        "y": 5360,
+        "width": 350,
+        "height": 72
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
+        }
+      ],
+      "stableIdReadback": "M1-B03",
+      "eventIdReadback": "M1-E03"
+    },
+    {
+      "stableId": "M1-B04",
+      "eventId": "M1-E04",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c80c7d79",
+      "name": "M1-B04 / 拒绝此假设并拒绝计划",
+      "bounds": {
+        "x": 1620,
+        "y": 5444,
+        "width": 350,
+        "height": 56
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757acca614"
+        }
+      ],
+      "stableIdReadback": "M1-B04",
+      "eventIdReadback": "M1-E04"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c829093f",
+      "name": "M1-B29 / 返回审批列表",
+      "bounds": {
+        "x": 1620,
+        "y": 5518,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B03",
+      "eventId": "M1-E03",
+      "screenId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d3a53223",
+      "name": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+      "bounds": {
+        "x": 2070,
+        "y": 5360,
+        "width": 350,
+        "height": 72
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
+        }
+      ],
+      "stableIdReadback": "M1-B03",
+      "eventIdReadback": "M1-E03"
+    },
+    {
+      "stableId": "M1-B04",
+      "eventId": "M1-E04",
+      "screenId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d3c1c5e0",
+      "name": "M1-B04 / 拒绝此假设并拒绝计划",
+      "bounds": {
+        "x": 2070,
+        "y": 5444,
+        "width": 350,
+        "height": 56
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757acca614"
+        }
+      ],
+      "stableIdReadback": "M1-B04",
+      "eventIdReadback": "M1-E04"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d3ee71cf",
+      "name": "M1-B21 / 在 Web 查看同版本完整详情",
+      "bounds": {
+        "x": 2070,
+        "y": 5518,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B02",
+      "eventId": "M1-E02",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d675e5b7",
+      "name": "M1-B02 / 批准创建内部补货工作项",
+      "bounds": {
+        "x": 2520,
+        "y": 2130,
+        "width": 350,
+        "height": 72
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
+        }
+      ],
+      "stableIdReadback": "M1-B02",
+      "eventIdReadback": "M1-E02"
+    },
+    {
+      "stableId": "M1-B05",
+      "eventId": "M1-E05",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d694c5bd",
+      "name": "M1-B05 / 拒绝计划",
+      "bounds": {
+        "x": 2520,
+        "y": 2214,
+        "width": 350,
+        "height": 56
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
+        }
+      ],
+      "stableIdReadback": "M1-B05",
+      "eventIdReadback": "M1-E05"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d6c040d4",
+      "name": "M1-B29 / 返回审批列表",
+      "bounds": {
+        "x": 2520,
+        "y": 2288,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B02",
+      "eventId": "M1-E02",
+      "screenId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d93a889d",
+      "name": "M1-B02 / 批准创建内部补货工作项",
+      "bounds": {
+        "x": 2970,
+        "y": 2130,
+        "width": 350,
+        "height": 72
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
+        }
+      ],
+      "stableIdReadback": "M1-B02",
+      "eventIdReadback": "M1-E02"
+    },
+    {
+      "stableId": "M1-B05",
+      "eventId": "M1-E05",
+      "screenId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d95d19b5",
+      "name": "M1-B05 / 拒绝计划",
+      "bounds": {
+        "x": 2970,
+        "y": 2214,
+        "width": 350,
+        "height": 56
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
+        }
+      ],
+      "stableIdReadback": "M1-B05",
+      "eventIdReadback": "M1-E05"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d98fd50f",
+      "name": "M1-B21 / 在 Web 查看同版本完整详情",
+      "bounds": {
+        "x": 2970,
+        "y": 2288,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B20",
+      "eventId": "M1-E20",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd593903",
+      "name": "M1-B20 / 待我处理 · 2",
+      "bounds": {
+        "x": 3880,
+        "y": 1530,
+        "width": 170,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763d397cf2",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B20",
+      "eventIdReadback": "M1-E20"
+    },
+    {
+      "stableId": "M1-B20",
+      "eventId": "M1-E20",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd6118c1",
+      "name": "M1-B20 / 已处理 · 2",
+      "bounds": {
+        "x": 4066,
+        "y": 1530,
+        "width": 170,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763d397cf2",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B20",
+      "eventIdReadback": "M1-E20"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bdd147b1",
+      "name": "M1-B21 / 完整审批详情",
+      "bounds": {
+        "x": 4826,
+        "y": 1700,
+        "width": 160,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374be0e05ad",
+      "name": "M1-B21 / 390px 完整详情",
+      "bounds": {
+        "x": 4826,
+        "y": 1784,
+        "width": 160,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374be50cb3f",
+      "name": "M1-B21 / 已知在途详情",
+      "bounds": {
+        "x": 4826,
+        "y": 1868,
+        "width": 160,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374be94485a",
+      "name": "M1-B21 / 只读历史记录",
+      "bounds": {
+        "x": 4826,
+        "y": 1952,
+        "width": 160,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37b1249a935"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f91222b6",
+      "name": "M1-B43 / 查看披露阻断样例",
+      "bounds": {
+        "x": 3856,
+        "y": 2166,
+        "width": 288,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375f839e836"
+        }
+      ],
+      "stableIdReadback": "M1-B43",
+      "eventIdReadback": "M1-E43"
+    },
+    {
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f91e8ab3",
+      "name": "M1-B43 / operator 只读样例",
+      "bounds": {
+        "x": 4168,
+        "y": 2166,
+        "width": 288,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375f8de4538"
+        }
+      ],
+      "stableIdReadback": "M1-B43",
+      "eventIdReadback": "M1-E43"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fbcd115e",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 3612,
+        "y": 1439,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fbd83868",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 3612,
+        "y": 1495,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fbe1ca99",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 3612,
+        "y": 1547,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B24",
+      "eventId": "M1-E24",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bf685b20",
+      "name": "M1-B24 / 状态：待跟进 ⌄",
+      "bounds": {
+        "x": 5456,
+        "y": 1656,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763de19817",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B24",
+      "eventIdReadback": "M1-E24"
+    },
+    {
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c374c0047ca6",
+      "name": "M1-B25 / 查看工作项",
+      "bounds": {
+        "x": 6424,
+        "y": 1810,
+        "width": 164,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ],
+      "stableIdReadback": "M1-B25",
+      "eventIdReadback": "M1-E25"
+    },
+    {
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c374c04e4e31",
+      "name": "M1-B25 / 查看工作项",
+      "bounds": {
+        "x": 6424,
+        "y": 1898,
+        "width": 164,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751ae3259a"
+        }
+      ],
+      "stableIdReadback": "M1-B25",
+      "eventIdReadback": "M1-E25"
+    },
+    {
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c374c09dcab7",
+      "name": "M1-B25 / 查看工作项",
+      "bounds": {
+        "x": 6424,
+        "y": 1986,
+        "width": 164,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751b73c291"
+        }
+      ],
+      "stableIdReadback": "M1-B25",
+      "eventIdReadback": "M1-E25"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc10b80e",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 5212,
+        "y": 1439,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc1b2c2b",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 5212,
+        "y": 1495,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc26ece4",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 5212,
+        "y": 1547,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c37519ed212a",
+      "name": "M1-B29 / 返回内部补货",
+      "bounds": {
+        "x": 7056,
+        "y": 1506,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B37",
+      "eventId": "M1-E37",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c37519f8e965",
+      "name": "M1-B37 / 查看来源报告",
+      "bounds": {
+        "x": 7228,
+        "y": 1506,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ],
+      "stableIdReadback": "M1-B37",
+      "eventIdReadback": "M1-E37"
+    },
+    {
+      "stableId": "M1-B38",
+      "eventId": "M1-E38",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751a4c74d0",
+      "name": "M1-B38 / 查看同步详情",
+      "bounds": {
+        "x": 7964,
+        "y": 1834,
+        "width": 220,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B38",
+      "eventIdReadback": "M1-E38"
+    },
+    {
+      "stableId": "M1-B26",
+      "eventId": "M1-E26",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751a6925b1",
+      "name": "M1-B26 / 记录内部跟进完成",
+      "bounds": {
+        "x": 7056,
+        "y": 2130,
+        "width": 244,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3751c128013",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B26",
+      "eventIdReadback": "M1-E26"
+    },
+    {
+      "stableId": "M1-B27",
+      "eventId": "M1-E27",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751a73b509",
+      "name": "M1-B27 / 关闭内部工作项",
+      "bounds": {
+        "x": 7316,
+        "y": 2130,
+        "width": 244,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3751da663dd",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B27",
+      "eventIdReadback": "M1-E27"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc556299",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 6812,
+        "y": 1439,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc60eb28",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 6812,
+        "y": 1495,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc6bfb32",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 6812,
+        "y": 1547,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751aff1471",
+      "name": "M1-B29 / 返回内部补货列表",
+      "bounds": {
+        "x": 9078,
+        "y": 1600,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B37",
+      "eventId": "M1-E37",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b0b34b1",
+      "name": "M1-B37 / 查看来源报告",
+      "bounds": {
+        "x": 9078,
+        "y": 1666,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ],
+      "stableIdReadback": "M1-B37",
+      "eventIdReadback": "M1-E37"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b9228ef",
+      "name": "M1-B29 / 返回内部补货列表",
+      "bounds": {
+        "x": 9728,
+        "y": 1600,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B37",
+      "eventId": "M1-E37",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b9f40da",
+      "name": "M1-B37 / 查看来源报告",
+      "bounds": {
+        "x": 9728,
+        "y": 1666,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ],
+      "stableIdReadback": "M1-B37",
+      "eventIdReadback": "M1-E37"
+    },
+    {
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c59638c",
+      "name": "M1-B28 / 取消并返回工作项",
+      "bounds": {
+        "x": 28,
+        "y": 6462,
+        "width": 232,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ],
+      "stableIdReadback": "M1-B28",
+      "eventIdReadback": "M1-E28"
+    },
+    {
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c78b2c3",
+      "name": "M1-B43 / 选择 Mock 示例原因",
+      "bounds": {
+        "x": 28,
+        "y": 6410,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751cdf0876"
+        }
+      ],
+      "stableIdReadback": "M1-B43",
+      "eventIdReadback": "M1-E43"
+    },
+    {
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751d2e6ec1",
+      "name": "M1-B28 / 取消并返回工作项",
+      "bounds": {
+        "x": 678,
+        "y": 6462,
+        "width": 232,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ],
+      "stableIdReadback": "M1-B28",
+      "eventIdReadback": "M1-E28"
+    },
+    {
+      "stableId": "M1-B07",
+      "eventId": "M1-E07",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751d3dec1e",
+      "name": "M1-B07 / 提交完成（模拟）",
+      "bounds": {
+        "x": 930,
+        "y": 6462,
+        "width": 252,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757f0f161d"
+        }
+      ],
+      "stableIdReadback": "M1-B07",
+      "eventIdReadback": "M1-E07"
+    },
+    {
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751df7ce6a",
+      "name": "M1-B28 / 取消并返回工作项",
+      "bounds": {
+        "x": 1328,
+        "y": 6462,
+        "width": 232,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ],
+      "stableIdReadback": "M1-B28",
+      "eventIdReadback": "M1-E28"
+    },
+    {
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751e18cc1b",
+      "name": "M1-B43 / 选择 Mock 示例原因",
+      "bounds": {
+        "x": 1328,
+        "y": 6410,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751e8a0b15"
+        }
+      ],
+      "stableIdReadback": "M1-B43",
+      "eventIdReadback": "M1-E43"
+    },
+    {
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ee03cc8",
+      "name": "M1-B28 / 取消并返回工作项",
+      "bounds": {
+        "x": 1978,
+        "y": 6462,
+        "width": 232,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ],
+      "stableIdReadback": "M1-B28",
+      "eventIdReadback": "M1-E28"
+    },
+    {
+      "stableId": "M1-B08",
+      "eventId": "M1-E08",
+      "screenId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ef12389",
+      "name": "M1-B08 / 提交关闭（模拟）",
+      "bounds": {
+        "x": 2230,
+        "y": 6462,
+        "width": 252,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757fd0a65a"
+        }
+      ],
+      "stableIdReadback": "M1-B08",
+      "eventIdReadback": "M1-E08"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37578644adc",
+      "name": "M1-B21 / 返回完整审批详情",
+      "bounds": {
+        "x": 3020,
+        "y": 6580,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c375786ebe7e",
+      "name": "M1-B23 / 查看创建结果（Mock）",
+      "bounds": {
+        "x": 3020,
+        "y": 6640,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757e23934a"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37579498593",
+      "name": "M1-B21 / 返回完整审批详情",
+      "bounds": {
+        "x": 3470,
+        "y": 6580,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37579559819",
+      "name": "M1-B23 / 返回审批列表",
+      "bounds": {
+        "x": 3470,
+        "y": 6640,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757a51685c",
+      "name": "M1-B21 / 返回完整审批详情",
+      "bounds": {
+        "x": 3920,
+        "y": 6580,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757a5ded27",
+      "name": "M1-B23 / 返回审批列表",
+      "bounds": {
+        "x": 3920,
+        "y": 6640,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757b4deccb",
+      "name": "M1-B21 / 返回完整审批详情",
+      "bounds": {
+        "x": 4370,
+        "y": 6580,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757b59f82f",
+      "name": "M1-B23 / 返回审批列表",
+      "bounds": {
+        "x": 4370,
+        "y": 6640,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757c670054",
+      "name": "M1-B21 / 返回完整审批详情",
+      "bounds": {
+        "x": 4820,
+        "y": 6580,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757c7480a9",
+      "name": "M1-B23 / 返回审批列表",
+      "bounds": {
+        "x": 4820,
+        "y": 6640,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757d8983da",
+      "name": "M1-B21 / 返回完整审批详情",
+      "bounds": {
+        "x": 5270,
+        "y": 6580,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ],
+      "stableIdReadback": "M1-B21",
+      "eventIdReadback": "M1-E21"
+    },
+    {
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757d9a00a1",
+      "name": "M1-B23 / 返回审批列表",
+      "bounds": {
+        "x": 5270,
+        "y": 6640,
+        "width": 350,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B23",
+      "eventIdReadback": "M1-E23"
+    },
+    {
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e6ec32b",
+      "name": "M1-B25 / 查看内部工作项",
+      "bounds": {
+        "x": 5828,
+        "y": 6374,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B25",
+      "eventIdReadback": "M1-E25"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e814178",
+      "name": "M1-B29 / 返回任务概览",
+      "bounds": {
+        "x": 5828,
+        "y": 6440,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757f5451f6",
+      "name": "M1-B29 / 返回内部补货列表",
+      "bounds": {
+        "x": 6528,
+        "y": 6380,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c37580161c98",
+      "name": "M1-B29 / 返回内部补货列表",
+      "bounds": {
+        "x": 7178,
+        "y": 6380,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c37580d38f17",
+      "name": "M1-B29 / 返回任务结果",
+      "bounds": {
+        "x": 1180,
+        "y": 7708,
+        "width": 228,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c37582da7542",
+      "name": "M1-B43 / 展开工具安全详情",
+      "bounds": {
+        "x": 724,
+        "y": 8484,
+        "width": 248,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375fa549906",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B43",
+      "eventIdReadback": "M1-E43"
+    },
+    {
+      "stableId": "M1-B38",
+      "eventId": "M1-E38",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c37583756e3d",
+      "name": "M1-B38 / 查看飞书投影状态",
+      "bounds": {
+        "x": 256,
+        "y": 8652,
+        "width": 288,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B38",
+      "eventIdReadback": "M1-E38"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc990682",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 12,
+        "y": 7739,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fca4e70b",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 12,
+        "y": 7795,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fcae66a1",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 12,
+        "y": 7847,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    },
+    {
+      "stableId": "M1-B42",
+      "eventId": "M1-E42",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f855a057",
+      "name": "M1-B42 / 读取同版本完整详情（模拟）",
+      "bounds": {
+        "x": 8128,
+        "y": 6304,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ],
+      "stableIdReadback": "M1-B42",
+      "eventIdReadback": "M1-E42"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f861f99a",
+      "name": "M1-B29 / 返回审批列表",
+      "bounds": {
+        "x": 8128,
+        "y": 6372,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B15",
+      "eventId": "M1-E15",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f8fb3dbc",
+      "name": "M1-B15 / 查看授权来源报告",
+      "bounds": {
+        "x": 8728,
+        "y": 6300,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ],
+      "stableIdReadback": "M1-B15",
+      "eventIdReadback": "M1-E15"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9079fa1",
+      "name": "M1-B29 / 返回审批列表",
+      "bounds": {
+        "x": 8728,
+        "y": 6360,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9c73b98",
+      "name": "M1-B29 / 返回任务结果",
+      "bounds": {
+        "x": 9428,
+        "y": 6368,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9d419fa",
+      "name": "M1-B25 / 查看内部工作项",
+      "bounds": {
+        "x": 9428,
+        "y": 6434,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B25",
+      "eventIdReadback": "M1-E25"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fa72cb84",
+      "name": "M1-B29 / 返回执行轨迹",
+      "bounds": {
+        "x": 10078,
+        "y": 6424,
+        "width": 584,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375fa549906"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B20",
+      "eventId": "M1-E20",
+      "screenId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c3763d583848",
+      "name": "M1-B20 / 关闭筛选预览",
+      "bounds": {
+        "x": 11224,
+        "y": 6244,
+        "width": 392,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
+        }
+      ],
+      "stableIdReadback": "M1-B20",
+      "eventIdReadback": "M1-E20"
+    },
+    {
+      "stableId": "M1-B24",
+      "eventId": "M1-E24",
+      "screenId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c3763dfc871b",
+      "name": "M1-B24 / 关闭筛选预览",
+      "bounds": {
+        "x": 11704,
+        "y": 6244,
+        "width": 392,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763de19817"
+        }
+      ],
+      "stableIdReadback": "M1-B24",
+      "eventIdReadback": "M1-E24"
+    },
+    {
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "screenId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c37b12690495",
+      "name": "M1-B29 / 返回审批列表",
+      "bounds": {
+        "x": 10828,
+        "y": 7942,
+        "width": 544,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B29",
+      "eventIdReadback": "M1-E29"
+    },
+    {
+      "stableId": "M1-B10",
+      "eventId": "M1-E10",
+      "screenId": "M1-S02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343161d35e9",
+      "name": "M1-B10 / 新建库存分析",
+      "bounds": {
+        "x": 1240,
+        "y": 116,
+        "width": 168,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "position": "top-right"
+        }
+      ],
+      "stableIdReadback": "M1-B10",
+      "eventIdReadback": "M1-E10"
+    },
+    {
+      "stableId": "M1-B13",
+      "eventId": "M1-E13",
+      "screenId": "M1-S02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
+      "name": "M1-B13 / 全部状态  ⌄",
+      "bounds": {
+        "x": 626,
+        "y": 363,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c",
+          "position": "center"
+        }
+      ],
+      "stableIdReadback": "M1-B13",
+      "eventIdReadback": "M1-E13"
+    },
+    {
+      "stableId": "M1-B14",
+      "eventId": "M1-E14",
+      "screenId": "M1-S02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
+      "name": "M1-B14 / 查看任务",
+      "bounds": {
+        "x": 1220,
+        "y": 471,
+        "width": 164,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ],
+      "stableIdReadback": "M1-B14",
+      "eventIdReadback": "M1-E14"
+    },
+    {
+      "stableId": "M1-B10",
+      "eventId": "M1-E10",
+      "screenId": "M1-S02",
+      "shapeId": "448723ff-8a21-80dc-8008-c373be45b85a",
+      "name": "M1-B10 / 开始提问 →",
+      "bounds": {
+        "x": 1232,
+        "y": 910,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "position": "manual"
+        }
+      ],
+      "stableIdReadback": "M1-B10",
+      "eventIdReadback": "M1-E10"
+    },
+    {
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "screenId": "M1-S02",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fabe341e",
+      "name": "M1-B39 / 导航到任务中心",
+      "bounds": {
+        "x": 12,
+        "y": 139,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ],
+      "stableIdReadback": "M1-B39",
+      "eventIdReadback": "M1-E39"
+    },
+    {
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "screenId": "M1-S02",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fac8ff00",
+      "name": "M1-B40 / 导航到审批",
+      "bounds": {
+        "x": 12,
+        "y": 195,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ],
+      "stableIdReadback": "M1-B40",
+      "eventIdReadback": "M1-E40"
+    },
+    {
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "screenId": "M1-S02",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fad2fde2",
+      "name": "M1-B41 / 导航到内部补货",
+      "bounds": {
+        "x": 12,
+        "y": 247,
+        "width": 200,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ],
+      "stableIdReadback": "M1-B41",
+      "eventIdReadback": "M1-E41"
+    }
+  ],
+  "components": [
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4d85bb8",
+      "name": "primary",
+      "path": "M1-C02 / M1 / Button"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4ed369b",
+      "name": "secondary",
+      "path": "M1-C02 / M1 / Button"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5057740",
+      "name": "pending",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c528a67a",
+      "name": "risk",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c541fa7f",
+      "name": "unknown",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3459f0cf189",
+      "name": "SKU analysis row",
+      "path": "M1-C04 / M1 / Table"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4e2f778",
+      "name": "wide",
+      "path": "M1-C02 / M1 / Button"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c539594a",
+      "name": "normal",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5185c2c",
+      "name": "running",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5317403",
+      "name": "out",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5a706c7",
+      "name": "AppShell Desktop",
+      "path": "M1-C01 / M1 / Layout"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4f5742d",
+      "name": "quiet",
+      "path": "M1-C02 / M1 / Button"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455e970916",
+      "name": "loading",
+      "path": "M1-C06 / loading / M1 / State"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455eb7e45d",
+      "name": "error",
+      "path": "M1-C06 / error / M1 / State"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c50e5190",
+      "name": "complete",
+      "path": "M1-C03 / M1 / Status"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4fd1ae0",
+      "name": "close",
+      "path": "M1-C02 / M1 / Button"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455ea40e5a",
+      "name": "empty",
+      "path": "M1-C06 / empty / M1 / State"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c520f9ed",
+      "name": "queued",
+      "path": "M1-C03 / M1 / Status"
+    }
+  ],
+  "tokenSets": [
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "name": "CommerceOps/M1-B1a",
+      "active": true,
+      "count": 33
+    }
+  ],
+  "counts": {
+    "shapes": 1451,
+    "texts": 925,
+    "flex": 210,
+    "tokenBound": 896,
+    "imageFills": 0
+  },
+  "overflow": [],
+  "outside": [],
+  "fixtures": {
+    "main": {
+      "id": "DEMO-PLAN-008",
+      "task": "INV-20261009-008",
+      "version": "v1",
+      "hash": "9c5a…b008",
+      "snapshot": "DEMO-SNAPSHOT-008",
+      "expiry": "2026-10-10 16:30 +08:00（Mock）",
+      "items": [
+        {
+          "sku": "SKU-A",
+          "title": "轻量帆布袋 · 原色",
+          "demand": 70,
+          "stock": 20,
+          "inbound": 0,
+          "target": 120,
+          "qty": 100,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-B",
+          "title": "基础棉 T 恤 · 雾蓝 / M",
+          "demand": 42,
+          "stock": 0,
+          "inbound": null,
+          "target": 72,
+          "qty": 72,
+          "risk": "缺货"
+        },
+        {
+          "sku": "SKU-C",
+          "title": "陶瓷咖啡杯 · 350mL",
+          "demand": 14,
+          "stock": -3,
+          "inbound": 4,
+          "target": 24,
+          "qty": 23,
+          "risk": "缺货 / 负库存"
+        }
+      ]
+    },
+    "one": {
+      "id": "DEMO-PLAN-K01",
+      "task": "INV-DEMO-K01",
+      "version": "v1",
+      "hash": "61a2…k001",
+      "snapshot": "DEMO-SNAPSHOT-008",
+      "expiry": "2026-10-10 16:30 +08:00（Mock）",
+      "items": [
+        {
+          "sku": "SKU-A",
+          "title": "轻量帆布袋 · 原色",
+          "demand": 70,
+          "stock": 20,
+          "inbound": 0,
+          "target": 120,
+          "qty": 100,
+          "risk": "补货风险"
+        }
+      ]
+    },
+    "twenty": {
+      "id": "DEMO-PLAN-N20",
+      "task": "INV-DEMO-N20",
+      "version": "v1",
+      "hash": "8bd1…n020",
+      "snapshot": "DEMO-SNAPSHOT-N20",
+      "expiry": "2026-10-10 16:30 +08:00（Mock）",
+      "items": [
+        {
+          "sku": "SKU-N01",
+          "title": "边界测试商品 01 · 演示规格",
+          "demand": 7,
+          "stock": 2,
+          "inbound": 0,
+          "target": 12,
+          "qty": 10,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N02-LONG-20261009-COTTON-BLUE-M-EXTENDED",
+          "title": "基础棉 T 恤 · 雾蓝 / M\n长名称与长 SKU 完整披露样例",
+          "demand": 14,
+          "stock": 3,
+          "inbound": null,
+          "target": 24,
+          "qty": 21,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N03",
+          "title": "边界测试商品 03 · 演示规格",
+          "demand": 21,
+          "stock": 4,
+          "inbound": 2,
+          "target": 36,
+          "qty": 30,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N04",
+          "title": "边界测试商品 04 · 演示规格",
+          "demand": 28,
+          "stock": 5,
+          "inbound": 0,
+          "target": 48,
+          "qty": 43,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N05",
+          "title": "边界测试商品 05 · 演示规格",
+          "demand": 35,
+          "stock": 6,
+          "inbound": 1,
+          "target": 60,
+          "qty": 53,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N06",
+          "title": "边界测试商品 06 · 演示规格",
+          "demand": 42,
+          "stock": 7,
+          "inbound": 2,
+          "target": 72,
+          "qty": 63,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N07",
+          "title": "边界测试商品 07 · 演示规格",
+          "demand": 49,
+          "stock": 8,
+          "inbound": null,
+          "target": 84,
+          "qty": 76,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N08",
+          "title": "边界测试商品 08 · 演示规格",
+          "demand": 56,
+          "stock": 9,
+          "inbound": 1,
+          "target": 96,
+          "qty": 86,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N09",
+          "title": "边界测试商品 09 · 演示规格",
+          "demand": 63,
+          "stock": 10,
+          "inbound": 2,
+          "target": 108,
+          "qty": 96,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N10",
+          "title": "边界测试商品 10 · 演示规格",
+          "demand": 70,
+          "stock": 11,
+          "inbound": 0,
+          "target": 120,
+          "qty": 109,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N11",
+          "title": "边界测试商品 11 · 演示规格",
+          "demand": 77,
+          "stock": 12,
+          "inbound": 1,
+          "target": 132,
+          "qty": 119,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N12",
+          "title": "边界测试商品 12 · 演示规格",
+          "demand": 84,
+          "stock": 13,
+          "inbound": null,
+          "target": 144,
+          "qty": 131,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N13",
+          "title": "边界测试商品 13 · 演示规格",
+          "demand": 91,
+          "stock": 14,
+          "inbound": 0,
+          "target": 156,
+          "qty": 142,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N14",
+          "title": "边界测试商品 14 · 演示规格",
+          "demand": 98,
+          "stock": 15,
+          "inbound": 1,
+          "target": 168,
+          "qty": 152,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N15",
+          "title": "边界测试商品 15 · 演示规格",
+          "demand": 105,
+          "stock": 16,
+          "inbound": 2,
+          "target": 180,
+          "qty": 162,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N16",
+          "title": "边界测试商品 16 · 演示规格",
+          "demand": 112,
+          "stock": 17,
+          "inbound": 0,
+          "target": 192,
+          "qty": 175,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N17",
+          "title": "边界测试商品 17 · 演示规格",
+          "demand": 119,
+          "stock": 18,
+          "inbound": 1,
+          "target": 204,
+          "qty": 185,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N18",
+          "title": "边界测试商品 18 · 演示规格",
+          "demand": 126,
+          "stock": 19,
+          "inbound": null,
+          "target": 216,
+          "qty": 197,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N19",
+          "title": "边界测试商品 19 · 演示规格",
+          "demand": 133,
+          "stock": 20,
+          "inbound": 0,
+          "target": 228,
+          "qty": 208,
+          "risk": "补货风险"
+        },
+        {
+          "sku": "SKU-N20",
+          "title": "边界测试商品 20 · 演示规格",
+          "demand": 140,
+          "stock": 21,
+          "inbound": 1,
+          "target": 240,
+          "qty": 218,
+          "risk": "补货风险"
+        }
+      ]
+    }
+  },
+  "flows": [
+    {
+      "name": "M1 · B1 主闭环（Mock）",
+      "start": "7e34228d-e3a9-80dc-8008-c343160c8626"
+    }
+  ],
+  "validation": [],
+  "file": {
+    "id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+    "name": "CommerceOps M1 · C2-B1a 视觉样板 (existing formal M1 file; title retained)",
+    "mainPageId": "7fd0f7d0-fdda-81c5-8008-c340d1377489"
+  },
+  "contract_version": "0.2.1-c1-revision",
+  "baseline_main_commit": "a0d521e",
+  "batch": "C2-B1b",
+  "named_version": "m1-ui/0.2.0-b1b / persisted review-ready · 77 Viewer attempts + 390px",
+  "business_effect": "none",
+  "backend_contract_status": "BC01–BC07 pending; all operations are Mock prototype or not implemented",
+  "prototype_start": "http://localhost:19001/#/view?file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489&section=interactions&frame-id=7e34228d-e3a9-80dc-8008-c343160c8626&index=0",
+  "design_url": "http://localhost:19001/#/workspace?team-id=ad74bff8-48e8-8141-8008-c316c295541a&file-id=7fd0f7d0-fdda-81c5-8008-c340d1377488&page-id=7fd0f7d0-fdda-81c5-8008-c340d1377489",
+  "reuse": {
+    "existing_components": 18,
+    "token_set_preserved": true,
+    "native_tokens": 33,
+    "shell_button_status": "Native component instances",
+    "font": "Source Sans Pro + existing CJK fallback",
+    "table": "B1a colors, numeric alignment, row/cell structure reused; not all new rows are native instances of SKU asset",
+    "all_styles_bound": false
+  },
+  "persistence_readback": "after-reload-read.json",
+  "prototype_validation": {
+    "attempts": 77,
+    "passed_first_attempt": 73,
+    "preserved_failures": 4,
+    "failed_steps": [
+      24,
+      33,
+      53,
+      54
+    ],
+    "final_core_flows": "passed_after_repair_or_test_harness_correction"
+  }
+}

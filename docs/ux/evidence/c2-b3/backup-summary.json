@@ -1,0 +1,27 @@
+{
+  "timestamp_utc": "2026-10-09T16:23:54.267605+00:00",
+  "purpose": "final UX design freeze candidate private backup",
+  "files": [
+    {
+      "name": "database.dump",
+      "bytes": 4359533,
+      "sha256": "dd486a0591149cedc1fa85f597dce384c87c4ef7e7f5496f6d93882c1f7c6181",
+      "mode": "0o600"
+    },
+    {
+      "name": "assets.tar",
+      "bytes": 47257600,
+      "sha256": "700834bbfec081aceeac614bab463e25f46fe46ca61c3939b07b3a57b47841e6",
+      "mode": "0o600"
+    }
+  ],
+  "directory_mode": "0o700",
+  "persisted_native_revn": "57",
+  "consistency": "Design writes stopped after named persisted revn57 version (MCP API reports56) and reread; label timeout outcome verified resolved with integer fonts. Sequential PG/assets capture, not cross-storage atomic snapshot.",
+  "design_writes_during_backup": false,
+  "named_version": "m1-ui/0.4.0-b3 / persisted UX freeze candidate · verified local auxiliary flows",
+  "catalog_and_tar_members_readable": true,
+  "restored_on_another_machine": false,
+  "native_penpot_round_trip": false,
+  "configuration_reference": "Existing private runtime env and pinned images; credentials and backup bodies remain private."
+}

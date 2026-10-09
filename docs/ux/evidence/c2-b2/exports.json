@@ -1,0 +1,296 @@
+[
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386bce478fe",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "login-1440.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 3
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386be8e2dd1",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "login-1280.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 4
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c375809431d6",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "trace-1440.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 5
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "trace-1280.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 6
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fa549906",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "trace-details.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 7
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c128013",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "reason-pristine.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 8
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c388192889f8",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "reason-validation.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 9
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386ce71898c",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "access.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 10
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886da5954f",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "approval-conflict-390.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 11
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886dcd6b27",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "approval-unknown-390.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 12
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38737d9249d",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "model-fallback.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 13
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "feishu-20.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 14
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d743cc7c",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "feishu-known.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 15
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "trace-1280.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 3
+    }
+  }
+]

@@ -1,0 +1,359 @@
+[
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343160c8626",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "task.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 3
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "report.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 4
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "drawer.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 5
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "overview.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 6
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf383a49",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "approval-desktop.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 7
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd2e0442",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "approval-list.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 8
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bef22ae3",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "items.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 9
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c37519b581cc",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "item-detail.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 10
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c375809431d6",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "trace.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 11
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c128013",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "reason-empty.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 12
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751cdf0876",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "reason-valid.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 13
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "feishu-20.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 14
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d743cc7c",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "feishu-known.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 15
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c1095dce",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "web-20.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 16
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d4721f57",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "web-known.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 17
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c1095dce",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "web-20.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 3
+    }
+  },
+  {
+    "tool": "export_shape",
+    "arguments": {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d4721f57",
+      "format": "png"
+    },
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "image",
+            "data": "[binary omitted; PNG is preserved separately]",
+            "mimeType": "image/png",
+            "artifact": "web-known.png"
+          }
+        ]
+      },
+      "jsonrpc": "2.0",
+      "id": 4
+    }
+  }
+]

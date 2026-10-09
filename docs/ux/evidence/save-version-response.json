@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"result\": {\n    \"versionLabel\": \"ux-poc/0.1.1 / verified prototype\",\n    \"versions\": [\n      {\n        \"label\": \"ux-poc/0.1.1 / verified prototype\",\n        \"createdAt\": \"2026-10-09T06:35:55.565Z\",\n        \"isAutosave\": false\n      }\n    ]\n  },\n  \"log\": \"\"\n}"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}

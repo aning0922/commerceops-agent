@@ -1,0 +1,20 @@
+{
+  "fileId": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+  "database_persisted_revn": 57,
+  "mcp_api_reported_revn": 56,
+  "versions": [
+    {
+      "persisted_revn": 57,
+      "label": "m1-ui/0.4.0-b3 / persisted UX freeze candidate · verified local auxiliary flows",
+      "created_at": "2026-10-09 16:20:59.252617+00"
+    },
+    {
+      "persisted_revn": 57,
+      "label": "m1-ui/0.4.0-b3 / UX freeze candidate · verified local auxiliary flows",
+      "created_at": "2026-10-09 16:12:26.975132+00"
+    }
+  ],
+  "method": "read-only SELECT of isolated design file and named file_change metadata; no file/auth/data bodies accessed",
+  "editor_reload": false,
+  "note": "MCP File proxy reports 56; database file and both named snapshots store 57. Values preserved separately; named snapshot revision is the persistence authority."
+}

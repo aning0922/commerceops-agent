@@ -1,0 +1,199 @@
+{
+  "sample_date": "2026-10-09 Asia/Shanghai",
+  "platform": "Docker Desktop arm64; VM 12 CPU / 8321232896 bytes; host 32 GiB",
+  "services": [
+    {
+      "service": "penpot-frontend",
+      "image": "penpotapp/frontend:2.18.3",
+      "repo_digests": [
+        "penpotapp/frontend@sha256:bb8abe27d53de84c95597f2c02c0e702b2779971fb0703e543f9ecf183e999f6"
+      ],
+      "image_revision": "ff7a66f51938b2293260ea27a64e2c4e0833b5e3",
+      "status": "running",
+      "oom_killed": false,
+      "restart_count": 0,
+      "memory_limit_bytes": 536870912,
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "19001"
+          }
+        ]
+      },
+      "networks": [
+        "commerceops-ux-penpot_design"
+      ],
+      "volumes": [
+        "commerceops-ux-penpot_design_assets"
+      ]
+    },
+    {
+      "service": "penpot-backend",
+      "image": "penpotapp/backend:2.18.3",
+      "repo_digests": [
+        "penpotapp/backend@sha256:2df1b3440d2a82cc3571db211b4ffdfa2b89ccc910759e8d5e9387fb62971b5c"
+      ],
+      "image_revision": "ff7a66f51938b2293260ea27a64e2c4e0833b5e3",
+      "status": "running",
+      "oom_killed": false,
+      "restart_count": 0,
+      "memory_limit_bytes": 3221225472,
+      "ports": {},
+      "networks": [
+        "commerceops-ux-penpot_design"
+      ],
+      "volumes": [
+        "commerceops-ux-penpot_design_assets"
+      ]
+    },
+    {
+      "service": "penpot-exporter",
+      "image": "penpotapp/exporter:2.18.3",
+      "repo_digests": [
+        "penpotapp/exporter@sha256:418232d6ca3120b1c2bfde298a56a05a1f41f567cd8494deac3fe7fbc186cfbd"
+      ],
+      "image_revision": "ff7a66f51938b2293260ea27a64e2c4e0833b5e3",
+      "status": "running",
+      "oom_killed": false,
+      "restart_count": 0,
+      "memory_limit_bytes": 1073741824,
+      "ports": {},
+      "networks": [
+        "commerceops-ux-penpot_design"
+      ],
+      "volumes": []
+    },
+    {
+      "service": "penpot-postgres",
+      "image": "postgres:15.18",
+      "repo_digests": [
+        "postgres@sha256:6eb0add3b77c081df18aa518ce43df58fdcc40f2e6d868a6fd08038dc7acd425"
+      ],
+      "image_revision": null,
+      "status": "running",
+      "oom_killed": false,
+      "restart_count": 0,
+      "memory_limit_bytes": 536870912,
+      "ports": {
+        "5432/tcp": null
+      },
+      "networks": [
+        "commerceops-ux-penpot_design"
+      ],
+      "volumes": [
+        "commerceops-ux-penpot_design_postgres_v15"
+      ]
+    },
+    {
+      "service": "penpot-mcp",
+      "image": "penpotapp/mcp:2.18.3",
+      "repo_digests": [
+        "penpotapp/mcp@sha256:5e811e6eeb179d80d8781fb0ffd2991560785d150b3676f1ac5e28d63ba9f7c2"
+      ],
+      "image_revision": "ff7a66f51938b2293260ea27a64e2c4e0833b5e3",
+      "status": "running",
+      "oom_killed": false,
+      "restart_count": 0,
+      "memory_limit_bytes": 536870912,
+      "ports": {},
+      "networks": [
+        "commerceops-ux-penpot_design"
+      ],
+      "volumes": []
+    },
+    {
+      "service": "penpot-valkey",
+      "image": "valkey/valkey:8.1.6",
+      "repo_digests": [
+        "valkey/valkey@sha256:1f84517eca8e0dd9585ed57c572796f32839e1b0e7ce07ad28e6bce098468371"
+      ],
+      "image_revision": null,
+      "status": "running",
+      "oom_killed": false,
+      "restart_count": 0,
+      "memory_limit_bytes": 201326592,
+      "ports": {
+        "6379/tcp": null
+      },
+      "networks": [
+        "commerceops-ux-penpot_design"
+      ],
+      "volumes": []
+    }
+  ],
+  "docker_stats": [
+    {
+      "BlockIO": "16.4kB / 24.6kB",
+      "CPUPerc": "0.00%",
+      "Container": "e3bf2e7ed9ad",
+      "ID": "e3bf2e7ed9ad",
+      "MemPerc": "65.98%",
+      "MemUsage": "337.8MiB / 512MiB",
+      "Name": "commerceops-ux-penpot-penpot-frontend-1",
+      "NetIO": "274kB / 847kB",
+      "PIDs": "14"
+    },
+    {
+      "BlockIO": "33.4MB / 1.16MB",
+      "CPUPerc": "0.82%",
+      "Container": "acf3218ca697",
+      "ID": "acf3218ca697",
+      "MemPerc": "27.64%",
+      "MemUsage": "849MiB / 3GiB",
+      "Name": "commerceops-ux-penpot-penpot-backend-1",
+      "NetIO": "394kB / 544kB",
+      "PIDs": "77"
+    },
+    {
+      "BlockIO": "5.41MB / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "0b6a1c36ae86",
+      "ID": "0b6a1c36ae86",
+      "MemPerc": "11.80%",
+      "MemUsage": "120.9MiB / 1GiB",
+      "Name": "commerceops-ux-penpot-penpot-exporter-1",
+      "NetIO": "9.31kB / 2.44kB",
+      "PIDs": "11"
+    },
+    {
+      "BlockIO": "860kB / 610kB",
+      "CPUPerc": "0.02%",
+      "Container": "d8959a17c057",
+      "ID": "d8959a17c057",
+      "MemPerc": "21.69%",
+      "MemUsage": "111MiB / 512MiB",
+      "Name": "commerceops-ux-penpot-penpot-postgres-1",
+      "NetIO": "248kB / 230kB",
+      "PIDs": "66"
+    },
+    {
+      "BlockIO": "217kB / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "4250269aac4c",
+      "ID": "4250269aac4c",
+      "MemPerc": "13.98%",
+      "MemUsage": "71.6MiB / 512MiB",
+      "Name": "commerceops-ux-penpot-penpot-mcp-1",
+      "NetIO": "16.3kB / 9.88kB",
+      "PIDs": "12"
+    },
+    {
+      "BlockIO": "45.1kB / 0B",
+      "CPUPerc": "0.34%",
+      "Container": "32ef8a39252c",
+      "ID": "32ef8a39252c",
+      "MemPerc": "6.07%",
+      "MemUsage": "11.65MiB / 192MiB",
+      "Name": "commerceops-ux-penpot-penpot-valkey-1",
+      "NetIO": "123kB / 117kB",
+      "PIDs": "5"
+    }
+  ],
+  "credentials_present_in_current_container_logs": false,
+  "private_backup_sizes": {
+    "pg_dump": 225296,
+    "assets": 699459
+  },
+  "backup_restore_to_another_machine": "not_run"
+}

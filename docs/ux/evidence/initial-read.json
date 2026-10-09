@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"result\": {\n    \"version\": \"2.18.3\",\n    \"file\": \"ad74bff8-48e8-8141-8008-c31715c76703\",\n    \"pages\": [\n      {\n        \"id\": \"ad74bff8-48e8-8141-8008-c31715c76704\",\n        \"name\": \"Page 1\"\n      }\n    ],\n    \"activePage\": \"ad74bff8-48e8-8141-8008-c31715c76704\"\n  },\n  \"log\": \"\"\n}"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 5
+}

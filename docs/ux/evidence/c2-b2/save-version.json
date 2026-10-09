@@ -1,0 +1,55 @@
+{
+  "label": "m1-ui/0.3.0-b2 / refreshed review-ready · 96 Viewer attempts + identity + exceptions",
+  "createdAt": "2026-10-09T15:01:16.390Z",
+  "revn": 45,
+  "versions": [
+    {
+      "label": "m1-ui/0.3.0-b2 / refreshed review-ready · 96 Viewer attempts + identity + exceptions",
+      "createdAt": "2026-10-09T15:01:16.390Z"
+    },
+    {
+      "label": "m1-ui/0.3.0-b2 / persisted review-ready · 96 Viewer attempts + identity + exceptions",
+      "createdAt": "2026-10-09T14:59:09.252Z"
+    },
+    {
+      "label": "m1-ui/0.3.0-b2 / candidate before refreshed Viewer verification",
+      "createdAt": "2026-10-09T14:52:45.899Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / conditionally approved baseline before B2",
+      "createdAt": "2026-10-09T14:20:07.970Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / persisted review-ready · 77 Viewer attempts + 390px",
+      "createdAt": "2026-10-09T13:58:33.173Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / review-ready · 77 Viewer attempts + 390px",
+      "createdAt": "2026-10-09T13:57:02.446Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / final · 75 Viewer attempts + 390px + persisted IDs",
+      "createdAt": "2026-10-09T13:43:22.109Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / full disclosure + 390px + verified Mock flows",
+      "createdAt": "2026-10-09T13:37:04.482Z"
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / approved baseline before B1b",
+      "createdAt": "2026-10-09T12:56:11.550Z"
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 28 Viewer clicks + main entry",
+      "createdAt": "2026-10-09T10:12:24.345Z"
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 26 Viewer clicks",
+      "createdAt": "2026-10-09T09:48:41.077Z"
+    },
+    {
+      "label": "m1-ui/0.1.0 / empty baseline before B1a",
+      "createdAt": "2026-10-09T09:20:13.632Z"
+    }
+  ]
+}

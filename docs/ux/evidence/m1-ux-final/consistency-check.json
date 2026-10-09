@@ -1,0 +1,37 @@
+{
+  "baseline_api_revn": 57,
+  "baseline_database_revn": 57,
+  "save_call_proxy_revn": 57,
+  "final_api_revn": 58,
+  "final_database_revn": 58,
+  "named_snapshot_revn": 58,
+  "baseline_b3_content_match": {
+    "screens": true,
+    "controls": true,
+    "components": true,
+    "tokenSets": true,
+    "narrow": true,
+    "counts": true
+  },
+  "unchanged_fields": {
+    "controls": true,
+    "components": true,
+    "tokenSets": true,
+    "counts": true,
+    "narrow": true,
+    "flows": true,
+    "rootOrder": true,
+    "fontSizes": true
+  },
+  "changed_board_metadata_ids": [
+    "b0616bef-0815-8023-8008-c39894562145"
+  ],
+  "screen_ids_preserved": true,
+  "control_ids_preserved": true,
+  "historical_discrepancy_preserved": "../c2-b3/persisted-version-metadata.json",
+  "cause_observed": "Old File proxy metadata did not update immediately after save; new loaded editor aligns with persisted file and named snapshot. Cache implementation not source verified.",
+  "restore_or_force_renumber": false,
+  "validation": [],
+  "overflow": [],
+  "outside": []
+}

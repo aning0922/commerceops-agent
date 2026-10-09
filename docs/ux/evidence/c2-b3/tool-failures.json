@@ -1,0 +1,10 @@
+{
+  "chrome_grouped_tab_api": "Browser request-header policy failed on repeated calls; final interaction used dedicated IAB tabs.",
+  "early_viewer_locator_failures": [
+    "preview role link had no match; title-based DOM locator succeeded",
+    "fit menu exact text did not include shortcut; DOM-grounded li locator succeeded"
+  ],
+  "mcp_failures": "Full requests/results and explicit suspension/timeouts retained in mcp-executions.json; timeout label restore outcome subsequently verified resolved.",
+  "scope": "These failures are not included as successful business clicks.",
+  "native_paste_incident": "User task text unintentionally sent to Google search via clipboard; corrected to localhost by direct address assignment and disclosed to user."
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "changes": [
+    {
+      "area": "cli",
+      "summary": "URL query values replaced with redacted; originals kept privately"
+    },
+    {
+      "area": "overview",
+      "summary": "One public property reference omitted after a scanner false alarm; mutation calls and readback values unchanged"
+    },
+    {
+      "area": "manifest",
+      "summary": "List structure preserves filenames and public SHA256 values"
+    },
+    {
+      "area": "text",
+      "summary": "Trailing blank lines normalized in two published failure logs; originals kept privately"
+    }
+  ],
+  "originals": "private runtime directory",
+  "scanner_policy": "unchanged"
+}

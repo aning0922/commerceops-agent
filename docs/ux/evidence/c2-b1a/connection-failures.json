@@ -1,0 +1,50 @@
+{
+  "original_failures": [
+    {
+      "source": "b1a-preflight.json",
+      "response": {
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Tool execution failed: Error: The Penpot plugin tab appears to be suspended by the browser (no heartbeat for 42s). Please click/focus the Penpot tab to wake it, then retry."
+            }
+          ]
+        },
+        "jsonrpc": "2.0",
+        "id": 3
+      }
+    },
+    {
+      "source": "b1a-bootstrap-result.json",
+      "response": {
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Tool execution failed: Error: The Penpot plugin tab appears to be suspended by the browser (no heartbeat for 39s). Please click/focus the Penpot tab to wake it, then retry."
+            }
+          ]
+        },
+        "jsonrpc": "2.0",
+        "id": 3
+      }
+    },
+    {
+      "source": "b1a-bootstrap-retry.json",
+      "response": {
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Tool execution failed: Error: The Penpot plugin tab appears to be suspended by the browser (no heartbeat for 34s). Please click/focus the Penpot tab to wake it, then retry."
+            }
+          ]
+        },
+        "jsonrpc": "2.0",
+        "id": 3
+      }
+    }
+  ],
+  "resolution": "Used one Chrome workspace tab; existing isolated MCP service restarted once; old competing workspace left; no source/config/key changes"
+}

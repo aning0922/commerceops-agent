@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "version": "0.1.0-poc",
+  "status": "POC literal styles; M1 tokens not approved",
+  "penpot_revision": "ux-poc/0.1.1",
+  "colors": {
+    "background": "#F7F8FA",
+    "surface": "#FFFFFF",
+    "sidebar": "#101828",
+    "primary": "#0F766E",
+    "primarySoft": "#E7F4F1",
+    "text": "#101828",
+    "muted": "#667085",
+    "border": "#E4E7EC",
+    "warning": "#9A6700"
+  },
+  "font": {
+    "penpot_family_actual": "sourcesanspro",
+    "web_proposed_stack": [
+      "Source Sans Pro",
+      "Noto Sans SC",
+      "system-ui",
+      "sans-serif"
+    ],
+    "chinese_fallback_status": "browser and MCP PNG visually verified; explicit M1 webfont packaging pending",
+    "sizes_px": [
+      13,
+      14,
+      16,
+      17,
+      18,
+      23,
+      24,
+      26,
+      30
+    ]
+  },
+  "spacing_px": [
+    4,
+    8,
+    10,
+    16,
+    24,
+    32,
+    48
+  ],
+  "radius_px": {
+    "button": 8,
+    "card": 12,
+    "modal": 16
+  },
+  "button": {
+    "min_height_px": 44,
+    "primary_height_px": 48,
+    "poc_width_px": 232,
+    "flex_direction": "row",
+    "horizontal_padding_px": 16,
+    "vertical_padding_px": 10
+  },
+  "binding_status": "POC uses literal fills; native Penpot TokenCatalog binding not yet verified; do not claim token synchronization",
+  "m1_candidate": {
+    "version": "m1-ui/0.1.0-b1a",
+    "batch": "C2-B1a",
+    "status": "native_sample_created_pending_visual_review",
+    "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+    "colors": {
+      "canvas": "#F6F8FA",
+      "white": "#FFFFFF",
+      "ink": "#172B3A",
+      "text": "#344554",
+      "muted": "#5C6F7D",
+      "subtle": "#627684",
+      "line": "#E2E8ED",
+      "soft": "#EFF3F6",
+      "teal": "#0F766E",
+      "tealHover": "#0B635C",
+      "tealSoft": "#EAF5F2",
+      "amber": "#8A5700",
+      "amberSoft": "#FFF4DE",
+      "red": "#B42332",
+      "redSoft": "#FFF0F1",
+      "blue": "#2459A0",
+      "blueSoft": "#EFF5FD",
+      "disabled": "#EDF1F4"
+    },
+    "font": {
+      "native_font_id": "sourcesanspro",
+      "native_family": "Source Sans Pro",
+      "sizes_px": [
+        12,
+        13,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        28
+      ],
+      "weights": [
+        "400",
+        "600"
+      ],
+      "line_height": 1.5,
+      "chinese_render": "Chrome Viewer and MCP PNG visually checked; explicit CJK font packaging not yet verified"
+    },
+    "spacing_px": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32
+    ],
+    "radius_px": {
+      "button": 8,
+      "card": 12,
+      "drawer": 0
+    },
+    "geometry": {
+      "desktop_width": 1440,
+      "desktop_height": 1000,
+      "sidebar_width": 224,
+      "header_height": 72,
+      "drawer_width": 600,
+      "content_left_padding": 32,
+      "card_inner_padding": 24,
+      "button_height": 44,
+      "task_row_height": 60,
+      "sku_row_height": 46,
+      "report_columns_px": [
+        266,
+        116,
+        104,
+        100,
+        112,
+        108,
+        298
+      ],
+      "task_columns_px": [
+        460,
+        140,
+        160,
+        180,
+        164
+      ],
+      "draft_row_literal_background": "#FFFCF6"
+    },
+    "native_token_catalog": {
+      "set_name": "CommerceOps/M1-B1a",
+      "set_id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "active": true,
+      "count": 33
+    },
+    "binding_evidence": {
+      "token_bound_shapes": 237,
+      "scope": "Native catalog and color fill bindings read back; spacing/type/radius tokens exist but not all properties are bound. No automatic code synchronization claimed."
+    },
+    "comparison_to_poc": "c2-b1a-delivery.md",
+    "visual_review_status": "B1a approved by user; B1b review required"
+  },
+  "m1_b1b": {
+    "revision": "m1-ui/0.2.0-b1b",
+    "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+    "inherits": "m1_candidate / CommerceOps/M1-B1a",
+    "native_token_catalog": {
+      "set_name": "CommerceOps/M1-B1a",
+      "set_id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "active": true,
+      "count": 33
+    },
+    "new_token_sets": 0,
+    "reuse": {
+      "existing_components": 18,
+      "token_set_preserved": true,
+      "native_tokens": 33,
+      "shell_button_status": "Native component instances",
+      "font": "Source Sans Pro + existing CJK fallback",
+      "table": "B1a colors, numeric alignment, row/cell structure reused; not all new rows are native instances of SKU asset",
+      "all_styles_bound": false
+    },
+    "binding_evidence": {
+      "token_bound_shapes": 896,
+      "not_all_spacing_type_radius_bound": true
+    },
+    "delivery": "c2-b1b-delivery.md"
+  },
+  "m1_freeze_candidate": {
+    "revision": "m1-ui/0.4.1-freeze-rc",
+    "status": "pending_final_confirmation",
+    "native_token_catalog": {
+      "set_name": "CommerceOps/M1-B1a",
+      "set_id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "active": true,
+      "count": 33
+    },
+    "component_count": 18,
+    "source_palette_and_geometry": "m1_candidate",
+    "current_mapping": "evidence/m1-ux-final/design-map.json",
+    "reuse": "same existing tokens/components; color fills bound; not all geometry/type properties bound; no code synchronization claim"
+  }
+}

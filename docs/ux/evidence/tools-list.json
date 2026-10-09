@@ -1,0 +1,103 @@
+{
+  "result": {
+    "tools": [
+      {
+        "name": "execute_code",
+        "description": "Executes JavaScript code in the Penpot plugin context.\nIMPORTANT: Before using this tool, make sure you have read the 'Penpot High-Level Overview' and know which Penpot API functionality is necessary and how to use it.\nYou have access two main objects: `penpot` (the Penpot API, of type `Penpot`), `penpotUtils`, and `storage`.\n`storage` is an object in which arbitrary data can be stored, simply by adding a new attribute; stored attributes can be referenced in future calls to this tool, so any intermediate results that could come in handy later should be stored in `storage` instead of just a fleeting variable; you can also store functions and thus build up a library).\nThink of the code being executed as the body of a function: The tool call returns whatever you return in the applicable `return` statement, if any. You can return arbitrary JS objects; no need to apply JSON.stringify.\nIf an exception occurs, the exception's message will be returned to you.\nAny output that you generate via the `console` object will be returned to you separately; so you may use it to track what your code is doing, but you should *only* do so only if there is an ACTUAL NEED for this! VERY IMPORTANT: Don't use logging prematurely! NEVER log the data you are returning, as you will otherwise receive it twice!\nVERY IMPORTANT: In general, try a simple approach first, and only if it fails, try more complex code that involves handling different cases (in particular error cases) and that applies logging.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The JavaScript code to execute in the plugin context."
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "high_level_overview",
+        "description": "Returns basic high-level instructions on the usage of Penpot-related tools and the Penpot API. If you have already read the 'Penpot High-Level Overview', you must not call this tool.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "penpot_api_info",
+        "description": "Retrieves Penpot API documentation for types and their members.Be sure to read the 'Penpot High-Level Overview' first.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "member": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "export_shape",
+        "description": "Exports a shape (or a shape's image fill) from the Penpot design to a PNG or SVG image, such that you can get an impression of what it looks like.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "shapeId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Identifier of the shape to export. Special identifiers you can use: 'selection' (first shape currently selected by the user), 'page' (entire current page)"
+            },
+            "format": {
+              "default": "png",
+              "description": "The output format, either 'png' (default) or 'svg'.",
+              "type": "string",
+              "enum": [
+                "svg",
+                "png"
+              ]
+            },
+            "mode": {
+              "default": "shape",
+              "description": "The export mode: either 'shape' (full shape as it appears in the design, including descendants; the default) or 'fill' (export the raw image that is used as a fill for the shape; PNG format only)",
+              "type": "string",
+              "enum": [
+                "shape",
+                "fill"
+              ]
+            }
+          },
+          "required": [
+            "shapeId"
+          ]
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}
