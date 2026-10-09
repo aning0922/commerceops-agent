@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，组合 CI 超时已获有界诊断授权、尚未结案；P1-05 身份/PG/配置前置及真实 Gateway setup、后台保存与安全停止已完成，消息/卡片行为与 Base 尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，组合 CI 有界诊断两轮未复现、现已停止且未结案；P1-05 身份/PG/配置前置及真实 Gateway setup、后台保存与安全停止已完成，W1 观察器并发阻断正在修复，消息/卡片行为与 Base 尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–13节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第14节与 Issue/PR 最新记录为准。
+第1–14节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第15节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -256,3 +256,19 @@ setup代码经独立68fake/2既有SDK warnings/5.25秒审查通过，指南版�
 用户另明确授权并手动配置发布wiki:node:read，仅既有台账一个节点只读解析；不Wiki写、不空间管理员、不读其他节点。实际Wiki标识/底层Base/已有六字段与访问权限尚未API验证，Base创建/查询/更新/原键重投仍not_run，不将配置声明计G3。[官方节点接口](https://open.feishu.cn/document/server-docs/docs/wiki-v2/space-node/get_node)要求节点读取权限；任何资源/类型不匹配先停止，不换资源绕过。
 
 用户批准按[Issue23](https://github.com/aning0922/commerceops-agent/issues/23)受控诊断，原P104保留WT102d/9e21，在新隔离phase1-ci-timeout-diagnostic目录/同名codex分支从413执行，预算14:16:45–14:46:45、最多三轮针对性尝试；不访问P105库/配置/Secret/卷。Graph/process harness/pg_smoke/必要quality workflow单一负责人P104，原P102/P101保持只读，模型/迁移/权限/依赖不得自动扩改；阶段文档主控独占。授权解除实跑暂停，不推导根因、修复、CI或Gate成功；预算到期按合同停并留证。最多两项实施并行，#6/#7/#23仍OPEN，不推荐Phase1全Gate通过或进入Phase2。
+
+## 15. 有界诊断停止与 W1 审核阻断
+
+本节接续第14节，main仍a0、集成413、PR22未合入、PR19 Draft。原P104在独立诊断Worktree实际运行两轮；[Issue23结果](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6075727950)明确未定位原CI卡住用例或根因，不以本地通过解除集成复验阻塞。
+
+| 实际诊断窗口（北京时间） | 结果与限度 |
+| --- | --- |
+| 14:23:43–14:25:05 第一轮 | 全新自有PG项目，collection79项，独立四组exit0：PG13/0.33秒、Worker19/7.09秒、Checkpoint21/30.76秒、Feishu离线PG26/5.88秒；安全nodeid/setup-call-teardown及子事件记录，无超时 |
+| 14:27:42–14:28:56 第二轮 | 另建全新自有PG项目，关闭子Queue reader诊断替换，完整同pytest进程组合79passed/140deselected/2既有SDK warnings，47.26秒，无超时 |
+| 14:31左右停止 | 两轮cleanup_exit均0，按各自project标签复核容器/卷为空，自有秘密目录删除；无新定位线索，未做第三次重复，不访问P105私有资源 |
+
+没有超时发生时的PG wait/blocking PID/事务年龄或45秒栈证据。输出缓冲、命令等待、async/SQL等待只是源码可证风险，不能猜作已定位根因。原Graph/Worker/迁移/权限/依赖锁/pg_smoke/workflow未修改，新增诊断工具仅正常路径实跑；超时终止分支尚未故障注入验证，不作为正式安全修复。原执行者整理本地冻结交付供独立审核，不推送或自动重跑CI；本次30分钟诊断窗口不自动延长。
+
+W1公开handler/Receiver观察包的独立审核实际41fake passed/2既有warnings/4.57秒，但发现P1并发阻断：SafeTrace序号/容量/不完整状态未互斥，多线程可能越过64条总容量或重复序号。主控已暂停实跑并交原P105最小修复、两线程争用最后容量回归、重新冻结和独立增量复审；锁不覆盖原handler/DAO/SDK，所有事件仍单次委托，C仍inconclusive，无send-card或Base CRUD。[独立审核回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6075802641)。
+
+单节点wiki:node:read授权及用户配置发布已成立，原P105只读探针仍在准备，真实API/六字段/ACL尚未执行，不自动扩大权限或改baseline绑定。#6/#7/#23保持OPEN，G3未通过，当前不推荐Phase1通过，不合入main，不进入Phase2。
