@@ -15,7 +15,8 @@
 | [PR #28](https://github.com/aning0922/commerceops-agent/pull/28) 与最新 main | MERGED；当前 main `f8ed1800e1c82802e5d3c3f6c5a4a2d76050a5a0`；[合后 CI37965530018](https://github.com/aning0922/commerceops-agent/actions/runs/37965530018) push/head f8，所有步骤 SUCCESS | 本规划只读核日志：345offline/72.60s、79真实PG/82.08s、2既有warnings、27Markdown、mypy84、三G1 verified count_one=true、六G2、cleanup0、敏感三层0；是原main运行证据，不是本规划新增实跑 |
 | [PR #25](https://github.com/aning0922/commerceops-agent/pull/25)、[Issue #23](https://github.com/aning0922/commerceops-agent/issues/23) | MERGED/CLOSED；用户接受残余风险，`risk_accepted / root_cause=not_identified`；[风险裁决](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6080378554) 与合后成功证据保留 | 不再以原超时根因未知阻断后续准备，不追加诊断。配置原因仅possible/unverified，不能写为已定位/已修复；新同类失败再由总控最小处理 |
 | Issues #2–#7、#20 | 全部CLOSED；[#7](https://github.com/aning0922/commerceops-agent/issues/7) 于2026-10-10 01:35:12由总控按completed关闭，正文/最终回执明确f8/PR28/同提交main CI与有限Gate | P1-01–P1-06已结案，不沿用首次查询#7OPEN；P1-01–04冻结，不新建重复执行者或技术采样 |
-| [PR #24](https://github.com/aning0922/commerceops-agent/pull/24) | OPEN，当前普通merge head `2550d4e50c23b2f5f2ee3a72fd5cea6d6b674813`；UX/tools子树与冻结内容5a801faf逐字不变；新[CI37967247093](https://github.com/aning0922/commerceops-agent/actions/runs/37967247093)于01:41:01完成SUCCESS，前一37967128409 CANCELLED不计通过 | 0.4.1/revn58/18页47语义仍同候选；本规划尚未取得新head独立增量审查回执。旧[CI37965656701](https://github.com/aning0922/commerceops-agent/actions/runs/37965656701)实际parents078+5a，不能覆盖f8；最终冻结确认及main合入仍待用户 |
+| [PR #24](https://github.com/aning0922/commerceops-agent/pull/24) | OPEN，当前普通merge head `2550d4e50c23b2f5f2ee3a72fd5cea6d6b674813` / tree880ff67；UX/tools子树与冻结内容5a801faf逐字不变；新[CI37967247093](https://github.com/aning0922/commerceops-agent/actions/runs/37967247093)于01:41:01完成SUCCESS，前一37967128409 CANCELLED不计通过 | [原UX精确CI/独审回执](https://github.com/aning0922/commerceops-agent/pull/24#issuecomment-6086130453)已取得，实际checkout树880与候选一致；0.4.1/revn58/18页47语义仍同候选。旧CI37965656701实际parents078+5a不能覆盖f8；最终设计freeze确认/PR24main合入仍待用户 |
+| [Issue #29](https://github.com/aning0922/commerceops-agent/issues/29) | OPEN / awaiting_phase2_authorization / not_started；总控已纸面独审并发布01→04、单schema owner、D3–D6及30–40h合同 | 仅准备；没有P2执行者/Worktree/编码/迁移/运行证据。既有Issue/PR是唯一任务事实体系，不另建管理表代替它 |
 
 设计依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[TEST_PLAN](../TEST_PLAN.md)。当前阶段以 [STATUS第31节](../STATUS.md#31-phase-1-main-验收完成)、[PHASE1_ACCEPTANCE第27节](../PHASE1_ACCEPTANCE.md#27-正式阶段验收结论)、[G3公开交付](../P1_05_LIVE_DELIVERY.md) 和 Issue/PR 最新回执为准，旧节及旧标题不覆盖最终结论。
 
@@ -94,7 +95,7 @@ M3 保留 TEST_PLAN 的 40 个冻结用例和真实模型至少三轮、独立 h
 
 若D2结束仍无P2编码授权或必需BC合同，D3起只从上表选准备材料；受影响业务目标记blocked_authorization/blocked_contract，日历不重编号、D3–D6不顺延。D5仍无法实施即报告核心最早完工日与新增损失工时、压缩增强深度，使用D28–D30原缓冲；不能再把P1/G3写成旧阻断，也不要求总控降低业务Gate来赶日期。
 
-P2纸面工作包候选（由既有总控准备，**不是编码授权或通过证据**），有效人工约30–40h，原D3–D6保留40h预算；若实际少用按当日账本用于相关合同/审核/缓冲，不给后续日重复加容量：
+P2纸面工作包候选已由总控发布于[Issue #29](https://github.com/aning0922/commerceops-agent/issues/29)（awaiting_phase2_authorization/not_started，**不是编码授权或通过证据**）：有效人工约30–40h，原D3–D6保留40h预算。实际接单以届时Issue冻结合同为准，不全文复制到规划。若按40h高值执行，D3–D6独立列/缓冲转本包，不再叠加UI或增强小时；若少用则在当日预算内做合同/审核/缓冲，不给后续日重复加容量：
 
 | 目标日/工作包 | 合同与退出目标 | 分阶段BC与资源依赖 |
 |---|---|---|
@@ -105,18 +106,20 @@ P2纸面工作包候选（由既有总控准备，**不是编码授权或通过�
 
 这些为单独P2主体新顶层的接单准备，具体拆分、唯一迁移负责人和文件边界由既有总控确认。BC03版本竞态、BC04业务恢复呈现、BC06正式20SKU卡片在对应Phase3/4实现前确认；不得要求P2-01等待整套后端/UX合同，也不得因此提前实施尚未确认的控件。
 
+当前main API源码仅`GET /health/live`，没有可复用的业务报告GET。P2纸面范围拟采用独立报告型`analysis-only` kind/workflow_version，报告与任务终态同一业务事务，completed明确仅“报告产出”；响应DTO由服务端给出`analysis_only=true / execution_available=false`，这些显示字段不能授权写入。Phase3新增业务Workflow和新task，不把P2终态改回审批、不复用旧checkpoint来进入补货执行。BC01/05在读API实施前冻结；本段只概括Issue29准备方案，未新增接口、状态枚举或编码授权。
+
 ## 4. D1–D30 日计划
 
 每行计划预算 **10h = 主任务5h + 可独立并行2h + 验证审核2h + 缓冲交接1h**，不是实际已投入或通过。10月10日快照仅P1技术前置已满足；本规划之外的下列业务任务均目标未执行、实施待阶段授权。可并行列是文件/任务边界允许的候选，不代表同一人多算小时或自动启动多个会话。每项必须带Issue/PR、负责人、文件白名单与依赖；夜间未授权只可准备N0材料，N1/N2须另有相应实施/运行授权；D30夜间停止。
 
 | 日/日期 | 主任务（5h） | 可独立任务（2h）与夜间候选 | 依赖 | 当日验证/验收标准（2h；另1h交接） |
 |---|---|---|---|---|
-| D1 10-10 | 接收已完成P1 main/有限Gate/CI/#7结案；接续两规划文件、核心追踪/负责人提案与P2合同排期 | 0.4.1-freeze-rc/BC01–07问题包；Woo/模型预算清单；夜仅N0材料候选 | P1/#7已完成；P2编码未授权；UX当前headCI成功，增量审查/最终冻结确认待回执 | main/head/CI/有限边界有链接；本规划检查；H1/L1未报告不造实绩，日预算仍10h |
+| D1 10-10 | 接收已完成P1 main/有限Gate/CI/#7结案；接续两规划文件、核心追踪与总控Issue29合同排期 | 0.4.1-freeze-rc/BC01–07问题包；Woo/模型预算清单；夜仅N0材料候选 | P1/#7已完成；P2编码未授权；UX精确CI/独审通过，最终freeze确认待用户 | main/head/CI/有限边界有链接；本规划检查；H1/L1未报告不造实绩，日预算仍10h |
 | D2 10-11 | 审核P2任务包/文件负责人/40h目标，既有总控向用户提出编码授权决策；缺授权只准备 | UX最终冻结确认材料与BC合同；夜N0契约测试设计 | 同PR26独审/CI与用户决定；UX原顶层/PR24；不重做P1 | P1事实不重验/采样；P2授权/必需合同齐才实施D3，否则记blocked与损失预算 |
 | D3 10-12 | Phase2目标：统一DTO/CommercePort/Mock fixtures与完整性语义；当前待授权 | BC01/05查询授权及UI DTO提案；获授权才夜N1 fixture/契约候选 | 届时核对main+用户Phase2编码授权（尚未取得）；迁移单一负责人 | 窗口/Decimal/整数/null/库存池/分页质量金标；目标未实跑不计通过；未授权记当日blocked |
 | D4 10-13 | 库存规则v1，风险/资格/未知在途/未关闭项约束 | C2获准部分组件/token映射；夜 N1 零销量/负库存/退款边界样例 | D3；BC07规则配置 | PRD公式逐SKU一致，null不改零，质量硬错不能确认豁免；无模型算数 |
-| D5 10-14 | 任务级不可变快照/报告持久化与只读API | BC02澄清协议与BC03版本竞态评审；夜 N1 DTO/错误序列测试 | D4；数据迁移负责人协调 | 空结果与不完整分开；快照不覆盖；组织/店铺关联与读取scope正确 |
-| D6 10-15 | 意图/参数澄清、受限说明、解释已有报告、模板降级 | 前端获授权后建AppShell/typed client，夜 N1 模型替身与注入样例 | D5；真实模型配置/预算；BC02/05确认 | Phase2金标与真实模型一次成功+受控失败；记录usage/成本null语义；独立审核及授权Phase3 |
+| D5 10-14 | analysis-only任务的不可变快照/报告与受鉴权只读API；报告/终态同事务，completed仅报告 | BC02澄清协议准备；BC03只准备后续版本竞态不阻塞本只读切片；夜N1 DTO/错误候选 | D4；BC01/05实施前冻结；唯一迁移owner | 空/不完整分开、快照不覆盖、scope正确；execution_available=false，未实现审批/补货 |
+| D6 10-15 | 受限意图/说明/解释已有报告与模板降级，不进入P2审批执行 | 前端另获授权后AppShell/typed client；夜N1替身/注入样例 | D5；模型配置/预算/真测授权；相关BC02/05 | 真实模型一次成功+受控失败；缺配置预算Gateblocked；usage/null语义；Phase3须新授权、新Workflow/新task |
 | D7 10-16 | Phase3 T2冻结plan/approval/hash/假设集合与blocked outbox | UI任务/报告组件；夜 N1 hash/版本测试候选 | Phase2验收+Phase3授权；BC03/07 | 全范围≤20，超限明确缩小；同版本幂等；UI只导航既有审批、不另送审 |
 | D8 10-17 | T3决定/联合假设确认/拒绝、CAS与resume job | 审批完整范围组件和已知/未知动作；夜 N1 A01–A08/拒绝并发样例 | D7；BC01/06确认 | 可信actor、eligible、hash/nonce/期限/精确键集合；普通approve漏确认不入队；拒绝零项 |
 | D9 10-18 | wait_approval、ready_at、过早决定、跨进程resume协调 | 会话/读取授权接口与登录UI；夜 N2自有PG恢复用例候选 | D8；当前G2结论；BC01/04/05 | 中断持久后才放行卡片；审批等待释放槽；决定不丢失；未知版本不从START重跑 |

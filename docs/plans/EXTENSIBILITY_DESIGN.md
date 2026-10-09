@@ -6,6 +6,8 @@
 
 P1技术Gate不代表正式库存/订单/模型闭环或M1完成：G3为真实接入、技术决定、重复/冲突/过期/DB失败、受控重启和Base有限观察；non@/self-bot按平台最小权限非投递边界，后端filter分支仍not_run；自然网络故障/wire/p95/长期幂等TTL/特定Base retry等未验证。原Baseunknown与403/1254608观察保留，不改为成功ACK。#23已CLOSED且risk_accepted/root_cause=not_identified，不虚构配置根因、不续开调查。正式T2–T6、A/C/R和产品卡片能力由后续阶段实测。最新Issue/PR/UX候选及边界见配套计划第1节，原阶段验收事实原样保留。
 
+本次只读核源码确认main API仅health/live，业务GET仍待实现。总控P2纸面方案为独立analysis-only kind/workflow_version：报告与终态同事务，completed仅报告产出，服务端DTO标analysis_only=true/execution_available=false；Phase3新增Workflow/新task，不把旧P2终态复活为审批、不用旧checkpoint承接写执行。相关BC01/05在API实施前冻结，P2-01 DTO/合成fixtures无需BC03/04/06或全部UX合入；此说明不新增接口、状态或实施授权。
+
 ## 1. 扩展目标与保留基线
 
 目标：新增一种业务功能时，主要新增该功能的领域计算、用例、Workflow/Tool定义、适配实现和页面；在启动组合处显式注册，按需要追加迁移与权限映射。已有库存规则、版本审批、执行幂等和恢复不应因新功能大规模改写。允许少量显式注册/路由/枚举/迁移改动，**不承诺零修改，也不声称当前已经证明此性质**。
