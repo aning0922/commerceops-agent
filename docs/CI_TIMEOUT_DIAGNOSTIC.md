@@ -37,3 +37,22 @@ uv run --frozen python -m scripts.pg_diagnostic --deadline 2026-10-09T06:46:45+0
 没有触发超时采样，**未获得卡住时的PG wait/blocking PID/事务年龄快照**，也没有触发45秒栈；不能由成功进度猜数据库锁或async task根因。诊断工具的正常路径实际运行，失败终止/timeout分支尚未以故障注入验证，不能宣称它已是验收通过的正式安全修复。初期工具lint/type assignment问题已修正，只说明工具检查结果，不是原CI缺陷。
 
 未进行正式业务修复，未推送/创建修复PR或rerun原CI，未改共享锁/业务状态机。2026-10-09主控批准将这四个最小文件保存为本地冻结提交供独立审核，提交前再次检查差异及dir/index/可达历史敏感信息；该review candidate不代表修复或Gate通过。诊断现停止，Issue23仍待主控决定后续可观测性补强及受控环境复现；仍须明确证据、必要实际组合/G1/G2、独立Review和精确CI后才能解除阻塞。未知停止不释放业务槽、不伪造死亡或正常退出，G3/main/Phase2边界保持。
+
+
+## 第二段授权与诊断工具P1修正（2026-10-09）
+
+主控转发用户新授权：15:02:35–15:32:35，本地最多30分钟、两轮，独立复审后最多一次CI；原quality25分钟上限不变，失败不自动重复。独立审核指出c959工具timeout的sample/inspect异常会绕过killpg/OSwait；**该P1是新增诊断工具问题，不是原CI根因**。
+
+最小修正：抽出仅此诊断使用的pg_diag_shutdown；任何观察异常之后无条件finally处理自有CLI group TERM/必要KILL/OSwait。label未核验不stop；stop后仍活才kill，Docker wait成功且running=false才确认。reader必须结束才close，否则停止证据不确认。共享cleanup绝对期限不max1秒重置；正常命令的短停止核验期限与真正清理期限分开，避免初始化时误启动总cleanup倒计时。过期入口不注册或创建资源。日志失败不能阻止终止但总体证据不确认；KILL时进程恰好已退出仍OSwait。
+
+第一轮15:12:46–15:13:10，p123-090cba6d67dd：新自有容器中Python故意卡住/忽略TERM，采样函数故意抛受控RuntimeError；另有本次自有CLI wrapper拒绝TERM。2秒诊断期限触发，容器经label核验stop、Docker wait确认exit137；CLI PID92718 TERM后必要KILL，OSwait确认exit-9；reader_end=true、stopping_confirmed=true、cleanup_exit0。该expected_diagnostic_timeout_confirmed仅表示诊断注入停止证据，不是业务Worker停止/恢复成功。之后按仅该project label查询，容器/卷为空、runtime秘密目录删除。
+
+第二轮15:15:51–15:17:32，p123-65bd2e2fd2a7：新完整有界入口保留双初始化和原79 integration断言；79passed/150deselected/2warnings，42.06秒，六条G2结构化记录。保留G1 seed、PG重启、同卷重建、停库revision非零、恢复回读；task/thread18a4fc37-898b-4b06-a513-e136b6e8c4a5三次inbox/jobs/audit=1。所有CLI OSwait/reader确认，g1_complete=true/cleanup0，专属label容器/卷为空、秘密目录删除。未复现原长等待。
+
+工具纯fake覆盖sample/inspect/label异常不漏TERM/KILL/wait、未确认reader不close/不报确认、绝对期限过期不重置、foreign label不操作、已停止容器不kill、wait失败不确认。实跑后补日志失败/KILL竞态和入口过期防御，由fake回归覆盖，没有新增第三轮Docker。日志/竞态防御不改变已实测正常和受控sample异常的终止顺序；独立复审须明确区分这些证据来源。
+
+13项fake回归与新代码lint/format/mypy64文件实际通过。统一scripts.check在入口过期用例加入前实际152offline/55.11秒，79integration deselect、2既有warning，25Markdown/Node24.21.0/TypeScript及90Python包/npm漏洞查询0；新增过期用例后全offline再次实际复验，153passed（79integration deselect），具体耗时见最终回执；不以旧152项覆盖新增用例。无依赖/migration/权限/Graph/Worker/原pg_smoke/quality或阶段控制文档修改。结构化停止与G1/G2记录见 [CI_TIMEOUT_DIAGNOSTIC_FOLLOWUP.json](CI_TIMEOUT_DIAGNOSTIC_FOLLOWUP.json)。
+
+拟唯一CI入口（须增量独立Review和主控核对后才启用，当前不推送）：在job最早的普通shell步骤保存当前UTC+23分钟的绝对预算文件，PG步骤调用pg_diagnostic --session ci --round1 --combined --full-smoke --no-child-trace --deadline该文件；原Foundation checks保留、job timeout-minutes25保持。collection30秒、组合测试300秒、45秒无locals栈、命令/终止/清理期限及G1完整生命周期均由本工具约束。禁止只因状态修改PR描述导致edited再触发；一次CI失败即保留证据并停，不自动重复。
+
+任何未确认停止/reader/cleanup都非零，不释放业务槽或产生业务死亡确认。原CI根因仍未解释；即使唯一新CI成功，也不能将未定位改为根因已解决。此本地候选只修复诊断工具P1，等待主控增量独立复审；不合并/关闭Issue/Gate、不进入Phase2。

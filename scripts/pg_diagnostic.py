@@ -4,14 +4,15 @@ import argparse
 import json
 import os
 import re
-import signal
 import subprocess
+import sys
 import threading
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
+from scripts.pg_diag_shutdown import container_stop, finish, remaining
 from scripts.prepare_pg import prepare
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,9 +26,25 @@ def main() -> None:
     parser.add_argument("--node", action="append", default=[])
     parser.add_argument("--combined", action="store_true")
     parser.add_argument("--no-child-trace", action="store_true")
+    parser.add_argument("--session", choices=("initial", "followup", "ci"), default="initial")
+    parser.add_argument("--fault-probe", action="store_true")
+    parser.add_argument("--full-smoke", action="store_true")
     args = parser.parse_args()
+    if (args.session == "followup" and args.round > 2) or (
+        args.session == "ci" and args.round != 1
+    ):
+        raise SystemExit("session round limit exceeded")
     deadline = datetime.fromisoformat(args.deadline).timestamp()
-    audit = ROOT / ".audit" / "issue23"
+    expires = time.monotonic() + max(0, deadline - time.time())
+    try:
+        remaining(expires - 75, 1)
+    except TimeoutError:
+        raise SystemExit("diagnostic deadline expired before resource registration") from None
+    cleanup_deadline: float | None = None
+    stopping_confirmed = True
+    audit = (
+        ROOT / ".audit" / ("issue23" if args.session == "initial" else "issue23-" + args.session)
+    )
     audit.mkdir(mode=0o700, parents=True, exist_ok=True)
     report_path = audit / f"round-{args.round}.json"
     if report_path.exists():
@@ -49,6 +66,7 @@ def main() -> None:
         "source_mode": "postgres_technical",
         "model_mode": "not_used",
         "approval_mode": "simulated",
+        "session": args.session,
     }
 
     def save() -> None:
@@ -82,12 +100,15 @@ def main() -> None:
     compose = ["docker", "compose", "-p", project, "-f", str(ROOT / "compose.yml")]
 
     def budget(seconds: float, *, cleanup: bool = False) -> float:
-        available = deadline - time.time()
         if cleanup:
-            return max(1, min(seconds, available))
-        if available < 70:
-            raise TimeoutError("diagnostic deadline reached; cleanup reserve")
-        return min(seconds, available - 60)
+            return remaining(cleanup_until(), seconds)
+        return remaining(expires - 75, seconds)
+
+    def cleanup_until() -> float:
+        nonlocal cleanup_deadline
+        if cleanup_deadline is None:
+            cleanup_deadline = min(expires, time.monotonic() + 60)
+        return cleanup_deadline
 
     def capture(
         command: list[str], seconds: float = 10, *, cleanup: bool = False
@@ -125,6 +146,7 @@ def main() -> None:
                     query,
                 ],
                 5,
+                cleanup=True,
             )
             if result.returncode == 0:
                 for line in result.stdout.splitlines():
@@ -135,48 +157,47 @@ def main() -> None:
         except subprocess.TimeoutExpired:
             emit({"event": "pg_sample_timeout"})
 
-    def stop_container(name: str) -> None:
-        # 只对事先登记且 label 相符的本轮容器操作；不使用完整 inspect。
-        checked = capture(
-            [
-                "docker",
-                "inspect",
-                "--format",
-                '{{index .Config.Labels "com.docker.compose.project"}}',
-                name,
-            ],
-            5,
-            cleanup=True,
+    def stop_container(name: str, until: float) -> bool:
+        return container_stop(
+            name,
+            project,
+            lambda command, seconds: subprocess.run(
+                command,
+                cwd=ROOT,
+                env=environment,
+                capture_output=True,
+                text=True,
+                timeout=remaining(until, seconds),
+            ),
+            emit,
         )
-        if checked.returncode:
-            return
-        if checked.stdout.strip() != project:
-            raise RuntimeError("owned container label mismatch")
-        for action in (["stop", "-t", "3"], ["kill"], ["wait"]):
-            try:
-                result = capture(["docker", *action, name], 8, cleanup=True)
-                emit(
-                    {
-                        "event": "container_termination",
-                        "container": name,
-                        "action": action[0],
-                        "exit": result.returncode,
-                    }
-                )
-            except subprocess.TimeoutExpired:
-                emit(
-                    {
-                        "event": "container_termination_timeout",
-                        "container": name,
-                        "action": action[0],
-                    }
-                )
 
-    def run(label: str, arguments: list[str], limit: float, *, name: str | None = None) -> bool:
+    def run(
+        label: str,
+        arguments: list[str],
+        limit: float,
+        *,
+        name: str | None = None,
+        expect_failure: bool = False,
+        fault: bool = False,
+    ) -> bool:
+        nonlocal stopping_confirmed
         emit({"event": "command_start", "label": label, "limit_seconds": limit})
         duration = budget(limit)
+        command = compose + arguments
+        if fault:
+            # 仅诊断注入：自有 CLI wrapper 故意忽略 TERM，即使容器退出也等待。
+            command = [
+                sys.executable,
+                "-u",
+                "-c",
+                "import signal,subprocess,sys,threading; "
+                "signal.signal(signal.SIGTERM,signal.SIG_IGN); "
+                "subprocess.Popen(sys.argv[1:]).wait(); threading.Event().wait()",
+                *command,
+            ]
         process = subprocess.Popen(
-            compose + arguments,
+            command,
             cwd=ROOT,
             env=environment,
             stdout=subprocess.PIPE,
@@ -202,37 +223,83 @@ def main() -> None:
                     emit({"event": "pytest_summary", "line": line.strip()[:200]})
                 elif re.match(r'\s*(Timeout \(|Thread 0x|Current thread|File ")', line):
                     emit({"event": "stack_frame", "frame": line.strip()[:400]})
+                elif line.startswith("persistence fixture committed: task=") or line.startswith(
+                    "persistence verified: task="
+                ):
+                    match = re.fullmatch(
+                        r"persistence (fixture committed|verified): task=([0-9a-f-]{36}), "
+                        r"thread=([0-9a-f-]{36})(, inbox/jobs/audit=1)?",
+                        line.strip(),
+                    )
+                    if match:
+                        emit(
+                            {
+                                "event": "g1_persistence",
+                                "kind": match[1],
+                                "task": match[2],
+                                "thread": match[3],
+                                "count_one": match[4] is not None,
+                            }
+                        )
+                elif line.startswith("G2 EVIDENCE: "):
+                    data = json.loads(line.removeprefix("G2 EVIDENCE: "))
+                    if (
+                        data.get("source_mode"),
+                        data.get("model_mode"),
+                        data.get("approval_mode"),
+                    ) == ("postgres_technical", "not_used", "simulated"):
+                        emit({"event": "g2_evidence", "data": data})
                 # 其他 stdout/stderr 不保留，不输出原始数据库/SDK错误。
 
         reader = threading.Thread(target=read, daemon=True)
         reader.start()
         timed_out = False
+        observed_error = False
         try:
             process.wait(timeout=duration)
         except subprocess.TimeoutExpired:
             timed_out = True
             emit({"event": "command_timeout", "label": label, "cli_pid": process.pid})
-            sample()
-            if name is not None:
-                stop_container(name)
-            os.killpg(process.pid, signal.SIGTERM)
-            try:
-                process.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
-                process.wait(timeout=5)
         finally:
-            reader.join(timeout=3)
-            process.stdout.close()
+            until = cleanup_until() if timed_out else min(expires, time.monotonic() + 30)
+
+            def observe() -> bool:
+                nonlocal observed_error
+                if timed_out:
+                    try:
+                        if fault:
+                            raise RuntimeError("controlled sample failure")
+                        sample()
+                    except Exception as error:
+                        observed_error = True
+                        emit(
+                            {
+                                "event": "sample_error",
+                                "code": type(error).__name__,
+                                "injected": fault,
+                            }
+                        )
+                return True if name is None else stop_container(name, until)
+
+            ended = finish(process, reader, until, observe, emit)
+            stopping_confirmed = stopping_confirmed and ended.confirmed
+            if not ended.confirmed:
+                emit({"event": "shutdown_unconfirmed", "label": label})
         emit(
             {
                 "event": "command_end",
                 "label": label,
                 "exit": process.returncode,
                 "timed_out": timed_out,
+                "stopping_confirmed": ended.confirmed,
+                "sample_error": observed_error,
             }
         )
-        return not timed_out and process.returncode == 0
+        return (
+            not timed_out
+            and ended.confirmed
+            and ((process.returncode != 0) if expect_failure else process.returncode == 0)
+        )
 
     def tests(label: str, paths: list[str], limit: float, *, collect: bool = False) -> bool:
         name = project + "-" + label
@@ -240,7 +307,6 @@ def main() -> None:
         save()
         arguments = [
             "run",
-            "--rm",
             "--no-deps",
             "--name",
             name,
@@ -273,13 +339,18 @@ def main() -> None:
             raise RuntimeError("bounded build failed")
         if not run("healthy", ["up", "-d", "--wait", "--wait-timeout", "60", "postgres"], 75):
             raise RuntimeError("bounded PG startup failed")
-        for action in ("migrate", "setup-checkpointer", "grant-runtime", "revision"):
+        actions = ("migrate", "setup-checkpointer", "grant-runtime", "revision")
+        for index, action in enumerate(actions * (2 if args.full_smoke else 1)):
+            name = project + "-init-" + str(index)
+            containers.append(name)
+            save()
             if not run(
                 action,
                 [
                     "run",
-                    "--rm",
                     "--no-deps",
+                    "--name",
+                    name,
                     "db-init",
                     "python",
                     "-m",
@@ -287,8 +358,45 @@ def main() -> None:
                     action,
                 ],
                 30,
+                name=name,
             ):
                 raise RuntimeError("bounded initialization failed")
+        if args.fault_probe:
+            name = project + "-fault"
+            containers.append(name)
+            save()
+            run(
+                "fault-probe",
+                [
+                    "run",
+                    "--no-deps",
+                    "--name",
+                    name,
+                    "pg-test",
+                    "python",
+                    "-u",
+                    "-c",
+                    "import signal,threading; signal.signal(signal.SIGTERM,signal.SIG_IGN); "
+                    "threading.Event().wait()",
+                ],
+                2,
+                name=name,
+                fault=True,
+            )
+            required = {
+                "command_timeout",
+                "sample_error",
+                "cli_term",
+                "cli_kill",
+                "cli_os_wait",
+                "container_wait",
+                "reader_end",
+            }
+            found = {record["event"] for record in records}
+            if not required.issubset(found) or not stopping_confirmed:
+                raise RuntimeError("fault probe shutdown evidence incomplete")
+            report["result"] = "expected_diagnostic_timeout_confirmed"
+            return
         paths = [] if args.combined else [f"tests/{group}.py" for group in GROUPS]
         if not tests("collection", paths, 30, collect=True):
             raise RuntimeError("collection failed")
@@ -306,6 +414,103 @@ def main() -> None:
                 if not tests(group, ["tests/" + group + ".py"], 300):
                     report["failed_target"] = group
                     raise RuntimeError("group failed")
+        if args.full_smoke:
+            g2: set[str] = set()
+            for record in records:
+                data = record.get("data")
+                if record["event"] == "g2_evidence" and isinstance(data, dict):
+                    scenario = data.get("scenario")
+                    if isinstance(scenario, str):
+                        g2.add(scenario)
+            required = {
+                "cross_process_resume",
+                "receipt_commit_checkpoint_gap",
+                "graph_lock_loss_cancel",
+                "graph_noncooperative_exit",
+                "checkpoint_db_failure_recovered",
+            }
+            if not required.issubset(g2):
+                raise RuntimeError("required G2 evidence missing")
+            for label, command, failure in (
+                (
+                    "seed",
+                    [
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "pg-test",
+                        "python",
+                        "-m",
+                        "scripts.pg_persistence",
+                        "seed",
+                    ],
+                    False,
+                ),
+                ("restart", ["restart", "postgres"], False),
+                ("restart-healthy", ["up", "-d", "--wait", "postgres"], False),
+                (
+                    "verify-restart",
+                    [
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "pg-test",
+                        "python",
+                        "-m",
+                        "scripts.pg_persistence",
+                        "verify",
+                    ],
+                    False,
+                ),
+                ("recreate", ["up", "-d", "--force-recreate", "--wait", "postgres"], False),
+                (
+                    "verify-recreate",
+                    [
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "pg-test",
+                        "python",
+                        "-m",
+                        "scripts.pg_persistence",
+                        "verify",
+                    ],
+                    False,
+                ),
+                ("stop-db", ["stop", "postgres"], False),
+                (
+                    "unavailable",
+                    [
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "db-init",
+                        "python",
+                        "-m",
+                        "commerceops.entrypoints.database",
+                        "revision",
+                    ],
+                    True,
+                ),
+                ("recover", ["up", "-d", "--wait", "postgres"], False),
+                (
+                    "verify-outage",
+                    [
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "pg-test",
+                        "python",
+                        "-m",
+                        "scripts.pg_persistence",
+                        "verify",
+                    ],
+                    False,
+                ),
+            ):
+                if not run(label, command, 60, expect_failure=failure):
+                    raise RuntimeError("G1 lifecycle failed")
+            report["g1_complete"] = True
         report["result"] = "passed_no_hang_reproduced"
     except Exception as error:
         report["result"] = "failed"
@@ -313,13 +518,34 @@ def main() -> None:
         emit({"event": "diagnostic_failed", "code": type(error).__name__})
     finally:
         try:
+            for name in containers:
+                checked = capture(
+                    [
+                        "docker",
+                        "inspect",
+                        "--format",
+                        '{{index .Config.Labels "com.docker.compose.project"}}',
+                        name,
+                    ],
+                    5,
+                    cleanup=True,
+                )
+                if checked.returncode == 0 and checked.stdout.strip() == project:
+                    removed = capture(["docker", "rm", name], 5, cleanup=True)
+                    if removed.returncode:
+                        raise RuntimeError("owned container removal unconfirmed")
+                elif checked.returncode == 0:
+                    stopping_confirmed = False
             cleanup = capture(
                 compose + ["down", "--volumes", "--remove-orphans", "--rmi", "local"],
                 60,
                 cleanup=True,
             )
             report["cleanup_exit"] = cleanup.returncode
-            if cleanup.returncode == 0:
+            report["stopping_confirmed"] = stopping_confirmed
+            if not stopping_confirmed:
+                report["cleanup_exit"] = "unconfirmed"
+            if cleanup.returncode == 0 and stopping_confirmed:
                 for filename in ("owner_password", "app_password"):
                     (directory / filename).unlink()
                 directory.rmdir()
@@ -338,7 +564,12 @@ def main() -> None:
             ),
             flush=True,
         )
-    if report["result"] != "passed_no_hang_reproduced" or report["cleanup_exit"] != 0:
+        if report["cleanup_exit"] != 0:
+            raise SystemExit(1)
+    if report["result"] not in (
+        "passed_no_hang_reproduced",
+        "expected_diagnostic_timeout_confirmed",
+    ):
         raise SystemExit(1)
 
 
