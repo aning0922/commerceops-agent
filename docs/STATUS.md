@@ -373,18 +373,25 @@ Issue23的[原驱动差异与一次有界方案](https://github.com/aning0922/co
 
 本次GitHub核对main a0d521ed79505287fa61bb6ddf82640e97824257、集成41323ec0d8a4ad1bd1b9a6eb2b70fc820f67ae94；#6/#7/#23 OPEN、PR19 Draft/Open。阶段文档仍本地未推送，完整G3/Phase1未通过，不合main、不进入Phase2。
 
-## 24. 两个有效开发日集中收口
+## 24. 两个有效开发日集中收口（当前快照）
 
-用户于2026-10-09要求收口与流程精简：冻结P101–P104已验证能力，停止主动扩展通用测试框架、安全基础设施和调度；原P105继续WT4094中的Base工作，不重启、不重复派发。以两个有效开发日为目标窗口，计划按每日6–8有效小时、合计12–16小时安排，最快估计6–8小时，外部协调等待另列。不是平台成功保证，不降低ROADMAP/TEST_PLAN/Issue6必要Gate。
+用户于2026-10-09要求冻结P1-01至P1-04已验证能力，停止扩展通用测试框架、安全基础设施和调度，原P1-05顶层会话/WT4094仍是唯一实施者。集中窗口按两个有效开发日、每日6–8小时安排，外部等待另列。当前剩余源码已准备，最快剩余约4–6有效小时，条件是后续API正常且A/B/C及时配合；若再出现外部阻塞，不承诺两天内平台通过。
 
-最短路径：完成当前Base包并一次功能独审→实际create/完整自有行读回/update/字段读回，原键真实重投范围另作具体裁决→最后baseline M3补A确认/明确重复/B冲突和具体Toast与响应样本，唯一C隔离白名单通过后验证原DAL无approver拒绝→补合同要求的自然过期/DB失败无伪成功/重连/过滤→一次批量PG回读、证据汇总与最终功能/阶段审核及实际CI。A/B已确认配合后续启动通知，未发新卡。Base当前默认CRUD核心仅源码准备，尚未真实运行。
+| 必要证据 | 已取得的实际结果 | 最短剩余路径 |
+|---|---|---|
+| 消息 | W1六消息与实际PG关联已核；A私聊/群各一次持久接收，B/C拒绝 | 不重复W1；补必要过滤/重启后的实际投递，未获平台投递不冒称过滤通过 |
+| 确认、拒绝、重复/冲突、Toast | M1四B回调及完整PG关联；M2唯一B拒绝、完整渲染、目测点击到提示<2秒，提示内容未知 | 最后一张M3：A确认、A明确重复、B相反动作；记录具体提示/响应样本，旧人工多次点击不算平台重投 |
+| 无角色拒绝 | C的当前拒绝证明基线白名单拦截 | 唯一C1短时子进程白名单通过、原DAL无approver角色拒绝，同回调见证及零决定/receipt |
+| 过期、DB失败、重连 | 离线和真实PG已有合同验证，剩余平台样本不足 | 用既有卡自然过期、自有M3有界DB锁、消费者重启后实际回调；不增加卡或权限，不把重启称无限离线补投 |
+| Base读写与原键 | 指定Wiki节点/六字段实际只读通过；默认create未知后，最后R2对账HTTP200/code0，唯一原行六字段/marker匹配、PG succeeded | 原行update最多一次及完整读回；原client_token平台幂等实证，成功后重投尚未armed。缓存/fake不替代第二次真实SDK请求 |
+| 最终交付 | G1/G2已在集成验证，阶段PR19仍Draft | 一次批量PG回读、原P105功能PR与独审、阶段证据及同提交CI，全部Gate通过后才main合并 |
 
-同一稳定源码/配置下，低风险只读可批量执行并一次记录，不每动作新建完整runner/leaf/manifest/fake/独审链，不重复已过身份部署/六消息。真实写入身份/幂等/unknown停止、状态一致性、密钥安全、单SDK停止证明和已复现缺陷回归保留；必要功能包独审与最终同提交CI保留。wire未观测如实记录，不新增wire仪器、100事件p95、正式T3/A01–A08或长期幂等研究作为Phase1扩展目标。
+Issue23已按用户“旧超时可能是因为当初没配置或没设置好，不用纠结”的裁决收束：risk_accepted / root_cause=not_identified，配置原因只为未验证假设。PR25冻结b8经独立审查及原成功CI后，20:05:42普通合入integration bf1488e52640e254041713d59b1be08564bf1aab；合后push[37927810716](https://github.com/aning0922/commerceops-agent/actions/runs/37927810716)与阶段候选[37927817989](https://github.com/aning0922/commerceops-agent/actions/runs/37927817989)均SUCCESS，分别161offline/79真实PG，完整G1/六G2/cleanup0。Issue23已关闭，不再启动旧legacy-driver提案或追加诊断；新实际CI失败再针对性处理，不虚构旧根因已解决。[收束回执](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6080773707)。
 
-Issue23停止追加legacy-driver诊断，旧待答预算提案不启动；保留quality37903083024成功和原超时根因not_identified。主控已说明现Issue23第1项要求根因证据及风险接受例外后，用户回复“旧超时可能是因为当初没配置或没设置好，不用纠结”；据此按剩余风险接受收口，不再无限追查。配置原因仅推测，不写作root_cause_resolved；新有界驱动通过不证明旧capture_output/--rm路径根因修复。PR25独立冻结b8审查/原精确CI已过，主控于20:05:42普通合入integration bf1488e52640e254041713d59b1be08564bf1aab；合后push37927810716实际checkout bf（161offline58.67秒/79PG91.44秒），Draft PR19候选37927817989实际checkout08e0806=a0/bf（161offline46.40秒/79PG63.99秒）均SUCCESS，tree均与b8的376b5c8一致，完整G1三次count_one/六G2/cleanup0已核。Issue23以risk_accepted/not_identified收束关闭，P101–P104验证能力冻结；未来新CI失败仍报告并针对性处理，必要最终CI保留。
+Base默认真实调用于20:21:50秒级观察退出，create尝试1/list对账尝试1/update0、HTTP/业务码未知、PG unknown；原持久键/hash保留，没有成功读回证据，不推断远端没有创建。随后唯一R1 query-only实际list1/create0/update0，固定READ_TIMEOUT/PUBLIC_SDK_LIST_METHOD、HTTP/业务码未知、PG仍unknown；parent7.169739秒/CLI9.491519秒，执行者记录CLI reaped/容器absent/四锁/barrier清理/专用PG healthy。主控只核evidence f5375f8e17d7616b910878e4bd8c3f289fb70ce2ff0942a23e8c7b8f8ee88c03及五artifact hash/bytes/0600，没有重复SQL/API或读取凭据。
 
-Base功能包manifest f7d1d0eeb1829d1a0b13c5183952fb70dd5b76139ff9cf0ca66ef3e871dd854f已独审无阻断，独立26fake/2既有SDK warnings/4.39秒及Ruff通过。默认create1/update1/list最多4、每次两页未完整停、持久键/hash/同表锁/inflight-before-SDK、父子30秒/自有清理与脱敏安全已核；成功后同键方案仍未armed/未获实际扩展授权。已派原执行者唯一默认真实CRUD，尚无结果；不把source/派发计实际PG或平台通过。剩余卡片行为源码同包准备中，没有新SDK/卡片证据。
+最后R2仅query-only HTTP等待参数≤5秒并按每次剩余期限夹取，总30/24/27秒不变，原bot guard/Gateway/card合同不变；独立101fake/2既有warnings/3.29秒与Ruff通过，manifest39112ecf700e8365fbf638307c4ac13873ab143a552ff9995ca5adde216918c3。唯一最后R2已实际list1、HTTP200/code0，唯一原行六字段/marker完整匹配，原reconcile关联PG succeeded；没有create/update/newkey/WS/发卡，立即停止。parent9.588482秒/CLI12.076884秒，执行者记录死亡/回收、自有清理，主控只核evidence8cff763e8a6273a5e7913a2277a82fda4755236919a1c6b73da08be5b515f8cf与五artifact hash/bytes/0600，无重复SQL/API。不从本次成功推断初次异常根因。原P105已接续原行update≤1/readback，优先复用已审入口，新增源码才作最小功能增量独审；原client_token成功后平台重投仍未armed。M3/C功能批次manifest97154d8232b78de07b95be999345bc5a8b1347e24f990a623477c5f08672c53e已独立180fake/2既有warnings/4.58秒与Ruff通过，真人当前时刻协调待答，尚未发卡。
 
-随后首次实际session70586 exit2，20:21:50秒级观察退出，安全归档确认九映射/bot-info通过、持久原键/hash已prepare；create尝试1/list对账尝试1/update0、HTTP/business均未知、PG unknown，停止PARTIAL。没有success result，失败未记录parent monotonic耗时，不将配置30秒说成实测。evidence40eac0eec506875c103b1903b524e557d2182ba2470c62151bd9d339687f9ab9、safe archive17182f2cea171365535caa2b73c45135fadcaa25f82467c5cd6085893eb418dc；CLI/自有容器死并移除，执行者核归属后清自己barrier，主控另核安全字段/metadata/hash/四锁/barrier/helper0/PG healthy，未重复SQL/API或读秘密。静态独审实际SDK request/response离线向量无契约阻断，不覆盖verify/token/TLS/网络，不能猜权限/没有远端行。下一步原ProbeID/原键单次query-only恢复和固定异常分类最小准备，独审后另派，最多两页完整唯一行/六字段核对、必要PG关联后停，不自动create/update/replay；旧失败/键/来源保留，同阻断最多三轮，必要时先推进卡片。完整Base/G3仍未过。
+流程按功能批次精简：同一稳定源码/配置下只读动作合并验证和记录，不每动作新增runner/leaf/manifest/fake/多层独审。保留实际写入身份/权限、原幂等键与unknown停止、状态一致性、密钥保护和消费者停止证明；必要功能包独审与最终CI保留。已过W1不重发，正式T3/A01–A08、100事件p95和通用调度不扩为本阶段前置。两天后仍未通过则报告逐项阻塞、解锁责任、剩余有效时间与最小风险替代；有效小时和日历等待区分，Gate不降低。受限Phase2并行仅可另提方案等待新授权。
 
-窗口耗尽若仍未通过，提交逐项阻塞/解锁责任/剩余有效时间/最小风险替代方案；Phase1继续未完成。受限Phase2纯Mock/计算契约并行只能另提方案等待用户新授权，不自动开启。main仍a0，最新已验证integration bf1488e，PR25已合/Issue23风险接受关闭，PR19仍Draft，完整G3/Phase1仍未过。
+main仍a0d521ed79505287fa61bb6ddf82640e97824257，integration bf1488e；#6/#7 OPEN、PR19 Draft，G3与Phase1仍未完成。阶段文档本地快照尚未推送，不以本地准备计main验收。当前阶段事实已同步[Issue7收口评估](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6082095686)。
