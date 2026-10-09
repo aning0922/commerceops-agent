@@ -1,0 +1,36 @@
+{
+  "batch": "C2-B3",
+  "status": "interrupted_candidate_not_freeze_ready",
+  "files": [
+    {
+      "file": "backup-summary.json",
+      "bytes": 998,
+      "sha256": "e545812e6be75ae57c6c8e8ff308f4029ce6f30ead5bb229746015b48fa924ce"
+    },
+    {
+      "file": "candidate-read.json",
+      "bytes": 279814,
+      "sha256": "ebbdda78d6da51c5d763c977026b3c50ff98b06a457c0929c4c36331675eedf9"
+    },
+    {
+      "file": "design-map-candidate.json",
+      "bytes": 270385,
+      "sha256": "140cb8c94051665c1e0aa57015ee7a0ae83f4d071a7e708e056d1ad9db36c1d2"
+    },
+    {
+      "file": "frontend-map-candidate.json",
+      "bytes": 308870,
+      "sha256": "7f547089a2208a5687f99a2fa16a88c56ba131ee199760bea6ed1cff7ffcb7e6"
+    },
+    {
+      "file": "mcp-executions.json",
+      "bytes": 884771,
+      "sha256": "25c7a0cf3bc307ecf10a31d2fe5841072a4e37920b54d7b63732a73bde81b846"
+    },
+    {
+      "file": "repository-validation.json",
+      "bytes": 1108,
+      "sha256": "e461e7f22995d6f2634f22de1a43842f7a8ee60d9df8cd28d2435e558de857e3"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "status": "partial design candidate only",
+  "checks": [
+    {
+      "name": "historical POC/B1a/B1b/B2 design contract",
+      "passed": true,
+      "command": "python3 tools/design/penpot/check_contract.py",
+      "scope": "Existing B2 machine contracts untouched; not B3 final acceptance"
+    },
+    {
+      "name": "Markdown links/fences and Git whitespace",
+      "passed": true,
+      "command": ".venv/bin/python -m scripts.check_docs",
+      "documents": 35
+    },
+    {
+      "name": "current/index/all reachable history sensitive scan",
+      "passed": true,
+      "command": ".venv/bin/python -m scripts.scan_secrets",
+      "findings": {
+        "dir": 0,
+        "index": 0,
+        "git": 0
+      }
+    }
+  ],
+  "initial_environment_failures": [
+    "system python check_docs missing markdown_it",
+    "script direct invocation missing scripts package path"
+  ],
+  "correction": "Used existing project .venv and module entry points; no global environment changes.",
+  "not_run": [
+    "B3 final contract acceptance",
+    "business tests",
+    "Next.js tests",
+    "real Feishu tests"
+  ]
+}

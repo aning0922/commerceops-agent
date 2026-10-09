@@ -1,0 +1,25 @@
+{
+  "timestamp_utc": "2026-10-09T15:54:18.172137+00:00",
+  "purpose": "interrupted candidate preservation, not final freeze backup",
+  "files": [
+    {
+      "name": "database.dump",
+      "bytes": 3736667,
+      "sha256": "e4b98bc9eb6d8fca29c29b7c6fb9c736c801e9f0c20506aac209a03b4b5c29ed",
+      "mode": "0o600"
+    },
+    {
+      "name": "assets.tar",
+      "bytes": 43970560,
+      "sha256": "da39c2fa9b0b761234d42d59af71359b83ba5904028ed8695de3da0ba3fbb7fc",
+      "mode": "0o600"
+    }
+  ],
+  "directory_mode": "0o700",
+  "persisted_native_revn": "52",
+  "consistency": "Sequential PG and assets capture; last MCP label restore timed out, outcome not verified; no subsequent mutation dispatched successfully. Not atomic cross-storage snapshot.",
+  "catalog_and_tar_members_readable": true,
+  "restored_on_another_machine": false,
+  "native_penpot_round_trip": false,
+  "configuration_reference": "Existing private runtime env and pinned images; credentials and backup bodies remain private."
+}
