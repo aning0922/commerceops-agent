@@ -1,0 +1,4471 @@
+{
+  "issue": 23,
+  "baseline": "41323ec0d8a4ad1bd1b9a6eb2b70fc820f67ae94",
+  "ci_run": 37833575792,
+  "ci_conclusion": "cancelled",
+  "root_cause": "not_identified",
+  "budget_start": "2026-10-09T06:16:45+00:00",
+  "budget_deadline": "2026-10-09T06:46:45+00:00",
+  "rounds_executed": 2,
+  "third_round_executed": false,
+  "source_mode": "postgres_technical",
+  "model_mode": "not_used",
+  "approval_mode": "simulated",
+  "rounds": [
+    {
+      "round": 1,
+      "project": "p123-7ae309c36ba9",
+      "started_at": "2026-10-09T06:23:43.759589+00:00",
+      "finished_at": "2026-10-09T06:25:05.679966+00:00",
+      "deadline": "2026-10-09T06:46:45+00:00",
+      "result": "passed_no_hang_reproduced",
+      "cleanup_exit": 0,
+      "commands": [
+        {
+          "event": "command_start",
+          "label": "build",
+          "limit_seconds": 120,
+          "at": "2026-10-09T06:23:43.760549+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "build",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:23:45.834136+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "healthy",
+          "limit_seconds": 75,
+          "at": "2026-10-09T06:23:45.834642+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "healthy",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:23:51.653452+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "migrate",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:23:51.654513+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "migrate",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:23:53.416934+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "setup-checkpointer",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:23:53.417470+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "setup-checkpointer",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:23:55.035789+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "grant-runtime",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:23:55.037010+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "grant-runtime",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:23:56.660577+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "revision",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:23:56.661546+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "revision",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:23:58.274573+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "collection",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:23:58.275094+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 79 items",
+          "at": "2026-10-09T06:24:06.239136+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "collection",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:24:07.450721+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "test_postgres",
+          "limit_seconds": 300,
+          "at": "2026-10-09T06:24:07.453562+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 13 items",
+          "at": "2026-10-09T06:24:10.269853+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "============================== 13 passed in 0.33s ==============================",
+          "at": "2026-10-09T06:24:10.580886+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "test_postgres",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:24:11.035639+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "test_worker_pg",
+          "limit_seconds": 300,
+          "at": "2026-10-09T06:24:11.037334+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 19 items",
+          "at": "2026-10-09T06:24:13.939705+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "============================== 19 passed in 7.09s ==============================",
+          "at": "2026-10-09T06:24:21.015090+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "test_worker_pg",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:24:21.460269+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "test_checkpoint_pg",
+          "limit_seconds": 300,
+          "at": "2026-10-09T06:24:21.470600+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 21 items",
+          "at": "2026-10-09T06:24:24.167248+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "============================= 21 passed in 30.76s ==============================",
+          "at": "2026-10-09T06:24:54.906643+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "test_checkpoint_pg",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:24:55.382421+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "test_feishu_postgres",
+          "limit_seconds": 300,
+          "at": "2026-10-09T06:24:55.399491+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 26 items",
+          "at": "2026-10-09T06:25:02.281117+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "======================== 26 passed, 2 warnings in 5.88s ========================",
+          "at": "2026-10-09T06:25:03.971109+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "test_feishu_postgres",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:25:05.131688+00:00"
+        }
+      ],
+      "phase_counts": {
+        "setup": 79,
+        "call": 79,
+        "teardown": 79
+      },
+      "node_phase_evidence": [
+        {
+          "nodeid": "tests/test_postgres.py::test_revision_and_schema",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.271073+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.277565+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007120374997612089
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.278270+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.280805+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0031700840045232326
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.281209+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.281525+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0004282080044504255
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_job_dedup_scope_and_rollback",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.282091+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.286599+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004859417007537559
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.286909+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.292616+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005828499997733161
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.293734+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.294475+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0003926249919459224
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_inbox_event_message_dedup_and_cross_scope",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.295807+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.297872+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004437707990291528
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.298663+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.303836+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005937124995398335
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.304564+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.305304+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00034749999758787453
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_cross_organization[shop_id]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.306674+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.309279+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004611875003320165
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.309759+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.313055+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0036069159978069365
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.313442+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.313784+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00031874999694991857
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_cross_organization[requester_id]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.314483+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.318747+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0048413339973194525
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.319366+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.322325+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0036050000053364784
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.323065+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.323590+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00039595899579580873
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_cross_organization[conversation_id]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.324784+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.327695+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004456833004951477
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.328142+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.331004+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0030636250012321398
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.331551+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.332082+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00036254098813515157
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_same_organization_cross_shop",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.333017+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.336499+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004780375005793758
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.337321+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.340756+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0042282079957658425
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.341566+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.342106+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0002928339963546023
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_identity_audit_foreign_keys",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.343453+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.345760+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004217541994876228
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.346666+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.351333+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005428165997727774
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.352321+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.353214+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0003803750005317852
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_thread_immutable_and_reserved_plan",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.354846+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.357023+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004814916013856418
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.357644+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.361005+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.003905124991433695
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.361660+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.362190+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00024191600095946342
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_runtime_audit_append_only",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.363200+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.363694+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0005267080123303458
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.364207+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.371445+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00888166700315196
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.372453+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.373485+00:00",
+              "outcome": "passed",
+              "duration_seconds": 9.716600470710546e-05
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_checkpointer_repeat_and_runtime_roundtrip",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.375058+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.375961+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0005252499977359548
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.376869+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.402470+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.029876333006541245
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.403235+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.404335+00:00",
+              "outcome": "passed",
+              "duration_seconds": 7.824999920558184e-05
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_failed_migration_atomic_and_recover",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.406125+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.407099+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0003948340017814189
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.407967+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.567558+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.1636157920002006
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.570932+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.571724+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011325000377837569
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_permission_version_required",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:10.573189+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.574296+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004411709000123665
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:10.575382+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.578093+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0054069159959908575
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:10.579128+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:10.580050+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0003513749979902059
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[after_inbox]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:13.947236+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.069973+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.129777499998454
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.071504+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.091482+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02138562500476837
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.092688+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.106760+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015356999996583909
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[after_task]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.108603+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.180776+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07328654199955054
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.181889+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.194958+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013714375003473833
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.196040+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.203229+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008292291997349821
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[after_job]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.205363+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.283638+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07945287501206622
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.284990+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.298861+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015256750004482456
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.300032+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.321517+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015382625002530403
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[before_commit]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.334794+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.426036+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.1098117910005385
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.427198+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.440807+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01473979200818576
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.441730+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.449472+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008663332992000505
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_commit_ack_loss_duplicate_and_semantic_conflict",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.451671+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.510810+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06071783299557865
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.511741+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.553122+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.04213429200171959
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.555086+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.559858+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0068858749873470515
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_duplicate_barrier_and_visibility",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.562289+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.624608+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0641364579932997
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.627468+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.642923+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018276292001246475
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.645686+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.650969+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007947875012177974
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_current_identity_and_scope_rejected",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.654535+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.709854+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05829670900129713
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.712830+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.724764+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0148399169993354
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.727569+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.732233+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00756837498920504
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_owner_lease_short_transactions_and_delay",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.734378+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.794095+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06110087499837391
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.797431+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.865910+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07175245899998117
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:14.867125+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.874666+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00885741699312348
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s01_two_os_process_startup_mutex",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:14.877018+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:14.938019+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06062395799381193
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:14.941082+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:15.477395+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.5412162499997066
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:15.481016+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:15.487188+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009954916997230612
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s02_serial_kinds_interrupt_and_queue_restart",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:15.489550+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:15.545036+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05705912499979604
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:15.549013+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:16.151046+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.6057268750009825
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:16.156998+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:16.159910+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007997249995241873
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s03_lock_loss_unconfirmed_blocks_then_confirmed_recovers[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:16.163324+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:16.219294+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05964191700331867
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:16.223245+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:17.121795+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.9023674170020968
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:17.126814+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:17.132480+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010764709004433826
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s03_lock_loss_unconfirmed_blocks_then_confirmed_recovers[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:17.135543+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:17.195095+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06195641600061208
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:17.199039+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:18.473365+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2779769590124488
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:18.476565+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:18.483517+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010295249987393618
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_confirm_termination_refuses_held_lock_and_unrecognized_owner",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:18.487450+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:18.544723+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06062508300237823
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:18.549372+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:18.560504+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01570558400999289
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:18.564664+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:18.567988+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007325667000259273
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s03_old_os_process_alive_blocks_without_lease_takeover",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:18.571569+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:18.626352+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05790483301097993
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:18.630212+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.197802+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.5713375419873046
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:19.199763+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.205983+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008210165993659757
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_runner_retry_is_finite_and_releases_slot",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:19.209744+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.269794+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.063343249988975
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:19.271627+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.607171+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.3370815840025898
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:19.609194+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.617939+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01091183400421869
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_unsupported_workflow_never_runs_as_new_graph",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:19.621459+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.676326+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05765437499212567
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:19.681403+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:19.996597+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.3199985410028603
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:20.001642+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.005588+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009233291013515554
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_two_existing_delivery_keys_cannot_be_spliced",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:20.009196+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.066915+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.060567082997295074
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:20.073014+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.088938+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.021945749991573393
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:20.095665+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.097680+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007552916998974979
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_running_job_without_process_receipt_never_auto_recovers",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:20.101079+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.159403+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.062230665993411094
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:20.161469+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.181146+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.021781708986964077
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:20.183091+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.189599+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0084254170069471
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_clean_stop_receipt_alone_does_not_prove_os_exit",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:20.193621+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:20.245383+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.055201000010129064
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:20.247351+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:21.005647+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.7601335840008687
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:21.008204+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:21.012800+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0070880830025998875
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_interrupt_slot_other_thread_and_cross_process_resume",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:24.181658+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:24.252139+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08446345900301822
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:24.254460+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:25.748124+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.4957014589890605
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:25.756553+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:25.759452+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008983874999103136
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_receipt_commit_before_checkpoint_sigkill_replays_one_receipt",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:25.764359+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:25.839398+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08172241700231098
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:25.841716+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:27.720769+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.8812166260031518
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:27.728149+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:27.731482+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008389166003325954
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_real_graph_startup_mutex_lock_loss_cancels_no_escape",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:27.736592+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:27.811221+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08140845800517127
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:27.813703+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:30.201808+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.390163959003985
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:30.209462+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:30.213812+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009155207997537218
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_decision_before_interrupt_observed_is_not_dropped_and_finished_reconciles",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:30.219580+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:30.296339+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08511020899459254
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:30.299214+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:32.096453+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.79984633398999
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:32.104484+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:32.108598+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009297999989939854
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_waiting_recover_and_durable_decision_reject_or_receipt[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:32.114739+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:32.185761+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07947699999203905
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:32.188589+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:33.063971+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.8779617090040119
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:33.073849+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:33.077340+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.011042625003028661
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_waiting_recover_and_durable_decision_reject_or_receipt[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:33.083039+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:33.151092+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07552783298888244
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:33.159428+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:34.000402+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.8492199169995729
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:34.003671+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:34.011392+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010958707993268035
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[version]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:34.017598+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:34.089480+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0776191250042757
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:34.092731+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:35.425532+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.3357858340023085
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:35.428958+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:35.433460+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008004040995729156
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[task]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:35.439791+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:35.510848+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07678345800377429
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:35.514222+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:36.777824+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2667864589893725
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:36.781957+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:36.800633+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.022852833004435524
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[request_hash]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:36.807967+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:36.883669+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08230279199779034
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:36.887241+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:38.167731+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2838222499995027
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:38.171411+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:38.175078+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007446207993780263
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[missing]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:38.181832+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:38.272932+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.09706220800580923
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:38.276436+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:39.608587+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.3354727090045344
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:39.612307+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:39.620911+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0122679589985637
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[receipt_hash]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:39.627853+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:39.707217+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08564320800360292
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:39.711071+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:40.984140+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2767611669987673
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:40.988178+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:40.995216+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.011157750006532297
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[payload]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:41.003216+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:41.075106+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07932599999185186
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:41.078936+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:42.347056+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2716865010006586
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:42.351082+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:42.355252+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008311541998409666
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_same_operation_key_different_hash_explicit_conflict",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:42.364112+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:42.438387+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08231366700783838
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:42.442322+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:42.496827+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.058486207999521866
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:42.500654+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:42.504332+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0067673330049728975
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_receipt_db_failure_rolls_back_then_resumes_unfinished_node",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:42.512284+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:42.593877+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08977712500200141
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:42.598085+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:43.507510+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.9132855839998228
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:43.513004+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:43.518505+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010881458001676947
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_real_graph_noncooperative_cancel_exits_before_replacement",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:43.529314+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:43.602329+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08316562499385327
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:43.606299+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:46.737028+00:00",
+              "outcome": "passed",
+              "duration_seconds": 3.133826584991766
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:46.746754+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:46.751235+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009592125003109686
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_checkpoint_write_db_failure_does_not_report_persisted_interrupt",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:46.760226+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:46.829532+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08301150100305676
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:46.833614+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:49.544782+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.7150567509961547
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:49.555894+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:49.560350+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013331166002899408
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_current_principal_revoked_before_resume_marks_attention",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:49.570314+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:49.637437+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07860354200238362
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:49.641616+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:50.312299+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.674708250007825
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:50.317039+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:50.321672+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00806333300715778
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_run_request_scope_and_owner_cannot_be_replaced",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:50.330743+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:50.409990+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08894741599215195
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:50.414660+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:50.448367+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.038395333001972176
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:50.452879+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:50.457143+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007544957989011891
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_resume_before_first_checkpoint_defers_without_new_start",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:50.465601+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:50.534915+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0783387919946108
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:50.539226+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:53.011159+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.475383209006395
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:53.016112+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:53.024523+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013508999996702187
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_retired_probe_task_version_is_preserved_and_marked_attention",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:53.033936+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:53.114132+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08864275099767838
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:53.118836+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:53.730141+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.6158476669952506
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:53.740763+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:53.745403+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008396125005674548
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_live_stopped_graph_cannot_confirm_or_take_over",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:24:53.754763+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:53.825315+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08624554199923296
+            },
+            "call": {
+              "started_at": "2026-10-09T06:24:53.830027+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:54.887347+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.0616378760023508
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:24:54.896648+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:24:54.901676+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008932958997320384
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_runtime_schema_permissions_and_no_business_side_effect",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.296792+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.310260+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.028479792003054172
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.315059+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.337134+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.026805542001966387
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.342288+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.347137+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010704199667088687
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_message_event_aliases_and_payload_conflicts_are_durable",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.356836+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.361699+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018123625006410293
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.366815+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.404325+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.04777424999338109
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.409710+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.414563+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011708299280144274
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_card_same_message_multiple_callbacks_repeat_and_conflict",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.425213+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.430181+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02203837499837391
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.435730+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.466852+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.039599875002750196
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.471795+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.477252+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012000001152046025
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_two_actors_opposite_clicks_have_one_first_decision",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.487943+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.493290+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02332383299653884
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.498223+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.507666+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016274333000183105
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.513051+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.518133+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010533399472478777
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[disabled]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.528438+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.533489+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.019330792012624443
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.538356+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.543562+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015420249997987412
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.548321+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.553118+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010295899119228125
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[role]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.563463+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.568462+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017777832996216603
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.573778+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.578819+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.014502667007036507
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.583736+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.589127+00:00",
+              "outcome": "passed",
+              "duration_seconds": 9.987500379793346e-05
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[tenant]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.599126+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.604550+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01730758299527224
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.609354+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.614133+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008283415998448618
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.620117+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.625216+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00014758399629499763
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[nonce]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.635276+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.640129+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017014874989399686
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.645088+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.649905+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01314629199623596
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.655145+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.660089+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00013895900337956846
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[keys]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.671011+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.676168+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01814416699926369
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.681193+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.686538+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.014159084006678313
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.691705+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.696864+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010000000474974513
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[expired]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.706622+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.711795+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017445833000238054
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.716916+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.722031+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.014146707995678298
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.727309+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.732234+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010483298683539033
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_real_commit_failure_rolls_back_and_sdk_cannot_return_success",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.742534+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.747775+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01560875000723172
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.752848+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.757966+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015096458999323659
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.763238+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.768467+00:00",
+              "outcome": "passed",
+              "duration_seconds": 9.724999836180359e-05
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_actual_pool_budget_and_commit_before_sdk_return",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.778895+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.783933+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015452541992999613
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.789162+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.794459+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.012823375000152737
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.799868+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.805194+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012924999464303255
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_persistent_key_known_rejection_replay_create_read_update",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.815596+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.820862+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016846208993229084
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.825851+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.837958+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05955662499764003
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.843074+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.848359+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00019629200687631965
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure0]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.859277+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.864480+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016873167012818158
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.869943+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.892195+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03642816698993556
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.897376+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.902624+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011758299660868943
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure1]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.913399+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.918645+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01855029100261163
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.923974+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.953352+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.04165308299707249
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:02.959299+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.965256+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00017304200446233153
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure2]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:02.976092+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:02.981731+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018583041994133964
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:02.987051+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.011828+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03874858299968764
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.018031+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.023394+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00037520799378398806
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure3]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.034574+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.039897+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017423167009837925
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.045087+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.064994+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03449483300209977
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.070148+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.075555+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012937499559484422
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_full_pagination_unique_or_duplicate_result[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.086695+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.092060+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01568804199632723
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.097462+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.107187+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02561345799767878
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.112673+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.118206+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012487500498536974
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_full_pagination_unique_or_duplicate_result[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.129352+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.134986+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017385708997608162
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.140676+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.153022+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.027771875000325963
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.158677+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.164389+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001559590018587187
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_update_unknown_does_not_confuse_existing_row_with_applied_update",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.175654+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.181309+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017865665999124758
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.186877+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.216503+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.04427008300262969
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.222118+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.227477+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00016183301340788603
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pool_lock_failure_within_budget_has_no_positive_ack",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.239048+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.244553+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017108042011386715
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.250170+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.625896+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.39054187599685974
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.635818+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.644507+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00031820801086723804
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_client_token_conflict_never_changes_key_or_retries",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.659851+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.667385+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03032937500393018
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.674136+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.691152+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03320979198906571
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.697092+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.702827+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012316700303927064
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_reconcile_cycle_and_config_target_mismatch_fail_closed",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.713823+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.719636+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016399749991251156
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.725440+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.735230+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.026836957986233756
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.740659+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.746470+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00013737499830313027
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_same_table_is_serial_across_independent_pg_connections",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.758047+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.763583+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017237291991477832
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.769440+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.855626+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.10214491699298378
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.862448+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.869219+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012379100371617824
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_card_send_persistent_uuid_once_and_unknown_no_resend[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.881422+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.887268+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.019593584001995623
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.893350+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.909582+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03346979200432543
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.915567+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.921265+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00014637499407399446
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_card_send_persistent_uuid_once_and_unknown_no_resend[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:25:03.932973+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.938654+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017442333002691157
+            },
+            "call": {
+              "started_at": "2026-10-09T06:25:03.944417+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.953396+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.025489708001259714
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:25:03.959219+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:25:03.965229+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00018766699940897524
+            }
+          }
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "project": "p123-fa91acc375c7",
+      "started_at": "2026-10-09T06:27:42.420216+00:00",
+      "finished_at": "2026-10-09T06:28:56.145722+00:00",
+      "deadline": "2026-10-09T06:46:45+00:00",
+      "result": "passed_no_hang_reproduced",
+      "cleanup_exit": 0,
+      "commands": [
+        {
+          "event": "command_start",
+          "label": "build",
+          "limit_seconds": 120,
+          "at": "2026-10-09T06:27:42.421245+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "build",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:27:44.218118+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "healthy",
+          "limit_seconds": 75,
+          "at": "2026-10-09T06:27:44.218600+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "healthy",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:27:50.123270+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "migrate",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:27:50.124577+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "migrate",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:27:51.832538+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "setup-checkpointer",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:27:51.833048+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "setup-checkpointer",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:27:53.538848+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "grant-runtime",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:27:53.539771+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "grant-runtime",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:27:55.271893+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "revision",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:27:55.272832+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "revision",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:27:56.870403+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "collection",
+          "limit_seconds": 30,
+          "at": "2026-10-09T06:27:56.871162+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 219 items / 140 deselected / 79 selected",
+          "at": "2026-10-09T06:28:04.109022+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "collection",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:28:05.347003+00:00"
+        },
+        {
+          "event": "command_start",
+          "label": "combined",
+          "limit_seconds": 300,
+          "at": "2026-10-09T06:28:05.348508+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "collecting ... collected 219 items / 140 deselected / 79 selected",
+          "at": "2026-10-09T06:28:12.720239+00:00"
+        },
+        {
+          "event": "pytest_summary",
+          "line": "=============== 79 passed, 140 deselected, 2 warnings in 47.26s ================",
+          "at": "2026-10-09T06:28:54.092667+00:00"
+        },
+        {
+          "event": "command_end",
+          "label": "combined",
+          "exit": 0,
+          "timed_out": false,
+          "at": "2026-10-09T06:28:55.608926+00:00"
+        }
+      ],
+      "phase_counts": {
+        "setup": 79,
+        "call": 79,
+        "teardown": 79
+      },
+      "node_phase_evidence": [
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_interrupt_slot_other_thread_and_cross_process_resume",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:12.723463+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:12.825723+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.1047286660032114
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:12.826344+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:14.993573+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.1671593339997344
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:14.994170+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:15.029988+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03617366599792149
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_receipt_commit_before_checkpoint_sigkill_replays_one_receipt",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:15.031174+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:15.120144+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08902679200400598
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:15.120578+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:17.058123+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.9376645839947741
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:17.058696+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:17.069979+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.011692790998495184
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_real_graph_startup_mutex_lock_loss_cancels_no_escape",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:17.071142+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:17.166745+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.09584550000727177
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:17.167244+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:19.605745+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.4386091680062236
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:19.607586+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:19.615331+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009755709004821256
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_decision_before_interrupt_observed_is_not_dropped_and_finished_reconciles",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:19.616737+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:19.698101+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08196933299768716
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:19.699434+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:21.483609+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.7852332500042394
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:21.484632+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:21.494332+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010803832992678508
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_waiting_recover_and_durable_decision_reject_or_receipt[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:21.495770+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:21.578285+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08315295800275635
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:21.579236+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:22.472081+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.8936570420046337
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:22.473172+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:22.482577+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010543500000494532
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_waiting_recover_and_durable_decision_reject_or_receipt[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:22.486004+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:22.572061+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08883462501398753
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:22.573775+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:23.460337+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.8880040000076406
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:23.461194+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:23.469412+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009094624998397194
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[version]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:23.471128+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:23.556922+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08670104200427886
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:23.559017+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:24.786129+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2291076670080656
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:24.788509+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:24.793560+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007546959008323029
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[task]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:24.796606+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:24.877493+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08328958299534861
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:24.879355+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:26.237588+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.3597845839976799
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:26.238563+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:26.246385+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008921874992665835
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[request_hash]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:26.247914+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:26.336164+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08902166699408554
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:26.337244+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:27.557789+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2209071260003839
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:27.560709+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:27.564447+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0072661659942241386
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[missing]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:27.567714+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:27.645952+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08090179199643899
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:27.647301+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:28.984811+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.338607084006071
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:28.985660+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:28.994155+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009423041992704384
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[receipt_hash]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:28.995513+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:29.083227+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08837708400096744
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:29.084192+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:30.464567+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.3809247510071145
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:30.465675+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:30.474308+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010000209003919736
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_unknown_checkpoint_or_conflict_needs_attention_never_starts_again[payload]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:30.475733+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:30.575750+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.10062533398740925
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:30.576657+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:31.952389+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.3764377089974005
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:31.954574+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:31.963182+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010891957994317636
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_same_operation_key_different_hash_explicit_conflict",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:31.964848+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:32.049741+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08592483299435116
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:32.050688+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:32.105981+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05604275000223424
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:32.108430+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:32.113069+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007143541006371379
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_receipt_db_failure_rolls_back_then_resumes_unfinished_node",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:32.114547+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:32.196117+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08244733398896642
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:32.196980+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:33.066200+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.8700249170069583
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:33.067303+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:33.075080+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008825209006317891
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_real_graph_noncooperative_cancel_exits_before_replacement",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:33.076858+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:33.154063+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07837808399926871
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:33.155057+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:36.247609+00:00",
+              "outcome": "passed",
+              "duration_seconds": 3.093210168008227
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:36.248714+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:36.257510+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009870000008959323
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_checkpoint_write_db_failure_does_not_report_persisted_interrupt",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:36.259445+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:36.355090+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.09677870900486596
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:36.356170+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.010085+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.655100668009254
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:39.011178+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.020982+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01067291600338649
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_current_principal_revoked_before_resume_marks_attention",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:39.024887+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.108877+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08720891700068023
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:39.110066+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.791169+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.6821205010055564
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:39.793977+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.799781+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008635416001197882
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_run_request_scope_and_owner_cannot_be_replaced",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:39.804910+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.884028+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.081715708001866
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:39.886866+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.918668+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03644704200269189
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:39.919827+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:39.926762+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008192875000531785
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_resume_before_first_checkpoint_defers_without_new_start",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:39.928607+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:40.008417+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08085974999994505
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:40.011240+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:42.137446+00:00",
+              "outcome": "passed",
+              "duration_seconds": 2.0954699589929078
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:42.164166+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:42.419734+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.3128989590040874
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_retired_probe_task_version_is_preserved_and_marked_attention",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:42.448360+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:42.680394+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.23866950000228826
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:42.681958+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:43.852923+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.172736749998876
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:43.856337+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:43.863194+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01006341700849589
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_checkpoint_pg.py::test_live_stopped_graph_cannot_confirm_or_take_over",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:43.868529+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:43.950353+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08655779200489633
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:43.951720+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.075441+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.1248139590024948
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.078574+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.082465+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00711229199077934
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_runtime_schema_permissions_and_no_business_side_effect",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.088035+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.110333+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.026968249992933124
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.113637+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.134458+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.024106041993945837
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.137518+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.142141+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012608300312422216
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_message_event_aliases_and_payload_conflicts_are_durable",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.144367+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.151505+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016365208008210175
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.152711+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.185872+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03412974999810103
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.189658+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.191743+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010908300464507192
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_card_same_message_multiple_callbacks_repeat_and_conflict",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.194177+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.203676+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017092083988245577
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.204867+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.235444+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03160162499989383
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.238737+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.240491+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010841700714081526
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_two_actors_opposite_clicks_have_one_first_decision",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.242898+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.251895+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015736582994577475
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.253111+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.264585+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.012574541993672028
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.265882+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.266979+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011150000500492752
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[disabled]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.270021+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.284402+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01900891598779708
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.285820+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.298211+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01378179200401064
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.299595+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.300787+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011174999235663563
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[role]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.303380+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.317359+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018309291001060046
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.318683+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.330577+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013169666010071523
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.331842+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.333021+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010462501086294651
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[tenant]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.336053+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.348382+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016937166001298465
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.349779+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.356342+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008059499989030883
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.357610+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.358767+00:00",
+              "outcome": "passed",
+              "duration_seconds": 8.341699140146375e-05
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[nonce]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.361694+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.374199+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017143250006483868
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.375698+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.387486+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013240500004030764
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.388990+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.390322+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00030758399225305766
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[keys]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.393235+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.407444+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018737667007371783
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.409002+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.421090+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013506290997611359
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.422884+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.424313+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011666699720080942
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pg_identity_and_bound_contract_rejection[expired]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.426955+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.439843+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018115500002750196
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.441280+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.453927+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013655250004376285
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.455699+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.457032+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011016598728019744
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_real_commit_failure_rolls_back_and_sdk_cannot_return_success",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.459697+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.471095+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016633166989777237
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.472603+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.488476+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017431458007195033
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.490236+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.491824+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0002651659888215363
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_actual_pool_budget_and_commit_before_sdk_return",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.494832+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.506416+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017238624990568496
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.507953+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.519978+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.013508375006495044
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.521645+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.523054+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001001250057015568
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_persistent_key_known_rejection_replay_create_read_update",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.525820+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.536966+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01612633299373556
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.538732+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.594419+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05722262500785291
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.598781+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.602693+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00017770800332073122
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure0]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.606311+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.611019+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.015922624996164814
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.612731+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.646573+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.035218333010561764
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.648294+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.650466+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.000167582998983562
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure1]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.653805+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.664270+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016764415995567106
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.666460+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.699478+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03516537501127459
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.701499+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.703131+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00013504100206773728
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure2]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.706740+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.716104+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01587262499378994
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.717773+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.752138+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.035913083993364125
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.753888+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.755389+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00011170899961143732
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_never_recreates_even_if_reconcile_finds_no_row[failure3]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.758844+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.769289+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016237250005360693
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.770988+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.806080+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03666754199366551
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.808571+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.810560+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001296660047955811
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_full_pagination_unique_or_duplicate_result[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.813930+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.824592+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017670166998868808
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.826569+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.852661+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02789137499348726
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.854593+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.856505+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00014800000644754618
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_unknown_full_pagination_unique_or_duplicate_result[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.860218+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.871743+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018351500009885058
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.873874+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.899706+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.027732791000744328
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.901653+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.903316+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001457499893149361
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_update_unknown_does_not_confuse_existing_row_with_applied_update",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.907313+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.918378+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.017910707989358343
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:45.920387+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.979675+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06071141599386465
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:45.983467+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:45.985444+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001855420123320073
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_pool_lock_failure_within_budget_has_no_positive_ack",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:45.989125+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.002451+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.021896958991419524
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.005228+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.398203+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.3949938750010915
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.404348+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.408375+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0006396660028258339
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_client_token_conflict_never_changes_key_or_retries",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.415299+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.429745+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02955766698869411
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.432411+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.465194+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03545595800096635
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.467567+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.469632+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00020212499657645822
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_reconcile_cycle_and_config_target_mismatch_fail_closed",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.473711+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.484618+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018391499994322658
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.486549+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.513141+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02831249999871943
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.515223+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.517137+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00014941599511075765
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_base_same_table_is_serial_across_independent_pg_connections",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.520732+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.532832+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.018440875006490387
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.535146+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.635766+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.10289291599474382
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.638145+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.640281+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00014199998986441642
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_card_send_persistent_uuid_once_and_unknown_no_resend[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.644920+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.658646+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.021826042007887736
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.661104+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.713411+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.054569500003708526
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.716624+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.718712+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001820839970605448
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_feishu_postgres.py::test_card_send_persistent_uuid_once_and_unknown_no_resend[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.724045+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.738057+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02292233299522195
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.742298+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.769027+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.03103108299546875
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.771602+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.774315+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0001519579964224249
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_revision_and_schema",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.779282+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.781357+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006247292010812089
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.783426+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.785944+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0034342079889029264
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.787968+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.790042+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0004489999992074445
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_job_dedup_scope_and_rollback",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.797171+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.799337+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005028457992011681
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.802612+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.804986+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00989908300107345
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.807193+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.809311+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0005876659997738898
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_inbox_event_message_dedup_and_cross_scope",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.814138+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.816736+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005606291000731289
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.819136+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.821500+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0075413750018924475
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.823864+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.826437+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.000386583007639274
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_cross_organization[shop_id]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.831185+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.833427+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005428541990113445
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.835614+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.837782+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00494345799961593
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.839886+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.842275+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0005085000011604279
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_cross_organization[requester_id]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.847596+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.849884+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00565541599644348
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.852084+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.854234+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0053722500015283
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.856459+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.859371+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0006497920112451538
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_cross_organization[conversation_id]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.866166+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.868296+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005512207993888296
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.870447+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.872580+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006680624996079132
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.875297+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.877613+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0005007090076105669
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_same_organization_cross_shop",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.882200+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.884493+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004723208010545932
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.886816+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.889498+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0047874589945422485
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.892601+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.895065+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0003203750093234703
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_identity_audit_foreign_keys",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.901244+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.903478+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00713470799382776
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.905991+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.908414+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006258874986087903
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.911114+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.914226+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00046770799963269383
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_task_thread_immutable_and_reserved_plan",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.918961+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.921221+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.005041750002419576
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.923532+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.926166+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0046173329901648685
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.930958+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.933382+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00035666600160766393
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_runtime_audit_append_only",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.938122+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.940428+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0004883749934379011
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.943059+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.948019+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010081332991831005
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.950601+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.952967+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00010870899131987244
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_checkpointer_repeat_and_runtime_roundtrip",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.957798+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.960448+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.000450999999884516
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.964005+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.966482+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0338517909985967
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:46.969045+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.971468+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00012029199569951743
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_failed_migration_atomic_and_recover",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:46.976403+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:46.979305+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0008138330013025552
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:46.983817+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.155394+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.21931908300030045
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.159072+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.161667+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0003910829982487485
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_postgres.py::test_permission_version_required",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.166504+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.169049+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00516704200708773
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.171852+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.174462+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.004930541996145621
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.176896+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.179272+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00036025000736117363
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[after_inbox]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.184579+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.253834+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.08559937500103842
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.256496+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.265441+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01200095799867995
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.268068+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.274283+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008837792003760114
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[after_task]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.279539+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.345050+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07012645799841266
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.347632+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.355374+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010382042004493997
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.357946+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.362179+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006743624995579012
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[after_job]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.367427+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.428434+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06553550000535324
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.431160+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.441763+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01330404200416524
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.444678+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.448809+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006970333997742273
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_rollback_never_returns_success[before_commit]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.454701+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.516282+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06690112499927636
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.518943+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.527491+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.011158708002767526
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.530301+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.534444+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006843416995252483
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_commit_ack_loss_duplicate_and_semantic_conflict",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.539646+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.599245+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06430775098851882
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.602033+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.640406+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.04092820800724439
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.643327+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.648947+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008653416996821761
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_duplicate_barrier_and_visibility",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.654168+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.711729+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06197312500444241
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.714464+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.735907+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.024171416007447988
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.738880+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.742515+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006678667006781325
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_current_identity_and_scope_rejected",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.748216+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.803635+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06061908400442917
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.806592+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.818109+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.014367833005962893
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.820990+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.827760+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009616958996048197
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_owner_lease_short_transactions_and_delay",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.833351+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.890076+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06166329199913889
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:47.892974+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.965023+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.07465174999379087
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:47.968393+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:47.974604+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009445917006814852
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s01_two_os_process_startup_mutex",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:47.980418+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:48.040326+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06544154199946206
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:48.043115+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:48.582446+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.541889458996593
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:48.585423+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:48.592411+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009679624999989755
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s02_serial_kinds_interrupt_and_queue_restart",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:48.599253+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:48.660946+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06753329200728331
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:48.664104+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:49.256118+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.5948784590000287
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:49.260432+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:49.266194+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.01018579100491479
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s03_lock_loss_unconfirmed_blocks_then_confirmed_recovers[False]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:49.272031+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:49.330748+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0638652909983648
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:49.334188+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:50.221764+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.8906942920002621
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:50.231037+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:50.234592+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009138584005995654
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s03_lock_loss_unconfirmed_blocks_then_confirmed_recovers[True]",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:50.241251+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:50.294895+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06345333400531672
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:50.297932+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:51.556588+00:00",
+              "outcome": "passed",
+              "duration_seconds": 1.2612421680096304
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:51.566932+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:51.570112+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009437625005375594
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_confirm_termination_refuses_held_lock_and_unrecognized_owner",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:51.576010+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:51.628977+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06238679199304897
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:51.632131+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:51.645568+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.016655375002301298
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:51.648820+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:51.654895+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009343458994408138
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_s03_old_os_process_alive_blocks_without_lease_takeover",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:51.661132+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:51.718096+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.0626802500046324
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:51.721147+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:52.236598+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.5182962090038927
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:52.245218+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:52.248918+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.008821458992315456
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_runner_retry_is_finite_and_releases_slot",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:52.255363+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:52.309290+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06329729099525139
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:52.312528+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:52.641135+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.3315274170017801
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:52.651043+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:52.654478+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.00900020799599588
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_unsupported_workflow_never_runs_as_new_graph",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:52.661021+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:52.718008+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06747949999407865
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:52.721444+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.020787+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.30248462499002926
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:53.031121+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.034341+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.009003999992273748
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_t1_two_existing_delivery_keys_cannot_be_spliced",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:53.043630+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.092383+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06217387499054894
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:53.095696+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.114634+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.021964667001157068
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:53.117928+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.121363+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.006777749993489124
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_running_job_without_process_receipt_never_auto_recovers",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:53.127888+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.179835+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.05798362499626819
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:53.182944+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.201881+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.02187183299975004
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:53.204957+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.209585+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.007689874997595325
+            }
+          }
+        },
+        {
+          "nodeid": "tests/test_worker_pg.py::test_clean_stop_receipt_alone_does_not_prove_os_exit",
+          "phases": {
+            "setup": {
+              "started_at": "2026-10-09T06:28:53.215918+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:53.278221+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.06806150000193156
+            },
+            "call": {
+              "started_at": "2026-10-09T06:28:53.281605+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:54.075054+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.796481750003295
+            },
+            "teardown": {
+              "started_at": "2026-10-09T06:28:54.085185+00:00",
+              "pytest_pid": 1,
+              "finished_at": "2026-10-09T06:28:54.089046+00:00",
+              "outcome": "passed",
+              "duration_seconds": 0.010738958008005284
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "gate_unblocked": false,
+  "pg_blocking_snapshot_obtained": false,
+  "frozen_deliverable_status": "local_review_candidate_not_a_fix",
+  "timeout_branch_fault_injection_tested": false
+}
