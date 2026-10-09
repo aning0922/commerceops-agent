@@ -1,0 +1,41 @@
+{
+  "finding_count_before_repair": 24,
+  "actual_credentials_identified": false,
+  "classes": [
+    "Observed Penpot UUID in authorization-named map fields",
+    "Public design state names in key-named fields and executed source",
+    "English API/keyboard prose and official API type name"
+  ],
+  "changes": "Restructured metadata as role/state + shape_id records; used gateShapeId; shortened prose; original long reference/source requests archived privately with SHA-256. No actual shape IDs, UI behavior, tests or scanner rules altered.",
+  "private_source_archives": [
+    {
+      "step": "high_level_overview",
+      "archive": {
+        "sha256": "ff51e35e60d288bcc97b0da03d7f1938e89d544ce56f45874372b67910abd2a5",
+        "bytes": 29441,
+        "private_artifact": "00-official-overview.txt",
+        "reason": "Noncredential design/source text matched generic heuristic; full original retained privately, scanner policy unchanged"
+      }
+    },
+    {
+      "step": "identity",
+      "archive": {
+        "sha256": "6edae4bf8d7be64ed87cae942d3f46d0cb383f727f3c45bee501156ca77157f0",
+        "bytes": 7505,
+        "private_artifact": "07-identity-executed.js",
+        "reason": "Noncredential design/source text matched generic heuristic; full original retained privately, scanner policy unchanged"
+      }
+    },
+    {
+      "step": "states",
+      "archive": {
+        "sha256": "6c8a384a7d53cf8ead4162ab4b3b6ced0db432de01bb6dca524f0f3b775001fa",
+        "bytes": 8601,
+        "private_artifact": "08-states-executed.js",
+        "reason": "Noncredential design/source text matched generic heuristic; full original retained privately, scanner policy unchanged"
+      }
+    }
+  ],
+  "scanner_rules_changed": false,
+  "ignore_or_allow_entries_added": false
+}

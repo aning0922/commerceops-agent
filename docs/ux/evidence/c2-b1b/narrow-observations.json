@@ -1,0 +1,462 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "observations": [
+    {
+      "label": "F01-long",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N01",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 273
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N02-LONG-20261009-",
+          "width": 131.8203125,
+          "x": 36,
+          "y": 461
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N03",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 647
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N04",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 815
+        }
+      ]
+    },
+    {
+      "label": "F01-scroll-0",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N05",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 139
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N06",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 307
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N07",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 475
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N08",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 643
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N09",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 811
+        }
+      ]
+    },
+    {
+      "label": "F01-scroll-1",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N10",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 135
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N11",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 303
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N12",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 471
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N13",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 639
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N14",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 807
+        }
+      ]
+    },
+    {
+      "label": "F01-scroll-2",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N15",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 131
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N16",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 299
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N17",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 467
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N18",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 635
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 803
+        }
+      ]
+    },
+    {
+      "label": "F01-scroll-3",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 205
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N20",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 373
+        }
+      ]
+    },
+    {
+      "label": "F01-scroll-4",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 205
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N20",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 373
+        }
+      ]
+    },
+    {
+      "label": "S04-scroll-0",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N03",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 225
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N04",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 393
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N05",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 561
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N06",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 729
+        }
+      ]
+    },
+    {
+      "label": "S04-scroll-1",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N07",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 53
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N08",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 221
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N09",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 389
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N10",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 557
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N11",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 725
+        }
+      ]
+    },
+    {
+      "label": "S04-scroll-2",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N12",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 49
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N13",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 217
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N14",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 385
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N15",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 553
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N16",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 721
+        }
+      ]
+    },
+    {
+      "label": "S04-scroll-3",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N18",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 213
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 381
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N20",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 549
+        }
+      ]
+    },
+    {
+      "label": "S04-scroll-4",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 205
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N20",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 373
+        }
+      ]
+    },
+    {
+      "label": "S04-scroll-5",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 205
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N20",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 373
+        }
+      ]
+    },
+    {
+      "label": "S04-final-top",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N01",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 688.5
+        }
+      ]
+    },
+    {
+      "label": "S04-final-long",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N01",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 266.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N02-LONG-20261009-",
+          "width": 131.8203125,
+          "x": 36,
+          "y": 454.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N03",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 640.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N04",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 808.5
+        }
+      ]
+    },
+    {
+      "label": "S04-final-middle",
+      "visibleSKU": [
+        {
+          "height": 15.5,
+          "text": "SKU-N16",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 116.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N17",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 284.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N18",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 452.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N19",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 620.5
+        },
+        {
+          "height": 15.5,
+          "text": "SKU-N20",
+          "width": 44.3203125,
+          "x": 36,
+          "y": 788.5
+        }
+      ]
+    }
+  ],
+  "scope": "Native 390px layout at 100%; not responsive application or real Feishu client"
+}

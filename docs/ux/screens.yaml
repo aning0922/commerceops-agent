@@ -1,0 +1,3317 @@
+{
+  "schema_version": 1,
+  "contract_version": "0.2.1-c1-revision",
+  "status": "m1_final_freeze_candidate_confirmation_required",
+  "product_scope": "M1",
+  "source_commit": "a0d521e",
+  "visual_revision": "ux-poc/0.1.1",
+  "visual_map": "evidence/design-map.json",
+  "roles": {
+    "operator": {
+      "create_analysis": true,
+      "approve": false,
+      "resolve_item": false
+    },
+    "approver": {
+      "create_analysis": false,
+      "approve": true,
+      "resolve_item": true
+    },
+    "admin": {
+      "configure_and_handle_exceptions": true,
+      "approve": false,
+      "resolve_item": false
+    },
+    "unauthorized": {
+      "business_access": false
+    }
+  },
+  "poc_screens": [
+    {
+      "id": "POC-S01",
+      "name": "任务中心",
+      "status": "prototype_verified",
+      "penpot": {
+        "file_id": "ad74bff8-48e8-8141-8008-c31715c76703",
+        "page_id": "ad74bff8-48e8-8141-8008-c31715c76704",
+        "shape_id": "4fc54c35-c3b2-804c-8008-c3188efd0d39",
+        "revision": "ux-poc/0.1.1"
+      },
+      "roles": [
+        "operator"
+      ],
+      "states": [
+        "mock_demo"
+      ],
+      "business_effect": "none"
+    },
+    {
+      "id": "POC-M01",
+      "name": "数据口径",
+      "status": "prototype_verified",
+      "penpot": {
+        "file_id": "ad74bff8-48e8-8141-8008-c31715c76703",
+        "page_id": "ad74bff8-48e8-8141-8008-c31715c76704",
+        "shape_id": "4fc54c35-c3b2-804c-8008-c3188f020ccf",
+        "revision": "ux-poc/0.1.1"
+      },
+      "roles": [
+        "operator"
+      ],
+      "states": [
+        "mock_demo"
+      ],
+      "business_effect": "none"
+    },
+    {
+      "id": "POC-S02",
+      "name": "库存分析报告",
+      "status": "prototype_verified",
+      "penpot": {
+        "file_id": "ad74bff8-48e8-8141-8008-c31715c76703",
+        "page_id": "ad74bff8-48e8-8141-8008-c31715c76704",
+        "shape_id": "4fc54c35-c3b2-804c-8008-c3188efec6f4",
+        "revision": "ux-poc/0.1.1"
+      },
+      "roles": [
+        "operator"
+      ],
+      "states": [
+        "mock_demo"
+      ],
+      "business_effect": "none"
+    }
+  ],
+  "planned_screens": [
+    {
+      "id": "M1-S01",
+      "name": "登录",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "b806b597-0eb0-80b2-8008-c386bce478fe",
+        "revision": "m1-ui/0.3.0-b2"
+      },
+      "states": [
+        "signed_out",
+        "submitting",
+        "invalid_credentials",
+        "session_expired",
+        "rate_limited",
+        "service_unavailable"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "Dedicated native 1440/1280 layouts checked; not responsive frontend implementation",
+      "route": "/login",
+      "goal": "让预置身份进入授权工作区，恢复安全深链。",
+      "layout": "居中紧凑表单：产品/Mock环境说明、账号密码、提交与错误；无第三方OAuth入口。",
+      "data_and_metrics": "账号输入、会话校验状态、安全return_to；不展示角色选择、账号是否存在或密钥。",
+      "controls_and_navigation": "B11登录；已有会话按角色落地。",
+      "role_policy": "operator/approver/admin/unauthorized均可见登录壳；真实授权由服务端会话取得；admin单角色默认S08，无业务权限去S07。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B2",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "b2_availability": "native_variants_mapped",
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [
+        "deep_link_authentication",
+        "login_failed",
+        "mock_identity_selector",
+        "signed_out"
+      ],
+      "visual_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bce478fe",
+          "name": "M1-S01 / 登录 · 1440px",
+          "width": 1440,
+          "height": 900,
+          "state": "signed_out",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386be8e2dd1",
+          "name": "M1-S01 / 登录 · 1280px",
+          "width": 1280,
+          "height": 900,
+          "state": "signed_out",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "name": "M1-S01 / B2 · 身份评审入口",
+          "width": 960,
+          "height": 860,
+          "state": "mock_identity_selector",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d1dc4960",
+          "name": "M1-S01 / B2 · login-failure",
+          "width": 600,
+          "height": 760,
+          "state": "login_failed",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5b8",
+          "name": "M1-S01 / B2 · 鉴权后同版本 Web 20项",
+          "width": 600,
+          "height": 760,
+          "state": "deep_link_authentication",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc3022859",
+          "name": "M1-S01 / B2 · 鉴权后同版本 Web 1项",
+          "width": 600,
+          "height": 760,
+          "state": "deep_link_authentication",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bce478fe",
+          "name": "M1-S01 / 登录 · 1440px",
+          "state": "signed_out",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 1440
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386be8e2dd1",
+          "name": "M1-S01 / 登录 · 1280px",
+          "state": "signed_out",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 1280
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "name": "M1-S01 / B2 · 身份评审入口",
+          "state": "mock_identity_selector",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 960
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d1dc4960",
+          "name": "M1-S01 / B2 · login-failure",
+          "state": "login_failed",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5b8",
+          "name": "M1-S01 / B2 · 鉴权后同版本 Web 20项",
+          "state": "deep_link_authentication",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc3022859",
+          "name": "M1-S01 / B2 · 鉴权后同版本 Web 1项",
+          "state": "deep_link_authentication",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S02",
+      "name": "任务中心",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "states": [
+        "loading",
+        "empty",
+        "filter_empty",
+        "queued",
+        "analyzing",
+        "awaiting_approval",
+        "executing",
+        "completed",
+        "rejected",
+        "expired",
+        "needs_reapproval",
+        "failed",
+        "needs_attention"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "route": "/tasks",
+      "goal": "找到需要关注的授权任务并发起库存分析。",
+      "layout": "标题+新建按钮；少量授权范围状态计数；状态/日期/编号筛选；任务表与分页。无经营总览大屏。",
+      "data_and_metrics": "task_id、请求摘要、发起人显示名、created_at、销量窗口、source_kind、state、active_plan版本、sync摘要；计数与列表同scope。",
+      "controls_and_navigation": "B10新建；B13筛选/排序/分页；B14任务行到S09；B39/B40/B41全局导航。",
+      "role_policy": "operator可新建；approver只看授权任务；admin仅兼任/明确业务读授权才可见；无权限不返回数据。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1a",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [
+        "empty",
+        "loading",
+        "read_failure",
+        "role_scope"
+      ],
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "visual_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "name": "M1-S02 / 任务中心 · Desktop 1440",
+          "width": 1440,
+          "height": 1000,
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c0db21de",
+          "name": "M1-S02 / B2 · identity-operator",
+          "width": 600,
+          "height": 760,
+          "state": "role_scope",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1",
+          "name": "M1-S02 / B2 · identity-admin",
+          "width": 600,
+          "height": 760,
+          "state": "role_scope",
+          "role": "admin",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+          "name": "M1-S02 / B2 · identity-admin-operator",
+          "width": 600,
+          "height": 760,
+          "state": "role_scope",
+          "role": "admin + operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "name": "M1-S02 / B2 · loading",
+          "width": 600,
+          "height": 760,
+          "state": "loading",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "name": "M1-S02 / B2 · empty",
+          "width": 600,
+          "height": 760,
+          "state": "empty",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "name": "M1-S02 / B2 · read-failure",
+          "width": 600,
+          "height": 760,
+          "state": "read_failure",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "name": "M1-S02 / 任务中心 · Desktop 1440",
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c0db21de",
+          "name": "M1-S02 / B2 · identity-operator",
+          "state": "role_scope",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1",
+          "name": "M1-S02 / B2 · identity-admin",
+          "state": "role_scope",
+          "role": "admin",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+          "name": "M1-S02 / B2 · identity-admin-operator",
+          "state": "role_scope",
+          "role": "admin + operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "name": "M1-S02 / B2 · loading",
+          "state": "loading",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "name": "M1-S02 / B2 · empty",
+          "state": "empty",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "name": "M1-S02 / B2 · read-failure",
+          "state": "read_failure",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "26e778de-c7ba-8031-8008-c39d562b626f",
+          "name": "M1-S02 / B3 · account-menu",
+          "state": "account-menu",
+          "role": "operator",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 420
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S03",
+      "name": "库存分析报告",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "states": [
+        "loading",
+        "not_generated",
+        "ready",
+        "no_action",
+        "data_incomplete",
+        "unknown_inventory",
+        "negative_inventory",
+        "zero_demand",
+        "unknown_inbound_draft",
+        "scope_over_20",
+        "narrative_fallback",
+        "stale_version"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "route": "/tasks/:task_id/report?version=:version",
+      "goal": "理解风险、计算依据、可执行范围与阻断因素。",
+      "layout": "任务子导航；来源/版本/完整性条；风险与资格计数；简短解释；SKU事实表；行详情；固定下一步区。",
+      "data_and_metrics": "snapshot_id、report_id、window_start/end、shop timezone、inventory_observed_at、complete/quality_flags、rule_version、L/R/S、facts_hash；每SKU原始需求/退款、D、A、raw/effective inbound、T、Q、风险、资格、open item引用；覆盖天数仅D>0且有已知A时展示并说明A/D。",
+      "controls_and_navigation": "B17查看审批；B18口径；B19解释；B06提出重算；B33历史版本；B43行详情；B15/B16页签。筛选不改变审批范围。",
+      "role_policy": "授权operator/approver可读；重算仅operator且对象授权；admin不默认可读；历史报告只读。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1a",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC07"
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [
+        "data_incomplete",
+        "ready",
+        "template_fallback"
+      ],
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "visual_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "name": "M1-S03 / 库存分析报告 · Desktop 1440",
+          "width": 1440,
+          "height": 1110,
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ca75bab2",
+          "name": "M1-S03 / B2 · operator-report",
+          "width": 600,
+          "height": 760,
+          "state": "ready",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38737d9249d",
+          "name": "M1-S03 / B2 · model-fallback",
+          "width": 600,
+          "height": 760,
+          "state": "template_fallback",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38739c749c7",
+          "name": "M1-S03 / B2 · data-incomplete",
+          "width": 600,
+          "height": 760,
+          "state": "data_incomplete",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "name": "M1-S03 / 库存分析报告 · Desktop 1440",
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ca75bab2",
+          "name": "M1-S03 / B2 · operator-report",
+          "state": "ready",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38737d9249d",
+          "name": "M1-S03 / B2 · model-fallback",
+          "state": "template_fallback",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38739c749c7",
+          "name": "M1-S03 / B2 · data-incomplete",
+          "state": "data_incomplete",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988a71062b",
+          "name": "M1-S03 / B3 · version-history",
+          "state": "version-history",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988d1387e3",
+          "name": "M1-S03 / B3 · historical-report",
+          "state": "historical-report",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S04",
+      "name": "审批详情",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "states": [
+        "loading",
+        "pending_known_inbound",
+        "pending_unknown_inbound",
+        "preparing_delivery",
+        "submitting",
+        "result_unknown",
+        "approved_execution_pending",
+        "rejected",
+        "expired",
+        "superseded",
+        "decision_conflict",
+        "permission_revoked",
+        "plan_changed",
+        "assumption_ack_required",
+        "executed",
+        "disclosure_incomplete",
+        "render_truncated",
+        "plan_version_mismatch"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "Native desktop/full SKU narrow B1 + six 390px B2 states checked in Viewer",
+      "route": "/approvals/:approval_id",
+      "goal": "让审批人对完整冻结范围做一次知情决定并跟踪回执。",
+      "layout": "面包屑+计划版本/期限；批准后会创建什么；全部≤20条SKU清单；假设逐项披露；历史决定/执行结果；底部明确决策按钮。无默认勾选。 390窄屏完整展开全部SKU及风险，最终动作在清单之后；不置顶/悬浮批准，不通过top-N、筛选或折叠隐藏范围。",
+      "data_and_metrics": "approval_id、plan_id/version/hash短展示、expires_at、eligible scope、全部canonical_items/required_assumptions、数据时点/参数、ready_at、决定人/时间/来源、execution结果与当前计划状态。nonce不在UI或日志显示。",
+      "controls_and_navigation": "B02/B05仅已知在途；B03/B04仅存在未知在途；B23核实结果；B15关联报告；B29任务结果；B33看历史版本。 未完整披露时无可执行批准；客户端不支持则引导有权Web完整详情，不在截断卡片批准。",
+      "role_policy": "operator授权任务仅只读；approver必须当前eligible/同店铺；admin兼任才可批准；按钮可见性不代替服务端验证。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC06",
+        "BC07"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "name": "M1-S04 / 审批详情 · 3 项未知在途 · Desktop",
+          "width": 1440,
+          "height": 1100,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c1095dce",
+          "name": "M1-S04 / 390px · 20 项 / 4 项未知在途",
+          "width": 390,
+          "height": 4348,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d4721f57",
+          "name": "M1-S04 / 390px · 1 项 / 已知在途",
+          "width": 390,
+          "height": 1118,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f839e836",
+          "name": "M1-S04 / 披露不完整 / 版本变化 · 局部阻断",
+          "width": 560,
+          "height": 460,
+          "state": "disclosure_incomplete",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f8de4538",
+          "name": "M1-S04 / operator 只读动作区 · 局部样例",
+          "width": 560,
+          "height": 418,
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37b1249a935",
+          "name": "M1-S04 / 历史审批 APR-DEMO-H01 · 只读",
+          "width": 600,
+          "height": 440,
+          "state": "rejected",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c96b1b7f",
+          "name": "M1-S04 / B2 · operator-readonly",
+          "width": 600,
+          "height": 760,
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872f70da65",
+          "name": "M1-S04 / B2 · approval-expired",
+          "width": 600,
+          "height": 760,
+          "state": "expired",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d592ed8",
+          "name": "M1-S04 / B2 · approval-expired · 390px",
+          "width": 390,
+          "height": 760,
+          "state": "expired",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387305f5b64",
+          "name": "M1-S04 / B2 · approval-version",
+          "width": 600,
+          "height": 760,
+          "state": "superseded",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080",
+          "name": "M1-S04 / B2 · current-v2-readonly",
+          "width": 600,
+          "height": 760,
+          "state": "current_version_disclosure_pending",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e72",
+          "name": "M1-S04 / B2 · approval-version · 390px",
+          "width": 390,
+          "height": 760,
+          "state": "superseded",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873145441d",
+          "name": "M1-S04 / B2 · approval-duplicate",
+          "width": 600,
+          "height": 760,
+          "state": "duplicate_existing_decision",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d6e",
+          "name": "M1-S04 / B2 · approval-duplicate · 390px",
+          "width": 390,
+          "height": 760,
+          "state": "duplicate_existing_decision",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873235d58c",
+          "name": "M1-S04 / B2 · approval-conflict",
+          "width": 600,
+          "height": 760,
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886da5954f",
+          "name": "M1-S04 / B2 · approval-conflict · 390px",
+          "width": 390,
+          "height": 760,
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38733275367",
+          "name": "M1-S04 / B2 · approval-submitting",
+          "width": 600,
+          "height": 760,
+          "state": "submitting",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873414b78a",
+          "name": "M1-S04 / B2 · approval-unknown",
+          "width": 600,
+          "height": 760,
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b27",
+          "name": "M1-S04 / B2 · approval-unknown · 390px",
+          "width": 390,
+          "height": 760,
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "conflict",
+        "current_version_disclosure_pending",
+        "disclosure_incomplete",
+        "duplicate_existing_decision",
+        "expired",
+        "mock",
+        "readonly",
+        "rejected",
+        "result_unknown",
+        "submitting",
+        "superseded"
+      ],
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "name": "M1-S04 / 审批详情 · 3 项未知在途 · Desktop",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c1095dce",
+          "name": "M1-S04 / 390px · 20 项 / 4 项未知在途",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d4721f57",
+          "name": "M1-S04 / 390px · 1 项 / 已知在途",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f839e836",
+          "name": "M1-S04 / 披露不完整 / 版本变化 · 局部阻断",
+          "state": "disclosure_incomplete",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f8de4538",
+          "name": "M1-S04 / operator 只读动作区 · 局部样例",
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37b1249a935",
+          "name": "M1-S04 / 历史审批 APR-DEMO-H01 · 只读",
+          "state": "rejected",
+          "role": "operator",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c96b1b7f",
+          "name": "M1-S04 / B2 · operator-readonly",
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872f70da65",
+          "name": "M1-S04 / B2 · approval-expired",
+          "state": "expired",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d592ed8",
+          "name": "M1-S04 / B2 · approval-expired · 390px",
+          "state": "expired",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387305f5b64",
+          "name": "M1-S04 / B2 · approval-version",
+          "state": "superseded",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080",
+          "name": "M1-S04 / B2 · current-v2-readonly",
+          "state": "current_version_disclosure_pending",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e72",
+          "name": "M1-S04 / B2 · approval-version · 390px",
+          "state": "superseded",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873145441d",
+          "name": "M1-S04 / B2 · approval-duplicate",
+          "state": "duplicate_existing_decision",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d6e",
+          "name": "M1-S04 / B2 · approval-duplicate · 390px",
+          "state": "duplicate_existing_decision",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873235d58c",
+          "name": "M1-S04 / B2 · approval-conflict",
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886da5954f",
+          "name": "M1-S04 / B2 · approval-conflict · 390px",
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38733275367",
+          "name": "M1-S04 / B2 · approval-submitting",
+          "state": "submitting",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873414b78a",
+          "name": "M1-S04 / B2 · approval-unknown",
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b27",
+          "name": "M1-S04 / B2 · approval-unknown · 390px",
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S05",
+      "name": "内部补货管理",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "states": [
+        "loading",
+        "empty",
+        "filter_empty",
+        "open",
+        "completed",
+        "closed",
+        "sync_pending",
+        "sync_failed",
+        "sync_unknown",
+        "item_state_conflict"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "route": "/replenishment-items",
+      "goal": "查找已由审批产生的内部工作项与跟进状态。",
+      "layout": "标题含内部工作项说明；open/completed/closed筛选；SKU/任务搜索；表格分页；详情入口。无新建采购或批量操作。",
+      "data_and_metrics": "item_id、sku_key/label、stock_pool_key、quantity、status/version、源task/plan、approved_by、创建时间、resolution摘要、sync状态/版本。",
+      "controls_and_navigation": "B24筛选；B25打开S11；B26/B27打开单项原因弹窗；B38查看同步详情。",
+      "role_policy": "operator只读授权派生项（D01已接受，BC01待落实）；approver同店铺可完成/关闭open；admin无默认业务权；无权不见列表及计数。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "name": "M1-S05 / 内部补货列表 · Desktop",
+          "width": 1440,
+          "height": 1000,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763de19817",
+          "name": "M1-S05 / 筛选只读预览",
+          "width": 440,
+          "height": 320,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "mock"
+      ],
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "name": "M1-S05 / 内部补货列表 · Desktop",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763de19817",
+          "name": "M1-S05 / 筛选只读预览",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 440
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S06",
+      "name": "Agent执行轨迹",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c375809431d6",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "states": [
+        "loading",
+        "empty",
+        "queued",
+        "running",
+        "interrupted",
+        "recovering",
+        "failed",
+        "needs_attention",
+        "completed",
+        "usage_unknown",
+        "sync_pending",
+        "sync_failed",
+        "sync_unknown",
+        "result_unknown"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "Dedicated native 1440/1280 layouts checked; not responsive frontend implementation",
+      "route": "/tasks/:task_id/events",
+      "goal": "解释任务经历的事实、失败边界和恢复证据。",
+      "layout": "任务页签；当前业务结果摘要；按实际时间排序的节点/尝试时间线；点击步骤展现脱敏详情；模型用量与审批审计折叠区。",
+      "data_and_metrics": "workflow_version、node/run_attempt、tool_name/version/status/duration、safe_args、result_ref、snapshot/plan/decision/execution引用、模型/provider/prompt_version/usage/cost_estimate/pricing_version、等待与运行耗时、safe error/trace_id、outbox状态。",
+      "controls_and_navigation": "B43展开步骤；B34复制安全编号；B29返回业务结果；B38查看同步说明。B09保留历史ID但不渲染/不绑定动作；仅展示既有自动恢复/对账状态。",
+      "role_policy": "授权operator/approver看任务级脱敏事实；admin异常元信息在S08，完整轨迹需业务读授权；不展示秘密、原始回调、SQL、客户PII、模型思维链。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "name": "M1-S06 / Agent 执行轨迹 · Desktop",
+          "width": 1440,
+          "height": 1180,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "name": "M1-S06 / B2 · 轨迹 1280px",
+          "width": 1280,
+          "height": 1180,
+          "state": "business_steps",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+          "name": "M1-S06 / 飞书投影详情 · 局部事实",
+          "width": 600,
+          "height": 500,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fa549906",
+          "name": "M1-S06 / 工具安全详情 · 局部事实",
+          "width": 640,
+          "height": 900,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38736e3afb7",
+          "name": "M1-S06 / B2 · sync-unknown",
+          "width": 600,
+          "height": 760,
+          "state": "sync_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38738cee306",
+          "name": "M1-S06 / B2 · usage-unknown",
+          "width": 600,
+          "height": 760,
+          "state": "usage_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "business_steps",
+        "mock",
+        "sync_unknown",
+        "usage_unknown"
+      ],
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "name": "M1-S06 / Agent 执行轨迹 · Desktop",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "name": "M1-S06 / B2 · 轨迹 1280px",
+          "state": "business_steps",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 1280
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+          "name": "M1-S06 / 飞书投影详情 · 局部事实",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 600
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fa549906",
+          "name": "M1-S06 / 工具安全详情 · 局部事实",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 640
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38736e3afb7",
+          "name": "M1-S06 / B2 · sync-unknown",
+          "state": "sync_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38738cee306",
+          "name": "M1-S06 / B2 · usage-unknown",
+          "state": "usage_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S07",
+      "name": "访问限制与会话过期",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+        "revision": "m1-ui/0.3.0-b2"
+      },
+      "states": [
+        "forbidden",
+        "not_found_or_forbidden",
+        "session_expired",
+        "permission_revoked"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "specified_not_prototyped",
+      "route": "/access",
+      "goal": "给出可理解但不泄露资源存在性的访问反馈。",
+      "layout": "简洁状态图标+原因类别+返回/登录按钮；不渲染受限业务壳中的旧数据。",
+      "data_and_metrics": "安全错误类别、当前身份、trace_id；无SKU/报告/对象所有者。",
+      "controls_and_navigation": "B31回授权首页；B11重新登录；B12退出。不存在与跨scope对象统一安全提示。",
+      "role_policy": "任何身份可见提示；不提供申请新业务权限按钮、不因失败自动提权。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B2",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "b2_availability": "native_variants_mapped",
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [
+        "forbidden",
+        "not_found_or_forbidden",
+        "permission_revoked",
+        "session_expired"
+      ],
+      "visual_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+          "name": "M1-S07 / B2 · identity-unauthorized",
+          "width": 600,
+          "height": 760,
+          "state": "forbidden",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ce71898c",
+          "name": "M1-S07 / B2 · access",
+          "width": 600,
+          "height": 760,
+          "state": "not_found_or_forbidden",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cfa20c01",
+          "name": "M1-S07 / B2 · revoked",
+          "width": 600,
+          "height": 760,
+          "state": "permission_revoked",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d0c1353b",
+          "name": "M1-S07 / B2 · expired-session",
+          "width": 600,
+          "height": 760,
+          "state": "session_expired",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+          "name": "M1-S07 / B2 · identity-unauthorized",
+          "state": "forbidden",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ce71898c",
+          "name": "M1-S07 / B2 · access",
+          "state": "not_found_or_forbidden",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cfa20c01",
+          "name": "M1-S07 / B2 · revoked",
+          "state": "permission_revoked",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d0c1353b",
+          "name": "M1-S07 / B2 · expired-session",
+          "state": "session_expired",
+          "role": "unauthorized",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S08",
+      "name": "管理员配置摘要与异常说明",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "b0616bef-0815-8023-8008-c39894562145",
+        "revision": "m1-ui/0.4.1-freeze-rc"
+      },
+      "states": [
+        "loading",
+        "read_config",
+        "empty",
+        "read_failure",
+        "permission_restricted",
+        "recovery_requires_attention",
+        "config_unavailable"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "specified_not_prototyped",
+      "route": "/admin/operations",
+      "goal": "管理员了解当前配置版本和需按既有流程处理的异常。",
+      "layout": "只读店铺/来源与规则摘要；集成配置状态；安全异常表；单条说明及现有运维文档入口。无密钥编辑器或通用用户管理。",
+      "data_and_metrics": "environment、rule/workflow版本、时区、角色配置摘要（不列不必要个人信息）、脱敏错误码/时间/trace_id、投影unknown/failed；不返回业务SKU金额或秘密。",
+      "controls_and_navigation": "B43展开异常；B34复制trace_id；B42重读；B30进入；无“重启Worker/重新发送/修改权限”写动作。",
+      "role_policy": "admin只读脱敏运维元信息；业务内容须通过显式兼任角色在自身scope内另行授权；无配置写UI（D05已接受），只读协议BC05待确认。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39894562145",
+          "name": "M1-S08 / B3 · 只读管理说明",
+          "state": "read-only-config",
+          "role": "admin",
+          "revision": "m1-ui/0.4.1-freeze-rc",
+          "width": 1440
+        }
+      ],
+      "navigation_policy": "AppShell admin-only mode: /admin/operations selected; no tasks/approvals/items links or inherited business grants. Combined roles require independent server scope.",
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-S09",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "name": "任务概览与结果",
+      "route": "/tasks/:task_id",
+      "goal": "回答这次请求做到哪一步、谁需行动、最终产生什么。",
+      "layout": "任务标题/请求/编号；阶段摘要；当前下一步卡；报告/审批/内部项关联；同步状态；概览/报告/轨迹页签。",
+      "data_and_metrics": "normalized_request、requester、source channel、state/failure_code、当前plan、审批决定、execution result_refs、内部项数量、last_updated、sync摘要；已完成结果不因图重试丢失。",
+      "controls_and_navigation": "B15报告；B16轨迹；B17审批；B25派生项；B38同步；B34编号。报告未生成时相应入口解释原因，不跳空报告。 B46仅源task已completed时打开下一周期草稿，不自动提交；飞书异步澄清关联提示属BC02 proposal。",
+      "role_policy": "授权任务读范围同D01；按当前身份仅提供有权动作；批准仍在S04。",
+      "states": [
+        "loading",
+        "queued",
+        "analyzing",
+        "async_clarification_protocol_pending",
+        "awaiting_approval",
+        "executing",
+        "completed",
+        "no_action",
+        "rejected",
+        "expired",
+        "needs_reapproval",
+        "failed",
+        "needs_attention",
+        "sync_failed",
+        "sync_unknown"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1a",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC02",
+        "BC03"
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [
+        "approved",
+        "executed",
+        "historical_result",
+        "queued",
+        "rejected",
+        "review_fixture"
+      ],
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "visual_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "name": "M1-S09 / 任务概览与关联结果 · Desktop",
+          "width": 1440,
+          "height": 1000,
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37577fd2aba",
+          "name": "M1-S09 / DEMO-PLAN-008 · approved回执",
+          "width": 390,
+          "height": 720,
+          "state": "approved",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37578d79ec0",
+          "name": "M1-S09 / DEMO-PLAN-008 · rejected回执",
+          "width": 390,
+          "height": 720,
+          "state": "rejected",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37579c80a4c",
+          "name": "M1-S09 / DEMO-PLAN-N20 · approved回执",
+          "width": 390,
+          "height": 720,
+          "state": "approved",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757acca614",
+          "name": "M1-S09 / DEMO-PLAN-N20 · rejected回执",
+          "width": 390,
+          "height": 720,
+          "state": "rejected",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757bcf0817",
+          "name": "M1-S09 / DEMO-PLAN-K01 · approved回执",
+          "width": 390,
+          "height": 720,
+          "state": "approved",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757ce7d800",
+          "name": "M1-S09 / DEMO-PLAN-K01 · rejected回执",
+          "width": 390,
+          "height": 720,
+          "state": "rejected",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757e23934a",
+          "name": "M1-S09 / 内部创建结果 · 主任务",
+          "width": 560,
+          "height": 530,
+          "state": "executed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cb9bbbe9",
+          "name": "M1-S09 / B2 · operator-accepted",
+          "width": 600,
+          "height": 760,
+          "state": "queued",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "name": "M1-S09 / B2 · review-hub",
+          "width": 960,
+          "height": 1060,
+          "state": "review_fixture",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873503e7cb",
+          "name": "M1-S09 / B2 · verified-history",
+          "width": 600,
+          "height": 760,
+          "state": "historical_result",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "name": "M1-S09 / 任务概览与关联结果 · Desktop",
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37577fd2aba",
+          "name": "M1-S09 / DEMO-PLAN-008 · approved回执",
+          "state": "approved",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37578d79ec0",
+          "name": "M1-S09 / DEMO-PLAN-008 · rejected回执",
+          "state": "rejected",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37579c80a4c",
+          "name": "M1-S09 / DEMO-PLAN-N20 · approved回执",
+          "state": "approved",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757acca614",
+          "name": "M1-S09 / DEMO-PLAN-N20 · rejected回执",
+          "state": "rejected",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757bcf0817",
+          "name": "M1-S09 / DEMO-PLAN-K01 · approved回执",
+          "state": "approved",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757ce7d800",
+          "name": "M1-S09 / DEMO-PLAN-K01 · rejected回执",
+          "state": "rejected",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757e23934a",
+          "name": "M1-S09 / 内部创建结果 · 主任务",
+          "state": "completed",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cb9bbbe9",
+          "name": "M1-S09 / B2 · operator-accepted",
+          "state": "queued",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "name": "M1-S09 / B2 · review-hub",
+          "state": "review_fixture",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 960
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873503e7cb",
+          "name": "M1-S09 / B2 · verified-history",
+          "state": "historical_result",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "name": "M1-S09 / B3 · review-index",
+          "state": "review-index",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S10",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "name": "审批列表",
+      "route": "/approvals",
+      "goal": "让审批人找到可处理和已处理的冻结计划。",
+      "layout": "待我处理/已处理/全部可见标签；任务/状态/期限筛选；表格、空态与分页。",
+      "data_and_metrics": "approval_id、task摘要、plan版本、pending状态、expires_at、条目数、未知假设标识、decided_by/time；计数与eligible授权一致。",
+      "controls_and_navigation": "B20筛选；B21打开S04；不在列表直接一键批准、批量决定或预勾选。",
+      "role_policy": "approver看到eligible范围；operator仅授权任务审批只读；admin无默认权；不是全组织审批中心。",
+      "states": [
+        "loading",
+        "empty",
+        "filter_empty",
+        "pending",
+        "approved",
+        "rejected",
+        "expired",
+        "superseded",
+        "read_failure"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "name": "M1-S10 / 审批列表 · Desktop",
+          "width": 1440,
+          "height": 1000,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763d397cf2",
+          "name": "M1-S10 / 筛选只读预览",
+          "width": 440,
+          "height": 320,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5",
+          "name": "M1-S10 / B2 · identity-approver",
+          "width": 600,
+          "height": 760,
+          "state": "role_scope",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+          "name": "M1-S10 / B2 · identity-operator-approver",
+          "width": 600,
+          "height": 850,
+          "state": "role_scope",
+          "role": "operator + approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c732abaa",
+          "name": "M1-S10 / B2 · identity-admin-approver",
+          "width": 600,
+          "height": 760,
+          "state": "role_scope",
+          "role": "admin + approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "name": "M1-S10 / B2 · identity-admin-operator-approver",
+          "width": 600,
+          "height": 850,
+          "state": "role_scope",
+          "role": "admin + operator + approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "mock",
+        "role_scope"
+      ],
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "name": "M1-S10 / 审批列表 · Desktop",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763d397cf2",
+          "name": "M1-S10 / 筛选只读预览",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 440
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5",
+          "name": "M1-S10 / B2 · identity-approver",
+          "state": "role_scope",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+          "name": "M1-S10 / B2 · identity-operator-approver",
+          "state": "role_scope",
+          "role": "operator + approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c732abaa",
+          "name": "M1-S10 / B2 · identity-admin-approver",
+          "state": "role_scope",
+          "role": "admin + approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "name": "M1-S10 / B2 · identity-admin-operator-approver",
+          "state": "role_scope",
+          "role": "admin + operator + approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-S11",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "name": "内部工作项详情",
+      "route": "/replenishment-items/:item_id",
+      "goal": "核对单个内部项的来源、状态、跟进记录及同步结果。",
+      "layout": "标题SKU+内部项状态；数量与依据；源任务/报告/审批链接；跟进历史；Base投影状态；有权时完成/关闭动作。",
+      "data_and_metrics": "item_id/version、stock_pool_key、quantity、approved_plan_id/approved_by、source_snapshot、resolved_by/time/reason、sync/version/external_link是否可用。",
+      "controls_and_navigation": "B26完成/B27关闭→M01；B37来源报告；B38同步详情；B34复制item_id；终态不重开。 第三批B46仅在源业务任务completed时打开下一周期草稿，不绕过open项。",
+      "role_policy": "approver同店铺可resolve；operator授权派生项只读；admin显式兼任才有动作；外链仅返回已授权且存在的投影引用。",
+      "states": [
+        "loading",
+        "open",
+        "completed",
+        "closed",
+        "sync_pending",
+        "sync_failed",
+        "sync_unknown",
+        "item_state_conflict",
+        "permission_revoked"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "name": "M1-S11 / 内部工作项详情 · SKU-A",
+          "width": 1440,
+          "height": 1000,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ae3259a",
+          "name": "M1-S11 / 只读详情 · SKU-B",
+          "width": 600,
+          "height": 470,
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b73c291",
+          "name": "M1-S11 / 只读详情 · SKU-C",
+          "width": 600,
+          "height": 470,
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757f0f161d",
+          "name": "M1-S11 / 已完成回执 · 终态",
+          "width": 560,
+          "height": 480,
+          "state": "completed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757fd0a65a",
+          "name": "M1-S11 / 已关闭回执 · 终态",
+          "width": 560,
+          "height": 480,
+          "state": "closed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38735f2870e",
+          "name": "M1-S11 / B2 · sync-failed",
+          "width": 600,
+          "height": 760,
+          "state": "sync_failed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ac57e0c",
+          "name": "M1-S11 / B2 · item-conflict",
+          "width": 600,
+          "height": 760,
+          "state": "item_state_conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873bc261a1",
+          "name": "M1-S11 / B2 · item-completed",
+          "width": 600,
+          "height": 760,
+          "state": "completed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873cc489a2",
+          "name": "M1-S11 / B2 · item-closed",
+          "width": 600,
+          "height": 760,
+          "state": "closed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881ce07c18",
+          "name": "M1-S11 / B2 · complete-verified",
+          "width": 600,
+          "height": 760,
+          "state": "historical_result",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38822fd8afb",
+          "name": "M1-S11 / B2 · close-verified",
+          "width": 600,
+          "height": 760,
+          "state": "historical_result",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "closed",
+        "completed",
+        "historical_result",
+        "item_state_conflict",
+        "mock",
+        "readonly",
+        "sync_failed"
+      ],
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "name": "M1-S11 / 内部工作项详情 · SKU-A",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 1440
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ae3259a",
+          "name": "M1-S11 / 只读详情 · SKU-B",
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 600
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b73c291",
+          "name": "M1-S11 / 只读详情 · SKU-C",
+          "state": "readonly",
+          "role": "operator",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 600
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757f0f161d",
+          "name": "M1-S11 / 已完成回执 · 终态",
+          "state": "completed",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757fd0a65a",
+          "name": "M1-S11 / 已关闭回执 · 终态",
+          "state": "closed",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38735f2870e",
+          "name": "M1-S11 / B2 · sync-failed",
+          "state": "sync_failed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ac57e0c",
+          "name": "M1-S11 / B2 · item-conflict",
+          "state": "item_state_conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873bc261a1",
+          "name": "M1-S11 / B2 · item-completed",
+          "state": "completed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873cc489a2",
+          "name": "M1-S11 / B2 · item-closed",
+          "state": "closed",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881ce07c18",
+          "name": "M1-S11 / B2 · complete-verified",
+          "state": "historical_result",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38822fd8afb",
+          "name": "M1-S11 / B2 · close-verified",
+          "state": "historical_result",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-F01",
+      "name": "飞书审批卡片",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c373c88a718a",
+        "revision": "m1-ui/0.3.0-b2"
+      },
+      "states": [
+        "pending_known_inbound",
+        "pending_unknown_inbound",
+        "submitting",
+        "approved_execution_pending",
+        "rejected",
+        "expired",
+        "superseded",
+        "duplicate_existing_decision",
+        "unauthorized",
+        "conflict",
+        "sync_failed",
+        "client_unsupported",
+        "disclosure_incomplete",
+        "render_truncated",
+        "plan_version_mismatch"
+      ],
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "native_390px_layout_1_and_20_SKU_Viewer_checked; not responsive app or real Feishu client",
+      "route": "feishu://existing-allowed-conversation",
+      "goal": "在已有授权协作渠道查看完整计划并显式审批。",
+      "layout": "标题任务/环境/版本；窗口/库存时点；全部SKU逐项；风险/参数/假设；期限；两枚适用决策按钮；Web详情/结果链接。 390窄屏完整展开全部SKU及风险，最终动作在清单之后；不置顶/悬浮批准，不通过top-N、筛选或折叠隐藏范围。",
+      "data_and_metrics": "与S04相同冻结计划；≤20条完整批准范围；不展示token/nonce；共享更新只能用共同可见内容。",
+      "controls_and_navigation": "B02/B05或B03/B04；B21 Web详情；B29结果；重复显示既有决定；关闭无效果。 未完整披露时无可执行批准；客户端不支持则引导有权Web完整详情，不在截断卡片批准。",
+      "role_policy": "卡片可能被转发或无权成员看到，客户端不能按角色隐藏而当作保护；可信回调逐次认证操作者；外发范围遵循既有允许群/用户，不扩大授权。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC06",
+        "BC07"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c88a718a",
+          "name": "M1-F01 / 飞书 390px · 20 项 / 4 项未知在途",
+          "width": 390,
+          "height": 4468.000000000001,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d743cc7c",
+          "name": "M1-F01 / 飞书 390px · 1 项 / 已知在途",
+          "width": 390,
+          "height": 1238,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873dcafcbf",
+          "name": "M1-F01 / B2 · platform-capacity",
+          "width": 600,
+          "height": 760,
+          "state": "client_unsupported",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c51e",
+          "name": "M1-F01 / B2 · platform-capacity · 390px",
+          "width": 390,
+          "height": 760,
+          "state": "client_unsupported",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "client_unsupported",
+        "mock"
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c88a718a",
+          "name": "M1-F01 / 飞书 390px · 20 项 / 4 项未知在途",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d743cc7c",
+          "name": "M1-F01 / 飞书 390px · 1 项 / 已知在途",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873dcafcbf",
+          "name": "M1-F01 / B2 · platform-capacity",
+          "state": "client_unsupported",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c51e",
+          "name": "M1-F01 / B2 · platform-capacity · 390px",
+          "state": "client_unsupported",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 390
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-M01",
+      "name": "单项完成/关闭原因",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "448723ff-8a21-80dc-8008-c3751c128013",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "states": [
+        "reason_empty",
+        "reason_valid",
+        "submitting",
+        "result_unknown",
+        "success",
+        "conflict",
+        "permission_revoked"
+      ],
+      "roles": [
+        "approver"
+      ],
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "route": "overlay:S11",
+      "goal": "记录明确的单项终态动作和必填原因。",
+      "layout": "标题明确“内部跟进完成”或“关闭内部工作项”；SKU/数量/当前版本摘要；原因文本域；取消与对应提交按钮；无默认原因。",
+      "data_and_metrics": "item_id、status=open、expected_version、action、reason、固定本次request_key；提示不表示入库。",
+      "controls_and_navigation": "B07或B08提交；B28取消/Esc；失败留原输入；unknown先重读，不能换键或改payload假装重试。",
+      "role_policy": "只允许当前同店铺approver；权限撤销清理并S07；非open只能看冲突说明。",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1b",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "visual_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c128013",
+          "name": "M1-M01 / 完成原因 · 未填写",
+          "width": 560,
+          "height": 560,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c388192889f8",
+          "name": "M1-M01 / B2 · complete-validation",
+          "width": 560,
+          "height": 560,
+          "state": "validation_error",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751cdf0876",
+          "name": "M1-M01 / 完成原因 · 显式选择 Mock 示例",
+          "width": 560,
+          "height": 560,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751da663dd",
+          "name": "M1-M01 / 关闭原因 · 未填写",
+          "width": 560,
+          "height": 560,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c35",
+          "name": "M1-M01 / B2 · close-validation",
+          "width": 560,
+          "height": 560,
+          "state": "validation_error",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+          "name": "M1-M01 / 关闭原因 · 显式选择 Mock 示例",
+          "width": 560,
+          "height": 560,
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38819e1ef46",
+          "name": "M1-M01 / B2 · complete-submitting",
+          "width": 600,
+          "height": 760,
+          "state": "submitting",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881ae3ee27",
+          "name": "M1-M01 / B2 · complete-unknown",
+          "width": 600,
+          "height": 760,
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881bdfcc50",
+          "name": "M1-M01 / B2 · complete-conflict",
+          "width": 600,
+          "height": 760,
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881fefd1bc",
+          "name": "M1-M01 / B2 · close-submitting",
+          "width": 600,
+          "height": 760,
+          "state": "submitting",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38820f73994",
+          "name": "M1-M01 / B2 · close-unknown",
+          "width": 600,
+          "height": 760,
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38821f7fac6",
+          "name": "M1-M01 / B2 · close-conflict",
+          "width": 600,
+          "height": 760,
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "visual_states": [
+        "conflict",
+        "mock",
+        "result_unknown",
+        "submitting",
+        "validation_error"
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c128013",
+          "name": "M1-M01 / 完成原因 · 未填写",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c388192889f8",
+          "name": "M1-M01 / B2 · complete-validation",
+          "state": "validation_error",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 560
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751cdf0876",
+          "name": "M1-M01 / 完成原因 · 显式选择 Mock 示例",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751da663dd",
+          "name": "M1-M01 / 关闭原因 · 未填写",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c35",
+          "name": "M1-M01 / B2 · close-validation",
+          "state": "validation_error",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 560
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+          "name": "M1-M01 / 关闭原因 · 显式选择 Mock 示例",
+          "state": "mock",
+          "role": "approver",
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38819e1ef46",
+          "name": "M1-M01 / B2 · complete-submitting",
+          "state": "submitting",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881ae3ee27",
+          "name": "M1-M01 / B2 · complete-unknown",
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881bdfcc50",
+          "name": "M1-M01 / B2 · complete-conflict",
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881fefd1bc",
+          "name": "M1-M01 / B2 · close-submitting",
+          "state": "submitting",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38820f73994",
+          "name": "M1-M01 / B2 · close-unknown",
+          "state": "result_unknown",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38821f7fac6",
+          "name": "M1-M01 / B2 · close-conflict",
+          "state": "conflict",
+          "role": "approver",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "name": "自然语言新建分析",
+      "route": "overlay:S02",
+      "goal": "用自然语言提出受支持的库存分析并理解有效范围和自动送审。",
+      "layout": "桌面抽屉/窄屏整页：自然语言草稿、已知默认窗口/范围、提交前参数澄清、自动送审说明、创建按钮。未受理前无task_id/排队状态；预解析/候选来源pending BC02。",
+      "data_and_metrics": "原请求；默认最近7完整日/时区；显式SKU范围；规则演示标签；解析完成前不得把候选参数写成已确认；无价格或供应商字段。 预解析不可用时明确待定，不伪造SKU候选或已确认解析结果；结构化输入的最终有效性仍由服务端验证。",
+      "controls_and_navigation": "B35只在本地确认草稿参数并留在M02；B01才显式提交分析；B45关闭未提交草稿。提交后才识别歧义的处理pending BC02，不能伪造续答API。",
+      "role_policy": "operator可用，角色兼任同样校验；无operator无入口；自然语言“同意”不能成为审批动作。",
+      "states": [
+        "draft",
+        "parameter_review",
+        "invalid_input",
+        "ambiguous_sku",
+        "preparse_protocol_pending",
+        "submitting",
+        "result_unknown",
+        "unsupported_intent",
+        "scope_over_capacity",
+        "accepted"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1a",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC02",
+        "BC05"
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [
+        "draft"
+      ],
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "visual_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "name": "M1-M02 / 新建库存分析 · 原生抽屉",
+          "width": 600,
+          "height": 1000,
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5730",
+          "name": "M1-M02 / B2 · operator-draft",
+          "width": 600,
+          "height": 760,
+          "state": "draft",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.3.0-b2"
+        }
+      ],
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "name": "M1-M02 / 新建库存分析 · 原生抽屉",
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 600
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5730",
+          "name": "M1-M02 / B2 · operator-draft",
+          "state": "draft",
+          "role": "operator",
+          "revision": "m1-ui/0.3.0-b2",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398869ab4f8",
+          "name": "M1-M02 / B3 · next-cycle-draft",
+          "state": "next-cycle-draft",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-M03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c344b0081036",
+        "revision": "m1-ui/0.2.0-b1b"
+      },
+      "name": "数据口径与来源",
+      "route": "overlay:S03",
+      "goal": "让用户无需离开报告即可复算关键数字。",
+      "layout": "只读侧栏/窄屏面板：来源与完整性、统计窗口、公式/参数、SKU示例、限制；返回触发位置。",
+      "data_and_metrics": "snapshot/report/rule版本；D=原始需求/7；T=ceil(D*(L+R+S))；Q=max(0,T-A-effective_inbound)；退款独立、未知/负库存、演示参数、假设说明。",
+      "controls_and_navigation": "B22关闭/Esc；B43展开字段定义；不提供直接编辑冻结参数。",
+      "role_policy": "继承报告读权限；数据不可读时不缓存展示；admin不默认可读。",
+      "states": [
+        "loading",
+        "ready",
+        "missing_evidence",
+        "read_failure"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1a",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "visual_coverage": "B1主实例保留；B2复用局部权限与异常组件。各页读取接入及键盘、焦点、读屏仍待实现。",
+      "visual_states": [],
+      "visual_validation": "native readback + actual Viewer; see delivery and preserved failures",
+      "visual_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344b0081036",
+          "name": "M1-M03 / 数据口径与来源 · B1a 最小弹窗",
+          "width": 560,
+          "height": 580,
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.3.0-b2",
+          "source_shape_revision": "m1-ui/0.2.0-b1b"
+        }
+      ],
+      "b1b_availability": "mapped",
+      "b2_availability": "native_variants_mapped",
+      "shared_read_state_refs": [
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "state": "loading"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "state": "empty"
+        },
+        {
+          "screen_id": "M1-S02",
+          "shape_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "state": "read-failure"
+        }
+      ],
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344b0081036",
+          "name": "M1-M03 / 数据口径与来源 · B1a 最小弹窗",
+          "state": null,
+          "role": null,
+          "revision": "m1-ui/0.2.0-b1b",
+          "width": 560
+        }
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-M04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "b0616bef-0815-8023-8008-c39872fa6806",
+        "revision": "m1-ui/0.4.0-b3"
+      },
+      "name": "解释本报告",
+      "route": "overlay:S03",
+      "goal": "对已有结论进行受限追问并给出可定位事实引用。",
+      "layout": "固定上下文标签task/report/version；2–3个问题建议；消息区与引用；输入/发送；关闭回报告。",
+      "data_and_metrics": "只读已授权report和SKU事实引用、narrative_mode、解释错误/超限状态；不混入别人的任务或不同快照。",
+      "controls_and_navigation": "B32解释请求，API待契约；B22关闭；事实引用B43定位行；要求改数量/批准/新查询时说明边界并引导合适页面，不自动执行。",
+      "role_policy": "继承报告读权限；仅explain_report路由；无动态Tool自由查数/RAG/全局对话写操作。",
+      "states": [
+        "loading",
+        "ready",
+        "explaining",
+        "explanation_failed",
+        "template_fallback",
+        "unsupported_request",
+        "budget_exceeded",
+        "context_expired"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "specified_not_prototyped",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39872fa6806",
+          "name": "M1-M04 / B3 · report-explanation",
+          "state": "report-explanation",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398764b1703",
+          "name": "M1-M04 / B3 · explanation-loading",
+          "state": "explanation-loading",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39878416fa0",
+          "name": "M1-M04 / B3 · explanation-failure",
+          "state": "explanation-failure",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987a2d6dd7",
+          "name": "M1-M04 / B3 · explanation-template",
+          "state": "explanation-template",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-M05",
+      "roles": [
+        "operator"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "b0616bef-0815-8023-8008-c3987c102147",
+        "revision": "m1-ui/0.4.0-b3"
+      },
+      "name": "重算影响预览",
+      "route": "overlay:S03",
+      "goal": "在重算前明确版本与重新授权影响。",
+      "layout": "按来源区分待执行计划、rejected/expired、completed三种情境；显示新计划/新审批和旧确认不可复用。B36在BC03确认前保持proposal禁用，completed使用B46只开新草稿。",
+      "data_and_metrics": "原task/plan/approval/execution状态与拟调整范围；旧审批只读；不得手填Q。执行中/结果未知先核实，不覆盖执行；task关联/迁移/原子失效均pending BC03。",
+      "controls_and_navigation": "B36待执行计划重算或拒绝/过期后重新发起（proposal，BC03）；B46已完成任务下一周期→M02，再由B01显式创建新task；B22取消。",
+      "role_policy": "operator及对象授权；approver需兼任；重算不是恢复retry，不自动移用批准。",
+      "states": [
+        "pending_plan_review",
+        "rejected_expired_review",
+        "completed_next_cycle",
+        "contract_pending",
+        "execution_result_unknown",
+        "version_conflict",
+        "scope_invalid"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "responsive_status": "specified_not_prototyped",
+      "common_states": "global_ui_states",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC03",
+        "BC05"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987c102147",
+          "name": "M1-M05 / B3 · recalculation-pending",
+          "state": "recalculation-pending",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987f18662f",
+          "name": "M1-M05 / B3 · reinitiation-proposal",
+          "state": "reinitiation-proposal",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39882044bc5",
+          "name": "M1-M05 / B3 · reanalysis-execution-unknown",
+          "state": "reanalysis-execution-unknown",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988448c714",
+          "name": "M1-M05 / B3 · completed-next-cycle",
+          "state": "completed-next-cycle",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 600
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-F02",
+      "name": "飞书任务关联异步澄清消息（proposal）",
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "b0616bef-0815-8023-8008-c398909f7a97",
+        "revision": "m1-ui/0.4.0-b3"
+      },
+      "roles": [
+        "operator",
+        "unauthorized"
+      ],
+      "route": "feishu://existing-allowed-conversation/task-clarification-proposal",
+      "goal": "在既有允许聊天范围内对指定任务补充参数，不影响其他任务或冻结计划。",
+      "layout": "消息标题含task编号；原请求摘要、问题/候选项、回复关联说明；无审批按钮；消息关联和问题轮次协议pending BC02。",
+      "data_and_metrics": "可信组织/聊天/发起人/话题与task关联、待补充字段、候选来源、问题轮次/时间；具体字段为待定协议，不声称已有API payload。",
+      "controls_and_navigation": "B47关联回复保持proposal，待领域负责人确认去重/关联/续跑；不调用Web B35或审批动作。其他成员或错误任务的回复不得修改请求。",
+      "role_policy": "只有原任务当前有权发起人补充；跨组织/聊天/任务、他人回复、迟到或重复回复的拒绝/幂等处理由BC02确认；无权限不泄露任务内容。",
+      "states": [
+        "async_question_proposal",
+        "reply_protocol_pending",
+        "wrong_task_or_actor",
+        "duplicate_reply",
+        "stale_question",
+        "clarification_unavailable"
+      ],
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "implementation_status": "not_implemented",
+      "responsive_status": "proposal_not_prototyped",
+      "common_states": "global_ui_states",
+      "visibility_guard": "D01 scoped authorization + D02 task/conversation binding; BC01/BC02 pending",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398909f7a97",
+          "name": "M1-F02 / B3 · feishu-clarification-proposal",
+          "state": "feishu-clarification-proposal",
+          "role": "scoped-mock",
+          "revision": "m1-ui/0.4.0-b3",
+          "width": 390
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    }
+  ],
+  "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+  "design_document": "c1-product-design.md",
+  "visual_scope": "Existing approved M1 native pages retained; final local admin navigation revision only; business not implemented",
+  "baseline_ux_commit": "77b69d3",
+  "authorization_policy": {
+    "status": "accepted_product_design_pending_backend_enforcement",
+    "operator": "本人有权任务及派生对象；创建分析/提出重算仍按对象授权",
+    "approver": "eligible审批和必要关联任务；同店铺内部工作项",
+    "admin": "单角色仅脱敏配置与异常元信息，无默认业务读/审批权",
+    "unauthorized": "没有业务数据或计数",
+    "combined_roles": "共同约束 AND 存在一个已显式分配的有效角色在其自身scope内授予该动作；读集合取并集，不拼接不同角色的动作权与对象范围",
+    "deny_precedence": [
+      "身份禁用/会话失效",
+      "组织或店铺不匹配",
+      "当前动作无有效角色或不在该角色scope",
+      "审批非eligible",
+      "状态/版本/期限/质量/幂等条件不满足"
+    ],
+    "examples": {
+      "operator+approver": "本人任务创建/读取 + eligible审批；本人任务不自动eligible",
+      "admin+operator": "运维元信息 + 本人业务能力；不能审批",
+      "admin+approver": "运维元信息 + eligible审批/同店铺内部项；不能创建分析"
+    },
+    "backend_contract_ref": "BC01"
+  },
+  "global_ui_states": {
+    "loading": "骨架占位，不显示虚假0；副作用按钮禁用",
+    "empty": "区分真正无记录、筛选无匹配、未授权；不泄露全店计数",
+    "read_failure": "区域错误+safe_message/trace_id+重读；保留旧数据时标最后更新时间且禁止据此批准",
+    "session_expired": "跳S01，保留安全站内return_to；重新登录后重读，不自动重放写操作",
+    "forbidden": "S07；清理旧敏感内容，不展示其他对象名称",
+    "stale": "显示时间/版本，重新获取；冻结历史不被新读覆盖",
+    "submitting": "禁用同对象相反动作；不乐观显示业务成功",
+    "result_unknown": "先读取原对象及回执；安全重投沿用原key/payload",
+    "conflict": "展示授权范围内最新状态，禁止覆盖；用户重新理解后行动"
+  },
+  "state_semantics": {
+    "business_task_states": [
+      "queued",
+      "analyzing",
+      "awaiting_approval",
+      "executing",
+      "completed",
+      "rejected",
+      "expired",
+      "needs_reapproval",
+      "failed",
+      "needs_attention"
+    ],
+    "approval_states": [
+      "pending",
+      "approved",
+      "rejected",
+      "expired",
+      "superseded"
+    ],
+    "item_states": [
+      "open",
+      "completed",
+      "closed"
+    ],
+    "sync_states": [
+      "pending",
+      "synced",
+      "failed",
+      "unknown"
+    ],
+    "ui_only": "其他screen状态仅为UI呈现；Web提交前澄清是本地草稿；飞书异步澄清映射pending BC02。未新增任何业务状态枚举。"
+  },
+  "pending_design_decisions": [],
+  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision independently reviewed, final confirmation pending",
+  "c2_authorized": true,
+  "decision_record": "c1-decisions.md",
+  "batch_plan": "c2-batches.md",
+  "accepted_product_decisions": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07",
+    "D08",
+    "D09"
+  ],
+  "pending_backend_contracts": [
+    "BC01",
+    "BC02",
+    "BC03",
+    "BC04",
+    "BC05",
+    "BC06",
+    "BC07"
+  ],
+  "clarification_policy": {
+    "product_decision": "D02",
+    "web": {
+      "phase": "before_submission",
+      "surface": "M1-M02",
+      "event": "M1-E35",
+      "task_id": null,
+      "effect": "仅草稿确认；B01显式创建任务",
+      "pending": "预解析/候选来源/校验协议及提交后才识别歧义的处理BC02"
+    },
+    "feishu": {
+      "phase": "task_linked_async",
+      "surface": "M1-F02",
+      "event": "M1-E47",
+      "effect": "proposal；需组织+聊天+发起人+话题/任务及问题轮次关联",
+      "pending": "关联/去重/持久化/超时/续跑/状态映射BC02"
+    },
+    "backend_states_added": false,
+    "backend_api_added": false
+  },
+  "reanalysis_policy": {
+    "product_decision": "D03",
+    "pending_plan": "新不可变计划/审批，旧批准不能复用；原子失效与T4竞态pending BC03",
+    "rejected_or_expired": "旧终态只读；重新发起分析需新计划/审批；task关联和迁移pending BC03，不terminal->pending",
+    "completed_next_cycle": "B46只开M02草稿，B01显式创建新task；新快照/计划/审批；已有open项仍约束；历史关联字段pending BC03",
+    "unknown_execution": "先读取实际执行结果，不推断未执行、不覆盖",
+    "retry_is_not_reanalysis": true
+  },
+  "recovery_ui_policy": {
+    "decision": "D04",
+    "generic_manual_recovery_button": false,
+    "reserved_control": "M1-B09",
+    "behavior": "仅展示自动恢复及安全对账事实；沿用既有合同，无新增重发/对账写入口",
+    "backend_ref": "BC04"
+  },
+  "approval_disclosure_policy": {
+    "decision": "review_item_7",
+    "surfaces": [
+      "M1-S04",
+      "M1-F01"
+    ],
+    "all_items_visible": true,
+    "max_items": 20,
+    "risk_disclosure": "默认展开每项数量/风险/未知在途说明；清单及风险之后才是最终动作区；不折叠批准范围，不悬浮批准绕过披露",
+    "block_approval_when": [
+      "数据未完整加载",
+      "数量或版本不一致",
+      "条目/风险被截断",
+      "客户端不支持完整呈现"
+    ],
+    "fallback": "去有权Web查看同版本完整披露后再决定；不能在截断卡片批准隐藏条目；具体平台合同pending BC06",
+    "client_is_not_authorization": true,
+    "real_feishu_capacity": "pending_real_platform_acceptance",
+    "current_card_direct_decision": "disabled_pending_capacity; authenticated same-version full Web only",
+    "real_feishu_direct_approval": "G3 pending: enable direct approval only when client fully discloses all same-version SKU and risks; otherwise same-version authenticated Web fallback. Current gate is temporary, not permanent removal."
+  },
+  "authorization_scope": "C2-B3",
+  "authorized_design_batches": [
+    "C2-B1a",
+    "C2-B1b",
+    "C2-B2",
+    "C2-B3"
+  ],
+  "followup_authorization": {
+    "C2-B1b": true,
+    "C2-B2": true,
+    "C2-B3": true
+  },
+  "m1_visual_revision": "m1-ui/0.4.1-freeze-rc",
+  "m1_visual_map": "evidence/m1-ux-final/design-map.json",
+  "b1a_delivery": "c2-b1a-delivery.md",
+  "b1b_delivery": "c2-b1b-delivery.md",
+  "b2_delivery": "c2-b2-delivery.md",
+  "reason_validation_policy": {
+    "pristine": "neutral border/helper; no error",
+    "validation_trigger": "B07/B08 validation attempt; native fixture not a real typed form",
+    "invalid": "field error only after trigger",
+    "unknown_conflict": "retain reason and original identity/key/payload; read existing receipt; no blind or opposite resubmit"
+  },
+  "role_variant_map": [
+    {
+      "role": "operator",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c0db21de"
+    },
+    {
+      "role": "approver",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5"
+    },
+    {
+      "role": "admin",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1"
+    },
+    {
+      "role": "unauthorized",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f"
+    },
+    {
+      "role": "operator + approver",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c5068b0f"
+    },
+    {
+      "role": "admin + operator",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c61cc36e"
+    },
+    {
+      "role": "admin + approver",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c732abaa"
+    },
+    {
+      "role": "admin + operator + approver",
+      "shape_id": "b806b597-0eb0-80b2-8008-c386c84c1f27"
+    }
+  ],
+  "b3_delivery": "c2-b3-delivery.md",
+  "final_freeze_delivery": "m1-ux-final-freeze.md"
+}

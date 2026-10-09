@@ -1,0 +1,47 @@
+{
+  "preserved_pre_click_failures": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    79,
+    81,
+    82,
+    95
+  ],
+  "rechecks": {
+    "2": 7,
+    "3": 8,
+    "4": 9,
+    "5": 12,
+    "6": 13,
+    "79": 84,
+    "81": 86,
+    "82": 87,
+    "95": 96
+  },
+  "other_tool_limits": [
+    {
+      "kind": "API response parser",
+      "detail": "high_level_overview returns plain text; initial JSON parse failed; read plain text thereafter. No mutation involved."
+    },
+    {
+      "kind": "MCP font restore timeout",
+      "detail": "A 283-text font refresh/restore exceeded 120 seconds; partial state was retained, editor refreshed, and integer fonts reread. Reflowed 20-label batches; no full-board reconstruction."
+    },
+    {
+      "kind": "Browser background control timeout",
+      "detail": "Existing Viewer binding timed out; activated existing native Chrome tab and resumed same browser. No new editor or design writer."
+    },
+    {
+      "kind": "Viewer root index persistence",
+      "detail": "Three narrow locator attempts used pre-reload root order; reread persisted order and asserted visible frame name, then all six 390 states rechecked."
+    },
+    {
+      "kind": "Frame locator ambiguity",
+      "detail": "Frame name matched one hidden div and one visible span; required visible locator before continuing."
+    }
+  ],
+  "all_final_required_paths_rechecked": true
+}

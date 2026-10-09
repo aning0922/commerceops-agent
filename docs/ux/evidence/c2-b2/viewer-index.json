@@ -1,0 +1,496 @@
+{
+  "rootOrder": [
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c",
+      "name": "M1-B13 / overlay / 状态筛选预览",
+      "index": 96
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+      "name": "M1-S03 / 库存分析报告 · Desktop 1440",
+      "index": 95
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+      "name": "M1-M02 / 新建库存分析 · 原生抽屉",
+      "index": 94
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af9dfaab",
+      "name": "M1-B35 / overlay / 草稿参数确认",
+      "index": 93
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+      "name": "M1-S09 / 任务概览与关联结果 · Desktop",
+      "index": 92
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b0081036",
+      "name": "M1-M03 / 数据口径与来源 · B1a 最小弹窗",
+      "index": 91
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf383a49",
+      "name": "M1-S04 / 审批详情 · 3 项未知在途 · Desktop",
+      "index": 90
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c1095dce",
+      "name": "M1-S04 / 390px · 20 项 / 4 项未知在途",
+      "index": 89
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+      "name": "M1-F01 / 飞书 390px · 20 项 / 4 项未知在途",
+      "index": 88
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d4721f57",
+      "name": "M1-S04 / 390px · 1 项 / 已知在途",
+      "index": 87
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d743cc7c",
+      "name": "M1-F01 / 飞书 390px · 1 项 / 已知在途",
+      "index": 86
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd2e0442",
+      "name": "M1-S10 / 审批列表 · Desktop",
+      "index": 85
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bef22ae3",
+      "name": "M1-S05 / 内部补货列表 · Desktop",
+      "index": 84
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37519b581cc",
+      "name": "M1-S11 / 内部工作项详情 · SKU-A",
+      "index": 83
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ae3259a",
+      "name": "M1-S11 / 只读详情 · SKU-B",
+      "index": 82
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b73c291",
+      "name": "M1-S11 / 只读详情 · SKU-C",
+      "index": 81
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c128013",
+      "name": "M1-M01 / 完成原因 · 未填写",
+      "index": 80
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c388192889f8",
+      "name": "M1-M01 / B2 · complete-validation",
+      "index": 79
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751cdf0876",
+      "name": "M1-M01 / 完成原因 · 显式选择 Mock 示例",
+      "index": 78
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751da663dd",
+      "name": "M1-M01 / 关闭原因 · 未填写",
+      "index": 77
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3881f358c35",
+      "name": "M1-M01 / B2 · close-validation",
+      "index": 76
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+      "name": "M1-M01 / 关闭原因 · 显式选择 Mock 示例",
+      "index": 75
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37577fd2aba",
+      "name": "M1-S09 / DEMO-PLAN-008 · approved回执",
+      "index": 74
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37578d79ec0",
+      "name": "M1-S09 / DEMO-PLAN-008 · rejected回执",
+      "index": 73
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37579c80a4c",
+      "name": "M1-S09 / DEMO-PLAN-N20 · approved回执",
+      "index": 72
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757acca614",
+      "name": "M1-S09 / DEMO-PLAN-N20 · rejected回执",
+      "index": 71
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757bcf0817",
+      "name": "M1-S09 / DEMO-PLAN-K01 · approved回执",
+      "index": 70
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757ce7d800",
+      "name": "M1-S09 / DEMO-PLAN-K01 · rejected回执",
+      "index": 69
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e23934a",
+      "name": "M1-S09 / 内部创建结果 · 主任务",
+      "index": 68
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757f0f161d",
+      "name": "M1-S11 / 已完成回执 · 终态",
+      "index": 67
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757fd0a65a",
+      "name": "M1-S11 / 已关闭回执 · 终态",
+      "index": 66
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375809431d6",
+      "name": "M1-S06 / Agent 执行轨迹 · Desktop",
+      "index": 65
+    },
+    {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+      "name": "M1-S06 / B2 · 轨迹 1280px",
+      "index": 64
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f839e836",
+      "name": "M1-S04 / 披露不完整 / 版本变化 · 局部阻断",
+      "index": 63
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f8de4538",
+      "name": "M1-S04 / operator 只读动作区 · 局部样例",
+      "index": 62
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+      "name": "M1-S06 / 飞书投影详情 · 局部事实",
+      "index": 61
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fa549906",
+      "name": "M1-S06 / 工具安全详情 · 局部事实",
+      "index": 60
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3763d397cf2",
+      "name": "M1-S10 / 筛选只读预览",
+      "index": 59
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3763de19817",
+      "name": "M1-S05 / 筛选只读预览",
+      "index": 58
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37b1249a935",
+      "name": "M1-S04 / 历史审批 APR-DEMO-H01 · 只读",
+      "index": 57
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343160c8626",
+      "name": "M1-S02 / 任务中心 · Desktop 1440",
+      "index": 56
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386bce478fe",
+      "name": "M1-S01 / 登录 · 1440px",
+      "index": 55
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386be8e2dd1",
+      "name": "M1-S01 / 登录 · 1280px",
+      "index": 54
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c03349ab",
+      "name": "M1-S01 / B2 · 身份评审入口",
+      "index": 53
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c0db21de",
+      "name": "M1-S02 / B2 · identity-operator",
+      "index": 52
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c1e33ce5",
+      "name": "M1-S10 / B2 · identity-approver",
+      "index": 51
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c2eea5f1",
+      "name": "M1-S02 / B2 · identity-admin",
+      "index": 50
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+      "name": "M1-S07 / B2 · identity-unauthorized",
+      "index": 49
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+      "name": "M1-S10 / B2 · identity-operator-approver",
+      "index": 48
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+      "name": "M1-S02 / B2 · identity-admin-operator",
+      "index": 47
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c732abaa",
+      "name": "M1-S10 / B2 · identity-admin-approver",
+      "index": 46
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+      "name": "M1-S10 / B2 · identity-admin-operator-approver",
+      "index": 45
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386c96b1b7f",
+      "name": "M1-S04 / B2 · operator-readonly",
+      "index": 44
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386ca75bab2",
+      "name": "M1-S03 / B2 · operator-report",
+      "index": 43
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386cb9bbbe9",
+      "name": "M1-S09 / B2 · operator-accepted",
+      "index": 42
+    },
+    {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38b0aee5730",
+      "name": "M1-M02 / B2 · operator-draft",
+      "index": 41
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386ce71898c",
+      "name": "M1-S07 / B2 · access",
+      "index": 40
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386cfa20c01",
+      "name": "M1-S07 / B2 · revoked",
+      "index": 39
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386d0c1353b",
+      "name": "M1-S07 / B2 · expired-session",
+      "index": 38
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c386d1dc4960",
+      "name": "M1-S01 / B2 · login-failure",
+      "index": 37
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+      "name": "M1-S09 / B2 · review-hub",
+      "index": 36
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+      "name": "M1-S02 / B2 · loading",
+      "index": 35
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3872da051d9",
+      "name": "M1-S02 / B2 · empty",
+      "index": 34
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+      "name": "M1-S02 / B2 · read-failure",
+      "index": 33
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3872f70da65",
+      "name": "M1-S04 / B2 · approval-expired",
+      "index": 32
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886d592ed8",
+      "name": "M1-S04 / B2 · approval-expired · 390px",
+      "index": 31
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c387305f5b64",
+      "name": "M1-S04 / B2 · approval-version",
+      "index": 30
+    },
+    {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080",
+      "name": "M1-S04 / B2 · current-v2-readonly",
+      "index": 29
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886d802e72",
+      "name": "M1-S04 / B2 · approval-version · 390px",
+      "index": 28
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873145441d",
+      "name": "M1-S04 / B2 · approval-duplicate",
+      "index": 27
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886df29d6e",
+      "name": "M1-S04 / B2 · approval-duplicate · 390px",
+      "index": 26
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873235d58c",
+      "name": "M1-S04 / B2 · approval-conflict",
+      "index": 25
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886da5954f",
+      "name": "M1-S04 / B2 · approval-conflict · 390px",
+      "index": 24
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38733275367",
+      "name": "M1-S04 / B2 · approval-submitting",
+      "index": 23
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873414b78a",
+      "name": "M1-S04 / B2 · approval-unknown",
+      "index": 22
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886dcd6b27",
+      "name": "M1-S04 / B2 · approval-unknown · 390px",
+      "index": 21
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873503e7cb",
+      "name": "M1-S09 / B2 · verified-history",
+      "index": 20
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38735f2870e",
+      "name": "M1-S11 / B2 · sync-failed",
+      "index": 19
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38736e3afb7",
+      "name": "M1-S06 / B2 · sync-unknown",
+      "index": 18
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38737d9249d",
+      "name": "M1-S03 / B2 · model-fallback",
+      "index": 17
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38738cee306",
+      "name": "M1-S06 / B2 · usage-unknown",
+      "index": 16
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38739c749c7",
+      "name": "M1-S03 / B2 · data-incomplete",
+      "index": 15
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873ac57e0c",
+      "name": "M1-S11 / B2 · item-conflict",
+      "index": 14
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873bc261a1",
+      "name": "M1-S11 / B2 · item-completed",
+      "index": 13
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873cc489a2",
+      "name": "M1-S11 / B2 · item-closed",
+      "index": 12
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3873dcafcbf",
+      "name": "M1-F01 / B2 · platform-capacity",
+      "index": 11
+    },
+    {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38cc395b5b8",
+      "name": "M1-S01 / B2 · 鉴权后同版本 Web 20项",
+      "index": 10
+    },
+    {
+      "shapeId": "e4d7ead3-2ddf-806b-8008-c38cc3022859",
+      "name": "M1-S01 / B2 · 鉴权后同版本 Web 1项",
+      "index": 9
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3886e17c51e",
+      "name": "M1-F01 / B2 · platform-capacity · 390px",
+      "index": 8
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38819e1ef46",
+      "name": "M1-M01 / B2 · complete-submitting",
+      "index": 7
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3881ae3ee27",
+      "name": "M1-M01 / B2 · complete-unknown",
+      "index": 6
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3881bdfcc50",
+      "name": "M1-M01 / B2 · complete-conflict",
+      "index": 5
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3881ce07c18",
+      "name": "M1-S11 / B2 · complete-verified",
+      "index": 4
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c3881fefd1bc",
+      "name": "M1-M01 / B2 · close-submitting",
+      "index": 3
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38820f73994",
+      "name": "M1-M01 / B2 · close-unknown",
+      "index": 2
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38821f7fac6",
+      "name": "M1-M01 / B2 · close-conflict",
+      "index": 1
+    },
+    {
+      "shapeId": "b806b597-0eb0-80b2-8008-c38822fd8afb",
+      "name": "M1-S11 / B2 · close-verified",
+      "index": 0
+    }
+  ],
+  "flows": [
+    {
+      "name": "M1 · B2 登录与安全状态（Mock）",
+      "startingBoard": "b806b597-0eb0-80b2-8008-c386bce478fe"
+    }
+  ],
+  "index_policy": "Derived after editor reload; UUID and visible frame name are required; index is not stable"
+}

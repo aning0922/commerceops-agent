@@ -1,0 +1,132 @@
+{
+  "before": {
+    "phase": "before",
+    "batch": "C2-B1b",
+    "design_writes_during_backup": false,
+    "directory_mode": "0o700",
+    "pg_archive_readable": true,
+    "pg_archive_entries": 428,
+    "asset_members": 155,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 593268,
+        "sha256": "d6bd2fbd0a3d3ed34892ecdf886abf9fa72cdae08ebd60fc5e5da23672b101c6",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 4618982,
+        "sha256": "96b930c6c5986a98b2054e51187528cf5dfccb919e7c24f017401d4d9250a42a",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "consistency_limit": "Stopped design writes; sequential PG and assets capture is not a cross-store atomic snapshot",
+    "configuration_reference": "Existing private runtime config/env and pinned Docker images; no credentials in manifest"
+  },
+  "after": {
+    "phase": "after",
+    "batch": "C2-B1b",
+    "design_writes_during_backup": false,
+    "directory_mode": "0o700",
+    "pg_archive_readable": true,
+    "pg_archive_entries": 428,
+    "asset_members": 659,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 1339991,
+        "sha256": "0e7f0145cc3a1e25bbb1925782c27617dfe6bed754b5ef273560b0b19b3ef18f",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 16771986,
+        "sha256": "653dd95996e439073333ccbb3fece1ec4f63bfec7a5e7299d26bf60f4895329d",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "consistency_limit": "Stopped design writes; sequential PG and assets capture is not a cross-store atomic snapshot",
+    "configuration_reference": "Existing private runtime config/env and pinned Docker images; no credentials in manifest"
+  },
+  "after_final_named_version": {
+    "phase": "after_final_named_version",
+    "batch": "C2-B1b",
+    "design_writes_during_backup": false,
+    "directory_mode": "0o700",
+    "pg_archive_readable": true,
+    "pg_archive_entries": 428,
+    "asset_members": 659,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 1511804,
+        "sha256": "38c32c6ff41c19986b549933a44b09d45b0c6d85d7e8b859bf50d6083fcc4864",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 16771986,
+        "sha256": "653dd95996e439073333ccbb3fece1ec4f63bfec7a5e7299d26bf60f4895329d",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "consistency_limit": "Stopped design writes; sequential PG and assets capture is not a cross-store atomic snapshot",
+    "configuration_reference": "Existing private runtime config/env and pinned Docker images; no credentials in manifest"
+  },
+  "after_review_ready_version": {
+    "phase": "after_review_ready_version",
+    "batch": "C2-B1b",
+    "design_writes_during_backup": false,
+    "directory_mode": "0o700",
+    "pg_archive_readable": true,
+    "pg_archive_entries": 428,
+    "asset_members": 673,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 1685659,
+        "sha256": "4fb4e1bfc3680cedd75fe6bb46a160878f9e717348c09ffce8e5ed2a7f6158d3",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 17828270,
+        "sha256": "792ad05d83768b05eee9e169544c5684665e92ca896ae055f8006291da4b909f",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "consistency_limit": "Stopped design writes; sequential PG and assets capture is not a cross-store atomic snapshot",
+    "configuration_reference": "Existing private runtime config/env and pinned Docker images; no credentials in manifest"
+  },
+  "after_final_persisted": {
+    "phase": "after_final_persisted",
+    "batch": "C2-B1b",
+    "design_writes_during_backup": false,
+    "directory_mode": "0o700",
+    "pg_archive_readable": true,
+    "pg_archive_entries": 428,
+    "asset_members": 673,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 1857488,
+        "sha256": "77797f235aed399f442c77efe16a70314996d99cf23435b7c8af3be20b8db76c",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 17828270,
+        "sha256": "792ad05d83768b05eee9e169544c5684665e92ca896ae055f8006291da4b909f",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "consistency_limit": "Stopped design writes; sequential PG and assets capture is not a cross-store atomic snapshot",
+    "configuration_reference": "Existing private runtime config/env and pinned Docker images; no credentials in manifest"
+  }
+}

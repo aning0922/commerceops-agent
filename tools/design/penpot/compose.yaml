@@ -1,0 +1,91 @@
+name: commerceops-ux-penpot
+
+x-flags: &flags
+  PENPOT_FLAGS: disable-email-verification disable-registration disable-secure-session-cookies disable-onboarding disable-google-fonts-provider enable-mcp
+x-public: &public
+  PENPOT_PUBLIC_URI: http://localhost:19001
+x-db: &database
+  PENPOT_DATABASE_URI: postgresql://penpot-postgres/penpot_design
+  PENPOT_DATABASE_USERNAME: penpot_design
+  PENPOT_DATABASE_PASSWORD: ${PENPOT_DESIGN_DB_PASSWORD:?Use the private runtime env file}
+x-secret: &secret
+  PENPOT_SECRET_KEY: ${PENPOT_DESIGN_SECRET_KEY:?Use the private runtime env file}
+
+services:
+  penpot-frontend:
+    image: penpotapp/frontend:2.18.3@sha256:bb8abe27d53de84c95597f2c02c0e702b2779971fb0703e543f9ecf183e999f6
+    restart: unless-stopped
+    ports: ["127.0.0.1:19001:8080"]
+    volumes:
+      - design_assets:/opt/data/assets
+      - ./privacy.conf:/etc/nginx/overrides/server.d/zz-privacy.conf:ro
+    environment:
+      <<: [*flags, *public]
+    depends_on: [penpot-backend, penpot-mcp, penpot-exporter]
+    networks: [design]
+    mem_limit: 512m
+  penpot-backend:
+    image: penpotapp/backend:2.18.3@sha256:2df1b3440d2a82cc3571db211b4ffdfa2b89ccc910759e8d5e9387fb62971b5c
+    restart: unless-stopped
+    volumes: ["design_assets:/opt/data/assets"]
+    environment:
+      <<: [*flags, *public, *database, *secret]
+      PENPOT_REDIS_URI: redis://penpot-valkey/0
+      PENPOT_OBJECTS_STORAGE_BACKEND: fs
+      PENPOT_OBJECTS_STORAGE_FS_DIRECTORY: /opt/data/assets
+      PENPOT_TELEMETRY_ENABLED: "false"
+    depends_on:
+      penpot-postgres: {condition: service_healthy}
+      penpot-valkey: {condition: service_healthy}
+    networks: [design]
+    mem_limit: 3g
+  penpot-mcp:
+    image: penpotapp/mcp:2.18.3@sha256:5e811e6eeb179d80d8781fb0ffd2991560785d150b3676f1ac5e28d63ba9f7c2
+    restart: unless-stopped
+    networks: [design]
+    mem_limit: 512m
+  penpot-exporter:
+    image: penpotapp/exporter:2.18.3@sha256:418232d6ca3120b1c2bfde298a56a05a1f41f567cd8494deac3fe7fbc186cfbd
+    restart: unless-stopped
+    environment:
+      <<: [*flags, *public, *secret]
+      PENPOT_INTERNAL_URI: http://penpot-frontend:8080
+      PENPOT_REDIS_URI: redis://penpot-valkey/0
+    depends_on:
+      penpot-valkey: {condition: service_healthy}
+    networks: [design]
+    mem_limit: 1g
+  penpot-postgres:
+    image: postgres:15.18@sha256:6eb0add3b77c081df18aa518ce43df58fdcc40f2e6d868a6fd08038dc7acd425
+    restart: unless-stopped
+    stop_signal: SIGINT
+    environment:
+      POSTGRES_INITDB_ARGS: --data-checksums
+      POSTGRES_DB: penpot_design
+      POSTGRES_USER: penpot_design
+      POSTGRES_PASSWORD: ${PENPOT_DESIGN_DB_PASSWORD:?Use the private runtime env file}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U penpot_design -d penpot_design"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    volumes: ["design_postgres_v15:/var/lib/postgresql/data"]
+    networks: [design]
+    mem_limit: 512m
+  penpot-valkey:
+    image: valkey/valkey:8.1.6@sha256:1f84517eca8e0dd9585ed57c572796f32839e1b0e7ce07ad28e6bce098468371
+    restart: unless-stopped
+    command: ["valkey-server", "--maxmemory", "128mb", "--maxmemory-policy", "volatile-lfu"]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    networks: [design]
+    mem_limit: 192m
+
+networks:
+  design: {}
+volumes:
+  design_postgres_v15: {}
+  design_assets: {}

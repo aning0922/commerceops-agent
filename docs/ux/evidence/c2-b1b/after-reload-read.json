@@ -1,0 +1,2260 @@
+{
+  "fileId": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+  "pageId": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+  "revision": "m1-ui/0.2.0-b1b",
+  "revn": 32,
+  "versions": [
+    {
+      "label": "m1-ui/0.2.0-b1b / persisted review-ready · 77 Viewer attempts + 390px",
+      "createdAt": "2026-10-09T13:58:33.173Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / review-ready · 77 Viewer attempts + 390px",
+      "createdAt": "2026-10-09T13:57:02.446Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / final · 75 Viewer attempts + 390px + persisted IDs",
+      "createdAt": "2026-10-09T13:43:22.109Z"
+    },
+    {
+      "label": "m1-ui/0.2.0-b1b / full disclosure + 390px + verified Mock flows",
+      "createdAt": "2026-10-09T13:37:04.482Z"
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / approved baseline before B1b",
+      "createdAt": "2026-10-09T12:56:11.550Z"
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 28 Viewer clicks + main entry",
+      "createdAt": "2026-10-09T10:12:24.345Z"
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 26 Viewer clicks",
+      "createdAt": "2026-10-09T09:48:41.077Z"
+    },
+    {
+      "label": "m1-ui/0.1.0 / empty baseline before B1a",
+      "createdAt": "2026-10-09T09:20:13.632Z"
+    }
+  ],
+  "screens": [
+    {
+      "stableId": "M1-S03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+      "name": "M1-S03 / 库存分析报告 · Desktop 1440",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 1600,
+        "y": 0,
+        "width": 1440,
+        "height": 1080
+      }
+    },
+    {
+      "stableId": "M1-M02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+      "name": "M1-M02 / 新建库存分析 · 原生抽屉",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 4800,
+        "y": 0,
+        "width": 600,
+        "height": 1000
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+      "name": "M1-S09 / 任务概览与关联结果 · Desktop",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 3200,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "stableId": "M1-M03",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b0081036",
+      "name": "M1-M03 / 数据口径与来源 · B1a 最小弹窗",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 5480,
+        "y": 0,
+        "width": 560,
+        "height": 580
+      }
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf383a49",
+      "name": "M1-S04 / 审批详情 · 3 项未知在途 · Desktop",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 0,
+        "y": 1300,
+        "width": 1440,
+        "height": 1100
+      }
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c1095dce",
+      "name": "M1-S04 / 390px · 20 项 / 4 项未知在途",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 1600,
+        "y": 1300,
+        "width": 390,
+        "height": 4348
+      }
+    },
+    {
+      "stableId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+      "name": "M1-F01 / 飞书 390px · 20 项 / 4 项未知在途",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 2050,
+        "y": 1300,
+        "width": 390,
+        "height": 4348
+      }
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d4721f57",
+      "name": "M1-S04 / 390px · 1 项 / 已知在途",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 2500,
+        "y": 1300,
+        "width": 390,
+        "height": 1118
+      }
+    },
+    {
+      "stableId": "M1-F01",
+      "shapeId": "448723ff-8a21-80dc-8008-c373d743cc7c",
+      "name": "M1-F01 / 飞书 390px · 1 项 / 已知在途",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 2950,
+        "y": 1300,
+        "width": 390,
+        "height": 1118
+      }
+    },
+    {
+      "stableId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd2e0442",
+      "name": "M1-S10 / 审批列表 · Desktop",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 3600,
+        "y": 1300,
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "stableId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c374bef22ae3",
+      "name": "M1-S05 / 内部补货列表 · Desktop",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 5200,
+        "y": 1300,
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c37519b581cc",
+      "name": "M1-S11 / 内部工作项详情 · SKU-A",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 6800,
+        "y": 1300,
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ae3259a",
+      "name": "M1-S11 / 只读详情 · SKU-B",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 9050,
+        "y": 1300,
+        "width": 600,
+        "height": 470
+      }
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b73c291",
+      "name": "M1-S11 / 只读详情 · SKU-C",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 9700,
+        "y": 1300,
+        "width": 600,
+        "height": 470
+      }
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c128013",
+      "name": "M1-M01 / 完成原因 · 未填写",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 0,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      }
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751cdf0876",
+      "name": "M1-M01 / 完成原因 · 显式选择 Mock 示例",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 650,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      }
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751da663dd",
+      "name": "M1-M01 / 关闭原因 · 未填写",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 1300,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      }
+    },
+    {
+      "stableId": "M1-M01",
+      "shapeId": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+      "name": "M1-M01 / 关闭原因 · 显式选择 Mock 示例",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 1950,
+        "y": 6000,
+        "width": 560,
+        "height": 560
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37577fd2aba",
+      "name": "M1-S09 / DEMO-PLAN-008 · approved回执",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 3000,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37578d79ec0",
+      "name": "M1-S09 / DEMO-PLAN-008 · rejected回执",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 3450,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c37579c80a4c",
+      "name": "M1-S09 / DEMO-PLAN-N20 · approved回执",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 3900,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757acca614",
+      "name": "M1-S09 / DEMO-PLAN-N20 · rejected回执",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 4350,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757bcf0817",
+      "name": "M1-S09 / DEMO-PLAN-K01 · approved回执",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 4800,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757ce7d800",
+      "name": "M1-S09 / DEMO-PLAN-K01 · rejected回执",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 5250,
+        "y": 6000,
+        "width": 390,
+        "height": 720
+      }
+    },
+    {
+      "stableId": "M1-S09",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e23934a",
+      "name": "M1-S09 / 内部创建结果 · 主任务",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 5800,
+        "y": 6000,
+        "width": 560,
+        "height": 530
+      }
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757f0f161d",
+      "name": "M1-S11 / 已完成回执 · 终态",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 6500,
+        "y": 6000,
+        "width": 560,
+        "height": 480
+      }
+    },
+    {
+      "stableId": "M1-S11",
+      "shapeId": "448723ff-8a21-80dc-8008-c3757fd0a65a",
+      "name": "M1-S11 / 已关闭回执 · 终态",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 7150,
+        "y": 6000,
+        "width": 560,
+        "height": 480
+      }
+    },
+    {
+      "stableId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375809431d6",
+      "name": "M1-S06 / Agent 执行轨迹 · Desktop",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 0,
+        "y": 7600,
+        "width": 1440,
+        "height": 1180
+      }
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f839e836",
+      "name": "M1-S04 / 披露不完整 / 版本变化 · 局部阻断",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 8100,
+        "y": 6000,
+        "width": 560,
+        "height": 460
+      }
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f8de4538",
+      "name": "M1-S04 / operator 只读动作区 · 局部样例",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 8700,
+        "y": 6000,
+        "width": 560,
+        "height": 418
+      }
+    },
+    {
+      "stableId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+      "name": "M1-S06 / 飞书投影详情 · 局部事实",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 9400,
+        "y": 6000,
+        "width": 600,
+        "height": 500
+      }
+    },
+    {
+      "stableId": "M1-S06",
+      "shapeId": "448723ff-8a21-80dc-8008-c375fa549906",
+      "name": "M1-S06 / 工具安全详情 · 局部事实",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 10050,
+        "y": 6000,
+        "width": 640,
+        "height": 510
+      }
+    },
+    {
+      "stableId": "M1-S10",
+      "shapeId": "448723ff-8a21-80dc-8008-c3763d397cf2",
+      "name": "M1-S10 / 筛选只读预览",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 11200,
+        "y": 6000,
+        "width": 440,
+        "height": 320
+      }
+    },
+    {
+      "stableId": "M1-S05",
+      "shapeId": "448723ff-8a21-80dc-8008-c3763de19817",
+      "name": "M1-S05 / 筛选只读预览",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 11680,
+        "y": 6000,
+        "width": 440,
+        "height": 320
+      }
+    },
+    {
+      "stableId": "M1-S04",
+      "shapeId": "448723ff-8a21-80dc-8008-c37b1249a935",
+      "name": "M1-S04 / 历史审批 APR-DEMO-H01 · 只读",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 10800,
+        "y": 7600,
+        "width": 600,
+        "height": 440
+      }
+    },
+    {
+      "stableId": "M1-S02",
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343160c8626",
+      "name": "M1-S02 / 任务中心 · Desktop 1440",
+      "revision": "m1-ui/0.2.0-b1b",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      }
+    }
+  ],
+  "controls": [
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
+      "stableId": "M1-B13",
+      "eventId": "M1-E13",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343f1694397",
+      "stableId": "M1-B18",
+      "eventId": "M1-E18",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344b0081036"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f7941498",
+      "stableId": "M1-B16",
+      "eventId": "M1-E16",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375809431d6"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f7aee6bc",
+      "stableId": "M1-B17",
+      "eventId": "M1-E17",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb002a00",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb0acdbd",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb14f5da",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af0a7009",
+      "stableId": "M1-B45",
+      "eventId": "M1-E45",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af79ea11",
+      "stableId": "M1-B35",
+      "eventId": "M1-E35",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af929b26",
+      "stableId": "M1-B45",
+      "eventId": "M1-E45",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af98787a",
+      "stableId": "M1-B01",
+      "eventId": "M1-E01",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afad46ed",
+      "stableId": "M1-B35",
+      "eventId": "M1-E35",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
+      "stableId": "M1-B15",
+      "eventId": "M1-E15",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375e9c45b7e",
+      "stableId": "M1-B17",
+      "eventId": "M1-E17",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375e9df3a83",
+      "stableId": "M1-B16",
+      "eventId": "M1-E16",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375809431d6"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757e23934a"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375ea098b75",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c88a718a"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb43bb01",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb4ebdf2",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb57e09a",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b03271ad",
+      "stableId": "M1-B22",
+      "eventId": "M1-E22",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344b0081036"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf67a3bb",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373bf78d954",
+      "stableId": "M1-B15",
+      "eventId": "M1-E15",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c0afb61a",
+      "stableId": "M1-B03",
+      "eventId": "M1-E03",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37577fd2aba"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c0bb894a",
+      "stableId": "M1-B04",
+      "eventId": "M1-E04",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37578d79ec0"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c0c8653a",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37577fd2aba"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb85b865",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb9035f6",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fb9bdaa0",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c7f8f2e7",
+      "stableId": "M1-B03",
+      "eventId": "M1-E03",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c80c7d79",
+      "stableId": "M1-B04",
+      "eventId": "M1-E04",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757acca614"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c829093f",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d3a53223",
+      "stableId": "M1-B03",
+      "eventId": "M1-E03",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d3c1c5e0",
+      "stableId": "M1-B04",
+      "eventId": "M1-E04",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757acca614"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d3ee71cf",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d675e5b7",
+      "stableId": "M1-B02",
+      "eventId": "M1-E02",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d694c5bd",
+      "stableId": "M1-B05",
+      "eventId": "M1-E05",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d6c040d4",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d93a889d",
+      "stableId": "M1-B02",
+      "eventId": "M1-E02",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d95d19b5",
+      "stableId": "M1-B05",
+      "eventId": "M1-E05",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d98fd50f",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd593903",
+      "stableId": "M1-B20",
+      "eventId": "M1-E20",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bd6118c1",
+      "stableId": "M1-B20",
+      "eventId": "M1-E20",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bdd147b1",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374be0e05ad",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374be50cb3f",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374be94485a",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37b1249a935"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f91222b6",
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375f839e836"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f91e8ab3",
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c375f8de4538"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fbcd115e",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fbd83868",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fbe1ca99",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374bf685b20",
+      "stableId": "M1-B24",
+      "eventId": "M1-E24",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763de19817"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374c0047ca6",
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374c04e4e31",
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751ae3259a"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c374c09dcab7",
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751b73c291"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc10b80e",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc1b2c2b",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc26ece4",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37519ed212a",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37519f8e965",
+      "stableId": "M1-B37",
+      "eventId": "M1-E37",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751a4c74d0",
+      "stableId": "M1-B38",
+      "eventId": "M1-E38",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751a6925b1",
+      "stableId": "M1-B26",
+      "eventId": "M1-E26",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3751c128013"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751a73b509",
+      "stableId": "M1-B27",
+      "eventId": "M1-E27",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3751da663dd"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc556299",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc60eb28",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc6bfb32",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751aff1471",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b0b34b1",
+      "stableId": "M1-B37",
+      "eventId": "M1-E37",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b9228ef",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751b9f40da",
+      "stableId": "M1-B37",
+      "eventId": "M1-E37",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c59638c",
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751c78b2c3",
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751cdf0876"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751d2e6ec1",
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751d3dec1e",
+      "stableId": "M1-B07",
+      "eventId": "M1-E07",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757f0f161d"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751df7ce6a",
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751e18cc1b",
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3751e8a0b15"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ee03cc8",
+      "stableId": "M1-B28",
+      "eventId": "M1-E28",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3751ef12389",
+      "stableId": "M1-B08",
+      "eventId": "M1-E08",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757fd0a65a"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37578644adc",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375786ebe7e",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c3757e23934a"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37579498593",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37579559819",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757a51685c",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757a5ded27",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757b4deccb",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757b59f82f",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757c670054",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757c7480a9",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757d8983da",
+      "stableId": "M1-B21",
+      "eventId": "M1-E21",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757d9a00a1",
+      "stableId": "M1-B23",
+      "eventId": "M1-E23",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e6ec32b",
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757e814178",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3757f5451f6",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37580161c98",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37580d38f17",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37582da7542",
+      "stableId": "M1-B43",
+      "eventId": "M1-E43",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375fa549906"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37583756e3d",
+      "stableId": "M1-B38",
+      "eventId": "M1-E38",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fc990682",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fca4e70b",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fcae66a1",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f855a057",
+      "stableId": "M1-B42",
+      "eventId": "M1-E42",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f861f99a",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f8fb3dbc",
+      "stableId": "M1-B15",
+      "eventId": "M1-E15",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9079fa1",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9c73b98",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375f9d419fa",
+      "stableId": "M1-B25",
+      "eventId": "M1-E25",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fa72cb84",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c375fa549906"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3763d583848",
+      "stableId": "M1-B20",
+      "eventId": "M1-E20",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c3763dfc871b",
+      "stableId": "M1-B24",
+      "eventId": "M1-E24",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "448723ff-8a21-80dc-8008-c3763de19817"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c37b12690495",
+      "stableId": "M1-B29",
+      "eventId": "M1-E29",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343161d35e9",
+      "stableId": "M1-B10",
+      "eventId": "M1-E10",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
+      "stableId": "M1-B13",
+      "eventId": "M1-E13",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
+      "stableId": "M1-B14",
+      "eventId": "M1-E14",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373be45b85a",
+      "stableId": "M1-B10",
+      "eventId": "M1-E10",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fabe341e",
+      "stableId": "M1-B39",
+      "eventId": "M1-E39",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fac8ff00",
+      "stableId": "M1-B40",
+      "eventId": "M1-E40",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c375fad2fde2",
+      "stableId": "M1-B41",
+      "eventId": "M1-E41",
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+        }
+      ]
+    }
+  ],
+  "narrow": [
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c1095dce",
+      "width": 390,
+      "planId": "DEMO-PLAN-N20",
+      "items": [
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c174e97c",
+          "sku": "SKU-N01",
+          "quantity": 10
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c1b507d4",
+          "sku": "SKU-N02-LONG-20261009-COTTON-BLUE-M-EXTENDED",
+          "quantity": 21
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c1fa2e23",
+          "sku": "SKU-N03",
+          "quantity": 30
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c23fc267",
+          "sku": "SKU-N04",
+          "quantity": 43
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c2841aeb",
+          "sku": "SKU-N05",
+          "quantity": 53
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c2cc5d8c",
+          "sku": "SKU-N06",
+          "quantity": 63
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c316b9af",
+          "sku": "SKU-N07",
+          "quantity": 76
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c36149e4",
+          "sku": "SKU-N08",
+          "quantity": 86
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c3b02cf5",
+          "sku": "SKU-N09",
+          "quantity": 96
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c3fddf6f",
+          "sku": "SKU-N10",
+          "quantity": 109
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c44f2373",
+          "sku": "SKU-N11",
+          "quantity": 119
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c4a11aa1",
+          "sku": "SKU-N12",
+          "quantity": 131
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c4f4ecda",
+          "sku": "SKU-N13",
+          "quantity": 142
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c549b2a1",
+          "sku": "SKU-N14",
+          "quantity": 152
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c5a2d97e",
+          "sku": "SKU-N15",
+          "quantity": 162
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c5fd2138",
+          "sku": "SKU-N16",
+          "quantity": 175
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c65b2289",
+          "sku": "SKU-N17",
+          "quantity": 185
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c6baa573",
+          "sku": "SKU-N18",
+          "quantity": 197
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c71c014c",
+          "sku": "SKU-N19",
+          "quantity": 208
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c7801286",
+          "sku": "SKU-N20",
+          "quantity": 218
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+      "width": 390,
+      "planId": "DEMO-PLAN-N20",
+      "items": [
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c9408285",
+          "sku": "SKU-N01",
+          "quantity": 10
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373c9aff13c",
+          "sku": "SKU-N02-LONG-20261009-COTTON-BLUE-M-EXTENDED",
+          "quantity": 21
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373ca1f5f6a",
+          "sku": "SKU-N03",
+          "quantity": 30
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373ca92606b",
+          "sku": "SKU-N04",
+          "quantity": 43
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cb07561b",
+          "sku": "SKU-N05",
+          "quantity": 53
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cb7d8613",
+          "sku": "SKU-N06",
+          "quantity": 63
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cbf72e42",
+          "sku": "SKU-N07",
+          "quantity": 76
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cc730f67",
+          "sku": "SKU-N08",
+          "quantity": 86
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373ccefdd5a",
+          "sku": "SKU-N09",
+          "quantity": 96
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cd6e3955",
+          "sku": "SKU-N10",
+          "quantity": 109
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cdf0a852",
+          "sku": "SKU-N11",
+          "quantity": 119
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373ce7536fd",
+          "sku": "SKU-N12",
+          "quantity": 131
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cefb092d",
+          "sku": "SKU-N13",
+          "quantity": 142
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373cf867a53",
+          "sku": "SKU-N14",
+          "quantity": 152
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d0139fe2",
+          "sku": "SKU-N15",
+          "quantity": 162
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d0a1a35e",
+          "sku": "SKU-N16",
+          "quantity": 175
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d132223b",
+          "sku": "SKU-N17",
+          "quantity": 185
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d1c5de00",
+          "sku": "SKU-N18",
+          "quantity": 197
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d25a4745",
+          "sku": "SKU-N19",
+          "quantity": 208
+        },
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d2f039d3",
+          "sku": "SKU-N20",
+          "quantity": 218
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d4721f57",
+      "width": 390,
+      "planId": "DEMO-PLAN-K01",
+      "items": [
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d5ad6a77",
+          "sku": "SKU-A",
+          "quantity": 100
+        }
+      ]
+    },
+    {
+      "shapeId": "448723ff-8a21-80dc-8008-c373d743cc7c",
+      "width": 390,
+      "planId": "DEMO-PLAN-K01",
+      "items": [
+        {
+          "shapeId": "448723ff-8a21-80dc-8008-c373d86d62be",
+          "sku": "SKU-A",
+          "quantity": 100
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "shapes": 1451,
+    "texts": 925,
+    "flex": 210,
+    "tokenBound": 896,
+    "imageFills": 0
+  },
+  "components": [
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4d85bb8",
+      "name": "primary"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4ed369b",
+      "name": "secondary"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5057740",
+      "name": "pending"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c528a67a",
+      "name": "risk"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c541fa7f",
+      "name": "unknown"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3459f0cf189",
+      "name": "SKU analysis row"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4e2f778",
+      "name": "wide"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c539594a",
+      "name": "normal"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5185c2c",
+      "name": "running"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5317403",
+      "name": "out"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c5a706c7",
+      "name": "AppShell Desktop"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4f5742d",
+      "name": "quiet"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455e970916",
+      "name": "loading"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455eb7e45d",
+      "name": "error"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c50e5190",
+      "name": "complete"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c4fd1ae0",
+      "name": "close"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455ea40e5a",
+      "name": "empty"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c520f9ed",
+      "name": "queued"
+    }
+  ],
+  "tokenSets": [
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "active": true,
+      "count": 33
+    }
+  ],
+  "overflow": [],
+  "outside": [],
+  "fontSizes": [
+    "18",
+    "12",
+    "14",
+    "20",
+    "13",
+    "28",
+    "24",
+    "16",
+    "22",
+    "36"
+  ],
+  "validation": [],
+  "final_named_version_verified_after_reload": "m1-ui/0.2.0-b1b / persisted review-ready · 77 Viewer attempts + 390px"
+}

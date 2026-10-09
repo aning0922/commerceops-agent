@@ -1,0 +1,86 @@
+[
+  {
+    "id": "M1-S01",
+    "shapeId": "b806b597-0eb0-80b2-8008-c386bce478fe",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.3.0-b2"
+  },
+  {
+    "id": "M1-S02",
+    "shapeId": "7e34228d-e3a9-80dc-8008-c343160c8626",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S03",
+    "shapeId": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S04",
+    "shapeId": "448723ff-8a21-80dc-8008-c373bf383a49",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S05",
+    "shapeId": "448723ff-8a21-80dc-8008-c374bef22ae3",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S06",
+    "shapeId": "448723ff-8a21-80dc-8008-c375809431d6",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S07",
+    "shapeId": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.3.0-b2"
+  },
+  {
+    "id": "M1-S09",
+    "shapeId": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S10",
+    "shapeId": "448723ff-8a21-80dc-8008-c374bd2e0442",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-S11",
+    "shapeId": "448723ff-8a21-80dc-8008-c37519b581cc",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-F01",
+    "shapeId": "448723ff-8a21-80dc-8008-c373c88a718a",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.3.0-b2"
+  },
+  {
+    "id": "M1-M01",
+    "shapeId": "448723ff-8a21-80dc-8008-c3751c128013",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-M02",
+    "shapeId": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  },
+  {
+    "id": "M1-M03",
+    "shapeId": "7e34228d-e3a9-80dc-8008-c344b0081036",
+    "old": "m1-ui/0.4.0-b3",
+    "observed_readback_revision": "m1-ui/0.2.0-b1b"
+  }
+]

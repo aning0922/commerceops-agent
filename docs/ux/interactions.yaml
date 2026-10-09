@@ -1,0 +1,5110 @@
+{
+  "schema_version": 1,
+  "contract_version": "0.2.1-c1-revision",
+  "status": "m1_final_freeze_candidate_confirmation_required",
+  "product_scope": "M1",
+  "source_commit": "a0d521e",
+  "visual_revision": "ux-poc/0.1.1",
+  "visual_map": "evidence/design-map.json",
+  "poc_interactions": [
+    {
+      "id": "POC-E01",
+      "control_id": "POC-B02",
+      "label": "查看数据口径",
+      "screen_id": "POC-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "open-overlay",
+      "target_screen": "POC-M01",
+      "state_change": {
+        "from": "overlay_closed",
+        "to": "overlay_open"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c31964610c13"
+    },
+    {
+      "id": "POC-E02",
+      "control_id": "POC-B03",
+      "label": "返回任务中心",
+      "screen_id": "POC-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "navigate-to",
+      "target_screen": "POC-S01",
+      "state_change": {
+        "from": "displayed",
+        "to": "displayed"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c319646714fb"
+    },
+    {
+      "id": "POC-E03",
+      "control_id": "POC-B01",
+      "label": "查看分析报告",
+      "screen_id": "POC-S01",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "navigate-to",
+      "target_screen": "POC-S02",
+      "state_change": {
+        "from": "displayed",
+        "to": "displayed"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c3188f5266e7"
+    },
+    {
+      "id": "POC-E04",
+      "control_id": "POC-B04",
+      "label": "关闭数据口径",
+      "screen_id": "POC-M01",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "action": "close-overlay",
+      "target_screen": "POC-M01",
+      "state_change": {
+        "from": "displayed",
+        "to": "displayed"
+      },
+      "business_effect": "none",
+      "exceptions": [
+        "prototype_only",
+        "no_authorization_proof"
+      ],
+      "status": "prototype_verified",
+      "penpot_shape_id": "4fc54c35-c3b2-804c-8008-c319646a7adb"
+    }
+  ],
+  "planned_interactions": [
+    {
+      "id": "M1-E01",
+      "control_id": "M1-B01",
+      "label": "创建分析并按规则送审",
+      "screen_id": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "event": "submit",
+      "target_screen": "M1-S09",
+      "business_action": "POST /tasks",
+      "state_change": "T1 accepted -> queued; T2 later prepares approval automatically if eligible; no manual submit stage",
+      "exceptions": [
+        "UNAUTHORIZED_ACTOR",
+        "invalid_input",
+        "unsupported_intent",
+        "request_result_unknown",
+        "BUDGET_EXCEEDED"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "guards": [
+        "operator and authorized shop",
+        "valid supported request",
+        "fixed client request_id reused on uncertain response",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "Web parameter clarification belongs before submission; no implicit async continuation API if ambiguity is discovered later (BC02)"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B01 / 创建分析并按规则送审",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5735",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B01 / 提交本人分析（模拟）",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5730",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39888775158",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B01 / 创建新分析 · 待合同与输入",
+          "owner_board_id": "b0616bef-0815-8023-8008-c398869ab4f8",
+          "disabled": "pending backend confirmation",
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "prototype_simulation": "Navigate to precomputed Mock overview/report fixture; no actual task acceptance, queue, analysis or approval. Backend state contract unchanged.",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E02",
+      "control_id": "M1-B02",
+      "label": "批准创建内部补货任务",
+      "screen_id": "M1-S04",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "POST /approvals/{id}/decision action=approve",
+      "guards": [
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
+      ],
+      "state_change": "T3 records approved + resume job; UI says approval recorded; task advances only from server facts",
+      "exceptions": [
+        "APPROVAL_EXPIRED",
+        "PLAN_CHANGED",
+        "ASSUMPTION_ACK_REQUIRED",
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B02 / 批准创建内部补货工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373d4721f57",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d93a889d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B02 / 批准创建内部补货工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373d743cc7c",
+          "disabled": "platform_capacity_pending",
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E03",
+      "control_id": "M1-B03",
+      "label": "确认在途未知按 0 估算并批准本版本",
+      "screen_id": "M1-S04",
+      "also_on": [
+        "M1-F01"
+      ],
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "action=approve_with_assumptions",
+      "guards": [
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
+      ],
+      "state_change": "single explicit decision + assumptions + resume job in T3; raw inbound remains null",
+      "exceptions": [
+        "ASSUMPTION_ACK_REQUIRED",
+        "PLAN_CHANGED",
+        "APPROVAL_EXPIRED",
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c7f8f2e7",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373c1095dce",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d3a53223",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373c88a718a",
+          "disabled": "platform_capacity_pending",
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E04",
+      "control_id": "M1-B04",
+      "label": "拒绝此假设并拒绝计划",
+      "screen_id": "M1-S04",
+      "also_on": [
+        "M1-F01"
+      ],
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "action=reject_assumptions; acknowledged_assumption_keys=[]",
+      "state_change": "rejected; INBOUND_ASSUMPTION_DECLINED; zero replenishment items",
+      "exceptions": [
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR",
+        "APPROVAL_EXPIRED"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "guards": [
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c80c7d79",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373c1095dce",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d3c1c5e0",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373c88a718a",
+          "disabled": "platform_capacity_pending",
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E05",
+      "control_id": "M1-B05",
+      "label": "拒绝计划",
+      "screen_id": "M1-S04",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "target_screen": "M1-S04",
+      "business_action": "action=reject (known inbound only)",
+      "state_change": "rejected; zero internal items",
+      "exceptions": [
+        "DECISION_CONFLICT",
+        "UNAUTHORIZED_ACTOR"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "guards": [
+        "trusted current identity + same organization/shop + current approver + eligible principal",
+        "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
+        "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B05 / 拒绝计划",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373d4721f57",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d95d19b5",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B05 / 拒绝计划",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373d743cc7c",
+          "disabled": "platform_capacity_pending",
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E06",
+      "control_id": "M1-B06",
+      "label": "重新分析",
+      "screen_id": "M1-S03",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "target_screen": "M1-M05",
+      "business_action": "none; open impact review with pending-plan/rejected-or-expired/completed context",
+      "state_change": "UI review only; no old plan invalidation by navigation",
+      "exceptions": [
+        "UNAUTHORIZED_ACTOR",
+        "DATA_INCOMPLETE"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "ui_navigation_backend_transition_pending",
+      "guards": [
+        "current server identity and object scope",
+        "latest permitted object state",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC03"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398f4e8de5f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B06 / 重新分析影响",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E07",
+      "control_id": "M1-B07",
+      "label": "标记内部跟进完成",
+      "screen_id": "M1-M01",
+      "roles": [
+        "approver"
+      ],
+      "event": "submit",
+      "target_screen": "M1-S11",
+      "business_action": "POST /replenishment-items/{id}/resolve action=complete",
+      "guards": [
+        "same shop",
+        "open",
+        "nonempty reason",
+        "expected_version",
+        "request_key",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "state_change": "open → completed + audit/outbox; no inventory mutation",
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "UNAUTHORIZED_ACTOR",
+        "reason_required",
+        "request_result_unknown"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c652854",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c652854",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B07 / 空原因触发校验",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751c128013",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751d3dec1e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B07 / 提交完成（模拟）",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751cdf0876",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E08",
+      "control_id": "M1-B08",
+      "label": "关闭内部工作项",
+      "screen_id": "M1-M01",
+      "roles": [
+        "approver"
+      ],
+      "event": "submit",
+      "target_screen": "M1-S11",
+      "business_action": "POST /replenishment-items/{id}/resolve action=close",
+      "guards": [
+        "same shop",
+        "open",
+        "nonempty reason",
+        "expected_version",
+        "request_key",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "state_change": "open → closed + audit/outbox; no reopen/bulk close",
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "UNAUTHORIZED_ACTOR",
+        "reason_required",
+        "request_result_unknown"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751e049c6e",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "existing_business_design_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751e049c6e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B08 / 空原因触发校验",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751da663dd",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ef12389",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B08 / 提交关闭（模拟）",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E09",
+      "control_id": "M1-B09",
+      "label": "恢复原任务（保留ID，不启用）",
+      "screen_id": "M1-S06",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "target_screen": "M1-S06",
+      "business_action": "none; generic manual recovery excluded from M1 UI; existing backend recovery contract unchanged",
+      "guards": [
+        "no generic manual recovery UI",
+        "no blind external resend",
+        "do not infer authority from a retry endpoint in architecture"
+      ],
+      "state_change": "no rendered control and no click binding; automatic recovery/reconciliation only under existing contracts",
+      "exceptions": [
+        "UNKNOWN_EXTERNAL_RESULT",
+        "UNAUTHORIZED_ACTOR",
+        "not_retryable"
+      ],
+      "status": "retained_not_rendered",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "excluded_from_m1_ui",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "reserved_no_ui",
+      "ui_enabled_in_design": false,
+      "backend_contract_refs": [
+        "BC04"
+      ],
+      "c2_batch": "none",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E10",
+      "control_id": "M1-B10",
+      "label": "新建库存分析",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "open unsent draft",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "permission_revoked"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B10 / 新建库存分析",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373be45b85a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B10 / 开始提问 →",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc48452b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c0db21de",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ccba2822",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd1b8cf4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd8f458c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B10 / 发起本人分析（Mock）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E11",
+      "control_id": "M1-B11",
+      "label": "登录",
+      "screen_id": "M1-S01",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "submit",
+      "business_action": "session authentication; endpoint not yet specified",
+      "state_change": "validated safe return_to else operator/approver S02; admin-only S08; no business permission S07",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "invalid_credentials",
+        "rate_limited",
+        "service_unavailable"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386bddb9653",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "alternate_targets": [
+        "M1-S08",
+        "M1-S07",
+        "M1-S01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "also_on": [
+        "M1-S07"
+      ],
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B2",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bddb9653",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 登录（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386bce478fe",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bf776abe",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 登录（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386be8e2dd1",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c13e8398",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / operator",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c24a0281",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / approver",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c3552592",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / admin",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c45f3a2a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / unauthorized",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c5729706",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / operator + approver",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c687edae",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / admin + operator",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c7a15afb",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / admin + approver",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c8bde8a9",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / admin + operator + approver",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d27e914a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 退出并返回登录",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ceecf94e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 返回登录",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386ce71898c",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d021c770",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 返回登录",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386cfa20c01",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d13dc6ff",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 返回登录",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386d0c1353b",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d25ec2cc",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 返回登录",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386d1dc4960",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886cafbc3e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 返回登录与身份样例",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5bd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 模拟鉴权成功：查看完整详情",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5b8",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc302285e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B11 / 模拟鉴权成功：查看完整详情",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38cc3022859",
+          "disabled": null,
+          "review_only": true
+        }
+      ],
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E12",
+      "control_id": "M1-B12",
+      "label": "退出登录",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S01",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "session logout; endpoint not yet specified",
+      "state_change": "clear principal-scoped cache; never cancel existing tasks",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "logout_failed"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386c1576432",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "also_on": [
+        "M1-S07",
+        "M1-S08",
+        "M1-S09",
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B2",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c1576432",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c0db21de",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c2615610",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c36ca93e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c4776723",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c58b41b7",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c69fa2c7",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c7b91787",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c732abaa",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c8d6b900",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出当前身份",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "26e778de-c7ba-8031-8008-c39d56605d1b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B12 / 退出登录（Mock 导航）",
+          "owner_board_id": "26e778de-c7ba-8031-8008-c39d562b626f",
+          "disabled": null,
+          "review_only": true
+        }
+      ],
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E13",
+      "control_id": "M1-B13",
+      "label": "任务筛选与分页",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized tasks only; list API pending",
+      "state_change": "URL filters/page; no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "read_failure",
+        "filter_empty"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B13 / 关闭预览",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B13 / 全部状态  ⌄",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "prototype_simulation": "Open/close read-only options preview, not actual filtering or query execution.",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E14",
+      "control_id": "M1-B14",
+      "label": "打开任务",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}",
+      "state_change": "navigate to task overview",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "not_found_or_forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B14 / 查看任务",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E15",
+      "control_id": "M1-B15",
+      "label": "查看报告",
+      "screen_id": "M1-S09",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}/report",
+      "state_change": "read specified immutable report/version",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "not_generated",
+        "read_failure",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S06"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B15 / 查看分析报告",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373bf78d954",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B15 / 查看来源报告",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f8fb3dbc",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B15 / 查看授权来源报告",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375f8de4538",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc625793",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B15 / 查看本人只读报告",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c0db21de",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd38c24c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B15 / 查看本人只读报告",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc1118c9",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B15 / 查看预生成报告样例",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386cb9bbbe9",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E16",
+      "control_id": "M1-B16",
+      "label": "查看执行轨迹",
+      "screen_id": "M1-S09",
+      "target_screen": "M1-S06",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}/events",
+      "state_change": "read safe facts only",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "read_failure",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B16 / 执行轨迹",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375e9df3a83",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B16 / 查看执行轨迹",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E17",
+      "control_id": "M1-B17",
+      "label": "查看审批",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none; read existing approval; detail API pending",
+      "state_change": "navigation only; T2 already prepares approval; no manual submission endpoint",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "not_prepared",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "also_on": [
+        "M1-S09"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B17 / 查看审批",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375e9c45b7e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B17 / 查看审批详情",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cae9b656",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B17 / 查看只读审批",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386ca75bab2",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E18",
+      "control_id": "M1-B18",
+      "label": "数据口径与来源",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-M03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read frozen report facts",
+      "state_change": "open read-only panel",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "missing_evidence",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B18 / 数据口径",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987513647b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B18 / 查看本报告口径",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39872fa6806",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E19",
+      "control_id": "M1-B19",
+      "label": "解释本报告",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-M04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none; open context-bound panel",
+      "state_change": "show task/report context; no business mutation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "context_expired",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398f4bf2e42",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B19 / 解释这份报告",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E20",
+      "control_id": "M1-B20",
+      "label": "审批筛选与分页",
+      "screen_id": "M1-S10",
+      "target_screen": "M1-S10",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read eligible/authorized approvals; list API pending",
+      "state_change": "no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "read_failure",
+        "filter_empty"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B20 / 待我处理 · 2",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bd6118c1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B20 / 已处理 · 2",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763d583848",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B20 / 关闭筛选预览",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3763d397cf2",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E21",
+      "control_id": "M1-B21",
+      "label": "打开审批详情",
+      "screen_id": "M1-S10",
+      "target_screen": "M1-S04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "read existing approval; detail API pending",
+      "state_change": "Feishu deep link requires session and reauthorization",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "session_expired",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "also_on": [
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 查看飞书卡片样例",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d3ee71cf",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 在 Web 查看同版本完整详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373c88a718a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d98fd50f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 在 Web 查看同版本完整详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373d743cc7c",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bdd147b1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374be0e05ad",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 390px 完整详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374be50cb3f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 已知在途详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374be94485a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 只读历史记录",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37578644adc",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37577fd2aba",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37579498593",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37578d79ec0",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757a51685c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37579c80a4c",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757b4deccb",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757acca614",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757c670054",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757bcf0817",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757d8983da",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757ce7d800",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc9c5db1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386ccf279a4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cd73810d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c732abaa",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cdc8ef25",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 查看 eligible 审批",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874237973e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 打开 Web：先鉴权（模拟无权）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873dcafcbf",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c523",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B21 / 打开 Web：先鉴权（模拟无权）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886e17c51e",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E22",
+      "control_id": "M1-B22",
+      "label": "关闭辅助面板",
+      "screen_id": "M1-M03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "close M03/M04/M05; restore focus to trigger; no decision or recalculation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "none"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-M04",
+        "M1-M05"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 返回报告",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344b0081036",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39875567721",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 关闭解释，返回报告",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39872fa6806",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987742c8f8",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 关闭解释",
+          "owner_board_id": "b0616bef-0815-8023-8008-c398764b1703",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39879368bcb",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 返回报告事实",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39878416fa0",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987b1aaa97",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 返回报告",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3987a2d6dd7",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987e1dee6d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 取消，返回原报告",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3987c102147",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39880ff02d2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 返回原报告",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3987f18662f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988339e85a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 关闭预览",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39882044bc5",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398894d2f6f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 取消",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3988448c714",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988f0a5514",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 返回当前 report v1",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3988a71062b",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988f948c11",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 返回当前报告",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3988d1387e3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989343f12c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 关闭消息提案",
+          "owner_board_id": "b0616bef-0815-8023-8008-c398909f7a97",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "26e778de-c7ba-8031-8008-c39d570a22e0",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B22 / 关闭账号菜单",
+          "owner_board_id": "26e778de-c7ba-8031-8008-c39d562b626f",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E23",
+      "control_id": "M1-B23",
+      "label": "核实审批结果",
+      "screen_id": "M1-S04",
+      "target_screen": "M1-S04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read original approval and decision",
+      "state_change": "unknown -> server result; never send opposite action automatically",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "read_failure",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-F01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 查看审批记录",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375786ebe7e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 查看创建结果（Mock）",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37577fd2aba",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37579559819",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37578d79ec0",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757a5ded27",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37579c80a4c",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757b59f82f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757acca614",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757c7480a9",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757bcf0817",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757d9a00a1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B23 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757ce7d800",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E24",
+      "control_id": "M1-B24",
+      "label": "内部工作项筛选",
+      "screen_id": "M1-S05",
+      "target_screen": "M1-S05",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized items; list API pending",
+      "state_change": "no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "read_failure",
+        "filter_empty"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B24 / 状态：待跟进 ⌄",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763dfc871b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B24 / 关闭筛选预览",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3763de19817",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E25",
+      "control_id": "M1-B25",
+      "label": "查看内部工作项",
+      "screen_id": "M1-S05",
+      "target_screen": "M1-S11",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized item; detail API pending",
+      "state_change": "navigate to item detail",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "not_found_or_forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "also_on": [
+        "M1-S09"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B25 / 执行后工作项（Mock）",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374c0047ca6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B25 / 查看工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374c04e4e31",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B25 / 查看工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374c09dcab7",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B25 / 查看工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757e6ec32b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B25 / 查看内部工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757e23934a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9d419fa",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B25 / 查看内部工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E26",
+      "control_id": "M1-B26",
+      "label": "打开完成原因弹窗",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-M01",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "open complete reason form; no mutation until B07",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "permission_revoked"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S05"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B26 / 记录内部跟进完成",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E27",
+      "control_id": "M1-B27",
+      "label": "打开关闭原因弹窗",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-M01",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "open close reason form; no mutation until B08",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "ITEM_STATE_CONFLICT",
+        "permission_revoked"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S05"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B27 / 关闭内部工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E28",
+      "control_id": "M1-B28",
+      "label": "取消完成/关闭",
+      "screen_id": "M1-M01",
+      "target_screen": "M1-S11",
+      "roles": [
+        "approver"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "close without decision; submitting/unknown cannot imply cancellation of request",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "result_unknown"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751c128013",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c388192889ff",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c388192889f8",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751d2e6ec1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751cdf0876",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751df7ce6a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751da663dd",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c3c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881f358c35",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ee03cc8",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751e8a0b15",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E29",
+      "control_id": "M1-B29",
+      "label": "返回任务结果",
+      "screen_id": "M1-S06",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "GET /tasks/{id}",
+      "state_change": "read current business receipt; Feishu link requires login/scope",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "session_expired"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S04",
+        "M1-F01",
+        "M1-S03"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 任务概览",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373bf67a3bb",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回任务概览",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c829093f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373c1095dce",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d6c040d4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373d4721f57",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37519ed212a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751aff1471",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751ae3259a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b9228ef",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751b73c291",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757e814178",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回任务概览",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757e23934a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757f5451f6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757f0f161d",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37580161c98",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757fd0a65a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37580d38f17",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回任务结果",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b0",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回任务结果",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f861f99a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375f839e836",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9079fa1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375f8de4538",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9c73b98",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回任务结果",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fa72cb84",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回执行轨迹",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375fa549906",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37b12690495",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回审批列表",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37b1249a935",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e806bee",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ebc3bac",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ef68a14",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872f70da65",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d592ede",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886d592ed8",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f327f00",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c387305f5b64",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf085",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回版本变化说明",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf086",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38d4e5cf080",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e78",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886d802e72",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f6e1e00",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873145441d",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d74",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886df29d6e",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873faa0c22",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873235d58c",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886da59555",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886da5954f",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740028b4d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873414b78a",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b2d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886dcd6b27",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387403e2871",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873503e7cb",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740796a0c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38735f2870e",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740b70b5e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38736e3afb7",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38740f165a6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38737d9249d",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387412c54a4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38738cee306",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387416975dc",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38739c749c7",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741a574dd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873ac57e0c",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741dd8055",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873bc261a1",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742199589",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873cc489a2",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874254d85c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873dcafcbf",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886e17c524",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886e17c51e",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881e6eda98",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881ce07c18",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3882499828c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38822fd8afb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39882fb91b3",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 查看原任务与执行结果",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39882044bc5",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39897661c8f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回身份评审入口",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39894562145",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989e35c919",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B29 / 返回原报告",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E30",
+      "control_id": "M1-B30",
+      "label": "管理说明",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S08",
+      "roles": [
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read redacted configuration/exception metadata; API pending",
+      "state_change": "navigation only; no global config mutation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "read_failure"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "also_on": [
+        "M1-S08",
+        "M1-S09",
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39897a4d9bd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B30 / 查看只读管理说明",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39897e21940",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B30 / 查看只读管理说明",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c61cc36e",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989826470a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B30 / 查看只读管理说明",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c732abaa",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989866c854",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B30 / 查看只读管理说明",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E31",
+      "control_id": "M1-B31",
+      "label": "返回有权首页",
+      "screen_id": "M1-S07",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin",
+        "unauthorized"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "operator/approver S02; admin-only S08; unauthorized stays safe shell or S01",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "no_authorized_destination"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386c9dd12ac",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "alternate_targets": [
+        "M1-S08",
+        "M1-S07",
+        "M1-S01"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B2",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386c9dd12ac",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B31 / 返回本人授权任务",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c96b1b7f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cb0485dd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B31 / 返回本人授权任务",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386ca75bab2",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cc2e185f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B31 / 返回本人授权任务",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386cb9bbbe9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386cf09babd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B31 / 返回授权首页",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386ce71898c",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E32",
+      "control_id": "M1-B32",
+      "label": "发送报告解释问题",
+      "screen_id": "M1-M04",
+      "target_screen": "M1-M04",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "submit",
+      "business_action": "explain_report read-only; conversation endpoint pending",
+      "state_change": "answer cites frozen report/SKU; no new analysis/approval/SQL/RAG",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "explanation_failed",
+        "unsupported_request",
+        "budget_exceeded",
+        "context_expired"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "26e778de-c7ba-8031-8008-c39d5430bdee",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B32 / 发送报告问题 · 待 BC05 确认",
+          "owner_board_id": "b0616bef-0815-8023-8008-c39872fa6806",
+          "disabled": "pending BC05 report explanation transport",
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E33",
+      "control_id": "M1-B33",
+      "label": "查看历史版本",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized immutable version; version query contract pending",
+      "state_change": "historical badge; active version explicit; old approval never reused",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "version_not_found"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "also_on": [
+        "M1-S04"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398f50daa69",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B33 / 历史版本",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988ebb4126",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B33 / 查看 report v0（Mock）",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3988a71062b",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988f50ad6a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B33 / 返回版本列表",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3988d1387e3",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E34",
+      "control_id": "M1-B34",
+      "label": "复制安全编号",
+      "screen_id": "M1-S06",
+      "target_screen": "M1-S06",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "copy displayed task/item/trace ID only, no token/nonce",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "clipboard_unavailable"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S09",
+        "M1-S11",
+        "M1-S08"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "26e778de-c7ba-8031-8008-c39d54c26521",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B34 / 复制安全编号 · 待前端验证",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": "Penpot does not implement clipboard; pending real frontend test",
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E35",
+      "control_id": "M1-B35",
+      "label": "确认Web提交前草稿参数",
+      "screen_id": "M1-M02",
+      "target_screen": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "event": "confirm_draft",
+      "business_action": "none; local draft only; natural-language preparse/candidate protocol pending BC02",
+      "state_change": "remain in M02; no task_id, no queue, no workflow state; B01 separately submits",
+      "guards": [
+        "operator in allowed shop",
+        "unsubmitted browser draft only",
+        "no fabricated candidate lookup or parsing API",
+        "final values still validated server-side"
+      ],
+      "exceptions": [
+        "ambiguous_sku",
+        "preparse_protocol_pending",
+        "scope_over_capacity"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "ui_draft_only_backend_preparse_pending",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B35 / 确认以上草稿参数",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344afad46ed",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B35 / 返回新建分析",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344af9dfaab",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39888355bab",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B35 / 确认新草稿参数 · 待填写",
+          "owner_board_id": "b0616bef-0815-8023-8008-c398869ab4f8",
+          "disabled": "pending backend confirmation",
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "prototype_simulation": "Acknowledge prefilled Mock draft only; native Viewer is not a real editable form or parser.",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E36",
+      "control_id": "M1-B36",
+      "label": "重算/重新发起分析（proposal）",
+      "screen_id": "M1-M05",
+      "target_screen": "M1-S09",
+      "roles": [
+        "operator"
+      ],
+      "event": "submit",
+      "business_action": "proposal only; pending plan recalculation or rejected/expired reinitiation; transitions and API pending BC03; never retry",
+      "state_change": "new immutable plan and new approval required; old decision never reused; task linkage and atomic supersession pending BC03; completed uses B46 instead",
+      "guards": [
+        "operator and authorized task",
+        "BC03 must be confirmed before enabling submission",
+        "pending-plan versus rejected/expired classification from server facts",
+        "executing or unknown execution must first be reconciled; never overwrite",
+        "no terminal approval -> pending, no reused confirmation or execution"
+      ],
+      "exceptions": [
+        "version_conflict",
+        "permission_revoked",
+        "request_result_unknown"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": false,
+      "backend_contract_refs": [
+        "BC01",
+        "BC03"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3987de0a00d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B36 / 重新分析 · 待 BC03 确认",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3987c102147",
+          "disabled": "pending backend confirmation",
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39880b69472",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B36 / 重新发起 · 待 BC03 确认",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3987f18662f",
+          "disabled": "pending backend confirmation",
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E37",
+      "control_id": "M1-B37",
+      "label": "查看工作项来源",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read approved source report/version",
+      "state_change": "show historical source, not unrelated latest report",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "missing_evidence"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B37 / 查看来源报告",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b0b34b1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B37 / 查看来源报告",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751ae3259a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b9f40da",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B37 / 查看来源报告",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751b73c291",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E38",
+      "control_id": "M1-B38",
+      "label": "查看同步详情",
+      "screen_id": "M1-S11",
+      "target_screen": "M1-S06",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read parent task events",
+      "state_change": "focus projection section; completed stays completed; no external resend",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden",
+        "read_failure"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S05",
+        "M1-S09"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B38 / 查看同步详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37583756e3d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B38 / 查看飞书投影状态",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b5",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B38 / 查看飞书投影状态",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E39",
+      "control_id": "M1-B39",
+      "label": "导航到任务中心",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized tasks",
+      "state_change": "navigation; preserve filters",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 返回任务中心",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb43bb01",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb85b865",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fbcd115e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc10b80e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc556299",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc990682",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fabe341e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E40",
+      "control_id": "M1-B40",
+      "label": "导航到审批",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S10",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized approvals",
+      "state_change": "navigation; no approval from menu",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb4ebdf2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb9035f6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fbd83868",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc1b2c2b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc60eb28",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fca4e70b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b7",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fac8ff00",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B40 / 导航到审批",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E41",
+      "control_id": "M1-B41",
+      "label": "导航到内部补货",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S05",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read authorized items",
+      "state_change": "navigation; no manual item creation",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb57e09a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb9bdaa0",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fbe1ca99",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc26ece4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc6bfb32",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c37519b581cc",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fcae66a1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80b8",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fad2fde2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E42",
+      "control_id": "M1-B42",
+      "label": "重读当前区域",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "GET/read only; target is current instance",
+      "state_change": "refresh failed read; never regenerate plan or write projection",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "read_failure",
+        "session_expired",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S02",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B42 / 读取同版本完整详情（模拟）",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375f839e836",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e9d31b6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B42 / 重读数据（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872e87aa56",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E43",
+      "control_id": "M1-B43",
+      "label": "展开事实详情",
+      "screen_id": "M1-S03",
+      "target_screen": "M1-S03",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "read safe selected record",
+      "state_change": "expand SKU/tool/exception/definition; no business state change",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "missing_evidence",
+        "forbidden"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "b806b597-0eb0-80b2-8008-c3886d3f9adb",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S04",
+        "M1-S06",
+        "M1-S08",
+        "M1-M03",
+        "M1-M04"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1b",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d3f9adb",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 数据 / 模型异常样例（Mock 评审）",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989e75cdcd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / B3 状态评审（Mock）",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d0d7d1b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 异常状态样例（Mock 评审）",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c373bf383a49",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f91222b6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 查看披露阻断样例",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f91e8ab3",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / operator 只读样例",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c78b2c3",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751c128013",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38819288a01",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c388192889f8",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751e18cc1b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3751da663dd",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881f358c3e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881f358c35",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37582da7542",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 展开工具安全详情",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d234b69",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模型降级 / 用量未知样例",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c375809431d6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80f5",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 展开工具安全详情",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ba",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模型降级 / 用量未知样例",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b572b80ac",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bdf39c14",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 查看身份与异常样例（评审）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386bce478fe",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386bf90843e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 查看身份与异常样例（评审）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386be8e2dd1",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886cc91ee4",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 查看共用异常状态",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c03349ab",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d29ad7a8",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 非 eligible 对象：安全拒绝",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c5068b0f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c386d2b86072",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 非 eligible 对象：安全拒绝",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c386c84c1f27",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742aeed6b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 正在读取授权内容",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742cc0bf2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 当前范围没有结果",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742e9771f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 暂时无法读取",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874307bc53",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 审批期限已过",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743264b88",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 计划版本已变化",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387434578bf",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 此决定已有记录",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743632455",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 审批状态已被更新",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743819e9b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 正在记录审批意见",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387439fc54f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 审批结果暂无法确认",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743bcf52b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 已核实既有结果",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743dbe53e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 内部项已创建 · 飞书同步失败",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38743fce351",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 外部结果未知 · 等待安全对账",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387441b81a2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 智能说明已降级为模板",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387443abe54",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模型用量与费用未知",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874458a631",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 数据不完整 · 暂不能审批",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3874477e7ec",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 工作项版本发生冲突",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744971522",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 此内部项已经完成",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744b41145",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 此内部项已经关闭",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744d245da",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 真实飞书容量待验收",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38744f0daa1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 权限撤销",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387450f3a4e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 会话过期",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387452f39e2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 无权深链",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387454cf052",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 登录失败",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872bcc72bb",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e43a585",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742719ca2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：读取成功但为空",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872cb47f65",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873e61ad37",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872da051d9",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873ed8caba",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3872f70da65",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d592edd",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886d592ed8",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f139bc8",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c387305f5b64",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886d802e77",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886d802e72",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f4ed5a1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 查看既有回执",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873145441d",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886df29d73",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 查看既有回执",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886df29d6e",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873f8a64ae",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873235d58c",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886da59554",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886da5954f",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873fc5e03f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38733275367",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38742900fb2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：结果未知",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38733275367",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3873fe46662",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873414b78a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3886dcd6b2c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前事实（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3886dcd6b27",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387401fe86d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873503e7cb",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387405b441a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38735f2870e",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387409723c5",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38736e3afb7",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387410eecae",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38738cee306",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c387414aa11f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38739c749c7",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741856ee1",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前记录（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873ac57e0c",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741c14c32",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873bc261a1",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38741fb513b",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 返回状态评审",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3873cc489a2",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5be",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟无权结果",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38cc395b5b8",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38cc302285f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟无权结果",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38cc3022859",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881dad7989",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：已保存回执",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38819e1ef46",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881dc58a3a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：版本冲突",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38819e1ef46",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881ddf1a15",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：结果未知",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38819e1ef46",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881df69000",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取原请求回执（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881ae3ee27",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3881e0fac7a",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前工作项（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881bdfcc50",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38823cf88aa",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：已保存回执",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881fefd1bc",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38823eaaee3",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：版本冲突",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881fefd1bc",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c38824026f4e",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模拟响应：结果未知",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c3881fefd1bc",
+          "disabled": null,
+          "review_only": true
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c388241ca53d",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取原请求回执（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38820f73994",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b806b597-0eb0-80b2-8008-c3882435086f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 读取当前工作项（模拟）",
+          "owner_board_id": "b806b597-0eb0-80b2-8008-c38821f7fac6",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989b505152",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 只读管理",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989b997a3c",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 报告解释",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989bdd5e55",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 解释加载",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989c2159a2",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 解释失败",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989c68c7b6",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 模板说明",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989cae711f",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 待执行重算",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989cedf2ce",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 拒绝 / 过期",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989d2ea445",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 执行未知",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989d6e6c16",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 已完成新周期",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989db531ec",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 版本历史",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3989df44657",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B43 / 飞书澄清 Proposal",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3989a3fb117",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E44",
+      "control_id": "M1-B44",
+      "label": "打开账号菜单",
+      "screen_id": "M1-S02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator",
+        "approver",
+        "admin"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "show current identity/assigned roles and logout; no role switching",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "session_expired"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "also_on": [
+        "M1-S03",
+        "M1-S04",
+        "M1-S05",
+        "M1-S06",
+        "M1-S08",
+        "M1-S09",
+        "M1-S10",
+        "M1-S11"
+      ],
+      "target_resolution": "current screen instance for shared control; no implicit navigation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B2",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "26e778de-c7ba-8031-8008-c39d572371ca",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B44 / 当前账号（Mock）",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E45",
+      "control_id": "M1-B45",
+      "label": "关闭新建草稿",
+      "screen_id": "M1-M02",
+      "target_screen": "M1-S02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "business_action": "none",
+      "state_change": "discard unsubmitted draft after confirmation if edited; accepted task not cancelled",
+      "guards": [
+        "current server identity and object scope for all data access",
+        "no implicit business permission from UI role label",
+        "close during unknown submission cannot imply cancellation; do not create new request key until original result is reconciled",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
+      ],
+      "exceptions": [
+        "request_result_unknown"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "contract_status": "proposal_not_implemented",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1a",
+      "penpot_instances": [
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B45 / ×",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344af929b26",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B45 / 取消",
+          "owner_board_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5736",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B45 / 取消草稿",
+          "owner_board_id": "e4d7ead3-2ddf-806b-8008-c38b0aee5730",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39888bd3236",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B45 / 关闭草稿，返回原任务",
+          "owner_board_id": "b0616bef-0815-8023-8008-c398869ab4f8",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped",
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
+    },
+    {
+      "id": "M1-E46",
+      "control_id": "M1-B46",
+      "label": "开始下一周期分析",
+      "screen_id": "M1-M05",
+      "target_screen": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "business_action": "none; open new draft; B01 creates new task under existing contract",
+      "state_change": "source task stays completed; no auto submit; open-item constraint retained; historical association fields pending BC03",
+      "guards": [
+        "current server identity and action scope per D01",
+        "never reuse old approval/assumptions as authority",
+        "source business task completed, not merely approval recorded or item locally marked",
+        "any copied historical parameters are unsubmitted draft and revalidated; no trusted authority copied"
+      ],
+      "exceptions": [
+        "permission_revoked",
+        "contract_pending"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "contract_status": "ui_navigation_backend_association_pending",
+      "backend_contract_refs": [
+        "BC01",
+        "BC03"
+      ],
+      "c2_batch": "C2-B3",
+      "also_on": [
+        "M1-S09",
+        "M1-S11"
+      ],
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c398993eb332",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B46 / 下一周期：查看影响",
+          "owner_board_id": "448723ff-8a21-80dc-8008-c3757e23934a",
+          "disabled": null,
+          "review_only": false
+        },
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c3988903dd87",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B46 / 打开下一周期草稿",
+          "owner_board_id": "b0616bef-0815-8023-8008-c3988448c714",
+          "disabled": null,
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    },
+    {
+      "id": "M1-E47",
+      "control_id": "M1-B47",
+      "label": "回复指定任务澄清（proposal）",
+      "screen_id": "M1-F02",
+      "target_screen": "M1-F02",
+      "roles": [
+        "operator"
+      ],
+      "event": "task_linked_reply_proposal",
+      "business_action": "proposal; Feishu async association/dedupe/persistence/continuation pending BC02; no invented API",
+      "state_change": "requires task/question association; other user/wrong task/late reply cannot overwrite; frozen plan never edited",
+      "guards": [
+        "current server identity and action scope per D01",
+        "never reuse old approval/assumptions as authority",
+        "same allowed organization/chat/original actor/topic/task",
+        "question round/expiry/dedupe protocol pending backend confirmation",
+        "not an approval action"
+      ],
+      "exceptions": [
+        "permission_revoked",
+        "contract_pending"
+      ],
+      "status": "visual_sample_mapped",
+      "penpot_shape_id": null,
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": false,
+      "contract_status": "proposal_pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "c2_batch": "C2-B3",
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "b0616bef-0815-8023-8008-c39892f73b21",
+          "revision": "m1-ui/0.4.0-b3",
+          "meaning": "M1-B47 / 关联回复 · 待 BC02 确认",
+          "owner_board_id": "b0616bef-0815-8023-8008-c398909f7a97",
+          "disabled": "pending backend confirmation",
+          "review_only": false
+        }
+      ],
+      "historical_design_review_marker": "revision_review_required"
+    }
+  ],
+  "approval_request_fields": [
+    "approval_id",
+    "plan_id",
+    "plan_version",
+    "plan_hash",
+    "action",
+    "acknowledged_assumption_keys",
+    "nonce"
+  ],
+  "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
+  "pending_design_decisions": [],
+  "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
+  "design_document": "c1-product-design.md",
+  "visual_scope": "Existing approved M1 native pages retained; final local admin navigation revision only; business not implemented",
+  "baseline_ux_commit": "77b69d3",
+  "shared_control_mapping": "Stable semantic ID can have multiple source instances; latest instance UUID/action map is authoritative; reserved B09 has no UI",
+  "api_contract_gaps": [
+    "BC01 scoped role union and read filters",
+    "BC02 Web pre-submit parsing/candidates and Feishu task-linked async continuation; no new state/API",
+    "BC03 recalculation/reinitiation transitions and historical association; no reused approvals",
+    "BC04 readable automatic-recovery/reconciliation status; no manual retry UI",
+    "BC05 session/list/detail/version/admin/interpretation transport contracts",
+    "BC06 full SKU disclosure and client fallback",
+    "BC07 actual expiry/freshness configuration; no hardcoded 24h/15min guarantee"
+  ],
+  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision independently reviewed, final confirmation pending",
+  "c2_authorized": true,
+  "decision_record": "c1-decisions.md",
+  "batch_plan": "c2-batches.md",
+  "accepted_product_decisions": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07",
+    "D08",
+    "D09"
+  ],
+  "pending_backend_contracts": [
+    "BC01",
+    "BC02",
+    "BC03",
+    "BC04",
+    "BC05",
+    "BC06",
+    "BC07"
+  ],
+  "recovery_ui_policy": {
+    "decision": "D04",
+    "generic_manual_recovery_button": false,
+    "reserved_control": "M1-B09",
+    "behavior": "仅展示自动恢复及安全对账事实；沿用既有合同，无新增重发/对账写入口",
+    "backend_ref": "BC04"
+  },
+  "approval_disclosure_policy": {
+    "decision": "review_item_7",
+    "surfaces": [
+      "M1-S04",
+      "M1-F01"
+    ],
+    "all_items_visible": true,
+    "max_items": 20,
+    "risk_disclosure": "默认展开每项数量/风险/未知在途说明；清单及风险之后才是最终动作区；不折叠批准范围，不悬浮批准绕过披露",
+    "block_approval_when": [
+      "数据未完整加载",
+      "数量或版本不一致",
+      "条目/风险被截断",
+      "客户端不支持完整呈现"
+    ],
+    "fallback": "去有权Web查看同版本完整披露后再决定；不能在截断卡片批准隐藏条目；具体平台合同pending BC06",
+    "client_is_not_authorization": true,
+    "real_feishu_capacity": "pending_real_platform_acceptance",
+    "current_card_direct_decision": "disabled_pending_capacity; authenticated same-version full Web only",
+    "real_feishu_direct_approval": "G3 pending: enable direct approval only when client fully discloses all same-version SKU and risks; otherwise same-version authenticated Web fallback. Current gate is temporary, not permanent removal."
+  },
+  "interaction_counts": {
+    "registered": 47,
+    "reserved_no_ui": 1,
+    "planned": 46,
+    "implemented": 0
+  },
+  "batch_semantics": "页面c2_batch为首批出现；事件批次决定该操作首次接入。共用事件also_on在各来源页面/辅助层已纳入对应批次后才创建实例，不因共用ID提前生成B3页面。",
+  "authorization_scope": "C2-B3",
+  "authorized_design_batches": [
+    "C2-B1a",
+    "C2-B1b",
+    "C2-B2",
+    "C2-B3"
+  ],
+  "followup_authorization": {
+    "C2-B1b": true,
+    "C2-B2": true,
+    "C2-B3": true
+  },
+  "m1_visual_revision": "m1-ui/0.4.1-freeze-rc",
+  "m1_visual_map": "evidence/m1-ux-final/design-map.json",
+  "b1a_delivery": "c2-b1a-delivery.md",
+  "b1b_delivery": "c2-b1b-delivery.md",
+  "b2_delivery": "c2-b2-delivery.md",
+  "b2_mock_fixture_policy": "B43 evaluator choices and B11 role/auth fixtures are review-only. Real principal remains server supplied; no API or effect inferred from prototype.",
+  "b3_delivery": "c2-b3-delivery.md",
+  "final_freeze_delivery": "m1-ux-final-freeze.md"
+}

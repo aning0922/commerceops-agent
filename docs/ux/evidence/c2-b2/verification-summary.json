@@ -1,0 +1,28 @@
+{
+  "attempts": 96,
+  "clicks_dispatched_and_asserted": 87,
+  "pre_click_locator_failures": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    79,
+    81,
+    82,
+    95
+  ],
+  "failure_rechecks": {
+    "2": 7,
+    "3": 8,
+    "4": 9,
+    "5": 12,
+    "6": 13,
+    "79": 84,
+    "81": 86,
+    "82": 87,
+    "95": 96
+  },
+  "keyboard_focus_screenreader": "not_verified_by_native_prototype",
+  "mode": "Mock native Penpot Viewer; no business or real platform acceptance"
+}

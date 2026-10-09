@@ -1,0 +1,37 @@
+[
+  {
+    "shapeId": "b0616bef-0815-8023-8008-c39894562145",
+    "file": "native-admin.png",
+    "bytes": 150572,
+    "sha256": "5026adee9e8152faf7e18ff2c0b9563eee98297497ded1812f7930f605f21486",
+    "source": "official MCP export_shape; not Viewer click evidence"
+  },
+  {
+    "shapeId": "b0616bef-0815-8023-8008-c39872fa6806",
+    "file": "native-explanation.png",
+    "bytes": 91170,
+    "sha256": "4b8cdf0c6247a8515cd0b184970d132c07b9868aecb0d135c8fc967bc84742dd",
+    "source": "official MCP export_shape; not Viewer click evidence"
+  },
+  {
+    "shapeId": "b0616bef-0815-8023-8008-c3987c102147",
+    "file": "native-reanalysis.png",
+    "bytes": 71296,
+    "sha256": "c7f034d928d64fcec5a94c92257d73d8af3045cd81ad88fd23fa077cb67e4f94",
+    "source": "official MCP export_shape; not Viewer click evidence"
+  },
+  {
+    "shapeId": "b0616bef-0815-8023-8008-c398909f7a97",
+    "file": "native-clarification.png",
+    "bytes": 79505,
+    "sha256": "e711ba1ff3bf0aaa6c2d7348f03352dae9683fe40307d1abbf0a649f38aa0da2",
+    "source": "official MCP export_shape; not Viewer click evidence"
+  },
+  {
+    "shapeId": "448723ff-8a21-80dc-8008-c375fa549906",
+    "file": "native-technical-groups.png",
+    "bytes": 78826,
+    "sha256": "d433ee12bcee0ef33c37976ede9f11418df00a960709f29602d2f21bc6820ea2",
+    "source": "official MCP export_shape; not Viewer click evidence"
+  }
+]

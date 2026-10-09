@@ -1,0 +1,37 @@
+{
+  "scope": "Existing isolated Penpot logs; actual configured credential values checked in memory; no values printed",
+  "services": [
+    {
+      "service": "frontend",
+      "log_read_exit": 0,
+      "credential_value_matches": 0
+    },
+    {
+      "service": "backend",
+      "log_read_exit": 0,
+      "credential_value_matches": 0
+    },
+    {
+      "service": "exporter",
+      "log_read_exit": 0,
+      "credential_value_matches": 0
+    },
+    {
+      "service": "postgres",
+      "log_read_exit": 0,
+      "credential_value_matches": 0
+    },
+    {
+      "service": "mcp",
+      "log_read_exit": 0,
+      "credential_value_matches": 0
+    },
+    {
+      "service": "valkey",
+      "log_read_exit": 0,
+      "credential_value_matches": 0
+    }
+  ],
+  "total_matches": 0,
+  "secrets_uploaded": false
+}

@@ -1,0 +1,79 @@
+{
+  "before": {
+    "batch": "C2-B1a",
+    "design_writes_during_backup": false,
+    "private_directory_mode": "0o700",
+    "pg_archive_list_readable": true,
+    "pg_archive_entries": 413,
+    "asset_file_count": 10,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 228512,
+        "sha256": "43ed323fc537a25672690ddb759fc867795d73f40dbeaa050b4cfdd59cd05001",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 712166,
+        "sha256": "ee359d3564fffb602c36a02e16cf0ca40ce3555faae2ffe1ff2d49d11afe68ce",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "secrets_uploaded": false,
+    "corrected_attempt": "initial assumed DB role penpot failed before any design write; used actual isolated penpot_design role/database"
+  },
+  "after": {
+    "batch": "C2-B1a",
+    "phase": "after_final_28_clicks_and_entry_fix",
+    "design_writes_during_backup": false,
+    "private_directory_mode": "0o700",
+    "pg_archive_list_readable": true,
+    "pg_archive_entries": 413,
+    "asset_file_count": 53,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 593259,
+        "sha256": "7ed8e33b647b8df684d9e4e61c29e4bf1d996597e5f1fafa447c2a9e73ba425b",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 4618982,
+        "sha256": "96b930c6c5986a98b2054e51187528cf5dfccb919e7c24f017401d4d9250a42a",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "secrets_uploaded": false,
+    "consistency_limit": "No design edits during capture; pg_dump and assets tar are not a cross-store atomic transaction; no new-volume restore proven"
+  },
+  "earlier_after_visual": {
+    "batch": "C2-B1a",
+    "phase": "after_named_version",
+    "design_writes_during_backup": false,
+    "private_directory_mode": "0o700",
+    "pg_archive_list_readable": true,
+    "pg_archive_entries": 413,
+    "asset_file_count": 51,
+    "files": [
+      {
+        "name": "design.dump",
+        "bytes": 533336,
+        "sha256": "7a6b237c2d9c97ceeae12e92d0a255b75a9156f4f981e9f8b0455b93dd0f823e",
+        "mode": "0o600"
+      },
+      {
+        "name": "assets.tar.gz",
+        "bytes": 4585929,
+        "sha256": "2d8d61a98770f81a0ac722ee8f6ab34d4f3b76da8683c1554b3cf9591d2fcd1c",
+        "mode": "0o600"
+      }
+    ],
+    "restore_drill_performed": false,
+    "secrets_uploaded": false,
+    "consistency_limit": "No design edits during capture; pg_dump and assets tar are not a cross-store atomic transaction; no new-volume restore proven"
+  }
+}

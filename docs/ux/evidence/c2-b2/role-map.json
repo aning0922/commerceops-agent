@@ -1,0 +1,34 @@
+[
+  {
+    "role": "operator",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c0db21de"
+  },
+  {
+    "role": "approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c1e33ce5"
+  },
+  {
+    "role": "admin",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c2eea5f1"
+  },
+  {
+    "role": "unauthorized",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f"
+  },
+  {
+    "role": "operator + approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c5068b0f"
+  },
+  {
+    "role": "admin + operator",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c61cc36e"
+  },
+  {
+    "role": "admin + approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c732abaa"
+  },
+  {
+    "role": "admin + operator + approver",
+    "shape_id": "b806b597-0eb0-80b2-8008-c386c84c1f27"
+  }
+]
