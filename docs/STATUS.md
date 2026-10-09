@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 已在集成分支验收，P1-05 已完成安全本地配置、真实机器人身份诊断、专用 PG 和探针表准备；真实 G3 仍待资源标识、测试身份范围及联调授权；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，当前组合 CI 超时待诊断；P1-05 已完成真实身份采样及人工交叉核验，PG 映射、正式 Gateway/卡片与 Base 尚待完成；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–9节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第10节与 Issue/PR 最新记录为准。
+第1–11节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第12节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -217,3 +217,11 @@ G1/G2保持verified_on_integration；G3必要消息/卡片回调/Base读写和�
 [PR22](https://github.com/aning0922/commerceops-agent/pull/22)冻结8f5572778d136ee2348915d60a419965db66c7be相对41323ec只改两份阶段文档，独立文档审查无问题；[CI37833575792](https://github.com/aning0922/commerceops-agent/actions/runs/37833575792)实际checkout a6ee1108b593454a92e61974c6dd03e7a022e4d3（8f合入413），2026-10-09 03:39:30–04:04:50（北京时间）超过25分钟job上限，Actions终态cancelled。140offline/60.14秒、两项既有SDK warning及24Markdown/Foundation checks成功；PG healthy与两轮migrate/checkpointer/grant/revision成功，03:42:14进入组合测试，04:04:47被终止。没有PG测试汇总、完整新G1/G2或cleanup完成证据，不计本次CI通过。
 
 只读核查与原P104接续准备已完成：相关源码与旧通过版本一致，输出捕获、SQL/async/子进程等待存在待查窗口，但目前未定位具体用例或根因。调查合同见[Issue23](https://github.com/aning0922/commerceops-agent/issues/23)，采用全新隔离自有PG项目、有界逐组/单例采样和仅自有资源清理；主控按用户“无法解释CI/恢复测试失败须人工确认”的边界暂停新实跑、修复推送和合入，等待确认受控诊断。历史413成功证据保留，不能覆盖本次超时；PR22保持OPEN未合入，PR19保持Draft，main仍a0。G3的身份/群范围、Wiki最小权限选择和只读采样授权也仍待回复，不进入Phase2。
+
+## 12. 真实身份已核验，接续受限 G3
+
+用户已明确唯一联调群和三个真实测试账号，并授权按既有范围推进：A=operator+approver，B仅approver，C无审批角色；目标默认允许名单只A/B。用户确认三账号/后台可操作，并在采样后确认六消息账号与唯一群对应正确；原P105顶层/WT4094继续实施，没有重复会话或放宽API权限。第10–11节关于真人范围及本次采样未获授权的旧快照由本节取代，Issue23的恢复诊断仍未批准。
+
+经冻结源码/计划/依赖的独立61fake复审后，11:38:05–11:42:09实际运行官方SDK1.7.3，一次最多300秒只读采样在244.115秒内完成，session88798 exit0。真实收到三私聊与三群@，同app/tenant、三不同open_id、逐人私聊/群一致和唯一chat_id均核对通过；父子进程退出、锁释放。原候选回执保持identity_verified=false且未改写，人类确认另存0600回执绑定原hash；所有实际标识/marker/秘密仅本地保管。[脱敏任务回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6073952244)。该证据是实际身份/消息投递诊断，未验证正式Gateway持久接收、卡片或完整G3。
+
+已审本地verify-gateway-config沿用实际Settings中Base目标可选合同，输出Base未验证/G3未通过；61项是fake，真实Gateway配置/连接核验仍待映射完成。执行者正在准备短事务幂等组织/店铺/principal/identity映射与配置写入供独立审查；默认配置目标A/B、C映射无approver且仅在独立限时白名单overlay验证角色拒绝，不能用名单/缺映射拒绝替代。尚未seed、启动正式Gateway、配置卡片回调或运行Base。Base标识仍缺，不调用未授权Wiki API/发布；旧六scope不变。主控本地阶段文档继续留待合规推送，PR22未合入、PR19 Draft、maina0，不进入Phase2。
