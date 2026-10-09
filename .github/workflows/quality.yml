@@ -1,8 +1,9 @@
 name: Foundation quality
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
-    branches: [main]
+    branches: [main, phase/1-integration]
 permissions:
   contents: read
 concurrency:
@@ -11,12 +12,24 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Register absolute diagnostic deadline
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          directory = Path(".audit")
+          directory.mkdir(exist_ok=True)
+          (directory / "ci-deadline").write_text(
+              (datetime.now(timezone.utc) + timedelta(minutes=23)).isoformat()
+          )
+          PY
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12.13'
@@ -32,3 +45,9 @@ jobs:
         run: uv sync --frozen
       - name: Foundation checks
         run: uv run --frozen python -m scripts.check
+      - name: Real PostgreSQL migration setup constraints and persistence
+        shell: bash
+        run: |
+          uv run --frozen python -m scripts.pg_diagnostic \
+            --session ci --round 1 --combined --full-smoke --no-child-trace \
+            --deadline "$(cat .audit/ci-deadline)"

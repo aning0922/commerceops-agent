@@ -1,6 +1,6 @@
-# P1-01 开发与检查说明
+# 开发与检查说明
 
-本页只描述已实现的工程底座。API 是本机 liveness 技术入口，没有业务 API、数据库、Worker、Graph 或真实平台连接。阶段状态由主控维护；任务事实见 [Issue #2](https://github.com/aning0922/commerceops-agent/issues/2)，实际证据见 [P1_01_EVIDENCE](P1_01_EVIDENCE.md)。
+本页只描述已实现的工程底座。API 是本机 liveness 技术入口；PG 与单 Worker 技术基础见后文，没有正式业务 API、库存 Graph 或真实平台连接。阶段状态由主控维护；任务事实见 [Issue #2](https://github.com/aning0922/commerceops-agent/issues/2)，实际证据见 [P1_01_EVIDENCE](P1_01_EVIDENCE.md)。
 
 ## 环境与安装
 
@@ -39,9 +39,9 @@ curl --fail http://127.0.0.1:8000/health/live
 
 ## 包边界与测试合同
 
-实际包路径为 `backend/src/commerceops`：`domain`、`application`、`workflows`、`tools`、`adapters`、`infrastructure`、`entrypoints`。目前除 `infrastructure/config.py` 和 `entrypoints/api.py` 外均为分层包说明。依赖方向沿用 [ARCHITECTURE](ARCHITECTURE.md)；业务、持久化和外部操作由后续 Issue 实施，不在底座中预设假的实现。
+实际包路径为 `backend/src/commerceops`：`domain`、`application`、`workflows`、`tools`、`adapters`、`infrastructure`、`entrypoints`。P1-01 时除 `infrastructure/config.py` 和 `entrypoints/api.py` 外均为分层包说明；当前 PG/Worker 的后继实现见后文。依赖方向沿用 [ARCHITECTURE](ARCHITECTURE.md)；业务、持久化和外部操作由后续 Issue 实施，不在底座中预设假的实现。
 
-后续任务使用 `Settings` 的环境前缀与显式类型校验约定，按任务扩展配置；机密字段使用 secret 类型并保持日志脱敏。pytest markers：`offline`（无外部服务）、`integration`（真实 PG 等基础设施）、`external`（真实平台配置）。未选中的测试不会当作通过；当前只有 offline 测试，不创建缺 PG 时恒绿的 integration smoke。
+后续任务使用 `Settings` 的环境前缀与显式类型校验约定，按任务扩展配置；机密字段使用 secret 类型并保持日志脱敏。pytest markers：`offline`（无外部服务）、`integration`（真实 PG 等基础设施）、`external`（真实平台配置）。未选中的测试不会当作通过；P1-01 时只有 offline 测试；当前 integration 已由真实 PG smoke 运行，不创建缺 PG 时恒绿的测试。
 
 单独检查命令：
 
@@ -81,3 +81,118 @@ Gitleaks 8.30.1 会额外读取 source 根的 `.gitleaksignore`，显式指定�
 修改直接版本后在独立分支运行 `uv lock` / 项目 Node 的 npm install 更新锁，复验统一检查，禁止只改 manifest 省略锁。固定版本不是永久安全承诺；CI 每次查询已知漏洞，服务不可用同样失败。
 
 Python 检查将全部 runtime/dev/build 锁依赖导出到忽略的 `.audit/requirements.txt`，用 pip-audit 2.10.1、PyPI advisory 服务、`--require-hashes --disable-pip --strict` 查询并检查 JSON 无命中/无跳过。项目自身没有 PyPI 发布记录，以源码检查和测试验收，不以 editable skip 冒充已审计。npm 对完整 tooling 依赖树查询，包含 dev；不只审计不存在的生产依赖。报告是查询时的已知漏洞结果，不等于代码安全证明。直接依赖许可证及兼容范围见证据页。
+
+## P1-02 PostgreSQL 与一次性初始化
+
+数据库能力见 [P1_02_EVIDENCE](P1_02_EVIDENCE.md)；阶段文件由主控维护。Compose 默认仅启用 PostgreSQL，不发布宿主端口。`init` / `test` profiles 是一次性管理和技术验证，不是长期 Worker/Gateway。当前 API `/health/live` 的语义保持进程 liveness，没有 DB readiness。数据库 healthcheck 的 `pg_isready` 仅证明 PG 接受连接；业务 revision 与 checkpoint setup 另行验证，不能把 healthy 当成初始化成功。
+
+从本仓库根目录运行（需要已有可连接 Docker daemon、Compose、uv；不安装全局服务）：
+
+```sh
+uv sync --frozen
+uv run --frozen python -m scripts.prepare_pg
+# 用明确项目名隔离开发容器/网络/持久卷。
+docker compose -p commerceops-pg-dev up -d --wait postgres
+docker compose -p commerceops-pg-dev build db-init
+docker compose -p commerceops-pg-dev run --rm db-init
+# 业务与 checkpoint 初始化是两个独立部署动作。
+docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database setup-checkpointer
+docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database grant-runtime
+docker compose -p commerceops-pg-dev run --rm db-init python -m commerceops.entrypoints.database revision
+```
+
+`prepare_pg` 在忽略的 `runtime/pg` 生成两个随机密码文件。秘密目录必须非 symlink、当前有效用户所有且 mode 恰为 0700；文件必须是非 symlink 的普通 UTF-8 非空白文件、同用户所有且 mode 恰为 0600。脚本先预检全部现存文件，再排他创建缺项；合法重复运行不覆写既有内容，不 chmod 修复不安全路径。禁止把内容粘贴到日志或提交。Compose 用 file secrets 挂载，数据库设置不隐式加载 `.env`。`COMMERCEOPS_PG_RUNTIME_DIR` 可指定本项目秘密目录。不要运行带秘密的 `docker inspect` 全输出、打印 settings/env/DSN 或启用 SQL 参数日志。修改密码文件不会自动轮换已有 PG owner 密码；需要先安排安全的 DB 角色密码变更，不能靠删除卷解决。
+
+配置合同是 `COMMERCEOPS_DB_HOST`、`PORT`（默认 5432）、`NAME`、`USER`、`PASSWORD_FILE`；`grant-runtime` 另要求 `RUNTIME_PASSWORD_FILE`。其余四个连接字段均必填，无配置的 integration 测试失败；常规离线测试不选 integration。迁移目录默认 `backend/migrations`，命令从仓库/容器 `/app` 根运行。秘密读取用 `SecretStr`，仅在连接时解封；不存入业务表。初始化命令失败返回非零及固定错误类别，避免数据库错误原文泄漏参数。
+
+`commerceops_owner` 是本地初始化管理角色（官方镜像的初始用户），用于创建 schema、迁移、官方 setup、授予受限权限。业务调用使用 `commerceops_app` 与 `app_password`：无超级用户/建库/建角色权限；业务 schema 无 CREATE，业务表无 DELETE/TRUNCATE，审计只有 SELECT/INSERT。checkpointer schema 的现有表授予官方运行所需 SELECT/INSERT/UPDATE/DELETE；业务与 checkpoint 不共用事务。新实体迁移后须明确审查新增权限，重新执行 grant，不用全业务 schema 的未来默认授权。此配置只面向本地技术开发；不声称提供生产 DBA 隔离或租户 RLS。
+
+关闭开发容器保留卷：
+
+```sh
+docker compose -p commerceops-pg-dev down
+```
+
+不要对未知项目运行 `down --volumes` 或 `docker volume prune`。本任务自动 smoke 使用随机 `p102-*` 项目及独立卷，结束仅清理自己创建的容器/网络/卷/构建镜像与秘密文件：
+
+```sh
+uv run --frozen python -m scripts.pg_smoke
+```
+
+本地与 CI 使用同一个真实 PG 流程：构建锁依赖镜像、空库初始化及重复初始化、真实约束/失败恢复测试、提交持久样例、PG 重启、保留卷重建容器、数据库不可用非零失败和恢复回读。记录落到忽略的 `.audit/pg-smoke.json`，包含模式、时间、随机项目/卷和检查项。Docker 构建缓存与共享基础镜像保留。需要独立数据库权限的失败注入测试只在本任务 PG 实例中随机建库，并在 finally 删除自己创建的库；不得向共享或生产 DB 直接运行。
+
+迁移恢复：Alembic 将 schema/version 表和整次 revision 放在同一 PG 事务。失败后查询 `business.alembic_version`，核对实际 revision 和冲突对象；修复原因再重跑 migrate，禁止手工 stamp 到 head 或把部分结构当成功。技术测试通过预置 `business.jobs` 冲突断言该次新表和版本表均回滚，移除测试冲突后重跑两次成功。真实 DB 遇到未知对象时先核对来源，不能直接套用测试里的 DROP。checkpointer 官方 setup 使用 autocommit，允许部分迁移已记录，须原版本官方 setup 重跑；测试注入中途失败并恢复，不能据此保证所有 DDL/网络故障都自动恢复。不要手改 checkpoint 内部列/迁移号。版本升级先在隔离库验证；破坏性 Alembic downgrade 明确禁用，业务历史恢复走备份流程（完整备份还原演练后续交付）。
+
+后继任务合同：`connect` 的 connection context 成功提交、异常回滚，不内建重试；`TaskRepository.get` 按 organization/shop/task 精确限定，`enqueue` 在调用者事务内追加 job，同 key 同 task/kind/payload_ref 返回原 UUID，不同语义抛 `PersistenceConflict`。Scope 必须由应用已验证身份构造，repository 本身不授权。事务中查询/追加后由调用者负责提交；不得在事务内调用模型/网络。P1-02 本身未实现 task 创建入口、ACK、job 领取/调度、Graph、中断恢复、正式审批或任何外部发送；P1-03 技术 T1/队列合同见下一节。待审批恢复/G2 仍由后继任务验证；本轮只验证官方 saver 数据读写与初始化。
+
+
+## P1-03 T1 技术入口与单 Worker
+
+实际实现/测试边界见 [P1_03_EVIDENCE](P1_03_EVIDENCE.md) 和 [Issue #4](https://github.com/aning0922/commerceops-agent/issues/4)。T1 仅为 Python application 用例：`TestIntakeService` 注入 `PgTestIntakeStore`，调用者显式提供可信 `TrustedTestContext(mode="test")`。它校验当前 operator、enabled、组织/店铺/conversation 及 test 店铺；没有 HTTP 路由、平台 SDK ACK 或可由客户端传入的授权布尔值。入站语义 hash 绑定 actor、scope、conversation、规范请求和 workflow_version，event/message 键冲突返回原 task/job 或明确冲突；不同事件拼接两个既有去重键被拒绝。仅脱敏技术标记进入 inbox，调用者的 normalized_request 必须已脱敏。
+
+一次 T1 原子提交 inbox + task + analyze job + audit，返回发生在 commit 后。技术 hook 只用于确定故障窗口，提交前抛错全部回滚；提交后丢响应重投取回同 UUID。`thread_id = task_id`，`workflow_version` 不修改；正式认证/真实 SDK 投递由后继入口完成。
+
+Worker 使用 `python -m commerceops.entrypoints.worker`，未改共享依赖或 console script。当前只有显式 `test-run`；`COMMERCEOPS_MODE=test` 及既有测试 organization UUID 必填，不默认启用正式 Graph。只在独立测试数据库/进程 namespace 中运行技术 runner，禁止用它消费真实业务队列。先按上一节初始化独立 PG，再以受限 `commerceops_app` 与 app password file 配置连接（不是 owner）；本机配置好连接后：
+
+```sh
+COMMERCEOPS_MODE=test uv run --frozen python -m commerceops.entrypoints.worker test-run --organization <测试组织UUID>
+```
+
+将尖括号占位值替换为该测试库已创建的 UUID。当前 runner 只支持 `p103-technical-v1`，不使用模型/审批/checkpoint，不把 task 写为 completed。无需为了本机命令改变 PG 公网暴露策略。实际自动验证入口可直接使用现有 Compose test profile：
+
+```sh
+uv run --frozen python -m scripts.pg_smoke
+```
+
+该入口仍执行全部原 G1 初始化/持久卷/故障恢复，同时 `pytest -m integration` 自动选择 `tests/test_worker_pg.py` 的真实 PG/两个 OS 进程测试；不额外安装服务或增加 CI workflow。缺 DB 配置直接失败，未选择的 offline 测试不计为 integration 通过。子进程以 stdin/stdout barrier 控制，明确是受控 runner，不能推导 LangGraph 中断或 G2。
+
+运行合同：专用 autocommit PG session 持固定全局 advisory lock，第二实例拿不到即退出。所有 analyze/resume/recover 共用一个 `Worker` 调度循环及一个 `RunnerPort.run` 调用槽；领取/续租/完成/延期是独立短事务。60 秒 lease、15 秒心跳、1 秒轮询、5 秒取消预算、最多 3 次 runner 尝试；延期存 available_at，释放槽，不在事务内 sleep。`done` 仅表示本 job 调用结束；受控 interrupted 也释放槽，业务状态由正式 runner 自行持久化。未知 kind/version 不运行，job dead 保存固定错误码，不覆盖旧 workflow_version。
+
+### 停机与恢复
+
+只停止自己的 Worker PID（SIGTERM/SIGINT）或自己的容器，禁止 killall、滚动重叠、未知数据卷删除。正常停机停止领取、取消当前调用并等待其停止，追加 `stopped` 生命周期后关闭锁连接；随后 supervisor 必须 wait 确认 OS 进程退出，再启动下一实例。下一实例还必须匹配原 hostname/PID namespace 并查询旧 PID 已消失，才将 stopped 收敛为 termination_confirmed；stopped 回执单独存在仍不能启动。中途取消的 running job 在终止已核实后的后继启动时重新排队，job UUID/kind/payload_ref 不变，attempts 增加。
+
+异常失联/锁连接丢失：心跳或领取/写入前 check 发现失效后停止领取、取消调用并退出。取消预算耗尽时在协程启动层硬退出 75，避免 asyncio.run 收尾无限等待；保留 running 与未结束 started 回执。DB 尚可用时 task 标记 needs_attention，DB 不可用时 started 回执在数据库恢复后仍阻止新实例；不能仅按锁释放或 lease 超时重排。
+
+生命周期使用既有 append-only `audit_events`，`source=worker / entity_type=worker_runtime / entity_id=owner UUID`；started 保存 PID、hostname、Linux PID namespace。它是部署启动/恢复闸门，不是业务审批/checkpoint/fencing。出现未知 running owner 且缺生命周期时保守拒绝，需先查明来源，不提供盲目自动修复。
+
+异常停止后，supervisor 先 wait 确认该 OS 子进程结束。在**同 hostname 和同 PID namespace** 内，可信部署操作员可以执行：
+
+```sh
+uv run --frozen python -m commerceops.entrypoints.worker confirm-termination --owner <原owner UUID> --evidence-reference <非敏感停机证据编号> --confirm-old-process-terminated
+```
+
+该命令还会获取启动互斥、读取原 started 回执并用 OS PID 查询确认旧 PID 已不存在；旧进程仍存活/被 SIGSTOP、权限不足、跨 namespace 或 PID 被复用时全部拒绝，不接受 flag 或证据文字作为唯一死亡证明。同 owner/同证据重投返回原确认且不重复审计。跨容器 namespace 的终止验证尚无 supervisor adapter，必须保持阻塞，不能绕过闸门；后继若需要该能力须经主控协调合同。确认成功后，下一 Worker 才重排该 owner 的遗留 running job。needs_attention 的业务恢复解释由 runner 处理，技术队列不会伪造业务 completed/审批成功。
+
+P1-04 接入 `application/runner.py` 的 `RunnerPort`：公开支持的 workflow_versions，接受稳定 RunRequest 中的 job/task/thread/scope/version/kind/payload_ref/owner/attempt。在 run 返回 interrupted 前真实 checkpoint 必须已持久化；取消必须让所有底层调用停止，不能启动脱离调用生命周期的后台 graph/写入，也不能开启图内并行。业务事务与 checkpoint 分开，副作用须以业务键重放收敛并检查 ownership。若 PG/checkpoint 客户端不能及时停止，进程硬退出后等待 supervisor 终止确认再恢复；本任务不证明真实 SDK 的取消/恢复行为。
+
+
+## P1-04 真实 Graph / Checkpoint 技术探针
+
+G2 实施源码、恢复策略、故障窗口和实际结果见 [G2_EVIDENCE](G2_EVIDENCE.md)。复现使用 `uv run --frozen python -m scripts.pg_smoke`，沿用隔离 Docker 项目、官方 setup、受限 app 角色和全部原 G1/integration 测试。无需平台密钥、模型服务或 PG host 端口。该命令实际启动 tests.checkpoint_process 的独立 OS Worker/真实 Graph；现有 worker test-run 仍为 P1-03 的受控替身，不是正式业务 runner。
+
+probe 的 checkpoint_probe schema 只存在于各测试自建随机库；正式 Alembic/grant-runtime 不部署它。决定由技术 fixture 在 PG持久保存并标为 simulated，当前 test principal/operator 规则不替代正式 approver授权。线程与取消行为仅覆盖本文技术 Graph；新增真实同步工具/平台 SDK前须补取消和未知副作用合同。
+
+pg-smoke.json 保留原 G1 的 not_applicable 标签，在 g2_process_evidence 中另存 simulated 的 OS PID/退出、稳定thread、kill前后 checkpoint、receipt唯一性记录。缺少必需记录会失败。测试失败也仅清理自建项目，不得用 prune、killall 或删除未知卷补救。
+
+
+## Issue #20 凭据路径与保留合同
+
+2026-10-09 的安全补强仅修改准备脚本、针对性测试及本运行说明；[Issue #20](https://github.com/aning0922/commerceops-agent/issues/20) 单独记账，原 G1 验收不倒推失败，不改变业务 schema、权限、Worker/Graph/飞书、依赖锁或 CI。当前 P1-05 的实际资源不用于本任务测试。
+
+支持 macOS/Linux 的 POSIX `dir_fd`、`O_DIRECTORY`、`O_NOFOLLOW`、`O_EXCL`。调用路径须为可信 canonical 目录（或者从 canonical cwd 出发的相对路径），不得包含 `..` 或任意 symlink 组件。脚本不自动 resolve 可疑路径；macOS `/tmp`、`/var` 等系统别名也需由可信调用者明确选定真实路径，例如临时测试 fixture 使用 `tmp_path.resolve()`。仅秘密目标目录/新建目录要求 0700/当前用户；普通既有父目录允许正常 0755、系统 owner 等，不对全部祖先机械要求私有权限。既有 `pg_smoke` 从 resolved 项目根构造独立随机 runtime 目录，仍使用相同 prepare 接口。
+
+目录逐级 no-follow 打开，文件操作相对于已打开的目标目录描述符；入口 lstat 等价 `stat(..., follow_symlinks=False)` 与打开后的 fstat 校验类型/mode/uid/device/inode。现存文件先验证、再 no-follow 打开，NONBLOCK 防止被换成 FIFO 时阻塞，读取非空白后再次核对 metadata 与路径绑定。缺项创建使用 0600 + O_EXCL/O_NOFOLLOW，写入前后 fstat 校验；并发出现的 symlink/普通文件不得被覆盖。失败只给固定类别，不输出目录、秘密、密码 hash 或原异常。
+
+不安全的既有目录/文件不会被 chmod、截断或替换；全部现存文件未预检成功前不创建任何缺项。未知权限/所有者请由资源负责人检查并决定处理，不能直接靠脚本修复。针对性测试只在自己创建的临时目录内使用 chmod/合成 canary；foreign-owner 场景通过从真实 stat 结果注入不同 uid 模拟，不使用提权/chown 或真实凭据。
+
+边界：描述符/no-follow 防止写入被重定向到末级或祖先 symlink，不承诺与同 uid/root 的并发改动进行文件系统事务。正常预检发现不合格资源时保持全部原内容且不新增密码；若创建过程中出现磁盘/权限/并发替换故障，已成功创建的本任务安全文件可保留供负责人检查，下次先重新预检，不删除未知路径回滚。只校验 POSIX 类型/mode/uid，不声称审计 ACL、网络文件系统权限语义或平台凭据的有效性；重复准备不自动轮换数据库已持久化密码。
+
+针对性复现（无 Docker、无平台凭据）：
+
+```sh
+uv run --frozen python -m pytest tests/test_prepare_pg.py -q
+uv run --frozen python -m scripts.check
+```
+
+实际 targeted 结果：28 tests passed / 0.21 秒，覆盖新建/重复保留、两种文件名的 symlink/目录/FIFO/宽权限/owner/空白拒绝、预检后缺项无新增、普通父目录与 canonical 调用、读取/创建时替换、fstat owner 校验、CLI canary/原异常不输出。本机完整 `scripts.check` 已实际返回 0：140 offline passed / 46.19 秒（79 deselected、2 个既有 SDK deprecation warnings）、24 Markdown、mypy60文件、lint/format/typecheck通过，Python90包及npm已知漏洞0、dir/index/history敏感0。精确 PR CI/G1/G2 回归的最终结果在 Issue #20/PR 回执记录，不以本机离线结果替代真实 PG。
