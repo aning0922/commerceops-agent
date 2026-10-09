@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，组合CI原异常未定位，第二段诊断独审有新P1阻断；G3真实W1六消息及单节点/六字段只读完成，卡片/C角色反例/Base全链路未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–12节保留原验收及接续快照，最新结果与证据限度见第13节及 [STATUS第17节](STATUS.md#17-台账只读验证完成与诊断候选冻结)。
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，b8的PR25唯一CI成功但原异常根因未定位、尚未合入；G3真实W1六消息、单节点/六字段只读和Base v2结构配置完成，卡片/C角色反例/Base全链路未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–13节保留原验收及接续快照，最新结果与证据限度见第14节及 [STATUS第18节](STATUS.md#18-v2-配置已发布诊断一次-ci-派发)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -144,3 +144,9 @@ Wiki只读包已独立26fake审核，但父控30秒声明与最长37秒等待/�
 Wiki父期限修复独立33fake/3.83秒后，实际session65994 exit0、15:23:55.598完成（北京时间）：唯一node与既有表fields各一次HTTP200/business0，来源/bitable/table/六text字段匹配；父4.246秒、入口4.313秒、30秒内reaped/四锁free/barrier无。候选仍未验证标记，真实result另记字段访问true，未发布.env/未BaseCRUD。[实际任务](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6076469241)及[主控复核](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076576053)说明只解除标识/字段读取待核验，不等于记录读写或完整G3。原P105准备新v2配置绑定供Review，旧setup/W1永久保持历史证据。
 
 Issue23第二段6e62ae0在15:29:42预算内冻结，故障注入确证诊断CLI/container终止；本地79PG/42.06秒和G1/六G2通过，最终13fake/153offline通过。实跑后日志/KILL竞态/过期守卫新增仅fake/offline覆盖，没有保存实跑image ID/tree，不称final同镜像实跑。独立增量Review发现正常已wait PID仍killpg的P1，当前暂停原P104/CI，预算到期不自动续期；P1修复、新冻结审核及唯一CI实际workflow仍待取得，原CI根因未定位/当前复验未结案。[审核阻断](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076634334)及详细实际/最终源码差异见[候选回执](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6076536625)和[STATUS第17节](STATUS.md#17-台账只读验证完成与诊断候选冻结)。maina0/int413，#6/#7/#23 OPEN、PR19 Draft；卡片/C角色反例/独立PG回读/Base全链路仍缺证据，Phase1不通过、不合main、不进Phase2。
+
+## 14. v2 结构配置完成与一次诊断 CI 前置
+
+原P105独立20fake/4.23秒后实际发布v2，session24425 exit0、15:49:32.030回执（北京时间），只新增Base app_token，前后实际Settings/verify-config通过；身份/PG/table/false/C未armed不变，旧v1快照/manifest/receipt保留，新v2 field proof binding及四锁/barrier由主控只读复核。没有SDK/API/PG/BaseCRUD或Secret/password读取。[真实阶段结果](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076956447)及[STATUS第18节](STATUS.md#18-v2-配置已发布诊断一次-ci-派发)限定为结构配置，PG独立回验正准备，卡片/C角色反例/Base完整链路仍待验收。
+
+诊断normal-reaped P1在新10分钟预算内修正并冻结b8，最终21fake/161offline通过，actual workflow差异独立审查及21纯fake/0.23秒通过；保留job25分钟/绝对23分钟前置/Foundation/G1/79/G2，非阻断P2回归欠缺记录。一次[PR25 CI37903083024](https://github.com/aning0922/commerceops-agent/actions/runs/37903083024)实际SUCCESS，checkout0d4=413/b8、tree与b8一致，161offline43.74秒/79PG59.77秒、六G2/G1恢复三次1、22CLI/reader和10containerwait确认、无normal TERM/KILL、cleanup0；主控读取日志与commit核对，独立Agent另只读确认新SHA真实组合复验成功。PR25仍Draft未合，#23不关闭；原根因not_identified不改写，未产生原hang锁/栈，真实PG/image/source历史限制不隐藏。maina0/int413，#6/#7/#23 OPEN、PR19 Draft，Phase1全Gate仍未过、不合main、不进Phase2。
