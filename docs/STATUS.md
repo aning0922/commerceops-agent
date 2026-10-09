@@ -381,6 +381,10 @@ Issue23的[原驱动差异与一次有界方案](https://github.com/aning0922/co
 
 同一稳定源码/配置下，低风险只读可批量执行并一次记录，不每动作新建完整runner/leaf/manifest/fake/独审链，不重复已过身份部署/六消息。真实写入身份/幂等/unknown停止、状态一致性、密钥安全、单SDK停止证明和已复现缺陷回归保留；必要功能包独审与最终同提交CI保留。wire未观测如实记录，不新增wire仪器、100事件p95、正式T3/A01–A08或长期幂等研究作为Phase1扩展目标。
 
-Issue23停止追加legacy-driver诊断，旧待答预算提案不启动；保留quality37903083024成功和原超时根因not_identified。主控已说明现Issue23第1项要求根因证据及风险接受例外后，用户回复“旧超时可能是因为当初没配置或没设置好，不用纠结”；据此按剩余风险接受收口，不再无限追查。配置原因仅推测，不写作root_cause_resolved；新有界驱动通过不证明旧capture_output/--rm路径根因修复。现有已审b8可随收口批次内部集成，PR25未合/必要合后核对仍待，#23不提前记完成；新CI失败仍报告并针对性处理，必要最终CI保留。
+Issue23停止追加legacy-driver诊断，旧待答预算提案不启动；保留quality37903083024成功和原超时根因not_identified。主控已说明现Issue23第1项要求根因证据及风险接受例外后，用户回复“旧超时可能是因为当初没配置或没设置好，不用纠结”；据此按剩余风险接受收口，不再无限追查。配置原因仅推测，不写作root_cause_resolved；新有界驱动通过不证明旧capture_output/--rm路径根因修复。PR25独立冻结b8审查/原精确CI已过，主控于20:05:42普通合入integration bf1488e52640e254041713d59b1be08564bf1aab；合后push37927810716实际checkout bf（161offline58.67秒/79PG91.44秒），Draft PR19候选37927817989实际checkout08e0806=a0/bf（161offline46.40秒/79PG63.99秒）均SUCCESS，tree均与b8的376b5c8一致，完整G1三次count_one/六G2/cleanup0已核。Issue23以risk_accepted/not_identified收束关闭，P101–P104验证能力冻结；未来新CI失败仍报告并针对性处理，必要最终CI保留。
 
-窗口耗尽若仍未通过，提交逐项阻塞/解锁责任/剩余有效时间/最小风险替代方案；Phase1继续未完成。受限Phase2纯Mock/计算契约并行只能另提方案等待用户新授权，不自动开启。maina0/int413、PR19/25 Draft，完整G3/Phase1仍未过。
+Base功能包manifest f7d1d0eeb1829d1a0b13c5183952fb70dd5b76139ff9cf0ca66ef3e871dd854f已独审无阻断，独立26fake/2既有SDK warnings/4.39秒及Ruff通过。默认create1/update1/list最多4、每次两页未完整停、持久键/hash/同表锁/inflight-before-SDK、父子30秒/自有清理与脱敏安全已核；成功后同键方案仍未armed/未获实际扩展授权。已派原执行者唯一默认真实CRUD，尚无结果；不把source/派发计实际PG或平台通过。剩余卡片行为源码同包准备中，没有新SDK/卡片证据。
+
+随后首次实际session70586 exit2，20:21:50秒级观察退出，安全归档确认九映射/bot-info通过、持久原键/hash已prepare；create尝试1/list对账尝试1/update0、HTTP/business均未知、PG unknown，停止PARTIAL。没有success result，失败未记录parent monotonic耗时，不将配置30秒说成实测。evidence40eac0eec506875c103b1903b524e557d2182ba2470c62151bd9d339687f9ab9、safe archive17182f2cea171365535caa2b73c45135fadcaa25f82467c5cd6085893eb418dc；CLI/自有容器死并移除，执行者核归属后清自己barrier，主控另核安全字段/metadata/hash/四锁/barrier/helper0/PG healthy，未重复SQL/API或读秘密。静态独审实际SDK request/response离线向量无契约阻断，不覆盖verify/token/TLS/网络，不能猜权限/没有远端行。下一步原ProbeID/原键单次query-only恢复和固定异常分类最小准备，独审后另派，最多两页完整唯一行/六字段核对、必要PG关联后停，不自动create/update/replay；旧失败/键/来源保留，同阻断最多三轮，必要时先推进卡片。完整Base/G3仍未过。
+
+窗口耗尽若仍未通过，提交逐项阻塞/解锁责任/剩余有效时间/最小风险替代方案；Phase1继续未完成。受限Phase2纯Mock/计算契约并行只能另提方案等待用户新授权，不自动开启。main仍a0，最新已验证integration bf1488e，PR25已合/Issue23风险接受关闭，PR19仍Draft，完整G3/Phase1仍未过。
