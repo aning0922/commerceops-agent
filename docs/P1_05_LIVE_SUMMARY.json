@@ -346,24 +346,38 @@
     "verdict": "main_controller_and_independent_review_accept_current_minimum_scope_end_to_end_boundary_option_A"
   },
   "private_archive_uploaded": false,
+  "public_v2_artifact_binding_fix": {
+    "before_sha256_contract": "whole_original_artifact_bytes_including_whitespace_and_metadata",
+    "new_SQL_API_samples": 0,
+    "new_head_CI_and_review": "pending",
+    "reason": "P2 standalone pure function did not validate supplied before_sha256",
+    "strict_64_lowercase_hex_and_byte_hash_before_DB_connection": true,
+    "v1_actual_main_already_file_hash_bound_then_parsed": true,
+    "v1_actual_source_attempt_archive_result_unchanged": true,
+    "v2_accepts_raw_bytes": true,
+    "v2_runtime_platform_execution": "not_run_offline_only"
+  },
   "public_validation": {
     "SDK_warnings": 2,
     "actual_private_value_scan_matches": 0,
-    "adapted_core_tests": 171,
+    "adapted_core_tests": 184,
     "directory_index_all_reachable_history_secret_findings": 0,
     "initial_PR_head_CI": "cb52eb011354a65a300c72aaaaefff4119f39a5d SUCCESS run37956693051",
     "initial_independent_review": "no_blocker review5472556446",
     "integration_base": "75efbbab3a13007636b94504b5ca94a06a7cd07f",
     "integration_base_plus_public_integration_deselected": 79,
-    "integration_base_plus_public_offline_passed": 332,
+    "integration_base_plus_public_offline_passed": 345,
+    "integration_base_plus_public_offline_passed_before_v2": 332,
     "normalized_AST_equivalent_definitions": 25,
-    "precise_PR_head_CI": "pending_at_final_commit_see_exact_head_GitHub_checks",
+    "precise_PR_head_CI": "new_v2_fix_pending_see_exact_head_checks",
+    "prior_2459_CI": "SUCCESS run37958401146_prior_P2_head_only",
     "public_files_private_value_scan": 25,
     "public_platform_execution": "not_run",
     "ruff_check_passed": true,
     "ruff_formatted_files": 111,
     "source_SHA_pairs": 9,
-    "strict_mypy_files": 84
+    "strict_mypy_files": 84,
+    "targeted_artifact_binding_tests": 23
   },
   "raw_ID_token_nonce_secret_URL_or_payload_included": false,
   "schema": "P1_05_PUBLIC_LIVE_SUMMARY_V1",
@@ -375,5 +389,9 @@
     "unknown_slot_never_reset": true
   },
   "snapshot_date": "2026-10-10",
+  "technical_Gate_verdict": {
+    "delivery_status": "pending_source_P2_fix_review_CI_integration_not_main_or_Phase1_completion",
+    "main_controller_independent_review": "satisfied_with_documented_platform_boundary"
+  },
   "timezone": "Asia/Shanghai"
 }

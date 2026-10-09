@@ -1,6 +1,8 @@
 """M3 DB故障后只读差异核心；公开适配版仅离线测试。"""
 
+import hashlib
 import json
+import re
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -35,7 +37,7 @@ def canonical(value: Any) -> Any:
 def inspect_m3(
     body: Any,
     settings: Any,
-    before: Any,
+    before_raw: Any,
     connector: Any = connect,
     archive_writer: Any = write_archive,
 ) -> Any:
@@ -48,7 +50,20 @@ def inspect_m3(
         5432,
     ):
         raise ValueError()
-    if before.get("snapshot_validation") != "VERIFIED_DIAGNOSTIC_NOT_GATE":
+    digest = body["before_sha256"]
+    if (
+        not isinstance(digest, str)
+        or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        or not isinstance(before_raw, bytes)
+        or len(before_raw) > 1048576
+        or hashlib.sha256(before_raw).hexdigest() != digest
+    ):
+        raise ValueError()
+    before = json.loads(before_raw)
+    if (
+        not isinstance(before, dict)
+        or before.get("snapshot_validation") != "VERIFIED_DIAGNOSTIC_NOT_GATE"
+    ):
         raise ValueError()
     plan = plan_from(body["plan"])
     org, shop = (body["identity"]["organization"], body["identity"]["shop"])

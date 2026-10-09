@@ -35,7 +35,7 @@
 
 ## 本Draft的验证与未完成项
 
-公开适配核心合成回归171 passed（新增M3差异边界10项）；以`75efbbab`归档加公开文件的精确组合执行完整离线测试332 passed、79 deselected、2项SDK warnings，strict mypy84文件、Ruff及111文件格式检查通过。归档初次缺少项目内Gitleaks导致31项工具前置失败；复制现有项目工具后重跑上述完整离线测试通过，未改测试或全局环境。当前目录、索引和全部可达历史敏感扫描0命中，另核48个当前私有值在拟公开25文件及历史中0匹配；原版/公开版9组whole-file SHA和25项核心定义规范化AST均复核通过。Markdown链接检查在原checkout核26文件0错误；归档目录受父仓库ignored规则影响，自动枚举0文件，不把该次结果记为文档验证。PR27首head`cb52eb0`正常CI[37956693051](https://github.com/aning0922/commerceops-agent/actions/runs/37956693051)成功（5m24s），[独审5472556446](https://github.com/aning0922/commerceops-agent/pull/27#pullrequestreview-5472556446)无阻断；本次最终补证提交须另核精确head CI与独审，不能借用首head通过。私有专项15项合成边界通过及独审无P1；其runtime直接Ruff风格告警未修，不把它记Ruff通过，公开源适用检查通过。
+公开适配核心合成回归184 passed（v2摘要绑定与差异边界23项）；以`75efbbab`归档加公开文件的精确组合执行完整离线测试345 passed、79 deselected、2项SDK warnings，strict mypy84文件、Ruff及111文件格式检查通过。归档初次缺少项目内Gitleaks导致31项工具前置失败；复制现有项目工具后重跑上述完整离线测试通过，未改测试或全局环境。当前目录、索引和全部可达历史敏感扫描0命中，另核48个当前私有值在拟公开25文件及历史中0匹配；原版/公开版9组whole-file SHA和25项核心定义规范化AST均复核通过。Markdown链接检查在原checkout核26文件0错误；归档目录受父仓库ignored规则影响，自动枚举0文件，不把该次结果记为文档验证。PR27首head`cb52eb0`正常CI[37956693051](https://github.com/aning0922/commerceops-agent/actions/runs/37956693051)成功（5m24s），[独审5472556446](https://github.com/aning0922/commerceops-agent/pull/27#pullrequestreview-5472556446)无阻断；本次最终补证提交须另核精确head CI与独审，不能借用首head通过。私有专项15项合成边界通过及独审无P1；其runtime直接Ruff风格告警未修，不把它记Ruff通过，公开源适用检查通过。
 
 原M1自然过期实际回调1：A/EXPIRED、commit-return false、error DTO-ready13.479209ms，人眼约1秒与“技术探针已拒绝”，计时方式未报告。原行锁READY/最多60秒实际成立，但主控通知未及时到达，锁内DB故障回调未取得，不能记通过；A确认发群普通非@消息，窗口无相应平台投递，不记backend过滤通过。该窗无新卡，CLI299.451475秒，SDK/清理核对通过。
 
@@ -48,3 +48,7 @@ DB单项补测已取得：原行锁READY后A/M3回调1，DB_FAILURE，handler/co
 现有group_at scope可能不投递非@或机器人样本；未投递不记backend过滤通过，不扩权限补样本。不扩T3/A01–A08/100事件p95或长期幂等验收；1254290/1254291显式重试与1255006特定分支本轮未触发、不得制造触发，不重新诊断#23（主控risk_accepted/not_identified已关闭）。Phase1最终独审/Gate/CI与合并由主控据完整证据裁决，Draft不得自行合并。
 
 主控与独立Gate审核采用现有最小权限的端到端边界解释（选项A）：[官方接收消息合同](https://open.feishu.cn/document/server-docs/im-v1/message/events/receive)中group_at仅用户@，非@不在当前投递范围，bot需另scope，机器人自身出站不回投当前bot。官方内容由Root于2026-10-09原生Chrome AX读取（页标2026-08-05更新）；本执行chat网页读取0行，不冒称自己全文读取。A实际普通非@已发、同窗expired回调已收到且原进程存活至有界结束，无message事件；自身bot的真实出站卡也未作为入站message观察。此证据与官方合同支持平台级non-delivery边界，不标应用filter分支实测通过，不虚构完整连接/wire心跳或自然断线，不新加group_msg/include_bot或第二bot。受控死消费者重启后同M3再交付已实测。
+
+独审对`2459dbc`发现P2：standalone `inspect_m3`未验证对象对应before_sha256，synthetic全零摘要也通过。修正版公开core接收原artifact原始bytes并在DB前校验严格64位小写hex/真实whole-file digest/JSON，保留空白与metadata语义，不能与canonical对象或M3子对象hash混用。实跑v1 main原本已验证原file bytes并解析后送纯函数，原源/attempt/archive/结果均不覆盖；sourceMap保留2459历史公开版本并单列v2离线版本，不重新SQL或声称v2实跑。主控与独立Gate已裁决真实技术证据`satisfied_with_documented_platform_boundary`；公开代码修复仍须新head独审/CI及主控交付，未表示Phase1或main完成。
+
+v2修复验证：whole-file绑定与差异23项targeted回归通过，完整offline345 passed/79 deselected/2warnings，strict mypy84文件、公开Ruff/格式及26MD链接通过；9组当前源SHA/25项AST及历史v1公开commit/source SHA分别复核。前head2459正常CI已success，但其P2已由新源修复，不能借用旧headCI；新head须复审及CI。

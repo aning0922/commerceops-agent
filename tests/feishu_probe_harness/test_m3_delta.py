@@ -1,3 +1,4 @@
+import hashlib
 import json
 from types import SimpleNamespace
 from typing import Any
@@ -29,7 +30,7 @@ def material() -> Any:
         identity=body["identity"],
         plan=body["plans"]["m3"],
         bot_open_id=body["bot_open_id"],
-        before_sha256="0" * 64,
+        before_sha256=hashlib.sha256(leaf.canonical(before)).hexdigest(),
     )
     settings = SimpleNamespace(
         user="commerceops_app", host="postgres", name="commerceops", port=5432
@@ -95,7 +96,7 @@ def test_one_M3_unchanged_full_snapshot_and_original_validator() -> Any:
     result = leaf.inspect_m3(
         body,
         settings,
-        before,
+        leaf.canonical(before),
         connector=lambda _: c,
         archive_writer=lambda value: written.append(value) or "0" * 64,
     )
@@ -138,13 +139,14 @@ def test_changed_or_untrusted_snapshot_rejected_before_archive(change: Any) -> A
         role = "commerceops_owner"
     if change == "missing_card":
         before["cards"] = []
+    body["before_sha256"] = hashlib.sha256(leaf.canonical(before)).hexdigest()
     c = Conn(pid, cards, receipts, keys, role)
     written: Any = []
     with pytest.raises(ValueError):
         leaf.inspect_m3(
             body,
             settings,
-            before,
+            leaf.canonical(before),
             connector=lambda _: c,
             archive_writer=lambda value: written.append(value),
         )
@@ -159,7 +161,7 @@ def test_receipt_limit_fails_before_archive() -> Any:
         leaf.inspect_m3(
             body,
             settings,
-            before,
+            leaf.canonical(before),
             connector=lambda _: c,
             archive_writer=lambda _: pytest.fail("archive"),
         )
@@ -169,4 +171,69 @@ def test_owner_settings_fail_before_connection() -> Any:
     body, settings, before, pid, cards, receipts, keys = material()
     settings.user = "commerceops_owner"
     with pytest.raises(ValueError):
-        leaf.inspect_m3(body, settings, before, connector=lambda _: pytest.fail("connection"))
+        leaf.inspect_m3(
+            body, settings, leaf.canonical(before), connector=lambda _: pytest.fail("connection")
+        )
+
+
+@pytest.mark.parametrize("bad_digest", ["0" * 64, "A" * 64, "a" * 63, "a" * 65, "g" * 64, None])
+def test_digest_or_format_rejected_before_DB_connection(bad_digest: Any) -> None:
+    body, settings, before, *_ = material()
+    body["before_sha256"] = bad_digest
+    with pytest.raises(ValueError):
+        leaf.inspect_m3(
+            body,
+            settings,
+            leaf.canonical(before),
+            connector=lambda _: pytest.fail("DB connection before artifact binding"),
+        )
+
+
+def test_raw_whole_artifact_digest_accepts_noncanonical_whitespace() -> None:
+    body, settings, before, pid, cards, receipts, keys = material()
+    raw = (json.dumps(before, indent=2) + "\n").encode()
+    body["before_sha256"] = hashlib.sha256(raw).hexdigest()
+    assert body["before_sha256"] != hashlib.sha256(leaf.canonical(before)).hexdigest()
+    c = Conn(pid, cards, receipts, keys)
+    result = leaf.inspect_m3(
+        body, settings, raw, connector=lambda _: c, archive_writer=lambda _: "0" * 64
+    )
+    assert result["full_prior_snapshot_unchanged"] is True
+
+
+def test_parsed_object_is_not_accepted_as_raw_artifact() -> None:
+    body, settings, before, *_ = material()
+    with pytest.raises(ValueError):
+        leaf.inspect_m3(
+            body,
+            settings,
+            before,
+            connector=lambda _: pytest.fail("DB connection for unbound object"),
+        )
+
+
+def test_metadata_bytes_tampering_rejected_before_DB_connection() -> None:
+    body, settings, before, *_ = material()
+    raw = leaf.canonical(before)
+    altered = json.loads(raw)
+    altered["unrelated_metadata"] = "synthetic change"
+    with pytest.raises(ValueError):
+        leaf.inspect_m3(
+            body,
+            settings,
+            leaf.canonical(altered),
+            connector=lambda _: pytest.fail("DB connection before artifact binding"),
+        )
+
+
+@pytest.mark.parametrize("raw", [b"[]", b"null", b"invalid JSON", b" " * 1048577])
+def test_invalid_or_oversized_raw_artifact_rejected_before_DB(raw: bytes) -> None:
+    body, settings, *_ = material()
+    body["before_sha256"] = hashlib.sha256(raw).hexdigest()
+    with pytest.raises(ValueError):
+        leaf.inspect_m3(
+            body,
+            settings,
+            raw,
+            connector=lambda _: pytest.fail("DB connection for invalid artifact"),
+        )

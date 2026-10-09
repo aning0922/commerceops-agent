@@ -39,3 +39,5 @@ Base默认scope最多update1/list2、create0；成功后原键第二create模式
 原总parent30/normal24/cleanup27及watchdog不延长。HTTP等待参数不是整个请求墙钟硬时限，整体由原dispatcher/watchdog保证。SDK默认及callback关键路径的2秒/<3秒合同不改；Base不在callback关键路径。SDK私有连接/协议/ACK不修改。
 
 实际 W1/M1/M2/M3/C1/Base/负向样本 的证据与边界见 [联调快照](../../docs/P1_05_LIVE_DELIVERY.md)。卡片仅模拟技术决定，不创建补货工作项、采购、库存、退款、支付或真实订单副作用，不进入Phase2。未完成项保留not_run，Draft/CI/合并不自动表示G3通过。
+
+M3差异公开接口v2接收before原始bytes，`before_sha256`严格64位小写hex，表示整个archive原始文件字节（含空白/metadata）的SHA256；在DB连接前核摘要、上限及JSON对象，再作M3子快照完整差异。它不是canonical对象或M3子快照hash。实跑v1的main已完成原文件字节验证后才把对象送入纯函数，原真实结果保留；v2只做离线回归，历史源/公开commit与新v2分别映射，未补跑PG。

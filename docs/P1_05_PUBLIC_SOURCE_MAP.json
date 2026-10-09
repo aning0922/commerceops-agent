@@ -79,7 +79,7 @@
       "runtime_frozen_sha256": "47e32c0f6bd08c726c53bb9382a80ae5ee89750834ccc8e46246602755d94667"
     },
     {
-      "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
+      "adaptation": "v2_raw_whole_artifact_bytes_binding_before_DB;relative_imports_and_boundary_annotations;explicit_archive_writer",
       "included_definitions": [
         "canonical",
         "inspect_m3"
@@ -87,9 +87,10 @@
       "normalized_core_AST_equivalent": true,
       "public_path": "scripts/feishu_probe_harness/m3_delta.py",
       "public_platform_execution": "not_run",
-      "public_sha256": "fabf5463f2b3b43d205571d35987490bceb1083254155b9d899f1a053d59ee14",
-      "runtime_artifact": "readback_m3_db_failure_delta.py",
-      "runtime_frozen_sha256": "2acc56527ea350a4e819523ac3beff00ccda2200279f16684e2f0d40a15c5e17"
+      "public_sha256": "fe44e751b184a7aad9f1e681fded63c0a857c35af134afb637d4f986b814194f",
+      "runtime_artifact": "readback_m3_db_failure_delta_v2.py",
+      "runtime_frozen_sha256": "267175562b6388fc27427786c5a64af9b628278536f10957eec9a914fd5f4910",
+      "runtime_platform_execution": "not_run_offline_only"
     },
     {
       "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
@@ -99,9 +100,27 @@
       "normalized_core_AST_equivalent": true,
       "public_path": "scripts/feishu_probe_harness/m3_delta.py",
       "public_platform_execution": "not_run",
-      "public_sha256": "fabf5463f2b3b43d205571d35987490bceb1083254155b9d899f1a053d59ee14",
+      "public_sha256": "fe44e751b184a7aad9f1e681fded63c0a857c35af134afb637d4f986b814194f",
       "runtime_artifact": "readback_m2_pg.py",
       "runtime_frozen_sha256": "e55b968a26017a02f07b2401a4476235742004f30ab6d40c63942c8c0ad06ec6"
+    }
+  ],
+  "historical_source_versions": [
+    {
+      "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
+      "artifact_binding": "v1_main_validates_original_archive_bytes_SHA_before_JSON_decode;pure_function_assumes_entrypoint_bound_object",
+      "included_definitions": [
+        "canonical",
+        "inspect_m3"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_commit": "2459dbce8561f91961d31cb47e7b492183a49fdc",
+      "public_path": "scripts/feishu_probe_harness/m3_delta.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fabf5463f2b3b43d205571d35987490bceb1083254155b9d899f1a053d59ee14",
+      "runtime_artifact": "readback_m3_db_failure_delta.py",
+      "runtime_frozen_sha256": "2acc56527ea350a4e819523ac3beff00ccda2200279f16684e2f0d40a15c5e17",
+      "runtime_platform_execution": "actual_once_completed_v1"
     }
   ],
   "private_runtime_packages": [
