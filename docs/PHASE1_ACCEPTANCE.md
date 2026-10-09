@@ -156,3 +156,9 @@ Issue23第二段6e62ae0在15:29:42预算内冻结，故障注入确证诊断CLI/
 原P105的current-v2只读包独立19fake/4.31秒后，实际session72575 exit0、16:32:17.014624完成（北京时间），READ ONLY/REPEATABLE READ与当前九映射匹配；A私聊/群各1message_received receipt+1event key，B/C四预定文本各0。parent1.017秒/30秒内reaped/containerabsent/四锁barrier清理，主控另核result/manifest/count/readonly/预算/evidence及锁，无重复SQL。当前tasks/jobs0不等于窗口零增量，mapping不倒推W1当时角色，C_role_negative_qualified=false。[真实阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6077648812)和[STATUS第19节](STATUS.md#19-w1-持久接收的独立-pg-只读回验)补W1关联回读来源与限度。
 
 M1源码/fake/冻结正在原唯一P105准备，复用原CardSender/Repository与新v2绑定；累计3baseline/1C槽位、unknown不盲重发/原singleSDK<=300/停止确认合同保持，尚未发卡。卡片真实渲染/callback/完整value/Toast/时限、C角色反例、故障重连及Base全链路仍缺证据；#6/#7/#23 OPEN、PR25未合/原CI根因未定位、PR19Draft、maina0/int413，全阶段未过、不合main、不进Phase2。
+
+## 16. M1 实际回调部分证据，不计完整卡片验收
+
+current-v2 M1单卡包独立87fake/4.16秒与源码Review通过后，原P105实际仅发送一次，原CardSender返回sent、持久slot消耗、不重试。session4221 exit0、17:17:54.815876结束（北京时间），SDK上界294.431097秒/dead/reaped，CLI/自有容器/四锁/barrier停止清理由主控只读另核。四条B群回调依次首次联合确认、重复确认、冲突、重复确认，原Receiver各一次/原DAL返回被观察到；DTO-ready 8.211–12.891ms只为内部路径。实际来源及hash见[阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078153569)和[STATUS第20节](STATUS.md#20-m1-实际单卡窗口与客户端观察不足)。
+
+用户确认点过确认及拒绝，故不是预定单次动作或平台自动重投证据；客户端渲染/Toast/耗时未留意，操作顺序回忆不确定且不能与服务器第四条强行映射。原SDK payload未保存，不补造；独立PG单卡关联/action/value/receipt读回尚未执行，正在原会话准备源码/fake/冻结独审。C资格/角色反例、故障重连/Base全链路仍未验收；单卡发送与内部commit-return不等于完整G3或正式T3。M1已用一个baseline槽位，其余总量限制保持，#6/#7/#23 OPEN、PR25未合、PR19Draft，完整Phase1未过，不合main、不进Phase2。
