@@ -55,6 +55,8 @@ uv run --frozen mypy backend/src/commerceops/domain/inventory_rules.py backend/s
 uv run --frozen pytest tests/test_inventory_rules.py tests/test_inventory_analysis.py -q
 ```
 
-专项118 passed（最终0.16秒）、适用ruff/format/strict mypy通过。18组数值金标逐项完全相等；其余状态、空数据、窗口/DST、标识/父子池/open场景语义均匹配，未改已审样本。新增params/件数异常、退款关联矛盾、真实Mock分页故障输入、20/21、硬错误不能假设豁免、重跑/排序/hash/显示隔离、午夜fold与客户审批字段拒绝等回归。初轮104 passed/1 failed揭露JSON serializer先将内部bool转int，已用原始类型重验修复；测试导入/type/lint初轮失败也已修正，以最终结果为准。
+专项119 passed（最终结果见本包交付回执）、适用ruff/format/strict mypy通过。18组数值金标逐项完全相等；其余状态、空数据、窗口/DST、标识/父子池/open场景语义均匹配，未改已审样本。新增params/件数异常、退款关联矛盾、真实Mock分页故障输入、20/21、硬错误不能假设豁免、重跑/排序/hash/显示隔离、午夜fold与客户审批字段拒绝等回归。初轮104 passed/1 failed揭露JSON serializer先将内部bool转int，已用原始类型重验修复；测试导入/type/lint初轮失败也已修正，以最终结果为准。
 
-原样scripts.check实际passed（60.97秒）：613 offline passed / 79 deselected、全局ruff/format/strict mypy、51份文档、锁/工具/前后端漏洞门禁通过；初次全套扫描因stock_pool_key字段对应的代码属性表达式被generic-api-key命中failed（8.89秒），核实不是凭据后提取局部pool变量，未改scanner规则/豁免，重跑当前/index/可达history均0。暂存后敏感扫描、精确提交/tree/新CI结果在PR30/Issue29交付回执记录；独立Review由总控安排，作者自检不替代。DB/平台/模型本包not_run；既有CI原样运行其PG基础Gate，不能外推业务/T3/真实模型或P1旧timeout根因。P202提交/PR/CI不代表阶段完成，P203与main业务合并仍待对应门禁/裁决。
+首批9ca0的原样scripts.check实际passed（60.97秒）：613 offline passed / 79 deselected、全局ruff/format/strict mypy、51份文档、锁/工具/前后端漏洞门禁通过；初次全套扫描因stock_pool_key字段对应的代码属性表达式被generic-api-key命中failed（8.89秒），核实不是凭据后提取局部pool变量，未改scanner规则/豁免，重跑当前/index/可达history均0。暂存后敏感扫描、精确提交/tree/新CI结果在PR30/Issue29交付回执记录；独立Review由总控安排，作者自检不替代。DB/平台/模型本包not_run；既有CI原样运行其PG基础Gate，不能外推业务/T3/真实模型或P1旧timeout根因。P202提交/PR/CI不代表阶段完成，P203与main业务合并仍待对应门禁/裁决。
+
+提交后交付核对补测嵌套dict内Pydantic实例的source_kind bool，定向修复前实际1 failed（0.08秒）；本地原始类型重验增加dict/list递归，保留容器类型，不让嵌套实例绕过字段验证。此补充用普通后继提交，不改写首批历史；修复后实际119专项passed（0.19秒）、原样全套614离线passed/79 deselected（41.45秒，全套53.88秒）、全部适用门禁通过，当前/index/历史敏感0；最后暂存扫描及最终CI/SHA见新回执，不将9ca0的旧通过外推。

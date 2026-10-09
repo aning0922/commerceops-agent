@@ -55,8 +55,12 @@ def _native_input_value(value: object) -> object:
     # 仅本输入边界使用，保留bool/Decimal等原始类型；不先经serializer做转换。
     if isinstance(value, BaseModel):
         return {key: _native_input_value(item) for key, item in value.__dict__.items()}
+    if isinstance(value, dict):
+        return {key: _native_input_value(item) for key, item in value.items()}
     if isinstance(value, tuple):
         return tuple(_native_input_value(item) for item in value)
+    if isinstance(value, list):
+        return [_native_input_value(item) for item in value]
     return value
 
 

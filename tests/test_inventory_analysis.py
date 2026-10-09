@@ -405,3 +405,22 @@ def test_stock_integer_fields_reject_internal_bool(field: str) -> None:
     stock = value.inventories[0].model_copy(update={field: True})
     with pytest.raises(InventoryAnalysisError):
         analyze_inventory(value.model_copy(update={"inventories": (stock,)}))
+
+
+def test_nested_dict_model_provenance_cannot_bypass_native_validation() -> None:
+    value = data()
+    forged = value.source.provenance.model_copy(update={"source_kind": True})
+    source = {**value.source.__dict__, "provenance": forged}
+    products = tuple({**row.__dict__, "source": forged} for row in value.products)
+    orders = tuple({**row.__dict__, "source": forged} for row in value.order_lines)
+    stocks = tuple({**row.__dict__, "source": forged} for row in value.inventories)
+    mixed = value.model_copy(
+        update={
+            "source": source,
+            "products": products,
+            "order_lines": orders,
+            "inventories": stocks,
+        }
+    )
+    with pytest.raises(InventoryAnalysisError, match="^INVALID_INVENTORY_INPUT$"):
+        analyze_inventory(mixed)
