@@ -2,9 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 0 已收口并合入 main；Phase 1 实施已获用户授权，P1-01 的三项审核修复、CI、主控复验及独立技术复审通过，PR #9 等待用户明确合并确认，其余任务等待依赖。main 尚无业务实现或业务运行验收结果。**
+**当前阶段：Phase 0 已收口；Phase 1 集中交付。G1/G2 已在集成分支验证，G3 必要真实技术探针证据已独立核对齐备，公开源码/证据已内部集成交付，最终 main 阶段门禁正在完成。G3 的 non@/self-bot 按最小权限的平台非投递边界记录，应用对应过滤分支未真机执行；不宣称正式业务审批、库存闭环或完整求职应用已经完成。main 合并和合后 CI 事实见 [STATUS](docs/STATUS.md) 及最终阶段 [PR #19](https://github.com/aning0922/commerceops-agent/pull/19)。用户已委托主控裁决本阶段合并，不自动进入 Phase 2，见 [执行方案](docs/PHASE1_MANAGED_EXECUTION.md)。**
 
-任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)。实现与实际测试通过独立 PR 交付；本会话负责阶段主控，合并仍待用户明确确认。
+任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)；阶段证据、判定与外部解锁清单见 [验收报告](docs/PHASE1_ACCEPTANCE.md)。实现与实际测试通过独立 PR 交付；主控按用户已委托的 Phase 1 合并门禁裁决；真实 Gate、独立审核和实际 CI 齐备前不确认最终 main 合并。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
@@ -28,13 +28,13 @@
 - 飞书使用企业自建应用、新版卡片回调与长连接；真实租户接入仍需 Phase 1 技术验证。
 - Mock 数据、受控模型替身和真实测试店数据全程标识；不能用离线测试冒充真实联调。
 
-当前仓库仅有设计文档及基础文件。启动命令、依赖锁文件和 Compose 将在用户另行授权开发阶段后创建。
+工程底座实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移、持久 Worker 和 Checkpoint 已在集成分支实际验证；当前 main/集成提交及合并证据见 STATUS，不能把另一提交的测试直接算作当前 main 实跑。
 
-Phase 1 任务实现获准后，首批建立基础 CI/敏感检查，尽早验证 Docker、LangGraph Checkpoint、飞书真实回调三个闸门；当前仅规划。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
+Phase 1 已建立基础 CI/敏感检查，继续按依赖验证 Docker/PG、LangGraph Checkpoint、飞书真实回调三个闸门。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
 
 ## 版本管理与审核
 
-GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段继续使用独立分支和 PR，修复外部审核问题，经用户确认后合并。具体规范见 [AGENTS.md](AGENTS.md)。本次收口不授权开始 Phase 1。
+GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段使用独立分支和 PR，修复独立审核问题，按当前授权裁决合并。Phase 1 全必要 Gate/审核/CI 通过后的合并裁决已委托主控，具体规范见 [AGENTS.md](AGENTS.md)。每次合并不自动授权进入下一 Phase。
 
 ## P1-01 工程底座使用
 

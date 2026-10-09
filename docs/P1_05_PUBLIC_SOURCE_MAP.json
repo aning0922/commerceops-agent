@@ -1,0 +1,138 @@
+{
+  "entries": [
+    {
+      "adaptation": "relative_imports_and_dynamic_boundary_annotations_only;typing_cast_is_runtime_noop",
+      "included_definitions": "all_non_entrypoint_core",
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/base_live_core.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "c8eb4e617c97865a96a7f94d8d976999616f7319318f6a337a602583e4805ead",
+      "runtime_artifact": "base_live_core.py",
+      "runtime_frozen_sha256": "3fd98c298e0beb14e69f52bd63539f39c9207997753ac38bc903c5bf9ceec219"
+    },
+    {
+      "adaptation": "selected_core_definitions_relative_imports_and_dynamic_boundary_annotations;typing_cast_is_runtime_noop",
+      "included_definitions": [
+        "QueryOnlySDK",
+        "query_only",
+        "safe_category"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/base_query.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "3cfdeb214375997f165b7eb7633d717230d3035de12a8299dc5706b7fdda216e",
+      "runtime_artifact": "base_query_recovery_leaf.py",
+      "runtime_frozen_sha256": "62e5db8b2dd5fbb35c042779ff43002c8eafdf24b008fb60d916b3556dc1a1b9"
+    },
+    {
+      "adaptation": "selected_core_definitions_relative_imports_and_dynamic_boundary_annotations;typing_cast_is_runtime_noop",
+      "included_definitions": [
+        "DeadlineQueryOnlySDK"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/base_http_deadline.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "ec797db922eaf9a8f900b6b30dc6187d515e85fad1fee378f99321a79cd4e880",
+      "runtime_artifact": "base_query_recovery_r2_leaf.py",
+      "runtime_frozen_sha256": "b596ff50d2251fdf56ed51482950d7722d9128bf6f94fc9adb223f234c401719"
+    },
+    {
+      "adaptation": "relative_imports_and_dynamic_boundary_annotations_only;typing_cast_is_runtime_noop",
+      "included_definitions": "all_non_entrypoint_core",
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/base_closeout.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fdded8039c7d28675ca63bf80462ae6fbcda9e4cc27f5f5c8de7cd4ba9942fc4",
+      "runtime_artifact": "base_update_readback_core.py",
+      "runtime_frozen_sha256": "d7856f837bc1fb25545072e86937ddf493cb7d0cc8beab3cd660870bf16d6e1b"
+    },
+    {
+      "adaptation": "relative_imports_and_dynamic_boundary_annotations_only;typing_cast_is_runtime_noop",
+      "included_definitions": "all_non_entrypoint_core",
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/card_behaviors.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "dc65578f8a8208b35b436c3d4e332aafab7b07e76a14f3beefbc1fdad0dc24d6",
+      "runtime_artifact": "remaining_card_core.py",
+      "runtime_frozen_sha256": "f604a1bcd8a948f11a8ae2701222ca1cf8da170ff739ba5907c590bc5d4d895c"
+    },
+    {
+      "adaptation": "relative_imports_and_dynamic_boundary_annotations_only;typing_cast_is_runtime_noop",
+      "included_definitions": "all_non_entrypoint_core",
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/behavior_observer.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "77009d862a30c7b2f3eef26dbfe2d33f0e83a365d70a6fbd27f6de2aa6fae1c6",
+      "runtime_artifact": "behavior_observer.py",
+      "runtime_frozen_sha256": "c94c527a7a0157049397be866a658868259af2ed26d637d562481e8cd6d25446"
+    },
+    {
+      "adaptation": "selected_core_definitions_relative_imports_and_dynamic_boundary_annotations;typing_cast_is_runtime_noop",
+      "included_definitions": [
+        "validate_rows"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/card_readback.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "d1de0bc3e0cb5ed3a7dacdd7867b037ef6ac56bd465cc42e77ce76159e9706de",
+      "runtime_artifact": "readback_remaining_cards.py",
+      "runtime_frozen_sha256": "47e32c0f6bd08c726c53bb9382a80ae5ee89750834ccc8e46246602755d94667"
+    },
+    {
+      "adaptation": "v2_raw_whole_artifact_bytes_binding_before_DB;relative_imports_and_boundary_annotations;explicit_archive_writer",
+      "included_definitions": [
+        "canonical",
+        "inspect_m3"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/m3_delta.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fe44e751b184a7aad9f1e681fded63c0a857c35af134afb637d4f986b814194f",
+      "runtime_artifact": "readback_m3_db_failure_delta_v2.py",
+      "runtime_frozen_sha256": "267175562b6388fc27427786c5a64af9b628278536f10957eec9a914fd5f4910",
+      "runtime_platform_execution": "not_run_offline_only"
+    },
+    {
+      "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
+      "included_definitions": [
+        "plan_from"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/m3_delta.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fe44e751b184a7aad9f1e681fded63c0a857c35af134afb637d4f986b814194f",
+      "runtime_artifact": "readback_m2_pg.py",
+      "runtime_frozen_sha256": "e55b968a26017a02f07b2401a4476235742004f30ab6d40c63942c8c0ad06ec6"
+    }
+  ],
+  "historical_source_versions": [
+    {
+      "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
+      "artifact_binding": "v1_main_validates_original_archive_bytes_SHA_before_JSON_decode;pure_function_assumes_entrypoint_bound_object",
+      "included_definitions": [
+        "canonical",
+        "inspect_m3"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_commit": "2459dbce8561f91961d31cb47e7b492183a49fdc",
+      "public_path": "scripts/feishu_probe_harness/m3_delta.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fabf5463f2b3b43d205571d35987490bceb1083254155b9d899f1a053d59ee14",
+      "runtime_artifact": "readback_m3_db_failure_delta.py",
+      "runtime_frozen_sha256": "2acc56527ea350a4e819523ac3beff00ccda2200279f16684e2f0d40a15c5e17",
+      "runtime_platform_execution": "actual_once_completed_v1"
+    }
+  ],
+  "private_runtime_packages": [
+    {
+      "manifest_sha256": "0dacc08259f12945f664930695f74f1c4adad582790e0e1683673cf7100c4e58",
+      "purpose": "Base closeout"
+    },
+    {
+      "manifest_sha256": "97154d8232b78de07b95be999345bc5a8b1347e24f990a623477c5f08672c53e",
+      "purpose": "remaining M3/C"
+    }
+  ],
+  "schema": "P1_05_PUBLIC_CORE_SOURCE_MAP_V1",
+  "scope": "portable_cores_only_no_private_runtime_dispatcher_or_configuration"
+}

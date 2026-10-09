@@ -1,0 +1,137 @@
+{
+  "project": "p102-6939dd8c6308",
+  "started_at": "2026-10-08T15:17:27.499656+00:00",
+  "finished_at": "2026-10-08T15:19:04.769089+00:00",
+  "named_volume": "p102-6939dd8c6308_pg_data",
+  "result": "passed",
+  "cleanup_exit": 0,
+  "g2_process_evidence": [
+    {
+      "approval_mode": "simulated",
+      "interrupt_checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c32b7-4359-6318-8001-303b832e8d2f",
+          "checkpoint_ns": "",
+          "thread_id": "582e0445-c945-4ad7-8f3f-f7d509d48f22"
+        }
+      },
+      "maximum_graph_active": 1,
+      "model_mode": "not_used",
+      "new_pid": 17,
+      "old_exit": 0,
+      "old_pid": 10,
+      "other_thread": "b24c41d2-d866-4984-a4a8-33e80c816c53",
+      "prepare_node_runs": 1,
+      "result_ref": "d9203de0-4771-4977-8f89-50930037d728",
+      "scenario": "cross_process_resume",
+      "source_mode": "postgres_technical",
+      "task": "582e0445-c945-4ad7-8f3f-f7d509d48f22",
+      "thread": "582e0445-c945-4ad7-8f3f-f7d509d48f22",
+      "wait_node_runs": 2
+    },
+    {
+      "after_checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c32b7-5b68-6aa2-8003-91178bff708e",
+          "checkpoint_ns": "",
+          "thread_id": "36d6ccae-5d50-41eb-ae87-1fdc066f5cf5"
+        }
+      },
+      "approval_mode": "simulated",
+      "attempts": 2,
+      "before_checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c32b7-520d-6b04-8002-18396ee81941",
+          "checkpoint_ns": "",
+          "thread_id": "36d6ccae-5d50-41eb-ae87-1fdc066f5cf5"
+        }
+      },
+      "job": "19d05661-62a3-45d8-b770-4f9267b97e94",
+      "model_mode": "not_used",
+      "new_pid": 35,
+      "old_exit": -9,
+      "old_pid": 23,
+      "receipt_count": 1,
+      "recovery_action": "continue",
+      "result_ref": "b558cf08-77f9-461e-aec6-73e59a2d4249",
+      "scenario": "receipt_commit_checkpoint_gap",
+      "source_mode": "postgres_technical",
+      "start_repeated": false,
+      "task": "36d6ccae-5d50-41eb-ae87-1fdc066f5cf5",
+      "thread": "36d6ccae-5d50-41eb-ae87-1fdc066f5cf5"
+    },
+    {
+      "approval_mode": "simulated",
+      "cancellation_complete": true,
+      "checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c32b7-61e4-69ca-8000-6bbf76c379ca",
+          "checkpoint_ns": "",
+          "thread_id": "9d1c9bee-6a84-4b76-850e-0540c11bbf67"
+        }
+      },
+      "model_mode": "not_used",
+      "old_exit": 2,
+      "old_pid": 43,
+      "receipt_count": 0,
+      "scenario": "graph_lock_loss_cancel",
+      "source_mode": "postgres_technical",
+      "unconfirmed_start_refused": true
+    },
+    {
+      "approval_mode": "simulated",
+      "model_mode": "not_used",
+      "old_exit": 75,
+      "old_pid": 196,
+      "receipt_count": 0,
+      "runner_returned": false,
+      "scenario": "graph_noncooperative_exit",
+      "source_mode": "postgres_technical",
+      "unconfirmed_start_refused": true
+    },
+    {
+      "approval_mode": "simulated",
+      "checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c32b8-0c9d-6a2d-8001-2758b9c17aa0",
+          "checkpoint_ns": "",
+          "thread_id": "0e8d3c3d-3784-41c9-b9ee-0f3682dacbbf"
+        }
+      },
+      "false_interrupt_reported": false,
+      "model_mode": "not_used",
+      "receipt_count": 0,
+      "scenario": "checkpoint_db_failure_recovered",
+      "source_mode": "postgres_technical",
+      "task": "0e8d3c3d-3784-41c9-b9ee-0f3682dacbbf"
+    },
+    {
+      "approval_mode": "simulated",
+      "checkpoint_created": false,
+      "model_mode": "not_used",
+      "scenario": "retired_probe_version_refused",
+      "source_mode": "postgres_technical",
+      "start_called": false,
+      "task": "778c7acb-907e-404b-88d1-b87b9492092f",
+      "version": "p104-checkpoint-v0"
+    }
+  ],
+  "command": "uv run --frozen python -m scripts.pg_smoke",
+  "pg_test_result": "79 passed, 112 deselected, 2 warnings in 41.47s",
+  "source_mode": "postgres_technical",
+  "model_mode": "not_used",
+  "approval_mode": "simulated",
+  "versions": {
+    "python": "3.12.13",
+    "langgraph": "1.2.14",
+    "langgraph_checkpoint": "4.2.0",
+    "langgraph_checkpoint_postgres": "3.1.2",
+    "langgraph_sdk": "0.4.6",
+    "psycopg": "3.3.6",
+    "postgres": "17.11",
+    "checkpoint_migrations_max": 9,
+    "lark_oapi": "1.7.3",
+    "websockets": "15.0.1"
+  },
+  "g1_complete": true
+}

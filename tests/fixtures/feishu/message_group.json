@@ -1,0 +1,33 @@
+{
+  "schema": "2.0",
+  "header": {
+    "event_id": "probe-message-event-1",
+    "event_type": "im.message.receive_v1",
+    "app_id": "probe-app",
+    "tenant_key": "probe-tenant",
+    "token": "REDACTED"
+  },
+  "event": {
+    "sender": {
+      "sender_id": {"open_id": "probe-user-a"},
+      "sender_type": "user",
+      "tenant_key": "probe-tenant"
+    },
+    "message": {
+      "message_id": "probe-message-1",
+      "chat_id": "probe-group",
+      "chat_type": "group",
+      "message_type": "text",
+      "content": "{\"text\":\"@_user_1 技术探针\"}",
+      "mentions": [
+        {
+          "key": "@_user_1",
+          "id": {"open_id": "probe-bot"},
+          "mentioned_type": "bot",
+          "name": "display-name-is-not-identity",
+          "tenant_key": "probe-tenant"
+        }
+      ]
+    }
+  }
+}
