@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前处于 **Phase 1 集中交付中：G1/G2 已在集成分支验证，G3 必要真实技术证据已经独立核对齐备（含文档化的最小权限平台边界）。公开源码/证据最终提交的独立审核、实际 CI、阶段汇总与 main 合并门禁仍待完成；最终 PR #19 保持 Draft，阶段尚未记完成，main 未合入。** Issue #23 已按用户裁决关闭为 risk_accepted / root_cause=not_identified，不再追加旧超时诊断。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase 1 已完成技术验收并合入 main，等待用户另行授权 Phase 2。** 最终PR19经精确提交独立审核、候选CI后普通合并，main合后CI成功；G1/G2和G3受控真实技术证据均已核对，G3平台最小权限边界及未测分支明确保留。Issue23风险接受/根因未知结论保持，P1-01至04不再扩展。主控没有实施Phase2业务、创建下一阶段会话或自动切换阶段。
 
-第1–29节保留规划、交付和批准前后的历史快照；其中未合入、未执行及逐项等待用户/main 的旧状态由后续事实和已批准托管合同取代。当前 main 为 a0d521ed79505287fa61bb6ddf82640e97824257，integration 为 f46e74c1158c33e495f4fb078025804174921afa。当前收口状态以第30节及 Issue/PR 最新记录为准，历史测试失败和未知根因仍保留。
+第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
 ## 1. 基线与授权
 
@@ -476,3 +476,15 @@ P1-05合后push37960884776与main候选37960891231均已实际SUCCESS，head f46
 推荐在最终候选独立审核和实际CI成功后按已授权范围合入main，合后CI成功再记Phase1交付完成。残留限制保留：#23旧timeout根因not_identified且risk_accepted；Base长期TTL未知、unknown只对账/停止，不称成功ACK或accepted replay；non@/self-bot后端分支not_run；自然网络故障/wire/p95与部分Toast逐字内容未测；单Worker/单Graph，不宣称正式T3/审批/库存/模型或M1业务闭环。以上不是追加通用框架的理由，也不擅自降低原Gate。
 
 下一阶段建议是Phase2确定性库存垂直切片，现有底座已消除主要PG/Graph/飞书接入不确定性，原3–4有效工作日估算待接单细化；必须用户另行授权，不创建Phase2会话/分支或自动实施。两个有效开发日集中收口目标已完成必要技术验证，最后等待属于交付CI/审查；没有再延长旧诊断或要求重复真人操作。
+
+## 31. Phase 1 main 验收完成
+
+最终候选770426e经[独立阶段review5472976596](https://github.com/aning0922/commerceops-agent/pull/19#pullrequestreview-5472976596)无P1/P2，实际integration push37962112839与[main候选CI37962244961](https://github.com/aning0922/commerceops-agent/actions/runs/37962244961)均SUCCESS；被并发替代的37962120627取消未计通过。候选实际checkout425e3d772fa663876496eca0241275037d6644c7父a0/770，treea06dc4683d61766a6795079dc50e29823484880c与770一致；345offline/72.81秒、79PG/81.27秒、三G1/六G2/cleanup0/敏感0。
+
+2026-10-10 01:00:03主控按用户已授权范围普通match-head merge[PR19](https://github.com/aning0922/commerceops-agent/pull/19)至main078390c557bbd21a4dd36b98064894abe9bc0f2a，父a0/770、tree仍a06，未强推或带入PR24/26。该main的[合后CI37963130675](https://github.com/aning0922/commerceops-agent/actions/runs/37963130675)实际SUCCESS，checkout078390c：345offline/73.12秒、79真实PG/82.48秒、27Markdown/strict mypy84/敏感三层0、三G1 count_one=true、六必要G2 call通过、cleanup0。没有把候选或另一提交的CI当作main实跑。
+
+阶段结论为**Phase1通过并完成交付**。P1-01至P1-05代码、实际测试、独立审查和集成门禁齐备；Issue6已经integrated关闭，Issue7由主控记录本main事实及最后仅文档收口回执后关闭。原P105顶层idle、WT4094/runtime/config/失败证据与once-only归档保留，其余已验证实施者也未重新派发。没有追加飞书/PG/业务采样、权限、公共入口或通用框架。
+
+G1/G2为真实Docker/PG、单Worker/单Graph与Checkpoint技术验证；G3为真实接入/技术卡/角色拒绝/重复冲突/过期/DB失败/受控重启/Base读写和原键观察，non@/self-bot按最小权限的平台非投递边界，应用后端分支仍not_run。wire/p95/自然断线/部分Toast逐字内容、长期幂等TTL和特定Base retry分支不宣称通过；旧timeout根因仍not_identified/risk_accepted。本阶段不是正式T3、库存/订单/模型闭环，也不是M1完整面试应用。
+
+建议下一步Phase2确定性库存垂直切片，原3–4有效日估算待授权接单细化；用户未授权下一阶段，主控不创建Phase2实现任务或开始编码。两有效开发日集中收口目标内已完成必要Gate和main交付，本节只同步实际结果，最后文档提交的审核/CI由Issue7记录。

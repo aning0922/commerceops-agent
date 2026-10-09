@@ -1,6 +1,6 @@
 # 工程约束
 
-- 当前 Phase 0 已收口，记录见 docs/PHASE0_CLOSEOUT.md。P1-01 已合入 main，P1-02/G1、P1-03、P1-04/G2 已内部集成验证；P1-05/G3 必要真实技术证据已独立核对，公开源码/证据已内部集成交付，P1-06 正在完成最终 main 验收。non@/self-bot 按最小权限的平台非投递边界验收，应用收到后过滤分支仍 not_run，不扩权限补样本；正式 T3、自然网络故障、wire/p95 和长期幂等不由技术探针外推。2026-10-08 用户批准 Phase 1 托管执行，并明确授权主控在全部必要 Gate、独立审查与实际 CI 通过后确认内部及最终 main 合并；权限只覆盖 Phase 1，不自行进入下一 Phase。当前任务、精确提交与最终交付事实见 docs/STATUS.md 和 Issue/PR。
+- Phase 0 已收口，记录见 docs/PHASE0_CLOSEOUT.md；Phase 1 已经独立审核、真实G1/G2/G3和精确CI验收，并通过PR19合入main078390c，main合后CI通过。当前等待用户新授权Phase2，不自动编码、派发或切换下一阶段。G3 non@/self-bot按最小权限的平台非投递边界，应用收到后过滤分支仍not_run；正式T3、业务/库存、自然网络故障、wire/p95和长期幂等不由技术探针外推。旧timeout根因not_identified/risk_accepted保持，不继续诊断；P1-01至04能力冻结。最新main/文档收口提交、Gate与风险见docs/STATUS.md和Issue7。
 - 工程独立运行；旧项目只读研究，不复制整项目、不依赖旧项目绝对路径。不擅自修改全局开发环境。
 - 确定性代码负责金额、统计、库存规则、权限与幂等；LLM 负责意图、解释及受限流程路由。
 - PostgreSQL 为业务权威来源。副作用必须有身份校验、审批约束、持久幂等键及失败恢复；不能把 checkpoint 当作副作用事务。
