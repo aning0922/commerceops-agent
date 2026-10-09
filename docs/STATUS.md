@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，诊断b8的PR25唯一CI已成功，但原异常根因未定位，尚未合入；P1-05 真实W1六消息、单节点/六字段只读、Base v2本地发布与verify-config已完成，PG独立回验正在准备，卡片/C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，诊断b8的PR25唯一CI已成功，但原异常根因未定位，尚未合入；P1-05 真实W1六消息及独立PG回读、单节点/六字段只读、Base v2本地发布与verify-config已完成，M1单卡源码正在准备，卡片/C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–17节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第18节与 Issue/PR 最新记录为准。
+第1–18节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第19节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -316,3 +316,13 @@ v1私有600快照匹配原config hash，setup/W1 source/manifest/receipt永久�
 主控实际读日志并核对GitHub commit：checkout0d4aca93b35fa20483b0a6ee91acd0676fef20b6，parents为413/b8，tree376b5c8dca7f8d7241bb9cc6e8100fda2ea30987与冻结b8一致；161offline/43.74秒、79PG/59.77秒、各2既有warnings，六G2及G1双初始化/重启/同卷重建/停库预期非零/三次恢复回读1保留。22command_end全stopping_confirmed且无timeout，22existingwait/OSwait/reader_end、10container_wait确认，没有normal TERM/KILL；最终passed_no_hang_reproduced/cleanup_exit0。最早deadline注册08:08:08–09 UTC/code+23分钟只界定16:31:08–09，未公开原budget文件值，不造更精确时刻；PG08:12:08 UTC清理在界限内，job25分钟不变。[精确实际CI回执](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6077158128)。独立Agent另只读确认该新SHA真实组合复验成功，PR25未合入/#23未关闭；原根因仍not_identified、没有hang时PG锁/栈，旧source/image限制不回写，当前成功不冒称解释了原超时。
 
 main仍a0/int413，#6/#7/#23 OPEN，PR22远端8f/PR25b8未合、主控文档本地未推送、PR19 Draft；完整G3/Phase1尚未通过，不合main、不进Phase2。
+
+## 19. W1 持久接收的独立 PG 只读回验
+
+current-v2只读回验包独立19fake/2既有SDK warnings/4.31秒无阻断，原P105一次真实app-only执行session72575 exit0，result16:32:17.014624完成（北京时间）。READ ONLY/REPEATABLE READ及statement/lock/transaction/connect期限，当前9身份/roles/enabled/authversion/归属精确匹配，父阶段1.017秒在30秒内结束。按可信org/shop/app/tenant全scope匹配私有六消息文本hash，不先actor/window过滤：A私聊和群各1message_received receipt/1精确event key，B/C四条预定文本各0receipt/0关联key。[实际任务及主控回读复核](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6077648367)与[阶段结果](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6077648812)。
+
+当前task/jobs各0只记快照，不宣称W1窗口零增量；当前mapping不倒推W1当时DAL锁定状态，C_role_negative_qualified=false，仍不是C角色反例。无SDK/API/AppSecret/owner/SQL写/锁定读/BaseCRUD，CLI reaped/own-container absent/四锁free/barrier无，v2与冻结source/inputs不变；attempt保留无重试。主控只读另核对result/manifest、六count/九行/readonly/repeatable/预算/生命周期、evidence hash5cd4e80ed716f1b88f1f0d764efe3ca85396f95fd373bad0c31ca52806fb3e37及锁/标签容器，没有重复SQL/读密码或公开标识/textecho/marker/单独文本hash。
+
+原P105自动准备M1单卡源码/fake/冻结供独立Review，复用原Repository/CardSender/public SDK observer、current-v2绑定、原DTO/异常/单delegate语义。持久单槽/send_uuid/binding完整对象/有效期，只既有联调群；unknown/inflight占槽停止，不换UUID重发，累计baselineM1–M3最多3/C1最多1、C旧overlay未armed。当前不Gateway/sendcard，真实渲染/callback/Toast/时限、重复冲突/故障重连/C完整资格及Base全链路仍not_run；未扩成全部W2/W3。
+
+PR25唯一CI已由主控与独立Review只读核对，b8新SHA真实组合复验成功；剩余两个P2记录，原超时根因not_identified及#23阻断不自动解除、PR未合。maina0/int413、#6/#7/#23 OPEN、PR19Draft，文档仍本地未推送；完整G3/Phase1未过，不合main、不进Phase2。

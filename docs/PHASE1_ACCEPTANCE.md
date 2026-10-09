@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，b8的PR25唯一CI成功但原异常根因未定位、尚未合入；G3真实W1六消息、单节点/六字段只读和Base v2结构配置完成，卡片/C角色反例/Base全链路未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–13节保留原验收及接续快照，最新结果与证据限度见第14节及 [STATUS第18节](STATUS.md#18-v2-配置已发布诊断一次-ci-派发)。
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，b8的PR25唯一CI成功但原异常根因未定位、尚未合入；G3真实W1六消息与独立PG回读、单节点/六字段只读和Base v2结构配置完成，卡片/C角色反例/Base全链路未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–14节保留原验收及接续快照，最新结果与证据限度见第15节及 [STATUS第19节](STATUS.md#19-w1-持久接收的独立-pg-只读回验)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -150,3 +150,9 @@ Issue23第二段6e62ae0在15:29:42预算内冻结，故障注入确证诊断CLI/
 原P105独立20fake/4.23秒后实际发布v2，session24425 exit0、15:49:32.030回执（北京时间），只新增Base app_token，前后实际Settings/verify-config通过；身份/PG/table/false/C未armed不变，旧v1快照/manifest/receipt保留，新v2 field proof binding及四锁/barrier由主控只读复核。没有SDK/API/PG/BaseCRUD或Secret/password读取。[真实阶段结果](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076956447)及[STATUS第18节](STATUS.md#18-v2-配置已发布诊断一次-ci-派发)限定为结构配置，PG独立回验正准备，卡片/C角色反例/Base完整链路仍待验收。
 
 诊断normal-reaped P1在新10分钟预算内修正并冻结b8，最终21fake/161offline通过，actual workflow差异独立审查及21纯fake/0.23秒通过；保留job25分钟/绝对23分钟前置/Foundation/G1/79/G2，非阻断P2回归欠缺记录。一次[PR25 CI37903083024](https://github.com/aning0922/commerceops-agent/actions/runs/37903083024)实际SUCCESS，checkout0d4=413/b8、tree与b8一致，161offline43.74秒/79PG59.77秒、六G2/G1恢复三次1、22CLI/reader和10containerwait确认、无normal TERM/KILL、cleanup0；主控读取日志与commit核对，独立Agent另只读确认新SHA真实组合复验成功。PR25仍Draft未合，#23不关闭；原根因not_identified不改写，未产生原hang锁/栈，真实PG/image/source历史限制不隐藏。maina0/int413，#6/#7/#23 OPEN、PR19 Draft，Phase1全Gate仍未过、不合main、不进Phase2。
+
+## 15. 已完成消息持久关联回读，卡片仍待真测
+
+原P105的current-v2只读包独立19fake/4.31秒后，实际session72575 exit0、16:32:17.014624完成（北京时间），READ ONLY/REPEATABLE READ与当前九映射匹配；A私聊/群各1message_received receipt+1event key，B/C四预定文本各0。parent1.017秒/30秒内reaped/containerabsent/四锁barrier清理，主控另核result/manifest/count/readonly/预算/evidence及锁，无重复SQL。当前tasks/jobs0不等于窗口零增量，mapping不倒推W1当时角色，C_role_negative_qualified=false。[真实阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6077648812)和[STATUS第19节](STATUS.md#19-w1-持久接收的独立-pg-只读回验)补W1关联回读来源与限度。
+
+M1源码/fake/冻结正在原唯一P105准备，复用原CardSender/Repository与新v2绑定；累计3baseline/1C槽位、unknown不盲重发/原singleSDK<=300/停止确认合同保持，尚未发卡。卡片真实渲染/callback/完整value/Toast/时限、C角色反例、故障重连及Base全链路仍缺证据；#6/#7/#23 OPEN、PR25未合/原CI根因未定位、PR19Draft、maina0/int413，全阶段未过、不合main、不进Phase2。
