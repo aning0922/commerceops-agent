@@ -1,17 +1,17 @@
 # M1 UX 设计冻结候选与前端交接
 
-**状态：本轮设计、合同检查与原型交接已完成，冻结候选待最终外部评审；未正式冻结或合main。**
+**状态：用户确认 C2-B3 产品与视觉外审整体通过；本轮小范围冻结修订候选待最终确认，未正式冻结或合 main。**
 
-候选：`m1-ui/0.4.0-b3`，C1 合同 `0.2.1-c1-revision`。用户在 2026-10-09（Asia/Shanghai）确认 B2 外部产品与交互评审通过并授权 B3。**这是设计冻结候选，不是业务 Gate 或正式冻结结论；最终评审及用户合并确认尚未取得。**
+候选：`m1-ui/0.4.1-freeze-rc`，C1 合同 `0.2.1-c1-revision`。用户在 2026-10-09（Asia/Shanghai）确认 B2 外部产品与交互评审通过并授权 B3。**这是设计冻结候选，不是业务 Gate 或正式冻结结论；本轮最终确认及用户合并确认尚未取得。**
 
-本轮沿用原 UX 工作树、分支 `codex/ux-penpot-toolchain`、[PR #24](https://github.com/aning0922/commerceops-agent/pull/24) 和正式 Penpot file `7fd0f7d0-fdda-81c5-8008-c340d1377488`。主 Page `7fd0f7d0-fdda-81c5-8008-c340d1377489`；Foundations 与状态 Page 沿用原 UUID。基线 head `38b3e2578bf0dd4c1e509dabddf4e0a8320f8ee4`，main `a0d521ed79505287fa61bb6ddf82640e97824257`。后端、Phase 1 状态及共享锁文件不在本次变更范围。
+本轮沿用原 UX 工作树、分支 `codex/ux-penpot-toolchain`、[PR #24](https://github.com/aning0922/commerceops-agent/pull/24) 和正式 Penpot file `7fd0f7d0-fdda-81c5-8008-c340d1377488`。主 Page `7fd0f7d0-fdda-81c5-8008-c340d1377489`；Foundations 与状态 Page 沿用原 UUID。本轮基线 head `13d865484509e7f561368ad7652bce10cee319a7`，main `a0d521ed79505287fa61bb6ddf82640e97824257`。后端、Phase 1 状态及共享锁文件不在本次变更范围。
 
 ## 1. 交接材料与使用顺序
 
 1. [C1 产品合同](c1-product-design.md)、[修订决策](c1-decisions.md)是产品语义依据。
 2. [screens.yaml](screens.yaml)定义 18 个逻辑页面/辅助层、角色、状态和数据边界；一个逻辑页面可以对应多个布局/局部面板 UUID。
 3. [interactions.yaml](interactions.yaml)定义 B01–B47 / E01–E47；B09 历史保留但不可渲染，不接通用恢复动作。
-4. 当前原生 UUID、控件所属页面及实际 navigation/overlay 目标以[全量B3映射](evidence/c2-b3/design-map.json)和[前端索引](evidence/c2-b3/frontend-map.json)为准；历史 B1/B2 证据不能冒充 B3 的保存后回读或实点结果。
+4. 当前原生 UUID、控件所属页面及实际 navigation/overlay 目标以[最终原生映射](evidence/m1-ux-final/design-map.json)和[最终前端索引](evidence/m1-ux-final/frontend-map.json)为准；历史 B1/B2 证据不能冒充 B3 的保存后回读或实点结果。
 5. 本文件规定 Next.js 组件、数据需求和待确认协议；所有业务 implementation 仍为 `not_implemented`。
 
 ## 2. 页面、路由、组件与数据
@@ -30,7 +30,7 @@
 | S11 | `/replenishment-items/[itemId]` | InternalItemDetail、ReasonDialog、SourceLinks | 状态、数量、来源、expected version、原因记录与同步状态 | BC01/05 |
 | S06 | `/tasks/[taskId]/events` | BusinessTimeline、TechnicalDetails、RecoveryFacts | 默认业务步骤；按需展开节点/Tool/时间/Token/Checkpoint/恢复记录 | BC01/04/05 |
 | S07 | `/access` | AccessBoundary、SessionExpired | 不透露对象是否存在、编号、SKU 或计数的安全反馈 | BC01/05 |
-| S08 | `/admin/operations` | AppShell、ReadOnlyConfigSummary、ExceptionExplanation | 脱敏运行元信息、规则/模型版本、实际期限/新鲜度、既有恢复状态 | BC01/04/05/07 |
+| S08 | `/admin/operations` | AppShell（admin-only 运维选中态）、ReadOnlyConfigSummary、ExceptionExplanation | 脱敏运行元信息、规则/模型版本、实际期限/新鲜度、既有恢复状态 | BC01/04/05/07 |
 | M01 | S11 Dialog | ReasonDialog、VersionSummary | 单项 complete/close、必填原因、原请求键与 payload、版本 | BC01/05 |
 | M02 | S02 Drawer；新周期仅开草稿 | NewAnalysisDraft、ParameterSummary | 提交前本地输入/确认；没有 task_id、不占 Worker、不继承批准 | BC01/02/03/05 |
 | M03 | S03 Dialog | ProvenanceDialog | 当前指定 report 的口径、公式、数据来源 | BC01/05 |
@@ -61,7 +61,8 @@
 - B06：原报告 → M05。待执行重算与 rejected/expired 重新发起分开；B36 直到 BC03 确认均无业务交互目标。执行中/unknown 只读原事实，不覆盖执行。
 - B33：版本列表 → 指定冻结历史；历史只读，旧批准不复用到当前版本或下一周期；回当前版本不改变历史事实。
 - B46：仅源 task completed → M02 新草稿。旧 task 仍 completed；旧 execution 不再创建内部项；旧批准、nonce、假设确认、请求键均不继承。已有 open 项约束保留。草稿尚无 task_id，B01须重新显式提交。
-- B31：当前 admin 有权时 → S08 脱敏只读摘要。没有配置写、密钥编辑、权限管理、手工重试或 Worker 重启。
+- B30 / E30：当前 admin 有权时 → S08 `/admin/operations` 脱敏只读摘要。没有配置写、密钥编辑、权限管理、手工重试或 Worker 重启。
+- B31 / E31：保持“返回有权首页”；按服务端当前身份解析有权落点（operator/approver 按既有 C1 合同到 S02，admin-only 到 S08，无授权到安全壳或 S01）。它不是管理入口，不把所有返回动作硬接到 S08。既有四个原型实例及目标连接不变。
 - B47：仅 F02 proposal 的禁用关联回复。产品方向已接受，真实消息关联协议尚未确认；无伪造续答请求或成功闭环。
 - 评审索引/身份选择、Mock 示例响应选择不进入正式路由与侧边导航，不用原型站点地图证明服务端鉴权。
 
@@ -98,4 +99,7 @@ AppShell 224px sidebar / 72px header；桌面 1440 和现有 1280 布局；Drawe
 
 冻结需：本批完整映射和实际证据齐备、外部最终评审、用户明确确认。BC01–BC07 的 pending 项不因设计冻结自动启用；实现时以已确认合同补接，不扩建底层系统。停止于本轮 UX PR，不合 main、不修改 Phase 1、不写正式 Next.js、不启动下一批或30天后续日报/SKU深析/风险/RAG界面。
 
-实际命名版本、Viewer次数、截图、刷新UUID及私有备份以 [B3交付](c2-b3-delivery.md) 中最终证据为准；未执行项明确记录，不从历史成功外推。
+本轮实际命名版本、重载回读、Viewer点击、导航UUID、截图及私有备份以 [最终冻结修订交付](m1-ux-final-freeze.md) 为准；[B3交付](c2-b3-delivery.md) 保留历史证据；未执行项明确记录，不从历史成功外推。
+
+
+S08 复用 M1-C01 AppShell 的现有实例，运维选中态沿用原导航文字 UUID。admin 单角色仅展示已授权运维入口，不展示任务、审批、内部补货导航；兼任须由服务端分别授予自身 scope 内的业务入口。服务端数据读取和导航鉴权仍待 BC01/BC05，不以隐藏菜单替代鉴权。

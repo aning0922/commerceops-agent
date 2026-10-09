@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract_version": "0.2.1-c1-revision",
-  "status": "c2_b3_freeze_candidate_review_required",
+  "status": "m1_final_freeze_candidate_confirmation_required",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -4967,9 +4967,9 @@
   ],
   "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
   "pending_design_decisions": [],
-  "design_status": "b2_visual_interaction_review_required",
+  "design_status": "b3_external_review_passed_final_revision_review_required",
   "design_document": "c1-product-design.md",
-  "visual_scope": "Native M1 B1 retained; B2 login/access and compact shared permission/error variants; Mock design only",
+  "visual_scope": "Existing approved M1 native pages retained; final local admin navigation revision only; business not implemented",
   "baseline_ux_commit": "77b69d3",
   "shared_control_mapping": "Stable semantic ID can have multiple source instances; latest instance UUID/action map is authoritative; reserved B09 has no UI",
   "api_contract_gaps": [
@@ -4981,7 +4981,7 @@
     "BC06 full SKU disclosure and client fallback",
     "BC07 actual expiry/freshness configuration; no hardcoded 24h/15min guarantee"
   ],
-  "review_status": "B2 passed via user; B3 final review required",
+  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision pending independent review and final confirmation",
   "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",
@@ -5052,11 +5052,12 @@
     "C2-B2": true,
     "C2-B3": true
   },
-  "m1_visual_revision": "m1-ui/0.4.0-b3",
-  "m1_visual_map": "evidence/c2-b3/design-map.json",
+  "m1_visual_revision": "m1-ui/0.4.1-freeze-rc",
+  "m1_visual_map": "evidence/m1-ux-final/design-map.json",
   "b1a_delivery": "c2-b1a-delivery.md",
   "b1b_delivery": "c2-b1b-delivery.md",
   "b2_delivery": "c2-b2-delivery.md",
   "b2_mock_fixture_policy": "B43 evaluator choices and B11 role/auth fixtures are review-only. Real principal remains server supplied; no API or effect inferred from prototype.",
-  "b3_delivery": "c2-b3-delivery.md"
+  "b3_delivery": "c2-b3-delivery.md",
+  "final_freeze_delivery": "m1-ux-final-freeze.md"
 }

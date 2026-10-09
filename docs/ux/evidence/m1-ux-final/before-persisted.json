@@ -1,0 +1,27 @@
+{
+  "fileId": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+  "persisted_revn": 57,
+  "versions": [
+    {
+      "revn": 57,
+      "label": "m1-ui/0.4.0-b3 / persisted UX freeze candidate · verified local auxiliary flows",
+      "createdAt": "2026-10-09 16:20:59.252617+00"
+    },
+    {
+      "revn": 57,
+      "label": "m1-ui/0.4.0-b3 / UX freeze candidate · verified local auxiliary flows",
+      "createdAt": "2026-10-09 16:12:26.975132+00"
+    },
+    {
+      "revn": 45,
+      "label": "m1-ui/0.3.0-b2 / approved baseline before B3",
+      "createdAt": "2026-10-09 15:35:47.180224+00"
+    },
+    {
+      "revn": 45,
+      "label": "m1-ui/0.3.0-b2 / refreshed review-ready · 96 Viewer attempts + identity + exceptions",
+      "createdAt": "2026-10-09 15:01:16.39008+00"
+    }
+  ],
+  "scope": "read-only isolated design database file/snapshot metadata; no auth or raw data bodies"
+}

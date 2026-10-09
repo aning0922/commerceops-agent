@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract_version": "0.2.1-c1-revision",
-  "status": "c2_b3_freeze_candidate_review_required",
+  "status": "m1_final_freeze_candidate_confirmation_required",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -91,7 +91,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "b806b597-0eb0-80b2-8008-c386bce478fe",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.3.0-b2"
       },
       "states": [
         "signed_out",
@@ -201,7 +201,7 @@
           "name": "M1-S01 / 登录 · 1440px",
           "state": "signed_out",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 1440
         },
         {
@@ -209,7 +209,7 @@
           "name": "M1-S01 / 登录 · 1280px",
           "state": "signed_out",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 1280
         },
         {
@@ -217,7 +217,7 @@
           "name": "M1-S01 / B2 · 身份评审入口",
           "state": "mock_identity_selector",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 960
         },
         {
@@ -225,7 +225,7 @@
           "name": "M1-S01 / B2 · login-failure",
           "state": "login_failed",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -233,7 +233,7 @@
           "name": "M1-S01 / B2 · 鉴权后同版本 Web 20项",
           "state": "deep_link_authentication",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -241,7 +241,7 @@
           "name": "M1-S01 / B2 · 鉴权后同版本 Web 1项",
           "state": "deep_link_authentication",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
       ]
@@ -254,7 +254,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "states": [
         "loading",
@@ -398,7 +398,7 @@
           "name": "M1-S02 / 任务中心 · Desktop 1440",
           "state": null,
           "role": null,
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -406,7 +406,7 @@
           "name": "M1-S02 / B2 · identity-operator",
           "state": "role_scope",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -414,7 +414,7 @@
           "name": "M1-S02 / B2 · identity-admin",
           "state": "role_scope",
           "role": "admin",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -422,7 +422,7 @@
           "name": "M1-S02 / B2 · identity-admin-operator",
           "state": "role_scope",
           "role": "admin + operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -430,7 +430,7 @@
           "name": "M1-S02 / B2 · loading",
           "state": "loading",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -438,7 +438,7 @@
           "name": "M1-S02 / B2 · empty",
           "state": "empty",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -446,7 +446,7 @@
           "name": "M1-S02 / B2 · read-failure",
           "state": "read_failure",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -467,7 +467,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "states": [
         "loading",
@@ -580,7 +580,7 @@
           "name": "M1-S03 / 库存分析报告 · Desktop 1440",
           "state": null,
           "role": null,
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -588,7 +588,7 @@
           "name": "M1-S03 / B2 · operator-report",
           "state": "ready",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -596,7 +596,7 @@
           "name": "M1-S03 / B2 · model-fallback",
           "state": "template_fallback",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -604,7 +604,7 @@
           "name": "M1-S03 / B2 · data-incomplete",
           "state": "data_incomplete",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -633,7 +633,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c373bf383a49",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "states": [
         "loading",
@@ -912,7 +912,7 @@
           "name": "M1-S04 / 审批详情 · 3 项未知在途 · Desktop",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -920,7 +920,7 @@
           "name": "M1-S04 / 390px · 20 项 / 4 项未知在途",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -928,7 +928,7 @@
           "name": "M1-S04 / 390px · 1 项 / 已知在途",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -936,7 +936,7 @@
           "name": "M1-S04 / 披露不完整 / 版本变化 · 局部阻断",
           "state": "disclosure_incomplete",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -944,7 +944,7 @@
           "name": "M1-S04 / operator 只读动作区 · 局部样例",
           "state": "readonly",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -952,7 +952,7 @@
           "name": "M1-S04 / 历史审批 APR-DEMO-H01 · 只读",
           "state": "rejected",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 600
         },
         {
@@ -960,7 +960,7 @@
           "name": "M1-S04 / B2 · operator-readonly",
           "state": "readonly",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -968,7 +968,7 @@
           "name": "M1-S04 / B2 · approval-expired",
           "state": "expired",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -976,7 +976,7 @@
           "name": "M1-S04 / B2 · approval-expired · 390px",
           "state": "expired",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         },
         {
@@ -984,7 +984,7 @@
           "name": "M1-S04 / B2 · approval-version",
           "state": "superseded",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -992,7 +992,7 @@
           "name": "M1-S04 / B2 · current-v2-readonly",
           "state": "current_version_disclosure_pending",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1000,7 +1000,7 @@
           "name": "M1-S04 / B2 · approval-version · 390px",
           "state": "superseded",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         },
         {
@@ -1008,7 +1008,7 @@
           "name": "M1-S04 / B2 · approval-duplicate",
           "state": "duplicate_existing_decision",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1016,7 +1016,7 @@
           "name": "M1-S04 / B2 · approval-duplicate · 390px",
           "state": "duplicate_existing_decision",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         },
         {
@@ -1024,7 +1024,7 @@
           "name": "M1-S04 / B2 · approval-conflict",
           "state": "conflict",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1032,7 +1032,7 @@
           "name": "M1-S04 / B2 · approval-conflict · 390px",
           "state": "conflict",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         },
         {
@@ -1040,7 +1040,7 @@
           "name": "M1-S04 / B2 · approval-submitting",
           "state": "submitting",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1048,7 +1048,7 @@
           "name": "M1-S04 / B2 · approval-unknown",
           "state": "result_unknown",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1056,7 +1056,7 @@
           "name": "M1-S04 / B2 · approval-unknown · 390px",
           "state": "result_unknown",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         }
       ]
@@ -1069,7 +1069,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c374bef22ae3",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "states": [
         "loading",
@@ -1158,7 +1158,7 @@
           "name": "M1-S05 / 内部补货列表 · Desktop",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -1166,7 +1166,7 @@
           "name": "M1-S05 / 筛选只读预览",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 440
         }
       ]
@@ -1179,7 +1179,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c375809431d6",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "states": [
         "loading",
@@ -1316,7 +1316,7 @@
           "name": "M1-S06 / Agent 执行轨迹 · Desktop",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -1324,7 +1324,7 @@
           "name": "M1-S06 / B2 · 轨迹 1280px",
           "state": "business_steps",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 1280
         },
         {
@@ -1332,7 +1332,7 @@
           "name": "M1-S06 / 飞书投影详情 · 局部事实",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 600
         },
         {
@@ -1340,7 +1340,7 @@
           "name": "M1-S06 / 工具安全详情 · 局部事实",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 640
         },
         {
@@ -1348,7 +1348,7 @@
           "name": "M1-S06 / B2 · sync-unknown",
           "state": "sync_unknown",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1356,7 +1356,7 @@
           "name": "M1-S06 / B2 · usage-unknown",
           "state": "usage_unknown",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
       ]
@@ -1369,7 +1369,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "b806b597-0eb0-80b2-8008-c386c3fa8f4f",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.3.0-b2"
       },
       "states": [
         "forbidden",
@@ -1457,7 +1457,7 @@
           "name": "M1-S07 / B2 · identity-unauthorized",
           "state": "forbidden",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1465,7 +1465,7 @@
           "name": "M1-S07 / B2 · access",
           "state": "not_found_or_forbidden",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1473,7 +1473,7 @@
           "name": "M1-S07 / B2 · revoked",
           "state": "permission_revoked",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1481,7 +1481,7 @@
           "name": "M1-S07 / B2 · expired-session",
           "state": "session_expired",
           "role": "unauthorized",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
       ]
@@ -1494,7 +1494,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "b0616bef-0815-8023-8008-c39894562145",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.4.1-freeze-rc"
       },
       "states": [
         "loading",
@@ -1533,10 +1533,11 @@
           "name": "M1-S08 / B3 · 只读管理说明",
           "state": "read-only-config",
           "role": "admin",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.4.1-freeze-rc",
           "width": 1440
         }
-      ]
+      ],
+      "navigation_policy": "AppShell admin-only mode: /admin/operations selected; no tasks/approvals/items links or inherited business grants. Combined roles require independent server scope."
     },
     {
       "id": "M1-S09",
@@ -1550,7 +1551,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "name": "任务概览与结果",
       "route": "/tasks/:task_id",
@@ -1736,7 +1737,7 @@
           "name": "M1-S09 / 任务概览与关联结果 · Desktop",
           "state": null,
           "role": null,
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -1744,7 +1745,7 @@
           "name": "M1-S09 / DEMO-PLAN-008 · approved回执",
           "state": "approved",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -1752,7 +1753,7 @@
           "name": "M1-S09 / DEMO-PLAN-008 · rejected回执",
           "state": "rejected",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -1760,7 +1761,7 @@
           "name": "M1-S09 / DEMO-PLAN-N20 · approved回执",
           "state": "approved",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -1768,7 +1769,7 @@
           "name": "M1-S09 / DEMO-PLAN-N20 · rejected回执",
           "state": "rejected",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -1776,7 +1777,7 @@
           "name": "M1-S09 / DEMO-PLAN-K01 · approved回执",
           "state": "approved",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -1784,7 +1785,7 @@
           "name": "M1-S09 / DEMO-PLAN-K01 · rejected回执",
           "state": "rejected",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 390
         },
         {
@@ -1792,7 +1793,7 @@
           "name": "M1-S09 / 内部创建结果 · 主任务",
           "state": "completed",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -1800,7 +1801,7 @@
           "name": "M1-S09 / B2 · operator-accepted",
           "state": "queued",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1808,7 +1809,7 @@
           "name": "M1-S09 / B2 · review-hub",
           "state": "review_fixture",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 960
         },
         {
@@ -1816,7 +1817,7 @@
           "name": "M1-S09 / B2 · verified-history",
           "state": "historical_result",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1841,7 +1842,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c374bd2e0442",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "name": "审批列表",
       "route": "/approvals",
@@ -1966,7 +1967,7 @@
           "name": "M1-S10 / 审批列表 · Desktop",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -1974,7 +1975,7 @@
           "name": "M1-S10 / 筛选只读预览",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 440
         },
         {
@@ -1982,7 +1983,7 @@
           "name": "M1-S10 / B2 · identity-approver",
           "state": "role_scope",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1990,7 +1991,7 @@
           "name": "M1-S10 / B2 · identity-operator-approver",
           "state": "role_scope",
           "role": "operator + approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -1998,7 +1999,7 @@
           "name": "M1-S10 / B2 · identity-admin-approver",
           "state": "role_scope",
           "role": "admin + approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2006,7 +2007,7 @@
           "name": "M1-S10 / B2 · identity-admin-operator-approver",
           "state": "role_scope",
           "role": "admin + operator + approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
       ]
@@ -2023,7 +2024,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c37519b581cc",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "name": "内部工作项详情",
       "route": "/replenishment-items/:item_id",
@@ -2203,7 +2204,7 @@
           "name": "M1-S11 / 内部工作项详情 · SKU-A",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 1440
         },
         {
@@ -2211,7 +2212,7 @@
           "name": "M1-S11 / 只读详情 · SKU-B",
           "state": "readonly",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 600
         },
         {
@@ -2219,7 +2220,7 @@
           "name": "M1-S11 / 只读详情 · SKU-C",
           "state": "readonly",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 600
         },
         {
@@ -2227,7 +2228,7 @@
           "name": "M1-S11 / 已完成回执 · 终态",
           "state": "completed",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -2235,7 +2236,7 @@
           "name": "M1-S11 / 已关闭回执 · 终态",
           "state": "closed",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -2243,7 +2244,7 @@
           "name": "M1-S11 / B2 · sync-failed",
           "state": "sync_failed",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2251,7 +2252,7 @@
           "name": "M1-S11 / B2 · item-conflict",
           "state": "item_state_conflict",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2259,7 +2260,7 @@
           "name": "M1-S11 / B2 · item-completed",
           "state": "completed",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2267,7 +2268,7 @@
           "name": "M1-S11 / B2 · item-closed",
           "state": "closed",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2275,7 +2276,7 @@
           "name": "M1-S11 / B2 · complete-verified",
           "state": "historical_result",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2283,7 +2284,7 @@
           "name": "M1-S11 / B2 · close-verified",
           "state": "historical_result",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
       ]
@@ -2296,7 +2297,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c373c88a718a",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.3.0-b2"
       },
       "states": [
         "pending_known_inbound",
@@ -2397,7 +2398,7 @@
           "name": "M1-F01 / 飞书 390px · 20 项 / 4 项未知在途",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         },
         {
@@ -2405,7 +2406,7 @@
           "name": "M1-F01 / 飞书 390px · 1 项 / 已知在途",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         },
         {
@@ -2413,7 +2414,7 @@
           "name": "M1-F01 / B2 · platform-capacity",
           "state": "client_unsupported",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2421,7 +2422,7 @@
           "name": "M1-F01 / B2 · platform-capacity · 390px",
           "state": "client_unsupported",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 390
         }
       ]
@@ -2434,7 +2435,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "448723ff-8a21-80dc-8008-c3751c128013",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "states": [
         "reason_empty",
@@ -2605,7 +2606,7 @@
           "name": "M1-M01 / 完成原因 · 未填写",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -2613,7 +2614,7 @@
           "name": "M1-M01 / B2 · complete-validation",
           "state": "validation_error",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 560
         },
         {
@@ -2621,7 +2622,7 @@
           "name": "M1-M01 / 完成原因 · 显式选择 Mock 示例",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -2629,7 +2630,7 @@
           "name": "M1-M01 / 关闭原因 · 未填写",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -2637,7 +2638,7 @@
           "name": "M1-M01 / B2 · close-validation",
           "state": "validation_error",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 560
         },
         {
@@ -2645,7 +2646,7 @@
           "name": "M1-M01 / 关闭原因 · 显式选择 Mock 示例",
           "state": "mock",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         },
         {
@@ -2653,7 +2654,7 @@
           "name": "M1-M01 / B2 · complete-submitting",
           "state": "submitting",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2661,7 +2662,7 @@
           "name": "M1-M01 / B2 · complete-unknown",
           "state": "result_unknown",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2669,7 +2670,7 @@
           "name": "M1-M01 / B2 · complete-conflict",
           "state": "conflict",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2677,7 +2678,7 @@
           "name": "M1-M01 / B2 · close-submitting",
           "state": "submitting",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2685,7 +2686,7 @@
           "name": "M1-M01 / B2 · close-unknown",
           "state": "result_unknown",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2693,7 +2694,7 @@
           "name": "M1-M01 / B2 · close-conflict",
           "state": "conflict",
           "role": "approver",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
       ]
@@ -2708,7 +2709,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "name": "自然语言新建分析",
       "route": "overlay:S02",
@@ -2776,7 +2777,7 @@
           "name": "M1-M02 / 新建库存分析 · 原生抽屉",
           "state": null,
           "role": null,
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 600
         },
         {
@@ -2784,7 +2785,7 @@
           "name": "M1-M02 / B2 · operator-draft",
           "state": "draft",
           "role": "operator",
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.3.0-b2",
           "width": 600
         },
         {
@@ -2809,7 +2810,7 @@
         "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
         "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
         "shape_id": "7e34228d-e3a9-80dc-8008-c344b0081036",
-        "revision": "m1-ui/0.4.0-b3"
+        "revision": "m1-ui/0.2.0-b1b"
       },
       "name": "数据口径与来源",
       "route": "overlay:S03",
@@ -2875,7 +2876,7 @@
           "name": "M1-M03 / 数据口径与来源 · B1a 最小弹窗",
           "state": null,
           "role": null,
-          "revision": "m1-ui/0.4.0-b3",
+          "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         }
       ]
@@ -3086,9 +3087,9 @@
       ]
     }
   ],
-  "design_status": "b2_visual_interaction_review_required",
+  "design_status": "b3_external_review_passed_final_revision_review_required",
   "design_document": "c1-product-design.md",
-  "visual_scope": "Native M1 B1 retained; B2 login/access and compact shared permission/error variants; Mock design only",
+  "visual_scope": "Existing approved M1 native pages retained; final local admin navigation revision only; business not implemented",
   "baseline_ux_commit": "77b69d3",
   "authorization_policy": {
     "status": "accepted_product_design_pending_backend_enforcement",
@@ -3156,7 +3157,7 @@
     "ui_only": "其他screen状态仅为UI呈现；Web提交前澄清是本地草稿；飞书异步澄清映射pending BC02。未新增任何业务状态枚举。"
   },
   "pending_design_decisions": [],
-  "review_status": "B2 passed via user; B3 final review required",
+  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision pending independent review and final confirmation",
   "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",
@@ -3248,8 +3249,8 @@
     "C2-B2": true,
     "C2-B3": true
   },
-  "m1_visual_revision": "m1-ui/0.4.0-b3",
-  "m1_visual_map": "evidence/c2-b3/design-map.json",
+  "m1_visual_revision": "m1-ui/0.4.1-freeze-rc",
+  "m1_visual_map": "evidence/m1-ux-final/design-map.json",
   "b1a_delivery": "c2-b1a-delivery.md",
   "b1b_delivery": "c2-b1b-delivery.md",
   "b2_delivery": "c2-b2-delivery.md",
@@ -3293,5 +3294,6 @@
       "shape_id": "b806b597-0eb0-80b2-8008-c386c84c1f27"
     }
   ],
-  "b3_delivery": "c2-b3-delivery.md"
+  "b3_delivery": "c2-b3-delivery.md",
+  "final_freeze_delivery": "m1-ux-final-freeze.md"
 }

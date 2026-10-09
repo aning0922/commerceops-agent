@@ -280,6 +280,100 @@ def check_b3(screens, interactions):
     print("M1 B3：18逻辑页面、46可渲染事件、当前UUID/禁用合同与实际Viewer证据一致；候选待外审")
 
 
+def check_final_freeze(screens, interactions):
+    """核对本轮局部修订及重载/数据库证据；保留历史 B3 检查。"""
+    evidence = UX / "evidence/m1-ux-final"
+    saved = read(evidence / "after-reload-read.json")
+    current = read(evidence / "design-map.json")
+    before = read(evidence / "before-read.json")
+    persisted = read(evidence / "after-persisted.json")
+    nav = read(evidence / "nav-after.json")
+    require(
+        current["revision"] == saved["revision"] == screens["m1_visual_revision"], "最终版本错误"
+    )
+    require(saved["revn"] == persisted["persisted_revn"] == current["revn"], "重载版本不一致")
+    require(
+        any(
+            v["label"] == current["named_version"] and v["revn"] == saved["revn"]
+            for v in persisted["versions"]
+        ),
+        "命名快照不一致",
+    )
+    require(
+        current["screens"] == saved["screens"] and current["controls"] == saved["controls"],
+        "当前映射不是重载回读",
+    )
+    for key in [
+        "controls",
+        "components",
+        "tokenSets",
+        "counts",
+        "narrow",
+        "flows",
+        "rootOrder",
+        "fontSizes",
+    ]:
+        require(saved[key] == before[key], "本轮不得扩展或重连既有内容: " + key)
+    require(saved["validation"] == saved["overflow"] == saved["outside"] == [], "原生校验/布局失败")
+    s08 = "b0616bef-0815-8023-8008-c39894562145"
+    require(
+        {s["shapeId"] for s in saved["screens"]} == {s["shapeId"] for s in before["screens"]},
+        "页面UUID改变",
+    )
+    require(
+        [s["shapeId"] for s, b in zip(saved["screens"], before["screens"], strict=True) if s != b]
+        == [s08],
+        "只允许 S08 元数据修订",
+    )
+    selected = next(n for n in nav["nav"] if n["name"] == "M1-C01 / nav-operations")
+    require(
+        selected["id"] == "b0616bef-0815-8023-8008-c3989480042f"
+        and selected["text"] == "运维说明"
+        and not selected["hidden"],
+        "运维选中态错误",
+    )
+    require(
+        all(
+            n["hidden"] and not n["interactions"]
+            for n in nav["nav"]
+            if n["name"] in {"M1-C01 / nav-approval", "M1-C01 / nav-items"}
+        ),
+        "admin默认业务导航",
+    )
+    events = {e["control_id"]: e for e in interactions["planned_interactions"]}
+    require(
+        events["M1-B30"]["id"] == "M1-E30" and events["M1-B30"]["target_screen"] == "M1-S08",
+        "管理入口必须 B30/E30",
+    )
+    require(
+        events["M1-B31"]["label"] == "返回有权首页"
+        and events["M1-B31"]["business_action"] == "none",
+        "B31返回语义改变",
+    )
+    for e in events.values():
+        require(e["implementation_status"] == "not_implemented", "原型不是业务实现")
+    require(len(screens["planned_screens"]) == 18 and len(events) == 47, "逻辑范围改变")
+    for screen in screens["planned_screens"]:
+        board = next(b for b in saved["screens"] if b["shapeId"] == screen["penpot"]["shape_id"])
+        require(
+            board["stableId"] == screen["id"] and board["revision"] == screen["penpot"]["revision"],
+            "screen与原生版本映射错误",
+        )
+    ui = read(evidence / "prototype-ui-events.json")["events"]
+    require(
+        len(ui) == 2
+        and all(e["passed"] for e in ui)
+        and {e["control"] for e in ui} == {"M1-B30", "M1-B31"},
+        "本轮Viewer证据不足",
+    )
+    doc = (UX / "ux-freeze-candidate.md").read_text()
+    require(
+        "B30 / E30" in doc and "B31 / E31" in doc and "- B31：当前 admin" not in doc,
+        "交接文档入口错误",
+    )
+    print("最终冻结修订：18逻辑页面、47语义事件、B30/B31、S08原UUID、重载持久版本一致；业务未实现")
+
+
 def main():
     screens = read(UX / "screens.yaml")
     interactions = read(UX / "interactions.yaml")
@@ -375,12 +469,19 @@ def main():
             "m1-ui/0.2.0-b1b",
             "m1-ui/0.3.0-b2",
             "m1-ui/0.4.0-b3",
+            "m1-ui/0.4.1-freeze-rc",
         }:
             check_b1b(screens, interactions)
-            if screens.get("m1_visual_revision") in {"m1-ui/0.3.0-b2", "m1-ui/0.4.0-b3"}:
+            if screens.get("m1_visual_revision") in {
+                "m1-ui/0.3.0-b2",
+                "m1-ui/0.4.0-b3",
+                "m1-ui/0.4.1-freeze-rc",
+            }:
                 check_b2(screens, interactions)
-            if screens.get("m1_visual_revision") == "m1-ui/0.4.0-b3":
+            if screens.get("m1_visual_revision") in {"m1-ui/0.4.0-b3", "m1-ui/0.4.1-freeze-rc"}:
                 check_b3(screens, interactions)
+            if screens.get("m1_visual_revision") == "m1-ui/0.4.1-freeze-rc":
+                check_final_freeze(screens, interactions)
         else:
             require(screens["authorization_scope"] == "C2-B1a_only", "设计授权范围错误")
             require(not any(screens["followup_authorization"].values()), "后续批次未获授权")
