@@ -115,7 +115,7 @@
       "data_and_metrics": "账号输入、会话校验状态、安全return_to；不展示角色选择、账号是否存在或密钥。",
       "controls_and_navigation": "B11登录；已有会话按角色落地。",
       "role_policy": "operator/approver/admin/unauthorized均可见登录壳；真实授权由服务端会话取得；admin单角色默认S08，无业务权限去S07。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B2",
@@ -244,7 +244,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S02",
@@ -284,7 +285,7 @@
       "data_and_metrics": "task_id、请求摘要、发起人显示名、created_at、销量窗口、source_kind、state、active_plan版本、sync摘要；计数与列表同scope。",
       "controls_and_navigation": "B10新建；B13筛选/排序/分页；B14任务行到S09；B39/B40/B41全局导航。",
       "role_policy": "operator可新建；approver只看授权任务；admin仅兼任/明确业务读授权才可见；无权限不返回数据。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1a",
@@ -457,7 +458,8 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 420
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S03",
@@ -496,7 +498,7 @@
       "data_and_metrics": "snapshot_id、report_id、window_start/end、shop timezone、inventory_observed_at、complete/quality_flags、rule_version、L/R/S、facts_hash；每SKU原始需求/退款、D、A、raw/effective inbound、T、Q、风险、资格、open item引用；覆盖天数仅D>0且有已知A时展示并说明A/D。",
       "controls_and_navigation": "B17查看审批；B18口径；B19解释；B06提出重算；B33历史版本；B43行详情；B15/B16页签。筛选不改变审批范围。",
       "role_policy": "授权operator/approver可读；重算仅operator且对象授权；admin不默认可读；历史报告只读。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1a",
@@ -623,7 +625,8 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S04",
@@ -668,7 +671,7 @@
       "data_and_metrics": "approval_id、plan_id/version/hash短展示、expires_at、eligible scope、全部canonical_items/required_assumptions、数据时点/参数、ready_at、决定人/时间/来源、execution结果与当前计划状态。nonce不在UI或日志显示。",
       "controls_and_navigation": "B02/B05仅已知在途；B03/B04仅存在未知在途；B23核实结果；B15关联报告；B29任务结果；B33看历史版本。 未完整披露时无可执行批准；客户端不支持则引导有权Web完整详情，不在截断卡片批准。",
       "role_policy": "operator授权任务仅只读；approver必须当前eligible/同店铺；admin兼任才可批准；按钮可见性不代替服务端验证。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1b",
@@ -1059,7 +1062,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 390
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S05",
@@ -1096,7 +1100,7 @@
       "data_and_metrics": "item_id、sku_key/label、stock_pool_key、quantity、status/version、源task/plan、approved_by、创建时间、resolution摘要、sync状态/版本。",
       "controls_and_navigation": "B24筛选；B25打开S11；B26/B27打开单项原因弹窗；B38查看同步详情。",
       "role_policy": "operator只读授权派生项（D01已接受，BC01待落实）；approver同店铺可完成/关闭open；admin无默认业务权；无权不见列表及计数。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1b",
@@ -1169,7 +1173,8 @@
           "revision": "m1-ui/0.2.0-b1b",
           "width": 440
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S06",
@@ -1210,7 +1215,7 @@
       "data_and_metrics": "workflow_version、node/run_attempt、tool_name/version/status/duration、safe_args、result_ref、snapshot/plan/decision/execution引用、模型/provider/prompt_version/usage/cost_estimate/pricing_version、等待与运行耗时、safe error/trace_id、outbox状态。",
       "controls_and_navigation": "B43展开步骤；B34复制安全编号；B29返回业务结果；B38查看同步说明。B09保留历史ID但不渲染/不绑定动作；仅展示既有自动恢复/对账状态。",
       "role_policy": "授权operator/approver看任务级脱敏事实；admin异常元信息在S08，完整轨迹需业务读授权；不展示秘密、原始回调、SQL、客户PII、模型思维链。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1b",
@@ -1359,7 +1364,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S07",
@@ -1391,7 +1397,7 @@
       "data_and_metrics": "安全错误类别、当前身份、trace_id；无SKU/报告/对象所有者。",
       "controls_and_navigation": "B31回授权首页；B11重新登录；B12退出。不存在与跨scope对象统一安全提示。",
       "role_policy": "任何身份可见提示；不提供申请新业务权限按钮、不因失败自动提权。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B2",
@@ -1484,7 +1490,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S08",
@@ -1516,7 +1523,7 @@
       "data_and_metrics": "environment、rule/workflow版本、时区、角色配置摘要（不列不必要个人信息）、脱敏错误码/时间/trace_id、投影unknown/failed；不返回业务SKU金额或秘密。",
       "controls_and_navigation": "B43展开异常；B34复制trace_id；B42重读；B30进入；无“重启Worker/重新发送/修改权限”写动作。",
       "role_policy": "admin只读脱敏运维元信息；业务内容须通过显式兼任角色在自身scope内另行授权；无配置写UI（D05已接受），只读协议BC05待确认。",
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B3",
@@ -1537,7 +1544,8 @@
           "width": 1440
         }
       ],
-      "navigation_policy": "AppShell admin-only mode: /admin/operations selected; no tasks/approvals/items links or inherited business grants. Combined roles require independent server scope."
+      "navigation_policy": "AppShell admin-only mode: /admin/operations selected; no tasks/approvals/items links or inherited business grants. Combined roles require independent server scope.",
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-S09",
@@ -1577,7 +1585,7 @@
         "sync_failed",
         "sync_unknown"
       ],
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -1828,7 +1836,8 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S10",
@@ -1862,7 +1871,7 @@
         "superseded",
         "read_failure"
       ],
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -2010,7 +2019,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-S11",
@@ -2044,7 +2054,7 @@
         "item_state_conflict",
         "permission_revoked"
       ],
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -2287,7 +2297,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-F01",
@@ -2330,7 +2341,7 @@
       "data_and_metrics": "与S04相同冻结计划；≤20条完整批准范围；不展示token/nonce；共享更新只能用共同可见内容。",
       "controls_and_navigation": "B02/B05或B03/B04；B21 Web详情；B29结果；重复显示既有决定；关闭无效果。 未完整披露时无可执行批准；客户端不支持则引导有权Web完整详情，不在截断卡片批准。",
       "role_policy": "卡片可能被转发或无权成员看到，客户端不能按角色隐藏而当作保护；可信回调逐次认证操作者；外发范围遵循既有允许群/用户，不扩大授权。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1b",
@@ -2425,7 +2436,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 390
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-M01",
@@ -2457,7 +2469,7 @@
       "data_and_metrics": "item_id、status=open、expected_version、action、reason、固定本次request_key；提示不表示入库。",
       "controls_and_navigation": "B07或B08提交；B28取消/Esc；失败留原输入；unknown先重读，不能换键或改payload假装重试。",
       "role_policy": "只允许当前同店铺approver；权限撤销清理并S07；非open只能看冲突说明。",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
       "c2_batch": "C2-B1b",
@@ -2697,7 +2709,8 @@
           "revision": "m1-ui/0.3.0-b2",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-M02",
@@ -2730,7 +2743,7 @@
         "scope_over_capacity",
         "accepted"
       ],
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -2796,7 +2809,8 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-M03",
@@ -2825,7 +2839,7 @@
         "missing_evidence",
         "read_failure"
       ],
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "desktop_native_mock_verified; other narrow layouts not tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -2879,7 +2893,8 @@
           "revision": "m1-ui/0.2.0-b1b",
           "width": 560
         }
-      ]
+      ],
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-M04",
@@ -2912,7 +2927,7 @@
         "budget_exceeded",
         "context_expired"
       ],
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -2957,7 +2972,8 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-M05",
@@ -2987,7 +3003,7 @@
         "version_conflict",
         "scope_invalid"
       ],
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
@@ -3033,7 +3049,8 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 600
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-F02",
@@ -3063,7 +3080,7 @@
         "stale_question",
         "clarification_unavailable"
       ],
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "implementation_status": "not_implemented",
       "responsive_status": "proposal_not_prototyped",
       "common_states": "global_ui_states",
@@ -3084,10 +3101,11 @@
           "revision": "m1-ui/0.4.0-b3",
           "width": 390
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     }
   ],
-  "design_status": "b3_external_review_passed_final_revision_review_required",
+  "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
   "design_document": "c1-product-design.md",
   "visual_scope": "Existing approved M1 native pages retained; final local admin navigation revision only; business not implemented",
   "baseline_ux_commit": "77b69d3",
@@ -3157,7 +3175,7 @@
     "ui_only": "其他screen状态仅为UI呈现；Web提交前澄清是本地草稿；飞书异步澄清映射pending BC02。未新增任何业务状态枚举。"
   },
   "pending_design_decisions": [],
-  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision pending independent review and final confirmation",
+  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision independently reviewed, final confirmation pending",
   "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",

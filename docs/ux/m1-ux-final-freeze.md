@@ -10,7 +10,7 @@
 
 S08 保留页面稳定 ID `M1-S08` 和 UUID `b0616bef-0815-8023-8008-c39894562145`。复用 M1-C01 AppShell 原实例，原选中行文字 UUID `b0616bef-0815-8023-8008-c3989480042f` 从“任务中心”改为“运维说明”；选中背景、图标和几何保持原样。原审批/内部补货文字节点隐藏，均无交互连接；侧栏明确“仅授权运维信息 / 不授予业务读取或审批”。admin 单角色仅有已授权运维入口，兼任业务入口须各角色在自身 scope 内分别授予；不能拼接动作权与对象范围。隐藏菜单不替代服务端鉴权。未增加配置写、密钥编辑、权限管理或 Worker 重启操作。
 
-[导航前后证据](evidence/m1-ux-final/nav-after.json)保留原节点 UUID；本轮没有新增/删除页面或控件，没有重建布局、组件库或 Token。14 个逻辑页面主实例的旧机器标注统一写成 B3，现已按实际原生最后修改版本纠正，详见[实例版本纠正](evidence/m1-ux-final/instance-revision-corrections.json)。当前整文件候选版本与实例最后修改版本分别记录，不强制改写旧实例元数据。
+[导航前后证据](evidence/m1-ux-final/nav-after.json)保留原节点 UUID；本轮没有新增/删除页面或控件，没有重建布局、组件库或 Token。14 个逻辑页面主实例的旧机器标注统一写成 B3，现已按原生回读 revision 标注纠正，详见[实例版本纠正](evidence/m1-ux-final/instance-revision-corrections.json)。当前整文件候选版本与实例回读 revision 标注分别记录，不强制改写旧实例元数据。
 
 ## 安全持久化核对
 
@@ -49,4 +49,7 @@ F01保留M1真实飞书直接审批目标：真实客户端能完整披露全部
 
 敏感扫描首次标记 MCP overview SDK 文档中的 `token library` 示例短语，已将该通用参考响应移到私有备份，仅保留摘要与 SHA256；原生操作和回读结果没有删除。未修改扫描规则或添加豁免，初次扫描命中记录保留。
 
-本轮合同检查、文档链接检查、Ruff与敏感扫描结果记录于[本地验证](evidence/m1-ux-final/local-checks.json)。GitHub CI及独立只读上下文审查在精确候选head上执行，结果将附在同一PR和最终交付证据；独立审查未完成前不自我签收。外部最终确认与合并仍由用户决定，停止于本轮候选。
+本轮合同检查、文档链接检查、Ruff与敏感扫描结果记录于[本地验证](evidence/m1-ux-final/local-checks.json)。独立只读上下文对候选 `ad130e71e4fd6472646658bc1b5fae986d47bf0a` 完成审查，补充指出两项交接表述歧义，本轮已修正文档与机器状态，详见[独立审查记录](evidence/m1-ux-final/independent-review.md)。GitHub CI和补充diff复审在精确提交上执行，结果附在同一PR；不以主会话自我签收替代独立审核。外部最终确认与合并仍由用户决定，停止于本轮候选。
+
+
+逐页面/事件 `design_status` 统一表示“产品设计外审已通过，本轮最终冻结修订确认待定”；旧批次状态改存 `historical_design_review_marker`，仅追溯历史。后端协议 pending 与业务 not_implemented 字段未变。原生实例 revision 标注只证明回读标签，不用于推断最后修改时间。

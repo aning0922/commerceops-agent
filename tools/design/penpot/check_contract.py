@@ -351,9 +351,11 @@ def check_final_freeze(screens, interactions):
         "B31返回语义改变",
     )
     for e in events.values():
+        require(e["design_status"] == screens["design_status"], "当前对象审核状态歧义")
         require(e["implementation_status"] == "not_implemented", "原型不是业务实现")
     require(len(screens["planned_screens"]) == 18 and len(events) == 47, "逻辑范围改变")
     for screen in screens["planned_screens"]:
+        require(screen["design_status"] == screens["design_status"], "当前页面审核状态歧义")
         board = next(b for b in saved["screens"] if b["shapeId"] == screen["penpot"]["shape_id"])
         require(
             board["stableId"] == screen["id"] and board["revision"] == screen["penpot"]["revision"],

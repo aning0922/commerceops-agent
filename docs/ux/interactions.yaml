@@ -122,7 +122,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "operator and authorized shop",
@@ -174,7 +174,8 @@
       "b1a_availability": "mapped_sample",
       "prototype_simulation": "Navigate to precomputed Mock overview/report fixture; no actual task acceptance, queue, analysis or approval. Backend state contract unchanged.",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E02",
@@ -206,7 +207,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -247,7 +248,8 @@
       },
       "b1b_availability": "mapped",
       "b2_availability": "native_mock_only",
-      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E03",
@@ -282,7 +284,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -328,7 +330,8 @@
       },
       "b1b_availability": "mapped",
       "b2_availability": "native_mock_only",
-      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E04",
@@ -352,7 +355,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "trusted current identity + same organization/shop + current approver + eligible principal",
@@ -407,7 +410,8 @@
       },
       "b1b_availability": "mapped",
       "b2_availability": "native_mock_only",
-      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E05",
@@ -427,7 +431,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -477,7 +481,8 @@
       },
       "b1b_availability": "mapped",
       "b2_availability": "native_mock_only",
-      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web"
+      "card_capacity_gate": "F01 controls retained by UUID but disabled with no interaction; B21/B29 enter mock authentication before same-version Web",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E06",
@@ -497,7 +502,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "ui_navigation_backend_transition_pending",
       "guards": [
         "current server identity and object scope",
@@ -523,7 +528,8 @@
           "disabled": null,
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E07",
@@ -553,7 +559,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c652854",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -588,7 +594,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E08",
@@ -618,7 +625,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751e049c6e",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -653,7 +660,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E09",
@@ -679,7 +687,7 @@
       ],
       "status": "retained_not_rendered",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "excluded_from_m1_ui",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -690,7 +698,8 @@
       ],
       "c2_batch": "none",
       "b1a_availability": "not_in_authorized_batch",
-      "penpot_instances": []
+      "penpot_instances": [],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E10",
@@ -714,7 +723,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -781,7 +790,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E11",
@@ -810,7 +820,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386bddb9653",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "alternate_targets": [
         "M1-S08",
@@ -976,7 +986,8 @@
           "review_only": true
         }
       ],
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E12",
@@ -1003,7 +1014,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386c1576432",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S07",
@@ -1100,7 +1111,8 @@
           "review_only": true
         }
       ],
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E13",
@@ -1127,7 +1139,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1164,7 +1176,8 @@
       "b1a_availability": "mapped_sample",
       "prototype_simulation": "Open/close read-only options preview, not actual filtering or query execution.",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E14",
@@ -1191,7 +1204,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1219,7 +1232,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E15",
@@ -1247,7 +1261,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1320,7 +1334,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E16",
@@ -1347,7 +1362,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1387,7 +1402,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E17",
@@ -1414,7 +1430,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
@@ -1461,7 +1477,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E18",
@@ -1488,7 +1505,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1523,7 +1540,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E19",
@@ -1550,7 +1568,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1570,7 +1588,8 @@
           "disabled": null,
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E20",
@@ -1597,7 +1616,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1641,7 +1660,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E21",
@@ -1669,7 +1689,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-F01"
@@ -1844,7 +1864,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E22",
@@ -1870,7 +1891,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-M04",
@@ -1997,7 +2018,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E23",
@@ -2024,7 +2046,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-F01"
@@ -2103,7 +2125,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E24",
@@ -2130,7 +2153,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -2166,7 +2189,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E25",
@@ -2193,7 +2217,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
@@ -2264,7 +2288,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E26",
@@ -2289,7 +2314,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
@@ -2319,7 +2344,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E27",
@@ -2344,7 +2370,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
@@ -2374,7 +2400,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E28",
@@ -2398,7 +2425,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -2465,7 +2492,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E29",
@@ -2493,7 +2521,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -2895,7 +2923,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E30",
@@ -2920,7 +2949,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "also_on": [
@@ -2975,7 +3004,8 @@
           "disabled": null,
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E31",
@@ -3002,7 +3032,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "b806b597-0eb0-80b2-8008-c386c9dd12ac",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "alternate_targets": [
         "M1-S08",
@@ -3052,7 +3082,8 @@
           "review_only": false
         }
       ],
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E32",
@@ -3081,7 +3112,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -3102,7 +3133,8 @@
           "disabled": "pending BC05 report explanation transport",
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E33",
@@ -3129,7 +3161,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S04"
@@ -3169,7 +3201,8 @@
           "disabled": null,
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E34",
@@ -3195,7 +3228,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S09",
@@ -3221,7 +3254,8 @@
           "disabled": "Penpot does not implement clipboard; pending real frontend test",
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E35",
@@ -3248,7 +3282,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "ui_draft_only_backend_preparse_pending",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -3293,7 +3327,8 @@
       "b1a_availability": "mapped_sample",
       "prototype_simulation": "Acknowledge prefilled Mock draft only; native Viewer is not a real editable form or parser.",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E36",
@@ -3321,7 +3356,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -3350,7 +3385,8 @@
           "disabled": "pending backend confirmation",
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E37",
@@ -3377,7 +3413,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -3421,7 +3457,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E38",
@@ -3448,7 +3485,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05",
@@ -3497,7 +3534,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E39",
@@ -3523,7 +3561,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -3633,7 +3671,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E40",
@@ -3659,7 +3698,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -3761,7 +3800,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E41",
@@ -3787,7 +3827,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -3889,7 +3929,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E42",
@@ -3917,7 +3958,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S02",
@@ -3964,7 +4005,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E43",
@@ -3991,7 +4033,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "b806b597-0eb0-80b2-8008-c3886d3f9adb",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -4715,7 +4757,8 @@
         "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E44",
@@ -4741,7 +4784,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -4772,7 +4815,8 @@
           "disabled": null,
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E45",
@@ -4797,7 +4841,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
-      "design_status": "b2_external_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -4848,7 +4892,8 @@
       },
       "b1a_availability": "mapped_sample",
       "b1b_availability": "mapped",
-      "b2_availability": "native_mock_only"
+      "b2_availability": "native_mock_only",
+      "historical_design_review_marker": "b2_external_review_required"
     },
     {
       "id": "M1-E46",
@@ -4874,7 +4919,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "implementation_status": "not_implemented",
       "lifecycle": "planned",
       "ui_enabled_in_design": true,
@@ -4906,7 +4951,8 @@
           "disabled": null,
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     },
     {
       "id": "M1-E47",
@@ -4933,7 +4979,7 @@
       ],
       "status": "visual_sample_mapped",
       "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
       "implementation_status": "not_implemented",
       "lifecycle": "planned",
       "ui_enabled_in_design": false,
@@ -4953,7 +4999,8 @@
           "disabled": "pending backend confirmation",
           "review_only": false
         }
-      ]
+      ],
+      "historical_design_review_marker": "revision_review_required"
     }
   ],
   "approval_request_fields": [
@@ -4967,7 +5014,7 @@
   ],
   "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
   "pending_design_decisions": [],
-  "design_status": "b3_external_review_passed_final_revision_review_required",
+  "design_status": "product_design_review_passed_final_freeze_confirmation_pending",
   "design_document": "c1-product-design.md",
   "visual_scope": "Existing approved M1 native pages retained; final local admin navigation revision only; business not implemented",
   "baseline_ux_commit": "77b69d3",
@@ -4981,7 +5028,7 @@
     "BC06 full SKU disclosure and client fallback",
     "BC07 actual expiry/freshness configuration; no hardcoded 24h/15min guarantee"
   ],
-  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision pending independent review and final confirmation",
+  "review_status": "B3 product and visual review passed via user on 2026-10-10; final revision independently reviewed, final confirmation pending",
   "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",
