@@ -2,7 +2,7 @@
 
 更新：2026-10-10（Asia/Shanghai）。结论：**Phase 1 已通过必要 G1/G2/G3、独立审核和实际 CI，并经 PR19 合入 main078390c；该提交合后 CI 已成功。** G3使用文档化最小权限平台边界，不扩大未测能力结论；Issue23 root_cause=not_identified/risk_accepted保持。当前等待用户新授权Phase2，不自动切换。第1–26节为历史验收快照，最后结论见第27节及[STATUS最终收口](STATUS.md#31-phase-1-main-验收完成)。
 
-本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
+本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。必要 Gate、独立审核及 main CI 已有实际证据；受控技术探针不外推为正式业务或库存闭环，G3 最小权限平台边界和未测能力保留，Phase 2 必须另获用户授权。
 
 ## 1. 核对基线与授权
 
