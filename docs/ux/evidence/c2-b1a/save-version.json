@@ -1,0 +1,23 @@
+{
+  "fileId": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+  "label": "m1-ui/0.1.0-b1a / visual QA + 28 Viewer clicks + main entry",
+  "createdAt": "2026-10-09T10:12:24.345Z",
+  "isAutosave": false,
+  "versions": [
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 28 Viewer clicks + main entry",
+      "createdAt": "2026-10-09T10:12:24.345Z",
+      "isAutosave": false
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 26 Viewer clicks",
+      "createdAt": "2026-10-09T09:48:41.077Z",
+      "isAutosave": false
+    },
+    {
+      "label": "m1-ui/0.1.0 / empty baseline before B1a",
+      "createdAt": "2026-10-09T09:20:13.632Z",
+      "isAutosave": false
+    }
+  ]
+}

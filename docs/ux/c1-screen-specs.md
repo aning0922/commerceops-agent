@@ -1,6 +1,6 @@
 # Phase C1 · 页面详设（外部评审修订）
 
-版本：`0.2.1-c1-revision`。原C1有条件通过，本次修订待复审，C2未授权。18个逻辑界面包含原17个页面/辅助层与新增F02渠道澄清proposal；不新增Web导航。全部未映射Penpot、未实现业务。对应 [主方案](c1-product-design.md)、[决策](c1-decisions.md)、[批次](c2-batches.md)、[机器清单](screens.yaml)。
+版本：`0.2.1-c1-revision`。C1修订已通过产品评审，仅C2-B1a获授权。18个逻辑界面包含原17个页面/辅助层与新增F02渠道澄清proposal；不新增Web导航。5个B1a样板已映射Penpot（S09/M03为最小骨架/弹窗）；全部未实现业务。视觉映射见 [B1a](c2-b1a-delivery.md)。对应 [主方案](c1-product-design.md)、[决策](c1-decisions.md)、[批次](c2-batches.md)、[机器清单](screens.yaml)。
 
 ## 所有页面共用的异常合同
 
@@ -31,7 +31,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S02 · 任务中心
 
-拟议位置：`/tasks`；批次 `C2-B1`；后端合同 `BC01, BC05` 为pending。
+拟议位置：`/tasks`；批次 `C2-B1a`；后端合同 `BC01, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -44,7 +44,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S03 · 库存分析报告
 
-拟议位置：`/tasks/:task_id/report?version=:version`；批次 `C2-B1`；后端合同 `BC01, BC05, BC07` 为pending。
+拟议位置：`/tasks/:task_id/report?version=:version`；批次 `C2-B1a`；后端合同 `BC01, BC05, BC07` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -57,7 +57,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S04 · 审批详情
 
-拟议位置：`/approvals/:approval_id`；批次 `C2-B1`；后端合同 `BC01, BC05, BC06, BC07` 为pending。
+拟议位置：`/approvals/:approval_id`；批次 `C2-B1b`；后端合同 `BC01, BC05, BC06, BC07` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -70,7 +70,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S05 · 内部补货管理
 
-拟议位置：`/replenishment-items`；批次 `C2-B1`；后端合同 `BC01, BC05` 为pending。
+拟议位置：`/replenishment-items`；批次 `C2-B1b`；后端合同 `BC01, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -83,7 +83,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S06 · Agent执行轨迹
 
-拟议位置：`/tasks/:task_id/events`；批次 `C2-B1`；后端合同 `BC01, BC05, BC04` 为pending。
+拟议位置：`/tasks/:task_id/events`；批次 `C2-B1b`；后端合同 `BC01, BC05, BC04` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -122,7 +122,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S09 · 任务概览与结果
 
-拟议位置：`/tasks/:task_id`；批次 `C2-B1`；后端合同 `BC01, BC05, BC02, BC03` 为pending。
+拟议位置：`/tasks/:task_id`；批次 `C2-B1a`；后端合同 `BC01, BC05, BC02, BC03` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -135,7 +135,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S10 · 审批列表
 
-拟议位置：`/approvals`；批次 `C2-B1`；后端合同 `BC01, BC05` 为pending。
+拟议位置：`/approvals`；批次 `C2-B1b`；后端合同 `BC01, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -148,7 +148,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-S11 · 内部工作项详情
 
-拟议位置：`/replenishment-items/:item_id`；批次 `C2-B1`；后端合同 `BC01, BC05` 为pending。
+拟议位置：`/replenishment-items/:item_id`；批次 `C2-B1b`；后端合同 `BC01, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -161,7 +161,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-F01 · 飞书审批卡片
 
-拟议位置：`feishu://existing-allowed-conversation`；批次 `C2-B1`；后端合同 `BC01, BC05, BC06, BC07` 为pending。
+拟议位置：`feishu://existing-allowed-conversation`；批次 `C2-B1b`；后端合同 `BC01, BC05, BC06, BC07` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -174,7 +174,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-M01 · 单项完成/关闭原因
 
-拟议位置：`overlay:S11`；批次 `C2-B1`；后端合同 `BC01, BC05` 为pending。
+拟议位置：`overlay:S11`；批次 `C2-B1b`；后端合同 `BC01, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -187,7 +187,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-M02 · 自然语言新建分析
 
-拟议位置：`overlay:S02`；批次 `C2-B1`；后端合同 `BC01, BC02, BC05` 为pending。
+拟议位置：`overlay:S02`；批次 `C2-B1a`；后端合同 `BC01, BC02, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|
@@ -200,7 +200,7 @@ B42只重读区域，不创建任务/审批/内部项。B09不渲染；安全对
 
 ## M1-M03 · 数据口径与来源
 
-拟议位置：`overlay:S03`；批次 `C2-B1`；后端合同 `BC01, BC05` 为pending。
+拟议位置：`overlay:S03`；批次 `C2-B1a`；后端合同 `BC01, BC05` 为pending。
 
 | 设计维度 | 方案 |
 |---|---|

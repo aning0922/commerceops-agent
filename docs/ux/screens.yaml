@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract_version": "0.2.1-c1-revision",
-  "status": "c1_conditionally_approved_revision_review_c2_not_authorized",
+  "status": "c1_approved_b1a_visual_review_required",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -118,13 +118,19 @@
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S02",
       "name": "任务中心",
-      "status": "planned_unmapped",
-      "penpot": null,
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c343160c8626",
+        "revision": "m1-ui/0.1.0-b1a"
+      },
       "states": [
         "loading",
         "empty",
@@ -146,28 +152,39 @@
         "admin"
       ],
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
-      "responsive_status": "specified_not_prototyped",
+      "responsive_status": "desktop_1440_visual_and_viewer_verified; mobile_not_tested",
       "route": "/tasks",
       "goal": "找到需要关注的授权任务并发起库存分析。",
       "layout": "标题+新建按钮；少量授权范围状态计数；状态/日期/编号筛选；任务表与分页。无经营总览大屏。",
       "data_and_metrics": "task_id、请求摘要、发起人显示名、created_at、销量窗口、source_kind、state、active_plan版本、sync摘要；计数与列表同scope。",
       "controls_and_navigation": "B10新建；B13筛选/排序/分页；B14任务行到S09；B39/B40/B41全局导航。",
       "role_policy": "operator可新建；approver只看授权任务；admin仅兼任/明确业务读授权才可见；无权限不返回数据。",
-      "design_status": "revision_review_required",
+      "design_status": "b1a_visual_pending_review",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1a",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "visual_coverage": "B1a core visual",
+      "visual_states": [
+        "ready"
+      ],
+      "visual_validation": "native readback + reload + actual Viewer; Mock only",
+      "remaining_visual_batch": "C2-B1b_or_later_authorized_states"
     },
     {
       "id": "M1-S03",
       "name": "库存分析报告",
-      "status": "planned_unmapped",
-      "penpot": null,
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+        "revision": "m1-ui/0.1.0-b1a"
+      },
       "states": [
         "loading",
         "not_generated",
@@ -188,23 +205,29 @@
         "admin"
       ],
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
-      "responsive_status": "specified_not_prototyped",
+      "responsive_status": "desktop_1440_visual_and_viewer_verified; mobile_not_tested",
       "route": "/tasks/:task_id/report?version=:version",
       "goal": "理解风险、计算依据、可执行范围与阻断因素。",
       "layout": "任务子导航；来源/版本/完整性条；风险与资格计数；简短解释；SKU事实表；行详情；固定下一步区。",
       "data_and_metrics": "snapshot_id、report_id、window_start/end、shop timezone、inventory_observed_at、complete/quality_flags、rule_version、L/R/S、facts_hash；每SKU原始需求/退款、D、A、raw/effective inbound、T、Q、风险、资格、open item引用；覆盖天数仅D>0且有已知A时展示并说明A/D。",
       "controls_and_navigation": "B17查看审批；B18口径；B19解释；B06提出重算；B33历史版本；B43行详情；B15/B16页签。筛选不改变审批范围。",
       "role_policy": "授权operator/approver可读；重算仅operator且对象授权；admin不默认可读；历史报告只读。",
-      "design_status": "revision_review_required",
+      "design_status": "b1a_visual_pending_review",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1a",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05",
         "BC07"
-      ]
+      ],
+      "visual_coverage": "B1a core visual",
+      "visual_states": [
+        "unknown_inbound_draft_and_unknown_inventory"
+      ],
+      "visual_validation": "native readback + reload + actual Viewer; Mock only",
+      "remaining_visual_batch": "C2-B1b_or_later_authorized_states"
     },
     {
       "id": "M1-S04",
@@ -247,14 +270,15 @@
       "design_status": "revision_review_required",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05",
         "BC06",
         "BC07"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S05",
@@ -289,12 +313,13 @@
       "design_status": "revision_review_required",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S06",
@@ -333,13 +358,14 @@
       "design_status": "revision_review_required",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05",
         "BC04"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S07",
@@ -374,7 +400,8 @@
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S08",
@@ -410,7 +437,8 @@
         "BC01",
         "BC05",
         "BC04"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S09",
@@ -419,8 +447,13 @@
         "approver",
         "admin"
       ],
-      "status": "planned_unmapped",
-      "penpot": null,
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+        "revision": "m1-ui/0.1.0-b1a"
+      },
       "name": "任务概览与结果",
       "route": "/tasks/:task_id",
       "goal": "回答这次请求做到哪一步、谁需行动、最终产生什么。",
@@ -445,19 +478,25 @@
         "sync_failed",
         "sync_unknown"
       ],
-      "design_status": "revision_review_required",
-      "responsive_status": "specified_not_prototyped",
+      "design_status": "b1a_visual_pending_review",
+      "responsive_status": "desktop_1440_visual_and_viewer_verified; mobile_not_tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1a",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05",
         "BC02",
         "BC03"
-      ]
+      ],
+      "visual_coverage": "minimal_navigation_skeleton_only",
+      "visual_states": [
+        "precomputed_mock_report"
+      ],
+      "visual_validation": "native readback + reload + actual Viewer; Mock only",
+      "remaining_visual_batch": "C2-B1b_or_later_authorized_states"
     },
     {
       "id": "M1-S10",
@@ -491,12 +530,13 @@
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-S11",
@@ -530,12 +570,13 @@
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-F01",
@@ -576,14 +617,15 @@
       "design_status": "revision_review_required",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05",
         "BC06",
         "BC07"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-M01",
@@ -613,20 +655,26 @@
       "design_status": "revision_review_required",
       "common_states": "global_ui_states",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1b",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-M02",
       "roles": [
         "operator"
       ],
-      "status": "planned_unmapped",
-      "penpot": null,
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+        "revision": "m1-ui/0.1.0-b1a"
+      },
       "name": "自然语言新建分析",
       "route": "overlay:S02",
       "goal": "用自然语言提出受支持的库存分析并理解有效范围和自动送审。",
@@ -646,18 +694,24 @@
         "scope_over_capacity",
         "accepted"
       ],
-      "design_status": "revision_review_required",
-      "responsive_status": "specified_not_prototyped",
+      "design_status": "b1a_visual_pending_review",
+      "responsive_status": "600px_native_drawer_on_1440_desktop_verified; mobile_not_tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1a",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC02",
         "BC05"
-      ]
+      ],
+      "visual_coverage": "B1a core visual",
+      "visual_states": [
+        "prefilled_mock_draft"
+      ],
+      "visual_validation": "native readback + reload + actual Viewer; Mock only",
+      "remaining_visual_batch": "C2-B1b_or_later_authorized_states"
     },
     {
       "id": "M1-M03",
@@ -666,8 +720,13 @@
         "approver",
         "admin"
       ],
-      "status": "planned_unmapped",
-      "penpot": null,
+      "status": "visual_sample_mapped",
+      "penpot": {
+        "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+        "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+        "shape_id": "7e34228d-e3a9-80dc-8008-c344b0081036",
+        "revision": "m1-ui/0.1.0-b1a"
+      },
       "name": "数据口径与来源",
       "route": "overlay:S03",
       "goal": "让用户无需离开报告即可复算关键数字。",
@@ -681,17 +740,23 @@
         "missing_evidence",
         "read_failure"
       ],
-      "design_status": "revision_review_required",
-      "responsive_status": "specified_not_prototyped",
+      "design_status": "b1a_visual_pending_review",
+      "responsive_status": "desktop_1440_visual_and_viewer_verified; mobile_not_tested",
       "common_states": "global_ui_states",
       "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "implementation_status": "not_implemented",
-      "c2_batch": "C2-B1",
+      "c2_batch": "C2-B1a",
       "backend_contract_status": "pending_backend_confirmation",
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "visual_coverage": "minimal_read_only_provenance",
+      "visual_states": [
+        "mock_rules"
+      ],
+      "visual_validation": "native readback + reload + actual Viewer; Mock only",
+      "remaining_visual_batch": "C2-B1b_or_later_authorized_states"
     },
     {
       "id": "M1-M04",
@@ -729,7 +794,8 @@
       "backend_contract_refs": [
         "BC01",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-M05",
@@ -765,7 +831,8 @@
         "BC01",
         "BC03",
         "BC05"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     },
     {
       "id": "M1-F02",
@@ -800,12 +867,13 @@
       "backend_contract_refs": [
         "BC01",
         "BC02"
-      ]
+      ],
+      "b1a_availability": "not_in_authorized_batch"
     }
   ],
-  "design_status": "revision_review_required",
+  "design_status": "c1_approved_b1a_visual_sample_review_required",
   "design_document": "c1-product-design.md",
-  "visual_scope": "POC only; M1 unmapped",
+  "visual_scope": "POC preserved; separate native M1 B1a file; only sampled states mapped",
   "baseline_ux_commit": "77b69d3",
   "authorization_policy": {
     "status": "accepted_product_design_pending_backend_enforcement",
@@ -873,8 +941,8 @@
     "ui_only": "其他screen状态仅为UI呈现；Web提交前澄清是本地草稿；飞书异步澄清映射pending BC02。未新增任何业务状态枚举。"
   },
   "pending_design_decisions": [],
-  "review_status": "original_conditionally_approved_revision_pending_review",
-  "c2_authorized": false,
+  "review_status": "C1_0.2.1_approved_by_user_B1a_visual_pending",
+  "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",
   "accepted_product_decisions": [
@@ -949,5 +1017,17 @@
     ],
     "fallback": "去有权Web查看同版本完整披露后再决定；不能在截断卡片批准隐藏条目；具体平台合同pending BC06",
     "client_is_not_authorization": true
-  }
+  },
+  "authorization_scope": "C2-B1a_only",
+  "authorized_design_batches": [
+    "C2-B1a"
+  ],
+  "followup_authorization": {
+    "C2-B1b": false,
+    "C2-B2": false,
+    "C2-B3": false
+  },
+  "m1_visual_revision": "m1-ui/0.1.0-b1a",
+  "m1_visual_map": "evidence/c2-b1a/design-map.json",
+  "b1a_delivery": "c2-b1a-delivery.md"
 }

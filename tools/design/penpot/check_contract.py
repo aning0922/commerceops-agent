@@ -44,7 +44,11 @@ def main():
         require(action["type"] == e["action"] and action["trigger"] == e["event"], "原型动作不一致")
         require(action["destination"] == actual_screens[e["target_screen"]], "原型目标不一致")
     for s in screens["planned_screens"]:
-        require(s["status"] == "planned_unmapped" and s["penpot"] is None, "计划不得冒充画布")
+        if s["penpot"] is None:
+            require(s["status"] == "planned_unmapped", "未映射计划状态不一致")
+        else:
+            require(s["status"] == "visual_sample_mapped", "样板不得冒充完整业务页面")
+            require(s["implementation_status"] == "not_implemented", "原型不是业务实现")
     require(tokens["penpot_revision"] == mapping["revision"], "POC token 版本不一致")
     require(mapping["validation"] == [], "Penpot 原生文件校验有错误")
     restored = read(UX / "evidence/after-restart-read.json")
@@ -64,9 +68,49 @@ def main():
     after = read(UX / "evidence/prototype-after-restart.json")
     require(len(ui) == 10 and len(after) == 4, "实际原型点击记录不完整")
     require(not screens["roles"]["admin"]["approve"], "admin 不得自动有审批权")
+    if screens.get("m1_visual_map"):
+        sample = read(UX / screens["m1_visual_map"])
+        saved = read(UX / "evidence/c2-b1a/after-reload-read.json")
+        clicks = read(UX / "evidence/c2-b1a/prototype-ui-events.json")["events"]
+        require(sample["file"]["id"] != mapping["file"]["id"], "正式文件不能覆盖POC")
+        require(sample["validation"] == saved["validation"] == [], "正式原生校验失败")
+        require(saved["revision"] == sample["revision"], "刷新后视觉版本改变")
+        samples = {s["stableId"]: s for s in sample["screens"]}
+        for s in screens["planned_screens"]:
+            if s["penpot"]:
+                require(s["penpot"]["shape_id"] == samples[s["id"]]["shapeId"], "M1 UUID不一致")
+                require(s["penpot"]["file_id"] == saved["fileId"], "M1文件不一致")
+        controls = {c["shapeId"]: c for c in sample["controls"]}
+        saved_controls = {c["shapeId"]: c for c in saved["controls"]}
+        require(set(controls) == set(saved_controls), "刷新后控件集合改变")
+        for shape_id, actual in controls.items():
+            reread = saved_controls[shape_id]
+            require(actual["stableId"] == reread["stableId"], "刷新后稳定ID改变")
+            expected_actions = [
+                {k: a[k] for k in ["trigger", "type", "destination"]}
+                for a in actual["interactions"]
+            ]
+            require(expected_actions == reread["interactions"], "刷新后原型动作改变")
+        require(
+            any(v["label"] == sample["named_version"] for v in saved["versions"]),
+            "命名版本未保存",
+        )
+        for event in interactions["planned_interactions"]:
+            for instance in event.get("penpot_instances", []):
+                actual = controls[instance["shape_id"]]
+                require(actual["stableIdReadback"] == event["control_id"], "M1控件ID不一致")
+                require(actual["eventIdReadback"] == event["id"], "M1事件ID不一致")
+        require(len(clicks) == 28 and all(c["passed"] for c in clicks), "B1a实点记录未通过")
+        require(sample["counts"]["imageFills"] == 0, "正式页面不能用整张图片代替")
+        require(
+            all(not s["textOverflow"] and not s["outOfBoard"] for s in samples.values()), "样板溢出"
+        )
+        require(screens["authorization_scope"] == "C2-B1a_only", "设计授权范围错误")
+        require(not any(screens["followup_authorization"].values()), "后续批次未获授权")
+        print("M1 B1a：5个原生样板/辅助层、14控件实例、28实点；业务未实现")
     print(
         f"合同/画布引用一致：{len(screens['poc_screens'])} POC 屏幕、"
-        "4 控制件、14 点击记录；M1 仍为草案"
+        "4 控制件、14 点击记录；M1 业务未实现"
     )
 
 

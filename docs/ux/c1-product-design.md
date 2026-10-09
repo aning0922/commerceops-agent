@@ -1,6 +1,6 @@
 # Phase C1 · M1 产品与交互方案（外部评审修订）
 
-日期：2026-10-09（Asia/Shanghai）。合同版本：`0.2.1-c1-revision`。基于产品基线 `a0d521e`、UX A/B 交付 `77b69d3`。**原C1（fabf1a6）外部产品评审有条件通过；本稿按用户转述意见修订、提交复审。产品方向已接受，后端合同仍有pending，未生成M1 Penpot界面或实现业务。C2仍须另行明确授权。**
+日期：2026-10-09（Asia/Shanghai）。合同版本：`0.2.1-c1-revision`。基于产品基线 `a0d521e`、UX A/B 交付 `77b69d3`。**用户已确认本修订通过产品评审，并仅授权C2-B1a。产品与后端合同边界保持不变；B1a原生视觉样板已制作、待视觉评审，业务未实现，B1b/B2/B3未授权。**
 
 评审顺序：先读 [已接受决策与后端待确认清单](c1-decisions.md)、[C2批次与验收](c2-batches.md)，再读本文件的旅程、权限和 [页面详设](c1-screen-specs.md)、[导航](sitemap.md)、[竞品研究](c1-research.md)。机器可读版本为 [screens](screens.yaml) 和 [interactions](interactions.yaml)；稳定 ID 与本方案一致。
 
@@ -144,15 +144,15 @@ D01已接受最小权限。operator只读本人有权任务及派生对象；app
 
 ## 7. 已接受决策与后端待确认合同
 
-D01最小权限/兼任规则、D02按渠道区分澄清、D03三类重算、新周期、D04不启用通用恢复、D05只读管理、D06自动送审、D07实际期限/新鲜度展示、D08不新增报告导出、D09现有架构按批交付，均已按外部评审采纳为产品方向。本次修订与批次安排提交复审，不能称为后端签字或C2授权。
+D01最小权限/兼任规则、D02按渠道区分澄清、D03三类重算、新周期、D04不启用通用恢复、D05只读管理、D06自动送审、D07实际期限/新鲜度展示、D08不新增报告导出、D09现有架构按批交付，均已按外部评审采纳为产品方向。本修订已获用户产品评审通过；后端pending不转为已确认，C2授权仅限B1a。
 
 尚待后端确认：BC01权限过滤/撤权；BC02Web预解析与飞书异步续答；BC03重算/重新发起的状态迁移和API；BC04自动恢复/对账状态的安全展示；BC05会话/列表/详情/解释等读取及传输；BC06完整披露与客户端回退；BC07实际期限配置。未确认功能保留proposal/pending，业务状态枚举及API没有修改。详细决定、例子、负责人和影响见 [决策记录](c1-decisions.md)。
 
 ## 8. C1交接、C2闸门与工具缺口
 
-本方案仅更新docs/ux。结构化清单保持 `planned_unmapped`、`penpot=null`、`implementation_status=not_implemented`；`design_status=revision_review_required`，原C1评审结论为有条件通过，C2授权为false。现登记18个逻辑界面（新增F02渠道proposal）及47个事件ID，其中B09为不渲染的保留ID；不能把登记数量当成已实现控件数。
+本产品合同保持0.2.1；新增独立视觉revision `m1-ui/0.1.0-b1a`。screens中5个B1a样板映射为visual_sample_mapped，其余仍planned_unmapped；业务implementation_status全部not_implemented。POC映射和正式M1映射分别保留，不能用POC或样板替代全部角色/状态。
 
-C2第一批按 [批次计划](c2-batches.md) 建立8个Web页面、F01卡片与M02/M03/M01辅助层，优先主闭环及完整风险披露；第二批覆盖身份/异常；第三批处理辅助说明和待合同交互。共用组件及状态变体复用，不为每种业务状态复制整页。获得用户正式授权后才开始画布操作，未定协议不伪装为真实功能。
+用户仅授权本批任务中心、新建分析、报告及必要导航骨架。交付见 [B1a记录](c2-b1a-delivery.md)，剩余第一批内容归B1b，B1b/B2/B3待另行授权。B1a26次点击只证明Mock原型，审批/内部项及真实数据未验。
 
 Phase 3–4实现前读取本合同、已批准Penpot版本及BC确认记录；将screen/control/event映射路由、组件和data-testid。变更顺序为需求/领域合同→结构化UX→Penpot→代码→Playwright/领域测试；真实T3/T4/T6、飞书和幂等另验，不把原型计为业务成功。
 

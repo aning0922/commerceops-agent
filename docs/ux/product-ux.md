@@ -1,6 +1,6 @@
 # M1 产品交互原则 · C1评审稿
 
-范围依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[FEISHU_INTEGRATION](../FEISHU_INTEGRATION.md)、[STATUS](../STATUS.md)。合同版本 `0.2.1-c1-revision`；完整产品提案见 [C1方案](c1-product-design.md)。页面、角色与异常已形成规格，原稿已获有条件通过，本次修订待复审；尚未制作正式原型。
+范围依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[FEISHU_INTEGRATION](../FEISHU_INTEGRATION.md)、[STATUS](../STATUS.md)。合同版本 `0.2.1-c1-revision`；完整产品提案见 [C1方案](c1-product-design.md)。页面、角色与异常已形成规格，C1修订已通过用户产品评审；已制作独立正式文件中的B1a样板，待视觉评审，其余批次未授权。
 
 先把任务、报告、审批、内部工作项和轨迹的用户旅程确定，再连接 Penpot 原型，最后由 Phase 3–4 的负责人实现 Next.js。Penpot 是视觉基线，结构化规范是行为基线。静态截图、原型跳转和自动生成的 HTML/CSS 都不能代替可鉴权、可恢复的业务实现。
 
@@ -50,4 +50,4 @@ screen/control/event 分别使用 `M1-S* / M1-B* / M1-E*`，飞书为 `M1-F*`，
 - D04不启用通用手动恢复。B09只保留ID，不渲染；自动恢复和安全对账沿用已有合同。
 - D05–D08保持只读管理、自动送审、实际期限展示、无额外报告导出。D09按主闭环、身份异常、辅助/待协议交互分批，组件复用；见 [批次计划](c2-batches.md)。
 - S04窄屏/F01完整展示全部SKU与风险后再提供最终动作；不全/截断/版本不一致则不批准，不能以普通批准或Web链接绕过披露，平台回退pending BC06。
-- 已接受产品决定、后端pending、原型实测、业务实现分别标注。完整 [决策记录](c1-decisions.md) 是本轮修订依据；C2仍须正式授权。POC工具链及token文件原样保留。
+- 已接受产品决定、后端pending、原型实测、业务实现分别标注。完整 [决策记录](c1-decisions.md) 是本轮修订依据；当前仅B1a获授权，B1b/B2/B3仍须另行授权。POC保留；design-tokens追加独立M1候选区，不覆盖POC值。

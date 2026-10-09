@@ -1,0 +1,357 @@
+{
+  "fileId": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+  "revision": "m1-ui/0.1.0-b1a",
+  "pages": [
+    {
+      "id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+      "name": "01 / B1a · 核心界面"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c342c49a650e",
+      "name": "00 / Foundations · 组件与设计值"
+    },
+    {
+      "id": "7e34228d-e3a9-80dc-8008-c3455e678305",
+      "name": "02 / B1a · 局部状态样例"
+    }
+  ],
+  "screens": [
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343160c8626",
+      "stableId": "M1-S02",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "interactions": []
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef474cf4",
+      "stableId": "M1-S03",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 1600,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "interactions": []
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+      "stableId": "M1-M02",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 4800,
+        "y": 0,
+        "width": 600,
+        "height": 1000
+      },
+      "interactions": []
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afb521e9",
+      "stableId": "M1-S09",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 3200,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "interactions": []
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b0081036",
+      "stableId": "M1-M03",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 5480,
+        "y": 0,
+        "width": 560,
+        "height": 580
+      },
+      "interactions": []
+    }
+  ],
+  "controls": [
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343161d35e9",
+      "stableId": "M1-B10",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 1240,
+        "y": 116,
+        "width": 168,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
+      "stableId": "M1-B13",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 626,
+        "y": 363,
+        "width": 156,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
+      "stableId": "M1-B14",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 1220,
+        "y": 471,
+        "width": 164,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
+      "stableId": "M1-B13",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 6124,
+        "y": 192,
+        "width": 272,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
+      "stableId": "M1-B29",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 1856,
+        "y": 205,
+        "width": 140,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c343f1694397",
+      "stableId": "M1-B18",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 2864,
+        "y": 906,
+        "width": 120,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344b0081036"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af0a7009",
+      "stableId": "M1-B45",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 5324,
+        "y": 28,
+        "width": 44,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af79ea11",
+      "stableId": "M1-B35",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 4832,
+        "y": 696,
+        "width": 536,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "open-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af929b26",
+      "stableId": "M1-B45",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 4832,
+        "y": 926,
+        "width": 120,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344af98787a",
+      "stableId": "M1-B01",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 4976,
+        "y": 926,
+        "width": 392,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afad46ed",
+      "stableId": "M1-B35",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 6624,
+        "y": 156,
+        "width": 372,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
+      "stableId": "M1-B39",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 4448,
+        "y": 116,
+        "width": 160,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
+      "stableId": "M1-B15",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 3480,
+        "y": 485,
+        "width": 192,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "navigate-to",
+          "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+        }
+      ]
+    },
+    {
+      "shapeId": "7e34228d-e3a9-80dc-8008-c344b03271ad",
+      "stableId": "M1-B22",
+      "revision": "m1-ui/0.1.0-b1a",
+      "bounds": {
+        "x": 5508,
+        "y": 510,
+        "width": 504,
+        "height": 44
+      },
+      "interactions": [
+        {
+          "trigger": "click",
+          "type": "close-overlay",
+          "destination": "7e34228d-e3a9-80dc-8008-c344b0081036"
+        }
+      ]
+    }
+  ],
+  "versions": [
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 28 Viewer clicks + main entry",
+      "isAutosave": false
+    },
+    {
+      "label": "m1-ui/0.1.0-b1a / visual QA + 26 Viewer clicks",
+      "isAutosave": false
+    },
+    {
+      "label": "m1-ui/0.1.0 / empty baseline before B1a",
+      "isAutosave": false
+    }
+  ],
+  "componentCount": 18,
+  "tokenSets": [
+    {
+      "name": "CommerceOps/M1-B1a",
+      "count": 33,
+      "active": true
+    }
+  ],
+  "validation": []
+}
