@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "contract_version": "0.2.0-c1-review",
-  "status": "c1_design_review_required_c2_not_authorized",
+  "contract_version": "0.2.1-c1-revision",
+  "status": "c1_conditionally_approved_revision_review_c2_not_authorized",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -102,7 +102,7 @@
         "admin",
         "unauthorized"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/login",
       "goal": "让预置身份进入授权工作区，恢复安全深链。",
@@ -110,8 +110,15 @@
       "data_and_metrics": "账号输入、会话校验状态、安全return_to；不展示角色选择、账号是否存在或密钥。",
       "controls_and_navigation": "B11登录；已有会话按角色落地。",
       "role_policy": "operator/approver/admin/unauthorized均可见登录壳；真实授权由服务端会话取得；admin单角色默认S08，无业务权限去S07。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B2",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-S02",
@@ -138,7 +145,7 @@
         "approver",
         "admin"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/tasks",
       "goal": "找到需要关注的授权任务并发起库存分析。",
@@ -146,8 +153,15 @@
       "data_and_metrics": "task_id、请求摘要、发起人显示名、created_at、销量窗口、source_kind、state、active_plan版本、sync摘要；计数与列表同scope。",
       "controls_and_navigation": "B10新建；B13筛选/排序/分页；B14任务行到S09；B39/B40/B41全局导航。",
       "role_policy": "operator可新建；approver只看授权任务；admin仅兼任/明确业务读授权才可见；无权限不返回数据。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-S03",
@@ -173,7 +187,7 @@
         "approver",
         "admin"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/tasks/:task_id/report?version=:version",
       "goal": "理解风险、计算依据、可执行范围与阻断因素。",
@@ -181,8 +195,16 @@
       "data_and_metrics": "snapshot_id、report_id、window_start/end、shop timezone、inventory_observed_at、complete/quality_flags、rule_version、L/R/S、facts_hash；每SKU原始需求/退款、D、A、raw/effective inbound、T、Q、风险、资格、open item引用；覆盖天数仅D>0且有已知A时展示并说明A/D。",
       "controls_and_navigation": "B17查看审批；B18口径；B19解释；B06提出重算；B33历史版本；B43行详情；B15/B16页签。筛选不改变审批范围。",
       "role_policy": "授权operator/approver可读；重算仅operator且对象授权；admin不默认可读；历史报告只读。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC07"
+      ]
     },
     {
       "id": "M1-S04",
@@ -204,23 +226,35 @@
         "permission_revoked",
         "plan_changed",
         "assumption_ack_required",
-        "executed"
+        "executed",
+        "disclosure_incomplete",
+        "render_truncated",
+        "plan_version_mismatch"
       ],
       "roles": [
         "operator",
         "approver",
         "admin"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
-      "responsive_status": "specified_not_prototyped",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "desktop_and_390px_full_scope_required_not_tested",
       "route": "/approvals/:approval_id",
       "goal": "让审批人对完整冻结范围做一次知情决定并跟踪回执。",
-      "layout": "面包屑+计划版本/期限；批准后会创建什么；全部≤20条SKU清单；假设逐项披露；历史决定/执行结果；底部明确决策按钮。无默认勾选。",
+      "layout": "面包屑+计划版本/期限；批准后会创建什么；全部≤20条SKU清单；假设逐项披露；历史决定/执行结果；底部明确决策按钮。无默认勾选。 390窄屏完整展开全部SKU及风险，最终动作在清单之后；不置顶/悬浮批准，不通过top-N、筛选或折叠隐藏范围。",
       "data_and_metrics": "approval_id、plan_id/version/hash短展示、expires_at、eligible scope、全部canonical_items/required_assumptions、数据时点/参数、ready_at、决定人/时间/来源、execution结果与当前计划状态。nonce不在UI或日志显示。",
-      "controls_and_navigation": "B02/B05仅已知在途；B03/B04仅存在未知在途；B23核实结果；B15关联报告；B29任务结果；B33看历史版本。",
+      "controls_and_navigation": "B02/B05仅已知在途；B03/B04仅存在未知在途；B23核实结果；B15关联报告；B29任务结果；B33看历史版本。 未完整披露时无可执行批准；客户端不支持则引导有权Web完整详情，不在截断卡片批准。",
       "role_policy": "operator授权任务仅只读；approver必须当前eligible/同店铺；admin兼任才可批准；按钮可见性不代替服务端验证。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC06",
+        "BC07"
+      ]
     },
     {
       "id": "M1-S05",
@@ -244,16 +278,23 @@
         "approver",
         "admin"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/replenishment-items",
       "goal": "查找已由审批产生的内部工作项与跟进状态。",
       "layout": "标题含内部工作项说明；open/completed/closed筛选；SKU/任务搜索；表格分页；详情入口。无新建采购或批量操作。",
       "data_and_metrics": "item_id、sku_key/label、stock_pool_key、quantity、status/version、源task/plan、approved_by、创建时间、resolution摘要、sync状态/版本。",
       "controls_and_navigation": "B24筛选；B25打开S11；B26/B27打开单项原因弹窗；B38查看同步详情。",
-      "role_policy": "operator只读授权派生项待D01；approver同店铺可完成/关闭open；admin无默认业务权；无权不见列表及计数。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "role_policy": "operator只读授权派生项（D01已接受，BC01待落实）；approver同店铺可完成/关闭open；admin无默认业务权；无权不见列表及计数。",
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-S06",
@@ -281,16 +322,24 @@
         "approver",
         "admin"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/tasks/:task_id/events",
       "goal": "解释任务经历的事实、失败边界和恢复证据。",
       "layout": "任务页签；当前业务结果摘要；按实际时间排序的节点/尝试时间线；点击步骤展现脱敏详情；模型用量与审批审计折叠区。",
       "data_and_metrics": "workflow_version、node/run_attempt、tool_name/version/status/duration、safe_args、result_ref、snapshot/plan/decision/execution引用、模型/provider/prompt_version/usage/cost_estimate/pricing_version、等待与运行耗时、safe error/trace_id、outbox状态。",
-      "controls_and_navigation": "B43展开步骤；B34复制安全编号；B29返回业务结果；B09恢复仅D04批准后；B38同步说明。",
+      "controls_and_navigation": "B43展开步骤；B34复制安全编号；B29返回业务结果；B38查看同步说明。B09保留历史ID但不渲染/不绑定动作；仅展示既有自动恢复/对账状态。",
       "role_policy": "授权operator/approver看任务级脱敏事实；admin异常元信息在S08，完整轨迹需业务读授权；不展示秘密、原始回调、SQL、客户PII、模型思维链。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ]
     },
     {
       "id": "M1-S07",
@@ -309,7 +358,7 @@
         "admin",
         "unauthorized"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/access",
       "goal": "给出可理解但不泄露资源存在性的访问反馈。",
@@ -317,8 +366,15 @@
       "data_and_metrics": "安全错误类别、当前身份、trace_id；无SKU/报告/对象所有者。",
       "controls_and_navigation": "B31回授权首页；B11重新登录；B12退出。不存在与跨scope对象统一安全提示。",
       "role_policy": "任何身份可见提示；不提供申请新业务权限按钮、不因失败自动提权。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B2",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-S08",
@@ -337,16 +393,24 @@
       "roles": [
         "admin"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "/admin/operations",
       "goal": "管理员了解当前配置版本和需按既有流程处理的异常。",
       "layout": "只读店铺/来源与规则摘要；集成配置状态；安全异常表；单条说明及现有运维文档入口。无密钥编辑器或通用用户管理。",
       "data_and_metrics": "environment、rule/workflow版本、时区、角色配置摘要（不列不必要个人信息）、脱敏错误码/时间/trace_id、投影unknown/failed；不返回业务SKU金额或秘密。",
       "controls_and_navigation": "B43展开异常；B34复制trace_id；B42重读；B30进入；无“重启Worker/重新发送/修改权限”写动作。",
-      "role_policy": "admin可见只读运维元信息；其他角色S07；兼任业务角色按其scope另打开业务页。配置写入口D05未授权。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "role_policy": "admin只读脱敏运维元信息；业务内容须通过显式兼任角色在自身scope内另行授权；无配置写UI（D05已接受），只读协议BC05待确认。",
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ]
     },
     {
       "id": "M1-S09",
@@ -362,13 +426,13 @@
       "goal": "回答这次请求做到哪一步、谁需行动、最终产生什么。",
       "layout": "任务标题/请求/编号；阶段摘要；当前下一步卡；报告/审批/内部项关联；同步状态；概览/报告/轨迹页签。",
       "data_and_metrics": "normalized_request、requester、source channel、state/failure_code、当前plan、审批决定、execution result_refs、内部项数量、last_updated、sync摘要；已完成结果不因图重试丢失。",
-      "controls_and_navigation": "B15报告；B16轨迹；B17审批；B25派生项；B38同步；B34编号。报告未生成时相应入口解释原因，不跳空报告。",
+      "controls_and_navigation": "B15报告；B16轨迹；B17审批；B25派生项；B38同步；B34编号。报告未生成时相应入口解释原因，不跳空报告。 B46仅源task已completed时打开下一周期草稿，不自动提交；飞书异步澄清关联提示属BC02 proposal。",
       "role_policy": "授权任务读范围同D01；按当前身份仅提供有权动作；批准仍在S04。",
       "states": [
         "loading",
         "queued",
         "analyzing",
-        "needs_clarification_ui_proposal",
+        "async_clarification_protocol_pending",
         "awaiting_approval",
         "executing",
         "completed",
@@ -381,10 +445,19 @@
         "sync_failed",
         "sync_unknown"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC02",
+        "BC03"
+      ]
     },
     {
       "id": "M1-S10",
@@ -413,10 +486,17 @@
         "superseded",
         "read_failure"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-S11",
@@ -432,7 +512,7 @@
       "goal": "核对单个内部项的来源、状态、跟进记录及同步结果。",
       "layout": "标题SKU+内部项状态；数量与依据；源任务/报告/审批链接；跟进历史；Base投影状态；有权时完成/关闭动作。",
       "data_and_metrics": "item_id/version、stock_pool_key、quantity、approved_plan_id/approved_by、source_snapshot、resolved_by/time/reason、sync/version/external_link是否可用。",
-      "controls_and_navigation": "B26完成/B27关闭→M01；B37来源报告；B38同步详情；B34复制item_id；终态不重开。",
+      "controls_and_navigation": "B26完成/B27关闭→M01；B37来源报告；B38同步详情；B34复制item_id；终态不重开。 第三批B46仅在源业务任务completed时打开下一周期草稿，不绕过open项。",
       "role_policy": "approver同店铺可resolve；operator授权派生项只读；admin显式兼任才有动作；外链仅返回已授权且存在的投影引用。",
       "states": [
         "loading",
@@ -445,10 +525,17 @@
         "item_state_conflict",
         "permission_revoked"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-F01",
@@ -467,7 +554,10 @@
         "unauthorized",
         "conflict",
         "sync_failed",
-        "client_unsupported"
+        "client_unsupported",
+        "disclosure_incomplete",
+        "render_truncated",
+        "plan_version_mismatch"
       ],
       "roles": [
         "operator",
@@ -475,16 +565,25 @@
         "admin",
         "unauthorized"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
-      "responsive_status": "specified_not_prototyped",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "responsive_status": "full_scope_390px_1_and_20_items_required_not_tested",
       "route": "feishu://existing-allowed-conversation",
       "goal": "在已有授权协作渠道查看完整计划并显式审批。",
-      "layout": "标题任务/环境/版本；窗口/库存时点；全部SKU逐项；风险/参数/假设；期限；两枚适用决策按钮；Web详情/结果链接。",
+      "layout": "标题任务/环境/版本；窗口/库存时点；全部SKU逐项；风险/参数/假设；期限；两枚适用决策按钮；Web详情/结果链接。 390窄屏完整展开全部SKU及风险，最终动作在清单之后；不置顶/悬浮批准，不通过top-N、筛选或折叠隐藏范围。",
       "data_and_metrics": "与S04相同冻结计划；≤20条完整批准范围；不展示token/nonce；共享更新只能用共同可见内容。",
-      "controls_and_navigation": "B02/B05或B03/B04；B21 Web详情；B29结果；重复显示既有决定；关闭无效果。",
+      "controls_and_navigation": "B02/B05或B03/B04；B21 Web详情；B29结果；重复显示既有决定；关闭无效果。 未完整披露时无可执行批准；客户端不支持则引导有权Web完整详情，不在截断卡片批准。",
       "role_policy": "卡片可能被转发或无权成员看到，客户端不能按角色隐藏而当作保护；可信回调逐次认证操作者；外发范围遵循既有允许群/用户，不扩大授权。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC06",
+        "BC07"
+      ]
     },
     {
       "id": "M1-M01",
@@ -503,7 +602,7 @@
       "roles": [
         "approver"
       ],
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending",
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
       "responsive_status": "specified_not_prototyped",
       "route": "overlay:S11",
       "goal": "记录明确的单项终态动作和必填原因。",
@@ -511,8 +610,15 @@
       "data_and_metrics": "item_id、status=open、expected_version、action、reason、固定本次request_key；提示不表示入库。",
       "controls_and_navigation": "B07或B08提交；B28取消/Esc；失败留原输入；unknown先重读，不能换键或改payload假装重试。",
       "role_policy": "只允许当前同店铺approver；权限撤销清理并S07；非open只能看冲突说明。",
-      "design_status": "review_required",
-      "common_states": "global_ui_states"
+      "design_status": "revision_review_required",
+      "common_states": "global_ui_states",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-M02",
@@ -524,25 +630,34 @@
       "name": "自然语言新建分析",
       "route": "overlay:S02",
       "goal": "用自然语言提出受支持的库存分析并理解有效范围和自动送审。",
-      "layout": "桌面宽抽屉/窄屏整页：示例请求、输入、已知默认窗口/店铺/规则、范围提示、自动送审说明、创建按钮；澄清区域D02。",
-      "data_and_metrics": "原请求；默认最近7完整日/时区；显式SKU范围；规则演示标签；解析完成前不得把候选参数写成已确认；无价格或供应商字段。",
-      "controls_and_navigation": "B01创建；B35澄清补充为待定协议；B45关闭并确认丢弃未提交输入（若有）；示例填入不自动提交。",
+      "layout": "桌面抽屉/窄屏整页：自然语言草稿、已知默认窗口/范围、提交前参数澄清、自动送审说明、创建按钮。未受理前无task_id/排队状态；预解析/候选来源pending BC02。",
+      "data_and_metrics": "原请求；默认最近7完整日/时区；显式SKU范围；规则演示标签；解析完成前不得把候选参数写成已确认；无价格或供应商字段。 预解析不可用时明确待定，不伪造SKU候选或已确认解析结果；结构化输入的最终有效性仍由服务端验证。",
+      "controls_and_navigation": "B35只在本地确认草稿参数并留在M02；B01才显式提交分析；B45关闭未提交草稿。提交后才识别歧义的处理pending BC02，不能伪造续答API。",
       "role_policy": "operator可用，角色兼任同样校验；无operator无入口；自然语言“同意”不能成为审批动作。",
       "states": [
         "draft",
+        "parameter_review",
         "invalid_input",
+        "ambiguous_sku",
+        "preparse_protocol_pending",
         "submitting",
         "result_unknown",
-        "clarification_proposal",
         "unsupported_intent",
-        "ambiguous_sku",
         "scope_over_capacity",
         "accepted"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC02",
+        "BC05"
+      ]
     },
     {
       "id": "M1-M03",
@@ -566,10 +681,17 @@
         "missing_evidence",
         "read_failure"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B1",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-M04",
@@ -597,10 +719,17 @@
         "budget_exceeded",
         "context_expired"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ]
     },
     {
       "id": "M1-M05",
@@ -612,35 +741,92 @@
       "name": "重算影响预览",
       "route": "overlay:S03",
       "goal": "在重算前明确版本与重新授权影响。",
-      "layout": "原task/版本及状态；待调整范围；新采集说明；旧确认不继承和旧pending处置提示；取消/确认（合同待定禁用）。",
-      "data_and_metrics": "当前任务/plan状态、拟请求变化、现有open项提示；不允许手填最终Q；真实差异需新报告生成后比对。",
-      "controls_and_navigation": "B36确认（D03待定）；B22取消；已完成任务使用“开始下一周期分析”标签，新task入口仍须operator。",
+      "layout": "按来源区分待执行计划、rejected/expired、completed三种情境；显示新计划/新审批和旧确认不可复用。B36在BC03确认前保持proposal禁用，completed使用B46只开新草稿。",
+      "data_and_metrics": "原task/plan/approval/execution状态与拟调整范围；旧审批只读；不得手填Q。执行中/结果未知先核实，不覆盖执行；task关联/迁移/原子失效均pending BC03。",
+      "controls_and_navigation": "B36待执行计划重算或拒绝/过期后重新发起（proposal，BC03）；B46已完成任务下一周期→M02，再由B01显式创建新task；B22取消。",
       "role_policy": "operator及对象授权；approver需兼任；重算不是恢复retry，不自动移用批准。",
       "states": [
-        "review",
+        "pending_plan_review",
+        "rejected_expired_review",
+        "completed_next_cycle",
         "contract_pending",
-        "submitting",
-        "result_unknown",
+        "execution_result_unknown",
         "version_conflict",
         "scope_invalid"
       ],
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "responsive_status": "specified_not_prototyped",
       "common_states": "global_ui_states",
-      "visibility_guard": "server principal + organization/shop + authorized entity scope; D01 pending"
+      "visibility_guard": "server principal + organization/shop + scoped role union per D01; backend enforcement pending BC01",
+      "implementation_status": "not_implemented",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC03",
+        "BC05"
+      ]
+    },
+    {
+      "id": "M1-F02",
+      "name": "飞书任务关联异步澄清消息（proposal）",
+      "status": "planned_unmapped",
+      "penpot": null,
+      "roles": [
+        "operator",
+        "unauthorized"
+      ],
+      "route": "feishu://existing-allowed-conversation/task-clarification-proposal",
+      "goal": "在既有允许聊天范围内对指定任务补充参数，不影响其他任务或冻结计划。",
+      "layout": "消息标题含task编号；原请求摘要、问题/候选项、回复关联说明；无审批按钮；消息关联和问题轮次协议pending BC02。",
+      "data_and_metrics": "可信组织/聊天/发起人/话题与task关联、待补充字段、候选来源、问题轮次/时间；具体字段为待定协议，不声称已有API payload。",
+      "controls_and_navigation": "B47关联回复保持proposal，待领域负责人确认去重/关联/续跑；不调用Web B35或审批动作。其他成员或错误任务的回复不得修改请求。",
+      "role_policy": "只有原任务当前有权发起人补充；跨组织/聊天/任务、他人回复、迟到或重复回复的拒绝/幂等处理由BC02确认；无权限不泄露任务内容。",
+      "states": [
+        "async_question_proposal",
+        "reply_protocol_pending",
+        "wrong_task_or_actor",
+        "duplicate_reply",
+        "stale_question",
+        "clarification_unavailable"
+      ],
+      "design_status": "revision_review_required",
+      "implementation_status": "not_implemented",
+      "responsive_status": "proposal_not_prototyped",
+      "common_states": "global_ui_states",
+      "visibility_guard": "D01 scoped authorization + D02 task/conversation binding; BC01/BC02 pending",
+      "c2_batch": "C2-B3",
+      "backend_contract_status": "pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ]
     }
   ],
-  "design_status": "review_required",
+  "design_status": "revision_review_required",
   "design_document": "c1-product-design.md",
   "visual_scope": "POC only; M1 unmapped",
   "baseline_ux_commit": "77b69d3",
   "authorization_policy": {
-    "status": "proposal_pending_D01",
-    "operator": "own authorized tasks and derived objects proposed; server scope required",
-    "approver": "eligible approval tasks and same-shop items proposed; server scope required",
-    "admin": "redacted configuration/exception metadata only; no default business read or approval",
-    "unauthorized": "no business payload or counts",
-    "combined_roles": "explicit assignment only; authorization rechecked server-side"
+    "status": "accepted_product_design_pending_backend_enforcement",
+    "operator": "本人有权任务及派生对象；创建分析/提出重算仍按对象授权",
+    "approver": "eligible审批和必要关联任务；同店铺内部工作项",
+    "admin": "单角色仅脱敏配置与异常元信息，无默认业务读/审批权",
+    "unauthorized": "没有业务数据或计数",
+    "combined_roles": "共同约束 AND 存在一个已显式分配的有效角色在其自身scope内授予该动作；读集合取并集，不拼接不同角色的动作权与对象范围",
+    "deny_precedence": [
+      "身份禁用/会话失效",
+      "组织或店铺不匹配",
+      "当前动作无有效角色或不在该角色scope",
+      "审批非eligible",
+      "状态/版本/期限/质量/幂等条件不满足"
+    ],
+    "examples": {
+      "operator+approver": "本人任务创建/读取 + eligible审批；本人任务不自动eligible",
+      "admin+operator": "运维元信息 + 本人业务能力；不能审批",
+      "admin+approver": "运维元信息 + eligible审批/同店铺内部项；不能创建分析"
+    },
+    "backend_contract_ref": "BC01"
   },
   "global_ui_states": {
     "loading": "骨架占位，不显示虚假0；副作用按钮禁用",
@@ -684,9 +870,14 @@
       "failed",
       "unknown"
     ],
-    "ui_only": "All other screen states are presentation states, never new persisted enums; clarification mapping is unresolved D02."
+    "ui_only": "其他screen状态仅为UI呈现；Web提交前澄清是本地草稿；飞书异步澄清映射pending BC02。未新增任何业务状态枚举。"
   },
-  "pending_design_decisions": [
+  "pending_design_decisions": [],
+  "review_status": "original_conditionally_approved_revision_pending_review",
+  "c2_authorized": false,
+  "decision_record": "c1-decisions.md",
+  "batch_plan": "c2-batches.md",
+  "accepted_product_decisions": [
     "D01",
     "D02",
     "D03",
@@ -696,5 +887,67 @@
     "D07",
     "D08",
     "D09"
-  ]
+  ],
+  "pending_backend_contracts": [
+    "BC01",
+    "BC02",
+    "BC03",
+    "BC04",
+    "BC05",
+    "BC06",
+    "BC07"
+  ],
+  "clarification_policy": {
+    "product_decision": "D02",
+    "web": {
+      "phase": "before_submission",
+      "surface": "M1-M02",
+      "event": "M1-E35",
+      "task_id": null,
+      "effect": "仅草稿确认；B01显式创建任务",
+      "pending": "预解析/候选来源/校验协议及提交后才识别歧义的处理BC02"
+    },
+    "feishu": {
+      "phase": "task_linked_async",
+      "surface": "M1-F02",
+      "event": "M1-E47",
+      "effect": "proposal；需组织+聊天+发起人+话题/任务及问题轮次关联",
+      "pending": "关联/去重/持久化/超时/续跑/状态映射BC02"
+    },
+    "backend_states_added": false,
+    "backend_api_added": false
+  },
+  "reanalysis_policy": {
+    "product_decision": "D03",
+    "pending_plan": "新不可变计划/审批，旧批准不能复用；原子失效与T4竞态pending BC03",
+    "rejected_or_expired": "旧终态只读；重新发起分析需新计划/审批；task关联和迁移pending BC03，不terminal->pending",
+    "completed_next_cycle": "B46只开M02草稿，B01显式创建新task；新快照/计划/审批；已有open项仍约束；历史关联字段pending BC03",
+    "unknown_execution": "先读取实际执行结果，不推断未执行、不覆盖",
+    "retry_is_not_reanalysis": true
+  },
+  "recovery_ui_policy": {
+    "decision": "D04",
+    "generic_manual_recovery_button": false,
+    "reserved_control": "M1-B09",
+    "behavior": "仅展示自动恢复及安全对账事实；沿用既有合同，无新增重发/对账写入口",
+    "backend_ref": "BC04"
+  },
+  "approval_disclosure_policy": {
+    "decision": "review_item_7",
+    "surfaces": [
+      "M1-S04",
+      "M1-F01"
+    ],
+    "all_items_visible": true,
+    "max_items": 20,
+    "risk_disclosure": "默认展开每项数量/风险/未知在途说明；清单及风险之后才是最终动作区；不折叠批准范围，不悬浮批准绕过披露",
+    "block_approval_when": [
+      "数据未完整加载",
+      "数量或版本不一致",
+      "条目/风险被截断",
+      "客户端不支持完整呈现"
+    ],
+    "fallback": "去有权Web查看同版本完整披露后再决定；不能在截断卡片批准隐藏条目；具体平台合同pending BC06",
+    "client_is_not_authorization": true
+  }
 }

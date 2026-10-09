@@ -1,42 +1,48 @@
-# Phase C1 · 评审与检查记录
+# Phase C1 · 外部评审修订与检查记录
 
-日期：2026-10-09。状态：设计提交评审；C2未授权，M1业务未实现。基线为UX `77b69d3` / main产品合同 `a0d521e`；本轮仅改docs/ux，使用原独立UX工作树/分支及PR #24。
+版本 `0.2.1-c1-revision`。原稿 `fabf1a6` 外部评审有条件通过；本次修订提交复审，C2未授权，M1业务未实现。本轮沿用独立UX工作树/分支及PR #24，只改docs/ux。
 
-## 1. C1文档交付覆盖
+## 1. 评审意见落实
 
-| 用户要求 | 可评审交付 | 证据层级 |
+| 意见 | 本次修改 | 合同边界 |
 |---|---|---|
-| 阅读PRD/ROADMAP/DATA_MODEL/AGENT/FEISHU及已有UX | 主方案的业务合同、状态、T2/T3/T4/T6映射 | 仓库文档核对，不代表实现 |
-| 三款产品研究 | [官方来源与采纳边界](c1-research.md) | 官方帮助文档正文，不是实机测评 |
-| 完整M1信息架构 | [导航](sitemap.md)，11个Web页面、1张飞书卡片、5个辅助层 | 产品提案 |
-| 每页目标/布局/指标/操作/跳转/角色/异常 | [逐页详设](c1-screen-specs.md)，17条screens记录 | 规格覆盖，未生成画布 |
-| 自然语言到内部项全旅程 | [主方案J01–J05](c1-product-design.md) | 主旅程及澄清/拒绝/同步/渠道分支 |
-| 关键交互矩阵 | 主方案§5与45条interactions记录 | 稳定ID、守卫、结果、异常、合同缺口 |
-| 风格与易用性 | 主方案§6 | B2B表格/密度/响应式/键盘与文案建议 |
-| 待明确产品决策 | 主方案D01–D09 | 推荐项、责任与C2阻塞范围 |
-| 保留工具链、导出/恢复缺口 | 原[A/B验收](acceptance.md)、主方案§8 | POC及部署未改变，未重跑基础设施测试 |
+| D01最小权限与兼任 | 按角色自身scope授权合并，禁止跨角色拼接；共同拒绝优先；明确三种兼任例子 | 产品方向接受，服务端过滤/撤权BC01 pending |
+| D02两种澄清 | Web M02/B35提交前草稿；飞书F02/B47任务关联异步proposal | 不增状态/API，BC02 pending |
+| D03三类重算 | 待执行计划、rejected/expired、completed新周期分别规定；B46只开新草稿 | 状态迁移/原子失效/API为BC03 pending；旧批准不可复用 |
+| D04不启用通用恢复 | E09/B09保留ID但不渲染/绑定 | 不新增恢复权，自动恢复/安全对账按既有合同 |
+| D05–D08保持精简 | 只读管理、自动送审、实际期限、无额外报告导出 | 相应未定传输/config仍pending |
+| D09按批设计 | B1主闭环、B2身份异常、B3辅助/待合同；共用组件与状态变体 | C2整体仍需用户正式授权 |
+| 飞书/窄屏完整披露 | 全部SKU/风险在最终动作前；不全或截断不能批准；首批验1/20条 | 真实客户端限制/回退BC06 pending |
+| 不冒充实现 | 18个逻辑界面、47个事件ID（1个保留无UI）；全无M1 UUID、implementation未实现 | 所有未定合同有proposal/pending及BC引用 |
+| 工具缺口独立记录 | 原生版本/持久卷/配套私有备份最低方案及局限 | 本轮未导出/备份/恢复，无新增基础设施 |
 
-## 2. 本轮实际检查
+完整依据见 [决策记录](c1-decisions.md)、[分批计划](c2-batches.md)、[页面详设](c1-screen-specs.md)、[结构化屏幕](screens.yaml)及[交互](interactions.yaml)。F02是已有M1澄清能力的渠道消息规格，不增主导航。
 
-| 实际检查 | 结果与边界 |
+## 2. 实际检查
+
+原C1的检查及CI成功属于fabf1a6历史记录，不转记为本次通过。本次实际检查如下：
+
+| 检查 | 结果与边界 |
 |---|---|
-| `uv run --frozen python tools/design/penpot/check_contract.py` | 通过：已有3个POC屏幕/4控件/14次点击的记录引用一致；读取历史证据，未重新点击原型 |
-| `uv run --frozen python -m scripts.check_docs` | 28份Markdown，errors=0；本地链接/围栏检查通过 |
-| C1结构化引用核对（一次性只读Python检查） | 17个页面/辅助层、45个控件；source/target/also_on/alternate_targets、角色、逐页必需字段均有效；M1状态仍planned_unmapped、UUID为null |
-| 与`77b69d3`比较 | POC数组完全相同；tools/design/penpot、docs/ux/evidence、design-tokens.json无差异；变更均在docs/ux |
-| `git diff --check` | 通过，未发现差异空白错误 |
-| `uv run --frozen python -m scripts.scan_secrets` | 当前内容、index和全部可达Git历史均findings=0；暂存后提交前再次执行 |
+| `uv run --frozen python -m scripts.check_docs` | 30份Markdown，errors=0；本地链接/围栏通过 |
+| `uv run --frozen python tools/design/penpot/check_contract.py` | 通过；核对历史3个POC屏幕/4控件/14点击记录引用，没有新点击 |
+| 一次性只读结构化核对 | 18界面/47事件ID（1保留无UI、46计划）；source/target/also_on/alternate_targets、角色、字段和BC引用有效；首批12个页面/辅助层的主要事件目标均在首批 |
+| 修订语义核对 | B35留M02草稿、B47独立飞书proposal；B09无UI，B36/B47未启用；D01–D09产品决定与BC01–BC07 pending一致；逐页Markdown字段与screens一致 |
+| 与fabf1a6比较 | 业务状态枚举、POC数组、工具/evidence/token文件完全不变；变更仅docs/ux，C2授权false |
+| `git diff --check` | 通过 |
+| `uv run --frozen python -m scripts.scan_secrets` | 当前内容、index、全部可达Git历史findings=0；暂存后提交前再次执行 |
 
-没有运行新的Penpot操作、Compose重启、备份恢复、业务pytest、真实飞书或Next.js/Playwright。GitHub基础CI按PR新head单独核对，不把旧head的成功转记到新提交。
+本轮未操作Penpot、MCP设计实例、Compose、业务数据库或飞书配置；未运行导出/备份/恢复、业务测试或Playwright。新head的GitHub基础CI在PR按实际结果记录，不作为新增业务验收。
 
-## 3. 用户评审与C2进入条件
+## 3. 决策与进入条件
 
-- [ ] 确认三个主导航、任务上下文子页和17个页面/辅助层范围（D09）。
-- [ ] 确认T2自动送审推荐，不新增人工送审步骤（D06）；如改变先修业务合同。
-- [ ] 确认对象读范围，admin不默认业务读/审批，角色可显式兼任（D01）。
-- [ ] 明确澄清、重算与人工恢复的产品选择及领域合同责任（D02–D04）。
-- [ ] 确认只读管理说明、期限/新鲜度展示、业务导出取舍（D05/D07/D08）。
-- [ ] 用户明确批准进入C2。没有这条确认不生成正式批量页面。
+- [x] 已接受三个主导航和任务上下文结构；C2使用组件复用，优先主闭环。
+- [x] 已接受D01最小权限原则及D02/D03分类方向，本稿补兼任规则和合同边界供复审。
+- [x] 已接受D04不启用通用手动恢复。
+- [x] 已接受D05–D08推荐：只读管理、T2自动送审、按实际期限展示、无额外业务导出。
+- [ ] 用户/外部评审确认本次修订、兼任细则及C2批次安排。
+- [ ] BC01–BC07由对应后端/领域负责人确认；未确认部分保留pending，按批次限制功能范围。
+- [ ] 用户明确授权C2。产品方案有条件通过不等于画布生成授权。
 
 ## 4. 后续验收，不作为本轮通过项
 

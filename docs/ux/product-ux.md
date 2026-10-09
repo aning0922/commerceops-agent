@@ -1,6 +1,6 @@
 # M1 产品交互原则 · C1评审稿
 
-范围依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[FEISHU_INTEGRATION](../FEISHU_INTEGRATION.md)、[STATUS](../STATUS.md)。合同版本 `0.2.0-c1-review`；完整产品提案见 [C1方案](c1-product-design.md)。页面、角色与异常已形成规格，尚未经用户确认或制作正式原型。
+范围依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[FEISHU_INTEGRATION](../FEISHU_INTEGRATION.md)、[STATUS](../STATUS.md)。合同版本 `0.2.1-c1-revision`；完整产品提案见 [C1方案](c1-product-design.md)。页面、角色与异常已形成规格，原稿已获有条件通过，本次修订待复审；尚未制作正式原型。
 
 先把任务、报告、审批、内部工作项和轨迹的用户旅程确定，再连接 Penpot 原型，最后由 Phase 3–4 的负责人实现 Next.js。Penpot 是视觉基线，结构化规范是行为基线。静态截图、原型跳转和自动生成的 HTML/CSS 都不能代替可鉴权、可恢复的业务实现。
 
@@ -41,10 +41,13 @@ screen/control/event 分别使用 `M1-S* / M1-B* / M1-E*`，飞书为 `M1-F*`，
 
 [竞品官方研究](c1-research.md)已完成文档核实，借鉴具体问题入口、上下文解释、可查看口径与动作范围；不照搬自动批准、预测采购、通用BI或全渠道业务。
 
-## 5. C1新增约束
+## 5. 外部评审后的设计决定
 
-- 三个主入口为任务中心、审批、内部补货；报告/轨迹归入具体任务，不重复建设聊天历史和任务记录。
-- 沿用T2自动准备审批：创建分析前说明，有效计划生成后显示“查看审批”，不凭UI增加人工送审状态。改变流程是D06评审项。
-- 读权限不由角色名自动推导。D01给出最小范围提案，admin单角色只读运维元信息；清单的roles表示可能参与身份，不授权读取每个对象。
-- 澄清续答D02、重算D03、人工恢复D04存在接口/状态映射缺口，本轮标明待决策，不伪造已实现API。投影unknown必须先对账。
-- C1完成后暂停，用户确认前不执行C2。POC工具链及design-tokens原样保留，M1视觉版本与UUID映射待C2建立。
+- 三个主入口及任务内报告/轨迹结构已接受；D06采用T2自动送审，报告页只导航查看审批。
+- D01按最小权限设计，兼任只合并各角色在自身scope内的授权；共同拒绝条件优先，不拼接动作权与其他角色scope，admin不自动有业务读/审批权。后端落实pending BC01。
+- D02：Web提交前参数澄清仅为草稿；飞书关联具体任务异步澄清。预解析、关联/去重/持久化/续跑均pending BC02，不新增后端状态/API。
+- D03：待执行计划重算、拒绝/过期后重新发起、completed新周期分开；旧计划/审批/确认不可复用，具体迁移/API待BC03。新周期只开草稿并显式创建新task。
+- D04不启用通用手动恢复。B09只保留ID，不渲染；自动恢复和安全对账沿用已有合同。
+- D05–D08保持只读管理、自动送审、实际期限展示、无额外报告导出。D09按主闭环、身份异常、辅助/待协议交互分批，组件复用；见 [批次计划](c2-batches.md)。
+- S04窄屏/F01完整展示全部SKU与风险后再提供最终动作；不全/截断/版本不一致则不批准，不能以普通批准或Web链接绕过披露，平台回退pending BC06。
+- 已接受产品决定、后端pending、原型实测、业务实现分别标注。完整 [决策记录](c1-decisions.md) 是本轮修订依据；C2仍须正式授权。POC工具链及token文件原样保留。

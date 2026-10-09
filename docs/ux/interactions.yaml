@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "contract_version": "0.2.0-c1-review",
-  "status": "c1_design_review_required_c2_not_authorized",
+  "contract_version": "0.2.1-c1-revision",
+  "status": "c1_conditionally_approved_revision_review_c2_not_authorized",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -122,14 +122,24 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "operator and authorized shop",
         "valid supported request",
-        "fixed client request_id reused on uncertain response"
+        "fixed client request_id reused on uncertain response",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "Web parameter clarification belongs before submission; no implicit async continuation API if ambiguity is discovered later (BC02)"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E02",
@@ -146,7 +156,10 @@
         "trusted current identity + same organization/shop + current approver + eligible principal",
         "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
         "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
-        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
       ],
       "state_change": "T3 records approved + resume job; UI says approval recorded; task advances only from server facts",
       "exceptions": [
@@ -158,12 +171,21 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E03",
@@ -183,7 +205,10 @@
         "trusted current identity + same organization/shop + current approver + eligible principal",
         "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
         "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
-        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
       ],
       "state_change": "single explicit decision + assumptions + resume job in T3; raw inbound remains null",
       "exceptions": [
@@ -195,9 +220,18 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E04",
@@ -221,15 +255,27 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "trusted current identity + same organization/shop + current approver + eligible principal",
         "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
         "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
-        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E05",
@@ -249,7 +295,7 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -258,9 +304,21 @@
         "trusted current identity + same organization/shop + current approver + eligible principal",
         "authenticated and authorized exact prior decision replay returns original receipt, including after expiry; never re-executes",
         "fresh decision requires pending + current plan_id/version/hash + valid nonce + unexpired + hard quality checks",
-        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass"
+        "unknown inbound uses only approve_with_assumptions/exact required keys or reject_assumptions/empty keys; no generic approve or reject bypass",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence",
+        "complete same-version SKU scope and risk disclosure precede final actions; no truncated or partial approval UI",
+        "server still validates identity/scope/version/hash/nonce/exact assumption keys; client disclosure is not authorization"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC06",
+        "BC07"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E06",
@@ -272,21 +330,30 @@
       ],
       "event": "click",
       "target_screen": "M1-M05",
-      "business_action": "none; open recalculation impact review",
-      "state_change": "UI only; no version invalidation until explicit server operation",
+      "business_action": "none; open impact review with pending-plan/rejected-or-expired/completed context",
+      "state_change": "UI review only; no old plan invalidation by navigation",
       "exceptions": [
         "UNAUTHORIZED_ACTOR",
         "DATA_INCOMPLETE"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "navigation_proposal; commit blocked by D03",
+      "design_status": "revision_review_required",
+      "contract_status": "ui_navigation_backend_transition_pending",
       "guards": [
         "current server identity and object scope",
-        "latest permitted object state"
+        "latest permitted object state",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC03"
+      ],
+      "c2_batch": "C2-B3"
     },
     {
       "id": "M1-E07",
@@ -304,7 +371,8 @@
         "open",
         "nonempty reason",
         "expected_version",
-        "request_key"
+        "request_key",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "state_change": "open → completed + audit/outbox; no inventory mutation",
       "exceptions": [
@@ -315,9 +383,16 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E08",
@@ -335,7 +410,8 @@
         "open",
         "nonempty reason",
         "expected_version",
-        "request_key"
+        "request_key",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "state_change": "open → closed + audit/outbox; no reopen/bulk close",
       "exceptions": [
@@ -346,27 +422,34 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "existing_business_design_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E09",
       "control_id": "M1-B09",
-      "label": "恢复原任务",
+      "label": "恢复原任务（保留ID，不启用）",
       "screen_id": "M1-S06",
       "roles": [
         "operator"
       ],
       "event": "click",
       "target_screen": "M1-S06",
-      "business_action": "POST /tasks/{id}/retry; server decides whether recoverable",
+      "business_action": "none; generic manual recovery excluded from M1 UI; existing backend recovery contract unchanged",
       "guards": [
-        "manual retry permission and recoverable error allowlist must be confirmed",
-        "same task and logical idempotency key",
-        "UNKNOWN_EXTERNAL_RESULT requires reconciliation, never blind retry"
+        "no generic manual recovery UI",
+        "no blind external resend",
+        "do not infer authority from a retry endpoint in architecture"
       ],
-      "state_change": "disabled until D04; existing approved recovery may resume same task; never create a fresh business operation",
+      "state_change": "no rendered control and no click binding; automatic recovery/reconciliation only under existing contracts",
       "exceptions": [
         "UNKNOWN_EXTERNAL_RESULT",
         "UNAUTHORIZED_ACTOR",
@@ -374,9 +457,16 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "blocked_pending_D04",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "excluded_from_m1_ui",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "reserved_no_ui",
+      "ui_enabled_in_design": false,
+      "backend_contract_refs": [
+        "BC04"
+      ],
+      "c2_batch": "none"
     },
     {
       "id": "M1-E10",
@@ -392,16 +482,24 @@
       "state_change": "open unsent draft",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "permission_revoked"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E11",
@@ -420,7 +518,8 @@
       "state_change": "validated safe return_to else operator/approver S02; admin-only S08; no business permission S07",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "invalid_credentials",
@@ -429,8 +528,8 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "alternate_targets": [
         "M1-S08",
         "M1-S07",
@@ -439,7 +538,15 @@
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "also_on": [
         "M1-S07"
-      ]
+      ],
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B2"
     },
     {
       "id": "M1-E12",
@@ -458,15 +565,16 @@
       "state_change": "clear principal-scoped cache; never cancel existing tasks",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "logout_failed"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S07",
         "M1-S08",
@@ -478,7 +586,15 @@
         "M1-S10",
         "M1-S11"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B2"
     },
     {
       "id": "M1-E13",
@@ -496,7 +612,8 @@
       "state_change": "URL filters/page; no business state change",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "read_failure",
@@ -504,9 +621,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E14",
@@ -524,7 +649,8 @@
       "state_change": "navigate to task overview",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -532,9 +658,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E15",
@@ -552,7 +686,8 @@
       "state_change": "read specified immutable report/version",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "not_generated",
@@ -561,14 +696,22 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
         "M1-S04",
         "M1-S06"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E16",
@@ -586,7 +729,8 @@
       "state_change": "read safe facts only",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "read_failure",
@@ -594,13 +738,21 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
         "M1-S04"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E17",
@@ -618,7 +770,8 @@
       "state_change": "navigation only; T2 already prepares approval; no manual submission endpoint",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "not_prepared",
@@ -626,12 +779,20 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E18",
@@ -649,7 +810,8 @@
       "state_change": "open read-only panel",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "missing_evidence",
@@ -657,9 +819,16 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E19",
@@ -677,7 +846,8 @@
       "state_change": "show task/report context; no business mutation",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "context_expired",
@@ -685,9 +855,16 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B3"
     },
     {
       "id": "M1-E20",
@@ -705,7 +882,8 @@
       "state_change": "no business state change",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "read_failure",
@@ -713,9 +891,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E21",
@@ -734,7 +920,8 @@
       "state_change": "Feishu deep link requires session and reauthorization",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "session_expired",
@@ -742,12 +929,20 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-F01"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E22",
@@ -765,20 +960,28 @@
       "state_change": "close M03/M04/M05; restore focus to trigger; no decision or recalculation",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "none"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-M04",
         "M1-M05"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E23",
@@ -796,7 +999,8 @@
       "state_change": "unknown -> server result; never send opposite action automatically",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "read_failure",
@@ -804,12 +1008,20 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-F01"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E24",
@@ -827,7 +1039,8 @@
       "state_change": "no business state change",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "read_failure",
@@ -835,9 +1048,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E25",
@@ -855,7 +1076,8 @@
       "state_change": "navigate to item detail",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -863,12 +1085,20 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E26",
@@ -884,7 +1114,8 @@
       "state_change": "open complete reason form; no mutation until B07",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "ITEM_STATE_CONFLICT",
@@ -892,12 +1123,19 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E27",
@@ -913,7 +1151,8 @@
       "state_change": "open close reason form; no mutation until B08",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "ITEM_STATE_CONFLICT",
@@ -921,12 +1160,19 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E28",
@@ -942,16 +1188,24 @@
       "state_change": "close without decision; submitting/unknown cannot imply cancellation of request",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "result_unknown"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E29",
@@ -970,7 +1224,8 @@
       "state_change": "read current business receipt; Feishu link requires login/scope",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -978,13 +1233,22 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
         "M1-F01"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E30",
@@ -1000,7 +1264,8 @@
       "state_change": "navigation only; no global config mutation",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -1008,8 +1273,8 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "also_on": [
         "M1-S08",
@@ -1020,7 +1285,15 @@
         "M1-S06",
         "M1-S10",
         "M1-S11"
-      ]
+      ],
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B3"
     },
     {
       "id": "M1-E31",
@@ -1039,21 +1312,29 @@
       "state_change": "operator/approver S02; admin-only S08; unauthorized stays safe shell or S01",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "no_authorized_destination"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "alternate_targets": [
         "M1-S08",
         "M1-S07",
         "M1-S01"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B2"
     },
     {
       "id": "M1-E32",
@@ -1071,7 +1352,8 @@
       "state_change": "answer cites frozen report/SKU; no new analysis/approval/SQL/RAG",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "explanation_failed",
@@ -1081,9 +1363,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B3"
     },
     {
       "id": "M1-E33",
@@ -1101,7 +1391,8 @@
       "state_change": "historical badge; active version explicit; old approval never reused",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -1109,12 +1400,20 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "proposal_not_implemented",
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S04"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B3"
     },
     {
       "id": "M1-E34",
@@ -1132,14 +1431,15 @@
       "state_change": "copy displayed task/item/trace ID only, no token/nonce",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "clipboard_unavailable"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S09",
@@ -1147,50 +1447,70 @@
         "M1-S08"
       ],
       "target_resolution": "current screen instance for shared control; no implicit navigation",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E35",
       "control_id": "M1-B35",
-      "label": "补充澄清信息",
+      "label": "确认Web提交前草稿参数",
       "screen_id": "M1-M02",
-      "target_screen": "M1-S09",
+      "target_screen": "M1-M02",
       "roles": [
         "operator"
       ],
-      "event": "submit",
-      "business_action": "proposal only; persistence/continuation protocol pending D02",
-      "state_change": "disabled in final prototype until D02; no fabricated business task state",
+      "event": "confirm_draft",
+      "business_action": "none; local draft only; natural-language preparse/candidate protocol pending BC02",
+      "state_change": "remain in M02; no task_id, no queue, no workflow state; B01 separately submits",
       "guards": [
-        "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "operator in allowed shop",
+        "unsubmitted browser draft only",
+        "no fabricated candidate lookup or parsing API",
+        "final values still validated server-side"
       ],
       "exceptions": [
         "ambiguous_sku",
-        "unsupported_intent",
+        "preparse_protocol_pending",
         "scope_over_capacity"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "blocked_pending_D02",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "ui_draft_only_backend_preparse_pending",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E36",
       "control_id": "M1-B36",
-      "label": "确认重算影响",
+      "label": "重算/重新发起分析（proposal）",
       "screen_id": "M1-M05",
       "target_screen": "M1-S09",
       "roles": [
         "operator"
       ],
       "event": "submit",
-      "business_action": "proposal only; new immutable version and approval; API pending D03",
-      "state_change": "not retry; old confirmation never reused; completed next cycle new task; pending supersession atomic contract required",
+      "business_action": "proposal only; pending plan recalculation or rejected/expired reinitiation; transitions and API pending BC03; never retry",
+      "state_change": "new immutable plan and new approval required; old decision never reused; task linkage and atomic supersession pending BC03; completed uses B46 instead",
       "guards": [
-        "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "operator and authorized task",
+        "BC03 must be confirmed before enabling submission",
+        "pending-plan versus rejected/expired classification from server facts",
+        "executing or unknown execution must first be reconciled; never overwrite",
+        "no terminal approval -> pending, no reused confirmation or execution"
       ],
       "exceptions": [
         "version_conflict",
@@ -1199,9 +1519,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
-      "contract_status": "blocked_pending_D03",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "design_status": "revision_review_required",
+      "contract_status": "proposal_pending_backend_confirmation",
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": false,
+      "backend_contract_refs": [
+        "BC01",
+        "BC03"
+      ],
+      "c2_batch": "C2-B3"
     },
     {
       "id": "M1-E37",
@@ -1219,7 +1547,8 @@
       "state_change": "show historical source, not unrelated latest report",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -1227,9 +1556,17 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E38",
@@ -1247,7 +1584,8 @@
       "state_change": "focus projection section; completed stays completed; no external resend",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden",
@@ -1255,13 +1593,22 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05",
         "M1-S09"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05",
+        "BC04"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E39",
@@ -1279,14 +1626,15 @@
       "state_change": "navigation; preserve filters",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1298,7 +1646,15 @@
         "M1-S10",
         "M1-S11"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E40",
@@ -1316,14 +1672,15 @@
       "state_change": "navigation; no approval from menu",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1335,7 +1692,15 @@
         "M1-S10",
         "M1-S11"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E41",
@@ -1353,14 +1718,15 @@
       "state_change": "navigation; no manual item creation",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "forbidden"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1372,7 +1738,15 @@
         "M1-S10",
         "M1-S11"
       ],
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E42",
@@ -1390,7 +1764,8 @@
       "state_change": "refresh failed read; never regenerate plan or write projection",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "read_failure",
@@ -1399,7 +1774,7 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S02",
@@ -1412,7 +1787,15 @@
         "M1-S11"
       ],
       "target_resolution": "current screen instance for shared control; no implicit navigation",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E43",
@@ -1430,7 +1813,8 @@
       "state_change": "expand SKU/tool/exception/definition; no business state change",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "missing_evidence",
@@ -1438,7 +1822,7 @@
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -1448,7 +1832,15 @@
         "M1-M04"
       ],
       "target_resolution": "current screen instance for shared control; no implicit navigation",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01",
+        "BC05"
+      ],
+      "c2_batch": "C2-B1"
     },
     {
       "id": "M1-E44",
@@ -1466,14 +1858,15 @@
       "state_change": "show current identity/assigned roles and logout; no role switching",
       "guards": [
         "current server identity and object scope for all data access",
-        "no implicit business permission from UI role label"
+        "no implicit business permission from UI role label",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "session_expired"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1486,7 +1879,14 @@
         "M1-S11"
       ],
       "target_resolution": "current screen instance for shared control; no implicit navigation",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B2"
     },
     {
       "id": "M1-E45",
@@ -1503,16 +1903,99 @@
       "guards": [
         "current server identity and object scope for all data access",
         "no implicit business permission from UI role label",
-        "close during unknown submission cannot imply cancellation; do not create new request key until original result is reconciled"
+        "close during unknown submission cannot imply cancellation; do not create new request key until original result is reconciled",
+        "D01: one assigned effective role must authorize this action within its own scope; common deny constraints take precedence"
       ],
       "exceptions": [
         "request_result_unknown"
       ],
       "status": "planned_unmapped",
       "penpot_shape_id": null,
-      "design_status": "review_required",
+      "design_status": "revision_review_required",
       "contract_status": "proposal_not_implemented",
-      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success."
+      "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "backend_contract_refs": [
+        "BC01"
+      ],
+      "c2_batch": "C2-B1"
+    },
+    {
+      "id": "M1-E46",
+      "control_id": "M1-B46",
+      "label": "开始下一周期分析",
+      "screen_id": "M1-M05",
+      "target_screen": "M1-M02",
+      "roles": [
+        "operator"
+      ],
+      "event": "click",
+      "business_action": "none; open new draft; B01 creates new task under existing contract",
+      "state_change": "source task stays completed; no auto submit; open-item constraint retained; historical association fields pending BC03",
+      "guards": [
+        "current server identity and action scope per D01",
+        "never reuse old approval/assumptions as authority",
+        "source business task completed, not merely approval recorded or item locally marked",
+        "any copied historical parameters are unsubmitted draft and revalidated; no trusted authority copied"
+      ],
+      "exceptions": [
+        "permission_revoked",
+        "contract_pending"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "revision_review_required",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": true,
+      "contract_status": "ui_navigation_backend_association_pending",
+      "backend_contract_refs": [
+        "BC01",
+        "BC03"
+      ],
+      "c2_batch": "C2-B3",
+      "also_on": [
+        "M1-S09",
+        "M1-S11"
+      ]
+    },
+    {
+      "id": "M1-E47",
+      "control_id": "M1-B47",
+      "label": "回复指定任务澄清（proposal）",
+      "screen_id": "M1-F02",
+      "target_screen": "M1-F02",
+      "roles": [
+        "operator"
+      ],
+      "event": "task_linked_reply_proposal",
+      "business_action": "proposal; Feishu async association/dedupe/persistence/continuation pending BC02; no invented API",
+      "state_change": "requires task/question association; other user/wrong task/late reply cannot overwrite; frozen plan never edited",
+      "guards": [
+        "current server identity and action scope per D01",
+        "never reuse old approval/assumptions as authority",
+        "same allowed organization/chat/original actor/topic/task",
+        "question round/expiry/dedupe protocol pending backend confirmation",
+        "not an approval action"
+      ],
+      "exceptions": [
+        "permission_revoked",
+        "contract_pending"
+      ],
+      "status": "planned_unmapped",
+      "penpot_shape_id": null,
+      "design_status": "revision_review_required",
+      "implementation_status": "not_implemented",
+      "lifecycle": "planned",
+      "ui_enabled_in_design": false,
+      "contract_status": "proposal_pending_backend_confirmation",
+      "backend_contract_refs": [
+        "BC01",
+        "BC02"
+      ],
+      "c2_batch": "C2-B3"
     }
   ],
   "approval_request_fields": [
@@ -1525,7 +2008,26 @@
     "nonce"
   ],
   "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
-  "pending_design_decisions": [
+  "pending_design_decisions": [],
+  "design_status": "revision_review_required",
+  "design_document": "c1-product-design.md",
+  "visual_scope": "POC only; M1 unmapped",
+  "baseline_ux_commit": "77b69d3",
+  "shared_control_mapping": "One stable semantic control ID may have multiple UI/Penpot instances; C2 must map each instance UUID and source/target. All M1 UUIDs remain null.",
+  "api_contract_gaps": [
+    "BC01 scoped role union and read filters",
+    "BC02 Web pre-submit parsing/candidates and Feishu task-linked async continuation; no new state/API",
+    "BC03 recalculation/reinitiation transitions and historical association; no reused approvals",
+    "BC04 readable automatic-recovery/reconciliation status; no manual retry UI",
+    "BC05 session/list/detail/version/admin/interpretation transport contracts",
+    "BC06 full SKU disclosure and client fallback",
+    "BC07 actual expiry/freshness configuration; no hardcoded 24h/15min guarantee"
+  ],
+  "review_status": "original_conditionally_approved_revision_pending_review",
+  "c2_authorized": false,
+  "decision_record": "c1-decisions.md",
+  "batch_plan": "c2-batches.md",
+  "accepted_product_decisions": [
     "D01",
     "D02",
     "D03",
@@ -1536,14 +2038,45 @@
     "D08",
     "D09"
   ],
-  "design_status": "review_required",
-  "design_document": "c1-product-design.md",
-  "visual_scope": "POC only; M1 unmapped",
-  "baseline_ux_commit": "77b69d3",
-  "shared_control_mapping": "One stable semantic control ID may have multiple UI/Penpot instances; C2 must map each instance UUID and source/target. All M1 UUIDs remain null.",
-  "api_contract_gaps": [
-    "List/detail reads for tasks/approvals/items and version selection need Phase 3 contract; existing ARCHITECTURE only names some endpoints.",
-    "D02 clarification continuation; D03 reanalysis/version activation; D04 retry authorization; read-only admin metadata; login/logout session endpoints; explain_report transport.",
-    "No endpoint is implemented or newly authorized by C1 design."
-  ]
+  "pending_backend_contracts": [
+    "BC01",
+    "BC02",
+    "BC03",
+    "BC04",
+    "BC05",
+    "BC06",
+    "BC07"
+  ],
+  "recovery_ui_policy": {
+    "decision": "D04",
+    "generic_manual_recovery_button": false,
+    "reserved_control": "M1-B09",
+    "behavior": "仅展示自动恢复及安全对账事实；沿用既有合同，无新增重发/对账写入口",
+    "backend_ref": "BC04"
+  },
+  "approval_disclosure_policy": {
+    "decision": "review_item_7",
+    "surfaces": [
+      "M1-S04",
+      "M1-F01"
+    ],
+    "all_items_visible": true,
+    "max_items": 20,
+    "risk_disclosure": "默认展开每项数量/风险/未知在途说明；清单及风险之后才是最终动作区；不折叠批准范围，不悬浮批准绕过披露",
+    "block_approval_when": [
+      "数据未完整加载",
+      "数量或版本不一致",
+      "条目/风险被截断",
+      "客户端不支持完整呈现"
+    ],
+    "fallback": "去有权Web查看同版本完整披露后再决定；不能在截断卡片批准隐藏条目；具体平台合同pending BC06",
+    "client_is_not_authorization": true
+  },
+  "interaction_counts": {
+    "registered": 47,
+    "reserved_no_ui": 1,
+    "planned": 46,
+    "implemented": 0
+  },
+  "batch_semantics": "页面c2_batch为首批出现；事件批次决定该操作首次接入。共用事件also_on在各来源页面/辅助层已纳入对应批次后才创建实例，不因共用ID提前生成B3页面。"
 }
