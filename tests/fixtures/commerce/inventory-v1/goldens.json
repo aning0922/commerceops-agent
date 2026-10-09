@@ -1,0 +1,643 @@
+{
+  "dataset_version": "inventory-v1",
+  "rule_version": "inventory-rule-v1",
+  "source": "Issue29 / 2026-10-10 人类授权输入中的纸面金标；扩展项由实施Agent手工复算，待独审",
+  "expectations": {
+    "baseline": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "equal_trigger": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 50,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 70,
+      "coverage": {
+        "numerator": "5",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "normal": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 51,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "normal",
+      "suggested_units": null,
+      "coverage": {
+        "numerator": "51",
+        "denominator": "10"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "backlog": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": -5,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "stockout",
+      "suggested_units": 125,
+      "coverage": null,
+      "coverage_reason": "BACKLOG_STOCK",
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "zero_stock": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 0,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "stockout",
+      "suggested_units": 120,
+      "coverage": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "known_inbound": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 30,
+      "effective_inbound_units": 30,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 70,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "unknown_inbound": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": null,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [
+        "inbound_unknown_zero:sku/demo/100/p"
+      ],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "rational_risk": {
+      "gross_units": 8,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 8,
+      "D": {
+        "numerator": "8",
+        "denominator": "7"
+      },
+      "A": 5,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 2,
+      "S": 2,
+      "T": 8,
+      "trigger": {
+        "numerator": "40",
+        "denominator": "7"
+      },
+      "risk": "risk",
+      "suggested_units": 3,
+      "coverage": {
+        "numerator": "35",
+        "denominator": "8"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "rational_normal": {
+      "gross_units": 8,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 8,
+      "D": {
+        "numerator": "8",
+        "denominator": "7"
+      },
+      "A": 6,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 2,
+      "S": 2,
+      "T": 8,
+      "trigger": {
+        "numerator": "40",
+        "denominator": "7"
+      },
+      "risk": "normal",
+      "suggested_units": null,
+      "coverage": {
+        "numerator": "21",
+        "denominator": "4"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "no_demand": {
+      "gross_units": 0,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 0,
+      "D": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 0,
+      "trigger": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "risk": "no_recent_demand",
+      "suggested_units": null,
+      "coverage": null,
+      "coverage_reason": "NO_RECENT_DEMAND",
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "no_demand_zero": {
+      "gross_units": 0,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 0,
+      "D": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "A": 0,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 0,
+      "trigger": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "risk": "manual_check",
+      "suggested_units": null,
+      "coverage": null,
+      "coverage_reason": "NO_RECENT_DEMAND",
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "no_demand_negative": {
+      "gross_units": 0,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 0,
+      "D": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "A": -5,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 0,
+      "trigger": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "risk": "manual_check",
+      "suggested_units": null,
+      "coverage": null,
+      "coverage_reason": "NO_RECENT_DEMAND",
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true
+    },
+    "unknown_stock": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": true,
+      "refunded_units": 0,
+      "net_units": 70,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": null,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "quality_blocked",
+      "suggested_units": null,
+      "coverage": null,
+      "coverage_reason": "UNKNOWN_STOCK",
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true,
+      "quality_flags": [
+        "UNKNOWN_STOCK"
+      ]
+    },
+    "mixed_refunds": {
+      "gross_units": 70,
+      "known_refunded_units": 2,
+      "quantity_complete": false,
+      "refunded_units": null,
+      "net_units": null,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true,
+      "quantity_reason": "UNKNOWN_REFUND_QUANTITY"
+    },
+    "full_refund": {
+      "gross_units": 70,
+      "known_refunded_units": 70,
+      "quantity_complete": true,
+      "refunded_units": 70,
+      "net_units": 0,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true,
+      "quantity_reason": null
+    },
+    "partial_refund": {
+      "gross_units": 70,
+      "known_refunded_units": 2,
+      "quantity_complete": true,
+      "refunded_units": 2,
+      "net_units": 68,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true,
+      "quantity_reason": null
+    },
+    "unlinked_amount_refund": {
+      "gross_units": 70,
+      "known_refunded_units": 0,
+      "quantity_complete": false,
+      "refunded_units": null,
+      "net_units": null,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true,
+      "quantity_reason": "UNKNOWN_REFUND_QUANTITY"
+    },
+    "cross_period": {
+      "gross_units": 70,
+      "known_refunded_units": 2,
+      "quantity_complete": true,
+      "refunded_units": 2,
+      "net_units": 68,
+      "D": {
+        "numerator": "10",
+        "denominator": "1"
+      },
+      "A": 20,
+      "inbound_units": 0,
+      "effective_inbound_units": 0,
+      "L": 3,
+      "R": 7,
+      "S": 2,
+      "T": 120,
+      "trigger": {
+        "numerator": "50",
+        "denominator": "1"
+      },
+      "risk": "risk",
+      "suggested_units": 100,
+      "coverage": {
+        "numerator": "2",
+        "denominator": "1"
+      },
+      "coverage_reason": null,
+      "required_assumptions": [],
+      "eligible_for_execution": false,
+      "analysis_only": true,
+      "quantity_reason": null
+    },
+    "statuses": {
+      "gross_units": 70,
+      "included_order_ids": [
+        "status-0",
+        "status-1",
+        "status-2",
+        "status-3"
+      ],
+      "review_order_ids": [
+        "status-4",
+        "status-10"
+      ],
+      "excluded_order_ids": [
+        "status-5",
+        "status-6",
+        "status-7",
+        "status-8",
+        "status-9"
+      ]
+    },
+    "boundaries": {
+      "included_order_ids": [
+        "start",
+        "last"
+      ],
+      "gross_units": 36,
+      "start": "2026-09-30T16:00:00Z",
+      "end": "2026-10-07T16:00:00Z"
+    },
+    "dst": {
+      "explicit_now": "2026-03-09T12:00:00-04:00",
+      "included_order_ids": [
+        "dst-start",
+        "dst-last"
+      ],
+      "gross_units": 36,
+      "start": "2026-03-02T05:00:00Z",
+      "end": "2026-03-09T04:00:00Z"
+    },
+    "identity": {
+      "empty_or_null_sku_labels": 2,
+      "duplicate_label": "SAME",
+      "unique_sku_keys": 4,
+      "shared_pool_key": "pool/demo/10",
+      "hard_block": "SHARED_POOL_UNRESOLVED",
+      "deleted_sku_key": "sku/demo/deleted/p"
+    },
+    "open_item": {
+      "open_items": 1,
+      "hard_block": "OPEN_WORK_ITEM",
+      "effective_inbound_units": 0,
+      "eligible_for_execution": false
+    },
+    "empty_orders": {
+      "products": 1,
+      "orders": 0,
+      "complete": true,
+      "suggested_units": null
+    },
+    "empty_products": {
+      "products": 0,
+      "orders": 0,
+      "complete": true,
+      "suggested_units": null
+    }
+  }
+}
