@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，诊断b8的PR25唯一CI已成功，但原异常根因未定位，尚未合入；P1-05 真实W1六消息及独立PG回读、单节点/六字段只读、Base v2本地发布与verify-config已完成，M1一次单卡发送及四条B回调已记录，客户端观察不足、单卡回读入口启动失败正修两项P1，C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，诊断b8的PR25唯一CI已成功，但原异常根因未定位，尚未合入；P1-05 真实W1六消息及独立PG回读、单节点/六字段只读、Base v2本地发布与verify-config已完成，M1单卡/四条B回调及v2独立PG诊断已核对，客户端观察不足，M2源码正在准备，C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–20节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第21节与 Issue/PR 最新记录为准。
+第1–21节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第22节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -346,3 +346,13 @@ M1单卡PG回查v1先经源码独审及独立49fake/2既有SDK warnings/4.13秒�
 另有独立静态P1：receipt.created_at默认now()是事务开始，card.decided_at的clock_timestamp()是更新时钟；v1 leaf要求receipt不得早于decision会误拒正常同事务。纯fake事务T0/决定T0+2/receipt T0复现，原fake时间相同漏覆盖。这不是空归档启动失败根因。主控授权原唯一P105一次针对性最小v2源码/fake修正两项：所有Docker options置于IMAGE前、command严格python/获审leaf并测试legacy错误向量；仅移除错误跨时钟因果条件，保留窗口/expiry/身份/完整binding/action/value/semantic/first decision/event关联及全部安全约束。未改schema/Repository或架构，不触P104，不增框架。
 
 v2须重新冻结独审后由主控安排新的有界只读；当前尚无第二次SQL，回查未验证、新卡窗暂停，B客户端观察仍不足。maina0/int413、PR25未合/原CI根因未定位、#6/#7/#23 OPEN、PR19 Draft，G3/Phase1未通过，不合main、不进Phase2。
+
+## 22. M1 v2 独立 PG 诊断完成与 M2 源码接续
+
+两项P1的最小v2修复独立64fake/2既有SDK warnings/4.13秒无新阻断，manifest d240543c02c07f289ca1d1ec5f25578093fc153e3f0d2ce187ad5331f1ba61c7冻结；完整Docker options/image/command解析拒旧错误向量，时间修正保留窗口/expiry及所有身份/绑定/完整value/事件约束。主控另派一次v2 app-only真实只读，session68988 exit0、VERIFIED_DIAGNOSTIC_NOT_GATE；result18:10:27.251811完成（北京时间），18:10:32只是秒级退出观察。parent1.030327秒、共享30秒内reaped，READ ONLY/REPEATABLE READ验证。[原作者实际回执](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6078866814)与[阶段复核](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078953280)。
+
+当前9身份映射匹配，card1/receipt4/关联event key4；完整binding/持久send UUID/实际message context、全量关联和每条full-value roundtrip/semantic hash/原event key对同receipt匹配。PG稳定诊断为B首次approve_with_assumptions、duplicate approve、reject_assumptions造成decision_conflict、duplicate approve；首次持久决定保持，不把created_at枚举当人工操作因果顺序或平台自动重投。当前身份不倒推历史callback事务锁定，未查其他业务表/SQL写/锁读，无窗口业务增量主张。
+
+主控只读另核result/manifest、四artifact hash/bytes/600/runtime路径、私有archive整体hash/结构/1+4+4/validation、诊断摘要/父预算，另核既有四锁/barrier/标签容器0/唯一PG healthy；没有重跑SQL/SDK/发卡或读Secret/密码。CLI wait/reaped、容器absent、source/config不变；旧v1 source/manifest/消耗attempt/空archive/无success与失败证据全部保留，新v2 attempt独立消耗无自动retry。安全evidence hashd26ad17ee55337ded4ff7b52cee297f800a15803498ebbb678283a81396aaf30。原SDK rawpayload未捕获、B多次操作但顺序模糊/客户端渲染Toast耗时未留意仍保持，诊断匹配不补造单次M1/wire/完整G3。
+
+主控已在原唯一P105自动接续最小M2源码/fake/冻结：仅新baseline第2张技术卡，目标B单次reject及JSON2渲染/客户端Toast/耗时观察，A/C不点；已审M1/PGv1-v2及共享helper不无协调修改。此刻不Gateway/SQL/API/Docker/发卡，源独审和测试时刻就绪后才另通知启动。baseline总3/C1总1限制保持，C未armed/BaseCRUD未执行。maina0/int413、#6/#7/#23 OPEN、PR25未合/原CI根因未定位、PR19 Draft，文档仍本地未推送；G3/Phase1未通过，不合main、不进Phase2。

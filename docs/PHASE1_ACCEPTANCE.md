@@ -168,3 +168,9 @@ current-v2 M1单卡包独立87fake/4.16秒与源码Review通过后，原P105实�
 M1回查v1独立49fake/4.13秒后唯一实际入口session56572 exit2，17:42:44观察退出（北京时间，秒级）；attempt消耗、600archive为空、无成功result，容器/CLI/四锁/barrier/PG状态由主控只读核对，来源未改且无重试。[实际阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078560725)与[STATUS第21节](STATUS.md#21-m1-回查启动失败与最小修正)列失败evidence及限度。独立源码/向量确认archive mount位于IMAGE后的启动级P1，readback Python无法启动；不能冒称已查询PG或缺持久记录。
 
 另经静态独审确认事务now()/更新clock_timestamp()的错误排序约束P1，不能解释本次空archive。原P105准备最小v2 argv边界及时间语义回归，保留旧source/attempt/空归档/失败证据，保留全部窗口/expiry/绑定/action/value/身份/事件关联约束；新冻结独审前不执行第二次SQL，不改模型或架构。PG诊断/client Toast/wire/C角色反例/Base全链路仍未通过，#6/#7/#23 OPEN、PR25未合、PR19Draft，Phase1未过、不合main、不进Phase2。
+
+## 18. M1 v2 PG 诊断通过，客户端及后继 Gate 待验收
+
+两P1修复新包独立64fake/4.13秒后，一次v2真实app-only session68988 exit0、VERIFIED_DIAGNOSTIC_NOT_GATE，result18:10:27.251811完成（北京时间）、parent1.030327秒/30秒内reaped；READ ONLY/REPEATABLE READ。当前9映射、1card/4receipt/4event key，完整binding/持久send UUID/context/full-value及semantic hash/原event关联匹配；首次批准保持，重复批准和一次拒绝冲突均留存，不从稳定枚举倒推人工点击因果。[真实阶段复核](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078953280)和[STATUS第22节](STATUS.md#22-m1-v2-独立-pg-诊断完成与-m2-源码接续)列hash与主控只读artifact/归档结构/锁/容器核对，没有重复SQL。
+
+v1旧失败source/attempt/0archive/noresult/evidence不变；新v2仅独立诊断，不补造raw SDK payload、单次M1、客户端渲染Toast/耗时或wire ACK。原P105自动准备M2单次拒绝的新第2张baseline卡源码/fake/冻结及独审，目前没有新Gateway/SQL/API/Docker/卡片；总3baseline/1C限制保持。C角色反例/Base全链路及其他必要真实证据仍待，#6/#7/#23 OPEN、PR25未合/原CI根因未定位、PR19Draft、maina0/int413，Phase1未过、不合main、不进Phase2。
