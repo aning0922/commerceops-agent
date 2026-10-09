@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，组合CI有界诊断两轮未复现、现已停止且未结案；G3身份/PG/配置前置和Gateway setup已完成，W1并发阻断正在修复，完整平台行为尚未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–10节保留原验收及接续快照，最新结果与证据限度见第11节及 [STATUS第15节](STATUS.md#15-有界诊断停止与-w1-审核阻断)。
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，组合CI仍未定位，诊断工具修正已获第二段有界授权；G3真实W1六消息与安全停止已完成，卡片/C角色反例/Base未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–11节保留原验收及接续快照，最新结果与证据限度见第12节及 [STATUS第16节](STATUS.md#16-实际六消息结果及第二段诊断授权)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -132,3 +132,9 @@ ROADMAP的Phase2确定性库存范围与3–4工作日计划量暂不调整：�
 原P104在批准的30分钟窗口内只执行两轮全新自有PG诊断：分组13+19+21+26通过；同进程组合79passed/140deselected/2既有warnings、47.26秒。两轮cleanup_exit0，容器/卷及自有秘密目录已清理，14:31左右因没有新线索停止。未复现原CI超时，没有卡住时PG等待或45秒栈，根因未定位；临时诊断工具正常路径实跑，timeout分支未故障注入，不视作正式修复或当前CI通过。[实际结果](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6075727950)，详细时间及主控边界见[STATUS第15节](STATUS.md#15-有界诊断停止与-w1-审核阻断)。本次诊断预算不自动延长，#23保留集成复验阻塞。
 
 W1独立41fake/4.57秒未发现真实平台结果；审核发现SafeTrace容量/序号并发竞态P1，实跑暂停，原P105承担最小锁修复和两线程回归，再冻结独立复审。观察失败只记证据不完整，原handler/DAO/ACK语义保持，C仍inconclusive；不能把fake通过或基线名单拒绝视作G3/角色反例。[审核记录](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6075802641)。Wiki权限配置已发布但实际单节点/字段读取尚未运行。#6/#7/#23 OPEN，完整G3与当前集成复验仍缺证据，PR19 Draft，不合入main，不进入Phase2。
+
+## 12. 实际 W1 及新的有限诊断窗口
+
+原P105的W1并发修复独立52fake/3.84秒通过后，实际单窗口session9219于14:58:26.195（北京时间）exit0。A私聊/群@各message_received并观察到原Repository COMMIT后返回，B两条拒绝、C两条基线准入拒绝；六条序号唯一/delegate各一次/observer完整，C仍inconclusive、PG独立回读未执行。DTO-ready 0.252–18.470ms不含SDK wire/Toast，不能替代真实回传时限。SDK活动294.386秒/死亡reaped，容器/CLI/四锁/barrier清理由执行者及主控分别核对。[真实阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6076170796)和[STATUS第16节](STATUS.md#16-实际六消息结果及第二段诊断授权)列来源与限度；卡片、C完整资格/角色反例、故障重连、Base全链路均待实跑。
+
+Wiki只读包已独立26fake审核，但父控30秒声明与最长37秒等待/清理不符P1，原P105修正后须重冻Review，实际API/字段/ACL仍未执行。Issue23诊断工具timeout清理也有独立P1，用户批准原P10415:02:35–15:32:35本地新增30分钟/两轮，最小修复/自有容器故障注入/独立复审后最多一次CI；原job25分钟/G1与恢复合同不弱化，原异常未定位事实保留。当前#6/#7/#23 OPEN，完整G3/Phase1不通过，PR19 Draft、不合入main、不进入Phase2。
