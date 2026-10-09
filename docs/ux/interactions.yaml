@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract_version": "0.2.1-c1-revision",
-  "status": "c1_approved_b1a_visual_review_required",
+  "status": "c1_approved_b1a_visual_approved_b1b_review_required",
   "product_scope": "M1",
   "source_commit": "a0d521e",
   "visual_revision": "ux-poc/0.1.1",
@@ -122,7 +122,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "operator and authorized shop",
@@ -144,10 +144,10 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af98787a",
           "screen_id": "M1-M02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "创建分析并按规则送审",
+          "meaning": "M1-B01 / 创建分析并按规则送审",
           "actions": [
             {
               "trigger": "click",
@@ -158,12 +158,13 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "prototype_simulation": "Navigate to precomputed Mock overview/report fixture; no actual task acceptance, queue, analysis or approval. Backend state contract unchanged."
+      "prototype_simulation": "Navigate to precomputed Mock overview/report fixture; no actual task acceptance, queue, analysis or approval. Backend state contract unchanged.",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E02",
@@ -193,9 +194,9 @@
         "DECISION_CONFLICT",
         "UNAUTHORIZED_ACTOR"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -210,7 +211,45 @@
         "BC07"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d675e5b7",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B02 / 批准创建内部补货工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d93a889d",
+          "screen_id": "M1-F01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B02 / 批准创建内部补货工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757bcf0817"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E03",
@@ -243,9 +282,9 @@
         "DECISION_CONFLICT",
         "UNAUTHORIZED_ACTOR"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -257,7 +296,60 @@
         "BC07"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c0afb61a",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37577fd2aba"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c7f8f2e7",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d3a53223",
+          "screen_id": "M1-F01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B03 / 确认在途未知按 0 估算并批准本版本",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37579c80a4c"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E04",
@@ -279,9 +371,9 @@
         "UNAUTHORIZED_ACTOR",
         "APPROVAL_EXPIRED"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "guards": [
         "trusted current identity + same organization/shop + current approver + eligible principal",
@@ -302,7 +394,60 @@
         "BC07"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c0bb894a",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37578d79ec0"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c80c7d79",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757acca614"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d3c1c5e0",
+          "screen_id": "M1-F01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B04 / 拒绝此假设并拒绝计划",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757acca614"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E05",
@@ -320,9 +465,9 @@
         "DECISION_CONFLICT",
         "UNAUTHORIZED_ACTOR"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "also_on": [
         "M1-F01"
@@ -346,7 +491,45 @@
         "BC07"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d694c5bd",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B05 / 拒绝计划",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d95d19b5",
+          "screen_id": "M1-F01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B05 / 拒绝计划",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757ce7d800"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E06",
@@ -410,9 +593,9 @@
         "reason_required",
         "request_result_unknown"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751d3dec1e",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -422,7 +605,30 @@
         "BC01"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751d3dec1e",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B07 / 提交完成（模拟）",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757f0f161d"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E08",
@@ -450,9 +656,9 @@
         "reason_required",
         "request_result_unknown"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751ef12389",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "existing_business_design_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -462,7 +668,30 @@
         "BC01"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ef12389",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B08 / 提交关闭（模拟）",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757fd0a65a"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E09",
@@ -522,7 +751,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -536,28 +765,43 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c343161d35e9",
           "screen_id": "M1-S02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "新建库存分析",
+          "meaning": "M1-B10 / 新建库存分析",
           "actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
               "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1",
-              "position": "top-right",
-              "closeWhenClickOutside": false,
-              "addBackgroundOverlay": true
+              "position": "top-right"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373be45b85a",
+          "screen_id": "M1-S02",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B10 / 开始提问 →",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "7e34228d-e3a9-80dc-8008-c344aef944e1",
+              "position": "manual"
             }
           ]
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E11",
@@ -680,8 +924,8 @@
         "filter_empty"
       ],
       "status": "prototype_sample_verified",
-      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
-      "design_status": "b1a_visual_pending_review",
+      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -694,30 +938,12 @@
       "c2_batch": "C2-B1a",
       "penpot_instances": [
         {
-          "shape_id": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
-          "screen_id": "M1-S02",
-          "revision": "m1-ui/0.1.0-b1a",
-          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
-          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "全部状态  ⌄",
-          "actions": [
-            {
-              "trigger": "click",
-              "type": "open-overlay",
-              "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c",
-              "position": "center",
-              "closeWhenClickOutside": true,
-              "addBackgroundOverlay": true
-            }
-          ]
-        },
-        {
           "shape_id": "7e34228d-e3a9-80dc-8008-c3434dd3e44d",
           "screen_id": "M1-S02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "关闭预览",
+          "meaning": "M1-B13 / 关闭预览",
           "actions": [
             {
               "trigger": "click",
@@ -725,15 +951,32 @@
               "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c"
             }
           ]
+        },
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c3434cbf1f93",
+          "screen_id": "M1-S02",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B13 / 全部状态  ⌄",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "7e34228d-e3a9-80dc-8008-c3434dbdfc0c",
+              "position": "center"
+            }
+          ]
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "prototype_simulation": "Open/close read-only options preview, not actual filtering or query execution."
+      "prototype_simulation": "Open/close read-only options preview, not actual filtering or query execution.",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E14",
@@ -760,7 +1003,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -775,10 +1018,10 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c3434cf6d1aa",
           "screen_id": "M1-S02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "查看任务",
+          "meaning": "M1-B14 / 查看任务",
           "actions": [
             {
               "trigger": "click",
@@ -789,11 +1032,12 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E15",
@@ -821,7 +1065,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -841,10 +1085,40 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344aff5b4a4",
           "screen_id": "M1-S09",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "查看分析报告",
+          "meaning": "M1-B15 / 查看分析报告",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373bf78d954",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B15 / 查看来源报告",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f8fb3dbc",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B15 / 查看授权来源报告",
           "actions": [
             {
               "trigger": "click",
@@ -855,11 +1129,12 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E16",
@@ -884,9 +1159,9 @@
         "read_failure",
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -901,7 +1176,45 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f7941498",
+          "screen_id": "M1-S03",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B16 / 执行轨迹",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c375809431d6"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375e9df3a83",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B16 / 查看执行轨迹",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c375809431d6"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E17",
@@ -926,9 +1239,9 @@
         "not_prepared",
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
@@ -942,7 +1255,45 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f7aee6bc",
+          "screen_id": "M1-S03",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B17 / 查看审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375e9c45b7e",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B17 / 查看审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E18",
@@ -969,7 +1320,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -983,28 +1334,27 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c343f1694397",
           "screen_id": "M1-S03",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "数据口径",
+          "meaning": "M1-B18 / 数据口径",
           "actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
               "destination": "7e34228d-e3a9-80dc-8008-c344b0081036",
-              "position": "center",
-              "closeWhenClickOutside": true,
-              "addBackgroundOverlay": true
+              "position": "center"
             }
           ]
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E19",
@@ -1066,9 +1416,9 @@
         "read_failure",
         "filter_empty"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1079,7 +1429,62 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bd593903",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B20 / 待我处理 · 2",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2",
+              "position": "center"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bd6118c1",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B20 / 已处理 · 2",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2",
+              "position": "center"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763d583848",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B20 / 关闭筛选预览",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "close-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3763d397cf2"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E21",
@@ -1105,9 +1510,9 @@
         "session_expired",
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-F01"
@@ -1121,7 +1526,210 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375ea098b75",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 查看飞书卡片样例",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c88a718a"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d3ee71cf",
+          "screen_id": "M1-F01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 在 Web 查看同版本完整详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d98fd50f",
+          "screen_id": "M1-F01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 在 Web 查看同版本完整详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bdd147b1",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374be0e05ad",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 390px 完整详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374be50cb3f",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 已知在途详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374be94485a",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 只读历史记录",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37b1249a935"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37578644adc",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37579498593",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373bf383a49"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757a51685c",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757b4deccb",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757c670054",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757d8983da",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B21 / 返回完整审批详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373d4721f57"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E22",
@@ -1147,7 +1755,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-M04",
@@ -1165,10 +1773,10 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344b03271ad",
           "screen_id": "M1-M03",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "返回报告",
+          "meaning": "M1-B22 / 返回报告",
           "actions": [
             {
               "trigger": "click",
@@ -1179,11 +1787,12 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E23",
@@ -1208,9 +1817,9 @@
         "read_failure",
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-F01"
@@ -1224,7 +1833,120 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c0c8653a",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 查看审批记录",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37577fd2aba"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375786ebe7e",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 查看创建结果（Mock）",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757e23934a"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37579559819",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757a5ded27",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757b59f82f",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757c7480a9",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757d9a00a1",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B23 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E24",
@@ -1249,9 +1971,9 @@
         "read_failure",
         "filter_empty"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_pending_backend_confirmation",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1262,7 +1984,46 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374bf685b20",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B24 / 状态：待跟进 ⌄",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3763de19817",
+              "position": "center"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3763dfc871b",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B24 / 关闭筛选预览",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "close-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3763de19817"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E25",
@@ -1287,9 +2048,9 @@
         "forbidden",
         "not_found_or_forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_pending_backend_confirmation",
       "also_on": [
         "M1-S09"
@@ -1303,7 +2064,105 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375e9fc9b4f",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B25 / 执行后工作项（Mock）",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3757e23934a"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374c0047ca6",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B25 / 查看工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374c04e4e31",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B25 / 查看工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3751ae3259a"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c374c09dcab7",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B25 / 查看工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3751b73c291"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757e6ec32b",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B25 / 查看内部工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9d419fa",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B25 / 查看内部工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E26",
@@ -1326,9 +2185,9 @@
         "ITEM_STATE_CONFLICT",
         "permission_revoked"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
@@ -1341,7 +2200,31 @@
         "BC01"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751a6925b1",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B26 / 记录内部跟进完成",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3751c128013",
+              "position": "center"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E27",
@@ -1364,9 +2247,9 @@
         "ITEM_STATE_CONFLICT",
         "permission_revoked"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05"
@@ -1379,7 +2262,31 @@
         "BC01"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751a73b509",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B27 / 关闭内部工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c3751da663dd",
+              "position": "center"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E28",
@@ -1401,9 +2308,9 @@
       "exceptions": [
         "result_unknown"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1413,7 +2320,75 @@
         "BC01"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c59638c",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751d2e6ec1",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751df7ce6a",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751ee03cc8",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B28 / 取消并返回工作项",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c37519b581cc"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E29",
@@ -1441,7 +2416,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -1462,10 +2437,10 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c343ef5c168b",
           "screen_id": "M1-S03",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "任务概览",
+          "meaning": "M1-B29 / 任务概览",
           "actions": [
             {
               "trigger": "click",
@@ -1473,14 +2448,240 @@
               "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
             }
           ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373bf67a3bb",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回任务概览",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373c829093f",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c373d6c040d4",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37519ed212a",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751aff1471",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b9228ef",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757e814178",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回任务概览",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3757f5451f6",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37580161c98",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回内部补货列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37580d38f17",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回任务结果",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f861f99a",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9079fa1",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f9c73b98",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回任务结果",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c344afb521e9"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fa72cb84",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回执行轨迹",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "close-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c375fa549906"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37b12690495",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B29 / 返回审批列表",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E30",
@@ -1718,7 +2919,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "ui_draft_only_backend_preparse_pending",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1733,28 +2934,26 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af79ea11",
           "screen_id": "M1-M02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "确认以上草稿参数",
+          "meaning": "M1-B35 / 确认以上草稿参数",
           "actions": [
             {
               "trigger": "click",
               "type": "open-overlay",
               "destination": "7e34228d-e3a9-80dc-8008-c344af9dfaab",
-              "position": "center",
-              "closeWhenClickOutside": true,
-              "addBackgroundOverlay": true
+              "position": "center"
             }
           ]
         },
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344afad46ed",
           "screen_id": "M1-M02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "返回新建分析",
+          "meaning": "M1-B35 / 返回新建分析",
           "actions": [
             {
               "trigger": "click",
@@ -1765,12 +2964,13 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
       "b1a_availability": "mapped_sample",
-      "prototype_simulation": "Acknowledge prefilled Mock draft only; native Viewer is not a real editable form or parser."
+      "prototype_simulation": "Acknowledge prefilled Mock draft only; native Viewer is not a real editable form or parser.",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E36",
@@ -1834,9 +3034,9 @@
         "forbidden",
         "missing_evidence"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -1847,7 +3047,60 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37519f8e965",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B37 / 查看来源报告",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b0b34b1",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B37 / 查看来源报告",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751b9f40da",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B37 / 查看来源报告",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343ef474cf4"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E38",
@@ -1872,9 +3125,9 @@
         "forbidden",
         "read_failure"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S05",
@@ -1890,7 +3143,47 @@
         "BC04"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751a4c74d0",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B38 / 查看同步详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+              "position": "center"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37583756e3d",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B38 / 查看飞书投影状态",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c375f9aa7c2e",
+              "position": "center"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E39",
@@ -1915,8 +3208,8 @@
         "forbidden"
       ],
       "status": "prototype_sample_verified",
-      "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
-      "design_status": "b1a_visual_pending_review",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -1939,12 +3232,132 @@
       "c2_batch": "C2-B1a",
       "penpot_instances": [
         {
-          "shape_id": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
-          "screen_id": "M1-S09",
-          "revision": "m1-ui/0.1.0-b1a",
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb002a00",
+          "screen_id": "M1-S03",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "返回任务中心",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "7e34228d-e3a9-80dc-8008-c344afca1aa1",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 返回任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb43bb01",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb85b865",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fbcd115e",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc10b80e",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc556299",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc990682",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "7e34228d-e3a9-80dc-8008-c343160c8626"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fabe341e",
+          "screen_id": "M1-S02",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B39 / 导航到任务中心",
           "actions": [
             {
               "trigger": "click",
@@ -1955,11 +3368,12 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E40",
@@ -1983,9 +3397,9 @@
       "exceptions": [
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -2006,7 +3420,135 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb0acdbd",
+          "screen_id": "M1-S03",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb4ebdf2",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb9035f6",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fbd83868",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc1b2c2b",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc60eb28",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fca4e70b",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fac8ff00",
+          "screen_id": "M1-S02",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B40 / 导航到审批",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bd2e0442"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E41",
@@ -2030,9 +3572,9 @@
       "exceptions": [
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S03",
@@ -2053,7 +3595,135 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb14f5da",
+          "screen_id": "M1-S03",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb57e09a",
+          "screen_id": "M1-S09",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fb9bdaa0",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fbe1ca99",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc26ece4",
+          "screen_id": "M1-S05",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fc6bfb32",
+          "screen_id": "M1-S11",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fcae66a1",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375fad2fde2",
+          "screen_id": "M1-S02",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B41 / 导航到内部补货",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c374bef22ae3"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E42",
@@ -2079,9 +3749,9 @@
         "session_expired",
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S02",
@@ -2103,7 +3773,30 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f855a057",
+          "screen_id": "M1-S04",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B42 / 读取同版本完整详情（模拟）",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c373c1095dce"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E43",
@@ -2128,9 +3821,9 @@
         "missing_evidence",
         "forbidden"
       ],
-      "status": "planned_unmapped",
-      "penpot_shape_id": null,
-      "design_status": "revision_review_required",
+      "status": "prototype_sample_verified",
+      "penpot_shape_id": "448723ff-8a21-80dc-8008-c375f91222b6",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "also_on": [
         "M1-S04",
@@ -2149,7 +3842,91 @@
         "BC05"
       ],
       "c2_batch": "C2-B1b",
-      "b1a_availability": "not_in_authorized_batch"
+      "b1a_availability": "not_in_authorized_batch",
+      "penpot_instances": [
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f91222b6",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B43 / 查看披露阻断样例",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c375f839e836"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c375f91e8ab3",
+          "screen_id": "M1-S10",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B43 / operator 只读样例",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c375f8de4538"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751c78b2c3",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3751cdf0876"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c3751e18cc1b",
+          "screen_id": "M1-M01",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B43 / 选择 Mock 示例原因",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "navigate-to",
+              "destination": "448723ff-8a21-80dc-8008-c3751e8a0b15"
+            }
+          ]
+        },
+        {
+          "shape_id": "448723ff-8a21-80dc-8008-c37582da7542",
+          "screen_id": "M1-S06",
+          "revision": "m1-ui/0.2.0-b1b",
+          "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+          "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
+          "meaning": "M1-B43 / 展开工具安全详情",
+          "actions": [
+            {
+              "trigger": "click",
+              "type": "open-overlay",
+              "destination": "448723ff-8a21-80dc-8008-c375fa549906",
+              "position": "center"
+            }
+          ]
+        }
+      ],
+      "prototype_validation": {
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
+      },
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E44",
@@ -2221,7 +3998,7 @@
       ],
       "status": "prototype_sample_verified",
       "penpot_shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
-      "design_status": "b1a_visual_pending_review",
+      "design_status": "b1b_visual_interaction_pending_review",
       "contract_status": "proposal_not_implemented",
       "result_unknown_policy": "Read original object/receipt first; writes may replay only original identity/key/payload under server idempotency rules; never invent success.",
       "implementation_status": "not_implemented",
@@ -2235,10 +4012,10 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af0a7009",
           "screen_id": "M1-M02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "×",
+          "meaning": "M1-B45 / ×",
           "actions": [
             {
               "trigger": "click",
@@ -2250,10 +4027,10 @@
         {
           "shape_id": "7e34228d-e3a9-80dc-8008-c344af929b26",
           "screen_id": "M1-M02",
-          "revision": "m1-ui/0.1.0-b1a",
+          "revision": "m1-ui/0.2.0-b1b",
           "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
           "page_id": "7fd0f7d0-fdda-81c5-8008-c340d1377489",
-          "meaning": "取消",
+          "meaning": "M1-B45 / 取消",
           "actions": [
             {
               "trigger": "click",
@@ -2264,11 +4041,12 @@
         }
       ],
       "prototype_validation": {
-        "result": "passed",
-        "scope": "Mock navigation/overlays only",
-        "evidence": "evidence/c2-b1a/prototype-ui-events.json"
+        "result": "see_per_instance_actual_records",
+        "scope": "Mock navigation/overlays; not all 120 instances were independently clicked",
+        "evidence": "evidence/c2-b1b/prototype-ui-events.json"
       },
-      "b1a_availability": "mapped_sample"
+      "b1a_availability": "mapped_sample",
+      "b1b_availability": "mapped"
     },
     {
       "id": "M1-E46",
@@ -2359,11 +4137,11 @@
   ],
   "trusted_actor_source": "server session or verified Feishu callback; never client role or LLM",
   "pending_design_decisions": [],
-  "design_status": "c1_approved_b1a_visual_sample_review_required",
+  "design_status": "b1b_visual_interaction_review_required",
   "design_document": "c1-product-design.md",
-  "visual_scope": "POC preserved; separate native M1 B1a file; only sampled states mapped",
+  "visual_scope": "POC preserved; existing M1 file extended with B1b; Mock only",
   "baseline_ux_commit": "77b69d3",
-  "shared_control_mapping": "One stable semantic control ID may have multiple UI/Penpot instances; C2 must map each instance UUID and source/target. All M1 UUIDs remain null.",
+  "shared_control_mapping": "Stable semantic ID can have multiple source instances; latest instance UUID/action map is authoritative; reserved B09 has no UI",
   "api_contract_gaps": [
     "BC01 scoped role union and read filters",
     "BC02 Web pre-submit parsing/candidates and Feishu task-linked async continuation; no new state/API",
@@ -2373,7 +4151,7 @@
     "BC06 full SKU disclosure and client fallback",
     "BC07 actual expiry/freshness configuration; no hardcoded 24h/15min guarantee"
   ],
-  "review_status": "C1_0.2.1_approved_by_user_B1a_visual_pending",
+  "review_status": "C1_approved_B1a_visual_passed_B1b_waiting_review",
   "c2_authorized": true,
   "decision_record": "c1-decisions.md",
   "batch_plan": "c2-batches.md",
@@ -2429,16 +4207,18 @@
     "implemented": 0
   },
   "batch_semantics": "页面c2_batch为首批出现；事件批次决定该操作首次接入。共用事件also_on在各来源页面/辅助层已纳入对应批次后才创建实例，不因共用ID提前生成B3页面。",
-  "authorization_scope": "C2-B1a_only",
+  "authorization_scope": "C2-B1b",
   "authorized_design_batches": [
-    "C2-B1a"
+    "C2-B1a",
+    "C2-B1b"
   ],
   "followup_authorization": {
-    "C2-B1b": false,
+    "C2-B1b": true,
     "C2-B2": false,
     "C2-B3": false
   },
-  "m1_visual_revision": "m1-ui/0.1.0-b1a",
-  "m1_visual_map": "evidence/c2-b1a/design-map.json",
-  "b1a_delivery": "c2-b1a-delivery.md"
+  "m1_visual_revision": "m1-ui/0.2.0-b1b",
+  "m1_visual_map": "evidence/c2-b1b/design-map.json",
+  "b1a_delivery": "c2-b1a-delivery.md",
+  "b1b_delivery": "c2-b1b-delivery.md"
 }

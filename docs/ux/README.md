@@ -1,7 +1,9 @@
 # 本地设计工具链与M1产品设计索引
 
-日期：2026-10-09（Asia/Shanghai）。阶段A/B已提交工具验证；C1修订0.2.1已通过产品评审；本轮交付 **获准C2-B1a原生视觉样板供评审**。B1b/B2/B3尚未授权。现有POC不代表业务功能、权限服务或M1 Gate已完成。
+日期：2026-10-09（Asia/Shanghai）。阶段A/B已提交工具验证；C1修订0.2.1已通过产品评审；B1a视觉评审已通过；本轮获授权制作 **C2-B1b审批、内部工作项与Agent轨迹原型**，交付后等待视觉与交互评审。B2/B3尚未授权。现有POC不代表业务功能、权限服务或M1 Gate已完成。
 
+- **[B1b正式设计、原型验证与限制](c2-b1b-delivery.md)**
+- [B1b当前UUID映射](evidence/c2-b1b/design-map.json)
 - **[B1a视觉交付、截图、组件、实点证据与限制](c2-b1a-delivery.md)**
 - [正式M1 UUID映射](evidence/c2-b1a/design-map.json)
 - **[C1完整方案：旅程、权限、交互矩阵、风格、待决策](c1-product-design.md)**
@@ -20,7 +22,7 @@
 - [真实画布 ID 映射](evidence/design-map.json)、[实际点击事件](evidence/prototype-ui-events.json)
 - [独立部署与维护](../../tools/design/penpot/README.md)
 
-`POC-*` 是已制作的工具测试界面；`M1-*` 是正式产品ID；B1a样板已映射，其余清单仍待后续获准批次。两者不得相互冒充。YAML 文件采用 YAML 1.2 兼容的 JSON 语法，目前可用标准 JSON 解析器检查。`contract_version=0.2.1-c1-revision` 与 `visual_revision=ux-poc/0.1.1` 分别描述C1评审稿和原样保留的测试画布，不表示全部M1视觉或业务Gate通过。47个事件ID中B09为不渲染的保留ID，其余46项为计划交互；18个逻辑界面含F02渠道proposal，全部未实现业务。其中5个B1a样板已映射正式文件（S09/M03仅最小覆盖）；14个控件实例实点，视觉待评审。BC01–BC07仍待后端确认；授权仅B1a。
+`POC-*` 是已制作的工具测试界面；`M1-*` 是正式产品ID；B1a样板已映射，B1b关联页面在同文件增量制作，B2/B3仍待授权。两者不得相互冒充。YAML 文件采用 YAML 1.2 兼容的 JSON 语法，目前可用标准 JSON 解析器检查。`contract_version=0.2.1-c1-revision` 与 `visual_revision=ux-poc/0.1.1` 分别描述C1评审稿和原样保留的测试画布，不表示全部M1视觉或业务Gate通过。47个事件ID中B09为不渲染的保留ID，其余46项为计划交互；18个逻辑界面含F02渠道proposal，全部未实现业务。其中5个B1a样板已映射正式文件（S09/M03仅最小覆盖）；14个控件实例实点，B1a视觉已通过。BC01–BC07仍待后端确认；B1b设计已获本次授权；当前B1b映射与验证详见新交付文档。
 
 本分支基于 main `a0d521e`，不修改 Phase 1 主控的 STATUS、G3、CI、业务数据库或真实飞书配置。该 commit 的 STATUS 仍包含较早的“PR #9 待合并”记录，而实际 Git 已含 PR #9 merge；本轮以产品文档为范围依据，不代替主控修订阶段事实。
 

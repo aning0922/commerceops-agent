@@ -156,6 +156,33 @@
       "token_bound_shapes": 237,
       "scope": "Native catalog and color fill bindings read back; spacing/type/radius tokens exist but not all properties are bound. No automatic code synchronization claimed."
     },
-    "comparison_to_poc": "c2-b1a-delivery.md"
+    "comparison_to_poc": "c2-b1a-delivery.md",
+    "visual_review_status": "B1a approved by user; B1b review required"
+  },
+  "m1_b1b": {
+    "revision": "m1-ui/0.2.0-b1b",
+    "file_id": "7fd0f7d0-fdda-81c5-8008-c340d1377488",
+    "inherits": "m1_candidate / CommerceOps/M1-B1a",
+    "native_token_catalog": {
+      "set_name": "CommerceOps/M1-B1a",
+      "set_id": "7e34228d-e3a9-80dc-8008-c342c49d3572",
+      "active": true,
+      "count": 33
+    },
+    "new_token_sets": 0,
+    "reuse": {
+      "existing_components": 18,
+      "token_set_preserved": true,
+      "native_tokens": 33,
+      "shell_button_status": "Native component instances",
+      "font": "Source Sans Pro + existing CJK fallback",
+      "table": "B1a colors, numeric alignment, row/cell structure reused; not all new rows are native instances of SKU asset",
+      "all_styles_bound": false
+    },
+    "binding_evidence": {
+      "token_bound_shapes": 896,
+      "not_all_spacing_type_radius_bound": true
+    },
+    "delivery": "c2-b1b-delivery.md"
   }
 }

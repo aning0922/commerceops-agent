@@ -1,6 +1,6 @@
 # Phase C1 · 页面详设（外部评审修订）
 
-版本：`0.2.1-c1-revision`。C1修订已通过产品评审，仅C2-B1a获授权。18个逻辑界面包含原17个页面/辅助层与新增F02渠道澄清proposal；不新增Web导航。5个B1a样板已映射Penpot（S09/M03为最小骨架/弹窗）；全部未实现业务。视觉映射见 [B1a](c2-b1a-delivery.md)。对应 [主方案](c1-product-design.md)、[决策](c1-decisions.md)、[批次](c2-batches.md)、[机器清单](screens.yaml)。
+版本：`0.2.1-c1-revision`。C1修订已通过产品评审；B1a视觉评审通过，本次B1b已获授权。18个逻辑界面包含原17个页面/辅助层与新增F02渠道澄清proposal；不新增Web导航。历史5个B1a样板已映射Penpot（S09/M03为最小骨架/弹窗）；全部未实现业务。B1a历史映射见[B1a](c2-b1a-delivery.md)，当前B1b增量映射与验证见[B1b](c2-b1b-delivery.md)，B2/B3未授权。对应 [主方案](c1-product-design.md)、[决策](c1-decisions.md)、[批次](c2-batches.md)、[机器清单](screens.yaml)。
 
 ## 所有页面共用的异常合同
 

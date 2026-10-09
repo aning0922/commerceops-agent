@@ -18,3 +18,7 @@
 早期扫描检测到公共文件 SHA 和官方 MCP overview 的设计 token API 属性名，均已对照来源确认为误报。改变 manifest 的表达结构，并在发布副本省略该单个公共 API 引用，原始输出留在私有运行目录；实际 mutation 调用和回读值未改变。详情见 [redactions](evidence/redactions.json)。没有增添 allowlist、改扫描规则、改 workflow 或改 Git 历史来让检查通过。
 
 没有执行新的业务 pytest、G1–G3、真实飞书、库存审批 T3/T4/T6 或 Next.js/Playwright 业务 E2E；不得把本表解释为这些通过。GitHub PR 的基础 CI 另以对应 head 的实际运行结果为准，PR 未合并不记正式完成。
+
+## C2-B1b检查追加
+
+B1a视觉通过后的B1b设计与原型检查见[完整交付](c2-b1b-delivery.md)和[实际仓库结果](evidence/c2-b1b/repository-validation.json)。复用现有.venv，未安装全局依赖。设计合同、Ruff、32份Markdown和差异检查通过；敏感扫描当前/index/全部可达历史均0。三处非凭据文本初次匹配已消除，扫描规则不变。保留77次Viewer点击中的4次失败及复验；不计业务测试。Phase1、共享锁和CI未修改。

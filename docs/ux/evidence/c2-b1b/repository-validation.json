@@ -1,0 +1,45 @@
+{
+  "scope": "Design/UX contract and repository checks only; no business or Phase1 tests",
+  "preliminary_failures_resolved": [
+    {
+      "command": "python3 -m scripts.check_docs",
+      "reason": "default interpreter missing markdown_it; reused existing .venv; no global install"
+    },
+    {
+      "command": "python3 -m scripts.scan_secrets",
+      "reason": "three noncredential text matches; labels shortened and long official documentation body omitted with digest; scanner rules unchanged"
+    }
+  ],
+  "checks": [
+    {
+      "command": ".venv/bin/python -m ruff check tools/design/penpot/check_contract.py",
+      "exit_code": 0,
+      "output": "All checks passed!"
+    },
+    {
+      "command": ".venv/bin/python -m ruff format --check tools/design/penpot/check_contract.py",
+      "exit_code": 0,
+      "output": "1 file already formatted"
+    },
+    {
+      "command": ".venv/bin/python tools/design/penpot/check_contract.py",
+      "exit_code": 0,
+      "output": "M1 B1b：原生UUID/命名版本/冻结清单与实际Viewer记录一致；业务未实现\nM1 B1a：5个原生样板/辅助层、14控件实例、28实点；业务未实现\n合同/画布引用一致：3 POC 屏幕、4 控制件、14 点击记录；M1 业务未实现"
+    },
+    {
+      "command": ".venv/bin/python -m scripts.check_docs",
+      "exit_code": 0,
+      "output": "Markdown: 32 files, errors=0"
+    },
+    {
+      "command": ".venv/bin/python -m scripts.scan_secrets",
+      "exit_code": 0,
+      "output": "dir: findings=0, exit=0\nindex: findings=0, exit=0\ngit: findings=0, exit=0"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "output": ""
+    }
+  ]
+}
