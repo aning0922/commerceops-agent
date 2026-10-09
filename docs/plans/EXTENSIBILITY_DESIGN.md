@@ -1,8 +1,10 @@
 # CommerceOpsAgent 业务扩展架构规范
 
-日期：2026-10-09（Asia/Shanghai）。性质：**待审核的设计补充，未实现、未进行扩展运行验证**。配套 [30 天执行计划](30_DAY_EXECUTION.md)。本文件在既有 [ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[PRD](../PRD.md) 上约束未来增量开发，不替代这些基线或改变当前 Phase 1 合同。
+更新日期：2026-10-10（Asia/Shanghai）。性质：**待审核的设计补充，未实现、未进行扩展运行验证**。配套 [30 天执行计划](30_DAY_EXECUTION.md)。本文件在既有 [ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[PRD](../PRD.md) 上约束未来增量开发，不替代已收口Phase1合同或授予Phase2编码权。
 
-源码核对：main `a0d521ed79505287fa61bb6ddf82640e97824257` 只有P1-01底座；P1集成 `41323ec0d8a4ad1bd1b9a6eb2b70fc820f67ae94` 已有 intake/runner/queue/Worker/lock/checkpoint 与飞书技术probe。统一CommercePort、Workflow注册表、业务Tool执行器及本文多数目录仍是设计，不能描述成现有可用框架。PR #19/#22/#25未合main；C1/C2引用来源和P1事实快照见配套计划第1节。本轮只读核对，不更改P1文件或运行环境。
+源码/状态基线：main `f8ed1800e1c82802e5d3c3f6c5a4a2d76050a5a0`，PR #19/#22/#25/#27/#28均已合，P1必要G1/G2/G3经有限技术合同验收，精确main CI37965530018成功（345offline/79真实PG、三G1/六G2/cleanup0）。既有intake/runner/queue/Worker/lock/checkpoint、Feishu技术probe和公开harness已在main；统一业务CommercePort、Workflow注册表、业务Tool执行器与下列业务子包仍待授权实施，不描述成可用框架。本规划普通merge基线6d5b253，parents44b457c/f8，无冲突；相对main只改两规划文件，不自行改业务/锁/环境。既有总控为全项目唯一总控，规划/UX继续原独立顶层，Phase2以后编码须新授权并另开独立顶层Worktree；本轮只准备合同与排期。
+
+P1技术Gate不代表正式库存/订单/模型闭环或M1完成：G3为真实接入、技术决定、重复/冲突/过期/DB失败、受控重启和Base有限观察；non@/self-bot按平台最小权限非投递边界，后端filter分支仍not_run；自然网络故障/wire/p95/长期幂等TTL/特定Base retry等未验证。原Baseunknown与403/1254608观察保留，不改为成功ACK。#23已CLOSED且risk_accepted/root_cause=not_identified，不虚构配置根因、不续开调查。正式T2–T6、A/C/R和产品卡片能力由后续阶段实测。最新Issue/PR/UX候选及边界见配套计划第1节，原阶段验收事实原样保留。
 
 ## 1. 扩展目标与保留基线
 
@@ -176,7 +178,9 @@ PG是任务、报告、计划、决定、执行、草稿、审计的权威来源
 
 ## 8. 前端页面与组件复用
 
-现有UX方向从PR #24冻结C1 `0.2.1-c1-revision` 和B1a候选 `m1-ui/0.1.0-b1a` 读取；具体链接见配套计划。B1a视觉尚待用户确认，B1b/B2/B3未授权。后续实现不能机械复制Penpot的Flex子对象顺序或假字段/模拟点击；先确认BC01–07传输/权限/版本/澄清合同。
+现有UX方向为PR #24的C1 `0.2.1-c1-revision` 与完整候选 `m1-ui/0.4.1-freeze-rc` / revn58，冻结设计内容来源5a801faf；当前PR普通merge后head2550d4e，UX/tools设计子树与5a逐字不变，新headCI/独审状态见配套计划最新快照，不借旧CI覆盖f8上下文。18逻辑页、47语义控件（46可渲染、B09不渲染）、18组件/33Token已交接；B30/E30进入S08运维，B31/E31按当前有权身份返回首页，admin-only不默认读业务/审批。产品/视觉外审既有结论已通过，最终冻结确认与main合入仍待用户；BC01–07pending，全部业务not_implemented。后续不能机械复制Flex子对象顺序或把模拟点击/禁用proposal接为真实API；需相应合同与编码授权。
+
+P2纸面/后续获授权的库存DTO与纯规则不以所有UX资产最终冻结为前置；相关字段/规则口径由总控协调确定。前端接入和正式卡片需相应BC、最终设计确认和实施授权，UX文件的“真实G3待验”是产品卡片/业务验收，不否认已完成的P1技术G3。设计修订只由原UX顶层处理，本会话不操作其资源，不重建组件库或提前通用平台。
 
 每页保留稳定screen/control/event ID与设计版本，实施映射到路由、组件、API DTO和E2E情景；新增日报/SKU/草稿用新的namespaced ID，不改旧库存控件语义。tokens由获确认设计版本提取到受控本地文件，代码复用色彩/间距/字级/状态组件；不自动双向同步原设计资源、不整包复制旧项目。
 
