@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，诊断b8的PR25唯一CI已成功，但原异常根因未定位，尚未合入；P1-05 真实W1六消息及独立PG回读、单节点/六字段只读、Base v2本地发布与verify-config已完成，M1一次单卡发送及四条B回调已记录，客户端观察不足、单卡独立PG回读/C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，诊断b8的PR25唯一CI已成功，但原异常根因未定位，尚未合入；P1-05 真实W1六消息及独立PG回读、单节点/六字段只读、Base v2本地发布与verify-config已完成，M1一次单卡发送及四条B回调已记录，客户端观察不足、单卡回读入口启动失败正修两项P1，C角色反例/Base全链路尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–19节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第20节与 Issue/PR 最新记录为准。
+第1–20节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第21节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -336,3 +336,13 @@ PR25唯一CI已由主控与独立Review只读核对，b8新SHA真实组合复验
 用户确认B点过确认和拒绝，超出预定单次人工动作；不能算单次M1或平台自动重投。客户端渲染/Toast/耗时未留意，确认/确认/拒绝/拒绝只是不确定回忆，不能与四条事件强行映射；第四条分类与回忆差异保留。原SDK payload未落盘，不事后补造。主控只读核八artifact hash/0600/runtime路径、四trace/receipt/lifecycle，另核既有四锁/barrier/Docker标签和健康；未重复SDK/发卡/SQL。真实结果evidence hash95b86c8199b38a3cd07f79053b782fef25099d0cadffb3be564d4d6cda37c5a9。
 
 原P105准备M1单卡独立PG只读leaf源码/fake/冻结，须独审后派发实际SQL；完整枚举关联binding/action/value/receipt/event key/重复冲突，不筛掉异常、不修库、不倒推回调时锁定。当前该回读not_run，C未armed/BaseCRUD未执行、无其他窗口。累计baseline最多3/C1最多1仍适用，M1已占一次；PR25未合/原根因未定位、maina0/int413、#6/#7/#23 OPEN、PR19 Draft，完整G3/Phase1未通过，不合main、不进Phase2。
+
+## 21. M1 回查启动失败与最小修正
+
+M1单卡PG回查v1先经源码独审及独立49fake/2既有SDK warnings/4.13秒通过，冻结manifest6d9d68b6a57e4aaaecf2aed84794ac63165cef2f143805b0c02cff76007b4f9b。主控派唯一实际入口，session56572 exit2/inconclusive，17:42:44观察退出（北京时间，秒级观察精度）。attempt已消耗、0600归档零字节、成功result不存在；CLI退出/自有容器absent/四锁可取释放/barrier无/PG healthy，冻结来源未变，未重试/修库/SDK/API/新卡/Base/C overlay。[实际任务及离线阻断](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6078560216)与[阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078560725)。主控另核失败evidence hash32816e2b950245573a4726daf4b2b6a472937d1158f1eeb97a9b83e302add765、attempt hash/600、空archive/result absent与既有锁/标签/健康，没有再SQL。
+
+原作者离线定位，独立Review纯内存argv复现P1：runner将archive --mount插在IMAGE后、python前，而基准末尾为IMAGE/python/script；新增mount成为容器command，readback Python无法启动。旧fake只检参数存在漏掉位置，先前49fake/审查通过事实保留，并由本次发现补充阻断；不能称已查询PG、四receipt缺失或数据库语义失败，零字节归档不能诊断PG数据。旧v1全部冻结source/manifest/已消耗attempt/空archive/失败证据不覆盖不重置。
+
+另有独立静态P1：receipt.created_at默认now()是事务开始，card.decided_at的clock_timestamp()是更新时钟；v1 leaf要求receipt不得早于decision会误拒正常同事务。纯fake事务T0/决定T0+2/receipt T0复现，原fake时间相同漏覆盖。这不是空归档启动失败根因。主控授权原唯一P105一次针对性最小v2源码/fake修正两项：所有Docker options置于IMAGE前、command严格python/获审leaf并测试legacy错误向量；仅移除错误跨时钟因果条件，保留窗口/expiry/身份/完整binding/action/value/semantic/first decision/event关联及全部安全约束。未改schema/Repository或架构，不触P104，不增框架。
+
+v2须重新冻结独审后由主控安排新的有界只读；当前尚无第二次SQL，回查未验证、新卡窗暂停，B客户端观察仍不足。maina0/int413、PR25未合/原CI根因未定位、#6/#7/#23 OPEN、PR19 Draft，G3/Phase1未通过，不合main、不进Phase2。

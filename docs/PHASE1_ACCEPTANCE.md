@@ -162,3 +162,9 @@ M1源码/fake/冻结正在原唯一P105准备，复用原CardSender/Repository�
 current-v2 M1单卡包独立87fake/4.16秒与源码Review通过后，原P105实际仅发送一次，原CardSender返回sent、持久slot消耗、不重试。session4221 exit0、17:17:54.815876结束（北京时间），SDK上界294.431097秒/dead/reaped，CLI/自有容器/四锁/barrier停止清理由主控只读另核。四条B群回调依次首次联合确认、重复确认、冲突、重复确认，原Receiver各一次/原DAL返回被观察到；DTO-ready 8.211–12.891ms只为内部路径。实际来源及hash见[阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078153569)和[STATUS第20节](STATUS.md#20-m1-实际单卡窗口与客户端观察不足)。
 
 用户确认点过确认及拒绝，故不是预定单次动作或平台自动重投证据；客户端渲染/Toast/耗时未留意，操作顺序回忆不确定且不能与服务器第四条强行映射。原SDK payload未保存，不补造；独立PG单卡关联/action/value/receipt读回尚未执行，正在原会话准备源码/fake/冻结独审。C资格/角色反例、故障重连/Base全链路仍未验收；单卡发送与内部commit-return不等于完整G3或正式T3。M1已用一个baseline槽位，其余总量限制保持，#6/#7/#23 OPEN、PR25未合、PR19Draft，完整Phase1未过，不合main、不进Phase2。
+
+## 17. 单卡回查 v1 inconclusive，修复前不再执行
+
+M1回查v1独立49fake/4.13秒后唯一实际入口session56572 exit2，17:42:44观察退出（北京时间，秒级）；attempt消耗、600archive为空、无成功result，容器/CLI/四锁/barrier/PG状态由主控只读核对，来源未改且无重试。[实际阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6078560725)与[STATUS第21节](STATUS.md#21-m1-回查启动失败与最小修正)列失败evidence及限度。独立源码/向量确认archive mount位于IMAGE后的启动级P1，readback Python无法启动；不能冒称已查询PG或缺持久记录。
+
+另经静态独审确认事务now()/更新clock_timestamp()的错误排序约束P1，不能解释本次空archive。原P105准备最小v2 argv边界及时间语义回归，保留旧source/attempt/空归档/失败证据，保留全部窗口/expiry/绑定/action/value/身份/事件关联约束；新冻结独审前不执行第二次SQL，不改模型或架构。PG诊断/client Toast/wire/C角色反例/Base全链路仍未通过，#6/#7/#23 OPEN、PR25未合、PR19Draft，Phase1未过、不合main、不进Phase2。
