@@ -1,6 +1,6 @@
 # 工程约束
 
-- Phase 0 已收口，记录见 docs/PHASE0_CLOSEOUT.md；Phase 1 已经独立审核、真实G1/G2/G3和精确CI验收，并通过PR19合入main078390c，main合后CI通过。当前等待用户新授权Phase2，不自动编码、派发或切换下一阶段。G3 non@/self-bot按最小权限的平台非投递边界，应用收到后过滤分支仍not_run；正式T3、业务/库存、自然网络故障、wire/p95和长期幂等不由技术探针外推。旧timeout根因not_identified/risk_accepted保持，不继续诊断；P1-01至04能力冻结。最新main/文档收口提交、Gate与风险见docs/STATUS.md和Issue7。
+- Phase0/Phase1已结案；P1有限真实G1/G2/G3、独审与精确main CI证据保留。2026-10-10用户正式冻结m1-ui/0.4.1-freeze-rc为M1设计基线（18页/交互），PR24已正常合main f19281f1163f828448ad9404620d68e0f1afaa66，不追加M1视觉批次。Phase2按Issue29的代码/自有Mock/隔离测试及独审已授权，当前in_progress_p2_01；总控已派新独立顶层/WT从f192顺序实施01→04，P2-01执行中尚未交付Gate，02–04未开始。正式付费模型/飞书扩权限/生产与后续Phase未授权，P2 main合并仍需Gate与届时有效用户授权。G3 non@/self-bot为最小权限平台非投递边界，后端过滤仍not_run，正式T3/库存/自然网络故障/wire/p95/长期幂等不从技术探针外推；旧timeout not_identified/risk_accepted与P1-01–04冻结保持。当前main/CI/派发与限制见docs/STATUS.md及Issue7/29；旧阶段章节为历史，不复活旧未授权标记。
 - 工程独立运行；旧项目只读研究，不复制整项目、不依赖旧项目绝对路径。不擅自修改全局开发环境。
 - 确定性代码负责金额、统计、库存规则、权限与幂等；LLM 负责意图、解释及受限流程路由。
 - PostgreSQL 为业务权威来源。副作用必须有身份校验、审批约束、持久幂等键及失败恢复；不能把 checkpoint 当作副作用事务。

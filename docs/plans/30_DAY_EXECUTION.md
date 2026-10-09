@@ -2,25 +2,25 @@
 
 计划窗口：**2026-10-10（D1）至 2026-11-08（D30），Asia/Shanghai，30 个自然日**。人工容量约 10 小时/日，共 300 小时，含开发、审核、联调与交接。日期是目标，Gate、真实证据和用户阶段授权才是实施与完成依据。
 
-本文件为独立规划提案，不替代 [ROADMAP](../ROADMAP.md)、[STATUS](../STATUS.md) 或 GitHub 任务事实。Phase 1 已由既有总控验收并合入 main；**Phase 2 编码尚未获授权**，计划日期、规划 PR 或设计外审均不能授予实施权。本次接续仅修订本文件及 [扩展架构规范](EXTENSIBILITY_DESIGN.md)，不修改业务代码、共享锁、环境或真实资源。既有项目总控继续负责全项目派发、授权与阶段状态，不新建第二套主控/管理体系。
+本文件为独立规划提案，不替代 [ROADMAP](../ROADMAP.md)、[STATUS](../STATUS.md) 或 GitHub 任务事实。Phase1已收口；用户已正式冻结M1设计0.4.1，并批准Issue29的P2代码、自有Mock与隔离测试。实际付费模型调用、飞书扩权限、生产及后续Phase仍需单独授权；本轮集中更新两规划文档及获追加许可的AGENTS/ROADMAP/STATUS最小交接事实，不启动P2。用户已授权PR24/26在重核门禁后正常合main，PR24已合，PR26由总控重核独审/CI后裁决，本会话不自行合入。既有总控继续负责全项目派发与阶段状态，不另建管理体系。
 
 ## 1. 核对基线与证据边界
 
-最新只读核对：2026-10-10 01:31 起（Asia/Shanghai，D1）。仓库仍为 Private 的 `aning0922/commerceops-agent`。接续原 Worktree、`codex/30-day-delivery-extensibility` 与 [PR #26](https://github.com/aning0922/commerceops-agent/pull/26)，接单时干净、head `44b457ccef35484965e9ac8c6e2b5fca9f9114b1`。普通 merge 最新 `origin/main` 后基线为 `6d5b253dcc26befbf963baf9fd9191d0c31b31fb`，parents 为原规划 head 与 main `f8ed1800e1c82802e5d3c3f6c5a4a2d76050a5a0`，无冲突、无 rebase/reset/强推。main 当前验收文件原样保留；此次新增差异仅限两规划文件。原建树基线 a0d521e 及 2026-10-09 的旧阻断是历史，不再作为当前启动依据。
+最新只读核对：2026-10-10 03:05用户正式冻结/授权之后（Asia/Shanghai，D1）。仓库仍为Private，沿用原Worktree、分支与[PR #26](https://github.com/aning0922/commerceops-agent/pull/26)；本次接单干净、head35bc5dd。普通merge最新origin/main所得基线 `c0bae444c395c3f7dd13b1a1decb4a3191dbbb67`，parents为 `35bc5ddf16c354f47cdea96d19974abd3e15c068` 与main `f19281f1163f828448ad9404620d68e0f1afaa66`，无冲突/历史改写。前次merge6d5b253（44b/f8）及初始a0是历史。相对最新main只改两规划文件及追加获准的AGENTS首条/ROADMAP顶部/STATUS顶部与交接节；业务/原验收历史/UX资产原样继承。
 
 | 事实来源 | 核对结果 | 对新计划的含义 |
 |---|---|---|
 | [PR #19](https://github.com/aning0922/commerceops-agent/pull/19) | MERGED；最终候选 `770426e57de9d9b4a8e7cd5cb25e5e8ed7e0b4f1`；2026-10-10 01:00:03 普通合至 main `078390c557bbd21a4dd36b98064894abe9bc0f2a`；[独立阶段 review](https://github.com/aning0922/commerceops-agent/pull/19#pullrequestreview-5472976596)、[候选 CI37962244961](https://github.com/aning0922/commerceops-agent/actions/runs/37962244961)、[main CI37963130675](https://github.com/aning0922/commerceops-agent/actions/runs/37963130675) 成功 | G1/G2/G3 必要技术 Gate 已由总控按有限合同验收，旧“Draft/未合/P1阻塞”被实际收口取代；不是 M1 产品完成 |
 | [PR #27](https://github.com/aning0922/commerceops-agent/pull/27)、[#22](https://github.com/aning0922/commerceops-agent/pull/22) | 均 MERGED；#27 最终head `f7a50ecfb1e6646b8244855265b7e2c6ece0603c`，#22 最终head `43aca6ca717d34274b8a5131fef06ab8b2fa6962` | 真实技术证据、公开代码/历史 source 映射及阶段状态已集成；旧配置准备和失败记录仍为历史证据，不能重新派发采样 |
-| [PR #28](https://github.com/aning0922/commerceops-agent/pull/28) 与最新 main | MERGED；当前 main `f8ed1800e1c82802e5d3c3f6c5a4a2d76050a5a0`；[合后 CI37965530018](https://github.com/aning0922/commerceops-agent/actions/runs/37965530018) push/head f8，所有步骤 SUCCESS | 本规划只读核日志：345offline/72.60s、79真实PG/82.08s、2既有warnings、27Markdown、mypy84、三G1 verified count_one=true、六G2、cleanup0、敏感三层0；是原main运行证据，不是本规划新增实跑 |
+| [PR #28](https://github.com/aning0922/commerceops-agent/pull/28) / P1收口main | MERGED；P1收口main `f8ed1800e1c82802e5d3c3f6c5a4a2d76050a5a0`；[合后CI37965530018](https://github.com/aning0922/commerceops-agent/actions/runs/37965530018) SUCCESS | 只读核日志的345offline/72.60s、79PG/82.08s、三G1/六G2/cleanup0等属于该历史P1实跑，不转记为新main f192的合后实跑 |
 | [PR #25](https://github.com/aning0922/commerceops-agent/pull/25)、[Issue #23](https://github.com/aning0922/commerceops-agent/issues/23) | MERGED/CLOSED；用户接受残余风险，`risk_accepted / root_cause=not_identified`；[风险裁决](https://github.com/aning0922/commerceops-agent/issues/23#issuecomment-6080378554) 与合后成功证据保留 | 不再以原超时根因未知阻断后续准备，不追加诊断。配置原因仅possible/unverified，不能写为已定位/已修复；新同类失败再由总控最小处理 |
 | Issues #2–#7、#20 | 全部CLOSED；[#7](https://github.com/aning0922/commerceops-agent/issues/7) 于2026-10-10 01:35:12由总控按completed关闭，正文/最终回执明确f8/PR28/同提交main CI与有限Gate | P1-01–P1-06已结案，不沿用首次查询#7OPEN；P1-01–04冻结，不新建重复执行者或技术采样 |
-| [PR #24](https://github.com/aning0922/commerceops-agent/pull/24) | OPEN，当前普通merge head `2550d4e50c23b2f5f2ee3a72fd5cea6d6b674813` / tree880ff67；UX/tools子树与冻结内容5a801faf逐字不变；新[CI37967247093](https://github.com/aning0922/commerceops-agent/actions/runs/37967247093)于01:41:01完成SUCCESS，前一37967128409 CANCELLED不计通过 | [原UX精确CI/独审回执](https://github.com/aning0922/commerceops-agent/pull/24#issuecomment-6086130453)已取得，实际checkout树880与候选一致；0.4.1/revn58/18页47语义仍同候选。旧CI37965656701实际parents078+5a不能覆盖f8；最终设计freeze确认/PR24main合入仍待用户 |
-| [Issue #29](https://github.com/aning0922/commerceops-agent/issues/29) | OPEN / awaiting_phase2_authorization / not_started；总控已纸面独审并发布01→04、单schema owner、D3–D6及30–40h合同 | 仅准备；没有P2执行者/Worktree/编码/迁移/运行证据。既有Issue/PR是唯一任务事实体系，不另建管理表代替它 |
+| [PR #24](https://github.com/aning0922/commerceops-agent/pull/24) / 最新main | 用户[正式freeze回执](https://github.com/aning0922/commerceops-agent/pull/24#issuecomment-6087443283)后于03:05:25正常MERGED；main `f19281f1163f828448ad9404620d68e0f1afaa66`，parents f8+2550d4e，tree `880ff67e0ec395992fbb4d06993a4271ba402764`，与[已成功候选CI37967247093](https://github.com/aning0922/commerceops-agent/actions/runs/37967247093)实际测试树相同 | 0.4.1的18页/交互正式成为M1设计基线，不追加视觉批次。新main[合后CI37977821884](https://github.com/aning0922/commerceops-agent/actions/runs/37977821884)SUCCESS；总控已核checkout f192/tree880、345offline/73.74s、79PG/86.75s、三G1/六G2/cleanup0，引用原实跑回执，不用候选CI/f8计数代替 |
+| [Issue #29](https://github.com/aning0922/commerceops-agent/issues/29) | OPEN / in_progress_p2_01；P2代码/自有Mock/隔离测试已获批且独立主体ACTIVE，01生成DTO/Mock，02–04未开始；01→04、单schema owner、30–40h保持 | 新顶层01a12214/WT5fdb/codex/phase2-inventory从f192启动，实际Sol/high，未交付测试/PR/CI/独审Gate。本会话只读状态、不碰新WT；提前工作不改日期，正式付费模型/扩权/生产/后续Phase仍未授权 |
 
 设计依据：[PRD](../PRD.md)、[ROADMAP](../ROADMAP.md)、[ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[TEST_PLAN](../TEST_PLAN.md)。当前阶段以 [STATUS第31节](../STATUS.md#31-phase-1-main-验收完成)、[PHASE1_ACCEPTANCE第27节](../PHASE1_ACCEPTANCE.md#27-正式阶段验收结论)、[G3公开交付](../P1_05_LIVE_DELIVERY.md) 和 Issue/PR 最新回执为准，旧节及旧标题不覆盖最终结论。
 
-UX依据只读读取上述PR #24精确head，未接触Penpot服务/资源：[最终冻结修订](https://github.com/aning0922/commerceops-agent/blob/5a801faf64d0bba52e45cdd8cd1d92a26797bc8d/docs/ux/m1-ux-final-freeze.md)、[前端交接](https://github.com/aning0922/commerceops-agent/blob/5a801faf64d0bba52e45cdd8cd1d92a26797bc8d/docs/ux/ux-freeze-candidate.md)、[C1合同](https://github.com/aning0922/commerceops-agent/blob/5a801faf64d0bba52e45cdd8cd1d92a26797bc8d/docs/ux/c1-product-design.md)、[BC决策](https://github.com/aning0922/commerceops-agent/blob/5a801faf64d0bba52e45cdd8cd1d92a26797bc8d/docs/ux/c1-decisions.md)。S01–S11/M01–M05/F01–F02共18逻辑页、47语义控件（46可渲染，B09不渲染），最终映射含110原生局部/布局实例、322控件实例；18组件/33Token可复用。B30/E30是S08运维入口，B31/E31返回当前有权首页，admin单角色无业务导航/审批权。BC01–07仍pending，18页/47事件均not_implemented；原型实点/回读、设计外审、后端确认、业务运行分开。UX文件中的“真实G3待验”指M1正式卡片容量/业务批准等未验，不能反推P1技术G3未通过。本分支仅引用冻结链接，不复制或修改UX文件。
+UX已原样随main合入，本次不访问Penpot资源：[冻结交接](../ux/m1-ux-final-freeze.md)、[前端索引/交接](../ux/ux-freeze-candidate.md)、[C1合同](../ux/c1-product-design.md)、[BC决策](../ux/c1-decisions.md)。文件里的“候选/待最终确认”及旧未授权标记作为freeze前历史保留，由03:05正式用户回执取代，不重写原型证据。S01–S11/M01–M05/F01–F02共18页、47语义（B09不渲染）、110原生实例/322控件、18组件/33Token均保持。B30/E30运维入口、B31/E31有权首页及admin-only限制保持。BC01–07未实现部分pending，业务not_implemented；正式设计冻结不算代码/真实平台通过。UX“真实G3待验”是M1产品卡片验收，不否认P1技术Gate。本分支不改UX资产或新增视觉批次。
 
 有限Gate不能外推：G1/G2为Docker/PG、单Worker/单Graph、技术receipt与Checkpoint恢复；G3已完成真实私聊/群@、技术确认/拒绝/重复冲突/过期/DB失败、受控消费者重启再投递、Base原行恢复/原键观察/更新读回。non@/self-bot按最小权限平台非投递边界验收，应用收到后的filter分支仍not_run；自然网络故障、wire/100事件p95、部分Toast逐字内容、长期幂等TTL、特定Base retry分支未验证。原键第二create为403/1254608有限观察、update曾unknown后读回恢复，不能改写成成功ACK或无限幂等。公开v2 SHA绑定修正只有离线验证，历史真实源/归档保持。正式T2–T6、A/C/R业务验收、库存/订单/模型闭环和20SKU正式卡片仍待后续授权阶段，不是M1已完成。
 
@@ -30,11 +30,11 @@ UX依据只读读取上述PR #24精确head，未接触Penpot服务/资源：[最
 
 **30 天完成原 M1/M2/M3 加精选展示增强，有条件可行，但仍属于高风险冲刺。** 原ROADMAP一位执行者M3累计29–43工作日包含P1 3–5日且未计外部等待；P1现已在D1初期完成，UX完整候选可复用，消除了两项旧准备缺口，但不证明后续业务实现/真实验收已经完成。300小时仍必须支付编码、合同确认、测试、审核和联调成本，不因既有底座/原型加算人工容量。
 
-成立条件：P1 main/CI与有限Gate已满足，D1–D2只完成既有总控最终回执接收、Phase2合同/排期及授权准备；**D3–D6即10月12–15日为Phase2目标窗口，编码须先获用户新授权**。各后续Phase也须及时新授权；D1准备Woo/真实模型最小配置与预算清单，D17前可用于获授权真测；BC01–07在对应功能实施前确认，UX最终冻结由用户确认。P2库存DTO/纯规则不等待所有UX资产冻结，前端接入/正式卡片仍需相关合同与设计确认；审核约24小时内反馈。每个人工日总预算10h，最多两个文件互不冲突的实施会话，夜间候选需次日审查。未满足时报告缺口/延期，不删除核心或把D1改为未来授权日。
+当前成立条件：P1技术Gate与M1设计正式冻结已满足，P2代码/自有Mock/隔离测试已授权，总控已派独立主体执行01；交接与代码状态分别记账。**D3–D6仍为10月12–15日P2目标窗口；P2-01允许D1提前开工，但D1不重置、目标不顺延**。提前工作计当日H/L并从P2总剩余30–40h扣减，不在原40h之外再加一份提前预算；未取得人工实绩不预填。相关BC在对应功能前确认；正式付费模型真测、飞书扩权限、生产与后续Phase仍须单独授权。P2纯DTO/规则可先行，前端/正式卡片仍需实施合同；审核约24小时内反馈，日总预算10h。缺合同/资源/证据时如实报告，不删除核心或用提前授权改变日历。
 
 | 容量段 | 人工小时 | 包含 | 压缩风险 |
 |---|---:|---|---|
-| D1–D2 接续、合同与准备 | 20 | P1已完成；接收总控main回执、P2合同/排期与UX冻结准备；实际耗时计入，不另算主控 | 当前关键等待是P2编码授权/BC确认/UX最终确认，不再是P1/G3 |
+| D1–D2 接续、合同与准备 | 20 | 接收main/正式UX冻结/P2授权与实际派发；本规划交接、P2-01独立执行中，提前工时按实绩扣余额，不新增日预算 | 编码与派发已成立，仍需对应BC/模型真测单独许可；不再等P1或UX冻结 |
 | D3–D6 Phase 2 | 40 | 统一数据、金标、规则、快照、模型与 API | 依赖 P1 实际结果与授权 |
 | D7–D12 Phase 3 | 60 | T2–T6、版本审批、恢复、Web 权限与闭环 | 状态/并发/故障测试不能压缩为 happy path |
 | D13–D17 Phase 4 / M1 | 50 | 正式飞书/Base、完整核心 UI、复现、真实验收 | 原型不能替代 20 条披露及真实回调 |
@@ -51,7 +51,7 @@ UX依据只读读取上述PR #24精确head，未接触Penpot服务/资源：[最
 
 每日定义`H_d`为确认的有效人工小时（编码/文档/审查/测试/联调），`L_d`为无法转成有效独立工作的预算损失小时，普通日历等待与休息不自动算损失。Dk日中剩余预算上限=`10×(30-k)+(10-H_k-L_k)`；窗口累计校验=`300-ΣH_d-ΣL_d`，已结束日按实际未用预算补记L，不能把昨日未用10h复制给次日。实际投入超预算另列，不把加班当新增承诺。没有H/L记录时给条件公式及未知值，不给精确有效工时。
 
-本次实际进度：P1有限技术Gate已在main验证；本规划接续候选在D1修订中；P2业务编码、金标实跑、真实模型、业务飞书/Woo/UI验收和M1/M2/M3核心完成均不能计通过。D1剩余目标为接收回执/准备合同，D2审核与编码授权决策，D3–D6保持目标未执行/待授权，D7–D30保持依赖未满足/目标未执行。每晚总控按第6节逐日替换状态、H/L、剩余核心工时和EAC，不重排日期、不提前标绿；若D3未授权即记该日受阻，先用可独立准备减少L，超过目标窗口的核心工作使用原缓冲并报告延期。
+本次实际进度：P1已收口、M1设计已正式冻结合main，P2独立主体已派发、阶段in_progress_p2_01；代码生成中，实际测试/PR/CI/独审未交付，状态由Issue29与总控更新。D1允许提前P2-01，D2交接/早期开工回执与合同核对，D3–D6原目标不变；没有代码/金标/真测证据就不能计通过，D7–D30仍为依赖未满足的后续目标。总控每天更新实际H/L、剩余核心工时和EAC，不重排日期、不预填10h。提前编码不意味通过Gate，P2-04真实付费模型若未授权/未跑保持blocked，必要延期按原预算降级规则处理。
 
 原范围冻结如下，任何进度降级不得删除：
 
@@ -81,42 +81,42 @@ M3 保留 TEST_PLAN 的 40 个冻结用例和真实模型至少三轮、独立 h
 
 ## 3. P1已收口后的衔接与授权边界
 
-| 工作 | 当前尚无P2编码授权时可独立做的内容 | 依赖/禁止事项 |
+| 工作 | 本规划会话的交接职责（P2代码已授权） | 依赖/禁止事项 |
 |---|---|---|
 | 计划与扩展规范 | 本次两文档、容量/依赖/验收表、只读 Issue/PR 与冻结源码研究 | 不改 ROADMAP/STATUS，不通知或重新派发 P1 执行者，不合 PR |
-| 库存准备 | 纸面金标、合成样本清单、契约/错误/测试设计、需求追踪 | 不实现 Phase 2 业务，不改迁移/Graph/状态机；冻结源与 mock 标签明确 |
-| UX 准备 | 读取0.4.1-freeze-rc完整18页/47语义与前端索引，整理BC01–07协议接入清单 | 本轮最终冻结/PR24合入待用户；原UX顶层负责设计修订，不复制页面、不操作其资源；pending控件不能绑定业务API |
+| 库存准备 | 交接纸面金标/契约/测试设计，由总控独立P2主体按已授权合同接单 | 本规划会话不编码/改迁移/Graph；代码/自有Mock/隔离测试授权归P2任务边界，不访问原P1资源 |
+| UX交接 | 使用已正式冻结合main的18页/47语义及前端索引，整理对应BC实施清单 | 不追加M1视觉批次/复制页面/操作设计资源；BC未实现仍pending，UI原型不算业务代码 |
 | Woo/模型准备 | 只列最小配置、样本/分页/退款对账需求及预算，由用户和资源负责人准备 | 不读取 P1 凭据/私有配置，不连现有 PG，不新建真实平台资源、不发消息、不扩权限 |
 | 测试/演示准备 | 编写测试情景、录屏脚本、证据字段和交接模板 | 不复跑 P1 的受限 CI/PG 诊断，不启动 Gateway、Worker、Docker/Compose |
 
-当前启动链：**既有总控就是全项目总控**，P1有限技术验收/普通main合入/精确合后CI与Issue7 completed关闭已经完成 → 接收最终main回执 → 完成P2 DTO/规则/快照/模型预算及相关BC合同/文件负责人任务包 → 用户明确授权Phase2编码 → 由既有总控派独立顶层P2实施会话，从届时核对后的main建独立Worktree/分支。规划/UX分别沿用原顶层会话，不新建规划平台、第二主控或第二设计库。本次只准备合同和排期，不创建P2任务执行会话/编码/真实资源运行。
+当前启动链：**既有总控继续全项目总控**；P1收口、PR24正式冻结合main及Issue29代码/自有Mock/隔离测试授权已经成立 → 同PR26集中完成规划与最小状态交接、精确独审/CI门禁 → 总控已从创建时最新已验证f192创建新P2顶层、WT5fdb及codex/phase2-inventory，顺序01→04、唯一schema owner → 按对应BC和运行许可落实。主体现已由总控实际派发、P2-01执行中，02–04未开始；本规划者不创建重复执行者/编码/资源。P2 main合入仍需实际Gate与届时有效用户授权，正式付费模型和后续Phase不由本次代码批准推导。规划/UX沿用原会话，不新增管理体系或M1视觉批次。
 
 原“G3外部阻塞时受限推进”的例外不再是当前计划入口：P1技术G3已验收，正式M1卡片/业务审批仍需Phase3/4实测。#23接受风险不代表取消新失败门禁；后续实际出现同类失败，由总控协调最小处理，不自行续开诊断。所有阶段继续保持单Worker/单Graph、PG权威、当前授权/审批/持久幂等与失败恢复合同。
 
-若D2结束仍无P2编码授权或必需BC合同，D3起只从上表选准备材料；受影响业务目标记blocked_authorization/blocked_contract，日历不重编号、D3–D6不顺延。D5仍无法实施即报告核心最早完工日与新增损失工时、压缩增强深度，使用D28–D30原缓冲；不能再把P1/G3写成旧阻断，也不要求总控降低业务Gate来赶日期。
+P2代码授权不再是当前阻断；若D2仍未完成派发或某工作包的必需合同，受影响目标记blocked_dispatch/blocked_contract，D3–D6不顺延；P2-01无需等待BC03/04/06，可按授权独立推进。D5仍无法落实受影响工作时，报告最早完工日/实际损失、优先降增强深度，不降低Gate。正式模型未获许可或未跑记blocked_external，不写成普通代码已授权即可真测。
 
-P2纸面工作包候选已由总控发布于[Issue #29](https://github.com/aning0922/commerceops-agent/issues/29)（awaiting_phase2_authorization/not_started，**不是编码授权或通过证据**）：有效人工约30–40h，原D3–D6保留40h预算。实际接单以届时Issue冻结合同为准，不全文复制到规划。定义P2实际转占D3–D6独立列的工时为`x∈[0,8]`，后续可用于增强/准备的独立总账为`60−x`，第5节同步暂缓x小时可选深度，不另加人时。40h情景占主任务20h+审核8h+本段日内缓冲4h+独立8h（x=8）；该4h缓冲已在40h内，后续缓冲最多剩26h，并继续扣其他实际已用量，不能再借完整30h。若少用则只在当日预算内做合同/审核/缓冲，不给后续日重复加容量：
+P2已审工作包与当前授权见[Issue #29](https://github.com/aning0922/commerceops-agent/issues/29)（in_progress_p2_01，**执行中不等于测试/PR/CI/Gate通过**）：有效人工约30–40h，原D3–D6保留40h目标预算，允许P2-01在D1提前；实际提前投入计当日并扣该任务剩余，不能再额外加40h。接单以届时Issue冻结合同为准，不全文复制规划。定义P2实际转占D3–D6独立列的工时为`x∈[0,8]`，后续可用于增强/准备的独立总账为`60−x`，第5节同步暂缓x小时可选深度，不另加人时。40h情景占主任务20h+审核8h+本段日内缓冲4h+独立8h（x=8）；该4h缓冲已在40h内，后续缓冲最多剩26h，并继续扣其他实际已用量，不能再借完整30h。若少用则只在当日预算内做合同/审核/缓冲，不给后续日重复加容量：
 
 | 目标日/工作包 | 合同与退出目标 | 分阶段BC与资源依赖 |
 |---|---|---|
-| D3 10-12 / P2-01 | 标准DTO/CommercePort、明确Mock合成fixtures/manifest与金标；Decimal/整数/null/窗口/库存池/分页质量 | 获新编码授权、届时main与数据口径；**不需要BC03/04/06或所有UX合入**，BC01/05只读API提案可独立准备，不阻塞纯DTO/fixture |
+| D3 10-12 / P2-01 | 标准DTO/CommercePort、明确Mock合成fixtures/manifest与金标；目标日不变，可D1提前推进 | 代码/自有Mock/隔离测试已授权，总控独立派发、届时main与口径；**不需要BC03/04/06或所有UX合入**，相关读API合同独立准备 |
 | D4 10-13 / P2-02 | 纯库存规则v1与金标/异常边界、未知在途草案/执行资格语义 | P2-01合同、版本化规则演示参数与口径；相关BC07配置显示合同按功能确认，不用原型参数当真实业务授权 |
 | D5 10-14 / P2-03 | 不可变快照/报告与受鉴权只读API，同组织/店铺关联、数据不足明确 | P2-02、BC01/05必要身份/scope/DTO/错误协议、唯一迁移owner；不顺带实现T3/T4/关闭/通用恢复 |
-| D6 10-15 / P2-04 | 受限意图/参数与模型说明，真实成功一次+受控失败/模板降级、usage/预算与解释已有报告 | 指定模型配置/预算/运行授权、相关BC02/05；缺配置或预算则该真实模型Gate blocked，不能以替身/模板替代，Phase2不宣称退出通过 |
+| D6 10-15 / P2-04 | 受限意图/参数与模型说明，真实成功一次+受控失败/模板降级、usage/预算与解释已有报告 | 应用真实付费模型尚未授权；需指定配置/费用或Token预算/单独真测许可及相关BC02/05。缺许可或未跑Gate blocked，不以替身/模板替代 |
 
 这些为单独P2主体新顶层的接单准备，具体拆分、唯一迁移负责人和文件边界由既有总控确认。BC03版本竞态、BC04业务恢复呈现、BC06正式20SKU卡片在对应Phase3/4实现前确认；不得要求P2-01等待整套后端/UX合同，也不得因此提前实施尚未确认的控件。
 
-当前main API源码仅`GET /health/live`，没有可复用的业务报告GET。P2纸面范围拟采用独立报告型`analysis-only` kind/workflow_version，报告与任务终态同一业务事务，completed明确仅“报告产出”；响应DTO由服务端给出`analysis_only=true / execution_available=false`，这些显示字段不能授权写入。Phase3新增业务Workflow和新task，不把P2终态改回审批、不复用旧checkpoint来进入补货执行。BC01/05在读API实施前冻结；本段只概括Issue29准备方案，未新增接口、状态枚举或编码授权。
+当前main API源码仍仅`GET /health/live`，没有业务报告GET；授权不等于新接口已实现。P2已审合同采用独立报告型analysis-only kind/workflow_version，报告/任务终态同事务、completed仅报告产出；服务端DTO的analysis_only=true/execution_available=false不能授予写权限。Phase3用新Workflow/新task，不复活P2终态或旧checkpoint。BC01/05在读API实施前冻结；本段只交接Issue29合同，规划者不新增接口或状态枚举。
 
 ## 4. D1–D30 日计划
 
-每行名义计划预算 **10h = 主任务5h + 独立候选2h + 验证审核2h + 缓冲交接1h**，不是实际已投入或通过。D3–D6独立列若被P2转占x小时，同量候选不再执行，第5节增强预算扣x；本段缓冲若用于P2也从后续余额扣除，总人时仍300h。10月10日快照仅P1技术前置已满足；本规划之外的下列业务任务均目标未执行、实施待阶段授权。可并行列是文件/任务边界允许的候选，不代表同一人多算小时或自动启动多个会话。每项必须带Issue/PR、负责人、文件白名单与依赖；夜间未授权只可准备N0材料，N1/N2须另有相应实施/运行授权；D30夜间停止。
+每行名义计划预算 **10h = 主任务5h + 独立候选2h + 验证审核2h + 缓冲交接1h**，不是实际已投入或通过。D3–D6独立列若被P2转占x小时，同量候选不再执行，第5节增强预算扣x；本段缓冲若用于P2也从后续余额扣除，总人时仍300h。当前P2代码/自有Mock/隔离测试已授权，待总控派发及对应合同；其余Phase目标仍需新授权，下列目标无实跑证据不计完成。可并行列是候选，不同于额外人时或自动开会话；每项带Issue/PR、负责人、文件白名单/资源/预算。夜间任务仍需明确包，P2代码授权不含付费真实模型/平台扩权/生产；D30夜间停止。
 
 | 日/日期 | 主任务（5h） | 可独立任务（2h）与夜间候选 | 依赖 | 当日验证/验收标准（2h；另1h交接） |
 |---|---|---|---|---|
-| D1 10-10 | 接收已完成P1 main/有限Gate/CI/#7结案；接续两规划文件、核心追踪与总控Issue29合同排期 | 0.4.1-freeze-rc/BC01–07问题包；Woo/模型预算清单；夜仅N0材料候选 | P1/#7已完成；P2编码未授权；UX精确CI/独审通过，最终freeze确认待用户 | main/head/CI/有限边界有链接；本规划检查；H1/L1未报告不造实绩，日预算仍10h |
-| D2 10-11 | 审核P2任务包/文件负责人/40h目标，既有总控向用户提出编码授权决策；缺授权只准备 | UX最终冻结确认材料与BC合同；夜N0契约测试设计 | 同PR26独审/CI与用户决定；UX原顶层/PR24；不重做P1 | P1事实不重验/采样；P2授权/必需合同齐才实施D3，否则记blocked与损失预算 |
-| D3 10-12 | Phase2目标：统一DTO/CommercePort/Mock fixtures与完整性语义；当前待授权 | BC01/05查询授权及UI DTO提案；获授权才夜N1 fixture/契约候选 | 届时核对main+用户Phase2编码授权（尚未取得）；迁移单一负责人 | 窗口/Decimal/整数/null/库存池/分页质量金标；目标未实跑不计通过；未授权记当日blocked |
+| D1 10-10 | 接收正式UX冻结/PR24 main/P2授权；集中规划与状态交接，总控可派P2-01提前工作 | 已冻结18页/BC问题与预算清单；明确包后可按P2授权准备离线候选 | P1已结案、UX已冻结合main、P2-01独立主体已ACTIVE；暂无Gate交付 | 新main/head/CI与许可边界可查；提前工时计H1并扣P2余额，不预填实绩，仍10h预算 |
+| D2 10-11 | 核对P2派发/01提前交付（如已开始）与30–40h剩余，确认对应BC实施前置 | 既有冻结设计→实现交接与契约测试材料，不新增视觉批次 | 同PR26交接门禁/总控派发；P2许可已取得，不重复请求代码授权 | 无实测不计通过；实际提前工作不重复预算，后续目标日不顺延 |
+| D3 10-12 | Phase2原目标：DTO/CommercePort/Mock fixtures；若D1提前已交付则核对该包证据 | BC01/05查询scope/DTO提案；明确任务包后离线fixture/契约候选 | P2代码已授权、届时已验证main/独立主体；唯一迁移负责人 | 固定金标与完整性需实跑；授权不等于通过，未派发或合同不足记对应blocked |
 | D4 10-13 | 库存规则v1，风险/资格/未知在途/未关闭项约束 | C2获准部分组件/token映射；夜 N1 零销量/负库存/退款边界样例 | D3；BC07规则配置 | PRD公式逐SKU一致，null不改零，质量硬错不能确认豁免；无模型算数 |
 | D5 10-14 | analysis-only任务的不可变快照/报告与受鉴权只读API；报告/终态同事务，completed仅报告 | BC02澄清协议准备；BC03只准备后续版本竞态不阻塞本只读切片；夜N1 DTO/错误候选 | D4；BC01/05实施前冻结；唯一迁移owner | 空/不完整分开、快照不覆盖、scope正确；execution_available=false，未实现审批/补货 |
 | D6 10-15 | 受限意图/说明/解释已有报告与模板降级，不进入P2审批执行 | 前端另获授权后AppShell/typed client；夜N1替身/注入样例 | D5；模型配置/预算/真测授权；相关BC02/05 | 真实模型一次成功+受控失败；缺配置预算Gateblocked；usage/null语义；Phase3须新授权、新Workflow/新task |
@@ -149,7 +149,7 @@ Phase 2/3/4/5/6 每次退出均需必要实际测试、独立审核、用户允�
 
 ## 5. UI 与新增运营能力的交付梯度
 
-“高质量”优先表现为业务可信、可理解、易操作：保留C1三主导航及admin-only运维壳，复用最新0.4.1-freeze-rc完整映射/组件/Token，不重做已交付原型或设计平台。既有产品/视觉外审通过，最终冻结确认待用户；代码实施仍须BC确认与阶段授权。P0审批全披露、权限、焦点/键盘、错误/unknown、390窄屏与内部项原因必须验真实实现。设计修订继续原UX顶层，本规划不写其资源。
+"高质量"优先表现为业务可信、可理解、易操作：保留C1三主导航及admin-only运维壳，复用已正式冻结0.4.1的映射/组件/Token，不重做原型或追加M1视觉批次。正式设计不等于业务实现；代码须对应BC与阶段许可。P0全披露、权限、焦点/键盘、错误/unknown、390窄屏与内部项原因必须实测，本规划不写设计资源。
 
 | 增强 | 最小保留价值/优先级 | 深度候选及工作量（计入独立列，须扣P2转占x） | 验收 |
 |---|---|---|---|
@@ -219,7 +219,7 @@ main合入：PR、review、用户授权回执、main SHA、合后CI/验证
 
 | 模式 | 允许任务 | 默认资源边界 |
 |---|---|---|
-| N0 准备 | 文档/契约核查、纸面金标、需求映射、脱敏证据索引；当前P2未编码授权仅此模式可备任务包 | 只读冻结代码/Issue/PR，输出原任务链的独立材料，不新建管理体系；不运行PG/Compose/Gateway/真实API |
+| N0 准备 | 文档/契约核查、金标/映射与证据索引；P2虽已授权，具体包/负责人/预算未定时先做准备 | 只读冻结代码/Issue/PR，输出原任务链材料；不运行PG/Compose/Gateway/真实API。明确包后P2可按代码/自有隔离测试许可选N1/N2 |
 | N1 离线候选 | 已授权Phase的纯函数/fixture/typed DTO/独立组件/替身测试/小缺陷 | 独立Worktree，无真实平台密钥、无现有DB连接；不能改共享锁/迁移/Worker/状态机负责人文件，除非精确任务已指定唯一负责人 |
 | N2 自有基础设施候选 | 特别授权的真实PG契约/恢复验证 | 全新随机项目/库/卷、独立端口与秘密目录、资源台账；主控确认归属与运行预算才启用；禁止访问/清理P1与设计工具资源 |
 
@@ -239,7 +239,7 @@ main合入：PR、review、用户授权回执、main SHA、合后CI/验证
 
 ## 9. 会话与模型建议
 
-**既有总控负责全项目；规划与UX继续各自原独立顶层；P2以后实施另用获授权的新顶层与独立Worktree。** P1已冻结，不重派P1-02/03/04/05、不重开#23/#25或G3采样；实际新失败由总控交原责任链最小处理。规划接续同分支/PR26，UX最终确认/局部修订接续原UX顶层/PR24；不得新增第二主控、规划平台或设计库。P2从届时核对main接单，迁移/状态机/Worker恢复/共享锁由既有总控协调唯一负责人。独立审核读取冻结SHA，由总控安排；本实施者自检不作外审。当前仅准备合同/排期，不启动P2执行会话、代码或自动化。
+**既有总控负责全项目；规划沿用原顶层/WT/PR26；P2主体按已获授权新建独立顶层与Worktree。** UX 0.4.1已正式冻结合main，不追加视觉批次/第二设计库；原会话及证据保留。P1已冻结，不重派或续开诊断。总控已从f192派新顶层01a12214/WT5fdb、codex/phase2-inventory、01→04及唯一schema owner；01执行中未交付Gate；本规划会话只集中交接五文档，不启动执行者/代码/自动化。迁移/状态机/恢复/共享锁由总控协调；独审复用原Reviewer。付费真实模型、扩权/生产与后续Phase仍须独立许可。
 
 模型建议是本项目的任务分配判断，不是能力保证或成本报价。2026-10-09已查阅并打开 [OpenAI Model selection](https://developers.openai.com/api/docs/guides/model-selection) 与 [Reasoning models](https://developers.openai.com/api/docs/guides/reasoning)：高推理通常用更多时间/Token，支持档位依模型而定；最终以当前应用账户可选项和同任务评测为准，不自动修改现有会话设置。
 
@@ -255,16 +255,16 @@ main合入：PR、review、用户授权回执、main SHA、合后CI/验证
 
 ## 10. D1可直接使用的交接安排
 
-D1预算安排仍5+2+2+1h：主任务1h接收f8/main合后CI、P1有限技术Gate与Issue7回执；2h把AC01–11、正式恢复/假设/关闭、P1业务金标/D01–05与40用例映射到日计划/既有总控负责人；2h核对真实剩余容量并形成P2目标10月12–15日合同/排期草案。独立2h：最新UX冻结候选/BC01–07、Woo/模型准备清单。审核2h：本规划PR独审/CI与总控事实核对；缓冲交接1h：确认H1/L1、五类进度及N0任务包材料。以上是目标预算，当前没有人工小时实绩，不填已完成10h。
+D1预算仍5+2+2+1h：接收f192/正式UX冻结/P2代码授权，核对核心追踪与Issue29合同、五文档交接门禁及H1/L1。P2-01由总控独立主体可提前推进，其实际投入计D1预算并从30–40h任务余额扣除，D3–D6目标日不变；本规划者不替实施者编码。对应BC/模型预算材料可独立准备；模型正式付费真测仍另需许可。日内候选按实际预算择取，不将交接与提前代码都填满10h，也不预造人工实绩。
 
-P1最终行政回执/已触发CI核对若占用D1人工预算仍计入实际H1，不追加容量；Gate已经完成，不因日期要求新增实跑。D1不做P2业务实现/资源操作。本轮更新同PR26后停止，由既有总控安排独立Review/精确CI核对并提出合入建议；本会话不merge PR，不创建实施会话、自动化、Issue或执行任务。
+用户已授权PR26在门禁满足后正常合入；本会话更新集中交接、提交普通push后停止，由总控重核独审/精确CI并合入。本会话不merge PR、不派发P2；D1是否已提前编码只据Issue29/总控回执更新，不在此代填完成。原日期/核心/300h及两处预算修正保持。
 
 ## 11. 本次规划交付的实际验证
 
-历史首次交付：2026-10-09在原独立规划Worktree执行文档19份/结构/差异/敏感检查通过；初始规划提交44b457c的CI37921875888 SUCCESS。该19份计数与旧CI不覆盖本次f8普通merge后修订，初版P1/UX阻断由本文最新快照取代。
+历史交付：44b初版文档19份/CI37921875888，f8修订本地文档29份及各旧候选的检查属于各自提交历史，不能覆盖本次f192同步及五文档交接。初版未授权/候选未冻结标记由最新用户授权与实际main事实取代，原检查/失败记录保留。
 
-本次接续接单工作树干净，普通merge6d5b253的parents精确为44b457c/f8、无冲突。只读核对最新Issue/PR与main CI日志；安装按合入main原锁`uv sync --frozen`仅更新本任务虚拟环境，没有自改锁或全局环境。必要文档、日期/预算/核心追踪、白名单及当前/index/可达历史扫描须在最终暂存/提交核对，精确修订head与实际CI记录在同PR26。主控另安排冻结SHA独立Review；自检不替代该审核。
+本次接单干净，普通merge c0bae444的parents为35bc5dd/f192、无冲突/历史改写。总控追加授权AGENTS首条、ROADMAP顶部、STATUS顶部和交接节的最小事实同步，本批五文件统一独审/CI；旧历史与原Gate不改。必要文档、日期/预算/核心追踪、白名单、当前/index/可达历史扫描在最终暂存/提交核对，精确head/实际CI及检查结果记录同PR26，由总控复用原Reviewer。
 
-本次实际本地检查：文档29份errors=0；临时结构校验确认D1–D30仍10月10日至11月8日连续30行、300h分段预算正确，原44b的M1/M2/M3范围与AC01–AC11追踪逐行保持，P2-01无需BC03/04/06或全部UX合入；普通merge父提交与相对f8仅两规划文件的白名单均通过，差异空白通过。修订过程中当前/index/全部可达history敏感扫描均0，最终暂存与提交后再复查。有效人工小时未报告，不用这些机器检查计人工实绩。独立Review明确由既有总控另行调度，本作者不自签收。
+冻结检查须确认30日连续、300h、原核心/AC及两处预算修正原样保留；AGENTS仅首条、ROADMAP仅顶部、STATUS旧第1–31节原字节保留，仅改顶部和追加交接节。有效人工小时仍未报告，不将机器检查填为人工实绩；主控最终独审/CI回执与作者自检分开。
 
 本会话没有运行本地P1 PG/Docker/飞书、Woo、真实模型、Graph业务恢复或前端业务测试，没有读取真实凭据/私有配置/备份或访问Penpot服务。引用的P1/UX真测属于原任务证据；正常PR CI是否实跑/通过以本次run为准，不外推正式业务Gate。本交付不合PR、不启动P2/新会话/资源权限操作，完成同PR修订后停止。

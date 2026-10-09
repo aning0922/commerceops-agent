@@ -2,7 +2,7 @@
 
 更新日期：2026-10-10（Asia/Shanghai）。性质：**待审核的设计补充，未实现、未进行扩展运行验证**。配套 [30 天执行计划](30_DAY_EXECUTION.md)。本文件在既有 [ARCHITECTURE](../ARCHITECTURE.md)、[DATA_MODEL](../DATA_MODEL.md)、[AGENT_DESIGN](../AGENT_DESIGN.md)、[PRD](../PRD.md) 上约束未来增量开发，不替代已收口Phase1合同或授予Phase2编码权。
 
-源码/状态基线：main `f8ed1800e1c82802e5d3c3f6c5a4a2d76050a5a0`，PR #19/#22/#25/#27/#28均已合，P1必要G1/G2/G3经有限技术合同验收，精确main CI37965530018成功（345offline/79真实PG、三G1/六G2/cleanup0）。既有intake/runner/queue/Worker/lock/checkpoint、Feishu技术probe和公开harness已在main；统一业务CommercePort、Workflow注册表、业务Tool执行器与下列业务子包仍待授权实施，不描述成可用框架。本规划普通merge基线6d5b253，parents44b457c/f8，无冲突；相对main只改两规划文件，不自行改业务/锁/环境。既有总控为全项目唯一总控，规划/UX继续原独立顶层，Phase2以后编码须新授权并另开独立顶层Worktree；本轮只准备合同与排期。
+最新基线main `f19281f1163f828448ad9404620d68e0f1afaa66`：PR24已在正式设计freeze后正常merge，tree880ff67与已成功候选CI37967247093实际测试树相同，main合后CI由总控另核。P1收口f8的CI37965530018/345offline/79PG等保持历史实跑，不转记新main。技术intake/runner/queue/Worker/lock/checkpoint及Feishu probe已实现，业务CommercePort/注册表/Tool等仍待实际实现。用户已批准Issue29代码/自有Mock/隔离测试；总控已从f192派独立新顶层01a12214/WT5fdb/codex/phase2-inventory，实际Sol/high、01代码生成中未交付Gate，02–04未开始；01→04/唯一schema owner/30–40h不变，后续Phase另需授权。普通merge基线c0bae444（35bc/f192）无冲突；本批除两规划文件，仅追加获授权的AGENTS/ROADMAP/STATUS最小交接事实，不改业务/依赖/UX资产/原Gate。
 
 P1技术Gate不代表正式库存/订单/模型闭环或M1完成：G3为真实接入、技术决定、重复/冲突/过期/DB失败、受控重启和Base有限观察；non@/self-bot按平台最小权限非投递边界，后端filter分支仍not_run；自然网络故障/wire/p95/长期幂等TTL/特定Base retry等未验证。原Baseunknown与403/1254608观察保留，不改为成功ACK。#23已CLOSED且risk_accepted/root_cause=not_identified，不虚构配置根因、不续开调查。正式T2–T6、A/C/R和产品卡片能力由后续阶段实测。最新Issue/PR/UX候选及边界见配套计划第1节，原阶段验收事实原样保留。
 
@@ -180,9 +180,9 @@ PG是任务、报告、计划、决定、执行、草稿、审计的权威来源
 
 ## 8. 前端页面与组件复用
 
-现有UX方向为PR #24的C1 `0.2.1-c1-revision` 与完整候选 `m1-ui/0.4.1-freeze-rc` / revn58，冻结设计内容来源5a801faf；当前PR普通merge后head2550d4e，UX/tools设计子树与5a逐字不变，新headCI/独审状态见配套计划最新快照，不借旧CI覆盖f8上下文。18逻辑页、47语义控件（46可渲染、B09不渲染）、18组件/33Token已交接；B30/E30进入S08运维，B31/E31按当前有权身份返回首页，admin-only不默认读业务/审批。产品/视觉外审既有结论已通过，最终冻结确认与main合入仍待用户；BC01–07pending，全部业务not_implemented。后续不能机械复制Flex子对象顺序或把模拟点击/禁用proposal接为真实API；需相应合同与编码授权。
+现有UX为用户正式冻结的M1设计基线 `m1-ui/0.4.1-freeze-rc` / revn58，C1合同0.2.1，PR24已MERGED至f192；原生/代码内容与5a/255一致，旧候选标记作为历史保留，用户[正式freeze回执](https://github.com/aning0922/commerceops-agent/pull/24#issuecomment-6087443283)取代待签收状态。18页/47语义（B09不渲染）、18组件/33Token、B30运维/B31有权首页/admin-only规则保持，不追加M1视觉批次。BC未实现部分仍pending、业务not_implemented；原型和设计冻结不代替代码/真测。实施仍按对应合同，不将禁用proposal变为未定义API。
 
-P2纸面/后续获授权的库存DTO与纯规则不以所有UX资产最终冻结为前置；相关字段/规则口径由总控协调确定。前端接入和正式卡片需相应BC、最终设计确认和实施授权，UX文件的“真实G3待验”是产品卡片/业务验收，不否认已完成的P1技术G3。设计修订只由原UX顶层处理，本会话不操作其资源，不重建组件库或提前通用平台。
+P2-01可在D1按已获代码/自有Mock/隔离测试许可提前推进，无需BC03/04/06；D1与D3–D6目标日不重编号/顺延，总30–40h不增加，提前工时从任务余额扣除。01已派发执行中，后续实际结果由总控/Issue29更新，本规划者不启动代码/资源。API/正式卡片需相关BC；付费真实模型、飞书扩权限、生产及后续Phase未授权，P2-04真模型未跑则Gate blocked。设计资源保留，不建通用平台或第二组件库。
 
 每页保留稳定screen/control/event ID与设计版本，实施映射到路由、组件、API DTO和E2E情景；新增日报/SKU/草稿用新的namespaced ID，不改旧库存控件语义。tokens由获确认设计版本提取到受控本地文件，代码复用色彩/间距/字级/状态组件；不自动双向同步原设计资源、不整包复制旧项目。
 
