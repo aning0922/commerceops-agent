@@ -13,6 +13,7 @@
 | base_closeout.py | 默认原记录 update一次及完整读回；默认关闭的当前匹配→原键第二create一次→完整读回→update排序；未知即停 |
 | behavior_observer.py | 原 handler/receiver 一次委托、commit-return/DTO-ready/固定分类观察，失败不改 ACK，不声称 wire或客户端Toast |
 | card_behaviors.py | C同回调同原事务资格见证、M3预期动作、原卡受限行锁；不改变身份角色 |
+| m3_delta.py | DB故障后原M3三表只读完整差异核心；复用原字段校验，显式archive writer，不含实时dispatcher |
 | card_readback.py | 既有四卡的纯字段、原actor/scope/anchor、value与语义hash、事件键关联核对 |
 
 项目既有锁依赖不变，在仓库根运行：
@@ -37,4 +38,4 @@ Base默认scope最多update1/list2、create0；成功后原键第二create模式
 
 原总parent30/normal24/cleanup27及watchdog不延长。HTTP等待参数不是整个请求墙钟硬时限，整体由原dispatcher/watchdog保证。SDK默认及callback关键路径的2秒/<3秒合同不改；Base不在callback关键路径。SDK私有连接/协议/ACK不修改。
 
-实际 W1/M1/M2/Base 的证据与边界见 [联调快照](../../docs/P1_05_LIVE_DELIVERY.md)。卡片仅模拟技术决定，不创建补货工作项、采购、库存、退款、支付或真实订单副作用，不进入Phase2。未完成项保留not_run，Draft/CI/合并不自动表示G3通过。
+实际 W1/M1/M2/M3/C1/Base/负向样本 的证据与边界见 [联调快照](../../docs/P1_05_LIVE_DELIVERY.md)。卡片仅模拟技术决定，不创建补货工作项、采购、库存、退款、支付或真实订单副作用，不进入Phase2。未完成项保留not_run，Draft/CI/合并不自动表示G3通过。

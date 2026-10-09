@@ -35,14 +35,16 @@
 
 ## 本Draft的验证与未完成项
 
-公开适配核心合成回归161 passed；以`75efbbab`归档加公开文件的精确组合执行完整离线测试322 passed、79 deselected、2项SDK warnings，strict mypy82文件、Ruff及109文件格式检查通过。归档初次缺少项目内Gitleaks导致31项工具前置失败；复制现有项目工具后重跑上述完整离线测试通过，未改测试或全局环境。当前目录、索引和全部可达历史敏感扫描0命中，另核48个当前私有值在拟公开23文件及历史中0匹配；原版/公开版7组whole-file SHA和22项核心定义规范化AST均复核通过。Markdown链接检查在原checkout核26文件0错误；归档目录受父仓库ignored规则影响，自动枚举0文件，不把该次结果记为文档验证。Draft精确head正常CI待创建后实际核对。
+公开适配核心合成回归171 passed（新增M3差异边界10项）；以`75efbbab`归档加公开文件的精确组合执行完整离线测试332 passed、79 deselected、2项SDK warnings，strict mypy84文件、Ruff及111文件格式检查通过。归档初次缺少项目内Gitleaks导致31项工具前置失败；复制现有项目工具后重跑上述完整离线测试通过，未改测试或全局环境。当前目录、索引和全部可达历史敏感扫描0命中，另核48个当前私有值在拟公开25文件及历史中0匹配；原版/公开版9组whole-file SHA和25项核心定义规范化AST均复核通过。Markdown链接检查在原checkout核26文件0错误；归档目录受父仓库ignored规则影响，自动枚举0文件，不把该次结果记为文档验证。PR27首head`cb52eb0`正常CI[37956693051](https://github.com/aning0922/commerceops-agent/actions/runs/37956693051)成功（5m24s），[独审5472556446](https://github.com/aning0922/commerceops-agent/pull/27#pullrequestreview-5472556446)无阻断；本次最终补证提交须另核精确head CI与独审，不能借用首head通过。私有专项15项合成边界通过及独审无P1；其runtime直接Ruff风格告警未修，不把它记Ruff通过，公开源适用检查通过。
 
 原M1自然过期实际回调1：A/EXPIRED、commit-return false、error DTO-ready13.479209ms，人眼约1秒与“技术探针已拒绝”，计时方式未报告。原行锁READY/最多60秒实际成立，但主控通知未及时到达，锁内DB故障回调未取得，不能记通过；A确认发群普通非@消息，窗口无相应平台投递，不记backend过滤通过。该窗无新卡，CLI299.451475秒，SDK/清理核对通过。
 
 一次末批app-role PG只读repeatable-read实际核对9身份/4卡全部binding：M1四receipt/key、M2一、M3三、C零且无决定；C同回调qualified witness另行关联通过。parent1.001995/CLI2.881196秒，无写SQL/锁定SELECT/SDK/API/WS；original once-only attempt已消耗，不重置。此核对发生在待协调的DB故障补测之前，不能表示未来动作后的PG状态。
 
-DB单项补测已取得：原行锁READY后A/M3回调1，DB_FAILURE，handler/commit-return均false，DTO未见，观察耗时362.493417ms；客户端另报“出错了，请稍后重试”、计时1秒，工具/分辨率未报告，wire未测。原≤300秒窗口尚在收尾，补测后M3持久状态最小差异回读未运行，不改写为已完成。
+DB单项补测已取得：原行锁READY后A/M3回调1，DB_FAILURE，handler/commit-return均false，DTO未见，观察耗时362.493417ms；客户端另报“出错了，请稍后重试”、计时1秒，工具/分辨率未报告，wire未测。原≤300秒窗口已结束，CLI299.389346秒/SDK活动上界294.240621秒，死/reap/自有容器absence/四锁/barrier核对通过，补测后一次M3 app-role三表READ ONLY/REPEATABLE READ差异回读完整相等，仍三receipt/key与原决定，无新增持久记录；parent1.284135/CLI4.114990秒，清理核对通过，旧整批attempt/archive原字节未变。
 
-仍缺：补测后M3只读差异证据、实际投递的非@/bot过滤，以及精确客户端Toast/wire证据。M3/C私有包保持`97154d8232b78de07b95be999345bc5a8b1347e24f990a623477c5f08672c53e`冻结；基线已消耗3张/cap3，C已消耗1张/cap1，未知发送槽不能重置。
+仍待：最新提交独审/实际CI与主控Gate证据裁决及用户合并确认。应用收到非@/bot之后的filter分支真实运行仍not_run/仅离线；平台级边界按主控与独审选项A验收，不扩权限。精确客户端Toast/wire仍未验证。M3/C私有包保持`97154d8232b78de07b95be999345bc5a8b1347e24f990a623477c5f08672c53e`冻结；基线已消耗3张/cap3，C已消耗1张/cap1，未知发送槽不能重置。
 
 现有group_at scope可能不投递非@或机器人样本；未投递不记backend过滤通过，不扩权限补样本。不扩T3/A01–A08/100事件p95或长期幂等验收；1254290/1254291显式重试与1255006特定分支本轮未触发、不得制造触发，不重新诊断#23（主控risk_accepted/not_identified已关闭）。Phase1最终独审/Gate/CI与合并由主控据完整证据裁决，Draft不得自行合并。
+
+主控与独立Gate审核采用现有最小权限的端到端边界解释（选项A）：[官方接收消息合同](https://open.feishu.cn/document/server-docs/im-v1/message/events/receive)中group_at仅用户@，非@不在当前投递范围，bot需另scope，机器人自身出站不回投当前bot。官方内容由Root于2026-10-09原生Chrome AX读取（页标2026-08-05更新）；本执行chat网页读取0行，不冒称自己全文读取。A实际普通非@已发、同窗expired回调已收到且原进程存活至有界结束，无message事件；自身bot的真实出站卡也未作为入站message观察。此证据与官方合同支持平台级non-delivery边界，不标应用filter分支实测通过，不虚构完整连接/wire心跳或自然断线，不新加group_msg/include_bot或第二bot。受控死消费者重启后同M3再交付已实测。

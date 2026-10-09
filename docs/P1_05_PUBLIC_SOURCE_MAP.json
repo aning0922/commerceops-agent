@@ -77,6 +77,31 @@
       "public_sha256": "d1de0bc3e0cb5ed3a7dacdd7867b037ef6ac56bd465cc42e77ce76159e9706de",
       "runtime_artifact": "readback_remaining_cards.py",
       "runtime_frozen_sha256": "47e32c0f6bd08c726c53bb9382a80ae5ee89750834ccc8e46246602755d94667"
+    },
+    {
+      "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
+      "included_definitions": [
+        "canonical",
+        "inspect_m3"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/m3_delta.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fabf5463f2b3b43d205571d35987490bceb1083254155b9d899f1a053d59ee14",
+      "runtime_artifact": "readback_m3_db_failure_delta.py",
+      "runtime_frozen_sha256": "2acc56527ea350a4e819523ac3beff00ccda2200279f16684e2f0d40a15c5e17"
+    },
+    {
+      "adaptation": "selected_core_relative_imports_and_dynamic_boundary_annotations;public_default_archive_writer_refuses_implicit_filesystem",
+      "included_definitions": [
+        "plan_from"
+      ],
+      "normalized_core_AST_equivalent": true,
+      "public_path": "scripts/feishu_probe_harness/m3_delta.py",
+      "public_platform_execution": "not_run",
+      "public_sha256": "fabf5463f2b3b43d205571d35987490bceb1083254155b9d899f1a053d59ee14",
+      "runtime_artifact": "readback_m2_pg.py",
+      "runtime_frozen_sha256": "e55b968a26017a02f07b2401a4476235742004f30ab6d40c63942c8c0ad06ec6"
     }
   ],
   "private_runtime_packages": [

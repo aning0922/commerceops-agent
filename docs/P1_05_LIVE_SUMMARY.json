@@ -74,8 +74,10 @@
     "wire_observed": false
   },
   "DB_failure_supplement": {
+    "CLI_seconds": 299.38934608301497,
     "DTO": "unobserved",
-    "M3_post_failure_PG_delta": "not_run",
+    "M3_post_failure_PG_delta": "verified_full_snapshot_unchanged",
+    "SDK_activity_upper_bound_seconds": 294.24062105000485,
     "actor": "A",
     "callback_count": 1,
     "commit_return": false,
@@ -87,7 +89,7 @@
     "new_cards": 0,
     "original_batch_PG_before_supplement_once_attempt_preserved": true,
     "result": "DB_FAILURE",
-    "status": "callback_observed_original_stop_pending",
+    "status": "callback_observed_consumer_dead_reaped_cleanup_verified",
     "wire_observed": false
   },
   "G3": "incomplete",
@@ -151,6 +153,23 @@
       "decision_conflict"
     ]
   },
+  "M3_post_DB_failure_delta": {
+    "CLI_seconds": 4.114990375004709,
+    "SDK_API_WS_card": false,
+    "app_only": true,
+    "cleanup_verified": true,
+    "event_keys": 3,
+    "full_prior_snapshot_unchanged": true,
+    "no_new_receipt_or_event_key": true,
+    "old_batch_once_attempt_and_archive_unchanged": true,
+    "only_M3_three_probe_tables": true,
+    "original_decision_unchanged": true,
+    "parent_seconds": 1.2841347909998149,
+    "readonly": true,
+    "receipts": 3,
+    "repeatable_read": true,
+    "status": "verified_readonly_not_Gate"
+  },
   "W1": {
     "A_private_and_group_receipts_each": 1,
     "B_and_C_private_and_group_receipts_each": 0,
@@ -198,6 +217,14 @@
       "sha256": "663ecb73690854ec6e9fcd1e1af5e1a3cd8293cc52202827ec5669d4490a2935",
       "type": "whole_local_artifact_digest_not_identity_fingerprint"
     },
+    "DB_FAILURE_HUMAN_OBSERVATIONS_ROOT_REPORTED_EVIDENCE.json": {
+      "sha256": "204e3ff8de376c09959fb8d2a8220a01dc24e81bc4f1482eb74e0e9127d45ea9",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "DB_FAILURE_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "0458a26d6d5e31f244f2e9e92c7a331522a9274bc6c46d3dca5389b70d5682f9",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
     "M1_LIVE_RESULT_EVIDENCE.json": {
       "sha256": "95b86c8199b38a3cd07f79053b782fef25099d0cadffb3be564d4d6cda37c5a9",
       "type": "whole_local_artifact_digest_not_identity_fingerprint"
@@ -216,6 +243,10 @@
     },
     "M3_CALLBACK_RESTART_LIVE_RESULT_EVIDENCE.json": {
       "sha256": "0e16f24b8fbc471f77343e4c9b8c284f054e1bbfdbe7f32a3a35983840a8899e",
+      "type": "whole_local_artifact_digest_not_identity_fingerprint"
+    },
+    "M3_DELTA_LIVE_RESULT_EVIDENCE.json": {
+      "sha256": "c1ba196fc7b9f3a4040d2b69bbe34f2e650520be56543b998df7da4858c4f61b",
       "type": "whole_local_artifact_digest_not_identity_fingerprint"
     },
     "M3_HUMAN_OBSERVATIONS_ROOT_REPORTED_EVIDENCE.json": {
@@ -295,29 +326,44 @@
     "result": "EXPIRED"
   },
   "not_run": [
-    "delivered_non_mention_or_bot_filter_actual",
+    "application_received_non_mention_or_bot_filter_real_branch",
     "strict_client_Toast_lt3s_or_wire",
     "long_term_idempotency_or_100_event_p95",
     "known_rejection1254290_1254291_retry",
-    "specific_client_token_conflict1255006_branch",
-    "M3_scoped_PG_delta_after_DB_failure"
+    "specific_client_token_conflict1255006_branch"
   ],
+  "platform_boundary_filtering_verdict": {
+    "application_received_non_mention_or_bot_filter_real_branch": "not_run_offline_only",
+    "consumer_alive_until_bounded_stop_not_complete_connection_or_wire_evidence": true,
+    "group_at_delivers_only_user_mentions": true,
+    "no_scope_expansion": true,
+    "official_content_evidence": "Root native Chrome AX read 2026-10-09; page updated2026-08-05; this execution chat web open returned0lines",
+    "official_primary_URL": "https://open.feishu.cn/document/server-docs/im-v1/message/events/receive",
+    "ordinary_non_mention_human_sent_but_no_message_event": true,
+    "same_window_expired_callback_delivered": true,
+    "self_bot_card_outbound_real_samples_do_not_prove_inbound_filter_branch": true,
+    "self_bot_inbound_not_delivered_by_official_contract": true,
+    "verdict": "main_controller_and_independent_review_accept_current_minimum_scope_end_to_end_boundary_option_A"
+  },
   "private_archive_uploaded": false,
   "public_validation": {
     "SDK_warnings": 2,
     "actual_private_value_scan_matches": 0,
-    "adapted_core_tests": 161,
+    "adapted_core_tests": 171,
     "directory_index_all_reachable_history_secret_findings": 0,
+    "initial_PR_head_CI": "cb52eb011354a65a300c72aaaaefff4119f39a5d SUCCESS run37956693051",
+    "initial_independent_review": "no_blocker review5472556446",
     "integration_base": "75efbbab3a13007636b94504b5ca94a06a7cd07f",
     "integration_base_plus_public_integration_deselected": 79,
-    "integration_base_plus_public_offline_passed": 322,
-    "normalized_AST_equivalent_definitions": 22,
-    "precise_PR_head_CI": "pending_creation",
+    "integration_base_plus_public_offline_passed": 332,
+    "normalized_AST_equivalent_definitions": 25,
+    "precise_PR_head_CI": "pending_at_final_commit_see_exact_head_GitHub_checks",
+    "public_files_private_value_scan": 25,
     "public_platform_execution": "not_run",
     "ruff_check_passed": true,
-    "ruff_formatted_files": 109,
-    "source_SHA_pairs": 7,
-    "strict_mypy_files": 82
+    "ruff_formatted_files": 111,
+    "source_SHA_pairs": 9,
+    "strict_mypy_files": 84
   },
   "raw_ID_token_nonce_secret_URL_or_payload_included": false,
   "schema": "P1_05_PUBLIC_LIVE_SUMMARY_V1",
