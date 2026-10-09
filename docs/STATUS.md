@@ -1,8 +1,8 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，当前组合 CI 超时待诊断；P1-05 真实身份、PG 映射与受限权限核验、A/B 配置和结构检查已完成，正式 Gateway/卡片与 Base 尚待完成；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
+更新日期：2026-10-09（Asia/Shanghai）。当前处于 **Phase 1 托管执行中，持续目标尚未完成；G1/G2 保留集成分支已验收证据，组合 CI 超时已获有界诊断授权、尚未结案；P1-05 身份/PG/配置前置及真实 Gateway setup、后台保存与安全停止已完成，消息/卡片行为与 Base 尚待验收；最终阶段 PR #19 保持 Draft**。用户已批准顶层实施会话＋子 Agent 审核，并委托主控在全 Gate/审核/CI 通过后确认内部和最终 main 合并。阶段目标和 Gate 仍以 [ROADMAP](ROADMAP.md) 为准；本文件只记录状态、依赖与证据，不改变批准的架构或验收条件。
 
-第1–12节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第13节与 Issue/PR 最新记录为准。
+第1–13节保留规划、交付和批准前后的历史快照；其逐项等待用户/main 的旧合同由已批准托管合同取代。阶段实际运行状态以第14节与 Issue/PR 最新记录为准。
 
 ## 1. 基线与授权
 
@@ -242,3 +242,17 @@ G1/G2保持verified_on_integration；G3必要消息/卡片回调/Base读写和�
 两次一次性容器已清理，CLI退出，operation/config两锁释放，仅专用postgres健康且无宿主端口。主控只读核对私有成功回执、冻结hash、来源绑定、A/B和唯一群、C未armed、文件0600以及两锁可持有；没有将回执复核描述为主控独立重跑SQL。实际执行tracked HEAD为9d9ae5cd17f8db53153d737f75a8d19f1359372e，入口f94be7ac0b4deb5efe8c5e8568207272683e78b24d51f0957bf7b4df24539533，manifest463a426e67b7ccf770d2ef24e93095bba453a07aa7288785f85a3d4e86829a19；脱敏实际证据hash9762bb50c513d6dc3530717f1856d96af3951349d572e5c9d9e8c257ff465c0a。所有真实标识、配置和秘密仅本地保存。
 
 后继已派原执行者单独准备限时单消费者setup/readiness runner，冻结独立审查后再安排后台事件/回调配置；setup与行为窗口分开，setup不发送新测试消息/卡片、不计G3。正式Gateway持久接收、卡片对象/Toast/时延、重复/冲突/过期/DB故障/重连、C白名单通过后DAL角色拒绝仍待实际验证。Base app_token未取得、不调用未授权Wiki API或发布版本；原六scope不变。#6/#7保持OPEN，不推荐全阶段通过或进入Phase2。
+
+## 14. 真实 Gateway 就绪与受控诊断接续
+
+本节取代第11–13节关于setup未启动和外部操作未授权的快照；[setup任务证据](https://github.com/aning0922/commerceops-agent/issues/6#issuecomment-6075436768)、[阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6075437221)和[新授权](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6075527920)记录任务事实。main仍a0/集成413；PR22未合入、PR19 Draft，完整G3和组合CI异常仍未结案。
+
+setup代码经独立68fake/2既有SDK warnings/5.25秒审查通过，指南版本记录缺口小改后独立增量复核通过。原P105实际session42915，自有容器13:44:16.877开始运行、13:49:14.190完成exit0/WINDOW_EXPIRED_STOPPED（北京时间）；SDK活动上界293.916秒、已死亡/reaped，容器移除、CLI退出、四锁释放、barrier清除。主控另只读核对生命周期/回执、四锁可持有、标签容器无、项目仅healthy PG。baseline未永久开启external_ready，原31历史绑定保留；代码生命证据仍标CONNECTION_UNVERIFIED，不以alive冒称连接。
+
+用户在该窗口确认im.message.receive_v1事件长连接和独立card.action.trigger回调长连接均保存成功，并确认“已发布或后台无需发布”；仅记录人类后台readiness/配置生效前置，不虚构发布动作或版本号。13:58:39另存用户实际客户端回执：A macOS桌面8.2.6、B Android8.1.12、C iOS8.1.15，未倒填setup之前，不推导JSON2渲染/callback/Toast已过。本窗未发送新测试消息/卡片，正式Gateway持久接收和全部行为仍待验收。
+
+最小行为计划已独立评估，原P105进入W1公开DTO/Receiver单委托、安全trace、有界入口及离线测试的最小实现；冻结后须独立代码审查才能实跑。保留原事务/授权/异常/ACK语义；C的外层只读资格不是原DAL同一事务，版本、快照、写者或锁等待不稳记inconclusive，不能将名单/缺映射/无效值拒绝充作角色反例。handler时间、SDK回传和客户端Toast分别采证，未观测项保持not_run。
+
+用户另明确授权并手动配置发布wiki:node:read，仅既有台账一个节点只读解析；不Wiki写、不空间管理员、不读其他节点。实际Wiki标识/底层Base/已有六字段与访问权限尚未API验证，Base创建/查询/更新/原键重投仍not_run，不将配置声明计G3。[官方节点接口](https://open.feishu.cn/document/server-docs/docs/wiki-v2/space-node/get_node)要求节点读取权限；任何资源/类型不匹配先停止，不换资源绕过。
+
+用户批准按[Issue23](https://github.com/aning0922/commerceops-agent/issues/23)受控诊断，原P104保留WT102d/9e21，在新隔离phase1-ci-timeout-diagnostic目录/同名codex分支从413执行，预算14:16:45–14:46:45、最多三轮针对性尝试；不访问P105库/配置/Secret/卷。Graph/process harness/pg_smoke/必要quality workflow单一负责人P104，原P102/P101保持只读，模型/迁移/权限/依赖不得自动扩改；阶段文档主控独占。授权解除实跑暂停，不推导根因、修复、CI或Gate成功；预算到期按合同停并留证。最多两项实施并行，#6/#7/#23仍OPEN，不推荐Phase1全Gate通过或进入Phase2。

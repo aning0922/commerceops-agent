@@ -1,6 +1,6 @@
 # Phase 1 阶段验收与外部阻塞报告
 
-更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，当前组合CI超时待诊断；G3真实身份及PG映射/配置前置已完成、完整平台测试尚未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–8节保留原验收及接续快照，最新身份部署与证据限度见第9节及 [STATUS第13节](STATUS.md#13-真实身份映射及配置校验)。
+更新：2026-10-09（Asia/Shanghai）。状态：**G1/G2 保留集成分支已验收证据，组合CI超时已获有界诊断授权、尚未结案；G3身份/PG/配置前置和Gateway setup已完成，完整平台行为尚未通过；Phase 1 全阶段尚未通过，main 尚未集成，不进入 Phase 2。** 第1–9节保留原验收及接续快照，最新就绪/诊断与证据限度见第10节及 [STATUS第14节](STATUS.md#14-真实-gateway-就绪与受控诊断接续)。
 
 本报告按 [ROADMAP](ROADMAP.md)、[TEST_PLAN](TEST_PLAN.md) 与 [Issue #7](https://github.com/aning0922/commerceops-agent/issues/7) 的完整合同核对。它是现阶段证据与阻塞材料，不把离线交付缩写成全部 Gate 已满足；真实平台资源就绪后仍须补 G3、最终阶段审核和 main CI。
 
@@ -118,3 +118,11 @@ ROADMAP的Phase2确定性库存范围与3–4工作日计划量暂不调整：�
 首次入口exit2已保留，安全定位为只读profile预检失败、owner容器/SQL/COMMIT均未启动；最小修复经独立40fake/2既有SDK warnings/3.74秒复审后才重新实际执行。合成测试、真实PG部署、真实SDK身份采样和配置结构分别记账；此次结构成功不证明SDK认证、正式Gateway持久消息、卡片回调或Base。
 
 正式Gateway的有界runner与安全trace尚待冻结审查、执行和人类后台配置。B的消息无operator应拒绝、B卡片approver成功需单独实证；C默认名单拒绝与隔离白名单通过后DAL roles=[]拒绝分别验收，不能由已有映射推导。重复/冲突/过期、真实DB故障无伪成功、断线/重连与真实callback时延仍待补证；Base app_token缺失及全链路not_run，Issue23组合CI受控诊断未批准。第7节阶段判定保持：#6/#7 OPEN、PR19 Draft、当前不合入main、不进入Phase2。
+
+## 10. Gateway 就绪及外部授权结果
+
+原P105的setup代码独立68fake/5.25秒通过；实际session42915于13:49:14.190（北京时间）exit0，SDK活动上界293.916秒、已死亡/reaped，容器/CLI/四锁/barrier停止证据经原实施者及主控不同层次核对。用户两处事件/回调长连接保存成功并确认“已发布或后台无需发布”，这仅是readiness；代码生命周期仍不宣称连接，未发送新测试消息/卡片，不能由此计持久接收、callback/Toast/时延或完整G3。[实际阶段回执](https://github.com/aning0922/commerceops-agent/issues/7#issuecomment-6075437221)与[STATUS第14节](STATUS.md#14-真实-gateway-就绪与受控诊断接续)列限度。
+
+用户客户端版本于13:58:39另存为人类回执，A macOS8.2.6、B Android8.1.12、C iOS8.1.15；后继须按真实平台采JSON2渲染与回传/Toast证据。公开handler/Receiver观察包正在最小实现、待冻结独立code Review，C同callback的有效资格、原DAL缺角色拒绝和零副作用尚未实跑；外层只读快照不冒称与原DAL同一事务，不稳定即inconclusive。
+
+用户新增仅指定节点wiki:node:read的读取授权并手动配置发布，Base标识及字段/访问仍待真实API核验，Base全链路not_run；同时批准Issue23有界隔离诊断，14:16:45–14:46:45预算与三轮上限，不访问飞书测试库。授权不是结果，根因/修复/独立审查/实际CI仍待取得。第7节判定保持：完整G3未过、当前组合复验未结案、#6/#7/#23 OPEN、PR19 Draft、不合入main、不进入Phase2。
