@@ -620,12 +620,17 @@ def test_mismatched_checkpoint_is_attention_without_new_collection(
 def test_old_workflow_queue_rejection_preserves_history(fixture: InventoryFixture) -> None:
     f = fixture
     task = f.data.task  # 旧kind/g1版本的实际历史fixture，未改写为新analysis版本。
+    before = f.row(task)
     with connect(f.app) as db:
         job = TaskRepository(db, TaskScope(f.data.organization, f.data.shop)).enqueue(
             task, "analyze", str(uuid4()), "owned old workflow probe"
         )
     asyncio.run(run_worker(f, job, expected_status="dead"))
-    assert f.row(task)["state"] == "queued" and f.counts(task) == (0, 0)
+    after = f.row(task)
+    assert after["state"] == "needs_attention"
+    assert after["failure_code"] == "WORKFLOW_VERSION_UNSUPPORTED" and f.counts(task) == (0, 0)
+    for field in ("kind", "workflow_version", "thread_id", "normalized_request"):
+        assert after[field] == before[field]
     with connect(f.app) as db:
         result = db.execute("SELECT last_error FROM business.jobs WHERE id=%s", (job,)).fetchone()
         assert result and result["last_error"] == "WORKFLOW_VERSION_UNSUPPORTED"

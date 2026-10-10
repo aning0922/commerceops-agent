@@ -90,6 +90,9 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
             business.replenishment_plans,business.approvals,business.outbox TO commerceops_app""")
         connection.execute("""GRANT EXECUTE ON FUNCTION business.lock_p3_permission(
             uuid,uuid,uuid,uuid,bigint,text) TO commerceops_app""")
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.approval_resumes TO commerceops_app"
+        )
 
 
 def main() -> None:

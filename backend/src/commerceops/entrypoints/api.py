@@ -68,6 +68,10 @@ def create_app(
             operations["get"]["responses"].pop("422", None)
     schema["paths"]["/test/route"]["post"]["responses"].pop("422", None)
     schema["paths"]["/test/routes/{task_id}"]["get"]["responses"].pop("422", None)
+    if web_config is not None and replenishment_store is not None:
+        from commerceops.entrypoints.web_openapi import export_web
+
+        schema = export_web(schema)
     app.openapi_schema = schema
     return app
 

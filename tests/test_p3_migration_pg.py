@@ -1,4 +1,4 @@
-"""先真实运行0004 P2完成图，再升级0005并逐行核对业务/三类checkpoint。"""
+"""先真实运行0004 P2完成图，再升级当前P3 head核对业务/三类checkpoint。"""
 
 import asyncio
 import hashlib
@@ -17,13 +17,15 @@ from tests.inventory_support import initialize, run_worker
 pytestmark = pytest.mark.integration
 
 
-def test_final_0005_preserves_real_completed_p2_and_checkpoint_bytes(tmp_path: Path) -> None:
+def test_current_p3_preserves_real_completed_p2_and_checkpoint_bytes(tmp_path: Path) -> None:
     settings = DatabaseSettings()
     name = "p3_preserve_" + uuid4().hex
     owner = settings.model_copy(update={"name": name})
     old_migrations = tmp_path / "pre-p3"
     shutil.copytree("backend/migrations", old_migrations)
-    (old_migrations / "versions/0005_p3_approval.py").unlink()
+    for file in (old_migrations / "versions").glob("*.py"):
+        if file.name[:4].isdigit() and int(file.name[:4]) > 4:
+            file.unlink()
     tables = (
         "business.business_tasks",
         "business.commerce_snapshots",

@@ -293,10 +293,10 @@ def test_t2_immutable_plan_and_fixed_pg_interrupt(fixture: P3Fixture, case: str)
         assert (
             row["state"] == "awaiting_approval" and len(plans) == len(approvals) == len(outbox) == 1
         )
-        assert outbox[0]["status"] == "blocked" and not outbox[0]["sender_enabled"]
-        assert approvals[0]["ready_at"] is None
+        assert outbox[0]["status"] == "pending" and not outbox[0]["sender_enabled"]
+        assert approvals[0]["ready_at"] is not None
         detail = f.client.get(f"/api/v1/approvals/{approvals[0]['id']}").json()
-        assert detail["nonce"] is None and not detail["approval"]["can_decide"]
+        assert bool(detail["nonce"]) and detail["approval"]["can_decide"]
         if case == "unknown_inbound":
             assert detail["plan"]["items"][0]["raw_inbound_units"] is None
             assert len(detail["plan"]["required_assumptions"]) == 1

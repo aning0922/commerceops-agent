@@ -16,12 +16,14 @@ from starlette.middleware.cors import CORSMiddleware
 
 from commerceops.application.replenishment.contracts import (
     CreateInput,
+    DecisionInput,
     LoginInput,
     LogoutInput,
     WebActor,
     WebFailure,
 )
 from commerceops.domain.commerce_values import utc_time
+from commerceops.infrastructure.approval_decisions import DecisionStore
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.replenishment_read import ReplenishmentReadStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
@@ -105,6 +107,7 @@ async def body(request: Request) -> bytes:
 def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> None:
     sessions = SessionStore(config)
     reads = ReplenishmentReadStore(store)
+    decisions = DecisionStore(config)
     router = APIRouter(prefix="/api/v1")
 
     def failure_response_for(code: str, status: int) -> JSONResponse:
@@ -310,6 +313,16 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
     @router.get("/approvals/{approval_id}")
     def approval(request: Request, approval_id: str) -> JSONResponse:
         return response(reads.approval(actor(request), parsed_uuid(approval_id)))
+
+    @router.post("/approvals/{approval_id}/decision")
+    async def decide(request: Request, approval_id: str) -> JSONResponse:
+        identifier = parsed_uuid(approval_id)
+        # 当前查看/操作能力先于body字段；原actor有当前查看权可重投原决定。
+        await run_in_threadpool(decisions.authorize, actor(request), identifier)
+        payload = DecisionInput.model_validate_json(await body(request))
+        return response(
+            await run_in_threadpool(decisions.decide, actor(request), identifier, payload)
+        )
 
     @router.get("/requests/{request_key}")
     def receipt(request: Request, request_key: str) -> JSONResponse:

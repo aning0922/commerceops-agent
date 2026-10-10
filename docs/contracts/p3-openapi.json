@@ -7331,7 +7331,7 @@
             "items": {
               "type": "string",
               "minLength": 1,
-              "maxLength": 256
+              "maxLength": 300
             },
             "uniqueItems": true
           },

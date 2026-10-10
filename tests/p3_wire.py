@@ -15,7 +15,8 @@ from uuid import UUID, uuid4
 from commerceops.entrypoints.api import create_app
 from fastapi.testclient import TestClient
 
-from tests.p3_support import ORIGIN, run_graphs
+from tests.p3_support import ORIGIN, ControlledP3Factory, run_graphs
+from tests.test_p3_approval_pg import payload as decision_payload
 from tests.test_p3_pg import fixture
 
 
@@ -60,7 +61,7 @@ def main() -> None:
             created = f.client.post("/api/v1/tasks", json=payload, headers=f.headers())
             validate(created, "/api/v1/tasks", "post")
             task = UUID(created.json()["task_id"])
-            asyncio.run(run_graphs(f, task))
+            asyncio.run(run_graphs(f, task, factory=ControlledP3Factory("long_sku")))
             detail = f.client.get(f"/api/v1/tasks/{task}")
             validate(detail, "/api/v1/tasks/{task_id}")
             approval_id = detail.json()["approval_id"]
@@ -80,6 +81,25 @@ def main() -> None:
             }
             for url, path in paths.items():
                 validate(f.client.get(url), path)
+            joint = decision_payload(f, task, "approve_with_assumptions")
+            assert (
+                len(joint["acknowledged_assumption_keys"][0]) == len("inbound_unknown_zero:") + 256
+            )
+            decided = f.client.post(
+                f"/api/v1/approvals/{approval_id}/decision", json=joint, headers=f.headers()
+            )
+            validate(decided, "/api/v1/approvals/{approval_id}/decision", "post")
+            repeated = f.client.post(
+                f"/api/v1/approvals/{approval_id}/decision", json=joint, headers=f.headers()
+            )
+            validate(repeated, "/api/v1/approvals/{approval_id}/decision", "post")
+            validate(
+                f.client.get(f"/api/v1/requests/{joint['request_key']}?operation=decision"),
+                "/api/v1/requests/{request_key}",
+            )
+            validate(
+                f.client.get(f"/api/v1/approvals/{approval_id}"), "/api/v1/approvals/{approval_id}"
+            )
             validate(
                 f.client.post(
                     "/api/v1/auth/logout", json={"schema_version": "p3-web-v1"}, headers=f.headers()

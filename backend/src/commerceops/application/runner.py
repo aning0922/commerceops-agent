@@ -23,7 +23,9 @@ class RunRequest:
 
 @dataclass(frozen=True)
 class RunResult:
-    status: Literal["done", "interrupted", "retry"] = "done"
+    status: Literal["done", "interrupted", "retry", "waiting_checkpoint", "pending_execution"] = (
+        "done"
+    )
     delay_seconds: int = 0
 
 
