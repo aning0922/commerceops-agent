@@ -66,7 +66,11 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
     async def barrier(point: str) -> None:
         emit(point)
         if point == value["barrier"]:
-            command = await asyncio.to_thread(sys.stdin.readline)
+            try:
+                command = await asyncio.to_thread(sys.stdin.readline)
+            except asyncio.CancelledError:
+                emit("barrier_cancelled", point=point)
+                raise
             if command.strip() != "release":
                 raise ValueError("controlled P3 release required")
 

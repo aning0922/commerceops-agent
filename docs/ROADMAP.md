@@ -1,5 +1,7 @@
 # 分阶段路线图与外部配置
 
+最新A03修复门禁（2026-10-11）：2e0独审失锁观测失败保留；原A两项最小修复的19实际PG/19pure通过，新collect337/P3 101，新freeze独审/精确CI仍待。原333是历史候选，未以CI替独审；自有修复窗口已早停保卷、无延期，B/main未合。见[PHASE3_A03_FIX1](PHASE3_A03_FIX1.md)。
+
 当前阶段导航（2026-10-11）：Phase2已正式结案/main59b350cb719a9d2fed3f68b1ee598fa0a9b97875/合后CI38041779219 SUCCESS/Issue29 CLOSED。用户已授权Phase3持续双线及必要Gate/独审/精确CI后Root合main；A01/A02 Gate已核通过，A03重验/T4/T6同PR37候选正在完整验证，B03 CI失败保留、B04独立推进，尚未合B/阶段main。详见[STATUS第38节](STATUS.md#38-phase3-a02正式gate与a03候选验证)、[PHASE3_ACCEPTANCE](PHASE3_ACCEPTANCE.md)。D1/D30/300h及A32+B18+Review10/60h不变，人工H/L not_reported；paid0/平台业务写0/生产与Phase4未授权。下方旧候选/未授权/not_run为历史，不覆盖此导航。
 
 当前导航（2026-10-10）：Phase2 已正式结案，main `59b350cb719a9d2fed3f68b1ee598fa0a9b97875` / [同SHA合后CI38041779219 SUCCESS](https://github.com/aning0922/commerceops-agent/actions/runs/38041779219) / [Issue29 CLOSED](https://github.com/aning0922/commerceops-agent/issues/29)。用户已明确授权 [Phase3 #33](https://github.com/aning0922/commerceops-agent/issues/33)持续双线及全部必要Gate/独审/精确CI后Root正常合main；A #34/WT62c8、B #35/WTa266，现[接口合同](contracts/p3-web-v1.md)冻结中，主体业务Gate not_run。目标D7–D12/60h=A32+B18+Review10、原300h、D1=10-10/D30=11-08不改，允许D1提前、人工工时not_reported。零新增模型/飞书业务写扩权/生产/Phase4，旧正文“Phase3未授权”与候选快照保留为历史。M1整体不由阶段启动外推；四份导航由总控协调A唯一追加。

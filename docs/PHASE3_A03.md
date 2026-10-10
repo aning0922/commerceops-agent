@@ -1,5 +1,7 @@
 # Phase3 A03：重验证、永久执行与单项跟进候选
 
+最新独审修复导航（2026-10-11）：原2e0d3ed首模块独审23pass/1fail/157.75s（失锁before_graph/初始CP观测竞争），后续模块/wire未跑；原作者333通过和原CI不抵此阻断。Root派回本批两项最小修复，三态失锁/孤立记录/必要恢复邻接19实际PG通过；新collect337=236+101P3，未宣称新337作者执行通过。当前事实与新freeze/独审/CI待核见[PHASE3_A03_FIX1](PHASE3_A03_FIX1.md)。下方原333/988及原source候选为2e0历史证据，保留不覆盖新门禁。
+
 状态：作者实施与完整实际验证已收口，A03冻结SHA按PR37新head核；独立审核、精确CI及Root A03 Gate待实际回执。沿用WT62c8、`codex/phase3-approval`和[Draft PR37](https://github.com/aning0922/commerceops-agent/pull/37)。A唯一负责后端、迁移、Worker/Graph、共享DTO/CI与阶段证据。B在独立WT实施；双方clean freeze、各自必要Gate及Root放行前不合B。本文件的作者自检不替代独审、GitHub CI或总控验收。
 
 ## 前置Gate与范围

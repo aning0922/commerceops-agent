@@ -103,6 +103,8 @@ class ApprovalRunner:
 
         async def prepare(state: ApprovalState) -> ApprovalState:
             bound(state)
+            # 节点入口观测点：官方sync输入checkpoint已落库，尚未开始T2业务事务。
+            await self.hook("before_prepare")
             result = await self.store.prepare(r)
             if result["outcome"] == "source_pending":
                 raise AnalysisUnsafe("P3_SOURCE_DEPENDENCY_NOT_READY")
@@ -563,8 +565,10 @@ class ApprovalRunner:
                      AND j.kind='analyze' AND j.payload_ref='task:'||t.id::text
                      AND j.dedupe_key='p3:'||t.id::text AND j.status='running'
                      AND j.lease_owner=%s)
-                     AND NOT EXISTS(SELECT 1 FROM business.approvals a
-                     WHERE a.task_id=t.id AND a.decision_id IS NOT NULL)""",
+                     AND NOT EXISTS(SELECT 1 FROM business.replenishment_plans p
+                     WHERE p.task_id=t.id)
+                     AND NOT EXISTS(SELECT 1 FROM business.approvals a WHERE a.task_id=t.id)
+                     AND NOT EXISTS(SELECT 1 FROM business.outbox o WHERE o.task_id=t.id)""",
                         (r.task_id, r.job_id, r.owner),
                     )
                     if restored.rowcount != 1:

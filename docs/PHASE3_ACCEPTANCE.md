@@ -1,5 +1,7 @@
 # Phase3 分层验收与剩余收口
 
+最新独审修复导航（2026-10-11）：原2e0d3ed首模块独审23pass/1fail/157.75s（失锁before_graph/初始CP观测竞争），后续模块/wire未跑；原作者333通过和原CI不抵此阻断。Root派回本批两项最小修复，三态失锁/孤立记录/必要恢复邻接19实际PG通过；新collect337=236+101P3，未宣称新337作者执行通过。当前事实与新freeze/独审/CI待核见[PHASE3_A03_FIX1](PHASE3_A03_FIX1.md)。下方原333/988及原source候选为2e0历史证据，保留不覆盖新门禁。
+
 2026-10-11作者收口候选；Phase3 in_progress，A03作者完整333PG/988offline/wire22/3G1/6G2通过，新freeze独审/精确CI待回执，B未合入A。main实时核为 `59b350cb719a9d2fed3f68b1ee598fa0a9b97875`。下表区分作者实际验证、已冻结历史Gate及剩余验收，不能据PR创建或测试通过提前称全阶段完成。实施/失败/资源/时间见[PHASE3_A03](PHASE3_A03.md)。
 
 ## 已冻结前置Gate

@@ -1,0 +1,77 @@
+{
+  "run_id": 38076119191,
+  "head_sha": "2e0d3ed5ba82dc98516a88e1edce5fc2e6a72deb",
+  "status": "completed",
+  "conclusion": "failure",
+  "offline": {
+    "passed": 988,
+    "seconds": 129.66
+  },
+  "complete_pg_groups": [
+    {
+      "group": "existing",
+      "passed": 236,
+      "seconds": 289.6
+    },
+    {
+      "group": "approval",
+      "passed": 24,
+      "seconds": 247.03
+    },
+    {
+      "group": "evidence",
+      "passed": 2,
+      "seconds": 15.52
+    },
+    {
+      "group": "authority",
+      "passed": 9,
+      "seconds": 124.48
+    },
+    {
+      "group": "execution",
+      "passed": 5,
+      "seconds": 37.24
+    },
+    {
+      "group": "recovery",
+      "passed": 8,
+      "seconds": 79.84
+    },
+    {
+      "group": "items",
+      "passed": 5,
+      "seconds": 40.83
+    },
+    {
+      "group": "migration",
+      "passed": 1,
+      "seconds": 3.34
+    },
+    {
+      "group": "p3_base",
+      "passed": 34,
+      "seconds": 109.97
+    },
+    {
+      "group": "pool",
+      "passed": 1,
+      "seconds": 11.64
+    }
+  ],
+  "complete_pg_total": 325,
+  "complete_p3_total": 89,
+  "failed_group": "projection",
+  "projection_command_start": "2026-10-10T18:53:00.276811+00:00",
+  "projection_command_timeout": "2026-10-10T18:53:19.735107+00:00",
+  "declared_command_cap_seconds": 300,
+  "absolute_budget_seconds": 1380,
+  "cleanup_reserve_seconds": 75,
+  "exit_code": 137,
+  "stop_confirmed": true,
+  "cleanup_exit": 0,
+  "remaining_revalidation5": "not_run",
+  "later_g1": "not_run",
+  "diagnosis": "absolute expires-minus75 budget exhaustion; no projection deadlock evidence",
+  "actual_merge_parent_reported_by_root": "c47f122; full SHA pending Root verification"
+}
