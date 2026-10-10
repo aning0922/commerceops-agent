@@ -39,7 +39,7 @@ B01/B02/B03/B04/B05/B07/B08/B11 的真实动作均禁用，说明服务合同/AP
 
 `COMMERCEOPS_UI_MODE=mock` 必须显式启用。未启用时，即使设置角色样例变量也只返回安全壳。`COMMERCEOPS_MOCK_ROLE` 为服务端进程固定的 operator/approver/admin 样例；不读取客户端 actor/role/query/cookie，不设置登录 cookie，不允许浏览器切换身份。这不是正式鉴权，也不是开发身份替身用于真实审批的入口。
 
-没有 API client、fetch、Server Action、真实 POST 或虚构 endpoint。页面与静态资源通过 Next.js 读取；实际 Playwright 监测中业务 API、非 GET 与站外请求均为零。所有资源仅固定模拟数据，未读 `.env` 或密钥，也未连接 P1/P2 PG、模型、飞书或电商服务。
+B01 UI 没有 API client 接入、fetch、Server Action、真实 POST 或虚构 endpoint；后续独立离线 client 仅测试注入 transport，见末节。页面与静态资源通过 Next.js 读取；实际 Playwright 监测中业务 API、非 GET 与站外请求均为零。所有资源仅固定模拟数据，未读 `.env` 或密钥，也未连接 P1/P2 PG、模型、飞书或电商服务。
 
 固定服务器样例对象采用精确路径检查；无权/未知路径在渲染前跳到通用 `/access`，安全壳的 Client/RSC props 清空所有业务集合、编号、报告/快照/版本与业务状态。admin-only 不发送业务样例 payload。无效指定版本不能默认为最新版本。处理中任务的报告页不展示预生成冻结事实。
 
@@ -120,3 +120,29 @@ zoom与Linux工具共用仅这两项证明的限定owned-mock模块：显式127.
 Linux实际为arm64/Node24.21.0/Chromium156.0.8078.4、本地Noto custom glyph4、1440/390无overflow、20SKU全量、无API/站外写。原首次Linux工具回执作为历史保存（当时缺marker不当作新工具的归属证明）；当前截图属于受控重采。[Linux当前记录](../../frontend/evidence/b01/linux-font.json)、[首次历史回执](../../frontend/evidence/b01/linux-font-first-receipt.json)、[拒绝/来源记录](../../frontend/evidence/b01/ownership-guards.json)分开。
 
 B01此普通修复不含未提交typedclient/generated types。新冻结SHA独审与CI仍以Root/PR实时回执为准。
+
+
+## B02 离线类型与 transport 独立批次
+
+唯一输入为 Root 已放行的 A 合同 `3e05c714289135ab6901159d7e9210d657967fc2`。B01 `1e6b8da8b47ec6390de2f7034251183cb3f985b1` 的两项 P1 已由独立 Reviewer 实际增量核验解除；该 SHA 的 CI/集成签收仍按 Root 实时回执，不以本批取代。
+
+`frontend/lib/p3-types.generated.ts` 从冻结 OpenAPI 的 21 paths / 22 operations / 67 schemas 生成 readonly 类型。项目 TS7.0.2 与固定 lock 不变：直接将 openapi-typescript 7.13.0 加到项目 devDependencies 时因其 TS5 peer 合同 ERESOLVE 失败，未 force/legacy-peer-deps 或降级；随后在临时 npm exec 环境明确使用生成器7.13.0和TS5.9.3。临时生成器环境未另建 transitive lock，不宣称等同生产锁保障。再次生成到 ignored `.audit` 后逐字节相同，合同与生成文件 SHA256 记录在 [generation.json](../../frontend/evidence/b02-offline/generation.json)。参考 [生成器官方 CLI](https://openapi-ts.dev/cli)。
+
+```sh
+PATH="$PWD/.tools/node/bin:$PATH" npm exec --yes --package openapi-typescript@7.13.0 --package typescript@5.9.3 -- openapi-typescript docs/contracts/p3-openapi.json --immutable -o frontend/lib/p3-types.generated.ts
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run test:contract
+PATH="$PWD/.tools/node/bin:$PATH" NEXT_TELEMETRY_DISABLED=1 npm --prefix frontend run build
+```
+
+`p3-transport.ts` 要求显式 origin 与注入 transport，没有默认 global fetch。HTTPS 或显式 loopback localHttp；credentials/include、cache/no-store、redirect/error。POST 固定 JSON/X-CSRF-Token，身份仅响应 session，不发送 actor/role/Origin 伪造 header；CSRF/principal/nonce 只存在实例内存/私有 closure，不写 URL、日志、存储或可序列化预备请求。未 bootstrap 不登录，匿名 bootstrap 不授业务写权，401/403 先清内存并回调清 UI 缓存，logout 即使故障也清本地会话。
+
+预备 create/decision/resolve 固定白名单字段并在创建时捕获原 JSON 字节、原 key/nonce/version；变更当前 principal 后不能发送旧预备请求。网络失败、损坏成功响应或5xx写结果统一 unknown，不自动重投或换键；调用方须显式保留并重发原 PreparedWrite 或按原 operation/key 回读。404不推断写入失败。服务错误只显示本地固定文案与白名单 code/合法 traceId，不回显 server safe_message/原输入。指定 report_id/explanation 绑定、历史 plan_version 与分页查询按冻结路径传输，非法路径 UUID/版本本地拒绝。
+
+这是 transport 离线批次，runtime 仅校验 envelope、身份模式和 session 必要字段；生成 TS 类型不等于完整响应 runtime schema 校验。后续 UI 适配必须核实完整 server DTO、披露完整性/数量/绑定/eligibility 后才启用决定，不能据 typed cast 宣称可批准。B01 UI 没有导入 client/generated types，所有业务动作仍禁用，无真实网络/PG/会话/审批 Gate，未接 A 未审 API。
+
+实际注入测试首次4过1失败，因 PreparedWrite.send 身份变化时同步抛错不符合 Promise 签名；改 async 后通过，后加 unknown/17 GET/bootstrap与logout/创建输入定向用例，总计 **9/9**。这些测试没有启动浏览器或服务；[首轮摘要](../../frontend/evidence/b02-offline/first-run-summary.json)与[最终离线结果](../../frontend/evidence/b02-offline/contract-results.json)分开保存。最终 typecheck/build 成功，未因未接 UI 而重复 Mock 截图或将历史13PW记作新批次测试。
+
+预置单独 `playwright.live.config.ts`，trace/video/自动 screenshot 全部 off。后续 live 用例只在 Root 放行窗口显式采集已清除密码/Cookie/session/CSRF/nonce 的截图与 sanitized 结果；禁止 raw trace/HAR/body。当前 live 目录/用例/API资源均未启用；配置存在不代表 live 测试已经执行。
+
+本批初次敏感扫描命中3处声明为离线的密码占位字面量及1处公共合同hash相邻OpenAPI路径误报。未上传；测试改用显式低熵动态假值，生成回执将hash与路径各自分离排列，未改扫描规则/豁免，也未隐藏真实凭据。最终扫描结果以本批验证回执为准。

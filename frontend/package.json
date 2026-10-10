@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "check:toolchain": "node tooling/check-toolchain.ts",
     "test:web": "playwright test",
-    "test:web:install": "playwright install chromium"
+    "test:web:install": "playwright install chromium",
+    "test:contract": "playwright test --config playwright.contract.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans-sc": "5.3.0",
