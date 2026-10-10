@@ -131,3 +131,198 @@ jobs:
           python -m scripts.pg_ci_evidence \
             .audit/pg-pair/existing/ci-evidence-existing.json \
             .audit/pg-pair/phase3/ci-evidence-phase3.json
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Register immutable frontend deadline before checkout
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          stop = (datetime.now(timezone.utc) + timedelta(minutes=23)).isoformat()
+          with Path(os.environ["GITHUB_ENV"]).open("a") as output:
+              output.write(f"COMMERCEOPS_FRONTEND_STOP_AT_UTC={stop}\n")
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.13'
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.11.25'
+          enable-cache: false
+      - name: Locked tools schema contracts build and headless Mock pages
+        shell: bash
+        run: |
+          # All preparation shares the first-step deadline. Keep 75 seconds for
+          # cleanup even if a timed-out command needs its 10-second kill grace.
+          run_before_cleanup() {
+            local remaining
+            remaining=$(python3 - <<'PY'
+          import os
+          from datetime import datetime, timezone
+          stop = datetime.fromisoformat(os.environ["COMMERCEOPS_FRONTEND_STOP_AT_UTC"])
+          print(int((stop - datetime.now(timezone.utc)).total_seconds()) - 85)
+          PY
+            )
+            test "$remaining" -gt 0
+            timeout --signal=TERM --kill-after=10 "${remaining}s" "$@"
+          }
+          export PATH="$GITHUB_WORKSPACE/.tools/node/bin:$PATH"
+          run_before_cleanup python -m scripts.bootstrap_tools
+          run_before_cleanup python -m scripts.scan_secrets
+          run_before_cleanup uv sync --frozen
+          test "$(node --version)" = v24.21.0
+          test "$(npm --version)" = 11.19.0
+          cd "$GITHUB_WORKSPACE/frontend"
+          run_before_cleanup npm ci --ignore-scripts
+          run_before_cleanup npm run check:toolchain
+          run_before_cleanup npm run typecheck
+          run_before_cleanup npm run check:read-schema
+          run_before_cleanup npm run test:contract
+          run_before_cleanup npm audit --audit-level=low
+          run_before_cleanup npm run build
+          run_before_cleanup npm exec -- playwright install --with-deps chromium
+          run_before_cleanup npm run test:web
+          run_before_cleanup npm exec -- playwright test --config playwright.b04-offline.config.ts
+      - name: All real PG API headless read write and items batches
+        id: live
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          export PATH="$GITHUB_WORKSPACE/.tools/node/bin:$PATH"
+          python3 - <<'PY'
+          import os
+          from datetime import datetime, timezone
+          stop = datetime.fromisoformat(os.environ["COMMERCEOPS_FRONTEND_STOP_AT_UTC"])
+          if (stop - datetime.now(timezone.utc)).total_seconds() <= 85:
+              raise SystemExit("Frontend resource window has no cleanup reserve")
+          PY
+          umask 077
+          private_directory=$(mktemp -d "$RUNNER_TEMP/commerceops-web-XXXXXX")
+          printf 'private_directory=%s\n' "$private_directory" >> "$GITHUB_OUTPUT"
+          # Remove only the three known reporter samples so validation cannot
+          # inherit a committed author's result if this run produces none.
+          rm -f frontend/evidence/b04-live/read/live-results.json \
+            frontend/evidence/b04-live/write/live-results.json \
+            frontend/evidence/b04-live/live-results.json
+          # The frozen entry reserves 75 seconds and stops each owned batch.
+          # Run all three stages without a filter or any reused private inputs.
+          uv run --frozen python -m tests.e2e.web.run_live_batches \
+            --checkout "$GITHUB_WORKSPACE" \
+            --private-directory "$private_directory" \
+            --owner ci \
+            --stop-at-utc "$COMMERCEOPS_FRONTEND_STOP_AT_UTC"
+      - name: Require complete current-source live results and stopped resources
+        id: frontend_evidence
+        shell: bash
+        env:
+          FRONTEND_CI_PRIVATE_DIRECTORY: ${{ steps.live.outputs.private_directory }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          from datetime import datetime
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          private = Path(os.environ["FRONTEND_CI_PRIVATE_DIRECTORY"]).resolve()
+          stop = datetime.fromisoformat(os.environ["COMMERCEOPS_FRONTEND_STOP_AT_UTC"])
+          commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+          build = (root / "frontend/.next/BUILD_ID").read_text().strip()
+          result = json.loads((private / "result.json").read_text())
+          assert set(result) == {"stop_at_utc", "stages"}
+          assert datetime.fromisoformat(result["stop_at_utc"]) == stop
+          assert [row["stage"] for row in result["stages"]] == ["read", "write", "items"]
+          window_fields = {
+              "project", "owner", "owner_uid", "checkout", "private_directory", "stage",
+              "started_at_utc", "stop_at_utc", "pg_port", "web_origin", "api_origin",
+              "build_id", "source_commit", "status", "source_files_sha256", "seed_pid",
+              "seed_exit", "worker_pid", "api_pid", "web_pid", "test_pid", "test_exit",
+              "invariants", "model_calls", "actual_provider_calls", "stopped_at_utc",
+              "pg_running", "pg_pid", "child_exit_codes", "volume_preserved",
+              "owned_listeners_remaining",
+          }
+          reporter_fields = {
+              "status", "duration_ms", "trace", "video", "automatic_screenshot",
+              "source_mode", "commerce_source_mode", "identity_mode", "tests",
+          }
+          source_files = {
+              "tests/e2e/web/run_live_batches.py", "tests/e2e/web/live_batch_owner.py",
+              "tests/e2e/web/live_batch_audit.py", "tests/e2e/web/live_item_seed.py",
+              "tests/e2e/web/live_item_worker.py", "tests/e2e/web/live_item_revoke.py",
+              "tests/e2e/web/live_write_probe.py", "tests/e2e/web/live/read.spec.ts",
+              "tests/e2e/web/live/write.spec.ts", "tests/e2e/web/live/items.spec.ts",
+              "frontend/tooling/live-reporter.ts", "frontend/tooling/live-zoom-proof.mjs",
+              "frontend/playwright.live.config.ts",
+          }
+          for row, (stage, count, report_path) in zip(result["stages"], (
+              ("read", 7, "frontend/evidence/b04-live/read/live-results.json"),
+              ("write", 10, "frontend/evidence/b04-live/write/live-results.json"),
+              ("items", 7, "frontend/evidence/b04-live/live-results.json"),
+          ), strict=True):
+              assert set(row) == {
+                  "stage", "passed", "project", "actual_provider_calls", "test_exit",
+                  "pg_running", "pg_pid", "failure_category", "invariants_passed", "native_zoom",
+              }
+              assert row["passed"] is True and row["invariants_passed"] is True
+              assert row["test_exit"] == 0 and row["actual_provider_calls"] == 0
+              assert row["pg_running"] is False and row["pg_pid"] == 0
+              assert row["failure_category"] is None
+              window = json.loads((private / stage / "window.json").read_text())
+              assert set(window) == window_fields | ({"native_zoom"} if stage == "items" else set())
+              assert window["stage"] == stage and window["project"] == row["project"]
+              assert window["owner"] == "phase3-WebCI" and window["owner_uid"] == os.getuid()
+              assert window["checkout"] == str(root) and window["private_directory"] == str(private / stage)
+              assert window["source_commit"] == commit and window["build_id"] == build
+              assert datetime.fromisoformat(window["stop_at_utc"]) == stop
+              assert datetime.fromisoformat(window["started_at_utc"]) < datetime.fromisoformat(window["stopped_at_utc"]) <= stop
+              assert window["status"] == "stopped" and window["seed_exit"] == window["test_exit"] == 0
+              assert window["pg_running"] is False and window["pg_pid"] == 0
+              assert window["owned_listeners_remaining"] is False and window["volume_preserved"] is True
+              assert window["child_exit_codes"] and all(type(code) is int and code in (0, -15, 143) for code in window["child_exit_codes"])
+              assert window["model_calls"] == window["actual_provider_calls"] == 0
+              assert window["invariants"]["stage"] == stage and window["invariants"]["passed"] is True
+              assert set(window["source_files_sha256"]) == source_files
+              for source_path, expected_hash in window["source_files_sha256"].items():
+                  source = (root / source_path).resolve()
+                  assert source.is_relative_to(root)
+                  assert hashlib.sha256(source.read_bytes()).hexdigest() == expected_hash
+              if stage == "items":
+                  assert window["native_zoom"] == row["native_zoom"] == "passed"
+              report = json.loads((root / report_path).read_text())
+              assert set(report) == reporter_fields and report["status"] == "passed"
+              assert all(report[key] == "off" for key in ("trace", "video", "automatic_screenshot"))
+              assert report["source_mode"] == "live-api"
+              assert report["commerce_source_mode"] == "mock-fixture"
+              assert report["identity_mode"] == "session"
+              expected = re.findall(r'^test\("([^"]+)"', (root / f"tests/e2e/web/live/{stage}.spec.ts").read_text(), re.M)
+              tests = report["tests"]
+              assert len(expected) == len(set(expected)) == len(tests) == count
+              assert sorted(test["test"] for test in tests) == sorted(expected)
+              assert all(set(test) == {"test", "status", "duration_ms", "location"} and test["status"] == "passed" for test in tests)
+          print("Current-source live suites complete: read7/write10/items7; all owned stages stopped")
+          PY
+      - name: Upload only four verified safe live metadata files
+        if: ${{ success() && steps.frontend_evidence.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # official v4
+        with:
+          name: frontend-live-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ steps.live.outputs.private_directory }}/read/window.json
+            ${{ steps.live.outputs.private_directory }}/write/window.json
+            ${{ steps.live.outputs.private_directory }}/items/window.json
+            ${{ steps.live.outputs.private_directory }}/result.json
+          if-no-files-found: error
+          retention-days: 1
