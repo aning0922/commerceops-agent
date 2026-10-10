@@ -199,3 +199,10 @@ uv run --frozen python -m scripts.scan_secrets
 独立Reviewer在启动资源前发现6824的Web E2E固定3460/3461，无法核自己的3470/3471；已停止未启动资源，不借B的账号/runtime/PG。本有界修复只改专用E2E/helper/此交接：从windowInfo已校验的web_origin/api_origin取显式TCP端口，要求canonical `http://127.0.0.1:PORT`，拒绝异主机/https/localhost/IPv6别名/userinfo/path/query/hash/隐式或无效端口；不回退旧端口。lsof用解析数字argv，正整数PID必须精确且唯一归属（同PID重复行允许，混入其他PID拒绝），无启动或终止进程。登记build_id还须匹配本checkout `.next/BUILD_ID`，缺失/不同即拒绝。
 
 实际4/4纯函数反例（343ms）、typecheck/Prettier通过，覆盖3470/3471、旧端口、边界端口、19个非法Origin、入口不匹配/坏PID/不同listener与build。此仅使用既有离线runner，没有浏览器fixture/PG/API/Next启动，未把新的3470/3471实际Web记通过；独审续跑7项由Root派Reviewer在其自有资源进行。原13/7和失败记录不改写。对6824逐个Git blob核业务app/components/lib/public/配置与npm锁全部相同，证明见owned-listener-fix.json。当前history唯一973bf公开metadata误报仍待共享policy独审，不push、不改scanner或历史、不合A02未审内容。
+
+
+## 第二个同类独审阻断：seed Origin登记贯通
+
+Reviewer在12fa自有3470/3471资源完成迁移/预置后发现B seed的WebConfig.origins仍固定3460，将真实ORIGIN_DENIED；API/Next/PW未启动并停自有PG保卷，原截止不重置。本次一次辅助收口从600/no-follow/当前UID的私有window.json严格校验web_origin与api_origin，要求canonical http/127.0.0.1/显式有效非默认TCP端口，拒绝userinfo/path/query/hash/异主机等。校验发生在DB初始化前；最终seed WebConfig.origins仅登记web_origin，TestClient base_url登记api_origin，bootstrap/login/session/T1 seed请求明确用同登记web Origin与实际Cookie/CSRF，不沿用A fixture内部默认Origin，不降低真实校验或注入actor。
+
+一次rg核live_seed/live_ready/live_revoke/live_origins/read.spec/owned-listeners/playwright.live/live-reporter/read client/page入口，运行链无3460/3461回退；页面origin/runner URL仅显式受控env，read.spec仍对登记值精确校验。旧固定端口只留历史资料/反例，不用作新Reviewer端点。22/22 Python纯离线反例（0.32s）包括3470/3471、20非法Origin与私有登记权限/双端点要求，Ruff/format/mypy三文件和frontend typecheck通过；未启动PG/API/Next/浏览器，不宣称新7项实际通过。业务22 blob与12fa逐字相同，seed-origin-fix.json留证；history仍原973bf误报1、no push。若续审仍有同源端点阻断，按Root合同集中报告并暂停live，不自动第三轮或另建框架。

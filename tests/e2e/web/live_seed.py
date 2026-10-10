@@ -6,6 +6,7 @@ import secrets
 import sys
 from dataclasses import replace
 from pathlib import Path
+from typing import cast
 from uuid import UUID, uuid4
 
 from commerceops.adapters.commerce.mock import Fixture, MockCommerce
@@ -16,8 +17,10 @@ from commerceops.entrypoints.api import create_app
 from commerceops.entrypoints.database import grant_runtime, migrate, setup_checkpointer
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
+from commerceops.infrastructure.web_sessions import SessionStore
 from fastapi.testclient import TestClient
 
+from tests.e2e.web.live_origins import registered_origins
 from tests.inventory_support import DIRECTORY
 from tests.p3_support import initialize_p3, run_graphs
 
@@ -28,6 +31,7 @@ def save(path: Path, value: object) -> None:
 
 
 def main(directory: Path) -> None:
+    web_origin, api_origin = registered_origins(directory)
     settings = DatabaseSettings()
     migrate(settings)
     asyncio.run(setup_checkpointer(settings))
@@ -38,7 +42,7 @@ def main(directory: Path) -> None:
     f = initialize_p3(settings, app, directory)
     configuration = json.loads(f.config_file.read_text())
     configuration.update(
-        origins=["http://127.0.0.1", "http://127.0.0.1:3460"],
+        origins=[web_origin],
         config_version="p3b02-owned-v1",
         approval_ttl_seconds=1800,
         revalidation_max_age_seconds=450,
@@ -56,7 +60,7 @@ def main(directory: Path) -> None:
     f.store = ReplenishmentStore(f.config, DIRECTORY)
     f.client.close()
     f.client = TestClient(
-        create_app(web_config=f.config, replenishment_store=f.store), base_url="http://127.0.0.1"
+        create_app(web_config=f.config, replenishment_store=f.store), base_url=api_origin
     )
     shop_b = uuid4()
     accounts = {}
@@ -131,11 +135,33 @@ def main(directory: Path) -> None:
                     (f.actor.organization_id, shop, principal, grant),
                 )
             accounts[role] = {"login": login, "password": password, "principal": str(principal)}
-    f.relogin()
+    bootstrap = f.client.get("/api/v1/auth/csrf").json()
+    result = f.client.post(
+        "/api/v1/auth/login",
+        json={
+            "schema_version": "p3-web-v1",
+            "login": f.login,
+            "password": f.password.get_secret_value(),
+        },
+        headers={"Origin": web_origin, "X-CSRF-Token": bootstrap["csrf_token"]},
+    )
+    assert result.status_code == 200
+    f.actor = SessionStore(f.config).authenticate(f.client.cookies.get("commerceops_session"))
+
+    def create_cycle() -> dict[str, object]:
+        current = f.client.get("/api/v1/auth/session").json()
+        response = f.client.post(
+            "/api/v1/tasks",
+            json=f.new_cycle(),
+            headers={"Origin": web_origin, "X-CSRF-Token": current["csrf_token"]},
+        )
+        assert response.status_code == 202
+        return cast(dict[str, object], response.json())
+
     receipts = []
     # 11 real T1 pairs => 22 public P2/P3 records for scoped pagination. No UI writes.
     for _ in range(10):
-        receipts.append(f.create(f.new_cycle()))
+        receipts.append(create_cycle())
     baseline = Fixture.load(DIRECTORY)
     provenance = baseline.source.provenance.model_copy(
         update={
@@ -185,22 +211,22 @@ def main(directory: Path) -> None:
         inventories=tuple(inventories),
     )
     collector = InventoryCollector(MockCommerce(controlled), source, baseline.now)
-    receipt = f.create(f.new_cycle())
+    receipt = create_cycle()
     receipts.append(receipt)
-    asyncio.run(run_graphs(f, UUID(receipt["task_id"]), factory=lambda request: collector))
+    asyncio.run(run_graphs(f, UUID(str(receipt["task_id"])), factory=lambda request: collector))
     with connect(settings) as db:
         plan = db.execute(
             "SELECT p.id,p.version AS plan_version,a.id AS approval_id,"
             "a.eligible_principal_ids FROM "
             "business.replenishment_plans p JOIN business.approvals a ON a.plan_id=p.id "
             "WHERE p.task_id=%s",
-            (UUID(receipt["task_id"]),),
+            (UUID(str(receipt["task_id"])),),
         ).fetchone()
         assert plan and UUID(accounts["approver"]["principal"]) in plan["eligible_principal_ids"]
         assert UUID(accounts["dual"]["principal"]) not in plan["eligible_principal_ids"]
         source_row = db.execute(
             "SELECT source_report_id AS report_id FROM business.p3_task_sources WHERE task_id=%s",
-            (UUID(receipt["task_id"]),),
+            (UUID(str(receipt["task_id"])),),
         ).fetchone()
         assert source_row
         runtime_flags = db.execute(
