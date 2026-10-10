@@ -1,0 +1,1574 @@
+{
+  "components": {
+    "schemas": {
+      "Display": {
+        "additionalProperties": false,
+        "properties": {
+          "D": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "D"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          },
+          "display_version": {
+            "const": "inventory-display-v1",
+            "default": "inventory-display-v1",
+            "title": "Display Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "inventory-analysis-v1",
+            "default": "inventory-analysis-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger"
+          }
+        },
+        "required": [
+          "D",
+          "trigger",
+          "coverage"
+        ],
+        "title": "Display",
+        "type": "object"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "safe_message": {
+            "title": "Safe Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "safe_message"
+        ],
+        "title": "ErrorDetail",
+        "type": "object"
+      },
+      "ErrorRead": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "const": "p203-read-v1",
+            "default": "p203-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorRead",
+        "type": "object"
+      },
+      "EventDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ANALYSIS_PERMISSION_INVALID",
+                  "ANALYSIS_STATE_INVALID",
+                  "ANALYSIS_INPUT_INVALID",
+                  "ANALYSIS_CHECKPOINT_UNSAFE",
+                  "ANALYSIS_STORAGE_FAILURE"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "complete": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Complete"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "report_ready",
+                  "no_action"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Id"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "queued",
+                  "analyzing",
+                  "completed",
+                  "failed",
+                  "needs_attention"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          }
+        },
+        "title": "EventDetails",
+        "type": "object"
+      },
+      "EventRead": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "analysis_started",
+              "analysis_failed",
+              "analysis_report_saved"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "details": {
+            "$ref": "#/components/schemas/EventDetails"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "occurred_at",
+          "action",
+          "details"
+        ],
+        "title": "EventRead",
+        "type": "object"
+      },
+      "EventsRead": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "identity_mode": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EventRead"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "schema_version": {
+            "const": "p203-read-v1",
+            "default": "p203-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "items",
+          "next_cursor"
+        ],
+        "title": "EventsRead",
+        "type": "object"
+      },
+      "ExactRatio": {
+        "additionalProperties": false,
+        "properties": {
+          "denominator": {
+            "title": "Denominator",
+            "type": "string"
+          },
+          "numerator": {
+            "title": "Numerator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numerator",
+          "denominator"
+        ],
+        "title": "ExactRatio",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "InventoryFact": {
+        "additionalProperties": false,
+        "properties": {
+          "A": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "A"
+          },
+          "D": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactRatio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "L": {
+            "ge": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "ge": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "ge": 0,
+            "title": "S",
+            "type": "integer"
+          },
+          "T": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "T"
+          },
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "can_form_suggestion": {
+            "title": "Can Form Suggestion",
+            "type": "boolean"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactRatio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coverage_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Reason"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "demand_complete": {
+            "title": "Demand Complete",
+            "type": "boolean"
+          },
+          "display": {
+            "$ref": "#/components/schemas/Display"
+          },
+          "effective_inbound_units": {
+            "ge": 0,
+            "title": "Effective Inbound Units",
+            "type": "integer"
+          },
+          "eligible_for_execution": {
+            "const": false,
+            "default": false,
+            "title": "Eligible For Execution",
+            "type": "boolean"
+          },
+          "excluded_order_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Excluded Order Ids",
+            "type": "array"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "gross_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Units"
+          },
+          "hard_blocks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hard Blocks",
+            "type": "array"
+          },
+          "inbound_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Reason"
+          },
+          "inbound_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Units"
+          },
+          "included_order_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Included Order Ids",
+            "type": "array"
+          },
+          "inventory_observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inventory Observed At"
+          },
+          "known_gross_units": {
+            "ge": 0,
+            "title": "Known Gross Units",
+            "type": "integer"
+          },
+          "known_refunded_units": {
+            "ge": 0,
+            "title": "Known Refunded Units",
+            "type": "integer"
+          },
+          "net_units": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Units"
+          },
+          "open_item_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Open Item Ids",
+            "type": "array"
+          },
+          "quality_flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Quality Flags",
+            "type": "array"
+          },
+          "quantity_complete": {
+            "title": "Quantity Complete",
+            "type": "boolean"
+          },
+          "quantity_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity Reason"
+          },
+          "refunded_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refunded Units"
+          },
+          "required_assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Assumptions",
+            "type": "array"
+          },
+          "review_order_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Review Order Ids",
+            "type": "array"
+          },
+          "risk": {
+            "enum": [
+              "risk",
+              "stockout",
+              "normal",
+              "no_recent_demand",
+              "manual_check",
+              "quality_blocked"
+            ],
+            "title": "Risk",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "inventory-analysis-v1",
+            "default": "inventory-analysis-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "sku_key": {
+            "title": "Sku Key",
+            "type": "string"
+          },
+          "sku_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku Label"
+          },
+          "source_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Version"
+          },
+          "stock_pool_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Pool Key"
+          },
+          "stock_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Reason"
+          },
+          "suggested_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Units"
+          },
+          "suggestion_mode": {
+            "enum": [
+              "estimate",
+              "assumption_draft",
+              "blocked",
+              "not_needed"
+            ],
+            "title": "Suggestion Mode",
+            "type": "string"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactRatio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sku_key",
+          "stock_pool_key",
+          "sku_label",
+          "active",
+          "gross_units",
+          "known_gross_units",
+          "demand_complete",
+          "known_refunded_units",
+          "quantity_complete",
+          "refunded_units",
+          "net_units",
+          "quantity_reason",
+          "currency",
+          "D",
+          "A",
+          "stock_reason",
+          "inventory_observed_at",
+          "source_version",
+          "inbound_units",
+          "inbound_reason",
+          "effective_inbound_units",
+          "L",
+          "R",
+          "S",
+          "T",
+          "trigger",
+          "risk",
+          "suggested_units",
+          "coverage",
+          "coverage_reason",
+          "required_assumptions",
+          "hard_blocks",
+          "quality_flags",
+          "included_order_ids",
+          "excluded_order_ids",
+          "review_order_ids",
+          "open_item_ids",
+          "can_form_suggestion",
+          "suggestion_mode",
+          "display"
+        ],
+        "title": "InventoryFact",
+        "type": "object"
+      },
+      "InventoryReport": {
+        "additionalProperties": false,
+        "properties": {
+          "L": {
+            "ge": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "ge": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "ge": 0,
+            "title": "S",
+            "type": "integer"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "candidate_count": {
+            "ge": 0,
+            "title": "Candidate Count",
+            "type": "integer"
+          },
+          "canonical_version": {
+            "const": "canonical-facts-v1",
+            "default": "canonical-facts-v1",
+            "title": "Canonical Version",
+            "type": "string"
+          },
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "input_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InventoryFact"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "now": {
+            "format": "date-time",
+            "title": "Now",
+            "type": "string"
+          },
+          "parameter_mode": {
+            "const": "demo_assumption",
+            "default": "demo_assumption",
+            "title": "Parameter Mode",
+            "type": "string"
+          },
+          "requires_review": {
+            "title": "Requires Review",
+            "type": "boolean"
+          },
+          "rule_version": {
+            "const": "inventory-rule-v1",
+            "default": "inventory-rule-v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "inventory-analysis-v1",
+            "default": "inventory-analysis-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "scope_required": {
+            "title": "Scope Required",
+            "type": "boolean"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "source_complete": {
+            "title": "Source Complete",
+            "type": "boolean"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/Window"
+          }
+        },
+        "required": [
+          "source",
+          "now",
+          "window",
+          "source_complete",
+          "complete",
+          "requires_review",
+          "L",
+          "R",
+          "S",
+          "warnings",
+          "items",
+          "candidate_count",
+          "scope_required",
+          "input_hash",
+          "facts_hash"
+        ],
+        "title": "InventoryReport",
+        "type": "object"
+      },
+      "Liveness": {
+        "properties": {
+          "service": {
+            "default": "commerceops-api",
+            "title": "Service",
+            "type": "string"
+          },
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "Liveness",
+        "type": "object"
+      },
+      "Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "captured_at": {
+            "format": "date-time",
+            "title": "Captured At",
+            "type": "string"
+          },
+          "fixture_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixture Version"
+          },
+          "quality_flags": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Quality"
+            },
+            "title": "Quality Flags",
+            "type": "array"
+          },
+          "raw_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Raw Hash",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "commerce-v1",
+            "default": "commerce-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "mock",
+              "woocommerce_test"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_kind",
+          "fixture_version",
+          "captured_at",
+          "raw_hash"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "Quality": {
+        "enum": [
+          "DUPLICATE_ID",
+          "MISSING_PAGE",
+          "SOURCE_CHANGED",
+          "CAPACITY_LIMIT",
+          "PARTIAL_FAILURE",
+          "UNKNOWN_STOCK",
+          "SHARED_POOL_UNRESOLVED",
+          "DELETED_PRODUCT"
+        ],
+        "title": "Quality",
+        "type": "string"
+      },
+      "ReportRead": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "collection_started_at": {
+            "format": "date-time",
+            "title": "Collection Started At",
+            "type": "string"
+          },
+          "consistency": {
+            "const": "observational",
+            "title": "Consistency",
+            "type": "string"
+          },
+          "content_hash": {
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "facts": {
+            "$ref": "#/components/schemas/InventoryReport"
+          },
+          "identity_mode": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "report_ready",
+              "no_action"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "p203-read-v1",
+            "default": "p203-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "format": "uuid",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_complete": {
+            "title": "Source Complete",
+            "type": "boolean"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "snapshot_id",
+          "report_id",
+          "content_hash",
+          "outcome",
+          "collection_started_at",
+          "collected_at",
+          "source_complete",
+          "consistency",
+          "facts"
+        ],
+        "title": "ReportRead",
+        "type": "object"
+      },
+      "Source": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "schema_version": {
+            "const": "commerce-v1",
+            "default": "commerce-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "shop_id": {
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id",
+          "timezone",
+          "currency",
+          "provenance"
+        ],
+        "title": "Source",
+        "type": "object"
+      },
+      "TaskRead": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "identity_mode": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "kind": {
+            "const": "inventory_analysis_only",
+            "title": "Kind",
+            "type": "string"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "report_ready",
+                  "no_action"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "schema_version": {
+            "const": "p203-read-v1",
+            "default": "p203-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "analyzing",
+              "completed",
+              "failed",
+              "needs_attention"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "workflow_version": {
+            "const": "p203-inventory-analysis-v1",
+            "title": "Workflow Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "state",
+          "kind",
+          "workflow_version",
+          "created_at",
+          "updated_at",
+          "failure_code",
+          "outcome"
+        ],
+        "title": "TaskRead",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "Window": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "commerce-v1",
+            "default": "commerce-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "Window",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "CommerceOps Agent",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "liveness_health_live_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Liveness"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Liveness"
+      }
+    },
+    "/tasks/{task_id}": {
+      "get": {
+        "operationId": "task_tasks__task_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Task"
+      }
+    },
+    "/tasks/{task_id}/events": {
+      "get": {
+        "operationId": "events_tasks__task_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 2048,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Events"
+      }
+    },
+    "/tasks/{task_id}/report": {
+      "get": {
+        "operationId": "report_tasks__task_id__report_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRead"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Report"
+      }
+    }
+  }
+}

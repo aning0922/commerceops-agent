@@ -2,9 +2,9 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase 1 已验收并合入 main，等待用户授权 Phase 2。** 工程底座、真实 Docker/PostgreSQL/Checkpoint 与受控真实飞书消息、技术卡片和 Base 探针完成；独立审核、精确候选 CI 及 main 合后 CI 均通过。G3 的 non@/self-bot 按最小权限的平台非投递边界，应用对应过滤分支未真机执行；正式业务审批、库存/订单/模型闭环与 M1 完整面试应用仍在后续阶段。完整证据、当前提交与风险见 [STATUS](docs/STATUS.md)、[验收报告](docs/PHASE1_ACCEPTANCE.md)及[阶段 PR19](https://github.com/aning0922/commerceops-agent/pull/19)，不会自动进入 Phase 2。
+**当前阶段：Phase2库存分析切片验收Gate已通过；正式main提交/合后CI及阶段结案看Issue29实时回执，Phase3未授权。** 已交付确定性库存规则、Mock金标、PG不可变报告与受限只读接口、固定五意图/有限参数确认、报告说明及持久预算恢复。冻结source45db通过独立审核/精确CI，本次一次真实DeepSeek解释与一次受控本地模板降级已由Root核定必要Gate；真实数据来源仍Mock、身份simulated，不表示正式审批/补货/库存或M1完整应用通过。
 
-任务依赖、执行顺序、Gate 证据与阻塞见 [STATUS](docs/STATUS.md)；阶段证据、判定与外部解锁清单见 [验收报告](docs/PHASE1_ACCEPTANCE.md)。实现与实际测试通过独立 PR 交付；主控按用户已委托的 Phase 1 合并门禁裁决；真实 Gate、独立审核和实际 CI 齐备前不确认最终 main 合并。
+caffe为实施main基线，45db为已验证业务source；本次2026-10-10 17:11候选快照为ready_for_phase2_merge。用户委托Root在全部阶段门禁满足后正常合main并核同提交CI，随后关闭Issue29。完整证据、风险、费用与未运行事项见[Phase2验收候选](docs/PHASE2_ACCEPTANCE.md)、[STATUS](docs/STATUS.md)及[Draft PR30](https://github.com/aning0922/commerceops-agent/pull/30)。Phase1有限Gate/历史报告和M1设计0.4.1冻结保持；不会自动进入Phase3/飞书扩权/生产。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
@@ -34,7 +34,7 @@ Phase 1 已建立基础 CI/敏感检查，已完成 Docker/PG、LangGraph Checkp
 
 ## 版本管理与审核
 
-GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段使用独立分支和 PR，修复独立审核问题，按当前授权裁决合并。Phase 1 全必要 Gate/审核/CI 通过后的合并裁决已委托主控，具体规范见 [AGENTS.md](AGENTS.md)。每次合并不自动授权进入下一 Phase。
+GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段使用独立分支和 PR，修复独立审核问题，按当前授权裁决合并。Phase1已收口；Phase2全必要Gate后的正常main合并也经用户委托Root，具体规范见 [AGENTS.md](AGENTS.md)。每次合并不自动授权进入下一 Phase。
 
 ## P1-01 工程底座使用
 

@@ -1,6 +1,6 @@
 # 工程约束
 
-- Phase0/Phase1已结案；P1有限真实G1/G2/G3、独审与精确main CI证据保留。2026-10-10用户正式冻结m1-ui/0.4.1-freeze-rc为M1设计基线（18页/交互），PR24已正常合main f19281f1163f828448ad9404620d68e0f1afaa66，不追加M1视觉批次。Phase2按Issue29的代码/自有Mock/隔离测试及独审已授权，当前in_progress_p2_01；总控已派新独立顶层/WT从f192顺序实施01→04，P2-01执行中尚未交付Gate，02–04未开始。正式付费模型/飞书扩权限/生产与后续Phase未授权，P2 main合并仍需Gate与届时有效用户授权。G3 non@/self-bot为最小权限平台非投递边界，后端过滤仍not_run，正式T3/库存/自然网络故障/wire/p95/长期幂等不从技术探针外推；旧timeout not_identified/risk_accepted与P1-01–04冻结保持。当前main/CI/派发与限制见docs/STATUS.md及Issue7/29；旧阶段章节为历史，不复活旧未授权标记。
+- Phase0/Phase1已结案，P1有限真实G1/G2/G3/精确main CI及#23 not_identified/risk_accepted保留；M1设计m1-ui/0.4.1-freeze-rc（18页）已冻结，不追加视觉批次。Phase2 P201–04验收Gate、最终source45db独审5478361118/精确CI38038626351及一次actual DeepSeek解释Gate已由Root核定通过；2026-10-10 17:11候选快照ready_for_phase2_merge，正式main SHA/合后CI/Issue29结案以GitHub实时回执为准，不提前宣称。caffe11770a54135900633edf4db0df5458fd195仅实施基线。A唯一schema/业务/Worker/Graph/API/预算/集成，B组件已普通内部合；完整文法用户批准的一次收口及历史三轮失败/暂停保留。实际provider次数1，local_fault仅offline1，key仅Factory在Root明确窗口读、.env未读，剩余9次不自动继续；自有实际PG/window/ledger保留待Root核收。用户已委托Root全Phase2必要Gate后正常合main，A不自行合；Phase3/飞书扩权/生产未授权。BC只读/有限参数为切片，正式T3/补货/库存/生产auth/前端/M1/40×3/95%/p95/自然故障/wire/长期TTL/G3收到后过滤仍not_run。D1/D30/300h与原目标日期保持、人工H/L not_reported。阶段权威候选与剩余收口见docs/STATUS.md第35节/PHASE2_ACCEPTANCE及Issue29；旧章节为历史，不复活旧未授权标记。
 - 工程独立运行；旧项目只读研究，不复制整项目、不依赖旧项目绝对路径。不擅自修改全局开发环境。
 - 确定性代码负责金额、统计、库存规则、权限与幂等；LLM 负责意图、解释及受限流程路由。
 - PostgreSQL 为业务权威来源。副作用必须有身份校验、审批约束、持久幂等键及失败恢复；不能把 checkpoint 当作副作用事务。

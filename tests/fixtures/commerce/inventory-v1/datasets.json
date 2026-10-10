@@ -1,0 +1,1632 @@
+{
+  "dataset_version": "inventory-v1",
+  "schema_version": "commerce-v1",
+  "fixture_version": "inventory-v1",
+  "rule_version": "inventory-rule-v1",
+  "canonical_version": "canonical-facts-v1",
+  "now": "2026-10-08T10:00:00+08:00",
+  "seed": "not_used",
+  "cases": {
+    "baseline": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "equal_trigger": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 50,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "normal": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 51,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "backlog": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": -5,
+          "stock_reason": null,
+          "stock_status": "outofstock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "zero_stock": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 0,
+          "stock_reason": null,
+          "stock_status": "outofstock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "known_inbound": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 30,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "unknown_inbound": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": null,
+          "inbound_reason": "not_provided",
+          "inbound_quality": "unknown",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "unknown_stock": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": null,
+          "stock_reason": "source_missing",
+          "stock_status": "outofstock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "rational_risk": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 8,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 5,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "rational_normal": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 8,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 6,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "no_demand": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "no_demand_zero": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 0,
+          "stock_reason": null,
+          "stock_status": "outofstock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "no_demand_negative": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": -5,
+          "stock_reason": null,
+          "stock_status": "outofstock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "empty_products": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [],
+      "orders": [],
+      "refunds": [],
+      "inventories": [],
+      "open_items": []
+    },
+    "empty_orders": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "statuses": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "status-0",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "processing",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-08T10:00:00+08:00",
+          "completed_at": null,
+          "quantity": 35,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-08T10:00:00+08:00",
+          "completed_at": null,
+          "quantity": 25,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-2",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "refunded",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-08T10:00:00+08:00",
+          "completed_at": null,
+          "quantity": 5,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-3",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "refunded",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": "2026-10-08T10:00:00+08:00",
+          "quantity": 5,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-4",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "refunded",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 99,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-5",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "pending",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 101,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-6",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "on-hold",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 102,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-7",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "cancelled",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 103,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-8",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "failed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 104,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-9",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "trash",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 105,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "status-10",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "custom-plugin",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": null,
+          "completed_at": null,
+          "quantity": 106,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "mixed_refunds": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [
+        {
+          "refund_id": "r-known",
+          "order_id": "o1",
+          "created_at": "2026-10-05T09:00:00+08:00",
+          "refund_amount": "5.00",
+          "currency": "CNY",
+          "lines": [
+            {
+              "line_id": "line-1",
+              "refunded_quantity": 2,
+              "quantity_reason": null
+            }
+          ],
+          "restocked": null,
+          "quantity_reason": null
+        },
+        {
+          "refund_id": "r-amount",
+          "order_id": "o1",
+          "created_at": "2026-10-08T09:00:00+08:00",
+          "refund_amount": "5.00",
+          "currency": "CNY",
+          "lines": [
+            {
+              "line_id": "line-1",
+              "refunded_quantity": null,
+              "quantity_reason": "amount_only"
+            }
+          ],
+          "restocked": null,
+          "quantity_reason": null
+        }
+      ],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "full_refund": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "refunded",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [
+        {
+          "refund_id": "r-full",
+          "order_id": "o1",
+          "created_at": "2026-10-05T09:00:00+08:00",
+          "refund_amount": "10.50",
+          "currency": "CNY",
+          "lines": [
+            {
+              "line_id": "line-1",
+              "refunded_quantity": 70,
+              "quantity_reason": null
+            }
+          ],
+          "restocked": false,
+          "quantity_reason": null
+        }
+      ],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "partial_refund": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [
+        {
+          "refund_id": "r-part",
+          "order_id": "o1",
+          "created_at": "2026-10-05T09:00:00+08:00",
+          "refund_amount": "5.00",
+          "currency": "CNY",
+          "lines": [
+            {
+              "line_id": "line-1",
+              "refunded_quantity": 2,
+              "quantity_reason": null
+            }
+          ],
+          "restocked": false,
+          "quantity_reason": null
+        }
+      ],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "unlinked_amount_refund": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [
+        {
+          "refund_id": "r-unlinked",
+          "order_id": "o1",
+          "created_at": "2026-10-08T10:00:00+08:00",
+          "refund_amount": "3.00",
+          "currency": "CNY",
+          "lines": [],
+          "restocked": null,
+          "quantity_reason": "amount_only"
+        }
+      ],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "cross_period": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "old",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-09-25T00:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 13,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [
+        {
+          "refund_id": "r-later",
+          "order_id": "o1",
+          "created_at": "2026-10-08T10:00:00+08:00",
+          "refund_amount": "5.00",
+          "currency": "CNY",
+          "lines": [
+            {
+              "line_id": "line-1",
+              "refunded_quantity": 2,
+              "quantity_reason": null
+            }
+          ],
+          "restocked": null,
+          "quantity_reason": null
+        },
+        {
+          "refund_id": "r-old-cashflow",
+          "order_id": "old",
+          "created_at": "2026-10-04T08:00:00+08:00",
+          "refund_amount": "5.00",
+          "currency": "CNY",
+          "lines": [
+            {
+              "line_id": "line-1",
+              "refunded_quantity": 3,
+              "quantity_reason": null
+            }
+          ],
+          "restocked": null,
+          "quantity_reason": null
+        }
+      ],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "identity": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "10",
+          "variant_id": null,
+          "sku_key": "sku/demo/10/p",
+          "sku_label": null,
+          "title": "合成演示商品 10",
+          "active": true,
+          "stock_pool_key": "pool/demo/10"
+        },
+        {
+          "shop_id": "demo",
+          "product_id": "10",
+          "variant_id": "1",
+          "sku_key": "sku/demo/10/v/1",
+          "sku_label": "",
+          "title": "合成演示商品 10",
+          "active": true,
+          "stock_pool_key": "pool/demo/10"
+        },
+        {
+          "shop_id": "demo",
+          "product_id": "10",
+          "variant_id": "2",
+          "sku_key": "sku/demo/10/v/2",
+          "sku_label": "SAME",
+          "title": "合成演示商品 10",
+          "active": true,
+          "stock_pool_key": "pool/demo/10"
+        },
+        {
+          "shop_id": "demo",
+          "product_id": "20",
+          "variant_id": null,
+          "sku_key": "sku/demo/20/p",
+          "sku_label": "SAME",
+          "title": "合成演示商品 20",
+          "active": false,
+          "stock_pool_key": "pool/demo/20"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "deleted",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/deleted/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 4,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/10/p",
+          "stock_pool_key": "pool/demo/10",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "unresolved"
+        },
+        {
+          "sku_key": "sku/demo/10/v/1",
+          "stock_pool_key": "pool/demo/10",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "unresolved"
+        },
+        {
+          "sku_key": "sku/demo/10/v/2",
+          "stock_pool_key": "pool/demo/10",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "unresolved"
+        },
+        {
+          "sku_key": "sku/demo/20/p",
+          "stock_pool_key": "pool/demo/20",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "open_item": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "o1",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-02T12:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 70,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": [
+        {
+          "item_id": "synthetic-open-1",
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "status": "open",
+          "quantity": 100,
+          "source_kind": "mock"
+        }
+      ]
+    },
+    "boundaries": {
+      "shop_id": "demo",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "before",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-09-30T23:59:59.999999+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 11,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "start",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-01T00:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 17,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "last",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-07T23:59:59.999999+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 19,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "end",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-10-08T00:00:00+08:00",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 23,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    },
+    "dst": {
+      "shop_id": "demo",
+      "timezone": "America/New_York",
+      "currency": "CNY",
+      "products": [
+        {
+          "shop_id": "demo",
+          "product_id": "100",
+          "variant_id": null,
+          "sku_key": "sku/demo/100/p",
+          "sku_label": "DEMO",
+          "title": "合成演示商品 100",
+          "active": true,
+          "stock_pool_key": "pool/demo/100"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "dst-before",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-03-02T04:59:59.999999Z",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 11,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "dst-start",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-03-02T05:00:00Z",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 17,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "dst-last",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-03-09T03:59:59.999999Z",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 19,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        },
+        {
+          "order_id": "dst-end",
+          "line_id": "line-1",
+          "sku_key": "sku/demo/100/p",
+          "status": "completed",
+          "created_at": "2026-03-09T04:00:00Z",
+          "paid_at": "2026-10-02T12:01:00+08:00",
+          "completed_at": null,
+          "quantity": 23,
+          "net_amount": "10.50",
+          "tax_amount": "0.63",
+          "currency": "CNY"
+        }
+      ],
+      "refunds": [],
+      "inventories": [
+        {
+          "sku_key": "sku/demo/100/p",
+          "stock_pool_key": "pool/demo/100",
+          "manage_stock": true,
+          "available_stock": 20,
+          "stock_reason": null,
+          "stock_status": "instock",
+          "backorders": "no",
+          "stock_semantics": "adapter_available_already_adjusted",
+          "observed_at": "2026-10-08T10:00:00+08:00",
+          "source_version": "synthetic-1",
+          "inbound_units": 0,
+          "inbound_reason": null,
+          "inbound_quality": "reliable",
+          "pool_allocation": "exact"
+        }
+      ],
+      "open_items": []
+    }
+  }
+}
