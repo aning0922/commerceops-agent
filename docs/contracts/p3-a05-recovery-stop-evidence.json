@@ -1,0 +1,29 @@
+{
+  "project": "p3a05fix-b5b874dc4280",
+  "owner": "phase3-A05-recovery-WT62c8",
+  "uid": 501,
+  "source_sha": "972f98a383dc4ff6873e7d37f09621954142db39",
+  "registered_at_utc": "2026-10-10T21:20:41+00:00",
+  "stop_at_utc": "2026-10-10T21:50:41+00:00",
+  "pg_port": 63692,
+  "temporary_databases": 0,
+  "other_base_connections": 0,
+  "app_role_flags": {
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false
+  },
+  "observed_stopped_at_utc": "2026-10-10T21:27:59.605184+00:00",
+  "docker_finished_at_utc": "2026-10-10T21:27:59.212144886Z",
+  "running": false,
+  "pid": 0,
+  "volume_retained": true,
+  "cleanup_zero_claimed": false,
+  "directory_mode": "0o700",
+  "private_file_modes": {
+    "owner_password": "0o600",
+    "app_password": "0o600",
+    "ports.json": "0o600",
+    "ledger.json": "0o600"
+  }
+}

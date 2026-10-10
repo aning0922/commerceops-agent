@@ -938,7 +938,8 @@ def test_p3_lost_worker_lock_exits_and_requires_os_confirmation(
             malformed = asyncio.run(checkpoint_state(f, task))
             assert malformed.created_at is not None and malformed.next == ()
             assert malformed.values == before.values and not malformed.interrupts
-        restored, _ = start(f, task)
+        restored, _ = start(f, task, "never" if corrupt_empty else "after_t2_commit")
+        restored_released = corrupt_empty
         try:
             if corrupt_empty:
                 end = time.monotonic() + 10
@@ -965,7 +966,30 @@ def test_p3_lost_worker_lock_exits_and_requires_os_confirmation(
                         ).fetchone()
                         assert row == {"n": 0}
                 return
+            restored.until("after_t2_commit")
+            # PG T2先提交awaiting_approval，官方wait checkpoint此刻尚未落库。
+            # 精确观测合法间隙，不把task状态当作业务interrupt持久证明。
             wait_state(f, task, "awaiting_approval", restoring=True)
+            gap = asyncio.run(checkpoint_state(f, task))
+            assert gap.created_at is not None and gap.next == ("prepare_approval",)
+            assert not gap.interrupts and gap.values == core
+            if boundary == "before_prepare":
+                assert (
+                    gap.config["configurable"]["checkpoint_id"]
+                    == before.config["configurable"]["checkpoint_id"]
+                )
+            with connect(f.config.database) as db:
+                readiness = db.execute(
+                    "SELECT ready_at FROM business.approvals WHERE task_id=%s", (task,)
+                ).fetchone()
+                assert readiness == {"ready_at": None}
+                execution = db.execute(
+                    "SELECT count(*) AS n FROM business.executions WHERE task_id=%s", (task,)
+                ).fetchone()
+                assert execution == {"n": 0}
+            restored.release()
+            restored_released = True
+            wait_ready(f, task)
             after = asyncio.run(checkpoint_state(f, task))
             assert all(after.values[key] == value for key, value in core.items())
             assert after.next == ("wait_approval",) and len(after.interrupts) == 1
@@ -983,6 +1007,8 @@ def test_p3_lost_worker_lock_exits_and_requires_os_confirmation(
                     assert row and row["n"] == 1
         finally:
             if restored.process.poll() is None:
+                if not restored_released:
+                    restored.release()
                 restored.stop_clean()
     finally:
         if child.process.poll() is None:

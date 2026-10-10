@@ -1,6 +1,8 @@
 # 阶段状态与主控交接
 
-当前导航（2026-10-11 A05）：Root已核A03 source052/Core5480529395/精确CI38079599247三job成功，以及B最终a65/Web5480795768完整24Web/native200/PG不变量/精确CI38085161901三job成功；完整337PG=236+101、G1三/G2六/cleanup0及精确配对已核。Root释放原A WT62c8/PR37正常集成及唯一共享frontend CI/阶段文档批，已普通合已审B，无冲突；最终增量独审、精确四job frontend Gate、main/合后CI/Issue33结案pending，不能预写阶段完成。main仍59b350cb719a9d2fed3f68b1ee598fa0a9b97875，Phase2已正式结案/CI38041779219 SUCCESS/Issue29 CLOSED。原333/988/旧失败/取消run/Review fullcheck not_verified/Issue23 not_identified/risk_accepted和M1设计18页冻结保留。D1=10-10/D30=11-08/300h/P3 A32+B18+Review10=60h不重置，人工H/L not_reported；新增paid0/平台业务写0，扩权/生产/Phase4未授权。当前事实见第40节、[A05交接](PHASE3_A05_INTEGRATION.md)及[分层验收](PHASE3_ACCEPTANCE.md)。下方旧候选/待核/未授权为历史，不覆盖本导航。
+最新A05失败/修复导航（2026-10-11）：972最终增量独审5480825374无阻断，但CI38086696815实际frontend与phase3均失败，pg-pair正确拒绝失败分区；旧236/G1三/G2六/cleanup0成功，首P3模块28中27passed/1failed、后73not_run，完整Gate不通过。A在新固定30min/两轮owned窗口已证实T2提交与wait CP持久化的合法间隙，原CI具体assertion未捕获/根因unknown保留；仅测试同步修复与19定向PG/19pure通过，backend/共享CI/B不改，资源已停/保卷。新精确fix待原Core独审及Root合已审B修复后一次四CI，不push/body/main/关Issue。详见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)及[STATUS41](STATUS.md#41-a05-实际ci失败与恢复测试同步修复)。下方972候选/既有Gate回执保留，不覆盖本次失败。
+
+前次候选当前导航（2026-10-11 A05）：Root已核A03 source052/Core5480529395/精确CI38079599247三job成功，以及B最终a65/Web5480795768完整24Web/native200/PG不变量/精确CI38085161901三job成功；完整337PG=236+101、G1三/G2六/cleanup0及精确配对已核。Root释放原A WT62c8/PR37正常集成及唯一共享frontend CI/阶段文档批，已普通合已审B，无冲突；最终增量独审、精确四job frontend Gate、main/合后CI/Issue33结案pending，不能预写阶段完成。main仍59b350cb719a9d2fed3f68b1ee598fa0a9b97875，Phase2已正式结案/CI38041779219 SUCCESS/Issue29 CLOSED。原333/988/旧失败/取消run/Review fullcheck not_verified/Issue23 not_identified/risk_accepted和M1设计18页冻结保留。D1=10-10/D30=11-08/300h/P3 A32+B18+Review10=60h不重置，人工H/L not_reported；新增paid0/平台业务写0，扩权/生产/Phase4未授权。当前事实见第40节、[A05交接](PHASE3_A05_INTEGRATION.md)及[分层验收](PHASE3_ACCEPTANCE.md)。下方旧候选/待核/未授权为历史，不覆盖本导航。
 
 历史导航（2026-10-11，Asia/Shanghai）：Phase2已正式结案，main实时核为`59b350cb719a9d2fed3f68b1ee598fa0a9b97875`，[合后CI38041779219](https://github.com/aning0922/commerceops-agent/actions/runs/38041779219) SUCCESS、Issue29 CLOSED。用户授权Phase3持续双线实施及全部必要Gate/独审/精确CI后Root正常合main；A01/A02 Gate已由Root核定通过，A03同WT62c8/PR37重验/T4/T6候选正在完整验证，尚未新freeze/独审/精确CI。B03功能独审已核但CI38068569167 FAILED，B04组件在独立WT继续，未合A。当前事实见第38节、[A03](PHASE3_A03.md)及[分层验收](PHASE3_ACCEPTANCE.md)，旧not_run/未授权/17:11候选均为历史，不复活旧限制或抹去失败。A32/B18/Review10/60h属原300h，D1/D30不重置，人工H/L not_reported；新增paid0/平台业务网络写0，生产/扩权/Phase4未授权。
 
@@ -670,3 +672,12 @@ Root释放原A唯一集成批；先本地frontendCI正常commit d476292，再正
 最终冻结source/tree、增量独审及精确四job CI由PR37实际head/Root receipt绑定，不内部自指未来SHA。main仍59、阶段in_progress，Issue33/34/35不由A关闭；Root必要Gate后正常main merge、同main CI及Issue33结案方为正式完成。旧333/988/失败/取消run/Review fullcheck not_verified/Issue23风险、M1设计18页、D1=10-10/D30=11-08/300h/P3 60h/H/L not_reported和平台/生产/Phase4边界保持。
 
 Root已另核精确d476/tree02c6b58f的195行CI独立增量，无P1/P2，最终阶段文档/冻结继承仍待同Reviewer核收。A本批集成后完整本地check实际1057offline/84.90s、337integration deselected、69MD0error/266format/mypy193/锁/Node工具链及frontend typecheck/95Python和Node漏洞0/三scope0；另22operation schema与无PYTHONPATH模块help exit0，YAML/4 Bash/4 Python语法核对通过。没有新本地PG/Web/build/browser运行；当前四job CI/main/合后CI/Issue33 pending不因该本地check改变。
+
+
+## 41. A05 实际CI失败与恢复测试同步修复
+
+Root核972/tree3d4最终增量Review5480825374无阻断，但CI38086696815实际checkoutb4d837a56acf3bb15fd227d5f39cce3e20bfddb1/tree同972：frontend B04 offline lsof3490首失败/7not_run/正式三stage未启动；phase3 job114314619053首审批28完整collection中27pass/1fail/265.02s，before_prepare-False call6.7587s、后73P3 not_run，command exit1/timed_outfalse/stopping_confirmedtrue/cleanup0。旧236/G1三/G2六/cleanup0及同源两artifact已核，pgpair正确拒绝失败分区。原CI完整assertion trace未捕获，根因unknown，不称300s超时/环境根因；历史748/052两个精确337绿CI与333/988、旧失败/取消/未核Review保留。
+
+Root派原A固定UTC21:20:41→21:50:41/北京时间05:20:41→05:50:41窗口/两轮/一最小批；新owned p3a05fix-b5b874dc4280/UID501/loopback63692。第一原node1passed/5.11s未复现CI；同诊断轮after_t2_commit受控probe确定task awaiting已提交但仍原prepareCP/0interrupt，旧正向CP断言会失败，释放后官方waitCP/1interrupt/ready收敛。此实证测试观测竞态不等于已捕获原CI断言。只改目标测试同步：先严格断言合法间隙，再释放+原wait_ready、保持旧CP/core/job/计数/负向三态，不动backend/Worker/Graph/schema/CI/B/锁。第二轮19实际PG/88.27s（command88.830）及19pure/0.67s通过，fullintegration只collect337未执行。详情及失败/初定位标签校正见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)、[作者安全证据](contracts/p3-a05-recovery-author-evidence.json)。
+
+资源已提前正常停止、PGfalse/PID0/tempDB0/其他base连接0/app三高权false、700/四600，保卷ledger不称cleanup0；原截止不延期、不第三轮或再启。新本地fix精确独审待Root原Core，原B自有Linux最小修复独占，不互读WIP/资源；两已审fix后Root派一次正常集成push/当前四CI。main59/阶段in_progress/Issue未结案、日期300h/P3 60h/人工H/L not_reported、Issue23风险与平台/生产/Phase4边界不变。

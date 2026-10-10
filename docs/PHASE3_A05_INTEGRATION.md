@@ -1,5 +1,7 @@
 # Phase3 A05 最终集成与四作业 CI 交接
 
+最新A05失败/修复导航（2026-10-11）：972最终增量独审5480825374无阻断，但CI38086696815实际frontend与phase3均失败，pg-pair正确拒绝失败分区；旧236/G1三/G2六/cleanup0成功，首P3模块28中27passed/1failed、后73not_run，完整Gate不通过。A在新固定30min/两轮owned窗口已证实T2提交与wait CP持久化的合法间隙，原CI具体assertion未捕获/根因unknown保留；仅测试同步修复与19定向PG/19pure通过，backend/共享CI/B不改，资源已停/保卷。新精确fix待原Core独审及Root合已审B修复后一次四CI，不push/body/main/关Issue。详见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)及[STATUS41](STATUS.md#41-a05-实际ci失败与恢复测试同步修复)。下方972候选/既有Gate回执保留，不覆盖本次失败。
+
 2026-10-11，Root 在 A03 与 B 最终源码、独立审查及各自精确三作业 CI 核收后，正式释放本批。A 沿用 WT62c8、`codex/phase3-approval` 和 [Draft PR37](https://github.com/aning0922/commerceops-agent/pull/37)，只负责正常集成、共享 frontend CI 与阶段文档。完整四作业 CI、最终增量独审、main 合并、同 main 合后 CI 和 Issue33 关闭均仍待正式回执；不预写最终提交 SHA 或阶段完成。
 
 ## 已核前置证据
