@@ -1,0 +1,761 @@
+{
+  "config": {
+    "argv": [
+      "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/.tools/node/bin/node",
+      "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/playwright.config.ts",
+    "rootDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "operator",
+        "name": "operator",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "operator.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "approver",
+        "name": "approver",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "approver.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "admin",
+        "name": "admin",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "admin.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "unknown",
+        "name": "unknown",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "unknown.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "expired",
+        "name": "expired",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "expired.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "unavailable",
+        "name": "unavailable",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "unavailable.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "operator",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "operator.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:3410"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "operator"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "approver",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "approver.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:3411"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "approver"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "admin",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "admin.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:3412"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "admin"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "unknown",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "unknown.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:3413"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "unknown"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "expired",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "expired.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:3414"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "expired"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "name": "unavailable",
+        "testDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "unavailable.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:3415"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "unavailable"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "evidence/b01/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "operator.spec.ts",
+      "file": "operator.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "冻结布局、导航、刷新、筛选和全量报告",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "operator",
+              "projectName": "operator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1127,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:52.616Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "078afe649bee3f2d7b39-86192a746e6ac9f327da",
+          "file": "operator.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "Dialog键盘隔离、Esc返回焦点与关闭脏草稿",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "operator",
+              "projectName": "operator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 384,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:54.006Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "078afe649bee3f2d7b39-99dff096de128cfb9a09",
+          "file": "operator.spec.ts",
+          "line": 62,
+          "column": 5
+        },
+        {
+          "title": "completed新周期空草稿、轨迹与内部状态分离",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "operator",
+              "projectName": "operator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 423,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:54.395Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "078afe649bee3f2d7b39-dc6d8424c0dcb8c85272",
+          "file": "operator.spec.ts",
+          "line": 98,
+          "column": 5
+        },
+        {
+          "title": "登录壳不建立模拟身份、200%等效布局范围",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "operator",
+              "projectName": "operator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 276,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:54.824Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "078afe649bee3f2d7b39-f74294b1f085321a8431",
+          "file": "operator.spec.ts",
+          "line": 121,
+          "column": 5
+        },
+        {
+          "title": "无效版本不回落最新、未生成报告不展示预生成事实",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "operator",
+              "projectName": "operator",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 169,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:55.104Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "078afe649bee3f2d7b39-0445380ebaa55ce12778",
+          "file": "operator.spec.ts",
+          "line": 138,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "approver.spec.ts",
+      "file": "approver.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "20SKU完整审批首末风险、窄屏无裁切、禁止真实决定",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "approver",
+              "projectName": "approver",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 811,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:52.619Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8da7fefea5c4411100e4-6a875eae24da4d99c793",
+          "file": "approver.spec.ts",
+          "line": 3,
+          "column": 5
+        },
+        {
+          "title": "原因pristine/必填错误/本地有效校验/焦点恢复、终态只读",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "approver",
+              "projectName": "approver",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 417,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:53.689Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8da7fefea5c4411100e4-76386de12f98cb150487",
+          "file": "approver.spec.ts",
+          "line": 25,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "admin.spec.ts",
+      "file": "admin.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "admin-only运维选中态、无业务导航、深链无对象泄漏",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "admin",
+              "projectName": "admin",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 474,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:54.363Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4043a9dd1ab94463227-bb148358a4c3dfc4f28f",
+          "file": "admin.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "unknown.spec.ts",
+      "file": "unknown.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "unknown先核实原回执，无换键/重发/猜测成功",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "unknown",
+              "projectName": "unknown",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 256,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:55.204Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aad80f7b2fe7daaba1f0-84cfd558f0876eff234a",
+          "file": "unknown.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "expired.spec.ts",
+      "file": "expired.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "过期深链不返回旧数据或计数",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "expired",
+              "projectName": "expired",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 202,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:55.542Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e51a16ab06a0e74164b-9a729845b39993104965",
+          "file": "expired.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "unavailable.spec.ts",
+      "file": "unavailable.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "未明确启用Mock时fail closed，任何角色env不授业务读",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "unavailable",
+              "projectName": "unavailable",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 193,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T10:48:55.817Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0b4d0f1516ffcc37ee51-77a39b456d8c36d1ec93",
+          "file": "unavailable.spec.ts",
+          "line": 2,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T10:48:49.963Z",
+    "duration": 6202.954,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

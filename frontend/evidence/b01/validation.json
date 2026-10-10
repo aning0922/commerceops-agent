@@ -1,0 +1,72 @@
+{
+  "time_utc": "2026-10-10T10:51:03.277144+00:00",
+  "baseline": "59b350cb719a9d2fed3f68b1ee598fa0a9b97875",
+  "branch": "codex/phase3-console",
+  "mode": "offline_mock_real_next_pages",
+  "human_effective_hours": "not_reported",
+  "agent_window_start": "not recorded; no inferred human hours",
+  "toolchain": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "playwright": "1.64.0",
+    "browser": "Chromium156"
+  },
+  "results": {
+    "typecheck": "pass",
+    "build": "pass",
+    "web_stats": {
+      "startTime": "2026-10-10T10:48:49.963Z",
+      "duration": 6202.954,
+      "expected": 11,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "offline_pytest": {
+      "passed": 896,
+      "deselected": 236,
+      "warnings": 2,
+      "duration_s": 84.51
+    },
+    "npm_audit": "0 vulnerabilities",
+    "secret_scan": "dir/index/all reachable history 0 before staging",
+    "docs": "57 Markdown files / 0 errors"
+  },
+  "limitations": [
+    "B02 service session/API/PG integration not run",
+    "200% equivalence via720 CSS pixel viewport; actual browser zoom not run",
+    "human clicks/screen reader not run",
+    "cross-platform CJK package not verified",
+    "duplicate/conflict/revocation real server gates pending",
+    "F01/F02 and actual Feishu deferred Phase4"
+  ],
+  "source_sha256": {
+    "frontend/.gitignore": "d9ebc7e04ef578d87c5afb37ba2f635c23eb31df083e54d98756b03adb0374f3",
+    "frontend/.npmrc": "3b88d1057add6f92ec23dc22dd017e312ded13a042deb0ba6f08bad85d936456",
+    "frontend/app/[[...path]]/page.tsx": "9c63f8ff29e9832dcc3d3e3ba99bae64ec4128c1f41ab08bd6fa7937a4a33614",
+    "frontend/app/globals.css": "b3e2acbec6b505e240052335261215f7d5a641ec4f919125419af6b1d7b38a02",
+    "frontend/app/layout.tsx": "b24d4ed67f465924ce3696b7c96366277c1699807fb628c3e82af0c3bbb2bb00",
+    "frontend/components/console.tsx": "016bd1ddf8dc6cb1dea1d846ee1af2c51cd1ef6ddc42ac72a929beb879caeae3",
+    "frontend/components/panels.tsx": "a9bcf4cc210f98cdbd72edae4603431fc6a265e8e98e55443763f768ef47ace5",
+    "frontend/components/report.tsx": "15384d92364d75c30268d59de3c96771a95e4597c0e3940c5a7945ff8c1671c6",
+    "frontend/components/ui.tsx": "55a319950079d52f3f75749016053b5e3db89650e365f42a957b9dfd902e8451",
+    "frontend/lib/mock-source.ts": "40eb87222ef9f550c51df78a1695d9d9e489e622f6f070daf7e463a04871fc20",
+    "frontend/lib/view-model.ts": "181cc25b87713a954b2844cf750ed6f0288e2ab08e8ebf0af1f7dd3a66a6e4f4",
+    "frontend/next.config.ts": "175e905e14b13f0913fe965a85632e4881cab22a92d92b5a680a7b38894dbf66",
+    "frontend/package-lock.json": "bc773dfa447d9394fc2b05443ba8f9b0b037e021bae1c06cc4db06d780b049cf",
+    "frontend/package.json": "ade6976b741384fa5f7287a657c2c2dbf28ed4fa5c0dd3098da6500588090a52",
+    "frontend/playwright.config.ts": "ee1de024dbb3a3aa224ca12d994b13371e5d628983cb8374ae24e9f024e274ff",
+    "frontend/tooling/check-toolchain.ts": "9f7376972ee58fc1cb4e6f60d63d0eca47f55d427e00672fb035bc89a8f65ea9",
+    "frontend/tooling/web-test.ts": "3cfd32fbc46abc55db2a978f80705efaeccae63e365e8d4fc15259e74b9d739f",
+    "frontend/tsconfig.json": "f496459f02d2e79b52350b3199b5f03ba0dc6328b70eb365860b8206fd786a05",
+    "tests/e2e/web/admin.spec.ts": "ecf74d88116f598c270eb4b3378ab57fcc3bdfa106e60e5e7ba409c5231f9aed",
+    "tests/e2e/web/approver.spec.ts": "e5e88cb9cbb4233da614639861e9517f8d4a1149e372f806a610537321a9fdb4",
+    "tests/e2e/web/expired.spec.ts": "483e0a1a68afdd53c95596c87f22787dfd37147dd02f034cdfa172aaf44dbaf1",
+    "tests/e2e/web/helpers.ts": "6a040ef18b379256847642a51fb9655842a026bec569448dc43b610101a8fe87",
+    "tests/e2e/web/operator.spec.ts": "c8141d8800a0708355cce23c939938e54bd798e55136d9ba60b9b21eefa3990a",
+    "tests/e2e/web/unavailable.spec.ts": "d83c11c422acadca0e5c3c588ec6f5da80fe9d73598850ca793fc0d44d6db6cd",
+    "tests/e2e/web/unknown.spec.ts": "14d80026bd6475293ca49d47b14ee9fe14180fcbe216acfcacfd9268a6392367"
+  }
+}
