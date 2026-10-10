@@ -274,7 +274,8 @@ def test_refs_scope_revoke_and_parent_immutable(fixture: InventoryFixture) -> No
         assert denied.get(f"/tasks/{h.parent}/explanation").status_code == 403
         with connect(h.f.owner) as db:
             db.execute(
-                "UPDATE business.principal_shop_scopes SET enabled=false WHERE principal_id=%s",
+                """UPDATE business.principal_shop_scopes SET enabled=false
+                        WHERE principal_id=%s""",
                 (h.f.data.principal,),
             )
         assert current.get(f"/tasks/{h.parent}/explanation").status_code == 403
@@ -434,7 +435,8 @@ def test_routing_permission_confirmation_and_read_only_http(fixture: InventoryFi
         assert denied.get(f"/test/routes/{task}").status_code == 403
         with connect(h.f.owner) as db:
             db.execute(
-                "UPDATE business.principal_shop_scopes SET enabled=false WHERE principal_id=%s",
+                """UPDATE business.principal_shop_scopes SET enabled=false
+                        WHERE principal_id=%s""",
                 (h.f.data.principal,),
             )
         assert client.get(f"/test/routes/{task}").status_code == 403 and len(h.calls) == 1
@@ -598,7 +600,8 @@ def test_route_revoked_before_provider_zero_requests(
         with connect(f.owner) as db:
             if change == "grant":
                 db.execute(
-                    "UPDATE business.principal_shop_scopes SET enabled=false WHERE principal_id=%s",
+                    """UPDATE business.principal_shop_scopes SET enabled=false
+                        WHERE principal_id=%s""",
                     (f.data.principal,),
                 )
             elif change == "identity":
@@ -634,3 +637,182 @@ def test_route_revoked_before_provider_zero_requests(
             await session.close(clean=True)
 
     asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "barrier,revoked",
+    [
+        ("provider_returned", None),
+        ("provider_returned", "identity"),
+        ("provider_returned", "grant"),
+        ("call_observation_committed", None),
+    ],
+)
+def test_old_unknown_fences_earlier_queued_different_key(
+    fixture: InventoryFixture, barrier: str, revoked: str | None
+) -> None:
+    import signal
+    from dataclasses import replace
+    from uuid import uuid4
+
+    from commerceops.infrastructure.worker_lock import TerminationRequired, confirm_termination
+
+    from tests.p204_support import ExplanationProcess
+
+    f = fixture
+    parent, parent_job = f.create()
+    first = ExplanationProcess(f, barrier)
+    second = None
+    try:
+        started = first.until("started")
+        first.until("report_committed")
+        asyncio.run(done(f, parent_job))
+        original, job = create_explanation_task(f.app, f.identity, parent, "offline_stub")
+        first.until("offline_http")
+        first.until(barrier)
+        principal, identity, conversation = uuid4(), uuid4(), uuid4()
+        with connect(f.owner) as db:
+            db.execute(
+                """INSERT INTO business.principals(id,organization_id,display_name,roles)
+                VALUES (%s,%s,'owned second actor',ARRAY['operator'])""",
+                (principal, f.data.organization),
+            )
+            db.execute(
+                """INSERT INTO business.identities
+                (id,organization_id,principal_id,provider,app_id,tenant_key,external_subject)
+                VALUES (%s,%s,%s,'technical_fixture',%s,%s,%s)""",
+                (identity, f.data.organization, principal, f.data.app, f.data.tenant, str(uuid4())),
+            )
+            db.execute(
+                "INSERT INTO business.principal_shop_scopes VALUES (%s,%s,%s,true)",
+                (f.data.organization, f.data.shop, principal),
+            )
+            db.execute(
+                """INSERT INTO business.conversations
+                (id,organization_id,channel,chat_id,actor_id,topic_key)
+                VALUES (%s,%s,'test',%s,%s,'owned intent')""",
+                (conversation, f.data.organization, str(uuid4()), principal),
+            )
+        other_actor = replace(f.identity, principal_id=principal, identity_id=identity)
+        other, other_job = create_intent_task(
+            f.app, other_actor, RoutingInput(text="独立另一scope排队请求"), "offline_stub"
+        )
+        if revoked:
+            with connect(f.owner) as db:
+                if revoked == "identity":
+                    db.execute(
+                        "DELETE FROM business.identities WHERE id=%s", (f.identity.identity_id,)
+                    )
+                else:
+                    db.execute(
+                        """UPDATE business.principal_shop_scopes SET enabled=false
+                        WHERE principal_id=%s""",
+                        (f.data.principal,),
+                    )
+        first.process.kill()
+        assert first.process.wait(timeout=15) == -signal.SIGKILL
+
+        async def blocked() -> None:
+            with pytest.raises(TerminationRequired):
+                await WorkerSession(f.app, f.data.organization).start()
+
+        asyncio.run(blocked())
+        asyncio.run(
+            confirm_termination(f.app, started["owner"], "P204 stage-wide owned SIGKILL wait proof")
+        )
+        second = ExplanationProcess(f)
+        second.until("started")
+        asyncio.run(done(f, other_job))
+        asyncio.run(done(f, job))
+        assert not any(row["event"] == "offline_http" for row in second.seen)
+        assert f.row(other)["state"] == "completed"
+        assert f.row(original)["state"] == ("needs_attention" if revoked else "completed")
+        with connect(f.app) as db:
+            stage = db.execute("SELECT * FROM business.model_stage_budgets").fetchone()
+            assert (
+                stage
+                and stage["halted"]
+                and stage["reserved_count"] == 1
+                and stage["reserved_nanos"] == 3360000
+            )
+            calls = db.execute("SELECT * FROM business.model_calls").fetchall()
+            assert len(calls) == 1 and str(calls[0]["worker_owner"]) == started["owner"]
+            observation = db.execute("SELECT * FROM business.model_call_observations").fetchone()
+            assert observation and observation["outcome"] == (
+                "observed" if barrier == "call_observation_committed" else "uncertain"
+            )
+            assert observation["stop_required"] == (barrier != "call_observation_committed")
+        second.process.send_signal(signal.SIGTERM)
+        second.until("stopped")
+        assert second.process.wait(timeout=15) == 0
+    finally:
+        first.close()
+        if second:
+            second.close()
+
+
+@pytest.mark.parametrize(
+    "scalar",
+    ["4.5", "4/5", "4-5", "4~5", "4到5", "4 5", "4，5", "4５", "4天到5天", "4", "4天", "4，"],
+)
+def test_complete_parameter_token_controls_business_insert(
+    fixture: InventoryFixture, scalar: str
+) -> None:
+    from commerceops.application.commerce.inventory_routing import (
+        GuardedRouter,
+        ModelRoute,
+        ParameterCandidate,
+    )
+    from commerceops.entrypoints.api import create_app
+    from commerceops.entrypoints.explanation_http import ExplanationEndpoints
+    from fastapi.testclient import TestClient
+
+    text = f"L={scalar} R=7 S=2"
+    proposed = ModelRoute(
+        intent="inventory_replenishment",
+        evidence_mode="offline_stub",
+        candidates=tuple(
+            ParameterCandidate.model_validate(
+                {
+                    "name": name,
+                    "value": value,
+                    "start": start,
+                    "end": start + 1,
+                    "source": "explicit_text",
+                }
+            )
+            for name, value, start in [
+                ("L", 4, 2),
+                ("R", 7, text.index("R=") + 2),
+                ("S", 2, text.index("S=") + 2),
+            ]
+        ),
+    )
+
+    class Model:
+        async def route(self, text: str) -> ModelRoute:
+            return proposed
+
+    client = TestClient(
+        create_app(
+            explanation_service=ExplanationEndpoints(fixture.app, GuardedRouter(Model())),
+            identity_resolver=lambda _: fixture.identity,
+        )
+    )
+    with connect(fixture.app) as db:
+        before = db.execute(
+            "SELECT count(*) AS n FROM business.business_tasks WHERE kind='inventory_analysis_only'"
+        ).fetchone()
+        assert before
+    response = client.post("/test/route", json={"text": text})
+    assert response.status_code == 200
+    valid = scalar in ("4", "4天", "4，")
+    assert response.json()["decision"]["intent"] == (
+        "inventory_replenishment" if valid else "clarify"
+    )
+    with connect(fixture.app) as db:
+        after = db.execute(
+            "SELECT count(*) AS n FROM business.business_tasks WHERE kind='inventory_analysis_only'"
+        ).fetchone()
+        assert after
+        assert after["n"] - before["n"] == int(valid)

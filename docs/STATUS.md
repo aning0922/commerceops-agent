@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；P2-01/02/03已获冻结SHA独审及精确CI内部门禁，当前in_progress_p2_04。** 同一Draft PR30；main仍caffe11770a54135900633edf4db0df5458fd195，Phase2未合main。A唯一schema/业务/Worker/Graph/API/预算/最终集成，B仅model_explanation公共组件。A正常FF已审B小补丁至c356；P204作者候选已完成完整检查；真实provider请求0，真实routing not_run，最终源码独审/精确CI/Root真实窗口尚待。用户委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase/飞书扩权/生产未授权。P1有限Gate、#23风险原值及历史保持；最新见第34节。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；P2-01/02/03已获冻结SHA独审及精确CI内部门禁，当前in_progress_p2_04。** 同一Draft PR30；main仍caffe11770a54135900633edf4db0df5458fd195，Phase2未合main。A唯一schema/业务/Worker/Graph/API/预算/最终集成，B仅model_explanation公共组件。A正常FF已审B小补丁至c356；旧a057作者候选已完成完整检查但独审两P2阻断；当前同批最小修复待复审；真实provider请求0，真实routing not_run，最终源码独审/精确CI/Root真实窗口尚待。用户委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase/飞书扩权/生产未授权。P1有限Gate、#23风险原值及历史保持；最新见第34节。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -558,3 +558,13 @@ B follow-up PR32/f202经[独审5477973601](https://github.com/aning0922/commerce
 A新候选实际完整scripts.check：826 offline/68.98s、182 integration deselected，mypy135源文件、ruff/format/docs/锁/Node全部通过，Python95包及Node漏洞0，current/index/可达history扫描0。P20418真实PG专项/26.47s；fresh完整PG182 passed/90.79s（85 P203+18 P204），三次G1 count_one与六必要G2完整，0003初始化重跑和runtime非高权约束通过，自有p123-92f833c0a6ac资源/所属runtime全部回收0。no-dev runtime独立验证httpx/tokenizers/固定资产可用且pytest不存在。机器/数据量、实际失败修正与未运行边界见[P204合同](PHASE2_P204.md)。
 
 阶段仍in_progress_p2_04，真实provider0、真实routing/解释not_run，模型key内容未读、没有balance/models探测；待冻结新SHA独审/精确CI及Root窗口。main仍caffe，不合P2 main、不扩后续Phase/飞书/生产。人工H/L not_reported、D1/D30与既有300h/Phase2预算保持。
+
+
+### 34.2 a057独审阻断与有界修复待复审
+
+Root核[独审5478116042](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5478116042)两个P2：旧未知调用恢复前可被更早queued不同key新增HTTP；L=4.5/4/5可被截为整数并触发库存任务。旧[CI38033440268](https://github.com/aning0922/commerceops-agent/actions/runs/38033440268)实际826offline99.38s/182PG196.56s及3G1/6G2/cleanup0，仍不抵独立阻断，阶段未Gate。
+
+A在原WT/分支/PR作最小修复：0004追加不可变调用代际元数据，不入付费logical/body、不清旧账本；全stage锁内核观察+精确业务receipt，保留当前合法inflight，旧未知即使原身份撤销也在新不同key admission前halt。整数词元拒小数/分数/范围/相邻数字截断，PG非法任务增量0/合法整数保留。两针对批真实结果34pass/12初始化失败及46pass/1新增测试旧expected失败，修正断言source的corrected-image PG本地未跑，不标全PG通过；Root批准冻结供独立重放与新SHA完整CI。详情/原窗口及失败事实见[P204第6节](PHASE2_P204.md)。自有p203-b2653e7c95 containers/volumes/networks0、所属PG密码已移除、模型资源未读/改；actual0。当前in_progress_p2_04/changes_requested修复候选待复审，不合main、不进入后续Phase。
+
+
+修复候选作者完整checks838offline/71.80s，最终source含Unicode空白增补840offline/69.66s、198integration deselected；mypy136、ruff/format/docs/锁/Node及95Python包/Node漏洞0，新定向49offline/0.83s。完整corrected-image PG未第三次运行，第二批46pass/1旧测试expected失败如实保留；需新冻结独立复审/新精确CI，不宣称两P2解除。

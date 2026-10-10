@@ -80,14 +80,32 @@ class GuardedRouter:
                 mode = proposed.evidence_mode
                 selected = proposed.intent
                 reason = "VALIDATED_MODEL_PROPOSAL"
-                explicit = list(
-                    re.finditer(
-                        r"(?<![A-Za-z0-9_])([LRS])(?:=|:)([0-9]+)(?![A-Za-z0-9_])", request.text
-                    )
-                )
-                if len({m.group(1) for m in explicit}) != len(explicit):
-                    raise ValueError("AMBIGUOUS_PARAMETERS")
-                spans = {(m.group(1), m.start(2), m.end(2), m.group(2)) for m in explicit}
+                # 独立确认完整整数词元，不能从小数/分数/范围截取合法前缀。
+                spans: set[tuple[str, int, int, str]] = set()
+                seen_fields: set[str] = set()
+                for field in re.finditer(r"(?<![A-Za-z0-9_])([LRS])(?:=|:)", request.text):
+                    name = field.group(1)
+                    scalar = re.match(r"[0-9]+", request.text[field.end() :])
+                    if scalar is None or name in seen_fields:
+                        raise ValueError("AMBIGUOUS_PARAMETERS")
+                    seen_fields.add(name)
+                    start = field.end()
+                    end = start + len(scalar.group())
+                    suffix = request.text[end:]
+                    if suffix.startswith("天"):
+                        suffix = suffix[1:]
+                    if suffix and not suffix[0].isspace() and suffix[0] not in ",，;；。!！?？":
+                        raise ValueError("AMBIGUOUS_PARAMETERS")
+                    following = suffix
+                    while following and (
+                        following[0].isspace() or following[0] in ",，;；。!！?？"
+                    ):
+                        following = following[1:]
+                    if following and (
+                        following[0].isdecimal() or following[0] in ".／/+-−~～–—到至"
+                    ):
+                        raise ValueError("AMBIGUOUS_PARAMETERS")
+                    spans.add((name, start, end, scalar.group()))
                 if proposed.intent == "inventory_replenishment" and spans != {
                     (c.name, c.start, c.end, str(c.value)) for c in proposed.candidates
                 }:

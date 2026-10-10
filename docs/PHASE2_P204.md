@@ -1,6 +1,6 @@
 # Phase 2 P2-04 集成合同与证据
 
-当前 in_progress_p2_04：P203已获冻结3986dd独审/精确CI内部门禁；B组件经独审普通合入A07d3。A在同一Draft PR30完成固定五意图路由、解释子任务、权限和持久预算集成，作者代码/完整检查候选已交付，最终冻结SHA独审/精确CI与受控真实窗口尚未完成。真实provider请求0，真实routing not_run；不以Mock/模板或组件独审抵最终Gate。
+当前 in_progress_p2_04 / changes_requested 修复复审待定：P203已获冻结3986dd独审/精确CI内部门禁；B组件经独审普通合入A07d3。A在同一Draft PR30完成固定五意图路由、解释子任务、权限和持久预算集成，作者代码/完整检查候选已交付，最终冻结SHA独审/精确CI与受控真实窗口尚未完成。真实provider请求0，真实routing not_run；不以Mock/模板或组件独审抵最终Gate。
 
 ## 1. 固定工作流与事务
 
@@ -49,3 +49,16 @@ usage/价格估算/预留金额分别保存；无实际账单时actual_cost_usd=
 基线机器Darwin25.6.0/arm64，Python3.12.13；隔离容器PG17.11-bookworm。数据inventory-v1固定25场景，baseline为1 product/1 order/1 inventory、0 refund/open_item；P201/202共享DTO、fixtures/goldens的hash不变。真实模型基准、M1前端联调/交互回归、p95、40×3重复稳定性、生产认证、正式审批/执行仍not_run，不将这些开发运行时长外推为产品性能或人工有效工时。
 
 双线及额外Review扣原P204/Phase2 30–40h与总300h，不增预算，不改D1=2026-10-10、D30=2026-11-08；人工H/L not_reported。A只交付实现与证据；Root在全Phase2必要Gate后按用户委托正常合main，A不自行合并，不扩后续Phase/飞书/生产。
+
+
+## 6. a057独审两项P2与同批有界修复
+
+[独审5478116042](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5478116042)在冻结a057确认两项P2：同key不重发不足以防止恢复队列先执行另一key，在旧未知调用处理前会新增HTTP；整数regex可将L=4.5或4/5截为explicit_text L4，进而写库存分析任务。独审全量182PG通过也不解除这两个独立探针缺口。[旧a057 CI38033440268](https://github.com/aning0922/commerceops-agent/actions/runs/38033440268)实际SUCCESS（checkout30d0b7a8/caffe+a057/tree412eb219，826offline99.38s/182PG196.56s、3G1/6G2/cleanup0），保留为旧候选，不能抵新修复审核。
+
+最小修复追加0004，仅给不可变model_calls增加nullable worker_owner记录原可信执行代际；不回填/清除旧ledger，不把owner纳入logical_key/bodyhash，不改变预算/权限/队列优先级/OS终止合同。在全阶段row lock内检查所有调用；只有observed、stop=false且completed+精确业务receipt才算确定。当前owner、仍running/analyzing的合法inflight保留；旧/无owner或已非在途未定调用持久halt，缺失观察追加uncertain，已有观察保持不可变。新不同key admission及恢复入口均先执行此fence，不依赖原job排序或其当前身份仍能授权。
+
+参数来源改为独立完整整数词元确认，拒小数/分数/范围/相邻数字（含Unicode空白）及缺失/重复字段，不从模型截断候选推断确认。明确整数、天单位和合法标点控制保留；模型仍负责五意图，不用regex冒充模型路由。
+
+30分钟原窗口07:17:48～07:47:48 UTC、最多两针对PG批，均由Root有界派发。自有p203-b2653e7c95：首批34 passed/12 failed/38.27s，其中33 P204全部通过，12 test_postgres失败均base库未初始化的UndefinedTable；正确完成0004/migrate/setup/grant后第二批46 passed/1 failed/38.13s。唯一失败是新增call_observation_committed屏障用例沿用旧expected uncertain，而正确不可变观察为observed/stop=false；该case在失败前已实证second HTTP=0、reserved_count=1/full金额不增、stage halted、原+另一task状态/owner绑定正确。测试source已仅更正该观察断言；corrected-image本地PG未再运行，不写作者全PG通过。Root明确不加第三轮，冻结后独立复审重放原两probe及修正用例，并由新精确CI覆盖完整正确测试；任何未通过仍阻断。
+
+必要完整scripts.check实际838 offline/71.80s（最后Unicode空白增补前），mypy136源文件、ruff/format/docs/锁/Node检查及Python95包/Node漏洞0；最终source再跑840 offline/69.66s、198 integration deselected，新参数/token/config专项49/0.83s。corrected-image PG仍未额外跑。自有p203-b2653e7c95 containers/volumes/networks全0、所属runtime/PG密码已移除，model资源未读/改。提交前current/index/全部可达history扫描结果记于同PR冻结回执。没有扩大Bnamespace/权限、通用框架或新阶段预算；actual provider0、key/env未读、main未合。第5节完整通过属于a057作者候选历史，当前两P2解除须新冻结复审/新CI，不能复用旧全绿。

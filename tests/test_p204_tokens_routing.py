@@ -252,3 +252,39 @@ def test_every_official_added_literal_fails_closed(counter: VerifiedTextCounter)
     for literal in counter._literals:
         with pytest.raises(ValueError):
             counter.count((Message("system", "s"), Message("user", literal)), model=MODEL)
+
+
+@pytest.mark.parametrize(
+    "scalar",
+    [
+        "4.5",
+        "4/5",
+        "4-5",
+        "4~5",
+        "4到5",
+        "4 5",
+        "4，5",
+        "4５",
+        "4天到5天",
+        "4\u00a05",
+        "4\u00a0到5",
+        "4",
+        "4天",
+        "4，",
+    ],
+)
+def test_complete_integer_scalar_not_truncated(scalar: str) -> None:
+    text = f"L={scalar} R=7 S=2"
+    candidates = tuple(
+        ParameterCandidate.model_validate(
+            {"name": n, "value": v, "start": i, "end": i + 1, "source": "explicit_text"}
+        )
+        for n, v, i in [("L", 4, 2), ("R", 7, text.index("R=") + 2), ("S", 2, text.index("S=") + 2)]
+    )
+    proposed = ModelRoute(
+        intent="inventory_replenishment", candidates=candidates, evidence_mode="offline_stub"
+    )
+    decision = asyncio.run(GuardedRouter(ScriptedModel(proposed)).route(RoutingInput(text=text)))
+    assert decision.intent == (
+        "inventory_replenishment" if scalar in ("4", "4天", "4，") else "clarify"
+    )

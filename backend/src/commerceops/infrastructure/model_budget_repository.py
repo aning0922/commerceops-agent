@@ -60,6 +60,43 @@ class PersistentAdmission:
         await self.store.verify(result, report, req)
         return result
 
+    async def fence_stage(self, db: AsyncConnection[dict[str, Any]], stage: str) -> bool:
+        # 调用原owner不可变：队列recovery清lease/重排不能洗掉旧调用来源。
+        # 同owner、仍running/analyzing的合法在途保留；旧/无owner或非在途未定结果停止全stage。
+        cur = await db.execute(
+            """SELECT c.id FROM business.model_calls c
+            JOIN business.business_tasks t ON t.id=coalesce(c.child_task_id,c.intent_task_id)
+            LEFT JOIN business.model_call_observations o ON o.call_id=c.id
+            WHERE c.stage_key=%s AND (
+             o.outcome='uncertain' OR o.stop_required IS TRUE OR (
+              NOT (o.outcome IS NOT DISTINCT FROM 'observed' AND o.stop_required IS FALSE
+               AND t.state='completed' AND (
+                (c.child_task_id IS NOT NULL AND business.valid_explanation_result(
+                  t.id,t.organization_id,t.shop_id,t.workflow_version)) OR
+                (c.intent_task_id IS NOT NULL AND business.valid_inventory_intent(
+                  t.id,t.organization_id,t.shop_id,t.workflow_version))))
+              AND NOT (c.worker_owner IS NOT DISTINCT FROM %s AND t.state='analyzing'
+               AND EXISTS(SELECT 1 FROM business.jobs j WHERE j.task_id=t.id
+                AND j.status='running' AND j.lease_owner=%s))))""",
+            (stage, UUID(self.request.owner), self.request.owner),
+        )
+        uncertain = await cur.fetchall()
+        if not uncertain:
+            return False
+        await db.execute(
+            """UPDATE business.model_stage_budgets SET halted=true,
+            updated_at=clock_timestamp() WHERE stage_key=%s""",
+            (stage,),
+        )
+        for call in uncertain:
+            await db.execute(
+                """INSERT INTO business.model_call_observations
+                (call_id,outcome,safe_error,stop_required)
+                VALUES (%s,'uncertain','PRIOR_UNCERTAIN',true) ON CONFLICT(call_id) DO NOTHING""",
+                (call["id"],),
+            )
+        return True
+
     async def reserve(self, value: BudgetRequest) -> Reservation | None:
         async with await open_async(self.store.settings) as db, db.transaction():
             _, req, report = await self.store.guard(db, self.request)
@@ -94,6 +131,8 @@ class PersistentAdmission:
             budget = await cur.fetchone()
             if budget is None:
                 raise ValueError("MODEL_STAGE_MISSING")
+            if await self.fence_stage(db, stage):
+                self.prior_uncertain = True
             cached_result = await self.cache(db, req, report)
             if cached_result is not None:
                 self.cached = cached_result
@@ -118,7 +157,8 @@ class PersistentAdmission:
                 )
                 return None
             if (
-                budget["halted"]
+                self.prior_uncertain
+                or budget["halted"]
                 or budget["reserved_count"] >= MAX_CALLS
                 or budget["reserved_nanos"] + RESERVE_NANOS > CAP_NANOS
             ):
@@ -133,8 +173,8 @@ class PersistentAdmission:
                 """INSERT INTO business.model_calls
                 (id,organization_id,shop_id,child_task_id,intent_task_id,stage_key,logical_key,request_id,request_hash,
                 facts_hash,evidence_mode,preflight_input_bound,reserved_input,reserved_output,
-                reserved_nanos,pricing_version,tokenizer_version,prompt_version)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,8000,800,%s,%s,%s,%s)""",
+                reserved_nanos,pricing_version,tokenizer_version,prompt_version,worker_owner)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,8000,800,%s,%s,%s,%s,%s)""",
                 (
                     self.call_id,
                     self.request.organization_id,
@@ -152,6 +192,7 @@ class PersistentAdmission:
                     PRICING_VERSION,
                     value.tokenizer_version,
                     req.prompt_version,
+                    UUID(self.request.owner),
                 ),
             )
             await self.store.session.check()
@@ -161,6 +202,15 @@ class PersistentAdmission:
         # 已预留而无子任务结果时，任何重试/恢复都不再发HTTP。
         async with await open_async(self.store.settings) as db, db.transaction():
             _, req, report = await self.store.guard(db, self.request)
+            stage = STAGE_BASE + (
+                ":actual" if req.evidence_mode == "actual_provider" else ":offline"
+            )
+            cur = await db.execute(
+                "SELECT stage_key FROM business.model_stage_budgets WHERE stage_key=%s FOR UPDATE",
+                (stage,),
+            )
+            if await cur.fetchone() and await self.fence_stage(db, stage):
+                self.prior_uncertain = True
             cached_result = await self.cache(db, req, report)
             if cached_result is not None:
                 self.cached = cached_result
