@@ -1,0 +1,17 @@
+{
+  "business_source": "748879e63c07185ae8c6f150827b7860ea66621e",
+  "merge": "05aa208181e62ff0a6b27abe56ab173a382a67d7",
+  "runtime_operations": 22,
+  "contract_passed": 26,
+  "headless_Mock_UI_passed": 8,
+  "UI_seconds": 20.8,
+  "real_API_PG_Worker": "not_run",
+  "business_API_nonGET_external": [
+    0,
+    0,
+    0
+  ],
+  "model_platform_production": "not_run",
+  "source_scope": "frontend/tests-e2e-web/docsUX only",
+  "Gate": "not_completed"
+}

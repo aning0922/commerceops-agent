@@ -1,0 +1,28 @@
+{
+  "project": "p3b04-write-35113df4fd",
+  "owner": "phase3-B-WTa266",
+  "stage": "write",
+  "started_at_utc": "2026-10-10T20:10:50.300915+00:00",
+  "stop_at_utc": "2026-10-10T20:41:00+00:00",
+  "pg_port": 61384,
+  "web_origin": "http://127.0.0.1:61385",
+  "api_origin": "http://127.0.0.1:61386",
+  "build_id": "9fUL_TyAtnwYQ9NJLHijq",
+  "source_commit": "bc15c2a300d626dfc91010d8c9de020a9455d5c2",
+  "status": "stopped",
+  "worker_pid": 73837,
+  "api_pid": 73838,
+  "web_pid": 73839,
+  "model_calls": 0,
+  "actual_provider_calls": 0,
+  "test_exit": 0,
+  "stopped_at_utc": "2026-10-10T20:16:34.014647+00:00",
+  "pg_running": false,
+  "pg_pid": 0,
+  "child_exit_codes": [
+    0,
+    -15,
+    143
+  ],
+  "volume_preserved": true
+}

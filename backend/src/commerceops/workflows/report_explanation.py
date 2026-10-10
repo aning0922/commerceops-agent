@@ -214,13 +214,20 @@ class ExplanationRunner:
 
 class InventoryCompositeRunner:
     def __init__(
-        self, analysis: InventoryRunner, explanation: ExplanationRunner, intent: Any = None
+        self,
+        analysis: InventoryRunner,
+        explanation: ExplanationRunner,
+        intent: Any = None,
+        approval: Any = None,
     ):
         self.analysis, self.explanation = analysis, explanation
         self.workflow_versions = analysis.workflow_versions | explanation.workflow_versions
         self.intent = intent
+        self.approval = approval
         if intent is not None:
             self.workflow_versions |= intent.workflow_versions
+        if approval is not None:
+            self.workflow_versions |= approval.workflow_versions
         self.active = 0
 
     async def run(self, r: RunRequest) -> RunResult:
@@ -233,6 +240,8 @@ class InventoryCompositeRunner:
             )
             if self.intent is not None and r.workflow_version in self.intent.workflow_versions:
                 runner = self.intent
+            if self.approval is not None and r.workflow_version in self.approval.workflow_versions:
+                runner = self.approval
             return await runner.run(r)
         finally:
             self.active -= 1

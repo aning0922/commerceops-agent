@@ -1,0 +1,15 @@
+{
+  "contract_sha256": "a469bb6825770325a664b4770b0f17c78786ecec2126142870e1bd7dd08a6245",
+  "generated_sha256": "fd46a52eace4f9b6c51690673c9d09934f60f742f9470a3fd86646a19f60bb46",
+  "source_commit": "3e05c714289135ab6901159d7e9210d657967fc2",
+  "generated_file": "frontend/lib/p3-types.generated.ts",
+  "paths": 21,
+  "operations": 22,
+  "schemas": 67,
+  "generator": "openapi-typescript 7.13.0 / isolated typescript 5.9.3",
+  "regeneration_bytes_equal": true,
+  "project_typescript": "7.0.2 (unchanged)",
+  "live_api": "not_run",
+  "ui_client_imports": 0,
+  "contract_file": "docs/contracts/p3-openapi.json"
+}

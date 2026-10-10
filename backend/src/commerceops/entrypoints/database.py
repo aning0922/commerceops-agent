@@ -83,6 +83,29 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
             "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA checkpoints "
             "TO commerceops_app"
         )
+        connection.execute("""GRANT SELECT ON business.principal_role_shop_grants,
+            business.web_credentials TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.web_sessions,
+            business.web_login_attempts,business.web_requests,business.p3_task_sources,
+            business.replenishment_plans,business.approvals,business.outbox TO commerceops_app""")
+        connection.execute("""GRANT EXECUTE ON FUNCTION business.lock_p3_permission(
+            uuid,uuid,uuid,uuid,bigint,text) TO commerceops_app""")
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.approval_resumes TO commerceops_app"
+        )
+        connection.execute("""GRANT SELECT,INSERT ON business.p3_observations,
+            business.p3_revalidation_failures,business.outbox_reconciliations TO commerceops_app""")
+        connection.execute(
+            "GRANT SELECT,INSERT ON business.p3_revalidation_transitions TO commerceops_app"
+        )
+        connection.execute("""GRANT UPDATE(applied_at,applied_checkpoint_id)
+            ON business.p3_revalidation_transitions TO commerceops_app""")
+        connection.execute("GRANT SELECT,INSERT ON business.executions TO commerceops_app")
+        connection.execute("""GRANT UPDATE(status,completed_at,item_ids)
+            ON business.executions TO commerceops_app""")
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.replenishment_items TO commerceops_app"
+        )
 
 
 def main() -> None:

@@ -1,0 +1,36 @@
+{
+  "project": "p3a3fix-9b442ebfe1f9",
+  "owner": "phase3-A03-fix1-WT62c8",
+  "uid": 501,
+  "port": 62279,
+  "registered_at": "2026-10-11T02:39:53.662268+08:00",
+  "absolute_stop_at": "2026-10-11T03:39:53.662268+08:00",
+  "source_mode": "mock",
+  "identity_mode": "session",
+  "approval_mode": "simulated_web",
+  "model_mode": "not_called",
+  "repair_attempt": 1,
+  "retention": "stop owned postgres and keep volume/ledger; no old/reviewer resources",
+  "observed_stopped_at": "2026-10-10T18:50:38.727113+00:00",
+  "docker_finished_at": "2026-10-10T18:50:38.460900835Z",
+  "running": false,
+  "pid": 0,
+  "temporary_databases": 0,
+  "other_base_connections": 0,
+  "app_role_flags": {
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false
+  },
+  "revision": "0007_p3_execution",
+  "directory_mode": "0o700",
+  "private_file_modes": {
+    "owner_password": "0o600",
+    "app_password": "0o600",
+    "ports.yml": "0o600",
+    "ledger.json": "0o600"
+  },
+  "volume": "p3a3fix-9b442ebfe1f9_pg_data",
+  "volume_retained": true,
+  "cleanup_zero_claimed": false
+}

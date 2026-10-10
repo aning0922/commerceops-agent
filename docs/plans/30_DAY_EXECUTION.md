@@ -1,5 +1,7 @@
 # CommerceOpsAgent 30 天执行计划
 
+当前导航补充（2026-10-10/D1）：Phase2已正式结案main `59b350cb719a9d2fed3f68b1ee598fa0a9b97875`、[同SHA合后CI38041779219 SUCCESS](https://github.com/aning0922/commerceops-agent/actions/runs/38041779219)、[Issue29 CLOSED](https://github.com/aning0922/commerceops-agent/issues/29)。用户已明确授权[Phase3 #33](https://github.com/aning0922/commerceops-agent/issues/33)持续双线及全部必要Gate/独审/精确CI后Root正常合main；A #34/WT62c8、B #35/WTa266，[跨线合同](../contracts/p3-web-v1.md)冻结中，主体业务/真实PG/Web Gate not_run。D7–D12=10-16～10-21、60h=A32/B18/Review10为原300h内分配，D1提前不重置D1=10-10/D30=11-08或原目标日期；人工有效工时not_reported，Agent墙钟/机器等待分列。零新增付费模型/飞书业务写或扩权/生产/Phase4。旧正文的“后续Phase未授权”保留为各自历史；本首批四份导航经总控协调由A唯一追加，不重写旧Gate/预算/证据。
+
 计划窗口：**2026-10-10（D1）至 2026-11-08（D30），Asia/Shanghai，30 个自然日**。人工容量约 10 小时/日，共 300 小时，含开发、审核、联调与交接。日期是目标，Gate、真实证据和用户阶段授权才是实施与完成依据。
 
 当前进度导航（2026-10-10/D1）：Phase1已收口，M1设计0.4.1冻结；Phase2实际D1提前完成必要代码/独审/精确CI与一次受限真实解释Gate，本次2026-10-10 17:11候选快照ready_for_phase2_merge，正式main/合后CI/Issue29结案看GitHub实时记录。[分层验收](../PHASE2_ACCEPTANCE.md)/[STATUS第35节](../STATUS.md)/[Issue29](https://github.com/aning0922/commerceops-agent/issues/29)负责当前事实。下面规划/早期基线是当时记录；D1–D30、Phase2 D3–D6（10月12–15日）目标、M1/M2/M3与300h不改，不重编号或顺延。受控双线/额外Review/一次完整文法收口仍扣原Phase2预算；人工H/L not_reported，不编造剩余容量。当前actual provider总次数1，剩余次数不自动继续；后续Phase/飞书扩权/生产仍未授权。本文件不代替Root最终阶段验收与同main提交CI。

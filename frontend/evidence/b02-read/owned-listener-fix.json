@@ -1,0 +1,45 @@
+{
+  "business_blob_ids": {
+    "frontend/app/[[...path]]/page.tsx": "b7a0fbb7e163f4295a98869baaa8cc68deb8df08",
+    "frontend/app/globals.css": "5896da60d126e5720aa53891adc8ea508645e1ac",
+    "frontend/app/layout.tsx": "40db2fa1c98b714779ba75f559e17b8df9fb5401",
+    "frontend/components/console.tsx": "45ae80442d97ab9b05cade979d526dca53aa81a3",
+    "frontend/components/live-console.tsx": "a0db8ccc53b5ede183bd8dc0694234edd6ddc2cb",
+    "frontend/components/live-readviews.tsx": "8fe34171a359375881540d3b97bbdc7141f813ec",
+    "frontend/components/panels.tsx": "1f3198f38ddc3f9aa7570904f90e0d5d10fca490",
+    "frontend/components/report.tsx": "3b0ebbe34219c1ae200a201ed87579d169a78b93",
+    "frontend/components/ui.tsx": "570fe564dc1c6b83e9fcf05636b9d5de0718665e",
+    "frontend/lib/mock-source.ts": "70e52fa09ed3273e70a01eb6e2ff099b52787b60",
+    "frontend/lib/p3-live-client.ts": "387908dfb84c2580d85ba7f1e09047a2c0d549a6",
+    "frontend/lib/p3-present.ts": "cc67f82ea7908bc4b042bdd1f416c8cb63a5be6e",
+    "frontend/lib/p3-read-schema.generated.json": "5bba8401aeaaadd1bec48938f5c4854691e52a73",
+    "frontend/lib/p3-transport.ts": "ec92aa806016b5a38f2a1dd1a4309d9bb05cd381",
+    "frontend/lib/p3-types.generated.ts": "6d7aa05d0f6ee73df8384fbf1c3abda36adecc96",
+    "frontend/lib/view-model.ts": "295025dcd189c5990514b492454e23fddb86cdc9",
+    "frontend/next.config.ts": "7b361fecd6021dca5732d866d9739b9c1c259a86",
+    "frontend/package-lock.json": "8c9b50746c0fe0cc08e77a9305aea0e66945a986",
+    "frontend/package.json": "c01cdeeda35278c223636f679fdf484d063f45a4",
+    "frontend/public/fonts/noto-sans-sc-LICENSE.txt": "046fc66490024a7a8b928e2485f12349e522c936",
+    "frontend/public/fonts/source-sans-pro-LICENSE.txt": "046fc66490024a7a8b928e2485f12349e522c936",
+    "frontend/tsconfig.json": "2d0e661b576466a22ab454fa2a35f73070e7e518"
+  },
+  "baseline": "6824db4877e74e0eb08ec17fa2a4300a3e46ca2f",
+  "business_blobs_unchanged": true,
+  "business_files_checked": 22,
+  "fix_scope": "B02 owned-listener test helper only",
+  "offline_cases": {
+    "passed": 4,
+    "failed": 0,
+    "duration_ms": 343,
+    "nondefault_ports": [
+      3470,
+      3471
+    ]
+  },
+  "typecheck": "passed",
+  "format": "Prettier passed",
+  "real_pg_api_browser": "not_run; Reviewer will run in own window",
+  "history_findings": 1,
+  "history_status": "973bf public metadata annotation remains pending Root policy",
+  "push": "not_run"
+}

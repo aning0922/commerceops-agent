@@ -1,0 +1,86 @@
+{
+  "base_source_sha": "2e0d3ed5ba82dc98516a88e1edce5fc2e6a72deb",
+  "new_freeze_sha_note": "see PR37 next exact head / Root receipt; no future self-reference",
+  "independent_blocker": {
+    "passed": 23,
+    "failed": 1,
+    "seconds": 157.75,
+    "node": "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation",
+    "expected_next": [
+      "prepare_approval"
+    ],
+    "actual_next": [],
+    "log_created_at_not_recorded": true,
+    "remaining_modules_and_wire": "not_run_on_original_review"
+  },
+  "runtime_test_files": [
+    {
+      "path": "backend/src/commerceops/workflows/replenishment.py",
+      "sha256": "ac88dd7cb22b8756cc8420ed5a41a418bd4eb60bd7e3ab31d78db50ea3921e88"
+    },
+    {
+      "path": "tests/p3_process.py",
+      "sha256": "cdfd0b2d1abb44f6792892d06c8d19321797f42355c6cf708b60756e9e813d1a"
+    },
+    {
+      "path": "tests/test_p3_approval_pg.py",
+      "sha256": "66d015665a2b20bda24e061fdf9ff4aeef2bd5408f3ce9a4b2f99ddfceae9b50"
+    }
+  ],
+  "repairs_in_this_batch": 2,
+  "graph_nodes_unchanged": true,
+  "unique_business_interrupt_unchanged": true,
+  "initialization_rules_note": "original guarded no-CP init retained; persisted empty-next refused; original registered-job recovery refuses existing plan/approval/outbox",
+  "actual_collection": {
+    "integration": 337,
+    "existing": 236,
+    "phase3": 101,
+    "offline_deselected": 988,
+    "full_337_execution": "not_run_by_author_on_fix_candidate"
+  },
+  "targeted_pg": {
+    "passed": 19,
+    "deselected": 17,
+    "seconds": 91.33,
+    "nodes": [
+      "tests/test_p3_approval_pg.py::test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume[after_t2_commit-False]",
+      "tests/test_p3_approval_pg.py::test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume[before_ready-False]",
+      "tests/test_p3_approval_pg.py::test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume[after_t2_commit-True]",
+      "tests/test_p3_approval_pg.py::test_r17_delivery_boundary_kill_restores_none_and_one_permanent_execution[before_delivery_receipt]",
+      "tests/test_p3_approval_pg.py::test_r17_delivery_boundary_kill_restores_none_and_one_permanent_execution[after_delivery_receipt]",
+      "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_prepare-False]",
+      "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_prepare-True]",
+      "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_graph-False]",
+      "tests/test_p3_approval_pg.py::test_persisted_checkpoint_mismatch_goes_attention_without_resume_side_effect[workflow_version]",
+      "tests/test_p3_approval_pg.py::test_persisted_checkpoint_mismatch_goes_attention_without_resume_side_effect[plan_version]",
+      "tests/test_p3_approval_pg.py::test_persisted_checkpoint_mismatch_goes_attention_without_resume_side_effect[unknown_next]",
+      "tests/test_p3_approval_pg.py::test_no_checkpoint_recovery_refuses_database_reachable_orphan_t2_records[plan_pending_card]",
+      "tests/test_p3_approval_pg.py::test_no_checkpoint_recovery_refuses_database_reachable_orphan_t2_records[card_only]",
+      "tests/test_p3_execution_recovery_pg.py::test_r10_r11_real_kill_whole_t4_transaction_or_permanent_replay_after_item_closed[after_first_t4_item]",
+      "tests/test_p3_execution_recovery_pg.py::test_r10_r11_real_kill_whole_t4_transaction_or_permanent_replay_after_item_closed[before_t4_commit]",
+      "tests/test_p3_execution_recovery_pg.py::test_r10_r11_real_kill_whole_t4_transaction_or_permanent_replay_after_item_closed[after_t4_commit]",
+      "tests/test_p3_execution_recovery_pg.py::test_r09_replacement_commit_checkpoint_gap_reuses_one_version_and_early_t3_waits[before_replacement_commit-False]",
+      "tests/test_p3_execution_recovery_pg.py::test_r09_replacement_commit_checkpoint_gap_reuses_one_version_and_early_t3_waits[after_replacement_commit-False]",
+      "tests/test_p3_execution_recovery_pg.py::test_r09_replacement_commit_checkpoint_gap_reuses_one_version_and_early_t3_waits[after_replacement_commit-True]"
+    ],
+    "command_selector": "lost_worker_lock or no_checkpoint_recovery or r05_r06_r07 or r17_delivery or persisted_checkpoint_mismatch or r09_replacement or r10_r11",
+    "mode": "actual_pg_mock_session_simulated_web"
+  },
+  "first_boundary_verification": {
+    "passed": 3,
+    "deselected": 23,
+    "seconds": 15.38
+  },
+  "pure_contract_decision": {
+    "passed": 19,
+    "seconds": 0.66
+  },
+  "ruff": "passed",
+  "mypy_source_files": 177,
+  "paid_calls": 0,
+  "external_business_writes": 0,
+  "old_full_333_evidence": "historical_2e0_only",
+  "new_independent_review": "pending",
+  "new_exact_ci": "pending",
+  "stop_evidence": "p3-a03-fix1-stop-evidence.json"
+}

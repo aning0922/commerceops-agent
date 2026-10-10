@@ -1,0 +1,10 @@
+{
+  "dir_findings": 1,
+  "index_findings": 1,
+  "git_findings": 0,
+  "rule": "generic-api-key",
+  "artifact": "generation.json",
+  "line": 5,
+  "classification": "public contract SHA256 with field label openapi; no credential",
+  "action": "rename public field to contract; no rule or waiver change; no commit/upload performed"
+}

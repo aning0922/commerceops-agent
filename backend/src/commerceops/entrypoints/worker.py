@@ -12,10 +12,13 @@ from commerceops.infrastructure.database import DatabaseSettings
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
+from commerceops.infrastructure.replenishment_repository import ApprovalStore
+from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, confirm_termination
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
 from commerceops.workflows.inventory_routing import IntentRunner
+from commerceops.workflows.replenishment import ApprovalRunner
 from commerceops.workflows.report_explanation import (
     ExplanationRunner,
     InventoryCompositeRunner,
@@ -38,8 +41,16 @@ async def serve(
     *,
     allow_actual: bool = False,
     key_file: Path | None = None,
+    web_config: WebConfig | None = None,
 ) -> None:
     stop = asyncio.Event()
+    if web_config is not None and (allow_actual or key_file is not None):
+        raise ValueError("P3 model requests are disabled")
+    if web_config is not None and any(
+        getattr(settings, key) != getattr(web_config.database, key)
+        for key in ("host", "port", "name", "user", "password_file")
+    ):
+        raise ValueError("P3 worker and owned database configuration differ")
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(sig, stop.set)
@@ -48,16 +59,30 @@ async def serve(
     print(f"technical test worker started: owner={session.owner}", flush=True)
     try:
         runner: RunnerPort
+        approval = (
+            ApprovalRunner(
+                ApprovalStore(web_config, session),
+                collector_factory=MockCollectorFactory(fixture) if fixture is not None else None,
+            )
+            if web_config is not None
+            else None
+        )
         if fixture is not None:
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
                 InventoryRunner(InventoryStore(settings, session), MockCollectorFactory(fixture)),
                 ExplanationRunner(ExplanationStore(settings, session), factory),
                 IntentRunner(IntentStore(settings, session), factory),
+                approval,
             )
         else:
             runner = TechnicalRunner()
-        await Worker(session, runner).run(stop)
+        await Worker(
+            session,
+            runner,
+            reconcile=approval.reconcile if approval else None,
+            recovery_scan_seconds=web_config.recovery_scan_seconds if web_config else 30,
+        ).run(stop)
     except UnsafeShutdown:
         # 在 asyncio.run 清理 pending tasks 之前退出；非合作调用不能拖住退出。
         print("worker cancellation unconfirmed; termination confirmation required", flush=True)
@@ -76,7 +101,9 @@ def main() -> None:
     parser.add_argument("--confirm-old-process-terminated", action="store_true")
     args = parser.parse_args()
     try:
-        settings = DatabaseSettings()
+        config_path = os.environ.get("COMMERCEOPS_P3_CONFIG_FILE")
+        web_config = WebConfig.from_file(Path(config_path)) if config_path else None
+        settings = web_config.database if web_config else DatabaseSettings()
         if args.action in ("test-run", "inventory-test-run"):
             if os.environ.get("COMMERCEOPS_MODE") != "test" or args.organization is None:
                 raise ValueError("explicit test mode and organization required")
@@ -93,6 +120,7 @@ def main() -> None:
                     args.fixture_directory if args.action == "inventory-test-run" else None,
                     allow_actual=args.allow_actual_model_probe,
                     key_file=args.model_key_file,
+                    web_config=web_config,
                 )
             )
         else:

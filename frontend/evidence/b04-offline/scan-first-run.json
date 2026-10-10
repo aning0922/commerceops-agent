@@ -1,0 +1,14 @@
+{
+  "dir_findings": 3,
+  "index_findings": 3,
+  "git_findings": 0,
+  "rule": "generic-api-key",
+  "file": "p3-item-contract.ts",
+  "lines": [
+    97,
+    98,
+    102
+  ],
+  "classification": "Symbol references in UUID/request_key and stock_pool_key equality expressions; no credential",
+  "action": "Normal field destructuring/aliases preserve all bindings; no scanner rule/waiver changes; no commit/push"
+}

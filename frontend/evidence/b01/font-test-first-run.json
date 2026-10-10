@@ -1,0 +1,6 @@
+{
+  "result": "failed before test discovery",
+  "cause": "Root tests are transformed as CommonJS; added evidence writer used import.meta",
+  "fix": "Use npm-prefix frontend working directory for OS-specific evidence, consistent with existing report/screenshot paths",
+  "not_a_business_gate": true
+}

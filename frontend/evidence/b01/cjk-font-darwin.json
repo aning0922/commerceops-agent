@@ -1,0 +1,16 @@
+{
+  "time_utc": "2026-10-10T12:04:18.726Z",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "node": "24.21.0",
+  "fonts": [
+    {
+      "familyName": "Noto Sans SC Thin",
+      "postScriptName": "NotoSansSC-Thin_SemiBold",
+      "isCustomFont": true,
+      "glyphCount": 4
+    }
+  ],
+  "scope": "actual Chromium H1 Chinese glyphs from bundled Noto Sans SC",
+  "result": "passed"
+}

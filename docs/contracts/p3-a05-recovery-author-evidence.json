@@ -1,0 +1,184 @@
+{
+  "baseline_source_sha": "972f98a383dc4ff6873e7d37f09621954142db39",
+  "ci_failure": {
+    "run_id": 38086696815,
+    "job_id": 114314619053,
+    "actual_checkout": "b4d837a56acf3bb15fd227d5f39cce3e20bfddb1",
+    "tree": "3d4f46c9b5d9ea070044b37d45a013dde478297c",
+    "module_collection": 28,
+    "module_passed": 27,
+    "module_failed": 1,
+    "module_pytest_seconds": 265.02,
+    "node_call_seconds": 6.7587,
+    "later_P3_not_run": 73,
+    "assertion_trace_captured": false,
+    "timed_out": false,
+    "stopping_confirmed": true,
+    "cleanup_exit": 0
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "collection_count": 1,
+      "passed_nodes": [
+        "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_prepare-False]"
+      ],
+      "command_exit": 0,
+      "command_seconds": 5.768,
+      "pytest_seconds": 5.11
+    },
+    {
+      "round": 2,
+      "collection_count": 19,
+      "passed_nodes": [
+        "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_prepare-False]",
+        "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_prepare-True]",
+        "tests/test_p3_approval_pg.py::test_p3_lost_worker_lock_exits_and_requires_os_confirmation[before_graph-False]",
+        "tests/test_p3_approval_pg.py::test_no_checkpoint_recovery_refuses_database_reachable_orphan_t2_records[plan_pending_card]",
+        "tests/test_p3_approval_pg.py::test_no_checkpoint_recovery_refuses_database_reachable_orphan_t2_records[card_only]",
+        "tests/test_p3_approval_pg.py::test_persisted_checkpoint_mismatch_goes_attention_without_resume_side_effect[workflow_version]",
+        "tests/test_p3_approval_pg.py::test_persisted_checkpoint_mismatch_goes_attention_without_resume_side_effect[plan_version]",
+        "tests/test_p3_approval_pg.py::test_persisted_checkpoint_mismatch_goes_attention_without_resume_side_effect[unknown_next]",
+        "tests/test_p3_approval_pg.py::test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume[after_t2_commit-False]",
+        "tests/test_p3_approval_pg.py::test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume[before_ready-False]",
+        "tests/test_p3_approval_pg.py::test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume[after_t2_commit-True]",
+        "tests/test_p3_approval_pg.py::test_r17_delivery_boundary_kill_restores_none_and_one_permanent_execution[before_delivery_receipt]",
+        "tests/test_p3_approval_pg.py::test_r17_delivery_boundary_kill_restores_none_and_one_permanent_execution[after_delivery_receipt]",
+        "tests/test_p3_execution_recovery_pg.py::test_r09_replacement_commit_checkpoint_gap_reuses_one_version_and_early_t3_waits[before_replacement_commit-False]",
+        "tests/test_p3_execution_recovery_pg.py::test_r09_replacement_commit_checkpoint_gap_reuses_one_version_and_early_t3_waits[after_replacement_commit-False]",
+        "tests/test_p3_execution_recovery_pg.py::test_r09_replacement_commit_checkpoint_gap_reuses_one_version_and_early_t3_waits[after_replacement_commit-True]",
+        "tests/test_p3_execution_recovery_pg.py::test_r10_r11_real_kill_whole_t4_transaction_or_permanent_replay_after_item_closed[after_first_t4_item]",
+        "tests/test_p3_execution_recovery_pg.py::test_r10_r11_real_kill_whole_t4_transaction_or_permanent_replay_after_item_closed[before_t4_commit]",
+        "tests/test_p3_execution_recovery_pg.py::test_r10_r11_real_kill_whole_t4_transaction_or_permanent_replay_after_item_closed[after_t4_commit]"
+      ],
+      "command_exit": 0,
+      "command_seconds": 88.83,
+      "pytest_seconds": 88.27
+    }
+  ],
+  "controlled_probe": {
+    "exit": 0,
+    "old_assertion": "after.next == (wait_approval,) and len(after.interrupts) == 1",
+    "baseline_source_line": 971,
+    "initial_private_log_location_label": 984,
+    "initial_private_log_location_label_is_incorrect": true,
+    "same_CI_assertion_proven": false,
+    "points": [
+      {
+        "point": "before_lock_loss",
+        "task_state": {
+          "state": "queued",
+          "failure_code": null
+        },
+        "checkpoint_created": true,
+        "next": [
+          "prepare_approval"
+        ],
+        "interrupts": 0,
+        "state_keys": [
+          "request_hash",
+          "task_id",
+          "workflow_version"
+        ],
+        "counts": {
+          "replenishment_plans": 0,
+          "approvals": 0,
+          "outbox": 0,
+          "executions": 0
+        }
+      },
+      {
+        "point": "after_cancelled_OS_exit",
+        "task_state": {
+          "state": "needs_attention",
+          "failure_code": "WORKER_TERMINATION_UNCONFIRMED"
+        },
+        "checkpoint_created": true,
+        "next": [
+          "prepare_approval"
+        ],
+        "interrupts": 0,
+        "state_keys": [
+          "request_hash",
+          "task_id",
+          "workflow_version"
+        ],
+        "counts": {
+          "replenishment_plans": 0,
+          "approvals": 0,
+          "outbox": 0,
+          "executions": 0
+        }
+      },
+      {
+        "point": "restored_T2_committed_before_CP",
+        "task_state": {
+          "state": "awaiting_approval",
+          "failure_code": null
+        },
+        "checkpoint_created": true,
+        "next": [
+          "prepare_approval"
+        ],
+        "interrupts": 0,
+        "state_keys": [
+          "request_hash",
+          "task_id",
+          "workflow_version"
+        ],
+        "counts": {
+          "replenishment_plans": 1,
+          "approvals": 1,
+          "outbox": 1,
+          "executions": 0
+        }
+      },
+      {
+        "point": "restored_official_wait_CP_ready",
+        "task_state": {
+          "state": "awaiting_approval",
+          "failure_code": null
+        },
+        "checkpoint_created": true,
+        "next": [
+          "wait_approval"
+        ],
+        "interrupts": 1,
+        "state_keys": [
+          "approval_id",
+          "outcome",
+          "plan_hash",
+          "plan_id",
+          "plan_version",
+          "request_hash",
+          "task_id",
+          "workflow_version"
+        ],
+        "counts": {
+          "replenishment_plans": 1,
+          "approvals": 1,
+          "outbox": 1,
+          "executions": 0
+        }
+      }
+    ]
+  },
+  "changed_files": [
+    {
+      "path": "tests/test_p3_approval_pg.py",
+      "sha256": "b96079e5135328fc479933fee603c4409641e1f34fa5b43cd781f33d1861df65"
+    }
+  ],
+  "offline": {
+    "passed": 19,
+    "pytest_seconds": 0.67
+  },
+  "full_collection_integration_count": 337,
+  "full_337_local_run": false,
+  "backend_changed": false,
+  "workflow_changed": false,
+  "B_changed": false,
+  "provider_calls": 0,
+  "platform_business_writes": 0,
+  "new_gate": "pending precise independent review and current CI"
+}

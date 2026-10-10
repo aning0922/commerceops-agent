@@ -1,0 +1,10 @@
+{
+  "task_state": "completed",
+  "item_count": 20,
+  "total_units": 2000,
+  "quantity_python_type": "Decimal",
+  "item_states": [
+    "open"
+  ],
+  "model_calls": 0
+}

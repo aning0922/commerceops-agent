@@ -1,0 +1,405 @@
+{
+  "config": {
+    "argv": [
+      "/usr/bin/node",
+      "/work/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.b04-offline.config.ts"
+    ],
+    "configFile": "/work/frontend/playwright.b04-offline.config.ts",
+    "rootDir": "/work/tests/e2e/web",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/work/frontend/test-results/b04-offline",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/work/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "b04-offline.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/work/frontend/test-results/b04-offline",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/work/tests/e2e/web",
+        "snapshotDir": "/work/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "b04-offline.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "baseURL": "http://127.0.0.1:3490",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "off",
+          "video": "off",
+          "screenshot": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "evidence/b04-linux-fix/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run start -- --port 3490",
+      "url": "http://127.0.0.1:3490/replenishment-items",
+      "reuseExistingServer": false,
+      "timeout": 60000,
+      "env": {
+        "NEXT_TELEMETRY_DISABLED": "1",
+        "COMMERCEOPS_UI_MODE": "mock",
+        "COMMERCEOPS_MOCK_BATCH": "b04-wiring",
+        "COMMERCEOPS_API_ORIGIN": "",
+        "COMMERCEOPS_WEB_TRANSPORT": "",
+        "COMMERCEOPS_MOCK_ROLE": "operator"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "b04-offline.spec.ts",
+      "file": "b04-offline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "明确Mock20项/390完整披露；execution completed仍不能推断项跟进或sync成功",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:31:54.776Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-627c584b168535c718a6",
+          "file": "b04-offline.spec.ts",
+          "line": 100,
+          "column": 5
+        },
+        {
+          "title": "原因pristine/空白/1001字符，Tab/ShiftTab/Enter/Space/Esc与终态回执/无重开",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:31:58.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-b0f4d0816f09112a3180",
+          "file": "b04-offline.spec.ts",
+          "line": 140,
+          "column": 5
+        },
+        {
+          "title": "关闭原因保留FEFF/组合字符，dirty关闭需显式丢弃；terminal/readonly无入口",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2652,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:32:00.047Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-884df4e02157afd966dc",
+          "file": "b04-offline.spec.ts",
+          "line": 180,
+          "column": 5
+        },
+        {
+          "title": "注入ACK unknown仅原键恢复，不自动提交/新键，GET回执后显式同键回放",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1226,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:32:02.705Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-563ed866d19e32a17ae1",
+          "file": "b04-offline.spec.ts",
+          "line": 201,
+          "column": 5
+        },
+        {
+          "title": "unknown原键404仍待核实；409版本/终态与损坏绑定分别呈现",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3971,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:32:03.937Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-84c3d859590322de147c",
+          "file": "b04-offline.spec.ts",
+          "line": 224,
+          "column": 5
+        },
+        {
+          "title": "注入401清预备请求/身份/业务缓存；404同安全状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1878,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:32:07.917Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-99f5d5e2a2d41719e061",
+          "file": "b04-offline.spec.ts",
+          "line": 248,
+          "column": 5
+        },
+        {
+          "title": "新联动范围filter与隐藏来源：当前can_resolve可用不借旧task/plan权限",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1907,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:32:09.802Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-d97d7515b05c394da669",
+          "file": "b04-offline.spec.ts",
+          "line": 261,
+          "column": 5
+        },
+        {
+          "title": "预备后200会话身份变更仍清原操作，不把旧项交给新principal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1050,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:32:11.715Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-b32046b07969821e60a4",
+          "file": "b04-offline.spec.ts",
+          "line": 276,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T21:31:49.059Z",
+    "duration": 23755.237999999998,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

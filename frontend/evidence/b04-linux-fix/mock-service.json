@@ -1,0 +1,17 @@
+{
+  "owner": "phase3-owned-b04-mock",
+  "uid": 0,
+  "launcher_pid": 254,
+  "platform": "linux",
+  "architecture": "arm64",
+  "checkout": "/work",
+  "port": 3490,
+  "pid": 279,
+  "started_observed_utc": "2026-10-10T21:31:54.822Z",
+  "build_id": "HDRhgIrVM92wmNo-feCbk",
+  "source_mode": "mock",
+  "backend_API_PG_Worker": "not_started",
+  "headless": true,
+  "wrong_checkout_rejected": true,
+  "wrong_launcher_rejected": true
+}

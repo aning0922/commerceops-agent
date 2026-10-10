@@ -1,0 +1,43 @@
+{
+  "at_utc": "2026-10-10T12:17:26.338159+00:00",
+  "base_B01": "1e6b8da8b47ec6390de2f7034251183cb3f985b1",
+  "batch": "B02 offline types/transport only",
+  "toolchain": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "project_typescript": "7.0.2"
+  },
+  "checks": {
+    "typecheck": "passed",
+    "production_build": "passed",
+    "injected_transport": {
+      "passed": 9,
+      "failed": 0,
+      "duration_ms": 439
+    },
+    "generation_repeat": "byte_equal",
+    "docs": {
+      "markdown_files": 61,
+      "errors": 0
+    },
+    "sensitive_scan": {
+      "dir": 0,
+      "index": 0,
+      "reachable_git": 0
+    }
+  },
+  "browser_tests_this_batch": "not_run (unused by Mock UI)",
+  "live_api_session_pg": "not_run",
+  "ui_imports": 0,
+  "production_or_paid_provider": "not_run",
+  "runtime_validation": "envelope/session essentials only, not all DTO schemas",
+  "file_digests": {
+    "frontend/package.json": "25190ef4e31a86ffc3197a2cf16d8850f3c4cb57c556bf8bf40847b2a7bea7e9",
+    "frontend/lib/p3-types.generated.ts": "fd46a52eace4f9b6c51690673c9d09934f60f742f9470a3fd86646a19f60bb46",
+    "frontend/lib/p3-transport.ts": "bd3aa2d701209f8a2e2b88436b9bf0b28e1c332f51f44e5a98d47560d390caf2",
+    "frontend/playwright.contract.config.ts": "9d0e9e1ba7cdc5c0f7264d7ba2d7a7633ab93ebffcddaa0e709c50cc4c0573b5",
+    "frontend/playwright.live.config.ts": "abbb0733b802b3d202b694deed98ddca23cf41a54a8aaa5ddadceaf9de483ae3",
+    "tests/e2e/web/contracts/transport.spec.ts": "c0a062393ec3b7d5082e4b026968f56850836b9614735f0a76fb2483e0b105a8",
+    "docs/ux/phase3-implementation.md": "634b2dd3590851fe3503f38f635d709730ff7e5db9634e451e108f4a3576acac"
+  }
+}

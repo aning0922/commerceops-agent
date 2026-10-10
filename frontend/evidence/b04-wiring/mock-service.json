@@ -1,0 +1,13 @@
+{
+  "owner": "phase3-B-WTa266-mock",
+  "port": 3490,
+  "pid": 68418,
+  "started_observed_utc": "2026-10-10T19:35:33.033Z",
+  "build_id": "ovnrY90NbsLsbMURTTXaJ",
+  "source_mode": "mock",
+  "backend_API_PG_Worker": "not_started",
+  "headless": true,
+  "stop_observed_utc": "2026-10-10T19:37:02.177868+00:00",
+  "listener_absent": true,
+  "pid_absent": true
+}

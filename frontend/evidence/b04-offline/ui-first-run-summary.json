@@ -1,0 +1,14 @@
+{
+  "passed": 3,
+  "failed": 3,
+  "duration_seconds": 20.5,
+  "causes": [
+    "Two assertions expected sync wording different from the reused Sync component",
+    "Space pressed before awaited async preparation/focus in one test"
+  ],
+  "trace": "off",
+  "video": "off",
+  "automatic_screenshot": "off",
+  "business_network_requests": 0,
+  "real_API_or_PG": "not_run"
+}

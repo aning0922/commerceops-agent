@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "occupied_port_case": {
+    "base": "http://127.0.0.1:3430",
+    "actual_exit": 1,
+    "expected": "reject before browser capture; existing service not visited or terminated"
+  },
+  "controlled_zoom": {
+    "base": "http://127.0.0.1:3443",
+    "actual_exit": 0,
+    "source_before_after": "service marker/current BUILD_ID equal"
+  },
+  "controlled_linux": {
+    "loopback": "http://127.0.0.1:3444",
+    "container_mapping": "http://host.docker.internal:3444",
+    "actual_exit": 0,
+    "source_before_after": "service marker/current BUILD_ID equal"
+  }
+}

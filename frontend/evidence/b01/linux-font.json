@@ -1,0 +1,40 @@
+{
+  "sourceBefore": {
+    "source": "commerceops-b01",
+    "service": "4149bd25-3d2b-40e3-84e2-ae4a2fa9ef1d",
+    "build": "FWOuF7rYuNR5U29P2jcLL"
+  },
+  "sourceAfter": {
+    "source": "commerceops-b01",
+    "service": "4149bd25-3d2b-40e3-84e2-ae4a2fa9ef1d",
+    "build": "FWOuF7rYuNR5U29P2jcLL"
+  },
+  "owned_server_pid": 60121,
+  "base_url": "http://host.docker.internal:3444",
+  "time_utc": "2026-10-10T12:03:17.382Z",
+  "platform": "linux",
+  "architecture": "arm64",
+  "node": "24.21.0",
+  "browser": "156.0.8078.4",
+  "fonts": [
+    {
+      "familyName": "Noto Sans SC Thin",
+      "postScriptName": "NotoSansSC-Thin",
+      "isCustomFont": true,
+      "glyphCount": 4
+    }
+  ],
+  "metrics": {
+    "width": 1440,
+    "scroll": 1440,
+    "rows": 21,
+    "font": "\"Source Sans Pro\", \"Noto Sans SC Variable\", \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", system-ui, sans-serif"
+  },
+  "narrow": {
+    "width": 390,
+    "scroll": 390
+  },
+  "unexpectedRequests": [],
+  "result": "passed",
+  "scope": "Linux real browser CJK rendering + full Mock disclosure; no real business API/PG"
+}

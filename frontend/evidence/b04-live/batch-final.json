@@ -1,0 +1,41 @@
+{
+  "stop_at_utc": "2026-10-10T20:41:00+00:00",
+  "stages": [
+    {
+      "stage": "read",
+      "passed": true,
+      "project": "p3b04-read-bdf0d913a8",
+      "actual_provider_calls": 0,
+      "test_exit": 0,
+      "pg_running": false,
+      "pg_pid": 0,
+      "failure_category": null,
+      "invariants_passed": true,
+      "native_zoom": null
+    },
+    {
+      "stage": "write",
+      "passed": true,
+      "project": "p3b04-write-bd5594d797",
+      "actual_provider_calls": 0,
+      "test_exit": 0,
+      "pg_running": false,
+      "pg_pid": 0,
+      "failure_category": null,
+      "invariants_passed": true,
+      "native_zoom": null
+    },
+    {
+      "stage": "items",
+      "passed": true,
+      "project": "p3b04-items-e3696cd769",
+      "actual_provider_calls": 0,
+      "test_exit": 0,
+      "pg_running": false,
+      "pg_pid": 0,
+      "failure_category": null,
+      "invariants_passed": true,
+      "native_zoom": "passed"
+    }
+  ]
+}

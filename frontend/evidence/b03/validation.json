@@ -1,0 +1,58 @@
+{
+  "source_merge": "48ec0f91c0f9181fa1af4a659301768b251e0626",
+  "reviewed_A02": "24856555fe23975fb19cd67ddcc033f6cac3905c",
+  "scope": [
+    "frontend/**",
+    "tests/e2e/web/**",
+    "docs/ux/phase3-implementation.md"
+  ],
+  "contract_tests": {
+    "passed": 20,
+    "duration_seconds": 2.4
+  },
+  "python_origin_tests": {
+    "passed": 22,
+    "duration_seconds": 0.65
+  },
+  "repository_check": {
+    "offline_passed": 1000,
+    "integration_deselected": 295,
+    "duration_seconds": 92.35,
+    "warnings": 2,
+    "when": "before bounded seed refactor; final two seed/probe files separately lint/format/mypy passed"
+  },
+  "final_build": "passed after five text-only corrections; no live rerun",
+  "live_build_id": "686Kj5pzHAmW3YtYVfMhM",
+  "final_build_id": "C8Qt9sHhWrPUfbQsWkP3Y",
+  "live_tests": {
+    "passed": 10,
+    "total_duration_ms": 287264.582,
+    "test_body_duration_ms": 19771,
+    "controlled_fault": "real decision commit then ACK abort; not natural failure"
+  },
+  "true_zoom": {
+    "overall": "failed",
+    "background_partial_getZoom": 2,
+    "metrics_file": "zoom-background-diagnostic.json",
+    "stop_on_root_instruction": true,
+    "last_selector_fix": "source-only, not rerun"
+  },
+  "keyboard": {
+    "new_batch": "Escape and return focus tested",
+    "inherited": "unchanged ui.tsx native Modal; B01 Tab/Enter/Space evidence",
+    "new_action_Tab_Enter_Space": "not_run"
+  },
+  "resources": {
+    "window_start_utc": "2026-10-10T16:22:29.733914+00:00",
+    "stopped_at_utc": "2026-10-10T16:34:02.688861+00:00",
+    "absolute_stop_utc": "2026-10-10T17:52:29.733914+00:00",
+    "pg_running": false,
+    "pg_pid": 0,
+    "volume_preserved": true
+  },
+  "model_calls": 0,
+  "human_H_L": "not_reported",
+  "main_merge": "Root only; not performed",
+  "ci_independent_review": "pending exact final SHA",
+  "sensitive_scan": "required before commit; exact result reported in PR"
+}

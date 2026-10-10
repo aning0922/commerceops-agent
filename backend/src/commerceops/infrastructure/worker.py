@@ -1,8 +1,10 @@
 """一个调度循环、一个 runner 槽；心跳仅维护连接和当前 job，不执行图。"""
 
 import asyncio
+from collections.abc import Awaitable, Callable
 from contextlib import suppress
 
+from commerceops.application.replenishment.contracts import WORKFLOW_VERSION as P3_VERSION
 from commerceops.application.runner import RunnerPort, RunRequest, RunResult
 from commerceops.infrastructure.queue import JobQueue
 from commerceops.infrastructure.worker_lock import WorkerSession, mark_attention, open_async
@@ -22,8 +24,14 @@ class Worker:
         poll_seconds: float = 1,
         cancel_seconds: float = 5,
         max_attempts: int = 3,
+        reconcile: Callable[[], Awaitable[None]] | None = None,
+        recovery_scan_seconds: int = 30,
     ):
-        if min(heartbeat_seconds, poll_seconds, cancel_seconds) <= 0 or max_attempts < 1:
+        if (
+            min(heartbeat_seconds, poll_seconds, cancel_seconds) <= 0
+            or max_attempts < 1
+            or not 1 <= recovery_scan_seconds <= 30
+        ):
             raise ValueError("invalid worker timing or attempt limit")
         self.session = session
         self.runner = runner
@@ -32,6 +40,8 @@ class Worker:
         self.poll_seconds = poll_seconds
         self.cancel_seconds = cancel_seconds
         self.max_attempts = max_attempts
+        self.reconcile = reconcile
+        self.recovery_scan_seconds = recovery_scan_seconds
         self.current: RunRequest | None = None
         self._job_lock = asyncio.Lock()
 
@@ -60,9 +70,14 @@ class Worker:
         call: asyncio.Task[object] | None = None
         try:
             await self.queue.recover_confirmed()
+            next_scan = 0.0
             while not stop.is_set():
                 if heartbeat.done():
                     heartbeat.result()
+                if self.reconcile is not None and asyncio.get_running_loop().time() >= next_scan:
+                    # 只在同Worker无在途Graph时做P3匹配读取/ready；不是独立调度进程。
+                    await self.reconcile()
+                    next_scan = asyncio.get_running_loop().time() + self.recovery_scan_seconds
                 job = await self.queue.claim()
                 if job is None:
                     await asyncio.wait(
@@ -112,6 +127,16 @@ class Worker:
                             if job.attempt >= self.max_attempts:
                                 await self.queue.dead(job)
                             else:
+                                await self.queue.defer(job, result.delay_seconds)
+                        elif result.status in ("waiting_checkpoint", "pending_execution"):
+                            allowed = job.workflow_version == P3_VERSION and (
+                                (result.status == "waiting_checkpoint" and job.kind == "resume")
+                                or (result.status == "pending_execution" and job.kind == "recover")
+                            )
+                            if not allowed:
+                                await self.queue.dead(job, "RUNNER_RESULT_INVALID")
+                            else:
+                                # 注册的持久依赖等待不按三次执行故障杀死，不重发决定/START。
                                 await self.queue.defer(job, result.delay_seconds)
                         elif result.status in ("done", "interrupted"):
                             await self.queue.done(job)

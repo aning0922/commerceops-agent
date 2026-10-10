@@ -1,0 +1,45 @@
+{
+  "project": "p3b02-8c4cee9d4102",
+  "owner": "phase3-B-WTa266",
+  "source_merge": "5053f56000ca08872cad02bd437ac7f8156fef6b",
+  "pg_port": 54446,
+  "web_origin": "http://127.0.0.1:3460",
+  "api_origin": "http://127.0.0.1:3461",
+  "started_at_utc": "2026-10-10T13:57:53.909900+00:00",
+  "stop_at_utc": "2026-10-10T15:27:53.909900+00:00",
+  "stopped_at_utc": "2026-10-10T14:17:04.524675+00:00",
+  "status": "stopped",
+  "pg_running": false,
+  "pg_pid": 0,
+  "api_pid": 23991,
+  "web_pid": 23992,
+  "child_exit_codes": [
+    -15,
+    143
+  ],
+  "build_id": "_qaLFTElzIh1MiTo903w2",
+  "volume": "p3b02-8c4cee9d4102_pg_data",
+  "owned_counts": {
+    "business_tasks": 69,
+    "jobs": 66,
+    "replenishment_plans": 11,
+    "approvals": 11,
+    "web_requests": 33,
+    "outbox": 11,
+    "model_calls": 0
+  },
+  "app_flags": {
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false
+  },
+  "all_private_files_600": true,
+  "private_directory_700": true,
+  "retained_failed_seeds": true,
+  "cleanup_zero_claim": false,
+  "model_requests": 0,
+  "platform_requests": "not_run",
+  "first_seed_failure": "UndefinedColumn",
+  "second_seed_failure": "AssertionError; B old TestClient config mismatch",
+  "deadline_extended": false
+}

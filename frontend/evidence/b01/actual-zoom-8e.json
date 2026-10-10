@@ -1,0 +1,28 @@
+{
+  "time_utc": "2026-10-10T11:03:52.856Z",
+  "method": "permission-free temporary MV3 chrome.tabs.setZoom(2), headed Chromium; no CSS/device-metrics/pinch emulation",
+  "user_profile_used": false,
+  "permissions": [],
+  "before": {
+    "innerWidth": 1440,
+    "outerWidth": 1440,
+    "innerHeight": 1013,
+    "dpr": 2,
+    "visualScale": 1,
+    "scrollWidth": 1440,
+    "rows": 21
+  },
+  "after": {
+    "innerWidth": 720,
+    "outerWidth": 1440,
+    "innerHeight": 506,
+    "dpr": 4,
+    "visualScale": 1,
+    "scrollWidth": 720,
+    "rows": 21
+  },
+  "getZoom": 2,
+  "complete_sku_count": 20,
+  "result": "passed",
+  "screenshot_result": "failed: Playwright default clip cropped head and blank tail; metric/zoom result remains actual, not visual acceptance"
+}

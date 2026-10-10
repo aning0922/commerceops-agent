@@ -1,0 +1,28 @@
+{
+  "time_utc": "2026-10-10T20:36:31.872Z",
+  "method": "temporary permission-free MV3 chrome.tabs.setZoom(2); headless Chromium on real session/API; no CSS or device emulation",
+  "user_profile_used": false,
+  "permissions": [],
+  "project": "p3b04-items-e3696cd769",
+  "web_pid": 79819,
+  "api_pid": 79818,
+  "build_id": "9fUL_TyAtnwYQ9NJLHijq",
+  "before": {
+    "innerWidth": 1440,
+    "outerWidth": 1440,
+    "dpr": 1,
+    "visualScale": 1,
+    "scrollWidth": 1440,
+    "skuRows": 20
+  },
+  "after": {
+    "innerWidth": 720,
+    "outerWidth": 1440,
+    "dpr": 2,
+    "visualScale": 1,
+    "scrollWidth": 720,
+    "skuRows": 20
+  },
+  "getZoom": 2,
+  "result": "passed"
+}

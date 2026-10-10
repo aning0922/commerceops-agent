@@ -8,15 +8,140 @@ import subprocess
 import sys
 import threading
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
+from scripts.pg_ci_evidence import identity, partition, safe_report
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
 from scripts.prepare_pg import prepare
 
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("test_postgres", "test_worker_pg", "test_checkpoint_pg", "test_feishu_postgres")
+
+
+def collected_nodes(records: list[dict[str, object]]) -> list[str]:
+    collections = []
+    for record in records:
+        data = record.get("data")
+        if record.get("event") == "pytest_progress" and isinstance(data, dict):
+            if data.get("event") == "collection":
+                collections.append(data)
+    if len(collections) != 1:
+        raise RuntimeError("one complete integration collection required")
+    data = collections[0]
+    nodes = data.get("nodes")
+    if not isinstance(nodes, list) or not nodes or type(data.get("count")) is not int:
+        raise RuntimeError("invalid integration collection")
+    result: list[str] = []
+    for node in nodes:
+        if not isinstance(node, str):
+            raise RuntimeError("invalid integration node")
+        path, separator, _ = node.partition("::")
+        if (
+            not separator
+            or not path.startswith("tests/")
+            or not path.endswith(".py")
+            or ".." in path.split("/")
+            or "\\" in path
+        ):
+            raise RuntimeError("invalid integration node path")
+        result.append(node)
+    if data["count"] != len(result) or len(set(result)) != len(result):
+        raise RuntimeError("integration collection count or uniqueness mismatch")
+    return result
+
+
+def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
+    phase3 = [node for node in nodes if node.split("::", 1)[0].startswith("tests/test_p3")]
+    if not phase3:
+        return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
+    phase3_set = set(phase3)
+    existing = [node for node in nodes if node not in phase3_set]
+    groups = {"combined-existing": existing} if existing else {}
+    # 从实际collection按现有P3模块派生；不硬编码阶段cardinality或挑选test node。
+    for path in sorted({node.split("::", 1)[0] for node in phase3}):
+        label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
+            "/", "-"
+        )
+        groups[label] = [node for node in phase3 if node.split("::", 1)[0] == path]
+    return groups
+
+
+def run_combined(
+    records: list[dict[str, object]],
+    report: dict[str, object],
+    test_command: Callable[[str, list[str], float], bool],
+    scope: str = "all",
+) -> None:
+    expected = collected_nodes(records)
+    groups = combined_groups(expected)
+    flattened = [node for group in groups.values() for node in group]
+    if (
+        not groups
+        or any(not group for group in groups.values())
+        or len(flattened) != len(set(flattened))
+        or set(flattened) != set(expected)
+    ):
+        raise RuntimeError("combined integration coverage mismatch")
+    selected = partition(expected, scope)
+    if scope != "all":
+        groups = {label: group for label, group in groups.items() if set(group) <= set(selected)}
+    chosen = [node for group in groups.values() for node in group]
+    if not groups or len(chosen) != len(set(chosen)) or set(chosen) != set(selected):
+        raise RuntimeError("selected scope coverage mismatch")
+    report["full_node_ids"] = sorted(expected)
+    modules: list[dict[str, object]] = []
+    report["combined_modules"] = modules
+    report["combined_counts"] = {label: len(group) for label, group in groups.items()}
+    for label, group in groups.items():
+        report["failed_target"] = label
+        start = len(records)
+        paths = [] if label == "combined" else sorted({node.split("::", 1)[0] for node in group})
+        # 仍使用main的同一expires-75预算；不重置absolute deadline或放宽单命令300s。
+        completed = test_command(label, paths, 300)
+        if completed:
+            observed = collected_nodes(records[start:])
+        else:
+            try:
+                observed = collected_nodes(records[start:])
+            except RuntimeError:
+                observed = []
+        calls = [
+            r["data"]
+            for r in records[start:]
+            if r.get("event") == "pytest_progress" and isinstance(r.get("data"), dict)
+        ]
+        passed = [
+            d["nodeid"]
+            for d in calls
+            if isinstance(d, dict)
+            and d.get("event") == "phase_end"
+            and d.get("phase") == "call"
+            and d.get("outcome") == "passed"
+        ]
+        ends = [
+            r
+            for r in records[start:]
+            if r.get("event") == "command_end" and r.get("label") == label
+        ]
+        exit_code = ends[-1]["exit"] if ends else (0 if completed else 1)
+        modules.append(
+            {
+                "label": label,
+                "expected_node_ids": sorted(group),
+                "actual_node_ids": sorted(observed),
+                "passed_node_ids": sorted(passed),
+                "exit_code": exit_code,
+                "result": completed,
+            }
+        )
+        if not completed:
+            raise RuntimeError("combined integration group failed")
+        if set(collected_nodes(records[start:])) != set(group):
+            raise RuntimeError("actual integration group collection mismatch")
+    report.pop("failed_target", None)
 
 
 def main() -> None:
@@ -29,7 +154,18 @@ def main() -> None:
     parser.add_argument("--session", choices=("initial", "followup", "ci"), default="initial")
     parser.add_argument("--fault-probe", action="store_true")
     parser.add_argument("--full-smoke", action="store_true")
+    parser.add_argument("--ci-scope", choices=("all", "existing", "phase3"), default="all")
     args = parser.parse_args()
+    if args.ci_scope != "all" and (
+        args.session != "ci"
+        or not args.combined
+        or args.node
+        or args.fault_probe
+        or (args.ci_scope == "existing" and not args.full_smoke)
+        or (args.ci_scope == "phase3" and args.full_smoke)
+    ):
+        parser.error("scoped CI requires combined and correct full-smoke scope")
+    ci_identity = identity(ROOT) if args.ci_scope != "all" else None
     if (args.session == "followup" and args.round > 2) or (
         args.session == "ci" and args.round != 1
     ):
@@ -401,9 +537,7 @@ def main() -> None:
         if not tests("collection", paths, 30, collect=True):
             raise RuntimeError("collection failed")
         if args.combined:
-            if not tests("combined", [], 300):
-                report["failed_target"] = "combined"
-                raise RuntimeError("combined failed")
+            run_combined(records, report, tests, args.ci_scope)
         elif args.node:
             for index, node in enumerate(args.node):
                 if not tests("node-" + str(index), [node], 90):
@@ -554,6 +688,10 @@ def main() -> None:
             report["cleanup_error_class"] = type(error).__name__
         report["finished_at"] = datetime.now(UTC).isoformat()
         save()
+        if ci_identity is not None:
+            evidence = safe_report(report, ci_identity, args.ci_scope)
+            artifact = ROOT / ".audit" / f"ci-evidence-{args.ci_scope}.json"
+            artifact.write_text(json.dumps(evidence, indent=2) + "\n")
         print(
             json.dumps(
                 {

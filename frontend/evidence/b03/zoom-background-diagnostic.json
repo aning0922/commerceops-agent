@@ -1,0 +1,24 @@
+{
+  "stage": "safe capture",
+  "category": "TimeoutError",
+  "result": "failed",
+  "before": {
+    "innerWidth": 1440,
+    "outerWidth": 1440,
+    "dpr": 1,
+    "visualScale": 1,
+    "scrollWidth": 1440,
+    "skuRows": 20
+  },
+  "after": {
+    "innerWidth": 720,
+    "outerWidth": 1440,
+    "dpr": 2,
+    "visualScale": 1,
+    "scrollWidth": 720,
+    "skuRows": 20
+  },
+  "getZoom": 2,
+  "user_profile_used": false,
+  "headless": true
+}
