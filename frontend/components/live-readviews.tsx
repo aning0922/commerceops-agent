@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import type { DTO } from "../lib/p3-present";
 import { label, localTime, planComplete } from "../lib/p3-present";
 import { P3Failure } from "../lib/p3-transport";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
 export const writePending =
-  "当前页面仅支持读取；创建、审批决定和内部项操作尚未接入。";
+  "执行、内部项与resolve尚未接入；审批意见不代表执行成功。";
 export function Sync({ sync }: { sync: DTO["SyncRead"] }) {
   return (
     <div>
@@ -145,14 +146,24 @@ export function Source({ source }: { source: DTO["SourceBinding"] }) {
 export function PlanDetails({
   plan,
   historical = false,
+  decisionSlot,
 }: {
+  decisionSlot?: ReactNode;
   plan: DTO["Plan"];
   historical?: boolean;
 }) {
   const complete = planComplete(plan);
   return (
     <>
-      <Notice title={historical ? "指定冻结版本 · 只读" : "冻结计划 · 只读"}>
+      <Notice
+        title={
+          historical
+            ? "指定冻结版本 · 只读"
+            : decisionSlot
+              ? "当前冻结计划"
+              : "冻结计划 · 只读"
+        }
+      >
         v{plan.plan_version} · {label(plan.status)} · {writePending}{" "}
         旧批准与假设确认不能复用。
       </Notice>
@@ -194,7 +205,7 @@ export function PlanDetails({
             {x.disclosure_version}
           </p>
         ))}
-        <p>假设确认必须与本版本完整集合绑定；此只读批不提供确认复选框。</p>
+        <p>假设确认必须与本版本完整集合绑定；历史版本不提供决定入口。</p>
       </Card>
       <Card title="冻结来源与参数">
         <Source source={plan.source} />
@@ -207,20 +218,22 @@ export function PlanDetails({
           config：{plan.config_version}
         </p>
       </Card>
-      <div className="decision-actions">
-        <Disabled control="B02" reason={writePending}>
-          批准本版本
-        </Disabled>
-        <Disabled control="B03" reason={writePending}>
-          拒绝本版本
-        </Disabled>
-        <Disabled control="B04" reason={writePending}>
-          确认完整假设并批准
-        </Disabled>
-        <Disabled control="B05" reason={writePending}>
-          拒绝假设
-        </Disabled>
-      </div>
+      {decisionSlot ?? (
+        <div className="decision-actions">
+          <Disabled control="B02" reason={writePending}>
+            批准本版本
+          </Disabled>
+          <Disabled control="B03" reason={writePending}>
+            拒绝本版本
+          </Disabled>
+          <Disabled control="B04" reason={writePending}>
+            确认完整假设并批准
+          </Disabled>
+          <Disabled control="B05" reason={writePending}>
+            拒绝假设
+          </Disabled>
+        </div>
+      )}
     </>
   );
 }

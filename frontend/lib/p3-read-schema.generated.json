@@ -2621,7 +2621,7 @@
             "items": {
               "type": "string",
               "minLength": 1,
-              "maxLength": 256
+              "maxLength": 300
             },
             "uniqueItems": true
           },
@@ -4426,6 +4426,39 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/api/v1/tasks",
+      "responses": {
+        "202": {
+          "$ref": "#/components/schemas/CreateTaskReceipt"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
       "method": "GET",
       "path": "/api/v1/tasks/{task_id}",
       "responses": {
@@ -4634,6 +4667,42 @@
           "$ref": "#/components/schemas/Error"
         },
         "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/approvals/{approval_id}/decision",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/DecisionReceipt"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "410": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
           "$ref": "#/components/schemas/Error"
         },
         "503": {

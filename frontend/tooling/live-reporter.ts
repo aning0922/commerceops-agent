@@ -28,7 +28,11 @@ export default class LiveReporter implements Reporter {
     console.log("Live runner failed; raw error withheld.");
   }
   onEnd(result: FullResult) {
-    const directory = resolve("evidence/b02-read");
+    const directory = resolve(
+      process.env.COMMERCEOPS_WEB_BATCH === "b03"
+        ? "evidence/b03"
+        : "evidence/b02-read",
+    );
     mkdirSync(directory, { recursive: true });
     writeFileSync(
       resolve(directory, "live-results.json"),

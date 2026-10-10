@@ -69,6 +69,8 @@ export type A01ReadClient = Pick<
   | "approvals"
   | "approval"
   | "requestReceipt"
+  | "prepareTask"
+  | "prepareDecision"
 >;
 export function readTransport(transport: FetchTransport): FetchTransport {
   return (url, init) => {
@@ -79,9 +81,7 @@ export function readTransport(transport: FetchTransport): FetchTransport {
           operation.match.test(url.pathname),
       )
     )
-      return Promise.reject(
-        new Error("Operation outside reviewed read/auth subset"),
-      );
+      return Promise.reject(new Error("Operation outside reviewed A02 subset"));
     return transport(url, init);
   };
 }

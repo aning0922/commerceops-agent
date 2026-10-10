@@ -897,3 +897,15 @@ dialog.drawer {
 .app-shell[data-source-mode="live-session"] .fact-list {
   overflow-wrap: anywhere;
 }
+.assumption-option {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+.assumption-option input[type="checkbox"] {
+  width: 24px;
+  min-height: 24px;
+  flex: 0 0 24px;
+}

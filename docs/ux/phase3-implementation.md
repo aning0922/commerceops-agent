@@ -1,6 +1,6 @@
 # Phase3 冻结 M1 前端实施
 
-当前包含已核 B01 离线 Mock 页面、已核 `14dc` 离线类型/transport，以及本批 **B02 真实 PG 会话与只读页面候选**。本批正常合并已审 A01 `aeaa916`，登录/读取已在自有资源实跑；创建/决定/执行/resolve仍等待对应已审功能。新冻结独审/组合CI与Root签收以PR实时回执为准，不能当完整B02或Phase3完成。早期章节保留B01历史范围，当前只读批见末节。Issue [#33](https://github.com/aning0922/commerceops-agent/issues/33)、[#35](https://github.com/aning0922/commerceops-agent/issues/35) 为本阶段授权与文件所有权依据；本 PR 仅 Refs，不关闭阶段。
+当前包含已核 B01、B02 真实会话/只读批，以及本批 **B03 创建与审批候选**。正常合并 Root 已审 A02 `24856555` 后接入创建及 T3，执行/items/resolve 仍等待 A03 Gate。新冻结独审/组合 CI 与 Root 签收以 PR 实时回执为准，不能当完整 Phase3 完成。早期章节保留B01历史范围，当前只读批见末节。Issue [#33](https://github.com/aning0922/commerceops-agent/issues/33)、[#35](https://github.com/aning0922/commerceops-agent/issues/35) 为本阶段授权与文件所有权依据；本 PR 仅 Refs，不关闭阶段。
 
 ## 基线与范围
 
@@ -210,3 +210,39 @@ Reviewer在12fa自有3470/3471资源完成迁移/预置后发现B seed的WebConf
 组合ab57正常push后的精确CI38062624307实际FAILURE：预依赖与Foundation三scope扫描0、锁检查/63Markdown0/Ruff通过，但全仓库format仅live_revoke.py相邻SQL字面量需合成一行，PG完全skipped且其他后续检查未执行。Root同意≤3min辅助格式收口：项目锁定Ruff仅格式化此文件，AST与ab57完全相同，无SQL/校验/权限/端点/业务变化；完整ruff format --check .及ruff check .通过。普通新提交与新CI继续记账，不rerun或将policyCI当此组合通过；独审ab57业务窗口不取消，必要证据只由Reviewer核语义后继承。
 
 本WT格式修正后完整scripts.check实际exit0：981offline passed/271 deselected/96.77s、2既有lark弃用warning；Ruff与226全仓格式、mypy159、63Markdown0、Node24.21工具链/frontend typecheck、Node audit0与95Python包漏洞0、三scope敏感0。没有执行作者PG/PW；独立Reviewer在ab57自有54710/3471/3470原截止内已实际7/7，无P1/P2，格式only证据继承仍须Reviewer核对，不把此前policy或14dc CI外推。
+
+
+## B03 创建与审批候选（等待本批实际回执和独审）
+
+Root 已批准 A02 `24856555fe23975fb19cd67ddcc033f6cac3905c`，B 在原 WT/branch/PR #36 正常 merge 为 `48ec0f91c0f9181fa1af4a659301768b251e0626`，没有历史改写。全部实现仍限定 frontend、专用 Web 测试和本文件；A03 未提交内容未读取，backend/shared DTO/Worker/Graph/迁移/CI/Compose/锁文件未改。
+
+`CreateTaskDialog` 复用冻结 M02 Drawer：from_report 绑定当前可信 source_task/report/snapshot/facts_hash；new_cycle 显式确认 Mock case、operator 店铺与 L/R/S 整数参数，不做自然语言猜参。准备请求与明确 POST 分开，新 task/request_key 独立，源 completed 不恢复，不继承旧 nonce/hash/approval/假设勾选。T3 复用 S04/原生 Dialog：普通批准、拒绝、完整假设联合批准、拒绝假设分别按真实合同提交；raw inbound null 披露不改0，联合集合无默认勾选，缺/多/重复或绑定不全不能启用。
+
+决定仅以服务器 can_decide、pending/current、精确 id/version/hash、完整20项披露、硬阻断、nonce/expiry及当前 scope 为准。浏览器使用 server_time 加单调时钟显示期限；服务器持锁再次判断。来源 observation/max-age/执行前重观察需求仍披露，不增加浏览器 freshness veto，A03新版本流程未实现。指定版本只读，变版本重新挂载确认组件，旧集合不沿用。
+
+`Submission` 仅保留本次私有 closure 的原 key/JSON bytes：网络/丢 ACK/坏成功响应为 unknown，绝不自动重投或换键。只能显式同键原字节重投或 GET 原 operation/key 回读；404 仍待核实，不推断失败。receipt 严格 runtime schema、key/operation、决定 id/version/hash/action/完整假设绑定校验；显示“意见已记录 · 执行待处理”，不把批准当执行/采购/入库。身份撤销清页面及私有请求，nonce/CSRF/password 不进截图、URL、storage、日志或 RSC。创建 Dialog 对 pending/unknown 阻止 Esc/关闭丢失原字节；草稿关闭先确认丢弃。
+
+18 个已审操作的运行时 response schema 已同步 A02；execution、items、resolve 四个未审操作在发送前仍拒绝，UI保持 disabled。无飞书/真实模型/生产/Phase4。冻结 m1-ui/0.4.1 18页/47控件、字体和 token 复用，没有新视觉批次。
+
+当前离线证据：20/20 合同（2.4s）、Python 22/22 Origin 辅助测试、production build/typecheck/schema check；完整工程 check 1000 passed / 295 deselected（92.35s），两个既有 lark-oapi warnings，lint/format/mypy/锁/audit通过。该完整 check 在种子辅助调整前运行，最终增量 lint/mypy另核。合同首轮19过1失败来自旧“阻断T1”断言，A02已放行后改为阻断未审resolve/items，首轮回执保留。
+
+新唯一窗口 p3b03-1cc9ff864a67，owner phase3-B-WTa266，PG54463/API3481/Next3480全部loopback；登记UTC 2026-10-10T16:22:29.733914Z，原 absolute stop 17:52:29.733914Z，目录700/私有文件600，独立新卷。首轮种子在同一仍存活PID重复启动 Worker 触发 TerminationRequired；seed/内部Worker PID7612退出2并reaped，API/Next/外部Worker未启动，PG16:22:42.059265Z stopped/running=false/PID0，保卷。按 immutable created_at 截至首停实际计数25tasks/24jobs/11plans/11approvals/12requests/model_calls0，包含fixture基础记录；PW未启动。
+
+仅一次针对修复：已审B02种子子进程退出、原PID由既有 require_process_absent 核不存在后，B03一次连续 Worker 准备额外fixture，未改终止合同/删除记录。在同project/卷/原截止重新启动，种子成功；API11788/Next11789/单Worker11787的listener及 BUILD_ID 686Kj5pzHAmW3YtYVfMhM 已核。真实 PW 当前未结案，不将等待/成功提示当业务Gate。首失败 ledger 与时间边界计数分别在 resource-first-stop.json、first-seed-counts.json。
+
+受控两项未知、ACK丢失、superseded fixture分别明示：ACK通过实际API提交后route.abort丢浏览器回执，属于受控 transport fault，不宣称自然故障；superseded由专用owner PG fixture设置状态，只验证旧版本禁用，不当作A03新版本重观察流程。首轮失败数据完整保留隔离，不称cleanup0。人工 H/L not_reported，B18h/总60h/300h/原目标日期不重置；Agent与机器实际时间按窗口/测试回执记录。
+
+
+### B03 实际收口与剩余证据
+
+首轮实际真实业务 PW **10/10 passed**，总287.26s含自然限流等待；测试本身合计约19.77s。全部 headless 独立 context；trace/video/自动screenshot/HAR均关闭，结果仅白名单字段。实际包含普通批准、拒绝、完整联合批准、两项假设拒绝；10次原key/原JSON字节POST的SHA256摘要唯一；漏/多/重复与错误版本拒绝；原键改动作IDEMPOTENCY_CONFLICT、新键相反意见DECISION_CONFLICT；真正API commit后受控abort造成unknown，无自动POST，GET原回执恢复后显式同键重投；from_report/new_cycle结构化创建；指定版/实际60s expiry/admin/dual隔离；受控superseded和预备后真实撤权401清全部业务/确认。没有用fake HTTP批准响应替代业务。
+
+PG只读复核：combined20/approve/unknown各executing，停在A03 revalidate前；reject/decline/second_combined各rejected；上述六task每项decision/audit/resume_job恰1，revocation/supersede/expiry均0。源P2 completed未变，model_calls0，app rolsuper/createdb/createrole均false。测试标题里ACK“同键十次”由独立普通批准回放测试证明，ACK自身实际两次POST（一初投一显式回放），无重复计账。GET receipt保留原duplicate=false，重新POST返回duplicate=true，两者不混为执行状态。
+
+截图实际检查1440回执、1280和390完整20SKU。1440截图显示读取时历史pending与本次已记录回执分别成立，不能以旧读取快照否定原回执。检查后5处旧“只读批”文案作纯文本修正，业务路径与action组件字节不变；最终build/typecheck另记，截图对应先前测试build，未冒称文本修正后重新跑业务PW。键盘本批实测Escape/触发焦点返回；Tab/Enter/Space本批未新跑，B01已核原生Modal组件字节保留，仅作为组件继承，不冒称新动作键盘实测。
+
+真正200% **本批整体未完成**。首个自有临时可见Chromium probe无OS输入，但operator审批路由capability拒绝导致TimeoutError；已关闭自身context/profile。用户新增“不得影响正常电脑操作”边界后，一律headless，禁止可见浏览器、activate/bringToFront、OS全局键鼠、用户Chrome/profile。后台probe去掉window update并active:false，实际部分证据getZoom=2、innerWidth1440→720、outerWidth1440不变、DPR1→2、visualScale1、scrollWidth720、全20行；安全截图选择器无匹配导致TimeoutError，整体仍failed。diagnostic保留，没有CSS scale冒充。Root要求停止追加试验已遵从：原handle核退出1，finally关闭/删除自身profile，无该probe进程；选择器源代码收口但未重跑。B01旧真实200%只作为既有组件证据，不能替代本批完整live Gate；最小补证交Root独审裁决。
+
+窗口已提前正常停止API11788/Next11789/单Worker11787并由原handle reaped，PG running=false/PID0，原absolute stop不变，卷和首轮失败数据保留。详见resource-window.json；后续未启动同窗/旧P1P2/A资源。最终SHA独审、精确CI、Root签收、200%缺项及完整Phase3剩余Gate均以Root/GitHub实时回执为准；本批不合main。
+
+B03提交前首扫描仅dir/index各命中generation.json第5行公开合同SHA256与openapi字段名，git0；尚未提交/上传。元数据字段改为contract并保留scan-first-run.json，未改规则/新增例外；最终扫描以提交前工具和PR回执为准。

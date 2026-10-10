@@ -1,0 +1,29 @@
+{
+  "project": "p3b03-1cc9ff864a67",
+  "owner": "phase3-B-WTa266",
+  "source_merge": "48ec0f91c0f9181fa1af4a659301768b251e0626",
+  "pg_port": 54463,
+  "web_origin": "http://127.0.0.1:3480",
+  "api_origin": "http://127.0.0.1:3481",
+  "started_at_utc": "2026-10-10T16:22:29.733914+00:00",
+  "stop_at_utc": "2026-10-10T17:52:29.733914+00:00",
+  "source_mode": "mock",
+  "identity_mode": "session",
+  "volume": "p3b03-1cc9ff864a67_pg_data",
+  "status": "stopped",
+  "stopped_at_utc": "2026-10-10T16:34:02.688861+00:00",
+  "pg_running": false,
+  "pg_pid": 0,
+  "child_exit_codes": [
+    0,
+    0,
+    -15,
+    143
+  ],
+  "resumed_at_utc": "2026-10-10T16:25:11.685712+00:00",
+  "previous_failure_category": "RuntimeError",
+  "worker_pid": 11787,
+  "api_pid": 11788,
+  "web_pid": 11789,
+  "build_id": "686Kj5pzHAmW3YtYVfMhM"
+}

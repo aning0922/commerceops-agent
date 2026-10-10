@@ -1,4 +1,5 @@
 "use client";
+import { CreateTaskDialog, DecisionActions } from "./live-actions";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -429,7 +430,7 @@ export function LiveConsole({
             <Notice
               title={`真实服务端会话 · ${localHttp ? "local_http" : "https"}`}
             >
-              业务来源为本阶段自有Mock数据；本批只读，无身份选择器。
+              业务来源为本阶段自有Mock数据；权限以真实会话为准，无身份选择器。
             </Notice>
             {checking ? (
               <p role="status">正在核实会话</p>
@@ -512,7 +513,7 @@ export function LiveConsole({
         <p className="sidebar-note">仅内部工作项 · 无采购入库</p>
         <footer>
           <strong>当前真实会话</strong>
-          <p>自有Mock业务来源 · 只读批</p>
+          <p>自有Mock业务来源 · 创建与审批</p>
         </footer>
       </aside>
       <div className="workspace">
@@ -535,7 +536,8 @@ export function LiveConsole({
         </header>
         <main id="main">
           <div className="mock-banner">
-            当前会话已认证 · 本阶段业务来源为Mock · {writePending}
+            当前会话已认证 · 本阶段业务来源为Mock · 创建与审批意见已接入 ·{" "}
+            {writePending}
           </div>
           <div className="page-heading">
             <div>
@@ -607,9 +609,14 @@ export function LiveConsole({
                           ))}
                         </select>
                       </label>
-                      <Disabled control="B01" reason={writePending}>
-                        创建正式任务
-                      </Disabled>
+                      {capabilities!.can_create_task && (
+                        <button
+                          data-control="B10"
+                          onClick={() => setPanel("create")}
+                        >
+                          创建正式任务
+                        </button>
+                      )}
                     </div>
                     <div className="list-table">
                       {page.read.items.map((x) => (
@@ -704,9 +711,14 @@ export function LiveConsole({
                     <p>
                       执行回执与内部项接口待接入；不把awaiting_approval或completed推断为内部项已创建。
                     </p>
-                    <Disabled control="B46" reason={writePending}>
-                      开启新周期
-                    </Disabled>
+                    {page.read.actions.can_start_new_cycle && (
+                      <button
+                        data-control="B46"
+                        onClick={() => setPanel("create")}
+                      >
+                        开启新周期
+                      </button>
+                    )}
                   </Card>
                   <Card title="协作同步">
                     <Sync sync={page.read.task.sync} />
@@ -721,6 +733,16 @@ export function LiveConsole({
                     config={config}
                     client={client!}
                   />
+                  {capabilities!.can_create_task &&
+                    page.read.source.source_complete &&
+                    page.read.facts.complete && (
+                      <button
+                        data-control="B01"
+                        onClick={() => setPanel("create-source")}
+                      >
+                        从此冻结报告创建正式补货任务
+                      </button>
+                    )}
                   <VersionList
                     list={page.versions}
                     taskId={page.read.task_id}
@@ -736,7 +758,7 @@ export function LiveConsole({
                   <Card>
                     <p>
                       can_decide：{String(page.read.can_decide)} · disabled：
-                      {page.read.disabled_reasons.join("、") || "本批只读"}
+                      {page.read.disabled_reasons.join("、") || "无服务端禁用原因"}
                     </p>
                   </Card>
                 </>
@@ -815,7 +837,7 @@ export function LiveConsole({
               )}
               {page.kind === "approval" && (
                 <>
-                  <Card title="审批事实">
+                  <Card title="读取时审批事实">
                     <p>
                       {page.read.approval.approval_id} · v
                       {page.read.approval.plan_version}
@@ -827,7 +849,7 @@ export function LiveConsole({
                     </p>
                     <p>
                       disabled：
-                      {page.read.disabled_reasons.join("、") || "本批只读"}
+                      {page.read.disabled_reasons.join("、") || "无服务端禁用原因"}
                     </p>
                     {page.read.decision ? (
                       <p>
@@ -839,7 +861,17 @@ export function LiveConsole({
                       <p>尚无决定记录；不推断批准或执行。</p>
                     )}
                   </Card>
-                  <PlanDetails plan={page.read.plan} />
+                  <PlanDetails
+                    plan={page.read.plan}
+                    decisionSlot={
+                      <DecisionActions
+                        key={`${page.read.plan.plan_id}:${page.read.plan.plan_version}:${page.read.plan.plan_hash}`}
+                        read={page.read}
+                        client={client!}
+                        refresh={() => void refresh()}
+                      />
+                    }
+                  />
                   <a
                     className="button"
                     href={`/tasks/${page.read.plan.task_id}/plans/${page.read.plan.plan_version}`}
@@ -967,6 +999,21 @@ export function LiveConsole({
               )}
             </>
           )}
+          {(panel === "create" || panel === "create-source") &&
+            capabilities!.can_create_task && (
+              <CreateTaskDialog
+                client={client!}
+                shops={session.principal.role_shop_grants
+                  .filter((x) => x.role === "operator")
+                  .map((x) => x.shop_id)}
+                source={
+                  panel === "create-source" && page?.kind === "report"
+                    ? page.read.source
+                    : undefined
+                }
+                close={() => setPanel("")}
+              />
+            )}
           {panel === "account" && (
             <Modal title="当前账号与授权范围" close={() => setPanel("")}>
               <p>{session.principal.display_name} · 身份来自服务端session</p>
@@ -997,7 +1044,7 @@ export function LiveConsole({
             </Modal>
           )}
           <p className="page-foot">
-            本批只读 · 冻结M1样式 · Phase4飞书/生产未接入
+            创建与审批意见 · 冻结M1样式 · Phase4飞书/生产未接入
           </p>
         </main>
       </div>

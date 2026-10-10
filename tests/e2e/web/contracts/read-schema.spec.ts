@@ -63,7 +63,7 @@ test("完整冻结DTO校验：拒绝缺字段/额外actor/假身份/bool整数/u
   ).toBe(false);
   expect(config).toEqual({ ...base, shop_id: id, config: deployment });
 });
-test("只读/auth子集不存在items/execution/decision/T1，错误envelope不收隐藏对象", () => {
+test("A02子集仍不存在items/execution/resolve，错误envelope不收隐藏对象", () => {
   const error = {
     schema_version: "p3-web-v1",
     server_time: null,
@@ -96,14 +96,17 @@ test("只读/auth子集不存在items/execution/decision/T1，错误envelope不�
   expect(verifyReadResponse("POST", "/api/v1/tasks", 202, config)).toBe(false);
 });
 
-test("live transport在发送前阻断业务POST与未实现读取，避免事后schema拒绝仍产生副作用", async () => {
+test("live transport发送前只准已审A02，执行与resolve仍零请求", async () => {
   let calls = 0;
   const transport = readTransport(async () => {
     calls++;
     return new Response("{}");
   });
   await expect(
-    transport(new URL("https://test.invalid/api/v1/tasks"), { method: "POST" }),
+    transport(
+      new URL(`https://test.invalid/api/v1/replenishment-items/${id}/resolve`),
+      { method: "POST" },
+    ),
   ).rejects.toThrow("outside reviewed");
   await expect(
     transport(new URL("https://test.invalid/api/v1/replenishment-items"), {
@@ -117,7 +120,14 @@ test("live transport在发送前阻断业务POST与未实现读取，避免事�
   await transport(new URL(`https://test.invalid/api/v1/tasks/${id}`), {
     method: "GET",
   });
-  expect(calls).toBe(2);
+  await transport(new URL("https://test.invalid/api/v1/tasks"), {
+    method: "POST",
+  });
+  await transport(
+    new URL(`https://test.invalid/api/v1/approvals/${id}/decision`),
+    { method: "POST" },
+  );
+  expect(calls).toBe(4);
 });
 
 test("披露绑定拒绝同数量但换SKU/在途/建议事实及重复条目，原合法20项保留", async () => {

@@ -1,0 +1,7 @@
+{
+  "result": "failed",
+  "category": "TimeoutError",
+  "cause": "Owned operator cannot use approvals route (can_read_approvals=false); probe must use owned specified plan read route",
+  "user_profile_used": false,
+  "post_business": 0
+}

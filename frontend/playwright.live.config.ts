@@ -6,6 +6,10 @@ if (
 )
   throw new Error("Explicit B02 owned live window required");
 export default defineConfig({
+  testMatch:
+    process.env.COMMERCEOPS_WEB_BATCH === "b03"
+      ? "write.spec.ts"
+      : "read.spec.ts",
   testDir: "../tests/e2e/web/live",
   workers: 1,
   retries: 0,

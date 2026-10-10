@@ -1,0 +1,24 @@
+{
+  "error_category": "TerminationRequired",
+  "live_pw_started": false,
+  "as_of_utc": "2026-10-10T16:22:42.059265+00:00",
+  "api_next_external_worker_started": false,
+  "seed_exit_code": 2,
+  "pg_running": false,
+  "pg_pid": 0,
+  "records": [
+    {
+      "owner_receipt": "c08fca41-0423-43b7-a442-5f9131fe5f1a",
+      "seed_and_inprocess_worker_pid": 7612,
+      "process_absent_proven": true,
+      "counts_created_by_first_stop": {
+        "business_tasks": 25,
+        "jobs": 24,
+        "replenishment_plans": 11,
+        "approvals": 11,
+        "web_requests": 12,
+        "model_calls": 0
+      }
+    }
+  ]
+}
