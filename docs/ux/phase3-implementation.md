@@ -311,7 +311,7 @@ Root另要求项目专用薄CLI串行read/write/items，每段独立新PG卷/org
 
 ```sh
 # WEB_STOP_AT_UTC由最早的任务步骤登记；不得在准备完成后重新计时。
-PYTHONPATH="$PWD" uv run --frozen python tests/e2e/web/run_live_batches.py \
+uv run --frozen python -m tests.e2e.web.run_live_batches \
   --checkout "$PWD" --private-directory "$PWD/runtime/web-fresh-private" \
   --owner reviewer --stop-at-utc "$WEB_STOP_AT_UTC"
 # CI同一完整入口仅将owner改为ci；目录须新建或为空的0700目录。
@@ -330,3 +330,11 @@ PYTHONPATH="$PWD" uv run --frozen python tests/e2e/web/run_live_batches.py \
 最终合同复验26/26（2.8s）/22-operation schema check/typecheck及10/10owner反例、14个专用Python文件Ruff/mypy通过。正式Mock UI8/8仍使用先前明确Mock production回执，没有把实际Web结果算入Mock批。运行时HEAD为bc15基线加待提交辅助文件，三段登记13文件SHA256共39次逐项核同最后待提交blob；UI产品app/components/lib/public/npm锁相对bc15无差、production BUILD_ID 9fUL_TyAtnwYQ9NJLHijq，不宣称运行开始时已经存在最终提交SHA。最终source SHA/tree与精确CI见同PR36/GitHub实时回执，独审和整体Stage Gate仍待Root。
 
 最终完整 `uv run --frozen python -m scripts.check` 实际exit0：**1057 offline passed / 337 integration deselected / 84.22s**，两个既有lark-oapi弃用warning；锁一致、68Markdown0、Ruff全仓lint/format、mypy、Node24.21工具链/frontend typecheck、npm audit0及95Python锁包漏洞0。开始前全部自有live资源已停止，不用npm ci干扰采证；前序production build/26合同/Mock8UI与本次真实完整24+native200均分开记账。该check没有执行337后端integration；已审A03根CI实际337 PG证据仅按Root冻结继承，组合最终CI仍待实时回执。首普通owner字段扫描误报1保留说明，未提交状态已修；最后提交前与提交后完整三scope结果以Git/PR回执记录，不提前声称未来扫描完成。
+
+## 独审P1：正式CLI调用合同修正
+
+独立WebReviewer在自己的全新0700根以裸文件入口运行，顶层`import scripts`实际报`ModuleNotFoundError: No module named 'scripts'`，发生在任何Docker/browser/服务启动前，完整独审未通过。d889作者全24项/PG/native200当时使用显式`PYTHONPATH="$PWD"`环境；该实际证据与39次源码摘要核同保留，但不能据此声称裸文件入口可直接复现。
+
+本次只修正文档调用合同，正式独审/CI统一从各自checkout根执行`uv run --frozen python -m tests.e2e.web.run_live_batches`，完整参数、封闭owner、新私有目录与最早步骤登记的截止沿用上方示例。实际以`env -u PYTHONPATH uv run --frozen python -m tests.e2e.web.run_live_batches --help`零资源验证exit0，正确列出checkout/private-directory/stop-at-utc/stages/owner参数；没有启动Docker、PG、Worker、API、Next或browser，没有创建测试窗口。
+
+13份登记辅助源码与业务文件相对d889保持相同Git blob，不加sys.path bootstrap、依赖或新框架，不重跑已过作者PG/UI，不改写原失败/预算/时间边界。文档与敏感扫描按本次实际回执核验，普通doc-only提交/push同PR36；新SHA由Root交原WebReviewer核增量后在其自有资源续跑完整24/native200/PG不变量，原Reviewer截止22:09:07Z不重置。A负责把未提交shared frontend job调用同步为模块入口；独审和最终精确CI仍待Root核定。
