@@ -134,13 +134,20 @@ class DeepSeekAdapter:
         offline_transport: httpx.MockTransport | None = None,
         base_url: str = BASE_URL,
         model: str = MODEL,
+        prompt_version: str = PROMPT_VERSION,
     ) -> None:
+        if type(prompt_version) is not str or prompt_version not in (
+            PROMPT_VERSION,
+            "inventory-routing-v1",
+        ):
+            raise ValueError("UNSUPPORTED_PROMPT_VERSION")
         if base_url != BASE_URL or model != MODEL:
             raise ValueError("UNSAFE_PROVIDER_CONFIG")
         if offline_transport is not None and type(offline_transport) is not httpx.MockTransport:
             raise ValueError("UNSAFE_TRANSPORT")
         if not isinstance(api_key, SecretStr) or not api_key.get_secret_value():
             raise ValueError("INVALID_PROVIDER_CONFIG")
+        self._prompt_version = prompt_version
         self._credential = api_key
         self._counter = token_counter
         self._admission = admission
@@ -153,6 +160,7 @@ class DeepSeekAdapter:
         reply = ModelReply(
             provider="deepseek",
             requested_model=MODEL,
+            prompt_version=self._prompt_version,
             pricing_version=self._pricing.version if self._pricing else None,
         )
         if self._admission is None:
@@ -205,7 +213,7 @@ class DeepSeekAdapter:
             facts_hash,
             "deepseek",
             MODEL,
-            PROMPT_VERSION,
+            self._prompt_version,
             count.input_tokens,
             MAX_OUTPUT,
             count.tokenizer_version,

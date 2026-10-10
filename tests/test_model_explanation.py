@@ -299,7 +299,9 @@ def test_unsafe_model_content_is_rejected_without_echo(content: str) -> None:
     assert result.narrative_mode == "template"
     assert result.metadata.error_code == "UNSAFE_EXPLANATION"
     assert result.metadata.content is None
-    assert "999" not in repr(result) and "已执行采购" not in repr(result)
+    # 随机request UUID可合法含999；只在模型可能影响的说明正文检查非法数值回显。
+    narrative = result.summary + "".join(row.text for row in result.lines)
+    assert "999" not in narrative and "已执行采购" not in narrative
     assert result.facts_hash == report().facts_hash
 
 
