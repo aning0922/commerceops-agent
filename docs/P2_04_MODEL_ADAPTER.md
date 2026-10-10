@@ -59,7 +59,7 @@ result = await service.explain(report)
 
 构造入口为 `DeepSeekAdapter(api_key: SecretStr, token_counter=None, admission=None, pricing=None, offline_transport=None, base_url=..., model=...)`。不自动读 env/config/file，不提供真实 key 加载 CLI。URL 严格等于 `https://api.deepseek.com`，model 严格等于 `deepseek-flash`；其他协议、host、userinfo、路径/查询、模型拒绝。路径固定 `/chat/completions`。
 
-发送固定 `thinking={"type":"disabled"}`、`response_format={"type":"json_object"}`、`stream=false`、`max_tokens=800`，不传 tools，没有重试/redirect/代理环境继承/自动换模型。HTTP transport retries=0，独立 `asyncio.timeout(20)` 覆盖 admission、连接、响应头与完整 body 读取；keepalive 空行不续期。响应含压缩编码拒绝；读取总上限 65536 bytes；HTTP 非200不读取错误 body。取消正常传播，不冒称请求未发生。
+发送固定 `thinking={"type":"disabled"}`、`response_format={"type":"json_object"}`、`stream=false`、`max_tokens=800`，不传 tools，没有重试/redirect/代理环境继承/自动换模型。HTTP transport retries=0，从 `complete()` 入口冻结 `monotonic()+20` 截止；token计数、请求构造、admission、连接、响应头与完整 body 读取共用预算。计数后、预留前、发送前及body处理均检查剩余时间；keepalive 空行不续期。响应含压缩编码拒绝；读取总上限 65536 bytes；HTTP 非200不读取错误 body。取消正常传播，不冒称请求未发生。
 
 `TokenCounter.count(messages: tuple[Message, ...], *, model: str) -> TokenCount` 必须由 A 注入实际核验的 tokenizer（含完整 chat template、角色/特殊 token/生成前缀），返回 `input_tokens/model/tokenizer_version/evidence`。只接受整数 1–8000；真实 transport 必须 `evidence=verified_tokenizer`。离线计数器明确 `offline_stub`，不能用于真实发送。**本批未锁定当前 alias 对应的 tokenizer，不提供任何字符÷4或无依据字节上界；缺正确计数时真实发送保持拒绝。A 的实际计数实现与核验是待集成 Gate，不能只改 evidence 标签。** 响应 usage 若超预留/8000 input/800 output，同样 stop，不重试。
 
@@ -112,3 +112,15 @@ uv run --frozen python -m scripts.scan_secrets
 最终本地实跑：专项 **71 passed（20.39s）**；原样完整 `scripts.check` **passed**，723 offline passed / 79 deselected（79.33s），两条既有 lark SDK deprecation warnings 保留；104源文件 strict mypy、159文件format、52份Markdown、锁/工具链/前后端漏洞门禁通过，Python audit90包零已知漏洞。首次完整门禁因本新文档 Python fenced 示例格式失败，修正后上述完整重跑成功，未修改check/豁免。没有本地PG/模型/平台实测，79 deselected不能写成通过。
 
 本地最后暂存后的当前/index/完整可达history扫描与diff边界、冻结SHA/tree及实际CI见组件PR交付回执；文档/机器结果不替代Root独审。Agent开工至首批PR交付墙钟单列在PR，包含机器等待；有效人工小时仍not_reported。
+
+## 首轮独审绝对截止修复
+
+Root转达独立Reviewer在冻结8f5fb9a9发现P2阻断：同步counter先消耗20.2秒，旧timeout在其后启动，仍会reserve/send。原71专项/成功CI未覆盖计数前置耗时，不能据此忽略缺陷。
+
+最小修复仅adapter、专属tests和本说明：入口固定monotonic截止；纯计数以`asyncio.to_thread`运行并仅等待剩余时间，超时/取消不进入admission或HTTP。线程只有messages/model，不传credential/admission/transport；迟到结果丢弃，永不继续send。线程池工作数由Python默认executor限定，没有新增executor/平台/调度器。Python不能强制中断已运行线程，故注入counter必须自身有界、无网络/副作用且不长期阻塞GIL；调用方收到stop_required必须停止后续请求，不能无限提交计数。`asyncio.run`进程级收尾可能等待后台线程，不能将服务await的截止外推为进程强制退出时限。
+
+请求JSON/hash构造的同步耗时也扣在入口截止内，耗尽后TIMEOUT/零reserve/零send；admission/HTTP使用剩余timeout，并在发送前再次检查，阻塞式caller在恢复控制后也不得过期send。读取/解析同步结束检查同一截止，不新增重试；未知usage/cost、预留未知、取消不释放预算的原合同保持。取消HTTP测试改为等待确实进入Mock send后取消，避免线程启动调度使其意外变成取消计数测试。
+
+四项新增定向回归先实际4 failed（1.36s），修复后4 passed（0.95s）：计数消耗0.25s/截止0.05s时服务await按时返回且后台结束后仍零预留/发送；计数0.2s/总截止0.35s下keepalive仅剩余时间；请求hash构造超时；admission同步耗尽预算不得send。这些缩短时间的定向用例与原真实20秒keepalive测试并存，不伪称新慢计数用例实等20.2秒。初次strict mypy发现测试访问adapter未显式导出的hashlib，已改为测试自身导入标准库。最终专项、全离线、三层扫描与新SHA/CI在同PR修复回执记录；本轮不merge A、不读key、不真实调用。
+
+首轮修复最终本地结果：专项 **75 passed（21.21s）**；原样完整 `scripts.check` **passed**，**727 offline passed / 79 deselected（69.07s）**，两条既有SDK warnings；104文件strict mypy、159文件format、52份Markdown、锁/工具链/前后端漏洞检查均通过，Python audit90包零已知漏洞。原8f5fb9a9及其CI仅历史证据；新冻结修复须新CI与原Reviewer复审，尚不宣称P2阻断已由独审解除。只改本包三个文件，parent保持8f5fb9a9，未同步A；本地PG/真实模型仍not_run。

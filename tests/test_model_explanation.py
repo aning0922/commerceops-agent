@@ -552,8 +552,10 @@ def test_absolute_twenty_second_deadline_defeats_keepalive() -> None:
 
 def test_cancellation_keeps_reservation_no_retry() -> None:
     ledger = LedgerStub()
+    entered_send = asyncio.Event()
 
     async def handle(_: httpx.Request) -> httpx.Response:
+        entered_send.set()
         await asyncio.sleep(10)
         return httpx.Response(200, json=envelope())
 
@@ -561,7 +563,7 @@ def test_cancellation_keeps_reservation_no_retry() -> None:
         task = asyncio.create_task(
             ModelExplanationService(adapter(handle, admission=ledger)).explain(report())
         )
-        await asyncio.sleep(0.02)
+        await asyncio.wait_for(entered_send.wait(), timeout=2)
         task.cancel()
         with pytest.raises(asyncio.CancelledError):
             await task
@@ -684,3 +686,131 @@ def test_admission_timeout_stops_with_reservation_request_id(
     assert result.metadata.request_id == ledger.requests[0].request_id
     assert result.metadata.error_code == "TIMEOUT" and result.metadata.stop_required
     assert result.metadata.evidence_mode == "not_used"
+
+
+def test_counter_exhausts_deadline_without_reservation_or_send(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import time
+    from threading import Event
+
+    counted = Event()
+
+    class SlowCounter(Counter):
+        def count(self, messages: tuple[Message, ...], *, model: str) -> TokenCount:
+            time.sleep(0.25)
+            counted.set()
+            return super().count(messages, model=model)
+
+    ledger = LedgerStub()
+    sends = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        sends.append(request)
+        return httpx.Response(200, json=envelope())
+
+    monkeypatch.setattr(deepseek, "DEADLINE_SECONDS", 0.05)
+
+    async def exercise() -> Any:
+        start = asyncio.get_running_loop().time()
+        result = await ModelExplanationService(
+            adapter(handle, admission=ledger, token_counter=SlowCounter())
+        ).explain(report())
+        elapsed = asyncio.get_running_loop().time() - start
+        assert elapsed < 0.15  # 等待可取消，不阻塞event loop至纯计数线程结束。
+        assert result.metadata.error_code == "TIMEOUT"
+        assert result.metadata.evidence_mode == "not_used"
+        assert not ledger.requests and not sends
+        await asyncio.to_thread(counted.wait, 1)
+        await asyncio.sleep(0)
+        assert counted.is_set() and not ledger.requests and not sends
+        return result
+
+    result = asyncio.run(exercise())
+    assert result.metadata.stop_required and result.metadata.request_id is None
+
+
+def test_partial_counter_time_leaves_only_remaining_keepalive_budget(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import time
+
+    class SlowCounter(Counter):
+        def count(self, messages: tuple[Message, ...], *, model: str) -> TokenCount:
+            time.sleep(0.2)
+            return super().count(messages, model=model)
+
+    class KeepAlive(httpx.AsyncByteStream):
+        closed = False
+
+        async def __aiter__(self) -> Any:
+            while True:
+                await asyncio.sleep(0.01)
+                yield b"\n"
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    stream = KeepAlive()
+    ledger = LedgerStub()
+    sends = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        sends.append(request)
+        return httpx.Response(200, stream=stream)
+
+    monkeypatch.setattr(deepseek, "DEADLINE_SECONDS", 0.35)
+
+    async def exercise() -> Any:
+        start = asyncio.get_running_loop().time()
+        result = await ModelExplanationService(
+            adapter(handle, admission=ledger, token_counter=SlowCounter())
+        ).explain(report())
+        elapsed = asyncio.get_running_loop().time() - start
+        assert 0.30 <= elapsed < 0.48  # 旧实现约0.55秒，错误重新给HTTP完整0.35秒。
+        return result
+
+    result = asyncio.run(exercise())
+    assert result.metadata.error_code == "TIMEOUT" and result.metadata.stop_required
+    assert len(ledger.requests) == len(sends) == 1 and stream.closed
+
+
+def test_body_construction_exhaustion_refuses_reservation_and_send(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import hashlib
+    import time
+
+    original = hashlib.sha256
+
+    def slow_hash(value: bytes) -> Any:
+        time.sleep(0.08)
+        return original(value)
+
+    value = report()
+    monkeypatch.setattr(deepseek, "DEADLINE_SECONDS", 0.04)
+    monkeypatch.setattr(hashlib, "sha256", slow_hash)
+    ledger = LedgerStub()
+    result = run(adapter(lambda _: pytest.fail("no send"), admission=ledger), value)
+    assert result.metadata.error_code == "TIMEOUT" and not ledger.requests
+    assert result.metadata.evidence_mode == "not_used"
+
+
+def test_admission_consuming_deadline_cannot_send(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import time
+
+    class BlockingAdmission(LedgerStub):
+        async def reserve(self, request: BudgetRequest) -> Reservation | None:
+            self.requests.append(request)
+            time.sleep(0.08)  # 无yield的异常caller；发送前显式检查仍须拒绝。
+            return Reservation(request.request_id, request.request_hash)
+
+    ledger = BlockingAdmission()
+    monkeypatch.setattr(deepseek, "DEADLINE_SECONDS", 0.04)
+    result = run(adapter(lambda _: httpx.Response(200, json=envelope()), admission=ledger))
+    assert len(ledger.requests) == 1
+    assert result.metadata.error_code == "TIMEOUT" and result.metadata.stop_required
+    assert result.metadata.evidence_mode == "not_used"
+    assert result.metadata.request_id == ledger.requests[0].request_id

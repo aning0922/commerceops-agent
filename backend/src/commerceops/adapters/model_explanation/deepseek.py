@@ -41,6 +41,14 @@ class SafeFailure(Exception):
         super().__init__(code)
 
 
+def remaining(deadline: float) -> float:
+    """同步工作也消耗入口截止预算；不能仅依赖async timeout在yield时取消。"""
+    seconds = deadline - monotonic()
+    if seconds <= 0:
+        raise TimeoutError
+    return seconds
+
+
 def safe_label(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_.:/-]{1,100}", value) is not None
 
@@ -141,6 +149,7 @@ class DeepSeekAdapter:
 
     async def complete(self, messages: tuple[Message, ...], *, facts_hash: str) -> ModelReply:
         start = monotonic()
+        deadline = start + DEADLINE_SECONDS
         reply = ModelReply(
             provider="deepseek",
             requested_model=MODEL,
@@ -151,7 +160,11 @@ class DeepSeekAdapter:
         if self._counter is None:
             return replace(reply, error_code="TOKEN_COUNT_UNVERIFIED")
         try:
-            count = self._counter.count(messages, model=MODEL)
+            # 仅纯计数在线程池运行，不传credential/admission/transport；取消后结果丢弃。
+            # asyncio取消等待不会终止线程；调用方counter必须无副作用且有界。
+            async with asyncio.timeout(remaining(deadline)):
+                count = await asyncio.to_thread(self._counter.count, messages, model=MODEL)
+            remaining(deadline)
             if (
                 count.model != MODEL
                 or not safe_label(count.tokenizer_version)
@@ -161,6 +174,13 @@ class DeepSeekAdapter:
                 return replace(reply, error_code="TOKEN_COUNT_UNVERIFIED")
             if type(count.input_tokens) is not int or not 1 <= count.input_tokens <= MAX_INPUT:
                 return replace(reply, error_code="INPUT_BUDGET")
+        except TimeoutError:
+            return replace(
+                reply,
+                error_code="TIMEOUT",
+                stop_required=True,
+                latency_ms=max(0, int((monotonic() - start) * 1000)),
+            )
         except Exception:
             return replace(reply, error_code="TOKEN_COUNT_UNVERIFIED")
         if self._offline is None and self._pricing is None:
@@ -196,8 +216,8 @@ class DeepSeekAdapter:
         reply = replace(reply, request_id=request_id)
         sent = False
         try:
-            # 一个总deadline覆盖admission/connect/headers/body；空行keepalive不能续期。
-            async with asyncio.timeout(DEADLINE_SECONDS):
+            # 计数/请求构造已消耗同一入口deadline；admission与HTTP只用剩余时间。
+            async with asyncio.timeout(remaining(deadline)):
                 try:
                     reserved = await self._admission.reserve(request)
                 except Exception:
@@ -208,13 +228,15 @@ class DeepSeekAdapter:
                     reserved.request_id != request_id or reserved.request_hash != request_hash
                 ):
                     raise SafeFailure("ADMISSION_FAILED")
+                remaining(deadline)
                 transport = self._offline or httpx.AsyncHTTPTransport(retries=0)
                 async with httpx.AsyncClient(
                     transport=transport,
                     trust_env=False,
                     follow_redirects=False,
-                    timeout=httpx.Timeout(DEADLINE_SECONDS),
+                    timeout=httpx.Timeout(remaining(deadline)),
                 ) as client:
+                    remaining(deadline)
                     sent = True  # 保守：从进入send起即认为可能到达provider。
                     reply = replace(reply, evidence_mode=request.evidence_mode)
                     async with client.stream(
@@ -240,10 +262,13 @@ class DeepSeekAdapter:
                             raise SafeFailure("INVALID_SCHEMA")
                         collected = bytearray()
                         async for chunk in response.aiter_bytes():
+                            remaining(deadline)
                             if len(collected) + len(chunk) > MAX_RESPONSE_BYTES:
                                 raise SafeFailure("RESPONSE_TOO_LARGE")
                             collected.extend(chunk)
+                        remaining(deadline)
                         reply = parse_response(bytes(collected), reply, self._pricing)
+                        remaining(deadline)
                         if reply.usage and reply.usage.input_tokens > count.input_tokens:
                             # 计数不再可信：调用方必须停止，保留实际usage/cost，不自动重试。
                             reply = replace(
