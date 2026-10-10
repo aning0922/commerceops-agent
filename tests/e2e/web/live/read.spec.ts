@@ -1,3 +1,8 @@
+import {
+  ownedEndpoints,
+  assertOwnedListener,
+  assertOwnedBuild,
+} from "../owned-listeners";
 import { test, expect } from "../../../../frontend/tooling/web-test";
 import { readFileSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -14,25 +19,27 @@ const windowInfo = privateRead("window.json");
 const accounts = privateRead("web-accounts.json");
 const facts = privateRead("web-facts.json");
 const root = resolve(__dirname, "../../../..");
+const listeners = ownedEndpoints(
+  windowInfo,
+  process.env.COMMERCEOPS_LIVE_WEB_URL,
+);
+assertOwnedBuild(
+  windowInfo.build_id,
+  readFileSync(resolve(root, "frontend/.next/BUILD_ID"), "utf8"),
+);
 const API = windowInfo.api_origin;
 if (
   Date.now() >= Date.parse(windowInfo.stop_at_utc) ||
   windowInfo.web_origin !== process.env.COMMERCEOPS_LIVE_WEB_URL
 )
   throw new Error("Owned window mismatch/expired");
-for (const [port, pid] of [
-  [3460, windowInfo.web_pid],
-  [3461, windowInfo.api_pid],
-]) {
+for (const { port, pid } of listeners) {
   const listening = execFileSync(
     "lsof",
     ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-t"],
     { encoding: "utf8" },
-  )
-    .trim()
-    .split("\n");
-  if (!listening.includes(String(pid)))
-    throw new Error("Owned listener mismatch");
+  );
+  assertOwnedListener(listening, pid);
 }
 test.beforeAll(async () => {
   test.setTimeout(330000);

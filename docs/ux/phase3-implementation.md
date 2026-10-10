@@ -192,3 +192,10 @@ uv run --frozen python -m scripts.scan_secrets
 本候选只退出登录/只读批；新source冻结/独审/组合CI待Root。A02/A03已审交接后再正常同步+生成类型/只读schema，后续按对应Gate接创建/决定/恢复/执行/resolve；当前真实B02完整业务、完整22操作runtime导出一致和全Phase3验收均未完成。
 
 最终新增validation元数据的secrets字段的三scope扫描状态说明行再次命中generic-api-key；只是普通状态句，未包含凭据。B的exec编排误在失败返回后继续形成未上传973bf，已立即停止上传并普通修当前元数据；不amend/reset/rebase/force、不自行改共享扫描规则。973bf历史唯一误报待Root协调精确政策独审，current/index修后与完整history分别实记，不将此前0外推本次final通过。
+
+
+## 独审P1：自有listener端口与build归属最小修复
+
+独立Reviewer在启动资源前发现6824的Web E2E固定3460/3461，无法核自己的3470/3471；已停止未启动资源，不借B的账号/runtime/PG。本有界修复只改专用E2E/helper/此交接：从windowInfo已校验的web_origin/api_origin取显式TCP端口，要求canonical `http://127.0.0.1:PORT`，拒绝异主机/https/localhost/IPv6别名/userinfo/path/query/hash/隐式或无效端口；不回退旧端口。lsof用解析数字argv，正整数PID必须精确且唯一归属（同PID重复行允许，混入其他PID拒绝），无启动或终止进程。登记build_id还须匹配本checkout `.next/BUILD_ID`，缺失/不同即拒绝。
+
+实际4/4纯函数反例（343ms）、typecheck/Prettier通过，覆盖3470/3471、旧端口、边界端口、19个非法Origin、入口不匹配/坏PID/不同listener与build。此仅使用既有离线runner，没有浏览器fixture/PG/API/Next启动，未把新的3470/3471实际Web记通过；独审续跑7项由Root派Reviewer在其自有资源进行。原13/7和失败记录不改写。对6824逐个Git blob核业务app/components/lib/public/配置与npm锁全部相同，证明见owned-listener-fix.json。当前history唯一973bf公开metadata误报仍待共享policy独审，不push、不改scanner或历史、不合A02未审内容。
