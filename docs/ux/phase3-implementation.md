@@ -288,3 +288,45 @@ Root放行精确748879e63c07185ae8c6f150827b7860ea66621e业务/API冻结（tree6
 新增明确Mock wrapper只在server-gated UI_MODE=mock + MOCK_BATCH=b04-wiring + operator样例入口传入memory adapter复用正式LiveConsole加载/刷新/导航逻辑；实际live入口无factory/fixture flag，不回退Mock。API base为空，无cookie身份/backend/PG/Worker，全部API响应只内存注入；固定fixture角色按T6 approver字段构造，不代表鉴权Gate。26合同通过（2.9s），新headless联动UI8/8（20.8s）：原6纯组件语义、范围筛选/hidden source、unknown focus保原key及200身份变化清原操作，390/20末项/键盘/终态等。Mock Next3490两次PID67809/68418已停止/absent，无listener，时间/BUILD_ID见b04-wiring/mock-service*.json；业务API/nonGET/external0。类型/build/schema22通过；a82旧证据保留，新结果单独保存。标题纯文本修正后另build/typecheck，实际UI结果对应前一测试build，未冒称重复业务。
 
 真实items.spec与窗口PID/origin/build/绝对期限/自然登录限流guards已准备，尚未执行。并发/撤权/ACK/native200/newcycle等真实样本需在Root放行的新窗口绑定本批新对象，旧B03 20collector若与baseline重观测不一致须真实needs_reapproval，不能冒称20项T4成功。本批仅代码/Mock，Root新052 CI-only放行后正常合入再真实联调；当前真实部分not_run，不标完整B04/Stage/main完成。
+
+## B04 真实接线与可复现入口收口
+
+本节为上述准备批之后的实际回执。Root核定稳定CI-only `052d4ecb9e24a8c8164938c1d7bb20a92ba89c3e`（parent748、treee383962）及精确CI38079599247全部成功后，原WT正常merge为 `bc15c2a300d626dfc91010d8c9de020a9455d5c2`。backend tree仍为4519c7bb09e4f1eda9096e21224299b06abda66d，与748业务冻结逐字相同；B未修改backend/共享DTO/迁移/Worker/Graph/根CI/Compose/Python锁。B实际业务Gate、独审、最终精确CI和阶段验收分别记账。
+
+首次自有窗口p3b04-a8953024bc98于19:47:56.049905Z登记，原absolute stop21:17:56.049905Z保持；PG54481/API3501/Next3500全loopback，700目录/600私有文件。首次种子已经完成20项T4（20×100=2000），template-only解释已排队，记录model_calls0；窗口控制程序将Decimal数量写JSON时TypeError，故API/Next/Worker停止、PGfalse/PID0、保卷，PW未启动。一次转换修复后同卷/同截止恢复，没有重新seed/执行/清决定；template job实际done才启用后续测试。单Worker把初始与执行前重观察都绑定到相同明确20SKU collector；不绕过Worker/Graph/版本/权限/执行事务。template-only不读模型key、不调用provider。
+
+首实际items全7为6passed/1failed（44.57s）；失败仅历史/缓存断言寻找不存在的字面量template，页面实际显示已有解释记录。测试断言修正后只重跑该只读tail，passed（suite150.42s含自然限流等待），先前approver已真实撤权，没有恢复权限或重做有副作用用例。联合覆盖永久执行与20项分页/390末项、Python strip Unicode组合原因、原键十次回放/一次v1→v2、迟来approver无权来源但有当前item处理权、operator只读/admin运维壳、真实commit后受控ACK丢失unknown保持原字节/GET恢复、两个当前approver同v1相反动作只有一胜者、旧版/dual隔离/缓存GET不新增模型/新周期新key、预备后真实撤权401清业务与原操作。原失败与tail回执分别保留，未称首轮7/7。
+
+该窗口只读PG核20items/4terminal/1decision/model_calls0：resolve completed/v2、hidden-source/unknown/concurrent closed/v2，revoked保持open/v1。原窗口20:03:08.026226Z停止，全部已知child reaped，PGfalse/PID0，volume保留。原首失败与资源回执见b04-wiring/first-T4.json、live-first-stop.json与b04-live/resource-window-first.json、pg-first-complete.json。
+
+真正native200%本批19:53:35Z实际passed：headless私有临时profile、无权限MV3 `chrome.tabs.setZoom(2)`后台tab，getZoom2、1440→720、DPR1→2、visualScale1、scrollWidth720、完整20行；CDP头尾安全截图已检查，profile最后删除，browser关闭。不是CSS/device仿真，也没有可见browser、OS键鼠/焦点或用户Chrome/profile。B03先前partial/failed证据保持，不用此回执改写旧批结果。
+
+Root另要求项目专用薄CLI串行read/write/items，每段独立新PG卷/org/account/facts，避免前段撤权/终态污染。首共同截止20:41Z（作者登记，不声称已实测CI23min）的入口运行read完整7/7（28.50s）；write首8passed/2failed（333.16s），两个受控PG helper仍只允许旧p3b03-前缀，真实superseded/撤权断言未被执行。仅扩展明确p3b04-write-前缀后尾跑write完整10/10（326.89s）；受控superseded/真实撤权均保留，A业务状态机/权限无改动。首两个项目与尾跑write全部停/reaped/PGfalse/PID0/model_calls0。首失败batch-first*.json及write/live-first-run.json不覆盖；B03原截图/摘要保持原Git blob，新批另存b04-live/write。
+
+最终薄入口`tests/e2e/web/run_live_batches.py`只复用现有种子、单Worker、配置、ready/PG probe、Playwright/reporter，不建立通用资源框架。外部第一步传不可变UTC截止（CI计划从第一步23min预算，job25min，由A维护CI）；脚本每段扣至少75s清理预留，不重置日期或预算，任何失败停止后续段并保留卷/私有事实。read/write/items分别新project/端口/org/account，空Compose env-file，不读.env；生产BUILD_ID与API/Next精确独占PID在用例前核对。trace/video/自动screenshot/HAR均off；结果只白名单名称/状态/耗时/源码位置，不复制原始error/body/token/nonce/password。业务API为真实session/CSRF/Origin，电商来源明确Mock fixture，ACK是受控transport故障，superseded是owned PG fixture；均不宣称自然故障或外部真实采购/库存。
+
+闭合owner为`--owner b`（phase3-B-WTa266）、`--owner reviewer`（phase3-WebReviewer）、`--owner ci`（phase3-WebCI）。每次新登记保存实际UID、checkout、绝对私有目录与原截止；helper核当前执行checkout/UID、700当前UID目录、项目段及三类owner，未知/旧资源拒绝。这只是测试资源归属，不改变业务身份。10/10纯离线反例覆盖三类正向与陌生owner/UID/checkout/private/project/权限拒绝。首普通owner字段误报1已在未提交状态收口，规则/豁免/历史未改，随后三scope实际0。
+
+独审/CI应在其自己的精确checkout构建后运行，不能用作者私有目录：
+
+```sh
+# WEB_STOP_AT_UTC由最早的任务步骤登记；不得在准备完成后重新计时。
+PYTHONPATH="$PWD" uv run --frozen python tests/e2e/web/run_live_batches.py \
+  --checkout "$PWD" --private-directory "$PWD/runtime/web-fresh-private" \
+  --owner reviewer --stop-at-utc "$WEB_STOP_AT_UTC"
+# CI同一完整入口仅将owner改为ci；目录须新建或为空的0700目录。
+```
+
+最终接线/完整入口实际结果、PG白名单不变量、最终quality/扫描与source冻结以本节后续最终回执为准。人工H/L仍not_reported，原B18/60/300容量和目标日期不重置；B不直接合main，完整Phase3仍由Root核必要Gate/独审/精确CI。
+
+最终入口write段已核7只读之后完整10/10（327.17s）与PG不变量通过：approve实际completed；combined20与unknown因此段仍使用原B03受控初始来源、官方baseline执行前重观察而实际needs_reapproval/DATA_INCOMPLETE，未用同数量或审批成功推断20项执行成功。reject/decline/second_combined实际rejected；revocation/supersede仍awaiting_approval且决定0，expiry实际expired且决定0。六个有效意见各decision/audit/resume_job=1，P2源仍completed，model_calls0，app三个高权限flag均false。永久20项T4另由items段的明确同源collector和实际execution/items事务核证，两个证据不混用。
+
+最终同一完整入口自20:24:18.490588Z开始，read **7/7（28.414s）**、write **10/10（327.172s）**、items **7/7（327.039s）** 全部通过，后两段包含真实300s登录滑窗等待。三段分别p3b04-read-bdf0d913a8、p3b04-write-bd5594d797、p3b04-items-e3696cd769，各新卷/账号/org/facts；共同stop20:41Z未延长，最后项目20:36:33Z前已停止，整个入口约12m14s（不包含之前依赖/build准备），不得外推为精确CI23min/整个job25min已通过。脚本中至少75s清理预留实际保留；seed/test/辅助命令/服务均登记独立新process group，先退出seed再起连续Worker。最终全部已知child reaped、owned listener0、PGfalse/PID0，volume保留。
+
+最终items PG核：20items/2000units/4terminal、task completed及永久completed execution恰1；resolve completed/v2，hidden-source与unknown closed/v2，concurrent本轮completed/v2（另一方版本/状态冲突，不固定谁赢）；四项每份原receipt/audit/version2 item_projection恰1，UTF8 compact/sorted字段canonical SHA256逐项相同，sender disabled/external_id null。撤权项保持open/v1，receipt/audit/v2projection均0。全部model_calls与actual_provider_calls0，app高权限flag全false。20项实际T4与T6事务核证在batch-final-items-window.json，不以Mock UI或旧审批意见代替。
+
+最终native200自动在items完整7之后、PG停之前实际passed，仍headless无权限MV3背景tab与私有临时profile，getZoom2/1440→720/DPR1→2/visualScale1/20行/无横溢出，安全头尾截图再次核查；finally关闭browser并删profile。first-actual-zoom*.json/png保留首次19:53通过的另一自有窗口证据，新actual-zoom*.json/png绑定最后project/PID/build。
+
+最终合同复验26/26（2.8s）/22-operation schema check/typecheck及10/10owner反例、14个专用Python文件Ruff/mypy通过。正式Mock UI8/8仍使用先前明确Mock production回执，没有把实际Web结果算入Mock批。运行时HEAD为bc15基线加待提交辅助文件，三段登记13文件SHA256共39次逐项核同最后待提交blob；UI产品app/components/lib/public/npm锁相对bc15无差、production BUILD_ID 9fUL_TyAtnwYQ9NJLHijq，不宣称运行开始时已经存在最终提交SHA。最终source SHA/tree与精确CI见同PR36/GitHub实时回执，独审和整体Stage Gate仍待Root。
+
+最终完整 `uv run --frozen python -m scripts.check` 实际exit0：**1057 offline passed / 337 integration deselected / 84.22s**，两个既有lark-oapi弃用warning；锁一致、68Markdown0、Ruff全仓lint/format、mypy、Node24.21工具链/frontend typecheck、npm audit0及95Python锁包漏洞0。开始前全部自有live资源已停止，不用npm ci干扰采证；前序production build/26合同/Mock8UI与本次真实完整24+native200均分开记账。该check没有执行337后端integration；已审A03根CI实际337 PG证据仅按Root冻结继承，组合最终CI仍待实时回执。首普通owner字段扫描误报1保留说明，未提交状态已修；最后提交前与提交后完整三scope结果以Git/PR回执记录，不提前声称未来扫描完成。

@@ -1,0 +1,71 @@
+{
+  "status": "failed",
+  "duration_ms": 333162.79000000004,
+  "trace": "off",
+  "video": "off",
+  "automatic_screenshot": "off",
+  "source_mode": "mock",
+  "identity_mode": "session",
+  "tests": [
+    {
+      "test": "普通批准/十次原字节回放，只有一决定/不显示执行成功",
+      "status": "passed",
+      "duration_ms": 3020,
+      "location": "e2e/web/live/write.spec.ts:114"
+    },
+    {
+      "test": "普通拒绝与完整两项假设拒绝，状态/同步独立",
+      "status": "passed",
+      "duration_ms": 2662,
+      "location": "e2e/web/live/write.spec.ts:153"
+    },
+    {
+      "test": "20SKU联合一次完整确认，无默认勾选/普通批准禁用、键盘Escape及1280/390",
+      "status": "passed",
+      "duration_ms": 1847,
+      "location": "e2e/web/live/write.spec.ts:167"
+    },
+    {
+      "test": "真实API漏/多/重复假设及错误版本拒绝，不以UI替身当业务",
+      "status": "passed",
+      "duration_ms": 2032,
+      "location": "e2e/web/live/write.spec.ts:212"
+    },
+    {
+      "test": "真实决定冲突不产生相反意见，原键仍可回读",
+      "status": "passed",
+      "duration_ms": 1215,
+      "location": "e2e/web/live/write.spec.ts:307"
+    },
+    {
+      "test": "实际T3提交后丢ACK：unknown不自动POST，GET原键恢复，同键十次不换键",
+      "status": "passed",
+      "duration_ms": 1536,
+      "location": "e2e/web/live/write.spec.ts:396"
+    },
+    {
+      "test": "operator可信P2报告创建新P3，不复活源completed；new_cycle明确参数新键",
+      "status": "passed",
+      "duration_ms": 2364,
+      "location": "e2e/web/live/write.spec.ts:434"
+    },
+    {
+      "test": "指定版本只读/真实expiry禁用，admin/跨店兼任不隐含决定权",
+      "status": "passed",
+      "duration_ms": 4533,
+      "location": "e2e/web/live/write.spec.ts:470"
+    },
+    {
+      "test": "受控PG superseded状态禁止旧版本决定；不宣称A03重观察",
+      "status": "failed",
+      "duration_ms": 252,
+      "location": "e2e/web/live/write.spec.ts:509"
+    },
+    {
+      "test": "预备决定后真实撤权：原提交401清业务缓存/确认，不换键",
+      "status": "failed",
+      "duration_ms": 1404,
+      "location": "e2e/web/live/write.spec.ts:531"
+    }
+  ]
+}

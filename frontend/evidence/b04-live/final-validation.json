@@ -1,0 +1,34 @@
+{
+  "source_base": "bc15c2a300d626dfc91010d8c9de020a9455d5c2",
+  "build_id": "9fUL_TyAtnwYQ9NJLHijq",
+  "tested_files_per_stage": 13,
+  "source_checks": 39,
+  "source_matches": true,
+  "backend_tree": "4519c7bb09e4f1eda9096e21224299b06abda66d",
+  "product_same_as_source_base": true,
+  "actual_web": {
+    "read": 7,
+    "write": 10,
+    "items": 7,
+    "native_200": "passed",
+    "model_calls": 0,
+    "provider_calls": 0
+  },
+  "offline_contracts": 26,
+  "mock_ui_previous_explicit_batch": 8,
+  "owner_boundary_offline": 10,
+  "quality": {
+    "exit": 0,
+    "offline_passed": 1057,
+    "integration_deselected": 337,
+    "seconds": 84.22,
+    "existing_warnings": 2,
+    "markdown": 68,
+    "node_audit": 0,
+    "python_audit_packages": 95,
+    "python_audit_findings": 0
+  },
+  "review_and_exact_ci": "pending_root",
+  "human_hours": "not_reported",
+  "budget_and_target_dates": "unchanged"
+}

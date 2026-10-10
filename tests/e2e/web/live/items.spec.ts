@@ -5,7 +5,8 @@ import type {
   BrowserContext,
   Page,
 } from "../../../../frontend/tooling/web-test";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import {
@@ -59,7 +60,9 @@ test.beforeAll(async ({ browser }) => {
     throw new Error("Owned window insufficient for natural login rate wait");
   if (ready.wait_ms)
     await new Promise((resolve) => setTimeout(resolve, ready.wait_ms));
-  for (const role of ["operator", "approver", "admin", "late_approver"]) {
+  for (const role of process.env.COMMERCEOPS_B04_SCOPE === "read_tail"
+    ? ["operator", "admin", "late_approver", "dual"]
+    : ["operator", "approver", "admin", "late_approver", "dual"]) {
     const context = await browser.newContext();
     contexts.set(role, context);
     const page = await context.newPage();
@@ -186,3 +189,176 @@ test("真实迟来同店approver可处理而来源隐藏；operator/admin不借�
 // Concurrent decisions/resolutions, controlled ACK loss/revocation, new-cycle and
 // native200 probes will be bound to fresh recorded resources at window dispatch.
 // Their real execution and PG counts remain not_run at this code-only freeze.
+
+test("实际T6 commit后受控丢ACK：原GET/同字节恢复，focus不丢原操作", async () => {
+  await withPage("approver", async (page) => {
+    const endpoint =
+      windowInfo.api_origin +
+      "/api/v1/replenishment-items/" +
+      facts.unknown_item +
+      "/resolve";
+    const bodies: string[] = [];
+    page.on("request", (request) => {
+      if (request.method() === "POST" && request.url() === endpoint)
+        bodies.push(
+          createHash("sha256").update(request.postData()!).digest("hex"),
+        );
+    });
+    await page.route(endpoint, async (route) => {
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      await route.abort("failed");
+    });
+    await page.goto(
+      windowInfo.web_origin + "/replenishment-items/" + facts.unknown_item,
+    );
+    await page.locator('[data-control="B27"]').click();
+    await page.locator("#resolve-reason").fill("受控ACK丢失原请求关闭");
+    await page.getByRole("button", { name: "确认原因并准备原请求" }).click();
+    await page.locator('[data-action="resolve-original"]').click();
+    await expect(
+      page.getByText("内部项提交待核实", { exact: true }),
+    ).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(
+      page.locator('[data-action="resolve-original"]'),
+    ).toBeVisible();
+    expect(bodies).toHaveLength(1);
+    await page.unrouteAll();
+    await page.locator('[data-action="resolve-receipt"]').click();
+    await expect(
+      page.getByText("内部跟进已记录", { exact: true }),
+    ).toBeVisible();
+    expect(bodies).toHaveLength(1);
+    await page.locator('[data-action="resolve-original"]').click();
+    await expect(page.getByRole("dialog")).toContainText("duplicate true");
+    expect(bodies).toHaveLength(2);
+    expect(new Set(bodies).size).toBe(1);
+    writeFileSync(
+      resolve(root, "frontend/evidence/b04-live/ack.json"),
+      JSON.stringify(
+        {
+          actual_posts: bodies.length,
+          distinct_original_byte_digests: new Set(bodies).size,
+          digest: bodies[0],
+          fault: "controlled ACK abort after real commit",
+          automatic_repost: 0,
+        },
+        null,
+        2,
+      ),
+    );
+  });
+});
+test("两当前approver同时complete/close只有一赢家，不产生第二版本或相反动作", async () => {
+  const first = await contexts.get("approver")!.newPage(),
+    second = await contexts.get("late_approver")!.newPage();
+  try {
+    for (const [page, action] of [
+      [first, "B26"],
+      [second, "B27"],
+    ] as const) {
+      await page.goto(
+        windowInfo.web_origin + "/replenishment-items/" + facts.concurrent_item,
+      );
+      await page.locator(`[data-control="${action}"]`).click();
+      await page.locator("#resolve-reason").fill("两个真实当前权限主体竞态");
+      await page.getByRole("button", { name: "确认原因并准备原请求" }).click();
+      await expect(
+        page.locator('[data-action="resolve-original"]'),
+      ).toBeVisible();
+    }
+    await Promise.all([
+      first.locator('[data-action="resolve-original"]').click(),
+      second.locator('[data-action="resolve-original"]').click(),
+    ]);
+    await expect
+      .poll(
+        async () =>
+          Number(
+            await first
+              .getByText("内部跟进已记录", { exact: true })
+              .isVisible(),
+          ) +
+          Number(
+            await second
+              .getByText("内部跟进已记录", { exact: true })
+              .isVisible(),
+          ),
+      )
+      .toBe(1);
+    const loser = (await first
+      .getByText("内部跟进已记录", { exact: true })
+      .isVisible())
+      ? second
+      : first;
+    await expect(loser.getByRole("dialog")).toContainText(
+      /工作项版本已改变|工作项已进入终态/,
+    );
+  } finally {
+    await first.goto("about:blank");
+    await second.goto("about:blank");
+    await first.close();
+    await second.close();
+  }
+});
+test("指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型，newcycle独立请求", async () => {
+  await withPage("operator", async (page) => {
+    await page.goto(
+      windowInfo.web_origin + "/tasks/" + facts.completed_task + "/plans/1",
+    );
+    await expect(page.locator('[data-control="B02"]')).toBeDisabled();
+    await expect(page.locator('input[type="checkbox"]:checked')).toHaveCount(0);
+  });
+  await withPage("dual", async (page) => {
+    await page.goto(
+      windowInfo.web_origin + "/replenishment-items/" + facts.operator_item,
+    );
+    await expect(page).toHaveURL(/\/access$/);
+  });
+  await withPage("operator", async (page) => {
+    await page.goto(
+      windowInfo.web_origin +
+        "/tasks/" +
+        facts.source_task +
+        "/report?report_id=" +
+        facts.report,
+    );
+    await page.locator('[data-control="B19"]').click();
+    await expect(page.getByRole("dialog")).toContainText("已有解释记录");
+    await page.keyboard.press("Escape");
+    await page.goto(windowInfo.web_origin + "/tasks/" + facts.completed_task);
+    await page.locator('[data-control="B46"]').click();
+    await page.getByRole("button", { name: "确认结构化参数" }).click();
+    await page.getByRole("button", { name: "准备本次正式任务请求" }).click();
+    await page.locator('[data-action="send-original"]').click();
+    await expect(
+      page.getByText("正式任务创建回执", { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("dialog")).not.toContainText(facts.approval);
+  });
+});
+test("预备后真实撤权401清缓存/原操作，无新增item决定", async () => {
+  await withPage("approver", async (page) => {
+    await page.goto(
+      windowInfo.web_origin + "/replenishment-items/" + facts.revoke_item,
+    );
+    await page.locator('[data-control="B26"]').click();
+    await page.locator("#resolve-reason").fill("撤权前准备不得产生业务");
+    await page.getByRole("button", { name: "确认原因并准备原请求" }).click();
+    await expect(
+      page.locator('[data-action="resolve-original"]'),
+    ).toBeVisible();
+    execFileSync(
+      resolve(root, ".venv/bin/python"),
+      [resolve(root, "tests/e2e/web/live_item_revoke.py"), directory!],
+      { cwd: root, env: { ...process.env, PYTHONPATH: root } },
+    );
+    await page.locator('[data-action="resolve-original"]').click();
+    await expect(page.locator("#live-login")).toBeVisible();
+    await expect(page.locator('[data-action="resolve-original"]')).toHaveCount(
+      0,
+    );
+    await expect(page.getByRole("main")).not.toContainText(facts.revoke_item);
+  });
+});

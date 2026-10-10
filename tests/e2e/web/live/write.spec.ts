@@ -21,6 +21,10 @@ const windowInfo = read("window.json"),
   facts = read("write-facts.json"),
   base = read("web-facts.json"),
   API = windowInfo.api_origin;
+const evidenceDirectory =
+  process.env.COMMERCEOPS_WEB_BATCH === "b04-write"
+    ? "frontend/evidence/b04-live/write"
+    : "frontend/evidence/b03";
 for (const endpoint of ownedEndpoints(
   windowInfo,
   process.env.COMMERCEOPS_LIVE_WEB_URL,
@@ -106,7 +110,7 @@ async function screenshot(page: Page, name: string) {
   expect(await page.locator('input[type="password"]').count()).toBe(0);
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
-    path: resolve(root, "frontend/evidence/b03/" + name + ".png"),
+    path: resolve(root, evidenceDirectory, name + ".png"),
     fullPage: true,
   });
 }
@@ -134,7 +138,7 @@ test("普通批准/十次原字节回放，只有一决定/不显示执行成功
     expect(digests).toHaveLength(10);
     expect(new Set(digests).size).toBe(1);
     writeFileSync(
-      resolve(root, "frontend/evidence/b03/replay.json"),
+      resolve(root, evidenceDirectory, "replay.json"),
       JSON.stringify(
         {
           posts: digests.length,
@@ -386,7 +390,7 @@ test("真实决定冲突不产生相反意见，原键仍可回读", async () =>
       receipt: 200,
     });
     writeFileSync(
-      resolve(root, "frontend/evidence/b03/conflicts.json"),
+      resolve(root, evidenceDirectory, "conflicts.json"),
       JSON.stringify(result, null, 2),
     );
   } finally {

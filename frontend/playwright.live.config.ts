@@ -9,7 +9,7 @@ export default defineConfig({
   testMatch:
     process.env.COMMERCEOPS_WEB_BATCH === "b04"
       ? "items.spec.ts"
-      : process.env.COMMERCEOPS_WEB_BATCH === "b03"
+      : ["b03", "b04-write"].includes(process.env.COMMERCEOPS_WEB_BATCH ?? "")
         ? "write.spec.ts"
         : "read.spec.ts",
   testDir: "../tests/e2e/web/live",

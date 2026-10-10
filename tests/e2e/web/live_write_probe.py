@@ -1,4 +1,4 @@
-"""仅B03登记窗口的受控状态/撤权与只读PG核证；不作产品接口。"""
+"""仅B03/B04-write登记窗口的受控状态/撤权与只读PG核证；不作产品接口。"""
 
 import json
 import sys
@@ -8,14 +8,19 @@ from uuid import UUID
 
 from commerceops.infrastructure.database import DatabaseSettings, connect
 
+from tests.e2e.web.live_batch_owner import verify
 from tests.e2e.web.live_origins import registered_origins
 
 
 def main(directory: Path, action: str) -> None:
     registered_origins(directory)
     window = json.loads((directory / "window.json").read_text())
-    if window["owner"] != "phase3-B-WTa266" or not window["project"].startswith("p3b03-"):
-        raise ValueError("owned B03 window required")
+    if "owner_uid" in window:
+        verify(directory, window, "write")
+    elif window["owner"] != "phase3-B-WTa266" or not window["project"].startswith(
+        ("p3b03-", "p3b04-write-")
+    ):
+        raise ValueError("owned write window required")
     if datetime.now(UTC) >= datetime.fromisoformat(window["stop_at_utc"]):
         raise ValueError("owned window expired")
     facts = json.loads((directory / "write-facts.json").read_text())

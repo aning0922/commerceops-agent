@@ -29,11 +29,15 @@ export default class LiveReporter implements Reporter {
   }
   onEnd(result: FullResult) {
     const directory = resolve(
-      process.env.COMMERCEOPS_WEB_BATCH === "b04"
-        ? "evidence/b04-live"
-        : process.env.COMMERCEOPS_WEB_BATCH === "b03"
-          ? "evidence/b03"
-          : "evidence/b02-read",
+      process.env.COMMERCEOPS_WEB_BATCH === "b04-read"
+        ? "evidence/b04-live/read"
+        : process.env.COMMERCEOPS_WEB_BATCH === "b04-write"
+          ? "evidence/b04-live/write"
+          : process.env.COMMERCEOPS_WEB_BATCH === "b04"
+            ? "evidence/b04-live"
+            : process.env.COMMERCEOPS_WEB_BATCH === "b03"
+              ? "evidence/b03"
+              : "evidence/b02-read",
     );
     mkdirSync(directory, { recursive: true });
     writeFileSync(
@@ -45,7 +49,8 @@ export default class LiveReporter implements Reporter {
           trace: "off",
           video: "off",
           automatic_screenshot: "off",
-          source_mode: "mock",
+          source_mode: "live-api",
+          commerce_source_mode: "mock-fixture",
           identity_mode: "session",
           tests: this.results,
         },

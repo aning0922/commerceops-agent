@@ -108,7 +108,7 @@ async function safeScreenshot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
   expect(await page.locator('input[type="password"]').count()).toBe(0);
   await page.screenshot({
-    path: resolve(root, `frontend/evidence/b02-read/${name}.png`),
+    path: resolve(root, `frontend/evidence/b04-live/read/${name}.png`),
     fullPage: true,
   });
 }
@@ -181,7 +181,7 @@ test("operator真实登录、22记录分页、报告刷新/20SKU/null与实际�
   expect(writes).toEqual(["/api/v1/auth/login"]);
 });
 
-test("approver eligible只读完整计划、指定版本、缺缓存解释、events无虚构恢复", async ({
+test("approver完整计划无默认确认、指定版本只读、缺缓存解释、events无虚构恢复", async ({
   page,
 }) => {
   const writes = apiWrites(page);
@@ -194,9 +194,11 @@ test("approver eligible只读完整计划、指定版本、缺缓存解释、eve
   ).toHaveCount(21);
   await expect(page.getByRole("main")).toContainText("实际渲染 20 项");
   await expect(page.getByRole("main")).toContainText("null（未知）");
-  for (const id of ["B02", "B03", "B04", "B05"])
+  for (const id of ["B02", "B04"])
     await expect(page.locator(`[data-control="${id}"]`)).toBeDisabled();
-  expect(await page.locator('input[type="checkbox"]').count()).toBe(0);
+  for (const id of ["B03", "B05"])
+    await expect(page.locator(`[data-control="${id}"]`)).toBeEnabled();
+  expect(await page.locator('input[type="checkbox"]:checked').count()).toBe(0);
   await page.getByRole("link", { name: "读取指定冻结版本" }).click();
   await expect(page.getByRole("main")).toContainText("指定冻结版本 · 只读");
   await expect(
