@@ -613,3 +613,5 @@ BC01/05只读子集、BC02有限params对应切片；正式T3/审批/补货/库�
 Issue33及Root直接派单已授权Phase3；第35节的未授权句是当时快照。A01以main59b350c及合同3e05c为基线，同隔离WT62c8/分支codex/phase3-approval/[Draft PR37](https://github.com/aning0922/commerceops-agent/pull/37)。合同精确CI38047261517成功后Root放行主体；本批细目/失败历史/自有PG窗口及实际端点见[PHASE3_A01](PHASE3_A01.md)。源码冻结、业务独审、精确CI和Root A01验收尚待实际回执，不以作者自检代Gate。
 
 0005固定role-bound scope/PG Cookie会话、两模式T1持久幂等和不可变T2/唯一官方PG interrupt已经实现。17实际operations只提供会话、创建、当前有权读取；ready_at仍NULL/card blocked/sender false，decision/execute/items/resolve/A02-A03尚未实现。来源mock、身份session、自动化simulated_web，零新付费模型/飞书业务写/生产/Phase4。B组件及frontend/npm/E2E未合未写，Root在A01 Gate后协调B登录/读取接线；原P1/P2/UX/日期/预算/失败和未验证事实保持。
+
+39d7候选CI38053812405实际FAILURE：offline933pass，PG combined在原单命令300s截止由supervisor确认停止/exit137/cleanup0，235测试phase全passed、36未完成，无PG末summary；九次CheckViolation只是一个通过的既有负例testID重复，不是九个错误。Root放行一次30min仅scripts/test/docs修复，从实际完整collection派生原/P3两组并核完整覆盖/实际集合；每条仍300s、25/23min及cleanup75/G1/G2/业务恢复边界不改，不复活旧#23未知根因。详见PHASE3_A01的失败与修复记录；新冻结独审/精确CI未确认前A01不通过、A02/B不放行。

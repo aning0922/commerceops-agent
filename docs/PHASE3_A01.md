@@ -65,3 +65,17 @@ Agent墙钟按GitHub/ledger实际时间记账，机器等待按测试报告分�
 API/Worker仅通过显式 `COMMERCEOPS_P3_CONFIG_FILE` 读取本阶段600配置文件：database为本阶段app连接字段/密码文件引用，csrf_secret_file与nonce_secret_file为两个不同至少32-byte私有文件，origins为精确scheme/host/port数组，transport_mode明确local_http或https；其余配置实值和bounds见`WebConfig`与冻结合同。API仍仅loopback，HTTP测试的local_http不能视为HTTPS部署证据；https Cookie属性由TestClient传输模式验证，TLS代理/生产部署不属本批。
 
 预置用户由owner先写web identity、scrypt hash credential、基础scope和每角色grant；不暴露注册/授权端点。A01测试生成随机账号密码/私有密钥，源码只有生成器，没有真实password/hash fixture。Worker在相同显式DB、test mode、inventory-test-run及自有fixture下运行，配置不一致或actual-model/key选项同时出现即拒绝。A02尚未提供扫描/恢复协调器；不可把API写成功或job done当全部阶段完成。
+
+## CI38053812405失败与一次有界预算修复
+
+冻结39d7a3ad/tree9ab84f的[精确CI38053812405](https://github.com/aning0922/commerceops-agent/actions/runs/38053812405)实际FAILURE。933offline通过，但PG combined未出最终summary，不能以作者271pass替代该CI。Root于2026-10-10要求30min只读定位；A在21:13:30开始解码，随后Root按原Phase3持续授权放行一批最多30min scripts/test/docs最小修复，21:20:31开始实施。没有rerun旧39 head、重开旧#23未知根因、增加PG窗口或付费/平台操作。
+
+只读安全事实（Asia/Shanghai）：combined于21:01:05.707718开始，原单命令limit_seconds=300；21:06:05.709116 command_timeout，elapsed300.001398s，随后自有container_stop/container_wait137/CLI wait137/reader_end，command_end elapsed303.735524s、timed_out=true/stopping_confirmed=true，cleanup_exit0。25min job/23min absolute未到截止；PG等待采样仅base闲置ClientRead、blocking_pids=[]。这只说明采样时无阻塞，不替未执行测试下结论。
+
+1649 progress中235个call及各自setup/teardown均passed，failed phase0；最后停在`test_login_rate_limit_is_persistent_and_generic`的setup。九个CheckViolation文字来自唯一既有`test_runtime_money_precision_before_seal[1.0000001-CheckViolation]`的两collection+node_start+三phase_start/end重复，此负例三phase都passed，源码在未封存合法写入中明确pytest.raises金额payload与numeric(20,6)一致CHECK；日志没有九个真实SQLSTATE/异常，不能将testID当作故障。剩余36节点未完成：P3四个、postgres十三个、worker十九个。完整collection两次记录均271节点，原236/P3新增35；这些数字是该次观测，不是永久契约。
+
+本批仅修改`scripts/pg_diagnostic.py` combined编排：先读取并严格核一个完整collection/count/唯一node与相对tests文件路径；按当前P3测试文件前缀从实际集合派生existing/P3两组，核并集精确等于完整集合、无重叠/遗漏/空组。串行两条命令每条仍300s，使用原main同一expires-75预算；每组成功退出后，实际collection必须与该组expected精确一致，缺失/改名/额外/无collection即失败，任一失败不跑后续组并沿原finally停止/cleanup。历史无P3时仍一条combined、paths=[]。不硬编码35/271、不跳测试、不扩全局截止，不更改G1流程/跨全部records的G2核收/Scrypt/角色/业务/恢复/锁/框架。
+
+实际本批离线：新增19项分组反例与原21项停止控制回归共40passed/0.06s；覆盖遗漏、重叠、额外节点、伪count/无或多collection、实际集合同数量但改节点、历史单组、组失败停止、fake clock跨组绝对截止不重置。最初lint负例绝对路径文字与mypy引用非export time属性失败，修改测试表达后通过；没有新增扫描例外或改变deadline。最终Ruff/218format/mypy154 passed，完整offline952passed/77.12s、271 integration deselected、2既有SDK弃用warnings。私有实际CI collection离线重放派生236/35、并集271/重叠0/遗漏0；这是集合复算，不是两条新PG命令通过。自有PG只读inspect仍running=false/PID0，本轮未启动资源。
+
+本轮不新增作者PG，分组实际PG/完整G1生命周期/新冻结独审/新精确CI仍not_run，A01正式Gate未过，A02/B未放行。Reviewer此前pytest planning并未执行wire.main，后来缺jsonschema前置失败也not_run；A自己的17实际wire证据单列，不代替独立补证。完整22 operations的FastAPI export/runtime一致仍A02/A03 finalGate，未降门槛。
