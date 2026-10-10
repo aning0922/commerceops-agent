@@ -1,0 +1,60 @@
+{
+  "parent_business_sha": "748879e63c07185ae8c6f150827b7860ea66621e",
+  "reviewed_business_byte_inheritance_files": 122,
+  "runtime_ci_test_files": [
+    {
+      "path": ".github/workflows/quality.yml",
+      "sha256": "104f4d54205e70484cae588227c183befcba36511030316ba81c4c7ee2841059"
+    },
+    {
+      "path": "scripts/pg_diagnostic.py",
+      "sha256": "1c44fc44e52e1534249d2d50446b2034380c6d6890d26b87b953dec559a8a692"
+    },
+    {
+      "path": "scripts/pg_ci_evidence.py",
+      "sha256": "86dc82c540b8bc541a29699f3b344f75ca1f18722b60e1ec071bf7655f0330fa"
+    },
+    {
+      "path": "tests/test_pg_ci_evidence.py",
+      "sha256": "5b973f7a3a99996e845d9900c5d33e9e7a76bd448cc710f2082fd7e91bf77314"
+    }
+  ],
+  "offline": {
+    "passed": 1025,
+    "integration_deselected": 337,
+    "seconds": 85.07,
+    "existing_sdk_warnings": 2
+  },
+  "targeted_pure": {
+    "passed": 78,
+    "seconds": 0.11
+  },
+  "ruff": true,
+  "format_files": 249,
+  "mypy_files": 179,
+  "markdown_files": 66,
+  "markdown_errors": 0,
+  "known_python_vulnerabilities": 0,
+  "python_packages_audited": 95,
+  "known_node_vulnerabilities": 0,
+  "local_pg_or_docker_started": false,
+  "new_actual_ci": "pending",
+  "new_pg_337_execution_by_author": "not_run",
+  "scope_enum": [
+    "all",
+    "existing",
+    "phase3"
+  ],
+  "default_all_original_full_behavior": true,
+  "per_pg_job_absolute_minutes": 23,
+  "per_pg_job_timeout_minutes": 25,
+  "per_command_seconds": 300,
+  "cleanup_reserve_seconds": 75,
+  "artifact_action_commit_refs_verified": {
+    "upload": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "download": "d3f86a106a0bac45b974a628896c90dbdf5c8093"
+  },
+  "repository_permissions": "contents:read unchanged",
+  "business_repairs_not_modified": true,
+  "core_ci_delta_review": "pending"
+}

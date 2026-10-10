@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - name: Register absolute diagnostic deadline
@@ -49,5 +50,84 @@ jobs:
         shell: bash
         run: |
           uv run --frozen python -m scripts.pg_diagnostic \
-            --session ci --round 1 --combined --full-smoke --no-child-trace \
+            --session ci --round 1 --combined --ci-scope existing --full-smoke --no-child-trace \
             --deadline "$(cat .audit/ci-deadline)"
+      - name: Upload only safe existing evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # official v4
+        with:
+          name: pg-existing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/ci-evidence-existing.json
+          if-no-files-found: error
+          retention-days: 1
+  phase3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Register absolute diagnostic deadline
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          directory = Path(".audit")
+          directory.mkdir(exist_ok=True)
+          (directory / "ci-deadline").write_text(
+              (datetime.now(timezone.utc) + timedelta(minutes=23)).isoformat()
+          )
+          PY
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.13'
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.11.25'
+          enable-cache: false
+      - name: Fixed project tools with SHA256 verification
+        run: python -m scripts.bootstrap_tools
+      - name: Secrets gate before dependency installation
+        run: python -m scripts.scan_secrets
+      - name: Install locked Python environment
+        run: uv sync --frozen
+      - name: All P3 modules from the complete integration collection
+        run: |
+          uv run --frozen python -m scripts.pg_diagnostic \
+            --session ci --round 1 --combined --ci-scope phase3 --no-child-trace \
+            --deadline "$(cat .audit/ci-deadline)"
+      - name: Upload only safe P3 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # official v4
+        with:
+          name: pg-phase3-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/ci-evidence-phase3.json
+          if-no-files-found: error
+          retention-days: 1
+  pg-pair:
+    needs: [quality, phase3]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # official v4
+        with:
+          name: pg-existing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/pg-pair/existing
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # official v4
+        with:
+          name: pg-phase3-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/pg-pair/phase3
+      - name: Verify both source-bound partitions and complete actual union
+        run: |
+          test '${{ needs.quality.result }}' = success
+          test '${{ needs.phase3.result }}' = success
+          python -m scripts.pg_ci_evidence \
+            .audit/pg-pair/existing/ci-evidence-existing.json \
+            .audit/pg-pair/phase3/ci-evidence-phase3.json
