@@ -1,4 +1,10 @@
 import { defineConfig } from "@playwright/test";
+import { readFileSync } from "node:fs";
+process.env.COMMERCEOPS_B04_MOCK_LAUNCH_PID ??= String(process.pid);
+process.env.COMMERCEOPS_B04_MOCK_BUILD_ID ??= readFileSync(
+  new URL(".next/BUILD_ID", import.meta.url),
+  "utf8",
+).trim();
 export default defineConfig({
   testDir: "../tests/e2e/web",
   testMatch: "b04-offline.spec.ts",
@@ -8,7 +14,7 @@ export default defineConfig({
   outputDir: "test-results/b04-offline",
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/b04-wiring/ui-results.json" }],
+    ["json", { outputFile: "evidence/b04-linux-fix/ui-results.json" }],
   ],
   use: {
     browserName: "chromium",

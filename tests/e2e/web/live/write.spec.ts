@@ -11,6 +11,7 @@ import {
   ownedEndpoints,
   assertOwnedListener,
   assertOwnedBuild,
+  readOwnedListener,
 } from "../owned-listeners";
 const root = resolve(__dirname, "../../../.."),
   dir = process.env.COMMERCEOPS_B02_PRIVATE_DIR!;
@@ -29,14 +30,7 @@ for (const endpoint of ownedEndpoints(
   windowInfo,
   process.env.COMMERCEOPS_LIVE_WEB_URL,
 ))
-  assertOwnedListener(
-    execFileSync(
-      "lsof",
-      ["-nP", `-iTCP:${endpoint.port}`, "-sTCP:LISTEN", "-t"],
-      { encoding: "utf8" },
-    ),
-    endpoint.pid,
-  );
+  assertOwnedListener(readOwnedListener(endpoint.port), endpoint.pid);
 assertOwnedBuild(
   windowInfo.build_id,
   readFileSync(resolve(root, "frontend/.next/BUILD_ID"), "utf8"),

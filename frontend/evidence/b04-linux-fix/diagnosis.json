@@ -1,0 +1,100 @@
+{
+  "base_source": "972f98a383dc4ff6873e7d37f09621954142db39",
+  "first_ci": {
+    "run": 38086696815,
+    "job": 114314618843,
+    "platform": "linux-x64",
+    "failure": "lsof exit1 beforeAll",
+    "failed": 1,
+    "not_run": 7,
+    "real_batches": "not_started"
+  },
+  "window": {
+    "start_utc": "2026-10-10T21:17:48Z",
+    "stop_utc": "2026-10-10T21:47:48Z",
+    "extended": false
+  },
+  "local_platform": "linux-arm64",
+  "node": "24.21.0",
+  "npm": "11.19.0",
+  "lsof": "4.95.0",
+  "round1": {
+    "http_status": 200,
+    "kernel_ipv4_listen": true,
+    "lsof_exit": 1,
+    "stdout_empty": true,
+    "stats": {
+      "startTime": "2026-10-10T21:21:48.690Z",
+      "duration": 5466.182,
+      "expected": 0,
+      "skipped": 7,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "container_exit": 1,
+    "container_pid": 0
+  },
+  "controlled_socket_title_probe": {
+    "same_pid_same_socket": true,
+    "title_node_lsof_exit": 0,
+    "title_next_server_lsof_exit": 1,
+    "kernel_comm": "next-server (v1",
+    "no_exit_only_workaround": true
+  },
+  "prepare_failures": [
+    {
+      "round": 1,
+      "category": "scratch optional getuid TS signature",
+      "service_started": false
+    },
+    {
+      "round": 2,
+      "category": "ESM __dirname config",
+      "service_started": false
+    }
+  ],
+  "round2": {
+    "stats": {
+      "startTime": "2026-10-10T21:31:49.059Z",
+      "duration": 23755.237999999998,
+      "expected": 8,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "container_exit": 0,
+    "container_pid": 0,
+    "current_uid_checkout_launcher_build_verified": true,
+    "wrong_checkout_and_launcher_rejected": true,
+    "host_port_mapping": false
+  },
+  "source_file_sha256": {
+    "frontend/playwright.b04-offline.config.ts": "df017a8a88a35626cf1a112d751f27c67e581131dc0774cba82f5699f1ba00e0",
+    "frontend/tooling/live-zoom-proof.mjs": "28354e371247864e78d163d26c204435a82adf948f80190c2ab174d1a216e603",
+    "tests/e2e/web/b04-offline.spec.ts": "8e30d46af24e4ab15b5f5798264904c1d4618dc1717b9174f5462ba350dcc161",
+    "tests/e2e/web/contracts/owned-listeners.spec.ts": "b60e944c364a1227d0b670334c0c5dcf175b2186d78102ba6fb8ac47ba350cb9",
+    "tests/e2e/web/live/items.spec.ts": "d992813a1482982cfc379d9bbb5eaa2375f3257c98a927ff9bcdd377aa0f1a5a",
+    "tests/e2e/web/live/read.spec.ts": "f71df0820e59bf8185d02989b84d640c066e41a8f08ef3dde7ac8d022e622862",
+    "tests/e2e/web/live/write.spec.ts": "ac17643e4aeb308c56b79f5ed8374bafd375a93eb35b558db4b0691c8aa2734b",
+    "tests/e2e/web/owned-listeners.ts": "571a06b66ea2c34c2438447d7f301d876abb99b98a900125a218187a0c7b43fc",
+    "tests/e2e/web/run_live_batches.py": "48c1d6baeb338254185e446d61062d03ea7660312b30cb2dcc098424591edd50"
+  },
+  "linux_x64_new_ci": "not_run",
+  "mac_new_mock_ui": "not_run",
+  "real_pg_web_new_code": "not_run",
+  "models_platform_writes": 0,
+  "remaining_gates": "independent_review_and_root_exact_four_ci",
+  "quality": {
+    "exit": 0,
+    "offline_passed": 1057,
+    "integration_deselected": 337,
+    "seconds": 85.34,
+    "existing_warnings": 2,
+    "format_files": 265,
+    "mypy_files": 193,
+    "markdown": 69,
+    "npm_audit_findings": 0,
+    "python_audit_packages": 95,
+    "python_audit_findings": 0
+  }
+}

@@ -30,6 +30,24 @@ def free_port() -> int:
         return int(sock.getsockname()[1])
 
 
+def listener_output(root: Path, port: int) -> str:
+    # Reuse the same readonly Linux socket/PID proof as Web tests and native zoom.
+    return subprocess.check_output(
+        [
+            str(root / ".tools/node/bin/node"),
+            "--input-type=module",
+            "-e",
+            "import {readOwnedListener} from './tests/e2e/web/owned-listeners.ts';"
+            "process.stdout.write(readOwnedListener(Number(process.argv[1])));",
+            str(port),
+        ],
+        cwd=root,
+        text=True,
+        stderr=subprocess.DEVNULL,
+        timeout=5,
+    )
+
+
 def main(
     root: Path,
     private: Path,
@@ -303,12 +321,8 @@ def main(
                 if any(child.poll() is not None for child in (worker, api, web)):
                     raise RuntimeError("owned process exited")
                 try:
-                    a = subprocess.check_output(
-                        ["lsof", "-nP", f"-iTCP:{api_port}", "-sTCP:LISTEN", "-t"], text=True
-                    ).split()
-                    w = subprocess.check_output(
-                        ["lsof", "-nP", f"-iTCP:{web_port}", "-sTCP:LISTEN", "-t"], text=True
-                    ).split()
+                    a = listener_output(root, api_port).split()
+                    w = listener_output(root, web_port).split()
                     if set(a) == {str(api.pid)} and set(w) == {str(web.pid)}:
                         break
                 except subprocess.CalledProcessError:
@@ -458,13 +472,11 @@ def main(
             )
             owned_listeners_remaining = False
             for port, pid in ((api_port, ledger.get("api_pid")), (web_port, ledger.get("web_pid"))):
-                listener = subprocess.run(
-                    ["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
-                    capture_output=True,
-                    text=True,
-                    timeout=5,
-                )
-                owned_listeners_remaining |= str(pid) in listener.stdout.split()
+                try:
+                    observed = listener_output(root, port).split()
+                except subprocess.CalledProcessError:
+                    observed = []
+                owned_listeners_remaining |= str(pid) in observed
             passed &= not state["Running"] and state["Pid"] == 0 and not owned_listeners_remaining
             ledger.update(
                 status="stopped",

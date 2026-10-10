@@ -4,6 +4,7 @@ import {
   ownedEndpoints,
   assertOwnedListener,
   assertOwnedBuild,
+  linuxListenerInode,
 } from "../owned-listeners";
 test("自有3470/3471由已校验Origin解析，原3460/3461亦可用，不默认旧端口", () => {
   expect(
@@ -23,6 +24,27 @@ test("自有3470/3471由已校验Origin解析，原3460/3461亦可用，不默�
   expect(ownedLoopbackPort("http://127.0.0.1:3460")).toBe(3460);
   expect(ownedLoopbackPort("http://127.0.0.1:3461")).toBe(3461);
   expect(ownedLoopbackPort("http://127.0.0.1:65535")).toBe(65535);
+});
+test("Linux实际socket行只接受唯一当前UID的IPv4 loopback；外部/重复/异UID/缺socket拒绝", () => {
+  const row =
+    " 0: 0100007F:0DA2 00000000:0000 0A 00000000:00000000 00:00000000 00000000 1001 0 20770218 1";
+  const table = "header\n" + row + "\n";
+  expect(linuxListenerInode(table, "header\n", 3490, 1001)).toBe("20770218");
+  for (const [tcp, tcp6, uid] of [
+    ["header\n", "header\n", 1001],
+    [table, "header\n", 1002],
+    [table.replace("0100007F", "00000000"), "header\n", 1001],
+    [table + row + "\n", "header\n", 1001],
+    [
+      table,
+      "header\n" +
+        row.replace("0100007F", "00000000000000000000000000000000") +
+        "\n",
+      1001,
+    ],
+    [table.replace("20770218", "0"), "header\n", 1001],
+  ] as const)
+    expect(() => linuxListenerInode(tcp, tcp6, 3490, uid)).toThrow();
 });
 test("拒绝异主机/非本地HTTP/userinfo/path/query/hash/无效或隐式端口，不echo输入", () => {
   for (const origin of [

@@ -2,6 +2,7 @@ import {
   ownedEndpoints,
   assertOwnedListener,
   assertOwnedBuild,
+  readOwnedListener,
 } from "../owned-listeners";
 import { test, expect } from "../../../../frontend/tooling/web-test";
 import { readFileSync, statSync } from "node:fs";
@@ -34,11 +35,7 @@ if (
 )
   throw new Error("Owned window mismatch/expired");
 for (const { port, pid } of listeners) {
-  const listening = execFileSync(
-    "lsof",
-    ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-t"],
-    { encoding: "utf8" },
-  );
+  const listening = readOwnedListener(port);
   assertOwnedListener(listening, pid);
 }
 test.beforeAll(async () => {
