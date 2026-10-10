@@ -29,6 +29,8 @@ A漏检非零退出码，仍生成本地提交2a194a8，当时尚未上传；先
 
 Root的精确2a合同独审回执未发现API/事务语义阻断，要求证据/精准例外修正与R01 from_report/new_cycle矩阵分开；本次已修。Reviewer自有环境无gitleaks的ERROR2仍not_run，不冒记独审扫描通过；本A真实三范围0单独计。修正后冻结SHA增量独审/精确CI仍等待实际回执，不提前标通过。
 
+4e候选CI [38046950437](https://github.com/aning0922/commerceops-agent/actions/runs/38046950437)已实际failure：依赖安装前Secrets gate导入vendor常量时带入模块顶层tomli_w，触发ModuleNotFoundError。普通后续修复将tomli_w限定在生成器main执行时导入，保留无第三方依赖的扫描bootstrap，并增加 `python -S -m scripts.scan_secrets` 回归；不改CI顺序、不降门禁、不增加例外。修复后质量工具全套42 passed/51.10s，Ruff/199format/mypy136全部exit0，`python -S`真实扫描dir/index/fullgit各0。此失败与补测保留，最终暂存/新修复head/CI以同PR实际回执为准。
+
 校验器在uv临时工具环境运行，未增加生产依赖或改共享锁。实际工具版本：openapi-spec-validator0.7.2、jsonschema4.26.0、openapi-schema-validator0.6.3、jsonschema-specifications2025.9.1、referencing0.36.2、rpds-py2026.9.1；该临时工具环境并非项目锁的一部分，不作供应链锁定保证。JSON Schema的integer允许整数值float，严格JSON整数需运行时额外验证；数据库绑定的nonce/当前actor/scope/精确假设集合和实际session并未由schema校验证明。P2原模型逐schema与基线源码导出完全一致；HTTP新envelope必须后续与实际FastAPI运行时比对。
 
 ## 时间、未跑项与后续

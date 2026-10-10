@@ -364,3 +364,15 @@ def test_p3_wider_exception_fails_even_with_updated_config_digest(
     patcher.setattr(secret_scan, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid scanner rules"):
         secret_scan.validate_rules()
+
+
+def test_secret_gate_runs_before_dependency_installation(repository: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, "-S", "-m", "scripts.scan_secrets", "--repo", str(repository)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "git: findings=0, exit=0" in result.stdout

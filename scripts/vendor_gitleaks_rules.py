@@ -7,8 +7,6 @@ import re
 import tomllib
 from pathlib import Path
 
-import tomli_w
-
 ROOT = Path(__file__).resolve().parents[1]
 UPSTREAM_SHA256 = "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf"
 P3_DOCUMENT_DIGEST = "a469bb6825770325a664b4770b0f17c78786ecec2126142870e1bd7dd08a6245"
@@ -18,6 +16,9 @@ P3_ROW_DIGEST = "4405db53329b7d9b9fb9d5ff920a1e9221dd3ecc57202de57bf838325a03f90
 
 
 def main() -> None:
+    # CI在安装依赖前运行敏感扫描；导入公开行常量不能要求生成器的开发依赖。
+    import tomli_w
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     args = parser.parse_args()

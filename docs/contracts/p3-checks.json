@@ -181,5 +181,39 @@
       "git_findings": 0
     },
     "recorded_at": "2026-10-10T19:00:26.073065+08:00"
+  },
+  "initial_candidate_ci": {
+    "head": "4e2020eabb497e9216094ddc0fa2e9fc8c665417",
+    "run_id": 38046950437,
+    "url": "https://github.com/aning0922/commerceops-agent/actions/runs/38046950437",
+    "status": "completed",
+    "conclusion": "failure",
+    "step": "Secrets gate before dependency installation",
+    "reason": "ModuleNotFoundError: tomli_w from top-level vendor import",
+    "repair": "lazy import inside generator main; preserve stdlib-only scanner bootstrap; python -S regression"
+  },
+  "ci_bootstrap_recheck": {
+    "quality_suite_passed": 42,
+    "pytest_elapsed_seconds": 51.1,
+    "suite_exit_code": 0,
+    "ruff_exit_code": 0,
+    "format_file_count": 199,
+    "format_exit_code": 0,
+    "mypy_source_files": 136,
+    "mypy_exit_code": 0,
+    "bootstrap_command": [
+      "uv",
+      "run",
+      "--frozen",
+      "python",
+      "-S",
+      "-m",
+      "scripts.scan_secrets"
+    ],
+    "bootstrap_exit_code": 0,
+    "dir_findings": 0,
+    "index_findings": 0,
+    "git_findings": 0,
+    "recorded_at": "2026-10-10T19:04:59.035772+08:00"
   }
 }
