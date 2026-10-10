@@ -83,6 +83,13 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
             "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA checkpoints "
             "TO commerceops_app"
         )
+        connection.execute("""GRANT SELECT ON business.principal_role_shop_grants,
+            business.web_credentials TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.web_sessions,
+            business.web_login_attempts,business.web_requests,business.p3_task_sources,
+            business.replenishment_plans,business.approvals,business.outbox TO commerceops_app""")
+        connection.execute("""GRANT EXECUTE ON FUNCTION business.lock_p3_permission(
+            uuid,uuid,uuid,uuid,bigint,text) TO commerceops_app""")
 
 
 def main() -> None:
