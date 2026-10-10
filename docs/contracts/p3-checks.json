@@ -1,0 +1,101 @@
+{
+  "schema_version": "p3-contract-checks-v1",
+  "source_mode": "offline_contract",
+  "model_mode": "not_called",
+  "approval_mode": "not_run",
+  "baseline_main": "59b350cb719a9d2fed3f68b1ee598fa0a9b97875",
+  "openapi_sha256": "a469bb6825770325a664b4770b0f17c78786ecec2126142870e1bd7dd08a6245",
+  "human_effective_hours": "not_reported",
+  "branch_created_at": "2026-10-10T18:35:20+08:00",
+  "recorded_at": "2026-10-10T18:51:24.668614+08:00",
+  "checks": [
+    {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "--with",
+        "openapi-spec-validator==0.7.2",
+        "python",
+        "docs/contracts/p3-validate.py"
+      ],
+      "started_at": "2026-10-10T18:51:23.464776+08:00",
+      "elapsed_seconds": 0.787,
+      "exit_code": 0,
+      "output": "OpenAPI valid: 21 paths / 22 operations / 67 schemas\nContract checks passed: 385; no service/PG/identity/decision execution\nJSON Schema integer permits integral float; runtime strict JSON integer and DB-bound exact assumption-set remain not_run Gates.",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "python",
+        "-m",
+        "scripts.check_docs"
+      ],
+      "started_at": "2026-10-10T18:51:24.252300+08:00",
+      "elapsed_seconds": 0.305,
+      "exit_code": 0,
+      "output": "Markdown: 59 files, errors=0",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "ruff",
+        "check",
+        "."
+      ],
+      "started_at": "2026-10-10T18:51:24.557145+08:00",
+      "elapsed_seconds": 0.064,
+      "exit_code": 0,
+      "output": "All checks passed!",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "started_at": "2026-10-10T18:51:24.621476+08:00",
+      "elapsed_seconds": 0.031,
+      "exit_code": 0,
+      "output": "199 files already formatted",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "started_at": "2026-10-10T18:51:24.652193+08:00",
+      "elapsed_seconds": 0.016,
+      "exit_code": 0,
+      "output": "",
+      "stderr": ""
+    }
+  ],
+  "not_run": [
+    "runtime_api",
+    "session_auth",
+    "real_pg",
+    "migration",
+    "T2",
+    "T3",
+    "T4",
+    "T6",
+    "graph_recovery",
+    "frontend",
+    "independent_review",
+    "exact_head_ci"
+  ]
+}

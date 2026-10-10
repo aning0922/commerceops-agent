@@ -1,5 +1,7 @@
 # 分阶段路线图与外部配置
 
+当前导航（2026-10-10）：Phase2 已正式结案，main `59b350cb719a9d2fed3f68b1ee598fa0a9b97875` / [同SHA合后CI38041779219 SUCCESS](https://github.com/aning0922/commerceops-agent/actions/runs/38041779219) / [Issue29 CLOSED](https://github.com/aning0922/commerceops-agent/issues/29)。用户已明确授权 [Phase3 #33](https://github.com/aning0922/commerceops-agent/issues/33)持续双线及全部必要Gate/独审/精确CI后Root正常合main；A #34/WT62c8、B #35/WTa266，现[接口合同](contracts/p3-web-v1.md)冻结中，主体业务Gate not_run。目标D7–D12/60h=A32+B18+Review10、原300h、D1=10-10/D30=11-08不改，允许D1提前、人工工时not_reported。零新增模型/飞书业务写扩权/生产/Phase4，旧正文“Phase3未授权”与候选快照保留为历史。M1整体不由阶段启动外推；四份导航由总控协调A唯一追加。
+
 状态：2026-10-10 Phase0/Phase1已结案，M1设计0.4.1/18页冻结、原有限Gate/风险保持。Phase2 P201–04验收Gate、source45db独审/精确CI及一次受限真实解释Gate已由Root核定通过；正式main SHA/合后CI/Issue29结案以GitHub实时回执为准，Phase3未授权。2026-10-10 17:11候选快照ready_for_phase2_merge，当时最终docs/main收口尚待，caffe11770a54135900633edf4db0df5458fd195仅实施基线。实际provider1/local_fault明确offline1，余量不自动继续；实际PG/window/账本待Root核收。完整分层证据与未跑边界见[PHASE2_ACCEPTANCE](PHASE2_ACCEPTANCE.md)、[STATUS第35节](STATUS.md)、[Issue29](https://github.com/aning0922/commerceops-agent/issues/29)/[PR30](https://github.com/aning0922/commerceops-agent/pull/30)。D1/D30/300h及Phase2D3–D6目标日期不改，实际D1提前、人工H/L not_reported；M1整体、正式审批/补货/库存、生产auth/前端/飞书业务、p95/40×3等未验证，后续Phase/扩权/生产未授权。下面目标/Gate与历史保持，当前状态以上方及STATUS为准。
 
 ## 1. 交付目标与推荐顺序
