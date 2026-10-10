@@ -1,6 +1,6 @@
 # 分阶段路线图与外部配置
 
-状态：2026-10-10 Phase0/Phase1已结案，有限技术Gate/独审/精确main CI及残余风险保持。用户正式冻结M1设计0.4.1（18页/交互），PR24已普通合main；当前main caffe11770a54135900633edf4db0df5458fd195，设计冻结不等于业务通过。Phase2按[Issue29](https://github.com/aning0922/commerceops-agent/issues/29)已授权：P2-01/02/03已通过精确SHA独审及CI内部门禁，当前in_progress_p2_04，A正常FF c356独审B组件，预算恢复P2已独立解除；参数第三轮残留暂停后用户批准一次有限正向文法收口，作者候选已验证、待一次新SHA独审/精确CI/受控实际窗口；同一[Draft PR30](https://github.com/aning0922/commerceops-agent/pull/30)未合main。用户[受控双线合同](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6093683362)将A保留为唯一schema/业务集成负责人，B仅并行模型说明组件；B替身不算P204集成/真实Gate。受限DeepSeek资源ready/not_run，P203不调用，P204须代码独审及总控安排；飞书扩权限/生产/后续Phase未授权，用户已委托Root在完整Phase2必要Gate后正常合main；A不自行合入，后续Phase仍另批。实际状态见[STATUS](STATUS.md)、[P204合同](PHASE2_P204.md)、[P203合同](PHASE2_P203.md)、[验收报告](PHASE1_ACCEPTANCE.md)及[30天计划](plans/30_DAY_EXECUTION.md)。双线与新增Review扣原P204/Phase2预算，不增加30–40h或300h，不改D1/D30窗口；以下原目标/Gate/历史结论保留，当前授权以上方及STATUS新交接为准。
+状态：2026-10-10 Phase0/Phase1已结案，M1设计0.4.1/18页冻结、原有限Gate/风险保持。Phase2 P201–04验收Gate、source45db独审/精确CI及一次受限真实解释Gate已由Root核定通过；正式main SHA/合后CI/Issue29结案以GitHub实时回执为准，Phase3未授权。2026-10-10 17:11候选快照ready_for_phase2_merge，当时最终docs/main收口尚待，caffe11770a54135900633edf4db0df5458fd195仅实施基线。实际provider1/local_fault明确offline1，余量不自动继续；实际PG/window/账本待Root核收。完整分层证据与未跑边界见[PHASE2_ACCEPTANCE](PHASE2_ACCEPTANCE.md)、[STATUS第35节](STATUS.md)、[Issue29](https://github.com/aning0922/commerceops-agent/issues/29)/[PR30](https://github.com/aning0922/commerceops-agent/pull/30)。D1/D30/300h及Phase2D3–D6目标日期不改，实际D1提前、人工H/L not_reported；M1整体、正式审批/补货/库存、生产auth/前端/飞书业务、p95/40×3等未验证，后续Phase/扩权/生产未授权。下面目标/Gate与历史保持，当前状态以上方及STATUS为准。
 
 ## 1. 交付目标与推荐顺序
 
@@ -18,7 +18,7 @@
 |---|---|---|---|---|
 | Phase 0 调研设计与审核修订 | 用户收口指令 | 十份核心设计、调研证据、AGENTS/README、审核修订 PR、收口记录 | 六项整改完成，文档基线归档；不等于运行验收 | 已收口 |
 | Phase 1 工程底座与技术探针 | 最终架构确认；Docker；外部配置用于真测 | 基础 CI/敏感扫描先行，uv/Node 锁、PG migration、单 Worker/单 Graph 槽、checkpoint crash probe、飞书回调/Base probe | G1 Docker、G2 LangGraph Checkpoint、G3 飞书真实回调；缺证据记阻塞，不算通过 | 3–5 工作日 |
-| Phase 2 确定性库存垂直切片 | Phase 1 本地底座 | Mock fixtures、统一契约、快照、规则、API 报告、模型受限说明 | 金标完全一致；空/异常/分页失败不产生错误执行计划 | 3–4 工作日 |
+| Phase 2 确定性库存垂直切片 | Phase 1 本地底座 | Mock fixtures、统一契约、快照、规则、API 报告、模型受限说明 | 金标完全一致；空/异常/分页失败不产生错误执行计划；必要代码/真实Gate通过；本次17:11快照ready_for_phase2_merge，正式main/CI/结案看Issue29实时回执 | 3–4 工作日 |
 | Phase 3 审批与恢复闭环 | Phase 2；G2 图恢复结论 | 显式在途假设确认、approval、interrupt/resume、内部补货创建/完成/关闭、outbox、最小 Web | 拒绝/重复、HTTP 审批冲突、单 Worker 重启、提交后崩溃；关闭后新周期 | 5–7 工作日 |
 | Phase 4 飞书闭环与 M1 交付 | Phase 3；G3 真实回调；测试组织 | 飞书正式卡片/Base（2–3 日）+ Compose 离线复现、轨迹/故障演示与录屏（1–2 日） | M1 指定 AC；能解释数据、审批、恢复；不含 Woo | 3–5 工作日 |
 | Phase 5 Woo 只读与 M2 交付 | M1；测试店 | Woo adapter/真实数据对账（3–4 日）+ 完整恢复/备份/交付验证（2–3 日） | M2 全部 AC；Woo 两页以上、金额/时区/退款、备份还原证据 | 额外 5–7 工作日 |

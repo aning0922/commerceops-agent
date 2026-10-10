@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；P2-01/02/03已获冻结SHA独审及精确CI内部门禁，当前in_progress_p2_04。** 同一Draft PR30；main仍caffe11770a54135900633edf4db0df5458fd195，Phase2未合main。A唯一schema/业务/Worker/Graph/API/预算/最终集成，B仅model_explanation公共组件。A正常FF已审B小补丁至c356；预算恢复P2已独立解除；参数第三轮残留导致暂停后，用户批准一次完整有限正向文法收口，作者候选已验证、待最终独审/精确CI；真实provider请求0，真实routing not_run，最终源码独审/精确CI/Root真实窗口尚待。用户委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase/飞书扩权/生产未授权。P1有限Gate、#23风险原值及历史保持；最新见第34节。
+更新日期：2026-10-10（Asia/Shanghai）。**P201～04必要代码/业务切片及本次受限真实模型验收Gate已通过**，阶段正式main SHA/合后CI/Issue29结案回执以[GitHub实时记录](https://github.com/aning0922/commerceops-agent/issues/29)为准，Phase3未授权。2026-10-10 17:11北京时间本次候选交付快照ready_for_phase2_merge：当时最终文档独审/CI/main收口未完成，不提前称正式结案。业务source45db983a9b7f0554c1a532d13a899b884584efe6，caffe是实施main基线，不自指未来提交。actual provider总次数1、controlled local_fault offline1，真实routing仍not_run；key仅已审Factory在明确窗口读、.env未读，剩余9次不自动继续。自有实际PG/window/ledger待Root核收；正式M1/前端/审批/库存/生产/飞书扩权不外推。P1有限Gate、#23风险原值与M1设计0.4.1保持；第35节/PHASE2_ACCEPTANCE为本交付候选事实，旧阶段章节保持历史时态。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -589,3 +589,18 @@ Root对0462指定56offline及fresh9真实HTTP/PG通过，但另复现`4 ½`及`4
 私有LRS helper只接受正向ASCII整数/限定天单位/Unicode WS/有限分隔/句末，完整消费第一赋值至EOF；任何未知尾缀澄清，保留意图prefix/原句span/hash、模型五意图及默认demo来源，不用拒绝字符清单。改动白名单、批准边界及验收表见[P204第9节](PHASE2_P204.md)。044a回归U+2044实际1fail/16pass；新作者105offline/1.98s、完整896offline/69.45s（236integration deselected）、136type/ruff/docs/锁/Node及95Python包漏洞0。唯一自有p203-c61413fcb4实际85PG/47.40s（38完整块HTTP合法13/澄清25、已有P204与基础PG），Task增量0/1、原参数/hash/span及既有预算恢复/权限/缓存通过；0004/runtime非高权/无host ports/测试库0已核，所属资源/runtime回收0，key/env/模型资源未读/改。
 
 阶段仍in_progress_p2_04，新候选冻结SHA/一次独审/精确CI及Root真实模型窗口待办；actual provider0/main仍caffe/Phase3未授权，不将作者通过或旧绿当最终Gate。
+
+
+## 35. Phase2必要Gate通过，最终文档/main待收口
+
+2026-10-10 17:11北京时间候选快照ready_for_phase2_merge，实际验收Gate已过，正式main/合后CI/Issue结案看GitHub实时回执。完整阶段候选见[PHASE2_ACCEPTANCE](PHASE2_ACCEPTANCE.md)：P201 eddda/独审5474714719/CI37982390868，P202 eb537/5477401548/38021253513，P2033986/5477765550/38027088787，最终P20445db/5478361118/38038626351，任务SHA/tree、实际checkout/CI与作者/独审计数逐层记账。不重跑既有Gate、不以文档候选自指未来SHA。
+
+Root已核最终45db源码CodeGate：独审无P1/P2，实际CIcheckout5fabab2f（caffe+45db/tree d013ed同源）896offline/101.07s、236PG/234.03s（85P203/72P204）、三verifiedG1/六G2/cleanup0。作者105offline/1.98s及85PG/47.40s，Reviewer105/1.93s及85PG/42.32s+40实际HTTP为不同运行，不互相替代。[用户完整文法批准6095667835](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6095667835)/[CodeGate6095840508](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6095840508)及原三轮残留/第三轮暂停/一次正向文法收口历史保留。
+
+Root明确开始后，本次实际模型仅解释completion1：model_selected/deepseek-flash exact/prompt inventory-explanation-v1，usage130/25/155、728ms≤20s，preflight1518内。actual stage count1/reserved3360000/haltfalse、observed/stopfalse，峰值估算US$0.000069/actual invoiceNULL，保守US$0.00336不释放，剩余9次非许可。一次local_fault明确offline MockTransport/TIMEOUT/template，offline stagehalt/uncertain/usage及estimateNULL；三一致GET和新Worker不actualflag的同key缓存同result/无新增calls；父完整JSON、数值、facts/content hash/refs保持。[Root回执6096021013](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6096021013)独立PG READ ONLY回核全部账本/receipt/生命周期，必要真实Gate通过；第一次Root status列查询错误后正确outcome/estimate_nanos回读，不是产品失败。
+
+持久window同UID501/PID namespace，worker started3/stopped3/termination_confirmed2、所有旧PID缺失；1库存analysis及3explanation completed，initialize原technical_fixture queued事实保留，不称所有任务完成。准备ignored类型/PYTHONPATH错误与一次性namespace错误设计、Root核零paid后第一项目收口及唯一replacement成功均保留，不清未来实际/未知账本。实际自有p204-live-3582ae9dfe PG/window/ledger/ignored600证据仍保留待Root核收，不标cleanup0；模型key仅Factory读、.env/余额/models未查询，无rawtoken/headers/DSN上传。
+
+BC01/05只读子集、BC02有限params对应切片；正式T3/审批/补货/库存/生产auth/前端/正式飞书/M1/40×3/95%/p95/natural-network/wire/长期TTL/G3收到后non@过滤均not_run，不关闭其它协议待办。旧#23 not_identified/risk_accepted、P1 frozen、M1设计0.4.1保持。D1/D30/300h、Phase2D3–D6目标不变，实际D1提前，人工H/L not_reported，不虚算剩余。
+
+本次17:11候选快照剩余仅本阶段最终文档短独审/精确CI与Root正常main合并、同main提交CI/Issue29正式关闭；A不自行合main。caffe为实施基线，不预写未来SHA；最终main实commit及CI由Root合后回执追踪。Phase3/扩权/生产仍须新授权。
