@@ -190,3 +190,5 @@ uv run --frozen python -m scripts.scan_secrets
 ```
 
 本候选只退出登录/只读批；新source冻结/独审/组合CI待Root。A02/A03已审交接后再正常同步+生成类型/只读schema，后续按对应Gate接创建/决定/恢复/执行/resolve；当前真实B02完整业务、完整22操作runtime导出一致和全Phase3验收均未完成。
+
+最终新增validation元数据的secrets字段的三scope扫描状态说明行再次命中generic-api-key；只是普通状态句，未包含凭据。B的exec编排误在失败返回后继续形成未上传973bf，已立即停止上传并普通修当前元数据；不amend/reset/rebase/force、不自行改共享扫描规则。973bf历史唯一误报待Root协调精确政策独审，current/index修后与完整history分别实记，不将此前0外推本次final通过。

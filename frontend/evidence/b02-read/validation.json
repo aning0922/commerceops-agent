@@ -24,7 +24,12 @@
     "audit_production": "0 vulnerabilities",
     "python_helpers": "Ruff/mypy 3 files passed",
     "docs": "62 Markdown/0 errors",
-    "secrets": "dir/index/fullreachablegit 0 before final stage"
+    "content_scan": {
+      "current": 0,
+      "index": 0,
+      "history_findings": 1,
+      "history_status": "one public annotation in local 973bf; Root policy review pending"
+    }
   },
   "live_cleanup_hook": "added after positive suite; source/typecheck verified, no new intentional failure probe",
   "scope": "business writes and unsupported reads blocked before send; no A02 future schema sync",
