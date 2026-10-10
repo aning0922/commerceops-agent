@@ -424,3 +424,43 @@ def test_nested_dict_model_provenance_cannot_bypass_native_validation() -> None:
     )
     with pytest.raises(InventoryAnalysisError, match="^INVALID_INVENTORY_INPUT$"):
         analyze_inventory(mixed)
+
+
+@pytest.mark.parametrize("quality", [Quality.SHARED_POOL_UNRESOLVED, Quality.UNKNOWN_STOCK])
+@pytest.mark.parametrize("case", ["baseline", "unknown_inbound"])
+def test_stock_provenance_quality_is_never_silently_dropped(quality: Quality, case: str) -> None:
+    value = data(case)
+    stock = value.inventories[0]
+    provenance = stock.source.model_copy(update={"quality_flags": (quality,)})
+    stock = stock.model_copy(update={"source": provenance})
+    report = analyze_inventory(value.model_copy(update={"inventories": (stock,)}))
+    fact = report.items[0]
+    assert not report.complete and report.requires_review
+    assert quality.value in report.warnings
+    assert quality.value in fact.hard_blocks and quality.value in fact.quality_flags
+    assert fact.suggested_units is None and not fact.can_form_suggestion
+    assert fact.required_assumptions == () and not fact.eligible_for_execution
+
+
+def test_refund_line_permutation_preserves_semantic_input_and_facts_hash() -> None:
+    value = data("partial_refund")
+    original = value.order_lines[0]
+    extra = original.model_copy(update={"line_id": "line-2", "quantity": 7})
+    refund = value.refunds[0]
+    extra_refund = refund.lines[0].model_copy(update={"line_id": "line-2", "refunded_quantity": 1})
+    refund = refund.model_copy(update={"lines": (*refund.lines, extra_refund)})
+    value = value.model_copy(
+        update={"order_lines": (*value.order_lines, extra), "refunds": (refund,)}
+    )
+    first = analyze_inventory(value)
+    permuted = refund.model_copy(update={"lines": refund.lines[::-1]})
+    second = analyze_inventory(value.model_copy(update={"refunds": (permuted,)}))
+    assert first.items == second.items
+    assert first.items[0].known_refunded_units == 3 and first.items[0].net_units == 74
+    assert first.input_hash == second.input_hash and first.facts_hash == second.facts_hash
+    assert first.model_dump_json() == second.model_dump_json()
+    changed = permuted.source.model_copy(update={"raw_hash": "0" * 64})
+    different = permuted.model_copy(update={"source": changed})
+    other = analyze_inventory(value.model_copy(update={"refunds": (different,)}))
+    assert other.items == first.items and other.input_hash != first.input_hash
+    assert other.facts_hash != first.facts_hash

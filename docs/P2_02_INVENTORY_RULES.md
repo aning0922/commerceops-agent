@@ -60,3 +60,11 @@ uv run --frozen pytest tests/test_inventory_rules.py tests/test_inventory_analys
 首批9ca0的原样scripts.check实际passed（60.97秒）：613 offline passed / 79 deselected、全局ruff/format/strict mypy、51份文档、锁/工具/前后端漏洞门禁通过；初次全套扫描因stock_pool_key字段对应的代码属性表达式被generic-api-key命中failed（8.89秒），核实不是凭据后提取局部pool变量，未改scanner规则/豁免，重跑当前/index/可达history均0。暂存后敏感扫描、精确提交/tree/新CI结果在PR30/Issue29交付回执记录；独立Review由总控安排，作者自检不替代。DB/平台/模型本包not_run；既有CI原样运行其PG基础Gate，不能外推业务/T3/真实模型或P1旧timeout根因。P202提交/PR/CI不代表阶段完成，P203与main业务合并仍待对应门禁/裁决。
 
 提交后交付核对补测嵌套dict内Pydantic实例的source_kind bool，定向修复前实际1 failed（0.08秒）；本地原始类型重验增加dict/list递归，保留容器类型，不让嵌套实例绕过字段验证。此补充用普通后继提交，不改写首批历史；修复后实际119专项passed（0.19秒）、原样全套614离线passed/79 deselected（41.45秒，全套53.88秒）、全部适用门禁通过，当前/index/历史敏感0；最后暂存扫描及最终CI/SHA见新回执，不将9ca0的旧通过外推。
+
+## P202 独审阻断修复
+
+总控转达独立 Reviewer 对f5d9的结论：119专项、614离线及18/18独立金标复算通过，但库存Provenance质量标记丢失与Refund.lines重排指纹不稳定为两项P2阻断。第一轮定向修复前5项回归实际全部failed（0.14秒），修复后专项124 passed（0.21秒），既有18组数值与全部已审fixtures/goldens不变。
+
+库存来源quality_flags逐条加入对应SKU hard_blocks，包括字段仍声明exact/有库存数值的情形；不因SKU去重丢失来源标记，Q撤下、complete=false、requires_review=true、warnings与item质量保留。在途未知不能豁免此硬阻断。它不修改来源A/归属声明或库表，也不改变规则参数/业务计算口径。
+
+input_hash额外对Refund.lines按canonical标准字段排序，再对顶层数组排序；行数量统计保持原语义。相同来源raw_hash/provenance下交换退款行，items/input_hash/facts_hash/JSON逐字一致；实际raw_hash变化仍绑定不同指纹。不改写来源hash、原始fixtures/goldens或CI/scanner。本轮原样全套门禁实际passed（58.74秒）：619 offline passed/79 deselected，全部适用lint/format/strict mypy、51份文档、锁/工具/漏洞门禁通过，当前/index/可达history敏感0。暂存后三层扫描及新SHA/CI结果见同PR/Issue29回执，复审仍由Root协调，P203未开始。

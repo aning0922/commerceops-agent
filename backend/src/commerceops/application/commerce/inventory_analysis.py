@@ -162,6 +162,11 @@ def analyze_inventory(
     blocks: defaultdict[str, set[str]] = defaultdict(set)
     warnings: defaultdict[str, set[str]] = defaultdict(set)
     pools: defaultdict[str, set[str]] = defaultdict(set)
+    # 数值/声明字段存在也不能豁免库存来源警告；逐条保留，不因ID去重丢失。
+    for stock_observation in data.inventories:
+        blocks[stock_observation.sku_key].update(
+            flag.value for flag in stock_observation.source.quality_flags
+        )
     for known_product in products.values():
         pools[known_product.stock_pool_key].add(known_product.sku_key)
     for key, known_inventory in inventories.items():
@@ -315,6 +320,8 @@ def analyze_inventory(
     # 输入指纹包含原始标准DTO/来源证据，数组按内容排序，不受调用方排列影响。
     normalized = data.model_dump(mode="json")
     normalized["window"] = window.model_dump(mode="json")
+    for refund in normalized["refunds"]:
+        refund["lines"] = sorted(refund["lines"], key=canonical_bytes)
     for field in ("products", "order_lines", "refunds", "inventories", "open_items", "warnings"):
         normalized[field] = sorted(normalized[field], key=canonical_bytes)
     body: dict[str, Any] = {
