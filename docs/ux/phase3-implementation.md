@@ -1,6 +1,6 @@
 # Phase3 冻结 M1 前端实施
 
-本交付是 **B01：真实 Next.js 页面上的离线 Mock UI**。B02 服务端会话与业务集成尚未开始，必须先收到总控下发的 A 合同/API 独审冻结 SHA。Issue [#33](https://github.com/aning0922/commerceops-agent/issues/33)、[#35](https://github.com/aning0922/commerceops-agent/issues/35) 为本阶段授权与文件所有权依据；本 PR 仅 Refs，不关闭阶段。
+当前包含已核 B01 离线 Mock 页面、已核 `14dc` 离线类型/transport，以及本批 **B02 真实 PG 会话与只读页面候选**。本批正常合并已审 A01 `aeaa916`，登录/读取已在自有资源实跑；创建/决定/执行/resolve仍等待对应已审功能。新冻结独审/组合CI与Root签收以PR实时回执为准，不能当完整B02或Phase3完成。早期章节保留B01历史范围，当前只读批见末节。Issue [#33](https://github.com/aning0922/commerceops-agent/issues/33)、[#35](https://github.com/aning0922/commerceops-agent/issues/35) 为本阶段授权与文件所有权依据；本 PR 仅 Refs，不关闭阶段。
 
 ## 基线与范围
 
@@ -146,3 +146,47 @@ PATH="$PWD/.tools/node/bin:$PATH" NEXT_TELEMETRY_DISABLED=1 npm --prefix fronten
 预置单独 `playwright.live.config.ts`，trace/video/自动 screenshot 全部 off。后续 live 用例只在 Root 放行窗口显式采集已清除密码/Cookie/session/CSRF/nonce 的截图与 sanitized 结果；禁止 raw trace/HAR/body。当前 live 目录/用例/API资源均未启用；配置存在不代表 live 测试已经执行。
 
 本批初次敏感扫描命中3处声明为离线的密码占位字面量及1处公共合同hash相邻OpenAPI路径误报。未上传；测试改用显式低熵动态假值，生成回执将hash与路径各自分离排列，未改扫描规则/豁免，也未隐藏真实凭据。最终扫描结果以本批验证回执为准。
+
+
+## B02 真实会话与只读页面候选
+
+Root正式放行A01 `aeaa916a59341a6ffa4a89f863d065580599f6d3`（tree `3dde1cde536ce438e38aa7bdf1d1655bac7b4b81`、实际CI38055767391成功）后，在原B WT/branch普通fetch并merge为`5053f56000ca08872cad02bd437ac7f8156fef6b`，保留14dc及全部历史。14dc精确CI38051582409和独审均已通过；它们不覆盖本次组合源码。本批不读取A02未提交目录、不改后端/迁移/权限/共享schema/根CI/Compose/锁文件，不合main。
+
+### 实现行为与门禁
+
+显式 `COMMERCEOPS_UI_MODE=live`、有效 `COMMERCEOPS_API_ORIGIN` 与 `COMMERCEOPS_WEB_TRANSPORT=local_http|https` 才启用真实页面。缺配置关闭业务访问，不回退Mock身份。Next只呈现入口与公开origin；浏览器通过已审P3Client直连API，Cookie由API HttpOnly管理。账号密码只在本地表单/调用内存，提交前清密码DOM；CSRF/nonce不进URL、RSC、storage或公开日志。会话401/403立即清principal/全部业务页/配置/Dialog，异步epoch阻止失效前请求迟到重新填充；focus/可见性/显式刷新重查当前会话。登录/注销实际Cookie、CSRF及浏览器Origin按A合同，退出回执丢失显示待核实且先清本地业务数据。
+
+服务端capabilities决定home/nav；role_shop_grants逐角色展示店铺绑定，无身份选择器、客户端actor、角色或跨店授权拼接。任务列表/筛选计数/total/cursor、本人或eligible详情/报告/计划/审批/事件/配置/原请求回执、admin脱敏运维都读取实际API。无权/不存在统一/access，读取失败不显示旧业务或猜测成功。P2 analysis_only与P3正式workflow、业务state/outcome与sync/outbox事实分开；unknown时间/配置不补0。库存建议/D/精确ratio/风险/原始null与有效值来自冻结服务器事实，UI不计算权威建议。
+
+本批只用A01已实现17 operations中的16个read/auth：包含login/logout，排除T1 POST/tasks；执行、items、resolve、decision均未接入。live transport发送前白名单阻断业务POST及未实现GET，UI写入口disabled/pending，没有不存在API或模拟响应替身。解释只GET固定task/report的既有缓存，实际缺缓存NOT_READY；正向缓存HTTP仍not_run，没有模板冒充缓存或新模型调用。指定plan版本保留真实current/superseded状态，均只读；现自有数据仅实际v1，没有伪造第二历史版本。
+
+固定Ajv8.20.0/ajv-formats3.0.1（npm audit0，独立frontend锁）校验从冻结OpenAPI复制的67 schemas与16操作response，使用[Ajv官方2020-12支持](https://ajv.js.org/json-schema.html)与[format校验](https://ajv.js.org/guide/formats.html)。无coerce/removeAdditional/default填充，拒绝身份模式/缺字段/额外actor/bool整数/非安全整数/坏时间；P2冻结导出的ge元数据显式按其边界验证，未修改shared schema。报告task/report/facts_hash、审批与plan id/version/hash、计划全量条目/精确件数/事实SKU与在途建议绑定另做UI一致性检查；typed cast不授审批权。生成文件和官方合同逐字节同步检查实际通过，命令`npm --prefix frontend run check:read-schema`。Root通知A02未来DecisionReceipt完整ack键max256→300（前缀21、合法SKU256合277），本批仍当前已审冻结，未提前同步或把未来DTO修正当已测。
+
+### 自有资源、失败与实际运行
+
+唯一项目`p3b02-8c4cee9d4102`、owner`phase3-B-WTa266`，PG54446/API3461/Next3460全部loopback，运行前登记，原绝对截止2026-10-10 23:27:53.909900+08。复用既有prepare_pg、原Compose与gitignored私有port overlay、A initialize_p3/预置/scrypt/单Worker，未写共享脚本或建通用资源框架。私有目录700/全部私有文件600、新卷独立；A旧库/账号、P1/P2资源、.env/平台key均未读。
+
+首次seed误写p.plan_version/source report_id而UndefinedColumn失败，finally自动停PG保卷；仅B辅助代码修为migration实际p.version/source_report_id。第二次assert无plan，发现B换Worker配置却沿用旧TestClient store，T1 config_version不一致；第一次只读核查22旧P3中18 CONFIG_VERSION_UNSUPPORTED、plan0，不将未核4项笼统归因。改为同配置新TestClient后第三次在同项目/同原截止成功预置新组织五真实账号、22公开P2/P3记录、20SKU不可变plan/approval；先前组织数据完整保留隔离，没有reset/drop。后续实际Worker收敛后核33总P3中22旧配置失败、11真实plan；均为同新自有库的受控mock数据。没有把异常换成A API后门，也未扩窗口。
+
+实际最终production build/typecheck、固定schema check成功；离线合同 **13/13（1.9s）**，包含原9、完整DTO反例、发送前未审操作零请求、全量事实绑定反例。第三个离线用例首次使用dynamic import触发Playwright ESM转译exports错误，11过1失败保留；改既有static import后通过。初次扫描只命中两条sku_key比较表达式的符号引用误报，改自然解构比较，未改规则或增例外；最终current/index/fullgit结果另列验证回执。
+
+真实Playwright首轮6/7：operator390隐藏表头使可见row20而旧断言21；20 SKU未缺，改响应式计数后第二轮7/7。最后扫描表达式等价收口后的构建复验6/7，连续测试账号触及真实5分钟5次限流而最后登录未成立；未清计数/降限/自动重投，新增本次E2E专用只读滑窗就绪检查，等待自然释放。最终同构建 **7/7（22.45s）**：operator22条/20+2分页、报告20完整/长中文/null/刷新/固定report/来源/真实TTL1800新鲜度450/server_time/390无overflow、Dialog Esc返回焦点；approver eligible20项/无默认确认/全部决定禁用/指定v1只读/缺解释缓存/events；admin-only无业务nav/编号/计数且强制深链/access；同店另一operator非本人404与不存在同envelope形状；兼任operator-A/approver-B不拼A eligible；原create_task回执当前principal回读、缺CSRF拒绝、logout后真实401；合法scope撤销后真实401并清业务/身份且无Mock回退。业务POST仅auth/login/logout，没有T1/decision/resolve。跨店eligible集合由真实T2及读API证明，但不称本批T3决定Gate。
+
+前三份safe summary分别见live-first-run/live-second-run/live-third-run，最终live-results；raw trace/HAR/HTTP body不记录。PW自动trace/video/screenshot全off，专用reporter仅test/status/duration/location白名单，不复制TestError、stdout、步骤或attachments。必要截图在成功认证且无密码input时显式保存，均实际查看：report1440、report390、admin1440。原生PW失败DOM error-context只留私有/忽略目录未上传，最后成功运行已清旧输出；为后续失败再加afterEach先导航自有about:blank，并将临时输出放600输入所属700私有窗口目录。此收尾仅source/typecheck核证，未重新制造登录失败来宣称实际清理探针通过，不开发通用脱敏框架。
+
+退出前核实际DB model_calls0，app role rolsuper/createdb/createrole全false；全部任务69/jobs66/plan11/approval11/request33/outbox11包含前两次失败种子，不能称cleanup0。完成即提前停止自有API/Next/PG并保卷/600文件，实际PGrunning=false/PID0、已知child退出记录见resource-window.json。只有注册项目被管理，无未知PID/用户Chrome/profile操作。B01已证真正200%/跨平台字体没有无变化重跑，不追加视觉批次；真人QA/HTTPS部署/真实模型/飞书/生产/Phase4保持未跑。人工H/L not_reported，Agent墙钟按Git/窗口UTC回执、机器时间按报告记，原B18h/300h不重置。
+
+```sh
+# 自有窗口已登记/启动并核PID后，从根运行；目录为本次私有输入，不是.env。
+PATH="$PWD/.tools/node/bin:$PATH" COMMERCEOPS_LIVE_WEB_URL=http://127.0.0.1:3460 COMMERCEOPS_B02_PRIVATE_DIR="$PWD/runtime/p3b02-8c4cee9d4102" npm --prefix frontend run test:live
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run test:contract
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run check:read-schema
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
+PATH="$PWD/.tools/node/bin:$PATH" NEXT_TELEMETRY_DISABLED=1 npm --prefix frontend run build
+uv run --frozen ruff check tests/e2e/web/live_seed.py tests/e2e/web/live_ready.py tests/e2e/web/live_revoke.py
+uv run --frozen mypy tests/e2e/web/live_seed.py tests/e2e/web/live_ready.py tests/e2e/web/live_revoke.py
+uv run --frozen python -m scripts.check_docs
+uv run --frozen python -m scripts.scan_secrets
+```
+
+本候选只退出登录/只读批；新source冻结/独审/组合CI待Root。A02/A03已审交接后再正常同步+生成类型/只读schema，后续按对应Gate接创建/决定/恢复/执行/resolve；当前真实B02完整业务、完整22操作runtime导出一致和全Phase3验收均未完成。

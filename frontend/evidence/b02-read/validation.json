@@ -1,0 +1,34 @@
+{
+  "product_digests": {
+    "frontend/app/[[...path]]/page.tsx": "be7287a166b51b1bd9729e6ad6adfedf7c255b9d17cce065548d0dd300d0573d",
+    "frontend/app/globals.css": "1fda7724a2b2e9e41bdbc14ef652ebc99d7a25e66dd8aeed15c5bf6f913d88c5",
+    "frontend/components/live-console.tsx": "d0c2886af18d2076ed49b2bde8fb076024f61fba8520ca13f9d02a7b76f551aa",
+    "frontend/components/live-readviews.tsx": "6e293de5d03f9d6f78af82c0ee975dd8919d125c4e601e5eca405ab5d20092af",
+    "frontend/lib/p3-live-client.ts": "e0a9ef518123b1c2790d76c874a08d9a0b9c5f6e6c9da44e68db376020c680dc",
+    "frontend/lib/p3-present.ts": "b65f62ad0652adba783d3a826b73df224de7137283f34b69b59736a48aa51195",
+    "frontend/lib/p3-transport.ts": "034dc219d2cb89b43ce72cdd3df6036324abc347a986cdd07a719d175833bdce",
+    "frontend/lib/p3-read-schema.generated.json": "67434525d1eeaf492fb7d0b5c08529ad4ee28cec3e489ff85ddb4a74b2017632",
+    "frontend/package.json": "cc7b55d76fe1f86e1e4f70a20431fd7d8127a1948577ff577675030280455138",
+    "frontend/package-lock.json": "644d1f9200af0d1e2ce019468b73d32c6764774e5e2c220d6606d614895ea9a0"
+  },
+  "at_utc": "2026-10-10T14:32:37.328973+00:00",
+  "base_merge": "5053f56000ca08872cad02bd437ac7f8156fef6b",
+  "reviewed_source_a": "aeaa916a59341a6ffa4a89f863d065580599f6d3",
+  "batch": "B02 actual session and read-only candidate",
+  "checks": {
+    "production_build": "passed",
+    "typecheck": "passed",
+    "read_schema_sync": "16 operations/67 schemas passed",
+    "injected_contract": "13 passed, 1.9s",
+    "owned_live_web": "7 passed, 22.453s",
+    "audit_production": "0 vulnerabilities",
+    "python_helpers": "Ruff/mypy 3 files passed",
+    "docs": "62 Markdown/0 errors",
+    "secrets": "dir/index/fullreachablegit 0 before final stage"
+  },
+  "live_cleanup_hook": "added after positive suite; source/typecheck verified, no new intentional failure probe",
+  "scope": "business writes and unsupported reads blocked before send; no A02 future schema sync",
+  "human_effective_hours": "not_reported",
+  "platform_model_requests_this_window": 0,
+  "stage_acceptance": "pending frozen review/new combined CI/Root"
+}

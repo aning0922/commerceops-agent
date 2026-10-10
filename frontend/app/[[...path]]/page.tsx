@@ -1,16 +1,56 @@
 import { redirect } from "next/navigation";
 import { Console } from "../../components/console";
 import { mockView } from "../../lib/mock-source";
+import { LiveConsole } from "../../components/live-console";
 export const dynamic = "force-dynamic";
 export default async function Page({
   params,
   searchParams,
 }: {
   params: Promise<{ path?: string[] }>;
-  searchParams: Promise<{ version?: string }>;
+  searchParams: Promise<{
+    version?: string;
+    report_id?: string;
+    operation?: string;
+  }>;
 }) {
   const path = "/" + ((await params).path ?? []).join("/");
   const query = await searchParams;
+  if (process.env.COMMERCEOPS_UI_MODE === "live") {
+    const origin = process.env.COMMERCEOPS_API_ORIGIN;
+    const localHttp = process.env.COMMERCEOPS_WEB_TRANSPORT === "local_http";
+    let valid = false;
+    try {
+      const url = new URL(origin ?? "");
+      valid =
+        url.origin === origin &&
+        !url.username &&
+        !url.password &&
+        (url.protocol === "https:" ||
+          (localHttp &&
+            url.protocol === "http:" &&
+            ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname)));
+    } catch {
+      /* Only public origin configuration is read; no .env/session/credentials. */
+    }
+    if (!valid)
+      return (
+        <LiveConsole
+          path="/access"
+          query={{}}
+          origin={null}
+          localHttp={localHttp}
+        />
+      );
+    return (
+      <LiveConsole
+        path={path}
+        query={query}
+        origin={origin!}
+        localHttp={localHttp}
+      />
+    );
+  }
   const requestedVersion = query.version;
   const validVersion =
     requestedVersion === undefined ||

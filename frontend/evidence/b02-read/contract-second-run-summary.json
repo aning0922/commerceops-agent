@@ -1,0 +1,5 @@
+{
+  "passed": 11,
+  "failed": 1,
+  "failure": "Playwright dynamic import transpilation: exports is not defined. Replaced with existing static import; no runtime API test failed."
+}

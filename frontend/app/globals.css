@@ -892,3 +892,8 @@ dialog.drawer {
     overflow-wrap: anywhere;
   }
 }
+/* Real UUID/hash/source references must wrap within the existing frozen geometry. */
+.app-shell[data-source-mode="live-session"] :is(p, small, strong, .list-row > span),
+.app-shell[data-source-mode="live-session"] .fact-list {
+  overflow-wrap: anywhere;
+}

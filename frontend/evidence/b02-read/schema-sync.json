@@ -1,0 +1,10 @@
+{
+  "source_commit": "aeaa916a59341a6ffa4a89f863d065580599f6d3",
+  "read_auth_operations": 16,
+  "schemas": 67,
+  "frozen_document_digest": "a469bb6825770325a664b4770b0f17c78786ecec2126142870e1bd7dd08a6245",
+  "generated_document_digest": "67434525d1eeaf492fb7d0b5c08529ad4ee28cec3e489ff85ddb4a74b2017632",
+  "subset": "A01 reads plus login/logout; business writes excluded before send",
+  "generator_check": "passed",
+  "future_ack300_change": "not_synced; wait Root-reviewed A02 freeze"
+}

@@ -1,17 +1,24 @@
 import { defineConfig } from "@playwright/test";
-// The actual API/credentials are supplied only in the Root-approved live window.
+// Own resources are started separately after private window registration.
+if (
+  !process.env.COMMERCEOPS_LIVE_WEB_URL ||
+  !process.env.COMMERCEOPS_B02_PRIVATE_DIR
+)
+  throw new Error("Explicit B02 owned live window required");
 export default defineConfig({
   testDir: "../tests/e2e/web/live",
   workers: 1,
   retries: 0,
+  timeout: 45000,
   use: {
     baseURL: process.env.COMMERCEOPS_LIVE_WEB_URL,
     trace: "off",
     video: "off",
-    // Explicit sanitized captures belong to reviewed live tests; no automatic
-    // screenshot may preserve login inputs or transient session capabilities.
     screenshot: "off",
+    browserName: "chromium",
+    headless: true,
+    viewport: { width: 1440, height: 1000 },
   },
-  reporter: "list",
-  outputDir: "test-results/live-safe",
+  reporter: "./tooling/live-reporter.ts",
+  outputDir: `${process.env.COMMERCEOPS_B02_PRIVATE_DIR}/pw-private`,
 });

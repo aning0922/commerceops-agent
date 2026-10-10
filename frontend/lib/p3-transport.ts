@@ -114,11 +114,20 @@ export class P3Client {
   #csrf: string | null = null;
   #principal: string | null = null;
   #invalidate: () => void;
+  #verify:
+    | ((method: string, path: string, status: number, data: unknown) => boolean)
+    | undefined;
   constructor(options: {
     origin: string;
     transport: FetchTransport;
     localHttp?: boolean;
     onSessionInvalidated?: () => void;
+    verifyResponse?: (
+      method: string,
+      path: string,
+      status: number,
+      data: unknown,
+    ) => boolean;
   }) {
     const base = new URL(options.origin);
     if (
@@ -140,6 +149,7 @@ export class P3Client {
     this.#origin = base;
     this.#transport = options.transport;
     this.#invalidate = options.onSessionInvalidated ?? (() => {});
+    this.#verify = options.verifyResponse;
   }
   clearSession(): void {
     this.#csrf = null;
@@ -210,6 +220,11 @@ export class P3Client {
         write && (response.ok || response.status >= 500)
           ? "WRITE_RESULT_UNKNOWN"
           : "INVALID_RESPONSE",
+        response.status,
+      );
+    if (this.#verify && !this.#verify(method, path, response.status, data))
+      throw new P3Failure(
+        write ? "WRITE_RESULT_UNKNOWN" : "INVALID_RESPONSE",
         response.status,
       );
     if (!response.ok) {
