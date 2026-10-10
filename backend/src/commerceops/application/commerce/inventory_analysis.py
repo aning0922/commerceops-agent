@@ -364,7 +364,12 @@ def analyze_inventory(
         "R": params.R,
         "S": params.S,
         "warnings": tuple(
-            sorted(set(flags) | global_blocks | {flag for f in facts for flag in f.quality_flags})
+            sorted(
+                set(flags)
+                | global_blocks
+                | unscoped_quality
+                | {flag for f in facts for flag in f.quality_flags}
+            )
         ),
         "items": tuple(facts),
         "candidate_count": candidate_count,

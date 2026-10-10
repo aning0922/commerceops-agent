@@ -108,6 +108,8 @@ async def mark_attention(db: AsyncConnection[dict[str, Any]], owner: str) -> Non
         failure_code='WORKER_TERMINATION_UNCONFIRMED',version=version+1,updated_at=clock_timestamp()
         WHERE EXISTS (SELECT 1 FROM business.jobs j WHERE j.task_id=t.id
         AND j.status='running' AND j.lease_owner=%s)
+        AND NOT (t.kind='inventory_analysis_only' AND t.state='completed'
+        AND business.valid_inventory_result(t.id,t.organization_id,t.shop_id,t.workflow_version))
         AND t.failure_code IS DISTINCT FROM 'WORKER_TERMINATION_UNCONFIRMED'""",
         (owner,),
     )

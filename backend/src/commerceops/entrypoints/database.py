@@ -58,6 +58,15 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
  business.identities, business.conversations, business.inbox_events, business.business_tasks,
  business.jobs TO commerceops_app
 """)
+        connection.execute("GRANT SELECT ON business.principal_shop_scopes TO commerceops_app")
+        connection.execute("""GRANT EXECUTE ON FUNCTION business.lock_inventory_permission(
+            uuid,uuid,uuid,uuid,bigint) TO commerceops_app""")
+        connection.execute("""GRANT SELECT, INSERT ON business.commerce_snapshots,
+            business.snapshot_products,business.snapshot_order_lines,business.snapshot_refunds,
+            business.analysis_reports TO commerceops_app""")
+        connection.execute("""REVOKE UPDATE, DELETE, TRUNCATE ON business.commerce_snapshots,
+            business.snapshot_products,business.snapshot_order_lines,business.snapshot_refunds,
+            business.analysis_reports FROM commerceops_app""")
         connection.execute("GRANT SELECT, INSERT ON business.audit_events TO commerceops_app")
         connection.execute(
             "REVOKE UPDATE, DELETE, TRUNCATE ON business.audit_events FROM commerceops_app"
