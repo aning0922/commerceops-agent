@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { Console } from "../../components/console";
 import { mockView } from "../../lib/mock-source";
 import { LiveConsole } from "../../components/live-console";
+import { B04OfflinePreview } from "../../components/b04-offline-preview";
+import { offlineScenarios } from "../../lib/b04-offline-source";
 export const dynamic = "force-dynamic";
 export default async function Page({
   params,
@@ -12,6 +14,7 @@ export default async function Page({
     version?: string;
     report_id?: string;
     operation?: string;
+    scenario?: string;
   }>;
 }) {
   const path = "/" + ((await params).path ?? []).join("/");
@@ -48,6 +51,21 @@ export default async function Page({
         query={query}
         origin={origin!}
         localHttp={localHttp}
+      />
+    );
+  }
+  if (
+    process.env.COMMERCEOPS_UI_MODE === "mock" &&
+    process.env.COMMERCEOPS_MOCK_BATCH === "b04" &&
+    (process.env.COMMERCEOPS_MOCK_ROLE ?? "operator") === "operator"
+  ) {
+    const scenario =
+      offlineScenarios.find((value) => value === query.scenario) ?? "ready";
+    return (
+      <B04OfflinePreview
+        path={path}
+        scenario={scenario}
+        role={process.env.COMMERCEOPS_MOCK_ROLE ?? "operator"}
       />
     );
   }

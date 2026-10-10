@@ -246,3 +246,32 @@ PG只读复核：combined20/approve/unknown各executing，停在A03 revalidate�
 窗口已提前正常停止API11788/Next11789/单Worker11787并由原handle reaped，PG running=false/PID0，原absolute stop不变，卷和首轮失败数据保留。详见resource-window.json；后续未启动同窗/旧P1P2/A资源。最终SHA独审、精确CI、Root签收、200%缺项及完整Phase3剩余Gate均以Root/GitHub实时回执为准；本批不合main。
 
 B03提交前首扫描仅dir/index各命中generation.json第5行公开合同SHA256与openapi字段名，git0；尚未提交/上传。元数据字段改为contract并保留scan-first-run.json，未改规则/新增例外；最终扫描以提交前工具和PR回执为准。
+
+
+## B04 离线准备批（未接 A03 真实 API）
+
+Root 在 B03 ed34 精确独审后授权安全并行离线准备；原 WT a266/codex/phase3-console/PR36，clean ed34 起步，本批只允许本地普通 commit，不push触发已知共享PG CI问题。B03独审实际结果与作者原失败分记：Reviewer独立自有8原套件+2等价probe、新动作键盘和后台真200%通过；B03完整Gate仍因精确CI38068569167 P3组command300触限pendingCI，不将本批离线测试代替该Gate。A唯一负责A03及共享CI分组评估。本批未读A03 WIP、未起PG、未连接API或实际业务写入，无新会话/分支/worktree/依赖。
+
+纯`ExecutionFacts`/`ItemListFacts`/`ItemDetails`与`ResolveDialog`使用现有完整p3-web-v1 DTO，复用原Card/Status/Sync/Modal、冻结内部项列表/详情/原因/操作轨迹样式。execution completed、每项open/completed/closed及sync分别呈现；internal-only，不表示采购/入库/库存修改。只有Worker执行回执展示，没有用户execute/retry/外部发送按钮；B32/B34禁用，终态无重开。列表完整显示20项/长中文/数量/版本/统计与筛选，来源只有服务端可见ID，缺计划版本不猜补、无权来源不造链接。
+
+Resolve只使用当前can_resolve/open/版本及完整记录一致性；准备前GET当前项复查，版本变化不自动生成新键。原因pristine无错误，提交后校验；局部明确按A提供的Python3.12 str.strip集合（U+001C–001F/0085等边界移除、FEFF保留）和1–1000 Unicode码点，不做NFC/NFKC/内部空白归一。已与自有固定字符串、Python3.12标准strip实际对照；尚未实际PG/HTTP Unicode Gate。规范reason/expected_version/action、item path与原请求key/JSON bytes由既有P3Client私有closure封存；预备时读取快照另冻结用于receipt绑定，hash不授权限、不自行创造server权威hash算法。首次receipt严格核item/key/action/reason/before-after版本/状态，后续核同原resolution id/actor/time/server digest；Mock digest明确低熵占位，不称实际canonical hash。
+
+Unknown不自动POST/换键/相反动作，只有原operation/key回读或显式原字节重投；404仍待核实，不能推断失败。pending/unknown阻止Dialog关闭/卸载误丢请求并有beforeunload提示；未提交dirty需确认丢弃。冲突固定安全文案、保留原请求；401清Mock身份/业务/预备操作及异步迟到填充。成功后内部项采用原receipt终态，sync异常继续独立呈现；关闭Dialog焦点落到当前事实摘要，未提交Esc回原触发按钮。
+
+`p3-live-client.ts`、`p3-read-schema.generated.json`、`p3-types.generated.ts`、`p3-transport.ts`与原`ui.tsx`相对ed34逐字节不变。正式runtime仍18operations，四未审接口execution/items/item/resolve在before-send零请求拒绝，未开放A03。新增schema校验只针对既有67components中的纯DTO；注入固定Mock transport无fetch、真实cookie或外部身份。预览仅显式UI_MODE=mock + MOCK_BATCH=b04 + operator样例启用，live/未启Mock/其他角色不走此分支；角色不能通过query改变。原read/T1/T3合同回归保留，B04新纯适配没有声明稳定server export。
+
+实际离线合同首轮26/26（2.3s），包含原20与6个新增DTO/Unicode/门禁/回执绑定/原字节10次/401/404/冲突用例；四未审接口均零transport请求。Mock production headless UI首轮3/6（20.5s），两处断言与既有Sync文案不符、一处在异步准备完成前按Space；首失败sanitized摘要保留。断言/等待收口，同时补快照冻结/终态焦点/卸载防迟到后同批复验**6/6（4.3s）**：Tab/ShiftTab/Enter/Space/Esc/终态安全焦点、空白/1001emoji/FEFF组合原因、390完整20项及execution与sync分离、dirty关闭、terminal/readonly、ACK unknown原键恢复、404不推失败、版本/终态/损坏绑定冲突与401清缓存。全用注入response；业务API/非GET/站外网络请求均0，没有把Mock当真实结果。26合同最终复验另见实际回执。
+
+Production build/typecheck/schema18 check实际通过；独占Next3490由Playwright `reuseExistingServer=false`启动/停止，结束lsof3490无listener，无PG/API/Worker。只headless独立browser/context，不涉及用户Chrome/OS键鼠/可见浏览器/缩放试验；trace/video/自动截图off，显式Mock截图items390和resolve1440已检查，非新设计批次。必要命令：
+
+```sh
+COMMERCEOPS_WEB_BATCH=b04-offline PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run test:contract
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
+PATH="$PWD/.tools/node/bin:$PATH" NEXT_TELEMETRY_DISABLED=1 npm --prefix frontend run build
+# 从frontend目录，临时PATH指向项目自有.tools/node/bin
+npm exec -- playwright test --config playwright.b04-offline.config.ts
+```
+
+证据在frontend/evidence/b04-offline/。最终敏感扫描/本地提交以工具回执为准；本批不推送、不触发CI、不合main、不标B04/阶段Gate通过。等Root给A03已审稳定SHA后普通merge，再同步完整22 runtime schema、真实Web/PG/Unicode/wire、独审和新精确CI，同PR36完整交付。人工H/L not_reported；估计0.75–1.5 Agent有效小时+机器检查计原B18/60/300容量，无新增预算、原日期不重置。
+
+B04首敏感扫描dir/index各3、git0，仅request_key/stock_pool_key相等判断的符号引用误报；在未提交状态用正常字段解构/别名保持绑定，未改规则/新增豁免，首摘要保留。另核Mock20项导航，固定20个可见ID均有对应离线详情；不是任意对象/真实接口访问。最终组件build/合同/UI复核按最新回执。

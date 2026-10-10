@@ -113,6 +113,17 @@ test("live transport发送前只准已审A02，执行与resolve仍零请求", as
       method: "GET",
     }),
   ).rejects.toThrow("outside reviewed");
+  await expect(
+    transport(
+      new URL(`https://test.invalid/api/v1/replenishment-items/${id}`),
+      { method: "GET" },
+    ),
+  ).rejects.toThrow("outside reviewed");
+  await expect(
+    transport(new URL(`https://test.invalid/api/v1/tasks/${id}/execution`), {
+      method: "GET",
+    }),
+  ).rejects.toThrow("outside reviewed");
   expect(calls).toBe(0);
   await transport(new URL("https://test.invalid/api/v1/auth/login"), {
     method: "POST",

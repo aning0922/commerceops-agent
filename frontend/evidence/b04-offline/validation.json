@@ -1,0 +1,38 @@
+{
+  "base": "ed34a7277bb792504180251a8960200ee80493e6",
+  "batch": "B04 offline preparation only",
+  "critical_files_byte_unchanged": {
+    "frontend/lib/p3-live-client.ts": true,
+    "frontend/lib/p3-read-schema.generated.json": true,
+    "frontend/lib/p3-types.generated.ts": true,
+    "frontend/lib/p3-transport.ts": true,
+    "frontend/components/ui.tsx": true
+  },
+  "runtime_reviewed_operations": 18,
+  "unreviewed_before_send_blocked_operations": 4,
+  "contract_tests": 26,
+  "mock_ui_tests": 6,
+  "mock_ui_duration_seconds": 4.3,
+  "real_API_PG_tests": "not_run",
+  "model_feishu_production": "not_run",
+  "transport": "injected deterministic fixtures only; no fetch",
+  "ui_network": {
+    "business_API": 0,
+    "non_GET": 0,
+    "external_origin": 0
+  },
+  "headless": true,
+  "trace": "off",
+  "video": "off",
+  "automatic_screenshot": "off",
+  "mock_port": 3490,
+  "service_after_test": "no listener (lsof exit1)",
+  "unicode_reason": "Python3.12 strip whitespace; scalar length1-1000; FEFF retained; no NFC/NFKC/internal whitespace normalization",
+  "hash": "server digest binding only; fixture digests are declared placeholders, no authority algorithm",
+  "human_H_L": "not_reported",
+  "budget": "original B18/stage60/300 unchanged",
+  "delivery": "local ordinary commit only; no push/CI activation; Gate pending A03 reviewed stable source",
+  "final_build_id": "5MgcXIHpwsUucTakBlGqf",
+  "last_visible_item_navigation": "item20 detail/resolve eligibility verified in explicit Mock",
+  "final_ui_duration_seconds": 4.93
+}

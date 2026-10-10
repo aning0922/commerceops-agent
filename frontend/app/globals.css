@@ -909,3 +909,7 @@ dialog.drawer {
   min-height: 24px;
   flex: 0 0 24px;
 }
+
+.app-shell[data-source-mode="b04-offline"] :is(p, small, strong, .list-row > span) {
+  overflow-wrap: anywhere;
+}
