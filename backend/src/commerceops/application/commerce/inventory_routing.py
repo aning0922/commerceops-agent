@@ -92,8 +92,10 @@ class GuardedRouter:
                     start = field.end()
                     end = start + len(scalar.group())
                     suffix = request.text[end:]
-                    if suffix.startswith("天"):
-                        suffix = suffix[1:]
+                    # 单位前Unicode空白只用于lookahead，原句/span/hash不改写。
+                    unit_suffix = suffix.lstrip()
+                    if unit_suffix.startswith("天"):
+                        suffix = unit_suffix[1:]
                     if suffix and not suffix[0].isspace() and suffix[0] not in ",，;；。!！?？":
                         raise ValueError("AMBIGUOUS_PARAMETERS")
                     following = suffix

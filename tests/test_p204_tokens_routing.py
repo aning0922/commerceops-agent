@@ -20,6 +20,7 @@ from commerceops.infrastructure.p204_token_counter import (
     USER_MARKER,
     VerifiedTextCounter,
 )
+from pytest import MonkeyPatch as Patcher
 
 pytestmark = pytest.mark.offline
 
@@ -287,4 +288,83 @@ def test_complete_integer_scalar_not_truncated(scalar: str) -> None:
     decision = asyncio.run(GuardedRouter(ScriptedModel(proposed)).route(RoutingInput(text=text)))
     assert decision.intent == (
         "inventory_replenishment" if scalar in ("4", "4天", "4，") else "clarify"
+    )
+
+
+@pytest.mark.parametrize(
+    "scalar", ["4 天到5天", "4\u00a0天到5天", "4 天 / 5 天", "4", "4天", "4 天", "4\u00a0天"]
+)
+def test_unit_whitespace_keeps_spans_and_blocks_business_dispatch(
+    scalar: str, monkeypatch: Patcher
+) -> None:
+    from pathlib import Path
+    from uuid import uuid4
+
+    from commerceops.application.commerce.analysis_task import TrustedReadIdentity
+    from commerceops.entrypoints import explanation_http
+    from commerceops.entrypoints.api import create_app
+    from commerceops.entrypoints.explanation_http import ExplanationEndpoints
+    from commerceops.infrastructure.database import DatabaseSettings
+    from fastapi.testclient import TestClient
+
+    text = f"L={scalar} R=7 S=2"
+    candidates = tuple(
+        ParameterCandidate.model_validate(
+            {"name": n, "value": v, "start": i, "end": i + 1, "source": "explicit_text"}
+        )
+        for n, v, i in [("L", 4, 2), ("R", 7, text.index("R=") + 2), ("S", 2, text.index("S=") + 2)]
+    )
+    proposal = ModelRoute(
+        intent="inventory_replenishment", candidates=candidates, evidence_mode="offline_stub"
+    )
+    valid = scalar in ("4", "4天", "4 天", "4\u00a0天")
+    decision = asyncio.run(GuardedRouter(ScriptedModel(proposal)).route(RoutingInput(text=text)))
+    assert decision.intent == ("inventory_replenishment" if valid else "clarify")
+    assert [(c.start, c.end, text[c.start : c.end]) for c in candidates] == [
+        (2, 3, "4"),
+        (text.index("R=") + 2, text.index("R=") + 3, "7"),
+        (text.index("S=") + 2, text.index("S=") + 3, "2"),
+    ]
+    created = []
+
+    class Db:
+        def __enter__(self) -> "Db":
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            pass
+
+        def execute(self, *args: object) -> "Db":
+            return self
+
+        def fetchone(self) -> dict[str, object]:
+            return {"id": uuid4()}
+
+    def create(*args: object) -> tuple[object, object]:
+        created.append(args)
+        return uuid4(), uuid4()
+
+    # 明确离线scope/数据库替身，只验证已守卫意图的应用分派，不冒充真实PG/认证。
+    monkeypatch.setattr(explanation_http, "connect", lambda _: Db())
+    monkeypatch.setattr(explanation_http, "_authorize", lambda *_: None)
+    monkeypatch.setattr(explanation_http, "create_analysis_task", create)
+    actor = TrustedReadIdentity(uuid4(), uuid4(), uuid4(), uuid4(), 1)
+    client = TestClient(
+        create_app(
+            explanation_service=ExplanationEndpoints(
+                DatabaseSettings(
+                    host="offline",
+                    name="offline",
+                    user="offline",
+                    password_file=Path("not_read_offline"),
+                ),
+                GuardedRouter(ScriptedModel(proposal)),
+            ),
+            identity_resolver=lambda _: actor,
+        )
+    )
+    response = client.post("/test/route", json={"text": text})
+    assert response.status_code == 200 and len(created) == int(valid)
+    assert response.json()["decision"]["intent"] == (
+        "inventory_replenishment" if valid else "clarify"
     )

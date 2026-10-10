@@ -62,3 +62,12 @@ usage/价格估算/预留金额分别保存；无实际账单时actual_cost_usd=
 30分钟原窗口07:17:48～07:47:48 UTC、最多两针对PG批，均由Root有界派发。自有p203-b2653e7c95：首批34 passed/12 failed/38.27s，其中33 P204全部通过，12 test_postgres失败均base库未初始化的UndefinedTable；正确完成0004/migrate/setup/grant后第二批46 passed/1 failed/38.13s。唯一失败是新增call_observation_committed屏障用例沿用旧expected uncertain，而正确不可变观察为observed/stop=false；该case在失败前已实证second HTTP=0、reserved_count=1/full金额不增、stage halted、原+另一task状态/owner绑定正确。测试source已仅更正该观察断言；corrected-image本地PG未再运行，不写作者全PG通过。Root明确不加第三轮，冻结后独立复审重放原两probe及修正用例，并由新精确CI覆盖完整正确测试；任何未通过仍阻断。
 
 必要完整scripts.check实际838 offline/71.80s（最后Unicode空白增补前），mypy136源文件、ruff/format/docs/锁/Node检查及Python95包/Node漏洞0；最终source再跑840 offline/69.66s、198 integration deselected，新参数/token/config专项49/0.83s。corrected-image PG仍未额外跑。自有p203-b2653e7c95 containers/volumes/networks全0、所属runtime/PG密码已移除，model资源未读/改。提交前current/index/全部可达history扫描结果记于同PR冻结回执。没有扩大Bnamespace/权限、通用框架或新阶段预算；actual provider0、key/env未读、main未合。第5节完整通过属于a057作者候选历史，当前两P2解除须新冻结复审/新CI，不能复用旧全绿。
+
+
+## 7. 6910复审参数单位空白残留与第二源码修复
+
+Root在精确6910复审实跑198 PG/109.74s，corrected observed断言/撤权恢复通过；原恢复probe第二HTTP0/reserve1/halttrue、legacy NULL与新owner完成缓存复用通过，预算原P2独立解除。原L=4.5/4/5 realPG HTTP clarify且库存任务增量0，合法整数增量1。但同参数P2尚有单位前空白残留：`L=4 天到5天 R=7 S=2`、实际NBSP `L=4 天到5天 R=7 S=2`、`L=4 天 / 5 天 R=7 S=2`仍all explicit_text，独立realPG各错误创建1库存任务。旧6910 CI38035465760 SUCCESS不能抵此复审残留或完整Phase2 Gate。
+
+本轮仅在原数值词元guard的单位lookahead前处理Unicode空白，再识别限定天单位及后续范围/分数/小数/邻数；没有整体重写原句，span/input/bodyhash保持。预算/Owner/migration/queue/权限/B均不改。原Root07:55～08:05 UTC10分钟source/offline窗口，作者不追加第三PG。
+
+新增7项专属离线回归：三非法原句的旧6910 guard都在intent断言实际失败；四合法控制在guard后遇新测试DatabaseSettings必填配置缺失，首次after也因此7失败，补显式离线假配置后最终56专项passed/1.35s，mypy136/ruff通过。三非法的HTTP应用分派为明确scope/DB/创建函数替身，created次数0；`4`、`4天`、`4 天`、`4 天`控制各created1且候选原句span不变。替身不冒充realPG/生产auth或已完成独审。新冻结须Root增量独审及新SHA实际CI/必要PG，模型0/key不读/main未合，保留同源修复轮次与旧失败事实。
