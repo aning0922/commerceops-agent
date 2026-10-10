@@ -646,3 +646,12 @@ Root批准B03 CI聚合P3 300s超时的最小修复：按完整actual collection�
 A03作者最终完整333PG全部通过：旧236/142.47s，11个P3自然模块共97项，最大命令163.82s、所有12组命令合计607.14s，actual collection与union精确核对。988offline/84.99s、Ruff/245format/mypy177、389合同、installed wheel22与actualwire32/22、3次自有G1持久化/6原G2 process records、扫描dir/index/git0。实际02:25:52.739376426+08停止p3a3-1571d50369ef，false/PID0/tempDB0/otherbaseconn0/app高权false/revision0007/文件600/保卷ledger；早于原03:01:30截止、无延期、不称cleanup0。详见[作者证据](contracts/p3-a03-author-evidence.json)、[停机回执](contracts/p3-a03-stop-evidence.json)及[A03最终表](PHASE3_A03.md#最终作者收口实际回执)。新freeze/独审/精确CI/Root A03 Gate/B集成仍待，main59/Phase3 in_progress/Issue未结案不提前改变。
 
 原A03 CI38076119191自然FAILURE负证据：988offline/129.66s、325完整PG（236旧+89P3）通过；projection在global expires−75仅约19s余量下exit137/stop confirmed/cleanup0，revalidation5及后续G1 not_run，无deadlock/旧#23根因结论。原Core独审23/1失锁竞争仍独立阻断。business两项最小修复正常commit，Root明确暂缓push，后续受限CI容量批次另裁决；不提高23/25/300/75、不减测试、PG已停不新开。详见[FIX1](PHASE3_A03_FIX1.md)和[原CI负证据](contracts/p3-a03-original-ci-failure.json)。
+
+
+## 39. A03 business独审与独立CI容量批
+
+Root核748879e63c07185ae8c6f150827b7860ea66621e/tree634d77两项最小business修复的原Core全101真实P3（28/177.78、30/121.32、43/165.89）、32实际HTTP/22op/actualprovider0/pure69，无新P1/P2，19:10:11Z PG Exit0/PID0早停保卷；旧2e0失锁23/1失败不抹去。Root只授权原B从已审748 Git对象正常内部合后离线接线，真实PG/API等新CI放行。
+
+原CI实际merge c47f12235dcd52ea590ebc6d13fe81ce26f37452/main59+2e0/tree4fe同源；自然FAILURE，325完整PG/988offline通过但projection在global expires−75只余19s被终止，cleanup0，reval5/G1后续not_run，无死锁结论。Root另批35min受限CI容量修复（非第三business修复）：两个独立PG jobs各原23/25/300/75，quality=offline+existing+原G1/G2，phase3=所有P3自然模块；各actual全collect337动态derive自身精确节点，无挑选/硬count/漏重。仅上传两whitelist安全JSON，官方精确SHA artifact Actions/contentsread原权不变，最后轻量same checkout/source/tree/tools/lock/binary/fullnodes/actualunion/modules/G1G2/cleanup配对。实现/78pure离线及原fullcheck收口不替新实际CI；本批不新开PG/Docker/不改748业务/B/DTO/migration。见[容量证据](PHASE3_CI_CAPACITY.md)。新统一freeze/原Core字节继承+CI delta/新精确337CI/Root Gate仍待，Phase3 in_progress/main59/B未合A/main/Issue未结案。
+
+CI容量作者最终check1025offline/85.07s、337deselected，249format/179mypy/66MD0error、Node及95Python漏洞0、扫描0；78专项pure0.11s。122个748已审业务/P3tests/DTO/migration/frontend/lock字节继承，未本地执行新337/开PG或Docker，双job actualCI与原Core delta仍待，不提前Gate。详见[容量作者安全证据](contracts/p3-ci-capacity-author-evidence.json)。

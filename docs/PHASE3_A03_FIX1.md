@@ -44,3 +44,6 @@ before_graph无CP是独立边界。私有测试barrier在CancelledError时仅输
 projection于18:53:00.276811Z开始，18:53:19.735107Z因固定全局expires−75预算仅约19s耗尽而timeout，确认stop/exit137/cleanup0；第1项call+teardown通过，第2项在途，模块3项未完整。revalidation5及后续G1未跑。没有projection死锁或旧Issue23根因证据，不能以单命令300s不足解释或提高23/25/300/75。父merge c47f122仅Root已报短SHA，完整SHA/tree待核。
 
 本两项business minfix正常commit，按Root直接指令暂缓push；独立受限CI容量批次由Root另裁决，属于后续CI工作，不冒作本批第三同源business修复。当前PG已停，无新资源；不减少测试/降低恢复Gate/触发已知容量不足的新CI。
+
+
+Root后续实际核748两项business minfix原Core全101PG/32wire22/pure69无新P1/P2、Reviewer早停保卷，通过回执与旧2e0失败分别保留。Root已另裁决独立35min CI容量批（不是第三business修复），采用原各job预算的两个独立PG job与精确白名单metadata配对，统一新freeze后CI delta/337回归另核。当前详见[PHASE3_CI_CAPACITY](PHASE3_CI_CAPACITY.md)与STATUS39，不复活上文“容量待裁决/暂缓push”为新限制。
