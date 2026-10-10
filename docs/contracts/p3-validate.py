@@ -189,6 +189,34 @@ def main() -> None:
     check_input("DecisionInput", {**joint, "acknowledged_assumption_keys": keys + keys[:1]}, False)
     check_input("DecisionInput", {**decision, "acknowledged_assumption_keys": keys}, False)
     check_input("DecisionInput", {**decision, "action": "reject_assumptions"}, True)
+    long_key = "inbound_unknown_zero:" + "x" * 256
+    require(len(long_key) == 277, "full SKU assumption key length drift")
+    check_input("DecisionInput", {**joint, "acknowledged_assumption_keys": [long_key]}, True)
+    receipt = {
+        "schema_version": "p3-web-v1",
+        "identity_mode": "session",
+        "server_time": "2026-10-10T00:00:00+00:00",
+        "trace_id": uuid,
+        "request_key": uuid,
+        "decision_id": uuid,
+        "task_id": uuid,
+        "approval_id": uuid,
+        "plan_id": uuid,
+        "plan_version": 1,
+        "plan_hash": "0" * 64,
+        "decision_payload_hash": "0" * 64,
+        "action": "approve_with_assumptions",
+        "acknowledged_assumption_keys": [long_key],
+        "approval_status": "approved",
+        "decided_by": uuid,
+        "decided_at": "2026-10-10T00:00:00+00:00",
+        "decision_source": "web",
+        "reason_code": None,
+        "resume_state": "queued",
+        "duplicate": False,
+    }
+    check_input("DecisionReceipt", receipt, True)
+    check_input("DecisionReceipt", {**receipt, "acknowledged_assumption_keys": ["x" * 301]}, False)
     resolve = {
         "schema_version": "p3-web-v1",
         "request_key": uuid,
@@ -244,7 +272,7 @@ def main() -> None:
     print(f"Contract checks passed: {CHECKS}; no service/PG/identity/decision execution")
     print(
         "JSON Schema integer permits integral float; runtime strict JSON integer "
-        "and DB-bound exact assumption-set remain not_run Gates."
+        "is checked separately by runtime tests; this command supplies contract evidence only."
     )
 
 

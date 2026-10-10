@@ -615,3 +615,15 @@ Issue33及Root直接派单已授权Phase3；第35节的未授权句是当时快�
 0005固定role-bound scope/PG Cookie会话、两模式T1持久幂等和不可变T2/唯一官方PG interrupt已经实现。17实际operations只提供会话、创建、当前有权读取；ready_at仍NULL/card blocked/sender false，decision/execute/items/resolve/A02-A03尚未实现。来源mock、身份session、自动化simulated_web，零新付费模型/飞书业务写/生产/Phase4。B组件及frontend/npm/E2E未合未写，Root在A01 Gate后协调B登录/读取接线；原P1/P2/UX/日期/预算/失败和未验证事实保持。
 
 39d7候选CI38053812405实际FAILURE：offline933pass，PG combined在原单命令300s截止由supervisor确认停止/exit137/cleanup0，235测试phase全passed、36未完成，无PG末summary；九次CheckViolation只是一个通过的既有负例testID重复，不是九个错误。Root放行一次30min仅scripts/test/docs修复，从实际完整collection派生原/P3两组并核完整覆盖/实际集合；每条仍300s、25/23min及cleanup75/G1/G2/业务恢复边界不改，不复活旧#23未知根因。详见PHASE3_A01的失败与修复记录；新冻结独审/精确CI未确认前A01不通过、A02/B不放行。
+
+## 37. Phase3 A02 T3与持久恢复收口
+
+A01已由Root核定通过：aeaa916、独立39业务/40增量、实际CI38055767391 SUCCESS，checkout9226da3/tree3dde1cde同源；952offline/116.70s、236旧PG/265.70s、35P3/101.44s、3G1/6G2/cleanup0。Issue34#6098087434/Issue33#6098087681已派A02完整批；第36节未通过及A02未放行是历史状态。期间唯一扫描策略9f4aee5独立14/CI38061513830 SUCCESS，实际238e743/tree3dc37257、959offline/124.72s、236旧PG/239.21s、35P3/100.14s、3G1/6G2/cleanup0，未含A02 WIP；详见[策略记录](PHASE3_B_SCAN_POLICY.md)。
+
+同WT62c8/分支codex/phase3-approval/PR37的A02实现T3当前真实session/role-bound scope/eligible/版本hash/nonce/锁后DB clock、未知在途精确集合确认、持久唯一决定/resume/原请求、ready匹配与真实kill恢复。唯一业务interrupt保持；Root批准临时静态before revalidate，真实next无第二人工interrupt，持久continuation确保原resume done后不丢A03待办。A03必须None续同CP，不回START/重发Command，T4 consumed_at仍NULL、带plan task未完成。失锁prepare-gap限定旧OS确认/原注册job/相同绑定/精确next无interrupt恢复；未知CP/版本/next转attention。仅授权Receipt ack key maxLength256→300，277完整键无截断；实际runtime18 operations/17paths，四execution/items/resolve待A03，完整22 Gate待后续。
+
+作者最终实际collection295完整覆盖：旧236PG/143.20s、P3 59PG/223.88s（旧35+新24），串行/无遗漏/重叠0；21实际HTTP Schema响应、389纯合同、最新19纯决定/export/0.66s，完整978offline/91.46s及扫描/type/依赖0。失锁prepare-gap、真实60s锁后过期、固定None兼容probe、三个真实持久CP错误、DB不可变/拼接/提前消耗拒绝皆实际核验；首轮55/225.13s、增强58/231.38s及旧236首轮235pass/1过时queued断言fail/149.44s历史保留。冻结/独审/精确CI/Root A02 Gate仍按新实际回执，不以作者自检验收。细目见[PHASE3_A02](PHASE3_A02.md)。
+
+本批唯一新PG p3a2-1ec0f4e8c9fb，owner phase3-A02-WT62c8，loopback49296，登记22:27:26.699148、原90min截止2026-10-10 23:57:26.699148+08:00，实际23:38:08.318816587早停/观察running=false/PID0；停前临时DB0/其他base连接0、app高权false，保卷/ledger0600，不标cleanup0。见[安全停机](contracts/p3-a02-stop-evidence.json)。严格串行、不读旧secret/.env，mock/session/simulated_web、paid0/飞书业务写0；B未合，A03/T4/T6/正向cached explanation/完整22/B写页面待Root Gate后派单验证，生产/扩权/Phase4未授权，旧证据/日期/预算/人工H/L not_reported保持。
+
+Root已回报B02只读Gate通过：source8365abf8bb40973964d7381345a244c78511bc16、独立Review无阻断、自有真实7PW/22Origin/17contract；[CI38063196793](https://github.com/aning0922/commerceops-agent/actions/runs/38063196793) SUCCESS，actual4fdb18c4a3fcd83c179a19f86fcb5d33d5d922c1 parents9f+8365、tree5c4ade828f86d0e4caecaeffc18229c6d15747f6与source同源；981offline/125.66s、236旧PG/247.43s、35P3/100.65s、3verifiedG1/6G2/cleanup0、三scan0。仅B只读/会话ready，[PR36](https://github.com/aning0922/commerceops-agent/pull/36)未合A脏目录、没有write或全阶段通过；A02冻结/独审/精确CI后由Root另派A03与原B审批接线。

@@ -551,9 +551,15 @@ def test_unsupported_workflow_never_runs_as_new_graph(fixture: Fixture) -> None:
             ).fetchone()
             assert row == {"status": "dead", "last_error": "WORKFLOW_VERSION_UNSUPPORTED"}
             row = db.execute(
-                "SELECT workflow_version FROM business.business_tasks WHERE id=%s", (bad.task_id,)
+                """SELECT workflow_version,state,failure_code FROM business.business_tasks
+             WHERE id=%s""",
+                (bad.task_id,),
             ).fetchone()
-            assert row and row["workflow_version"] == "old-unsupported-v0"
+            assert row == {
+                "workflow_version": "old-unsupported-v0",
+                "state": "needs_attention",
+                "failure_code": "WORKFLOW_VERSION_UNSUPPORTED",
+            }
     finally:
         process.close()
 

@@ -110,10 +110,16 @@ class JobQueue:
             """status='dead',lease_owner=NULL,lease_until=NULL,
             last_error=%s,updated_at=clock_timestamp()""",
             (code,),
+            unknown_workflow=code == "WORKFLOW_VERSION_UNSUPPORTED",
         )
 
     async def _update(
-        self, job: RunRequest, assignments: str, args: tuple[object, ...] = ()
+        self,
+        job: RunRequest,
+        assignments: str,
+        args: tuple[object, ...] = (),
+        *,
+        unknown_workflow: bool = False,
     ) -> None:
         # assignments 为本文件固定 SQL；不接受外部字段/片段。
         await self.session.check()
@@ -129,3 +135,11 @@ class JobQueue:
             )
             if cursor.rowcount != 1:
                 raise OwnershipLost("job ownership changed")
+            if unknown_workflow:
+                await db.execute(
+                    """UPDATE business.business_tasks SET state='needs_attention',
+                 failure_code='WORKFLOW_VERSION_UNSUPPORTED',version=version+1,
+                 updated_at=clock_timestamp() WHERE id=%s AND organization_id=%s AND shop_id=%s
+                 AND state NOT IN ('completed','rejected','expired')""",
+                    (job.task_id, job.organization_id, job.shop_id),
+                )

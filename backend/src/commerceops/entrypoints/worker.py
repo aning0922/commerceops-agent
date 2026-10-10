@@ -59,19 +59,25 @@ async def serve(
     print(f"technical test worker started: owner={session.owner}", flush=True)
     try:
         runner: RunnerPort
+        approval = (
+            ApprovalRunner(ApprovalStore(web_config, session)) if web_config is not None else None
+        )
         if fixture is not None:
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
                 InventoryRunner(InventoryStore(settings, session), MockCollectorFactory(fixture)),
                 ExplanationRunner(ExplanationStore(settings, session), factory),
                 IntentRunner(IntentStore(settings, session), factory),
-                ApprovalRunner(ApprovalStore(web_config, session))
-                if web_config is not None
-                else None,
+                approval,
             )
         else:
             runner = TechnicalRunner()
-        await Worker(session, runner).run(stop)
+        await Worker(
+            session,
+            runner,
+            reconcile=approval.reconcile if approval else None,
+            recovery_scan_seconds=web_config.recovery_scan_seconds if web_config else 30,
+        ).run(stop)
     except UnsafeShutdown:
         # 在 asyncio.run 清理 pending tasks 之前退出；非合作调用不能拖住退出。
         print("worker cancellation unconfirmed; termination confirmation required", flush=True)

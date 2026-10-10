@@ -8,6 +8,7 @@ from uuid import UUID
 
 from commerceops.application.replenishment.contracts import TASK_KIND, WebActor, WebFailure
 from commerceops.domain.commerce_values import canonical_bytes, utc_time
+from commerceops.infrastructure.approval_decisions import decision_fields, may_decide, nonce_for
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.inventory_repository import _stored
 from commerceops.infrastructure.replenishment_repository import (
@@ -255,8 +256,19 @@ class ReplenishmentReadStore:
             task = visible_task(db, actor, task_id)
             source = self._source(db, task)
             approval = db.execute(
-                "SELECT id FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
+                "SELECT * FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
             ).fetchone()
+            plan = (
+                db.execute(
+                    "SELECT * FROM business.replenishment_plans WHERE id=%s",
+                    (task["active_plan_id"],),
+                ).fetchone()
+                if approval
+                else None
+            )
+            can_decide = bool(
+                approval and plan and may_decide(db, self.config, actor, task, approval, plan)
+            )
             return envelope(
                 db,
                 task=self._summary(db, task),
@@ -266,12 +278,12 @@ class ReplenishmentReadStore:
                 execution_id=None,
                 visible_item_ids=[],
                 actions={
-                    "can_decide": False,
+                    "can_decide": can_decide,
                     "can_resolve": False,
                     "can_start_new_cycle": task["state"] == "completed"
                     and has_capability(db, actor, "operator"),
                     "can_recompute": False,
-                    "disabled_reasons": ["DECISION_NOT_IMPLEMENTED", "RECOMPUTE_DISABLED"],
+                    "disabled_reasons": ["EXECUTION_NOT_IMPLEMENTED", "RECOMPUTE_DISABLED"],
                 },
                 failure_code=task["failure_code"],
             )
@@ -298,19 +310,23 @@ class ReplenishmentReadStore:
     def plan(self, actor: WebActor, task_id: UUID, version: int) -> dict[str, Any]:
         with connect(self.settings) as db:
             self._business(db, actor)
-            visible_task(db, actor, task_id)
+            task = visible_task(db, actor, task_id)
             row = db.execute(
                 "SELECT * FROM business.replenishment_plans WHERE task_id=%s AND version=%s",
                 (task_id, version),
             ).fetchone()
             if not row:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            approval = db.execute(
+                "SELECT * FROM business.approvals WHERE plan_id=%s", (row["id"],)
+            ).fetchone()
+            allowed = bool(approval and may_decide(db, self.config, actor, task, approval, row))
             return envelope(
                 db,
                 plan=self._plan(row),
-                can_decide=False,
-                nonce=None,
-                disabled_reasons=["DECISION_NOT_IMPLEMENTED"],
+                can_decide=allowed,
+                nonce=nonce_for(self.config, approval) if allowed and approval else None,
+                disabled_reasons=[] if allowed else ["NOT_DECIDABLE"],
             )
 
     @staticmethod
@@ -351,12 +367,14 @@ class ReplenishmentReadStore:
             ).fetchone()
             if not row:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            visible_task(db, actor, row["task_id"])
+            task = visible_task(db, actor, row["task_id"])
             plan = db.execute(
                 "SELECT * FROM business.replenishment_plans WHERE id=%s", (row["plan_id"],)
             ).fetchone()
             if not plan:
                 raise WebFailure("NOT_READY")
+            allowed = may_decide(db, self.config, actor, task, row, plan)
+            decision = decision_fields(db, row)
             return envelope(
                 db,
                 approval={
@@ -369,14 +387,18 @@ class ReplenishmentReadStore:
                     "created_at": row["created_at"],
                     "expires_at": row["expires_at"],
                     "ready_at": row["ready_at"],
-                    "can_decide": False,
+                    "can_decide": allowed,
                     "item_count": plan["content"]["item_count"],
                     "total_units": plan["content"]["total_units"],
                 },
                 plan=self._plan(plan),
-                nonce=None,
-                decision=None,
-                disabled_reasons=["DECISION_NOT_IMPLEMENTED"],
+                nonce=nonce_for(self.config, row) if allowed else None,
+                decision=envelope(
+                    db, request_key=row["decision_request_key"], duplicate=False, **decision
+                )
+                if decision
+                else None,
+                disabled_reasons=[] if allowed else ["NOT_DECIDABLE"],
             )
 
     def request(self, actor: WebActor, key: UUID, operation: str) -> dict[str, Any]:
@@ -622,7 +644,16 @@ class ReplenishmentReadStore:
             after, after_id = self.page_after(actor, "approvals", [state, view], cursor)
             row = db.execute(
                 """WITH visible AS MATERIALIZED (
-            SELECT a.*,p.content,p.status AS plan_status,t.active_plan_id FROM business.approvals a
+            SELECT a.*,p.content,p.status AS plan_status,t.active_plan_id,
+            (a.status='pending' AND p.status='current' AND t.active_plan_id=a.plan_id
+             AND t.state='awaiting_approval' AND a.expires_at>clock_timestamp()
+             AND a.nonce_key_version=%s AND %s=ANY(a.eligible_principal_ids)
+             AND EXISTS(SELECT 1 FROM business.principal_role_shop_grants g
+              JOIN business.principals pr ON pr.id=g.principal_id
+              WHERE g.principal_id=%s AND g.organization_id=a.organization_id
+              AND g.shop_id=a.shop_id AND g.role='approver' AND g.enabled
+              AND pr.enabled AND 'approver'=ANY(pr.roles))) AS can_decide
+            FROM business.approvals a
             JOIN business.replenishment_plans p ON p.id=a.plan_id
             JOIN business.business_tasks t ON t.id=a.task_id
             WHERE a.organization_id=%s AND EXISTS(
@@ -635,14 +666,7 @@ class ReplenishmentReadStore:
             AND ((g.role='operator' AND t.requester_id=g.principal_id)
             OR (g.role='approver' AND g.principal_id=ANY(a.eligible_principal_ids))))),
             filtered AS MATERIALIZED (SELECT * FROM visible WHERE (%s::text IS NULL OR status=%s)
-            AND (%s<>'history' OR status<>'pending') AND (%s<>'mine' OR
-            (status='pending' AND plan_status='current' AND active_plan_id=plan_id
-            AND expires_at>clock_timestamp() AND %s=ANY(eligible_principal_ids)
-            AND EXISTS(SELECT 1 FROM business.principal_role_shop_grants g
-            JOIN business.principals ap ON ap.id=g.principal_id
-            WHERE g.principal_id=%s AND g.role='approver' AND g.shop_id=visible.shop_id
-            AND g.organization_id=visible.organization_id AND g.enabled
-            AND 'approver'=ANY(ap.roles)))))
+            AND (%s<>'history' OR status<>'pending') AND (%s<>'mine' OR can_decide))
             SELECT (SELECT count(*) FROM filtered) AS total,
             (SELECT COALESCE(jsonb_agg(to_jsonb(page)),'[]'::jsonb) FROM (
              SELECT * FROM filtered WHERE (%s::timestamptz IS NULL OR (created_at,id)<(%s,%s))
@@ -651,14 +675,15 @@ class ReplenishmentReadStore:
              FROM (SELECT status,count(*) AS n FROM filtered GROUP BY status) c) AS counts,
             clock_timestamp() AS as_of""",
                 (
+                    self.config.key_version,
+                    actor.principal_id,
+                    actor.principal_id,
                     actor.organization_id,
                     actor.principal_id,
                     state,
                     state,
                     view,
                     view,
-                    actor.principal_id,
-                    actor.principal_id,
                     after,
                     after,
                     after_id,
@@ -679,7 +704,7 @@ class ReplenishmentReadStore:
                     "created_at": r["created_at"],
                     "expires_at": r["expires_at"],
                     "ready_at": r["ready_at"],
-                    "can_decide": False,
+                    "can_decide": r["can_decide"],
                     "item_count": r["content"]["item_count"],
                     "total_units": r["content"]["total_units"],
                 }

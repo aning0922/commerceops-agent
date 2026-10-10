@@ -5,6 +5,7 @@ import json
 import os
 import queue
 import secrets
+import signal
 import subprocess
 import sys
 import threading
@@ -14,8 +15,11 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 import psycopg
+from commerceops.adapters.commerce.mock import Fixture, MockCommerce
+from commerceops.application.commerce.collection import InventoryCollector
 from commerceops.application.replenishment.contracts import WebActor
 from commerceops.application.replenishment.security import password_hash
+from commerceops.domain.commerce_values import facts_hash, sku_key, stock_pool_key
 from commerceops.entrypoints.api import create_app
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.inventory_repository import InventoryStore
@@ -32,6 +36,63 @@ from pydantic import SecretStr
 from tests.inventory_support import DIRECTORY, InventoryFixture, initialize
 
 ORIGIN = "http://127.0.0.1"
+
+
+class ControlledP3Factory:
+    """私有测试进程固定两种声明Mock变体，不是API参数/路径扩权。"""
+
+    def __init__(self, mode: str):
+        assert mode in ("long_sku", "two_unknown")
+        self.mode = mode
+
+    def __call__(self, request: Any) -> InventoryCollector:
+        base = Fixture.load(DIRECTORY, "unknown_inbound")
+        version = "p3-owned-" + self.mode + "-v1"
+        provenance = base.source.provenance.model_copy(
+            update={
+                "fixture_version": version,
+                "raw_hash": facts_hash({"controlled_fixture": version}),
+            }
+        )
+        source = base.source.model_copy(update={"provenance": provenance})
+        length = 256 - len(sku_key(source.shop_id, "x", None)) + 1
+        identifiers = ["x" * length] if self.mode == "long_sku" else ["ack-a", "ack-b"]
+        products, orders, stocks = [], [], []
+        for number, identifier in enumerate(identifiers):
+            key = sku_key(source.shop_id, identifier, None)
+            pool = stock_pool_key(source.shop_id, identifier)
+            products.append(
+                base.products[0].model_copy(
+                    update={
+                        "product_id": identifier,
+                        "sku_key": key,
+                        "stock_pool_key": pool,
+                        "source": provenance,
+                    }
+                )
+            )
+            orders.append(
+                base.orders[0].model_copy(
+                    update={
+                        "order_id": "controlled-" + str(number),
+                        "sku_key": key,
+                        "source": provenance,
+                    }
+                )
+            )
+            stocks.append(
+                base.inventories[0].model_copy(
+                    update={"sku_key": key, "stock_pool_key": pool, "source": provenance}
+                )
+            )
+        controlled = replace(
+            base,
+            source=source,
+            products=tuple(products),
+            orders=tuple(orders),
+            inventories=tuple(stocks),
+        )
+        return InventoryCollector(MockCommerce(controlled), source, base.now)
 
 
 @dataclass
@@ -271,6 +332,27 @@ class P3Process:
         self.events: queue.Queue[dict[str, Any]] = queue.Queue()
         self.thread = threading.Thread(target=self._read, daemon=True)
         self.thread.start()
+
+    def release(self) -> None:
+        assert self.process.stdin
+        self.process.stdin.write("release\n")
+        self.process.stdin.flush()
+
+    def stop_clean(self) -> None:
+        self.process.send_signal(signal.SIGTERM)
+        self.until("stopped")
+        assert self.process.wait(timeout=10) == 0
+        self.thread.join(timeout=5)
+        for stream in (self.process.stdin, self.process.stdout):
+            if stream:
+                stream.close()
+
+    def close_exited(self, expected: int) -> None:
+        assert self.process.wait(timeout=10) == expected
+        self.thread.join(timeout=5)
+        for stream in (self.process.stdin, self.process.stdout):
+            if stream:
+                stream.close()
 
     def _read(self) -> None:
         assert self.process.stdout
