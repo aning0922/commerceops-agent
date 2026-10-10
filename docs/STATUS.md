@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；Phase2 P2-01/02内部门禁已由总控核准，当前in_progress_p2_03，同一Draft PR30的P203实现与本地验证候选已交付，独审/精确CI待Gate。** 当前main caffe11770a54135900633edf4db0df5458fd195，主体已普通merge；实现依赖eb537，未合P2 main。用户已授权A/B受控双线：A唯一schema/业务集成，B仅模型说明组件，P204真实模型调用须对应代码独审及总控安排。受限资源ready/not_run，P203未读模型key/未调用API。飞书扩权限/生产与后续Phase未授权；P2 main仍须完整Gate与届时有效用户授权。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；最新事实见第33节。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；Phase2 P2-01/02内部门禁已由总控核准，当前in_progress_p2_03，同一Draft PR30的P203首轮独审2项P2已作定点修复候选，本地验证通过，待新SHA复审/精确CI Gate。** 当前main caffe11770a54135900633edf4db0df5458fd195，主体已普通merge；实现依赖eb537，未合P2 main。用户已授权A/B受控双线：A唯一schema/业务集成，B仅模型说明组件，P204真实模型调用须对应代码独审及总控安排。受限资源ready/not_run，P203未读模型key/未调用API。飞书扩权限/生产与后续Phase未授权；用户已委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase仍另批。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；最新事实见第33节。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -518,3 +518,16 @@ P203实际验证：24 offline专项通过，覆盖18数值金标、采集边界�
 [受控双线授权](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6093683362)覆盖旧“单一主体”过期表述：A继续独占migration/application-commerce共享DTO/domain/infrastructure/Worker/Graph/API/业务权限/pyproject+uv.lock/状态管理/最终P204集成；B只开发model_explanation组件、专属测试/fixture/doc与非秘密example，不改A目录、不读key、不真实调用。B独审后由总控协调普通同步已审A commit及内部PR，再由A统一集成P204。P203不会提前调用DeepSeek；受限资源文件仅存在/非空权限核实，内容未读取。
 
 P203预计8–12有效开发/专项小时，仍扣Phase2既有30–40h和总300h；双线/额外Review扣原P204预算，不重排D1=10月10日、D30=11月8日。人工H/L未取得不虚填。本节仅更新本阶段事实，不修改第1–32节历史、M1设计资产或#23根因/风险接受原值。
+
+
+### 33.1 P203首轮独审与同PR定点修复
+
+首个候选ace6/tree7016534的CI38024513700在PR功能描述统一更新后被同head successor取代而cancelled，不算失败或成功；[successor38024577583](https://github.com/aning0922/commerceops-agent/actions/runs/38024577583)实际SUCCESS，主控核checkout6249b62（caffe+ace6，tree7016534一致）、676offline/132真实PG/3G1/cleanup0。这是旧候选证据。
+
+[独审5477615751](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5477615751)复现2项P2，故Gate未过：Store.save可把正确快照与另一个合法hash报告/任务参数配对；completed快照三子表仍能普通app INSERT。主体同WT/PR作有界修复，未融合B/调用模型：保存、回放及HTTP回读重验DTO并按快照及任务参数重算完整报告；三子表INSERT与完成事务共锁同task，取得锁后重查state/report封存。没有增加runtime权限、通用框架或共享InventoryReport结构。
+
+本地实际：首轮11定向PG / 4.47s全部通过；含原有53节点的64项专项 / 22.07s全部通过，未发生同一失败。补输入DTO绕过验证及未封存金额精度/溢出验证后，全量PG146 passed、676 deselected / 65.20s；完整scripts.check676 offline、146 deselected / 48.39s，所有检查通过、Python90包及Node漏洞0、current/index/history均0。最终修复SHA与新CI在原Issue/PR评论归档，不再edited描述触发取消；修复独审与精确CI未确认前仍in_progress_p2_03。
+
+修复验证自有项目p203-99c0b20c64：PG17.11/0002/runtime非高权已核，无宿主端口；测试数据库0，仅所属containers/volumes/networks全部回收为0，所属PG密码文件删除，模型资源未读/改/调用。A schema/business唯一负责、B组件cccf115独审通过只是组件事实，等待A稳定门禁后由总控协调普通同步/组合/P204授权接线。
+
+Issue29当前总控授权回执记载，用户已委托完整Phase2全部必要Gate后的Root正常main合入；A不自行合main，不复用此授权进入Phase3或扩飞书/生产/公开范围。历史等待授权段不覆盖当前回执，本地人工H/L仍未报告不虚填。

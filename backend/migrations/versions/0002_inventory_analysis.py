@@ -154,6 +154,27 @@ BEGIN RAISE EXCEPTION 'inventory evidence is immutable' USING ERRCODE='23514'; E
  ON business.{table}
  FOR EACH STATEMENT EXECUTE FUNCTION business.reject_inventory_mutation()""")
     op.execute("""
+CREATE FUNCTION business.require_unsealed_snapshot_child() RETURNS trigger
+ LANGUAGE plpgsql SET search_path=pg_catalog,business AS $$
+DECLARE task_state text;
+BEGIN
+ -- 与完成事务锁同一task；等待后读取当前state，RR下过期写入由PG拒绝。
+ SELECT t.state INTO task_state FROM business.business_tasks t
+ WHERE t.id=NEW.task_id AND t.organization_id=NEW.organization_id AND t.shop_id=NEW.shop_id
+ FOR UPDATE;
+ IF NOT FOUND THEN RETURN NEW; END IF; -- 复合FK负责缺失/跨scope拒绝。
+ IF task_state<>'analyzing' OR EXISTS(SELECT 1 FROM business.analysis_reports r
+  WHERE r.snapshot_id=NEW.snapshot_id) THEN
+  RAISE EXCEPTION 'snapshot children are sealed' USING ERRCODE='23514';
+ END IF;
+ RETURN NEW;
+END $$
+""")
+    for table in ("snapshot_products", "snapshot_order_lines", "snapshot_refunds"):
+        op.execute(f"""CREATE TRIGGER require_unsealed_snapshot_child
+ BEFORE INSERT ON business.{table}
+ FOR EACH ROW EXECUTE FUNCTION business.require_unsealed_snapshot_child()""")
+    op.execute("""
 CREATE FUNCTION business.bind_inventory_request() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF NOT EXISTS(SELECT 1 FROM business.business_tasks t WHERE t.id=NEW.task_id

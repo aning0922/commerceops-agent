@@ -18,17 +18,26 @@ from commerceops.adapters.commerce.mock import Fixture, MockCommerce
 from commerceops.application.commerce.analysis_task import InventoryTaskRequest
 from commerceops.application.commerce.collection import InventoryCollector
 from commerceops.application.commerce.contracts import Quality
+from commerceops.application.commerce.inventory_analysis import analyze_inventory
+from commerceops.domain.inventory_rules import RuleParameters
 from commerceops.entrypoints.api import create_app
 from commerceops.entrypoints.database import grant_runtime, migrate, setup_checkpointer
 from commerceops.infrastructure.checkpoint import checkpointer
 from commerceops.infrastructure.database import DatabaseSettings, connect
-from commerceops.infrastructure.inventory_repository import InventoryReadStore, create_analysis_task
+from commerceops.infrastructure.inventory_repository import (
+    AnalysisUnsafe,
+    InventoryReadStore,
+    InventoryStore,
+    create_analysis_task,
+)
+from commerceops.infrastructure.queue import JobQueue
 from commerceops.infrastructure.repository import TaskRepository, TaskScope
 from commerceops.infrastructure.worker_lock import (
     TerminationRequired,
     WorkerSession,
     confirm_termination,
 )
+from commerceops.workflows.inventory_analysis import MockCollectorFactory
 from fastapi.testclient import TestClient
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import empty_checkpoint
@@ -616,3 +625,251 @@ def test_old_workflow_queue_rejection_preserves_history(fixture: InventoryFixtur
     with connect(f.app) as db:
         result = db.execute("SELECT last_error FROM business.jobs WHERE id=%s", (job,)).fetchone()
         assert result and result["last_error"] == "WORKFLOW_VERSION_UNSUPPORTED"
+
+
+@pytest.mark.parametrize(
+    "mismatch", ["stock", "parameters", "window", "display", "invalid_dto", "invalid_input_dto"]
+)
+def test_store_rejects_valid_hash_but_unbound_report(
+    fixture: InventoryFixture, mismatch: str
+) -> None:
+    f = fixture
+    task, _ = f.create()
+
+    async def attempt() -> None:
+        session = WorkerSession(f.app, f.data.organization)
+        await session.start()
+        queue = JobQueue(session)
+        r = await queue.claim()
+        assert r and r.task_id == task
+        store = InventoryStore(f.app, session)
+        try:
+            await store.mark(r, "analyzing")
+            collected = await MockCollectorFactory(DIRECTORY)(InventoryTaskRequest()).collect()
+            data = collected.data
+            provided = analyze_inventory(data)
+            if mismatch == "stock":
+                altered = data.model_copy(
+                    update={
+                        "inventories": (
+                            data.inventories[0].model_copy(update={"available_stock": 999}),
+                        )
+                    }
+                )
+                provided = analyze_inventory(altered)
+            elif mismatch == "parameters":
+                provided = analyze_inventory(data, RuleParameters(L=99))
+            elif mismatch == "window":
+                from datetime import timedelta
+
+                altered = data.model_copy(
+                    update={"now": data.now + timedelta(days=1), "window": None}
+                )
+                provided = analyze_inventory(altered)
+            elif mismatch == "display":
+                item = provided.items[0].model_copy(
+                    update={
+                        "display": provided.items[0].display.model_copy(update={"D": "999.000000"})
+                    }
+                )
+                provided = provided.model_copy(update={"items": (item,)})
+            elif mismatch == "invalid_input_dto":
+                collected = replace(
+                    collected,
+                    data=data.model_copy(
+                        update={
+                            "inventories": (
+                                data.inventories[0].model_copy(update={"available_stock": 1.5}),
+                            )
+                        }
+                    ),
+                )
+            else:
+                provided = provided.model_copy(update={"complete": "true"})
+            with pytest.raises(AnalysisUnsafe, match="ANALYSIS_REPORT_BINDING_MISMATCH"):
+                await store.save(r, collected, provided)
+            assert f.counts(task) == (0, 0) and f.row(task)["state"] == "analyzing"
+            await queue.done(r)
+        finally:
+            await session.close(clean=True)
+
+    asyncio.run(attempt())
+
+
+def child_insert_sql(table: str, *, late: bool = True) -> sql.Composed:
+    # 表名/列片段固定白名单，参数值仍用绑定；普通app可成功的原始结构。
+    columns = {
+        "snapshot_products": (
+            "sku_key||':late',stock_pool_key,payload,available_stock,inbound_units"
+        ),
+        "snapshot_order_lines": (
+            "order_id||':late',line_id,sku_key,status,created_at_source,paid_at,completed_at,"
+            "quantity,net_amount,tax_amount,currency,payload"
+        ),
+        "snapshot_refunds": (
+            "refund_id||':late',order_id,occurred_at,refund_amount,currency,payload"
+        ),
+    }
+    selected = columns[table] if late else columns[table].replace("||':late'", "")
+    return sql.SQL("""INSERT INTO business.{table}
+        SELECT %s,organization_id,shop_id,%s,{columns}
+        FROM business.{table} WHERE task_id=%s""").format(
+        table=sql.Identifier(table), columns=sql.SQL(selected)
+    )
+
+
+@pytest.mark.parametrize("table", ["snapshot_products", "snapshot_order_lines", "snapshot_refunds"])
+def test_runtime_cannot_append_any_sealed_child(fixture: InventoryFixture, table: str) -> None:
+    f = fixture
+    task, job = f.create("partial_refund")
+    asyncio.run(run_worker(f, job))
+    with connect(f.app) as db:
+        actor = db.execute("SELECT current_user AS actor").fetchone()
+        assert actor and actor["actor"] == "commerceops_app"
+        row = db.execute(
+            "SELECT id,content_hash FROM business.commerce_snapshots WHERE task_id=%s", (task,)
+        ).fetchone()
+        assert row
+        with (
+            pytest.raises(psycopg.errors.CheckViolation, match="snapshot children are sealed"),
+            db.transaction(),
+        ):
+            db.execute(child_insert_sql(table), (row["id"], task, task))
+        count = db.execute(
+            sql.SQL("SELECT count(*) AS n FROM business.{} WHERE task_id=%s").format(
+                sql.Identifier(table)
+            ),
+            (task,),
+        ).fetchone()
+        assert count and count["n"] == 1
+    assert client(f).get(f"/tasks/{task}/report").status_code == 200
+    assert f.counts(task) == (1, 1)
+
+
+@pytest.mark.parametrize("table", ["snapshot_products", "snapshot_order_lines", "snapshot_refunds"])
+def test_child_insert_waits_then_rechecks_report_seal(
+    fixture: InventoryFixture, table: str
+) -> None:
+    f = fixture
+    original, job = f.create("partial_refund")
+    asyncio.run(run_worker(f, job))
+    task, _ = f.create("partial_refund")
+    snapshot = uuid4()
+    with connect(f.app) as db:
+        db.execute("UPDATE business.business_tasks SET state='analyzing' WHERE id=%s", (task,))
+        db.execute(
+            """INSERT INTO business.commerce_snapshots
+            SELECT %s,organization_id,shop_id,%s,%s,request_content,request_hash,schema_version,
+            source_kind,fixture_version,shop_timezone,currency,window_start,window_end,
+            collection_started_at,collected_at,complete,warnings,consistency,content,
+            canonical_content,content_hash FROM business.commerce_snapshots WHERE task_id=%s""",
+            (snapshot, task, f"analysis:{task}:p203-inventory-analysis-v1", original),
+        )
+        for child in ("snapshot_products", "snapshot_order_lines", "snapshot_refunds"):
+            # 首次未封存写入实际通过；替换后缀为原ID保持canonical规范化副本一致。
+            db.execute(child_insert_sql(child, late=False), (snapshot, task, original))
+    locked, release, inserting = threading.Event(), threading.Event(), threading.Event()
+    pid: list[int] = []
+
+    def seal() -> None:
+        with connect(f.app) as db:
+            db.execute("SELECT id FROM business.business_tasks WHERE id=%s FOR UPDATE", (task,))
+            locked.set()
+            assert release.wait(5)
+            db.execute(
+                """INSERT INTO business.analysis_reports
+                SELECT %s,organization_id,shop_id,%s,%s,%s,rule_version,schema_version,
+                facts,canonical_facts,facts_hash,report,outcome,clock_timestamp()
+                FROM business.analysis_reports WHERE task_id=%s""",
+                (uuid4(), task, snapshot, f"analysis:{task}:p203-inventory-analysis-v1", original),
+            )
+            db.execute("UPDATE business.business_tasks SET state='completed' WHERE id=%s", (task,))
+
+    def append() -> None:
+        with connect(f.app) as db:
+            who = db.execute("SELECT current_user AS actor,pg_backend_pid() AS pid").fetchone()
+            assert who and who["actor"] == "commerceops_app"
+            pid.append(who["pid"])
+            inserting.set()
+            with pytest.raises(psycopg.errors.CheckViolation, match="snapshot children are sealed"):
+                db.execute(child_insert_sql(table), (snapshot, task, original))
+            db.rollback()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        writer = pool.submit(seal)
+        assert locked.wait(2)
+        inserting_future = pool.submit(append)
+        try:
+            assert inserting.wait(2)
+            for _ in range(200):
+                with connect(f.owner) as db:
+                    wait = db.execute(
+                        "SELECT wait_event_type FROM pg_stat_activity WHERE pid=%s", (pid[0],)
+                    ).fetchone()
+                if wait and wait["wait_event_type"] == "Lock":
+                    assert not inserting_future.done()
+                    break
+                time.sleep(0.01)
+            else:
+                raise AssertionError("child insert did not lock shared task")
+        finally:
+            release.set()
+        writer.result(5)
+        inserting_future.result(5)
+    with connect(f.app) as db:
+        count = db.execute(
+            sql.SQL("SELECT count(*) AS n FROM business.{} WHERE task_id=%s").format(
+                sql.Identifier(table)
+            ),
+            (task,),
+        ).fetchone()
+        assert count and count["n"] == 1
+    assert f.counts(task) == (1, 1) and client(f).get(f"/tasks/{task}/report").status_code == 200
+
+
+@pytest.mark.parametrize(
+    "amount,kind",
+    [
+        ("1.0000001", psycopg.errors.CheckViolation),
+        ("100000000000000", psycopg.errors.NumericValueOutOfRange),
+    ],
+)
+def test_runtime_money_precision_before_seal(
+    fixture: InventoryFixture, amount: str, kind: type[Exception]
+) -> None:
+    f = fixture
+    original, job = f.create("partial_refund")
+    asyncio.run(run_worker(f, job))
+    task, _ = f.create("partial_refund")
+    snapshot = uuid4()
+    with connect(f.app) as db:
+        actor = db.execute("SELECT current_user AS actor").fetchone()
+        assert actor and actor["actor"] == "commerceops_app"
+        db.execute("UPDATE business.business_tasks SET state='analyzing' WHERE id=%s", (task,))
+        db.execute(
+            """INSERT INTO business.commerce_snapshots
+            SELECT %s,organization_id,shop_id,%s,%s,request_content,request_hash,schema_version,
+            source_kind,fixture_version,shop_timezone,currency,window_start,window_end,
+            collection_started_at,collected_at,complete,warnings,consistency,content,
+            canonical_content,content_hash FROM business.commerce_snapshots WHERE task_id=%s""",
+            (snapshot, task, f"analysis:{task}:p203-inventory-analysis-v1", original),
+        )
+        with pytest.raises(kind), db.transaction():
+            db.execute(
+                """INSERT INTO business.snapshot_order_lines
+                SELECT %s,organization_id,shop_id,%s,order_id,line_id,sku_key,status,
+                created_at_source,
+                paid_at,completed_at,quantity,%s,tax_amount,currency,
+                jsonb_set(payload,'{net_amount}',to_jsonb(%s::text))
+                FROM business.snapshot_order_lines WHERE task_id=%s""",
+                (snapshot, task, amount, amount, original),
+            )
+        count = db.execute(
+            "SELECT count(*) AS n FROM business.snapshot_order_lines WHERE task_id=%s", (task,)
+        ).fetchone()
+        assert count and count["n"] == 0  # 金额检查发生于未封存合法写入阶段，非sealed先行拒绝。
+        db.execute(child_insert_sql("snapshot_order_lines", late=False), (snapshot, task, original))
+        valid = db.execute(
+            "SELECT count(*) AS n FROM business.snapshot_order_lines WHERE task_id=%s", (task,)
+        ).fetchone()
+        assert valid and valid["n"] == 1
