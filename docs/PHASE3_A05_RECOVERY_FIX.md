@@ -1,5 +1,7 @@
 # A05 实际 CI 失锁节点失败后的测试同步修复
 
+当前A05两修复集成导航（2026-10-11）：Root已核A精确087恢复测试/Core无P1P2+独立19PG94.91s/19pure0.89与B精确849 Linux only-owned/Web无P1P2+27contract/Linux ARM8/22.1s；原CI972双job失败、partial28actual27pass/73not_run、旧236/G1G2cleanup0成功及unknown assertion trace全部保留。原Core外层zsh reserved status wrapper1不冒称整wrapper0；B两次SWC准备环境0test失败及随后公开registry锁定npm准备/断网ARM8成功分记，Root停止回执核对另行记账。A已普通merge两精确fix无冲突，backend/锁/sharedCI原195行不改；新x64四CI/修复后real24/main/postmainCI/Issue33仍pending，阶段in_progress。详见[两修复集成](PHASE3_A05_TWO_FIXES.md)及[STATUS42](STATUS.md#42-a05-两项修复独审核收与正常集成候选)。下方原候选/失败/当时待核按历史保留。
+
 2026-10-11，Root将恢复诊断派回原A/WT62c8/`codex/phase3-approval`/PR37。首步骤登记UTC21:20:41（北京时间05:20:41），固定30min截止UTC21:50:41/北京时间05:50:41，不重置；最多两轮定向PG、一次最小实现批次。本批已完成两条pytest命令及第一诊断轮一次确定屏障probe，资源提前停止，不继续追加PG。仅改一个恢复测试和A阶段证据文档，backend/Worker/Graph/三态恢复文法/sharedCI/B/Python锁完全不改，暂不push或编辑PR正文，等Root协调两个已审小修复为一次候选。
 
 ## 本次实际失败与未取得的证据

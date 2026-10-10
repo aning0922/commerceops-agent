@@ -1,6 +1,8 @@
 # 阶段状态与主控交接
 
-最新A05失败/修复导航（2026-10-11）：972最终增量独审5480825374无阻断，但CI38086696815实际frontend与phase3均失败，pg-pair正确拒绝失败分区；旧236/G1三/G2六/cleanup0成功，首P3模块28中27passed/1failed、后73not_run，完整Gate不通过。A在新固定30min/两轮owned窗口已证实T2提交与wait CP持久化的合法间隙，原CI具体assertion未捕获/根因unknown保留；仅测试同步修复与19定向PG/19pure通过，backend/共享CI/B不改，资源已停/保卷。新精确fix待原Core独审及Root合已审B修复后一次四CI，不push/body/main/关Issue。详见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)及[STATUS41](STATUS.md#41-a05-实际ci失败与恢复测试同步修复)。下方972候选/既有Gate回执保留，不覆盖本次失败。
+当前A05两修复集成导航（2026-10-11）：Root已核A精确087恢复测试/Core无P1P2+独立19PG94.91s/19pure0.89与B精确849 Linux only-owned/Web无P1P2+27contract/Linux ARM8/22.1s；原CI972双job失败、partial28actual27pass/73not_run、旧236/G1G2cleanup0成功及unknown assertion trace全部保留。原Core外层zsh reserved status wrapper1不冒称整wrapper0；B两次SWC准备环境0test失败及随后公开registry锁定npm准备/断网ARM8成功分记，Root停止回执核对另行记账。A已普通merge两精确fix无冲突，backend/锁/sharedCI原195行不改；新x64四CI/修复后real24/main/postmainCI/Issue33仍pending，阶段in_progress。详见[两修复集成](PHASE3_A05_TWO_FIXES.md)及[STATUS42](STATUS.md#42-a05-两项修复独审核收与正常集成候选)。下方原候选/失败/当时待核按历史保留。
+
+历史最新A05失败/修复导航（2026-10-11）：972最终增量独审5480825374无阻断，但CI38086696815实际frontend与phase3均失败，pg-pair正确拒绝失败分区；旧236/G1三/G2六/cleanup0成功，首P3模块28中27passed/1failed、后73not_run，完整Gate不通过。A在新固定30min/两轮owned窗口已证实T2提交与wait CP持久化的合法间隙，原CI具体assertion未捕获/根因unknown保留；仅测试同步修复与19定向PG/19pure通过，backend/共享CI/B不改，资源已停/保卷。新精确fix待原Core独审及Root合已审B修复后一次四CI，不push/body/main/关Issue。详见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)及[STATUS41](STATUS.md#41-a05-实际ci失败与恢复测试同步修复)。下方972候选/既有Gate回执保留，不覆盖本次失败。
 
 前次候选当前导航（2026-10-11 A05）：Root已核A03 source052/Core5480529395/精确CI38079599247三job成功，以及B最终a65/Web5480795768完整24Web/native200/PG不变量/精确CI38085161901三job成功；完整337PG=236+101、G1三/G2六/cleanup0及精确配对已核。Root释放原A WT62c8/PR37正常集成及唯一共享frontend CI/阶段文档批，已普通合已审B，无冲突；最终增量独审、精确四job frontend Gate、main/合后CI/Issue33结案pending，不能预写阶段完成。main仍59b350cb719a9d2fed3f68b1ee598fa0a9b97875，Phase2已正式结案/CI38041779219 SUCCESS/Issue29 CLOSED。原333/988/旧失败/取消run/Review fullcheck not_verified/Issue23 not_identified/risk_accepted和M1设计18页冻结保留。D1=10-10/D30=11-08/300h/P3 A32+B18+Review10=60h不重置，人工H/L not_reported；新增paid0/平台业务写0，扩权/生产/Phase4未授权。当前事实见第40节、[A05交接](PHASE3_A05_INTEGRATION.md)及[分层验收](PHASE3_ACCEPTANCE.md)。下方旧候选/待核/未授权为历史，不覆盖本导航。
 
@@ -681,3 +683,16 @@ Root核972/tree3d4最终增量Review5480825374无阻断，但CI38086696815实际
 Root派原A固定UTC21:20:41→21:50:41/北京时间05:20:41→05:50:41窗口/两轮/一最小批；新owned p3a05fix-b5b874dc4280/UID501/loopback63692。第一原node1passed/5.11s未复现CI；同诊断轮after_t2_commit受控probe确定task awaiting已提交但仍原prepareCP/0interrupt，旧正向CP断言会失败，释放后官方waitCP/1interrupt/ready收敛。此实证测试观测竞态不等于已捕获原CI断言。只改目标测试同步：先严格断言合法间隙，再释放+原wait_ready、保持旧CP/core/job/计数/负向三态，不动backend/Worker/Graph/schema/CI/B/锁。第二轮19实际PG/88.27s（command88.830）及19pure/0.67s通过，fullintegration只collect337未执行。详情及失败/初定位标签校正见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)、[作者安全证据](contracts/p3-a05-recovery-author-evidence.json)。
 
 资源已提前正常停止、PGfalse/PID0/tempDB0/其他base连接0/app三高权false、700/四600，保卷ledger不称cleanup0；原截止不延期、不第三轮或再启。新本地fix精确独审待Root原Core，原B自有Linux最小修复独占，不互读WIP/资源；两已审fix后Root派一次正常集成push/当前四CI。main59/阶段in_progress/Issue未结案、日期300h/P3 60h/人工H/L not_reported、Issue23风险与平台/生产/Phase4边界不变。
+
+
+## 42. A05 两项修复独审核收与正常集成候选
+
+Root正式释放两已审fix一次集成push。A source087c3b6efd2e0cee034291e3d01623991c8a6f56/treef82b/parent972，原Core无P1P2，独立19actualPG94.91s/19pure0.89，gap→durable waitCP及原严格断言/负向三态保留，backend不改。Root实读summary/pytest19日志、Docker核PGfalsePID0exit0/UTC21:37:31.478停止；外层zsh reserved status wrapper1发生在pytest容器0之后，保留而不伪称整wrapper成功，原972CI具体assertion仍unknown。作者19PG/88.27s、19pure/0.67s、原nodepassed未复现及controlled probe/早停均单独保留。
+
+B source849c3eb31cb177d97a3e13c40e139ff2beb9ad4b/tree205632dc4ee41f2dd43b470c39bcdfbc3b4db7c2/parent972，16only-B=9code+UX+6safeEvidence，原Web无P1P2，27contract/type/build/owner10/Ruff及自有Linux ARM完整Mock8/22.1s、wrongcwd/launcher拒绝。两次host node_modules缺LinuxSWC的0test准备fail1保留，原同22:08UTC截止内公共registry锁定npmci--ignore-scripts/build无lock变化后，断网/无hostports8成功；Reviewer报告4容器已stop，Root停止回执核对另记。作者8/23.755s/1057offline85.34及首lsof/title实证不混算；x64当前CI/修复后真实24仍not_run，旧Mac24不替新路径Gate。
+
+原A WT62c8/branch/PR37在087上正常merge已审849为53565290beafa16c73e4b0110a817c3dd8875b14/treebb4033f，parents087+849，无冲突/历史改写；目标A测试同087，B9code/UX/assets同849，backend/Graph/Worker/schema/migration/API/locks等同972，sharedCI原195frontend及原3job bytes不改。Python薄入口新Node查询与当前workflow/default24/source13hash/当前HEAD/build/result合同契合。A唯一阶段docowner只追加导航和交接，必要一次全check/静态/继承/scans后正式freeze及一次正常push，PR正文不编辑，评论绑定新SHA/tree/reviews。
+
+972原失败、partial28/27/73notrun+236/G1G2/cleanup0、pgpair正确拒绝、两个bounded修复和角色资源停止/unknowntrace残风险、原333/988/旧CI失败取消/Review旧fullcheck not_verified/Issue23风险全部保留，见[两修复交接](PHASE3_A05_TWO_FIXES.md)。最终当前四CI/main/postmainCI/Issue33 pending、main59/phase in_progress；无额外本地19/8/101/24/PG/browser，新provider/平台写/视觉批次0，10/10–11/8/300h/P360h/人工H-L not_reported及平台/生产/Phase4边界不变。
+
+本次集成后一次完整本地check实际1057offline/84.70s、337integration deselected、两既有warnings；71MD0/268format/mypy193/锁/Node24.21/frontend typecheck/Node及95Python漏洞0/三scope0。另schema22、无PYTHONPATH模块help、YAML/4 Bash/4 Python语法、default7+10+7完整标题及四安全artifact静态合同通过；A测试同087/B全部blobs同849/backend与wholeworkflow同972。未追加PG/Web/build/browser，不以本地成功替当前四job实际Gate；最终提交SHA/tree由冻结评论/Rootreceipt绑定。
