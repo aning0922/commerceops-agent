@@ -180,6 +180,8 @@ export function mockView(version?: string): MockView {
   ];
   base.items = [
     {
+      sourceTaskId: "INV-DEMO-008",
+      sourceReportVersion: 1,
       id: "RI-DEMO-001",
       sku: "SKU-A",
       name: "轻量帆布袋 · 原色",
@@ -190,6 +192,8 @@ export function mockView(version?: string): MockView {
       reason: null,
     },
     {
+      sourceTaskId: "INV-DEMO-008",
+      sourceReportVersion: 1,
       id: "RI-DEMO-002",
       sku: "SKU-B",
       name: "基础棉 T 恤 · 雾蓝 / M",
@@ -200,6 +204,8 @@ export function mockView(version?: string): MockView {
       reason: null,
     },
     {
+      sourceTaskId: "INV-DEMO-008",
+      sourceReportVersion: 1,
       id: "RI-DEMO-003",
       sku: "SKU-C",
       name: "陶瓷咖啡杯 · 350mL",

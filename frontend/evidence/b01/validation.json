@@ -1,5 +1,5 @@
 {
-  "time_utc": "2026-10-10T10:51:03.277144+00:00",
+  "time_utc": "2026-10-10T11:48:22.286357+00:00",
   "baseline": "59b350cb719a9d2fed3f68b1ee598fa0a9b97875",
   "branch": "codex/phase3-console",
   "mode": "offline_mock_real_next_pages",
@@ -17,9 +17,9 @@
     "typecheck": "pass",
     "build": "pass",
     "web_stats": {
-      "startTime": "2026-10-10T10:48:49.963Z",
-      "duration": 6202.954,
-      "expected": 11,
+      "startTime": "2026-10-10T11:19:34.853Z",
+      "duration": 7124.63,
+      "expected": 12,
       "skipped": 0,
       "unexpected": 0,
       "flaky": 0
@@ -31,42 +31,50 @@
       "duration_s": 84.51
     },
     "npm_audit": "0 vulnerabilities",
-    "secret_scan": "dir/index/all reachable history 0 before staging",
-    "docs": "57 Markdown files / 0 errors"
+    "secret_scan": "reviewed 3e policy in isolated snapshot: current/index/all reachable history 0 before local fix commit",
+    "docs": "58 Markdown files / 0 errors",
+    "true_zoom": "passed actual metrics + raw CDP surface head/tail/actions; default cropped/blank failures preserved",
+    "cjk_darwin": "passed: bundled Noto Sans SC actual custom glyphCount4",
+    "cjk_linux": "not_run at this checkpoint; original Linux image pull completed, font browser assertion pending"
   },
   "limitations": [
     "B02 service session/API/PG integration not run",
-    "200% equivalence via720 CSS pixel viewport; actual browser zoom not run",
     "human clicks/screen reader not run",
-    "cross-platform CJK package not verified",
     "duplicate/conflict/revocation real server gates pending",
-    "F01/F02 and actual Feishu deferred Phase4"
+    "F01/F02 and actual Feishu deferred Phase4",
+    "Linux CJK real browser result pending; Darwin actual font and bundle license recorded"
   ],
   "source_sha256": {
     "frontend/.gitignore": "d9ebc7e04ef578d87c5afb37ba2f635c23eb31df083e54d98756b03adb0374f3",
     "frontend/.npmrc": "3b88d1057add6f92ec23dc22dd017e312ded13a042deb0ba6f08bad85d936456",
-    "frontend/app/[[...path]]/page.tsx": "9c63f8ff29e9832dcc3d3e3ba99bae64ec4128c1f41ab08bd6fa7937a4a33614",
-    "frontend/app/globals.css": "b3e2acbec6b505e240052335261215f7d5a641ec4f919125419af6b1d7b38a02",
-    "frontend/app/layout.tsx": "b24d4ed67f465924ce3696b7c96366277c1699807fb628c3e82af0c3bbb2bb00",
-    "frontend/components/console.tsx": "016bd1ddf8dc6cb1dea1d846ee1af2c51cd1ef6ddc42ac72a929beb879caeae3",
+    "frontend/FONT_LICENSES.md": "93bdea5a84c667cbd194c5dca827cba7bc68f6dde1cf0d36ff31c57b49b6cd5a",
+    "frontend/app/[[...path]]/page.tsx": "7a9b423a925eb44709718226025777e886957ea4ac0c1abed1fd0aab22b48634",
+    "frontend/app/globals.css": "427b27c0a3127d35eb6bcf51c437e55a8ffb43a3f6599d0f3c80a0979b9b4f30",
+    "frontend/app/layout.tsx": "22b4e3410f0a8884ebd0d66418495ede6a4aaeaaafa0c598264b9b413b9c6535",
+    "frontend/components/console.tsx": "fbcb81d0e8ed6703e527b73f7ba95dfd1b8674620348980acaa31e2b9c9cf266",
     "frontend/components/panels.tsx": "a9bcf4cc210f98cdbd72edae4603431fc6a265e8e98e55443763f768ef47ace5",
     "frontend/components/report.tsx": "15384d92364d75c30268d59de3c96771a95e4597c0e3940c5a7945ff8c1671c6",
     "frontend/components/ui.tsx": "55a319950079d52f3f75749016053b5e3db89650e365f42a957b9dfd902e8451",
-    "frontend/lib/mock-source.ts": "40eb87222ef9f550c51df78a1695d9d9e489e622f6f070daf7e463a04871fc20",
-    "frontend/lib/view-model.ts": "181cc25b87713a954b2844cf750ed6f0288e2ab08e8ebf0af1f7dd3a66a6e4f4",
+    "frontend/lib/mock-source.ts": "c7c8777f0819b8d5a592af6fd8fbca6d3ca2090bbe8307738f4f9ae6a6788cd7",
+    "frontend/lib/view-model.ts": "4f2d8c075c45160dcbf4ace6e9c3a6afe2ed74c4e72c3680791df4908ffe4769",
     "frontend/next.config.ts": "175e905e14b13f0913fe965a85632e4881cab22a92d92b5a680a7b38894dbf66",
-    "frontend/package-lock.json": "bc773dfa447d9394fc2b05443ba8f9b0b037e021bae1c06cc4db06d780b049cf",
-    "frontend/package.json": "ade6976b741384fa5f7287a657c2c2dbf28ed4fa5c0dd3098da6500588090a52",
+    "frontend/package-lock.json": "36574493995cdfd9ccc96306faf8385e575fa94ed737b7feb5649f2dbd9c695c",
+    "frontend/package.json": "c1ac4ed076480848378662f8463c66ce7dce85607d2957c9aa06659214f14166",
     "frontend/playwright.config.ts": "ee1de024dbb3a3aa224ca12d994b13371e5d628983cb8374ae24e9f024e274ff",
+    "frontend/public/fonts/noto-sans-sc-LICENSE.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
+    "frontend/public/fonts/source-sans-pro-LICENSE.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
     "frontend/tooling/check-toolchain.ts": "9f7376972ee58fc1cb4e6f60d63d0eca47f55d427e00672fb035bc89a8f65ea9",
+    "frontend/tooling/linux-font-proof.mjs": "6a4833c66884520c06cfdf7db713098b1134047dbd9246789fa7b3b29cc446ad",
     "frontend/tooling/web-test.ts": "3cfd32fbc46abc55db2a978f80705efaeccae63e365e8d4fc15259e74b9d739f",
+    "frontend/tooling/zoom-proof.mjs": "1a0e3ec85f08d6f0dd76a4fc9cf51b234a63c2c7f7bcfda310eeee7349dc76ef",
     "frontend/tsconfig.json": "f496459f02d2e79b52350b3199b5f03ba0dc6328b70eb365860b8206fd786a05",
     "tests/e2e/web/admin.spec.ts": "ecf74d88116f598c270eb4b3378ab57fcc3bdfa106e60e5e7ba409c5231f9aed",
-    "tests/e2e/web/approver.spec.ts": "e5e88cb9cbb4233da614639861e9517f8d4a1149e372f806a610537321a9fdb4",
+    "tests/e2e/web/approver.spec.ts": "8de15e9495e016ed4e1fd7208c8b91591ab6f19a39a1272999881b78288d9b93",
     "tests/e2e/web/expired.spec.ts": "483e0a1a68afdd53c95596c87f22787dfd37147dd02f034cdfa172aaf44dbaf1",
-    "tests/e2e/web/helpers.ts": "6a040ef18b379256847642a51fb9655842a026bec569448dc43b610101a8fe87",
-    "tests/e2e/web/operator.spec.ts": "c8141d8800a0708355cce23c939938e54bd798e55136d9ba60b9b21eefa3990a",
+    "tests/e2e/web/helpers.ts": "4a0215a8c42a1ef06573f4e7db880d15a0c291fa0be45179b6bc1f5184fd9832",
+    "tests/e2e/web/operator.spec.ts": "098a129ec219e1ac1150d3712c01b313ea344b981f618fb35e350323923fc7a1",
     "tests/e2e/web/unavailable.spec.ts": "d83c11c422acadca0e5c3c588ec6f5da80fe9d73598850ca793fc0d44d6db6cd",
     "tests/e2e/web/unknown.spec.ts": "14d80026bd6475293ca49d47b14ee9fe14180fcbe216acfcacfd9268a6392367"
-  }
+  },
+  "crossline_contract_source": "3e05c714289135ab6901159d7e9210d657967fc2"
 }

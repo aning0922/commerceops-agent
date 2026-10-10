@@ -430,7 +430,7 @@ export function Console({ path, view }: { path: string; view: MockView }) {
                     </Disabled>
                   )}
                   {link(`${taskUrl}/events`, "执行轨迹", "B16")}
-                  {reportReady ? (
+                  {reportReady && view.approvalId ? (
                     link(approvalUrl, "查看审批", "B17")
                   ) : (
                     <Disabled control="B17" reason="当前任务尚无审批计划。">
@@ -478,7 +478,7 @@ export function Console({ path, view }: { path: string; view: MockView }) {
                       <p>
                         批准回执与内部项创建分别记录，不因批准自动宣称执行成功。
                       </p>
-                      {reportReady ? (
+                      {reportReady && view.approvalId ? (
                         link(approvalUrl, "查看审批", "B17")
                       ) : (
                         <Disabled control="B17" reason="当前任务尚无审批计划。">
@@ -494,15 +494,17 @@ export function Console({ path, view }: { path: string; view: MockView }) {
                   </div>
                   {reportReady && (
                     <Card title="关联内部项">
-                      {view.items.map((x) => (
-                        <p key={x.id}>
-                          {link(
-                            `/replenishment-items/${x.id}`,
-                            `${x.name} · ${labels[x.status]}`,
-                            "B25",
-                          )}
-                        </p>
-                      ))}
+                      {view.items
+                        .filter((x) => x.sourceTaskId === view.taskId)
+                        .map((x) => (
+                          <p key={x.id}>
+                            {link(
+                              `/replenishment-items/${x.id}`,
+                              `${x.name} · ${labels[x.status]}`,
+                              "B25",
+                            )}
+                          </p>
+                        ))}
                     </Card>
                   )}
                   {view.canDraft && view.taskStatus === "completed" && (
@@ -733,7 +735,7 @@ export function Console({ path, view }: { path: string; view: MockView }) {
                   <div className="actions">
                     {link("/replenishment-items", "返回内部补货", "B41")}
                     {link(
-                      `/tasks/${view.taskId}/report?version=1`,
+                      `/tasks/${item.sourceTaskId}/report?version=${item.sourceReportVersion}`,
                       "查看来源报告",
                       "B37",
                     )}
@@ -748,7 +750,8 @@ export function Console({ path, view }: { path: string; view: MockView }) {
                       </div>
                       <div>
                         <p>
-                          来源计划 DEMO-PLAN-008 / v{view.version} · 预生成 Mock
+                          来源计划 DEMO-PLAN-008 / v{item.sourceReportVersion} ·
+                          预生成 Mock
                         </p>
                         <p>
                           审批记录、执行回执与内部项是独立事实，不表示采购或入库。

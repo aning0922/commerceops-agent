@@ -1,0 +1,18 @@
+{
+  "source": "mcr.microsoft.com/playwright:v1.64.0-noble",
+  "requested_platform": "linux/arm64",
+  "manifest_digest": "sha256:4109b399f6d3de22a133ab935df0d7614ed0de9195d529f0ebc6255655cdb495",
+  "live_exec_handle": 40636,
+  "observed_utc": "2026-10-10T11:13:21Z",
+  "result": "Linux browser still not_run in this checkpoint; download completed",
+  "baseline_font_inspection": {
+    "image": "node:24.18.0-bookworm",
+    "platform": "linux/amd64 via isolated container",
+    "command": "fc-match Noto Sans SC:lang=zh-cn",
+    "actual_family": "DejaVu Sans",
+    "proves_CJK_browser_rendering": false
+  },
+  "planned_remaining_gate": "OS-specific actual CJK glyph/asset assertion in tests/e2e/web/approver.spec.ts; A Linux root CI can supply the Linux run without another image pull",
+  "download_result": "completed: original live handle40636 exit0",
+  "image_index_digest": "sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f"
+}

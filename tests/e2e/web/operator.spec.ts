@@ -97,6 +97,8 @@ test("Dialog键盘隔离、Esc返回焦点与关闭脏草稿", async ({ page }) 
 });
 test("completed新周期空草稿、轨迹与内部状态分离", async ({ page }) => {
   await page.goto("/tasks/INV-DEMO-007");
+  await expect(page.locator("[data-control=B25]")).toHaveCount(0);
+  await expect(page.locator(".tabs [data-control=B17]")).toBeDisabled();
   await page.locator("[data-control=B46]").click();
   await expect(page.getByLabel("分析请求")).toHaveValue("");
   await expect(page.getByRole("dialog")).toContainText("不继承旧批准");
@@ -106,6 +108,14 @@ test("completed新周期空草稿、轨迹与内部状态分离", async ({ page 
       "源业务任务已完成（固定 Mock）。下一周期必须重新分析和审批。",
     ),
   ).toBeVisible();
+  await page.goto("/tasks/INV-DEMO-007/report");
+  await expect(
+    page.getByRole("table", { name: "SKU 分析" }).getByRole("row"),
+  ).toHaveCount(3);
+  await page.locator("[data-control=B19]").click();
+  await expect(page.getByRole("dialog")).toContainText("REPORT-DEMO-007");
+  await expect(page.getByRole("dialog")).not.toContainText("REPORT-DEMO-008");
+  await page.keyboard.press("Escape");
   await page.goto("/tasks/INV-DEMO-008/events");
   await expect(page.locator("[data-control=B09]")).toHaveCount(0);
   await page.getByText("节点 / Tool / 时间与 Token").click();

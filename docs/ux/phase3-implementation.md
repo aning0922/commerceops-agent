@@ -51,7 +51,7 @@ Mock 角色过滤只验证页面边界；不能证明实际 session、CSRF/Origi
 
 语义 CSS 取冻结 `design-tokens.json.m1_candidate` 和 `assets-read.json` 的 33 Token；18 原组件的按钮/状态/ReadState/SKU/AppShell 语义复用，不建立新视觉系统，不宣称自动 Token 同步。224px Sidebar、72px Header、600px Drawer；间距 4/8/12/16/24/32，按钮至少 44px，桌面表格与 390px 完整事实卡片。所有风险均有文字，颜色不是唯一提示。
 
-正文栈沿用 Source Sans Pro / Noto Sans SC / 本机 CJK fallback。本次 macOS 截图实际使用可用系统 fallback；没有新增站外字体请求。独立 CJK 字体打包、跨系统字形、真实读屏及真人 QA 尚未完成，不能由本机截图外推。
+首批8e正文栈使用 Source Sans Pro / Noto Sans SC / 本机 CJK fallback，当时未打包字体。总控授权集中补齐后，新增固定5.3.0项目本地 Source Sans Pro 400/600 与 Noto Sans SC variable wght包（OFL-1.1），同冻结字体家族语义；许可随静态交付保留，见[字体记录](../../frontend/FONT_LICENSES.md)。没有全局字体安装或站外字体请求。Darwin实际Chromium字形断言确认h1中文字来自本地Noto自定义字体；Linux实际运行以OS专属记录为准，下载受限期间不外推为通过。真实读屏及真人 QA 尚未完成。
 
 原生 `dialog.showModal()` 提供背景 inert；显式 Tab/Shift+Tab 边界循环、Esc 取消、关闭回到原触发控件，dirty 草稿先确认丢弃。`aria-labelledby`/字段 `aria-describedby`/`aria-invalid`/状态 announcement/语义行列及可见焦点已实现。
 
@@ -79,7 +79,7 @@ Playwright 从 production build 独占启动六个自有 127.0.0.1:3410–3415 N
 
 实际覆盖：导航/刷新/本地筛选；指定当前/历史报告与解释上下文；完整20SKU首项/末项未知风险；1440/1280/390无横裁切；Dialog Tab/Enter/Space/Esc/返回焦点；脏草稿关闭与completed新空草稿；原因空白/有效校验；终态只读；同步与内部项分离；admin安全落点/无业务导航/序列化无泄漏；过期；unknown原回执边界；默认未启Mock fail closed；非法版本与处理中未生成报告。
 
-200% 本轮以 1440/2=720 CSS px 布局 viewport 检查等效 reflow，**不是实际浏览器菜单缩放或真人验收**。真正200%浏览器缩放、实际服务端撤权/兼任scope、duplicate/conflict业务响应、决定竞态/持久幂等/PG恢复、正式登录均留 B02/全阶段 Gate，不宣称通过。
+首批720 CSS px仅是200%等效reflow，原记录保留；集中补齐另以[官方Chrome tabs.setZoom](https://developer.chrome.com/docs/extensions/reference/api/tabs#method-setZoom)实现真正200% page zoom。自有临时profile/headed Chromium、零权限最小MV3 worker、只访问127.0.0.1自有Mock页，getZoom=2，innerWidth1440→720、outerWidth1440不变、DPR2→4、visualViewport.scale=1，完整20SKU/21行且scrollWidth720，head/tail实际截图。[实际记录](../../frontend/evidence/b01/actual-zoom.json)和[可复现脚本](../../frontend/tooling/zoom-proof.mjs)保留；最终font构建已再复验。不是CSS zoom/device metrics/pinch，也不是真人点击。初次原Chrome快捷键没有取得zoom回执、随后连接中断未记通过；已停止操作用户原profile，没有重置/删除/恢复未知页。实际服务端撤权/兼任scope、duplicate/conflict业务响应、决定竞态/持久幂等/PG恢复、正式登录仍留B02/全阶段Gate，不宣称通过。
 
 离线 Python 回归实际 **896 passed / 236 deselected，84.51s**；两个既有 lark-oapi deprecation warning。没有执行真实 PG/Web 业务集成。依赖审计安装时 0 vulnerabilities；精确提交 GitHub CI 及独立 Review 由总控继续裁定。
 
@@ -94,3 +94,17 @@ Playwright 从 production build 独占启动六个自有 127.0.0.1:3410–3415 N
 B02 唯一前置：A 精确 OpenAPI/session/逐角色范围/request_key/error 与 API 代码独审冻结。届时正常同步合同，替换 UI-only fixture model 为已审 typed client，接服务端会话与真实动作并跑自有 PG/Web。当前 `/api/v1` 仅 A 提案，不据此发请求。F01/F02/真实飞书、未批准重算/续答、生产/公开部署/付费模型/Phase4均不在本批范围。
 
 B 阶段容量18h属于原60h，不新增总预算。人工有效工时 not_reported；Agent墙钟和机器等待按实际记录，不把估计容量当作耗时。主控安排冻结 SHA 独审和内部合并，B 不合 main。
+
+## 集中修复与最终冻结
+
+总控安排独立Reviewer在自有隔离8e WT复验toolchain/typecheck/build/audit0/Chromium11项及390报告/20SKU/admin截图，没有新增P1/P2阻断；这不替代最终增量冻结回执。首批8e精确GitHub CI [38046425858](https://github.com/aning0922/commerceops-agent/actions/runs/38046425858)实际SUCCESS，只记历史SHA，不外推到本次修复。
+
+交接补查两项修复集中在同一普通提交：ItemFact绑定自己的sourceTaskId/sourceReportVersion，详情文字与来源链接同v1；completed样例源task的report/snapshot关联独立，相关内部项按源task隔离，不能挂其他task的审批。实际页面断言核对来源文字/URL、无跨task内部项/审批、REPORT-DEMO-007上下文和两项SKU范围，不以重跑原未覆盖用例代替。
+
+同批补项目字体、真正200%与一项实际CJK glyph断言。最终Web用例12项（原11项扩充上述定向断言，另加字体实际来源），截图等待document.fonts.ready。Linux官方镜像下载观察原live handle，不重启/加权限；如未完成，保持[下载记录](../../frontend/evidence/b01/linux-download.json)not_run，由A根CI Linux执行同字形/load/截图断言补证；fc-match或Darwin截图不能代替Linux实测。
+
+Root已正式放行3e05c714289135ab6901159d7e9210d657967fc2（精确CI38047261517 SUCCESS）；合前用该提交的隔离扫描政策真实检查本WT，dir/index/fullgit各0，不改本分支旧扫描器。普通保存B本批后同步A精确合同与第三扫描例外政策，PR base由Root正常迁到codex/phase3-approval。B不修改扫描规则/豁免，也不改已有历史。最终新source SHA/增量独审/CI以PR36与总控实时回执为准；API主体独审之前仍零业务请求。
+
+原生zoom后的Playwright默认clip出现裁切/尾部空白，旧PNG和8e记录标为截图失败保留；最终以不带CSS clip的CDP Page.captureScreenshot原生surface捕获head/tail/actions并实际查看，避免空白图冒称视觉通过。
+
+原Linux下载handle40636最终exit0，镜像已完成；本checkpoint仍未启动Linux浏览器，未改写为Linux验收通过。B02真实会话/审批测试使用单一live配置trace=off，禁raw trace/HAR/body；CI只上传sanitized结果与不含密码/Cookie/session/CSRF/nonce的安全截图，不开发通用脱敏框架。

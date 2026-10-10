@@ -1,3 +1,6 @@
+import "@fontsource/source-sans-pro/400.css";
+import "@fontsource/source-sans-pro/600.css";
+import "@fontsource-variable/noto-sans-sc/wght.css";
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {

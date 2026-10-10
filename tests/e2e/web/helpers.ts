@@ -1,6 +1,7 @@
 import type { Page } from "../../../frontend/node_modules/@playwright/test";
 import { expect } from "../../../frontend/tooling/web-test";
 export async function noOverflow(page: Page) {
+  await page.evaluate(() => document.fonts.ready);
   const size = await page.evaluate(() => ({
     scroll: document.documentElement.scrollWidth,
     client: document.documentElement.clientWidth,
@@ -21,6 +22,7 @@ export async function noBusinessRequests(page: Page) {
   return unexpected;
 }
 export async function screenshot(page: Page, name: string) {
+  await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: `evidence/b01/${name}.png`, fullPage: true });
 }
 export async function safeAccess(page: Page) {

@@ -54,6 +54,9 @@ export default async function Page({
     ...view,
     taskId: task?.id ?? view.taskId,
     taskStatus: task?.status ?? view.taskStatus,
+    reportId: task ? `REPORT-${task.id.slice(4)}` : view.reportId,
+    snapshotId: task ? `DEMO-SNAPSHOT-${task.id.slice(-3)}` : view.snapshotId,
+    approvalId: task && task.id !== "INV-DEMO-008" ? "" : view.approvalId,
   };
   if (task && ["queued", "analyzing"].includes(task.status)) {
     selectedView.facts = [];
@@ -61,6 +64,15 @@ export default async function Page({
     selectedView.items = [];
     selectedView.reportId = "";
     selectedView.snapshotId = "";
+  }
+  if (task?.id === "INV-DEMO-007") {
+    selectedView.facts = view.facts.filter((x) =>
+      ["SKU-A", "SKU-B"].includes(x.key),
+    );
+    selectedView.planKeys = selectedView.facts
+      .filter((x) => view.planKeys.includes(x.key))
+      .map((x) => x.key);
+    selectedView.items = [];
   }
   const publicView =
     resolved === "/access" ||

@@ -28,6 +28,8 @@ export type TaskFact = {
   scope: string;
 };
 export type ItemFact = {
+  sourceTaskId: string;
+  sourceReportVersion: number;
   id: string;
   sku: string;
   name: string;
