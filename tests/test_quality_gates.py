@@ -1,5 +1,7 @@
 """临时仓库合成阻断与质量工具失败合同，不提交合成凭据。"""
 
+import hashlib
+import json
 import secrets
 import shlex
 import subprocess
@@ -8,11 +10,13 @@ import tomllib
 from pathlib import Path
 
 import pytest
+import tomli_w
 
 from scripts import scan_secrets as secret_scan
 from scripts.check_docs import document_errors
 from scripts.repository_files import versionable_files
 from scripts.scan_secrets import sensitive_path
+from scripts.vendor_gitleaks_rules import P3_DOCUMENT_DIGEST, P3_PUBLIC_ROW
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.offline
@@ -289,3 +293,86 @@ def test_modified_rules_fail_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     monkeypatch.setattr(secret_scan, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid scanner rules"):
         secret_scan.validate_rules()
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    [
+        "exact",
+        "one_character",
+        "same_digest_other_path",
+        "adjacent_generic",
+        "adjacent_pat",
+        "history",
+    ],
+)
+def test_p3_public_digest_exception_is_exact(repository: Path, scenario: str) -> None:
+    filename = (
+        "docs/contracts/p3-other.json"
+        if scenario == "same_digest_other_path"
+        else "docs/contracts/p3-checks.json"
+    )
+    path = repository / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = P3_PUBLIC_ROW
+    value = ""
+    if scenario == "one_character":
+        value = ("b" if P3_DOCUMENT_DIGEST[0] != "b" else "a") + P3_DOCUMENT_DIGEST[1:]
+        row = row.replace(P3_DOCUMENT_DIGEST, value)
+    if scenario == "same_digest_other_path":
+        value = P3_DOCUMENT_DIGEST
+    if scenario in {"adjacent_generic", "history"}:
+        value = secrets.token_urlsafe(32)
+        row += f'\napi_key = "{value}"'
+    if scenario == "adjacent_pat":
+        value = synthetic_value()
+        row += f'\ngithub_token = "{value}"'
+    path.write_text(row + "\n")
+    git(repository, "add", ".")
+    git(repository, "commit", "-m", "synthetic public digest boundary")
+    if scenario == "history":
+        path.write_text(P3_PUBLIC_ROW + "\n")
+        git(repository, "add", ".")
+        git(repository, "commit", "-m", "remove current synthetic credential, retain history")
+    result = run_scan(repository)
+    if scenario == "exact":
+        assert result.returncode == 0, result.stdout
+        assert "git: findings=0, exit=0" in result.stdout
+        return
+    output = assert_redacted_block(result, value)
+    assert (
+        f'"rule": "{"github-pat" if scenario == "adjacent_pat" else "generic-api-key"}"' in output
+    )
+    scopes = ["git"] if scenario == "history" else ["dir", "index", "git"]
+    for scope in scopes:
+        assert f'"scope": "{scope}"' in output
+
+
+def test_p3_wider_exception_fails_even_with_updated_config_digest(
+    tmp_path: Path, request: pytest.FixtureRequest
+) -> None:
+    (tmp_path / "scripts").mkdir()
+    config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
+    generic = next(rule for rule in config["rules"] if rule["id"] == "generic-api-key")
+    generic["allowlists"][-1]["paths"] = [r"(?:^|/)docs/.*"]
+    content = tomli_w.dumps(config).encode()
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    provenance["config_sha256"] = hashlib.sha256(content).hexdigest()
+    (tmp_path / ".gitleaks.toml").write_bytes(content)
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    patcher: pytest.MonkeyPatch = request.getfixturevalue("monkeypatch")
+    patcher.setattr(secret_scan, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="invalid scanner rules"):
+        secret_scan.validate_rules()
+
+
+def test_secret_gate_runs_before_dependency_installation(repository: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, "-S", "-m", "scripts.scan_secrets", "--repo", str(repository)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "git: findings=0, exit=0" in result.stdout
