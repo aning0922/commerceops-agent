@@ -4,7 +4,7 @@
 
 ## 1. 数据与权限
 
-迁移普通增加 `0002_inventory_analysis`，保留 `0001_task_foundation`。新增 `principal_shop_scopes` 和五个只追加证据表：`commerce_snapshots`、`snapshot_products`、`snapshot_order_lines`、`snapshot_refunds`、`analysis_reports`。它们使用 organization/shop/task 复合外键；每任务只有一个逻辑快照/报告，逻辑键绑定 task 与 workflow version。快照绑定规范化请求内容及 SHA256；保存、持久结果回放和HTTP回读均重新校验DTO，并按快照输入与任务L/R/S重算完整报告，核对规范化input_hash、source、window、规则/参数及display，合法独立hash不能替代业务绑定；快照和报告均保留 canonical 内容与 SHA256，报告完整结构必须与 facts 一致。
+迁移普通增加 `0002_inventory_analysis`，保留 `0001_task_foundation`。新增 `principal_shop_scopes` 和五个只追加证据表：`commerce_snapshots`、`snapshot_products`、`snapshot_order_lines`、`snapshot_refunds`、`analysis_reports`。它们使用 organization/shop/task 复合外键；每任务只有一个逻辑快照/报告，逻辑键绑定 task 与 workflow version。快照绑定规范化请求内容及 SHA256；保存前在任何serializer之前递归保留原Python类型/Decimal精度重验DTO，持久结果回放和HTTP回读均重新校验DTO，并按快照输入与任务L/R/S重算完整报告，核对规范化input_hash、source、window、规则/参数及display，合法独立hash不能替代业务绑定；快照和报告均保留 canonical 内容与 SHA256，报告完整结构必须与 facts 一致。
 
 金额列为 `numeric(20,6)`，应用发送 SQL 前校验精度和范围，数据库另将存储值与未舍入的 JSON 字符串比对，拒绝隐式舍入。库存/数量整数使用 `numeric`，不引入额外业务上限。未知库存、退款数量和在途信息保留原始 unknown/reason；分数采用精确分子/分母字符串，显示小数与 canonical facts 区分。
 
@@ -52,3 +52,11 @@ ace6候选独审[5477615751](https://github.com/aning0922/commerceops-agent/pull
 修复在保存前重验输入/完整报告并重算确定性结果；持久回放与HTTP也重算核对。三子表INSERT trigger锁定完成事务同一task行，并在锁取得后查询当前state/report，不采用无锁的预检查。普通app实际覆盖三个表封存拒绝与并发等待后拒绝，库存999/任务L99/窗口/display/绕过DTO均拒绝且snapshot/report为0，合法未封存首次插入仍通过；金额精度/溢出在未封存阶段另测，避免sealed trigger先拒而掩盖金额验证。
 
 首轮定向11 passed / 4.47s，随后64项P203专项 / 22.07s；最终全量PG146 passed / 65.20s，完整检查676 offline / 48.39s通过，保留两项既有SDK deprecation warning。current/index/history扫描均0，自有p203-99c0b20c64无宿主端口、测试库及容器/卷/网络残留0、所属PG密码文件移除，模型资源未读/未改。修复冻结SHA的独审及精确CI另列，尚未通过阶段Gate。
+
+## 6. 第二轮原生金额重验修复
+
+e422增量独审确认第5节原两项已解除，但先model_dump_json再重验会让非法float/7位Decimal被Money serializer洗为合法字符串，仍属同一保存边界P2。e422的CI38026444744 SUCCESS仅为该旧候选证据，不记最终Gate。
+
+最小修正复用既有`_native_input_value`：在任何serializer之前递归保留Python原值，以InventoryInput/InventoryReport.model_validate重验，随后才允许canonical/JSON序列化。P201/202 helper、共享DTO、金标均不变，无新增框架。18项普通app+WorkerSession/JobQueue/Store实际PG测试覆盖net/tax/refund的float、超精度float、7位Decimal、bool、NaN、Infinity；全部拒绝、snapshot/report为0、不completed，同一所有权下合法Decimal随后仍完成1/1保存。
+
+18 targeted passed / 6.93s；最终全量PG164 passed / 91.80s、完整checks676 offline / 55.51s通过，current/index/history均0。自有p203-2340ad2b58无宿主端口，runtime非高权/0002已核，测试库及所属containers/volumes/networks残留0，所属密码文件移除，模型资源未读/改/调用。最终新SHA还需原Reviewer复审及精确CI，不降门禁。

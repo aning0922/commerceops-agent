@@ -9,6 +9,7 @@ import time
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
+from decimal import Decimal
 from typing import Any
 from uuid import uuid4
 
@@ -18,7 +19,10 @@ from commerceops.adapters.commerce.mock import Fixture, MockCommerce
 from commerceops.application.commerce.analysis_task import InventoryTaskRequest
 from commerceops.application.commerce.collection import InventoryCollector
 from commerceops.application.commerce.contracts import Quality
-from commerceops.application.commerce.inventory_analysis import analyze_inventory
+from commerceops.application.commerce.inventory_analysis import (
+    InventoryAnalysisError,
+    analyze_inventory,
+)
 from commerceops.domain.inventory_rules import RuleParameters
 from commerceops.entrypoints.api import create_app
 from commerceops.entrypoints.database import grant_runtime, migrate, setup_checkpointer
@@ -873,3 +877,60 @@ def test_runtime_money_precision_before_seal(
             "SELECT count(*) AS n FROM business.snapshot_order_lines WHERE task_id=%s", (task,)
         ).fetchone()
         assert valid and valid["n"] == 1
+
+
+BAD_NATIVE_MONEY: tuple[object, ...] = (
+    10.5,
+    10.5000001,
+    Decimal("10.5000000"),
+    True,
+    float("nan"),
+    float("inf"),
+)
+
+
+@pytest.mark.parametrize("field", ["net_amount", "tax_amount", "refund_amount"])
+@pytest.mark.parametrize("bad", BAD_NATIVE_MONEY)
+def test_native_money_rejected_before_any_serializer(
+    fixture: InventoryFixture, field: str, bad: object
+) -> None:
+    f = fixture
+    task, _ = f.create("partial_refund")
+
+    async def attempt() -> None:
+        session = WorkerSession(f.app, f.data.organization)
+        await session.start()
+        queue = JobQueue(session)
+        r = await queue.claim()
+        assert r and r.task_id == task
+        store = InventoryStore(f.app, session)
+        try:
+            await store.mark(r, "analyzing")
+            collected = await MockCollectorFactory(DIRECTORY)(
+                InventoryTaskRequest(fixture_case="partial_refund")
+            ).collect()
+            data = collected.data
+            valid_report = analyze_inventory(data)
+            if field == "refund_amount":
+                invalid = data.model_copy(
+                    update={"refunds": (data.refunds[0].model_copy(update={"refund_amount": bad}),)}
+                )
+            else:
+                invalid = data.model_copy(
+                    update={"order_lines": (data.order_lines[0].model_copy(update={field: bad}),)}
+                )
+            # 独立纯规则边界先证明原值非法；不以serializer后的值作为期望输入。
+            with pytest.raises(InventoryAnalysisError):
+                analyze_inventory(invalid)
+            with pytest.raises(AnalysisUnsafe, match="ANALYSIS_REPORT_BINDING_MISMATCH"):
+                await store.save(r, replace(collected, data=invalid), valid_report)
+            assert f.counts(task) == (0, 0) and f.row(task)["state"] != "completed"
+            # 原始合法Decimal在同一正常app/Worker所有权下仍能原子保存。
+            saved = await store.save(r, collected, valid_report)
+            assert saved.report == valid_report and f.counts(task) == (1, 1)
+            assert f.row(task)["state"] == "completed"
+            await queue.done(r)
+        finally:
+            await session.close(clean=True)
+
+    asyncio.run(attempt())

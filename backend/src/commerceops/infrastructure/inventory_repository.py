@@ -19,7 +19,10 @@ from commerceops.application.commerce.analysis_task import (
     StoredAnalysis,
     TrustedReadIdentity,
 )
-from commerceops.application.commerce.inventory_analysis import analyze_inventory
+from commerceops.application.commerce.inventory_analysis import (
+    _native_input_value,
+    analyze_inventory,
+)
 from commerceops.application.commerce.inventory_facts import InventoryInput, InventoryReport
 from commerceops.application.runner import RunRequest
 from commerceops.domain.commerce_values import canonical_bytes, facts_hash, money, utc_time
@@ -173,15 +176,13 @@ class InventoryStore:
     ) -> StoredAnalysis:
         # model_copy/model_construct不执行完整验证；持久边界重新校验输入及完整报告。
         try:
-            data = InventoryInput.model_validate_json(
-                collected.data.model_dump_json(warnings=False)
-            )
-            report = InventoryReport.model_validate_json(report.model_dump_json(warnings=False))
+            data = InventoryInput.model_validate(_native_input_value(collected.data))
+            report = InventoryReport.model_validate(_native_input_value(report))
             started = utc_time(collected.collection_started_at)
             ended = utc_time(collected.collected_at)
             if ended < started or collected.consistency != "observational":
                 raise ValueError("INVALID_COLLECTION_TIME")
-        except (ValueError, TypeError, AttributeError):
+        except (ValueError, TypeError, AttributeError, RecursionError):
             raise AnalysisUnsafe("ANALYSIS_REPORT_BINDING_MISMATCH") from None
         # numeric(20,6)边界在发送SQL前校验；DB另用未舍入payload比对拒直接写入舍入。
         for row in data.order_lines:

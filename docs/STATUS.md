@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；Phase2 P2-01/02内部门禁已由总控核准，当前in_progress_p2_03，同一Draft PR30的P203首轮独审2项P2已作定点修复候选，本地验证通过，待新SHA复审/精确CI Gate。** 当前main caffe11770a54135900633edf4db0df5458fd195，主体已普通merge；实现依赖eb537，未合P2 main。用户已授权A/B受控双线：A唯一schema/业务集成，B仅模型说明组件，P204真实模型调用须对应代码独审及总控安排。受限资源ready/not_run，P203未读模型key/未调用API。飞书扩权限/生产与后续Phase未授权；用户已委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase仍另批。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；最新事实见第33节。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；Phase2 P2-01/02内部门禁已由总控核准，当前in_progress_p2_03，同一Draft PR30的P203两轮有界定点修复候选已验证，待最终新SHA复审/精确CI Gate。** 当前main caffe11770a54135900633edf4db0df5458fd195，主体已普通merge；实现依赖eb537，未合P2 main。用户已授权A/B受控双线：A唯一schema/业务集成，B仅模型说明组件，P204真实模型调用须对应代码独审及总控安排。受限资源ready/not_run，P203未读模型key/未调用API。飞书扩权限/生产与后续Phase未授权；用户已委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase仍另批。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；最新事实见第33节。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -531,3 +531,12 @@ P203预计8–12有效开发/专项小时，仍扣Phase2既有30–40h和总300h
 修复验证自有项目p203-99c0b20c64：PG17.11/0002/runtime非高权已核，无宿主端口；测试数据库0，仅所属containers/volumes/networks全部回收为0，所属PG密码文件删除，模型资源未读/改/调用。A schema/business唯一负责、B组件cccf115独审通过只是组件事实，等待A稳定门禁后由总控协调普通同步/组合/P204授权接线。
 
 Issue29当前总控授权回执记载，用户已委托完整Phase2全部必要Gate后的Root正常main合入；A不自行合main，不复用此授权进入Phase3或扩飞书/生产/公开范围。历史等待授权段不覆盖当前回执，本地人工H/L仍未报告不虚填。
+
+
+### 33.2 第二轮serializer前原生金额校验
+
+第一修复e422/tree55ca520的[CI38026444744](https://github.com/aning0922/commerceops-agent/actions/runs/38026444744) SUCCESS保留为旧候选。增量独审确认原报告绑定/三子表封存已解除，但实测Money serializer可洗白float或7位Decimal；原67 P203 PG通过不抵新的独立拒绝测试（2 failed证明缺口）。主体第二轮只作最小原生重验修正：复用P202既有_native_input_value，任何serializer前保留Python类型/Decimal精度递归重验；P201/202代码、共享DTO、goldens不变，不融合B/调用模型。
+
+实际18项定向PG / 6.93s通过：net/tax/refund各6种非法原值全部拒绝，snapshot/report=0、不completed，合法Decimal同所有权下继续保存成功。最终全量真实PG164 passed、676 deselected / 91.80s；完整scripts.check676 offline、164 deselected / 55.51s，静态/文档/锁/Node与Python90包漏洞检查全部通过，三层敏感扫描0。新冻结SHA/原Reviewer复审/精确CI在同Issue/PR一条批次回执归档，未确认前P203仍未Gate。
+
+自有p203-2340ad2b58：PG17.11/0002/runtime非高权核实、无宿主端口；测试库0，验证后仅所属containers/volumes/networks回收为0、所属PG密码移除。模型资源未读/改/调用；Root已授权的P204方案准备不作为模型运行或阶段集成。两輪有界修复内无作者同因失败循环，不因CI成功降低独审门槛。
