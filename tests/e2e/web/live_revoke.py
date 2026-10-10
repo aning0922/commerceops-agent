@@ -21,8 +21,7 @@ with connect(settings) as db:
         "SELECT 1 FROM business.principals WHERE id=%s FOR UPDATE", (UUID(facts["operator"]),)
     )
     db.execute(
-        "UPDATE business.principal_role_shop_grants SET enabled=false "
-        "WHERE principal_id=%s",
+        "UPDATE business.principal_role_shop_grants SET enabled=false WHERE principal_id=%s",
         (UUID(facts["operator"]),),
     )
 print("owned scope revoked; values withheld")

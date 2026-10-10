@@ -206,3 +206,7 @@ uv run --frozen python -m scripts.scan_secrets
 Reviewer在12fa自有3470/3471资源完成迁移/预置后发现B seed的WebConfig.origins仍固定3460，将真实ORIGIN_DENIED；API/Next/PW未启动并停自有PG保卷，原截止不重置。本次一次辅助收口从600/no-follow/当前UID的私有window.json严格校验web_origin与api_origin，要求canonical http/127.0.0.1/显式有效非默认TCP端口，拒绝userinfo/path/query/hash/异主机等。校验发生在DB初始化前；最终seed WebConfig.origins仅登记web_origin，TestClient base_url登记api_origin，bootstrap/login/session/T1 seed请求明确用同登记web Origin与实际Cookie/CSRF，不沿用A fixture内部默认Origin，不降低真实校验或注入actor。
 
 一次rg核live_seed/live_ready/live_revoke/live_origins/read.spec/owned-listeners/playwright.live/live-reporter/read client/page入口，运行链无3460/3461回退；页面origin/runner URL仅显式受控env，read.spec仍对登记值精确校验。旧固定端口只留历史资料/反例，不用作新Reviewer端点。22/22 Python纯离线反例（0.32s）包括3470/3471、20非法Origin与私有登记权限/双端点要求，Ruff/format/mypy三文件和frontend typecheck通过；未启动PG/API/Next/浏览器，不宣称新7项实际通过。业务22 blob与12fa逐字相同，seed-origin-fix.json留证；history仍原973bf误报1、no push。若续审仍有同源端点阻断，按Root合同集中报告并暂停live，不自动第三轮或另建框架。
+
+组合ab57正常push后的精确CI38062624307实际FAILURE：预依赖与Foundation三scope扫描0、锁检查/63Markdown0/Ruff通过，但全仓库format仅live_revoke.py相邻SQL字面量需合成一行，PG完全skipped且其他后续检查未执行。Root同意≤3min辅助格式收口：项目锁定Ruff仅格式化此文件，AST与ab57完全相同，无SQL/校验/权限/端点/业务变化；完整ruff format --check .及ruff check .通过。普通新提交与新CI继续记账，不rerun或将policyCI当此组合通过；独审ab57业务窗口不取消，必要证据只由Reviewer核语义后继承。
+
+本WT格式修正后完整scripts.check实际exit0：981offline passed/271 deselected/96.77s、2既有lark弃用warning；Ruff与226全仓格式、mypy159、63Markdown0、Node24.21工具链/frontend typecheck、Node audit0与95Python包漏洞0、三scope敏感0。没有执行作者PG/PW；独立Reviewer在ab57自有54710/3471/3470原截止内已实际7/7，无P1/P2，格式only证据继承仍须Reviewer核对，不把此前policy或14dc CI外推。
