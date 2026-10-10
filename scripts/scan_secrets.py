@@ -11,7 +11,14 @@ import tomllib
 from pathlib import Path
 
 from scripts.repository_files import indexed_files, versionable_files
-from scripts.vendor_gitleaks_rules import P3_PUBLIC_PATH, P3_PUBLIC_ROW, P3_ROW_DIGEST
+from scripts.vendor_gitleaks_rules import (
+    B_PUBLIC_PATH,
+    B_PUBLIC_ROW,
+    B_ROW_DIGEST,
+    P3_PUBLIC_PATH,
+    P3_PUBLIC_ROW,
+    P3_ROW_DIGEST,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 SCANNER = ROOT / ".tools/gitleaks"
@@ -29,7 +36,7 @@ def sensitive_path(path: Path) -> bool:
 
 
 def validate_rules() -> None:
-    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及三处精确行豁免。"""
+    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及四处精确行豁免。"""
     content = (ROOT / ".gitleaks.toml").read_bytes()
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     config = tomllib.loads(content.decode())
@@ -41,20 +48,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 3
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 4
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 3
+        or len(provenance["exceptions"]) != 4
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    public_line = generic["allowlists"][-1]
-    evidence = provenance["exceptions"][-1]
+    if len(generic.get("allowlists", [])) != 3:
+        raise ValueError("invalid scanner rules")
+    public_line = generic["allowlists"][1]
+    evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 2
+        len(generic["allowlists"]) != 3
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -63,6 +72,21 @@ def validate_rules() -> None:
         or evidence["rule"] != "generic-api-key"
         or evidence["path"] != P3_PUBLIC_PATH
         or evidence["exact_line_sha256"] != P3_ROW_DIGEST
+    ):
+        raise ValueError("invalid scanner rules")
+    b_line = generic["allowlists"][2]
+    b_evidence = provenance["exceptions"][3]
+    if (
+        b_line["condition"] != "AND"
+        or b_line["regexTarget"] != "line"
+        or b_line["paths"] != [B_PUBLIC_PATH]
+        or b_line["regexes"] != [r"^(?:\r?\n)?" + re.escape(B_PUBLIC_ROW) + "$"]
+        or hashlib.sha256(B_PUBLIC_ROW.encode()).hexdigest() != B_ROW_DIGEST
+        or b_evidence["rule"] != "generic-api-key"
+        or b_evidence["path"] != B_PUBLIC_PATH
+        or b_evidence["exact_line_sha256"] != B_ROW_DIGEST
+        or b_evidence.get("source_commit") != "973bf6447211f084355d61b9d58adfd95dfa2788"
+        or b_evidence.get("source_line") != 27
     ):
         raise ValueError("invalid scanner rules")
 
