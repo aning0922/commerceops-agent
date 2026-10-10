@@ -78,8 +78,13 @@ def test_default_identity_fail_closed_and_openapi() -> None:
         assert response.status_code == 401
         assert response.json()["error"]["code"] == "IDENTITY_REQUIRED"
     spec = app.openapi()
-    assert spec == json.loads(
+    frozen = json.loads(
         (DIRECTORY.parents[3] / "docs/contracts/p203-read-openapi.json").read_text()
+    )
+    assert all(spec["paths"][key] == value for key, value in frozen["paths"].items())
+    assert all(
+        spec["components"]["schemas"][key] == value
+        for key, value in frozen["components"]["schemas"].items()
     )
     assert "422" not in spec["paths"]["/tasks/{task_id}/events"]["get"]["responses"]
     bad = client.get("/tasks/00000000-0000-0000-0000-000000000001/events?limit=raw-secret")

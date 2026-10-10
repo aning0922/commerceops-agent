@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；Phase2 P2-01/02内部门禁已由总控核准，当前in_progress_p2_03，同一Draft PR30的P203两轮有界定点修复候选已验证，待最终新SHA复审/精确CI Gate。** 当前main caffe11770a54135900633edf4db0df5458fd195，主体已普通merge；实现依赖eb537，未合P2 main。用户已授权A/B受控双线：A唯一schema/业务集成，B仅模型说明组件，P204真实模型调用须对应代码独审及总控安排。受限资源ready/not_run，P203未读模型key/未调用API。飞书扩权限/生产与后续Phase未授权；用户已委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase仍另批。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；最新事实见第33节。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；P2-01/02/03已获冻结SHA独审及精确CI内部门禁，当前in_progress_p2_04。** 同一Draft PR30；main仍caffe11770a54135900633edf4db0df5458fd195，Phase2未合main。A唯一schema/业务/Worker/Graph/API/预算/最终集成，B仅model_explanation公共组件。A正常FF已审B小补丁至c356；P204作者候选已完成完整检查；真实provider请求0，真实routing not_run，最终源码独审/精确CI/Root真实窗口尚待。用户委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase/飞书扩权/生产未授权。P1有限Gate、#23风险原值及历史保持；最新见第34节。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -540,3 +540,21 @@ Issue29当前总控授权回执记载，用户已委托完整Phase2全部必要G
 实际18项定向PG / 6.93s通过：net/tax/refund各6种非法原值全部拒绝，snapshot/report=0、不completed，合法Decimal同所有权下继续保存成功。最终全量真实PG164 passed、676 deselected / 91.80s；完整scripts.check676 offline、164 deselected / 55.51s，静态/文档/锁/Node与Python90包漏洞检查全部通过，三层敏感扫描0。新冻结SHA/原Reviewer复审/精确CI在同Issue/PR一条批次回执归档，未确认前P203仍未Gate。
 
 自有p203-2340ad2b58：PG17.11/0002/runtime非高权核实、无宿主端口；测试库0，验证后仅所属containers/volumes/networks回收为0、所属PG密码移除。模型资源未读/改/调用；Root已授权的P204方案准备不作为模型运行或阶段集成。两輪有界修复内无作者同因失败循环，不因CI成功降低独审门槛。
+
+
+## 34. 2026-10-10 P203最终内部门禁与P204集成进行中
+
+P203最终 `3986dd174de4b934dd9402847ebd3ecb5015a69b` / tree `d720c6262d662a74dad09cdb52256ba00a7dc2eb` 已由总控核[独审5477765550](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5477765550)无P1/P2及[精确CI38027088787](https://github.com/aning0922/commerceops-agent/actions/runs/38027088787) SUCCESS：676 offline/48.48s、164真实PG/101.64s、85 P203/3G1/6G2/cleanup0。第33节各轮候选“未确认”是当时记录，最终Gate由本节覆盖，不删除历史失败/旧CI。
+
+B原组件PR31经独审与普通同步A3986形成8660e3d；组合[独审5477785723](https://github.com/aning0922/commerceops-agent/pull/31#pullrequestreview-5477785723)通过，[CI38027517460](https://github.com/aning0922/commerceops-agent/actions/runs/38027517460)实际checkout c3dd109b/A3986+B866/tree94110781，751offline/63.75s、164PG/83.90s。Root普通合入A `07d3aa6a6d4636c26958290d97dd8d3f4503262e`（parents3986+866/tree94110781），A清洁WT已正常FF；不等于P204最终集成或真实Gate。
+
+Root按Issue29原范围授权A固定说明child及五意图真实provider接线，B仅必要public prompt_version小补丁PR32/f202（独审与精确CI通过，Root普通合入A c356）。A正常FF c356保存原成果，未编辑Bnamespace；本候选冻结SHA与新CI记于同Issue/PR回执。新实现/权限/预算/恢复/接口与开发专项实际证据见[P204合同](PHASE2_P204.md)。真实provider0、key内容未读；作者full检查已通过；最终冻结SHA独审/CI及Root受控实际窗口未完成，保持in_progress_p2_04，不宣称Phase2通过。
+
+
+### 34.1 P204作者完整候选检查
+
+B follow-up PR32/f202经[独审5477973601](https://github.com/aning0922/commerceops-agent/pull/32#pullrequestreview-5477973601)无P1/P2及[CI38031422535](https://github.com/aning0922/commerceops-agent/actions/runs/38031422535)实际SUCCESS后Root普通合入A c356（parents07d3+f202/tree141720a）；A原WT正常FF保留未提交成果，无stash/reset/历史改写。[A基线CI38031958164](https://github.com/aning0922/commerceops-agent/actions/runs/38031958164) checkout3f9aeb0326f21b5fb932d37adb2745d3214487b9（caffe+c356/tree141720a同源），791offline/83.17s、164PG/107.05s、3G1/6G2/cleanup0，是已审组件组合基线，不能覆盖随后A新代码。
+
+A新候选实际完整scripts.check：826 offline/68.98s、182 integration deselected，mypy135源文件、ruff/format/docs/锁/Node全部通过，Python95包及Node漏洞0，current/index/可达history扫描0。P20418真实PG专项/26.47s；fresh完整PG182 passed/90.79s（85 P203+18 P204），三次G1 count_one与六必要G2完整，0003初始化重跑和runtime非高权约束通过，自有p123-92f833c0a6ac资源/所属runtime全部回收0。no-dev runtime独立验证httpx/tokenizers/固定资产可用且pytest不存在。机器/数据量、实际失败修正与未运行边界见[P204合同](PHASE2_P204.md)。
+
+阶段仍in_progress_p2_04，真实provider0、真实routing/解释not_run，模型key内容未读、没有balance/models探测；待冻结新SHA独审/精确CI及Root窗口。main仍caffe，不合P2 main、不扩后续Phase/飞书/生产。人工H/L not_reported、D1/D30与既有300h/Phase2预算保持。

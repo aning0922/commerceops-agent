@@ -7,12 +7,20 @@ import signal
 from pathlib import Path
 from uuid import UUID
 
-from commerceops.application.runner import RunRequest, RunResult
+from commerceops.application.runner import RunnerPort, RunRequest, RunResult
 from commerceops.infrastructure.database import DatabaseSettings
+from commerceops.infrastructure.explanation_repository import ExplanationStore
+from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, confirm_termination
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
+from commerceops.workflows.inventory_routing import IntentRunner
+from commerceops.workflows.report_explanation import (
+    ExplanationRunner,
+    InventoryCompositeRunner,
+    ProviderFactory,
+)
 
 
 class TechnicalRunner:
@@ -24,7 +32,12 @@ class TechnicalRunner:
 
 
 async def serve(
-    settings: DatabaseSettings, organization: UUID, fixture: Path | None = None
+    settings: DatabaseSettings,
+    organization: UUID,
+    fixture: Path | None = None,
+    *,
+    allow_actual: bool = False,
+    key_file: Path | None = None,
 ) -> None:
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
@@ -34,11 +47,16 @@ async def serve(
     await session.start()
     print(f"technical test worker started: owner={session.owner}", flush=True)
     try:
-        runner = (
-            InventoryRunner(InventoryStore(settings, session), MockCollectorFactory(fixture))
-            if fixture is not None
-            else TechnicalRunner()
-        )
+        runner: RunnerPort
+        if fixture is not None:
+            factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
+            runner = InventoryCompositeRunner(
+                InventoryRunner(InventoryStore(settings, session), MockCollectorFactory(fixture)),
+                ExplanationRunner(ExplanationStore(settings, session), factory),
+                IntentRunner(IntentStore(settings, session), factory),
+            )
+        else:
+            runner = TechnicalRunner()
         await Worker(session, runner).run(stop)
     except UnsafeShutdown:
         # 在 asyncio.run 清理 pending tasks 之前退出；非合作调用不能拖住退出。
@@ -51,6 +69,8 @@ def main() -> None:
     parser.add_argument("action", choices=["test-run", "inventory-test-run", "confirm-termination"])
     parser.add_argument("--organization", type=UUID)
     parser.add_argument("--fixture-directory", type=Path)
+    parser.add_argument("--allow-actual-model-probe", action="store_true")
+    parser.add_argument("--model-key-file", type=Path)
     parser.add_argument("--owner")
     parser.add_argument("--evidence-reference")
     parser.add_argument("--confirm-old-process-terminated", action="store_true")
@@ -62,11 +82,17 @@ def main() -> None:
                 raise ValueError("explicit test mode and organization required")
             if args.action == "inventory-test-run" and args.fixture_directory is None:
                 raise ValueError("owned fixture directory required")
+            if args.allow_actual_model_probe and (
+                args.action != "inventory-test-run" or args.model_key_file is None
+            ):
+                raise ValueError("actual model probe requires explicit test fixture/key file")
             asyncio.run(
                 serve(
                     settings,
                     args.organization,
                     args.fixture_directory if args.action == "inventory-test-run" else None,
+                    allow_actual=args.allow_actual_model_probe,
+                    key_file=args.model_key_file,
                 )
             )
         else:

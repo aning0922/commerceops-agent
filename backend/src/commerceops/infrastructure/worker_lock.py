@@ -110,6 +110,10 @@ async def mark_attention(db: AsyncConnection[dict[str, Any]], owner: str) -> Non
         AND j.status='running' AND j.lease_owner=%s)
         AND NOT (t.kind='inventory_analysis_only' AND t.state='completed'
         AND business.valid_inventory_result(t.id,t.organization_id,t.shop_id,t.workflow_version))
+        AND NOT (t.kind='report_explanation_only' AND t.state='completed'
+        AND business.valid_explanation_result(t.id,t.organization_id,t.shop_id,t.workflow_version))
+        AND NOT (t.kind='inventory_intent_only' AND t.state='completed'
+        AND business.valid_inventory_intent(t.id,t.organization_id,t.shop_id,t.workflow_version))
         AND t.failure_code IS DISTINCT FROM 'WORKER_TERMINATION_UNCONFIRMED'""",
         (owner,),
     )

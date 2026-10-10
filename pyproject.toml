@@ -14,6 +14,8 @@ dependencies = [
   "pydantic-settings==2.15.0",
   "uvicorn==0.54.0",
   "lark-oapi==1.7.3",
+  "httpx==0.28.1",
+  "tokenizers==0.23.2",
 ]
 
 [project.scripts]
@@ -29,7 +31,6 @@ packages = ["backend/src/commerceops"]
 [dependency-groups]
 dev = [
   "hatchling==1.32.4",
-  "httpx==0.28.1",
   "markdown-it-py==4.2.0",
   "mypy==2.4.0",
   "pip-audit==2.10.1",
