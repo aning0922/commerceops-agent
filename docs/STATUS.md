@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；P2-01/02/03已获冻结SHA独审及精确CI内部门禁，当前in_progress_p2_04。** 同一Draft PR30；main仍caffe11770a54135900633edf4db0df5458fd195，Phase2未合main。A唯一schema/业务/Worker/Graph/API/预算/最终集成，B仅model_explanation公共组件。A正常FF已审B小补丁至c356；旧a057作者候选已完成完整检查但独审两P2阻断；当前同批最小修复待复审；真实provider请求0，真实routing not_run，最终源码独审/精确CI/Root真实窗口尚待。用户委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase/飞书扩权/生产未授权。P1有限Gate、#23风险原值及历史保持；最新见第34节。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；P2-01/02/03已获冻结SHA独审及精确CI内部门禁，当前in_progress_p2_04。** 同一Draft PR30；main仍caffe11770a54135900633edf4db0df5458fd195，Phase2未合main。A唯一schema/业务/Worker/Graph/API/预算/最终集成，B仅model_explanation公共组件。A正常FF已审B小补丁至c356；预算恢复P2已独立解除；参数第三轮残留导致暂停后，用户批准一次完整有限正向文法收口，作者候选已验证、待最终独审/精确CI；真实provider请求0，真实routing not_run，最终源码独审/精确CI/Root真实窗口尚待。用户委托Root在完整Phase2必要Gate后正常合main，A不自行合入；后续Phase/飞书扩权/生产未授权。P1有限Gate、#23风险原值及历史保持；最新见第34节。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -580,3 +580,12 @@ Root实跑新6910 198PG/109.74s及原恢复/legacy NULL/新owner缓存probe，�
 ### 34.4 同参数P2第三源码轮仍待独立验证
 
 Root对0462指定56offline及fresh9真实HTTP/PG通过，但另复现`4 ½`及`4 天 ½`被decimal分类漏判后explicit/create函数替身1（非PG插入）。原A按5分钟source/offline窗口只改后续isnumeric类别与明确“半”拒绝，专属新增½/¼/⅓及半天/混分数控制；旧0462 8fail/8pass/0.92s，修正后65offline通过/type136/ruff，无新作者PG/大检查。Budget/Owner/迁移/锁/queue/DTO/B/权限/fixtures及原句/span/hash不改。新冻结必须Root独立PG/HTTP/actualCI；第三轮仍同类不解除即暂停，不自行第四轮。phase仍in_progress_p2_04/参数P2待复审，actual0/key-env未读/main未合。
+
+
+### 34.5 用户批准一次正向文法有界收口
+
+044a真实PG/U+2044 Task+1在[独审5478299031](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5478299031)确认后暂停，用户明确批准一次有限正向文法完整消费收口（原预算扣2.5–4 Agent有效h，人工H/L仍not_reported，2026-10-10 12:25:16UTC绝对停止），最多一实现批次+独审+精确CI；最终同源阻断即停，不自动新冻结。A原WT/branch/PR，未新增实施体系。
+
+私有LRS helper只接受正向ASCII整数/限定天单位/Unicode WS/有限分隔/句末，完整消费第一赋值至EOF；任何未知尾缀澄清，保留意图prefix/原句span/hash、模型五意图及默认demo来源，不用拒绝字符清单。改动白名单、批准边界及验收表见[P204第9节](PHASE2_P204.md)。044a回归U+2044实际1fail/16pass；新作者105offline/1.98s、完整896offline/69.45s（236integration deselected）、136type/ruff/docs/锁/Node及95Python包漏洞0。唯一自有p203-c61413fcb4实际85PG/47.40s（38完整块HTTP合法13/澄清25、已有P204与基础PG），Task增量0/1、原参数/hash/span及既有预算恢复/权限/缓存通过；0004/runtime非高权/无host ports/测试库0已核，所属资源/runtime回收0，key/env/模型资源未读/改。
+
+阶段仍in_progress_p2_04，新候选冻结SHA/一次独审/精确CI及Root真实模型窗口待办；actual provider0/main仍caffe/Phase3未授权，不将作者通过或旧绿当最终Gate。

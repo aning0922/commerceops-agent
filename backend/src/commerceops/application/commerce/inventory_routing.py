@@ -55,6 +55,55 @@ class RoutingDecision(BaseModel):
     execution_available: Literal[False] = False
 
 
+def _explicit_lrs_spans(text: str) -> set[tuple[str, int, int, str]]:
+    """只消费有限LRS参数块；前置意图保留，块内未知字符必澄清。"""
+    first = re.search(r"(?<![A-Za-z0-9_])([LRS])(?:=|:)", text)
+    if first is None:
+        return set()
+    spans: set[tuple[str, int, int, str]] = set()
+    seen: set[str] = set()
+    cursor = first.start()
+
+    def space_end(at: int) -> int:
+        while at < len(text) and text[at].isspace():
+            at += 1
+        return at
+
+    while cursor < len(text):
+        field = re.match(r"([LRS])(?:=|:)([0-9]+)", text[cursor:])
+        if field is None:
+            raise ValueError("PARAMETER_BLOCK_NOT_CONSUMED")
+        name, scalar = field.groups()
+        if name in seen or len(scalar) > 3 or not 0 <= int(scalar) <= 365:
+            raise ValueError("AMBIGUOUS_PARAMETERS")
+        start, end = cursor + field.start(2), cursor + field.end(2)
+        seen.add(name)
+        spans.add((name, start, end, scalar))
+        cursor = end
+        unit_at = space_end(cursor)
+        if unit_at < len(text) and text[unit_at] == "天":
+            cursor = unit_at + 1
+        following = space_end(cursor)
+        if following == len(text):
+            return spans
+        # 只允许明确参数间隔、有限标点及句末；不接受任意未知续词。
+        if text[following] in "。!！?？":
+            while following < len(text) and text[following] in "。!！?？":
+                following = space_end(following + 1)
+            if following != len(text):
+                raise ValueError("PARAMETER_BLOCK_NOT_CONSUMED")
+            return spans
+        if text[following] in ",，;；":
+            following = space_end(following + 1)
+            if following == len(text):
+                return spans
+        elif following == cursor:
+            raise ValueError("PARAMETER_SEPARATOR_REQUIRED")
+        # 下一次迭代必须是精确NAME+SEP+UINT，任何分数/范围/文字均不消费。
+        cursor = following
+    return spans
+
+
 class GuardedRouter:
     def __init__(self, port: RoutingPort | None = None, *, allow_actual_routing: bool = False):
         self.port, self.allow_actual_routing = port, allow_actual_routing
@@ -80,34 +129,7 @@ class GuardedRouter:
                 mode = proposed.evidence_mode
                 selected = proposed.intent
                 reason = "VALIDATED_MODEL_PROPOSAL"
-                # 独立确认完整整数词元，不能从小数/分数/范围截取合法前缀。
-                spans: set[tuple[str, int, int, str]] = set()
-                seen_fields: set[str] = set()
-                for field in re.finditer(r"(?<![A-Za-z0-9_])([LRS])(?:=|:)", request.text):
-                    name = field.group(1)
-                    scalar = re.match(r"[0-9]+", request.text[field.end() :])
-                    if scalar is None or name in seen_fields:
-                        raise ValueError("AMBIGUOUS_PARAMETERS")
-                    seen_fields.add(name)
-                    start = field.end()
-                    end = start + len(scalar.group())
-                    suffix = request.text[end:]
-                    # 单位前Unicode空白只用于lookahead，原句/span/hash不改写。
-                    unit_suffix = suffix.lstrip()
-                    if unit_suffix.startswith("天"):
-                        suffix = unit_suffix[1:]
-                    if suffix and not suffix[0].isspace() and suffix[0] not in ",，;；。!！?？":
-                        raise ValueError("AMBIGUOUS_PARAMETERS")
-                    following = suffix
-                    while following and (
-                        following[0].isspace() or following[0] in ",，;；。!！?？"
-                    ):
-                        following = following[1:]
-                    if following and (
-                        following[0].isnumeric() or following[0] in ".／/+-−~～–—到至半"
-                    ):
-                        raise ValueError("AMBIGUOUS_PARAMETERS")
-                    spans.add((name, start, end, scalar.group()))
+                spans = _explicit_lrs_spans(request.text)
                 if proposed.intent == "inventory_replenishment" and spans != {
                     (c.name, c.start, c.end, str(c.value)) for c in proposed.candidates
                 }:

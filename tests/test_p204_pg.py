@@ -35,6 +35,7 @@ from commerceops.workflows.report_explanation import (
 
 from tests.inventory_support import DIRECTORY, InventoryFixture
 from tests.test_inventory_pg import fixture as fixture
+from tests.test_p204_tokens_routing import PARAMETER_BLOCK_CASES
 
 pytestmark = pytest.mark.integration
 
@@ -816,3 +817,55 @@ def test_complete_parameter_token_controls_business_insert(
         ).fetchone()
         assert after
         assert after["n"] - before["n"] == int(valid)
+
+
+@pytest.mark.parametrize("text,valid", PARAMETER_BLOCK_CASES)
+def test_positive_block_http_pg_task_count(
+    fixture: InventoryFixture, text: str, valid: bool
+) -> None:
+    from commerceops.application.commerce.intent_task import routing_body_hash, routing_input_hash
+    from commerceops.application.commerce.inventory_routing import GuardedRouter
+    from commerceops.entrypoints.api import create_app
+    from commerceops.entrypoints.explanation_http import ExplanationEndpoints
+    from fastapi.testclient import TestClient
+
+    from tests.test_p204_tokens_routing import ScriptedModel, block_proposal
+
+    request = RoutingInput(text=text)
+    before_hash = (routing_body_hash(text), routing_input_hash(request))
+    proposal = block_proposal(text)
+    client = TestClient(
+        create_app(
+            explanation_service=ExplanationEndpoints(
+                fixture.app, GuardedRouter(ScriptedModel(proposal))
+            ),
+            identity_resolver=lambda _: fixture.identity,
+        )
+    )
+    with connect(fixture.app) as db:
+        before = db.execute(
+            "SELECT count(*) AS n FROM business.business_tasks WHERE kind='inventory_analysis_only'"
+        ).fetchone()
+        assert before
+    result = client.post("/test/route", json={"text": text})
+    assert result.status_code == 200
+    assert result.json()["decision"]["intent"] == (
+        "inventory_replenishment" if valid else "clarify"
+    )
+    with connect(fixture.app) as db:
+        after = db.execute(
+            "SELECT count(*) AS n FROM business.business_tasks WHERE kind='inventory_analysis_only'"
+        ).fetchone()
+        assert after
+        assert after["n"] - before["n"] == int(valid)
+        if valid:
+            task = db.execute(
+                "SELECT normalized_request FROM business.business_tasks WHERE id=%s",
+                (result.json()["created_task_id"],),
+            ).fetchone()
+            assert task
+            assert {n: task["normalized_request"][n] for n in ("L", "R", "S")} == {
+                c.name: c.value for c in proposal.candidates
+            }
+    assert (routing_body_hash(text), routing_input_hash(request)) == before_hash
+    assert all(text[c.start : c.end] == str(c.value) for c in proposal.candidates)

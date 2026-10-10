@@ -80,3 +80,16 @@ Root在精确6910复审实跑198 PG/109.74s，corrected observed断言/撤权恢
 原A第三轮按Root本通知起5分钟，仅将原词元后续数值类别isdecimal改isnumeric，并拒明确“半”续词；保持原句/span/hash与已有56控制，不改Budget/Owner/迁移/锁/queue/DTO/B/权限/fixtures，无作者新PG/完整大检查。新增9代表控制覆盖½/¼/⅓、天单位前后空白/NBSP与明确4天半/4天 半/4 天 半/4 半天。旧0462实测新增/既有单元16中8 failed/8 passed/0.92s；修正后专属65offline通过（实测时长见同PR回执）、mypy136/ruff。非法应用分派替身create0、原整数控制create1，替身不抵Root新冻结独立PG/HTTP与实际CI。
 
 同源第三修复轮事实保留；若此轮复审仍同类未解除，按Root合同暂停参数任务并交原因/最小风险方案/ETA，不自行第四轮、免测或绕Gate。模型0/key-env未读/no main/既有预算不变。
+
+
+## 9. 用户批准一次有限正向文法收口（尚待最终独审）
+
+第三源码轮044a独审[5478299031](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5478299031)真实PG确认`L=4 ⁄ 5 R=7 S=2`（U+2044）仍错误Task+1；65offline/正确控制不抵该反例，参数任务依第三轮上限暂停。用户随后明确批准一次完整有限正向文法有界收口，原A/WT/分支/PR不变，新增2.5–4 Agent有效工作小时扣原Phase2/300h，人工H/L not_reported、机器CI另记；绝对停止2026-10-10 12:25:16 UTC（20:25:16北京时间），最多一完整实现批次+一次冻结独审+精确CI。若最终同源阻断立即停止，不自动新冻结修复，不降低必要功能/Gate。此次不是第四次逐符号补丁。
+
+唯一应用变化为inventory_routing私有 `_explicit_lrs_spans`：保留第一处明确赋值之前的意图原文；参数块从该处完整消费至EOF。PARAM=NAME(L/R/S)+现有SEP(=/:)+ASCII整数0..365+可选Unicode空白/天。参数间只接受Unicode空白或单个逗号/分号（中英文），下个必须是明确PARAM；句末只允许既有。!！?？及空白，保留单个尾置逗号/分号的既有明确控制。其他字符/未消费尾缀一律clarify，不列分数/范围坏字符拒绝集，不建通用parser/NLP框架。duplicate、模型候选缺失/错span/值/来源仍拒；没有显式候选的默认3/7/2始终demo_assumption，API未确认不写业务任务。原文、cursor span、input/body/logical hash不标准化，五意图仍由模型提出。
+
+应用/测试文件边界仅inventory_routing、专属offline与既有PG dispatch测试及本合同/STATUS/ROADMAP当前事实；Worker/Graph/API逻辑、共享DTO、B、依赖锁、审批/权限、migration、Owner/budget与fixtures/goldens未改。作者先以044a实际回归U+2044：1 failed/16 passed/1.43s，保留旧缺口；正向helper后原65+该例66通过，再补全参数块验收38类（13明确合法、25澄清）。覆盖未知字/未知标点尾缀、标点夹数、分数/范围/duplicate、多余参数/不完整模型候选，及正常请求prefix、天、ASCII/Unicode WS、逗号分号、句末标点、顺序/0/365合法控制。
+
+本批实际：105专属offline/1.98s（含原控制），完整scripts.check896 offline/69.45s、236 integration deselected，mypy136/ruff/format/docs/锁/Node通过，Python95锁依赖及Node漏洞0；current/index/全可达history敏感扫描0。唯一fresh自有隔离PG项目p203-c61413fcb4无host ports，0004/migrate/setup/grant与runtime NOSUPERUSER/NOCREATEDB/NOCREATEROLE/测试库残留0已核。85定向真实PG/47.40s（72 P204含38块级真实HTTP及13基础PG）通过：每个澄清Task增量0，13合法控制各Task1、原数值/hash/span保持，并保留既有预算恢复/权限/缓存回归。完成后仅该项目containers/volumes/networks全0，所属runtime/密码移除，模型资源未读/改。本批没有第二fresh项目或真实provider请求，没有作者失败循环。
+
+这些仍为作者候选证据；新冻结必须一次独立复审及精确CI，旧CI不替代。通过后Root另安排原≤10/8000/800/US$0.10真实模型窗口，再阶段结案/main；actual0/key-env未读/no main/Phase3未授权。

@@ -297,6 +297,7 @@ def test_complete_integer_scalar_not_truncated(scalar: str) -> None:
         "4 天到5天",
         "4\u00a0天到5天",
         "4 天 / 5 天",
+        "4 ⁄ 5",
         "4 ½",
         "4 天 ½",
         "4 ¼",
@@ -386,3 +387,121 @@ def test_unit_whitespace_keeps_spans_and_blocks_business_dispatch(
     assert response.json()["decision"]["intent"] == (
         "inventory_replenishment" if valid else "clarify"
     )
+
+
+# 正向块文法验收表，未知内容不是逐字符拒绝集。
+PARAMETER_BLOCK_CASES = [
+    ("L=4 R=7 S=2", True),
+    ("帮我看补货 L=4 R=7 S=2", True),
+    ("帮我看补货，L:4 R:7 S:2", True),
+    ("L=4天 R=7天 S=2天", True),
+    ("L=4 天 R=7 天 S=2 天", True),
+    ("L=4\u00a0天\u2003R=7\t天\nS=2天", True),
+    ("L=4,R=7;S=2", True),
+    ("L=4， R=7； S=2", True),
+    ("L=4 R=7 S=2。", True),
+    ("L=4 R=7 S=2！ ？ ", True),
+    ("S=2;R=7;L=4", True),
+    ("L=0 R=365 S=2", True),
+    ("L=4 R=7 S=2 ", True),
+    ("L=4 R=7 S=2，请创建", False),
+    ("L=4 R=7 S=2 未确认", False),
+    ("L=4 ⁄ 5 R=7 S=2", False),
+    ("L=4 天 ⁄ 5 天 R=7 S=2", False),
+    ("L=4 ⁄⁄5 R=7 S=2", False),
+    ("L=4 ½ R=7 S=2", False),
+    ("L=4 天 ¼ R=7 S=2", False),
+    ("L=4.5 R=7 S=2", False),
+    ("L=4 天到5天 R=7 S=2", False),
+    ("L=4 5 R=7 S=2", False),
+    ("L=4,5 R=7 S=2", False),
+    ("L=4，天到5天 R=7 S=2", False),
+    ("L=4 R=7 S=2。5", False),
+    ("L=4 R=7 S=2！ L=5", False),
+    ("L=4 R=7 S=2 X=9", False),
+    ("L=4 R=7 S=2 #备注", False),
+    ("L=4 R=7 S=2 )", False),
+    ("L=4 R=7 S=2⁄", False),
+    ("L=4 R=7 S=2天半", False),
+    ("L=4R=7S=2", False),
+    ("L=4,,R=7 S=2", False),
+    ("L=4 R=7 S=2 L=4", False),
+    ("L=366 R=7 S=2", False),
+    ("L=4 R=7 S=2.0", False),
+    ("L=4 R=7 S=2 天 xyz", False),
+]
+
+
+def block_proposal(text: str) -> ModelRoute:
+    import re
+
+    candidates = tuple(
+        ParameterCandidate.model_validate(
+            {
+                "name": match.group(1),
+                "value": int(match.group(2)),
+                "start": match.start(2),
+                "end": match.end(2),
+                "source": "explicit_text",
+            }
+        )
+        for match in re.finditer(r"([LRS])(?:=|:)([0-9]+)", text)
+        if int(match.group(2)) <= 365
+    )
+    return ModelRoute(
+        intent="inventory_replenishment", candidates=candidates, evidence_mode="offline_stub"
+    )
+
+
+@pytest.mark.parametrize("text,valid", PARAMETER_BLOCK_CASES)
+def test_positive_parameter_block_consumed(text: str, valid: bool) -> None:
+    from commerceops.application.commerce.intent_task import routing_body_hash, routing_input_hash
+
+    request = RoutingInput(text=text)
+    proposal = block_proposal(text)
+    before = (
+        request.text,
+        routing_body_hash(text),
+        routing_input_hash(request),
+        proposal.candidates,
+    )
+    decision = asyncio.run(GuardedRouter(ScriptedModel(proposal)).route(request))
+    assert decision.intent == ("inventory_replenishment" if valid else "clarify")
+    assert (
+        request.text,
+        routing_body_hash(text),
+        routing_input_hash(request),
+        proposal.candidates,
+    ) == before
+    if valid:
+        assert decision.parameter_sources == {
+            "L": "explicit_text",
+            "R": "explicit_text",
+            "S": "explicit_text",
+        }
+        assert decision.parameters == {c.name: c.value for c in proposal.candidates}
+        assert all(text[c.start : c.end] == str(c.value) for c in proposal.candidates)
+
+
+def test_block_candidates_missing_not_confirmed_and_defaults_labelled() -> None:
+    request = RoutingInput(text="L=4 R=7 S=2")
+    proposal = block_proposal(request.text)
+    missing = proposal.model_copy(update={"candidates": proposal.candidates[:1]})
+    assert asyncio.run(GuardedRouter(ScriptedModel(missing)).route(request)).intent == "clarify"
+    none = ModelRoute(intent="inventory_replenishment", evidence_mode="offline_stub")
+    decision = asyncio.run(
+        GuardedRouter(ScriptedModel(none)).route(RoutingInput(text="请分析库存"))
+    )
+    assert decision.parameter_sources == {
+        "L": "demo_assumption",
+        "R": "demo_assumption",
+        "S": "demo_assumption",
+    }
+    partial = asyncio.run(
+        GuardedRouter(ScriptedModel(block_proposal("L=4"))).route(RoutingInput(text="L=4"))
+    )
+    assert partial.parameter_sources == {
+        "L": "explicit_text",
+        "R": "demo_assumption",
+        "S": "demo_assumption",
+    }
