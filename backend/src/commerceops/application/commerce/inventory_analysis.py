@@ -100,6 +100,8 @@ def analyze_inventory(
     window = data.window or expected_window
     flags = {flag.value for flag in (*data.warnings, *data.source.provenance.quality_flags)}
     global_blocks = flags & COLLECTION_ERRORS
+    unscoped_quality = flags - COLLECTION_ERRORS
+    blocks: defaultdict[str, set[str]] = defaultdict(set)
     if not data.complete:
         global_blocks.add("SOURCE_INCOMPLETE")
     if window != expected_window:
@@ -122,6 +124,10 @@ def analyze_inventory(
         *data.refunds,
         *data.inventories,
     )
+    line_skus = {(row.order_id, row.line_id): row.sku_key for row in _sorted(data.order_lines)}
+    all_order_skus: defaultdict[str, set[str]] = defaultdict(set)
+    for row in data.order_lines:
+        all_order_skus[row.order_id].add(row.sku_key)
     for sourced_record in source_rows:
         if (
             sourced_record.source.source_kind != provenance.source_kind
@@ -130,11 +136,26 @@ def analyze_inventory(
             or sourced_record.source.captured_at != provenance.captured_at
         ):
             global_blocks.add("PROVENANCE_MISMATCH")
-        global_blocks.update(
-            flag.value
-            for flag in sourced_record.source.quality_flags
-            if flag.value in COLLECTION_ERRORS
-        )
+        record_quality = {flag.value for flag in sourced_record.source.quality_flags}
+        global_blocks.update(record_quality & COLLECTION_ERRORS)
+        scoped_quality = record_quality - COLLECTION_ERRORS
+        if isinstance(sourced_record, Refund):
+            associated: set[str] = set()
+            if sourced_record.lines:
+                for line in sourced_record.lines:
+                    sku = line_skus.get((sourced_record.order_id, line.line_id))
+                    if sku is None:
+                        unscoped_quality.update(scoped_quality)
+                    else:
+                        associated.add(sku)
+            else:
+                associated.update(all_order_skus.get(sourced_record.order_id, set()))
+            if not associated:
+                unscoped_quality.update(scoped_quality)
+            for sku in associated:
+                blocks[sku].update(scoped_quality)
+        else:
+            blocks[sourced_record.sku_key].update(scoped_quality)
     if any(p.shop_id != data.source.shop_id for p in data.products):
         global_blocks.add("SHOP_MISMATCH")
     if (
@@ -159,14 +180,8 @@ def analyze_inventory(
     ):
         global_blocks.add("CURRENCY_MISMATCH")
 
-    blocks: defaultdict[str, set[str]] = defaultdict(set)
     warnings: defaultdict[str, set[str]] = defaultdict(set)
     pools: defaultdict[str, set[str]] = defaultdict(set)
-    # 数值/声明字段存在也不能豁免库存来源警告；逐条保留，不因ID去重丢失。
-    for stock_observation in data.inventories:
-        blocks[stock_observation.sku_key].update(
-            flag.value for flag in stock_observation.source.quality_flags
-        )
     for known_product in products.values():
         pools[known_product.stock_pool_key].add(known_product.sku_key)
     for key, known_inventory in inventories.items():
@@ -244,7 +259,12 @@ def analyze_inventory(
                     unknown_refund.add(original.sku_key)
     source_complete = not global_blocks
     sku_keys = sorted(
-        set(products) | set(inventories) | set(included) | set(excluded) | set(review)
+        set(products)
+        | set(inventories)
+        | set(included)
+        | set(excluded)
+        | set(review)
+        | {key for key, quality in blocks.items() if quality}
     )
     evaluated = []
     for key in sku_keys:
@@ -254,7 +274,7 @@ def analyze_inventory(
             blocks[key].add("UNKNOWN_STOCK")
         if product is not None and not product.active:
             blocks[key].add("INACTIVE_PRODUCT")
-        blocks[key].update(global_blocks)
+        blocks[key].update(global_blocks | unscoped_quality)
         quantity_complete = source_complete and key not in unknown_refund
         if not quantity_complete:
             warnings[key].add(
@@ -330,11 +350,13 @@ def analyze_inventory(
         "window": window,
         "source_complete": source_complete,
         "complete": source_complete
+        and not unscoped_quality
         and not any(
             set(f.hard_blocks) - {"SCOPE_TOO_LARGE", "OPEN_WORK_ITEM", "INACTIVE_PRODUCT"}
             for f in facts
         ),
-        "requires_review": any(
+        "requires_review": bool(unscoped_quality)
+        or any(
             f.hard_blocks or f.required_assumptions or f.risk in {"manual_check", "quality_blocked"}
             for f in facts
         ),

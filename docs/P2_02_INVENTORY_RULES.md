@@ -68,3 +68,9 @@ uv run --frozen pytest tests/test_inventory_rules.py tests/test_inventory_analys
 库存来源quality_flags逐条加入对应SKU hard_blocks，包括字段仍声明exact/有库存数值的情形；不因SKU去重丢失来源标记，Q撤下、complete=false、requires_review=true、warnings与item质量保留。在途未知不能豁免此硬阻断。它不修改来源A/归属声明或库表，也不改变规则参数/业务计算口径。
 
 input_hash额外对Refund.lines按canonical标准字段排序，再对顶层数组排序；行数量统计保持原语义。相同来源raw_hash/provenance下交换退款行，items/input_hash/facts_hash/JSON逐字一致；实际raw_hash变化仍绑定不同指纹。不改写来源hash、原始fixtures/goldens或CI/scanner。本轮原样全套门禁实际passed（58.74秒）：619 offline passed/79 deselected，全部适用lint/format/strict mypy、51份文档、锁/工具/漏洞门禁通过，当前/index/可达history敏感0。暂存后三层扫描及新SHA/CI结果见同PR/Issue29回执，复审仍由Root协调，P203未开始。
+
+第一轮0526复审确认库存记录路径与退款排序修复有效，但Product/OrderLine/Refund、顶层warnings与global provenance仍可承载同一硬质量并被漏掉。第二且最后一轮在原合同内统一传播：有SKU的记录按SKU阻断；退款按原行/订单可确认SKU时局部阻断，无法归属及顶层硬质量保守阻断所有建议，空报告也complete=false/requires_review=true。不将这些标记错当“采集缺页”，明确有效gross仍可展示；collection错误按原合同全源阻断。未知在途保持独立假设草案，不成为新增总硬阻断。
+
+第二轮补入口回归先实跑21 failed（0.26秒），覆盖标准model/dict/modelcopy的产品、订单、退款、顶层warnings/global provenance以及空输入。追加DELETED_PRODUCT适用品质、退款可归属/不可归属兜底和未知在途草案回归；实际专项157 passed（0.27秒），18数值金标与原25样本不改。库存第一轮传播被并入统一入口，没有新框架、规则参数/金额/需求/退款口径变化或原基础恢复/迁移/锁/CI/scanner改动。新SHA须实际CI与Root独立复审，不用0526/f5d9历史结果替代；未进入P203。
+
+第二轮原样scripts.check实际passed（70.99秒）：652 offline passed/79 deselected，全局ruff/format/strict mypy98文件、51文档、锁/工具/漏洞门禁通过，当前/index/可达history敏感0。最后暂存扫描及新head/tree/CI见同PR回执，最终仍待独立复审解除。

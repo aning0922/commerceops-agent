@@ -464,3 +464,88 @@ def test_refund_line_permutation_preserves_semantic_input_and_facts_hash() -> No
     other = analyze_inventory(value.model_copy(update={"refunds": (different,)}))
     assert other.items == first.items and other.input_hash != first.input_hash
     assert other.facts_hash != first.facts_hash
+
+
+@pytest.mark.parametrize(
+    "quality", [Quality.SHARED_POOL_UNRESOLVED, Quality.UNKNOWN_STOCK, Quality.DELETED_PRODUCT]
+)
+@pytest.mark.parametrize("position", ["product", "order", "refund", "warnings", "global"])
+@pytest.mark.parametrize("as_dict", [False, True])
+def test_all_provenance_quality_entry_points_block_suggestions(
+    quality: Quality, position: str, as_dict: bool
+) -> None:
+    value = data("partial_refund")
+    if position == "warnings":
+        value = value.model_copy(update={"warnings": (quality,)})
+    elif position == "global":
+        source = value.source.model_copy(
+            update={
+                "provenance": value.source.provenance.model_copy(
+                    update={"quality_flags": (quality,)}
+                )
+            }
+        )
+        value = value.model_copy(update={"source": source})
+    else:
+        field = {"product": "products", "order": "order_lines", "refund": "refunds"}[position]
+        row = getattr(value, field)[0]
+        row = row.model_copy(
+            update={"source": row.source.model_copy(update={"quality_flags": (quality,)})}
+        )
+        value = value.model_copy(update={field: (row,)})
+    supplied = InventoryInput.model_validate(value.model_dump(mode="python")) if as_dict else value
+    report = analyze_inventory(supplied)
+    fact = report.items[0]
+    assert not report.complete and report.requires_review
+    assert quality.value in report.warnings and quality.value in fact.hard_blocks
+    assert fact.suggested_units is None and not fact.can_form_suggestion
+    assert not fact.eligible_for_execution
+
+
+def test_sku_quality_scope_and_unattributed_global_empty_case() -> None:
+    value = many(2)
+    product = value.products[0]
+    product = product.model_copy(
+        update={
+            "source": product.source.model_copy(update={"quality_flags": (Quality.UNKNOWN_STOCK,)})
+        }
+    )
+    report = analyze_inventory(
+        value.model_copy(update={"products": (product, *value.products[1:])})
+    )
+    first, second = report.items
+    assert first.suggested_units is None and "UNKNOWN_STOCK" in first.hard_blocks
+    assert second.suggested_units == 100 and not second.hard_blocks
+    empty = data("empty_products").model_copy(update={"warnings": (Quality.UNKNOWN_STOCK,)})
+    report = analyze_inventory(empty)
+    assert not report.complete and report.requires_review and not report.items
+
+
+def test_refund_quality_follows_known_sku_or_falls_back_to_global_block() -> None:
+    value = many(2)
+    refund = data("partial_refund").refunds[0]
+    refund = refund.model_copy(
+        update={
+            "order_id": value.order_lines[0].order_id,
+            "source": refund.source.model_copy(update={"quality_flags": (Quality.UNKNOWN_STOCK,)}),
+        }
+    )
+    report = analyze_inventory(value.model_copy(update={"refunds": (refund,)}))
+    first, second = report.items
+    assert first.suggested_units is None and "UNKNOWN_STOCK" in first.hard_blocks
+    assert second.suggested_units == 100 and not second.hard_blocks
+    unknown = refund.model_copy(update={"order_id": "not-collected"})
+    report = analyze_inventory(value.model_copy(update={"refunds": (unknown,)}))
+    assert not report.complete and report.requires_review
+    assert all(f.suggested_units is None and "UNKNOWN_STOCK" in f.hard_blocks for f in report.items)
+
+
+def test_unknown_inbound_is_still_only_an_assumption_draft() -> None:
+    report = analyze_inventory(data("unknown_inbound"))
+    fact = report.items[0]
+    assert report.complete and report.source_complete and report.requires_review
+    assert fact.suggested_units == 100 and fact.inbound_units is None
+    assert not fact.hard_blocks and fact.required_assumptions == (
+        "inbound_unknown_zero:sku/demo/100/p",
+    )
+    assert not fact.eligible_for_execution and not report.execution_available
