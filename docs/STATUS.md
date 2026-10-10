@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1正式冻结、PR24已合main；Phase2已授权并由总控派发新独立顶层/WT，阶段in_progress_p2_01，01执行中未交付Gate，02–04未开始。** main为f19281f1163f828448ad9404620d68e0f1afaa66，合后CI37977821884已成功并经总控核checkout。正式付费模型/飞书扩权限/生产与后续Phase未授权，P2 main合并仍需Gate与届时有效用户授权。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；新事实见第32节，执行状态据Issue29回执更新。
+更新日期：2026-10-10（Asia/Shanghai）。当前状态：**Phase1已结案；M1设计0.4.1冻结；Phase2 P2-01/02内部门禁已由总控核准，当前in_progress_p2_03，同一Draft PR30的P203实现与本地验证候选已交付，独审/精确CI待Gate。** 当前main caffe11770a54135900633edf4db0df5458fd195，主体已普通merge；实现依赖eb537，未合P2 main。用户已授权A/B受控双线：A唯一schema/业务集成，B仅模型说明组件，P204真实模型调用须对应代码独审及总控安排。受限资源ready/not_run，P203未读模型key/未调用API。飞书扩权限/生产与后续Phase未授权；P2 main仍须完整Gate与届时有效用户授权。P1有限Gate/未测边界与#23 risk_accepted/not_identified原值保持；最新事实见第33节。
 
 第1–30节为历史规划/交付快照，旧的等待审核、未合main和Gate缺口由第31节实际收口事实取代；失败历史与未知根因仍保留。主阶段main提交为078390c557bbd21a4dd36b98064894abe9bc0f2a，最后仅文档事实更新不改变其业务代码树；最新main SHA和文档收口CI另见Issue7最终回执。
 
@@ -503,3 +503,18 @@ P2-01可D1提前工作；固定窗口2026-10-10至11-08与D3–D6（10月12–15
 正式付费模型、飞书扩权限、生产资源及后续Phase未获授权；P2-04真实模型证据需单独运行许可/配置/预算，未跑保持blocked，替身或模板不抵用。P2 main合入仍须完整Gate、独立Review、精确CI与届时有效用户授权，不沿用P1托管合并权限。正式T3/补货/模型闭环不由P1技术Gate或UI原型外推。
 
 本交接不修改原M1/M2/M3核心、ROADMAP Gate、P1第1–31节历史或失败证据，不新增业务/依赖/UX资产/权限/运行测试。G3最小权限非投递边界、后端not_run、自然网络/wire/p95/长期TTL未测和#23根因未知/风险接受原值继续保留。本规划提交者负责这一次文档同步；总控负责派发、独审/CI核对和合入，主体编码由新P2执行者承担。
+
+
+## 33. 2026-10-10 P2-01/02内部门禁与P2-03交付
+
+P2-01修复依赖eddda43、P2-02最终修复依赖 `eb537e552456313100065551bc7f0b045fd08257` / tree `13b30d102b2b93e6193a979eb8ffb0fa7ef57b25`。总控已核[独审5477401548](https://github.com/aning0922/commerceops-agent/pull/30#pullrequestreview-5477401548)无P1/P2，以及[CI38021253513](https://github.com/aning0922/commerceops-agent/actions/runs/38021253513) SUCCESS：实际checkout21ab6b5（parents caffe+eb537，tree同依赖），652 offline / 75.61s、79真实PG / 90.77s、cleanup0。事实来自[Issue29 Gate回执](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6093438066)；原始fixtures/goldens未变，不把业务分支内部门禁写成main阶段完成。
+
+P203新增任务级append-only快照/规范化子表/报告、最小principal-shop grant、单Worker/Graph业务事务、BC01/05受控只读接口，具体语义与未实现范围见[合同](PHASE2_P203.md)。原始共享InventoryReport结构保持，额外补齐空结果的unattributed quality warning投影。正式session、审批/执行/outbox、真实库存/平台、P204模型说明集成仍未完成。
+
+P203实际验证：24 offline专项通过，覆盖18数值金标、采集边界、默认身份与固定OpenAPI；50真实PG专项/18.03s通过，追加授权提交行锁、错误checkpoint、旧workflow三项边界/3.03s通过。全量真实PG回归132 passed、676 deselected / 66.92s；最终游标类型与事件JSON投影修正后，作用域/分页、不可变证据及提交后进程恢复三项定向验证/4.32s通过。完整scripts.check通过：676 offline、132 deselected / 50.42s，ruff/mypy/文档/锁/Node检查通过，Python 90包及Node已知漏洞0；current/index/全部可达history扫描均0。冻结SHA与后续精确CI见同一PR30回执；独立Review与新head CI尚未确认，不记通过。
+
+自有隔离项目p203-782dab72db无宿主机端口；先核0001实际head，再验证0002。runtime角色实测NOSUPERUSER/NOCREATEDB/NOCREATEROLE；每测试UUID数据库finally回收，测试库残留0。本地验证结束仅回收该项目，containers/volumes/networks全部0，所属PG密码文件已移除；模型资源保持未读/未改。新业务测试模型=not_used、身份=simulated、审批=not_used，旧P1模拟审批探针另标技术证据。两项保留的lark/protobuf DeprecationWarning不改变通过计数，不外推成未来兼容性通过。
+
+[受控双线授权](https://github.com/aning0922/commerceops-agent/issues/29#issuecomment-6093683362)覆盖旧“单一主体”过期表述：A继续独占migration/application-commerce共享DTO/domain/infrastructure/Worker/Graph/API/业务权限/pyproject+uv.lock/状态管理/最终P204集成；B只开发model_explanation组件、专属测试/fixture/doc与非秘密example，不改A目录、不读key、不真实调用。B独审后由总控协调普通同步已审A commit及内部PR，再由A统一集成P204。P203不会提前调用DeepSeek；受限资源文件仅存在/非空权限核实，内容未读取。
+
+P203预计8–12有效开发/专项小时，仍扣Phase2既有30–40h和总300h；双线/额外Review扣原P204预算，不重排D1=10月10日、D30=11月8日。人工H/L未取得不虚填。本节仅更新本阶段事实，不修改第1–32节历史、M1设计资产或#23根因/风险接受原值。
