@@ -21,7 +21,13 @@
 | 共享四文档历史核对 | exit0，旧标题/全部历史正文byte一致，仅插入导航 | 未改原授权/失败/预算/Gate历史 |
 | `uv run --frozen python -m scripts.scan_secrets`（首轮） | exit0，dir/index/git各0命中 | 当前可提交内容/暂存/完整可达历史；最终暂存还须再次核对 |
 
-18:51:23–18:51:24 最终实际合同/文档/Ruff/差异检查 exit0：[机器记录](p3-checks.json)保存命令、时区时间、独立进程耗时及stdout。Markdown59份/errors0，合同385项；检查等待合计1.203秒（仅该五命令，非全部安装/扫描时间）。最终暂存首轮敏感检查亦exit0，dir/index/git各0；提交后完整历史再次扫描结果附同Draft PR。精确CI/独审仍待实际回执，不提前标通过。
+18:51:23–18:51:24 最终实际合同/文档/Ruff/差异检查 exit0：[机器记录](p3-checks.json)保存命令、时区时间、独立进程耗时及stdout。Markdown59份/errors0，合同385项；检查等待合计1.203秒（仅该五命令，非全部安装/扫描时间）。随后新增机器记录使最终暂存敏感检查exit1：dir/index各1命中、当时git0，定位p3-checks.json第7行公开OpenAPI文件SHA256，被generic-api-key误认字段名。上次exit0发生在新增该机器记录之前，不覆盖最终暂存。
+
+A漏检非零退出码，仍生成本地提交2a194a8，当时尚未上传；先前本段错误标通过已在普通后续修改纠正，失败事实保留。值与已公开OpenAPI内容重新计算完全相等，不是凭据；当前字段改名仍不消除历史误报。Root和独立Review分别计算核实非凭据，授权A作为本次扫描政策单一owner进行有界修正。新增第三例外仅generic-api-key + 精确docs/contracts/p3-checks.json路径 + 2a旧第7行完整JSON文字，AND/regexTarget=line，exact_line_sha256=4405db53329b7d9b9fb9d5ff920a1e9221dd3ecc57202de57bf838325a03f901。生成器、provenance/configSHA、strict校验同步；原222规则与原两例外经逐规则语义比较完全不变，未关扫描/扩大文件排除/改历史。
+
+当前字段改为document_sha256，新版本摘要不因本例外自动放行。实际质量工具回归41 passed/48.37s；测试参数类型文字另被generic-api-key误认，未提交前改用同等pytest FixtureRequest取得patch fixture，没有新例外；7项定向复验passed/7.71s。新增验证旧行在当前/index/完整历史放行，同文件改一个摘要字符、同digest异路径、相邻generic/PAT、清除当前合成值后的历史依旧阻断，扩大路径即使更新configSHA仍fail-closed。全仓Ruff/199格式及mypy136文件通过；最终当前/index/历史实际扫描各0。最终暂存及普通修正提交后的完整历史扫描仍需再次实跑，实际回执附同Draft PR。
+
+Root的精确2a合同独审回执未发现API/事务语义阻断，要求证据/精准例外修正与R01 from_report/new_cycle矩阵分开；本次已修。Reviewer自有环境无gitleaks的ERROR2仍not_run，不冒记独审扫描通过；本A真实三范围0单独计。修正后冻结SHA增量独审/精确CI仍等待实际回执，不提前标通过。
 
 校验器在uv临时工具环境运行，未增加生产依赖或改共享锁。实际工具版本：openapi-spec-validator0.7.2、jsonschema4.26.0、openapi-schema-validator0.6.3、jsonschema-specifications2025.9.1、referencing0.36.2、rpds-py2026.9.1；该临时工具环境并非项目锁的一部分，不作供应链锁定保证。JSON Schema的integer允许整数值float，严格JSON整数需运行时额外验证；数据库绑定的nonce/当前actor/scope/精确假设集合和实际session并未由schema校验证明。P2原模型逐schema与基线源码导出完全一致；HTTP新envelope必须后续与实际FastAPI运行时比对。
 

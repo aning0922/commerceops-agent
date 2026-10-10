@@ -4,7 +4,6 @@
   "model_mode": "not_called",
   "approval_mode": "not_run",
   "baseline_main": "59b350cb719a9d2fed3f68b1ee598fa0a9b97875",
-  "openapi_sha256": "a469bb6825770325a664b4770b0f17c78786ecec2126142870e1bd7dd08a6245",
   "human_effective_hours": "not_reported",
   "branch_created_at": "2026-10-10T18:35:20+08:00",
   "recorded_at": "2026-10-10T18:51:24.668614+08:00",
@@ -97,5 +96,90 @@
     "frontend",
     "independent_review",
     "exact_head_ci"
-  ]
+  ],
+  "final_staged_scan_initial": {
+    "exit_code": 1,
+    "dir_findings": 1,
+    "index_findings": 1,
+    "git_findings": 0,
+    "rule": "generic-api-key",
+    "file": "docs/contracts/p3-checks.json",
+    "line": 7,
+    "classification": "verified_public_openapi_digest_false_positive",
+    "local_commit_before_exit_checked": "2a194a8",
+    "uploaded": false,
+    "resolution": "root_and_review_verified_public_digest; exact historical line exception only; original failure preserved"
+  },
+  "document_sha256": "a469bb6825770325a664b4770b0f17c78786ecec2126142870e1bd7dd08a6245",
+  "policy_repair": {
+    "authorization": "Root direct dispatch after independent public-digest verification",
+    "original_rules_preserved": 222,
+    "original_exceptions_preserved": 2,
+    "new_exception_count": 1,
+    "new_exception_scope": "generic-api-key AND exact docs/contracts/p3-checks.json AND exact historical JSON line",
+    "exact_line_digest": "4405db53329b7d9b9fb9d5ff920a1e9221dd3ecc57202de57bf838325a03f901",
+    "rule_generator_exit_code": 0,
+    "config_digest": "b5b32abb9797f5d8ec13adf70d8679205113a3f1c211b518accd9268806cff64",
+    "test_suite": {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "pytest",
+        "tests/test_quality_gates.py",
+        "-q"
+      ],
+      "passed": 41,
+      "elapsed_seconds_reported_by_pytest": 48.37,
+      "exit_code": 0
+    },
+    "test_signature_false_positive": {
+      "file": "tests/test_quality_gates.py",
+      "line": 352,
+      "rule": "generic-api-key",
+      "committed": false,
+      "repair": "equivalent pytest FixtureRequest access, no exception added"
+    },
+    "targeted_recheck": {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "pytest",
+        "tests/test_quality_gates.py",
+        "-q",
+        "-k",
+        "p3"
+      ],
+      "passed": 7,
+      "deselected": 34,
+      "elapsed_seconds_reported_by_pytest": 7.71,
+      "exit_code": 0
+    },
+    "typecheck": {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "mypy"
+      ],
+      "source_files": 136,
+      "exit_code": 0
+    },
+    "scan_after_repair": {
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "python",
+        "-m",
+        "scripts.scan_secrets"
+      ],
+      "exit_code": 0,
+      "dir_findings": 0,
+      "index_findings": 0,
+      "git_findings": 0
+    },
+    "recorded_at": "2026-10-10T19:00:26.073065+08:00"
+  }
 }

@@ -6,7 +6,8 @@
 |---|---|---|
 | 首批 schema | OpenAPI 3.1合法、所有ref/path参数解析、严格输入、无actor/role/approved旁路、固定禁用端点、所有POST Cookie+CSRF+Origin；错误与列表counts范围明确 | 冻结OpenAPI +独立validator命令/输出，不能证明运行时鉴权 |
 | A01 / migration保留 | 自有真实PG加载P2completed task/immutable report/snapshot/官方checkpointer；迁移前后ID、state、version、content/hash、checkpoint字节和thread完全相同；P3另建task/thread | 迁移前后查询digest/rows，程序断言，非历史数据库 |
-| A01 / T1、R01 | HTTP自有受控入口T1后ACK前kill；重复10次同actor/operation/key返回一个新P3 task及源P2 task/job/audit；原key异payload409；from_report owner/scope/引用绑定拒绝 | barrier+真实PG+Gateway替身/自有API，终止/重启证明；不新发飞书 |
+| A01 / T1、R01 from_report | HTTP自有受控入口T1后ACK前kill；重复10次同actor/operation/key只返回原P3 task/首个job/audit；只绑定已存在可信P2 report/snapshot，源P2 task/job/checkpoint完全不变、不新增或复活；原key异payload409；owner/scope/引用绑定拒绝 | barrier+真实PG+自有API，终止/重启证明；不新发飞书 |
+| A01 / T1、R01 new_cycle | 显式提交新cycle创建新P2 analysis task/job及独立P3 task/job/T1回执；ACK前kill后同actor/operation/key重复10次仍同两task和原首个job/audit；原key异payload409，旧源task/旧审批不变 | 自有结构化mock入口、真实PG/进程kill；两个mode独立计断言，不将新周期回执套给from_report |
 | A01 / T2 | 可信P2 report/snapshot/参数/质量绑定；空建议no_action、硬错误无可执行plan、21项SCOPE_REQUIRED、原raw null/effective0保留；同plan版本重放一plan/approval/blocked intent | 金标/纯hash测试与真实PG约束，固定canonical hash vectors |
 | A02 / R05 | T2后interrupt checkpoint前kill；重放同plan/approval/outbox，未ready不放行意图 | 官方PG checkpointer、进程barrier/kill、DB持久回读 |
 | A02 / R06 | checkpoint后ready_at前kill；同版本匹配中断后补ready，sender仍disabled | checkpoint read+协调器事实，缺匹配不能填ready |
