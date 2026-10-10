@@ -57,7 +57,7 @@ result = await service.explain(report)
 
 ## DeepSeek 协议与预算交接
 
-构造入口为 `DeepSeekAdapter(api_key: SecretStr, token_counter=None, admission=None, pricing=None, offline_transport=None, base_url=..., model=...)`。不自动读 env/config/file，不提供真实 key 加载 CLI。URL 严格等于 `https://api.deepseek.com`，model 严格等于 `deepseek-flash`；其他协议、host、userinfo、路径/查询、模型拒绝。路径固定 `/chat/completions`。
+构造入口为 `DeepSeekAdapter(api_key: SecretStr, token_counter=None, admission=None, pricing=None, offline_transport=None, base_url=..., model=..., prompt_version="inventory-explanation-v1")`。不自动读 env/config/file，不提供真实 key 加载 CLI。URL 严格等于 `https://api.deepseek.com`，model 严格等于 `deepseek-flash`；其他协议、host、userinfo、路径/查询、模型拒绝。路径固定 `/chat/completions`。
 
 发送固定 `thinking={"type":"disabled"}`、`response_format={"type":"json_object"}`、`stream=false`、`max_tokens=800`，不传 tools，没有重试/redirect/代理环境继承/自动换模型。HTTP transport retries=0，从 `complete()` 入口冻结 `monotonic()+20` 截止；token计数、请求构造、admission、连接、响应头与完整 body 读取共用预算。计数后、预留前、发送前及body处理均检查剩余时间；keepalive 空行不续期。响应含压缩编码拒绝；读取总上限 65536 bytes；HTTP 非200不读取错误 body。取消正常传播，不冒称请求未发生。
 
@@ -124,3 +124,13 @@ Root转达独立Reviewer在冻结8f5fb9a9发现P2阻断：同步counter先消耗
 四项新增定向回归先实际4 failed（1.36s），修复后4 passed（0.95s）：计数消耗0.25s/截止0.05s时服务await按时返回且后台结束后仍零预留/发送；计数0.2s/总截止0.35s下keepalive仅剩余时间；请求hash构造超时；admission同步耗尽预算不得send。这些缩短时间的定向用例与原真实20秒keepalive测试并存，不伪称新慢计数用例实等20.2秒。初次strict mypy发现测试访问adapter未显式导出的hashlib，已改为测试自身导入标准库。最终专项、全离线、三层扫描与新SHA/CI在同PR修复回执记录；本轮不merge A、不读key、不真实调用。
 
 首轮修复最终本地结果：专项 **75 passed（21.21s）**；原样完整 `scripts.check` **passed**，**727 offline passed / 79 deselected（69.07s）**，两条既有SDK warnings；104文件strict mypy、159文件format、52份Markdown、锁/工具链/前后端漏洞检查均通过，Python audit90包零已知漏洞。原8f5fb9a9及其CI仅历史证据；新冻结修复须新CI与原Reviewer复审，尚不宣称P2阻断已由独审解除。只改本包三个文件，parent保持8f5fb9a9，未同步A；本地PG/真实模型仍not_run。
+
+## P204最终接线所需的固定prompt版本标签
+
+Root授权原B从已审内部07d3aa6（tree94110781）普通fast-forward接续，仅调整adapter和专属测试/说明。构造参数新增可选prompt_version，缺省仍为inventory-explanation-v1；只接受精确字符串inventory-explanation-v1及inventory-routing-v1，其他名称、空白、非字符串均抛固定UNSUPPORTED_PROMPT_VERSION，不回显输入。所有adapter complete路径以实例版本初始化ModelReply，并用于BudgetRequest；replace派生的early error、not_used、timeout、未知usage/cost与成功结果均保留该版本。
+
+标签只用于本地证据与预算绑定，不添加DeepSeek API不认可的wire字段；HTTP body/schema、model、入口20秒截止、input8000/output800、admission、cost/privacy/无重试合同不变。A将自行用generic complete承接已授权的结构化路由；B不实现五意图、路由Prompt/解析器或修改A DTO/锁/迁移。说明服务原默认行为与其固定说明Prompt不变。正确tokenizer/持久预算/业务绑定及真实调用Gate仍由A完成。
+
+新增定向离线测试覆盖默认/两种固定版本、拒绝非法标签、成功wire逐字段不变、BudgetRequest/ModelReply对应、14类预留前与provider错误（含计数/admission timeout、unknown usage/cost）、真实transport在缺pricing时的零发送。修改前版本绑定定向2 failed/1 passed（0.13s）；实现后首次115项专项114 passed/1 failed（21.36s），失败为既有非法数字断言误匹配随机request UUID中的999，模型说明已正确拒绝。将该断言限定到说明正文，并保留原metadata.content为空断言；不修改生产UUID或数字校验，不用重跑碰运气隐藏波动。新增测试首次导入排序经ruff自动修正。最终专项/全套/扫描结果见新follow-up PR回执；真实模型请求0，未读取A未提交目录或key。
+
+本小合同修正最终本地：115模型专项passed（21.41s），原样scripts.check passed，791 offline passed / 164 deselected（68.66s，两既有SDK warnings）；116文件strict mypy、172文件format、53份Markdown、锁/工具链/前后端漏洞门禁通过，Python audit90包零已知漏洞。本批只改adapter、两份专属tests和本文，不实现A路由，不改wire或shared/lock。当前/index/完整可达history最后暂存扫描、新head/tree及独审/CI在follow-up PR交付记录；旧PR31保持已合并历史，不以旧CI替新提交。
