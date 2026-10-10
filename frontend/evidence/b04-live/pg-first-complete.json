@@ -1,0 +1,28 @@
+{
+  "item_count": 20,
+  "terminal_count": 4,
+  "decisions": 1,
+  "model_calls": 0,
+  "case_items": {
+    "resolve_item": {
+      "state": "completed",
+      "version": 2
+    },
+    "hidden_source_item": {
+      "state": "closed",
+      "version": 2
+    },
+    "unknown_item": {
+      "state": "closed",
+      "version": 2
+    },
+    "concurrent_item": {
+      "state": "closed",
+      "version": 2
+    },
+    "revoke_item": {
+      "state": "open",
+      "version": 1
+    }
+  }
+}

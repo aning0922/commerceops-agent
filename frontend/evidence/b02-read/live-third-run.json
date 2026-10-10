@@ -1,0 +1,53 @@
+{
+  "status": "failed",
+  "duration_ms": 25886.998,
+  "trace": "off",
+  "video": "off",
+  "automatic_screenshot": "off",
+  "source_mode": "mock",
+  "identity_mode": "session",
+  "tests": [
+    {
+      "test": "operator真实登录、22记录分页、报告刷新/20SKU/null与实际配置",
+      "status": "passed",
+      "duration_ms": 5148,
+      "location": "e2e/web/live/read.spec.ts:100"
+    },
+    {
+      "test": "approver eligible只读完整计划、指定版本、缺缓存解释、events无虚构恢复",
+      "status": "passed",
+      "duration_ms": 5095,
+      "location": "e2e/web/live/read.spec.ts:151"
+    },
+    {
+      "test": "admin-only安全落点，无业务导航/编号/计数与强制深链",
+      "status": "passed",
+      "duration_ms": 2135,
+      "location": "e2e/web/live/read.spec.ts:185"
+    },
+    {
+      "test": "另一operator同店非本人404与不存在一致，URL actor/role无授权",
+      "status": "passed",
+      "duration_ms": 2132,
+      "location": "e2e/web/live/read.spec.ts:210"
+    },
+    {
+      "test": "跨店兼任范围逐角色绑定，不拼operator-A/approver-B",
+      "status": "passed",
+      "duration_ms": 2130,
+      "location": "e2e/web/live/read.spec.ts:229"
+    },
+    {
+      "test": "原request_key只读回执、缺CSRF拒绝、真实logout清Cookie",
+      "status": "passed",
+      "duration_ms": 2740,
+      "location": "e2e/web/live/read.spec.ts:247"
+    },
+    {
+      "test": "当前scope撤销真实401，刷新后清业务缓存/身份且无Mock回退",
+      "status": "failed",
+      "duration_ms": 5725,
+      "location": "e2e/web/live/read.spec.ts:284"
+    }
+  ]
+}

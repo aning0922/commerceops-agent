@@ -1,0 +1,54 @@
+{
+  "status": "passed",
+  "duration_ms": 327039.342,
+  "trace": "off",
+  "video": "off",
+  "automatic_screenshot": "off",
+  "source_mode": "live-api",
+  "commerce_source_mode": "mock-fixture",
+  "identity_mode": "session",
+  "tests": [
+    {
+      "test": "真实永久执行与item状态/sync独立，20项分页与末项详情",
+      "status": "passed",
+      "duration_ms": 2830,
+      "location": "e2e/web/live/items.spec.ts:102"
+    },
+    {
+      "test": "真实T6 Unicode原因/原键回放：一次版本推进与原receipt，终态无重开",
+      "status": "passed",
+      "duration_ms": 2886,
+      "location": "e2e/web/live/items.spec.ts:125"
+    },
+    {
+      "test": "真实迟来同店approver可处理而来源隐藏；operator/admin不借审批/业务权",
+      "status": "passed",
+      "duration_ms": 3141,
+      "location": "e2e/web/live/items.spec.ts:158"
+    },
+    {
+      "test": "实际T6 commit后受控丢ACK：原GET/同字节恢复，focus不丢原操作",
+      "status": "passed",
+      "duration_ms": 1514,
+      "location": "e2e/web/live/items.spec.ts:193"
+    },
+    {
+      "test": "两当前approver同时complete/close只有一赢家，不产生第二版本或相反动作",
+      "status": "passed",
+      "duration_ms": 2597,
+      "location": "e2e/web/live/items.spec.ts:253"
+    },
+    {
+      "test": "指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型，newcycle独立请求",
+      "status": "passed",
+      "duration_ms": 4270,
+      "location": "e2e/web/live/items.spec.ts:305"
+    },
+    {
+      "test": "预备后真实撤权401清缓存/原操作，无新增item决定",
+      "status": "passed",
+      "duration_ms": 1529,
+      "location": "e2e/web/live/items.spec.ts:341"
+    }
+  ]
+}

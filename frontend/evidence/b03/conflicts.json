@@ -1,0 +1,12 @@
+{
+  "first": 200,
+  "changed": {
+    "status": 409,
+    "code": "IDEMPOTENCY_CONFLICT"
+  },
+  "opposite": {
+    "status": 409,
+    "code": "DECISION_CONFLICT"
+  },
+  "receipt": 200
+}

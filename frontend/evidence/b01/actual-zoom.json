@@ -1,0 +1,87 @@
+{
+  "time_utc": "2026-10-10T12:03:17.401Z",
+  "method": "permission-free temporary MV3 chrome.tabs.setZoom(2), headed Chromium; no CSS/device-metrics/pinch emulation",
+  "user_profile_used": false,
+  "permissions": [],
+  "owned_server_pid": 60024,
+  "base_url": "http://127.0.0.1:3443",
+  "sourceBefore": {
+    "source": "commerceops-b01",
+    "service": "5f70c3f0-c6fb-4cfa-b6c4-2ff3e70589cc",
+    "build": "FWOuF7rYuNR5U29P2jcLL"
+  },
+  "sourceAfter": {
+    "source": "commerceops-b01",
+    "service": "5f70c3f0-c6fb-4cfa-b6c4-2ff3e70589cc",
+    "build": "FWOuF7rYuNR5U29P2jcLL"
+  },
+  "buildFingerprint": "aebb4936a253b571bf2c9d0fbe24e47d0f983c3bb276c0d8b5858ae6ff0182a7",
+  "before": {
+    "innerWidth": 1440,
+    "outerWidth": 1440,
+    "innerHeight": 1013,
+    "dpr": 2,
+    "visualScale": 1,
+    "scrollWidth": 1440,
+    "rows": 21
+  },
+  "after": {
+    "innerWidth": 720,
+    "outerWidth": 1440,
+    "innerHeight": 506,
+    "dpr": 4,
+    "visualScale": 1,
+    "scrollWidth": 720,
+    "rows": 21
+  },
+  "getZoom": 2,
+  "capture_method": "CDP Page.captureScreenshot without CSS clip",
+  "layout": {
+    "layoutViewport": {
+      "pageX": 0,
+      "pageY": 0,
+      "clientWidth": 2880,
+      "clientHeight": 2026
+    },
+    "visualViewport": {
+      "offsetX": 0,
+      "offsetY": 0,
+      "pageX": 0,
+      "pageY": 0,
+      "clientWidth": 2880,
+      "clientHeight": 2026,
+      "scale": 1,
+      "zoom": 2
+    },
+    "contentSize": {
+      "x": 0,
+      "y": 0,
+      "width": 2880,
+      "height": 29624
+    },
+    "cssLayoutViewport": {
+      "pageX": 0,
+      "pageY": 0,
+      "clientWidth": 720,
+      "clientHeight": 506
+    },
+    "cssVisualViewport": {
+      "offsetX": 0,
+      "offsetY": 0,
+      "pageX": 0,
+      "pageY": 0,
+      "clientWidth": 720,
+      "clientHeight": 506.5,
+      "scale": 1,
+      "zoom": 2
+    },
+    "cssContentSize": {
+      "x": 0,
+      "y": 0,
+      "width": 720,
+      "height": 7406
+    }
+  },
+  "complete_sku_count": 20,
+  "result": "passed"
+}

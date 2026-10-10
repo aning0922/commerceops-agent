@@ -1,0 +1,7 @@
+{
+  "suite": "Injected transport, no browser/API/network",
+  "passed": 4,
+  "failed": 1,
+  "failure": "PreparedWrite.send threw synchronously after principal change despite Promise signature; corrected to async send.",
+  "actual_live_api": "not_run"
+}

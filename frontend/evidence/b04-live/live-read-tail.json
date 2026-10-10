@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "duration_ms": 150420.217,
+  "trace": "off",
+  "video": "off",
+  "automatic_screenshot": "off",
+  "source_mode": "mock",
+  "identity_mode": "session",
+  "tests": [
+    {
+      "test": "指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型，newcycle独立请求",
+      "status": "passed",
+      "duration_ms": 4321,
+      "location": "e2e/web/live/items.spec.ts:305"
+    }
+  ]
+}

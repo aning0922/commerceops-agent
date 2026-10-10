@@ -1,0 +1,116 @@
+{
+  "project": "p3b04-items-e3696cd769",
+  "owner": "phase3-B-WTa266",
+  "owner_uid": 501,
+  "checkout": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent",
+  "private_directory": "/Users/aipuli/.codex/worktrees/a266/commerceops-agent/runtime/b04-final-49ad/items",
+  "stage": "items",
+  "started_at_utc": "2026-10-10T20:30:43.227319+00:00",
+  "stop_at_utc": "2026-10-10T20:41:00+00:00",
+  "pg_port": 52576,
+  "web_origin": "http://127.0.0.1:52577",
+  "api_origin": "http://127.0.0.1:52578",
+  "build_id": "9fUL_TyAtnwYQ9NJLHijq",
+  "source_commit": "bc15c2a300d626dfc91010d8c9de020a9455d5c2",
+  "status": "stopped",
+  "source_files_sha256": {
+    "tests/e2e/web/run_live_batches.py": "9af17ac5a0109a5f3603100acf1eea3cd3b51694cb8149833c6cf3ed7e317c0b",
+    "tests/e2e/web/live_batch_owner.py": "c8943f5d0646ca970dce55f40111b688b05574a6503214cda5c2f03efbcb4a60",
+    "tests/e2e/web/live_batch_audit.py": "030834fc9e867e9ad305214b62bcc675511b519119e11d354024e0bc159b8b48",
+    "tests/e2e/web/live_item_seed.py": "a7f1059879791ac95752271376c3b27e52b4881f5e165b5c94e44b20858aac23",
+    "tests/e2e/web/live_item_worker.py": "871db916a3faf2273f5f1cd6dfcf9c04910e3318849093067eafd1f7d9160bdd",
+    "tests/e2e/web/live_item_revoke.py": "ff7a76a10e624c0b868918d8f45e358bb10b554377e9977b8fe825b8f7249f4f",
+    "tests/e2e/web/live_write_probe.py": "7df4848680bc0b76289120daeaa93ea5fac81c10c7c4f44903c055e53488e20d",
+    "tests/e2e/web/live/read.spec.ts": "759621cabe91e0e21428bf033c7babba283a8a57af02c3a320feeaa07cc24d5c",
+    "tests/e2e/web/live/write.spec.ts": "1bb4ce435801d29a157db429228cba750752590a337c50e66f08d8dc86582941",
+    "tests/e2e/web/live/items.spec.ts": "c8020a7b0283a6f6674ab2a50220b35fdd8532346cc2cf70f5844f017ff6889c",
+    "frontend/tooling/live-reporter.ts": "9a7a8f4ff200f7427c83a9ec26cb8a827d7f2f6969c23f6603570901e2b76011",
+    "frontend/tooling/live-zoom-proof.mjs": "cbdee1e7c2c6257aba4f0a5ca606df9e7f01e1d7152f19b9f11ab750aa4ca726",
+    "frontend/playwright.live.config.ts": "b124988c8711d7d7a0c638d7b87ce0e811c9de88359ab8ff04e994fc5bd6eff5"
+  },
+  "seed_pid": 79803,
+  "seed_exit": 0,
+  "worker_pid": 79817,
+  "api_pid": 79818,
+  "web_pid": 79819,
+  "test_pid": 79829,
+  "test_exit": 0,
+  "native_zoom": "passed",
+  "invariants": {
+    "stage": "items",
+    "model_calls": 0,
+    "app_flags": {
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false
+    },
+    "totals": {
+      "items": 20,
+      "units": 2000,
+      "terminal": 4
+    },
+    "task": {
+      "state": "completed"
+    },
+    "completed_executions": 1,
+    "cases": {
+      "resolve_item": {
+        "status": "completed",
+        "version": 2,
+        "canonical_hash_matches": true,
+        "receipts": 1,
+        "audits": 1,
+        "version2_projections": 1
+      },
+      "hidden_source_item": {
+        "status": "closed",
+        "version": 2,
+        "canonical_hash_matches": true,
+        "receipts": 1,
+        "audits": 1,
+        "version2_projections": 1
+      },
+      "unknown_item": {
+        "status": "closed",
+        "version": 2,
+        "canonical_hash_matches": true,
+        "receipts": 1,
+        "audits": 1,
+        "version2_projections": 1
+      },
+      "concurrent_item": {
+        "status": "completed",
+        "version": 2,
+        "canonical_hash_matches": true,
+        "receipts": 1,
+        "audits": 1,
+        "version2_projections": 1
+      },
+      "revoke_item": {
+        "status": "open",
+        "version": 1,
+        "canonical_hash_matches": true,
+        "receipts": 0,
+        "audits": 0,
+        "version2_projections": 0
+      }
+    },
+    "passed": true
+  },
+  "model_calls": 0,
+  "actual_provider_calls": 0,
+  "stopped_at_utc": "2026-10-10T20:36:33.198170+00:00",
+  "pg_running": false,
+  "pg_pid": 0,
+  "child_exit_codes": [
+    0,
+    0,
+    0,
+    -15,
+    143,
+    0,
+    0
+  ],
+  "volume_preserved": true,
+  "owned_listeners_remaining": false
+}

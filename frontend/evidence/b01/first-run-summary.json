@@ -1,0 +1,16 @@
+{
+  "stats": {
+    "startTime": "2026-10-10T10:43:37.096Z",
+    "duration": 11195.894,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  },
+  "result": "7 passed / 3 failed",
+  "findings": [
+    "Dialog Tab boundary escaped to browser/document focus",
+    "Safe shell RSC payload retained fixed fixture report identifier"
+  ],
+  "action": "Explicit Tab wrap and remove all business identifiers/state before client serialization; rerun same suite"
+}

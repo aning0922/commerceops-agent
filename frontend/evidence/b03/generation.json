@@ -1,0 +1,15 @@
+{
+  "reviewed_source": "24856555fe23975fb19cd67ddcc033f6cac3905c",
+  "merge": "48ec0f91c0f9181fa1af4a659301768b251e0626",
+  "hashes": {
+    "readonly_types": "fd46a52eace4f9b6c51690673c9d09934f60f742f9470a3fd86646a19f60bb46",
+    "response_schema": "b13ebc069f906d6fea64da0292aa59e8feadeef55277c71af586c91b5417cb51",
+    "contract": "623d2ed964432f033ae3312909544085f2b4f9f2b5113d727fe67f1896b680b1"
+  },
+  "operation_counts": {
+    "full_contract": 22,
+    "reviewed_runtime": 18,
+    "before_send_blocked": 4
+  },
+  "generator": "openapi-typescript 7.13.0 / isolated TS5.9.3; project TS7.0.2/lock unchanged"
+}

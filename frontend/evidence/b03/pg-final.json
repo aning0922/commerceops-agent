@@ -1,0 +1,76 @@
+{
+  "records": {
+    "combined20": {
+      "state": "executing",
+      "failure_code": null,
+      "decision": 1,
+      "audit": 1,
+      "resume_job": 1
+    },
+    "approve": {
+      "state": "executing",
+      "failure_code": null,
+      "decision": 1,
+      "audit": 1,
+      "resume_job": 1
+    },
+    "reject": {
+      "state": "rejected",
+      "failure_code": null,
+      "decision": 1,
+      "audit": 1,
+      "resume_job": 1
+    },
+    "unknown": {
+      "state": "executing",
+      "failure_code": null,
+      "decision": 1,
+      "audit": 1,
+      "resume_job": 1
+    },
+    "decline": {
+      "state": "rejected",
+      "failure_code": null,
+      "decision": 1,
+      "audit": 1,
+      "resume_job": 1
+    },
+    "second_combined": {
+      "state": "rejected",
+      "failure_code": null,
+      "decision": 1,
+      "audit": 1,
+      "resume_job": 1
+    },
+    "revocation": {
+      "state": "awaiting_approval",
+      "failure_code": null,
+      "decision": 0,
+      "audit": 0,
+      "resume_job": 0
+    },
+    "supersede": {
+      "state": "awaiting_approval",
+      "failure_code": null,
+      "decision": 0,
+      "audit": 0,
+      "resume_job": 0
+    },
+    "expiry": {
+      "state": "expired",
+      "failure_code": null,
+      "decision": 0,
+      "audit": 0,
+      "resume_job": 0
+    }
+  },
+  "source_analysis": {
+    "state": "completed"
+  },
+  "model_calls": 0,
+  "app_flags": {
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false
+  }
+}

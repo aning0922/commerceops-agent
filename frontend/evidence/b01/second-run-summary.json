@@ -1,0 +1,13 @@
+{
+  "stats": {
+    "startTime": "2026-10-10T10:44:42.898Z",
+    "duration": 7053.177,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "result": "9 passed / 1 failed",
+  "finding": "Safe shell fixture payload is cleared; Next route metadata still echoes caller supplied item ID in requested URL",
+  "action": "Redirect denied deep links to generic /access before rendering; keep exact-object tests"
+}

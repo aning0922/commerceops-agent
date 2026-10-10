@@ -1,0 +1,7 @@
+{
+  "actual_posts": 2,
+  "distinct_original_byte_digests": 1,
+  "digest": "310074c282f5f5db570acfae1ebf79a4b097c895237b152098557fa4e388150c",
+  "fault": "controlled ACK abort after real commit",
+  "automatic_repost": 0
+}
