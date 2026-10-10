@@ -2,44 +2,64 @@ import { test, expect } from "../../../frontend/tooling/web-test";
 import type { Page } from "../../../frontend/tooling/web-test";
 import { offlineId } from "../../../frontend/lib/b04-offline-source";
 import { resolve } from "node:path";
-import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import {
+  readOwnedListener,
+  assertOwnedMockProcess,
+  assertOwnedBuild,
+  assertOwnedListener,
+} from "./owned-listeners";
+const evidence = resolve(__dirname, "../../../frontend/evidence/b04-linux-fix");
 test.beforeAll(() => {
-  const output = execFileSync(
-    "lsof",
-    ["-nP", "-iTCP:3490", "-sTCP:LISTEN", "-t"],
-    { encoding: "utf8" },
-  )
-    .trim()
-    .split(/\s+/);
+  const output = readOwnedListener(3490).trim().split(/\s+/);
   if (!output.length || new Set(output).size !== 1)
     throw new Error("Exclusive owned Mock listener required");
   const pid = Number(output[0]);
-  const cwd = execFileSync(
-    "lsof",
-    ["-a", "-p", String(pid), "-d", "cwd", "-Fn"],
-    { encoding: "utf8" },
+  assertOwnedListener(output.join("\n"), pid);
+  const uid = assertOwnedMockProcess(
+    pid,
+    resolve(__dirname, "../../../frontend"),
+    Number(process.env.COMMERCEOPS_B04_MOCK_LAUNCH_PID),
   );
-  if (!cwd.includes("n" + resolve(__dirname, "../../../frontend")))
-    throw new Error("Owned Mock checkout mismatch");
-  writeFileSync(
-    resolve(
-      __dirname,
-      "../../../frontend/evidence/b04-wiring/mock-service.json",
+  expect(() =>
+    assertOwnedMockProcess(
+      pid,
+      resolve(__dirname, "../../.."),
+      Number(process.env.COMMERCEOPS_B04_MOCK_LAUNCH_PID),
     ),
+  ).toThrow();
+  expect(() =>
+    assertOwnedMockProcess(
+      pid,
+      resolve(__dirname, "../../../frontend"),
+      process.pid,
+    ),
+  ).toThrow();
+  const build = readFileSync(
+    resolve(__dirname, "../../../frontend/.next/BUILD_ID"),
+    "utf8",
+  ).trim();
+  assertOwnedBuild(process.env.COMMERCEOPS_B04_MOCK_BUILD_ID, build);
+  mkdirSync(evidence, { recursive: true });
+  writeFileSync(
+    resolve(evidence, "mock-service.json"),
     JSON.stringify(
       {
-        owner: "phase3-B-WTa266-mock",
+        owner: "phase3-owned-b04-mock",
+        uid,
+        launcher_pid: Number(process.env.COMMERCEOPS_B04_MOCK_LAUNCH_PID),
+        platform: process.platform,
+        architecture: process.arch,
+        checkout: resolve(__dirname, "../../.."),
         port: 3490,
         pid,
         started_observed_utc: new Date().toISOString(),
-        build_id: readFileSync(
-          resolve(__dirname, "../../../frontend/.next/BUILD_ID"),
-          "utf8",
-        ).trim(),
+        build_id: build,
         source_mode: "mock",
         backend_API_PG_Worker: "not_started",
         headless: true,
+        wrong_checkout_rejected: true,
+        wrong_launcher_rejected: true,
       },
       null,
       2,
@@ -92,10 +112,7 @@ test("明确Mock20项/390完整披露；execution completed仍不能推断项跟
   await expect(page.locator(".list-row")).toHaveCount(20);
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
-    path: resolve(
-      __dirname,
-      "../../../frontend/evidence/b04-wiring/items-390.png",
-    ),
+    path: resolve(evidence, "items-390.png"),
     fullPage: true,
   });
   await page
@@ -156,10 +173,7 @@ test("原因pristine/空白/1001字符，Tab/ShiftTab/Enter/Space/Esc与终态�
   await expect(page.locator('[data-control="B26"]')).toHaveCount(0);
   await expect(page.locator('[data-control="B27"]')).toHaveCount(0);
   await page.screenshot({
-    path: resolve(
-      __dirname,
-      "../../../frontend/evidence/b04-wiring/resolve-receipt-1440.png",
-    ),
+    path: resolve(evidence, "resolve-receipt-1440.png"),
     fullPage: true,
   });
 });

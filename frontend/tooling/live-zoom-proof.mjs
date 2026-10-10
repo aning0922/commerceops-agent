@@ -8,13 +8,13 @@ import {
   chmodSync,
   rmSync,
 } from "node:fs";
-import { execFileSync } from "node:child_process";
 import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   ownedEndpoints,
   assertOwnedListener,
   assertOwnedBuild,
+  readOwnedListener,
 } from "../../tests/e2e/web/owned-listeners.ts";
 const root = resolve(import.meta.dirname, "../..");
 const directory = process.env.COMMERCEOPS_B02_PRIVATE_DIR;
@@ -24,12 +24,15 @@ const window = read("window.json"),
   accounts = read("web-accounts.json"),
   facts = read("b04-facts.json");
 const verify = () => {
-  const registeredOwner = window.owner_uid === undefined
-    ? window.owner === "phase3-B-WTa266"
-    : ["phase3-B-WTa266", "phase3-WebReviewer", "phase3-WebCI"].includes(window.owner)
-      && window.owner_uid === process.getuid()
-      && window.checkout === root
-      && window.private_directory === resolve(directory);
+  const registeredOwner =
+    window.owner_uid === undefined
+      ? window.owner === "phase3-B-WTa266"
+      : ["phase3-B-WTa266", "phase3-WebReviewer", "phase3-WebCI"].includes(
+          window.owner,
+        ) &&
+        window.owner_uid === process.getuid() &&
+        window.checkout === root &&
+        window.private_directory === resolve(directory);
   if (
     !registeredOwner ||
     !window.project.startsWith("p3b04-") ||
@@ -37,12 +40,7 @@ const verify = () => {
   )
     throw new Error("Owned B04 window expired or mismatched");
   for (const e of ownedEndpoints(window, process.env.COMMERCEOPS_LIVE_WEB_URL))
-    assertOwnedListener(
-      execFileSync("lsof", ["-nP", `-iTCP:${e.port}`, "-sTCP:LISTEN", "-t"], {
-        encoding: "utf8",
-      }),
-      e.pid,
-    );
+    assertOwnedListener(readOwnedListener(e.port), e.pid);
   assertOwnedBuild(
     window.build_id,
     readFileSync(join(root, "frontend/.next/BUILD_ID"), "utf8"),

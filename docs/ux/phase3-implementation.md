@@ -338,3 +338,21 @@ uv run --frozen python -m tests.e2e.web.run_live_batches \
 本次只修正文档调用合同，正式独审/CI统一从各自checkout根执行`uv run --frozen python -m tests.e2e.web.run_live_batches`，完整参数、封闭owner、新私有目录与最早步骤登记的截止沿用上方示例。实际以`env -u PYTHONPATH uv run --frozen python -m tests.e2e.web.run_live_batches --help`零资源验证exit0，正确列出checkout/private-directory/stop-at-utc/stages/owner参数；没有启动Docker、PG、Worker、API、Next或browser，没有创建测试窗口。
 
 13份登记辅助源码与业务文件相对d889保持相同Git blob，不加sys.path bootstrap、依赖或新框架，不重跑已过作者PG/UI，不改写原失败/预算/时间边界。文档与敏感扫描按本次实际回执核验，普通doc-only提交/push同PR36；新SHA由Root交原WebReviewer核增量后在其自有资源续跑完整24/native200/PG不变量，原Reviewer截止22:09:07Z不重置。A负责把未提交shared frontend job调用同步为模块入口；独审和最终精确CI仍待Root核定。
+
+## 最终Linux CI：Next监听进程查询兼容性最小修复
+
+Root已核原B a65独审5480795768完整24/native200/PG不变量与精确CI38085161901三job成功，PR36正常合A。A最终972f98a383dc4ff6873e7d37f09621954142db39/tree3d4f46c9新增frontend Gate后，精确CI38086696815的frontend job114314618843于21:14:18Z失败：B04 beforeAll原`lsof -nP -iTCP:3490 -sTCP:LISTEN -t` exit1，第1项failed、其余7项not_run，三段真实PG/Web未启动。前面的schema22/contracts26/typecheck/build/test:web13实际执行，不算完整frontend通过；原失败保留。
+
+原B分支正常fast-forward精确972，Root将本次本地窗口固定为21:17:48Z至21:47:48Z（30min，不延长），至多两轮自有Mock诊断与一个最小实现批次。第一轮在已有官方Playwright1.64.0-noble Linux ARM64容器用Node24.21/npm11.19/lsof4.95复现：Next Ready、Playwright HTTP200、内核TCP表127.0.0.1:3490 LISTEN，但lsof exit1且stdout/stderr空；完整8项为1failed/7not_run。临时只读观察最初getuid可选签名导致准备阶段TS错误，未起服务；修正观察签名后同一第一轮继续，准备失败另留。无主机端口映射，PW正常关闭Next，容器exit1/PID0。
+
+同一Linux进程/同一已listen socket的只读微探针，仅将process.title从node改为Next使用的`next-server (v16.4.0)`，lsof PID查询由exit0/正确PID变为exit1/空，cwd查询也丢主PID；内核comm实际为`next-server (v1`。-K/+c0/-b/-l均未恢复，-Q只掩盖exit而输出仍空，未采用。此为实际受进程标题触发的lsof查询兼容性差异；具体lsof内部实现未作源码核查，Linux x64 CI是否同一底层机制仍待新精确CI，不能仅以此判定CI服务未启动。
+
+最小批复用原`tests/e2e/web/owned-listeners.ts`：Linux从/proc/net/tcp与tcp6核唯一当前UID的IPv4 loopback LISTEN/inode，再从当前UID进程FD核唯一socket holder PID；缺失、异UID、非loopback、重复/其他族同端口或不唯一均fail closed，不忽略原guard或接受任意进程。Mac仍原lsof参数。真实read/write/items/native200保留登记known PID与build绑定；Python薄入口的ready/end探针用项目Node调用同一只读helper，避免再次因Next标题漏PID。没有创建/终止服务能力或新通用runner。Mock还核当前UID、精确frontend cwd及本次PW launcher的进程亲缘，父PID使用内核stat最后右括号解析，不依赖lsof的标题处理；启动前声明build并与当前checkout BUILD_ID核同。
+
+新增离线合同反例拒绝空socket/异UID/wildcard地址/重复IPv4或其他族同端口/无效inode。第二轮配置新路径最初因ESM __dirname在准备阶段失败，未起Mock服务；同实现批改用import.meta.url并在同一第二轮继续。完整原8项实际8/8（23.755s），beforeAll另实际拒绝错误checkout与把当前worker冒充launcher；没有删/跳过用例。Linux独立build HDRhgIrVM92wmNo-feCbk，UID0/launcher254/server279、checkout/work、loopback3490；所有页面GET/内存Mock、业务API/nonGET/外部请求0。trace/video/自动截图/HAR off，全程headless私有context，无用户Chrome/可见窗口/OS键鼠/焦点/模型/飞书/PG。PW21:32:12.815Z正常停Next，容器21:32:12.842Z exit0/PID0，所有本次自有容器停止，无host port mapping；两轮与准备失败均保留，未追加第三轮Mock。
+
+实际源码9文件与第二轮快照逐字一致，证据在frontend/evidence/b04-linux-fix/；保留旧b04-wiring与全部历史失败。产品app/components/lib/public/npm锁及所有A protected相对972无差；本批仅frontend测试配置/只读tooling、专用Web测试/helper与本交接。Mac纯合同27/27（2.8s）和typecheck、Python薄入口Ruff/mypy通过。Mac新Mock UI、Linux x64新CI、此修复后的三段真实PG/Web均not_run；旧24/native200/PG证据仅按原已审源码继承，不能当新观察路径的实际Gate。完整工程检查/扫描以本批实际回执补记。
+
+Root更新调度：只本地普通freeze，暂不push/创建修复PR，等待A另一独立PG修复与两条源码独审后一次集成CI；不修改已merged PR36 body、不手动触发/取消/重复CI。后续仍原B分支唯一最小Draft PR指向codex/phase3-approval（Refs33/35），由Root另行放行；B不改A目录或合main。原B18/Review10/60/300、D1/D30与目标日期保持，H/L not_reported，paid0/平台业务写0。
+
+本批完整scripts.check实际exit0：1057offline passed/337integration deselected/85.34s、两既有lark warnings，Ruff/265格式/mypy193、锁、69Markdown0、Node24.21/typecheck、npm0与95Python锁包漏洞0。第二轮9源码文件与实际Linux快照逐字同，当前SHA256见diagnosis.json；原first LinuxCI失败/两次准备失败/local首失败未改写。所有权protected diff相对972为0；当前无自有Mock容器运行、无3490主机listener，保留两个exited容器及原日志供独审。提交前后敏感扫描和本地freeze回执以Root交接实际结果记账，不提前标独审/四CI/阶段通过。
