@@ -60,13 +60,31 @@ class ReplenishmentReadStore:
             self._business(db, actor)
             task = visible_task(db, actor, task_id)
             source = self._source(db, task)
+            if source and source["id"] != report_id and task["kind"] == TASK_KIND:
+                observation = db.execute(
+                    """SELECT * FROM business.p3_observations WHERE task_id=%s
+                    AND organization_id=%s AND shop_id=%s AND report_id=%s""",
+                    (task_id, actor.organization_id, task["shop_id"], report_id),
+                ).fetchone()
+                if observation:
+                    binding = db.execute(
+                        "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task_id,)
+                    ).fetchone()
+                    if not binding:
+                        raise WebFailure("NOT_READY")
+                    from commerceops.infrastructure.replenishment_execution import ExecutionStore
+
+                    ExecutionStore.verify_row(observation, binding)
+                    # P3重观测没有P2 explanation link；GET不沿用旧事实说明，也不创建模型任务。
+                    raise WebFailure("NOT_READY")
             if not source or source["id"] != report_id:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
             row = db.execute(
                 """SELECT e.*,t.normalized_request FROM business.model_explanations e
             JOIN business.explanation_links l ON l.child_task_id=e.child_task_id
             JOIN business.business_tasks t ON t.id=e.child_task_id
-            JOIN business.explanation_task_results x ON x.child_task_id=t.id AND x.result_id=e.id
+            JOIN business.explanation_task_results x ON x.child_task_id=t.id AND
+ x.result_id=e.id
             WHERE e.organization_id=%s AND e.shop_id=%s AND e.parent_task_id=%s
             AND l.requester_id=%s AND e.report_id=%s AND e.facts_hash=%s
             ORDER BY e.created_at DESC,e.id DESC LIMIT 1""",
@@ -180,9 +198,11 @@ class ReplenishmentReadStore:
             raise WebFailure("ACCESS_DENIED", 403)
 
     @staticmethod
-    def _sync(db: DB, task: UUID) -> dict[str, Any]:
+    def _sync(db: DB, task: UUID, aggregate: UUID | None = None) -> dict[str, Any]:
         rows = db.execute(
-            "SELECT * FROM business.outbox WHERE task_id=%s ORDER BY created_at,id", (task,)
+            """SELECT * FROM business.outbox WHERE task_id=%s
+            AND (%s::uuid IS NULL OR aggregate_id=%s) ORDER BY created_at,id""",
+            (task, aggregate, aggregate),
         ).fetchall()
         projections = []
         states = []
@@ -203,13 +223,22 @@ class ReplenishmentReadStore:
                     "projection_version": row["aggregate_version"],
                     "outbox_status": row["status"],
                     "state": state,
-                    "source_mode": "mock",
+                    "source_mode": row["source_mode"],
                     "as_of": row["created_at"],
                     "error_code": row["last_error"],
                 }
             )
+        latest: dict[str, dict[str, Any]] = {}
+        for projection in projections:
+            key = str(projection["aggregate_id"])
+            if (
+                key not in latest
+                or projection["projection_version"] > latest[key]["projection_version"]
+            ):
+                latest[key] = projection
+        current = {projection["state"] for projection in latest.values()}
         summary = next(
-            (state for state in ("unknown", "failed", "pending", "synced") if state in states),
+            (state for state in ("unknown", "failed", "pending", "synced") if state in current),
             "not_requested",
         )
         return {"state": summary, "sender_enabled": False, "projections": projections}
@@ -269,21 +298,31 @@ class ReplenishmentReadStore:
             can_decide = bool(
                 approval and plan and may_decide(db, self.config, actor, task, approval, plan)
             )
+            execution = db.execute(
+                "SELECT id FROM business.executions WHERE task_id=%s", (task_id,)
+            ).fetchone()
+            item_rows = db.execute(
+                "SELECT id,status FROM business.replenishment_items WHERE task_id=%s ORDER BY id",
+                (task_id,),
+            ).fetchall()
+            can_resolve = any(x["status"] == "open" for x in item_rows) and role_scope(
+                db, actor, task["shop_id"], "approver"
+            )
             return envelope(
                 db,
                 task=self._summary(db, task),
                 source=source_binding(source) if source else None,
                 current_plan_id=task["active_plan_id"],
                 approval_id=approval["id"] if approval else None,
-                execution_id=None,
-                visible_item_ids=[],
+                execution_id=execution["id"] if execution else None,
+                visible_item_ids=[x["id"] for x in item_rows],
                 actions={
                     "can_decide": can_decide,
-                    "can_resolve": False,
+                    "can_resolve": can_resolve,
                     "can_start_new_cycle": task["state"] == "completed"
                     and has_capability(db, actor, "operator"),
                     "can_recompute": False,
-                    "disabled_reasons": ["EXECUTION_NOT_IMPLEMENTED", "RECOMPUTE_DISABLED"],
+                    "disabled_reasons": ["RECOMPUTE_DISABLED"],
                 },
                 failure_code=task["failure_code"],
             )
@@ -297,6 +336,47 @@ class ReplenishmentReadStore:
             row = self._source(db, task)
             if not row:
                 raise WebFailure("NOT_READY")
+            if task["kind"] == TASK_KIND:
+                plan = db.execute(
+                    "SELECT * FROM business.replenishment_plans WHERE id=%s",
+                    (task["active_plan_id"],),
+                ).fetchone()
+                if (
+                    report_id
+                    and report_id != row["id"]
+                    or (report_id is None and plan and plan["evidence_kind"] == "p3_observation")
+                ):
+                    observation = db.execute(
+                        """SELECT o.* FROM business.p3_observations o
+                        WHERE o.task_id=%s AND o.organization_id=%s AND o.shop_id=%s
+                        AND ((%s::uuid IS NOT NULL AND o.report_id=%s) OR
+                        (%s::uuid IS NULL AND o.id=%s))""",
+                        (
+                            task_id,
+                            actor.organization_id,
+                            task["shop_id"],
+                            report_id,
+                            report_id,
+                            report_id,
+                            plan["p3_observation_id"] if plan else None,
+                        ),
+                    ).fetchone()
+                    if not observation:
+                        raise WebFailure("RESOURCE_NOT_FOUND", 404)
+                    binding = db.execute(
+                        "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task_id,)
+                    ).fetchone()
+                    if not binding:
+                        raise WebFailure("NOT_READY")
+                    from commerceops.infrastructure.replenishment_execution import ExecutionStore
+
+                    _, facts = ExecutionStore.verify_row(observation, binding)
+                    return envelope(
+                        db,
+                        task_id=task_id,
+                        source=ExecutionStore.source(observation),
+                        facts=facts.model_dump(mode="json"),
+                    )
             if report_id and report_id != row["id"]:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
             data = _stored(row, row["normalized_request"])
@@ -305,6 +385,36 @@ class ReplenishmentReadStore:
                 task_id=task_id,
                 source=source_binding(row),
                 facts=data.report.model_dump(mode="json"),
+            )
+
+    def execution(self, actor: WebActor, task_id: UUID) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            visible_task(db, actor, task_id)
+            row = db.execute(
+                "SELECT * FROM business.executions WHERE task_id=%s", (task_id,)
+            ).fetchone()
+            if not row:
+                raise WebFailure("NOT_READY")
+            valid = db.execute(
+                "SELECT business.valid_p3_execution(%s) AS valid", (row["id"],)
+            ).fetchone()
+            if not valid or not valid["valid"]:
+                raise WebFailure("SERVICE_UNAVAILABLE", 503)
+            return envelope(
+                db,
+                execution_id=row["id"],
+                task_id=task_id,
+                plan_id=row["plan_id"],
+                approval_id=row["approval_id"],
+                operation_key=row["operation_key"],
+                request_hash=row["request_hash"],
+                revalidation_snapshot_id=row["revalidation_snapshot_id"],
+                status=row["status"],
+                item_ids=row["item_ids"],
+                completed_at=row["completed_at"],
+                error_code=row["error_code"],
+                sync=self._sync(db, task_id),
             )
 
     def plan(self, actor: WebActor, task_id: UUID, version: int) -> dict[str, Any]:
@@ -411,7 +521,12 @@ class ReplenishmentReadStore:
             ).fetchone()
             if not row:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            visible_task(db, actor, row["task_id"])
+            if operation == "resolve":
+                from commerceops.infrastructure.replenishment_items import ItemStore
+
+                ItemStore(self.store).visible(db, actor, UUID(row["result"]["item"]["item_id"]))
+            else:
+                visible_task(db, actor, row["task_id"])
             return envelope(
                 db,
                 request_key=key,
@@ -646,7 +761,8 @@ class ReplenishmentReadStore:
                 """WITH visible AS MATERIALIZED (
             SELECT a.*,p.content,p.status AS plan_status,t.active_plan_id,
             (a.status='pending' AND p.status='current' AND t.active_plan_id=a.plan_id
-             AND t.state='awaiting_approval' AND a.expires_at>clock_timestamp()
+             AND t.state IN ('awaiting_approval','needs_reapproval')
+             AND a.expires_at>clock_timestamp()
              AND a.nonce_key_version=%s AND %s=ANY(a.eligible_principal_ids)
              AND EXISTS(SELECT 1 FROM business.principal_role_shop_grants g
               JOIN business.principals pr ON pr.id=g.principal_id

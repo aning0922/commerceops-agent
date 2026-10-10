@@ -60,7 +60,12 @@ async def serve(
     try:
         runner: RunnerPort
         approval = (
-            ApprovalRunner(ApprovalStore(web_config, session)) if web_config is not None else None
+            ApprovalRunner(
+                ApprovalStore(web_config, session),
+                collector_factory=MockCollectorFactory(fixture) if fixture is not None else None,
+            )
+            if web_config is not None
+            else None
         )
         if fixture is not None:
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)

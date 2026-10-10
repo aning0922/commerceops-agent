@@ -19,12 +19,14 @@ from commerceops.application.replenishment.contracts import (
     DecisionInput,
     LoginInput,
     LogoutInput,
+    ResolveInput,
     WebActor,
     WebFailure,
 )
 from commerceops.domain.commerce_values import utc_time
 from commerceops.infrastructure.approval_decisions import DecisionStore
 from commerceops.infrastructure.database import connect
+from commerceops.infrastructure.replenishment_items import ItemStore
 from commerceops.infrastructure.replenishment_read import ReplenishmentReadStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
@@ -108,6 +110,7 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
     sessions = SessionStore(config)
     reads = ReplenishmentReadStore(store)
     decisions = DecisionStore(config)
+    items = ItemStore(store)
     router = APIRouter(prefix="/api/v1")
 
     def failure_response_for(code: str, status: int) -> JSONResponse:
@@ -336,6 +339,32 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
             return int(request.query_params.get("limit", "20"))
         except ValueError:
             raise WebFailure("INVALID_REQUEST", 422) from None
+
+    @router.get("/replenishment-items")
+    def item_list(request: Request) -> JSONResponse:
+        return response(
+            items.list(
+                actor(request),
+                state=request.query_params.get("state"),
+                limit=limit_of(request),
+                cursor=request.query_params.get("cursor"),
+            )
+        )
+
+    @router.get("/tasks/{task_id}/execution")
+    def execution_read(request: Request, task_id: str) -> JSONResponse:
+        return response(reads.execution(actor(request), parsed_uuid(task_id)))
+
+    @router.get("/replenishment-items/{item_id}")
+    def item_read(request: Request, item_id: str) -> JSONResponse:
+        return response(items.read(actor(request), parsed_uuid(item_id)))
+
+    @router.post("/replenishment-items/{item_id}/resolve")
+    async def item_resolve(request: Request, item_id: str) -> JSONResponse:
+        identifier = parsed_uuid(item_id)
+        await run_in_threadpool(items.authorize, actor(request), identifier)
+        payload = ResolveInput.model_validate_json(await body(request))
+        return response(await run_in_threadpool(items.resolve, actor(request), identifier, payload))
 
     @router.get("/config")
     def configuration(request: Request) -> JSONResponse:

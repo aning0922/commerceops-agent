@@ -61,7 +61,7 @@ def may_decide(
 ) -> bool:
     return bool(
         approval["status"] == "pending"
-        and task["state"] == "awaiting_approval"
+        and task["state"] in ("awaiting_approval", "needs_reapproval")
         and task["active_plan_id"] == plan["id"]
         and plan["status"] == "current"
         and approval["expires_at"] > now(db)
@@ -182,7 +182,7 @@ class DecisionStore:
                     or task["active_plan_id"] != plan["id"]
                 ):
                     raise WebFailure("APPROVAL_SUPERSEDED")
-                if task["state"] != "awaiting_approval":
+                if task["state"] not in ("awaiting_approval", "needs_reapproval"):
                     raise WebFailure("NOT_READY")
                 confirm_set(request, plan["content"])
                 decision_id = uuid4()

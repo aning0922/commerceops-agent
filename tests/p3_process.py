@@ -6,14 +6,24 @@ import os
 import signal
 import sys
 from pathlib import Path
+from typing import Any
 from uuid import UUID
 
+import httpx
+import psycopg
 from commerceops.application.intake import TestInbound, TrustedTestContext
-from commerceops.application.replenishment.contracts import CreateInput, DecisionInput, WebActor
+from commerceops.application.replenishment.contracts import (
+    CreateInput,
+    DecisionInput,
+    ResolveInput,
+    WebActor,
+)
 from commerceops.infrastructure.approval_decisions import DecisionStore
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.intake import PgTestIntakeStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
+from commerceops.infrastructure.replenishment_items import ItemStore
+from commerceops.infrastructure.replenishment_projection import ProjectionStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore, ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
@@ -60,7 +70,6 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
             if command.strip() != "release":
                 raise ValueError("controlled P3 release required")
 
-    approval = ApprovalRunner(ApprovalStore(config, session, hook=barrier), hook=barrier)
     payload = value["payload"]
     assert isinstance(payload, dict)
     factory = (
@@ -68,9 +77,69 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
         if payload.get("controlled")
         else MockCollectorFactory(DIRECTORY)
     )
+    revalidation_factory = (
+        ControlledP3Factory(payload["revalidation_controlled"])
+        if payload.get("revalidation_controlled")
+        else factory
+    )
+
+    class ObservedApprovalRunner(ApprovalRunner):
+        async def run(self, request: Any) -> Any:
+            try:
+                return await super().run(request)
+            except psycopg.Error as error:
+                emit(
+                    "safe_pg_failure",
+                    category=type(error).__name__,
+                    sqlstate=error.sqlstate,
+                    constraint=error.diag.constraint_name,
+                )
+                raise
+
+    approval = ObservedApprovalRunner(
+        ApprovalStore(config, session, hook=barrier),
+        hook=barrier,
+        collector_factory=revalidation_factory,
+    )
+
+    def offline_response(request: httpx.Request) -> httpx.Response:
+        items = json.loads(json.loads(request.content)["messages"][1]["content"])["items"]
+        return httpx.Response(
+            200,
+            json={
+                "model": "deepseek-flash",
+                "usage": {"prompt_tokens": 100, "completion_tokens": 30, "total_tokens": 130},
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": json.dumps(
+                                {
+                                    "highlights": [
+                                        {
+                                            "sku_key": x["sku_key"],
+                                            "reason": x["allowed_reason"],
+                                            "source": "facts",
+                                        }
+                                        for x in items
+                                    ]
+                                }
+                            ),
+                        },
+                    }
+                ],
+            },
+        )
+
+    provider = ProviderFactory(
+        offline_transport=httpx.MockTransport(offline_response)
+        if payload.get("offline_explanation")
+        else None,
+    )
     runner = InventoryCompositeRunner(
         InventoryRunner(InventoryStore(config.database, session), factory),
-        ExplanationRunner(ExplanationStore(config.database, session), ProviderFactory()),
+        ExplanationRunner(ExplanationStore(config.database, session), provider),
         approval=approval,
     )
     try:
@@ -94,12 +163,34 @@ def main() -> None:
         asyncio.run(worker_main(config, value))
         return
 
+    if value["action"] == "projection":
+
+        async def projection() -> None:
+            organization = UUID(value["legacy"]["organization"])
+            session = WorkerSession(config.database, organization)
+            await session.start()
+            try:
+                store = ProjectionStore(session, controlled_stub=True)
+                identifier = UUID(value["payload"]["outbox_id"])
+                if value["payload"]["operation"] == "failure":
+                    await store.record_failure(
+                        identifier, unknown=value["payload"].get("unknown", False)
+                    )
+                    emit("ack")
+                else:
+                    emit("ack", outcome=await store.reconcile(identifier))
+            finally:
+                await session.close(clean=True)
+
+        asyncio.run(projection())
+        return
+
     def hook(point: str) -> None:
         emit(point)
         if point == value["barrier"] and sys.stdin.readline().strip() != "release":
             raise ValueError("controlled P3 release required")
 
-    if value["action"] in ("create", "decide"):
+    if value["action"] in ("create", "decide", "resolve"):
         a = value["actor"]
         actor = WebActor(
             UUID(a["session_id"]),
@@ -113,9 +204,16 @@ def main() -> None:
                 json.dumps(value["payload"])
             )
             ReplenishmentStore(config, DIRECTORY).create(actor, request, hook)
-        else:
+        elif value["action"] == "decide":
             decision = DecisionInput.model_validate_json(json.dumps(value["payload"]))
             DecisionStore(config).decide(actor, decision.approval_id, decision, hook=hook)
+        else:
+            ItemStore(ReplenishmentStore(config, DIRECTORY)).resolve(
+                actor,
+                UUID(value["payload"]["item_id"]),
+                ResolveInput.model_validate_json(json.dumps(value["payload"]["request"])),
+                hook=hook,
+            )
     else:
         data = value["legacy"]
         context = TrustedTestContext(

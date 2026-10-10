@@ -65,6 +65,31 @@ def snapshot_binding(
         ):
             return "execution_boundary"
         if (
+            snapshot.next == ("execute",)
+            and approval["status"] == "approved"
+            and values.get("outcome") == "execution_ready"
+            and isinstance(values.get("revalidation_snapshot_id"), str)
+            and values["revalidation_snapshot_id"]
+        ):
+            return "ready_to_execute"
+        if (
+            snapshot.next in ((), ("finish",))
+            and values.get("outcome") == "executed"
+            and approval["status"] == "approved"
+            and approval.get("consumed_at") is not None
+            and isinstance(values.get("execution_id"), str)
+            and values["execution_id"]
+        ):
+            return "executed" if not snapshot.next else "finish_execution"
+        if (
+            snapshot.next in ((), ("finish",))
+            and values.get("outcome") == "revalidation_blocked"
+            and approval["status"] == "approved"
+            and task.get("state") == "needs_reapproval"
+            and values.get("failure_code") == task.get("failure_code")
+        ):
+            return "blocked" if not snapshot.next else "finish_blocked"
+        if (
             not snapshot.next
             and values.get("outcome") == "rejected"
             and approval["status"] == "rejected"
@@ -150,9 +175,13 @@ class ApprovalRecovery:
                 and task["failure_code"] == "WORKER_TERMINATION_UNCONFIRMED"
             ):
                 await db.execute(
-                    """UPDATE business.business_tasks SET state='awaiting_approval',
-                 failure_code=NULL,version=version+1,updated_at=clock_timestamp() WHERE id=%s""",
-                    (task_id,),
+                    """UPDATE business.business_tasks SET state=%s,
+                 failure_code=NULL,version=version+1,updated_at=clock_timestamp()
+ WHERE id=%s""",
+                    (
+                        "needs_reapproval" if approval["plan_version"] > 1 else "awaiting_approval",
+                        task_id,
+                    ),
                 )
             cur = await db.execute("SELECT clock_timestamp() AS time")
             clock = await cur.fetchone()
@@ -188,6 +217,12 @@ class ApprovalRecovery:
                  WHERE decision_id=%s AND delivery_state='waiting_checkpoint'""",
                     (approval["decision_id"],),
                 )
+            await db.execute(
+                """UPDATE business.p3_revalidation_transitions SET applied_at=clock_timestamp(),
+                applied_checkpoint_id=%s WHERE next_plan_id=%s AND next_approval_id=%s
+                AND task_id=%s AND applied_at IS NULL""",
+                (checkpoint_id, approval["plan_id"], approval["id"], task_id),
+            )
 
     async def authoritative(self, request: RunRequest) -> dict[str, Any]:
         async with self.locked(request.task_id, request=request) as (db, _, _, approval):

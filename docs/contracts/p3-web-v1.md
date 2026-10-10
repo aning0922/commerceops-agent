@@ -1,5 +1,7 @@
 # Phase 3 Web、身份与业务接口合同 v1
 
+当前实施导航（2026-10-11）：A01/A02已由Root核定Gate，A03同PR37重验/T4/T6/完整22操作正在作者实际收口。当前逐Gate证据与剩余项见[PHASE3_ACCEPTANCE](../PHASE3_ACCEPTANCE.md)及[PHASE3_A03](../PHASE3_A03.md)；下方首批not_run/待独审/接口未实现是历史快照，完整冻结DTO仍约束实施，不能提前称新独审/CI或整Phase3通过。
+
 当前A01实现/实际验证与未实现端点见[PHASE3_A01](../PHASE3_A01.md)；以下首批候选状态为历史快照，完整合同仍约束A02/A03，不代表所有端点已运行。
 
 状态：A 首批合同候选，待总控安排冻结 SHA 独立审核；接口尚未实现。本文件和 [OpenAPI](p3-openapi.json) 是 B typed client 的候选输入，审核冻结前只能做醒目标识的 Mock，不能接正式操作。

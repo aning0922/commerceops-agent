@@ -93,6 +93,19 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
         connection.execute(
             "GRANT SELECT,INSERT,UPDATE ON business.approval_resumes TO commerceops_app"
         )
+        connection.execute("""GRANT SELECT,INSERT ON business.p3_observations,
+            business.p3_revalidation_failures,business.outbox_reconciliations TO commerceops_app""")
+        connection.execute(
+            "GRANT SELECT,INSERT ON business.p3_revalidation_transitions TO commerceops_app"
+        )
+        connection.execute("""GRANT UPDATE(applied_at,applied_checkpoint_id)
+            ON business.p3_revalidation_transitions TO commerceops_app""")
+        connection.execute("GRANT SELECT,INSERT ON business.executions TO commerceops_app")
+        connection.execute("""GRANT UPDATE(status,completed_at,item_ids)
+            ON business.executions TO commerceops_app""")
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.replenishment_items TO commerceops_app"
+        )
 
 
 def main() -> None:

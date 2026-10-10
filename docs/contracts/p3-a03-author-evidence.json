@@ -1,0 +1,507 @@
+{
+  "base_sha": "24856555fe23975fb19cd67ddcc033f6cac3905c",
+  "evidence_mode": "actual_postgres_mock_session_simulated_web",
+  "freeze_sha_note": "A03 freeze commit/tree must be checked in PR37 and Root receipt; no future self-reference",
+  "full_pg": {
+    "expected_actual_collection": 333,
+    "existing": 236,
+    "phase3": 97,
+    "exact_union_no_overlap_or_missing": true,
+    "groups": [
+      {
+        "label": "combined-existing",
+        "paths": [
+          "tests/test_checkpoint_pg.py",
+          "tests/test_feishu_postgres.py",
+          "tests/test_inventory_pg.py",
+          "tests/test_p204_pg.py",
+          "tests/test_postgres.py",
+          "tests/test_worker_pg.py"
+        ],
+        "actual_collection_count": 236,
+        "passed": 236,
+        "exit_code": 0,
+        "pytest_seconds": 142.47,
+        "command_seconds": 143.421,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_approval_pg",
+        "paths": [
+          "tests/test_p3_approval_pg.py"
+        ],
+        "actual_collection_count": 24,
+        "passed": 24,
+        "exit_code": 0,
+        "pytest_seconds": 163.31,
+        "command_seconds": 163.82,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_evidence_pg",
+        "paths": [
+          "tests/test_p3_evidence_pg.py"
+        ],
+        "actual_collection_count": 2,
+        "passed": 2,
+        "exit_code": 0,
+        "pytest_seconds": 5.97,
+        "command_seconds": 6.458,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_execution_authority_pg",
+        "paths": [
+          "tests/test_p3_execution_authority_pg.py"
+        ],
+        "actual_collection_count": 9,
+        "passed": 9,
+        "exit_code": 0,
+        "pytest_seconds": 93.8,
+        "command_seconds": 94.282,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_execution_pg",
+        "paths": [
+          "tests/test_p3_execution_pg.py"
+        ],
+        "actual_collection_count": 5,
+        "passed": 5,
+        "exit_code": 0,
+        "pytest_seconds": 19.28,
+        "command_seconds": 19.753,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_execution_recovery_pg",
+        "paths": [
+          "tests/test_p3_execution_recovery_pg.py"
+        ],
+        "actual_collection_count": 8,
+        "passed": 8,
+        "exit_code": 0,
+        "pytest_seconds": 40.21,
+        "command_seconds": 40.676,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_items_authority_pg",
+        "paths": [
+          "tests/test_p3_items_authority_pg.py"
+        ],
+        "actual_collection_count": 5,
+        "passed": 5,
+        "exit_code": 0,
+        "pytest_seconds": 21.07,
+        "command_seconds": 21.542,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_migration_pg",
+        "paths": [
+          "tests/test_p3_migration_pg.py"
+        ],
+        "actual_collection_count": 1,
+        "passed": 1,
+        "exit_code": 0,
+        "pytest_seconds": 0.77,
+        "command_seconds": 1.206,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_pg",
+        "paths": [
+          "tests/test_p3_pg.py"
+        ],
+        "actual_collection_count": 34,
+        "passed": 34,
+        "exit_code": 0,
+        "pytest_seconds": 69.57,
+        "command_seconds": 70.075,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_pool_pg",
+        "paths": [
+          "tests/test_p3_pool_pg.py"
+        ],
+        "actual_collection_count": 1,
+        "passed": 1,
+        "exit_code": 0,
+        "pytest_seconds": 6.72,
+        "command_seconds": 7.176,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_projection_pg",
+        "paths": [
+          "tests/test_p3_projection_pg.py"
+        ],
+        "actual_collection_count": 3,
+        "passed": 3,
+        "exit_code": 0,
+        "pytest_seconds": 18.24,
+        "command_seconds": 18.703,
+        "command_limit_seconds": 300
+      },
+      {
+        "label": "combined-phase3-test_p3_revalidation_pg",
+        "paths": [
+          "tests/test_p3_revalidation_pg.py"
+        ],
+        "actual_collection_count": 5,
+        "passed": 5,
+        "exit_code": 0,
+        "pytest_seconds": 19.55,
+        "command_seconds": 20.028,
+        "command_limit_seconds": 300
+      }
+    ],
+    "total_command_seconds": 607.14,
+    "all_exit_codes_zero": true
+  },
+  "offline": {
+    "passed": 988,
+    "integration_deselected": 333,
+    "seconds": 84.99,
+    "warnings": "2 existing SDK deprecations"
+  },
+  "checks": {
+    "ruff": true,
+    "format_files": 245,
+    "mypy_source_files": 177,
+    "markdown_files": 64,
+    "markdown_errors": 0,
+    "contract_checks": 389,
+    "runtime_paths": 21,
+    "runtime_operations": 22,
+    "actual_wire_responses": 32,
+    "actual_wire_unique_operations": 22,
+    "installed_wheel_contract_bytes_equal": true,
+    "python_packages_audited": 95,
+    "known_python_vulnerabilities": 0,
+    "known_node_vulnerabilities": 0,
+    "actual_provider": 0,
+    "external_business_network_writes": 0
+  },
+  "g1_owned": {
+    "project": "p3a3-1571d50369ef",
+    "source_mode": "postgres_technical",
+    "model_mode": "not_used",
+    "started_at": "2026-10-10T18:24:23.272524+00:00",
+    "checks": [
+      {
+        "label": "idempotent-migrate",
+        "exit_code": 0,
+        "seconds": 0.379
+      },
+      {
+        "label": "idempotent-setup-checkpointer",
+        "exit_code": 0,
+        "seconds": 0.384
+      },
+      {
+        "label": "idempotent-grant-runtime",
+        "exit_code": 0,
+        "seconds": 0.378
+      },
+      {
+        "label": "idempotent-revision",
+        "exit_code": 0,
+        "seconds": 0.356
+      },
+      {
+        "label": "idempotent-migrate",
+        "exit_code": 0,
+        "seconds": 0.382
+      },
+      {
+        "label": "idempotent-setup-checkpointer",
+        "exit_code": 0,
+        "seconds": 0.377
+      },
+      {
+        "label": "idempotent-grant-runtime",
+        "exit_code": 0,
+        "seconds": 0.377
+      },
+      {
+        "label": "idempotent-revision",
+        "exit_code": 0,
+        "seconds": 0.364
+      },
+      {
+        "label": "seed",
+        "exit_code": 0,
+        "seconds": 0.424
+      },
+      {
+        "label": "verify-before-restart",
+        "exit_code": 0,
+        "seconds": 0.411
+      },
+      {
+        "label": "stop-for-persistence",
+        "exit_code": 0,
+        "seconds": 0.382
+      },
+      {
+        "label": "restart-same-volume",
+        "exit_code": 0,
+        "seconds": 5.704
+      },
+      {
+        "label": "verify-after-restart",
+        "exit_code": 0,
+        "seconds": 0.423
+      },
+      {
+        "label": "recreate-same-owned-volume",
+        "exit_code": 0,
+        "seconds": 6.062
+      },
+      {
+        "label": "verify-after-recreate",
+        "exit_code": 0,
+        "seconds": 0.453
+      }
+    ],
+    "status": "passed",
+    "completed_at": "2026-10-10T18:24:40.150322+00:00"
+  },
+  "g2_process_records": [
+    {
+      "approval_mode": "simulated",
+      "interrupt_checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c4d64-d731-6596-8001-985394c8ca21",
+          "checkpoint_ns": "",
+          "thread_id": "6a24103a-8a41-4a33-98eb-7995fe1dfd7f"
+        }
+      },
+      "maximum_graph_active": 1,
+      "model_mode": "not_used",
+      "new_pid": 43980,
+      "old_exit": 0,
+      "old_pid": 43979,
+      "other_thread": "a4e546c5-2923-49f3-b308-13daee2a2f82",
+      "prepare_node_runs": 1,
+      "result_ref": "870a7fa7-acd4-4c47-bf33-f668875cac1b",
+      "scenario": "cross_process_resume",
+      "source_mode": "postgres_technical",
+      "task": "6a24103a-8a41-4a33-98eb-7995fe1dfd7f",
+      "thread": "6a24103a-8a41-4a33-98eb-7995fe1dfd7f",
+      "wait_node_runs": 2
+    },
+    {
+      "after_checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c4d64-f2d7-6138-8003-49bc5d9db9cf",
+          "checkpoint_ns": "",
+          "thread_id": "c3779380-a158-49b5-9568-a60dd929ed41"
+        }
+      },
+      "approval_mode": "simulated",
+      "attempts": 2,
+      "before_checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c4d64-e858-62b6-8002-9e8914713f3f",
+          "checkpoint_ns": "",
+          "thread_id": "c3779380-a158-49b5-9568-a60dd929ed41"
+        }
+      },
+      "job": "21268560-e066-4a10-a0a5-ce383513e473",
+      "model_mode": "not_used",
+      "new_pid": 43983,
+      "old_exit": -9,
+      "old_pid": 43981,
+      "receipt_count": 1,
+      "recovery_action": "continue",
+      "result_ref": "96757341-3355-41d8-b80b-5cf3ecd200d5",
+      "scenario": "receipt_commit_checkpoint_gap",
+      "source_mode": "postgres_technical",
+      "start_repeated": false,
+      "task": "c3779380-a158-49b5-9568-a60dd929ed41",
+      "thread": "c3779380-a158-49b5-9568-a60dd929ed41"
+    },
+    {
+      "approval_mode": "simulated",
+      "cancellation_complete": true,
+      "checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c4d64-fb38-61b0-8000-503aa2380662",
+          "checkpoint_ns": "",
+          "thread_id": "178cfe93-e4ba-4a14-a886-12f99c260735"
+        }
+      },
+      "model_mode": "not_used",
+      "old_exit": 2,
+      "old_pid": 43984,
+      "receipt_count": 0,
+      "scenario": "graph_lock_loss_cancel",
+      "source_mode": "postgres_technical",
+      "unconfirmed_start_refused": true
+    },
+    {
+      "approval_mode": "simulated",
+      "model_mode": "not_used",
+      "old_exit": 75,
+      "old_pid": 44022,
+      "receipt_count": 0,
+      "runner_returned": false,
+      "scenario": "graph_noncooperative_exit",
+      "source_mode": "postgres_technical",
+      "unconfirmed_start_refused": true
+    },
+    {
+      "approval_mode": "simulated",
+      "checkpoint": {
+        "configurable": {
+          "checkpoint_id": "1f1c4d65-c3f8-6992-8001-529d8014172e",
+          "checkpoint_ns": "",
+          "thread_id": "a9e242b8-e4b0-4527-ac2a-060b03c11a36"
+        }
+      },
+      "false_interrupt_reported": false,
+      "model_mode": "not_used",
+      "receipt_count": 0,
+      "scenario": "checkpoint_db_failure_recovered",
+      "source_mode": "postgres_technical",
+      "task": "a9e242b8-e4b0-4527-ac2a-060b03c11a36"
+    },
+    {
+      "approval_mode": "simulated",
+      "checkpoint_created": false,
+      "model_mode": "not_used",
+      "scenario": "retired_probe_version_refused",
+      "source_mode": "postgres_technical",
+      "start_called": false,
+      "task": "d732b844-7157-4cf2-9c49-c415c8a5e398",
+      "version": "p104-checkpoint-v0"
+    }
+  ],
+  "stop_evidence": "p3-a03-stop-evidence.json",
+  "independent_review": "pending_new_exact_A03_freeze",
+  "exact_ci": "pending_new_A03_head",
+  "root_gate": "pending",
+  "phase3": "in_progress",
+  "candidate_runtime_test_files": [
+    {
+      "path": "backend/migrations/versions/0007_p3_execution.py",
+      "sha256": "715e2d870e1db61606f4b74141db360c62a2ecc9ab52cf9481461cb6d4abc0cf"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/execution.py",
+      "sha256": "c5bb39019c7267ad750f7053089b639034ad7a594aa45cdb953e76954dd0911d"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/database.py",
+      "sha256": "9d0f14c07042295c6a089b21a21fccc150eeec0a38126e9d333309fbd86b718e"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/replenishment_http.py",
+      "sha256": "4e23d42ffc1ee37463db15076ca2dd862d562e1084b4b1005f8133ba48f17fe4"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/worker.py",
+      "sha256": "9951ae14492be2ae025dc0718ba0fcb18a83b04ed1468af5aff17a01e1ad7cae"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/approval_decisions.py",
+      "sha256": "70f04fe926f22daa6c79e9f43af204139e8d3386cfb4d7ec972ccbc824542473"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/approval_recovery.py",
+      "sha256": "f35a3c6add2b0a3002521356adf25d069e88aca0b59b6bc17f701e9c1196f3ba"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_execution.py",
+      "sha256": "c1b5836531c34675aa4592edbd093a531f3e33a9532768ecb934fd0aaae1df51"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_items.py",
+      "sha256": "6491b13d60a40e0f5bfa0a0f1fa9e4568597c62e80a78b29c6a261abc55a976c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_projection.py",
+      "sha256": "c27f97383d55861982c3488f4c388d0f4fe9d1ba51e622eb749c8b30057412d5"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_read.py",
+      "sha256": "2f742589c62f98512c4450c674a43878e49fa15bad981199c107a0ef67c50f62"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/replenishment.py",
+      "sha256": "fc582ac77a3b6d3be69797144ce065063956767518f66010a9597db12941a287"
+    },
+    {
+      "path": "scripts/pg_diagnostic.py",
+      "sha256": "33ea2a66443ca5c333b1fa7dfd8d2b218a76720d6c7050f56d570cfbe7983ce9"
+    },
+    {
+      "path": "tests/p3_process.py",
+      "sha256": "b6dbd467cb5bb658b786d4045d41f48b61daef3465139a55f2b9d7cd9364b990"
+    },
+    {
+      "path": "tests/p3_support.py",
+      "sha256": "f3d40b3e2b1359322eca4e76cc6a73d2f23323ab82c745d0b24de35d8a47db1d"
+    },
+    {
+      "path": "tests/p3_wire.py",
+      "sha256": "ff18a3e4e1f8aabc15743bc979b99aa822fac6c5c3e86bacf9ac7191badc6d59"
+    },
+    {
+      "path": "tests/test_p3_approval_pg.py",
+      "sha256": "c37b67b264829f56158558b5dee38c477e4712d64463acce3bec3500345ef15f"
+    },
+    {
+      "path": "tests/test_p3_evidence_pg.py",
+      "sha256": "a74aaf794628f5357d18b4d4aecdaf5a9252b11532379b3ef7a1f0e2e99a04ac"
+    },
+    {
+      "path": "tests/test_p3_execution_authority_pg.py",
+      "sha256": "abfd7b22f4affecdc2751e5883860e5db3253428c2c83bc28dbeeffebe9c48a6"
+    },
+    {
+      "path": "tests/test_p3_execution_pg.py",
+      "sha256": "c782610dd3bf88e62530dfc043767ea518db857dc935412d9bb182f36dc596d4"
+    },
+    {
+      "path": "tests/test_p3_execution_recovery_pg.py",
+      "sha256": "6926dcb9aa0b7dfc9f5d899cdf9d95d8f65d2c348d6251bc1452b12cdd9a35af"
+    },
+    {
+      "path": "tests/test_p3_execution_rules.py",
+      "sha256": "3698c66764b5d66c3a016b1d335dcfaec0b066e4f81d8a898c0f0ab94b976b93"
+    },
+    {
+      "path": "tests/test_p3_items_authority_pg.py",
+      "sha256": "31cb77b51c3c4b9aaece7db6c9fb4059823e934bfaf2c7fdc5c01ffc35d91a4c"
+    },
+    {
+      "path": "tests/test_p3_openapi.py",
+      "sha256": "4645f43485004f3d01a71de6e04f9397c521af7f6632943f46121202e77d011b"
+    },
+    {
+      "path": "tests/test_p3_pool_pg.py",
+      "sha256": "2e8f53bbe3d7315f37d4119586c778ab854aec1ee2e6ea9851cb6ac3afcd9548"
+    },
+    {
+      "path": "tests/test_p3_projection_pg.py",
+      "sha256": "f2aabde45fb8571e70092467447a64f7209a8a7fb17ddec8c52e1a31d2e0f0bb"
+    },
+    {
+      "path": "tests/test_p3_revalidation_pg.py",
+      "sha256": "dab5e1ee038b81d161ac6deb0d0621200180bc6a5ce94add3ca315a979a475bf"
+    },
+    {
+      "path": "tests/test_pg_diag_partition.py",
+      "sha256": "31dc8484151c20d7e2c5489ec26c58f0c05af2fcea87ca915b90a28bd7ca1776"
+    },
+    {
+      "path": "tests/test_postgres.py",
+      "sha256": "e9607ac39157595bef53ada12ca9d4078c0a29110da5de47f1fa4bd18e7e9fe2"
+    }
+  ]
+}

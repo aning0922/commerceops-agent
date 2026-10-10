@@ -134,8 +134,8 @@ def decision_counts(f: P3Fixture, task: UUID) -> dict[str, int]:
 @pytest.mark.parametrize(
     "case,action,target",
     [
-        ("baseline", "approve", "executing"),
-        ("unknown_inbound", "approve_with_assumptions", "executing"),
+        ("baseline", "approve", "completed"),
+        ("unknown_inbound", "approve_with_assumptions", "completed"),
         ("baseline", "reject", "rejected"),
         ("unknown_inbound", "reject_assumptions", "rejected"),
     ],
@@ -170,8 +170,9 @@ def test_t3_one_decision_ten_replays_and_safe_execution_boundary(
              WHERE a.task_id=%s""",
                 (task,),
             ).fetchone()
-        assert row and row["consumed_at"] is None and row["delivery_state"] == "consumed"
-        assert bool(row["continuation_job_id"]) == (target == "executing")
+        assert row and row["delivery_state"] == "consumed"
+        assert (row["consumed_at"] is not None) == (target == "completed")
+        assert bool(row["continuation_job_id"]) == (target == "completed")
         detail = f.client.get(f"/api/v1/approvals/{body['approval_id']}").json()
         assert (
             detail["nonce"] is None
@@ -265,14 +266,16 @@ def test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume(
             assert same and same["id"] == row["id"] and same["plan_id"] == row["plan_id"]
             assert same["ready_at"] is not None
             assert post(f, request).status_code == 200
-        wait_state(f, task, "executing", restoring=True)
+        wait_state(f, task, "completed", restoring=True)
         assert decision_counts(f, task) == {"decision": 1, "audit": 1, "resume_job": 1}
         with connect(f.config.database) as db:
             count = db.execute(
                 "SELECT count(*) AS n FROM business.replenishment_plans WHERE task_id=%s", (task,)
             ).fetchone()
             intent = db.execute(
-                "SELECT status,sender_enabled FROM business.outbox WHERE task_id=%s", (task,)
+                "SELECT status,sender_enabled FROM business.outbox WHERE "
+                "task_id=%s AND operation='approval_card'",
+                (task,),
             ).fetchone()
         assert count and count["n"] == 1
         assert intent and intent["status"] == "pending" and not intent["sender_enabled"]
@@ -417,7 +420,7 @@ async def checkpoint_state(f: P3Fixture, task: UUID) -> StateSnapshot:
 
 
 @pytest.mark.parametrize("barrier", ["before_delivery_receipt", "after_delivery_receipt"])
-def test_r17_static_boundary_kill_has_no_second_interrupt_and_durable_continue(
+def test_r17_delivery_boundary_kill_restores_none_and_one_permanent_execution(
     fixture: P3Fixture,
     barrier: str,
 ) -> None:
@@ -442,7 +445,7 @@ def test_r17_static_boundary_kill_has_no_second_interrupt_and_durable_continue(
             confirm_termination(f.config.database, owner, "A02 static boundary SIGKILL/reaped")
         )
         restored, _ = start(f, task)
-        wait_state(f, task, "executing", restoring=True)
+        wait_state(f, task, "completed", restoring=True)
         with connect(f.config.database) as db:
             deadline = time.monotonic() + 10
             while time.monotonic() < deadline:
@@ -453,17 +456,21 @@ def test_r17_static_boundary_kill_has_no_second_interrupt_and_durable_continue(
                  LEFT JOIN business.jobs j ON j.id=r.continuation_job_id WHERE a.task_id=%s""",
                     (task,),
                 ).fetchone()
-                if result and result["status"] == "retry_wait":
+                if result and result["status"] == "done":
                     break
                 time.sleep(0.02)
             assert (
-                result and result["consumed_at"] is None and result["delivery_state"] == "consumed"
+                result
+                and result["consumed_at"] is not None
+                and result["delivery_state"] == "consumed"
             )
-            assert result["continuation_job_id"] and result["status"] == "retry_wait"
+            assert result["continuation_job_id"] and result["status"] == "done"
             assert result["payload_ref"].startswith("continue:")
         same = asyncio.run(checkpoint_state(f, task))
-        assert same.next == ("revalidate",) and not same.interrupts
-        assert same.config["configurable"]["checkpoint_id"] == original_checkpoint
+        assert same.next == () and not same.interrupts
+        assert same.config["configurable"]["checkpoint_id"] != original_checkpoint
+        assert same.values["decision_id"] == saved.values["decision_id"]
+        assert same.values["plan_hash"] == saved.values["plan_hash"]
         assert decision_counts(f, task) == {"decision": 1, "audit": 1, "resume_job": 1}
     finally:
         if child.process.poll() is None:
@@ -734,12 +741,15 @@ def test_actual_pg_static_checkpoint_none_continuation_skips_start_and_second_de
 ) -> None:
     f = fixture
     task = UUID(f.create(f.new_cycle())["task_id"])
-    child, _ = start(f, task)
+    child, owner = start(f, task, "before_delivery_receipt")
     try:
         child.until("after_ready")
         assert post(f, payload(f, task)).status_code == 200
-        wait_state(f, task, "executing")
-        child.stop_clean()
+        child.until("before_delivery_receipt")
+        child.kill_reap()
+        asyncio.run(
+            confirm_termination(f.config.database, owner, "A03 compatibility CP SIGKILL/reaped")
+        )
         before = asyncio.run(checkpoint_state(f, task))
         assert before.next == ("revalidate",) and not before.interrupts
         counts_before = decision_counts(f, task)
@@ -801,7 +811,8 @@ def test_actual_pg_static_checkpoint_none_continuation_skips_start_and_second_de
             a = db.execute(
                 "SELECT consumed_at FROM business.approvals WHERE task_id=%s", (task,)
             ).fetchone()
-        assert a and a["consumed_at"] is None and task_state(f, task)["state"] == "executing"
+        assert a and a["consumed_at"] is None
+        assert task_state(f, task)["state"] == "awaiting_approval"
     finally:
         if child.process.poll() is None:
             child.kill_reap()
@@ -939,13 +950,12 @@ def test_t3_database_rejects_receipt_rewrite_resume_splice_and_premature_consump
 ) -> None:
     f = fixture
     task = UUID(f.create(f.new_cycle())["task_id"])
-    child, _ = start(f, task)
+    child, _ = start(f, task, "after_delivery_receipt")
     try:
         child.until("after_ready")
         request = payload(f, task)
         assert post(f, request).status_code == 200
-        wait_state(f, task, "executing")
-        child.stop_clean()
+        child.until("after_delivery_receipt")
         statements = (
             "UPDATE business.approvals SET consumed_at=clock_timestamp() WHERE task_id=%s",
             "UPDATE business.approval_resumes SET continuation_job_id=job_id WHERE task_id=%s",
@@ -965,6 +975,8 @@ def test_t3_database_rejects_receipt_rewrite_resume_splice_and_premature_consump
         assert task_state(f, task)["state"] == "executing"
         repeated = post(f, request)
         assert repeated.status_code == 200 and repeated.json()["duplicate"]
+        child.release()
+        wait_state(f, task, "completed")
     finally:
         if child.process.poll() is None:
             child.stop_clean()

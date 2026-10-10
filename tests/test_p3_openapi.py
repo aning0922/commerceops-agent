@@ -1,4 +1,4 @@
-"""实际路由注册的合同导出；不执行PG/会话或替代完整22端点Gate。"""
+"""完整22路由注册合同导出；不替代PG/会话或actual wire Gate。"""
 
 import copy
 import json
@@ -35,7 +35,7 @@ def test_registered_runtime_openapi_matches_approved_subset_without_pending_rout
         for path, operations in schema["paths"].items()
         if path.startswith("/api/v1/")
     }
-    assert len(actual) == 17 and sum(len(operations) for operations in actual.values()) == 18
+    assert len(actual) == 21 and sum(len(operations) for operations in actual.values()) == 22
     assert sum(len(operations) for operations in contract["paths"].values()) == 22
     for path, operations in actual.items():
         for method, operation in operations.items():
@@ -48,12 +48,7 @@ def test_registered_runtime_openapi_matches_approved_subset_without_pending_rout
         for method in operations
         if method not in actual.get(path, {})
     }
-    assert {contract["paths"][path][method]["operationId"] for path, method in missing} == {
-        "getExecution",
-        "listItems",
-        "getItem",
-        "resolveItem",
-    }
+    assert missing == set()
     for field in ("schemas", "securitySchemes"):
         for name, value in contract["components"][field].items():
             assert schema["components"][field][name] == value

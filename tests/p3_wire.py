@@ -13,11 +13,16 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from commerceops.entrypoints.api import create_app
+from commerceops.infrastructure.database import connect
+from commerceops.infrastructure.explanation_repository import create_explanation_task
+from commerceops.infrastructure.web_sessions import SessionStore
 from fastapi.testclient import TestClient
 
-from tests.p3_support import ORIGIN, ControlledP3Factory, run_graphs
+from tests.p3_support import ORIGIN, P3Process
 from tests.test_p3_approval_pg import payload as decision_payload
+from tests.test_p3_approval_pg import wait_state
 from tests.test_p3_pg import fixture
+from tests.test_p204_pg import done
 
 
 def main() -> None:
@@ -25,6 +30,8 @@ def main() -> None:
 
     spec = json.loads((Path(__file__).parent.parent / "docs/contracts/p3-openapi.json").read_text())
     checks = 0
+    covered: set[str] = set()
+    expected = {op["operationId"] for ops in spec["paths"].values() for op in ops.values()}
 
     def validate(response: Any, path: str, method: str = "get") -> None:
         nonlocal checks
@@ -44,14 +51,33 @@ def main() -> None:
                 + repr([(list(error.absolute_path), error.validator) for error in errors])
             )
         checks += 1
+        covered.add(operation["operationId"])
         print(operation["operationId"], response.status_code)
 
     with TemporaryDirectory(prefix="p3-wire-") as directory:
         lifecycle = cast(Any, fixture).__wrapped__(Path(directory))
         f = next(lifecycle)
+        worker = None
         try:
             validate(f.client.get("/api/v1/auth/session"), "/api/v1/auth/session")
             validate(f.client.get("/api/v1/auth/csrf"), "/api/v1/auth/csrf")
+            csrf = f.client.get("/api/v1/auth/csrf").json()["csrf_token"]
+            validate(
+                f.client.post(
+                    "/api/v1/auth/login",
+                    json={
+                        "schema_version": "p3-web-v1",
+                        "login": f.login,
+                        "password": f.password.get_secret_value(),
+                    },
+                    headers={"Origin": ORIGIN, "X-CSRF-Token": csrf},
+                ),
+                "/api/v1/auth/login",
+                "post",
+            )
+            f.actor = SessionStore(f.config).authenticate(
+                f.client.cookies.get("commerceops_session")
+            )
             with TestClient(
                 create_app(web_config=f.config, replenishment_store=f.store), base_url=ORIGIN
             ) as anonymous:
@@ -61,7 +87,48 @@ def main() -> None:
             created = f.client.post("/api/v1/tasks", json=payload, headers=f.headers())
             validate(created, "/api/v1/tasks", "post")
             task = UUID(created.json()["task_id"])
-            asyncio.run(run_graphs(f, task, factory=ControlledP3Factory("long_sku")))
+            worker = P3Process(
+                f,
+                "worker",
+                {
+                    "task_id": str(task),
+                    "controlled": "long_sku",
+                    "offline_explanation": True,
+                },
+                "never",
+            )
+            worker.until("after_ready")
+            cache_task = UUID(f.create(f.new_cycle())["task_id"])
+            worker.until("after_ready")
+            with connect(f.config.database) as db:
+                source = db.execute(
+                    "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (cache_task,)
+                ).fetchone()
+            assert source
+            _, job = create_explanation_task(
+                f.config.database, f.inventory.identity, source["source_task_id"], "offline_stub"
+            )
+            asyncio.run(done(f.inventory, job))
+            with connect(f.config.database) as db:
+                calls_before = db.execute(
+                    "SELECT count(*) AS n FROM business.model_calls"
+                ).fetchone()
+                actual = db.execute(
+                    "SELECT count(*) AS n FROM business.model_calls "
+                    "WHERE evidence_mode='actual_provider'"
+                ).fetchone()
+            assert calls_before == {"n": 1} and actual == {"n": 0}
+            for _ in range(2):
+                cached = f.client.get(
+                    f"/api/v1/tasks/{cache_task}/explanation?report_id={source['source_report_id']}"
+                )
+                assert cached.status_code == 200
+                validate(cached, "/api/v1/tasks/{task_id}/explanation")
+            with connect(f.config.database) as db:
+                assert (
+                    db.execute("SELECT count(*) AS n FROM business.model_calls").fetchone()
+                    == calls_before
+                )
             detail = f.client.get(f"/api/v1/tasks/{task}")
             validate(detail, "/api/v1/tasks/{task_id}")
             approval_id = detail.json()["approval_id"]
@@ -100,6 +167,48 @@ def main() -> None:
             validate(
                 f.client.get(f"/api/v1/approvals/{approval_id}"), "/api/v1/approvals/{approval_id}"
             )
+            wait_state(f, task, "completed")
+            execution = f.client.get(f"/api/v1/tasks/{task}/execution")
+            assert execution.status_code == 200
+            validate(execution, "/api/v1/tasks/{task_id}/execution")
+            item = execution.json()["item_ids"][0]
+            validate(f.client.get("/api/v1/replenishment-items"), "/api/v1/replenishment-items")
+            validate(
+                f.client.get(f"/api/v1/replenishment-items/{item}"),
+                "/api/v1/replenishment-items/{item_id}",
+            )
+            resolve = {
+                "schema_version": "p3-web-v1",
+                "request_key": str(uuid4()),
+                "action": "complete",
+                "reason": "实际wire验证完成",
+                "expected_version": 1,
+            }
+            for _ in range(2):
+                result = f.client.post(
+                    f"/api/v1/replenishment-items/{item}/resolve", json=resolve, headers=f.headers()
+                )
+                assert result.status_code == 200
+                validate(result, "/api/v1/replenishment-items/{item_id}/resolve", "post")
+            validate(
+                f.client.get(f"/api/v1/requests/{resolve['request_key']}?operation=resolve"),
+                "/api/v1/requests/{request_key}",
+            )
+            validate(f.client.get("/api/v1/admin/operations"), "/api/v1/admin/operations")
+            with connect(f.inventory.owner) as db:
+                db.execute(
+                    "UPDATE business.principals SET roles=ARRAY['operator','approver','admin'],"
+                    "auth_version=auth_version+1 WHERE id=%s",
+                    (f.actor.principal_id,),
+                )
+                db.execute(
+                    "INSERT INTO business.principal_role_shop_grants VALUES(%s,%s,%s,'admin',true)",
+                    (f.actor.organization_id, f.inventory.data.shop, f.actor.principal_id),
+                )
+            f.relogin()
+            operations = f.client.get("/api/v1/admin/operations")
+            assert operations.status_code == 200
+            validate(operations, "/api/v1/admin/operations")
             validate(
                 f.client.post(
                     "/api/v1/auth/logout", json={"schema_version": "p3-web-v1"}, headers=f.headers()
@@ -107,8 +216,18 @@ def main() -> None:
                 "/api/v1/auth/logout",
                 "post",
             )
-            print("P3 actual wire checks", checks)
+            assert covered == expected and len(covered) == 22
+            print(
+                "P3 actual wire checks",
+                checks,
+                "unique operations",
+                len(covered),
+                "actual provider",
+                0,
+            )
         finally:
+            if worker and worker.process.poll() is None:
+                worker.stop_clean()
             lifecycle.close()
 
 
