@@ -1,16 +1,40 @@
 # Phase3 分层验收与剩余收口
 
-当前A05两修复集成导航（2026-10-11）：Root已核A精确087恢复测试/Core无P1P2+独立19PG94.91s/19pure0.89与B精确849 Linux only-owned/Web无P1P2+27contract/Linux ARM8/22.1s；原CI972双job失败、partial28actual27pass/73not_run、旧236/G1G2cleanup0成功及unknown assertion trace全部保留。原Core外层zsh reserved status wrapper1不冒称整wrapper0；B两次SWC准备环境0test失败及随后公开registry锁定npm准备/断网ARM8成功分记，Root停止回执核对另行记账。A已普通merge两精确fix无冲突，backend/锁/sharedCI原195行不改；新x64四CI/修复后real24/main/postmainCI/Issue33仍pending，阶段in_progress。详见[两修复集成](PHASE3_A05_TWO_FIXES.md)及[STATUS42](STATUS.md#42-a05-两项修复独审核收与正常集成候选)。下方原候选/失败/当时待核按历史保留。
+当前导航（2026-10-11）：Phase3业务Gate已验收通过，d7精确独审与合前四CI成功；Root正常合PR37后的已核代码基线main为ecbc83f370d7fef87d96fc74549dc13c6f84be9f，同SHA四CI38090933423全部SUCCESS，[权威主控回执6102921562](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6102921562)。当前已验证业务证据集中于下表。当前文档收口的精确提交/独审/最终CI及Issue33/34/35关闭由Root结案receipt记录，Issues仍Open；不内部自指未来文档SHA/CI，不预写已关闭或新增completed文档循环。
 
-历史最新A05失败/修复导航（2026-10-11）：972最终增量独审5480825374无阻断，但CI38086696815实际frontend与phase3均失败，pg-pair正确拒绝失败分区；旧236/G1三/G2六/cleanup0成功，首P3模块28中27passed/1failed、后73not_run，完整Gate不通过。A在新固定30min/两轮owned窗口已证实T2提交与wait CP持久化的合法间隙，原CI具体assertion未捕获/根因unknown保留；仅测试同步修复与19定向PG/19pure通过，backend/共享CI/B不改，资源已停/保卷。新精确fix待原Core独审及Root合已审B修复后一次四CI，不push/body/main/关Issue。详见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)及[STATUS41](STATUS.md#41-a05-实际ci失败与恢复测试同步修复)。下方972候选/既有Gate回执保留，不覆盖本次失败。
+## 当前业务Gate与main回执
 
-前次候选当前导航（2026-10-11 A05）：Root已核A03 source052/Core5480529395/精确CI38079599247三job成功，以及B最终a65/Web5480795768完整24Web/native200/PG不变量/精确CI38085161901三job成功；完整337PG=236+101、G1三/G2六/cleanup0及精确配对已核。Root释放原A WT62c8/PR37正常集成及唯一共享frontend CI/阶段文档批，已普通合已审B，无冲突；最终增量独审、精确四job frontend Gate、main/合后CI/Issue33结案pending，不能预写阶段完成。main仍59b350cb719a9d2fed3f68b1ee598fa0a9b97875，Phase2已正式结案/CI38041779219 SUCCESS/Issue29 CLOSED。原333/988/旧失败/取消run/Review fullcheck not_verified/Issue23 not_identified/risk_accepted和M1设计18页冻结保留。D1=10-10/D30=11-08/300h/P3 A32+B18+Review10=60h不重置，人工H/L not_reported；新增paid0/平台业务写0，扩权/生产/Phase4未授权。见[STATUS40](STATUS.md#40-phase3-a05-正常集成与最终四作业候选)及[A05交接](PHASE3_A05_INTEGRATION.md)。下方原333/988/2e0待核表为历史；当前剩余仅最终集成增量Review/精确四job CI/Root main和合后CI/Issue33正式结案，平台边界不扩。
+| 范围 | Root已核实际证据 | 结论与限制 |
+|---|---|---|
+| 精确最终源码与审核 | source `d7a61f012eb9377c470534658abc1b54ebcd5b28` / tree `9d2452a125b5ac8025b89a5cf50599dd63ac2a4e`；[Review5480963449](https://github.com/aning0922/commerceops-agent/pull/37#pullrequestreview-5480963449)无P1/P2；[合前CI38089663824](https://github.com/aning0922/commerceops-agent/actions/runs/38089663824) quality/phase3/pg-pair/frontend四job全SUCCESS，[Root Gate6102774702](https://github.com/aning0922/commerceops-agent/pull/37#issuecomment-6102774702) | 业务Gate验收通过；A087/B849两已审修复正常合，后端/权限/Graph/Worker/locks和固定23min/25min/75s合同未弱化 |
+| 全回归与PG配对 | 合前1057offline/86.09s、旧236PG/184.45s；同main1057offline/126.24s、旧236PG/259.69s＋全部101P3=337，审批28pass/264.33s、其余73全pass。两artifact、11P3模块expected=actual=passed/fullnodehash及tools/locks/binary精确一致；G1三/G2六、两cleanup0/stoppingtrue | 同ecbc完整确定性规则、PG权威事务/幂等、恢复与负向三态已验证，不由旧333/988或历史337外推 |
+| 修复后Linux x64真实Web | 合前actual checkout前缀70893/tree同d7；同main恰四safe JSON绑定actual ecbc/samebuild/currentmain，read7/write10/items7完整24/native200/39helperhash/原Require完整titles及无skip通过。frontend27contract/13Mock/8B04Mock各pass，低权flags全false、模型/provider0 | 当前x64全24已实际核过，不再只借旧Mac24或ARM8；实际API/session/CSRF/Origin、电商Mock fixture、自动simulated_web，不算human_feishu或human_web |
+| 永久执行及T6 | items段20items/2000units/terminal4/permanent completed execution1；四终态原receipt/audit/v2projection各1、canonical绑定；撤权项open/v1且receipt/audit/v2projection各0 | whole-plan内部创建/单项完成关闭/原键回放/权限撤销不变量通过。write段combined20与unknown因baseline重观察实际needs_reapproval/DATA_INCOMPLETE，不能把该段意见已记录写成T4完成；20项执行证据属于同源items段 |
+| 资源与边界 | 同main两个PG分区及三个frontend stage均止：PGfalse/PID0/无listeners/全child terminal/卷保留。read停止22:22:45.450382Z、write22:28:52.897007Z、items22:35:07.747787Z，全部早于固定22:41:41.654938Z；app高权false、新paid/provider及平台业务外写0 | UTC停止时间属2026-10-10（北京时间2026-10-11）；各独审/作者/CI窗口单独记账。outbox sender disabled不等于Base/Card送达或真实采购/库存；Phase2历史actual1不自动续跑 |
+| 已发生main合并 | [PR37](https://github.com/aning0922/commerceops-agent/pull/37)于2026-10-10 22:18:32UTC（北京时间2026-10-11 06:18:32）由Root正常merge；main `ecbc83f370d7fef87d96fc74549dc13c6f84be9f` / tree同d7，parents59+d7；[Issue33 merge receipt6102782859](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6102782859) | 代码已合main，无force/delete；A仅本地ff-only同步此已发生commit，没有自行合GitHub main |
+| 合后验收与文档结案 | [main CI38090933423](https://github.com/aning0922/commerceops-agent/actions/runs/38090933423) actual head ecbc，四job全SUCCESS/watch1943 exit0，[Root同main核收6102921562](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6102921562)；PG/四frontend安全artifact与完整业务不变量已核 | **业务Gate与该代码main已验收通过**。当前仅文档收口，文档精确独审/最终CI/Issue33/34/35关闭仍由Root结案receipt记账；Issues仍Open，不填未来文档SHA/CI或制造第三轮completed循环 |
+
+本表来自Root实际核收的独审、合前及同main四CI与安全artifact，不是本次文档Agent重跑。当前唯一四文档收口只做check_docs、diff/字节继承及current/index/fullhistory敏感扫描；不重跑scripts.check/PG/Docker/Web/build/provider或平台，也不编辑旧PR37或擅自关闭Issues。文档PR最终独审/精确CI由Root另核，A不合main。
+
+仍未验收或未授权：human_feishu/human_web、正式Card/Base业务闭环及outbox外写、BC02/BC06正式平台合同（历史只读/有限参数切片不替代）、真实Woo、生产/扩权/Phase4/M1整体、多Worker R02–04、自然故障/p95/40×3/95%/长期TTL及原G3收到后过滤。M1设计m1-ui/0.4.1-freeze-rc/18页冻结，不追加视觉批次。D1=10-10/D30=11-08/D7–D12/300h/P3 A32+B18+Review10=60h不变；Agent墙钟与机器运行/等待按证据记录，人工H/L not_reported、不伪造耗时或新预算。
+
+历史风险不删除：Issue23 not_identified/risk_accepted；972CI原assertion trace unknown，新的受控测试gap证据不宣称彻底还原原失败；Core pytest容器0与外zsh reserved status wrapper1分记；SWC准备0test环境失败/ARM→当前x64实证、2e0失锁/333/988/旧CI失败取消/Review旧fullcheck not_verified保留。
+
+## 历史候选与分层证据
+
+以下保持原冻结层和章节的实际时间、失败、当时待核及资源事实；旧“当前/未授权/not_run”不覆盖上表已核范围，未跑的正式平台边界不因此解除。
+
+历史A05两修复集成导航（2026-10-11）：Root已核A精确087恢复测试/Core无P1P2+独立19PG94.91s/19pure0.89与B精确849 Linux only-owned/Web无P1P2+27contract/Linux ARM8/22.1s；原CI972双job失败、partial28actual27pass/73not_run、旧236/G1G2cleanup0成功及unknown assertion trace全部保留。原Core外层zsh reserved status wrapper1不冒称整wrapper0；B两次SWC准备环境0test失败及随后公开registry锁定npm准备/断网ARM8成功分记，Root停止回执核对另行记账。A已普通merge两精确fix无冲突，backend/锁/sharedCI原195行不改；新x64四CI/修复后real24/main/postmainCI/Issue33仍pending，阶段in_progress。详见[两修复集成](PHASE3_A05_TWO_FIXES.md)及[STATUS42](STATUS.md#42-a05-两项修复独审核收与正常集成候选)。下方原候选/失败/当时待核按历史保留。
+
+历史A05失败/修复导航（2026-10-11）：972最终增量独审5480825374无阻断，但CI38086696815实际frontend与phase3均失败，pg-pair正确拒绝失败分区；旧236/G1三/G2六/cleanup0成功，首P3模块28中27passed/1failed、后73not_run，完整Gate不通过。A在新固定30min/两轮owned窗口已证实T2提交与wait CP持久化的合法间隙，原CI具体assertion未捕获/根因unknown保留；仅测试同步修复与19定向PG/19pure通过，backend/共享CI/B不改，资源已停/保卷。新精确fix待原Core独审及Root合已审B修复后一次四CI，不push/body/main/关Issue。详见[恢复修复](PHASE3_A05_RECOVERY_FIX.md)及[STATUS41](STATUS.md#41-a05-实际ci失败与恢复测试同步修复)。下方972候选/既有Gate回执保留，不覆盖本次失败。
+
+历史候选导航（2026-10-11 A05）：Root已核A03 source052/Core5480529395/精确CI38079599247三job成功，以及B最终a65/Web5480795768完整24Web/native200/PG不变量/精确CI38085161901三job成功；完整337PG=236+101、G1三/G2六/cleanup0及精确配对已核。Root释放原A WT62c8/PR37正常集成及唯一共享frontend CI/阶段文档批，已普通合已审B，无冲突；最终增量独审、精确四job frontend Gate、main/合后CI/Issue33结案pending，不能预写阶段完成。main仍59b350cb719a9d2fed3f68b1ee598fa0a9b97875，Phase2已正式结案/CI38041779219 SUCCESS/Issue29 CLOSED。原333/988/旧失败/取消run/Review fullcheck not_verified/Issue23 not_identified/risk_accepted和M1设计18页冻结保留。D1=10-10/D30=11-08/300h/P3 A32+B18+Review10=60h不重置，人工H/L not_reported；新增paid0/平台业务写0，扩权/生产/Phase4未授权。见[STATUS40](STATUS.md#40-phase3-a05-正常集成与最终四作业候选)及[A05交接](PHASE3_A05_INTEGRATION.md)。下方原333/988/2e0待核表为历史；当前剩余仅最终集成增量Review/精确四job CI/Root main和合后CI/Issue33正式结案，平台边界不扩。
 
 历史39节导航：748 business minfix原Core全101PG/32wire22/pure69已核无新P1/P2；Root另批两个独立PG CI job与安全metadata配对，仍需统一新source字节继承/CI delta/精确337CI，未以旧2e0失败或作者333替新Gate。见[容量批](PHASE3_CI_CAPACITY.md)及[STATUS39](STATUS.md#39-a03-business独审与独立ci容量批)。
 
 历史独审修复导航（2026-10-11）：原2e0d3ed首模块独审23pass/1fail/157.75s（失锁before_graph/初始CP观测竞争），后续模块/wire未跑；原作者333通过和原CI不抵此阻断。Root派回本批两项最小修复，三态失锁/孤立记录/必要恢复邻接19实际PG通过；新collect337=236+101P3，未宣称新337作者执行通过。当前事实与新freeze/独审/CI待核见[PHASE3_A03_FIX1](PHASE3_A03_FIX1.md)。下方原333/988及原source候选为2e0历史证据，保留不覆盖新门禁。
 
-2026-10-11作者收口候选；Phase3 in_progress，A03作者完整333PG/988offline/wire22/3G1/6G2通过，新freeze独审/精确CI待回执，B未合入A。main实时核为 `59b350cb719a9d2fed3f68b1ee598fa0a9b97875`。下表区分作者实际验证、已冻结历史Gate及剩余验收，不能据PR创建或测试通过提前称全阶段完成。实施/失败/资源/时间见[PHASE3_A03](PHASE3_A03.md)。
+历史2026-10-11作者收口候选；Phase3 in_progress，A03作者完整333PG/988offline/wire22/3G1/6G2通过，新freeze独审/精确CI待回执，B未合入A。main实时核为 `59b350cb719a9d2fed3f68b1ee598fa0a9b97875`。下表区分作者实际验证、已冻结历史Gate及剩余验收，不能据PR创建或测试通过提前称全阶段完成。实施/失败/资源/时间见[PHASE3_A03](PHASE3_A03.md)。
 
 ## 已冻结前置Gate
 
