@@ -38,9 +38,9 @@ function Submission({
       event.preventDefault();
       event.returnValue = "";
     };
-    if (uncertain) window.addEventListener("beforeunload", warn);
+    if (uncertain || busy) window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [uncertain]);
+  }, [uncertain, busy]);
   const accept = (receipt: Receipt) => {
     if (validate && !validate(receipt))
       throw new P3Failure("WRITE_RESULT_UNKNOWN");
@@ -122,7 +122,7 @@ function Submission({
       )}
       {result &&
         ("decision_id" in result ? (
-          <Notice title="意见已记录 · 执行待处理">
+          <Notice title="原审批意见已记录 · 不推断执行状态">
             <p>
               原决定：{result.decision_id} · {result.action} ·{" "}
               {result.decided_by} · {result.decided_at}
@@ -178,10 +178,12 @@ export function DecisionActions({
   read,
   client,
   refresh,
+  onHoldChange,
 }: {
   read: DTO["ApprovalRead"];
   client: A01ReadClient;
   refresh: () => void;
+  onHoldChange?: (held: boolean) => void;
 }) {
   const [intent, setIntent] = useState<{
     action: DTO["DecisionInput"]["action"];
@@ -192,6 +194,13 @@ export function DecisionActions({
   const [prepared, setPrepared] = useState<PreparedWrite<Receipt> | null>(null),
     [problem, setProblem] = useState(""),
     [busy, setBusy] = useState(false);
+  const [submissionPhase, setSubmissionPhase] = useState("ready");
+  useEffect(() => {
+    onHoldChange?.(
+      action !== null || (prepared !== null && submissionPhase !== "settled"),
+    );
+    return () => onHoldChange?.(false);
+  }, [action, prepared, submissionPhase, onHoldChange]);
   const start = useRef(performance.now()),
     [elapsed, setElapsed] = useState(0);
   useEffect(() => {
@@ -257,7 +266,7 @@ export function DecisionActions({
               : "本版本决定禁用"
         }
       >
-        以当前服务端可决定状态、版本与完整披露为准；倒计时仅参考，服务端取得锁后再次裁定期限。执行前数据复核尚待后续功能。
+        以当前服务端可决定状态、版本与完整披露为准；倒计时仅参考，服务端取得锁后再次裁定期限。执行前数据复核由Worker执行。
       </Notice>
       {!prepared && (
         <>
@@ -359,6 +368,7 @@ export function DecisionActions({
         <Submission
           prepared={prepared}
           client={client}
+          onState={setSubmissionPhase}
           validate={(result) =>
             "decision_id" in result &&
             result.plan_id === read.plan.plan_id &&
@@ -380,12 +390,18 @@ export function CreateTaskDialog({
   shops,
   source,
   close,
+  onHoldChange,
 }: {
   client: A01ReadClient;
   shops: readonly string[];
   source?: DTO["SourceBinding"];
   close: () => void;
+  onHoldChange?: (held: boolean) => void;
 }) {
+  useEffect(() => {
+    onHoldChange?.(true);
+    return () => onHoldChange?.(false);
+  }, [onHoldChange]);
   const [phase, setPhase] = useState<
     "ready" | "pending" | "unknown" | "settled"
   >("ready");

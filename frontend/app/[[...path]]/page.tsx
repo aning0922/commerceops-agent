@@ -3,6 +3,7 @@ import { Console } from "../../components/console";
 import { mockView } from "../../lib/mock-source";
 import { LiveConsole } from "../../components/live-console";
 import { B04OfflinePreview } from "../../components/b04-offline-preview";
+import { B04WiringPreview } from "../../components/b04-wiring-preview";
 import { offlineScenarios } from "../../lib/b04-offline-source";
 export const dynamic = "force-dynamic";
 export default async function Page({
@@ -56,11 +57,19 @@ export default async function Page({
   }
   if (
     process.env.COMMERCEOPS_UI_MODE === "mock" &&
-    process.env.COMMERCEOPS_MOCK_BATCH === "b04" &&
+    ["b04", "b04-wiring"].includes(process.env.COMMERCEOPS_MOCK_BATCH ?? "") &&
     (process.env.COMMERCEOPS_MOCK_ROLE ?? "operator") === "operator"
   ) {
     const scenario =
       offlineScenarios.find((value) => value === query.scenario) ?? "ready";
+    if (process.env.COMMERCEOPS_MOCK_BATCH === "b04-wiring")
+      return (
+        <B04WiringPreview
+          key={path + scenario}
+          path={path}
+          scenario={scenario}
+        />
+      );
     return (
       <B04OfflinePreview
         path={path}

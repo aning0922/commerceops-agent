@@ -1,9 +1,12 @@
 "use client";
 import { CreateTaskDialog, DecisionActions } from "./live-actions";
+import { ExecutionFacts, ItemListFacts, ItemDetails } from "./item-views";
+import { itemConsistent } from "../lib/p3-item-contract";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createReadClient } from "../lib/p3-live-client";
+import type { A01ReadClient } from "../lib/p3-live-client";
 import { P3Failure } from "../lib/p3-transport";
 import type { DTO } from "../lib/p3-present";
 import { label, localTime, reportBound } from "../lib/p3-present";
@@ -19,16 +22,26 @@ import {
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
   | { kind: "tasks"; read: DTO["TaskList"] }
-  | { kind: "task"; read: DTO["TaskRead"] }
+  | {
+      kind: "task";
+      read: DTO["TaskRead"];
+      execution: DTO["ExecutionRead"] | null;
+    }
   | { kind: "report"; read: DTO["ReportRead"]; versions: DTO["PlanList"] }
   | { kind: "plans"; read: DTO["PlanList"]; taskId: string }
   | { kind: "plan"; read: DTO["PlanRead"] }
   | { kind: "approvals"; read: DTO["ApprovalList"] }
   | { kind: "approval"; read: DTO["ApprovalRead"] }
-  | { kind: "events"; read: DTO["EventsRead"]; taskId: string }
+  | {
+      kind: "events";
+      read: DTO["EventsRead"];
+      taskId: string;
+      execution: DTO["ExecutionRead"] | null;
+    }
   | { kind: "receipt"; read: DTO["RequestRead"] }
   | { kind: "operations"; read: DTO["OperationsRead"] }
-  | { kind: "pending" };
+  | { kind: "items"; read: DTO["ItemList"] }
+  | { kind: "item"; read: DTO["ItemRead"] };
 const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const taskRoute = new RegExp(
   `^/tasks/(${uuid})(?:/(report|events|plans)(?:/([1-9][0-9]*))?)?$`,
@@ -36,6 +49,7 @@ const taskRoute = new RegExp(
 );
 const approvalRoute = new RegExp(`^/approvals/(${uuid})$`, "i");
 const receiptRoute = new RegExp(`^/requests/(${uuid})$`, "i");
+const itemRoute = new RegExp(`^/replenishment-items/(${uuid})$`, "i");
 const uuidOnly = new RegExp(`^${uuid}$`, "i");
 const titleOf = (path: string) =>
   path.endsWith("/report")
@@ -56,9 +70,11 @@ const titleOf = (path: string) =>
                   ? "审批详情"
                   : path === "/admin/operations"
                     ? "管理配置与异常说明"
-                    : path === "/replenishment-items"
-                      ? "内部补货"
-                      : "访问限制与会话过期";
+                    : path.startsWith("/replenishment-items/")
+                      ? "内部工作项详情"
+                      : path === "/replenishment-items"
+                        ? "内部补货"
+                        : "访问限制与会话过期";
 const messageOf = (error: unknown) =>
   error instanceof P3Failure ? error.message : "暂时无法安全读取。";
 export function LiveConsole({
@@ -66,14 +82,23 @@ export function LiveConsole({
   query,
   origin,
   localHttp,
+  fixtureMode = false,
+  fixtureClient,
 }: {
   path: string;
   query: Query;
   origin: string | null;
   localHttp: boolean;
+  // Only the server-gated explicit Mock wrapper supplies this in-memory adapter.
+  fixtureMode?: boolean;
+  fixtureClient?: (invalidate: () => void) => A01ReadClient;
 }) {
   const router = useRouter();
   const epoch = useRef(0);
+  const heldWrite = useRef(false);
+  const holdWrite = useCallback((held: boolean) => {
+    heldWrite.current = held;
+  }, []);
   const [session, setSession] = useState<DTO["SessionRead"] | null>(null);
   const [checking, setChecking] = useState(true);
   const [data, setData] = useState<{ path: string; value: PageData } | null>(
@@ -91,17 +116,27 @@ export function LiveConsole({
   >("visible");
   const [reload, setReload] = useState(0);
   const invalidate = useCallback(() => {
+    heldWrite.current = false;
     epoch.current++;
     setSession(null);
     setData(null);
     setConfig(null);
     setPanel("");
     setChecking(false);
-    setError("会话已失效或授权已变更，请重新登录。");
-  }, []);
+    setError(
+      fixtureMode
+        ? "离线401示例：身份、业务缓存与预备操作已清除。"
+        : "会话已失效或授权已变更，请重新登录。",
+    );
+  }, [fixtureMode]);
   const client = useMemo(
-    () => (origin ? createReadClient(origin, localHttp, invalidate) : null),
-    [origin, localHttp, invalidate],
+    () =>
+      fixtureMode && fixtureClient
+        ? fixtureClient(invalidate)
+        : origin
+          ? createReadClient(origin, localHttp, invalidate)
+          : null,
+    [origin, localHttp, invalidate, fixtureMode, fixtureClient],
   );
   useEffect(() => {
     if (!client) {
@@ -194,14 +229,37 @@ export function LiveConsole({
         };
       } else if (path === "/replenishment-items") {
         if (!cap.can_read_tasks) throw new P3Failure("ACCESS_DENIED");
-        page = { kind: "pending" };
+        const read = await client!.items({
+          limit: 20,
+          cursor,
+          state: state ? (state as DTO["ItemSummary"]["state"]) : undefined,
+        });
+        page = { kind: "items", read };
+        shop = read.items[0]?.shop_id ?? null;
+      } else if (itemRoute.test(path)) {
+        if (!cap.can_read_tasks) throw new P3Failure("ACCESS_DENIED");
+        const id = path.match(itemRoute)![1];
+        const read = await client!.item(id);
+        if (read.item.item_id !== id || !itemConsistent(read))
+          throw new P3Failure("INVALID_RESPONSE");
+        page = { kind: "item", read };
+        shop = read.item.shop_id;
       } else if (taskRoute.test(path)) {
         if (!cap.can_read_tasks) throw new P3Failure("ACCESS_DENIED");
         const [, id, section, version] = path.match(taskRoute)!;
         const task = await client!.task(id);
         if (task.task.task_id !== id) throw new P3Failure("INVALID_RESPONSE");
         shop = task.task.shop_id;
-        if (!section) page = { kind: "task", read: task };
+        let execution: DTO["ExecutionRead"] | null = null;
+        if ((!section || section === "events") && task.execution_id) {
+          execution = await client!.execution(id);
+          if (
+            execution.task_id !== id ||
+            execution.execution_id !== task.execution_id
+          )
+            throw new P3Failure("INVALID_RESPONSE");
+        }
+        if (!section) page = { kind: "task", read: task, execution };
         else if (section === "report" && !version) {
           if (
             query.version !== undefined ||
@@ -218,6 +276,7 @@ export function LiveConsole({
             kind: "events",
             read: await client!.events(id, { limit: 20, cursor }),
             taskId: id,
+            execution,
           };
         else if (section === "plans" && !version)
           page = {
@@ -308,6 +367,23 @@ export function LiveConsole({
   // Revalidate on focus/visibility and explicit refresh; every API read rechecks DB identity.
   async function refresh() {
     if (!client) return;
+    if (heldWrite.current) {
+      // Still recheck current identity, while retaining the in-memory original write.
+      // A 401/403 invalidates everything through the client's existing callback.
+      try {
+        const current = await client.session();
+        if (
+          current.principal.principal_id !== session?.principal.principal_id ||
+          current.principal.organization_id !==
+            session?.principal.organization_id ||
+          current.principal.auth_version !== session?.principal.auth_version
+        )
+          client.clearSession();
+      } catch (error) {
+        setError(messageOf(error));
+      }
+      return;
+    }
     setData(null);
     setConfig(null);
     setPanel("");
@@ -402,7 +478,7 @@ export function LiveConsole({
         : null;
   const zone =
     config?.config.shop_timezone ?? session?.config.shop_timezone ?? null;
-  if (!origin)
+  if (!client)
     return (
       <div className="login-main">
         <Card title="服务入口不可用">
@@ -412,6 +488,20 @@ export function LiveConsole({
         </Card>
       </div>
     );
+  if (!session)
+    if (fixtureMode)
+      return (
+        <div data-source-mode="b04-offline">
+          <main id="main">
+            <Notice title="安全状态">
+              {error || "正在读取固定离线合同示例。"}
+            </Notice>
+            <p>
+              明确离线 Mock · 无真实身份/API/数据库，不显示已清除的业务对象。
+            </p>
+          </main>
+        </div>
+      );
   if (!session)
     return (
       <div className="login-layout">
@@ -467,7 +557,10 @@ export function LiveConsole({
       </div>
     );
   return (
-    <div className="app-shell" data-source-mode="live-session">
+    <div
+      className="app-shell"
+      data-source-mode={fixtureMode ? "b04-offline" : "live-session"}
+    >
       <a className="skip-link" href="#main">
         跳到主要内容
       </a>
@@ -501,7 +594,7 @@ export function LiveConsole({
           )}
           {capabilities!.can_read_tasks && (
             <a href="/replenishment-items" data-control="B41">
-              内部补货（待接入）
+              内部补货
             </a>
           )}
           {capabilities!.can_read_operations && (
@@ -512,8 +605,8 @@ export function LiveConsole({
         </nav>
         <p className="sidebar-note">仅内部工作项 · 无采购入库</p>
         <footer>
-          <strong>当前真实会话</strong>
-          <p>自有Mock业务来源 · 创建与审批</p>
+          <strong>{fixtureMode ? "注入会话示例" : "当前真实会话"}</strong>
+          <p>自有Mock业务来源 · 内部协作</p>
         </footer>
       </aside>
       <div className="workspace">
@@ -529,14 +622,20 @@ export function LiveConsole({
               </span>
               <span>
                 {session.principal.display_name}
-                <small>服务端授权 · session</small>
+                <small>
+                  {fixtureMode
+                    ? "离线合同 · 无真实身份"
+                    : "服务端授权 · session"}
+                </small>
               </span>
             </button>
           </div>
         </header>
         <main id="main">
           <div className="mock-banner">
-            当前会话已认证 · 本阶段业务来源为Mock · 创建与审批意见已接入 ·{" "}
+            {fixtureMode
+              ? "明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。"
+              : "当前会话已认证 · 本阶段业务来源为Mock · 创建、审批与内部跟进已接入。"}{" "}
             {writePending}
           </div>
           <div className="page-heading">
@@ -709,7 +808,7 @@ export function LiveConsole({
                       )}
                     </div>
                     <p>
-                      执行回执与内部项接口待接入；不把awaiting_approval或completed推断为内部项已创建。
+                      任务状态、永久执行回执与各内部项跟进状态分别呈现；不推断采购或入库。
                     </p>
                     {page.read.actions.can_start_new_cycle && (
                       <button
@@ -720,6 +819,17 @@ export function LiveConsole({
                       </button>
                     )}
                   </Card>
+                  {page.execution && (
+                    <ExecutionFacts
+                      read={page.execution}
+                      taskId={page.read.task.task_id}
+                    />
+                  )}
+                  {!page.execution && (
+                    <Notice title="尚无可见执行回执">
+                      仅展示任务已报告事实，不推断内部项创建或执行成功。
+                    </Notice>
+                  )}
                   <Card title="协作同步">
                     <Sync sync={page.read.task.sync} />
                   </Card>
@@ -758,7 +868,8 @@ export function LiveConsole({
                   <Card>
                     <p>
                       can_decide：{String(page.read.can_decide)} · disabled：
-                      {page.read.disabled_reasons.join("、") || "无服务端禁用原因"}
+                      {page.read.disabled_reasons.join("、") ||
+                        "无服务端禁用原因"}
                     </p>
                   </Card>
                 </>
@@ -849,7 +960,8 @@ export function LiveConsole({
                     </p>
                     <p>
                       disabled：
-                      {page.read.disabled_reasons.join("、") || "无服务端禁用原因"}
+                      {page.read.disabled_reasons.join("、") ||
+                        "无服务端禁用原因"}
                     </p>
                     {page.read.decision ? (
                       <p>
@@ -869,6 +981,7 @@ export function LiveConsole({
                         read={page.read}
                         client={client!}
                         refresh={() => void refresh()}
+                        onHoldChange={holdWrite}
                       />
                     }
                   />
@@ -881,38 +994,46 @@ export function LiveConsole({
                 </>
               )}
               {page.kind === "events" && (
-                <Card title="实际已发生轨迹">
-                  <p>
-                    as_of：{localTime(page.read.as_of, zone)} ·
-                    无内部思维链或原始checkpoint。
-                  </p>
-                  <ol className="timeline">
-                    {page.read.items.map((x) => (
-                      <li key={x.event_id}>
-                        <strong>{x.action}</strong>
-                        <small>
-                          {localTime(x.occurred_at, zone)} · step{" "}
-                          {x.step ?? "未知"} · duration{" "}
-                          {x.duration_ms ?? "未知"}ms
-                        </small>
-                        <p>{x.safe_summary}</p>
-                        <p>result_ref：{x.result_ref ?? "无"}</p>
-                        {x.recovery && (
-                          <p>
-                            恢复事实仅来自持久记录：
-                            {x.recovery.code}
-                          </p>
-                        )}
-                      </li>
-                    ))}
-                  </ol>
-                  {!page.read.items.length && (
-                    <p>暂无可读事件，不虚构恢复完成。</p>
+                <>
+                  <Card title="实际已发生轨迹">
+                    <p>
+                      as_of：{localTime(page.read.as_of, zone)} ·
+                      无内部思维链或原始checkpoint。
+                    </p>
+                    <ol className="timeline">
+                      {page.read.items.map((x) => (
+                        <li key={x.event_id}>
+                          <strong>{x.action}</strong>
+                          <small>
+                            {localTime(x.occurred_at, zone)} · step{" "}
+                            {x.step ?? "未知"} · duration{" "}
+                            {x.duration_ms ?? "未知"}ms
+                          </small>
+                          <p>{x.safe_summary}</p>
+                          <p>result_ref：{x.result_ref ?? "无"}</p>
+                          {x.recovery && (
+                            <p>
+                              恢复事实仅来自持久记录：
+                              {x.recovery.code}
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                    {!page.read.items.length && (
+                      <p>暂无可读事件，不虚构恢复完成。</p>
+                    )}
+                    <Disabled control="B32" reason="无重启或手动重试端点。">
+                      手动重试
+                    </Disabled>
+                  </Card>
+                  {page.execution && (
+                    <ExecutionFacts
+                      read={page.execution}
+                      taskId={page.taskId}
+                    />
                   )}
-                  <Disabled control="B32" reason="无重启或手动重试端点。">
-                    手动重试
-                  </Disabled>
-                </Card>
+                </>
               )}
               {page.kind === "receipt" && (
                 <Card title="原请求持久回执">
@@ -921,6 +1042,35 @@ export function LiveConsole({
                     operation：{page.read.receipt.operation}
                   </p>
                   <p>仅回读当前有权原回执，不自动换键、创建或执行。</p>
+                  {page.read.receipt.operation === "resolve" && (
+                    <>
+                      <p>
+                        item {page.read.receipt.result.item.item_id} ·{" "}
+                        {page.read.receipt.result.item.state} · v
+                        {page.read.receipt.result.item.version}
+                      </p>
+                      <p>
+                        原动作 {page.read.receipt.result.resolution.action} ·
+                        原因 {page.read.receipt.result.resolution.reason}
+                      </p>
+                      <p>
+                        原处理人{" "}
+                        {page.read.receipt.result.resolution.resolved_by} ·{" "}
+                        {page.read.receipt.result.resolution.resolved_at}
+                      </p>
+                      <p>
+                        原版本 v
+                        {page.read.receipt.result.resolution.before_version} → v
+                        {page.read.receipt.result.resolution.after_version} ·
+                        hash{" "}
+                        {
+                          page.read.receipt.result.resolution
+                            .resolution_payload_hash
+                        }
+                      </p>
+                      <Sync sync={page.read.receipt.result.item.sync} />
+                    </>
+                  )}
                 </Card>
               )}
               {page.kind === "operations" && (
@@ -950,13 +1100,20 @@ export function LiveConsole({
                   </Disabled>
                 </Card>
               )}
-              {page.kind === "pending" && (
-                <Card title="内部补货接口待接入">
-                  <p>
-                    {writePending}{" "}
-                    尚未请求items/execution/resolve；无样例替代真实结果。
-                  </p>
-                </Card>
+              {page.kind === "items" && (
+                <ItemListFacts
+                  read={page.read}
+                  state={state || "all"}
+                  onFilter={(value) => filter(value === "all" ? "" : value)}
+                />
+              )}
+              {page.kind === "item" && (
+                <ItemDetails
+                  key={page.read.item.item_id}
+                  read={page.read}
+                  client={client!}
+                  onHoldChange={holdWrite}
+                />
               )}
               {(previous.length > 0 || nextCursor) && (
                 <div className="actions">
@@ -1012,11 +1169,17 @@ export function LiveConsole({
                     : undefined
                 }
                 close={() => setPanel("")}
+                onHoldChange={holdWrite}
               />
             )}
           {panel === "account" && (
             <Modal title="当前账号与授权范围" close={() => setPanel("")}>
-              <p>{session.principal.display_name} · 身份来自服务端session</p>
+              <p>
+                {session.principal.display_name} ·{" "}
+                {fixtureMode
+                  ? "离线注入合同对象，无真实身份"
+                  : "身份来自服务端session"}
+              </p>
               <p>auth_version：{session.principal.auth_version}</p>
               {session.principal.role_shop_grants.map((x) => (
                 <p key={`${x.role}:${x.shop_id}`}>
@@ -1044,7 +1207,7 @@ export function LiveConsole({
             </Modal>
           )}
           <p className="page-foot">
-            创建与审批意见 · 冻结M1样式 · Phase4飞书/生产未接入
+            内部协作 · 冻结M1样式 · Phase4飞书/生产未接入
           </p>
         </main>
       </div>

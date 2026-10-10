@@ -99,7 +99,7 @@ async function decision(page: Page, kind: string, action: string) {
   await page.getByRole("button", { name: "确认并准备原请求" }).click();
   await page.locator('[data-action="send-original"]').click();
   await expect(
-    page.getByText("意见已记录 · 执行待处理", { exact: true }),
+    page.getByText("原审批意见已记录 · 不推断执行状态", { exact: true }),
   ).toBeVisible();
 }
 async function screenshot(page: Page, name: string) {
@@ -128,7 +128,7 @@ test("普通批准/十次原字节回放，只有一决定/不显示执行成功
     }
     await page.locator('[data-action="read-original"]').click();
     await expect(
-      page.getByText("意见已记录 · 执行待处理", { exact: true }),
+      page.getByText("原审批意见已记录 · 不推断执行状态", { exact: true }),
     ).toBeVisible();
     await expect(page.getByRole("main")).toContainText("duplicate true");
     expect(digests).toHaveLength(10);
@@ -200,7 +200,7 @@ test("20SKU联合一次完整确认，无默认勾选/普通批准禁用、键�
     await page.getByRole("button", { name: "确认并准备原请求" }).click();
     await page.locator('[data-action="send-original"]').click();
     await expect(
-      page.getByText("意见已记录 · 执行待处理", { exact: true }),
+      page.getByText("原审批意见已记录 · 不推断执行状态", { exact: true }),
     ).toBeVisible();
     await expect(page.getByRole("main")).toContainText(
       "approve_with_assumptions",
@@ -421,7 +421,7 @@ test("实际T3提交后丢ACK：unknown不自动POST，GET原键恢复，同键�
     await page.unrouteAll();
     await page.locator('[data-action="read-original"]').click();
     await expect(
-      page.getByText("意见已记录 · 执行待处理", { exact: true }),
+      page.getByText("原审批意见已记录 · 不推断执行状态", { exact: true }),
     ).toBeVisible();
     expect(posts).toBe(1);
     await page.locator('[data-action="send-original"]').click();

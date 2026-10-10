@@ -7,7 +7,7 @@ import { label, localTime, planComplete } from "../lib/p3-present";
 import { P3Failure } from "../lib/p3-transport";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
 export const writePending =
-  "执行、内部项与resolve尚未接入；审批意见不代表执行成功。";
+  "审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。";
 export function Sync({ sync }: { sync: DTO["SyncRead"] }) {
   return (
     <div>

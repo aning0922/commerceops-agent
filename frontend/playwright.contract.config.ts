@@ -7,6 +7,6 @@ export default defineConfig({
   use: { trace: "off" },
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/b04-offline/contract-results.json" }],
+    ["json", { outputFile: "evidence/b04-wiring/contract-results.json" }],
   ],
 });

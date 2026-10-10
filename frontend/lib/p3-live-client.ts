@@ -71,6 +71,10 @@ export type A01ReadClient = Pick<
   | "requestReceipt"
   | "prepareTask"
   | "prepareDecision"
+  | "execution"
+  | "items"
+  | "item"
+  | "prepareResolve"
 >;
 export function readTransport(transport: FetchTransport): FetchTransport {
   return (url, init) => {
@@ -81,7 +85,9 @@ export function readTransport(transport: FetchTransport): FetchTransport {
           operation.match.test(url.pathname),
       )
     )
-      return Promise.reject(new Error("Operation outside reviewed A02 subset"));
+      return Promise.reject(
+        new Error("Operation outside reviewed p3-web-v1 contract"),
+      );
     return transport(url, init);
   };
 }

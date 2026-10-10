@@ -1,4 +1,4 @@
-// Copies frozen schemas and only reviewed A02 read/auth/create/decision responses; never imports server code.
+// Copies the reviewed A03 business freeze's full 22 response operations; no server imports.
 import { readFile, writeFile } from "node:fs/promises";
 const root = new URL("../../", import.meta.url);
 const spec = JSON.parse(
@@ -19,10 +19,14 @@ const allowed = [
   ["get", "/api/v1/tasks/{task_id}/plans"],
   ["get", "/api/v1/tasks/{task_id}/plans/{plan_version}"],
   ["get", "/api/v1/tasks/{task_id}/events"],
+  ["get", "/api/v1/tasks/{task_id}/execution"],
   ["get", "/api/v1/approvals"],
   ["get", "/api/v1/approvals/{approval_id}"],
   ["post", "/api/v1/approvals/{approval_id}/decision"],
   ["get", "/api/v1/requests/{request_key}"],
+  ["get", "/api/v1/replenishment-items"],
+  ["get", "/api/v1/replenishment-items/{item_id}"],
+  ["post", "/api/v1/replenishment-items/{item_id}/resolve"],
 ];
 const operations = allowed.map(([method, path]) => ({
   method: method.toUpperCase(),
@@ -41,4 +45,4 @@ if (process.argv.includes("--check")) {
   if ((await readFile(destination, "utf8")) !== output)
     throw new Error("Frozen read schema differs; regenerate explicitly");
 } else await writeFile(destination, output);
-console.log(`Frozen A02 implemented schema: ${operations.length} operations`);
+console.log(`Frozen A03 business schema: ${operations.length} operations`);

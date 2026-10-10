@@ -2,6 +2,50 @@ import { test, expect } from "../../../frontend/tooling/web-test";
 import type { Page } from "../../../frontend/tooling/web-test";
 import { offlineId } from "../../../frontend/lib/b04-offline-source";
 import { resolve } from "node:path";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+test.beforeAll(() => {
+  const output = execFileSync(
+    "lsof",
+    ["-nP", "-iTCP:3490", "-sTCP:LISTEN", "-t"],
+    { encoding: "utf8" },
+  )
+    .trim()
+    .split(/\s+/);
+  if (!output.length || new Set(output).size !== 1)
+    throw new Error("Exclusive owned Mock listener required");
+  const pid = Number(output[0]);
+  const cwd = execFileSync(
+    "lsof",
+    ["-a", "-p", String(pid), "-d", "cwd", "-Fn"],
+    { encoding: "utf8" },
+  );
+  if (!cwd.includes("n" + resolve(__dirname, "../../../frontend")))
+    throw new Error("Owned Mock checkout mismatch");
+  writeFileSync(
+    resolve(
+      __dirname,
+      "../../../frontend/evidence/b04-wiring/mock-service.json",
+    ),
+    JSON.stringify(
+      {
+        owner: "phase3-B-WTa266-mock",
+        port: 3490,
+        pid,
+        started_observed_utc: new Date().toISOString(),
+        build_id: readFileSync(
+          resolve(__dirname, "../../../frontend/.next/BUILD_ID"),
+          "utf8",
+        ).trim(),
+        source_mode: "mock",
+        backend_API_PG_Worker: "not_started",
+        headless: true,
+      },
+      null,
+      2,
+    ),
+  );
+});
 const detail = `/replenishment-items/${offlineId(1)}`;
 const forbidden = new WeakMap<Page, string[]>();
 test.beforeEach(async ({ page }) => {
@@ -50,7 +94,7 @@ test("明确Mock20项/390完整披露；execution completed仍不能推断项跟
   await page.screenshot({
     path: resolve(
       __dirname,
-      "../../../frontend/evidence/b04-offline/items-390.png",
+      "../../../frontend/evidence/b04-wiring/items-390.png",
     ),
     fullPage: true,
   });
@@ -114,7 +158,7 @@ test("原因pristine/空白/1001字符，Tab/ShiftTab/Enter/Space/Esc与终态�
   await page.screenshot({
     path: resolve(
       __dirname,
-      "../../../frontend/evidence/b04-offline/resolve-receipt-1440.png",
+      "../../../frontend/evidence/b04-wiring/resolve-receipt-1440.png",
     ),
     fullPage: true,
   });
@@ -153,6 +197,8 @@ test("注入ACK unknown仅原键恢复，不自动提交/新键，GET回执后�
   await expect(
     page.getByText("内部项提交待核实", { exact: true }),
   ).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(page.getByRole("dialog")).toContainText(key);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.locator('[data-action="resolve-receipt"]').click();
@@ -194,8 +240,33 @@ test("注入401清预备请求/身份/业务缓存；404同安全状态", async 
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("main")).not.toContainText(offlineId(1));
   await page.goto(detail + "?scenario=not_found");
-  await expect(page.getByRole("main")).toContainText(
-    "页面不可访问或暂时无法安全读取",
-  );
+  await expect(page).toHaveURL(/\/access$/);
+  await expect(page.getByRole("main")).toContainText("页面不可访问");
   await expect(page.locator('[data-control="B26"]')).toHaveCount(0);
+});
+test("新联动范围filter与隐藏来源：当前can_resolve可用不借旧task/plan权限", async ({
+  page,
+}) => {
+  await page.goto("/replenishment-items");
+  await page.locator('[data-control="B24"]').selectOption("closed");
+  await expect(page.locator(".list-row")).toHaveCount(0);
+  await expect(page.getByRole("main")).toContainText("服务端总计 0");
+  await page.locator('[data-control="B24"]').selectOption("all");
+  await expect(page.locator(".list-row")).toHaveCount(20);
+  await prepare(page, "hidden_source");
+  await expect(page.getByRole("main")).not.toContainText(offlineId(103));
+  await expect(page.locator('[data-control="B37"]')).toHaveCount(0);
+  await page.locator('[data-action="resolve-original"]').click();
+  await expect(page.getByText("内部跟进已记录", { exact: true })).toBeVisible();
+});
+test("预备后200会话身份变更仍清原操作，不把旧项交给新principal", async ({
+  page,
+}) => {
+  await prepare(page, "auth_changed");
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(page.getByRole("main")).toContainText(
+    "身份、业务缓存与预备操作已清除",
+  );
+  await expect(page.locator('[data-action="resolve-original"]')).toHaveCount(0);
+  await expect(page.getByRole("main")).not.toContainText(offlineId(1));
 });

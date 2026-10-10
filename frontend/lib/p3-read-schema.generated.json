@@ -4622,6 +4622,33 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/execution",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ExecutionRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/approvals",
       "responses": {
         "200": {
@@ -4730,6 +4757,93 @@
           "$ref": "#/components/schemas/Error"
         },
         "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/replenishment-items",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ItemList"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/replenishment-items/{item_id}",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ItemRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/replenishment-items/{item_id}/resolve",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ResolveReceipt"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
           "$ref": "#/components/schemas/Error"
         },
         "503": {

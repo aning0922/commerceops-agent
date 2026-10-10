@@ -8,7 +8,7 @@ export default defineConfig({
   outputDir: "test-results/b04-offline",
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/b04-offline/ui-results.json" }],
+    ["json", { outputFile: "evidence/b04-wiring/ui-results.json" }],
   ],
   use: {
     browserName: "chromium",
@@ -27,7 +27,9 @@ export default defineConfig({
     env: {
       NEXT_TELEMETRY_DISABLED: "1",
       COMMERCEOPS_UI_MODE: "mock",
-      COMMERCEOPS_MOCK_BATCH: "b04",
+      COMMERCEOPS_MOCK_BATCH: "b04-wiring",
+      COMMERCEOPS_API_ORIGIN: "",
+      COMMERCEOPS_WEB_TRANSPORT: "",
       COMMERCEOPS_MOCK_ROLE: "operator",
     },
   },

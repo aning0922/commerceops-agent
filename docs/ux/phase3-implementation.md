@@ -275,3 +275,16 @@ npm exec -- playwright test --config playwright.b04-offline.config.ts
 证据在frontend/evidence/b04-offline/。最终敏感扫描/本地提交以工具回执为准；本批不推送、不触发CI、不合main、不标B04/阶段Gate通过。等Root给A03已审稳定SHA后普通merge，再同步完整22 runtime schema、真实Web/PG/Unicode/wire、独审和新精确CI，同PR36完整交付。人工H/L not_reported；估计0.75–1.5 Agent有效小时+机器检查计原B18/60/300容量，无新增预算、原日期不重置。
 
 B04首敏感扫描dir/index各3、git0，仅request_key/stock_pool_key相等判断的符号引用误报；在未提交状态用正常字段解构/别名保持绑定，未改规则/新增豁免，首摘要保留。另核Mock20项导航，固定20个可见ID均有对应离线详情；不是任意对象/真实接口访问。最终组件build/合同/UI复核按最新回执。
+
+
+## B04 已审业务源码代码接线批
+
+Root放行精确748879e63c07185ae8c6f150827b7860ea66621e业务/API冻结（tree634d77b5925552b211b3219b7998447033d33fc2），从a82正常merge为05aa208181e62ff0a6b27abe56ab173a382a67d7；backend tree4519c7bb09e4f1eda9096e21224299b06abda66d与748相同。未读A WIP/私有目录，不改backend/DTO/Worker/Graph/共享CI/锁。完整22-response schema同步；readonly types按原生成器复生无byte差，未知路径/方法继续before-send拒绝。
+
+接入task/events永久execution、server范围items分页/filter、单项detail/complete/close与resolve原receipt。current can_resolve与item版本由server判断，来源nullptr不猜旧task/plan链接；迟来approver无需读取无权的来源task便可按当前item权限处理。原approval意见回执不推断当前执行状态，任务/永久执行/每项终态/sync分记；无用户execute/retry或平台sender。
+
+预备/unknown原请求在focus/可见性刷新时保留，仍GET当前session重查identity；401/403或200响应出现不同principal/org/auth_version时清全部业务/预备操作。原T1/T3亦采用此保留约束；每个新任务、新周期仍新key/空确认，不复用旧approval/nonce/hash。T6 Python3.12 strip、UTF8语义字段与server digest沿用已审合同，UI不计算权限或权威hash。
+
+新增明确Mock wrapper只在server-gated UI_MODE=mock + MOCK_BATCH=b04-wiring + operator样例入口传入memory adapter复用正式LiveConsole加载/刷新/导航逻辑；实际live入口无factory/fixture flag，不回退Mock。API base为空，无cookie身份/backend/PG/Worker，全部API响应只内存注入；固定fixture角色按T6 approver字段构造，不代表鉴权Gate。26合同通过（2.9s），新headless联动UI8/8（20.8s）：原6纯组件语义、范围筛选/hidden source、unknown focus保原key及200身份变化清原操作，390/20末项/键盘/终态等。Mock Next3490两次PID67809/68418已停止/absent，无listener，时间/BUILD_ID见b04-wiring/mock-service*.json；业务API/nonGET/external0。类型/build/schema22通过；a82旧证据保留，新结果单独保存。标题纯文本修正后另build/typecheck，实际UI结果对应前一测试build，未冒称重复业务。
+
+真实items.spec与窗口PID/origin/build/绝对期限/自然登录限流guards已准备，尚未执行。并发/撤权/ACK/native200/newcycle等真实样本需在Root放行的新窗口绑定本批新对象，旧B03 20collector若与baseline重观测不一致须真实needs_reapproval，不能冒称20项T4成功。本批仅代码/Mock，Root新052 CI-only放行后正常合入再真实联调；当前真实部分not_run，不标完整B04/Stage/main完成。

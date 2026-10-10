@@ -4,6 +4,13 @@ import {
   verifyReadResponse,
   readTransport,
 } from "../../../../frontend/lib/p3-live-client";
+import {
+  offlineItem,
+  offlineItemList,
+  offlineExecution,
+  offlineReceipt,
+  offlineId,
+} from "../../../../frontend/lib/b04-offline-source";
 const id = "00000000-0000-4000-8000-000000000001";
 const base = {
   schema_version: "p3-web-v1",
@@ -63,7 +70,7 @@ test("完整冻结DTO校验：拒绝缺字段/额外actor/假身份/bool整数/u
   ).toBe(false);
   expect(config).toEqual({ ...base, shop_id: id, config: deployment });
 });
-test("A02子集仍不存在items/execution/resolve，错误envelope不收隐藏对象", () => {
+test("完整22操作DTO仍拒绝错误形状及错误envelope隐藏对象", () => {
   const error = {
     schema_version: "p3-web-v1",
     server_time: null,
@@ -96,49 +103,81 @@ test("A02子集仍不存在items/execution/resolve，错误envelope不收隐藏�
   expect(verifyReadResponse("POST", "/api/v1/tasks", 202, config)).toBe(false);
 });
 
-test("live transport发送前只准已审A02，执行与resolve仍零请求", async () => {
+test("已审22操作放行，未知操作/方法仍before-send零请求；read/T1/T3保留", async () => {
   let calls = 0;
   const transport = readTransport(async () => {
     calls++;
     return new Response("{}");
   });
-  await expect(
-    transport(
-      new URL(`https://test.invalid/api/v1/replenishment-items/${id}/resolve`),
-      { method: "POST" },
-    ),
-  ).rejects.toThrow("outside reviewed");
-  await expect(
-    transport(new URL("https://test.invalid/api/v1/replenishment-items"), {
-      method: "GET",
-    }),
-  ).rejects.toThrow("outside reviewed");
-  await expect(
-    transport(
-      new URL(`https://test.invalid/api/v1/replenishment-items/${id}`),
-      { method: "GET" },
-    ),
-  ).rejects.toThrow("outside reviewed");
-  await expect(
-    transport(new URL(`https://test.invalid/api/v1/tasks/${id}/execution`), {
-      method: "GET",
-    }),
-  ).rejects.toThrow("outside reviewed");
+  for (const [method, path] of [
+    ["POST", `/api/v1/tasks/${id}/execution`],
+    ["DELETE", `/api/v1/replenishment-items/${id}`],
+    ["GET", `/api/v1/replenishment-items/${id}/resolve`],
+    ["POST", `/api/v1/approvals/${id}/retry`],
+  ])
+    await expect(
+      transport(new URL("https://test.invalid" + path), { method }),
+    ).rejects.toThrow("outside reviewed");
   expect(calls).toBe(0);
-  await transport(new URL("https://test.invalid/api/v1/auth/login"), {
-    method: "POST",
+  for (const [method, path] of [
+    ["POST", "/api/v1/auth/login"],
+    ["GET", `/api/v1/tasks/${id}`],
+    ["POST", "/api/v1/tasks"],
+    ["POST", `/api/v1/approvals/${id}/decision`],
+    ["GET", `/api/v1/tasks/${id}/execution`],
+    ["GET", "/api/v1/replenishment-items"],
+    ["GET", `/api/v1/replenishment-items/${id}`],
+    ["POST", `/api/v1/replenishment-items/${id}/resolve`],
+  ])
+    await transport(new URL("https://test.invalid" + path), { method });
+  expect(calls).toBe(8);
+  expect(
+    verifyReadResponse(
+      "GET",
+      `/api/v1/tasks/${offlineId(102)}/execution`,
+      200,
+      offlineExecution(),
+    ),
+  ).toBe(true);
+  expect(
+    verifyReadResponse(
+      "GET",
+      "/api/v1/replenishment-items",
+      200,
+      offlineItemList(),
+    ),
+  ).toBe(true);
+  expect(
+    verifyReadResponse(
+      "GET",
+      `/api/v1/replenishment-items/${offlineId(1)}`,
+      200,
+      offlineItem(),
+    ),
+  ).toBe(true);
+  const receipt = offlineReceipt(offlineItem(), {
+    schema_version: "p3-web-v1",
+    request_key: offlineId(500),
+    action: "close",
+    reason: "离线原因",
+    expected_version: 1,
   });
-  await transport(new URL(`https://test.invalid/api/v1/tasks/${id}`), {
-    method: "GET",
-  });
-  await transport(new URL("https://test.invalid/api/v1/tasks"), {
-    method: "POST",
-  });
-  await transport(
-    new URL(`https://test.invalid/api/v1/approvals/${id}/decision`),
-    { method: "POST" },
-  );
-  expect(calls).toBe(4);
+  expect(
+    verifyReadResponse(
+      "POST",
+      `/api/v1/replenishment-items/${offlineId(1)}/resolve`,
+      200,
+      receipt,
+    ),
+  ).toBe(true);
+  expect(
+    verifyReadResponse(
+      "GET",
+      `/api/v1/replenishment-items/${offlineId(1)}`,
+      200,
+      { ...offlineItem(), actor: id },
+    ),
+  ).toBe(false);
 });
 
 test("披露绑定拒绝同数量但换SKU/在途/建议事实及重复条目，原合法20项保留", async () => {

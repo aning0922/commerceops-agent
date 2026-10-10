@@ -93,18 +93,28 @@ export function ExecutionFacts({
     </>
   );
 }
-export function ItemListFacts({ read }: { read: DTO["ItemList"] }) {
-  const [filter, setFilter] = useState("all");
+export function ItemListFacts({
+  read,
+  state,
+  onFilter,
+}: {
+  read: DTO["ItemList"];
+  state?: string;
+  onFilter?: (state: string) => void;
+}) {
+  const [localFilter, setFilter] = useState("all");
+  const filter = state ?? localFilter;
   if (
     !validItemDTO("ItemList", read) ||
-    new Set(read.items.map((x) => x.item_id)).size !== read.items.length
+    new Set(read.items.map((x) => x.item_id)).size !== read.items.length ||
+    read.items.length > read.total
   )
     return (
       <Notice title="内部项暂时不可安全读取">不显示部分响应或补猜统计。</Notice>
     );
-  const items = read.items.filter(
-    (x) => filter === "all" || x.state === filter,
-  );
+  const items = onFilter
+    ? read.items
+    : read.items.filter((x) => filter === "all" || x.state === filter);
   return (
     <>
       <Notice title="内部跟进清单">
@@ -126,11 +136,13 @@ export function ItemListFacts({ read }: { read: DTO["ItemList"] }) {
       </div>
       <Card title="内部工作项">
         <label>
-          本页状态筛选
+          {onFilter ? "当前授权范围状态筛选" : "本页状态筛选"}
           <select
             data-control="B24"
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) =>
+              onFilter ? onFilter(e.target.value) : setFilter(e.target.value)
+            }
           >
             {["all", "open", "completed", "closed"].map((x) => (
               <option key={x} value={x}>
@@ -174,9 +186,11 @@ export function ItemListFacts({ read }: { read: DTO["ItemList"] }) {
 export function ItemDetails({
   read,
   client,
+  onHoldChange,
 }: {
   read: DTO["ItemRead"];
   client: ItemClient;
+  onHoldChange?: (held: boolean) => void;
 }) {
   const [receipt, setReceipt] = useState<DTO["ResolveReceipt"] | null>(null);
   const [action, setAction] = useState<DTO["ResolveInput"]["action"] | null>(
@@ -186,6 +200,10 @@ export function ItemDetails({
   useEffect(() => {
     if (receipt && action === null) summary.current?.focus();
   }, [receipt, action]);
+  useEffect(() => {
+    onHoldChange?.(action !== null);
+    return () => onHoldChange?.(false);
+  }, [action, onHoldChange]);
   if (!itemConsistent(read))
     return (
       <Notice title="内部项事实暂时不可安全读取">

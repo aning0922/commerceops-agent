@@ -3,7 +3,7 @@
 import type { DTO } from "./p3-present";
 import { P3Client } from "./p3-transport";
 import type { FetchTransport } from "./p3-transport";
-import { validItemDTO } from "./p3-item-contract";
+import { verifyReadResponse } from "./p3-live-client";
 export const offlineId = (number: number) =>
   `00000000-0000-4000-8000-${number.toString(16).padStart(12, "0")}`;
 export const offlineEnvelope = {
@@ -23,6 +23,8 @@ export const offlineScenarios = [
   "not_found",
   "terminal",
   "readonly",
+  "hidden_source",
+  "auth_changed",
 ] as const;
 export type OfflineScenario = (typeof offlineScenarios)[number];
 export function offlineSync(
@@ -125,6 +127,36 @@ export function offlineExecution(): DTO["ExecutionRead"] {
     sync: offlineSync("failed", 106),
   };
 }
+export function offlineTask(): DTO["TaskRead"] {
+  const execution = offlineExecution();
+  return {
+    ...offlineEnvelope,
+    task: {
+      task_id: execution.task_id,
+      shop_id: offlineId(101),
+      kind: "inventory_replenishment",
+      workflow_version: "p3-inventory-replenishment-v1",
+      state: "completed",
+      created_at: offlineEnvelope.server_time,
+      updated_at: offlineEnvelope.server_time,
+      outcome: "items_created",
+      sync: offlineSync("failed"),
+    },
+    source: null,
+    current_plan_id: execution.plan_id,
+    approval_id: execution.approval_id,
+    execution_id: execution.execution_id,
+    visible_item_ids: execution.item_ids,
+    actions: {
+      can_decide: false,
+      can_resolve: true,
+      can_start_new_cycle: false,
+      can_recompute: false,
+      disabled_reasons: ["RECOMPUTE_DISABLED"],
+    },
+    failure_code: null,
+  };
+}
 export function offlineSession(): DTO["SessionRead"] {
   return {
     ...offlineEnvelope,
@@ -134,11 +166,11 @@ export function offlineSession(): DTO["SessionRead"] {
       organization_id: offlineId(109),
       display_name: "离线DTO示例",
       auth_version: 1,
-      role_shop_grants: [{ role: "operator", shop_id: offlineId(101) }],
+      role_shop_grants: [{ role: "approver", shop_id: offlineId(101) }],
       capabilities: {
-        can_create_task: true,
+        can_create_task: false,
         can_read_tasks: true,
-        can_read_approvals: false,
+        can_read_approvals: true,
         can_resolve_items: true,
         can_read_operations: false,
         home_path: "/tasks",
@@ -191,7 +223,8 @@ export function createOfflineItemClient(
   if (!Number.isInteger(itemNumber) || itemNumber < 1 || itemNumber > 20)
     throw new Error("Fixed offline item required");
   let item = offlineItem(itemNumber),
-    firstPost = true;
+    firstPost = true,
+    sessionReads = 0;
   const receipts = new Map<
     string,
     { body: string; receipt: DTO["ResolveReceipt"] }
@@ -220,16 +253,63 @@ export function createOfflineItemClient(
       visible_plan_id: null,
       disabled_reasons: ["ACCESS_DENIED"],
     };
+  if (scenario === "hidden_source")
+    item = { ...item, visible_source_task_id: null, visible_plan_id: null };
   const transport: FetchTransport = async (url, init) => {
     observer?.(
       init.method!,
       url.pathname,
       typeof init.body === "string" ? init.body : undefined,
     );
-    if (url.pathname === "/api/v1/auth/session")
-      return response(offlineSession());
-    if (url.pathname === "/api/v1/replenishment-items")
-      return response(offlineItemList());
+    if (url.pathname === "/api/v1/auth/session") {
+      sessionReads++;
+      const session = offlineSession();
+      return response(
+        scenario === "auth_changed" && sessionReads > 1
+          ? {
+              ...session,
+              principal: { ...session.principal, principal_id: offlineId(200) },
+            }
+          : session,
+      );
+    }
+    if (
+      url.pathname === "/api/v1/config" &&
+      url.searchParams.get("shop_id") === offlineId(101)
+    )
+      return response({
+        ...offlineEnvelope,
+        shop_id: offlineId(101),
+        config: offlineSession().config,
+      });
+    if (url.pathname === "/api/v1/replenishment-items") {
+      const state = url.searchParams.get("state");
+      const all = offlineItemList().items.map((row) =>
+        row.item_id === item.item.item_id ? item.item : row,
+      );
+      const filtered = state ? all.filter((row) => row.state === state) : all;
+      return response({
+        ...offlineItemList(),
+        items: filtered,
+        total: filtered.length,
+        counts: {
+          open: filtered.filter((row) => row.state === "open").length,
+          completed: filtered.filter((row) => row.state === "completed").length,
+          closed: filtered.filter((row) => row.state === "closed").length,
+        },
+      });
+    }
+    if (url.pathname === `/api/v1/tasks/${offlineId(102)}`)
+      return scenario === "hidden_source"
+        ? failure("RESOURCE_NOT_FOUND", 404)
+        : response(offlineTask());
+    if (url.pathname === `/api/v1/tasks/${offlineId(102)}/events`)
+      return response({
+        ...offlineEnvelope,
+        items: [],
+        as_of: offlineEnvelope.server_time,
+        next_cursor: null,
+      });
     if (url.pathname === `/api/v1/tasks/${offlineId(102)}/execution`)
       return response(offlineExecution());
     if (url.pathname === `/api/v1/replenishment-items/${offlineId(itemNumber)}`)
@@ -292,21 +372,6 @@ export function createOfflineItemClient(
     origin: "https://offline.invalid",
     transport,
     onSessionInvalidated: invalidate,
-    verifyResponse: (method, path, status, value) => {
-      if (status >= 400) return validItemDTO("Error", value);
-      const name =
-        path === "/api/v1/auth/session"
-          ? "SessionRead"
-          : path === "/api/v1/replenishment-items"
-            ? "ItemList"
-            : path.endsWith("/execution")
-              ? "ExecutionRead"
-              : path.endsWith("/resolve")
-                ? "ResolveReceipt"
-                : path.startsWith("/api/v1/requests/")
-                  ? "RequestRead"
-                  : "ItemRead";
-      return validItemDTO(name, value);
-    },
+    verifyResponse: verifyReadResponse,
   });
 }
