@@ -1,5 +1,7 @@
 # Phase 3 合同验收映射 v1
 
+当前A01作者实际结果见[PHASE3_A01](../PHASE3_A01.md)；下表保留首批测试设计与当时not_run快照，独审/精确CI/Root业务Gate须另核实际回执。
+
 状态：测试设计；除 [首批交付](p3-contract-delivery.md) 的实际合同检查外，下表业务/PG/Web Gate **全部 not_run**。本文件不把既有Phase1/2实跑记成Phase3通过。依据 [#33](https://github.com/aning0922/commerceops-agent/issues/33)、[#34](https://github.com/aning0922/commerceops-agent/issues/34)、[TEST_PLAN](../TEST_PLAN.md) 和 [Web合同](p3-web-v1.md)。A的独立Review由总控安排，A自检不是独审。
 
 | 批次 / Gate | 必要断言 | 计划证据 |

@@ -1,0 +1,85 @@
+{
+  "evidence_kind": "initial_owned_0004_to_0005_migration",
+  "source_mode": "mock",
+  "database_owner": "phase3-A-WT62c8",
+  "revision": "0005_p3_approval",
+  "table_count": 9,
+  "unchanged": true,
+  "before": {
+    "business.business_tasks": {
+      "row_count": 2,
+      "sha256": "95134b3d81fcaa470f06006995d6333e03597e50f086088eec65335550ef5aa0"
+    },
+    "business.commerce_snapshots": {
+      "row_count": 1,
+      "sha256": "05d7bc09ccc1f965bdb21f99e994d35c0168d3bb514eb03fb878fb7a451b39f6"
+    },
+    "business.snapshot_products": {
+      "row_count": 1,
+      "sha256": "e8d12e70fddc31451493261bdcc7444f68f8630cf6506d7dfcc6f499962a506e"
+    },
+    "business.snapshot_order_lines": {
+      "row_count": 1,
+      "sha256": "5fa59b890e34f6b067bcccb114d790782ca49c229a3f002bad18c27a96e8642e"
+    },
+    "business.snapshot_refunds": {
+      "row_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "business.analysis_reports": {
+      "row_count": 1,
+      "sha256": "195e52f67abbd0437406090074bcef42d1c79db55b814b61a8409e9f46c730bd"
+    },
+    "checkpoints.checkpoints": {
+      "row_count": 3,
+      "sha256": "936a4aa5fc5a6bfa2fef240890809c19287f5e901f57066ea444d6ccbe71bf28"
+    },
+    "checkpoints.checkpoint_blobs": {
+      "row_count": 1,
+      "sha256": "d75045d483de4cd58131c32db532b19e80645d3e1ccd50f2fbbfc066203aaefd"
+    },
+    "checkpoints.checkpoint_writes": {
+      "row_count": 5,
+      "sha256": "d09fe52db619b9d5e1a01f76ef20d2bf3d152063577989ecd14eceafd9a12498"
+    }
+  },
+  "after": {
+    "business.business_tasks": {
+      "row_count": 2,
+      "sha256": "95134b3d81fcaa470f06006995d6333e03597e50f086088eec65335550ef5aa0"
+    },
+    "business.commerce_snapshots": {
+      "row_count": 1,
+      "sha256": "05d7bc09ccc1f965bdb21f99e994d35c0168d3bb514eb03fb878fb7a451b39f6"
+    },
+    "business.snapshot_products": {
+      "row_count": 1,
+      "sha256": "e8d12e70fddc31451493261bdcc7444f68f8630cf6506d7dfcc6f499962a506e"
+    },
+    "business.snapshot_order_lines": {
+      "row_count": 1,
+      "sha256": "5fa59b890e34f6b067bcccb114d790782ca49c229a3f002bad18c27a96e8642e"
+    },
+    "business.snapshot_refunds": {
+      "row_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "business.analysis_reports": {
+      "row_count": 1,
+      "sha256": "195e52f67abbd0437406090074bcef42d1c79db55b814b61a8409e9f46c730bd"
+    },
+    "checkpoints.checkpoints": {
+      "row_count": 3,
+      "sha256": "936a4aa5fc5a6bfa2fef240890809c19287f5e901f57066ea444d6ccbe71bf28"
+    },
+    "checkpoints.checkpoint_blobs": {
+      "row_count": 1,
+      "sha256": "d75045d483de4cd58131c32db532b19e80645d3e1ccd50f2fbbfc066203aaefd"
+    },
+    "checkpoints.checkpoint_writes": {
+      "row_count": 5,
+      "sha256": "d09fe52db619b9d5e1a01f76ef20d2bf3d152063577989ecd14eceafd9a12498"
+    }
+  },
+  "final_source_proof": "tests/test_p3_migration_pg.py independently executes latest migration against fresh real completed P2 and checks nine tables"
+}

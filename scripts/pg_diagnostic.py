@@ -8,6 +8,7 @@ import subprocess
 import sys
 import threading
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
@@ -17,6 +18,79 @@ from scripts.prepare_pg import prepare
 
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("test_postgres", "test_worker_pg", "test_checkpoint_pg", "test_feishu_postgres")
+
+
+def collected_nodes(records: list[dict[str, object]]) -> list[str]:
+    collections = []
+    for record in records:
+        data = record.get("data")
+        if record.get("event") == "pytest_progress" and isinstance(data, dict):
+            if data.get("event") == "collection":
+                collections.append(data)
+    if len(collections) != 1:
+        raise RuntimeError("one complete integration collection required")
+    data = collections[0]
+    nodes = data.get("nodes")
+    if not isinstance(nodes, list) or not nodes or type(data.get("count")) is not int:
+        raise RuntimeError("invalid integration collection")
+    result: list[str] = []
+    for node in nodes:
+        if not isinstance(node, str):
+            raise RuntimeError("invalid integration node")
+        path, separator, _ = node.partition("::")
+        if (
+            not separator
+            or not path.startswith("tests/")
+            or not path.endswith(".py")
+            or ".." in path.split("/")
+            or "\\" in path
+        ):
+            raise RuntimeError("invalid integration node path")
+        result.append(node)
+    if data["count"] != len(result) or len(set(result)) != len(result):
+        raise RuntimeError("integration collection count or uniqueness mismatch")
+    return result
+
+
+def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
+    phase3 = [node for node in nodes if node.split("::", 1)[0].startswith("tests/test_p3")]
+    if not phase3:
+        return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
+    phase3_set = set(phase3)
+    existing = [node for node in nodes if node not in phase3_set]
+    return {
+        label: group
+        for label, group in (("combined-existing", existing), ("combined-phase3", phase3))
+        if group
+    }
+
+
+def run_combined(
+    records: list[dict[str, object]],
+    report: dict[str, object],
+    test_command: Callable[[str, list[str], float], bool],
+) -> None:
+    expected = collected_nodes(records)
+    groups = combined_groups(expected)
+    flattened = [node for group in groups.values() for node in group]
+    if (
+        not groups
+        or any(not group for group in groups.values())
+        or len(flattened) != len(set(flattened))
+        or set(flattened) != set(expected)
+    ):
+        raise RuntimeError("combined integration coverage mismatch")
+    report["combined_counts"] = {label: len(group) for label, group in groups.items()}
+    for label, group in groups.items():
+        report["failed_target"] = label
+        start = len(records)
+        paths = [] if label == "combined" else sorted({node.split("::", 1)[0] for node in group})
+        # 仍使用main的同一expires-75预算；不重置absolute deadline或放宽单命令300s。
+        if not test_command(label, paths, 300):
+            raise RuntimeError("combined integration group failed")
+        if set(collected_nodes(records[start:])) != set(group):
+            raise RuntimeError("actual integration group collection mismatch")
+    report.pop("failed_target", None)
 
 
 def main() -> None:
@@ -401,9 +475,7 @@ def main() -> None:
         if not tests("collection", paths, 30, collect=True):
             raise RuntimeError("collection failed")
         if args.combined:
-            if not tests("combined", [], 300):
-                report["failed_target"] = "combined"
-                raise RuntimeError("combined failed")
+            run_combined(records, report, tests)
         elif args.node:
             for index, node in enumerate(args.node):
                 if not tests("node-" + str(index), [node], 90):

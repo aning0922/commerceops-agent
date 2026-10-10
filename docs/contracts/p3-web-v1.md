@@ -1,5 +1,7 @@
 # Phase 3 Web、身份与业务接口合同 v1
 
+当前A01实现/实际验证与未实现端点见[PHASE3_A01](../PHASE3_A01.md)；以下首批候选状态为历史快照，完整合同仍约束A02/A03，不代表所有端点已运行。
+
 状态：A 首批合同候选，待总控安排冻结 SHA 独立审核；接口尚未实现。本文件和 [OpenAPI](p3-openapi.json) 是 B typed client 的候选输入，审核冻结前只能做醒目标识的 Mock，不能接正式操作。
 
 2026-10-10（Asia/Shanghai），基线 main `59b350cb719a9d2fed3f68b1ee598fa0a9b97875`。本轮授权来自 [Issue #33](https://github.com/aning0922/commerceops-agent/issues/33)、[A #34](https://github.com/aning0922/commerceops-agent/issues/34) 及总控直接派单；旧文件的“Phase3 未授权”是历史。A 负责本合同、后端和迁移；B 负责 frontend、npm lock 与 Web E2E；共享 CI/Compose/scripts/阶段文档经总控协调。没有通用 RBAC、新调度器、外部采购/库存改动、付费模型调用、飞书业务写入、生产部署或 Phase4 实施。

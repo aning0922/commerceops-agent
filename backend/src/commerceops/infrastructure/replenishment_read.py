@@ -1,0 +1,697 @@
+"""P3受scope约束的只读投影；列表页和计数来自同一SQL快照。"""
+
+import base64
+import hmac
+import json
+from typing import Any
+from uuid import UUID
+
+from commerceops.application.replenishment.contracts import TASK_KIND, WebActor, WebFailure
+from commerceops.domain.commerce_values import canonical_bytes, utc_time
+from commerceops.infrastructure.database import connect
+from commerceops.infrastructure.inventory_repository import _stored
+from commerceops.infrastructure.replenishment_repository import (
+    SOURCE_SQL,
+    ReplenishmentStore,
+    has_capability,
+    source_binding,
+    visible_task,
+)
+from commerceops.infrastructure.web_sessions import (
+    DB,
+    actor_guard,
+    deployment,
+    envelope,
+    now,
+    role_scope,
+)
+
+STATES = (
+    "queued",
+    "analyzing",
+    "awaiting_approval",
+    "executing",
+    "completed",
+    "rejected",
+    "expired",
+    "needs_reapproval",
+    "failed",
+    "needs_attention",
+)
+
+
+class ReplenishmentReadStore:
+    def __init__(self, store: ReplenishmentStore):
+        self.store, self.config, self.settings = store, store.config, store.settings
+
+    async def explanation(self, actor: WebActor, task_id: UUID, report_id: UUID) -> dict[str, Any]:
+        from commerceops.application.commerce.explanation_task import (
+            ExplanationTaskRequest,
+            logical_key,
+        )
+        from commerceops.infrastructure.explanation_repository import (
+            ExplanationStore,
+            payload,
+            validated_row,
+        )
+
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            task = visible_task(db, actor, task_id)
+            source = self._source(db, task)
+            if not source or source["id"] != report_id:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            row = db.execute(
+                """SELECT e.*,t.normalized_request FROM business.model_explanations e
+            JOIN business.explanation_links l ON l.child_task_id=e.child_task_id
+            JOIN business.business_tasks t ON t.id=e.child_task_id
+            JOIN business.explanation_task_results x ON x.child_task_id=t.id AND x.result_id=e.id
+            WHERE e.organization_id=%s AND e.shop_id=%s AND e.parent_task_id=%s
+            AND l.requester_id=%s AND e.report_id=%s AND e.facts_hash=%s
+            ORDER BY e.created_at DESC,e.id DESC LIMIT 1""",
+                (
+                    actor.organization_id,
+                    task["shop_id"],
+                    source["task_id"],
+                    source["requester_id"],
+                    report_id,
+                    source["facts_hash"],
+                ),
+            ).fetchone()
+            if not row:
+                raise WebFailure("NOT_READY")
+            req = ExplanationTaskRequest.model_validate_json(json.dumps(row["normalized_request"]))
+            expected = logical_key(
+                actor.organization_id,
+                task["shop_id"],
+                source["requester_id"],
+                source["task_id"],
+                report_id,
+                source["facts_hash"],
+                req.body_hash,
+                req.evidence_mode,
+            )
+            if req.logical_key != expected:
+                raise WebFailure("NOT_READY")
+            result = validated_row(row, req, actor.organization_id, task["shop_id"])
+            await ExplanationStore.verify(
+                result, _stored(source, source["normalized_request"]).report, req
+            )
+            return envelope(
+                db,
+                task_id=task_id,
+                report_id=report_id,
+                explanation={
+                    "schema_version": "p204-read-v1",
+                    "analysis_only": True,
+                    "execution_available": False,
+                    "identity_mode": "simulated",
+                    "task_id": str(source["task_id"]),
+                    "explanation_id": str(row["id"]),
+                    "child_task_id": str(row["child_task_id"]),
+                    "result": payload(result),
+                },
+            )
+
+    def cursor(
+        self,
+        actor: WebActor,
+        endpoint: str,
+        filters: object,
+        last: dict[str, Any],
+        order: str = "created_at-desc/id-desc",
+    ) -> str:
+        claims = [
+            str(actor.organization_id),
+            str(actor.principal_id),
+            actor.auth_version,
+            endpoint,
+            filters,
+            order,
+            utc_time(last["created_at"]),
+            str(last["id"]),
+        ]
+        body = canonical_bytes(claims)
+        signature = hmac.digest(self.config.nonce_secret, b"p3-cursor-v1\x00" + body, "sha256")
+        return base64.urlsafe_b64encode(body + signature).decode().rstrip("=")
+
+    def page_after(
+        self,
+        actor: WebActor,
+        endpoint: str,
+        filters: object,
+        cursor: str | None,
+        order: str = "created_at-desc/id-desc",
+    ) -> tuple[Any, UUID | None]:
+        if cursor is None:
+            return None, None
+        try:
+            if len(cursor) > 2048:
+                raise ValueError
+            raw = base64.b64decode(cursor + "=" * (-len(cursor) % 4), altchars=b"-_", validate=True)
+            body, signature = raw[:-32], raw[-32:]
+            expected = hmac.digest(self.config.nonce_secret, b"p3-cursor-v1\x00" + body, "sha256")
+            if not hmac.compare_digest(signature, expected):
+                raise ValueError
+            claims = json.loads(body)
+            binding = [
+                str(actor.organization_id),
+                str(actor.principal_id),
+                actor.auth_version,
+                endpoint,
+                filters,
+                order,
+            ]
+            if (
+                type(claims) is not list
+                or len(claims) != 8
+                or claims[:6] != binding
+                or type(claims[2]) is not int
+            ):
+                raise ValueError
+            return utc_time(claims[6]), UUID(claims[7])
+        except (ValueError, TypeError, UnicodeError):
+            raise WebFailure("INVALID_CURSOR", 400) from None
+
+    @staticmethod
+    def _business(db: DB, actor: WebActor) -> None:
+        if not has_capability(db, actor, "operator") and not has_capability(db, actor, "approver"):
+            raise WebFailure("ACCESS_DENIED", 403)
+
+    @staticmethod
+    def _sync(db: DB, task: UUID) -> dict[str, Any]:
+        rows = db.execute(
+            "SELECT * FROM business.outbox WHERE task_id=%s ORDER BY created_at,id", (task,)
+        ).fetchall()
+        projections = []
+        states = []
+        for row in rows:
+            state = (
+                "synced"
+                if row["status"] == "sent" and row["external_id"]
+                else "unknown"
+                if row["status"] == "unknown"
+                else "failed"
+                if row["status"] == "dead"
+                else "pending"
+            )
+            states.append(state)
+            projections.append(
+                {
+                    "aggregate_id": row["aggregate_id"],
+                    "projection_version": row["aggregate_version"],
+                    "outbox_status": row["status"],
+                    "state": state,
+                    "source_mode": "mock",
+                    "as_of": row["created_at"],
+                    "error_code": row["last_error"],
+                }
+            )
+        summary = next(
+            (state for state in ("unknown", "failed", "pending", "synced") if state in states),
+            "not_requested",
+        )
+        return {"state": summary, "sender_enabled": False, "projections": projections}
+
+    def _summary(self, db: DB, task: dict[str, Any]) -> dict[str, Any]:
+        outcome = None
+        if task["state"] == "completed":
+            if task["kind"] == TASK_KIND:
+                outcome = "no_action" if not task["active_plan_id"] else "items_created"
+            else:
+                report = db.execute(
+                    "SELECT outcome FROM business.analysis_reports WHERE task_id=%s", (task["id"],)
+                ).fetchone()
+                outcome = report["outcome"] if report else None
+        return {
+            "task_id": task["id"],
+            "shop_id": task["shop_id"],
+            "kind": task["kind"],
+            "workflow_version": task["workflow_version"],
+            "state": task["state"],
+            "created_at": utc_time(task["created_at"]),
+            "updated_at": utc_time(task["updated_at"]),
+            "outcome": outcome,
+            "sync": self._sync(db, task["id"]),
+        }
+
+    @staticmethod
+    def _source(db: DB, task: dict[str, Any]) -> dict[str, Any] | None:
+        source_id = task["id"]
+        if task["kind"] == TASK_KIND:
+            binding = db.execute(
+                "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task["id"],)
+            ).fetchone()
+            if not binding:
+                raise WebFailure("NOT_READY")
+            source_id = binding["source_task_id"]
+        return db.execute(
+            SOURCE_SQL, (source_id, task["organization_id"], task["shop_id"])
+        ).fetchone()
+
+    def read_task(self, actor: WebActor, task_id: UUID) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            task = visible_task(db, actor, task_id)
+            source = self._source(db, task)
+            approval = db.execute(
+                "SELECT id FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
+            ).fetchone()
+            return envelope(
+                db,
+                task=self._summary(db, task),
+                source=source_binding(source) if source else None,
+                current_plan_id=task["active_plan_id"],
+                approval_id=approval["id"] if approval else None,
+                execution_id=None,
+                visible_item_ids=[],
+                actions={
+                    "can_decide": False,
+                    "can_resolve": False,
+                    "can_start_new_cycle": task["state"] == "completed"
+                    and has_capability(db, actor, "operator"),
+                    "can_recompute": False,
+                    "disabled_reasons": ["DECISION_NOT_IMPLEMENTED", "RECOMPUTE_DISABLED"],
+                },
+                failure_code=task["failure_code"],
+            )
+
+    def report(
+        self, actor: WebActor, task_id: UUID, report_id: UUID | None = None
+    ) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            task = visible_task(db, actor, task_id)
+            row = self._source(db, task)
+            if not row:
+                raise WebFailure("NOT_READY")
+            if report_id and report_id != row["id"]:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            data = _stored(row, row["normalized_request"])
+            return envelope(
+                db,
+                task_id=task_id,
+                source=source_binding(row),
+                facts=data.report.model_dump(mode="json"),
+            )
+
+    def plan(self, actor: WebActor, task_id: UUID, version: int) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            visible_task(db, actor, task_id)
+            row = db.execute(
+                "SELECT * FROM business.replenishment_plans WHERE task_id=%s AND version=%s",
+                (task_id, version),
+            ).fetchone()
+            if not row:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            return envelope(
+                db,
+                plan=self._plan(row),
+                can_decide=False,
+                nonce=None,
+                disabled_reasons=["DECISION_NOT_IMPLEMENTED"],
+            )
+
+    @staticmethod
+    def _plan(row: dict[str, Any]) -> dict[str, Any]:
+        content = row["content"]
+        fields = (
+            "plan_id",
+            "task_id",
+            "plan_version",
+            "hash_version",
+            "source",
+            "currency",
+            "rule_version",
+            "parameters",
+            "config_version",
+            "expires_at",
+            "items",
+            "item_count",
+            "total_units",
+            "required_assumptions",
+            "hard_blocks",
+            "quality_flags",
+            "disclosure_complete",
+        )
+        return {
+            **{k: content[k] for k in fields},
+            "plan_hash": row["plan_hash"],
+            "status": row["status"],
+            "created_at": row["created_at"],
+        }
+
+    def approval(self, actor: WebActor, approval_id: UUID) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            row = db.execute(
+                "SELECT * FROM business.approvals WHERE id=%s AND organization_id=%s",
+                (approval_id, actor.organization_id),
+            ).fetchone()
+            if not row:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            visible_task(db, actor, row["task_id"])
+            plan = db.execute(
+                "SELECT * FROM business.replenishment_plans WHERE id=%s", (row["plan_id"],)
+            ).fetchone()
+            if not plan:
+                raise WebFailure("NOT_READY")
+            return envelope(
+                db,
+                approval={
+                    "approval_id": row["id"],
+                    "task_id": row["task_id"],
+                    "plan_id": row["plan_id"],
+                    "plan_version": row["plan_version"],
+                    "plan_hash": row["plan_hash"],
+                    "status": row["status"],
+                    "created_at": row["created_at"],
+                    "expires_at": row["expires_at"],
+                    "ready_at": row["ready_at"],
+                    "can_decide": False,
+                    "item_count": plan["content"]["item_count"],
+                    "total_units": plan["content"]["total_units"],
+                },
+                plan=self._plan(plan),
+                nonce=None,
+                decision=None,
+                disabled_reasons=["DECISION_NOT_IMPLEMENTED"],
+            )
+
+    def request(self, actor: WebActor, key: UUID, operation: str) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            actor_guard(db, actor)
+            row = db.execute(
+                """SELECT * FROM business.web_requests WHERE principal_id=%s
+            AND organization_id=%s AND operation=%s AND request_key=%s""",
+                (actor.principal_id, actor.organization_id, operation, key),
+            ).fetchone()
+            if not row:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            visible_task(db, actor, row["task_id"])
+            return envelope(
+                db,
+                request_key=key,
+                status="succeeded",
+                receipt={"operation": operation, "result": row["result"]},
+            )
+
+    def tasks(
+        self,
+        actor: WebActor,
+        limit: int = 20,
+        state: str | None = None,
+        kind: str | None = None,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        if type(limit) is not int or not 1 <= limit <= 100:
+            raise WebFailure("INVALID_REQUEST", 422)
+        if (
+            state
+            and state not in STATES
+            or kind
+            and kind not in (TASK_KIND, "inventory_analysis_only")
+        ):
+            raise WebFailure("INVALID_FILTER", 400)
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            after, after_id = self.page_after(actor, "tasks", [state, kind], cursor)
+            # 一个SELECT提供filtered rows/total/counts；没有先查全店数再隐藏行。
+            row = db.execute(
+                """WITH visible AS MATERIALIZED (
+            SELECT t.* FROM business.business_tasks t WHERE t.organization_id=%s
+            AND t.kind IN ('inventory_analysis_only','inventory_replenishment') AND EXISTS(
+            SELECT 1 FROM business.principal_role_shop_grants g
+            JOIN business.principal_shop_scopes s ON s.organization_id=g.organization_id
+            AND s.shop_id=g.shop_id AND s.principal_id=g.principal_id
+            JOIN business.principals p ON p.id=g.principal_id
+            AND p.organization_id=g.organization_id
+            WHERE g.principal_id=%s AND g.organization_id=t.organization_id AND g.shop_id=t.shop_id
+            AND g.enabled AND s.enabled AND p.enabled AND g.role=ANY(p.roles)
+            AND ((g.role='operator' AND t.requester_id=p.id) OR (g.role='approver'
+            AND t.kind='inventory_replenishment' AND EXISTS(SELECT 1 FROM business.approvals a
+            WHERE a.task_id=t.id AND p.id=ANY(a.eligible_principal_ids)))))),
+            filtered AS MATERIALIZED(SELECT * FROM visible WHERE (%s::text IS NULL OR state=%s)
+            AND (%s::text IS NULL OR kind=%s)) SELECT
+            (SELECT COALESCE(jsonb_agg(to_jsonb(page)),'[]'::jsonb) FROM
+             (SELECT * FROM filtered WHERE (%s::timestamptz IS NULL OR (created_at,id)<(%s,%s))
+             ORDER BY created_at DESC,id DESC LIMIT %s) page) AS items,
+            (SELECT count(*) FROM filtered) AS total,
+            (SELECT COALESCE(jsonb_object_agg(state,n),'{}'::jsonb)
+             FROM (SELECT state,count(*) AS n FROM filtered GROUP BY state) c) AS counts,
+            clock_timestamp() AS as_of""",
+                (
+                    actor.organization_id,
+                    actor.principal_id,
+                    state,
+                    state,
+                    kind,
+                    kind,
+                    after,
+                    after,
+                    after_id,
+                    limit + 1,
+                ),
+            ).fetchone()
+            if not row:
+                raise WebFailure("SERVICE_UNAVAILABLE", 503)
+            items = row["items"][:limit]
+            next_cursor = (
+                self.cursor(actor, "tasks", [state, kind], items[-1])
+                if len(row["items"]) > limit
+                else None
+            )
+            summaries = []
+            for item in items:
+                item["id"], item["shop_id"] = UUID(item["id"]), UUID(item["shop_id"])
+                summaries.append(self._summary(db, item))
+            return envelope(
+                db,
+                items=summaries,
+                total=row["total"],
+                counts={s: row["counts"].get(s, 0) for s in STATES},
+                as_of=row["as_of"],
+                next_cursor=next_cursor,
+            )
+
+    def config_read(self, actor: WebActor, shop: UUID) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            if not any(role_scope(db, actor, shop, role) for role in ("operator", "approver")):
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            row = db.execute(
+                "SELECT timezone FROM business.shops WHERE id=%s AND organization_id=%s",
+                (shop, actor.organization_id),
+            ).fetchone()
+            if not row:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            return envelope(db, shop_id=shop, config=deployment(self.config, row["timezone"]))
+
+    def operations(self, actor: WebActor) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            if not has_capability(db, actor, "admin"):
+                raise WebFailure("ACCESS_DENIED", 403)
+            return envelope(
+                db,
+                config_version=self.config.config_version,
+                transport_mode=self.config.transport_mode,
+                worker_state="unknown",
+                graph_concurrency_limit=1,
+                external_sender_enabled=False,
+                recovery_scan_seconds=self.config.recovery_scan_seconds,
+                approval_ttl_seconds=self.config.approval_ttl_seconds,
+                revalidation_max_age_seconds=self.config.revalidation_max_age_seconds,
+            )
+
+    def plans(
+        self, actor: WebActor, task_id: UUID, limit: int = 20, cursor: str | None = None
+    ) -> dict[str, Any]:
+        if type(limit) is not int or not 1 <= limit <= 100:
+            raise WebFailure("INVALID_REQUEST", 422)
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            task = visible_task(db, actor, task_id)
+            after, after_id = self.page_after(actor, "plans", str(task_id), cursor)
+            row = db.execute(
+                """WITH all_versions AS MATERIALIZED (
+            SELECT * FROM business.replenishment_plans WHERE task_id=%s)
+            SELECT (SELECT count(*) FROM all_versions) AS total,
+            (SELECT COALESCE(jsonb_agg(to_jsonb(page)),'[]'::jsonb) FROM (
+             SELECT * FROM all_versions WHERE (%s::timestamptz IS NULL OR (created_at,id)<(%s,%s))
+             ORDER BY created_at DESC,id DESC LIMIT %s) page) AS items,
+             clock_timestamp() AS as_of""",
+                (task_id, after, after, after_id, limit + 1),
+            ).fetchone()
+            if not row:
+                raise WebFailure("SERVICE_UNAVAILABLE", 503)
+            page = row["items"][:limit]
+            summaries = []
+            for item in page:
+                summaries.append(
+                    {
+                        "plan_id": item["id"],
+                        "task_id": str(task_id),
+                        "plan_version": item["version"],
+                        "plan_hash": item["plan_hash"],
+                        "status": item["status"],
+                        "created_at": item["created_at"],
+                        "expires_at": item["expires_at"],
+                        "item_count": item["content"]["item_count"],
+                        "total_units": item["content"]["total_units"],
+                    }
+                )
+            current = db.execute(
+                "SELECT version FROM business.replenishment_plans WHERE id=%s",
+                (task["active_plan_id"],),
+            ).fetchone()
+            return envelope(
+                db,
+                items=summaries,
+                current_plan_version=current["version"] if current else None,
+                total=row["total"],
+                as_of=row["as_of"],
+                next_cursor=self.cursor(actor, "plans", str(task_id), page[-1])
+                if len(row["items"]) > limit
+                else None,
+            )
+
+    def events(
+        self, actor: WebActor, task_id: UUID, limit: int = 20, cursor: str | None = None
+    ) -> dict[str, Any]:
+        if type(limit) is not int or not 1 <= limit <= 100:
+            raise WebFailure("INVALID_REQUEST", 422)
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            visible_task(db, actor, task_id)
+            order = "occurred_at-asc/event_id-asc"
+            after, after_id = self.page_after(actor, "events", str(task_id), cursor, order)
+            rows = db.execute(
+                """SELECT * FROM business.audit_events WHERE task_id=%s
+            AND organization_id=%s AND source IN ('replenishment','inventory_analysis')
+            AND (%s::timestamptz IS NULL OR (occurred_at,id)>(%s,%s))
+            ORDER BY occurred_at,id LIMIT %s""",
+                (task_id, actor.organization_id, after, after, after_id, limit + 1),
+            ).fetchall()
+            labels = {
+                "workflow_created": "正式工作流已创建",
+                "approval_prepared": "不可变计划与审批意图已保存",
+                "analysis_started": "来源分析开始",
+                "analysis_report_saved": "来源报告已保存",
+                "analysis_failed": "来源分析失败",
+            }
+            page = rows[:limit]
+            items = [
+                {
+                    "event_id": r["id"],
+                    "occurred_at": r["occurred_at"],
+                    "action": r["action"],
+                    "step": None,
+                    "duration_ms": None,
+                    "result_ref": None,
+                    "safe_summary": labels.get(r["action"], "业务记录已保存"),
+                    "recovery": None,
+                }
+                for r in page
+            ]
+            last = {"created_at": page[-1]["occurred_at"], "id": page[-1]["id"]} if page else None
+            return envelope(
+                db,
+                items=items,
+                as_of=now(db),
+                next_cursor=self.cursor(actor, "events", str(task_id), last, order)
+                if len(rows) > limit and last
+                else None,
+            )
+
+    def approvals(
+        self,
+        actor: WebActor,
+        limit: int = 20,
+        state: str | None = None,
+        view: str = "visible",
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        statuses = ("pending", "approved", "rejected", "expired", "superseded")
+        if type(limit) is not int or not 1 <= limit <= 100:
+            raise WebFailure("INVALID_REQUEST", 422)
+        if state and state not in statuses or view not in ("visible", "mine", "history"):
+            raise WebFailure("INVALID_FILTER", 400)
+        with connect(self.settings) as db:
+            self._business(db, actor)
+            after, after_id = self.page_after(actor, "approvals", [state, view], cursor)
+            row = db.execute(
+                """WITH visible AS MATERIALIZED (
+            SELECT a.*,p.content,p.status AS plan_status,t.active_plan_id FROM business.approvals a
+            JOIN business.replenishment_plans p ON p.id=a.plan_id
+            JOIN business.business_tasks t ON t.id=a.task_id
+            WHERE a.organization_id=%s AND EXISTS(
+            SELECT 1 FROM business.principal_role_shop_grants g
+            JOIN business.principal_shop_scopes s ON s.organization_id=g.organization_id
+            AND s.shop_id=g.shop_id AND s.principal_id=g.principal_id
+            JOIN business.principals principal ON principal.id=g.principal_id
+            WHERE g.organization_id=a.organization_id AND g.shop_id=a.shop_id AND g.principal_id=%s
+            AND g.enabled AND s.enabled AND principal.enabled AND g.role=ANY(principal.roles)
+            AND ((g.role='operator' AND t.requester_id=g.principal_id)
+            OR (g.role='approver' AND g.principal_id=ANY(a.eligible_principal_ids))))),
+            filtered AS MATERIALIZED (SELECT * FROM visible WHERE (%s::text IS NULL OR status=%s)
+            AND (%s<>'history' OR status<>'pending') AND (%s<>'mine' OR
+            (status='pending' AND plan_status='current' AND active_plan_id=plan_id
+            AND expires_at>clock_timestamp() AND %s=ANY(eligible_principal_ids)
+            AND EXISTS(SELECT 1 FROM business.principal_role_shop_grants g
+            JOIN business.principals ap ON ap.id=g.principal_id
+            WHERE g.principal_id=%s AND g.role='approver' AND g.shop_id=visible.shop_id
+            AND g.organization_id=visible.organization_id AND g.enabled
+            AND 'approver'=ANY(ap.roles)))))
+            SELECT (SELECT count(*) FROM filtered) AS total,
+            (SELECT COALESCE(jsonb_agg(to_jsonb(page)),'[]'::jsonb) FROM (
+             SELECT * FROM filtered WHERE (%s::timestamptz IS NULL OR (created_at,id)<(%s,%s))
+             ORDER BY created_at DESC,id DESC LIMIT %s) page) AS items,
+            (SELECT COALESCE(jsonb_object_agg(status,n),'{}'::jsonb)
+             FROM (SELECT status,count(*) AS n FROM filtered GROUP BY status) c) AS counts,
+            clock_timestamp() AS as_of""",
+                (
+                    actor.organization_id,
+                    actor.principal_id,
+                    state,
+                    state,
+                    view,
+                    view,
+                    actor.principal_id,
+                    actor.principal_id,
+                    after,
+                    after,
+                    after_id,
+                    limit + 1,
+                ),
+            ).fetchone()
+            if not row:
+                raise WebFailure("SERVICE_UNAVAILABLE", 503)
+            page = row["items"][:limit]
+            items = [
+                {
+                    "approval_id": r["id"],
+                    "task_id": r["task_id"],
+                    "plan_id": r["plan_id"],
+                    "plan_version": r["plan_version"],
+                    "plan_hash": r["plan_hash"],
+                    "status": r["status"],
+                    "created_at": r["created_at"],
+                    "expires_at": r["expires_at"],
+                    "ready_at": r["ready_at"],
+                    "can_decide": False,
+                    "item_count": r["content"]["item_count"],
+                    "total_units": r["content"]["total_units"],
+                }
+                for r in page
+            ]
+            return envelope(
+                db,
+                items=items,
+                total=row["total"],
+                as_of=row["as_of"],
+                counts={s: row["counts"].get(s, 0) for s in statuses},
+                next_cursor=self.cursor(actor, "approvals", [state, view], page[-1])
+                if len(row["items"]) > limit
+                else None,
+            )
