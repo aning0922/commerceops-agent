@@ -10,6 +10,7 @@ import subprocess
 import sys
 import threading
 from dataclasses import dataclass, field, replace
+from datetime import timedelta
 from pathlib import Path
 from typing import Any, cast
 from uuid import UUID, uuid4
@@ -39,13 +40,84 @@ ORIGIN = "http://127.0.0.1"
 
 
 class ControlledP3Factory:
-    """私有测试进程固定两种声明Mock变体，不是API参数/路径扩权。"""
+    """私有测试进程声明Mock变体；不是API参数、客户端改库存或路径扩权。"""
 
     def __init__(self, mode: str):
-        assert mode in ("long_sku", "two_unknown")
+        assert mode in (
+            "long_sku",
+            "two_unknown",
+            "stock_change",
+            "demand_change",
+            "null_to_known",
+            "hard_quality",
+            "time_only",
+        )
         self.mode = mode
 
     def __call__(self, request: Any) -> InventoryCollector:
+        if self.mode in ("long_sku", "two_unknown") and request.fixture_case != "unknown_inbound":
+            return MockCollectorFactory(DIRECTORY)(request)
+        if self.mode not in ("long_sku", "two_unknown"):
+            base = Fixture.load(
+                DIRECTORY, "unknown_inbound" if self.mode == "null_to_known" else "baseline"
+            )
+            provenance = base.source.provenance.model_copy(
+                update={
+                    "captured_at": base.now + timedelta(seconds=1),
+                    "raw_hash": facts_hash({"controlled_revalidation": self.mode}),
+                }
+            )
+            source = base.source.model_copy(update={"provenance": provenance})
+            fresh_products = tuple(
+                row.model_copy(update={"source": provenance}) for row in base.products
+            )
+            fresh_orders = tuple(
+                row.model_copy(update={"source": provenance}) for row in base.orders
+            )
+            refunds = tuple(row.model_copy(update={"source": provenance}) for row in base.refunds)
+            fresh_stocks = tuple(
+                row.model_copy(
+                    update={"source": provenance, "observed_at": base.now + timedelta(seconds=1)}
+                )
+                for row in base.inventories
+            )
+            if self.mode == "stock_change":
+                fresh_stocks = (
+                    fresh_stocks[0].model_copy(update={"available_stock": 30}),
+                    *fresh_stocks[1:],
+                )
+            elif self.mode == "demand_change":
+                fresh_orders = (
+                    fresh_orders[0].model_copy(update={"quantity": 77}),
+                    *fresh_orders[1:],
+                )
+            elif self.mode == "null_to_known":
+                fresh_stocks = (
+                    fresh_stocks[0].model_copy(
+                        update={
+                            "inbound_units": 0,
+                            "inbound_reason": None,
+                            "inbound_quality": "reliable",
+                        }
+                    ),
+                    *fresh_stocks[1:],
+                )
+            elif self.mode == "hard_quality":
+                fresh_stocks = (
+                    fresh_stocks[0].model_copy(
+                        update={"available_stock": None, "stock_reason": "UNKNOWN_STOCK"}
+                    ),
+                    *fresh_stocks[1:],
+                )
+            changed = replace(
+                base,
+                source=source,
+                products=fresh_products,
+                orders=fresh_orders,
+                refunds=refunds,
+                inventories=fresh_stocks,
+            )
+            return InventoryCollector(MockCommerce(changed), source, base.now)
         base = Fixture.load(DIRECTORY, "unknown_inbound")
         version = "p3-owned-" + self.mode + "-v1"
         provenance = base.source.provenance.model_copy(
@@ -256,7 +328,9 @@ async def run_graphs(
         InventoryStore(f.config.database, session), factory or MockCollectorFactory(DIRECTORY)
     )
     approval = ApprovalRunner(
-        ApprovalStore(f.config, session, hook=store_hook), **({"hook": hook} if hook else {})
+        ApprovalStore(f.config, session, hook=store_hook),
+        collector_factory=factory or MockCollectorFactory(DIRECTORY),
+        **({"hook": hook} if hook else {}),
     )
 
     class Router:
@@ -330,6 +404,7 @@ class P3Process:
             bufsize=1,
         )
         self.events: queue.Queue[dict[str, Any]] = queue.Queue()
+        self.history: list[dict[str, Any]] = []
         self.thread = threading.Thread(target=self._read, daemon=True)
         self.thread.start()
 
@@ -357,7 +432,9 @@ class P3Process:
     def _read(self) -> None:
         assert self.process.stdout
         for line in self.process.stdout:
-            self.events.put(json.loads(line))
+            event = json.loads(line)
+            self.history.append(event)
+            self.events.put(event)
 
     def until(self, event: str) -> dict[str, Any]:
         for _ in range(50):

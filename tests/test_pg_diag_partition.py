@@ -17,7 +17,7 @@ def collection(nodes: list[str], **changes: object) -> dict[str, object]:
     }
 
 
-def test_all_collected_nodes_run_once_in_two_serial_bounded_commands() -> None:
+def test_all_collected_nodes_run_once_in_serial_bounded_module_commands() -> None:
     records = [collection(OLD + P3)]
     report: dict[str, object] = {}
     commands = []
@@ -31,10 +31,18 @@ def test_all_collected_nodes_run_once_in_two_serial_bounded_commands() -> None:
         return True
 
     pg_diagnostic.run_combined(records, report, command)
-    assert [label for label, _, _ in commands] == ["combined-existing", "combined-phase3"]
-    assert [cap for _, _, cap in commands] == [300, 300]
+    assert [label for label, _, _ in commands] == [
+        "combined-existing",
+        "combined-phase3-test_p3_migration_pg",
+        "combined-phase3-test_p3_pg",
+    ]
+    assert [cap for _, _, cap in commands] == [300, 300, 300]
     assert set(actual_nodes) == set(OLD + P3) and len(actual_nodes) == len(set(actual_nodes))
-    assert report["combined_counts"] == {"combined-existing": len(OLD), "combined-phase3": len(P3)}
+    assert report["combined_counts"] == {
+        "combined-existing": len(OLD),
+        "combined-phase3-test_p3_migration_pg": 1,
+        "combined-phase3-test_p3_pg": 1,
+    }
     assert "failed_target" not in report
 
 
@@ -155,8 +163,31 @@ def test_second_group_cannot_reset_shared_absolute_deadline(
     with pytest.raises(TimeoutError, match="absolute diagnostic deadline expired"):
         pg_diagnostic.run_combined(records, report, command)
     assert budgets == [275.0]
-    assert calls == ["combined-existing", "combined-phase3"]
-    assert report["failed_target"] == "combined-phase3"
+    assert calls == ["combined-existing", "combined-phase3-test_p3_migration_pg"]
+    assert report["failed_target"] == "combined-phase3-test_p3_migration_pg"
+
+
+def test_approval_and_future_execution_modules_follow_actual_collection_without_skips() -> None:
+    additions = [
+        "tests/test_p3_approval_pg.py::approval_case",
+        "tests/test_p3_execution_pg.py::execution_case",
+    ]
+    nodes = OLD + P3 + additions
+    groups = pg_diagnostic.combined_groups(nodes[::-1])
+    assert list(groups) == [
+        "combined-existing",
+        "combined-phase3-test_p3_approval_pg",
+        "combined-phase3-test_p3_execution_pg",
+        "combined-phase3-test_p3_migration_pg",
+        "combined-phase3-test_p3_pg",
+    ]
+    flattened = [node for group in groups.values() for node in group]
+    assert len(flattened) == len(nodes) and set(flattened) == set(nodes)
+    assert all(
+        len({node.split("::")[0] for node in group}) == 1
+        for label, group in groups.items()
+        if label.startswith("combined-phase3-")
+    )
 
 
 def test_real_ci_collection_partition_has_no_hardcoded_cardinality() -> None:

@@ -58,11 +58,14 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
     existing = [node for node in nodes if node not in phase3_set]
-    return {
-        label: group
-        for label, group in (("combined-existing", existing), ("combined-phase3", phase3))
-        if group
-    }
+    groups = {"combined-existing": existing} if existing else {}
+    # 从实际collection按现有P3模块派生；不硬编码阶段cardinality或挑选test node。
+    for path in sorted({node.split("::", 1)[0] for node in phase3}):
+        label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
+            "/", "-"
+        )
+        groups[label] = [node for node in phase3 if node.split("::", 1)[0] == path]
+    return groups
 
 
 def run_combined(

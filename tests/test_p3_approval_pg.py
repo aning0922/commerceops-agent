@@ -6,7 +6,7 @@ import secrets
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
-from typing import Any
+from typing import Any, cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -134,8 +134,8 @@ def decision_counts(f: P3Fixture, task: UUID) -> dict[str, int]:
 @pytest.mark.parametrize(
     "case,action,target",
     [
-        ("baseline", "approve", "executing"),
-        ("unknown_inbound", "approve_with_assumptions", "executing"),
+        ("baseline", "approve", "completed"),
+        ("unknown_inbound", "approve_with_assumptions", "completed"),
         ("baseline", "reject", "rejected"),
         ("unknown_inbound", "reject_assumptions", "rejected"),
     ],
@@ -170,8 +170,9 @@ def test_t3_one_decision_ten_replays_and_safe_execution_boundary(
              WHERE a.task_id=%s""",
                 (task,),
             ).fetchone()
-        assert row and row["consumed_at"] is None and row["delivery_state"] == "consumed"
-        assert bool(row["continuation_job_id"]) == (target == "executing")
+        assert row and row["delivery_state"] == "consumed"
+        assert (row["consumed_at"] is not None) == (target == "completed")
+        assert bool(row["continuation_job_id"]) == (target == "completed")
         detail = f.client.get(f"/api/v1/approvals/{body['approval_id']}").json()
         assert (
             detail["nonce"] is None
@@ -265,14 +266,16 @@ def test_r05_r06_r07_real_kill_old_process_gate_and_same_checkpoint_resume(
             assert same and same["id"] == row["id"] and same["plan_id"] == row["plan_id"]
             assert same["ready_at"] is not None
             assert post(f, request).status_code == 200
-        wait_state(f, task, "executing", restoring=True)
+        wait_state(f, task, "completed", restoring=True)
         assert decision_counts(f, task) == {"decision": 1, "audit": 1, "resume_job": 1}
         with connect(f.config.database) as db:
             count = db.execute(
                 "SELECT count(*) AS n FROM business.replenishment_plans WHERE task_id=%s", (task,)
             ).fetchone()
             intent = db.execute(
-                "SELECT status,sender_enabled FROM business.outbox WHERE task_id=%s", (task,)
+                "SELECT status,sender_enabled FROM business.outbox WHERE "
+                "task_id=%s AND operation='approval_card'",
+                (task,),
             ).fetchone()
         assert count and count["n"] == 1
         assert intent and intent["status"] == "pending" and not intent["sender_enabled"]
@@ -417,7 +420,7 @@ async def checkpoint_state(f: P3Fixture, task: UUID) -> StateSnapshot:
 
 
 @pytest.mark.parametrize("barrier", ["before_delivery_receipt", "after_delivery_receipt"])
-def test_r17_static_boundary_kill_has_no_second_interrupt_and_durable_continue(
+def test_r17_delivery_boundary_kill_restores_none_and_one_permanent_execution(
     fixture: P3Fixture,
     barrier: str,
 ) -> None:
@@ -442,7 +445,7 @@ def test_r17_static_boundary_kill_has_no_second_interrupt_and_durable_continue(
             confirm_termination(f.config.database, owner, "A02 static boundary SIGKILL/reaped")
         )
         restored, _ = start(f, task)
-        wait_state(f, task, "executing", restoring=True)
+        wait_state(f, task, "completed", restoring=True)
         with connect(f.config.database) as db:
             deadline = time.monotonic() + 10
             while time.monotonic() < deadline:
@@ -453,17 +456,21 @@ def test_r17_static_boundary_kill_has_no_second_interrupt_and_durable_continue(
                  LEFT JOIN business.jobs j ON j.id=r.continuation_job_id WHERE a.task_id=%s""",
                     (task,),
                 ).fetchone()
-                if result and result["status"] == "retry_wait":
+                if result and result["status"] == "done":
                     break
                 time.sleep(0.02)
             assert (
-                result and result["consumed_at"] is None and result["delivery_state"] == "consumed"
+                result
+                and result["consumed_at"] is not None
+                and result["delivery_state"] == "consumed"
             )
-            assert result["continuation_job_id"] and result["status"] == "retry_wait"
+            assert result["continuation_job_id"] and result["status"] == "done"
             assert result["payload_ref"].startswith("continue:")
         same = asyncio.run(checkpoint_state(f, task))
-        assert same.next == ("revalidate",) and not same.interrupts
-        assert same.config["configurable"]["checkpoint_id"] == original_checkpoint
+        assert same.next == () and not same.interrupts
+        assert same.config["configurable"]["checkpoint_id"] != original_checkpoint
+        assert same.values["decision_id"] == saved.values["decision_id"]
+        assert same.values["plan_hash"] == saved.values["plan_hash"]
         assert decision_counts(f, task) == {"decision": 1, "audit": 1, "resume_job": 1}
     finally:
         if child.process.poll() is None:
@@ -734,12 +741,15 @@ def test_actual_pg_static_checkpoint_none_continuation_skips_start_and_second_de
 ) -> None:
     f = fixture
     task = UUID(f.create(f.new_cycle())["task_id"])
-    child, _ = start(f, task)
+    child, owner = start(f, task, "before_delivery_receipt")
     try:
         child.until("after_ready")
         assert post(f, payload(f, task)).status_code == 200
-        wait_state(f, task, "executing")
-        child.stop_clean()
+        child.until("before_delivery_receipt")
+        child.kill_reap()
+        asyncio.run(
+            confirm_termination(f.config.database, owner, "A03 compatibility CP SIGKILL/reaped")
+        )
         before = asyncio.run(checkpoint_state(f, task))
         assert before.next == ("revalidate",) and not before.interrupts
         counts_before = decision_counts(f, task)
@@ -801,31 +811,85 @@ def test_actual_pg_static_checkpoint_none_continuation_skips_start_and_second_de
             a = db.execute(
                 "SELECT consumed_at FROM business.approvals WHERE task_id=%s", (task,)
             ).fetchone()
-        assert a and a["consumed_at"] is None and task_state(f, task)["state"] == "executing"
+        assert a and a["consumed_at"] is None
+        assert task_state(f, task)["state"] == "awaiting_approval"
     finally:
         if child.process.poll() is None:
             child.kill_reap()
 
 
-def test_p3_lost_worker_lock_exits_and_requires_os_confirmation(fixture: P3Fixture) -> None:
+@pytest.mark.parametrize(
+    "boundary,corrupt_empty",
+    [("before_prepare", False), ("before_prepare", True), ("before_graph", False)],
+)
+def test_p3_lost_worker_lock_exits_and_requires_os_confirmation(
+    fixture: P3Fixture, boundary: str, corrupt_empty: bool
+) -> None:
     f = fixture
     task = UUID(f.create(f.new_cycle())["task_id"])
-    child = P3Process(f, "worker", {"task_id": str(task)}, "before_graph")
+    child = P3Process(f, "worker", {"task_id": str(task)}, boundary)
     try:
         started = child.until("started")
-        child.until("before_graph")
+        child.until(boundary)
+        entered = asyncio.run(checkpoint_state(f, task))
+        if boundary == "before_graph":
+            assert entered.created_at is None and entered.next == () and entered.values == {}
+        else:
+            assert entered.created_at is not None and entered.next == ("prepare_approval",)
+        assert not entered.interrupts
+        with connect(f.config.database) as db:
+            row = db.execute(
+                """SELECT active_plan_id,
+                (SELECT count(*) FROM business.replenishment_plans WHERE task_id=%s) AS plans,
+                (SELECT count(*) FROM business.approvals WHERE task_id=%s) AS approvals
+                FROM business.business_tasks WHERE id=%s""",
+                (task, task, task),
+            ).fetchone()
+        assert row == {"active_plan_id": None, "plans": 0, "approvals": 0}
+        with connect(f.config.database) as db:
+            original = db.execute(
+                "SELECT normalized_request FROM business.business_tasks WHERE id=%s", (task,)
+            ).fetchone()
+            original_job = db.execute(
+                "SELECT id FROM business.jobs WHERE task_id=%s AND kind='analyze'", (task,)
+            ).fetchone()
+        assert original and original_job
+        core = {
+            "workflow_version": WORKFLOW_VERSION,
+            "task_id": str(task),
+            "request_hash": facts_hash(original["normalized_request"]),
+        }
         with connect(f.inventory.owner) as db:
             result = db.execute(
                 "SELECT pg_terminate_backend(%s) AS stopped", (started["lock_pid"],)
             ).fetchone()
         assert result and result["stopped"]
+        if boundary == "before_graph":
+            cancelled = child.until("barrier_cancelled")
+            assert cancelled["point"] == "before_graph"
         child.release()  # 测试stdin屏障也退出，不把未停线程冒称取消完成。
         child.close_exited(2)
         assert task_state(f, task)["state"] == "needs_attention"
         before = asyncio.run(checkpoint_state(f, task))
-        assert before.next == ("prepare_approval",) and not before.interrupts
-        assert before.values["workflow_version"] == WORKFLOW_VERSION
-        assert before.values["task_id"] == str(task)
+        if boundary == "before_graph":
+            assert before.created_at is None and before.next == () and before.values == {}
+        else:
+            assert before.created_at is not None and before.next == ("prepare_approval",)
+            assert (
+                before.config["configurable"]["checkpoint_id"]
+                == entered.config["configurable"]["checkpoint_id"]
+            )
+            assert before.values == core
+        assert not before.interrupts and before.values == entered.values
+        with connect(f.config.database) as db:
+            for table in ("replenishment_plans", "approvals", "outbox", "executions"):
+                empty = db.execute(
+                    sql.SQL("SELECT count(*) AS n FROM business.{} WHERE task_id=%s").format(
+                        sql.Identifier(table)
+                    ),
+                    (task,),
+                ).fetchone()
+                assert empty == {"n": 0}
         blocked = P3Process(f, "worker", {})
         assert blocked.until("blocked")["category"] == "TerminationRequired"
         blocked.close_exited(2)
@@ -834,15 +898,81 @@ def test_p3_lost_worker_lock_exits_and_requires_os_confirmation(fixture: P3Fixtu
                 f.config.database, started["owner"], "A02 lost-lock process exited and reaped"
             )
         )
+        if corrupt_empty:
+
+            async def corrupt_finished_checkpoint() -> None:
+                # 本测fresh DB，官方update_state构造有durable CP但未知空next的反例。
+                session = WorkerSession(f.config.database, f.inventory.data.organization)
+                runner = ApprovalRunner(ApprovalStore(f.config, session))
+                with connect(f.config.database) as db:
+                    t = db.execute(
+                        "SELECT * FROM business.business_tasks WHERE id=%s", (task,)
+                    ).fetchone()
+                    job = db.execute(
+                        "SELECT * FROM business.jobs WHERE task_id=%s", (task,)
+                    ).fetchone()
+                assert t and job
+                request = RunRequest(
+                    job["id"],
+                    task,
+                    t["organization_id"],
+                    t["shop_id"],
+                    str(task),
+                    WORKFLOW_VERSION,
+                    "analyze",
+                    f"task:{task}",
+                    "read-only-probe",
+                    0,
+                )
+                async with checkpointer(f.config.database) as saver:
+                    graph = runner.build_graph(request, dict(before.values)).compile(
+                        checkpointer=saver
+                    )
+                    await graph.aupdate_state(
+                        {"configurable": {"thread_id": str(task)}},
+                        cast(ApprovalState, dict(before.values)),
+                        as_node="finish",
+                    )
+
+            asyncio.run(corrupt_finished_checkpoint())
+            malformed = asyncio.run(checkpoint_state(f, task))
+            assert malformed.created_at is not None and malformed.next == ()
+            assert malformed.values == before.values and not malformed.interrupts
         restored, _ = start(f, task)
         try:
+            if corrupt_empty:
+                end = time.monotonic() + 10
+                while time.monotonic() < end:
+                    failure = task_state(f, task)
+                    if failure["failure_code"] == "P3_PREPARE_RECOVERY_CHECKPOINT_UNSAFE":
+                        break
+                    time.sleep(0.02)
+                assert failure["state"] == "needs_attention"
+                assert failure["failure_code"] == "P3_PREPARE_RECOVERY_CHECKPOINT_UNSAFE"
+                unsafe = asyncio.run(checkpoint_state(f, task))
+                assert (
+                    unsafe.config["configurable"]["checkpoint_id"]
+                    == malformed.config["configurable"]["checkpoint_id"]
+                )
+                assert unsafe.values == malformed.values and unsafe.next == ()
+                with connect(f.config.database) as db:
+                    for table in ("replenishment_plans", "approvals", "executions", "outbox"):
+                        row = db.execute(
+                            sql.SQL(
+                                "SELECT count(*) AS n FROM business.{} WHERE task_id=%s"
+                            ).format(sql.Identifier(table)),
+                            (task,),
+                        ).fetchone()
+                        assert row == {"n": 0}
+                return
             wait_state(f, task, "awaiting_approval", restoring=True)
             after = asyncio.run(checkpoint_state(f, task))
-            assert after.values["workflow_version"] == before.values["workflow_version"]
-            assert after.values["task_id"] == before.values["task_id"]
-            assert after.values["request_hash"] == before.values["request_hash"]
+            assert all(after.values[key] == value for key, value in core.items())
             assert after.next == ("wait_approval",) and len(after.interrupts) == 1
             with connect(f.config.database) as db:
+                assert db.execute(
+                    "SELECT id FROM business.jobs WHERE task_id=%s AND kind='analyze'", (task,)
+                ).fetchall() == [original_job]
                 for table in ("replenishment_plans", "approvals", "outbox"):
                     row = db.execute(
                         sql.SQL("SELECT count(*) AS n FROM business.{} WHERE task_id=%s").format(
@@ -939,13 +1069,12 @@ def test_t3_database_rejects_receipt_rewrite_resume_splice_and_premature_consump
 ) -> None:
     f = fixture
     task = UUID(f.create(f.new_cycle())["task_id"])
-    child, _ = start(f, task)
+    child, _ = start(f, task, "after_delivery_receipt")
     try:
         child.until("after_ready")
         request = payload(f, task)
         assert post(f, request).status_code == 200
-        wait_state(f, task, "executing")
-        child.stop_clean()
+        child.until("after_delivery_receipt")
         statements = (
             "UPDATE business.approvals SET consumed_at=clock_timestamp() WHERE task_id=%s",
             "UPDATE business.approval_resumes SET continuation_job_id=job_id WHERE task_id=%s",
@@ -965,6 +1094,119 @@ def test_t3_database_rejects_receipt_rewrite_resume_splice_and_premature_consump
         assert task_state(f, task)["state"] == "executing"
         repeated = post(f, request)
         assert repeated.status_code == 200 and repeated.json()["duplicate"]
+        child.release()
+        wait_state(f, task, "completed")
     finally:
         if child.process.poll() is None:
             child.stop_clean()
+
+
+@pytest.mark.parametrize("orphan_kind", ["plan_pending_card", "card_only"])
+def test_no_checkpoint_recovery_refuses_database_reachable_orphan_t2_records(
+    fixture: P3Fixture, orphan_kind: str
+) -> None:
+    f = fixture
+    task = UUID(f.create(f.new_cycle())["task_id"])
+    barrier = "never" if orphan_kind == "plan_pending_card" else "before_graph"
+    child = P3Process(f, "worker", {"task_id": str(task)}, barrier)
+    restored = None
+    try:
+        owner = child.until("started")["owner"]
+        if orphan_kind == "plan_pending_card":
+            child.until("after_ready")
+            child.kill_reap()
+        else:
+            child.until("before_graph")
+            no_cp = asyncio.run(checkpoint_state(f, task))
+            assert no_cp.created_at is None
+            # 取本owned进程专用锁PID，当前测试没有其他Worker。
+            started = next(row for row in child.history if row["event"] == "started")
+            with connect(f.inventory.owner) as db:
+                assert db.execute(
+                    "SELECT pg_terminate_backend(%s) AS stopped", (started["lock_pid"],)
+                ).fetchone() == {"stopped": True}
+            assert child.until("barrier_cancelled")["point"] == "before_graph"
+            child.release()
+            child.close_exited(2)
+        blocked = P3Process(f, "worker", {})
+        assert blocked.until("blocked")["category"] == "TerminationRequired"
+        blocked.close_exited(2)
+        with connect(f.config.database) as db:
+            # 验证runtime角色下现有FK/trigger确实接受此孤立状态，未停用约束。
+            if orphan_kind == "plan_pending_card":
+                changed = db.execute(
+                    "UPDATE business.business_tasks SET active_plan_id=NULL "
+                    "WHERE id=%s RETURNING id",
+                    (task,),
+                ).fetchone()
+                assert changed == {"id": task}
+            else:
+                from psycopg.types.json import Jsonb
+
+                card = {"schema_version": "p3-web-v1", "approval_id": str(uuid4())}
+                db.execute(
+                    """INSERT INTO business.outbox(id,organization_id,shop_id,task_id,
+                    destination,aggregate_id,aggregate_version,operation,dedupe_key,
+                    request_hash,payload,provider_idempotency_key,status)
+                    VALUES(%s,%s,%s,%s,'feishu_card',%s,1,'approval_card',%s,%s,%s,%s,'blocked')""",
+                    (
+                        uuid4(),
+                        f.actor.organization_id,
+                        f.inventory.data.shop,
+                        task,
+                        uuid4(),
+                        "owned-orphan:" + str(uuid4()),
+                        facts_hash(card),
+                        Jsonb(card),
+                        uuid4(),
+                    ),
+                )
+
+        async def remove_owned_p3_checkpoint() -> None:
+            async with checkpointer(f.config.database) as saver:
+                await saver.adelete_thread(str(task))
+
+        asyncio.run(remove_owned_p3_checkpoint())
+        before = asyncio.run(checkpoint_state(f, task))
+        assert before.created_at is None and before.values == {}
+        with connect(f.config.database) as db:
+            prior = {}
+            for table in ("replenishment_plans", "approvals", "outbox", "executions"):
+                prior[table] = db.execute(
+                    sql.SQL("SELECT count(*) AS n FROM business.{} WHERE task_id=%s").format(
+                        sql.Identifier(table)
+                    ),
+                    (task,),
+                ).fetchone()
+            assert prior["outbox"] == {"n": 1} and prior["executions"] == {"n": 0}
+            assert prior["approvals"] == {"n": int(orphan_kind == "plan_pending_card")}
+        asyncio.run(
+            confirm_termination(f.config.database, owner, "A03 orphan fixture OS exit/reaped")
+        )
+        restored, _ = start(f, task)
+        end = time.monotonic() + 10
+        while time.monotonic() < end:
+            current = task_state(f, task)
+            if current["failure_code"] == "P3_PREPARE_RECOVERY_JOB_UNSAFE":
+                break
+            time.sleep(0.02)
+        assert current["state"] == "needs_attention"
+        assert current["failure_code"] == "P3_PREPARE_RECOVERY_JOB_UNSAFE"
+        after = asyncio.run(checkpoint_state(f, task))
+        assert after.created_at is None and after.values == {} and after.next == ()
+        with connect(f.config.database) as db:
+            for table, expected in prior.items():
+                assert (
+                    db.execute(
+                        sql.SQL("SELECT count(*) AS n FROM business.{} WHERE task_id=%s").format(
+                            sql.Identifier(table)
+                        ),
+                        (task,),
+                    ).fetchone()
+                    == expected
+                )
+    finally:
+        if child.process.poll() is None:
+            child.kill_reap()
+        if restored and restored.process.poll() is None:
+            restored.stop_clean()

@@ -1,5 +1,7 @@
 # Phase3 A02：T3决定、单业务中断恢复与持久执行边界
 
+正式后续回执（2026-10-11）：A02已由Root核定通过，source24856555fe23975fb19cd67ddcc033f6cac3905c/tree5306496d、新独立24实际PG/155.72s、migration1/pure19/wire21/Core无阻断；[CI38064613062](https://github.com/aning0922/commerceops-agent/actions/runs/38064613062) SUCCESS，actual196d824ca2b3238d5491c494a3b813062587fcb1/main59+248/tree同源、978offline/236旧PG/59P3/3G1/6G2/cleanup0。[Root放行](https://github.com/aning0922/commerceops-agent/issues/34#issuecomment-6099399935)。旧独立12/8 not_verified保持；下方“待Gate/A03未实现”是原A02冻结历史，当前[A03](PHASE3_A03.md)候选与[Phase3分层验收](PHASE3_ACCEPTANCE.md)另核。
+
 状态：作者源码与实际验证收口；冻结SHA独审、精确CI及Root A02 Gate待新回执。分支`codex/phase3-approval`、隔离WT62c8、同[Draft PR37](https://github.com/aning0922/commerceops-agent/pull/37)，A不合main。Root在A01 Gate后已派本批完整T3/恢复范围；A唯一负责后端/迁移/Worker/Graph/共享合同/集成，B前端独立未合入。
 
 ## 已核前置与边界

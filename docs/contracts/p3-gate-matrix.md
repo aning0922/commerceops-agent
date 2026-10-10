@@ -1,5 +1,7 @@
 # Phase 3 合同验收映射 v1
 
+当前实施导航（2026-10-11）：A01/A02已由Root核定Gate，A03同PR37重验/T4/T6/完整22操作正在作者实际收口。当前逐Gate证据与剩余项见[PHASE3_ACCEPTANCE](../PHASE3_ACCEPTANCE.md)及[PHASE3_A03](../PHASE3_A03.md)；下方首批not_run/待独审/接口未实现是历史快照，完整冻结DTO仍约束实施，不能提前称新独审/CI或整Phase3通过。
+
 当前A01作者实际结果见[PHASE3_A01](../PHASE3_A01.md)；下表保留首批测试设计与当时not_run快照，独审/精确CI/Root业务Gate须另核实际回执。
 
 状态：测试设计；除 [首批交付](p3-contract-delivery.md) 的实际合同检查外，下表业务/PG/Web Gate **全部 not_run**。本文件不把既有Phase1/2实跑记成Phase3通过。依据 [#33](https://github.com/aning0922/commerceops-agent/issues/33)、[#34](https://github.com/aning0922/commerceops-agent/issues/34)、[TEST_PLAN](../TEST_PLAN.md) 和 [Web合同](p3-web-v1.md)。A的独立Review由总控安排，A自检不是独审。

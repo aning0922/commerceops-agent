@@ -1,0 +1,32 @@
+{
+  "project": "p3a3-1571d50369ef",
+  "owner": "phase3-A03-WT62c8",
+  "uid": 501,
+  "loopback_port": 62437,
+  "registered_at": "2026-10-11T01:31:30.390967+08:00",
+  "absolute_stop_deadline": "2026-10-11T03:01:30.390967+08:00",
+  "observed_stopped_at": "2026-10-10T18:25:53.065748+00:00",
+  "docker_finished_at": "2026-10-10T18:25:52.739376426Z",
+  "running": false,
+  "pid": 0,
+  "temporary_databases": 0,
+  "other_base_connections": 0,
+  "app_role_flags": {
+    "rolsuper": false,
+    "rolcreatedb": false,
+    "rolcreaterole": false
+  },
+  "revision": "0007_p3_execution",
+  "directory_mode": "0o700",
+  "private_file_modes": {
+    "owner_password": "0o600",
+    "app_password": "0o600",
+    "ports.yml": "0o600",
+    "ledger.json": "0o600"
+  },
+  "volume": "p3a3-1571d50369ef_pg_data",
+  "volume_retained": true,
+  "cleanup_mode": "stop_only_keep_volume",
+  "cleanup_zero_claimed": false,
+  "no_old_or_B_resources_used": true
+}
