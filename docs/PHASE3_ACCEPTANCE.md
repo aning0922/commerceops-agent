@@ -1,8 +1,10 @@
 # Phase3 分层验收与剩余收口
 
-当前39节导航：748 business minfix原Core全101PG/32wire22/pure69已核无新P1/P2；Root另批两个独立PG CI job与安全metadata配对，仍需统一新source字节继承/CI delta/精确337CI，未以旧2e0失败或作者333替新Gate。见[容量批](PHASE3_CI_CAPACITY.md)及[STATUS39](STATUS.md#39-a03-business独审与独立ci容量批)。
+当前导航（2026-10-11 A05）：Root已核A03 source052/Core5480529395/精确CI38079599247三job成功，以及B最终a65/Web5480795768完整24Web/native200/PG不变量/精确CI38085161901三job成功；完整337PG=236+101、G1三/G2六/cleanup0及精确配对已核。Root释放原A WT62c8/PR37正常集成及唯一共享frontend CI/阶段文档批，已普通合已审B，无冲突；最终增量独审、精确四job frontend Gate、main/合后CI/Issue33结案pending，不能预写阶段完成。main仍59b350cb719a9d2fed3f68b1ee598fa0a9b97875，Phase2已正式结案/CI38041779219 SUCCESS/Issue29 CLOSED。原333/988/旧失败/取消run/Review fullcheck not_verified/Issue23 not_identified/risk_accepted和M1设计18页冻结保留。D1=10-10/D30=11-08/300h/P3 A32+B18+Review10=60h不重置，人工H/L not_reported；新增paid0/平台业务写0，扩权/生产/Phase4未授权。见[STATUS40](STATUS.md#40-phase3-a05-正常集成与最终四作业候选)及[A05交接](PHASE3_A05_INTEGRATION.md)。下方原333/988/2e0待核表为历史；当前剩余仅最终集成增量Review/精确四job CI/Root main和合后CI/Issue33正式结案，平台边界不扩。
 
-最新独审修复导航（2026-10-11）：原2e0d3ed首模块独审23pass/1fail/157.75s（失锁before_graph/初始CP观测竞争），后续模块/wire未跑；原作者333通过和原CI不抵此阻断。Root派回本批两项最小修复，三态失锁/孤立记录/必要恢复邻接19实际PG通过；新collect337=236+101P3，未宣称新337作者执行通过。当前事实与新freeze/独审/CI待核见[PHASE3_A03_FIX1](PHASE3_A03_FIX1.md)。下方原333/988及原source候选为2e0历史证据，保留不覆盖新门禁。
+历史39节导航：748 business minfix原Core全101PG/32wire22/pure69已核无新P1/P2；Root另批两个独立PG CI job与安全metadata配对，仍需统一新source字节继承/CI delta/精确337CI，未以旧2e0失败或作者333替新Gate。见[容量批](PHASE3_CI_CAPACITY.md)及[STATUS39](STATUS.md#39-a03-business独审与独立ci容量批)。
+
+历史独审修复导航（2026-10-11）：原2e0d3ed首模块独审23pass/1fail/157.75s（失锁before_graph/初始CP观测竞争），后续模块/wire未跑；原作者333通过和原CI不抵此阻断。Root派回本批两项最小修复，三态失锁/孤立记录/必要恢复邻接19实际PG通过；新collect337=236+101P3，未宣称新337作者执行通过。当前事实与新freeze/独审/CI待核见[PHASE3_A03_FIX1](PHASE3_A03_FIX1.md)。下方原333/988及原source候选为2e0历史证据，保留不覆盖新门禁。
 
 2026-10-11作者收口候选；Phase3 in_progress，A03作者完整333PG/988offline/wire22/3G1/6G2通过，新freeze独审/精确CI待回执，B未合入A。main实时核为 `59b350cb719a9d2fed3f68b1ee598fa0a9b97875`。下表区分作者实际验证、已冻结历史Gate及剩余验收，不能据PR创建或测试通过提前称全阶段完成。实施/失败/资源/时间见[PHASE3_A03](PHASE3_A03.md)。
 
