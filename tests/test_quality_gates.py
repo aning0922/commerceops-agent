@@ -16,7 +16,7 @@ from scripts import scan_secrets as secret_scan
 from scripts.check_docs import document_errors
 from scripts.repository_files import versionable_files
 from scripts.scan_secrets import sensitive_path
-from scripts.vendor_gitleaks_rules import P3_DOCUMENT_DIGEST, P3_PUBLIC_ROW
+from scripts.vendor_gitleaks_rules import B_PUBLIC_ROW, P3_DOCUMENT_DIGEST, P3_PUBLIC_ROW
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.offline
@@ -354,7 +354,7 @@ def test_p3_wider_exception_fails_even_with_updated_config_digest(
     (tmp_path / "scripts").mkdir()
     config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
     generic = next(rule for rule in config["rules"] if rule["id"] == "generic-api-key")
-    generic["allowlists"][-1]["paths"] = [r"(?:^|/)docs/.*"]
+    generic["allowlists"][1]["paths"] = [r"(?:^|/)docs/.*"]
     content = tomli_w.dumps(config).encode()
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     provenance["config_sha256"] = hashlib.sha256(content).hexdigest()
@@ -376,3 +376,63 @@ def test_secret_gate_runs_before_dependency_installation(repository: Path) -> No
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "git: findings=0, exit=0" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    ["exact", "one_character", "other_path", "adjacent_generic", "adjacent_pat", "history"],
+)
+def test_b_public_metadata_exception_is_one_exact_line(repository: Path, scenario: str) -> None:
+    filename = (
+        "frontend/evidence/b02-read/validation.json"
+        if scenario != "other_path"
+        else "frontend/evidence/b02-read/other.json"
+    )
+    path = repository / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = B_PUBLIC_ROW
+    value = ""
+    if scenario == "one_character":
+        row = row.replace("final stage", "final stagh")
+    if scenario in ("adjacent_generic", "history"):
+        value = secrets.token_urlsafe(32)
+        row += f'\napi_key = "{value}"'
+    if scenario == "adjacent_pat":
+        value = synthetic_value()
+        row += f'\ngithub_token = "{value}"'
+    path.write_text(row + "\n")
+    git(repository, "add", ".")
+    git(repository, "commit", "-m", "synthetic reviewed B metadata boundary")
+    if scenario == "history":
+        path.write_text(B_PUBLIC_ROW + "\n")
+        git(repository, "add", ".")
+        git(repository, "commit", "-m", "remove current synthetic value and retain history")
+    result = run_scan(repository)
+    if scenario == "exact":
+        assert result.returncode == 0, result.stdout
+        assert "git: findings=0, exit=0" in result.stdout
+        return
+    output = assert_redacted_block(result, value or row)
+    assert (
+        f'"rule": "{"github-pat" if scenario == "adjacent_pat" else "generic-api-key"}"' in output
+    )
+    for scope in ["git"] if scenario == "history" else ["dir", "index", "git"]:
+        assert f'"scope": "{scope}"' in output
+
+
+def test_b_wider_path_rejected_without_losing_p3_validation(
+    tmp_path: Path, request: pytest.FixtureRequest
+) -> None:
+    (tmp_path / "scripts").mkdir()
+    config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
+    generic = next(rule for rule in config["rules"] if rule["id"] == "generic-api-key")
+    generic["allowlists"][2]["paths"] = [r"(?:^|/)frontend/.*"]
+    content = tomli_w.dumps(config).encode()
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    provenance["config_sha256"] = hashlib.sha256(content).hexdigest()
+    (tmp_path / ".gitleaks.toml").write_bytes(content)
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    patcher: pytest.MonkeyPatch = request.getfixturevalue("monkeypatch")
+    patcher.setattr(secret_scan, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="invalid scanner rules"):
+        secret_scan.validate_rules()
