@@ -1,4 +1,6 @@
 import "server-only";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { MockRole, MockView, SkuFact, FixtureState } from "./view-model";
 // Explicit server process fixtures only. No query/cookie/header can assign a role.
 // No production auth, session, receipt or server permission is simulated by this source.
@@ -29,7 +31,23 @@ export function mockView(version?: string): MockView {
     ["operator", "approver"].includes(role) &&
     state !== "expired" &&
     state !== "revoked";
+  const proofId = enabled ? process.env.COMMERCEOPS_MOCK_PROOF_ID : undefined;
+  let proof: MockView["proof"] = null;
+  if (proofId) {
+    try {
+      proof = {
+        serviceId: proofId,
+        buildId: readFileSync(
+          join(process.cwd(), ".next", "BUILD_ID"),
+          "utf8",
+        ).trim(),
+      };
+    } catch {
+      /* Missing build identity fails proof closed. */
+    }
+  }
   const base: MockView = {
+    proof,
     mode: enabled ? "mock" : "unavailable",
     role,
     state,
@@ -50,6 +68,8 @@ export function mockView(version?: string): MockView {
     tasks: [],
     items: [],
     facts: [],
+    completedFacts: [],
+    historyAvailable: true,
     planKeys: [],
     taskId: "INV-DEMO-008",
     approvalId: "APR-DEMO-008",
@@ -124,6 +144,8 @@ export function mockView(version?: string): MockView {
       explanation: "硬阻断 · 库存未知，不可执行",
     },
   ];
+  // Task007 has its own fixed two-SKU source, independent of task008 capacity variant.
+  base.completedFacts = facts.slice(0, 2).map((x) => ({ ...x }));
   if (process.env.COMMERCEOPS_MOCK_CAPACITY === "20") {
     // Fixed, fully disclosed capacity fixture; no business Q calculation in the UI.
     facts.splice(

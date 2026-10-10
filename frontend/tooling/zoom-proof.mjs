@@ -1,11 +1,21 @@
+import { startOwnedMock, verifyOwnedMock } from "./owned-mock.mjs";
 // A bounded localhost-only proof using a disposable profile and permission-free MV3 worker.
 // Chrome tabs.setZoom is real page zoom, distinct from CSS zoom/device metrics/pinch.
 import { chromium } from "@playwright/test";
-import { mkdtemp, writeFile, mkdir, rm } from "node:fs/promises";
+import { mkdtemp, writeFile, mkdir, rm, readFile } from "node:fs/promises";
+
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 const evidence = fileURLToPath(new URL("../evidence/b01/", import.meta.url));
+const supplied = process.argv.includes("--base-url")
+  ? process.argv[process.argv.indexOf("--base-url") + 1]
+  : undefined;
+const owned = await startOwnedMock(supplied);
+const origin = owned.origin;
+const serviceId = owned.serviceId;
+const expectedBuild = owned.buildId;
+const buildFingerprint = owned.buildFingerprint;
 const scratch = await mkdtemp(join(tmpdir(), "commerceops-b01-zoom-"));
 const extension = join(scratch, "extension");
 await mkdir(extension);
@@ -22,9 +32,9 @@ await writeFile(
   join(extension, "worker.js"),
   "chrome.runtime.onInstalled.addListener(() => {});",
 );
-const context = await chromium.launchPersistentContext(
-  join(scratch, "profile"),
-  {
+let context;
+try {
+  context = await chromium.launchPersistentContext(join(scratch, "profile"), {
     headless: false,
     channel: "chromium",
     viewport: null,
@@ -33,22 +43,21 @@ const context = await chromium.launchPersistentContext(
       `--load-extension=${extension}`,
       "--window-size=1440,1100",
     ],
-  },
-);
-try {
+  });
   const worker =
     context.serviceWorkers()[0] ??
     (await context.waitForEvent("serviceworker"));
   const opened = context.waitForEvent("page");
-  const target = await worker.evaluate(async () => {
+  const target = await worker.evaluate(async (url) => {
     const tab = await chrome.tabs.create({
-      url: "http://127.0.0.1:3430/approvals/APR-DEMO-008",
+      url,
     });
     await chrome.windows.update(tab.windowId, { width: 1440, height: 1100 });
     return { id: tab.id };
-  });
+  }, new URL("/approvals/APR-DEMO-008", origin).href);
   const page = await opened;
   await page.waitForLoadState("networkidle");
+  const sourceBefore = await verifyOwnedMock(page, owned);
   const metrics = () =>
     page.evaluate(() => ({
       innerWidth,
@@ -113,6 +122,7 @@ try {
       ),
   );
   await capture("actual-zoom-200-actions.png");
+  const sourceAfter = await verifyOwnedMock(page, owned);
   await writeFile(
     join(evidence, "actual-zoom.json"),
     JSON.stringify(
@@ -122,6 +132,11 @@ try {
           "permission-free temporary MV3 chrome.tabs.setZoom(2), headed Chromium; no CSS/device-metrics/pinch emulation",
         user_profile_used: false,
         permissions: [],
+        owned_server_pid: owned.pid,
+        base_url: origin.origin,
+        sourceBefore,
+        sourceAfter,
+        buildFingerprint,
         before,
         after,
         getZoom: actual,
@@ -138,6 +153,7 @@ try {
     JSON.stringify({ before, after, getZoom: actual, result: "passed" }),
   );
 } finally {
-  await context.close();
+  await context?.close();
+  await owned.close();
   await rm(scratch, { recursive: true, force: true });
 }

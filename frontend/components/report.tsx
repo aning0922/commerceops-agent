@@ -155,13 +155,15 @@ export function FrozenReport({
         <button data-control="B06" onClick={() => open("reanalysis")}>
           重新分析影响预览
         </button>
-        <a
-          className="button"
-          data-control="B33"
-          href={`/tasks/${view.taskId}/report?version=${view.historical ? "2" : "1"}`}
-        >
-          {view.historical ? "返回当前版本" : "查看历史版本 v1"}
-        </a>
+        {view.historyAvailable && (
+          <a
+            className="button"
+            data-control="B33"
+            href={`/tasks/${view.taskId}/report?version=${view.historical ? "2" : "1"}`}
+          >
+            {view.historical ? "返回当前版本" : "查看历史版本 v1"}
+          </a>
+        )}
       </div>
     </>
   );

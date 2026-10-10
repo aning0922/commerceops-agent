@@ -1,9 +1,70 @@
+import { startOwnedMock, verifyOwnedMock, frontend } from "./owned-mock.mjs";
+import { spawn } from "node:child_process";
 // Run only in the owned official Playwright Linux container, against our Mock server.
 import { chromium } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 const evidence = fileURLToPath(new URL("../evidence/b01/", import.meta.url));
+const arg = (name) =>
+  process.argv.includes(name)
+    ? process.argv[process.argv.indexOf(name) + 1]
+    : undefined;
+if (!process.argv.includes("--container-client")) {
+  const owned = await startOwnedMock(arg("--base-url"));
+  try {
+    const mapped = `http://host.docker.internal:${owned.origin.port}`;
+    const child = spawn(
+      "docker",
+      [
+        "run",
+        "--rm",
+        "--name",
+        "commerceops-b01-linux-font-owned",
+        "--shm-size=256m",
+        "-v",
+        `${frontend}:/work:ro`,
+        "-v",
+        `${evidence}:/work/evidence/b01`,
+        "-w",
+        "/work",
+        "mcr.microsoft.com/playwright:v1.64.0-noble",
+        "node",
+        "tooling/linux-font-proof.mjs",
+        "--container-client",
+        "--base-url",
+        mapped,
+        "--service",
+        owned.serviceId,
+        "--build",
+        owned.buildId,
+        "--owner-pid",
+        String(owned.pid),
+      ],
+      { stdio: "inherit" },
+    );
+    const code = await new Promise((resolve) => child.once("exit", resolve));
+    if (code !== 0) throw new Error("Owned Linux proof did not pass");
+  } finally {
+    await owned.close();
+  }
+  process.exit(0);
+}
+const target = new URL(arg("--base-url") ?? "");
+if (
+  process.platform !== "linux" ||
+  target.protocol !== "http:" ||
+  target.hostname !== "host.docker.internal" ||
+  !target.port ||
+  target.pathname !== "/" ||
+  target.search ||
+  target.hash ||
+  !arg("--service") ||
+  !arg("--build") ||
+  !arg("--owner-pid")
+)
+  throw new Error("Only explicit owned-container mapping is allowed");
+const owned = { serviceId: arg("--service"), buildId: arg("--build") };
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({
@@ -19,7 +80,8 @@ try {
     )
       requests.push(`${req.method()} ${u.pathname}`);
   });
-  await page.goto("http://host.docker.internal:3430/approvals/APR-DEMO-008");
+  await page.goto(new URL("/approvals/APR-DEMO-008", target).href);
+  const sourceBefore = await verifyOwnedMock(page, owned);
   await page.evaluate(() => document.fonts.ready);
   const client = await page.context().newCDPSession(page);
   await client.send("DOM.enable");
@@ -55,7 +117,12 @@ try {
   if (narrow.scroll > 390 || requests.length)
     throw new Error("Narrow layout or network boundary failure");
   await page.screenshot({ path: join(evidence, "linux-font-390-tail.png") });
+  const sourceAfter = await verifyOwnedMock(page, owned);
   const result = {
+    sourceBefore,
+    sourceAfter,
+    owned_server_pid: Number(arg("--owner-pid")),
+    base_url: target.origin,
     time_utc: new Date().toISOString(),
     platform: process.platform,
     architecture: process.arch,

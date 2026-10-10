@@ -104,3 +104,33 @@ test("项目本地CJK字体实际供给中文字形，禁止依赖系统fallback
   );
   expect(requests).toEqual([]);
 });
+
+test("20SKU审批样例不能污染completed007独立两项冻结来源", async ({ page }) => {
+  await page.goto("/approvals/APR-DEMO-008");
+  await expect(
+    page.getByRole("table", { name: "完整审批清单" }).getByRole("row"),
+  ).toHaveCount(21);
+  await page.goto("/tasks");
+  await page.locator("[data-control=B14]").nth(1).click();
+  await expect(page.locator("[data-control=B25]")).toHaveCount(0);
+  await page.locator(".tabs [data-control=B15]").click();
+  await expect(
+    page.getByRole("table", { name: "SKU 分析" }).getByRole("row"),
+  ).toHaveCount(3);
+  await expect(page.locator("#SKU-A")).toContainText("100");
+  await expect(page.locator("#SKU-B")).toContainText("未知");
+  await expect(
+    page.getByText("全部 2 个 SKU · 件数口径 · 筛选不会改变审批范围"),
+  ).toBeVisible();
+  await expect(page.locator("[data-control=B33]")).toHaveCount(0);
+  await screenshot(page,"completed-007-approver20");
+  await page.locator("[data-control=B19]").click();
+  await expect(page.getByRole("dialog")).toContainText("REPORT-DEMO-007 / v1");
+  await expect(page.getByRole("dialog")).toContainText("DEMO-SNAPSHOT-007");
+  await expect(page.getByRole("dialog")).not.toContainText("REPORT-DEMO-008");
+  await page.keyboard.press("Escape");
+  await page.reload();
+  await expect(page.locator("#SKU-A")).toBeVisible();
+  await page.goto("/tasks/INV-DEMO-007/report?version=2");
+  await expect(page).toHaveURL(/\/access$/);
+});

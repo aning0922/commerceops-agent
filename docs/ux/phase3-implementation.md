@@ -108,3 +108,15 @@ Root已正式放行3e05c714289135ab6901159d7e9210d657967fc2（精确CI3804726151
 原生zoom后的Playwright默认clip出现裁切/尾部空白，旧PNG和8e记录标为截图失败保留；最终以不带CSS clip的CDP Page.captureScreenshot原生surface捕获head/tail/actions并实际查看，避免空白图冒称视觉通过。
 
 原Linux下载handle40636最终exit0，镜像已完成；本checkpoint仍未启动Linux浏览器，未改写为Linux验收通过。B02真实会话/审批测试使用单一live配置trace=off，禁raw trace/HAR/body；CI只上传sanitized结果与不含密码/Cookie/session/CSRF/nonce的安全截图，不开发通用脱敏框架。
+
+## 0bb独审两项P1与有界修复
+
+0bb精确CI38049750572虽SUCCESS，独审仍阻断签收：approver/20SKU访问completed007报告时错误使用容量变体筛SKU-A/B而得到空报告；两采集工具固定3430、未验证服务归属，Reviewer对未知服务采集不计证据。此处不改写为通过。
+
+007现在保留自身独立固定SKU-A/B来源，两项/建议172件含未知在途风险；report/snapshot007和唯一当前v1绑定，非v1拒绝，无其他历史版本入口，不回落008或把空选集当完整报告。13项真实页面自动化增加approver20从任务列表访问007、两行/风险/来源/版本/刷新/非法版本断言，实际全部通过。
+
+zoom与Linux工具共用仅这两项证明的限定owned-mock模块：显式127.0.0.1:PORT，必须本checkout当前build的Next自有Mock启动成功；占用/未知服务立即拒绝，无访问或终止未知PID。DOM公开测试service marker与BUILD_ID前后核对，构建指纹/自有pid/来源入非秘密证据；它们不是身份授权或新业务endpoint。实际无base拒绝exit1、已有3430占用拒绝exit1；自有3443真正200%和自有3444到容器映射的Linux字体一次运行exit0，前后identity匹配，关闭各自child/container。
+
+Linux实际为arm64/Node24.21.0/Chromium156.0.8078.4、本地Noto custom glyph4、1440/390无overflow、20SKU全量、无API/站外写。原首次Linux工具回执作为历史保存（当时缺marker不当作新工具的归属证明）；当前截图属于受控重采。[Linux当前记录](../../frontend/evidence/b01/linux-font.json)、[首次历史回执](../../frontend/evidence/b01/linux-font-first-receipt.json)、[拒绝/来源记录](../../frontend/evidence/b01/ownership-guards.json)分开。
+
+B01此普通修复不含未提交typedclient/generated types。新冻结SHA独审与CI仍以Root/PR实时回执为准。

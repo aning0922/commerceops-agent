@@ -1,0 +1,28 @@
+{
+  "provenance": "original first-run exec receipt copied to preserve history; screenshots were viewed in chat before controlled-tool recapture",
+  "time_utc": "2026-10-10T11:52:17.929Z",
+  "source_note": "original B-owned3430 Mock build; no service marker in first tool version",
+  "platform": "linux",
+  "architecture": "arm64",
+  "node": "24.21.0",
+  "browser": "156.0.8078.4",
+  "fonts": [
+    {
+      "familyName": "Noto Sans SC Thin",
+      "postScriptName": "NotoSansSC-Thin",
+      "isCustomFont": true,
+      "glyphCount": 4
+    }
+  ],
+  "metrics": {
+    "width": 1440,
+    "scroll": 1440,
+    "rows": 21
+  },
+  "narrow": {
+    "width": 390,
+    "scroll": 390
+  },
+  "unexpectedRequests": [],
+  "result": "passed glyph/layout only; original ownership evidence incomplete, superseded by controlled-marker proof"
+}

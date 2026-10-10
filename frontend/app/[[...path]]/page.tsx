@@ -66,11 +66,14 @@ export default async function Page({
     selectedView.snapshotId = "";
   }
   if (task?.id === "INV-DEMO-007") {
-    selectedView.facts = view.facts.filter((x) =>
-      ["SKU-A", "SKU-B"].includes(x.key),
-    );
+    if (requestedVersion !== undefined && requestedVersion !== "1")
+      redirect("/access");
+    selectedView.version = 1;
+    selectedView.historical = false;
+    selectedView.historyAvailable = false;
+    selectedView.facts = view.completedFacts;
     selectedView.planKeys = selectedView.facts
-      .filter((x) => view.planKeys.includes(x.key))
+      .filter((x) => x.suggested !== null && x.suggested > 0)
       .map((x) => x.key);
     selectedView.items = [];
   }
@@ -83,6 +86,8 @@ export default async function Page({
           tasks: [],
           items: [],
           facts: [],
+          completedFacts: [],
+          historyAvailable: false,
           planKeys: [],
           taskId: "",
           approvalId: "",

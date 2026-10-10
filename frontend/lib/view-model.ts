@@ -40,6 +40,7 @@ export type ItemFact = {
   reason: string | null;
 };
 export type MockView = {
+  proof: { serviceId: string; buildId: string } | null;
   mode: "mock" | "unavailable";
   role: MockRole;
   state: FixtureState;
@@ -53,6 +54,8 @@ export type MockView = {
   tasks: TaskFact[];
   items: ItemFact[];
   facts: SkuFact[];
+  completedFacts: SkuFact[];
+  historyAvailable: boolean;
   planKeys: string[];
   taskId: string;
   approvalId: string;

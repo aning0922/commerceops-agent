@@ -110,7 +110,12 @@ export function Console({ path, view }: { path: string; view: MockView }) {
       </div>
     );
   return (
-    <div className="app-shell">
+    <div
+      className="app-shell"
+      data-mock-source={view.mode === "mock" ? "commerceops-b01" : undefined}
+      data-mock-service={view.proof?.serviceId}
+      data-mock-build={view.proof?.buildId}
+    >
       <a className="skip-link" href="#main">
         跳到主要内容
       </a>
