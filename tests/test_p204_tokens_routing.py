@@ -292,7 +292,25 @@ def test_complete_integer_scalar_not_truncated(scalar: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "scalar", ["4 天到5天", "4\u00a0天到5天", "4 天 / 5 天", "4", "4天", "4 天", "4\u00a0天"]
+    "scalar",
+    [
+        "4 天到5天",
+        "4\u00a0天到5天",
+        "4 天 / 5 天",
+        "4 ½",
+        "4 天 ½",
+        "4 ¼",
+        "4 ⅓",
+        "4天半",
+        "4天 半",
+        "4 天 半",
+        "4 半天",
+        "4\u00a0天\u00a0½",
+        "4",
+        "4天",
+        "4 天",
+        "4\u00a0天",
+    ],
 )
 def test_unit_whitespace_keeps_spans_and_blocks_business_dispatch(
     scalar: str, monkeypatch: Patcher

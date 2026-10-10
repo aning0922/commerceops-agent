@@ -71,3 +71,12 @@ Root在精确6910复审实跑198 PG/109.74s，corrected observed断言/撤权恢
 本轮仅在原数值词元guard的单位lookahead前处理Unicode空白，再识别限定天单位及后续范围/分数/小数/邻数；没有整体重写原句，span/input/bodyhash保持。预算/Owner/migration/queue/权限/B均不改。原Root07:55～08:05 UTC10分钟source/offline窗口，作者不追加第三PG。
 
 新增7项专属离线回归：三非法原句的旧6910 guard都在intent断言实际失败；四合法控制在guard后遇新测试DatabaseSettings必填配置缺失，首次after也因此7失败，补显式离线假配置后最终56专项passed/1.35s，mypy136/ruff通过。三非法的HTTP应用分派为明确scope/DB/创建函数替身，created次数0；`4`、`4天`、`4 天`、`4 天`控制各created1且候选原句span不变。替身不冒充realPG/生产auth或已完成独审。新冻结须Root增量独审及新SHA实际CI/必要PG，模型0/key不读/main未合，保留同源修复轮次与旧失败事实。
+
+
+## 8. 同参数P2第三源码轮：Unicode数值字符与明确半天
+
+0462指定增量由Root独立56offline/1.45s及fresh9真实HTTP/PG验证通过，原小数/分数/三单位空白非法Task0、四整数控制Task1/hash不变。但独立离线+实际FastAPI创建函数替身确认`L=4 ½ R=7 S=2`及`L=4 天 ½ R=7 S=2`仍explicit L4/create stub1；此两个发现不是PG插入证据，第二源码轮尚未覆盖Unicode numeric非decimal类别，不能称全参数P2解除。
+
+原A第三轮按Root本通知起5分钟，仅将原词元后续数值类别isdecimal改isnumeric，并拒明确“半”续词；保持原句/span/hash与已有56控制，不改Budget/Owner/迁移/锁/queue/DTO/B/权限/fixtures，无作者新PG/完整大检查。新增9代表控制覆盖½/¼/⅓、天单位前后空白/NBSP与明确4天半/4天 半/4 天 半/4 半天。旧0462实测新增/既有单元16中8 failed/8 passed/0.92s；修正后专属65offline通过（实测时长见同PR回执）、mypy136/ruff。非法应用分派替身create0、原整数控制create1，替身不抵Root新冻结独立PG/HTTP与实际CI。
+
+同源第三修复轮事实保留；若此轮复审仍同类未解除，按Root合同暂停参数任务并交原因/最小风险方案/ETA，不自行第四轮、免测或绕Gate。模型0/key-env未读/no main/既有预算不变。

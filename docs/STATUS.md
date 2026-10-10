@@ -575,3 +575,8 @@ A在原WT/分支/PR作最小修复：0004追加不可变调用代际元数据，
 Root实跑新6910 198PG/109.74s及原恢复/legacy NULL/新owner缓存probe，预算P2独立解除；但参数单位前空白绕过范围检测仍P2：`L=4 天到5天`、NBSP单位空白、`L=4 天 / 5 天`三个真实HTTP/PG各错误库存任务+1。旧6910 CI38035465760 SUCCESS不抵新残留。A在Root07:55～08:05 UTC10分钟范围只改词元单位lookahead与专属离线test/docs，不动Budget/Owner/迁移/队列/权限/B，不增加作者PG。
 
 旧guard三新增非法intent断言实测失败，新增测试初期离线Db配置错误也保留；最终56专项offline/1.35s、136源文件type/ruff通过。非法应用分派替身create0，四合法整数/单位/空白控制create1及原句span保留；没有把替身或未跑新PG写成通过。新freeze精确复审/新CI待Root，stage仍in_progress_p2_04/参数P2待解除，actual0/key-env未读/main未合。具体同源修复轮次见[P204第7节](PHASE2_P204.md)。
+
+
+### 34.4 同参数P2第三源码轮仍待独立验证
+
+Root对0462指定56offline及fresh9真实HTTP/PG通过，但另复现`4 ½`及`4 天 ½`被decimal分类漏判后explicit/create函数替身1（非PG插入）。原A按5分钟source/offline窗口只改后续isnumeric类别与明确“半”拒绝，专属新增½/¼/⅓及半天/混分数控制；旧0462 8fail/8pass/0.92s，修正后65offline通过/type136/ruff，无新作者PG/大检查。Budget/Owner/迁移/锁/queue/DTO/B/权限/fixtures及原句/span/hash不改。新冻结必须Root独立PG/HTTP/actualCI；第三轮仍同类不解除即暂停，不自行第四轮。phase仍in_progress_p2_04/参数P2待复审，actual0/key-env未读/main未合。

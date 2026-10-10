@@ -104,7 +104,7 @@ class GuardedRouter:
                     ):
                         following = following[1:]
                     if following and (
-                        following[0].isdecimal() or following[0] in ".／/+-−~～–—到至"
+                        following[0].isnumeric() or following[0] in ".／/+-−~～–—到至半"
                     ):
                         raise ValueError("AMBIGUOUS_PARAMETERS")
                     spans.add((name, start, end, scalar.group()))
