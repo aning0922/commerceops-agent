@@ -5932,6 +5932,19 @@
           },
           "capabilities": {
             "$ref": "#/components/schemas/Capabilities"
+          },
+          "linked_channels": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "enum": [
+                "web",
+                "feishu"
+              ]
+            }
           }
         },
         "required": [
@@ -5940,7 +5953,8 @@
           "display_name",
           "auth_version",
           "role_shop_grants",
-          "capabilities"
+          "capabilities",
+          "linked_channels"
         ]
       },
       "DeploymentConfig": {
@@ -6039,8 +6053,13 @@
             "const": false
           },
           "external_sender_enabled": {
-            "type": "boolean",
-            "const": false
+            "type": "boolean"
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
           }
         },
         "required": [
@@ -6055,7 +6074,8 @@
           "transport_mode",
           "source_mode",
           "model_requests_enabled",
-          "external_sender_enabled"
+          "external_sender_enabled",
+          "sender_gates"
         ]
       },
       "CsrfBootstrap": {
@@ -6464,6 +6484,56 @@
                 "type": "null"
               }
             ]
+          },
+          "outbox_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_alias": {
+            "type": "string",
+            "enum": [
+              "IM",
+              "Base"
+            ]
+          },
+          "target_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "observed_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "complete_unique_verified": {
+            "type": "boolean"
+          },
+          "is_current_version": {
+            "type": "boolean"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -6473,7 +6543,15 @@
           "state",
           "source_mode",
           "as_of",
-          "error_code"
+          "error_code",
+          "outbox_id",
+          "destination_alias",
+          "target_version",
+          "observed_version",
+          "complete_unique_verified",
+          "is_current_version",
+          "attempts",
+          "verification_mode"
         ]
       },
       "SyncRead": {
@@ -6491,20 +6569,26 @@
             ]
           },
           "sender_enabled": {
-            "type": "boolean",
-            "const": false
+            "type": "boolean"
           },
           "projections": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Projection"
             }
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
           }
         },
         "required": [
           "state",
           "sender_enabled",
-          "projections"
+          "projections",
+          "sender_gates"
         ]
       },
       "AllowedActions": {
@@ -8115,6 +8199,57 @@
                 "type": "null"
               }
             ]
+          },
+          "record_trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relation": {
+            "type": "string",
+            "enum": [
+              "task",
+              "source"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "web",
+              "feishu",
+              "worker",
+              "unknown"
+            ]
+          },
+          "tool": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolFact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventReference"
+            }
+          },
+          "safe_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -8125,7 +8260,14 @@
           "duration_ms",
           "result_ref",
           "safe_summary",
-          "recovery"
+          "recovery",
+          "record_trace_id",
+          "task_id",
+          "relation",
+          "channel",
+          "tool",
+          "references",
+          "safe_code"
         ]
       },
       "TaskListCounts": {
@@ -8645,8 +8787,7 @@
             "const": 1
           },
           "external_sender_enabled": {
-            "type": "boolean",
-            "const": false
+            "type": "boolean"
           },
           "recovery_scan_seconds": {
             "anyOf": [
@@ -8680,6 +8821,12 @@
                 "type": "null"
               }
             ]
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
           }
         },
         "required": [
@@ -8694,7 +8841,8 @@
           "external_sender_enabled",
           "recovery_scan_seconds",
           "approval_ttl_seconds",
-          "revalidation_max_age_seconds"
+          "revalidation_max_age_seconds",
+          "sender_gates"
         ]
       },
       "RequestResult": {
@@ -8971,6 +9119,156 @@
         },
         "required": [
           "schema_version"
+        ]
+      },
+      "SenderGate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "destination_alias": {
+            "type": "string",
+            "enum": [
+              "IM",
+              "Base"
+            ]
+          },
+          "sender_enabled": {
+            "type": "boolean"
+          },
+          "reason_code": {
+            "type": "string",
+            "enum": [
+              "NOT_CONFIGURED",
+              "DISABLED_BY_CONFIGURATION",
+              "WINDOW_EXPIRED",
+              "WORKER_NOT_READY",
+              "CONTROLLED_WINDOW_ACTIVE"
+            ]
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "worker_ready": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "destination_alias",
+          "sender_enabled",
+          "reason_code",
+          "verification_mode",
+          "as_of",
+          "worker_ready"
+        ]
+      },
+      "EventReference": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "task",
+              "report",
+              "plan",
+              "approval",
+              "execution",
+              "item",
+              "projection"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ]
+      },
+      "ToolFact": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "deterministic",
+              "sdk_adapter",
+              "commerce_query",
+              "sdk_method",
+              "model"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "selected_by_model": {
+            "type": "boolean"
+          },
+          "sdk_method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "im.v1.message.create",
+                  "bitable.v1.app_table_record.create",
+                  "bitable.v1.app_table_record.list",
+                  "bitable.v1.app_table_record.update"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "category",
+          "name",
+          "selected_by_model",
+          "sdk_method",
+          "verification_mode"
         ]
       }
     }

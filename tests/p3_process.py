@@ -28,7 +28,11 @@ from commerceops.infrastructure.replenishment_repository import ApprovalStore, R
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import TerminationRequired, WorkerBusy, WorkerSession
-from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
+from commerceops.workflows.inventory_analysis import (
+    CollectorFactory,
+    InventoryRunner,
+    MockCollectorFactory,
+)
 from commerceops.workflows.replenishment import ApprovalRunner
 from commerceops.workflows.report_explanation import (
     ExplanationRunner,
@@ -76,11 +80,15 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
 
     payload = value["payload"]
     assert isinstance(payload, dict)
-    factory = (
+    factory: CollectorFactory = (
         ControlledP3Factory(payload["controlled"])
         if payload.get("controlled")
         else MockCollectorFactory(DIRECTORY)
     )
+    if payload.get("p4_demo") is True:
+        from tests.p4_demo_factory import M1DemoFactory
+
+        factory = M1DemoFactory()
     revalidation_factory = (
         ControlledP3Factory(payload["revalidation_controlled"])
         if payload.get("revalidation_controlled")

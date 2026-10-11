@@ -9,9 +9,12 @@ from uuid import UUID
 
 from commerceops.adapters.feishu.contracts import ProbePolicy
 from commerceops.application.feishu_business.clarification import ClarificationSender
+from commerceops.application.feishu_business.contracts import BaseProjectionAdapter
+from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.runner import RunnerPort, RunRequest, RunResult
 from commerceops.infrastructure.database import DatabaseSettings
 from commerceops.infrastructure.explanation_repository import ExplanationStore
+from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
 from commerceops.infrastructure.feishu_clarification import ClarificationDeliveryStore
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
@@ -47,12 +50,16 @@ async def serve(
     web_config: WebConfig | None = None,
     clarification_sender: ClarificationSender | None = None,
     feishu_policy: ProbePolicy | None = None,
+    base_adapter: BaseProjectionAdapter | None = None,
+    delivery_gate: DeliveryGate | None = None,
 ) -> None:
     stop = asyncio.Event()
     if web_config is not None and (allow_actual or key_file is not None):
         raise ValueError("P3 model requests are disabled")
     if (clarification_sender is None) != (feishu_policy is None):
         raise ValueError("explicit matching clarification transport/policy required")
+    if (base_adapter is None) != (delivery_gate is None):
+        raise ValueError("explicit matching Base adapter/delivery gate required")
     if web_config is not None and any(
         getattr(settings, key) != getattr(web_config.database, key)
         for key in ("host", "port", "name", "user", "password_file")
@@ -91,17 +98,24 @@ async def serve(
             if feishu_policy is not None and clarification_sender is not None
             else None
         )
+        base_delivery = (
+            BaseDeliveryStore(session, base_adapter, delivery_gate)
+            if base_adapter is not None and delivery_gate is not None
+            else None
+        )
 
         async def maintenance() -> None:
             if approval is not None:
                 await approval.reconcile()
             if clarification is not None:
                 await clarification.reconcile()
+            if base_delivery is not None:
+                await base_delivery.reconcile()
 
         await Worker(
             session,
             runner,
-            reconcile=maintenance if approval or clarification else None,
+            reconcile=maintenance if approval or clarification or base_delivery else None,
             recovery_scan_seconds=web_config.recovery_scan_seconds if web_config else 30,
         ).run(stop)
     except UnsafeShutdown:
