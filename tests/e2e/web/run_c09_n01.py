@@ -16,6 +16,32 @@ from scripts.prepare_pg import prepare
 from tests.e2e.web.run_live_batches import free_port, listener_output, save
 
 ROOT = Path(__file__).resolve().parents[3]
+MUTABLE_N01_OUTPUTS = frozenset(
+    {
+        "frontend/evidence/p4-c09/n01/live-results.json",
+        "frontend/evidence/p4-c09/n01/pg-invariants.safe.json",
+        "frontend/evidence/p4-c09/n01/resource-stop.safe.json",
+    }
+)
+REQUIRED_SOURCE_FILES = (
+    "frontend/components/inventory-request-text.tsx",
+    "frontend/lib/p4-n01.ts",
+    "frontend/lib/p4-n01-schema.generated.json",
+    "tests/e2e/web/c09_fixture.py",
+    "tests/e2e/web/run_c09_n01.py",
+    "tests/e2e/web/live/n01.spec.ts",
+)
+
+
+def source_manifest() -> dict[str, str]:
+    """仅排除三个本段派生输出；其他tracked/关键源缺失仍失败。"""
+    tracked = subprocess.check_output(
+        ["git", "ls-files", "frontend", "tests/e2e/web"], cwd=ROOT, text=True
+    ).splitlines()
+    sources = (set(tracked) | set(REQUIRED_SOURCE_FILES)) - MUTABLE_N01_OUTPUTS
+    return {
+        name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(sources)
+    }
 
 
 def main(private: Path, deadline: datetime) -> None:
@@ -65,21 +91,7 @@ def main(private: Path, deadline: datetime) -> None:
         "-f",
         str(override),
     ]
-    sources = subprocess.check_output(
-        ["git", "ls-files", "frontend", "tests/e2e/web"], cwd=ROOT, text=True
-    ).splitlines()
-    sources += [
-        "frontend/components/inventory-request-text.tsx",
-        "frontend/lib/p4-n01.ts",
-        "frontend/lib/p4-n01-schema.generated.json",
-        "tests/e2e/web/c09_fixture.py",
-        "tests/e2e/web/run_c09_n01.py",
-        "tests/e2e/web/live/n01.spec.ts",
-    ]
-    manifest = {
-        name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-        for name in sorted(set(sources))
-    }
+    manifest = source_manifest()
     save(private / "source-files.safe.json", manifest)
     window = {
         "owner": "phase4-C09-Web",

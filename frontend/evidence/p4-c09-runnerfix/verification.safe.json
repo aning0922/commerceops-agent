@@ -1,0 +1,52 @@
+{
+  "source_parent": "e3754fe9d2ebf1eaa58a4a0d23a9f17f11e153bb",
+  "scope": "runner-only exact derived-output exclusion; reviewed e375 product unchanged",
+  "source_sha256": {
+    "tests/e2e/web/run_c09_n01.py": "24a289f0f5e214bcf1a65ca9aca794089bca00bdb9a730c5633639774d6d65da",
+    "tests/e2e/web/test_c09_source_manifest.py": "b03b1e865be551a90d537a159b1f8fa9149a52d15aeaf564424bc7f02ab563a4",
+    "docs/ux/phase4-implementation.md": "97329a85ca9333f747ab62f536475bc9d9b391300c911e26c13ccdff4e292740"
+  },
+  "excluded_outputs": [
+    "frontend/evidence/p4-c09/n01/live-results.json",
+    "frontend/evidence/p4-c09/n01/pg-invariants.safe.json",
+    "frontend/evidence/p4-c09/n01/resource-stop.safe.json"
+  ],
+  "fixed_exclusion_count": 3,
+  "tracked_excluded_count_at_capture": 1,
+  "source_manifest_entries_at_capture": 322,
+  "source_manifest_canonical_sha256": "5916ad6aa518621e53c2006416c11db6c927466ccc6e0c50663edbb28865ffd6",
+  "all_other_tracked_and_required_present": true,
+  "writer_checks": {
+    "live-results.json": "frontend/tooling/live-reporter.ts C09 branch",
+    "pg-invariants.safe.json": "tests/e2e/web/live/n01.spec.ts afterAll",
+    "resource-stop.safe.json": "tests/e2e/web/run_c09_n01.py finally"
+  },
+  "pure_tests": {
+    "passed": 14,
+    "failed": 0,
+    "seconds": 0.41,
+    "coverage": [
+      "three mutable outputs absent/created/changed/deleted are not source inputs",
+      "six critical files and fixture/other historical evidence remain bound and changes detected",
+      "missing real required source fails closed"
+    ]
+  },
+  "checks": {
+    "ruff": "passed",
+    "format": "passed",
+    "mypy": "passed",
+    "markdown_files": 99,
+    "markdown_errors": 0,
+    "first_mypy_test_import_error": "preserved, fixed with stdlib patch"
+  },
+  "runtime": {
+    "new_services": 0,
+    "PG_API_network_SDK_provider": "not_started",
+    "actual_N01_expected": 6,
+    "actual_N01_run": 0,
+    "actual_N01_not_run": 6
+  },
+  "old_product_checks": "e375 independent P1 cleared; 49/20 and original85 unchanged, not rerun",
+  "commit_binding": "new exact SHA supplied by Git handoff; this report contained in candidate tree",
+  "captured_at_utc": "2026-10-11T21:05:58.973523+00:00"
+}

@@ -213,3 +213,11 @@ Root已核真实服务端 `_explicit_lrs_spans`，派回C-only最小修正：使
 新增负例包括范围内错误span/value/nameprefix、full-token、UTF16偏移及截短多位数字；新增Unicode空白/0085/天/冒号正例逐项由真实Python输出核准，多位L33的7..9/R12..13/S16..17亦核准。emoji只证明code-point scalar单元边界，不宣称服务端支持含emoji的自然语言原句。shape合法但name绑定错误的响应经实际P3Client离线transport拒绝；页面禁止进入B35/B01，不发创建。
 
 本修正实际执行完整contract **49/49 passed，3.4s** 和P4页面 **20/20 passed，33.9s**；所有旧contract/P4分母保留。证据独立写入 `frontend/evidence/p4-c09-reviewfix/`，不覆盖原0fd/85证据。产品与P4 typecheck、新生产build、schema原22+独立N01 check均通过；3496自有Mock按固定30min期限启动/结束，native退出1无监听。A/backend/共享DTO/锁/根CI、六旧untracked、原a266与原文法不改，未重启PG/Docker网络/SDK/provider。B04/B01产品路径未改，本批不重复其原8/13；Python1531/441是原0fd完整检查，不冒本修正重跑。实际6PW/API import/Create pair仍not_run，旧三轮暂停不变；新精确冻结停push，P1解除以原Web复审和Root核定为准。
+
+### C09 runner 派生输出与输入哈希的小批修正
+
+Root已核e375原Web复审P1解除、无新增P1/P2；该产品结论保持。A集成检查与Root随后定位受控runner把本段会覆写的结果文件也作为来源输入：CI清除旧样本后可能因tracked文件缺失而捕获失败，结束后的输出hash也会变化。此问题是runner输入/输出边界，不改变N01协议或产品。
+
+C只在既有 `run_c09_n01.py` 排除三条固定派生sink：`frontend/evidence/p4-c09/n01/live-results.json`（live-reporter C09分支）、`pg-invariants.safe.json`（live/n01.spec.ts afterAll）和 `resource-stop.safe.json`（runner finally摘要），实际writer路径均核准。其他tracked源、历史evidence/fixture与原6条显式关键files全部保留，缺真实源仍fail closed；不泛排evidence目录，不新增路径接口或通用manifest框架，A共享CI不写。
+
+仅自有tmp纯验证：最终代码 **14/14 passed，0.41s**，覆盖三个输出缺失/新建/改变/删除均不影响input manifest，6关键代码/fixture/其他历史证据的变化仍改变对应hash，缺真实关键源拒绝。真实checkout只读清单也与原全集精确set对照（提交前322条，固定sink3条，其中当时tracked输出1条），代码和fixture均纳入；此数量是提交前实测，不预写提交后数字。初轮mypy测试引用未显式导出的subprocess报错，已改为stdlib patch；最终Ruff/format/mypy通过。产品、49/20与原85证据、原UI scalarfixture不改，不重复18页/底座/build；无PG/API/浏览器/新服务/Docker网络/SDK/provider，实际6PW继续not_run、三轮停止不变。小批精确冻结停push，交原Web runner-only增量审查，不能提前签实际CI Gate。
