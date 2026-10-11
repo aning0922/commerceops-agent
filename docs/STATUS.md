@@ -760,3 +760,17 @@ Root/Core核公开DTO后只准同原T0/卷/image/source的一次caller续验，�
 父09:02:09Z原75s reserve进入收尾，failed completion元数据到达时已cleanup；RuntimeError是完成文件未在父cutoff到达，不记为backend断言。09:02:13.931583Z stop0/09:02:14.553147Z down0/no-v，本project标签/PID0核后containers0/networks0/两个listeners0/tempDB0，images/volume/private保留。完整原failed ledger、唯一continuation ledger、JUnit/plugin/485manifest/两次release/current Actor readback/Cstopproof在ignored700与600包；[实际收口](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6107403734)、[offline分类](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6107433806)。旧d868两partial、aea SQL失败、972 assertion trace unknown、wrapper1/pytest0、SWC0test、oldCI/read unknown/Issue23风险保持。
 
 [UX8及N01登记](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6107359838)只待授权排期；现Web是结构化输入，PRD+冻结M02的自然语言BC02差异须合同核对，不靠文案宣自由NL已实现、不擅移M2或改Gate，不并写C UI/Penpot。正式RO preflight准备仍disabled/operable false，缺Root确认的canonical4094单AppSecret、Base绑定及A/B单群身份非秘密JSON唯一路径；未枚举旧凭据或读旧.env/密码，认证/WS/真人/平台0。M1/Phase4未验收，source43最终CI与阶段文档精确独审/CI未预填；D1/D30/300h/50h估计、人工H-L未报告、18页冻结及生产/Woo/Phase5/付费/扩权边界不变。
+
+
+## 46. 官方当前schema预检通过与A07正式Worker装配候选
+
+2026-10-11，Asia/Shanghai。Root已核3a15/tree6f精确四CI38128391205 SUCCESS，完整PG236+140=376；这是原源码回归，不替当前A07 WIP。后端原v2已实际completed/审批消费/新增1execution1itemQ70，旧21items2execution摘要保持，总3executions22items2140；C完成态只读由Root独占预约，原4488 C_not_started_due_handoff_budget/authGET0与父控退出记录/停止保卷不删除。
+
+官方资源4层：2d4 Docker125/CLI-SDK未启动；426 auth/bot/table各1 HTTP200/code0、ValueError具体分支未捕获；4c完整2table/目标0/P4_TARGET_NOT_UNIQUE、字段0；用户明确授权Root同Base原生UI建独立P4表后，654当前exact匹配1/完整15字段正确类型，schema_verified，4methods各1 HTTP200/code0，记录CRUD/IM/WS/新provider0。654原child fullstartedstopped/同namespace OSabsence/terminationconfirmed与tasks/jobs/outbox0，11:48:56Z原释放及同outer账本只读补证11:50:23Z stop/down0/资源0/保卷分记，未续SDK窗口；平台UI空白行是否实际记录仍未知。原426根因不被后续追溯改写，P1旧表与所有风险/凭据/卷保持。
+
+[详细A07](PHASE4_A07_WORKER.md)记录原A唯一owner的正式受控装配WIP：同Session Factory+持久SDKLedger+真实IM/B适配器+原delivery/Worker，defaultoff/explicitlive/同Gateway任务与参数/Fake历史拒绝/严格当前schema/有限caps/未知停止/完整child OS死亡确认。新增25pure，含旧回归定向58/5.86s通过；初新PGscope collect1/2.79s历史保留；随后新2+原2共4PG实际通过，最终修复源码1426offline/378integration deselected/118.78s通过。源码freeze/独审/新精确CI尚待，不预填SHA或Gate。B模块/C产品/锁/审批状态机未改，新两行Worker维护stop检查避免额外Graph claim。
+
+C readonly已由Root核成功并释放，下一步原Core审核A07精确冻结源码及新CI；真人pilot合同disabled，SDK当前目标预检通过不代表正式写权限/真人/群20/新周期/全M1。UX8/N01未实施；main9d97/Phase4 in_progress/Issues39–42未关闭，D1=10-10/D30=11-08/300h/P4 D13–17/50h估计、人工H-L not_reported、18页设计与生产/Woo/Phase5/扩权/新paid边界保持。
+
+
+A07本节后继实际回执：Root完成态只读0356/C已readonly_completed_verified，loginPOST1/businesswrites0、同v2执行/Q70/旧known绑定保持，11:57:36Z（北京时间19:57:36）正常stop/down0/低权tempDB0/资源0/保卷。A07初新PG插件exit3/0tests与第二3pass1fail保留；权威p3_task_sources.parameters关联修复后新project p4a07fix-c2fd67aa5f6b一次4PG实际通过（新2/原2）/command14.953s/JUnit12.171s，12:21:17.619637Z正常stop/down0/三flagsfalse/tempDB0/保卷，SDK/平台Secret/Graph/paid0。原Fake cursor通过不替实际SQL，该修复不删准入检查；详见A07。

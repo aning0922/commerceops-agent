@@ -1,0 +1,58 @@
+"""同原Gateway/显式任务白名单的正式SDK Worker窗口；默认关闭。"""
+
+from datetime import UTC, datetime
+from typing import Literal
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from commerceops.adapters.feishu.business_config import BusinessSettings
+from commerceops.application.feishu_business.sdk_calls import SDKMethod
+from commerceops.application.feishu_business.sdk_window import SDKWindow
+
+
+class ControlledWorkerWindow(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    schema_version: Literal["p4-worker-v1"]
+    window_id: UUID
+    gateway_window_id: UUID
+    organization_id: UUID
+    shop_id: UUID
+    task_ids: frozenset[UUID] = Field(min_length=1, max_length=5, repr=False)
+    expires_at: datetime
+    caps: dict[SDKMethod, int] = Field(repr=False)
+    enabled: bool = False
+
+    def window(self, settings: BusinessSettings) -> SDKWindow:
+        checked = type(self).model_validate(self.model_dump())
+        remaining = (
+            (checked.expires_at - datetime.now(UTC)).total_seconds()
+            if checked.expires_at.utcoffset() is not None
+            else 0
+        )
+        if (
+            self.expires_at.utcoffset() is None
+            or not 15 < remaining <= 300
+            or not self.enabled
+            or (self.organization_id, self.shop_id) != (settings.organization_id, settings.shop_id)
+            or self.caps.get("auth.v3.tenant_access_token.internal") != 1
+            or self.caps.get("bot.v3.info") != 1
+            or self.caps.get("bitable.v1.app_table_field.list") not in (1, 2)
+            or self.caps.get("bitable.v1.app_table.list", 0) not in (0, 1, 2)
+            or settings.base_table_id_file is None
+            and self.caps.get("bitable.v1.app_table.list", 0) == 0
+            or self.caps.get("im.v1.message.create", 0) < 1
+            or self.caps.get("bitable.v1.app_table_record.create", 0) < 1
+            or self.caps.get("bitable.v1.app_table_record.list", 0) < 2
+        ):
+            raise PermissionError("P4_CONTROLLED_WORKER_WINDOW_CLOSED")
+        return SDKWindow(
+            self.window_id,
+            self.organization_id,
+            self.shop_id,
+            self.expires_at,
+            self.caps,
+            enabled=True,
+            verification_mode="controlled_sdk",
+        )

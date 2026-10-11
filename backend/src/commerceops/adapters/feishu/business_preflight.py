@@ -94,7 +94,7 @@ async def _metadata_rows(
     raise ValueError("P4_METADATA_INCOMPLETE")
 
 
-async def preflight(factory: BusinessSDKFactory) -> dict[str, str | int | bool]:
+async def verified_target(factory: BusinessSDKFactory) -> tuple[str, str, int]:
     settings, ledger = factory.settings, factory.ledger
     # 私有定位只在live Factory已认证后读，不从旧env或probe回填。
     await factory.initialize()
@@ -115,13 +115,19 @@ async def preflight(factory: BusinessSDKFactory) -> dict[str, str | int | bool]:
             table_id = selected
         fields = await metadata_rows(client, factory.option, app_token, table_id)
     validate_fields(fields)
+    # 只交同进程正式装配；定位不进入CLI摘要/日志/持久SDK账本。
+    return app_token, table_id, len(fields)
+
+
+async def preflight(factory: BusinessSDKFactory) -> dict[str, str | int | bool]:
+    _, _, field_count = await verified_target(factory)
     # 不输出定位/schema原值，不把bot结果当tenant/group/所有成员的API证据。
     return {
         "schema_version": "p4-v1",
         "authentication_observed": True,
         "bot_identity_observed": True,
         "target_unique": True,
-        "field_count": len(fields),
+        "field_count": field_count,
         "field_types_valid": True,
         "tenant_verification": "not_run",
         "group_verification": "not_run",

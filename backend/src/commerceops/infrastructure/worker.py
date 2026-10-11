@@ -78,6 +78,8 @@ class Worker:
                     # 只在同Worker无在途Graph时做P3匹配读取/ready；不是独立调度进程。
                     await self.reconcile()
                     next_scan = asyncio.get_running_loop().time() + self.recovery_scan_seconds
+                if stop.is_set():
+                    break
                 job = await self.queue.claim()
                 if job is None:
                     await asyncio.wait(

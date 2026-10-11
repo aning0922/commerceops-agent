@@ -114,3 +114,10 @@ M1/M2/M3 范围及估算作为当前设计基线，Phase 1 探针后重估。后
 read-source06cd精确四CI与375PG已由Root核通过，source43的A06现场PG1及owned Compose的known/API/T6/持久恢复提供部分新证据；当前AC08仍未通过，第4cycle needs_reapproval/v2未明确批准、零执行，不改变原版本绑定重批Gate。下一步由Root原owner有界核场景/合同及精确source独审/CI，再开展明确资源包下RO preflight、正式Feishu/Base/Card与真人证据；不把Fake投影23verified当remoteACK或整M1完成。细节见STATUS45/PHASE4_ACCEPTANCE。
 
 UX8项及N01只见Issue42#6107359838待用户授权排期；当前Web结构化与PRD+冻结M02自然语言BC02差异待合同核对，不直接改产品、声称已实现、移至M2或减Gate。Phase4在原300h内的D13–17/50h估计与日期保持，人工H/L未报告；Phase5/Woo/生产/新paid/扩权仍未授权。
+
+
+## A07当前后继门槛（2026-10-11）
+
+原3a15四CI38128391205与完整376PG、原v2 backend completed的新1execution1itemQ70已由Root核定；旧C补证仍分层。Root获用户明确授权同Base建正式P4表后，654只读官方preflight当前唯一表/15字段类型通过，auth/bot/table/field四次HTTP200/code0，记录/IM/WS/provider0/完整生命周期与资源释放0，既有失败与原426失因未知不删除。该资源Gate不签正式业务外写、真人或全M1。
+
+Root已派原A唯一owner继续正式单Worker真实SDK/账本/IM/B适配器/原delivery装配离线实施；当前WIP尚未冻结，定向58pure通过，新必要PG2+原2共4实际通过/20:21:17资源0，实际PG/独审/精确新CI后才安排明确真人pilot窗口。pilot需在SDK窗口包含当前metadata检查的真实方法cap，不以早期10次不完整候选预算自动启动；群20/双渠道/负例/新周期/重复/WSwire仍保原门槛。C只读独占PG预约由Root监督，A不并起资源。UX8/N01待授权未实施，阶段/日期/预算/人工工时/设计与所有历史风险和卷保持。

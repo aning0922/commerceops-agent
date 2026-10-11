@@ -4,6 +4,8 @@
 
 当前2026-10-11部分收口：Root核06cd精确四CI38120338660 SUCCESS/完整375PG，source43原Core无P1/P2且必要A06现场PG1通过；新owned Compose的A known/API/T6/恢复部分通过，C实际三创建额度已消费，known读取/20拒绝零项/20完成与单T6通过，第4cycle needs_reapproval/v1已批v2待批/零执行。整体AC08 failed/not_accepted，M1/Phase4实施中；正式SDK/Base/Card/Feishu/human及source43新精确CI仍pending。详见[STATUS45](STATUS.md#45-phase4源码与受控m1部分验收)和下方当前矩阵；旧正文为当时证据，不覆盖最新收口。
 
+当前A07增量（2026-10-11）：原3a15精确四CI38128391205 SUCCESS/376完整PG及原v2 backend completed由Root核，原旧正文是历史；用户授权Root同Base新表后，654当前官方RO schema_verified/exact1/15字段正确、4method各1 HTTP200/code0/完整生命周期/资源释放0，record/IM/WS/provider0，空白行是否记录未核。2d4/426未知/4c目标0与C4488未派均保留。正式Worker仅新离线WIP，定向58pure通过、新必要PG2+原2共4实际通过，冻结/独审/精确CI/正式外写/真人/全M1仍pending，旧CI不验收该新源码。详见[STATUS46](STATUS.md#46-官方当前schema预检通过与a07正式worker装配候选)与[A07](PHASE4_A07_WORKER.md)。
+
 ## 当前范围与责任
 
 A唯一共享合同/迁移/业务/outbox/Worker/Graph/Python锁/CI/Compose/阶段文档owner；B新Base三模块/测试/文档按Issue41独占，前端沿原owner。共享[p4-v1候选](contracts/p4-v1.md)与机器DTO/Protocol须Root独审后冻结。第一批仅offline/全新自有PG，真实平台0；资源有效性后续由Root受控诊断，不把旧probe存在/权限scope当作当前可用证明。

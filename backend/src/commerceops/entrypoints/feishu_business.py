@@ -3,14 +3,21 @@
 import argparse
 import asyncio
 import json
+import os
 import signal
+import socket
 import subprocess
 import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
+from uuid import UUID
 
 from commerceops.adapters.feishu.business_config import verify_config
+
+if TYPE_CHECKING:
+    from commerceops.infrastructure.web_config import WebConfig
 
 
 def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
@@ -83,6 +90,136 @@ def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
     }
 
 
+async def confirm_worker_child(config: "WebConfig", organization: UUID, pid: int) -> None:
+    from psycopg.types.json import Jsonb
+
+    from commerceops.infrastructure.web_config import WebConfig
+    from commerceops.infrastructure.worker_lock import (
+        TerminationRequired,
+        confirm_termination,
+        open_async,
+        process_namespace,
+        require_process_absent,
+    )
+
+    if not isinstance(config, WebConfig):
+        raise ValueError("P4_CONTROLLED_CONFIGURATION_REQUIRED")
+    expected = {"pid": pid, "host": socket.gethostname(), "pid_namespace": process_namespace()}
+    async with await open_async(config.database) as db:
+        cursor = await db.execute(
+            """SELECT s.entity_id,s.after_state AS started,e.after_state AS stopped
+            FROM business.audit_events s LEFT JOIN business.audit_events e
+            ON e.organization_id=s.organization_id AND e.entity_id=s.entity_id
+            AND e.source='worker' AND e.entity_type='worker_runtime' AND e.action='stopped'
+            WHERE s.organization_id=%s AND s.source='worker'
+            AND s.entity_type='worker_runtime' AND s.action='started'
+            AND s.after_state=%s""",
+            (organization, Jsonb(expected)),
+        )
+        rows = await cursor.fetchall()
+    if len(rows) != 1 or rows[0]["started"] != expected or rows[0]["stopped"] != expected:
+        raise TerminationRequired("original full started/stopped receipt required")
+    require_process_absent(expected)
+    await confirm_termination(
+        config.database,
+        rows[0]["entity_id"],
+        "controlled Feishu Worker child stopped and OS reaped",
+    )
+
+
+def run_worker(config: Path, window_file: Path) -> dict[str, object]:
+    from commerceops.adapters.feishu.business_config import BusinessSettings
+    from commerceops.adapters.feishu.business_factory import private_value
+    from commerceops.adapters.feishu.sdk import restrict_sdk_logs
+    from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+    from commerceops.infrastructure.web_config import WebConfig
+
+    restrict_sdk_logs()
+    if os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
+        raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
+    settings = BusinessSettings.model_validate_json(private_value(config))
+    window = ControlledWorkerWindow.model_validate_json(private_value(window_file))
+    window.window(settings)
+    web = WebConfig.from_file(settings.web_config_file)
+    if web.database.user != "commerceops_app":
+        raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
+    deadline = time.monotonic() + (window.expires_at - datetime.now(UTC)).total_seconds()
+    child = subprocess.Popen(  # noqa: S603 - fixed module, verified files, no shell
+        [
+            sys.executable,
+            "-m",
+            "commerceops.entrypoints.feishu_worker_child",
+            "--live",
+            "--config",
+            str(config),
+            "--window-file",
+            str(window_file),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+
+    def interrupted(signum: int, frame: object) -> None:
+        raise KeyboardInterrupt
+
+    previous = signal.signal(signal.SIGTERM, interrupted)
+    forced = False
+    try:
+        try:
+            output, _ = child.communicate(timeout=max(0.01, deadline - time.monotonic() - 15))
+        except (subprocess.TimeoutExpired, KeyboardInterrupt):
+            forced = True
+            child.terminate()
+            try:
+                output, _ = child.communicate(
+                    timeout=max(0.01, min(5, deadline - time.monotonic()))
+                )
+            except subprocess.TimeoutExpired:
+                child.kill()
+                output, _ = child.communicate(
+                    timeout=max(0.01, min(5, deadline - time.monotonic()))
+                )
+    finally:
+        if child.poll() is None:
+            child.terminate()
+            try:
+                child.wait(timeout=max(0.01, min(5, deadline - time.monotonic())))
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=max(0.01, min(5, deadline - time.monotonic())))
+        signal.signal(signal.SIGTERM, previous)
+    summary: dict[str, object] = {}
+    for line in output.splitlines():
+        try:
+            row = json.loads(line)
+        except (ValueError, UnicodeError):
+            continue
+        if type(row) is dict and row.get("verification_mode") == "controlled_sdk":
+            summary = row
+    confirmed = False
+    try:
+
+        async def bounded_confirmation() -> None:
+            async with asyncio.timeout(max(0.01, min(5, deadline - time.monotonic()))):
+                await confirm_worker_child(web, window.organization_id, child.pid)
+
+        asyncio.run(bounded_confirmation())
+        confirmed = True
+    except Exception:
+        confirmed = False  # 缺原真实完整pair/OS证明时不替代人工终止合同。
+    return {
+        "result": "window_stopped"
+        if child.returncode == 0 and confirmed and summary.get("result") == "window_stopped"
+        else "failed",
+        "child_exit": child.returncode,
+        "child_reaped": child.poll() is not None,
+        "forced_stop": forced,
+        "lifecycle_termination_confirmed": confirmed,
+        "official_summary": summary,
+        "phase4_gate_passed": False,
+    }
+
+
 async def run_preflight(config: Path, window_file: Path) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import BusinessSDKFactory, private_value
@@ -134,7 +271,7 @@ async def run_preflight(config: Path, window_file: Path) -> dict[str, object]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Formal Feishu business configuration")
-    parser.add_argument("action", choices=["verify-config", "preflight", "gateway"])
+    parser.add_argument("action", choices=["verify-config", "preflight", "gateway", "worker"])
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--window-file", type=Path)
     parser.add_argument("--live", action="store_true")
@@ -148,6 +285,8 @@ def main() -> None:
             result = (
                 run_gateway(args.config, args.window_file)
                 if args.action == "gateway"
+                else run_worker(args.config, args.window_file)
+                if args.action == "worker"
                 else asyncio.run(run_preflight(args.config, args.window_file))
             )
         print(json.dumps(result, sort_keys=True))
