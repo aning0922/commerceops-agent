@@ -194,6 +194,7 @@ jobs:
           run_before_cleanup npm exec -- playwright install --with-deps chromium
           run_before_cleanup npm run test:web
           run_before_cleanup npm exec -- playwright test --config playwright.b04-offline.config.ts
+          run_before_cleanup npm exec -- playwright test --config ../tests/e2e/web/phase4/playwright.config.ts
       - name: All real PG API headless read write and items batches
         id: live
         shell: bash

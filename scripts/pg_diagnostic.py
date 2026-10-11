@@ -54,7 +54,11 @@ def collected_nodes(records: list[dict[str, object]]) -> list[str]:
 
 
 def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
-    phase3 = [node for node in nodes if node.split("::", 1)[0].startswith("tests/test_p3")]
+    phase3 = [
+        node
+        for node in nodes
+        if node.split("::", 1)[0].startswith(("tests/test_p3", "tests/test_p4"))
+    ]
     if not phase3:
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
@@ -65,7 +69,15 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
             "/", "-"
         )
-        groups[label] = [node for node in phase3 if node.split("::", 1)[0] == path]
+        group = [node for node in phase3 if node.split("::", 1)[0] == path]
+        # 610实证此唯一approval模块累计300s；仅其按完整collection规范顺序14节点子批。
+        # 不筛选通过节点、改用例或放宽任何命令/总deadline；其余自然模块原样。
+        if path == "tests/test_p3_approval_pg.py" and len(group) > 14:
+            ordered = sorted(group)
+            for offset in range(0, len(ordered), 14):
+                groups[f"{label}-part-{offset // 14 + 1}"] = ordered[offset : offset + 14]
+        else:
+            groups[label] = group
     return groups
 
 
@@ -98,7 +110,13 @@ def run_combined(
     for label, group in groups.items():
         report["failed_target"] = label
         start = len(records)
-        paths = [] if label == "combined" else sorted({node.split("::", 1)[0] for node in group})
+        paths = (
+            []
+            if label == "combined"
+            else group
+            if label.startswith("combined-phase3-test_p3_approval_pg-part-")
+            else sorted({node.split("::", 1)[0] for node in group})
+        )
         # 仍使用main的同一expires-75预算；不重置absolute deadline或放宽单命令300s。
         completed = test_command(label, paths, 300)
         if completed:

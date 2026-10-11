@@ -1,0 +1,12 @@
+{
+  "platform": "darwin",
+  "uid": 501,
+  "pid": 27554,
+  "build_id": "TO6Hj7zslszJvKlp_AsA4",
+  "port": 3496,
+  "checkout": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent",
+  "started_utc": "2026-10-11T04:23:45.165Z",
+  "headless": true,
+  "source": "component memory Mock",
+  "actual_api_pg_worker_provider": "not_started"
+}

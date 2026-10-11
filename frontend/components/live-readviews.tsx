@@ -1,28 +1,123 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import type { DTO } from "../lib/p3-present";
-import { label, localTime, planComplete } from "../lib/p3-present";
+import {
+  label,
+  localTime,
+  planComplete,
+  explanationBound,
+} from "../lib/p3-present";
 import { P3Failure } from "../lib/p3-transport";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
+import { projectionMeaning, syncMeaning } from "../lib/p4-read-facts";
 export const writePending =
   "审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。";
+const verificationLabel = (mode: DTO["SenderGate"]["verification_mode"]) =>
+  mode === "offline_fake"
+    ? "离线 Fake"
+    : mode === "controlled_sdk"
+      ? "受控 SDK"
+      : "未报告";
+const gateReason: Record<DTO["SenderGate"]["reason_code"], string> = {
+  NOT_CONFIGURED: "未配置",
+  DISABLED_BY_CONFIGURATION: "配置禁用",
+  WINDOW_EXPIRED: "受控窗口已过期",
+  WORKER_NOT_READY: "Worker 未就绪",
+  CONTROLLED_WINDOW_ACTIVE: "受控窗口有效",
+};
+export function SenderFacts({
+  gates,
+  externalEnabled,
+}: {
+  gates: readonly DTO["SenderGate"][];
+  externalEnabled: boolean;
+}) {
+  return (
+    <div>
+      <p>
+        真实外部发送资格：
+        {externalEnabled ? "当前启用（按服务端资格）" : "当前禁用"}
+        。资格不等于已经送达，也不授予手动重发权限。
+      </p>
+      {!gates.length && <p>发送器资格尚未报告。</p>}
+      {gates.map((gate, index) => (
+        <div className="notice info" key={`${gate.destination_alias}:${index}`}>
+          <div>
+            <strong>
+              {gate.destination_alias} · {gateReason[gate.reason_code]}
+            </strong>
+            <p>
+              {gate.verification_mode === "offline_fake"
+                ? "Fake 发送资格；不代表真实平台启用"
+                : `发送器资格：${gate.sender_enabled ? "已启用" : "禁用"}`}
+            </p>
+            <p>
+              验证模式：{verificationLabel(gate.verification_mode)} · Worker：
+              {gate.worker_ready === null
+                ? "未报告"
+                : gate.worker_ready
+                  ? "就绪"
+                  : "未就绪"}
+            </p>
+            <small>
+              读取证据时间：{gate.as_of} · reason：{gate.reason_code}
+            </small>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 export function Sync({ sync }: { sync: DTO["SyncRead"] }) {
   return (
     <div>
       <strong>
-        协作同步：{sync.state === "pending" ? "等待同步" : label(sync.state)}
+        协作同步：
+        {sync.state === "synced"
+          ? syncMeaning(sync)
+          : sync.state === "pending"
+            ? "等待同步"
+            : label(sync.state)}
       </strong>
-      <p>
-        sender：{sync.sender_enabled ? "启用" : "禁用"} ·
-        业务状态与同步独立；待同步不表示已写外部平台。
-      </p>
+      <p>业务状态与同步独立；待同步不表示已写外部平台。</p>
+      <SenderFacts
+        gates={sync.sender_gates}
+        externalEnabled={sync.sender_enabled}
+      />
       {sync.projections.map((x) => (
-        <p key={x.aggregate_id}>
-          {x.outbox_status} · projection v{x.projection_version} ·{" "}
-          {x.error_code ?? "无已知错误"} · {x.as_of ?? "时间未知"}
-        </p>
+        <div
+          className="notice info"
+          key={x.outbox_id}
+          data-projection-version={x.projection_version}
+        >
+          <div>
+            <strong>
+              {x.destination_alias} · {projectionMeaning(x)}
+            </strong>
+            <p>
+              投影 v{x.projection_version} · 当前目标 v{x.target_version} ·
+              观察版本{" "}
+              {x.observed_version === null
+                ? "未报告"
+                : `v${x.observed_version}`}
+            </p>
+            <p>
+              完整唯一核实：{x.complete_unique_verified ? "是" : "未核实"} ·{" "}
+              {x.is_current_version ? "当前版本" : "历史版本"} · attempts：
+              {x.attempts}
+            </p>
+            <p>
+              原同步状态：{label(x.state)} · outbox：{x.outbox_status} ·
+              source：{x.source_mode} · 验证模式：
+              {verificationLabel(x.verification_mode)}
+            </p>
+            <small>
+              安全错误码：{x.error_code ?? "未报告"} · 读取证据时间：{x.as_of}
+            </small>
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -280,10 +375,12 @@ export function LiveReport({
   read,
   config,
   client,
+  cycle,
 }: {
   read: DTO["ReportRead"];
   config: DTO["ConfigRead"] | null;
   client: A01ReadClient;
+  cycle?: { allowed: boolean; reason: string; openDraft: () => void };
 }) {
   const [panel, setPanel] = useState("");
   const [explanation, setExplanation] = useState<DTO["ExplanationRead"] | null>(
@@ -291,31 +388,55 @@ export function LiveReport({
   );
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [explanationError, setExplanationError] = useState("");
+  const epoch = useRef(0);
+  useEffect(
+    () => () => {
+      epoch.current++;
+    },
+    [
+      read.task_id,
+      read.source.report_id,
+      read.source.snapshot_id,
+      read.source.source_task_id,
+      read.source.facts_hash,
+      client,
+    ],
+  );
   const f = read.facts;
   const zone = config?.config.shop_timezone ?? null;
   async function explain() {
+    const stamp = ++epoch.current;
     setPanel("explanation");
     setLoading(true);
     setMessage("");
     setExplanation(null);
+    setExplanationError("");
     try {
       const result = await client.explanation(
         read.task_id,
         read.source.report_id,
       );
-      if (
-        result.task_id !== read.task_id ||
-        result.report_id !== read.source.report_id
-      )
+      if (!explanationBound(read, result))
         throw new P3Failure("INVALID_RESPONSE");
-      setExplanation(result);
+      if (epoch.current === stamp) setExplanation(result);
     } catch (error) {
+      if (epoch.current !== stamp) return;
+      setExplanationError(
+        error instanceof P3Failure ? error.code : "READ_FAILED",
+      );
       setMessage(
         error instanceof P3Failure ? error.message : "暂时无法读取已有解释。",
       );
     } finally {
-      setLoading(false);
+      if (epoch.current === stamp) setLoading(false);
     }
+  }
+  function closePanel() {
+    epoch.current++;
+    setPanel("");
+    setExplanation(null);
+    setLoading(false);
   }
   return (
     <>
@@ -355,12 +476,21 @@ export function LiveReport({
         <button data-control="B19" onClick={() => void explain()}>
           读取本报告已有解释
         </button>
-        <Disabled control="B36" reason="重算未授权，无对应接口。">
-          重新分析
-        </Disabled>
+        {cycle?.allowed ? (
+          <button data-control="B36" onClick={() => setPanel("new-cycle")}>
+            新周期重新分析
+          </button>
+        ) : (
+          <Disabled
+            control="B36"
+            reason={cycle?.reason ?? "未取得安全新周期资格；原地重算仍未开放。"}
+          >
+            新周期重新分析
+          </Disabled>
+        )}
       </div>
       {panel === "provenance" && (
-        <Modal title="数据口径" close={() => setPanel("")}>
+        <Modal title="数据口径" close={closePanel}>
           <Source source={read.source} />
           <p>公式、建议与精确比值来自冻结报告；UI不计算权威建议数量。</p>
           <p>
@@ -368,27 +498,164 @@ export function LiveReport({
           </p>
         </Modal>
       )}
+      {panel === "new-cycle" && cycle?.allowed && (
+        <Modal title="新周期分析影响说明" close={closePanel}>
+          <p>
+            当前 task：{read.task_id}；报告：{read.source.report_id}；snapshot：
+            {read.source.snapshot_id}。
+          </p>
+          <Notice title="原记录保持冻结">
+            只开启全新 P2 分析和独立 P3
+            工作流；不修改当前任务或待审批计划，不重新执行旧 execution。
+          </Notice>
+          <p>
+            下一步仅打开新草稿。需要重新明确店铺、Mock 案例和 L/R/S
+            参数；不会继承旧 approval、hash、nonce、假设确认或请求键。
+          </p>
+          <p>
+            草稿尚无任务或请求。B01
+            准备新键，随后明确提交才创建；参数不完整必须先澄清，不自动续答。
+          </p>
+          <button
+            data-control="B46"
+            onClick={() => {
+              closePanel();
+              cycle.openDraft();
+            }}
+          >
+            打开新周期草稿
+          </button>
+          <Disabled
+            control="B47"
+            reason="跨消息关联、轮次和续答仍待 BC02 稳定合同。"
+          >
+            关联续答未开放
+          </Disabled>
+        </Modal>
+      )}
       {panel === "explanation" && (
-        <Modal title="本报告已有解释" drawer close={() => setPanel("")}>
+        <Modal title="本报告已有解释" drawer close={closePanel}>
           <p>
             固定task/report：{read.task_id} / {read.source.report_id}
           </p>
           {loading ? (
             <p role="status">正在读取已有解释</p>
           ) : explanation ? (
-            <>
-              <Notice title="已有解释记录">
-                仅引用此报告；不调用新的模型。
-              </Notice>
-              <p>{explanation.explanation.result.summary}</p>
-            </>
+            <CachedExplanation read={explanation} />
           ) : (
-            <Notice title="已有解释不可用或尚未就绪">
+            <Notice
+              title={
+                explanationError === "NOT_READY"
+                  ? "已有解释尚未就绪 · NOT_READY"
+                  : "已有解释不可安全读取"
+              }
+            >
               {message} 未生成模板替代真实缓存，也未调用模型。
             </Notice>
           )}
         </Modal>
       )}
+    </>
+  );
+}
+
+function CachedExplanation({ read }: { read: DTO["ExplanationRead"] }) {
+  const record = read.explanation;
+  const result = record.result;
+  const metadata = result.metadata;
+  const absent = (value: string | number | null) => value ?? "未报告";
+  const evidence = {
+    not_used: "未使用模型",
+    offline_stub: "离线 stub 记录",
+    actual_provider: "历史实际 provider 记录",
+  }[metadata.evidence_mode];
+  return (
+    <>
+      <Notice title="已有解释记录">
+        仅读本报告已有缓存，不调用模型、不重新采集或计算建议。
+      </Notice>
+      <p>{result.summary}</p>
+      <Card title="解释来源与降级">
+        <p>
+          叙述方式：
+          {result.narrative_mode === "template"
+            ? metadata.error_code
+              ? "已有确定性模板 · 原因或降级已记录"
+              : "已有确定性模板"
+            : "已有模型选择解释"}
+          ；{evidence}。
+        </p>
+        <p>
+          原记录分类：{metadata.error_code ?? "无已知错误"}；stop_required：
+          {String(metadata.stop_required)}。
+        </p>
+        <p>
+          内层 P2 身份口径：{record.identity_mode}；analysis_only：
+          {String(record.analysis_only)}；不授执行权。
+        </p>
+        <p>
+          provider：{absent(metadata.provider)}；请求模型：
+          {absent(metadata.requested_model)}；返回模型：
+          {absent(metadata.returned_model)}。
+        </p>
+        <p>
+          prompt_version：{metadata.prompt_version}；原 request_id：
+          {absent(metadata.request_id)}。
+        </p>
+      </Card>
+      <Card title="原记录 usage 与成本">
+        <p>
+          input_tokens：
+          {metadata.usage ? metadata.usage.input_tokens : "未报告"}
+          ；output_tokens：
+          {metadata.usage ? metadata.usage.output_tokens : "未报告"}
+          ；total_tokens：
+          {metadata.usage ? metadata.usage.total_tokens : "未报告"}。
+        </p>
+        <p>
+          latency：
+          {metadata.latency_ms === null ? "未报告" : `${metadata.latency_ms}ms`}
+          ；cost_estimate（服务端原值）：{absent(metadata.cost_estimate)}。
+        </p>
+        <p>
+          pricing_version：{absent(metadata.pricing_version)}
+          ；合同未提供币种，本页不换算或补算成本。
+        </p>
+        <p>
+          cost_estimate
+          仅为估算；实际账单与实扣金额未提供，不把历史记录当作本次调用。
+        </p>
+      </Card>
+      <Card title="原报告绑定与依据">
+        <p>
+          源 task：{record.task_id}；解释：{record.explanation_id}；子 task：
+          {record.child_task_id}。
+        </p>
+        <p>
+          report：{result.reference_ids.report_id}；snapshot：
+          {result.reference_ids.snapshot_id}；facts_hash：{result.facts_hash}。
+        </p>
+        <p>
+          绑定方式：{result.binding_mode}；读取 {result.lines.length}{" "}
+          条缓存依据，不裁剪当前报告或审批范围。
+        </p>
+        {result.lines.map((line) => (
+          <article className="list-row" key={line.sku_key}>
+            <div>
+              <strong>{line.sku_key}</strong>
+              <p>
+                {label(line.reason)} · {line.text}
+              </p>
+              <small>
+                facts_hash：{line.facts_hash}；report：
+                {line.reference_ids.report_id}；snapshot：
+                {line.reference_ids.snapshot_id}
+              </small>
+            </div>
+          </article>
+        ))}
+        {!result.lines.length && <p>原记录未提供逐项依据，不补造模型内容。</p>}
+      </Card>
     </>
   );
 }

@@ -40,8 +40,7 @@ export default class LiveReporter implements Reporter {
               : "evidence/b02-read",
     );
     mkdirSync(directory, { recursive: true });
-    writeFileSync(
-      resolve(directory, "live-results.json"),
+    const report =
       JSON.stringify(
         {
           status: result.status,
@@ -56,7 +55,21 @@ export default class LiveReporter implements Reporter {
         },
         null,
         2,
-      ) + "\n",
-    );
+      ) + "\n";
+    writeFileSync(resolve(directory, "live-results.json"), report);
+    if (process.env.COMMERCEOPS_WEB_BATCH === "b04-read") {
+      const privateDirectory = process.env.COMMERCEOPS_B02_PRIVATE_DIR;
+      if (!privateDirectory)
+        throw new Error("Owned read reporter directory required");
+      // Same structured whitelist, exclusively created in this new owned window.
+      writeFileSync(
+        resolve(privateDirectory, "read-live-results.json"),
+        report,
+        {
+          mode: 0o600,
+          flag: "wx",
+        },
+      );
+    }
   }
 }

@@ -1,0 +1,7 @@
+{
+  "port": 3490,
+  "listener_count": 0,
+  "lsof_exit": 1,
+  "scope": "original Playwright owned webServer teardown",
+  "headless": true
+}

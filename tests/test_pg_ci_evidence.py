@@ -284,3 +284,23 @@ def test_mixed_group_cannot_drop_selected_scope_before_any_command(
     with pytest.raises(RuntimeError, match="selected scope coverage mismatch"):
         run_combined([collection(FULL)], {}, command, scope)
     assert calls == []
+
+
+def test_p4_modules_are_in_the_paired_business_partition_without_losing_old_nodes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    p4 = ["tests/test_p4_gateway_pg.py::message", "tests/test_p4_base_future_pg.py::unknown"]
+    nodes = FULL + p4
+    existing = partition(nodes, "existing")
+    business = partition(nodes, "phase3")
+    assert existing == sorted(OLD)
+    assert business == sorted(P3 + p4)
+    assert not set(existing).intersection(business)
+    assert sorted(existing + business) == sorted(nodes)
+    assert nodes_hash(sorted(nodes)) != nodes_hash(FULL)
+    monkeypatch.setitem(globals(), "FULL", nodes)
+    a, b = report("existing"), report("phase3")
+    verify_pair(a, b)
+    assert a["actual_node_ids"] == sorted(OLD)
+    assert b["actual_node_ids"] == sorted(P3 + p4)
+    assert len(b["modules"]) == 4

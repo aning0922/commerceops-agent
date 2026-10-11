@@ -31,6 +31,7 @@ const deployment = {
   source_mode: "mock",
   model_requests_enabled: false,
   external_sender_enabled: false,
+  sender_gates: [],
 };
 const config = { ...base, shop_id: id, config: deployment };
 test("完整冻结DTO校验：拒绝缺字段/额外actor/假身份/bool整数/unsafe数/坏时间，无coerce/default", () => {
