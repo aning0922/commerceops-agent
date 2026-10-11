@@ -576,29 +576,56 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
     assert first["items"][0]["action"] == "workflow_created" and first["next_cursor"]
     pages = [first]
     cursor = first["next_cursor"]
-    # P4正式trace已包含绑定的来源分析audit，仍按同一chronological cursor完整分页。
-    for action, relation in (
-        ("analysis_started", "source"),
-        ("analysis_report_saved", "source"),
-        ("approval_prepared", "task"),
-        ("approval_checkpoint_ready", "task"),
-    ):
+    cursors = {cursor}
+    # 原query允许<=100，完整分页与同一来源的完整响应对照，不猜某一页就是终页。
+    for _ in range(99):
         following = f.client.get(
             f"/api/v1/tasks/{task}/events", params={"limit": 1, "cursor": cursor}
         ).json()
         assert len(following["items"]) == 1
-        event = following["items"][0]
-        assert event["action"] == action and event["relation"] == relation
-        assert event["task_id"] == (created["source_task_id"] if relation == "source" else task)
-        if action == "approval_checkpoint_ready":
+        pages.append(following)
+        cursor = following["next_cursor"]
+        if cursor is None:
+            break
+        assert cursor not in cursors
+        cursors.add(cursor)
+    else:
+        raise AssertionError("owned event pagination did not terminate within 100 pages")
+    events = [page["items"][0] for page in pages]
+    complete = f.client.get(f"/api/v1/tasks/{task}/events", params={"limit": 100}).json()
+    assert complete["next_cursor"] is None and complete["items"] == events
+    assert len({event["event_id"] for event in events}) == len(events)
+    assert [event["action"] for event in events] == [
+        "workflow_created",
+        "analysis_started",
+        "analysis_report_saved",
+        "approval_prepared",
+        "approval_checkpoint_ready",
+    ]
+    report_id = f.client.get(f"/api/v1/tasks/{task}/report").json()["source"]["report_id"]
+    approval_id = f.client.get("/api/v1/approvals?view=mine").json()["items"][0]["approval_id"]
+    bindings = {
+        "workflow_created": ("task", task),
+        "analysis_started": ("task", created["source_task_id"]),
+        "analysis_report_saved": ("report", report_id),
+        "approval_prepared": ("plan", versions["items"][0]["plan_id"]),
+        "approval_checkpoint_ready": ("approval", approval_id),
+    }
+    for event in events:
+        relation = "source" if event["action"].startswith("analysis_") else "task"
+        related = created["source_task_id"] if relation == "source" else task
+        kind, result_id = bindings[event["action"]]
+        assert event["relation"] == relation and event["task_id"] == related
+        assert event["result_ref"] == result_id
+        assert event["references"] == [
+            {"kind": "task", "id": related},
+            {"kind": kind, "id": result_id},
+        ]
+        if event["action"] == "approval_checkpoint_ready":
             assert event["tool"] is None
         else:
             assert event["tool"]["category"] == "deterministic"
             assert event["tool"]["selected_by_model"] is False
-        pages.append(following)
-        cursor = following["next_cursor"]
-        assert bool(cursor) == (action != "approval_checkpoint_ready")
-    assert len({page["items"][0]["event_id"] for page in pages}) == 5
     listed = f.client.get("/api/v1/approvals?view=mine").json()
     assert listed["total"] == 1 and listed["counts"]["pending"] == 1 and len(listed["items"]) == 1
     history = f.client.get("/api/v1/approvals?view=history").json()
