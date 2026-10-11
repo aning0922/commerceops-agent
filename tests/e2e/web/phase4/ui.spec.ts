@@ -125,13 +125,11 @@ test.afterEach(async ({ page }) => {
 });
 async function open(page: Page, mode = "actual"): Promise<Frame> {
   await page.goto("http://127.0.0.1:3496/access");
-  const actual = await page
-    .locator(".app-shell")
-    .evaluate((el) => ({
-      source: el.getAttribute("data-mock-source"),
-      service: el.getAttribute("data-mock-service"),
-      build: el.getAttribute("data-mock-build"),
-    }));
+  const actual = await page.locator(".app-shell").evaluate((el) => ({
+    source: el.getAttribute("data-mock-source"),
+    service: el.getAttribute("data-mock-service"),
+    build: el.getAttribute("data-mock-build"),
+  }));
   expect(actual).toEqual({
     source: "commerceops-b01",
     service: owned.serviceId,
@@ -165,7 +163,12 @@ async function open(page: Page, mode = "actual"): Promise<Frame> {
     );
   if (mode !== "actual")
     await frame.evaluate((value) => window.__p4.render(value), mode);
-  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  if (mode.startsWith("task_"))
+    await expect(frame.locator("[data-task-id]")).toHaveAttribute(
+      "data-task-id",
+      report.task_id,
+    );
+  else await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
   return frame;
 }
 test("缓存完整metadata/usage/refs仅原GET；0与null分开，390完整依据", async ({
@@ -312,6 +315,113 @@ test("待审批/无operator/服务端不允许时M05具体禁用，不原地重�
     await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
     await expect(frame.locator('[data-control="B36"]')).toBeDisabled();
   }
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method === "POST"),
+    ),
+  ).toEqual([]);
+});
+
+test("任务详情B46与报告同资格：pending/跨店operator/禁用无草稿；完成后只源店新key明确提交", async ({
+  page,
+}) => {
+  const frame = await open(page, "task_pending");
+  for (const mode of ["task_pending", "task_other_shop", "task_disabled"]) {
+    if (mode !== "task_pending") {
+      await frame.evaluate((value) => window.__p4.render(value), mode);
+      await expect(frame.locator("[data-task-id]")).toHaveAttribute(
+        "data-task-id",
+        report.task_id,
+      );
+    }
+    await expect(frame.locator('[data-control="B46"]')).toBeDisabled();
+    await expect(frame.locator("dialog")).toHaveCount(0);
+    expect(
+      await frame.evaluate(() =>
+        window.__p4.calls.filter((call) => call.method === "POST"),
+      ),
+    ).toEqual([]);
+  }
+  await frame.evaluate(() => window.__p4.render("task_multi_shop"));
+  await expect(frame.locator('[data-control="B46"]')).toBeEnabled();
+  await frame.locator('[data-control="B46"]').click();
+  await expect(frame.getByLabel("来源方式")).toHaveCount(0);
+  await expect(frame.getByLabel("当前operator店铺")).toHaveValue(
+    "00000000-0000-4000-8000-000000000065",
+  );
+  await expect(
+    frame.getByLabel("当前operator店铺").locator("option"),
+  ).toHaveCount(1);
+  await expect(frame.locator('dialog [data-control="B01"]')).toBeDisabled();
+  await frame.locator('[data-control="B35"]').click();
+  await frame.locator('dialog [data-control="B01"]').click();
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method === "POST"),
+    ),
+  ).toEqual([]);
+  await frame.locator('[data-action="send-original"]').click();
+  await expect(frame.locator("dialog")).toContainText("正式任务创建回执");
+  const calls = await frame.evaluate(() =>
+    window.__p4.calls.filter((call) => call.method === "POST"),
+  );
+  expect(calls).toHaveLength(1);
+  const body = JSON.parse(calls[0].body!);
+  expect(body.mode).toBe("new_cycle");
+  expect(body.shop_id).toBe("00000000-0000-4000-8000-000000000065");
+  expect(body.request_key).not.toBe(report.task_id);
+  for (const key of [
+    "source_task_id",
+    "source_report_id",
+    "snapshot_id",
+    "facts_hash",
+    "approval_id",
+    "nonce",
+    "acknowledged_assumption_keys",
+  ])
+    expect(body).not.toHaveProperty(key);
+});
+
+test("任务详情新草稿撤权即清；卸载后迟到的completed不能复活待审批资格", async ({
+  page,
+}) => {
+  const frame = await open(page, "task_multi_shop");
+  await frame.locator('[data-control="B46"]').click();
+  await frame.locator('[data-control="B35"]').click();
+  await frame.locator('dialog [data-control="B01"]').click();
+  await frame.evaluate(() => window.__p4.revoke());
+  await expect(frame.locator("dialog")).toHaveCount(0);
+  await expect(frame.locator("main")).toContainText(
+    "身份、业务缓存与预备操作已清除",
+  );
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method === "POST"),
+    ),
+  ).toEqual([]);
+  await frame.evaluate(() => window.__p4.render("task_late_task"));
+  await expect(frame.locator("main")).toContainText("正在读取当前授权记录");
+  await expect
+    .poll(() =>
+      frame.evaluate(
+        () =>
+          window.__p4.calls.filter(
+            (call) =>
+              call.path ===
+              "/api/v1/tasks/00000000-0000-4000-8000-000000000066",
+          ).length,
+      ),
+    )
+    .toBe(1);
+  await frame.evaluate(() => window.__p4.render("task_pending"));
+  await expect(frame.locator('[data-control="B46"]')).toBeDisabled();
+  await frame.evaluate(async () => {
+    window.__p4.release();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  await expect(frame.locator('[data-control="B46"]')).toBeDisabled();
+  await expect(frame.locator("main")).toContainText("当前任务尚未完成");
+  await expect(frame.locator("dialog")).toHaveCount(0);
   expect(
     await frame.evaluate(() =>
       window.__p4.calls.filter((call) => call.method === "POST"),

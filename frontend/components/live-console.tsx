@@ -111,9 +111,12 @@ export function LiveConsole({
   }, []);
   const [session, setSession] = useState<DTO["SessionRead"] | null>(null);
   const [checking, setChecking] = useState(true);
-  const [data, setData] = useState<{ path: string; value: PageData } | null>(
-    null,
-  );
+  const [data, setData] = useState<{
+    path: string;
+    value: PageData;
+    client: A01ReadClient;
+    session: DTO["SessionRead"];
+  } | null>(null);
   const [config, setConfig] = useState<DTO["ConfigRead"] | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -341,7 +344,7 @@ export function LiveConsole({
         throw new P3Failure("INVALID_RESPONSE");
       if (accept()) {
         setConfig(currentConfig);
-        setData({ path, value: page });
+        setData({ path, value: page, client: client!, session: session! });
       }
     }
     void load().catch((error) => {
@@ -467,7 +470,28 @@ export function LiveConsole({
       router.replace("/login");
     }
   }
-  const page = data?.path === path ? data.value : null;
+  const page =
+    data?.path === path && data.client === client && data.session === session
+      ? data.value
+      : null;
+  const operatorShops =
+    session?.principal.role_shop_grants
+      .filter((grant) => grant.role === "operator")
+      .map((grant) => grant.shop_id) ?? [];
+  const cycleTask =
+    page?.kind === "task"
+      ? page.read
+      : page?.kind === "report"
+        ? page.task
+        : null;
+  const cycleGate = newCycleEligibility(
+    cycleTask,
+    capabilities?.can_create_task ?? false,
+    operatorShops,
+    page?.kind === "report" ? page.read : undefined,
+  );
+  const cycleShops =
+    cycleGate.allowed && cycleTask ? [cycleTask.task.shop_id] : [];
   const title = titleOf(path);
   function filter(value: string) {
     setData(null);
@@ -820,13 +844,17 @@ export function LiveConsole({
                     <p>
                       任务状态、永久执行回执与各内部项跟进状态分别呈现；不推断采购或入库。
                     </p>
-                    {page.read.actions.can_start_new_cycle && (
+                    {cycleGate.allowed ? (
                       <button
                         data-control="B46"
-                        onClick={() => setPanel("create")}
+                        onClick={() => setPanel("create-new-cycle")}
                       >
                         开启新周期
                       </button>
+                    ) : (
+                      <Disabled control="B46" reason={cycleGate.reason}>
+                        开启新周期
+                      </Disabled>
                     )}
                   </Card>
                   {page.execution && (
@@ -853,13 +881,7 @@ export function LiveConsole({
                     config={config}
                     client={client!}
                     cycle={{
-                      ...newCycleEligibility(
-                        page.task,
-                        capabilities!.can_create_task,
-                        session.principal.role_shop_grants
-                          .filter((x) => x.role === "operator")
-                          .map((x) => x.shop_id),
-                      ),
+                      ...cycleGate,
                       openDraft: () => setPanel("create-new-cycle"),
                     }}
                   />
@@ -1179,18 +1201,14 @@ export function LiveConsole({
           {(panel === "create" ||
             panel === "create-source" ||
             panel === "create-new-cycle") &&
-            capabilities!.can_create_task && (
+            capabilities!.can_create_task &&
+            (panel !== "create-new-cycle" || cycleGate.allowed) && (
               <CreateTaskDialog
+                key={`${panel}:${path}:${cycleTask?.task.task_id ?? ""}:${cycleShops.join()}:${session.principal.principal_id}:${session.principal.auth_version}`}
                 client={client!}
-                shops={session.principal.role_shop_grants
-                  .filter(
-                    (x) =>
-                      x.role === "operator" &&
-                      (panel !== "create-new-cycle" ||
-                        (page?.kind === "report" &&
-                          x.shop_id === page.task.task.shop_id)),
-                  )
-                  .map((x) => x.shop_id)}
+                shops={
+                  panel === "create-new-cycle" ? cycleShops : operatorShops
+                }
                 source={
                   panel === "create-source" && page?.kind === "report"
                     ? page.read.source

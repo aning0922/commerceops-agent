@@ -144,9 +144,23 @@ export function newCycleEligibility(
   task: DTO["TaskRead"] | null,
   canCreate: boolean,
   operatorShops: readonly string[],
+  report?: DTO["ReportRead"],
 ): { allowed: boolean; reason: string } {
   if (!task)
     return { allowed: false, reason: "尚未取得当前任务与服务端新周期资格。" };
+  if (
+    report &&
+    (!reportBound(report, task.task.task_id) ||
+      !task.source ||
+      task.source.source_task_id !== report.source.source_task_id ||
+      task.source.report_id !== report.source.report_id ||
+      task.source.snapshot_id !== report.source.snapshot_id ||
+      task.source.facts_hash !== report.source.facts_hash)
+  )
+    return {
+      allowed: false,
+      reason: "当前报告与任务冻结来源不一致，不能开启新周期。",
+    };
   if (!canCreate || !operatorShops.includes(task.task.shop_id))
     return {
       allowed: false,

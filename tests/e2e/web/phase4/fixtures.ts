@@ -100,7 +100,7 @@ export function fixtureClient(
   mode: string,
   invalidate: () => void,
   calls: { method: string; path: string; body?: string }[],
-  hold: { release: () => void },
+  hold: { release: () => void; revoke?: () => void },
 ) {
   const response = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
@@ -139,12 +139,21 @@ export function fixtureClient(
           ...base,
           principal: {
             ...base.principal,
-            role_shop_grants: [
-              {
-                role: noRole ? "approver" : "operator",
-                shop_id: offlineId(101),
-              },
-            ],
+            role_shop_grants:
+              mode === "other_shop" || mode === "multi_shop"
+                ? [
+                    { role: "operator", shop_id: offlineId(303) },
+                    {
+                      role: mode === "other_shop" ? "approver" : "operator",
+                      shop_id: offlineId(101),
+                    },
+                  ]
+                : [
+                    {
+                      role: noRole ? "approver" : "operator",
+                      shop_id: offlineId(101),
+                    },
+                  ],
             capabilities: {
               ...base.principal.capabilities,
               can_create_task: !noRole,
@@ -155,6 +164,10 @@ export function fixtureClient(
         });
       }
       if (url.pathname === `/api/v1/tasks/${report.task_id}`) {
+        if (mode === "late_task")
+          await new Promise<void>((resolve) => {
+            hold.release = resolve;
+          });
         let value = task();
         if (mode === "pending")
           value = {
@@ -225,5 +238,6 @@ export function fixtureClient(
       return failure("RESOURCE_NOT_FOUND", 404);
     }),
   });
+  hold.revoke = () => client.clearSession();
   return client;
 }

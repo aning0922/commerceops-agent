@@ -100,3 +100,45 @@ test("P4结构化澄清必须指出缺参/整数边界；完整确认前无自�
     "授权",
   );
 });
+
+test("任务与报告共用新周期资格：跨店operator不能拼approver授权，报告来源必须属当前task", () => {
+  const current = task(),
+    shop = current.task.shop_id;
+  expect(newCycleEligibility(current, true, [shop], report).allowed).toBe(true);
+  expect(newCycleEligibility(current, true, [shop]).allowed).toBe(true);
+  expect(newCycleEligibility(current, true, [report.task_id]).allowed).toBe(
+    false,
+  );
+  expect(
+    newCycleEligibility(current, true, [report.task_id, shop], report).allowed,
+  ).toBe(true);
+  for (const key of [
+    "source_task_id",
+    "report_id",
+    "snapshot_id",
+    "facts_hash",
+  ] as const) {
+    const source = {
+      ...current.source!,
+      [key]: key === "facts_hash" ? "e".repeat(64) : report.task_id,
+    };
+    expect(
+      newCycleEligibility({ ...current, source }, true, [shop], report).allowed,
+    ).toBe(false);
+  }
+  expect(
+    newCycleEligibility({ ...current, source: null }, true, [shop], report)
+      .allowed,
+  ).toBe(false);
+  expect(
+    newCycleEligibility(
+      {
+        ...current,
+        task: { ...current.task, task_id: report.source.source_task_id },
+      },
+      true,
+      [shop],
+      report,
+    ).allowed,
+  ).toBe(false);
+});

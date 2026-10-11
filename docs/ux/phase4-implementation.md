@@ -45,3 +45,15 @@ PATH="$PWD/../.tools/node/bin:$PATH" npm exec -- playwright test --config ../tes
 共享frontend CI会自动收集新增共5条契约，但尚未收集六条UI；A唯一owner仍需按上方固定命令接入并保持原24/hash/native200/owned门槛。独立审核、精确CI及Root阶段裁决仍pending；本交付owner不合main。
 
 合后完整`uv run --frozen python -m scripts.check`实际exit0：目录/index/完整可达历史扫描各0、锁一致、80份Markdown错误0、Ruff/format/mypy通过，offline 1270 passed/358 deselected/2既有SDK deprecation warnings（99.83s），Node锁安装/24.21.0工具链/typecheck通过，npm audit0、Python audit95包0漏洞/0跳过。[verification-final](../../frontend/evidence/p4-c1/verification-final.json)保存实际计数、私有原log hash及测试时产品/生成/契约/预览源码byte hash；358未选集成用例不称本地通过。最终提交后的精确SHA由PR与Root交接回执定位，CI/独审不得用此作者自检替代。
+
+## 610 独审 P1：任务详情新周期入口统一修复
+
+独立Web Review已实际复验610的32契约/原6UI，并发现一个P1：任务详情旧B46只看can_start_new_cycle，打开通用create草稿，未检查completed与当前源店operator授权；若账号在其他店有operator，可把新草稿默认到该店。这违反本批同源UI合同。后端仍重验所选店铺权限，不能将该缺陷描述成实际越权写入。原6遗漏任务详情，旧作者通过与P1事实分别保留。
+
+两入口现在只计算同一个newCycleEligibility：当前可信task completed、serverflag和当前源店operator创建能力齐备；报告入口额外核同task与报告的source_task/report/snapshot/facts_hash一致。任务详情B46改走create-new-cycle，负向显示具体原因；两入口草稿渲染都再核资格，只提供源task.shop_id。草稿按页面/task/shop/当前principal/auth_version绑定，参数仍须重新确认、新key准备后明确提交；不复制旧授权。PageData绑定读取时client/session，切换身份或client首帧不显示旧page，刷新/撤销/卸载和epoch继续丢弃迟到许可。不改后端、共享spec/CI/锁/权限函数；frontend/package.json保持610原字节，没有第二套caller接线。
+
+实际修正回归：产品typecheck、test-owned预览typecheck、schema22 --check通过，生产build `6LHxKG0dBLKGyORdN3i_Y`成功；完整契约33/33（2.8s），原32+任务/报告同资格及来源反例1。完整P4 UI8/8（15.1s），原6未减少，新增2：task详情pending且serverflag=true/跨店operator但源店仅approver/serverfalse无草稿、完成且多operator授权时只源店草稿→freshkey→明确提交；准备后撤权清草稿/零POST、卸载后迟到completed不能复活待审批资格。原B04 headless回归8/8（20.4s）证明当前原键恢复、终态和会话变更保护未退化。UI均memory Fake/自有Next/严格本地GET，业务API/PG/Worker/平台/provider0。
+
+新证据在[reviewfix verification](../../frontend/evidence/p4-c1-reviewfix/verification.json)、[33contract](../../frontend/evidence/p4-c1-reviewfix/contract-results.json)、[8UI](../../frontend/evidence/p4-c1-reviewfix/ui-results.json)与[B04回归](../../frontend/evidence/p4-c1-reviewfix/b04-regression/ui-results.json)；原610、P3和历史失败文件字节保留。自有3496与3490已停止且nolisten，资源/stop附证据。C-only无A/Python改动，因此不重复1270 Python全量；旧成功不冒充本修正执行，最终CI仍须重新验证新冻结源。
+
+Root采用唯一A根CI owner接线：在原run_before_cleanup窗口加入同现phase4 config命令。该config now实际收8（原6+新增2），beforeAll自行用锁定SWC/webpack构建，不能删旧6或用本地8替代CI8。增量独审、新精确整批CI和Issue42结案仍pending；源冻结后先Root复审，不改PR body触发重复CI。

@@ -5,7 +5,7 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 import { LiveConsole } from "../../../../frontend/components/live-console";
 import { report, fixtureClient } from "./fixtures";
 import type {} from "./test-control";
-const hold = { release: () => {} };
+const hold = { release: () => {}, revoke: () => {} };
 const root = createRoot(document.getElementById("p4-root")!);
 const router = {
   bfcacheId: "p4-offline-preview",
@@ -17,10 +17,12 @@ const router = {
   prefetch: async () => {},
 };
 function Preview({ mode }: { mode: string }) {
+  const taskView = mode.startsWith("task_");
+  const scenario = taskView ? mode.slice(5) : mode;
   const factory = useCallback(
     (invalidate: () => void) =>
-      fixtureClient(mode, invalidate, window.__p4.calls, hold),
-    [mode],
+      fixtureClient(scenario, invalidate, window.__p4.calls, hold),
+    [scenario],
   );
   return (
     <AppRouterContext.Provider value={router}>
@@ -30,7 +32,7 @@ function Preview({ mode }: { mode: string }) {
       </p>
       <LiveConsole
         key={mode}
-        path={`/tasks/${report.task_id}/report`}
+        path={`/tasks/${report.task_id}${taskView ? "" : "/report"}`}
         query={{}}
         origin={null}
         localHttp={false}
@@ -47,5 +49,6 @@ window.__p4 = {
     root.render(<Preview key={mode} mode={mode} />);
   },
   release: () => hold.release(),
+  revoke: () => hold.revoke(),
 };
 window.__p4.render("actual");
