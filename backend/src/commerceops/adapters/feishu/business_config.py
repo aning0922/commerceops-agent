@@ -26,19 +26,22 @@ class BusinessSettings(BaseModel):
     web_config_file: Path = Field(repr=False)
     base_target_key: str = Field(min_length=1, max_length=100)
     base_app_token_file: Path = Field(repr=False)
-    base_table_id_file: Path = Field(repr=False)
+    base_table_id_file: Path | None = Field(default=None, repr=False)
+    base_table_name: str | None = Field(default=None, min_length=1, max_length=100, repr=False)
     external_sender_enabled: Literal[False] = False
 
     @model_validator(mode="after")
     def verify_structure(self) -> "BusinessSettings":
         self.policy()
+        if self.base_table_id_file is None and self.base_table_name is None:
+            raise ValueError("INVALID_P4_CONFIGURATION")
         for value in (
             self.app_secret_file,
             self.web_config_file,
             self.base_app_token_file,
             self.base_table_id_file,
         ):
-            if not value.is_absolute() or ".." in value.parts:
+            if value is not None and (not value.is_absolute() or ".." in value.parts):
                 raise ValueError("INVALID_P4_CONFIGURATION")
         return self
 

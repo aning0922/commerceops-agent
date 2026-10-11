@@ -35,6 +35,8 @@ class PersistentSDKLedger:
         if scope is None or not self.window.allows(method):
             raise PermissionError("SDK_WINDOW_CLOSED")
         if scope.kind == "preflight" and method not in (
+            "auth.v3.tenant_access_token.internal",
+            "bot.v3.info",
             "bitable.v1.app_table.list",
             "bitable.v1.app_table_field.list",
         ):

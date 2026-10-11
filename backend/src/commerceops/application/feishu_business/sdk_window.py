@@ -10,6 +10,8 @@ from commerceops.application.feishu_business.sdk_calls import SDKMethod
 
 METHODS: frozenset[str] = frozenset(
     {
+        "auth.v3.tenant_access_token.internal",
+        "bot.v3.info",
         "im.v1.message.create",
         "bitable.v1.app_table_record.create",
         "bitable.v1.app_table_record.list",
