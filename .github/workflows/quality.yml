@@ -60,6 +60,243 @@ jobs:
           path: .audit/ci-evidence-existing.json
           if-no-files-found: error
           retention-days: 1
+  n01-web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Register immutable N01 deadline before checkout
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          stop = (datetime.now(timezone.utc) + timedelta(minutes=23)).isoformat()
+          with Path(os.environ["GITHUB_ENV"]).open("a") as output:
+              output.write(f"COMMERCEOPS_N01_STOP_AT_UTC={stop}\n")
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.13'
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: '0.11.25'
+          enable-cache: false
+      - name: Prepare locked N01 production build and Chromium within deadline
+        shell: bash
+        run: |
+          run_before_cleanup() {
+            local remaining
+            remaining=$(python3 - <<'PY'
+          import os
+          from datetime import datetime, timezone
+          stop = datetime.fromisoformat(os.environ["COMMERCEOPS_N01_STOP_AT_UTC"])
+          print(int((stop - datetime.now(timezone.utc)).total_seconds()) - 85)
+          PY
+            )
+            test "$remaining" -gt 0
+            timeout --signal=TERM --kill-after=10 "${remaining}s" "$@"
+          }
+          export PATH="$GITHUB_WORKSPACE/.tools/node/bin:$PATH"
+          run_before_cleanup python -m scripts.bootstrap_tools
+          run_before_cleanup python -m scripts.scan_secrets
+          run_before_cleanup uv sync --frozen
+          test "$(node --version)" = v24.21.0
+          test "$(npm --version)" = 11.19.0
+          cd "$GITHUB_WORKSPACE/frontend"
+          run_before_cleanup npm ci --ignore-scripts
+          run_before_cleanup npm run check:toolchain
+          run_before_cleanup npm run typecheck
+          run_before_cleanup npm run build
+          run_before_cleanup npm exec -- playwright install --with-deps chromium
+      - name: Run the fixed six actual N01 PG API Web cases
+        id: n01
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          export PATH="$GITHUB_WORKSPACE/.tools/node/bin:$PATH"
+          umask 077
+          private_parent=$(mktemp -d "$RUNNER_TEMP/commerceops-n01-XXXXXX")
+          private_directory="$private_parent/c09"
+          printf 'private_directory=%s\n' "$private_directory" >> "$GITHUB_OUTPUT"
+          rm -f frontend/evidence/p4-c09/n01/live-results.json \
+            frontend/evidence/p4-c09/n01/pg-invariants.safe.json \
+            frontend/evidence/p4-c09/n01/resource-stop.safe.json
+          # The C runner reserves 75 seconds for its original children and PG.
+          uv run --frozen python -m tests.e2e.web.run_c09_n01 \
+            --private-directory "$private_directory" \
+            --stop-at-utc "$COMMERCEOPS_N01_STOP_AT_UTC"
+      - name: Remove only this registered stopped N01 project and preserve volume
+        if: ${{ always() && steps.n01.outputs.private_directory != '' }}
+        id: n01_cleanup
+        shell: bash
+        env:
+          N01_CI_PRIVATE_DIRECTORY: ${{ steps.n01.outputs.private_directory }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          private = Path(os.environ["N01_CI_PRIVATE_DIRECTORY"]).resolve()
+          stop = datetime.fromisoformat(os.environ["COMMERCEOPS_N01_STOP_AT_UTC"])
+          path = private / "window.json"
+          if not path.exists():
+              print("N01 registration absent; no registered project to remove")
+              raise SystemExit(0)
+          assert not path.is_symlink() and path.stat().st_mode & 0o777 == 0o600
+          assert path.stat().st_uid == os.getuid()
+          window = json.loads(path.read_text())
+          assert not private.is_symlink() and private.stat().st_mode & 0o777 == 0o700
+          assert private.stat().st_uid == os.getuid()
+          assert window["owner"] == "phase4-C09-Web" and window["owner_uid"] == os.getuid()
+          assert window["checkout"] == str(root) and window["private_directory"] == str(private)
+          assert window["source_commit"] == subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+          assert datetime.fromisoformat(window["stop_at_utc"]) == stop
+          assert re.fullmatch(r"p4c09-n01-[0-9a-f]{10}", window["project"])
+          def run(command, limit=10):
+              result = subprocess.run(command, cwd=root,
+                                      env={**os.environ, "COMMERCEOPS_PG_RUNTIME_DIR": str(private)},
+                                      capture_output=True, text=True, timeout=limit)
+              if result.returncode:
+                  raise RuntimeError("N01 registered project cleanup failed")
+              return result.stdout
+          project = window["project"]
+          compose = ["docker", "compose", "--env-file", str(private / "compose-input.conf"), "-p", project,
+                     "-f", str(root / "compose.yml"), "-f", str(private / "compose-port.json")]
+          containers = run(["docker", "ps", "-a", "-q", "--filter", "label=com.docker.compose.project=" + project]).split()
+          volumes = set()
+          for container in containers:
+              info = json.loads(run(["docker", "inspect", container]))[0]
+              labels = info["Config"]["Labels"]
+              assert labels["com.docker.compose.project"] == project
+              assert labels["com.docker.compose.project.working_dir"] == str(root)
+              assert labels["com.docker.compose.project.config_files"] == str(root / "compose.yml") + "," + str(private / "compose-port.json")
+              volumes.update(m["Name"] for m in info["Mounts"] if m["Type"] == "volume")
+          run(compose + ["stop", "--timeout", "5"], 15)
+          for container in containers:
+              state = json.loads(run(["docker", "inspect", container]))[0]["State"]
+              assert state["Running"] is False and state["Pid"] == 0
+          run(compose + ["down", "--timeout", "5"], 30)
+          assert not run(["docker", "ps", "-a", "-q", "--filter", "label=com.docker.compose.project=" + project]).split()
+          assert not run(["docker", "network", "ls", "-q", "--filter", "label=com.docker.compose.project=" + project]).split()
+          for volume in volumes:
+              assert json.loads(run(["docker", "volume", "inspect", volume]))[0]["Name"] == volume
+          result = {"containers": 0, "networks": 0, "volume_preserved": bool(volumes), "down_exit": 0,
+                    "stopped_at_utc": datetime.now(timezone.utc).isoformat()}
+          (private / "ci-cleanup.safe.json").write_text(json.dumps(result))
+          (private / "ci-cleanup.safe.json").chmod(0o600)
+          assert datetime.fromisoformat(result["stopped_at_utc"]) <= stop
+          print("Current registered N01 project removed; containers0/networks0; volume retained")
+          PY
+      - name: Require current source six passes PG invariants and complete stop proof
+        id: n01_evidence
+        shell: bash
+        env:
+          N01_CI_PRIVATE_DIRECTORY: ${{ steps.n01.outputs.private_directory }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import subprocess
+          from datetime import datetime
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          private = Path(os.environ["N01_CI_PRIVATE_DIRECTORY"]).resolve()
+          stop = datetime.fromisoformat(os.environ["COMMERCEOPS_N01_STOP_AT_UTC"])
+          commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+          tree = subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip()
+          build = (root / "frontend/.next/BUILD_ID").read_text().strip()
+          def read(name):
+              path = private / name
+              assert not path.is_symlink() and path.stat().st_mode & 0o777 == 0o600
+              assert path.stat().st_uid == os.getuid()
+              return json.loads(path.read_text())
+          window, manifest, imports, cleanup = (read(name) for name in (
+              "window.json",
+              "source-files.safe.json",
+              "api-imports.safe.json",
+              "ci-cleanup.safe.json"))
+          assert window["owner"] == "phase4-C09-Web" and window["owner_uid"] == os.getuid()
+          assert window["checkout"] == str(root) and window["private_directory"] == str(private)
+          assert window["source_commit"] == commit and window["build_id"] == build
+          assert window["status"] == "stopped" and window["passed"] is True and window["test_exit"] == 0
+          assert window.get("failure_category") is None and window["max_new_cycle_requests"] == 1
+          assert window["worker_started"] is False and window["sdk_provider_started"] is False
+          assert window["pg_container_created"] is True and window["pg_running"] is False and window["pg_pid"] == 0
+          assert window["owned_listeners_remaining"] is False and window["volume_preserved"] is True
+          assert datetime.fromisoformat(window["stop_at_utc"]) == stop
+          assert datetime.fromisoformat(window["started_at_utc"]) < datetime.fromisoformat(window["stopped_at_utc"]) <= stop
+          assert window["child_exit_codes"] and all(type(code) is int and code in (0, -15, 143) for code in window["child_exit_codes"])
+          assert cleanup["containers"] == cleanup["networks"] == cleanup["down_exit"] == 0
+          assert cleanup["volume_preserved"] is True and datetime.fromisoformat(cleanup["stopped_at_utc"]) <= stop
+          public = root / "frontend/evidence/p4-c09/n01"
+          outputs = {str((public / name).relative_to(root)) for name in (
+              "live-results.json", "pg-invariants.safe.json", "resource-stop.safe.json")}
+          sources = set(subprocess.check_output(["git", "ls-files", "frontend", "tests/e2e/web"], cwd=root, text=True).splitlines()) - outputs
+          assert set(manifest) == sources
+          assert hashlib.sha256((private / "source-files.safe.json").read_bytes()).hexdigest() == window["source_manifest_sha256"]
+          assert all(hashlib.sha256((root / name).read_bytes()).hexdigest() == digest for name, digest in manifest.items())
+          modules = {"application/replenishment/nl_preflight.py", "infrastructure/web_preflight.py",
+                     "entrypoints/replenishment_http.py", "entrypoints/web_openapi.py"}
+          assert set(imports) == {"pid", "four_imports_match", "hashes"}
+          assert imports["pid"] == window["api_pid"] and imports["four_imports_match"] is True
+          assert set(imports["hashes"]) == modules
+          assert all(hashlib.sha256((root / "backend/src/commerceops" / name).read_bytes()).hexdigest() == digest for name, digest in imports["hashes"].items())
+          report = json.loads((public / "live-results.json").read_text())
+          assert set(report) == {"status", "duration_ms", "trace", "video", "automatic_screenshot", "source_mode", "commerce_source_mode", "identity_mode", "tests"}
+          assert report["status"] == "passed" and report["source_mode"] == "live-api"
+          assert report["commerce_source_mode"] == "mock-fixture" and report["identity_mode"] == "session"
+          assert all(report[key] == "off" for key in ("trace", "video", "automatic_screenshot"))
+          spec = root / "tests/e2e/web/live/n01.spec.ts"
+          titles = re.findall(r'^test\("([^"]+)"', spec.read_text(), re.M)
+          assert len(titles) == len(set(titles)) == len(report["tests"]) == 6
+          assert sorted(row["test"] for row in report["tests"]) == sorted(titles)
+          assert all(set(row) == {"test", "status", "duration_ms", "location"} and row["status"] == "passed" for row in report["tests"])
+          invariants = json.loads((public / "pg-invariants.safe.json").read_text())
+          assert set(invariants) == {"source", "worker", "sdk_provider", "tests"}
+          assert invariants["source"] == "actual owned PostgreSQL" and invariants["worker"] == invariants["sdk_provider"] == "not_started"
+          assert len(invariants["tests"]) == 6 and sorted(row["test"] for row in invariants["tests"]) == sorted(titles)
+          assert all(set(row) == {"test", "business_unchanged", "explicit_pair_only"} and type(row["business_unchanged"]) is bool and type(row["explicit_pair_only"]) is bool for row in invariants["tests"])
+          assert sum(row["explicit_pair_only"] for row in invariants["tests"]) == 1
+          assert all(row["explicit_pair_only"] is ("显式唯一创建" in row["test"]) and row["business_unchanged"] is ("显式唯一创建" not in row["test"]) for row in invariants["tests"])
+          summary = json.loads((public / "resource-stop.safe.json").read_text())
+          fields = {"passed", "source_commit", "build_id", "test_exit", "failure_category", "pg_running", "pg_pid",
+                    "owned_listeners_remaining", "volume_preserved", "worker_started", "sdk_provider_started",
+                    "started_at_utc", "stop_at_utc", "stopped_at_utc"}
+          assert set(summary) == fields and all(summary[key] == window.get(key) for key in fields)
+          summary.update(source_tree=tree, source_hashes_match=True, four_api_imports_match=True,
+                         source_manifest_sha256=window["source_manifest_sha256"],
+                         api_module_hashes=imports["hashes"], actual_api_pid=imports["pid"],
+                         child_exit_codes=window["child_exit_codes"],
+                         containers=cleanup["containers"], networks=cleanup["networks"], down_exit=cleanup["down_exit"],
+                         project_removed_at_utc=cleanup["stopped_at_utc"])
+          (public / "resource-stop.safe.json").write_text(json.dumps(summary, sort_keys=True, indent=2) + "\n")
+          print("Current-source N01 six cases passed; PG invariants and complete stop verified")
+          PY
+      - name: Upload only three verified safe N01 reports
+        if: ${{ success() && steps.n01_evidence.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # official v4
+        with:
+          name: n01-web-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            frontend/evidence/p4-c09/n01/live-results.json
+            frontend/evidence/p4-c09/n01/pg-invariants.safe.json
+            frontend/evidence/p4-c09/n01/resource-stop.safe.json
+          if-no-files-found: error
+          retention-days: 1
   phase3:
     runs-on: ubuntu-24.04
     timeout-minutes: 25

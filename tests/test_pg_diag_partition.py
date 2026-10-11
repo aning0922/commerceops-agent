@@ -222,3 +222,36 @@ def test_p4_gateway_base_and_future_pg_modules_use_business_partition_with_origi
     assert sorted(actual) == sorted(P3 + p4)
     assert len(actual) == len(set(actual))
     assert all(label.startswith("combined-phase3-") and len(paths) == 1 for label, paths in calls)
+
+
+@pytest.mark.parametrize("scope", ["existing", "phase3"])
+def test_rebalanced_complete_modules_run_once_with_original_serial_300_cap(scope: str) -> None:
+    from scripts.pg_ci_evidence import partition
+
+    moved = [f"tests/test_p3_approval_pg.py::approval_{n:02d}" for n in range(28)]
+    moved += [f"tests/test_p3_execution_authority_pg.py::authority_{n}" for n in range(9)]
+    moved += [f"tests/test_p3_execution_recovery_pg.py::recovery_{n}" for n in range(8)]
+    nodes = OLD + P3 + moved
+    assert partition(nodes, "existing") == sorted(OLD + moved)
+    assert partition(nodes, "phase3") == sorted(P3)
+    records = [collection(nodes)]
+    actual = []
+    calls = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        assert cap == 300
+        # 原approval14节点命令仍传完整该分片node，不以路径重复全28。
+        selected = (
+            paths
+            if "approval_pg-part-" in label
+            else [node for node in nodes if node.split("::")[0] in paths]
+        )
+        actual.extend(selected)
+        calls.append(label)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, scope)
+    assert sorted(actual) == partition(nodes, scope)
+    assert len(actual) == len(set(actual))
+    assert len(calls) == (5 if scope == "existing" else 2)

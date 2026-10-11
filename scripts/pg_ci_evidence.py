@@ -11,6 +11,14 @@ from pathlib import Path
 from typing import Any
 
 SCOPES = frozenset({"all", "existing", "phase3"})
+# 完整模块族转移既有quality余量；approval原14节点分片仍由同一runner派生。
+EXISTING_BUSINESS_MODULES = frozenset(
+    {
+        "tests/test_p3_approval_pg.py",
+        "tests/test_p3_execution_authority_pg.py",
+        "tests/test_p3_execution_recovery_pg.py",
+    }
+)
 FIELDS = frozenset(
     {
         "schema_version",
@@ -81,7 +89,12 @@ def partition(full: list[str], scope: str) -> list[str]:
     if scope not in SCOPES:
         raise ValueError("closed CI scope required")
     nodes = canonical_nodes(full)
-    phase3 = [n for n in nodes if n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))]
+    phase3 = [
+        n
+        for n in nodes
+        if n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))
+        and n.split("::")[0] not in EXISTING_BUSINESS_MODULES
+    ]
     existing = [n for n in nodes if n not in set(phase3)]
     if scope != "all" and (not phase3 or not existing):
         raise ValueError("both CI partitions must be nonempty")
@@ -273,10 +286,14 @@ def validate(report: dict[str, Any]) -> tuple[list[str], list[str]]:
             or m["exit_code"] != 0
         ):
             raise ValueError("all actual nodes must pass and terminate")
-        if planned.get(m["label"]) != expected:
+        if not isinstance(m["label"], str) or planned.get(m["label"]) != expected:
             raise ValueError("module label binding required")
         union.extend(expected)
-    if canonical_nodes(union) != actual or (report["scope"] == "existing" and len(modules) != 1):
+    if (
+        canonical_nodes(union) != actual
+        or len(modules) != len(planned)
+        or {m["label"] for m in modules} != set(planned)
+    ):
         raise ValueError("module coverage must match actual partition")
     if report["scope"] == "existing" and (
         report["g1_complete"] is not True

@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 
 from scripts.pg_ci_evidence import (
+    EXISTING_BUSINESS_MODULES,
     FIELDS,
     G2_REQUIRED,
     LOCK_FILES,
@@ -21,7 +22,7 @@ from tests.test_pg_diag_partition import collection
 
 pytestmark = pytest.mark.offline
 OLD = ["tests/test_worker_pg.py::worker", "tests/test_inventory_pg.py::facts"]
-P3 = ["tests/test_p3_approval_pg.py::approval", "tests/test_p3_future_pg.py::future"]
+P3 = ["tests/test_p3_future_pg.py::future", "tests/test_p3_other_pg.py::other"]
 FULL = OLD + P3
 META = {
     "source_sha": "a" * 40,
@@ -52,7 +53,7 @@ def report(scope: str) -> dict[str, Any]:
 
     def command(label: str, paths: list[str], cap: float) -> bool:
         assert cap == 300
-        selected = [n for n in FULL if n.split("::")[0] in paths]
+        selected = [n for n in FULL if n.split("::")[0] in paths or n in paths]
         records.append(collection(selected))
         for node in selected:
             for phase in ["setup", "call", "teardown"]:
@@ -304,3 +305,34 @@ def test_p4_modules_are_in_the_paired_business_partition_without_losing_old_node
     assert a["actual_node_ids"] == sorted(OLD)
     assert b["actual_node_ids"] == sorted(P3 + p4)
     assert len(b["modules"]) == 4
+
+
+def test_three_complete_business_modules_move_with_approval_shards_and_exact_pair(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    moved = [f"tests/test_p3_approval_pg.py::case_{n:02d}" for n in range(28)]
+    moved += [f"tests/test_p3_execution_authority_pg.py::case_{n:02d}" for n in range(9)]
+    moved += [f"tests/test_p3_execution_recovery_pg.py::case_{n:02d}" for n in range(8)]
+    assert {node.split("::")[0] for node in moved} == EXISTING_BUSINESS_MODULES
+    monkeypatch.setitem(globals(), "FULL", FULL + moved)
+    a, b = report("existing"), report("phase3")
+    assert a["actual_node_ids"] == sorted(OLD + moved)
+    assert b["actual_node_ids"] == sorted(P3)
+    assert len(a["modules"]) == 5
+    approval = [m for m in a["modules"] if "approval_pg-part-" in m["label"]]
+    assert [len(m["expected_node_ids"]) for m in approval] == [14, 14]
+    verify_pair(a, b)
+    for change in ("omit", "wrong_label", "failed", "unpassed", "duplicate"):
+        bad = copy.deepcopy(a)
+        if change == "omit":
+            bad["modules"].pop()
+        elif change == "wrong_label":
+            bad["modules"][1]["label"] = "combined-phase3-test_p3_approval_pg-part-9"
+        elif change == "failed":
+            bad["modules"][1]["exit_code"] = 137
+        elif change == "unpassed":
+            bad["modules"][1]["passed_node_ids"].pop()
+        else:
+            bad["modules"].append(copy.deepcopy(bad["modules"][1]))
+        with pytest.raises(ValueError):
+            verify_pair(bad, b)
