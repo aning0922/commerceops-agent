@@ -5,7 +5,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 import pytest
@@ -13,6 +13,8 @@ from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.entrypoints.feishu_business import run_gateway
 from commerceops.entrypoints.feishu_gateway_child import BoundedReceiver
+from commerceops.infrastructure.feishu_gateway_window import guard_gateway
+from commerceops.infrastructure.web_sessions import DB
 from pytest import MonkeyPatch as Patch
 
 pytestmark = pytest.mark.offline
@@ -97,3 +99,63 @@ def test_callback_admission_cap_is_not_reported_as_raw_frame_or_ack_count() -> N
     with pytest.raises(WebFailure, match="GATEWAY_CALLBACK_CAP_EXHAUSTED"):
         receiver.admit()
     assert receiver.admitted == 1
+
+
+class WindowRow:
+    """仅offline审计读取；不模拟PG lease/schema/业务事务成功。"""
+
+    def __init__(self, original: GatewayWindow) -> None:
+        self.calls = 0
+        self.row = {
+            "after_state": {
+                **original.model_dump(mode="json"),
+                "verification_mode": "controlled_sdk",
+                "ws_endpoint_discovery": "not_verified",
+                "ws_handshake": "not_verified",
+            }
+        }
+
+    def execute(self, *args: Any) -> "WindowRow":
+        self.calls += 1
+        return self
+
+    def fetchone(self) -> dict[str, Any]:
+        return self.row
+
+
+def test_original_complete_window_json_accepts_original_scope_without_business_query() -> None:
+    original = window(enabled=True)
+    db = WindowRow(original)
+    guard_gateway(cast(DB, db), original, False)
+    assert db.calls == 1
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "shop_id",
+        "organization_id",
+        "window_id",
+        "expires_at",
+        "parameters",
+        "max_workflows",
+        "max_callbacks",
+        "enabled",
+    ],
+)
+def test_changed_window_binding_rejects_before_workflow_query(field: str) -> None:
+    original = window(enabled=True)
+    changes: dict[str, Any] = {
+        "shop_id": uuid4(),
+        "organization_id": uuid4(),
+        "window_id": uuid4(),
+        "expires_at": original.expires_at + timedelta(seconds=1),
+        "parameters": original.parameters.model_copy(update={"L": 4}),
+        "max_workflows": 4,
+        "max_callbacks": 99,
+        "enabled": False,
+    }
+    db = WindowRow(original)
+    with pytest.raises(WebFailure, match="GATEWAY_WINDOW_CLOSED"):
+        guard_gateway(cast(DB, db), original.model_copy(update={field: changes[field]}), True)
+    assert db.calls == 1

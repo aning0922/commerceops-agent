@@ -63,6 +63,23 @@ def test_once_app_lease_original_replay_quota_and_expiry_have_no_duplicate_busin
     guarded = service(f, gateway_guard=lambda db, create: guard_gateway(db, window, create))
     with connect(f.config.database) as lease:
         claim_gateway(lease, settings, window)
+        before = counts(f)
+        wrong_shop = window.model_copy(update={"shop_id": uuid4()})
+        assert wrong_shop.organization_id == window.organization_id
+        changed_payloads = (
+            wrong_shop,
+            window.model_copy(update={"parameters": window.parameters.model_copy(update={"L": 4})}),
+            window.model_copy(update={"max_workflows": 2}),
+            window.model_copy(update={"max_callbacks": 99}),
+            window.model_copy(update={"enabled": False}),
+        )
+        for denied in changed_payloads:
+            rejecting = service(
+                f, gateway_guard=lambda db, create, denied=denied: guard_gateway(db, denied, create)
+            )
+            with pytest.raises(WebFailure, match="GATEWAY_WINDOW_CLOSED"):
+                rejecting.message(message(f))
+            assert counts(f) == before
         with (
             connect(f.config.database) as rival,
             pytest.raises(PermissionError, match="P4_GATEWAY_ALREADY_RUNNING"),
