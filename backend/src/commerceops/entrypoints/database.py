@@ -107,6 +107,9 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
             "GRANT SELECT,INSERT,UPDATE ON business.replenishment_items TO commerceops_app"
         )
 
+        connection.execute("""GRANT SELECT,INSERT ON business.p4_inbox_receipts,
+            business.p4_card_bindings TO commerceops_app""")
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="PG initialization (separate deploy tasks)")

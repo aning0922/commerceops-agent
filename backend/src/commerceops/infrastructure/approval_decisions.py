@@ -8,7 +8,12 @@ from uuid import UUID, uuid4
 
 from psycopg.types.json import Jsonb
 
-from commerceops.application.replenishment.contracts import DecisionInput, WebActor, WebFailure
+from commerceops.application.replenishment.contracts import (
+    Actor,
+    DecisionInput,
+    FeishuActor,
+    WebFailure,
+)
 from commerceops.application.replenishment.decisions import (
     confirm_set,
     decision_hash,
@@ -45,7 +50,7 @@ def decision_fields(db: DB, approval: dict[str, Any]) -> dict[str, Any] | None:
         "approval_status": approval["status"],
         "decided_by": approval["decided_by"],
         "decided_at": approval["decided_at"],
-        "decision_source": "web",
+        "decision_source": approval["decision_source"],
         "reason_code": approval["reason_code"],
         "resume_state": resume["delivery_state"],
     }
@@ -54,7 +59,7 @@ def decision_fields(db: DB, approval: dict[str, Any]) -> dict[str, Any] | None:
 def may_decide(
     db: DB,
     config: WebConfig,
-    actor: WebActor,
+    actor: Actor,
     task: dict[str, Any],
     approval: dict[str, Any],
     plan: dict[str, Any],
@@ -93,7 +98,7 @@ class DecisionStore:
     def __init__(self, config: WebConfig):
         self.config, self.settings = config, config.database
 
-    def authorize(self, actor: WebActor, approval_id: UUID) -> dict[str, Any]:
+    def authorize(self, actor: Actor, approval_id: UUID) -> dict[str, Any]:
         # 预检独立短事务，不持principal锁进入下面task→plan→approval→principal锁序。
         with connect(self.settings) as db:
             actor_guard(db, actor)
@@ -113,156 +118,182 @@ class DecisionStore:
 
     def decide(
         self,
-        actor: WebActor,
+        actor: Actor,
         path: UUID,
         request: DecisionInput,
         *,
         hook: Callable[[str], None] | None = None,
     ) -> dict[str, Any]:
         initial = self.authorize(actor, path)
+        with connect(self.settings) as db:
+            receipt = self.decide_in_transaction(
+                db, actor, path, request, initial=initial, hook=hook
+            )
+        if hook:
+            hook("after_t3_commit")
+        return receipt
+
+    def decide_in_transaction(
+        self,
+        db: DB,
+        actor: Actor,
+        path: UUID,
+        request: DecisionInput,
+        *,
+        initial: dict[str, Any] | None = None,
+        binding_check: Callable[[DB, dict[str, Any]], None] | None = None,
+        hook: Callable[[str], None] | None = None,
+    ) -> dict[str, Any]:
+        if initial is None:
+            initial = db.execute(
+                "SELECT * FROM business.approvals WHERE id=%s AND organization_id=%s",
+                (path, actor.organization_id),
+            ).fetchone()
+        if not initial:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
         if path != request.approval_id:
             raise WebFailure("INVALID_REQUEST", 422)
         semantic = decision_hash(request)
         request_hash = decision_request_hash(request, str(path))
-        with connect(self.settings) as db:
-            db.execute(
-                "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",
-                (f"web:decision:{actor.principal_id}:{request.request_key}",),
-            )
-            task = db.execute(
-                "SELECT * FROM business.business_tasks WHERE id=%s FOR UPDATE",
-                (initial["task_id"],),
-            ).fetchone()
-            plan = db.execute(
-                "SELECT * FROM business.replenishment_plans WHERE id=%s FOR UPDATE",
-                (initial["plan_id"],),
-            ).fetchone()
-            approval = db.execute(
-                "SELECT * FROM business.approvals WHERE id=%s FOR UPDATE", (path,)
-            ).fetchone()
-            if not task or not plan or not approval:
+        db.execute(
+            "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",
+            (f"web:decision:{actor.principal_id}:{request.request_key}",),
+        )
+        task = db.execute(
+            "SELECT * FROM business.business_tasks WHERE id=%s FOR UPDATE",
+            (initial["task_id"],),
+        ).fetchone()
+        plan = db.execute(
+            "SELECT * FROM business.replenishment_plans WHERE id=%s FOR UPDATE",
+            (initial["plan_id"],),
+        ).fetchone()
+        approval = db.execute(
+            "SELECT * FROM business.approvals WHERE id=%s FOR UPDATE", (path,)
+        ).fetchone()
+        if not task or not plan or not approval:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        actor_guard(db, actor)
+        visible_task(db, actor, task["id"])
+        if binding_check:
+            binding_check(db, approval)
+        previous = db.execute(
+            """SELECT * FROM business.web_requests WHERE principal_id=%s
+         AND operation='decision' AND request_key=%s""",
+            (actor.principal_id, request.request_key),
+        ).fetchone()
+        if previous and previous["request_hash"] != request_hash:
+            raise WebFailure("IDEMPOTENCY_CONFLICT")
+        valid_nonce = hmac.compare_digest(digest(request.nonce), approval["nonce_hash"])
+        if (request.plan_id, request.plan_version, request.plan_hash) != (
+            approval["plan_id"],
+            approval["plan_version"],
+            approval["plan_hash"],
+        ):
+            raise WebFailure("APPROVAL_SUPERSEDED")
+        if not valid_nonce:
+            raise WebFailure("INVALID_REQUEST", 422)
+        duplicate = approval["decision_id"] is not None
+        if duplicate:
+            if (approval["decided_by"], approval["decision_payload_hash"]) != (
+                actor.principal_id,
+                semantic,
+            ):
+                raise WebFailure("DECISION_CONFLICT")
+        else:
+            nonce_for(self.config, approval)  # 新决定必须当前专用key可验证；旧决定只读不重批。
+            if not role_scope(db, actor, task["shop_id"], "approver"):
+                raise WebFailure("ACCESS_DENIED", 403)
+            if actor.principal_id not in approval["eligible_principal_ids"]:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            actor_guard(db, actor)
-            visible_task(db, actor, task["id"])
-            previous = db.execute(
-                """SELECT * FROM business.web_requests WHERE principal_id=%s
-             AND operation='decision' AND request_key=%s""",
-                (actor.principal_id, request.request_key),
-            ).fetchone()
-            if previous and previous["request_hash"] != request_hash:
-                raise WebFailure("IDEMPOTENCY_CONFLICT")
-            valid_nonce = hmac.compare_digest(digest(request.nonce), approval["nonce_hash"])
-            if (request.plan_id, request.plan_version, request.plan_hash) != (
-                approval["plan_id"],
-                approval["plan_version"],
-                approval["plan_hash"],
+            timestamp = now(db)  # 全部身份/业务锁取得之后的DB时钟。
+            if approval["expires_at"] <= timestamp or approval["status"] == "expired":
+                raise WebFailure("APPROVAL_EXPIRED", 410)
+            if (
+                approval["status"] != "pending"
+                or plan["status"] != "current"
+                or task["active_plan_id"] != plan["id"]
             ):
                 raise WebFailure("APPROVAL_SUPERSEDED")
-            if not valid_nonce:
-                raise WebFailure("INVALID_REQUEST", 422)
-            duplicate = approval["decision_id"] is not None
-            if duplicate:
-                if (approval["decided_by"], approval["decision_payload_hash"]) != (
-                    actor.principal_id,
-                    semantic,
-                ):
-                    raise WebFailure("DECISION_CONFLICT")
-            else:
-                nonce_for(self.config, approval)  # 新决定必须当前专用key可验证；旧决定只读不重批。
-                if not role_scope(db, actor, task["shop_id"], "approver"):
-                    raise WebFailure("ACCESS_DENIED", 403)
-                if actor.principal_id not in approval["eligible_principal_ids"]:
-                    raise WebFailure("RESOURCE_NOT_FOUND", 404)
-                timestamp = now(db)  # 全部身份/业务锁取得之后的DB时钟。
-                if approval["expires_at"] <= timestamp or approval["status"] == "expired":
-                    raise WebFailure("APPROVAL_EXPIRED", 410)
-                if (
-                    approval["status"] != "pending"
-                    or plan["status"] != "current"
-                    or task["active_plan_id"] != plan["id"]
-                ):
-                    raise WebFailure("APPROVAL_SUPERSEDED")
-                if task["state"] not in ("awaiting_approval", "needs_reapproval"):
-                    raise WebFailure("NOT_READY")
-                confirm_set(request, plan["content"])
-                decision_id = uuid4()
-                rejected = request.action in ("reject", "reject_assumptions")
-                row = db.execute(
-                    """UPDATE business.approvals SET status=%s,decision_id=%s,
-                 decision_action=%s,decision_payload_hash=%s,acknowledged_assumption_keys=%s,
-                 decided_by=%s,decided_at=%s,decision_source='web',decision_request_key=%s,
-                 reason_code=%s,decided_auth_version=%s,decided_identity_id=%s
-                 WHERE id=%s AND status='pending' RETURNING *""",
-                    (
-                        "rejected" if rejected else "approved",
-                        decision_id,
-                        request.action,
-                        semantic,
-                        list(request.acknowledged_assumption_keys),
-                        actor.principal_id,
-                        timestamp,
-                        request.request_key,
-                        "INBOUND_ASSUMPTION_DECLINED"
-                        if request.action == "reject_assumptions"
-                        else None,
-                        actor.auth_version,
-                        actor.identity_id,
-                        path,
-                    ),
-                ).fetchone()
-                if not row:
-                    raise WebFailure("DECISION_CONFLICT")
-                approval = row
-                job = TaskRepository(db, TaskScope(actor.organization_id, task["shop_id"])).enqueue(
-                    task["id"], "resume", f"p3-decision:{decision_id}", f"decision:{decision_id}"
-                )
-                db.execute(
-                    """INSERT INTO business.approval_resumes
-                 (decision_id,approval_id,organization_id,shop_id,task_id,job_id,delivery_state)
-                 VALUES (%s,%s,%s,%s,%s,%s,%s)""",
-                    (
-                        decision_id,
-                        path,
-                        actor.organization_id,
-                        task["shop_id"],
-                        task["id"],
-                        job,
-                        "queued" if approval["ready_at"] else "waiting_checkpoint",
-                    ),
-                )
-                db.execute(
-                    """INSERT INTO business.audit_events
-                 (id,organization_id,task_id,actor_id,source,action,entity_type,entity_id,trace_id)
-                 VALUES (%s,%s,%s,%s,'replenishment','approval_decided','approval',%s,%s)""",
-                    (
-                        uuid4(),
-                        actor.organization_id,
-                        task["id"],
-                        actor.principal_id,
-                        str(path),
-                        uuid4(),
-                    ),
-                )
-            fields = decision_fields(db, approval)
-            if not fields:
+            if task["state"] not in ("awaiting_approval", "needs_reapproval"):
                 raise WebFailure("NOT_READY")
-            receipt = envelope(db, **fields, request_key=request.request_key, duplicate=duplicate)
-            if not previous:
-                db.execute(
-                    """INSERT INTO business.web_requests
-                 (organization_id,principal_id,operation,request_key,request_hash,task_id,result)
-                 VALUES (%s,%s,'decision',%s,%s,%s,%s)""",
-                    (
-                        actor.organization_id,
-                        actor.principal_id,
-                        request.request_key,
-                        request_hash,
-                        task["id"],
-                        Jsonb(json.loads(canonical_bytes(receipt))),
-                    ),
-                )
-            if hook:
-                hook("before_t3_commit")
+            confirm_set(request, plan["content"])
+            decision_id = uuid4()
+            rejected = request.action in ("reject", "reject_assumptions")
+            row = db.execute(
+                """UPDATE business.approvals SET status=%s,decision_id=%s,
+             decision_action=%s,decision_payload_hash=%s,acknowledged_assumption_keys=%s,
+             decided_by=%s,decided_at=%s,decision_source=%s,decision_request_key=%s,
+             reason_code=%s,decided_auth_version=%s,decided_identity_id=%s
+             WHERE id=%s AND status='pending' RETURNING *""",
+                (
+                    "rejected" if rejected else "approved",
+                    decision_id,
+                    request.action,
+                    semantic,
+                    list(request.acknowledged_assumption_keys),
+                    actor.principal_id,
+                    timestamp,
+                    "feishu" if isinstance(actor, FeishuActor) else "web",
+                    request.request_key,
+                    "INBOUND_ASSUMPTION_DECLINED"
+                    if request.action == "reject_assumptions"
+                    else None,
+                    actor.auth_version,
+                    actor.identity_id,
+                    path,
+                ),
+            ).fetchone()
+            if not row:
+                raise WebFailure("DECISION_CONFLICT")
+            approval = row
+            job = TaskRepository(db, TaskScope(actor.organization_id, task["shop_id"])).enqueue(
+                task["id"], "resume", f"p3-decision:{decision_id}", f"decision:{decision_id}"
+            )
+            db.execute(
+                """INSERT INTO business.approval_resumes
+             (decision_id,approval_id,organization_id,shop_id,task_id,job_id,delivery_state)
+             VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+                (
+                    decision_id,
+                    path,
+                    actor.organization_id,
+                    task["shop_id"],
+                    task["id"],
+                    job,
+                    "queued" if approval["ready_at"] else "waiting_checkpoint",
+                ),
+            )
+            db.execute(
+                """INSERT INTO business.audit_events
+             (id,organization_id,task_id,actor_id,source,action,entity_type,entity_id,trace_id)
+             VALUES (%s,%s,%s,%s,'replenishment','approval_decided','approval',%s,%s)""",
+                (
+                    uuid4(),
+                    actor.organization_id,
+                    task["id"],
+                    actor.principal_id,
+                    str(path),
+                    uuid4(),
+                ),
+            )
+        fields = decision_fields(db, approval)
+        if not fields:
+            raise WebFailure("NOT_READY")
+        receipt = envelope(db, **fields, request_key=request.request_key, duplicate=duplicate)
+        if not previous:
+            db.execute(
+                """INSERT INTO business.web_requests
+             (organization_id,principal_id,operation,request_key,request_hash,task_id,result)
+             VALUES (%s,%s,'decision',%s,%s,%s,%s)""",
+                (
+                    actor.organization_id,
+                    actor.principal_id,
+                    request.request_key,
+                    request_hash,
+                    task["id"],
+                    Jsonb(json.loads(canonical_bytes(receipt))),
+                ),
+            )
         if hook:
-            hook("after_t3_commit")
+            hook("before_t3_commit")
         return receipt

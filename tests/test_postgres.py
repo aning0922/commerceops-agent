@@ -47,7 +47,7 @@ def runtime(settings: DatabaseSettings) -> DatabaseSettings:
 
 def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
     row = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    assert row and row["version_num"] == "0007_p3_execution"
+    assert row and row["version_num"] == "0008_p4_feishu"
     assert db.execute("SHOW server_version").fetchone()["server_version"].startswith("17.11")  # type: ignore[index]
     tables = db.execute("""SELECT table_schema, table_name FROM information_schema.tables
         WHERE table_schema IN ('business','checkpoints','public')""").fetchall()
@@ -93,6 +93,8 @@ def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
         "executions",
         "replenishment_items",
         "outbox_reconciliations",
+        "p4_inbox_receipts",
+        "p4_card_bindings",
     }
     row = db.execute("SELECT max(v) AS version FROM checkpoints.checkpoint_migrations").fetchone()
     assert row and row["version"] == len(AsyncPostgresSaver.MIGRATIONS) - 1

@@ -81,7 +81,7 @@ def partition(full: list[str], scope: str) -> list[str]:
     if scope not in SCOPES:
         raise ValueError("closed CI scope required")
     nodes = canonical_nodes(full)
-    phase3 = [n for n in nodes if n.split("::")[0].startswith("tests/test_p3")]
+    phase3 = [n for n in nodes if n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))]
     existing = [n for n in nodes if n not in set(phase3)]
     if scope != "all" and (not phase3 or not existing):
         raise ValueError("both CI partitions must be nonempty")

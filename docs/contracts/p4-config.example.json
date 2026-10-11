@@ -1,0 +1,16 @@
+{
+  "schema_version": "p4-v1",
+  "organization_id": "00000000-0000-4000-8000-000000000001",
+  "shop_id": "00000000-0000-4000-8000-000000000002",
+  "app_id": "synthetic-application",
+  "tenant_key": "synthetic-tenant",
+  "bot_open_id": "synthetic-bot",
+  "allowed_open_ids": ["synthetic-operator", "synthetic-approver"],
+  "allowed_group_chat_ids": ["synthetic-group"],
+  "app_secret_file": "/run/secrets/p4_app_secret",
+  "web_config_file": "/run/secrets/p4_business_config",
+  "base_target_key": "m1-test",
+  "base_app_token_file": "/run/secrets/p4_base_app_token",
+  "base_table_id_file": "/run/secrets/p4_base_table_id",
+  "external_sender_enabled": false
+}

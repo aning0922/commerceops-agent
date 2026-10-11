@@ -196,3 +196,29 @@ def test_real_ci_collection_partition_has_no_hardcoded_cardinality() -> None:
     groups = pg_diagnostic.combined_groups(nodes)
     flattened = [node for group in groups.values() for node in group]
     assert len(flattened) == len(nodes) and set(flattened) == set(nodes)
+
+
+def test_p4_gateway_base_and_future_pg_modules_use_business_partition_with_original_caps() -> None:
+    from scripts.pg_ci_evidence import partition
+
+    p4 = ["tests/test_p4_gateway_pg.py::intake", "tests/test_p4_base_future_pg.py::projection"]
+    full = OLD + P3 + p4
+    assert partition(full, "existing") == sorted(OLD)
+    assert partition(full, "phase3") == sorted(P3 + p4)
+    records = [collection(full)]
+    calls = []
+    actual = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        assert cap == 300
+        selected = [n for n in full if n.split("::", 1)[0] in paths]
+        calls.append((label, paths))
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, "phase3")
+    assert len(calls) == 4
+    assert sorted(actual) == sorted(P3 + p4)
+    assert len(actual) == len(set(actual))
+    assert all(label.startswith("combined-phase3-") and len(paths) == 1 for label, paths in calls)

@@ -12,7 +12,7 @@ A唯一共享合同/迁移/业务/outbox/Worker/Graph/Python锁/CI/Compose/阶�
 
 | Gate | 必需证据 | 当前P4状态 |
 |---|---|---|
-| 合同/身份 | strict DTO、可信平台桥接、锁后当前权限、Web共用T3 | 首d75独审5481706893有P1；绑定修复待复审 |
+| 合同/身份 | strict DTO、可信平台桥接、锁后当前权限、Web共用T3 | 共享d039复审无P1/P2且四CI SUCCESS；主体PG19+跨入口2作者通过，独审待 |
 | AC01 | formal私聊+群@ task/approval/execution/item/Base关联，真人另列 | not_run |
 | AC02/09 | 金标/事实约束/P2实际解释与usage引用/轨迹 | P2/P3事实保留，P4集成not_run |
 | AC03/04/05/07/10 | 批准拒绝/全20SKU/完整unknown集合/10重复/冲突/期限/撤权/跨店租户/篡改/提交边界kill/CP | not_run |
@@ -27,3 +27,5 @@ A唯一共享合同/迁移/业务/outbox/Worker/Graph/Python锁/CI/Compose/阶�
 ## 证据记账规则
 
 各结果写source、command、实际exit/count/time、source/model/approval_mode、固定窗口/owner/停止证据。offline Fake、真实PG、SDK源码/官方文档、真人/平台、CI与main分层，不将作者自检记独审或将部分运行记全通过。当前没有新增P4正式真人/平台/provider证据；首提交与后续source/CI以原PR和Root回执绑定，不自指未来提交。
+
+P4-A01当前作者证据与真实负证据见[PHASE4_A01](PHASE4_A01.md)及[安全摘要](contracts/p4-a01-author-evidence.json)。1120offline、旧337+19PG与跨入口2分层；性能100/20/调度为候选统计，pendinginterrupt/gold/sample补证仍待，不由此签M1。主体freeze/独审/精确CI/平台/交付/结案待，P3历史保持。
