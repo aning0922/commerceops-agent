@@ -9,3 +9,11 @@ Root核C52 CI38118162669实际checkout1ee0c6d96261e336eac382122cb562f57b142aef/t
 最小修复只原该测试分页预期+本文：仍第一页workflow_created/cursor，随后每页精确action/relation/task_id（来源两页必须原source_task_id、审批必须原task）、工具deterministic/model未选、4唯一event/cursor完整终止，最后approval_prepared必须出现一次。原config TTL86400/revalidation900、plan history total1/current version1、mine pending total1/count/item1、history0、NOT_READY409和其来源report绑定原字节保留。不改backend/query/权限/cursor/DTO、不删test/skip或宽泛接受任何事件。
 
 新普通冻结/Root独立增审后才能同原07:19截止内最多第二轮完整原test_p3_pg.py当前34，完整JUnit/plugin/hash/image/低rolefalse3/tempDB0/停止和only-owned no-vdown保卷分别记；未知/截止或第二轮失败停止，不第三轮/盲rerun旧CI。精确e7已在先授权下普通push，CI38119133260当时in_progress保持，不取消或拿旧CI替新源。SDK真实auth/bot/table/fields仍0，后续只读资源包disabled，不因本文解除sender或宣布Phase4/M1通过。
+
+## 第二轮真实失败与停止
+
+Root已核精确27cee70515e6d3fbd3c2fb9c4e933898b50839a0增审noP1/P2/86pure2.53s/34collect/无backend改，释放原窗口第二轮。COPY27cee/250源hash，完整原34实际33passed/1failed、command78.426s/JUnit34/f1/e0/skip0/suite76.451s/testcase74.747s，还是该节点但新AssertionError在tests/test_p3_pg.py:596：bool(next_cursor)为true，作者新增“approval_prepared是终页”的断言错误；原analysis_started/action/relation/model字段全部已匹配。首单node JUnit1/f1/e0/skip0/suite4.909s/testcase3.117s也保留。metadata命令因Gate失败not_run，不假填roleflags/tempDB。本窗口已两轮，明确不再启动第三轮或延长。
+
+实际stop UTC06:57:42.338510 exit0/3containers falsePID0，UID501/project/network/volume标签复核后UTC07:01:20.501585正常only-owned down0无-v/no-prune/no-rmi、network removed/volume+images+private+两轮JUnit保留。安全summary/source manifest/JUnit/诊断及原失败绝对私有目录为WTfd38的runtime/p4read-3a9cd42254b5，Root回执另绑定。不用源修改或offline通过掩盖actual Gate仍失败。
+
+源码精确核原ApprovalRecovery.mark_ready在approval_prepared/真实wait checkpoint后还写原有approval_checkpoint_ready（approval_recovery.py审源中实际audit调用），原测试从未要求approval_prepared是终页。作者第一修复只读了新增来源四事件，未完整核旧ready audit，新增终页预期过早。本次最小普通增量改成五页严格顺序：最后必须原task的approval_checkpoint_ready/tool null，5uniqueevent、该页才cursor nil；前四页及全部旧TTL/history/count/NOT_READY不削弱，不改backend或来源过滤。新源只offline/collect待精确增审与Root另裁实际窗口，不能把第二失败标通过或自动续两轮。

@@ -581,6 +581,7 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
         ("analysis_started", "source"),
         ("analysis_report_saved", "source"),
         ("approval_prepared", "task"),
+        ("approval_checkpoint_ready", "task"),
     ):
         following = f.client.get(
             f"/api/v1/tasks/{task}/events", params={"limit": 1, "cursor": cursor}
@@ -589,12 +590,15 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
         event = following["items"][0]
         assert event["action"] == action and event["relation"] == relation
         assert event["task_id"] == (created["source_task_id"] if relation == "source" else task)
-        assert event["tool"]["category"] == "deterministic"
-        assert event["tool"]["selected_by_model"] is False
+        if action == "approval_checkpoint_ready":
+            assert event["tool"] is None
+        else:
+            assert event["tool"]["category"] == "deterministic"
+            assert event["tool"]["selected_by_model"] is False
         pages.append(following)
         cursor = following["next_cursor"]
-        assert bool(cursor) == (action != "approval_prepared")
-    assert len({page["items"][0]["event_id"] for page in pages}) == 4
+        assert bool(cursor) == (action != "approval_checkpoint_ready")
+    assert len({page["items"][0]["event_id"] for page in pages}) == 5
     listed = f.client.get("/api/v1/approvals?view=mine").json()
     assert listed["total"] == 1 and listed["counts"]["pending"] == 1 and len(listed["items"]) == 1
     history = f.client.get("/api/v1/approvals?view=history").json()
