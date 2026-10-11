@@ -106,6 +106,36 @@ def test_private_file_metadata_checked_and_errors_do_not_expose_path_or_contents
         private_value(file)
 
 
+@pytest.mark.parametrize(
+    "name", ["config", "window", "app_secret", "base_token", "table_id", "web_config"]
+)
+def test_each_preflight_private_input_rejects_symlink_in_parent_before_leaf_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str
+) -> None:
+    import os
+
+    directory = tmp_path / "canonical"
+    directory.mkdir(mode=0o700)
+    file = directory / name
+    file.write_text("synthetic-private-value")
+    file.chmod(0o600)
+    parent = tmp_path / "linked-parent"
+    parent.symlink_to(directory, target_is_directory=True)
+    opened = []
+    original = os.fdopen
+
+    def observe(*args: Any, **kwargs: Any) -> Any:
+        opened.append("leaf opened")
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(os, "fdopen", observe)
+    with pytest.raises(ValueError, match="^P4_PRIVATE_FILE_INVALID$"):
+        private_value(parent / name)
+    assert opened == []
+    assert private_value(file) == "synthetic-private-value"
+    assert opened == ["leaf opened"]
+
+
 def test_preflight_caps_forbid_writes_extra_auth_and_long_window() -> None:
     spec = {
         "schema_version": "p4-preflight-v1",

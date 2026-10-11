@@ -18,6 +18,10 @@ summary只分类authentication_observed/bot_identity_observed/target_unique/15co
 
 ## 实际证据及后续
 
+Root独立4a62审发现P1：仅叶O_NOFOLLOW无法拒绝父目录symlink，Reviewer已用synthetic文件实际复现，真实preflight尚未放行/未读私配。普通最小修复复用原infrastructure.web_config.private_bytes助手：绝对无..路径，从anchor逐级O_DIRECTORY|O_NOFOLLOW+dir_fd打开祖先，保原owner/0600/regular，读32769并拒超32KiB；不resolve/创建/chmod未知目录。Business Factory统一委托该助手，原Web配置/nonce/CSRF亦直接继承祖先拒绝，不新建通用框架或加平台权限。六参数父目录symlink反例覆盖config/window/App Secret/Base token/table ID/Web config；必须在leaf fdopen前拒绝且输出固定类别，canonical synthetic仍可读。新修复实际检查/独审另记，旧P1与82pure/type/Ruff/scan通过保持，不能拿旧pure消掉P1。
+
+作者修复后18新增/原定向合36pure实际2.75s；合已审C2后完整1365offline88.73s/375integration deselected、250mypy/343format/Ruff/89MD0、三scope扫描各0。两次作者误写不存在Web config测试文件路径exit4/0tests/0PG保留，随后以真实存在的P4preflight/Gateway/window与完整offline执行，不把错误命令计通过。新P1精确独审待Root，不自行宣解除；真实SDK/读取旧私配/新PG0。
+
 新12pure实际2.88s；加入原Gateway/window合计30pure2.61s，Ruff/type初次import顺序与Any→str局部作者修订已修，不是平台失败。使用锁定官方request/Fake response，secret仅测试tmp synthetic文件，无真实认证、SDK网络、旧私配或平台/provider调用。完整1331offline通过93.25s/375integration deselected、249mypy/342format/Ruff/89MD0已实际核；扫描及精确冻结另补，不提前填未完成检查。0012真实PG和实际新15列表schema、资源包、认证/长连接/业务sender、human验收仍待Root独审与有限窗口。长连接默认关闭，本批未实现WS endpoint/handshake cap，不把认证窄读取等同完整live Factory。
 
 原A04首轮39=37pass/2fail/停止保卷及42c earlycallback拒绝修复保留；原截止和最多第二轮不受本源码WIP影响。清洁Compose原AC08后续采用一层m1-offline-demo装配，复用既有P3 API/单Worker/Graph/20+known70 fixtures/Next，Mock/model not_used/simulated_web/Fake/senderfalse，实际freshCompose与同ID恢复另核，不以memory Preview或本文签M1完成。日期/人工工时未报告/原300h及既有资源与风险历史保持。

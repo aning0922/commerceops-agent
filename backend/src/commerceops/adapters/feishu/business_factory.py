@@ -1,8 +1,6 @@
 """已有App/单Base窄读取Factory；构造无IO，显式窗口内才读私配/认证一次。"""
 
 import json
-import os
-import stat
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -19,23 +17,13 @@ from commerceops.adapters.feishu.ledgered_sdk import ledgered_client
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 from commerceops.application.feishu_business.sdk_window import SDKScope
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
+from commerceops.infrastructure.web_config import private_bytes
 
 
 def private_value(path: Path) -> str:
     try:
-        if not path.is_absolute() or ".." in path.parts:
-            raise ValueError
-        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-        with os.fdopen(descriptor, "rb") as stream:
-            info = os.fstat(stream.fileno())
-            if (
-                not stat.S_ISREG(info.st_mode)
-                or stat.S_IMODE(info.st_mode) != 0o600
-                or info.st_uid != os.geteuid()
-            ):
-                raise ValueError
-            body = stream.read(32769)
-        if not 0 < len(body) <= 32768:
+        body = private_bytes(path)
+        if not body:
             raise ValueError
         value = body.decode().strip()
         if not value:

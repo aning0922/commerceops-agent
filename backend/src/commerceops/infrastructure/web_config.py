@@ -3,6 +3,7 @@
 import json
 import os
 import stat
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -11,14 +12,27 @@ from commerceops.infrastructure.database import DatabaseSettings
 
 
 def private_bytes(path: Path) -> bytes:
-    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    with os.fdopen(descriptor, "rb") as stream:
-        info = os.fstat(stream.fileno())
-        if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+    # 原私配助手强化为逐级dir_fd读取；不创建/resolve/chmod未知路径。
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("INVALID_WEB_CONFIGURATION")
+    with ExitStack() as stack:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        current = os.open(path.anchor, flags)
+        stack.callback(os.close, current)
+        for name in path.parts[1:-1]:
+            current = os.open(name, flags, dir_fd=current)
+            stack.callback(os.close, current)
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=current)
+        with os.fdopen(descriptor, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+                raise ValueError("INVALID_WEB_CONFIGURATION")
+            if info.st_uid != os.geteuid():
+                raise ValueError("INVALID_WEB_CONFIGURATION")
+            body = stream.read(32769)
+        if len(body) > 32768:
             raise ValueError("INVALID_WEB_CONFIGURATION")
-        if info.st_uid != os.geteuid():
-            raise ValueError("INVALID_WEB_CONFIGURATION")
-        return stream.read()
+        return body
 
 
 @dataclass(frozen=True)
