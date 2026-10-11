@@ -243,6 +243,14 @@ def validate(report: dict[str, Any]) -> tuple[list[str], list[str]]:
     modules = report["modules"]
     if not isinstance(modules, list) or not modules:
         raise ValueError("module terminal proof required")
+    # 同一已核runner的精确分组，拒绝伪造part label/改14-node集合或遗漏其他模块。
+    from scripts.pg_diagnostic import combined_groups
+
+    planned = {
+        label: sorted(group)
+        for label, group in combined_groups(full).items()
+        if set(group) <= set(selected)
+    }
     union = []
     for m in modules:
         if not isinstance(m, dict) or set(m) != {
@@ -265,17 +273,7 @@ def validate(report: dict[str, Any]) -> tuple[list[str], list[str]]:
             or m["exit_code"] != 0
         ):
             raise ValueError("all actual nodes must pass and terminate")
-        paths = {n.split("::")[0] for n in expected}
-        if report["scope"] == "phase3":
-            if len(paths) != 1:
-                raise ValueError("one natural P3 module per command required")
-            path = next(iter(paths))
-            label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
-                "/", "-"
-            )
-        else:
-            label = "combined-existing"
-        if m["label"] != label:
+        if planned.get(m["label"]) != expected:
             raise ValueError("module label binding required")
         union.extend(expected)
     if canonical_nodes(union) != actual or (report["scope"] == "existing" and len(modules) != 1):
