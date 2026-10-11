@@ -90,25 +90,7 @@ async def trusted_scope(
             or gateway.max_workflows > 2
         ):
             raise PermissionError("P4_CONTROLLED_GROUP20_SCOPE_REQUIRED")
-        cursor = await db.execute(
-            """SELECT DISTINCT t.id,s.parameters FROM business.business_tasks t
-            JOIN business.p3_task_sources s ON s.task_id=t.id
-            AND s.organization_id=t.organization_id AND s.shop_id=t.shop_id
-            JOIN business.conversations c ON c.id=t.conversation_id AND c.channel='feishu'
-            JOIN business.inbox_events i ON i.task_id=t.id AND i.source='feishu_business'
-            JOIN business.p4_inbox_receipts r ON r.inbox_id=i.id
-            WHERE t.organization_id=%s AND t.shop_id=%s AND t.id=ANY(%s)
-            AND t.kind='inventory_replenishment'
-            AND t.workflow_version='p3-inventory-replenishment-v1'
-            AND i.sanitized_payload->>'event_type'='im.message.receive_v1'
-            AND r.created_at>=%s""",
-            (window.organization_id, window.shop_id, list(window.task_ids), row["occurred_at"]),
-        )
-        tasks = await cursor.fetchall()
-        if frozenset(task["id"] for task in tasks) != window.task_ids or any(
-            task["parameters"] != gateway.parameters.model_dump(mode="json") for task in tasks
-        ):
-            raise PermissionError("P4_CONTROLLED_TASK_SCOPE_REQUIRED")
+        await trusted_tasks(db, settings, window, gateway, row["occurred_at"])
         cursor = await db.execute(
             """SELECT 1 FROM business.p4_base_deliveries WHERE task_id=ANY(%s)
             AND verification_mode<>'controlled_sdk'
@@ -142,6 +124,61 @@ async def trusted_scope(
                 for t in group
             ):
                 raise PermissionError("P4_CONTROLLED_GROUP20_SCOPE_REQUIRED")
+
+
+async def trusted_tasks(
+    db: Any,
+    settings: BusinessSettings,
+    window: ControlledWorkerWindow,
+    gateway: GatewayWindow,
+    claimed_at: datetime,
+) -> None:
+    """共同T1准入：当前App/tenant/白名单/身份原绑定/角色必须先于SDK与Graph。"""
+    cursor = await db.execute(
+        """SELECT DISTINCT t.id,s.parameters,i.app_id,i.tenant_key,
+        ip.external_subject,r.identity_id,t.requester_id,ip.principal_id,
+        t.normalized_request->>'identity_id' AS original_identity,
+        i.sanitized_payload->>'principal_id' AS original_principal,
+        business.lock_p3_permission(t.requester_id,t.organization_id,t.shop_id,
+        r.identity_id,p.auth_version,'operator') AS permitted
+        FROM business.business_tasks t JOIN business.p3_task_sources s ON s.task_id=t.id
+        AND s.organization_id=t.organization_id AND s.shop_id=t.shop_id
+        JOIN business.conversations c ON c.id=t.conversation_id AND c.channel='feishu'
+        AND c.organization_id=t.organization_id AND c.actor_id=t.requester_id
+        JOIN business.inbox_events i ON i.task_id=t.id AND i.source='feishu_business'
+        AND i.organization_id=t.organization_id AND i.shop_id=t.shop_id
+        JOIN business.p4_inbox_receipts r ON r.inbox_id=i.id
+        JOIN business.identities ip ON ip.id=r.identity_id AND ip.provider='feishu'
+        AND ip.organization_id=t.organization_id AND ip.principal_id=t.requester_id
+        AND ip.app_id=i.app_id AND ip.tenant_key=i.tenant_key
+        JOIN business.principals p ON p.id=t.requester_id
+        AND p.organization_id=t.organization_id AND p.enabled
+        WHERE t.organization_id=%s AND t.shop_id=%s AND t.id=ANY(%s)
+        AND t.kind='inventory_replenishment'
+        AND t.workflow_version='p3-inventory-replenishment-v1'
+        AND i.sanitized_payload->>'event_type'='im.message.receive_v1'
+        AND r.created_at>=%s AND i.app_id=%s AND i.tenant_key=%s""",
+        (
+            window.organization_id,
+            window.shop_id,
+            list(window.task_ids),
+            claimed_at,
+            settings.app_id,
+            settings.tenant_key,
+        ),
+    )
+    tasks = await cursor.fetchall()
+    if frozenset(task["id"] for task in tasks) != window.task_ids or any(
+        task["parameters"] != gateway.parameters.model_dump(mode="json")
+        or (task["app_id"], task["tenant_key"]) != (settings.app_id, settings.tenant_key)
+        or task["external_subject"] not in settings.allowed_open_ids
+        or task["principal_id"] != task["requester_id"]
+        or task["original_identity"] != str(task["identity_id"])
+        or task["original_principal"] != str(task["requester_id"])
+        or not task["permitted"]
+        for task in tasks
+    ):
+        raise PermissionError("P4_CONTROLLED_TASK_SCOPE_REQUIRED")
 
 
 async def controlled_work(

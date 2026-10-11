@@ -214,7 +214,21 @@ class Database:
 
 
 @pytest.mark.parametrize(
-    "mutation", ["none", "task_missing", "parameter_changed", "fake_history", "gateway_changed"]
+    "mutation",
+    [
+        "none",
+        "task_missing",
+        "parameter_changed",
+        "fake_history",
+        "gateway_changed",
+        "app",
+        "tenant",
+        "allowlist",
+        "remapped",
+        "revoked",
+        "original_identity",
+        "original_principal",
+    ],
 )
 def test_controlled_task_scope_requires_same_original_gateway_parameters_and_no_fake_history(
     mutation: str,
@@ -254,9 +268,39 @@ def test_controlled_task_scope_requires_same_original_gateway_parameters_and_no_
             {
                 "id": next(iter(window.task_ids)),
                 "parameters": {} if mutation == "parameter_changed" else parameters,
+                "app_id": settings.app_id,
+                "tenant_key": settings.tenant_key,
+                "external_subject": next(iter(settings.allowed_open_ids)),
+                "identity_id": window.window_id,
+                "requester_id": window.organization_id,
+                "principal_id": window.organization_id,
+                "original_identity": str(window.window_id),
+                "original_principal": str(window.organization_id),
+                "permitted": True,
             }
         ]
     )
+    if tasks and mutation in (
+        "app",
+        "tenant",
+        "allowlist",
+        "remapped",
+        "revoked",
+        "original_identity",
+        "original_principal",
+    ):
+        column = {
+            "app": "app_id",
+            "tenant": "tenant_key",
+            "allowlist": "external_subject",
+            "remapped": "principal_id",
+            "revoked": "permitted",
+            "original_identity": "original_identity",
+            "original_principal": "original_principal",
+        }[mutation]
+        tasks[0][column] = (
+            False if mutation == "revoked" else uuid4() if mutation == "remapped" else "forged"
+        )
     db = Database(
         [
             {

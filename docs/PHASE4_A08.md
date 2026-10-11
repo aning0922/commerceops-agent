@@ -1,5 +1,11 @@
 # Phase4 A08 有限业务与原键恢复候选
 
+当前追加P1修复（2026-10-12）：cdbc复合冻结已正常push后，Root原Core精确独审发现共同T1准入缺当前App/Tenant及身份白名单绑定。原全库scope修复被确认有效，但cdbc不能放行SDK/N01或阶段验收。Root已正常取消CI38163010570，实际head=cdbc/attempt1/completed/conclusion=cancelled；quality/frontend/phase3三job cancelled，pg-pair在download-artifact步骤failure、union verifier skipped，不冒四job都cancelled或新PG断言失败。原push/所有回归与失败事实保留。
+
+原A最小修共同trusted_tasks selector：同org/shop/time/参数之外绑定inbox与identity同当前App/Tenant、receipt identity当前Feishu→原requester/conversation actor、原normalized identity/sanitized principal、当前allowed_open_ids与operator资格。known70与group20共同在Factory/Ledger/queue/source/Graph之前执行；原group专用chat检查和IM最后校验保持。无migration/权限扩张/文法/B/C/锁/CI修改。新p2p/group app/tenant/not_allowed三负例及remapped/revoked、业务/队列/四CP完整行不变：author pure64/4.96s；新owned PG一次15pass=12新+controlled Worker旧2+scope旧1，JUnit testcaseΣ88.023s/suite93.266s/source252零变化/2child四imports全部match，18:25:11.253496Z stop/down0/容器网络0/低权三false/tempDB0/no-v保卷。preassembly FakeSession只为证明Factory/Ledger/queue/source/Graph未构造，实际共同selector/PG reads不是Mock，不冒SDK或新Worker生命周期。
+
+最终完整scripts.check actual exit0：1471offline/422integration deselected/92.42s、Ruff375/mypy275/Markdown96、锁/Node工具链/tsc/npm与Python95包audits0、目录/index/完整Git历史扫描0。新freeze精确SHA/tree另在Issue40外部回执，不文档自指未来SHA；Root独立复审与精确新CI尚待，不自行push/重触发。仍原20:37:16Z截止/同源三轮/50h300h，SDK及N01未释放。下方cdbc证据为历史，不能抵本次P1。
+
 2026-10-12 Asia/Shanghai；原A/WTfd38/codex/phase4-feishu，PR43同任务链。main仍9d97，阶段与Issues39–42未结案。本批主体原始base为9a395634dd05941645370cdd460dddca98793e17，Root已核其四CI38151837270全SUCCESS、383PG及三Web批13hash无差异，权威[Source9a回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6110882129)。该旧成功CI不验收本次WIP，也不抵Root后发现的scope P1。
 
 ## 业务范围与源码取舍
