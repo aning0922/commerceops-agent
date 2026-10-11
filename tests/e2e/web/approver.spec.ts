@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { test, expect } from "../../../frontend/tooling/web-test";
-import { noOverflow, noBusinessRequests, screenshot } from "./helpers";
+import { noOverflow, noBusinessRequests, screenshot, b01Evidence } from "./helpers";
 test("20SKU完整审批首末风险、窄屏无裁切、禁止真实决定", async ({ page }) => {
   const requests = await noBusinessRequests(page);
   await page.goto("/approvals/APR-DEMO-008");
@@ -87,7 +87,7 @@ test("项目本地CJK字体实际供给中文字形，禁止依赖系统fallback
     ),
   ).toBe(true);
   await writeFile(
-    `evidence/b01/cjk-font-${process.platform}.json`,
+    `${b01Evidence}/cjk-font-${process.platform}.json`,
     JSON.stringify(
       {
         time_utc: new Date().toISOString(),

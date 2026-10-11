@@ -6,7 +6,11 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   timeout: 30000,
-  outputDir: "../../../../frontend/test-results/p4-c1",
+  globalTimeout: 30 * 60 * 1000,
+  outputDir:
+    process.env.COMMERCEOPS_WEB_BATCH === "p4-c09"
+      ? "../../../../frontend/test-results/p4-c09"
+      : "../../../../frontend/test-results/p4-c1",
   use: {
     headless: true,
     trace: "off",
@@ -22,7 +26,7 @@ export default defineConfig({
       {
         outputFile: resolve(
           __dirname,
-          "../../../../frontend/evidence/p4-c1/ui-results.json",
+          `../../../../frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09" : "p4-c1"}/ui-results.json`,
         ),
       },
     ],

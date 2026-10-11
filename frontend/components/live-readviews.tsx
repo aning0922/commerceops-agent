@@ -82,6 +82,15 @@ export function Sync({ sync }: { sync: DTO["SyncRead"] }) {
             : label(sync.state)}
       </strong>
       <p>业务状态与同步独立；待同步不表示已写外部平台。</p>
+      <p>
+        {sync.state === "synced"
+          ? "下一步核对当前目标版本与验证模式；离线 Fake 核实不代表真实飞书或 Base 已送达。"
+          : sync.state === "pending"
+            ? "下一步只读刷新同步结果，等待后台处理；不重复提交业务操作。"
+            : sync.state === "failed" || sync.state === "unknown"
+              ? "下一步读取当前投影与安全错误事实；同步异常不重开内部项，也不在页面换键重发。"
+              : "当前未请求同步；页面不会启用发送器或追加平台写入。"}
+      </p>
       <SenderFacts
         gates={sync.sender_gates}
         externalEnabled={sync.sender_enabled}
@@ -108,14 +117,17 @@ export function Sync({ sync }: { sync: DTO["SyncRead"] }) {
               {x.is_current_version ? "当前版本" : "历史版本"} · attempts：
               {x.attempts}
             </p>
-            <p>
-              原同步状态：{label(x.state)} · outbox：{x.outbox_status} ·
-              source：{x.source_mode} · 验证模式：
-              {verificationLabel(x.verification_mode)}
-            </p>
-            <small>
-              安全错误码：{x.error_code ?? "未报告"} · 读取证据时间：{x.as_of}
-            </small>
+            <details>
+              <summary>投影技术详情</summary>
+              <p>
+                原同步状态：{label(x.state)} · outbox：{x.outbox_status} ·
+                source：{x.source_mode} · 验证模式：
+                {verificationLabel(x.verification_mode)}
+              </p>
+              <small>
+                安全错误码：{x.error_code ?? "未报告"} · 读取证据时间：{x.as_of}
+              </small>
+            </details>
           </div>
         </div>
       ))}

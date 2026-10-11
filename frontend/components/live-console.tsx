@@ -687,7 +687,11 @@ export function LiveConsole({
               刷新会话与当前页
             </button>
           </div>
-          {error && <Notice title="读取未完成">{error}</Notice>}
+          {error && (
+            <Notice title="读取未完成" tone="danger">
+              {error}
+            </Notice>
+          )}
           {path === "/access" ? (
             <Card title="无法访问此页面">
               <p>
@@ -703,7 +707,16 @@ export function LiveConsole({
             </Card>
           ) : !page ? (
             <Card>
-              <p role="status">正在读取当前授权记录</p>
+              {error ? (
+                <>
+                  <h2>本次读取失败</h2>
+                  <p>
+                    尚未取得当前记录；这不表示业务操作失败。请使用页面刷新按钮重新读取，系统不会重投业务请求。
+                  </p>
+                </>
+              ) : (
+                <p role="status">正在读取当前授权记录</p>
+              )}
             </Card>
           ) : (
             <>

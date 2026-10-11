@@ -7,7 +7,9 @@ if (
   throw new Error("Explicit B02 owned live window required");
 export default defineConfig({
   testMatch:
-    process.env.COMMERCEOPS_WEB_BATCH === "b04"
+    process.env.COMMERCEOPS_WEB_BATCH === "p4-c09-n01"
+      ? "n01.spec.ts"
+      : process.env.COMMERCEOPS_WEB_BATCH === "b04"
       ? "items.spec.ts"
       : ["b03", "b04-write"].includes(process.env.COMMERCEOPS_WEB_BATCH ?? "")
         ? "write.spec.ts"
@@ -16,6 +18,7 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   timeout: 45000,
+  globalTimeout: 30 * 60 * 1000,
   use: {
     baseURL: process.env.COMMERCEOPS_LIVE_WEB_URL,
     trace: "off",

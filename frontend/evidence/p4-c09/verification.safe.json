@@ -1,0 +1,183 @@
+{
+  "source_parent": "3c393e33d7a9c479a87b0f0db1475b61681ff535",
+  "build_id": "5fDxN-Axb18MAcYy903OP",
+  "source_file_sha256": {
+    "docs/ux/phase4-implementation.md": "609876371a952d25f118ad576dfd91d7b433b71fa781c328db819a6c20e071e8",
+    "frontend/app/globals.css": "c0940edfd2c490f12921a28d601d6264da6b290de6d4a3700f8d80d33a46030f",
+    "frontend/components/inventory-request-text.tsx": "47ca6841b8a8f0059672b35c7df23ac6b1c58708044f6cecdad83779c5f767d2",
+    "frontend/components/item-views.tsx": "2effb14029aca0cd0d9c303002e92fdb536133cdbb1f75bb5bed381c01fe50ef",
+    "frontend/components/live-actions.tsx": "36871be10bb6c8097cb9702c6ad16f13ae873eb1f9a68176fcbcf8efc1435291",
+    "frontend/components/live-console.tsx": "04b43f255719e59fc55c4c87d02a15191adc7ee2528ccece6e153b07fa53ab05",
+    "frontend/components/live-readviews.tsx": "761d0dc65abd9e7029a7b1efc53daa8fe46d4bdc563fd5046d79e6535d1b09ce",
+    "frontend/components/ui.tsx": "672611bed388081aa75d01f802bfc47e56c9c8a6f53a22cf7a2b77fbd29b2ff3",
+    "frontend/lib/p3-live-client.ts": "2b5acb143e41c03caeb9d3acae46aa5908f751c8f82763c504a5f6387c251962",
+    "frontend/lib/p3-present.ts": "bcb33779270a2f3fdd83a314ecd1c3d21e434bf4717bd45d39831ff1d1cd7363",
+    "frontend/lib/p3-transport.ts": "ee98f513ef6515da5cdd95691cda532bf8d208e47e1216f9d73b1b85b634f946",
+    "frontend/lib/p4-n01-schema.generated.json": "152fa2f1fdabbb56c8853dcc39e56d238844edd39a47d6a514e2b07970f66c6c",
+    "frontend/lib/p4-n01.ts": "941739c167aa67d3ac6c980b45e9ae4e707a96b3c62b42bd5709375760282f1e",
+    "frontend/package.json": "cd89826e0ae5df2b4949a89f1c6ea326c70fd423fa8e2fa33edcb9943f3f189c",
+    "frontend/playwright.b04-offline.config.ts": "cc3928959dea3388a2786faca64a00ff156b8ae3f71cedf1dae920748874391b",
+    "frontend/playwright.config.ts": "5bd88c33ec2ea07888e57c32babdb24240b175ebf2a683e98ef843363500a3ad",
+    "frontend/playwright.contract.config.ts": "3dba6168fb54ea3f3e7abda2f9f383877b088b05e77ce60b2b7c59102013519b",
+    "frontend/playwright.live.config.ts": "dd06c1624785947bfd27dec1fdc522bfcc81774c437eecc1e07e3a29d5b7697e",
+    "frontend/tooling/live-reporter.ts": "51becc55ed21251a7543d8319304141e350cf487c259542615259a7d5d19fe52",
+    "frontend/tooling/sync-p4-n01-schema.mjs": "a779753b90938ef12a7e970171402369539f272d18556d299c0d1389a34d33cd",
+    "tests/e2e/web/approver.spec.ts": "e1494c8dfe1a5adfc8a7000a682bd52c0cde14b37a9221efa19509af8550ac67",
+    "tests/e2e/web/b04-offline.spec.ts": "68974ce029333bd8a5ae5ac8079b9d00fbad80d299da04359ccfb113ef9bee28",
+    "tests/e2e/web/c09_fixture.py": "eedb9be24bcb1fc994729488e0f2e01a0a89081aed1bd16021db9df7ab68365d",
+    "tests/e2e/web/contracts/c09-feedback.spec.ts": "a5d23a670c424a0827b1a128b855aea70eb6e5b97fce4de9067f3c5de7c7b53e",
+    "tests/e2e/web/contracts/n01-preflight.spec.ts": "47b9558e2cb123b2ee3307190936158fd84415584a71ee5111303c148c497b8e",
+    "tests/e2e/web/helpers.ts": "3cade7e7e203e8f76639d7c061a290e93fc8a9ec18f5a02399974eb00c298a4b",
+    "tests/e2e/web/live/n01.spec.ts": "9a4ed2307b464750bc4bbb97bee8111933db54d53c4ef0404505bd60a733f440",
+    "tests/e2e/web/phase4/fixtures.ts": "69be08313916a6115c63fd60ff218d743d42960600ee9907d1cb51ecf4138989",
+    "tests/e2e/web/phase4/mock-server.mjs": "d93c1a109c58944dd8402a4f81bf8d60014706630da207c68a54386ceb2464cb",
+    "tests/e2e/web/phase4/n01.fixture.json": "4815c878a685b505d478b8aac092afeb356be06889d2649bb4ca0ee42e8512f9",
+    "tests/e2e/web/phase4/playwright.config.ts": "be69354d5b5917854ddf9e81b69defbbf3f1b2ebade5a1915846ed7df2166422",
+    "tests/e2e/web/phase4/ui.spec.ts": "d71990c62ac4586d7eeb62a9fb728305b358b4b0d4b66a352fb383cbbaae48ef",
+    "tests/e2e/web/run_c09_n01.py": "55834689f530b422e673cdeae28d0c75d2eb21a3e26af70d057302162af78f78"
+  },
+  "offline_tests": {
+    "contract": {
+      "actual_passed": 45,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 3619.973,
+      "report_sha256": "6a77f81c07c424947517f37c947e30edf303120efd92bd19282c6278235b67a3"
+    },
+    "p4_ui": {
+      "actual_passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 33374.566,
+      "report_sha256": "f4d6044d159fa4f4d3ac3c2d89635d00cbca12ef743507275927f3478c963c52"
+    },
+    "b04": {
+      "actual_passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 25143.734999999997,
+      "report_sha256": "a14a7880fe5d9fc80c75c3902faf9374fb11a49a0f83be6d5b3241f216372590"
+    },
+    "b01": {
+      "actual_passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 14365.891,
+      "report_sha256": "bcf068a5f0a68bf7c96e7ad25603aeab742aa57f626671247b9c7f3ad79321d6"
+    }
+  },
+  "full_engineering_check": {
+    "exit": 0,
+    "offline_passed": 1531,
+    "integration_deselected": 441,
+    "duration_seconds": 92.47,
+    "warnings": 4,
+    "history_current_index_secret_findings": 0,
+    "markdown_files": 99,
+    "mypy_files": 284,
+    "npm_vulnerabilities": 0,
+    "python_audit_packages": 95,
+    "python_vulnerabilities": 0,
+    "private_log_sha256": "069160d4001070922268c7ff39615de153863ba638945a4492a5f21646ab444e"
+  },
+  "actual_n01_web": {
+    "expected": 6,
+    "actual": 0,
+    "not_run": 6,
+    "fresh_create_calls": 0,
+    "gate": "not_run",
+    "api_imports": "not_run",
+    "startup_attempts": 3,
+    "fourth_attempt": "not_authorized"
+  },
+  "runtime_boundaries": {
+    "provider_calls": 0,
+    "platform_business_writes": 0,
+    "SDK": "closed",
+    "Worker": "not_started",
+    "PG_first_preparation": "started_then_stopped_before_migrate",
+    "human": "not_reported"
+  },
+  "resources": {
+    "projects": [
+      {
+        "project": "p4c09-n01-2ad3770888",
+        "containers_remaining": 0,
+        "networks_remaining": 0,
+        "volumes_preserved": 1,
+        "volume_deletion": false
+      },
+      {
+        "project": "p4c09-n01-991fd784b0",
+        "containers_remaining": 0,
+        "networks_remaining": 0,
+        "volumes_preserved": 0,
+        "volume_deletion": false
+      },
+      {
+        "project": "p4c09-n01-ceaf737353",
+        "containers_remaining": 0,
+        "networks_remaining": 0,
+        "volumes_preserved": 0,
+        "volume_deletion": false
+      }
+    ],
+    "current_docker_network_count": 31,
+    "owned_networks_released": 1,
+    "other_resources_modified": false,
+    "actual_web_tests": 0,
+    "actual_create_calls": 0
+  },
+  "offline_stop": {
+    "observed_at_utc": "2026-10-11T20:27:37.942727+00:00",
+    "no_listeners": true,
+    "native_checks": [
+      {
+        "port": 3410,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3411,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3412,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3413,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3414,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3415,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3490,
+        "exit_code": 1,
+        "listeners": 0
+      },
+      {
+        "port": 3496,
+        "exit_code": 1,
+        "listeners": 0
+      }
+    ],
+    "maximum_lifetime": "30 minutes per Playwright config",
+    "b01_start_uid_cwd_probe": "not_verified; probe occurred after successful teardown",
+    "b01_run_source": "Playwright new webServer, reuseExistingServer=false, exact checkout config",
+    "b01_build_id": "5fDxN-Axb18MAcYy903OP",
+    "API_PG_provider": "not_started by offline suites"
+  },
+  "commit_binding": "exact candidate SHA supplied by Git handoff; this report is contained in that candidate tree"
+}

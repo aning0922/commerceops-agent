@@ -1,0 +1,16 @@
+{
+  "passed": false,
+  "source_commit": "3c393e33d7a9c479a87b0f0db1475b61681ff535",
+  "build_id": "5fDxN-Axb18MAcYy903OP",
+  "test_exit": null,
+  "failure_category": "RuntimeError",
+  "pg_running": false,
+  "pg_pid": 0,
+  "owned_listeners_remaining": false,
+  "volume_preserved": true,
+  "worker_started": false,
+  "sdk_provider_started": false,
+  "started_at_utc": "2026-10-11T20:18:53.021225+00:00",
+  "stop_at_utc": "2026-10-11T20:47:52+00:00",
+  "stopped_at_utc": "2026-10-11T20:18:53.612834+00:00"
+}

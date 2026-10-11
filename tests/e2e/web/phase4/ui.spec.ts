@@ -14,8 +14,17 @@ import {
 import { report } from "./fixtures";
 import type {} from "./test-control";
 const root = resolve(__dirname, "../../../..");
-const evidence = resolve(root, "frontend/evidence/p4-c1");
-let owned: { pid: number; buildId: string; serviceId: string };
+const evidence = resolve(
+  root,
+  `frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09" : "p4-c1"}`,
+);
+let owned: {
+  pid: number;
+  buildId: string;
+  serviceId: string;
+  startedUtc: string;
+  expiresUtc: string;
+};
 let server: ReturnType<typeof spawn>;
 let bundle: string;
 test.beforeAll(() => {
@@ -63,7 +72,8 @@ test.beforeAll(async () => {
         build_id: owned.buildId,
         port: 3496,
         checkout: root,
-        started_utc: new Date().toISOString(),
+        started_utc: owned.startedUtc,
+        expires_utc: owned.expiresUtc,
         headless: true,
         source: "component memory Mock",
         actual_api_pg_worker_provider: "not_started",
@@ -163,7 +173,11 @@ async function open(page: Page, mode = "actual"): Promise<Frame> {
     );
   if (mode !== "actual")
     await frame.evaluate((value) => window.__p4.render(value), mode);
-  if (mode.startsWith("task_"))
+  if (mode === "task_c09_read_failed")
+    await expect(
+      frame.getByRole("heading", { name: "本次读取失败", exact: true }),
+    ).toBeVisible();
+  else if (mode.startsWith("task_"))
     await expect(frame.locator("[data-task-id]")).toHaveAttribute(
       "data-task-id",
       report.task_id,
@@ -580,4 +594,163 @@ test("A03currentidentity aliases/键盘与gate理由；admin无业务导航/跨r
       window.__p4.calls.filter((call) => call.method !== "GET"),
     ),
   ).toEqual([]);
+});
+
+test("C09 GET失败与loading互斥；重读不发业务POST", async ({ page }) => {
+  const frame = await open(page, "task_c09_read_failed");
+  await expect(
+    frame.getByRole("heading", { name: "本次读取失败", exact: true }),
+  ).toBeVisible();
+  await expect(
+    frame.getByText("正在读取当前授权记录", { exact: true }),
+  ).toHaveCount(0);
+  await expect(frame.locator("[data-task-id]")).toHaveCount(0);
+  await frame.locator('[data-control="B42"]').click();
+  await expect(
+    frame.getByRole("heading", { name: "本次读取失败", exact: true }),
+  ).toBeVisible();
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((x) => x.method === "POST"),
+    ),
+  ).toEqual([]);
+});
+
+test("C09 成功/unknown先原键核实，结果下一步为主；390键盘受控恢复不自动POST", async ({
+  page,
+}) => {
+  const frame = await open(page, "task_c09_unknown");
+  await frame.locator('[data-control="B46"]').click();
+  await frame.locator('[data-control="B35"]').click();
+  await frame.locator('dialog [data-control="B01"]').click();
+  await frame.locator('[data-action="send-original"]').click();
+  await expect(
+    frame.getByText("提交结果待核实", { exact: true }),
+  ).toBeVisible();
+  await frame.getByText("原请求技术详情与受控恢复", { exact: true }).click();
+  await expect(frame.locator('[data-action="send-original"]')).toBeDisabled();
+  await frame.locator('[data-action="read-original"]').click();
+  const next = frame.getByRole("link", { name: "查看本次任务", exact: true });
+  await expect(next).toBeFocused();
+  await expect(next).toHaveAttribute(
+    "href",
+    "/tasks/00000000-0000-4000-8000-00000000012d",
+  );
+  expect(
+    await frame.evaluate(
+      () => window.__p4.calls.filter((x) => x.method === "POST").length,
+    ),
+  ).toBe(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await frame.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await frame.locator('[data-action="send-original"]').click();
+  const posts = await frame.evaluate(() =>
+    window.__p4.calls.filter((x) => x.method === "POST"),
+  );
+  expect(posts).toHaveLength(2);
+  expect(posts[0].body).toBe(posts[1].body);
+});
+
+test("C09 409冲突禁盲重提，中文completed保持success语义", async ({ page }) => {
+  const frame = await open(page, "task_c09_conflict");
+  await expect(
+    frame.locator(".status.success").filter({ hasText: "已完成" }),
+  ).toBeVisible();
+  await frame.locator('[data-control="B46"]').click();
+  await frame.locator('[data-control="B35"]').click();
+  await frame.locator('dialog [data-control="B01"]').click();
+  await frame.locator('[data-action="send-original"]').click();
+  await expect(frame.locator("dialog")).toContainText("请求内容与原请求不一致");
+  await frame.getByText("原请求技术详情与受控恢复", { exact: true }).click();
+  await expect(frame.locator('[data-action="send-original"]')).toBeDisabled();
+  await frame.locator('[data-action="read-original"]').click();
+  await expect(frame.locator("dialog")).toContainText("不解除本次冲突或拒绝");
+  await expect(
+    frame.getByRole("link", { name: "查看本次任务", exact: true }),
+  ).toHaveCount(0);
+  await expect(frame.locator('[data-action="send-original"]')).toBeDisabled();
+  expect(
+    await frame.evaluate(
+      () => window.__p4.calls.filter((x) => x.method === "POST").length,
+    ),
+  ).toBe(1);
+});
+
+async function natural(frame: Frame, text: string) {
+  await frame.locator('[data-control="B46"]').click();
+  await frame.getByRole("button", { name: "使用自然语言请求草稿", exact: true }).click();
+  await frame.getByLabel("自然语言请求草稿").fill(text);
+}
+async function parseNatural(frame: Frame) {
+  await frame.getByRole("button", { name: "检查草稿与参数", exact: true }).click();
+  await expect(frame.getByRole("heading", { name: "草稿参数与来源", exact: true })).toBeVisible();
+}
+test("C09 N01离线闭合ready来源窗口，B35只确认/B01鲜键显式提交，390键盘", async ({ page }) => {
+  const frame = await open(page, "task_n01");
+  await natural(frame, "分析库存 L=3 R=7 S=2"); await parseNatural(frame);
+  await expect(frame.getByRole("dialog")).toContainText("模型未使用");
+  await expect(frame.getByRole("dialog")).toContainText("R 是复查周期");
+  await expect(frame.locator('dialog [data-control="B01"]')).toBeDisabled();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await frame.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await frame.locator('[data-control="B35"]').focus(); await page.keyboard.press("Enter");
+  await frame.locator('dialog [data-control="B01"]').click();
+  expect(await frame.evaluate(() => window.__p4.calls.filter((c) => c.path === "/api/v1/tasks" && c.method === "POST"))).toEqual([]);
+  await frame.locator('[data-action="send-original"]').click();
+  await expect(frame.getByRole("link", { name: "查看本次任务", exact: true })).toBeFocused();
+  const posts = await frame.evaluate(() => window.__p4.calls.filter((c) => c.path === "/api/v1/tasks" && c.method === "POST"));
+  expect(posts).toHaveLength(1); const input = JSON.parse(posts[0].body!);
+  expect(input.mode).toBe("new_cycle"); expect(input.parameters).toMatchObject({ L: 3, R: 7, S: 2 });
+  expect(input).not.toHaveProperty("text"); expect(input).not.toHaveProperty("approval_id");
+});
+test("C09 N01 MISSING缺项留空，人工补齐撤旧确认，不把demo改ready", async ({ page }) => {
+  const frame = await open(page, "task_n01");
+  await natural(frame, "分析库存 L=4"); await parseNatural(frame);
+  await expect(frame.getByLabel("L（0–365整数）", { exact: true })).toHaveValue("4");
+  await expect(frame.getByLabel("L（0–365整数）", { exact: true })).toBeDisabled();
+  for (const name of ["R", "S"])
+    await expect(frame.getByLabel(`${name}（0–365整数）`, { exact: true })).toHaveValue("");
+  await expect(frame.locator('[data-control="B35"]')).toBeDisabled();
+  await frame.getByLabel("R（0–365整数）", { exact: true }).fill("7");
+  await frame.getByLabel("S（0–365整数）", { exact: true }).fill("2");
+  await frame.locator('[data-control="B35"]').click();
+  await frame.getByLabel("R（0–365整数）", { exact: true }).fill("8");
+  await expect(frame.locator('dialog [data-control="B01"]')).toBeDisabled();
+  await expect(frame.getByRole("dialog")).toContainText("请补齐明确参数后再确认");
+  await frame.locator('[data-control="B35"]').click(); await frame.locator('dialog [data-control="B01"]').click();
+  expect(await frame.evaluate(() => window.__p4.calls.filter((c) => c.path === "/api/v1/tasks" && c.method === "POST"))).toEqual([]);
+});
+test("C09 N01 invalid/unsupported不能确认，显式取消才另开空结构化草稿", async ({ page }) => {
+  const frame = await open(page, "task_n01");
+  await natural(frame, "分析库存 L=3/4 R=7 S=2"); await parseNatural(frame);
+  await expect(frame.getByRole("dialog")).toContainText("原句参数未通过校验");
+  await expect(frame.locator('[data-control="B35"]')).toBeDisabled();
+  await frame.getByLabel("自然语言请求草稿").fill("只分析 SKU-A 最近三天 L=3 R=7 S=2"); await parseNatural(frame);
+  await expect(frame.getByRole("dialog")).toContainText("此原句超出当前支持范围");
+  await expect(frame.locator('dialog [data-control="B01"]')).toBeDisabled();
+  await frame.getByRole("button", { name: "取消原句并改用结构化草稿", exact: true }).click();
+  await expect(frame.getByLabel("自然语言请求草稿")).toHaveCount(0);
+  await expect(frame.getByLabel("L（0–365整数）", { exact: true })).toHaveValue("");
+  await expect(frame.locator('[data-control="B35"]')).toBeDisabled();
+});
+test("C09 N01迟到解析不能覆盖修改原句或撤权后的旧草稿", async ({ page }) => {
+  const frame = await open(page, "task_n01_late");
+  await natural(frame, "分析库存 L=3 R=7 S=2");
+  await frame.getByRole("button", { name: "检查草稿与参数", exact: true }).click();
+  await expect.poll(() => frame.evaluate(() => window.__p4.calls.filter((c) => c.path === "/api/v1/tasks/preflight").length)).toBe(1);
+  await frame.getByLabel("自然语言请求草稿").fill("分析库存 L=4");
+  await frame.evaluate(() => window.__p4.release());
+  await frame.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)))));
+  await expect(frame.getByRole("heading", { name: "草稿参数与来源", exact: true })).toHaveCount(0);
+  await expect(frame.locator('[data-control="B35"]')).toBeDisabled();
+  await frame.getByLabel("自然语言请求草稿").fill("分析库存 L=3 R=7 S=2");
+  await frame.getByRole("button", { name: "检查草稿与参数", exact: true }).click();
+  await expect.poll(() => frame.evaluate(() => window.__p4.calls.filter((c) => c.path === "/api/v1/tasks/preflight").length)).toBe(2);
+  await frame.evaluate(() => { window.__p4.revoke(); window.__p4.release(); });
+  await expect(frame.getByRole("main")).toContainText("身份、业务缓存与预备操作已清除");
+  await expect(frame.getByRole("dialog")).toHaveCount(0);
 });

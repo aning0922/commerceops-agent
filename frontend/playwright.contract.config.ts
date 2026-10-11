@@ -7,6 +7,14 @@ export default defineConfig({
   use: { trace: "off" },
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/b04-wiring/contract-results.json" }],
+    [
+      "json",
+      {
+        outputFile:
+          process.env.COMMERCEOPS_WEB_BATCH === "p4-c09"
+            ? "evidence/p4-c09/contract-results.json"
+            : "evidence/b04-wiring/contract-results.json",
+      },
+    ],
   ],
 });
