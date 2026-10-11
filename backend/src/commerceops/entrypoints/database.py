@@ -109,6 +109,14 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
 
         connection.execute("""GRANT SELECT,INSERT ON business.p4_inbox_receipts,
             business.p4_card_bindings TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_clarification_replies
+            TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_base_deliveries
+            TO commerceops_app""")
+        connection.execute("GRANT SELECT,INSERT ON business.p4_base_links TO commerceops_app")
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.p4_sender_state TO commerceops_app"
+        )
 
 
 def main() -> None:

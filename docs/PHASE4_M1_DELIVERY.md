@@ -16,7 +16,8 @@ Phase 4 实施完成后，由阶段 owner 把实际源码 SHA、命令、开始/
 | 项目 | 唯一 owner / 输入 | 交付流的使用限制 |
 | --- | --- | --- |
 | 正式飞书入口、回调到 T3、正式卡片和异步通知 | P4-A | 必须调用 P3 当前服务端授权、版本、nonce、hash、假设确认和恢复规则；卡片的已送达/已点击不是业务状态真值。 |
-| Base 投影、对账、版本顺序和 outbox sender | P4-B | PostgreSQL 是真值；外部 unknown 先按原键对账，不能换键重发，不能让 Base 反向改变批准或内部项。 |
+| Base transport、投影纯规则与事实分类 | P4-B | PostgreSQL 是真值；B只返回有界transport/完整读回事实，不拥有sender、持久outbox或调度器。 |
+| outbox持久存储、版本顺序、IM/Base sender与恢复协调 | P4-A | 同表串行写由唯一Worker协调；外部unknown原键对账、不盲发，不让Base反向改变业务或回滚内部完成。 |
 | migration、共享 outbox 合同、Worker/Graph、根锁和 CI | P4-A 指定的单一 owner | 本文不定义或猜测接口、表、环境变量或执行命令；稳定合同冻结后才接线。 |
 | Next.js 状态接线与端到端页面 | P4 Web owner | 只能在后端稳定 DTO/错误语义发布后把 mock 标记替换为真实读取/动作。 |
 | 证据、演示、录屏和阶段收口 | 总控 + 本交付流 | 只消费已冻结的结果；不读密钥、不操作旧 PG/Compose/飞书资源。 |

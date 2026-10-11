@@ -113,7 +113,7 @@ class FeishuBusinessStore:
                 message,
                 semantic,
                 Jsonb({**sanitized, "principal_id": str(actor.principal_id)}),
-                UUID(receipt["task_id"]),
+                UUID(receipt["task_id"]) if receipt.get("task_id") else None,
             ),
         )
         db.execute(
@@ -125,8 +125,6 @@ class FeishuBusinessStore:
 
     def message(self, message: MessageProbe) -> dict[str, Any]:
         # 首切片确定性文法，模糊请求不生成任务/模型请求；正式路由另增量接线。
-        if message.text not in ("分析最近七天库存并生成补货建议", "分析库存并生成补货建议"):
-            raise WebFailure("CLARIFICATION_REQUIRED", 422)
         semantic = facts_hash(
             {"open_id": message.identity.open_id, "chat": message.chat_id, "text": message.text}
         )
@@ -135,36 +133,101 @@ class FeishuBusinessStore:
             old = self._previous(db, actor, message.event_id, semantic, message.message_id)
             if old:
                 return old
-            request = CreateNewCycle(
-                schema_version="p3-web-v1",
-                mode="new_cycle",
-                shop_id=self.shop,
-                request_key=uuid5(
-                    NAMESPACE_URL,
-                    f"p4-message:{actor.app_id}:{actor.tenant_key}:{message.message_id}",
-                ),
-                parameters=self.parameters,
-            )
-            receipt = self.store.create_in_transaction(db, actor, request)
-            receipt = {**receipt, "identity_mode": "feishu", "schema_version": "p4-v1"}
-            self._record(
-                db,
-                actor,
-                message.event_id,
-                message.message_id,
-                semantic,
-                receipt,
-                {
+            if not role_scope(db, actor, self.shop, "operator"):
+                raise WebFailure("ACCESS_DENIED", 403)
+            if message.text not in ("分析最近七天库存并生成补货建议", "分析库存并生成补货建议"):
+                reply, provider_uuid = uuid4(), uuid4()
+                receipt = {
                     "schema_version": "p4-v1",
-                    "source_mode": "mock",
-                    "model_mode": "not_used",
-                    "event_type": "im.message.receive_v1",
-                    "chat_type": message.chat_type,
-                    "text_sha256": facts_hash(message.text),
-                },
-            )
+                    "identity_mode": "feishu",
+                    "state": "needs_clarification",
+                    "reason_code": "REQUEST_NEEDS_CLARIFICATION",
+                    "reply_id": str(reply),
+                    "duplicate": False,
+                }
+                self._record(
+                    db,
+                    actor,
+                    message.event_id,
+                    message.message_id,
+                    semantic,
+                    receipt,
+                    {
+                        "schema_version": "p4-v1",
+                        "source_mode": "mock",
+                        "model_mode": "not_used",
+                        "event_type": "im.message.receive_v1",
+                        "text_sha256": facts_hash(message.text),
+                    },
+                )
+                inbox = db.execute(
+                    """SELECT id FROM business.inbox_events WHERE source='feishu_business'
+                    AND app_id=%s AND tenant_key=%s AND event_id=%s""",
+                    (actor.app_id, actor.tenant_key, message.event_id),
+                ).fetchone()
+                if not inbox:
+                    raise WebFailure("SERVICE_UNAVAILABLE", 503)
+                db.execute(
+                    """INSERT INTO business.p4_clarification_replies
+                    (id,inbox_id,organization_id,shop_id,principal_id,identity_id,chat_id,chat_type,
+                    reason_code,template_version,provider_uuid)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,'REQUEST_NEEDS_CLARIFICATION',
+                    'p4-clarification-v1',%s)""",
+                    (
+                        reply,
+                        inbox["id"],
+                        actor.organization_id,
+                        self.shop,
+                        actor.principal_id,
+                        actor.identity_id,
+                        message.chat_id,
+                        message.chat_type,
+                        provider_uuid,
+                    ),
+                )
+            else:
+                receipt = self._create_message_task(db, actor, message)
         if self.hook:
             self.hook("after_p4_commit")
+        return receipt
+
+    def _create_message_task(
+        self,
+        db: DB,
+        actor: FeishuActor,
+        message: MessageProbe,
+    ) -> dict[str, Any]:
+        semantic = facts_hash(
+            {"open_id": message.identity.open_id, "chat": message.chat_id, "text": message.text}
+        )
+        request = CreateNewCycle(
+            schema_version="p3-web-v1",
+            mode="new_cycle",
+            shop_id=self.shop,
+            request_key=uuid5(
+                NAMESPACE_URL,
+                f"p4-message:{actor.app_id}:{actor.tenant_key}:{message.message_id}",
+            ),
+            parameters=self.parameters,
+        )
+        receipt = self.store.create_in_transaction(db, actor, request)
+        receipt = {**receipt, "identity_mode": "feishu", "schema_version": "p4-v1"}
+        self._record(
+            db,
+            actor,
+            message.event_id,
+            message.message_id,
+            semantic,
+            receipt,
+            {
+                "schema_version": "p4-v1",
+                "source_mode": "mock",
+                "model_mode": "not_used",
+                "event_type": "im.message.receive_v1",
+                "chat_type": message.chat_type,
+                "text_sha256": facts_hash(message.text),
+            },
+        )
         return receipt
 
     def card(self, card: BusinessCard) -> dict[str, Any]:

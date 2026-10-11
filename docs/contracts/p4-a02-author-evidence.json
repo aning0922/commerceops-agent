@@ -1,0 +1,314 @@
+{
+  "schema_version": "p4-a02-author-v1",
+  "base": "545137d014e38ea8ac387139334e92095837dc85",
+  "source_commit_binding": "PR43/Root local freeze receipt; earlier 30 fixture image separate from SDK/pure/card and worker integration additions",
+  "initial_test_image_id": "sha256:837ef8dc375827af79eb7f35c49a2d41bab88efda6f8a2b25aa3424f3ffa393f",
+  "initial_source_hash_count": 217,
+  "source_mode": "mock",
+  "model_mode": "not_used",
+  "approval_mode": "simulated_feishu",
+  "real_platform_calls": 0,
+  "provider_calls": 0,
+  "pg_targets": {
+    "actual": 30,
+    "passed": 30,
+    "pytest_seconds": 56.65,
+    "command_seconds": 59.113,
+    "expected_nodes": [
+      "tests/test_p4_clarification_pg.py::test_ambiguous_has_one_inbox_reply_original_uuid_and_zero_business_delta[p2p]",
+      "tests/test_p4_clarification_pg.py::test_ambiguous_has_one_inbox_reply_original_uuid_and_zero_business_delta[group]",
+      "tests/test_p4_clarification_pg.py::test_unique_worker_send_or_unknown_never_blind_resends[sent]",
+      "tests/test_p4_clarification_pg.py::test_unique_worker_send_or_unknown_never_blind_resends[unknown]",
+      "tests/test_p4_clarification_pg.py::test_revoked_actor_never_receives_pending_reply",
+      "tests/test_p4_clarification_pg.py::test_unauthorized_ambiguous_input_creates_neither_inbox_nor_reply",
+      "tests/test_p4_clarification_pg.py::test_unknown_older_than_one_hour_is_held_and_original_uuid_never_changes",
+      "tests/test_p4_clarification_pg.py::test_removed_group_scope_denies_fixed_reply_before_transport",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_ten_events_and_logical_message_replay_one_atomic_task_pair[p2p]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_ten_events_and_logical_message_replay_one_atomic_task_pair[group]",
+      "tests/test_p4_gateway_pg.py::test_concurrent_same_message_new_event_is_one_task_pair",
+      "tests/test_p4_gateway_pg.py::test_before_commit_fault_rolls_back_inbox_and_task_and_retry_uses_same_key",
+      "tests/test_p4_gateway_pg.py::test_after_commit_ack_loss_replays_original_persistent_receipt",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[identity]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[tenant]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[content]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[revoked]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[remapped]",
+      "tests/test_p4_gateway_pg.py::test_formal_t3_same_p3_decision_and_exact_ten_duplicate_receipts[baseline-approve]",
+      "tests/test_p4_gateway_pg.py::test_formal_t3_same_p3_decision_and_exact_ten_duplicate_receipts[unknown_inbound-approve_with_assumptions]",
+      "tests/test_p4_gateway_pg.py::test_formal_t3_same_p3_decision_and_exact_ten_duplicate_receipts[unknown_inbound-reject_assumptions]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[message]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[chat]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[nonce]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[hash]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[version]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[ordinary]",
+      "tests/test_p4_gateway_pg.py::test_feishu_created_task_and_original_decision_are_readable_by_same_principal_web_session",
+      "tests/test_p4_gateway_pg.py::test_principal_revocation_denies_both_feishu_and_original_web_session",
+      "tests/test_postgres.py::test_revision_and_schema"
+    ],
+    "actual_passed_nodes": [
+      "tests/test_p4_clarification_pg.py::test_ambiguous_has_one_inbox_reply_original_uuid_and_zero_business_delta[p2p]",
+      "tests/test_p4_clarification_pg.py::test_ambiguous_has_one_inbox_reply_original_uuid_and_zero_business_delta[group]",
+      "tests/test_p4_clarification_pg.py::test_unique_worker_send_or_unknown_never_blind_resends[sent]",
+      "tests/test_p4_clarification_pg.py::test_unique_worker_send_or_unknown_never_blind_resends[unknown]",
+      "tests/test_p4_clarification_pg.py::test_revoked_actor_never_receives_pending_reply",
+      "tests/test_p4_clarification_pg.py::test_unauthorized_ambiguous_input_creates_neither_inbox_nor_reply",
+      "tests/test_p4_clarification_pg.py::test_unknown_older_than_one_hour_is_held_and_original_uuid_never_changes",
+      "tests/test_p4_clarification_pg.py::test_removed_group_scope_denies_fixed_reply_before_transport",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_ten_events_and_logical_message_replay_one_atomic_task_pair[p2p]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_ten_events_and_logical_message_replay_one_atomic_task_pair[group]",
+      "tests/test_p4_gateway_pg.py::test_concurrent_same_message_new_event_is_one_task_pair",
+      "tests/test_p4_gateway_pg.py::test_before_commit_fault_rolls_back_inbox_and_task_and_retry_uses_same_key",
+      "tests/test_p4_gateway_pg.py::test_after_commit_ack_loss_replays_original_persistent_receipt",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[identity]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[tenant]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[content]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[revoked]",
+      "tests/test_p4_gateway_pg.py::test_formal_t1_current_identity_scope_and_event_conflict[remapped]",
+      "tests/test_p4_gateway_pg.py::test_formal_t3_same_p3_decision_and_exact_ten_duplicate_receipts[baseline-approve]",
+      "tests/test_p4_gateway_pg.py::test_formal_t3_same_p3_decision_and_exact_ten_duplicate_receipts[unknown_inbound-approve_with_assumptions]",
+      "tests/test_p4_gateway_pg.py::test_formal_t3_same_p3_decision_and_exact_ten_duplicate_receipts[unknown_inbound-reject_assumptions]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[message]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[chat]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[nonce]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[hash]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[version]",
+      "tests/test_p4_gateway_pg.py::test_callback_binding_and_unknown_assumptions_are_server_authoritative[ordinary]",
+      "tests/test_p4_gateway_pg.py::test_feishu_created_task_and_original_decision_are_readable_by_same_principal_web_session",
+      "tests/test_p4_gateway_pg.py::test_principal_revocation_denies_both_feishu_and_original_web_session",
+      "tests/test_postgres.py::test_revision_and_schema"
+    ]
+  },
+  "single_worker_integration": {
+    "actual": 1,
+    "passed": 1,
+    "pytest_seconds": 6.84,
+    "command_seconds": 9.5,
+    "expected_nodes": [
+      "tests/test_p4_clarification_pg.py::test_existing_single_worker_maintenance_sends_reply_without_business_jobs"
+    ],
+    "actual_passed_nodes": [
+      "tests/test_p4_clarification_pg.py::test_existing_single_worker_maintenance_sends_reply_without_business_jobs"
+    ]
+  },
+  "performance": {
+    "analysis": {
+      "fixture": "inventory-v1/baseline",
+      "max_seconds": 0.8557127079984639,
+      "n": 20,
+      "p95_seconds": 0.8057689590204973,
+      "provider_calls": 0,
+      "queue_depth": 1,
+      "samples": [
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-01"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-02"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-03"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-04"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-05"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-06"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-07"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-08"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-09"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-10"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-11"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-12"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-13"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-14"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-15"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-16"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-17"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-18"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-19"
+        },
+        {
+          "complete": true,
+          "facts_hash": "cf52edaffd799ff85262817e7332055b6418a924d1ff0b1a1996f60bd9ff1e93",
+          "gold_match": true,
+          "sample_id": "p4-baseline-20"
+        }
+      ],
+      "warmup_excluded": false,
+      "worker_start_and_stop_included": true
+    },
+    "approval_mode": "simulated_feishu",
+    "inbound": {
+      "commit_and_sdk_ack_verified": true,
+      "max_seconds": 0.014578125003026798,
+      "n": 100,
+      "p95_seconds": 0.013282208004966378,
+      "platform_network_included": false
+    },
+    "machine": "aarch64",
+    "model_mode": "not_used",
+    "pending_busy": {
+      "actual_pending_interrupt_ready": true,
+      "busy_hold_seconds": 1.2011377509916201,
+      "next_point_delay_seconds": 0.04589133299305104,
+      "scan_config_seconds": 1,
+      "scan_during_busy": false
+    },
+    "pending_idle": {
+      "actual_pending_interrupt_ready": true,
+      "delay_seconds": 0.03721245800261386,
+      "explicit_termination_confirmed": true,
+      "old_pid_reaped": true,
+      "scan_config_seconds": 1
+    },
+    "provider_calls": 0,
+    "python": "3.12.13",
+    "real_platform_calls": 0,
+    "recovery": {
+      "busy_hold_seconds": 1.2069050010177307,
+      "busy_next_point_delay_seconds": 0.013533290999475867,
+      "idle_bound_seconds": 30,
+      "idle_observed_gap_seconds": 1.0270747509784997,
+      "idle_scan_config_seconds": 1,
+      "scan_during_busy": false
+    },
+    "source_mode": "mock",
+    "system": "Linux"
+  },
+  "metadata": {
+    "runtime_flags": {
+      "rolsuper": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false
+    },
+    "temporary_db_count": 0,
+    "revision": "0009_p4_clarification"
+  },
+  "network_release": {
+    "project": "p4a02-6f2bcbc812bf",
+    "owner": "P4-A02-WTfd38",
+    "down_exit": 0,
+    "network_removed": true,
+    "volume_retained": true,
+    "stopped_container_count": 1,
+    "performed_at": "2026-10-11T04:34:09.005641+00:00",
+    "used_prune": false,
+    "used_volume_delete_flag": false
+  },
+  "resource": {
+    "project": "p4a02-6f2bcbc812bf",
+    "owner": "P4-A02-WTfd38",
+    "host_ports": 0,
+    "started_at": "2026-10-11T04:22:39.414183+00:00",
+    "expires_at": "2026-10-11T04:42:39.414183+00:00",
+    "stopped_at": "2026-10-11T04:33:01.385807+00:00",
+    "stop_exit": 0,
+    "stopping_confirmed": true,
+    "volume_retained": true
+  },
+  "offline": {
+    "passed": 1284,
+    "deselected": 367,
+    "warnings": 2,
+    "pytest_seconds": 88.94,
+    "mypy_files": 221,
+    "format_files": 305,
+    "markdown_files": 80,
+    "python_audit_packages": 95,
+    "known_vulnerabilities": 0
+  },
+  "limitations": [
+    "Current IM real runtime sender remains Root-controlled; offline client transport only",
+    "Card renderer tested full trusted report/plan shape, not platform rendering/delivery",
+    "Actual pending idle/busy used simulated_web P3 requests; SDK intake uses simulated_feishu",
+    "Formal general outbox/Base v1-unknown/v2 cross integration/four Web read groups/clean Compose/human not_run",
+    "C current schema/new-cycle P1 and failed old545 CI preserved; no new whole-tree CI yet"
+  ]
+}

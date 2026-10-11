@@ -15,6 +15,7 @@ import lark_oapi as lark  # type: ignore[import-untyped]
 import psycopg
 from commerceops.adapters.feishu.business_gateway import BusinessGateway
 from commerceops.adapters.feishu.contracts import ProbePolicy
+from commerceops.application.commerce.inventory_facts import InventoryReport
 from commerceops.application.runner import RunRequest, RunResult
 from commerceops.entrypoints.database import grant_runtime, migrate, setup_checkpointer
 from commerceops.infrastructure.database import DatabaseSettings, connect
@@ -26,8 +27,11 @@ from psycopg import sql
 
 from tests.inventory_support import InventoryProcess
 from tests.p3_support import P3Fixture, initialize_p3
+from tests.p4_pending_performance import busy_pending, idle_pending
 from tests.test_feishu_sdk import frame
 from tests.test_p4_gateway_pg import service
+
+ANALYSIS_SAMPLE_IDS = tuple(f"p4-baseline-{n:02d}" for n in range(1, 21))
 
 
 def percentile95(values: list[float]) -> float:
@@ -106,7 +110,11 @@ async def inbound(f: P3Fixture) -> dict[str, Any]:
 
 async def analysis(f: P3Fixture) -> dict[str, Any]:
     times: list[float] = []
-    for _ in range(20):
+    samples: list[dict[str, Any]] = []
+    gold = json.loads(Path("tests/fixtures/commerce/inventory-v1/goldens.json").read_text())[
+        "expectations"
+    ]["baseline"]
+    for sample_id in ANALYSIS_SAMPLE_IDS:
         task, job = f.inventory.create("baseline")
         started = time.perf_counter()
         child = InventoryProcess(f.inventory)
@@ -131,6 +139,25 @@ async def analysis(f: P3Fixture) -> dict[str, Any]:
             child.close()
         times.append(time.perf_counter() - started)
         assert f.inventory.counts(task) == (1, 1)
+        with connect(f.config.database) as db:
+            saved = db.execute(
+                """SELECT r.report,t.state FROM business.analysis_reports r
+                JOIN business.business_tasks t ON t.id=r.task_id WHERE t.id=%s""",
+                (task,),
+            ).fetchone()
+            assert saved and saved["state"] == "completed"
+            report = InventoryReport.model_validate_json(json.dumps(saved["report"]))
+            assert report.complete and report.source_complete and len(report.items) == 1
+            actual = report.items[0].model_dump(mode="json")
+            assert {key: actual[key] for key in gold} == gold
+            samples.append(
+                {
+                    "sample_id": sample_id,
+                    "complete": True,
+                    "gold_match": True,
+                    "facts_hash": report.facts_hash,
+                }
+            )
     value = percentile95(times)
     assert value < 10
     return {
@@ -139,6 +166,8 @@ async def analysis(f: P3Fixture) -> dict[str, Any]:
         "p95_seconds": value,
         "max_seconds": max(times),
         "queue_depth": 1,
+        "warmup_excluded": False,
+        "samples": samples,
         "worker_start_and_stop_included": True,
         "provider_calls": 0,
     }
@@ -217,6 +246,8 @@ def main() -> None:
             ("inbound", inbound),
             ("analysis", analysis),
             ("recovery", recovery),
+            ("pending_idle", idle_pending),
+            ("pending_busy", busy_pending),
         ):
             name = "p4_perf_" + uuid4().hex
             owner = settings.model_copy(update={"name": name})
