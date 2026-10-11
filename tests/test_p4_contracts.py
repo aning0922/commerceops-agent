@@ -40,7 +40,7 @@ def test_all_fifteen_columns_and_blank_resolution_are_preserved() -> None:
     assert len(fields) == 15
     assert fields["Quantity"] == 100
     assert fields["BusinessStatus"] == "open"
-    assert fields["ResolutionReason"] == fields["ResolvedBy"] == fields["ResolvedAt"] == ""
+    assert fields["ResolutionReason"] is fields["ResolvedBy"] is fields["ResolvedAt"] is None
 
 
 @pytest.mark.parametrize(

@@ -64,8 +64,8 @@ class ItemProjection(Contract):
                 raise ValueError("INVALID_PROJECTION")
         return self
 
-    def fields(self) -> dict[str, str | int]:
-        """v1全15列为文本/整数；空终态字段用空文本，避免额外平台人员权限。"""
+    def fields(self) -> dict[str, str | int | None]:
+        """v1全15列为文本/整数；终态空字段显式null清除，避免旧残值。"""
         return dict(
             zip(
                 BASE_FIELDS,
@@ -80,9 +80,9 @@ class ItemProjection(Contract):
                     self.approval_status,
                     self.approved_by,
                     self.business_status,
-                    self.resolution_reason or "",
-                    self.resolved_by or "",
-                    self.resolved_at.isoformat() if self.resolved_at else "",
+                    self.resolution_reason,
+                    self.resolved_by,
+                    self.resolved_at.isoformat() if self.resolved_at else None,
                     self.sync_version,
                     self.updated_at.isoformat(),
                 ),
