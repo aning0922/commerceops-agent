@@ -10,7 +10,7 @@ Root指定ignored私有0700/0600无secret配置文件及原App Secret单文件�
 
 ## 一轮读取上限
 
-启动前持久登记owner、source、绝对UTC截止（建议总120s含30s停止）、SDK方法/每类cap。认证刷新也是实际请求，不能只计业务API：tenant token至多1；list table至多2页×100/总200；field list至多2页×100/总200；每method≤10s总截止，页不重置；已明确tableID可跳过list table。bot/tenant/唯一原群及allowlist的现有窄核实方法先按锁SDK源码冻结名称和至多各1次，不猜接口、不增通讯录发现流程；资源包须Root核总cap后执行。任何新增SDK方法/页数需另核，不能用“只读”无限诊断。
+启动前持久登记owner、source、绝对UTC截止（建议总120s含30s停止）、SDK方法/每类cap。认证刷新也是实际请求，不能只计业务API：tenant token至多1；list table至多2页×100/总200；field list至多2页×100/总200；每method≤10s总截止，页不重置；已明确tableID可跳过list table。仅已明确权限的bot及同Base表/field窄读取，bot方法按已锁源码冻结、至多1次；不猜tenant/group接口或群列表/通讯录枚举，不请求scope、重跑P1六条采样或新增发现框架。资源包须Root核总cap后执行，任何必要新增SDK方法/页数另核。
 
 本轮不读取业务record、不create/update、不发消息/卡、不启长连接、不接Woo。15列type检查不宣称写权限已可用；create/update授权与最终full readback须正式业务窗口原一次受控写证明。SDK ledger记录实际调用/完成或unknown及安全HTTP/code类别，缺ledger不得称0调用或已经验证；无raw response/URL/IDs/Token输出。
 
@@ -22,4 +22,6 @@ Root指定ignored私有0700/0600无secret配置文件及原App Secret单文件�
 
 ## 放行分层
 
-可交付安全summary为structure_valid、app/bot/tenant/allowlist/group当前验证bool、唯一目标bool、15列count/type bool、实际method次数/失败类别/源码与截止/停止保留。真实值留Root私有文件，A/B/C开发上下文和GitHub只收分类。Root逐项核后决定后续真实窗口，preflight成功不替M1/真人/发卡/Base写入/cleanCompose/精确CI Gate；任何失败停止相关包，保原P1/P2/P3/设计/卷和风险历史。
+可交付安全summary为structure_valid、已做的app/bot/目标API核实、唯一目标bool、15列count/type bool、实际method次数/失败类别/源码与截止/停止保留。tenant/group/A/B/C不能API核的项必须标historical_confirmed或not_run，不能从本地metadata布尔伪造当前验证。
+
+后续受控业务窗口继承原确认alias绑定，只有当前真实入站消息/实际callback的app/tenant/chat/open_id逐项匹配，以及PG当前role/shop授权，才标current_observed；分别保留来源与发生点，不能用某一callback同时宣布所有用户或群成员API已核。每真实副作用继续exact测试目标/allowlist/shop/currentactor校验，schema未知仍停。真实值留Root私有文件，开发/GitHub只收分类；Root核事实缺项后安排最短有限自有测试，preflight不替M1/真人/发卡/Base写入/cleanCompose/精确CI Gate。失败停止相关包，保原P1/P2/P3/设计/卷及风险历史。

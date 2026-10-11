@@ -117,6 +117,14 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
         connection.execute(
             "GRANT SELECT,INSERT,UPDATE ON business.p4_sender_state TO commerceops_app"
         )
+        # SELECT FOR UPDATE用于原window cap串行；immutable trigger仍拒绝任何行修改。
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.p4_sdk_windows TO commerceops_app"
+        )
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.p4_sdk_calls,"
+            "business.p4_im_deliveries TO commerceops_app"
+        )
 
 
 def main() -> None:

@@ -18,7 +18,9 @@ from commerceops.application.feishu_business.delivery import (
     disposition,
     next_operation,
 )
+from commerceops.application.feishu_business.sdk_window import SDKScope
 from commerceops.domain.commerce_values import facts_hash
+from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.worker_lock import WorkerSession, open_async
 
 
@@ -51,10 +53,19 @@ def item_snapshot(item: dict[str, Any], plan: dict[str, Any], version: int) -> I
 
 
 class BaseDeliveryStore:
-    def __init__(self, session: WorkerSession, adapter: BaseProjectionAdapter, gate: DeliveryGate):
+    def __init__(
+        self,
+        session: WorkerSession,
+        adapter: BaseProjectionAdapter,
+        gate: DeliveryGate,
+        ledger: PersistentSDKLedger | None = None,
+    ):
         if gate.organization_id != session.organization:
             raise ValueError("INVALID_P4_DELIVERY_ORGANIZATION")
         self.session, self.adapter, self.gate = session, adapter, gate
+        if gate.verification_mode == "controlled_sdk" and ledger is None:
+            raise ValueError("CONTROLLED_BASE_REQUIRES_METHOD_LEDGER")
+        self.ledger = ledger
 
     async def _enroll(self) -> None:
         # 固定原task白名单+单shop/Mock，绝不扫描/升级历史probe或controlled_stub outbox。
@@ -242,7 +253,15 @@ class BaseDeliveryStore:
         else:
             try:
                 async with asyncio.timeout(request.timeout_seconds):
-                    result = await self.adapter.project(request)
+                    if self.ledger:
+                        with self.ledger.scope(
+                            SDKScope(
+                                request.outbox_id, request.projection.task_id, "base_projection"
+                            )
+                        ):
+                            result = await self.adapter.project(request)
+                    else:
+                        result = await self.adapter.project(request)
                 result = ProjectionResult.model_validate(result.model_dump())
             except Exception:
                 result = ProjectionResult(outcome="unknown", code="BASE_OPERATION_UNKNOWN")

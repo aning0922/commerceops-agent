@@ -29,9 +29,13 @@ class FeishuBusinessStore:
         parameters: Parameters,
         *,
         hook: Callable[[str], None] | None = None,
+        allow_live_bindings: bool = False,
     ):
         self.store, self.shop, self.parameters, self.hook = store, shop_id, parameters, hook
         self.decisions = DecisionStore(store.config)
+        if type(allow_live_bindings) is not bool:
+            raise ValueError("INVALID_LIVE_BINDING_GATE")
+        self.allow_live_bindings = allow_live_bindings
 
     @staticmethod
     def actor(db: DB, identity: PlatformIdentity, chat: str) -> FeishuActor:
@@ -264,7 +268,8 @@ class FeishuBusinessStore:
                 if (
                     not approval["ready_at"]
                     or not binding
-                    or binding["source_mode"] != "offline_fake"
+                    or binding["source_mode"]
+                    != ("feishu" if self.allow_live_bindings else "offline_fake")
                     or (binding["chat_id"], binding["message_id"])
                     != (
                         card.chat_id,

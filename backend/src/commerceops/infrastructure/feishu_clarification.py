@@ -8,6 +8,8 @@ from commerceops.application.feishu_business.clarification import (
     ClarificationSender,
     NoticeResult,
 )
+from commerceops.application.feishu_business.sdk_window import SDKScope
+from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.worker_lock import WorkerSession, open_async
 
 
@@ -19,9 +21,11 @@ class ClarificationDeliveryStore:
         sender: ClarificationSender,
         *,
         controlled_sender: bool = False,
+        ledger: PersistentSDKLedger | None = None,
     ):
         self.session, self.policy, self.sender = session, policy, sender
         self.controlled_sender = controlled_sender
+        self.ledger = ledger
 
     async def recover_unknown(self) -> None:
         # WorkerSession.start已核旧PID终止，不能由租约/锁可获猜停止。
@@ -95,7 +99,11 @@ class ClarificationDeliveryStore:
         result: NoticeResult
         try:
             async with asyncio.timeout(10):
-                result = await self.sender.send_clarification(request)
+                if self.ledger:
+                    with self.ledger.scope(SDKScope(request.reply_id, None, "clarification")):
+                        result = await self.sender.send_clarification(request)
+                else:
+                    result = await self.sender.send_clarification(request)
             result = NoticeResult.model_validate(result.model_dump())
         except Exception:
             result = NoticeResult(outcome="unknown", code="NOTICE_ACK_UNKNOWN")

@@ -52,7 +52,7 @@ def sender_gates(db: DB, organization: UUID, shops: list[UUID] | None) -> list[d
             "reason_code": "NOT_CONFIGURED",
             "verification_mode": None,
             "as_of": timestamp,
-                "worker_ready": None,
+            "worker_ready": None,
         }
         for alias in ("IM", "Base")
         if alias not in present
