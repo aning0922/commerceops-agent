@@ -9,7 +9,12 @@ import { createReadClient } from "../lib/p3-live-client";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import { P3Failure } from "../lib/p3-transport";
 import type { DTO } from "../lib/p3-present";
-import { label, localTime, reportBound } from "../lib/p3-present";
+import {
+  label,
+  localTime,
+  reportBound,
+  newCycleEligibility,
+} from "../lib/p3-present";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
 import {
   LiveReport,
@@ -27,7 +32,12 @@ type PageData =
       read: DTO["TaskRead"];
       execution: DTO["ExecutionRead"] | null;
     }
-  | { kind: "report"; read: DTO["ReportRead"]; versions: DTO["PlanList"] }
+  | {
+      kind: "report";
+      read: DTO["ReportRead"];
+      versions: DTO["PlanList"];
+      task: DTO["TaskRead"];
+    }
   | { kind: "plans"; read: DTO["PlanList"]; taskId: string }
   | { kind: "plan"; read: DTO["PlanRead"] }
   | { kind: "approvals"; read: DTO["ApprovalList"] }
@@ -101,9 +111,12 @@ export function LiveConsole({
   }, []);
   const [session, setSession] = useState<DTO["SessionRead"] | null>(null);
   const [checking, setChecking] = useState(true);
-  const [data, setData] = useState<{ path: string; value: PageData } | null>(
-    null,
-  );
+  const [data, setData] = useState<{
+    path: string;
+    value: PageData;
+    client: A01ReadClient;
+    session: DTO["SessionRead"];
+  } | null>(null);
   const [config, setConfig] = useState<DTO["ConfigRead"] | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -270,7 +283,7 @@ export function LiveConsole({
           if (!reportBound(report, id, query.report_id))
             throw new P3Failure("INVALID_RESPONSE");
           const versions = await client!.plans(id, { limit: 20, cursor });
-          page = { kind: "report", read: report, versions };
+          page = { kind: "report", read: report, versions, task };
         } else if (section === "events" && !version)
           page = {
             kind: "events",
@@ -331,7 +344,7 @@ export function LiveConsole({
         throw new P3Failure("INVALID_RESPONSE");
       if (accept()) {
         setConfig(currentConfig);
-        setData({ path, value: page });
+        setData({ path, value: page, client: client!, session: session! });
       }
     }
     void load().catch((error) => {
@@ -457,7 +470,28 @@ export function LiveConsole({
       router.replace("/login");
     }
   }
-  const page = data?.path === path ? data.value : null;
+  const page =
+    data?.path === path && data.client === client && data.session === session
+      ? data.value
+      : null;
+  const operatorShops =
+    session?.principal.role_shop_grants
+      .filter((grant) => grant.role === "operator")
+      .map((grant) => grant.shop_id) ?? [];
+  const cycleTask =
+    page?.kind === "task"
+      ? page.read
+      : page?.kind === "report"
+        ? page.task
+        : null;
+  const cycleGate = newCycleEligibility(
+    cycleTask,
+    capabilities?.can_create_task ?? false,
+    operatorShops,
+    page?.kind === "report" ? page.read : undefined,
+  );
+  const cycleShops =
+    cycleGate.allowed && cycleTask ? [cycleTask.task.shop_id] : [];
   const title = titleOf(path);
   function filter(value: string) {
     setData(null);
@@ -810,13 +844,17 @@ export function LiveConsole({
                     <p>
                       任务状态、永久执行回执与各内部项跟进状态分别呈现；不推断采购或入库。
                     </p>
-                    {page.read.actions.can_start_new_cycle && (
+                    {cycleGate.allowed ? (
                       <button
                         data-control="B46"
-                        onClick={() => setPanel("create")}
+                        onClick={() => setPanel("create-new-cycle")}
                       >
                         开启新周期
                       </button>
+                    ) : (
+                      <Disabled control="B46" reason={cycleGate.reason}>
+                        开启新周期
+                      </Disabled>
                     )}
                   </Card>
                   {page.execution && (
@@ -842,6 +880,10 @@ export function LiveConsole({
                     read={page.read}
                     config={config}
                     client={client!}
+                    cycle={{
+                      ...cycleGate,
+                      openDraft: () => setPanel("create-new-cycle"),
+                    }}
                   />
                   {capabilities!.can_create_task &&
                     page.read.source.source_complete &&
@@ -1156,13 +1198,17 @@ export function LiveConsole({
               )}
             </>
           )}
-          {(panel === "create" || panel === "create-source") &&
-            capabilities!.can_create_task && (
+          {(panel === "create" ||
+            panel === "create-source" ||
+            panel === "create-new-cycle") &&
+            capabilities!.can_create_task &&
+            (panel !== "create-new-cycle" || cycleGate.allowed) && (
               <CreateTaskDialog
+                key={`${panel}:${path}:${cycleTask?.task.task_id ?? ""}:${cycleShops.join()}:${session.principal.principal_id}:${session.principal.auth_version}`}
                 client={client!}
-                shops={session.principal.role_shop_grants
-                  .filter((x) => x.role === "operator")
-                  .map((x) => x.shop_id)}
+                shops={
+                  panel === "create-new-cycle" ? cycleShops : operatorShops
+                }
                 source={
                   panel === "create-source" && page?.kind === "report"
                     ? page.read.source

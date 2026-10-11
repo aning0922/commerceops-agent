@@ -1,0 +1,366 @@
+{
+  "config": {
+    "argv": [
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/.tools/node/bin/node",
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../tests/e2e/web/phase4/playwright.config.ts"
+    ],
+    "configFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/playwright.config.ts",
+    "rootDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "testIgnore": [],
+        "testMatch": [
+          "ui.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "testIgnore": [],
+        "testMatch": "ui.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "headless": true,
+          "trace": "off",
+          "video": "off",
+          "screenshot": "off",
+          "browserName": "chromium",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/evidence/p4-c1/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ui.spec.ts",
+      "file": "ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "缓存完整metadata/usage/refs仅原GET；0与null分开，390完整依据",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2537,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjQ1MDMpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:15:04.210Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-78b224f70f48714d3a76",
+          "file": "ui.spec.ts",
+          "line": 62,
+          "column": 5
+        },
+        {
+          "title": "已有模板降级/离线stub明确标识，null不补0不发新模型",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1311,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:15:07.941Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-99ddee02aeaba4194ae4",
+          "file": "ui.spec.ts",
+          "line": 75,
+          "column": 5
+        },
+        {
+          "title": "NOT_READY与异refs安全错误不伪造解释；撤权清cache",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:15:09.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-576655277e9eb35e359b",
+          "file": "ui.spec.ts",
+          "line": 87,
+          "column": 5
+        },
+        {
+          "title": "关闭/卸载后的迟到缓存不能填回旧抽屉或跨record",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1310,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:15:10.636Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-6eab144c3041be7b04b8",
+          "file": "ui.spec.ts",
+          "line": 103,
+          "column": 5
+        },
+        {
+          "title": "M05→空授权草稿：缺参有reason，无POST；确认+B01新key后才显式提交",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1225,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-control=\"B01\"]')\nExpected: disabled\nError: strict mode violation: locator('[data-control=\"B01\"]') resolved to 2 elements:\n    1) <button data-control=\"B01\">从此冻结报告创建正式补货任务</button> aka getByRole('button', { name: '从此冻结报告创建正式补货任务' })\n    2) <button disabled class=\"primary\" data-control=\"B01\">准备本次正式任务请求</button> aka getByRole('button', { name: '准备本次正式任务请求' })\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" locator('[data-control=\"B01\"]') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-control=\"B01\"]')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-control=\"B01\"]')\nExpected: disabled\nError: strict mode violation: locator('[data-control=\"B01\"]') resolved to 2 elements:\n    1) <button data-control=\"B01\">从此冻结报告创建正式补货任务</button> aka getByRole('button', { name: '从此冻结报告创建正式补货任务' })\n    2) <button disabled class=\"primary\" data-control=\"B01\">准备本次正式任务请求</button> aka getByRole('button', { name: '准备本次正式任务请求' })\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" locator('[data-control=\"B01\"]') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-control=\"B01\"]')\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:130:55",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                      "column": 55,
+                      "line": 130
+                    },
+                    "snippet": "  128 |   await frame.getByLabel(\"L（0–365整数）\").fill(\"\");\n  129 |   await expect(frame.locator(\"dialog\")).toContainText(\"缺少结构化参数 L\");\n> 130 |   await expect(frame.locator('[data-control=\"B01\"]')).toBeDisabled();\n      |                                                       ^\n  131 |   expect(await frame.evaluate(()=>window.__p4.calls.filter(call=>call.method===\"POST\"))).toEqual([]);\n  132 |   await frame.getByLabel(\"L（0–365整数）\").fill(\"4\");await frame.getByLabel(\"R（0–365整数）\").fill(\"8\");await frame.getByLabel(\"S（0–365整数）\").fill(\"1\");\n  133 |   await frame.locator('[data-control=\"B35\"]').click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                        "column": 55,
+                        "line": 130
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-control=\"B01\"]')\nExpected: disabled\nError: strict mode violation: locator('[data-control=\"B01\"]') resolved to 2 elements:\n    1) <button data-control=\"B01\">从此冻结报告创建正式补货任务</button> aka getByRole('button', { name: '从此冻结报告创建正式补货任务' })\n    2) <button disabled class=\"primary\" data-control=\"B01\">准备本次正式任务请求</button> aka getByRole('button', { name: '准备本次正式任务请求' })\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" locator('[data-control=\"B01\"]') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-control=\"B01\"]')\u001b[22m\n\n\n  128 |   await frame.getByLabel(\"L（0–365整数）\").fill(\"\");\n  129 |   await expect(frame.locator(\"dialog\")).toContainText(\"缺少结构化参数 L\");\n> 130 |   await expect(frame.locator('[data-control=\"B01\"]')).toBeDisabled();\n      |                                                       ^\n  131 |   expect(await frame.evaluate(()=>window.__p4.calls.filter(call=>call.method===\"POST\"))).toEqual([]);\n  132 |   await frame.getByLabel(\"L（0–365整数）\").fill(\"4\");await frame.getByLabel(\"R（0–365整数）\").fill(\"8\");await frame.getByLabel(\"S（0–365整数）\").fill(\"1\");\n  133 |   await frame.locator('[data-control=\"B35\"]').click();\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:130:55"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:15:11.953Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-M05→空授权草稿：缺参有reason，无POST；确认-B01新key后才显式提交/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-M05→空授权草稿：缺参有reason，无POST；确认-B01新key后才显式提交/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                    "column": 55,
+                    "line": 130
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-4816c3f79d1aed32caf1",
+          "file": "ui.spec.ts",
+          "line": 120,
+          "column": 5
+        },
+        {
+          "title": "待审批/无operator/服务端不允许时M05具体禁用，不原地重算",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2211,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjQ2MjcpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:15:14.607Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-513913e5e6569417de3b",
+          "file": "ui.spec.ts",
+          "line": 143,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T04:15:01.727Z",
+    "duration": 16138.871000000001,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

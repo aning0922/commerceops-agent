@@ -2643,7 +2643,10 @@
           },
           "decision_source": {
             "type": "string",
-            "const": "web"
+            "enum": [
+              "web",
+              "feishu"
+            ]
           },
           "reason_code": {
             "anyOf": [

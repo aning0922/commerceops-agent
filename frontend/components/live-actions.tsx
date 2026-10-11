@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import type { DTO } from "../lib/p3-present";
 import { decisionGate, exactAcknowledgements } from "../lib/p3-decision-gate";
+import { parameterClarification } from "../lib/p3-present";
 import { P3Failure, PreparedWrite } from "../lib/p3-transport";
 import { Card, Modal, Notice } from "./ui";
 type Receipt = DTO["CreateTaskReceipt"] | DTO["DecisionReceipt"];
@@ -420,6 +421,7 @@ export function CreateTaskDialog({
   const valid =
     [L, R, S].every((x) => /^(0|[1-9][0-9]*)$/.test(x) && Number(x) <= 365) &&
     shops.includes(shop);
+  const clarification = parameterClarification(shop, shops, [L, R, S]);
   function prepare() {
     setProblem("");
     try {
@@ -569,6 +571,19 @@ export function CreateTaskDialog({
               >
                 确认结构化参数
               </button>
+              {!confirmed && (
+                <Notice
+                  title={clarification ? "参数需要澄清" : "参数尚未明确确认"}
+                >
+                  <p role="status">
+                    {clarification ??
+                      "请核对 Mock 案例和 L/R/S，明确确认结构化参数。"}
+                  </p>
+                  <p>
+                    此时未创建任务或报告。完整参数的明确提交是新请求，不自动续答或恢复旧任务。
+                  </p>
+                </Notice>
+              )}
               {confirmed && (
                 <Notice title="参数已明确确认">
                   {caseName} · L/R/S={L}/{R}/{S}；无自然语言猜参或模型预解析。

@@ -1,0 +1,11 @@
+{
+  "stopped_utc": "2026-10-11T04:37:34.877Z",
+  "owned_pid": 36185,
+  "scope": "closed only this fixture's spawned Next",
+  "headless": true,
+  "listener_check": {
+    "port": 3496,
+    "lsof_exit": 1,
+    "listener_count": 0
+  }
+}
