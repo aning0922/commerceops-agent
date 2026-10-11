@@ -1,28 +1,16 @@
 "use client";
 import { useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
-export const labels: Record<string, string> = {
-  awaiting_approval: "待审批",
-  completed: "已完成",
-  analyzing: "分析中",
-  queued: "排队中",
-  open: "待跟进",
-  closed: "已关闭",
-  sync_pending: "等待同步",
-  sync_failed: "同步失败",
-  sync_unknown: "同步结果未知",
-  approved: "批准已记录",
-  rejected: "已拒绝",
-};
+import { stateText, statusView } from "../lib/p3-present";
+export const labels = stateText;
 export function Status({ value }: { value: string }) {
-  const tone = /failed|缺货/.test(value)
-    ? "danger"
-    : /unknown|待审批|风险|awaiting|open/.test(value)
-      ? "warning"
-      : /completed|approved|正常/.test(value)
-        ? "success"
-        : "neutral";
-  return <span className={`status ${tone}`}>{labels[value] ?? value}</span>;
+  const view = statusView(value);
+  return (
+    <>
+      <span className={`status ${view.tone}`}>{view.text}</span>
+      {!view.known && <small className="status-raw">原状态：{value}</small>}
+    </>
+  );
 }
 export function Notice({
   title,
@@ -34,7 +22,10 @@ export function Notice({
   tone?: string;
 }) {
   return (
-    <div className={`notice ${tone}`} role="status">
+    <div
+      className={`notice ${tone}`}
+      role={tone === "danger" ? "alert" : "status"}
+    >
       <strong>{title}</strong>
       {children && <div>{children}</div>}
     </div>

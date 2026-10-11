@@ -4,6 +4,7 @@ import schema from "./p3-read-schema.generated.json";
 import { P3Client } from "./p3-transport";
 import type { FetchTransport } from "./p3-transport";
 import { p4ReadFactsValid } from "./p4-read-facts";
+import { validN01Response } from "./p4-n01";
 const ajv = new Ajv2020({
   strict: false,
   allErrors: false,
@@ -44,6 +45,8 @@ export const verifyReadResponse = (
   status: number,
   value: unknown,
 ): boolean => {
+  if (method === "POST" && path === "/api/v1/tasks/preflight")
+    return validN01Response(status, value);
   const operation = operations.find(
     (x) => x.method === method && x.match.test(path),
   );
@@ -76,6 +79,7 @@ export type A01ReadClient = Pick<
   | "approval"
   | "requestReceipt"
   | "prepareTask"
+  | "preflight"
   | "prepareDecision"
   | "execution"
   | "items"
@@ -85,7 +89,7 @@ export type A01ReadClient = Pick<
 export function readTransport(transport: FetchTransport): FetchTransport {
   return (url, init) => {
     if (
-      !operations.some(
+      !(init.method === "POST" && url.pathname === "/api/v1/tasks/preflight") && !operations.some(
         (operation) =>
           operation.method === init.method &&
           operation.match.test(url.pathname),

@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import type { DTO } from "../lib/p3-present";
 import { decisionGate, exactAcknowledgements } from "../lib/p3-decision-gate";
-import { parameterClarification } from "../lib/p3-present";
+import { parameterClarification, label } from "../lib/p3-present";
 import { P3Failure, PreparedWrite } from "../lib/p3-transport";
 import { Card, Modal, Notice } from "./ui";
+import { InventoryRequestText, InventoryCandidateReview } from "./inventory-request-text";
+import type { N01Response, ParameterName } from "../lib/p4-n01";
 type Receipt = DTO["CreateTaskReceipt"] | DTO["DecisionReceipt"];
 const safeError = (error: unknown) =>
   error instanceof P3Failure ? error.message : "提交结果待核实，请保留原请求。";
@@ -26,6 +28,13 @@ function Submission({
     [message, setMessage] = useState(""),
     [result, setResult] = useState<Receipt | null>(null);
   const [uncertain, setUncertain] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const [readAttempted, setReadAttempted] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const next = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    if (result) next.current?.focus();
+  }, [result]);
   const alive = useRef(true);
   const sending = useRef(false);
   useEffect(
@@ -54,14 +63,16 @@ function Submission({
     if (alive.current) {
       setResult(receipt);
       setUncertain(false);
+      setFailed(false);
       setMessage("");
       onState?.("settled");
       onResult(receipt);
     }
   };
   async function send() {
-    if (sending.current) return;
+    if (sending.current || failed || (uncertain && !readAttempted)) return;
     sending.current = true;
+    setAttempted(true);
     onState?.("pending");
     setBusy(true);
     setMessage("");
@@ -73,6 +84,9 @@ function Submission({
         setUncertain(
           !(error instanceof P3Failure) ||
             error.code === "WRITE_RESULT_UNKNOWN",
+        );
+        setFailed(
+          error instanceof P3Failure && error.code !== "WRITE_RESULT_UNKNOWN",
         );
         onState?.(
           !(error instanceof P3Failure) || error.code === "WRITE_RESULT_UNKNOWN"
@@ -89,6 +103,7 @@ function Submission({
     if (sending.current) return;
     sending.current = true;
     setBusy(true);
+    setReadAttempted(true);
     try {
       const receipt = await client.requestReceipt(
         prepared.requestKey,
@@ -98,6 +113,12 @@ function Submission({
         throw new P3Failure("INVALID_RESPONSE");
       if (receipt.receipt.operation === "resolve")
         throw new P3Failure("INVALID_RESPONSE");
+      if (failed) {
+        setMessage(
+          "已找到原键关联的已有回执；这不解除本次冲突或拒绝。请只读核对原回执，不重提此请求。",
+        );
+        return;
+      }
       accept(receipt.receipt.result);
     } catch (error) {
       if (alive.current) {
@@ -113,65 +134,125 @@ function Submission({
     }
   }
   return (
-    <Card title="本次原请求">
-      <p>原请求键：{prepared.requestKey}</p>
-      <p>仅保留本次原键/原字节；不自动提交、不换键或发送相反动作。</p>
+    <Card title={result ? "提交结果与下一步" : "本次原请求"}>
       {message && (
-        <Notice title={uncertain ? "提交结果待核实" : "请求未完成"}>
+        <Notice
+          title={uncertain ? "提交结果待核实" : "请求未完成"}
+          tone={uncertain ? "warning" : "danger"}
+        >
           {message}
+          {uncertain && (
+            <p>
+              先读取原请求回执。暂无回执不证明失败；不要创建新键或提交相反意见。
+            </p>
+          )}
         </Notice>
       )}
       {result &&
         ("decision_id" in result ? (
           <Notice title="原审批意见已记录 · 不推断执行状态">
-            <p>
-              原决定：{result.decision_id} · {result.action} ·{" "}
-              {result.decided_by} · {result.decided_at}
-            </p>
-            <p>
-              原计划 v{result.plan_version} · hash {result.plan_hash} · resume{" "}
-              {result.resume_state} · duplicate {String(result.duplicate)}
-            </p>
-            <p>
-              假设集合：{result.acknowledged_assumption_keys.join("、") || "无"}
-              。这不是执行、采购或入库成功。
-            </p>
+            <p>本版本意见已受理。执行结果与同步结果仍需分别读取。</p>
+            <a
+              ref={next}
+              className="button primary"
+              href={`/tasks/${result.task_id}`}
+            >
+              查看任务与执行结果
+            </a>
+            <details>
+              <summary>原决定技术详情</summary>
+              <p>
+                原决定：{result.decision_id} · {result.action} ·{" "}
+                {result.decided_by} · {result.decided_at}
+              </p>
+              <p>
+                原计划 v{result.plan_version} · hash {result.plan_hash} · resume{" "}
+                {result.resume_state} · duplicate {String(result.duplicate)}
+              </p>
+              <p>
+                假设集合：
+                {result.acknowledged_assumption_keys.join("、") || "无"}
+                。这不是执行、采购或入库成功。
+              </p>
+            </details>
           </Notice>
         ) : (
           <Notice title="正式任务创建回执">
             <p>
-              新 task：{result.task_id} · 源分析 task：{result.source_task_id}
+              本次请求已受理；当前任务状态：{label(result.state)}
+              。不代表计划、执行或同步完成。
             </p>
-            <p>
-              状态 {result.state} · duplicate {String(result.duplicate)}
-              ；不能推断计划或执行完成。
-            </p>
-            <a className="button" href={`/tasks/${result.task_id}`}>
+            <a
+              ref={next}
+              className="button primary"
+              href={`/tasks/${result.task_id}`}
+            >
               查看本次任务
             </a>
+            <details>
+              <summary>原创建回执技术详情</summary>
+              <p>
+                新 task：{result.task_id} · 源分析 task：{result.source_task_id}
+              </p>
+              <p>
+                状态 {result.state} · duplicate {String(result.duplicate)}
+                ；不能推断计划或执行完成。
+              </p>
+            </details>
           </Notice>
         ))}
       <div className="actions">
-        <button
-          className="primary"
-          data-action="send-original"
-          disabled={busy}
-          onClick={() => void send()}
-        >
-          {busy
-            ? "正在核实"
-            : result || uncertain
-              ? "显式同键重投原请求"
-              : "明确提交本次请求"}
-        </button>
-        <button
-          data-action="read-original"
-          disabled={busy}
-          onClick={() => void read()}
-        >
-          读取原请求回执
-        </button>
+        {!attempted && !result && (
+          <button
+            className="primary"
+            data-action="send-original"
+            disabled={busy}
+            onClick={() => void send()}
+          >
+            {busy ? "正在提交" : "明确提交本次请求"}
+          </button>
+        )}
+        {attempted && (
+          <button
+            className={uncertain ? "primary" : ""}
+            data-action="read-original"
+            disabled={busy}
+            onClick={() => void read()}
+          >
+            {busy ? "正在读取" : "读取原请求回执"}
+          </button>
+        )}
       </div>
+      <details>
+        <summary>原请求技术详情与受控恢复</summary>
+        <p>原请求键：{prepared.requestKey}</p>
+        <p>仅保留本次原键/原字节；不自动提交、不换键或发送相反动作。</p>
+        {attempted && (
+          <div className="actions">
+            <button
+              data-action="send-original"
+              disabled={busy || failed || (uncertain && !readAttempted)}
+              onClick={() => void send()}
+            >
+              显式同键重投原请求
+            </button>
+          </div>
+        )}
+        {failed && (
+          <>
+            <p>服务端已拒绝或检测到冲突；请核实当前记录，不盲重提此请求。</p>
+            <a
+              className="button"
+              href={`/requests/${prepared.requestKey}?operation=${prepared.operation}`}
+            >
+              查看原键已有回执
+            </a>
+          </>
+        )}
+        {uncertain && !readAttempted && (
+          <p>请先通过上方入口读取原回执，再决定是否使用原键恢复。</p>
+        )}
+      </details>
     </Card>
   );
 }
@@ -418,6 +499,68 @@ export function CreateTaskDialog({
     [prepared, setPrepared] = useState<PreparedWrite<Receipt> | null>(null),
     [problem, setProblem] = useState(""),
     [discard, setDiscard] = useState(false);
+  const [entry, setEntry] = useState<"structured" | "text">("structured");
+  const [text, setText] = useState("");
+  const [preflight, setPreflight] = useState<N01Response | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [manualClarification, setManualClarification] = useState(false);
+  const revision = useRef(0), alive = useRef(true);
+  useEffect(() => () => {
+    alive.current = false;
+    revision.current++;
+  }, []);
+  function invalidateNatural() {
+    revision.current++;
+    setChecking(false);
+    setPreflight(null);
+    setManualClarification(false);
+    setConfirmed(false);
+  }
+  const naturalAllowed = entry === "structured" || (
+    !checking && preflight !== null &&
+    (preflight.preflight.status === "ready" ||
+      (preflight.preflight.status === "clarify" && preflight.preflight.reason === "MISSING_PARAMETERS"))
+  );
+  async function interpret() {
+    if (checking || !shops.includes(shop)) return;
+    const current = ++revision.current;
+    setChecking(true);
+    setConfirmed(false);
+    setPreflight(null);
+    setManualClarification(false);
+    setProblem("");
+    const input = { schema_version: "p3-web-v1" as const, shop_id: shop, fixture_case: caseName, text };
+    try {
+      const result = await client.preflight(input);
+      if (!alive.current || current !== revision.current) return;
+      setPreflight(result);
+      const parameter = (name: ParameterName) => {
+        const candidate = result.preflight.candidates.find((c) => c.name === name)!;
+        return candidate.source === "explicit_text" ? String(candidate.value) : "";
+      };
+      setL(parameter("L")); setR(parameter("R")); setS(parameter("S"));
+    } catch (error) {
+      if (alive.current && current === revision.current) setProblem(safeError(error));
+    } finally {
+      if (alive.current && current === revision.current) setChecking(false);
+    }
+  }
+  function editParameter(name: ParameterName, value: string, set: (value: string) => void) {
+    set(value);
+    setConfirmed(false);
+    revision.current++;
+    setChecking(false);
+    if (entry === "text") {
+      if (preflight?.preflight.reason === "MISSING_PARAMETERS" && preflight.preflight.missing.includes(name)) {
+        // Keep the read-only source record; this is a new manual clarification,
+        // never a server ready response or acceptance of its demo candidates.
+        setManualClarification(true);
+      } else {
+        setPreflight(null);
+        setManualClarification(false);
+      }
+    }
+  }
   const valid =
     [L, R, S].every((x) => /^(0|[1-9][0-9]*)$/.test(x) && Number(x) <= 365) &&
     shops.includes(shop);
@@ -439,7 +582,7 @@ export function CreateTaskDialog({
           }),
         );
       else {
-        if (!valid || !confirmed) throw new P3Failure("INVALID_REQUEST");
+        if (!valid || !confirmed || !naturalAllowed) throw new P3Failure("INVALID_REQUEST");
         setPrepared(
           client.prepareTask({
             schema_version: "p3-web-v1",
@@ -491,8 +634,12 @@ export function CreateTaskDialog({
               <select
                 value={mode}
                 onChange={(event) => {
+                  if (entry === "text" && event.target.value === "from_report") {
+                    setProblem("请先明确取消原句，再选择可信冻结报告作为另一个请求来源。");
+                    return;
+                  }
                   setMode(event.target.value as typeof mode);
-                  setConfirmed(false);
+                  invalidateNatural();
                 }}
               >
                 <option value="from_report">指定可信冻结报告</option>
@@ -516,7 +663,7 @@ export function CreateTaskDialog({
                   value={shop}
                   onChange={(event) => {
                     setShop(event.target.value);
-                    setConfirmed(false);
+                    invalidateNatural();
                   }}
                 >
                   {shops.map((id) => (
@@ -530,7 +677,7 @@ export function CreateTaskDialog({
                   value={caseName}
                   onChange={(event) => {
                     setCase(event.target.value);
-                    setConfirmed(false);
+                    invalidateNatural();
                   }}
                 >
                   {[
@@ -545,6 +692,23 @@ export function CreateTaskDialog({
                   ))}
                 </select>
               </label>
+              {entry === "structured" ? (
+                <button type="button" onClick={() => {
+                  invalidateNatural(); setEntry("text"); setL(""); setR(""); setS("");
+                }}>使用自然语言请求草稿</button>
+              ) : (
+                <>
+                  <InventoryRequestText text={text} busy={checking} interpret={() => void interpret()} onChange={(value) => {
+                    setText(value); invalidateNatural(); setL(""); setR(""); setS("");
+                  }} />
+                  <p>当前仅支持所选 Mock 的全店商品、最近七个完整自然日及明确 L/R/S；指定 SKU、自定义日期等需要修正原句。</p>
+                  <button type="button" onClick={() => {
+                    invalidateNatural(); setText(""); setEntry("structured"); setL(""); setR(""); setS("");
+                  }}>取消原句并改用结构化草稿</button>
+                  {preflight && <InventoryCandidateReview read={preflight} text={text} />}
+                  {manualClarification && <p role="status">缺项已由你手工补充，原句示例只作来源记录；仍需确认全部参数、窗口与范围。</p>}
+                </>
+              )}
               {(
                 [
                   ["L", L, setL],
@@ -557,16 +721,18 @@ export function CreateTaskDialog({
                   <input
                     inputMode="numeric"
                     value={value}
+                    disabled={entry === "text" && (
+                      !naturalAllowed || (preflight?.preflight.reason === "MISSING_PARAMETERS" && !preflight.preflight.missing.includes(name))
+                    )}
                     onChange={(event) => {
-                      set(event.target.value);
-                      setConfirmed(false);
+                      editParameter(name, event.target.value, set);
                     }}
                   />
                 </label>
               ))}
               <button
                 data-control="B35"
-                disabled={!valid}
+                disabled={!valid || !naturalAllowed}
                 onClick={() => setConfirmed(true)}
               >
                 确认结构化参数
@@ -586,7 +752,10 @@ export function CreateTaskDialog({
               )}
               {confirmed && (
                 <Notice title="参数已明确确认">
-                  {caseName} · L/R/S={L}/{R}/{S}；无自然语言猜参或模型预解析。
+                  {caseName} · L/R/S={L}/{R}/{S}；
+                  {entry === "text"
+                    ? "已明确核对原句/手工补充参数、冻结 Mock 窗口与全店范围；无模型调用，尚未创建任务。"
+                    : "无自然语言猜参或模型预解析。"}
                 </Notice>
               )}
             </>
@@ -594,7 +763,7 @@ export function CreateTaskDialog({
           <button
             className="primary"
             data-control="B01"
-            disabled={mode === "new_cycle" && (!valid || !confirmed)}
+            disabled={mode === "new_cycle" && (!valid || !confirmed || !naturalAllowed)}
             onClick={prepare}
           >
             准备本次正式任务请求

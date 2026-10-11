@@ -9,7 +9,10 @@ import {
   assertOwnedBuild,
   assertOwnedListener,
 } from "./owned-listeners";
-const evidence = resolve(__dirname, "../../../frontend/evidence/b04-linux-fix");
+const evidence = resolve(
+  __dirname,
+  `../../../frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09/b04" : "b04-linux-fix"}`,
+);
 test.beforeAll(() => {
   const output = readOwnedListener(3490).trim().split(/\s+/);
   if (!output.length || new Set(output).size !== 1)
@@ -217,6 +220,7 @@ test("注入ACK unknown仅原键恢复，不自动提交/新键，GET回执后�
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.locator('[data-action="resolve-receipt"]').click();
   await expect(page.getByText("内部跟进已记录", { exact: true })).toBeVisible();
+  await page.getByText("原请求技术详情与受控恢复", { exact: true }).click();
   await page.locator('[data-action="resolve-original"]').click();
   await expect(page.getByRole("dialog")).toContainText("duplicate true");
   await expect(page.getByRole("dialog")).toContainText(key);

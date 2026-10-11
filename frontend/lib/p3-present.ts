@@ -6,6 +6,8 @@ export const stateText: Record<string, string> = {
   awaiting_approval: "待审批",
   executing: "执行中",
   completed: "已完成",
+  open: "待跟进",
+  closed: "已关闭",
   rejected: "已拒绝",
   expired: "已过期",
   needs_reapproval: "需要重新审批",
@@ -19,6 +21,9 @@ export const stateText: Record<string, string> = {
   executed: "已执行",
   not_requested: "未请求同步",
   synced: "已同步",
+  sync_pending: "等待同步",
+  sync_failed: "同步失败",
+  sync_unknown: "同步结果未知",
   unknown: "结果未知",
   report_ready: "报告已生成",
   no_action: "无需内部项",
@@ -36,6 +41,47 @@ export const stateText: Record<string, string> = {
   blocked: "不可执行",
   not_needed: "无需建议",
 };
+const statusTones: Record<
+  string,
+  "success" | "warning" | "danger" | "info" | "neutral"
+> = {
+  queued: "info",
+  analyzing: "info",
+  executing: "info",
+  running: "info",
+  awaiting_approval: "warning",
+  needs_reapproval: "warning",
+  needs_attention: "warning",
+  pending: "warning",
+  open: "warning",
+  unknown: "warning",
+  sync_unknown: "warning",
+  sync_pending: "info",
+  risk: "warning",
+  assumption_draft: "warning",
+  manual_check: "warning",
+  failed: "danger",
+  sync_failed: "danger",
+  stockout: "danger",
+  quality_blocked: "danger",
+  completed: "success",
+  approved: "success",
+  synced: "success",
+  executed: "success",
+  normal: "success",
+  report_ready: "success",
+  items_created: "success",
+};
+export function statusView(value: string) {
+  const key = Object.hasOwn(stateText, value)
+    ? value
+    : Object.keys(stateText).find((key) => stateText[key] === value);
+  return {
+    text: key ? stateText[key] : "状态未识别",
+    tone: key ? (statusTones[key] ?? "neutral") : "neutral",
+    known: key !== undefined,
+  };
+}
 export const label = (state: string) => stateText[state] ?? state;
 export const utc = (value: string | null) => value ?? "未知";
 export function localTime(value: string | null, zone: string | null): string {

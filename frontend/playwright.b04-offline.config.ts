@@ -11,10 +11,22 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   timeout: 30000,
-  outputDir: "test-results/b04-offline",
+  globalTimeout: 30 * 60 * 1000,
+  outputDir:
+    process.env.COMMERCEOPS_WEB_BATCH === "p4-c09"
+      ? "test-results/p4-c09-b04"
+      : "test-results/b04-offline",
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/b04-linux-fix/ui-results.json" }],
+    [
+      "json",
+      {
+        outputFile:
+          process.env.COMMERCEOPS_WEB_BATCH === "p4-c09"
+            ? "evidence/p4-c09/b04/ui-results.json"
+            : "evidence/b04-linux-fix/ui-results.json",
+      },
+    ],
   ],
   use: {
     browserName: "chromium",

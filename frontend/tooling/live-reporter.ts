@@ -29,7 +29,9 @@ export default class LiveReporter implements Reporter {
   }
   onEnd(result: FullResult) {
     const directory = resolve(
-      process.env.COMMERCEOPS_WEB_BATCH === "b04-read"
+      process.env.COMMERCEOPS_WEB_BATCH === "p4-c09-n01"
+        ? "evidence/p4-c09/n01"
+        : process.env.COMMERCEOPS_WEB_BATCH === "b04-read"
         ? "evidence/b04-live/read"
         : process.env.COMMERCEOPS_WEB_BATCH === "b04-write"
           ? "evidence/b04-live/write"

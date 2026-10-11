@@ -150,3 +150,66 @@ Task/Execution/Item/列表/回执复用现Sync/Notice：业务状态和同步分
 | 三态与可信轨迹/模型说明 | Q70 素材拍到独立同步标题，没拍全 Fake current/history/target-observed/unique 卡；新 scope 不保证存在解释缓存 | 拍现有三态字段与完整投影卡，S06 只展示 DTO 已给的事实；缓存缺失拍 NOT_READY。真人飞书/真实 Base、N01 和尚未授权 UX 整理仍分别列缺口，不以此材料批替代实现或验收。 |
 
 本节仅候选文档及文本检查，不产生新的业务录制、平台/模型调用或测试通过结论。当前资源、SDK、模型门禁与 owner 不变；D1=2026-10-10、D30=2026-11-08、总 300h、原 P4 预算保持，人工 H/L `not_reported`。本轮材料窗口不超过 Root 释放的 90 分钟，不推送、不改 PR body，不进入生产或 Phase5。
+
+## C09：N01 与 U02/U03/U06/U08 实施中的实际记录
+
+2026-10-12 本轮已获用户正式实施授权，并由 Root 在核定 A08 后释放给原 C owner。此授权覆盖 N01 和 U02/U03/U06/U08；上节“未授权”是原材料批的历史状态，不覆盖本次直接授权。U01/U04/U05/U07、F02/B47 仍待收口，冻结 18 页设计不增加视觉批次。本节是实施记录，尚未表示整个 M1 或 Phase4 完成；独立审核、精确 CI 和最终集成由 Root 裁决。
+
+实施 checkout 为隔离 `phase4-web`，普通快进继承 Root 已核 A08 的 `efcd4cd3dee2cb5a0b4bb3c886a573beca654391` / tree `e0e15b78baeccf561b65e5db55335b907b313ac7`，保留文档 `967d06c` 祖先。原 `a266` 工作树和六份旧未跟踪 AC08 驱动未改。C 独占 frontend/npm/Web 测试与本 UX 文档；后端、共享 DTO、迁移、Worker/Graph 和根 CI 仍由 A 单一负责。
+
+### UX4 当前实现
+
+| 项目 | 当前行为与安全边界 |
+|---|---|
+| U02 结果与下一步 | 创建回执主入口为“查看本次任务”；决定回执主入口为任务与执行结果。原标识/hash/处理人放在可展开技术详情。成功回执不默认要求重投，显式同键恢复入口保留。 |
+| U03 失败、未知与冲突 | 无记录的 GET 失败与 loading 互斥；只读刷新不发业务 POST。提交 unknown 先查询原键，再允许用户明确同键/原字节恢复。已知冲突/拒绝锁住重投；即使原键查到已有回执，也不解除本次冲突、不当成本次成功。原有会话失效与撤权清缓存路径保留。 |
+| U06 分离状态 | 执行回执不推断内部项已跟进完成；内部项终态不推断采购/入库/库存变化；同步卡独立显示当前/历史、target/observed、完整唯一及 Fake 模式。同步异常不重开业务项或追加平台写。 |
+| U08 中文与语义 | 状态按显式枚举/中文别名映射语义颜色，不用正则猜颜色；未知枚举中性显示并保留原值。安全错误给出中文下一步，390px 页面与原键入口保留键盘可操作性。 |
+
+Root 后续正式转交 A09 `3c393e33d7a9c479a87b0f0db1475b61681ff535` / tree `f67b44f18ba68a9e38f8ee2d839160863a8f95da`，C 核非重叠后普通 FF 集成，自有 WIP/旧驱动保留，无 reset/stash/强推。合同 Markdown SHA256 `17408b764a49c9a7e95f93097065558da24291a0df002b989c26e3af2484b495`，双 OpenAPI SHA256 `b9dd7f6175489899b6a69a2109dd2116e637c326d098e041e63e71cab2ca06ef`；独立 N01 schema --check 匹配，不重写 P3 原 22 操作资产。
+
+N01 现已实现精确 `POST /api/v1/tasks/preflight` 客户端白名单/闭合解码与 M02 本地草稿接线：Unicode code point 计数和来源位置，明确进入文本草稿后检查来源/冻结窗口/全 fixture 范围，B35 本地完整确认，再经原 B01 准备与鲜键明确提交。ready 不自动提交；MISSING 只允许手工补缺项，示例值留空、不把服务端 clarify 改成 ready。INVALID/unsupported 锁住，须改原句重新解析或明确取消再开空结构化草稿。文本/shop/fixture/参数编辑撤销旧确认，原句和来源变更清候选；revision 与身份/auth_version key 丢弃迟到或撤权后的响应。未使用 P2 `/test/route` 或模型解析，不增加通用持久 draft。
+
+### 本轮已执行离线测试与保留失败
+
+以下是实施中实际运行，最终冻结源码验证仍待 N01 接线完成后记录。
+
+| 检查 | 实际结果与范围 |
+|---|---|
+| TypeScript / Next.js build | 产品与 P4 测试 typecheck 已通过；Next.js 生产 build 已通过，发生于最新冲突回执 guard 之前，因此不外推为最终冻结版本 build。 |
+| 合同 | 39/39 passed，3.5s：旧 37 加 2 项中文语义/安全错误契约；纯离线，无 API/PG/Worker/provider。 |
+| P4 页面首次 | 13/15 passed，45.1s：2 个失败分别为 intentional GET failure 的测试等待条件不匹配、memory RequestRead fixture 缺 `status=succeeded`。保留首轮 JSON 和错误上下文，不抹去失败。 |
+| P4 页面修正 | 15/15 passed，26.7s；仅修正上述测试接线。旧 12 项全部保留。 |
+| P4 页面最新冲突 guard | 15/15 passed，27.3s；新增 3 项覆盖 GET failed/loading、unknown 原键读取与字节不变恢复、409 查到已有回执仍失败锁住。 |
+| B04 页面 | 8/8 passed，24.9s；旧断言保留，原 ACK unknown 同键恢复测试增加明确展开技术详情。发生于最新冲突回执 guard 之前，最终回归待接线后核对。 |
+| N01 候选 decoder | 4/4 passed，1.8s；只验证离线严格结构/假 ready/缺项示例/Unicode 来源位置，不是 API 接通或真实 PG 验收。初轮 typecheck 引用旧 DTO 名 `Parameters` 失败，已修正为现有 `CreateNewCycle.parameters` 后通过；最终完整验证待固定合同接线。 |
+
+接线后完整离线矩阵已实际通过：合同 **45/45，3.6s**（旧 37 + UX2 + N01 6）；P4 页面 **19/19，33.4s**（旧 12 + UX3 + N01 4）；B04 **8/8，25.1s**；原 B01 **13/13，14.4s**。合计 85/85，保留全部旧分母。N01 页面 memory DTO 由冻结 A 的确定性 pure parser 导出，来源 SHA 随 `n01.fixture.json` 记录；它只证明离线组件行为，不是业务 API/PG 实测。生产 build `5fDxN-Axb18MAcYy903OP` 已通过，产品/P4 tsc、C 新测试辅助程序 Ruff/format/mypy 已通过；完整工程检查另行记录，不用作者自检替代独审。
+
+### 新自有 PG/API/Web 的三轮未执行与停止
+
+| 段 | 实际结果与保留层次 |
+|---|---|
+| `p4c09-n01-2ad3770888`，20:13:16Z→20:13:19Z，原截止20:42:15Z | PG 启动后，seed 前登记读取拒绝：C window 内联源码清单33866 bytes，超过既有 private_bytes 32768上限。尚未 migrate/seed/API/四imports，6 PW not_run，Create0。C-only 将完整清单移至独立 manifest，window保留SHA；不放宽A校验。 |
+| `p4c09-n01-991fd784b0`，20:15:41Z开始，原截止20:44:41Z | Compose准备失败，原输出未保存，具体原因unknown；cleanup inspect空container又失败，两层分别保留。随后只读核该project容器0、三端口native退出1/无监听；6 PW not_run/Create0。修正C-only空container停止分支与私有Docker启动诊断，不追填第二层原因。 |
+| `p4c09-n01-ceaf737353`，20:18:53Z开始/结束，原截止20:47:52Z | 私有313byte Docker日志确认 `all predefined address pools have been fully subnetted`：新网络创建失败，未到seed/API。6 PW not_run、Create0；PG container未创建/无监听，停止，不自动第四轮。 |
+
+三project清理回执位于 `frontend/evidence/p4-c09/n01/cleanup.safe.json`：各容器/网络剩余0，仅本批第一project的container/network执行down（未-v），卷1保留；第二第三无卷创建、从未删卷。仅释放本批网络1，清理后当时Docker网络总数31；不列他人项目、不全局prune/改地址池。第二原失败及第三日志hash、各私有窗口保留于 `.audit/c09-n01/source1-run*`。真实 N01 Web/PG **6 expected / 0 actual / 6 not_run**、API四import与实际创建pair核证均未执行；A自己的13 PG不得替代C的新联调。解除条件为可用Docker subnet及Root在冻结独审后另行裁定一次新的有界验收，不能暗续旧三轮；预计准备+6PW约5–10分钟，尚非实际运行结果。
+
+证据位于 `frontend/evidence/p4-c09/`；首轮失败保留于私有 `.audit/c09-offline/source1-first/`，不会改写为通过。离线矩阵使用新自有 headless 上下文、localhost Next 与 memory Fake，不启动业务 API/PG/Worker/SDK/provider；上表第一联调段曾启动新自有PG，尚未到业务seed/API，分别记账。本轮 3496/3490 服务已停止，native listener 检查无存活监听；新增页面测试限制 30 分钟，自有资源启动/停止另记，不继承旧 AC08 放行窗口。既有 npm schema 检查现串行核对原P3 22操作与独立N01资产，实际--check均通过；根CI文件/锁不改。
+
+离线最新停止回执 `offline-stop.safe.json` 核3410–3415/3490/3496八端口全无监听。P4/B04继承自有UID/cwd/build检查；B01通过当前checkout的Playwright新webServer/no-reuse跑完并自动收回，其额外UID/cwd观察发生于teardown之后，未核到启动时逐PID绑定，明确记not_verified，不为补此观察重复完整矩阵。所有截图/字体报告改写本批独立路径，原B01/B04/P4历史证据不覆盖。
+
+本段执行窗口为 UTC `2026-10-11T19:03:28Z` 至 `2026-10-12T01:03:28Z`，不自动延长；同源运行上限 3 次，测试资源单次不超过 30 分钟。新增 paid/provider 调用 0、平台业务写 0、真实 SDK 关闭；D1/D30/300h 与原 P4 50h 不重置，人工 H/L `not_reported`。
+
+完整 `uv run --frozen python -m scripts.check` 实际 exit0：当前/index/完整历史敏感扫描各0，锁一致，99份Markdown错误0、Ruff/format/mypy（284 source files）通过，offline1531 passed / integration441 deselected（92.47s），4条warning为既有SDK deprecation及终止测试fork警告，不报成新增SDK调用；Node24.21.0锁安装/typecheck通过，npm漏洞0、Python95包漏洞0/跳过0。441未选集成不称本地通过。集中结果与测试/代码哈希见 `frontend/evidence/p4-c09/verification.safe.json`，私有完整日志hash保留；文档最终与待提交新文件敏感扫描在commit前另核。候选冻结后停push，交Root安排原Web独审，真实Gate/精确CI/main仍待裁决。
+
+### C09 原 Web P1 的 scalar span 修正候选
+
+原 Web 对精确 `0fd4a10820e9d42614ee315d11733a56cb2891c4` 正式独审发现唯一 P1：`n01MatchesInput` 只限制 shop/fixture/end，未证明明确参数的 span 对应原句中的 name/value；契约测试的 ready 样例误用 full-token span。没有其他独立 P1/P2，但原 source 不能集成，原85项离线/Fake成功和实际6项not_run不解除P1，全部保留。
+
+Root已核真实服务端 `_explicit_lrs_spans`，派回C-only最小修正：使用code-point array核safe integer索引、start>=2及完整bounds，`slice(start,end)===String(value)`，start前紧邻两字符须为对应`NAME=`或`NAME:`；end后不得仍为ASCII数字，防止把`L=33`截成首位3。只验证服务端返回的有限标量绑定，不增加前端全句NLP、猜参或修改A文法。契约ready的真实scalar偏移为L7..8/R11..12/S15..16；UI `n01.fixture.json` 原本正确，逐case对照冻结Python pure输出，原字节不改。
+
+新增负例包括范围内错误span/value/nameprefix、full-token、UTF16偏移及截短多位数字；新增Unicode空白/0085/天/冒号正例逐项由真实Python输出核准，多位L33的7..9/R12..13/S16..17亦核准。emoji只证明code-point scalar单元边界，不宣称服务端支持含emoji的自然语言原句。shape合法但name绑定错误的响应经实际P3Client离线transport拒绝；页面禁止进入B35/B01，不发创建。
+
+本修正实际执行完整contract **49/49 passed，3.4s** 和P4页面 **20/20 passed，33.9s**；所有旧contract/P4分母保留。证据独立写入 `frontend/evidence/p4-c09-reviewfix/`，不覆盖原0fd/85证据。产品与P4 typecheck、新生产build、schema原22+独立N01 check均通过；3496自有Mock按固定30min期限启动/结束，native退出1无监听。A/backend/共享DTO/锁/根CI、六旧untracked、原a266与原文法不改，未重启PG/Docker网络/SDK/provider。B04/B01产品路径未改，本批不重复其原8/13；Python1531/441是原0fd完整检查，不冒本修正重跑。实际6PW/API import/Create pair仍not_run，旧三轮暂停不变；新精确冻结停push，P1解除以原Web复审和Root核定为准。

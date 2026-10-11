@@ -40,6 +40,18 @@
 * {
   box-sizing: border-box;
 }
+.n01-candidates {
+  width: 100%;
+  border-collapse: collapse;
+}
+.n01-candidates th,
+.n01-candidates td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
 body {
   margin: 0;
   background: var(--canvas);
@@ -368,6 +380,10 @@ textarea[aria-invalid="true"] {
   background: var(--teal-soft);
   color: var(--teal);
 }
+.notice.danger {
+  background: var(--red-soft);
+  color: var(--red);
+}
 .notice p:last-child {
   margin-bottom: 0;
 }
@@ -394,6 +410,14 @@ textarea[aria-invalid="true"] {
 .status.success {
   background: var(--teal-soft);
   color: var(--teal);
+}
+.status.info {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.status-raw {
+  display: block;
+  overflow-wrap: anywhere;
 }
 .toolbar {
   display: flex;
@@ -893,7 +917,8 @@ dialog.drawer {
   }
 }
 /* Real UUID/hash/source references must wrap within the existing frozen geometry. */
-.app-shell[data-source-mode="live-session"] :is(p, small, strong, .list-row > span),
+.app-shell[data-source-mode="live-session"]
+  :is(p, small, strong, .list-row > span),
 .app-shell[data-source-mode="live-session"] .fact-list {
   overflow-wrap: anywhere;
 }
@@ -910,6 +935,7 @@ dialog.drawer {
   flex: 0 0 24px;
 }
 
-.app-shell[data-source-mode="b04-offline"] :is(p, small, strong, .list-row > span) {
+.app-shell[data-source-mode="b04-offline"]
+  :is(p, small, strong, .list-row > span) {
   overflow-wrap: anywhere;
 }

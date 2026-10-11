@@ -1,5 +1,6 @@
 import type { Page } from "../../../frontend/node_modules/@playwright/test";
 import { expect } from "../../../frontend/tooling/web-test";
+export const b01Evidence = process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "evidence/p4-c09/b01" : "evidence/b01";
 export async function noOverflow(page: Page) {
   await page.evaluate(() => document.fonts.ready);
   const size = await page.evaluate(() => ({
@@ -23,7 +24,7 @@ export async function noBusinessRequests(page: Page) {
 }
 export async function screenshot(page: Page, name: string) {
   await page.evaluate(() => document.fonts.ready);
-  await page.screenshot({ path: `evidence/b01/${name}.png`, fullPage: true });
+  await page.screenshot({ path: `${b01Evidence}/${name}.png`, fullPage: true });
 }
 export async function safeAccess(page: Page) {
   await expect(

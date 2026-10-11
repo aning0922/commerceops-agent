@@ -1,5 +1,6 @@
 // Explicit in-memory DTOs for the two P4 UI additions, no fetch or backend/provider.
 import facts from "./report.fixture.json";
+import n01 from "./n01.fixture.json";
 import type { DTO } from "../../../../frontend/lib/p3-present";
 import {
   offlineEnvelope,
@@ -106,6 +107,7 @@ export function fixtureClient(
   calls: { method: string; path: string; body?: string }[],
   hold: { release: () => void; revoke?: () => void },
 ) {
+  let savedCreate: DTO["CreateTaskReceipt"] | null = null;
   const response = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
       status,
@@ -184,6 +186,8 @@ export function fixtureClient(
         });
       }
       if (url.pathname === `/api/v1/tasks/${report.task_id}`) {
+        if (mode === "c09_read_failed")
+          return failure("SERVICE_UNAVAILABLE", 503);
         if (mode === "late_task")
           await new Promise<void>((resolve) => {
             hold.release = resolve;
@@ -299,20 +303,47 @@ export function fixtureClient(
           };
         return response(value);
       }
+      if (url.pathname === "/api/v1/tasks/preflight" && init.method === "POST") {
+        const input = JSON.parse(String(init.body));
+        const sample = n01.cases.find((c) => c.text === input.text);
+        if (!sample || input.shop_id !== offlineId(101) || input.fixture_case !== "baseline")
+          return failure("INVALID_REQUEST", 422);
+        if (mode === "n01_late")
+          await new Promise<void>((resolve) => { hold.release = resolve; });
+        const result = structuredClone(sample.result);
+        if (mode === "n01_badspan" && result.draft) {
+          result.candidates[0].value = 7;
+          result.candidates[0].start = 11;
+          result.candidates[0].end = 12;
+          result.draft.L = 7;
+        }
+        return response({ ...offlineEnvelope, preflight: result });
+      }
       if (url.pathname === "/api/v1/tasks" && init.method === "POST") {
         const input = JSON.parse(String(init.body));
-        return response(
-          {
-            ...offlineEnvelope,
-            request_key: input.request_key,
-            task_id: offlineId(301),
-            source_task_id: offlineId(302),
-            state: "queued",
-            duplicate: false,
-          },
-          202,
-        );
+        const receipt: DTO["CreateTaskReceipt"] = {
+          ...offlineEnvelope,
+          request_key: input.request_key,
+          task_id: offlineId(301),
+          source_task_id: offlineId(302),
+          state: "queued",
+          duplicate: savedCreate !== null,
+        };
+        const first = savedCreate === null;
+        savedCreate = receipt;
+        if (mode === "c09_conflict")
+          return failure("IDEMPOTENCY_CONFLICT", 409);
+        if (mode === "c09_unknown" && first)
+          throw new Error("offline ACK fault");
+        return response(receipt, 202);
       }
+      if (url.pathname.startsWith("/api/v1/requests/") && savedCreate)
+        return response({
+          ...offlineEnvelope,
+          request_key: savedCreate.request_key,
+          status: "succeeded",
+          receipt: { operation: "create_task", result: savedCreate },
+        });
       return failure("RESOURCE_NOT_FOUND", 404);
     }),
   });
