@@ -89,3 +89,78 @@ export function reportBound(
     report.source.facts_hash === report.facts.facts_hash
   );
 }
+
+export function explanationBound(
+  report: DTO["ReportRead"],
+  read: DTO["ExplanationRead"],
+): boolean {
+  const record = read.explanation;
+  const result = record.result;
+  const refs = report.source;
+  const bound = (value: DTO["P2ExplanationExplanationRefs"]) =>
+    value.report_id === refs.report_id &&
+    value.snapshot_id === refs.snapshot_id;
+  const skus = new Map(
+    report.facts.items.map((fact) => [fact.sku_key, fact.risk]),
+  );
+  return (
+    reportBound(report, report.task_id) &&
+    read.task_id === report.task_id &&
+    read.report_id === refs.report_id &&
+    record.task_id === refs.source_task_id &&
+    result.facts_hash === refs.facts_hash &&
+    bound(result.reference_ids) &&
+    new Set(result.lines.map((line) => line.sku_key)).size ===
+      result.lines.length &&
+    result.lines.every(
+      (line) =>
+        skus.get(line.sku_key) === line.reason &&
+        line.facts_hash === refs.facts_hash &&
+        bound(line.reference_ids),
+    )
+  );
+}
+
+export function parameterClarification(
+  shop: string,
+  shops: readonly string[],
+  values: readonly string[],
+): string | null {
+  if (!shops.includes(shop)) return "请明确选择当前 operator 已授权的店铺。";
+  const names = ["L", "R", "S"];
+  const missing = names.filter((_, index) => !values[index]?.trim());
+  if (missing.length)
+    return `缺少结构化参数 ${missing.join("、")}；请填写后重新确认。`;
+  const invalid = names.filter(
+    (_, index) =>
+      !/^(0|[1-9][0-9]*)$/.test(values[index]) || Number(values[index]) > 365,
+  );
+  if (invalid.length)
+    return `${invalid.join("、")} 必须为 0–365 的整数；不猜测或自动补参。`;
+  return null;
+}
+
+export function newCycleEligibility(
+  task: DTO["TaskRead"] | null,
+  canCreate: boolean,
+  operatorShops: readonly string[],
+): { allowed: boolean; reason: string } {
+  if (!task)
+    return { allowed: false, reason: "尚未取得当前任务与服务端新周期资格。" };
+  if (!canCreate || !operatorShops.includes(task.task.shop_id))
+    return {
+      allowed: false,
+      reason: "当前身份没有此店铺的 operator 创建资格。",
+    };
+  if (task.task.state !== "completed")
+    return {
+      allowed: false,
+      reason: "当前任务尚未完成；待审批、执行中或未知结果不能原地重算。",
+    };
+  if (!task.actions.can_start_new_cycle)
+    return { allowed: false, reason: "服务端未允许从此已完成任务开启新周期。" };
+  return {
+    allowed: true,
+    reason: "可打开新周期草稿；原任务、报告、批准和执行保持原记录。",
+  };
+}

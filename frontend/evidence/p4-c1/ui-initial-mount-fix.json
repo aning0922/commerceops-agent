@@ -1,0 +1,522 @@
+{
+  "config": {
+    "argv": [
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/.tools/node/bin/node",
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../tests/e2e/web/phase4/playwright.config.ts"
+    ],
+    "configFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/playwright.config.ts",
+    "rootDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "testIgnore": [],
+        "testMatch": [
+          "ui.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "testIgnore": [],
+        "testMatch": "ui.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "headless": true,
+          "trace": "off",
+          "video": "off",
+          "screenshot": "off",
+          "browserName": "chromium",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "evidence/p4-c1/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ui.spec.ts",
+      "file": "ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "缓存完整metadata/usage/refs仅原GET；0与null分开，390完整依据",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7365,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"历史实际 provider 记录\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"历史实际 provider 记录\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:63:41",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                      "column": 41,
+                      "line": 63
+                    },
+                    "snippet": "  61 |   const frame=await open(page);\n  62 |   await frame.locator('[data-control=\"B19\"]').click();\n> 63 |   await expect(frame.locator(\"dialog\")).toContainText(\"历史实际 provider 记录\");\n     |                                         ^\n  64 |   await expect(frame.locator(\"dialog\")).toContainText(\"input_tokens：100\");\n  65 |   await expect(frame.locator(\"dialog\")).toContainText(\"latency：0ms\");\n  66 |   await expect(frame.locator(\"dialog\")).toContainText(\"cost_estimate（服务端原值）：0\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                        "column": 41,
+                        "line": 63
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"历史实际 provider 记录\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n\n  61 |   const frame=await open(page);\n  62 |   await frame.locator('[data-control=\"B19\"]').click();\n> 63 |   await expect(frame.locator(\"dialog\")).toContainText(\"历史实际 provider 记录\");\n     |                                         ^\n  64 |   await expect(frame.locator(\"dialog\")).toContainText(\"input_tokens：100\");\n  65 |   await expect(frame.locator(\"dialog\")).toContainText(\"latency：0ms\");\n  66 |   await expect(frame.locator(\"dialog\")).toContainText(\"cost_estimate（服务端原值）：0\");\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:63:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjM0MzEpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:12:16.397Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-缓存完整metadata-usage-refs仅原GET；0与null分开，390完整依据/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-缓存完整metadata-usage-refs仅原GET；0与null分开，390完整依据/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                    "column": 41,
+                    "line": 63
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-78b224f70f48714d3a76",
+          "file": "ui.spec.ts",
+          "line": 60,
+          "column": 5
+        },
+        {
+          "title": "已有模板降级/离线stub明确标识，null不补0不发新模型",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7234,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"已有确定性模板\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"已有确定性模板\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:76:41",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                      "column": 41,
+                      "line": 76
+                    },
+                    "snippet": "  74 |   const frame=await open(page,\"template\");\n  75 |   await frame.locator('[data-control=\"B19\"]').click();\n> 76 |   await expect(frame.locator(\"dialog\")).toContainText(\"已有确定性模板\");\n     |                                         ^\n  77 |   await expect(frame.locator(\"dialog\")).toContainText(\"NO_PROVIDER\");\n  78 |   await expect(frame.locator(\"dialog\")).toContainText(\"input_tokens：未报告\");\n  79 |   await frame.evaluate(()=>window.__p4.render(\"nullable\"));"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                        "column": 41,
+                        "line": 76
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"已有确定性模板\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n\n  74 |   const frame=await open(page,\"template\");\n  75 |   await frame.locator('[data-control=\"B19\"]').click();\n> 76 |   await expect(frame.locator(\"dialog\")).toContainText(\"已有确定性模板\");\n     |                                         ^\n  77 |   await expect(frame.locator(\"dialog\")).toContainText(\"NO_PROVIDER\");\n  78 |   await expect(frame.locator(\"dialog\")).toContainText(\"input_tokens：未报告\");\n  79 |   await frame.evaluate(()=>window.__p4.render(\"nullable\"));\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:76:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjM1NjMpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:12:26.370Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-已有模板降级-离线stub明确标识，null不补0不发新模型/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-已有模板降级-离线stub明确标识，null不补0不发新模型/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                    "column": 41,
+                    "line": 76
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-99ddee02aeaba4194ae4",
+          "file": "ui.spec.ts",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "NOT_READY与异refs安全错误不伪造解释；撤权清cache",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7230,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"NOT_READY\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"NOT_READY\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:88:41",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                      "column": 41,
+                      "line": 88
+                    },
+                    "snippet": "  86 |   const frame=await open(page,\"not_ready\");\n  87 |   await frame.locator('[data-control=\"B19\"]').click();\n> 88 |   await expect(frame.locator(\"dialog\")).toContainText(\"NOT_READY\");\n     |                                         ^\n  89 |   await expect(frame.locator(\"dialog\")).not.toContainText(\"input_tokens：\");\n  90 |   await frame.evaluate(()=>window.__p4.render(\"bad_refs\"));\n  91 |   await expect(frame.locator(\"main\")).toContainText(\"全部 20 个 SKU\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                        "column": 41,
+                        "line": 88
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"NOT_READY\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n\n  86 |   const frame=await open(page,\"not_ready\");\n  87 |   await frame.locator('[data-control=\"B19\"]').click();\n> 88 |   await expect(frame.locator(\"dialog\")).toContainText(\"NOT_READY\");\n     |                                         ^\n  89 |   await expect(frame.locator(\"dialog\")).not.toContainText(\"input_tokens：\");\n  90 |   await frame.evaluate(()=>window.__p4.render(\"bad_refs\"));\n  91 |   await expect(frame.locator(\"main\")).toContainText(\"全部 20 个 SKU\");\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:88:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjM2OTgpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:12:35.994Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-NOT-READY与异refs安全错误不伪造解释；撤权清cache/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-NOT-READY与异refs安全错误不伪造解释；撤权清cache/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                    "column": 41,
+                    "line": 88
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-576655277e9eb35e359b",
+          "file": "ui.spec.ts",
+          "line": 85,
+          "column": 5
+        },
+        {
+          "title": "关闭/卸载后的迟到缓存不能填回旧抽屉或跨record",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7231,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"正在读取已有解释\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"正在读取已有解释\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:104:41",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                      "column": 41,
+                      "line": 104
+                    },
+                    "snippet": "  102 |   const frame=await open(page,\"delayed\");\n  103 |   await frame.locator('[data-control=\"B19\"]').click();\n> 104 |   await expect(frame.locator(\"dialog\")).toContainText(\"正在读取已有解释\");\n      |                                         ^\n  105 |   await frame.getByRole(\"button\",{name:\"关闭本报告已有解释\"}).click();\n  106 |   await frame.evaluate(()=>window.__p4.release());\n  107 |   await expect(frame.locator(\"dialog\")).toHaveCount(0);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                        "column": 41,
+                        "line": 104
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"正在读取已有解释\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n\n  102 |   const frame=await open(page,\"delayed\");\n  103 |   await frame.locator('[data-control=\"B19\"]').click();\n> 104 |   await expect(frame.locator(\"dialog\")).toContainText(\"正在读取已有解释\");\n      |                                         ^\n  105 |   await frame.getByRole(\"button\",{name:\"关闭本报告已有解释\"}).click();\n  106 |   await frame.evaluate(()=>window.__p4.release());\n  107 |   await expect(frame.locator(\"dialog\")).toHaveCount(0);\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:104:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjM4MzcpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:12:45.582Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-关闭-卸载后的迟到缓存不能填回旧抽屉或跨record/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-关闭-卸载后的迟到缓存不能填回旧抽屉或跨record/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                    "column": 41,
+                    "line": 104
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-6eab144c3041be7b04b8",
+          "file": "ui.spec.ts",
+          "line": 101,
+          "column": 5
+        },
+        {
+          "title": "M05→空授权草稿：缺参有reason，无POST；确认+B01新key后才显式提交",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7233,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"不修改当前任务或待审批计划\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"不修改当前任务或待审批计划\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:121:41",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                      "column": 41,
+                      "line": 121
+                    },
+                    "snippet": "  119 |   const frame=await open(page);\n  120 |   await frame.locator('[data-control=\"B36\"]').click();\n> 121 |   await expect(frame.locator(\"dialog\")).toContainText(\"不修改当前任务或待审批计划\");\n      |                                         ^\n  122 |   expect(await frame.evaluate(()=>window.__p4.calls.filter(call=>call.method===\"POST\"))).toEqual([]);\n  123 |   await frame.locator('[data-control=\"B46\"]').click();\n  124 |   await expect(frame.locator(\"dialog\")).toContainText(\"创建正式补货任务\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                        "column": 41,
+                        "line": 121
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('dialog')\nExpected substring: \u001b[32m\"不修改当前任务或待审批计划\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('dialog')\u001b[22m\n\n\n  119 |   const frame=await open(page);\n  120 |   await frame.locator('[data-control=\"B36\"]').click();\n> 121 |   await expect(frame.locator(\"dialog\")).toContainText(\"不修改当前任务或待审批计划\");\n      |                                         ^\n  122 |   expect(await frame.evaluate(()=>window.__p4.calls.filter(call=>call.method===\"POST\"))).toEqual([]);\n  123 |   await frame.locator('[data-control=\"B46\"]').click();\n  124 |   await expect(frame.locator(\"dialog\")).toContainText(\"创建正式补货任务\");\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts:121:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjM5NTcpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:12:55.178Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-M05→空授权草稿：缺参有reason，无POST；确认-B01新key后才显式提交/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1/ui-M05→空授权草稿：缺参有reason，无POST；确认-B01新key后才显式提交/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/ui.spec.ts",
+                    "column": 41,
+                    "line": 121
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-4816c3f79d1aed32caf1",
+          "file": "ui.spec.ts",
+          "line": 118,
+          "column": 5
+        },
+        {
+          "title": "待审批/无operator/服务端不允许时M05具体禁用，不原地重算",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2268,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjQwNzMpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:13:04.822Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-513913e5e6569417de3b",
+          "file": "ui.spec.ts",
+          "line": 141,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T04:12:13.766Z",
+    "duration": 54352.835,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

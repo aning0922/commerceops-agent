@@ -9,7 +9,12 @@ import { createReadClient } from "../lib/p3-live-client";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import { P3Failure } from "../lib/p3-transport";
 import type { DTO } from "../lib/p3-present";
-import { label, localTime, reportBound } from "../lib/p3-present";
+import {
+  label,
+  localTime,
+  reportBound,
+  newCycleEligibility,
+} from "../lib/p3-present";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
 import {
   LiveReport,
@@ -27,7 +32,12 @@ type PageData =
       read: DTO["TaskRead"];
       execution: DTO["ExecutionRead"] | null;
     }
-  | { kind: "report"; read: DTO["ReportRead"]; versions: DTO["PlanList"] }
+  | {
+      kind: "report";
+      read: DTO["ReportRead"];
+      versions: DTO["PlanList"];
+      task: DTO["TaskRead"];
+    }
   | { kind: "plans"; read: DTO["PlanList"]; taskId: string }
   | { kind: "plan"; read: DTO["PlanRead"] }
   | { kind: "approvals"; read: DTO["ApprovalList"] }
@@ -270,7 +280,7 @@ export function LiveConsole({
           if (!reportBound(report, id, query.report_id))
             throw new P3Failure("INVALID_RESPONSE");
           const versions = await client!.plans(id, { limit: 20, cursor });
-          page = { kind: "report", read: report, versions };
+          page = { kind: "report", read: report, versions, task };
         } else if (section === "events" && !version)
           page = {
             kind: "events",
@@ -842,6 +852,16 @@ export function LiveConsole({
                     read={page.read}
                     config={config}
                     client={client!}
+                    cycle={{
+                      ...newCycleEligibility(
+                        page.task,
+                        capabilities!.can_create_task,
+                        session.principal.role_shop_grants
+                          .filter((x) => x.role === "operator")
+                          .map((x) => x.shop_id),
+                      ),
+                      openDraft: () => setPanel("create-new-cycle"),
+                    }}
                   />
                   {capabilities!.can_create_task &&
                     page.read.source.source_complete &&
@@ -1156,12 +1176,20 @@ export function LiveConsole({
               )}
             </>
           )}
-          {(panel === "create" || panel === "create-source") &&
+          {(panel === "create" ||
+            panel === "create-source" ||
+            panel === "create-new-cycle") &&
             capabilities!.can_create_task && (
               <CreateTaskDialog
                 client={client!}
                 shops={session.principal.role_shop_grants
-                  .filter((x) => x.role === "operator")
+                  .filter(
+                    (x) =>
+                      x.role === "operator" &&
+                      (panel !== "create-new-cycle" ||
+                        (page?.kind === "report" &&
+                          x.shop_id === page.task.task.shop_id)),
+                  )
                   .map((x) => x.shop_id)}
                 source={
                   panel === "create-source" && page?.kind === "report"
