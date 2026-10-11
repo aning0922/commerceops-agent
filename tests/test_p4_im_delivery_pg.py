@@ -11,7 +11,7 @@ from commerceops.adapters.feishu.business_gateway import BusinessCard
 from commerceops.application.feishu_business.clarification import NoticeResult
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.im_delivery import BusinessMessage
-from commerceops.application.replenishment.contracts import DecisionInput
+from commerceops.application.replenishment.contracts import DecisionInput, WebFailure
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
@@ -20,6 +20,7 @@ from commerceops.infrastructure.worker import Worker
 from commerceops.infrastructure.worker_lock import WorkerSession
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
 from commerceops.workflows.replenishment import ApprovalRunner
+from psycopg import sql
 
 from tests.inventory_support import DIRECTORY
 from tests.p3_support import P3Fixture
@@ -35,9 +36,13 @@ class Sender:
     def __init__(self, *, unknown: bool = False):
         self.unknown = unknown
         self.calls: list[BusinessMessage] = []
+        self.release_card = asyncio.Event()
 
     async def send_message(self, request: BusinessMessage) -> NoticeResult:
         self.calls.append(request)
+        if request.kind == "interactive":
+            # 已受理原发送、回执尚未交给Worker提交：确定性保留早callback拒绝窗口。
+            await self.release_card.wait()
         return (
             NoticeResult(outcome="unknown", code="ACK_UNPROVEN")
             if self.unknown
@@ -109,6 +114,31 @@ def test_existing_single_worker_card_binding_and_fixed_result_or_unknown_hold(
                     raise AssertionError("owned worker stopped before card")
                 await asyncio.sleep(0.02)
             assert len(sender.calls) == 1 and sender.calls[0].kind == "interactive"
+            request = DecisionInput.model_validate_json(json.dumps(payload(f, task)))
+            if not unknown:
+                with pytest.raises(WebFailure, match="CARD_CONTEXT_MISMATCH") as early:
+                    gateway.card(
+                        BusinessCard(
+                            "synthetic-early-card",
+                            incoming.identity,
+                            incoming.chat_id,
+                            "synthetic-" + sender.calls[0].outbox_id.hex,
+                            request,
+                        )
+                    )
+                assert early.value.status == 403
+                with connect(f.config.database) as db:
+                    assert db.execute(
+                        "SELECT status,decision_source FROM business.approvals WHERE id=%s",
+                        (request.approval_id,),
+                    ).fetchone() == {"status": "pending", "decision_source": None}
+                    for table in ("p4_card_bindings", "executions", "replenishment_items"):
+                        assert db.execute(
+                            sql.SQL("SELECT count(*) AS n FROM business.{}").format(
+                                sql.Identifier(table)
+                            )
+                        ).fetchone() == {"n": 0}
+            sender.release_card.set()
             # Fake SDK先记调用，只有Worker提交原ACK+binding才允许模拟真实callback。
             # 等真实持久屏障，保原message/chat/nonce/version断言，不用sleep假定完成。
             for _ in range(600):
@@ -136,7 +166,6 @@ def test_existing_single_worker_card_binding_and_fixed_result_or_unknown_hold(
                         "SELECT count(*) AS n FROM business.executions"
                     ).fetchone() == {"n": 0}
                 return
-            request = DecisionInput.model_validate_json(json.dumps(payload(f, task)))
             gateway.card(
                 BusinessCard(
                     "synthetic-event-card",
@@ -181,6 +210,7 @@ def test_existing_single_worker_card_binding_and_fixed_result_or_unknown_hold(
                     "SELECT count(*) AS n FROM business.p4_card_bindings"
                 ).fetchone() == {"n": 1}
         finally:
+            sender.release_card.set()
             stop.set()
             await worker
 
