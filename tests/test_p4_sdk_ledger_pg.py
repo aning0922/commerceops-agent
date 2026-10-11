@@ -10,7 +10,7 @@ from commerceops.application.feishu_business.sdk_window import SDKScope, SDKWind
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.worker_lock import WorkerSession
-from psycopg.errors import CheckViolation
+from psycopg.errors import CheckViolation, InsufficientPrivilege
 
 from tests.p3_support import P3Fixture
 from tests.test_p3_pg import fixture as fixture
@@ -54,7 +54,9 @@ def test_original_window_cap_persistent_restart_scope_and_terminal_call_immutabi
                 assert db.execute(
                     "SELECT status,http_status,provider_code FROM business.p4_sdk_calls"
                 ).fetchone() == {"status": "returned", "http_status": 200, "provider_code": 0}
-            with connect(f.config.database) as db, pytest.raises(CheckViolation):
+            with connect(f.config.database) as db, pytest.raises(InsufficientPrivilege):
+                db.execute("DELETE FROM business.p4_sdk_calls")
+            with connect(f.inventory.owner) as db, pytest.raises(CheckViolation):
                 db.execute("DELETE FROM business.p4_sdk_calls")
         finally:
             await session.close(clean=True)

@@ -109,6 +109,21 @@ def test_existing_single_worker_card_binding_and_fixed_result_or_unknown_hold(
                     raise AssertionError("owned worker stopped before card")
                 await asyncio.sleep(0.02)
             assert len(sender.calls) == 1 and sender.calls[0].kind == "interactive"
+            # Fake SDK先记调用，只有Worker提交原ACK+binding才允许模拟真实callback。
+            # 等真实持久屏障，保原message/chat/nonce/version断言，不用sleep假定完成。
+            for _ in range(600):
+                with connect(f.config.database) as db:
+                    durable = db.execute(
+                        "SELECT status FROM business.p4_im_deliveries WHERE outbox_id=%s",
+                        (sender.calls[0].outbox_id,),
+                    ).fetchone()
+                if durable and durable["status"] == ("unknown" if unknown else "sent"):
+                    break
+                if worker.done():
+                    worker.result()
+                    raise AssertionError("owned worker stopped before persistent IM receipt")
+                await asyncio.sleep(0.02)
+            assert durable and durable["status"] == ("unknown" if unknown else "sent")
             if unknown:
                 for _ in range(10):
                     await im.reconcile()
@@ -139,6 +154,19 @@ def test_existing_single_worker_card_binding_and_fixed_result_or_unknown_hold(
                     raise AssertionError("owned worker stopped before result")
                 await asyncio.sleep(0.02)
             assert len(sender.calls) == 2 and sender.calls[1].kind == "text"
+            for _ in range(600):
+                with connect(f.config.database) as db:
+                    durable = db.execute(
+                        "SELECT status FROM business.p4_im_deliveries WHERE outbox_id=%s",
+                        (sender.calls[1].outbox_id,),
+                    ).fetchone()
+                if durable and durable["status"] == "sent":
+                    break
+                if worker.done():
+                    worker.result()
+                    raise AssertionError("owned worker stopped before persistent result receipt")
+                await asyncio.sleep(0.02)
+            assert durable and durable["status"] == "sent"
             assert "completed" in (sender.calls[1].text or "") and str(task) in (
                 sender.calls[1].text or ""
             )
