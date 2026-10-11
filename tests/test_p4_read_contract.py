@@ -3,7 +3,6 @@
 import copy
 import json
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -22,9 +21,6 @@ from commerceops.infrastructure.feishu_delivery_read import (
 from pydantic import ValidationError
 
 pytestmark = pytest.mark.offline
-SCHEMA = json.loads(
-    (Path(__file__).resolve().parents[1] / "docs/contracts/p3-openapi.json").read_text()
-)
 
 
 def valid(name: str, data: object) -> None:
