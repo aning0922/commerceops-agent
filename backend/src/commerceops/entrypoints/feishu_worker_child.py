@@ -17,6 +17,7 @@ from commerceops.adapters.feishu.business_preflight import verified_target
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
@@ -44,7 +45,8 @@ async def trusted_scope(
 ) -> None:
     async with await open_async(config.database) as db:
         cursor = await db.execute(
-            """SELECT g.after_state,g.occurred_at FROM business.audit_events g
+            """SELECT g.after_state,g.occurred_at,s.external_shop_key,s.currency,s.timezone
+            FROM business.audit_events g
             JOIN business.organizations o ON o.id=g.organization_id
             JOIN business.shops s ON s.organization_id=o.id AND s.id=%s
             WHERE g.id=%s AND g.organization_id=%s AND g.source='feishu_gateway'
@@ -74,6 +76,7 @@ async def trusted_scope(
             or window.expires_at > gateway.expires_at
         ):
             raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
+        require_fixture_shop(row, gateway.parameters.fixture_case)
         cursor = await db.execute(
             """SELECT DISTINCT t.id,s.parameters FROM business.business_tasks t
             JOIN business.p3_task_sources s ON s.task_id=t.id

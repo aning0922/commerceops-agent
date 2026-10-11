@@ -6,6 +6,7 @@ from psycopg.types.json import Jsonb
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.infrastructure.web_sessions import DB
 
@@ -34,7 +35,8 @@ def claim_gateway(db: DB, settings: BusinessSettings, window: GatewayWindow) -> 
     if not row or not row["held"]:
         raise PermissionError("P4_GATEWAY_ALREADY_RUNNING")
     org = db.execute(
-        """SELECT 1 FROM business.organizations o JOIN business.shops s
+        """SELECT s.external_shop_key,s.currency,s.timezone
+        FROM business.organizations o JOIN business.shops s
         ON s.organization_id=o.id WHERE o.id=%s AND s.id=%s
         AND o.feishu_app_id=%s AND o.feishu_tenant_key=%s
         AND s.adapter_kind='mock' AND s.environment IN ('mock','test')""",
@@ -42,6 +44,7 @@ def claim_gateway(db: DB, settings: BusinessSettings, window: GatewayWindow) -> 
     ).fetchone()
     if not org:
         raise PermissionError("P4_GATEWAY_TRUSTED_SCOPE_MISMATCH")
+    require_fixture_shop(org, window.parameters.fixture_case)
     # audit.id固定window原UUID，一次claim后同ID不能再次启动/重开预算；row不可变。
     db.execute(
         """INSERT INTO business.audit_events(id,organization_id,source,

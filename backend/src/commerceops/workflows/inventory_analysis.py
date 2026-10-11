@@ -58,11 +58,17 @@ class InventoryRunner:
         before = asyncio.all_tasks()
         try:
             return await self._run(r)
-        except (AnalysisUnsafe, PersistenceConflict):
+        except (AnalysisUnsafe, PersistenceConflict) as error:
             task = await self.store.load(r, authorize=False)
             if task["state"] == "completed":
                 raise AnalysisUnsafe("ANALYSIS_RESULT_CONFLICT") from None
-            await self.store.mark(r, "needs_attention", "ANALYSIS_CHECKPOINT_UNSAFE")
+            code = (
+                "ANALYSIS_SOURCE_SCOPE_MISMATCH"
+                if isinstance(error, AnalysisUnsafe)
+                and error.args == ("ANALYSIS_SOURCE_SCOPE_MISMATCH",)
+                else "ANALYSIS_CHECKPOINT_UNSAFE"
+            )
+            await self.store.mark(r, "needs_attention", code)
             return RunResult()
         except (ValueError, InventoryAnalysisError):
             await self.store.mark(r, "failed", "ANALYSIS_INPUT_INVALID")

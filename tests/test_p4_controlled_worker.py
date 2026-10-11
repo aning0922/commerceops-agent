@@ -259,7 +259,13 @@ def test_controlled_task_scope_requires_same_original_gateway_parameters_and_no_
     )
     db = Database(
         [
-            {"after_state": state, "occurred_at": datetime.now(UTC)},
+            {
+                "after_state": state,
+                "occurred_at": datetime.now(UTC),
+                "external_shop_key": "demo",
+                "currency": "CNY",
+                "timezone": "Asia/Shanghai",
+            },
             tasks,
             {"exists": 1} if mutation == "fake_history" else None,
         ]
