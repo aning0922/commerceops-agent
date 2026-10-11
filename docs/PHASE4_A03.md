@@ -25,3 +25,15 @@ events同authorized task及精确source关系输出audit trace/ref/T1–T6/deter
 作者全offline1309pass/85.18s、372integration deselected、两旧SDK warnings；232mypy/319format/lint0、83MD0/diff0。随后worker_ready读字段专项8pure/0.66s+mypy同232。Base v1unknown→v2组合8pure2.08s、safe read6/示例20与private factory2；新PG5仅collect，未把收集当通过。新的定向36（5delivery+9clarification+21gateway+1schema）、低权flags/完整plugin/JUnit/源hash/镜像/stop在Root释放pool后的新固定owned窗口执行，结果另记，不预填。原545 frontend schema fail/610累计300秒超时及readunknown/旧Corecount not_verified全部保留。
 
 本批不签M1：Card/result正式async发送、实际SDK方法计数/Rootcaps、四读组最终闭集/新C接线、clean Compose/human与真表均未完成。无新平台/provider/旧secret-env-DB读取，D1/D30/300h/P4原50h及人工H/L not_reported不重置。
+
+## 作者实际PG与正常C集成
+
+功能源4d98d71/tree9494本地冻结，Docker import collection对docs无依赖的单测试收口433c0b5另列。Root Core/Base对433静态/pure无P1/P2（独立Core91pure/2.56s、Base8pure/5.27s，新PG5仅collect而非运行）；正常merge已审C3d1758b2711830b4863d9e93d732bd1429603d49为e060ce3531dd6243ad8332d19ba08a3cffa943dd，parents433c+3d无冲突/47Cblob同原源。a5542bf只根CI加现8UI单行run_before_cleanup，独立增审无P1/P2，不放宽原Mock/B04/24/native200/23min/75cleanup；backend同433。尚未push本集成源，旧5aeCI38113580257整体frontendFAILURE、quality/phase3/pgpair成功367精确PG由Root核，不能记当前整合CI通过。
+
+[作者实际安全摘要](contracts/p4-a03-author-evidence.json)绑定精确a1cd66936c3cd268d32c68bfafc8f34555e44aa7/tree62230b73a1760d1ffe8f71d6cf01413319a97b1b，testCOPY image sha256:62fbc307206a8fd57db86a78d106cc969f934fe56605f6641cc9fa87f8552ddf/232源码hash，无host源bind。原新owned20min05:19:15.391078→05:39:15.391078。首源a554镜像4b2484实际36=33pass/3fail/90.62s、command94.16、完整JUnit/plugin；三fail是新增测试helper错误未注册T6/items路径404，非未知恢复。只修至原/replenishment-items路由一行a1cd，Core精确增审无P1/P2，原断言/actor/reason/version无放宽，历史保持。
+
+同原截止内重建完整36actual=callpass/84.04s（command87.060、JUnit36/fail0/84.038s），其中5Base新组合、9原澄清、21原Gateway/API、1schema全部expected/actual/plugin/JUnit一致。全20 runtime使用原twenty同factory贯穿P2/T2/T4/完整unknown集合/1永久execution，Fake Base20create+40list/20anchor/2000units均实证；v1unknown/T6v2原锚顺序、终态后首次v1复原、角色撤权无transport、不完整unknown不盲create/DB约束同轮通过。模式Mock/simulated_feishu/transportFake，platform/provider0，不称真实Feishu发送。
+
+metadata实际三roleflagsfalse/tempDB0/revision0010，05:25:25.422309 stop0/全falsePID0；05:26:21.912292核UID/3本项目停止container和network/volume labels后仅own普通down0、network_removed/保卷image-private/JUnit，不-v/prune/rmi。池已交Root/C一次原7read，不再争网/新PG。Root将另安排独立PG复验，不能把静态审当复验；C b88的旧NOT_READY最小修复与safe失败捕获待其原窗口实证，610具体旧traceunknown仍保留。
+
+用户15列表已向Root回复“已有”，仍需[有界只读preflight候选](contracts/p4-preflight-v1.md)核新目标/schema/type/app资源；旧.env/TABLE_ID或P1 Probe不推断新表，entry/Factory/方法账本未审不启动平台。C最终Generated/Mock/decoder需从审后最新backend安全读Schema同步，Root单owner协调，A不并写。
