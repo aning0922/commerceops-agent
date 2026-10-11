@@ -29,3 +29,7 @@ A唯一共享合同/迁移/业务/outbox/Worker/Graph/Python锁/CI/Compose/阶�
 各结果写source、command、实际exit/count/time、source/model/approval_mode、固定窗口/owner/停止证据。offline Fake、真实PG、SDK源码/官方文档、真人/平台、CI与main分层，不将作者自检记独审或将部分运行记全通过。当前没有新增P4正式真人/平台/provider证据；首提交与后续source/CI以原PR和Root回执绑定，不自指未来提交。
 
 P4-A01当前作者证据与真实负证据见[PHASE4_A01](PHASE4_A01.md)及[安全摘要](contracts/p4-a01-author-evidence.json)。1120offline、旧337+19PG与跨入口2分层；性能100/20/调度为候选统计，pendinginterrupt/gold/sample补证仍待，不由此签M1。主体freeze/独审/精确CI/平台/交付/结案待，P3历史保持。
+
+A02作者新补证见[PHASE4_A02](PHASE4_A02.md)及[安全摘要](contracts/p4-a02-author-evidence.json)：固定澄清窄reply/零业务对象、原UUID/未知停止重发与同Worker维护，30PG/56.65s和另1WorkerPG/6.84s；全1284offline/88.94s、367integration deselected。100本地SDKACK/PGcommit p95=.013282208s，预定20完整baseline goldmatch p95=.805768959s，真实pending idle=.037212458s/busy下一点=.045891333s补证只在固定scan1s/Mock范围；平台网络、人类审批、全20真实Card/Base闭环及M1未验收。低权3flagsfalse/tempDB0，固定04:42:39截止内停止/仅own网络释放保卷，不续期。新的独审/精确CI待。
+
+C610/38111683908实际quality成功，phase3原approval模块300秒超时（28actual/27callpass/最后card_only未结束，0 assertion failed trace，后94not_run）、frontend real read失败且具体nodeunknown、pg-pair正确失败；[只读核对回执](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6105516903)。545旧PG成功不替当前Gate，C的new-cycle P1修复/独审亦待Root解除；不重跑、取消、放宽期限或新开重大未知PG窗口。
