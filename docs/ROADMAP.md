@@ -1,5 +1,7 @@
 # 分阶段路线图与外部配置
 
+最新A09导航（2026-10-12）：Root核A08 efcd/Core无P1P2/精确四CI38164348959 SUCCESS及422完整PG配对后释放原A/C功能合批。A唯一backend串行实现单原workflow跨Gateway可信恢复、N01 Web-only零业务写入preflight闭合DTO/API；原P3 22合同字节保留/N01第23操作，PRD-J01两原句缺LRS澄清、不截断或猜参，C独占本地确认/fresh原CreateNewCycle与UX4，B/C产品0差。作者新恢复6+原回归15=21PG及N01完整13PG通过，首5恢复fail及N0111/13pass两夹具fail/无children hashfalse完整保留；真实SDK/Factory/Secret/provider0/自有资源已停保卷。PG-only/ASGI不冒正式SDK/真人/全BC02/M1；完整检查1531offline/441deselected/93.00s exit0，冻结独审/新精确CI待。原main9d97/Issues39–42 Open/P4 in_progress，D1/D30/300h/P4 50h/H-L not_reported/18页不变；A09实际19:03:09Z→01:03:09Z≤6h，仅offline新PG/同源三，不续A08旧20:37:16Z SDK诊断。详见[PHASE4_A09](PHASE4_A09.md)及[STATUS48](STATUS.md#48-a09跨gateway原workflow与n01-web-preflight候选)；下方旧HOLD/pending是历史。
+
 最新A08共同准入P1（2026-10-12）：Root Core在已push cdbc发现T1未绑定当前App/Tenant/白名单及原identity/requester；原全库scope修复有效，后续SDK/N01仍HOLD。原A共同准入最小fix/p2p-group必要PG正验证，不改B/C/迁移/文法/CI；新freeze/独审/CI待。原38163010570 cancelled及pg-pair artifact失败/union skipped分层保留，主控不降低Gate、原夜间截止及50h300h不续。详见[当前A08](PHASE4_A08.md)，下方已跑旧证据不抵新P1。
 
 当前A08导航（2026-10-12）：main9d97/Phase4及M1 in_progress。Root source9a四CI38151837270/383PG/三Web13hash回执与新发现scope P1分别记账，P1未独审解决前SDK关闭。A08有限group20=73/known70原14/原键outbox-only=11与T1+真实source白名单候选见[详细证据](PHASE4_A08.md)、[合同](contracts/p4-a08-recovery.md)和[STATUS47](STATUS.md#47-a08有限业务原键恢复与scope-p1候选)。配置CAS#6111090153、第二live#6111191331的queued T1/Worker0/SDK0/旧Gatewayreap not_verified不改写；原binder仅Root获真人“已发”后一次。完整跨窗workflow/实际SDK/真人/M1仍pending，必要Gate不缩减；本段四小时硬截止/原50h300h/人时未知/18页与B/C/旧风险资源保持。下方旧导航为历史，不预填新冻结SHA/独审/CI/main/Issues关闭。

@@ -70,8 +70,12 @@ def guard_gateway(db: DB, window: GatewayWindow, create_workflow: bool) -> None:
         """SELECT * FROM business.audit_events WHERE id=%s
         AND organization_id=%s AND source='feishu_gateway'
         AND action='gateway_start_claimed' AND entity_type='gateway_window'
-        AND clock_timestamp() < %s""",
-        (window.window_id, window.organization_id, window.expires_at),
+        AND clock_timestamp() < %s
+        AND NOT EXISTS (SELECT 1 FROM business.audit_events e
+        WHERE e.organization_id=business.audit_events.organization_id
+        AND e.source='feishu_gateway' AND e.entity_type='gateway_runtime'
+        AND e.action='termination_confirmed' AND e.entity_id=%s)""",
+        (window.window_id, window.organization_id, window.expires_at, str(window.window_id)),
     ).fetchone()
     if not row or row["after_state"] != claimed_state(window):
         raise WebFailure("GATEWAY_WINDOW_CLOSED", 503)

@@ -23,6 +23,7 @@ from commerceops.application.replenishment.contracts import (
     WebActor,
     WebFailure,
 )
+from commerceops.application.replenishment.nl_preflight import PreflightInput
 from commerceops.domain.commerce_values import utc_time
 from commerceops.infrastructure.approval_decisions import DecisionStore
 from commerceops.infrastructure.database import connect
@@ -30,6 +31,7 @@ from commerceops.infrastructure.replenishment_items import ItemStore
 from commerceops.infrastructure.replenishment_read import ReplenishmentReadStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
+from commerceops.infrastructure.web_preflight import WebPreflightStore
 from commerceops.infrastructure.web_sessions import SessionStore, now
 
 COOKIE = "commerceops_session"
@@ -111,6 +113,7 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
     reads = ReplenishmentReadStore(store)
     decisions = DecisionStore(config)
     items = ItemStore(store)
+    preflights = WebPreflightStore(store)
     router = APIRouter(prefix="/api/v1")
 
     def failure_response_for(code: str, status: int) -> JSONResponse:
@@ -260,6 +263,12 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
             COOKIE, path="/", httponly=True, secure=config.transport_mode == "https", samesite="lax"
         )
         return result
+
+    @router.post("/tasks/preflight")
+    async def preflight(request: Request) -> JSONResponse:
+        await run_in_threadpool(preflights.authorize, actor(request))
+        payload = PreflightInput.model_validate_json(await body(request))
+        return response(await run_in_threadpool(preflights.parse, actor(request), payload))
 
     @router.post("/tasks")
     async def create(request: Request) -> JSONResponse:

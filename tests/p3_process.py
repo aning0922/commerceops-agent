@@ -104,6 +104,24 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
         settings = BusinessSettings.model_validate_json(json.dumps(scope["settings"]))
         await trusted_scope(config, settings, controlled_window)
         scoped_tasks = await controlled_task_ids(config, controlled_window)
+        if controlled_window.workflow_recovery:
+            emit("workflow_scope_validated")
+        if payload.get("p4_ledger_stub") is True:
+            # 实际 PG 账本/Fake 返回，不构造 SDK Client/Factory 或读取秘密。
+            from commerceops.application.feishu_business.sdk_window import SDKScope
+            from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
+
+            ledger = PersistentSDKLedger(session, controlled_window.window(settings))
+
+            class StubReply:
+                raw = type("Raw", (), {"status_code": 200})()
+                code = 0
+
+            async def local_reply() -> StubReply:
+                return StubReply()
+
+            with ledger.scope(SDKScope(controlled_window.window_id, None, "preflight")):
+                await ledger.invoke("auth.v3.tenant_access_token.internal", local_reply)
     factory: CollectorFactory = (
         ControlledP3Factory(payload["controlled"])
         if payload.get("controlled")
@@ -187,6 +205,26 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
     try:
 
         async def maintenance() -> None:
+            if controlled_window and controlled_window.workflow_recovery:
+                from commerceops.application.feishu_business.gateway_window import GatewayWindow
+                from commerceops.infrastructure.feishu_workflow_recovery import (
+                    trusted_workflow_scope,
+                )
+                from commerceops.infrastructure.worker_lock import open_async
+
+                async with await open_async(config.database) as db:
+                    cur = await db.execute(
+                        "SELECT after_state FROM business.audit_events WHERE id=%s",
+                        (controlled_window.gateway_window_id,),
+                    )
+                    row = await cur.fetchone()
+                assert row
+                gateway = GatewayWindow.model_validate_json(
+                    json.dumps({k: row["after_state"].get(k) for k in GatewayWindow.model_fields})
+                )
+                await trusted_workflow_scope(
+                    config, settings, controlled_window, gateway, claim=False
+                )
             await approval.reconcile(
                 task_ids=None if controlled_window is None else controlled_window.task_ids
             )

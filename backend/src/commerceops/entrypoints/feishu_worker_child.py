@@ -27,6 +27,7 @@ from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.feishu_outbox_recovery import trusted_recovery_scope
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
+from commerceops.infrastructure.feishu_workflow_recovery import trusted_workflow_scope
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore
@@ -54,6 +55,10 @@ async def trusted_scope(
             JOIN business.shops s ON s.organization_id=o.id AND s.id=%s
             WHERE g.id=%s AND g.organization_id=%s AND g.source='feishu_gateway'
             AND g.action='gateway_start_claimed' AND g.entity_type='gateway_window'
+            AND NOT EXISTS (SELECT 1 FROM business.audit_events e
+            WHERE e.organization_id=g.organization_id AND e.source='feishu_gateway'
+            AND e.entity_type='gateway_runtime' AND e.action='termination_confirmed'
+            AND e.entity_id=g.entity_id)
             AND o.feishu_app_id=%s AND o.feishu_tenant_key=%s
             AND s.adapter_kind='mock' AND s.environment IN ('mock','test')""",
             (
@@ -82,6 +87,9 @@ async def trusted_scope(
         require_fixture_shop(row, gateway.parameters.fixture_case)
         if window.profile == "approved_outbox":
             await trusted_recovery_scope(config, settings, window, gateway)
+            return
+        if window.profile == "approved_workflow":
+            await trusted_workflow_scope(config, settings, window, gateway)
             return
         if window.profile == "group20" and (
             gateway.parameters.fixture_case != "baseline"
@@ -247,6 +255,21 @@ async def controlled_work(
         )
 
         async def maintenance() -> None:
+            if window.workflow_recovery is not None:
+                async with await open_async(config.database) as db:
+                    cursor = await db.execute(
+                        "SELECT after_state FROM business.audit_events WHERE id=%s",
+                        (window.gateway_window_id,),
+                    )
+                    row = await cursor.fetchone()
+                if not row:
+                    raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
+                gateway = GatewayWindow.model_validate_json(
+                    json.dumps(
+                        {key: row["after_state"].get(key) for key in GatewayWindow.model_fields}
+                    )
+                )
+                await trusted_workflow_scope(config, settings, window, gateway, claim=False)
             if window.recovery is None:
                 await approval.reconcile(task_ids=window.task_ids)
             if stop.is_set() or not gate.active():

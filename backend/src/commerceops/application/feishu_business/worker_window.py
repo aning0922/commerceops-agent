@@ -9,7 +9,10 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
-from commerceops.application.feishu_business.recovery import ApprovedOutboxRecovery
+from commerceops.application.feishu_business.recovery import (
+    ApprovedOutboxRecovery,
+    ApprovedWorkflowRecovery,
+)
 from commerceops.application.feishu_business.sdk_calls import SDKMethod
 from commerceops.application.feishu_business.sdk_window import SDKWindow
 
@@ -60,8 +63,9 @@ class ControlledWorkerWindow(BaseModel):
     expires_at: datetime
     caps: dict[SDKMethod, int] = Field(repr=False)
     enabled: bool = False
-    profile: Literal["known70", "group20", "approved_outbox"] = "known70"
+    profile: Literal["known70", "group20", "approved_outbox", "approved_workflow"] = "known70"
     recovery: ApprovedOutboxRecovery | None = Field(default=None, repr=False)
+    workflow_recovery: ApprovedWorkflowRecovery | None = Field(default=None, repr=False)
 
     def window(self, settings: BusinessSettings) -> SDKWindow:
         checked = type(self).model_validate(self.model_dump())
@@ -69,6 +73,7 @@ class ControlledWorkerWindow(BaseModel):
             "known70": KNOWN70_CAPS,
             "group20": GROUP20_CAPS,
             "approved_outbox": RECOVERY_CAPS,
+            "approved_workflow": GROUP20_CAPS,
         }[checked.profile]
         remaining = (
             (checked.expires_at - datetime.now(UTC)).total_seconds()
@@ -101,6 +106,17 @@ class ControlledWorkerWindow(BaseModel):
             and len(self.task_ids) > 2
             or self.profile != "approved_outbox"
             and self.recovery is not None
+            or self.profile != "approved_workflow"
+            and self.workflow_recovery is not None
+            or self.profile == "approved_workflow"
+            and (
+                self.workflow_recovery is None
+                or self.task_ids != frozenset({self.workflow_recovery.task_id})
+                or self.workflow_recovery.worker_window_id != self.window_id
+                or self.workflow_recovery.gateway_window_id != self.gateway_window_id
+                or self.workflow_recovery.expires_at != self.expires_at
+                or self.workflow_recovery.target_key != settings.base_target_key
+            )
             or self.profile == "approved_outbox"
             and (
                 self.recovery is None

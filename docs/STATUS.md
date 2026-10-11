@@ -1,5 +1,7 @@
 # 阶段状态与主控交接
 
+最新A09导航（2026-10-12）：Root核A08 efcd/Core无P1P2/精确四CI38164348959 SUCCESS及422完整PG配对后释放原A/C功能合批。A唯一backend串行实现单原workflow跨Gateway可信恢复、N01 Web-only零业务写入preflight闭合DTO/API；原P3 22合同字节保留/N01第23操作，PRD-J01两原句缺LRS澄清、不截断或猜参，C独占本地确认/fresh原CreateNewCycle与UX4，B/C产品0差。作者新恢复6+原回归15=21PG及N01完整13PG通过，首5恢复fail及N0111/13pass两夹具fail/无children hashfalse完整保留；真实SDK/Factory/Secret/provider0/自有资源已停保卷。PG-only/ASGI不冒正式SDK/真人/全BC02/M1；完整检查1531offline/441deselected/93.00s exit0，冻结独审/新精确CI待。原main9d97/Issues39–42 Open/P4 in_progress，D1/D30/300h/P4 50h/H-L not_reported/18页不变；A09实际19:03:09Z→01:03:09Z≤6h，仅offline新PG/同源三，不续A08旧20:37:16Z SDK诊断。详见[PHASE4_A09](PHASE4_A09.md)及[STATUS48](STATUS.md#48-a09跨gateway原workflow与n01-web-preflight候选)；下方旧HOLD/pending是历史。
+
 最新A08共同准入P1（2026-10-12）：cdbc复合freeze/push后Root Core发现T1共同selector未绑定当前App/Tenant/白名单和身份原映射；先前recover/claim/reconcile白名单修复确认有效，cdbc仍HOLD。CI38163010570 actual cdbc/attempt1/completed/cancelled；三主job cancelled、pg-pair download-artifact failure/union skipped分记，不归新PG断言失败。原A正在既有截止内最小补共用准入及p2p/group真实PG负例、SDK/Graph/queue之前拒绝；pure64已过，新PG/完整check/新freeze独审CI pending。详情[当前修复](PHASE4_A08.md)；main9d97/Issues Open/SDK与后续A09未释放，下方旧当时证据保留。
 
 当前A08（2026-10-12）：main9d97/Phase4及M1 in_progress/Issues39–42 Open。source9a四CI38151837270/383PG/三Web批13hash由[Root](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6110882129)核过，随后controlled Worker全库recover/claim/reconcile P1阻断SDK；A08贯穿原T1+真实source白名单、有限group20与原键outbox恢复，不复活failed/不刷新审批TTL。当前作者纯1464pass/410integration deselected及同窗五kill PG通过，完整受影响矩阵/实际imports核对进行中，freeze/独审/新CI尚未填。原配置CAS/第二live失败与停止见[47节](#47-a08有限业务原键恢复与scope-p1候选)及[详细证据](PHASE4_A08.md)；新真人T1仅queued、Worker/业务SDK0，旧Gatewayreap not_verified不补造。B/C产品不写，已审C docs967d待必要验证及源码提交后普通合；完整跨窗workflow/正式SDK/真人/M1验收仍pending。原预算日期/人工not_reported/18页/风险资源保持；SDK关闭，下方旧“当前”保持历史。
@@ -793,3 +795,11 @@ Root独立Core在9a确认scope escape P1；A最小限定既有队列recover/clai
 完整跨窗workflow/审批未完成/真正SDK断线恢复与整M1仍pending，不能用completed outbox-only或同窗合成PG替平台Gate。当前SDK/真人0、B/C产品原字节、Root释放已审C docs967d后正常内部合待本地源码提交/PG停止，不push/main/关Issue。原50h/300h内A08整体8–12 Agent有效h估计；本段真实16:37:16Z开始/硬20:37:16Z止、wall≤4h/Token≤80k（遥测unknown）/同源≤三、人工H/L not_reported。D1/D30/日期预算/冻结18页/旧失败与资产凭据卷保持。
 
 用户已授权N01+U02/U03/U06/U08后续合批，依赖A08源码稳定、独审及精确CI后Root释放A09；A仅无业务副作用Web NL preflight闭合DTO，C独占M02文本/明确确认/原fresh submit与四UX。13–19 Agenth规划原预算内，不能混A08、自动提交/审批/新paid/通用draft框架，Feishu F02/B47续答仍分记，今晚20:37:16Z不续期。
+
+## 48. A09跨Gateway原workflow与N01 Web preflight候选
+
+Root核efcd的Core/四CI38164348959/422全PG、G1三/G2六/cleanup0/三Web13hash后释放A09；不是A09新源验收。原A先冻结N01合同给C，再串行补单原workflow恢复与Web-only preflight，原P3 22操作字节保留、第23N01操作；详情及所有实际分层见[PHASE4_A09](PHASE4_A09.md)、[恢复合同](contracts/p4-a09-workflow-recovery.md)、[N01合同](contracts/p4-n01-web-v1.md)。
+
+恢复实际21/21 pass（新6+原15）/196.692 testcaseΣ秒/201.415 suite、504source0差/21 Worker四imports匹配、19:29:13Z资源0；N01实际13/13/23.134 testcaseΣ秒/24.758 suite、509source0差/实际同进程4 N01模块1回执匹配/无Worker child、19:40:23Z资源0。首恢复5fail/trace未捕获、修去immutable receipt额外锁后定向1pass；首N01 11pass2夹具fail且无children/fourimports=false不作通过，全部保留。所有真实SDK/Factory/Secret/provider0，低权三false/tempDB0/stop-down0/no-v保卷；零业务canonical/4CP、新explicit原键创建及撤权均核。
+
+完整检查重验实际exit0：1531offline pass/441integration deselected/93.00s，Ruff384/mypy282/Markdown98、锁/工具链/tsc/两audits0/三scope scans0；补最终文档后Markdown99/errors0。首目录scan公开合同文件名两误报/exit1保留，仅等价JSON换行、不改规则。最终精确freeze/独审/CI尚待。C M02文本→本地明确确认→原CreateNewCycle fresh submit/四UX与真实Web由原C/Root验收；A不并写frontend/B。正式SDK/跨窗平台/human/BC02完整能力及M1 pending，F02/B47分记未做、其余UX4项不外推。原main9d97/Issues39–42未关、P4 in_progress，原日期/50h300h/18页/人工H-L及旧失败/风险/资源保留；A09有界6h只offline/new-owned-PG，不能续原A08 SDK或另开预算。

@@ -1,0 +1,178 @@
+{
+  "schema_version": "p4-a09-author-evidence-v1",
+  "client_date": "2026-10-12",
+  "parent_source": "efcd4cd3dee2cb5a0b4bb3c886a573beca654391",
+  "status": "author_ready_for_local_freeze_independent_review_CI_pending",
+  "actual_PG_batches": [
+    {
+      "project": "p4-a09-workflow-a5b745e7cd44",
+      "test_exit": 1,
+      "actual_cases": 5,
+      "failed": 5,
+      "errors": 0,
+      "XML_seconds": 148.335,
+      "source_files": 502,
+      "source_mismatch": 0,
+      "actual_import_receipts": 10,
+      "four_imports_all_match": true,
+      "stop_exit": 0,
+      "down_exit": 0,
+      "containers_zero": true,
+      "networks_zero": true,
+      "released_at": "2026-10-11T19:18:33.659260+00:00",
+      "no_v_volumes_preserved": true,
+      "PG_role_and_temp": {
+        "low_role_three_false": true,
+        "tempDB": 0
+      }
+    },
+    {
+      "project": "p4-a09-workflow-b79b3ca01b0d",
+      "test_exit": 0,
+      "actual_cases": 1,
+      "failed": 0,
+      "errors": 0,
+      "XML_seconds": 14.094,
+      "source_files": 502,
+      "source_mismatch": 0,
+      "actual_import_receipts": 2,
+      "four_imports_all_match": true,
+      "stop_exit": 0,
+      "down_exit": 0,
+      "containers_zero": true,
+      "networks_zero": true,
+      "released_at": "2026-10-11T19:21:15.339510+00:00",
+      "no_v_volumes_preserved": true,
+      "PG_role_and_temp": {
+        "low_role_three_false": true,
+        "tempDB": 0
+      }
+    },
+    {
+      "project": "p4-a09-workflow-b16000c86921",
+      "test_exit": 0,
+      "actual_cases": 21,
+      "failed": 0,
+      "errors": 0,
+      "XML_seconds": 196.692,
+      "source_files": 504,
+      "source_mismatch": 0,
+      "actual_import_receipts": 21,
+      "four_imports_all_match": true,
+      "stop_exit": 0,
+      "down_exit": 0,
+      "containers_zero": true,
+      "networks_zero": true,
+      "released_at": "2026-10-11T19:29:13.390229+00:00",
+      "no_v_volumes_preserved": true,
+      "PG_role_and_temp": {
+        "low_role_three_false": true,
+        "tempDB": 0
+      }
+    },
+    {
+      "project": "p4-a09-n01-2709cd9a82e1",
+      "test_exit": 1,
+      "actual_cases": 13,
+      "failed": 2,
+      "errors": 0,
+      "XML_seconds": 27.318,
+      "source_files": 509,
+      "source_mismatch": 0,
+      "actual_import_receipts": 0,
+      "four_imports_all_match": false,
+      "stop_exit": 0,
+      "down_exit": 0,
+      "containers_zero": true,
+      "networks_zero": true,
+      "released_at": "2026-10-11T19:37:08.129172+00:00",
+      "no_v_volumes_preserved": true,
+      "PG_role_and_temp": {
+        "low_role_three_false": true,
+        "tempDB": 0
+      }
+    },
+    {
+      "project": "p4-a09-n01-275f4df65e95",
+      "test_exit": 0,
+      "actual_cases": 13,
+      "failed": 0,
+      "errors": 0,
+      "XML_seconds": 23.134,
+      "source_files": 509,
+      "source_mismatch": 0,
+      "actual_import_receipts": 1,
+      "four_imports_all_match": true,
+      "stop_exit": 0,
+      "down_exit": 0,
+      "containers_zero": true,
+      "networks_zero": true,
+      "released_at": "2026-10-11T19:40:23.024472+00:00",
+      "no_v_volumes_preserved": true,
+      "PG_role_and_temp": {
+        "low_role_three_false": true,
+        "tempDB": 0
+      }
+    }
+  ],
+  "N01_first_import_field": "0 children/four_imports=false; never claimed pass",
+  "N01_final_import_field": "one actual ASGI same-process four N01 modules; no Worker child",
+  "first_workflow_failure": "bounded readiness/state/jobs; original concrete child trace not captured; extra immutable receipt row lock removed without expanding privileges",
+  "first_N01_failures": [
+    "fixture duplicate shop external key",
+    "absolute count omitted initial technical task"
+  ],
+  "post_PG_only_changes": [
+    "standalone OpenAPI error/security reference closure",
+    "equivalent JSON public authority document-name newline to avoid false positive",
+    "pure schema reference integrity assertion",
+    "Chinese documentation/evidence"
+  ],
+  "pure_targeted": {
+    "workflow_related": 88,
+    "workflow_seconds": 6.41,
+    "N01_and_original_OpenAPI": 51,
+    "N01_seconds": 0.71
+  },
+  "initial_full_check": {
+    "exit": 1,
+    "dir_generic_api_key_false_positives": 2,
+    "index_findings": 0,
+    "reachable_git_findings": 0,
+    "scanner_rules_changed": false
+  },
+  "full_check": {
+    "exit": 0,
+    "offline_passed": 1531,
+    "integration_deselected": 441,
+    "seconds": 93.0,
+    "ruff_files": 384,
+    "mypy_files": 282,
+    "markdown_during_check": 98,
+    "markdown_after_final_docs": 99,
+    "markdown_errors": 0,
+    "Node": "24.21.0",
+    "npm_audit_packages": 42,
+    "npm_vulnerabilities": 0,
+    "Python_audit_packages": 95,
+    "Python_vulnerabilities": 0,
+    "uvlock_packages": 99,
+    "dir_index_full_reachable_scan_findings": [
+      0,
+      0,
+      0
+    ]
+  },
+  "actual_SDK": 0,
+  "actual_Factory": 0,
+  "AppSecret_read": 0,
+  "provider": 0,
+  "human_H_L": "not_reported",
+  "original_A09_start": "2026-10-11T19:03:09+00:00",
+  "original_A09_hard_stop": "2026-10-12T01:03:09+00:00",
+  "wall_cap_hours": 6,
+  "individual_owned_PG_cap_minutes": 30,
+  "same_problem_cap": 3,
+  "main_or_issue_close": false,
+  "C_UI_and_live_SDK_Gates": "pending; do not substitute ASGI/Fake ledger/PG"
+}

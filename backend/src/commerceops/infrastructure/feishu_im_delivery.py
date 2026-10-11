@@ -164,8 +164,15 @@ class IMDeliveryStore:
             await db.execute(
                 """UPDATE business.p4_im_deliveries SET status='unknown',
             last_error='IM_ACK_UNPROVEN' WHERE organization_id=%s
+            AND shop_id=%s AND task_id=ANY(%s) AND verification_mode=%s
             AND status='sending' AND claimed_by<>%s""",
-                (self.session.organization, self.session.owner),
+                (
+                    self.session.organization,
+                    self.gate.shop_id,
+                    list(self.gate.task_ids),
+                    self.gate.verification_mode,
+                    self.session.owner,
+                ),
             )
             cur = await db.execute(
                 """SELECT d.*,p.id AS principal_id,p.auth_version,i.app_id,i.external_subject,
