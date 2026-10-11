@@ -204,7 +204,7 @@ test("approver完整计划无默认确认、指定版本只读、缺缓存解释
   await page.goto(`/tasks/${facts.task}/report?report_id=${facts.report}`);
   await page.getByRole("button", { name: "读取本报告已有解释" }).click();
   await expect(page.getByRole("dialog")).toContainText(
-    "已有解释不可用或尚未就绪",
+    "已有解释尚未就绪 · NOT_READY",
   );
   await expect(page.getByRole("dialog")).toContainText("未调用模型");
   await page.keyboard.press("Escape");

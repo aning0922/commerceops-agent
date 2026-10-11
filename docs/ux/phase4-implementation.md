@@ -57,3 +57,15 @@ PATH="$PWD/../.tools/node/bin:$PATH" npm exec -- playwright test --config ../tes
 新证据在[reviewfix verification](../../frontend/evidence/p4-c1-reviewfix/verification.json)、[33contract](../../frontend/evidence/p4-c1-reviewfix/contract-results.json)、[8UI](../../frontend/evidence/p4-c1-reviewfix/ui-results.json)与[B04回归](../../frontend/evidence/p4-c1-reviewfix/b04-regression/ui-results.json)；原610、P3和历史失败文件字节保留。自有3496与3490已停止且nolisten，资源/stop附证据。C-only无A/Python改动，因此不重复1270 Python全量；旧成功不冒充本修正执行，最终CI仍须重新验证新冻结源。
 
 Root采用唯一A根CI owner接线：在原run_before_cleanup窗口加入同现phase4 config命令。该config now实际收8（原6+新增2），beforeAll自行用锁定SWC/webpack构建，不能删旧6或用本地8替代CI8。增量独审、新精确整批CI和Issue42结案仍pending；源冻结后先Root复审，不改PR body触发重复CI。
+
+## 原 read7 失败安全诊断与 NOT_READY 单断言对齐
+
+Root派发沿原WT/branch/PR45的最小测试增量。旧610真实read段test_exit1、invariants_passedtrue、PG已停/PID0，却failure_category=null：测试进程非零返回只置passed=false，不进入except。旧实际failed节点仍not_captured/unknown，不能根据随后发现的源码问题倒填旧执行轨迹；write/items未跑事实保持。
+
+现有LiveReporter只额外把同一结构化结果独占wx/600写到当前自有private窗口`read-live-results.json`，不保存TestError/stdout/body/steps等。run_live_batches只在失败read且完成原清理后读取该私有文件；先拒绝已有reporter，必须是本次test进程已launch才消费。成功read、write/items既有closed摘要/window字段和公共reporter格式不改，runtime SourceFiles仍原13路径闭集，无第二caller或新framework。
+
+解析仅接受原read7完整固定标题集的唯一子集、原9顶层字段、原4行字段、已知状态/finite安全duration/固定相对location；额外error/body/URL、未知或重复title/JSON键、缺字段、非法数、过大文件、非600/软链/缺reporter均拒绝。安全输出重建固定标题+状态、expected7、reported actual/pass/fail/skip/not_run计数；actual是reporter记录数，skipped单列，不冒称执行通过。缺/非法/非当前reporter的counts/tests是null，不伪造0。只加已登记Git SHA/原13源hash闭集/UTC stop/资源已停bool，不回显private输入/业务ID/URL/token/DOM/console/network或原stdout。受控类别仅read_test_failed/read_test_timed_out/read_test_interrupted/read_tests_incomplete/unknown，表示结果类别，不能推断assertion/fixture具体根因；无法确定保持unknown。
+
+Root另授权同批仅对齐read.spec.ts原一句文案。自核live_seed仅创建P2/P3/来源/计划，未建explanation task/link/result；explanation读取SQL无缓存row时NOT_READY，GET不创建或调用模型。当前UI精确标题“已有解释尚未就绪 · NOT_READY”，旧断言“已有解释不可用或尚未就绪”已不存在于frontend。只将该断言更新为精确新标题，固定task/report、未调用模型、noPOST/仅login writes及原7分母和其余断言保持。这是源码核定的不一致，未证明旧CI实际失败节点。
+
+本批实际纯回归60/60（0.21s），含新诊断闭集/非法title/缺reporter/旧报告拒绝/解析限制与原owner/origins；此前59/59准备批保留。Ruff全项目通过、296文件format、mypy212、锁检查、frontend typecheck/schema22、diff通过；[verification](../../frontend/evidence/p4-read-diagnostic/verification.json)记录实际scope与源码hash。真实read7、本批PG/API/browser/platform/provider均not_run/not_started，没有占A03唯一PG池。原default13+B04Mock8/真实read7-write10-items7/native200、300秒/23min/75cleanup及A产品/共享CI/合同/锁/权限均未改；没有重复1270全Python。小批freeze先独审、暂不push；Root释放后才在新owned窗口完整原7read一次，仍unknown即停止，不自动第二轮。
