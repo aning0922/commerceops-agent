@@ -54,7 +54,11 @@ def collected_nodes(records: list[dict[str, object]]) -> list[str]:
 
 
 def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
-    phase3 = [node for node in nodes if node.split("::", 1)[0].startswith("tests/test_p3")]
+    phase3 = [
+        node
+        for node in nodes
+        if node.split("::", 1)[0].startswith(("tests/test_p3", "tests/test_p4"))
+    ]
     if not phase3:
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)

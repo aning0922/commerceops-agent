@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 import psycopg
 
-from commerceops.application.replenishment.contracts import WebActor, WebFailure
+from commerceops.application.replenishment.contracts import Actor, FeishuActor, WebActor, WebFailure
 from commerceops.application.replenishment.security import (
     csrf_token,
     digest,
@@ -56,11 +56,35 @@ def envelope(db: DB, **fields: Any) -> dict[str, Any]:
     )
 
 
-def actor_guard(db: DB, actor: WebActor) -> dict[str, Any]:
+def actor_guard(db: DB, actor: Actor) -> dict[str, Any]:
     principal = db.execute(
         """SELECT * FROM business.principals WHERE id=%s AND organization_id=%s FOR SHARE""",
         (actor.principal_id, actor.organization_id),
     ).fetchone()
+    if isinstance(actor, FeishuActor):
+        identity = db.execute(
+            """SELECT i.id FROM business.identities i JOIN business.organizations o
+            ON o.id=i.organization_id AND o.feishu_app_id=i.app_id
+            AND o.feishu_tenant_key=i.tenant_key WHERE i.id=%s AND i.organization_id=%s
+            AND i.principal_id=%s AND i.provider='feishu' AND i.app_id=%s
+            AND i.tenant_key=%s AND i.external_subject=%s FOR SHARE OF i""",
+            (
+                actor.identity_id,
+                actor.organization_id,
+                actor.principal_id,
+                actor.app_id,
+                actor.tenant_key,
+                actor.open_id,
+            ),
+        ).fetchone()
+        if (
+            not principal
+            or not principal["enabled"]
+            or principal["auth_version"] != actor.auth_version
+            or not identity
+        ):
+            raise WebFailure("IDENTITY_DENIED", 403)
+        return principal
     session = db.execute(
         """SELECT * FROM business.web_sessions WHERE id=%s AND kind='session' FOR SHARE""",
         (actor.session_id,),
@@ -86,7 +110,7 @@ def actor_guard(db: DB, actor: WebActor) -> dict[str, Any]:
     return principal
 
 
-def role_scope(db: DB, actor: WebActor, shop: UUID, role: str) -> bool:
+def role_scope(db: DB, actor: Actor, shop: UUID, role: str) -> bool:
     actor_guard(db, actor)
     row = db.execute(
         "SELECT business.lock_p3_permission(%s,%s,%s,%s,%s,%s) AS allowed",
