@@ -574,10 +574,27 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
     assert versions["total"] == 1 and versions["current_plan_version"] == 1
     first = f.client.get(f"/api/v1/tasks/{task}/events?limit=1").json()
     assert first["items"][0]["action"] == "workflow_created" and first["next_cursor"]
-    following = f.client.get(
-        f"/api/v1/tasks/{task}/events", params={"limit": 1, "cursor": first["next_cursor"]}
-    ).json()
-    assert following["items"][0]["action"] == "approval_prepared"
+    pages = [first]
+    cursor = first["next_cursor"]
+    # P4正式trace已包含绑定的来源分析audit，仍按同一chronological cursor完整分页。
+    for action, relation in (
+        ("analysis_started", "source"),
+        ("analysis_report_saved", "source"),
+        ("approval_prepared", "task"),
+    ):
+        following = f.client.get(
+            f"/api/v1/tasks/{task}/events", params={"limit": 1, "cursor": cursor}
+        ).json()
+        assert len(following["items"]) == 1
+        event = following["items"][0]
+        assert event["action"] == action and event["relation"] == relation
+        assert event["task_id"] == (created["source_task_id"] if relation == "source" else task)
+        assert event["tool"]["category"] == "deterministic"
+        assert event["tool"]["selected_by_model"] is False
+        pages.append(following)
+        cursor = following["next_cursor"]
+        assert bool(cursor) == (action != "approval_prepared")
+    assert len({page["items"][0]["event_id"] for page in pages}) == 4
     listed = f.client.get("/api/v1/approvals?view=mine").json()
     assert listed["total"] == 1 and listed["counts"]["pending"] == 1 and len(listed["items"]) == 1
     history = f.client.get("/api/v1/approvals?view=history").json()

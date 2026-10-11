@@ -1,0 +1,11 @@
+# P4集成后原P3读取分页契约的真实失败与最小修复
+
+Root核C52 CI38118162669实际checkout1ee0c6d96261e336eac382122cb562f57b142aef/tree76f198e75579e4616a54e5cdfe54733fb6b6ab9f同52a：phase3原14+14审批分区和后7模块通过，test_p3_pg expected34/actual34/callpass33/exit1，唯一失败test_read_config_version_history_events_and_approval_counts；后44not_run（selected136/actual92），cleanup0/stoptrue。此时safeJSON无assertion trace，Root的新增source事件假设不是根因证明。quality继承原A format缺口失败/frontend实际成功/pg-pair拒绝均另记，不能以单job成功算整个Gate。
+
+作者按Root授权只对这个已捕获失败注册新p4read-3a9cd42254b5/P4-READ-WTfd38，自有UTC2026-10-11T06:49:44.076759开始，固定原截止07:19:44.076759/最多两轮；nohostport/noSDK/provider/旧库/旧secret。git archive精确已审e7/treeb9fd COPY封存250 Python manifest，薄Compose WIP不入镜像。0012 migrate/checkpointer/grant/revision各exit0；首轮1collect/0pass/1call failed，command6.831s，完整JUnit/plugin实际保存，stop0/falsePID0/保卷。
+
+首轮已捕获tests/test_p3_pg.py:580具体AssertionError：actual analysis_started，旧expected approval_prepared。已审A03原events读取合同追加当前task绑定source的inventory_analysis audit，时间升序依次workflow_created→analysis_started→analysis_report_saved→approval_prepared；旧测试第二页固定approval_prepared不适配该正式source trace。该断言证据来自本次精确e7实际PG，不替旧972/610未捕获assertion或其他失败定根因。
+
+最小修复只原该测试分页预期+本文：仍第一页workflow_created/cursor，随后每页精确action/relation/task_id（来源两页必须原source_task_id、审批必须原task）、工具deterministic/model未选、4唯一event/cursor完整终止，最后approval_prepared必须出现一次。原config TTL86400/revalidation900、plan history total1/current version1、mine pending total1/count/item1、history0、NOT_READY409和其来源report绑定原字节保留。不改backend/query/权限/cursor/DTO、不删test/skip或宽泛接受任何事件。
+
+新普通冻结/Root独立增审后才能同原07:19截止内最多第二轮完整原test_p3_pg.py当前34，完整JUnit/plugin/hash/image/低rolefalse3/tempDB0/停止和only-owned no-vdown保卷分别记；未知/截止或第二轮失败停止，不第三轮/盲rerun旧CI。精确e7已在先授权下普通push，CI38119133260当时in_progress保持，不取消或拿旧CI替新源。SDK真实auth/bot/table/fields仍0，后续只读资源包disabled，不因本文解除sender或宣布Phase4/M1通过。
