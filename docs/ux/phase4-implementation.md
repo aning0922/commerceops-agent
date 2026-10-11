@@ -31,3 +31,17 @@ PATH="$PWD/../.tools/node/bin:$PATH" npm exec -- playwright test --config ../tes
 现有根frontend CI自动收集新增3契约（通配contracts），但不收集phase4/ui.spec.ts六用例。给A唯一CI owner的最小后build/headless安装增量就是上述最后命令；A保留原24/current-source hash/native200/截止/only-owned全部门槛，增量用例另计，不减少Expect。Web三态真实sync/安全平台trace仅等A审后read DTO/spec，shared内部投影Protocol不能当浏览器API。
 
 原交付8h/P4 50h/D1Oct10/D30Nov8/D13–17及300h保持；人工H/Lnot_reported，Agent墙钟/机器等待另账。原平台/生产/Phase5/新增paid不授权。本包普通提交保存后，Root已明确允许正常merge精确A01+已审Base `545137d014e38ea8ac387139334e92095837dc85`，只做DecisionReceipt可信来源web|feishu的既有生成器同步及严格消费检查；source/扫描/实际最终测试/新PR/独审/精确CI以之后回执为准，不提前标M1通过。
+
+## A01 合后最小兼容与最终回归（2026-10-11）
+
+首包普通提交 `22edbbd8bd15562cb8b7c00a215030e8e14c73bd`/tree `57d15dbc9ac3e0d9ea0faa283c6220121408e2c8` 后，普通无冲突合入上述A545，合并节点 `12fb7f52bdff38e8a25014a64fa9b8d12f2341eb`/tree `e2f58f0de9e36c76fb8ca66cd6e66c1e8b2e850e`，parents为22ed+545；未stash/reset/强推。A精确CI38110473072前端失败的已复现原因是旧生成schema仍将DecisionReceipt.decision_source限定为web。文档与wheel OAS逐字节cmp相同，使用原sync-p3-read-schema与锁定openapi-typescript7.13.0生成，只改变DecisionReceipt来源web→web|feishu（JSON5行/TS4行）。未修改A spec、后端/迁移/共享CI/锁/Compose或阶段文档，不生成猜测的P4浏览器DTO；22操作、session、constfalse及请求白名单保持。
+
+两条新增契约通过真实P3Client/readTransport/verifyReadResponse消费固定内存回执：web与feishu均严格通过；未知/bool来源、缺字段、额外actor、假身份、bool版本、坏hash形状仍WRITE_RESULT_UNKNOWN，不自动重投；客户端附带decision_source/actor/role不进入请求。字段枚举放宽不替代原UI的request_key/task/plan/version/hash/action/假设集合精确匹配，也不赋予Feishu认证或平台执行权限。
+
+合后生产typecheck、局部预览typecheck、22操作schema --check通过；完整契约32/32（3.0s），包含原27+首包3+兼容2，公开结果[contract-results](../../frontend/evidence/p4-c1/contract-results.json)，初批30条结果单独保留。生产build `TO6Hj7zslszJvKlp_AsA4`通过。因合入新source和生成schema，最终只跑一次全六场景：6/6（13.0s），[ui-final](../../frontend/evidence/p4-c1/ui-final.json)及[cached-final-390](../../frontend/evidence/p4-c1/cached-final-390.png)。首轮失败/1+5/5+1与定向1/1原记录继续保留，最终通过不覆盖历史失败。
+
+最终Mock仅headless自有Next PID27554/current UID501/本checkout/3496/build匹配，[resource](../../frontend/evidence/p4-c1/mock-final-resource.json)与[stop](../../frontend/evidence/p4-c1/mock-final-stop.json)记录启动04:23:45Z、停止04:23:54Z；3496实际nolisten。没有真实API/PG/Worker/平台/provider。390px无横向溢出、20SKU缓存依据及null/0语义保留；这里只是C1增量验收，原24Web/native200/真实PG和正式P4/M1总Gate不能外推。
+
+共享frontend CI会自动收集新增共5条契约，但尚未收集六条UI；A唯一owner仍需按上方固定命令接入并保持原24/hash/native200/owned门槛。独立审核、精确CI及Root阶段裁决仍pending；本交付owner不合main。
+
+合后完整`uv run --frozen python -m scripts.check`实际exit0：目录/index/完整可达历史扫描各0、锁一致、80份Markdown错误0、Ruff/format/mypy通过，offline 1270 passed/358 deselected/2既有SDK deprecation warnings（99.83s），Node锁安装/24.21.0工具链/typecheck通过，npm audit0、Python audit95包0漏洞/0跳过。[verification-final](../../frontend/evidence/p4-c1/verification-final.json)保存实际计数、私有原log hash及测试时产品/生成/契约/预览源码byte hash；358未选集成用例不称本地通过。最终提交后的精确SHA由PR与Root交接回执定位，CI/独审不得用此作者自检替代。

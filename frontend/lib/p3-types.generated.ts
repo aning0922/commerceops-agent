@@ -1135,8 +1135,8 @@ export interface components {
             readonly decided_by: string;
             /** Format: date-time */
             readonly decided_at: string;
-            /** @constant */
-            readonly decision_source: "web";
+            /** @enum {string} */
+            readonly decision_source: "web" | "feishu";
             readonly reason_code: "INBOUND_ASSUMPTION_DECLINED" | null;
             /** @enum {string} */
             readonly resume_state: "queued" | "waiting_checkpoint" | "consumed";
