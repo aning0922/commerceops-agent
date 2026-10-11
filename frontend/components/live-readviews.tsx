@@ -11,23 +11,113 @@ import {
 } from "../lib/p3-present";
 import { P3Failure } from "../lib/p3-transport";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
+import { projectionMeaning, syncMeaning } from "../lib/p4-read-facts";
 export const writePending =
   "审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。";
+const verificationLabel = (mode: DTO["SenderGate"]["verification_mode"]) =>
+  mode === "offline_fake"
+    ? "离线 Fake"
+    : mode === "controlled_sdk"
+      ? "受控 SDK"
+      : "未报告";
+const gateReason: Record<DTO["SenderGate"]["reason_code"], string> = {
+  NOT_CONFIGURED: "未配置",
+  DISABLED_BY_CONFIGURATION: "配置禁用",
+  WINDOW_EXPIRED: "受控窗口已过期",
+  WORKER_NOT_READY: "Worker 未就绪",
+  CONTROLLED_WINDOW_ACTIVE: "受控窗口有效",
+};
+export function SenderFacts({
+  gates,
+  externalEnabled,
+}: {
+  gates: readonly DTO["SenderGate"][];
+  externalEnabled: boolean;
+}) {
+  return (
+    <div>
+      <p>
+        真实外部发送资格：
+        {externalEnabled ? "当前启用（按服务端资格）" : "当前禁用"}
+        。资格不等于已经送达，也不授予手动重发权限。
+      </p>
+      {!gates.length && <p>发送器资格尚未报告。</p>}
+      {gates.map((gate, index) => (
+        <div className="notice info" key={`${gate.destination_alias}:${index}`}>
+          <div>
+            <strong>
+              {gate.destination_alias} · {gateReason[gate.reason_code]}
+            </strong>
+            <p>
+              {gate.verification_mode === "offline_fake"
+                ? "Fake 发送资格；不代表真实平台启用"
+                : `发送器资格：${gate.sender_enabled ? "已启用" : "禁用"}`}
+            </p>
+            <p>
+              验证模式：{verificationLabel(gate.verification_mode)} · Worker：
+              {gate.worker_ready === null
+                ? "未报告"
+                : gate.worker_ready
+                  ? "就绪"
+                  : "未就绪"}
+            </p>
+            <small>
+              读取证据时间：{gate.as_of} · reason：{gate.reason_code}
+            </small>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 export function Sync({ sync }: { sync: DTO["SyncRead"] }) {
   return (
     <div>
       <strong>
-        协作同步：{sync.state === "pending" ? "等待同步" : label(sync.state)}
+        协作同步：
+        {sync.state === "synced"
+          ? syncMeaning(sync)
+          : sync.state === "pending"
+            ? "等待同步"
+            : label(sync.state)}
       </strong>
-      <p>
-        sender：{sync.sender_enabled ? "启用" : "禁用"} ·
-        业务状态与同步独立；待同步不表示已写外部平台。
-      </p>
+      <p>业务状态与同步独立；待同步不表示已写外部平台。</p>
+      <SenderFacts
+        gates={sync.sender_gates}
+        externalEnabled={sync.sender_enabled}
+      />
       {sync.projections.map((x) => (
-        <p key={x.aggregate_id}>
-          {x.outbox_status} · projection v{x.projection_version} ·{" "}
-          {x.error_code ?? "无已知错误"} · {x.as_of ?? "时间未知"}
-        </p>
+        <div
+          className="notice info"
+          key={x.outbox_id}
+          data-projection-version={x.projection_version}
+        >
+          <div>
+            <strong>
+              {x.destination_alias} · {projectionMeaning(x)}
+            </strong>
+            <p>
+              投影 v{x.projection_version} · 当前目标 v{x.target_version} ·
+              观察版本{" "}
+              {x.observed_version === null
+                ? "未报告"
+                : `v${x.observed_version}`}
+            </p>
+            <p>
+              完整唯一核实：{x.complete_unique_verified ? "是" : "未核实"} ·{" "}
+              {x.is_current_version ? "当前版本" : "历史版本"} · attempts：
+              {x.attempts}
+            </p>
+            <p>
+              原同步状态：{label(x.state)} · outbox：{x.outbox_status} ·
+              source：{x.source_mode} · 验证模式：
+              {verificationLabel(x.verification_mode)}
+            </p>
+            <small>
+              安全错误码：{x.error_code ?? "未报告"} · 读取证据时间：{x.as_of}
+            </small>
+          </div>
+        </div>
       ))}
     </div>
   );

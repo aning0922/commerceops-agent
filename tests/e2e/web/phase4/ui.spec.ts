@@ -168,6 +168,14 @@ async function open(page: Page, mode = "actual"): Promise<Frame> {
       "data-task-id",
       report.task_id,
     );
+  else if (mode === "c2_events")
+    await expect(frame.locator(".timeline li")).toHaveCount(4);
+  else if (mode === "c2_items")
+    await expect(frame.locator(".list-table article.list-row")).toHaveCount(20);
+  else if (mode === "c2_terminal")
+    await expect(frame.locator("main")).toContainText("终态只读");
+  else if (mode === "c2_admin")
+    await expect(frame.locator("main")).toContainText("脱敏运维摘要");
   else await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
   return frame;
 }
@@ -425,6 +433,151 @@ test("任务详情新草稿撤权即清；卸载后迟到的completed不能复�
   expect(
     await frame.evaluate(() =>
       window.__p4.calls.filter((call) => call.method === "POST"),
+    ),
+  ).toEqual([]);
+});
+
+test("A03旧v1核实不称当前v2；Fake sender无平台启用/外链，390无横向溢出", async ({
+  page,
+}) => {
+  const frame = await open(page, "task_c2_history");
+  await expect(frame.locator("main")).toContainText("当前目标版本尚未核实");
+  await expect(frame.locator("main")).toContainText(
+    "不能证明当前目标 v2 已同步",
+  );
+  await expect(frame.locator("main")).toContainText(
+    "Fake 发送资格；不代表真实平台启用",
+  );
+  await expect(frame.locator("main")).toContainText(
+    "真实外部发送资格：当前禁用",
+  );
+  await expect(frame.locator("a[href^='http']")).toHaveCount(0);
+  await frame.evaluate(() => window.__p4.render("task_c2_current"));
+  await expect(frame.locator("main")).toContainText(
+    "当前版本离线 Fake 核实（非平台回执）",
+  );
+  await expect(frame.locator("[data-projection-version]")).toHaveCount(2);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await frame.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.setViewportSize({ width: 390, height: 4096 });
+  await frame
+    .locator("section.card")
+    .filter({
+      has: frame.getByRole("heading", { name: "协作同步", exact: true }),
+    })
+    .screenshot({ path: resolve(evidence, "c2-sync-390.png") });
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method !== "GET"),
+    ),
+  ).toEqual([]);
+});
+
+test("A03unknown/stale与业务终态分账；20内部项/390完整，terminal无处理入口", async ({
+  page,
+}) => {
+  const frame = await open(page, "task_c2_unknown");
+  await expect(frame.locator("main")).toContainText("协作同步：结果未知");
+  await expect(frame.locator("main")).toContainText("BASE_ACK_UNPROVEN");
+  await expect(frame.locator("main")).toContainText("已完成");
+  await frame.evaluate(() => window.__p4.render("c2_items"));
+  await expect(frame.locator(".list-table article.list-row")).toHaveCount(20);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await frame.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await frame.evaluate(() => window.__p4.render("c2_terminal"));
+  await expect(frame.locator("main")).toContainText("终态只读");
+  await expect(frame.locator("main")).toContainText("BASE_VERSION_STALE");
+  await expect(frame.locator("main")).toContainText("观察版本 v3");
+  await expect(frame.locator('[data-control="B26"]')).toHaveCount(0);
+  await expect(frame.locator('[data-control="B27"]')).toHaveCount(0);
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method !== "GET"),
+    ),
+  ).toEqual([]);
+});
+
+test("A03trace精确source/ref/channel，adapter不冒SDK方法或模型选择；异源拒绝不泄漏", async ({
+  page,
+}) => {
+  const frame = await open(page, "c2_events");
+  await expect(frame.locator(".timeline li")).toHaveCount(4);
+  await expect(frame.locator("main")).toContainText("精确来源任务");
+  await expect(frame.locator("main")).toContainText("渠道：feishu");
+  await expect(frame.locator("main")).toContainText("SDK adapter 操作");
+  await expect(frame.locator("main")).toContainText(
+    "未报告；不能从 adapter 操作推断 SDK 方法次数",
+  );
+  await expect(frame.locator("main")).toContainText("未记录模型动态选择");
+  await expect(frame.locator("main")).toContainText("duration 未报告");
+  await expect(frame.locator('[data-control="B32"]')).toBeDisabled();
+  await expect(frame.locator("a[href^='http']")).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await frame.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.setViewportSize({ width: 390, height: 4096 });
+  await frame
+    .locator("section.card")
+    .filter({
+      has: frame.getByRole("heading", { name: "实际已发生轨迹", exact: true }),
+    })
+    .screenshot({ path: resolve(evidence, "c2-trace-390.png") });
+  await frame.evaluate(() => window.__p4.render("c2_bad_trace"));
+  await expect(frame.locator("main")).toContainText("读取未完成");
+  await expect(frame.locator(".timeline li")).toHaveCount(0);
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method !== "GET"),
+    ),
+  ).toEqual([]);
+});
+
+test("A03currentidentity aliases/键盘与gate理由；admin无业务导航/跨role不拼权限，撤销清旧事实", async ({
+  page,
+}) => {
+  const frame = await open(page, "task_c2_expired");
+  await expect(frame.locator("main")).toContainText("受控窗口已过期");
+  await frame.locator('[data-control="B44"]').focus();
+  await page.keyboard.press("Enter");
+  await expect(frame.locator("dialog")).toContainText(
+    "当前身份关联渠道：web、feishu",
+  );
+  await expect(frame.locator("dialog")).not.toContainText("open_id");
+  await page.keyboard.press("Escape");
+  await expect(frame.locator("dialog")).toHaveCount(0);
+  await frame.evaluate(() => window.__p4.render("task_c2_worker"));
+  await expect(frame.locator("main")).toContainText("Worker 未就绪");
+  await frame.evaluate(() => window.__p4.render("c2_admin"));
+  await expect(frame.locator("main")).toContainText("脱敏运维摘要");
+  await expect(frame.locator('[data-control="B39"]')).toHaveCount(0);
+  await expect(frame.locator('[data-control="B40"]')).toHaveCount(0);
+  await expect(frame.locator('[data-control="B41"]')).toHaveCount(0);
+  await frame.evaluate(() => window.__p4.render("c2_admin_deep"));
+  await expect(frame.locator("main")).toContainText("读取未完成");
+  await expect(frame.locator("[data-task-id]")).toHaveCount(0);
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.path.startsWith("/api/v1/tasks")),
+    ),
+  ).toEqual([]);
+  await frame.evaluate(() => window.__p4.revoke());
+  await expect(frame.locator("main")).toContainText(
+    "身份、业务缓存与预备操作已清除",
+  );
+  expect(
+    await frame.evaluate(() =>
+      window.__p4.calls.filter((call) => call.method !== "GET"),
     ),
   ).toEqual([]);
 });

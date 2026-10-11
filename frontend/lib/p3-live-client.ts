@@ -3,6 +3,7 @@ import addFormats from "ajv-formats";
 import schema from "./p3-read-schema.generated.json";
 import { P3Client } from "./p3-transport";
 import type { FetchTransport } from "./p3-transport";
+import { p4ReadFactsValid } from "./p4-read-facts";
 const ajv = new Ajv2020({
   strict: false,
   allErrors: false,
@@ -46,8 +47,13 @@ export const verifyReadResponse = (
   const operation = operations.find(
     (x) => x.method === method && x.match.test(path),
   );
+  if (
+    !safeNumbers(value) ||
+    operation?.validators.get(status)?.(value) !== true
+  )
+    return false;
   return (
-    safeNumbers(value) && operation?.validators.get(status)?.(value) === true
+    status >= 400 || p4ReadFactsValid(operation.method, operation.path, value)
   );
 };
 export type A01ReadClient = Pick<
