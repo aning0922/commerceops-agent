@@ -3,10 +3,84 @@
 import argparse
 import asyncio
 import json
+import signal
+import subprocess
+import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
 from commerceops.adapters.feishu.business_config import verify_config
+
+
+def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
+    from commerceops.adapters.feishu.business_config import BusinessSettings
+    from commerceops.adapters.feishu.business_factory import private_value
+    from commerceops.adapters.feishu.sdk import restrict_sdk_logs
+    from commerceops.application.feishu_business.gateway_window import GatewayWindow
+
+    restrict_sdk_logs()
+    settings = BusinessSettings.model_validate_json(private_value(config))
+    window = GatewayWindow.model_validate_json(private_value(window_file))
+    if not window.active() or (settings.organization_id, settings.shop_id) != (
+        window.organization_id,
+        window.shop_id,
+    ):
+        raise PermissionError("P4_GATEWAY_WINDOW_CLOSED")
+    remaining = (window.expires_at - datetime.now(UTC)).total_seconds()
+    if remaining <= 10:
+        raise PermissionError("P4_GATEWAY_STOP_RESERVE_REQUIRED")
+    cutoff = time.monotonic() + remaining
+    process = subprocess.Popen(  # noqa: S603 - fixed executable/module, verified file args, no shell
+        [
+            sys.executable,
+            "-m",
+            "commerceops.entrypoints.feishu_gateway_child",
+            "--config",
+            str(config),
+            "--window-file",
+            str(window_file),
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    def stopped(signum: int, frame: object) -> None:
+        raise KeyboardInterrupt
+
+    previous = signal.signal(signal.SIGTERM, stopped)
+    expired = False
+    try:
+        try:
+            process.wait(timeout=max(0.01, cutoff - time.monotonic() - 10))
+        except subprocess.TimeoutExpired:
+            expired = True
+    finally:
+        if process.poll() is None:
+            process.terminate()
+        try:
+            process.wait(timeout=max(0.01, min(5, cutoff - time.monotonic())))
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=max(0.01, min(5, cutoff - time.monotonic())))
+        finally:
+            signal.signal(signal.SIGTERM, previous)
+    return {
+        "result": "window_stopped"
+        if expired
+        else "child_exited"
+        if process.returncode == 0
+        else "failed",
+        "child_exit": process.returncode,
+        "child_reaped": process.poll() is not None,
+        "sdk_start_intent": 1,
+        "ws_endpoint_discovery": "not_verified",
+        "ws_handshake": "not_verified",
+        "ws_received_frames": "not_verified",
+        "ws_ack_frames": "not_verified",
+        "external_sender_enabled": False,
+        "phase4_gate_passed": False,
+    }
 
 
 async def run_preflight(config: Path, window_file: Path) -> dict[str, object]:
@@ -60,7 +134,7 @@ async def run_preflight(config: Path, window_file: Path) -> dict[str, object]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Formal Feishu business configuration")
-    parser.add_argument("action", choices=["verify-config", "preflight"])
+    parser.add_argument("action", choices=["verify-config", "preflight", "gateway"])
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--window-file", type=Path)
     parser.add_argument("--live", action="store_true")
@@ -71,7 +145,11 @@ def main() -> None:
         else:
             if not args.live or args.window_file is None:
                 raise PermissionError("P4_EXPLICIT_PREFLIGHT_REQUIRED")
-            result = asyncio.run(run_preflight(args.config, args.window_file))
+            result = (
+                run_gateway(args.config, args.window_file)
+                if args.action == "gateway"
+                else asyncio.run(run_preflight(args.config, args.window_file))
+            )
         print(json.dumps(result, sort_keys=True))
         if result.get("result") == "failed":
             raise SystemExit(1)

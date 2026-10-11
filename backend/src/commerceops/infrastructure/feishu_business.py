@@ -30,12 +30,14 @@ class FeishuBusinessStore:
         *,
         hook: Callable[[str], None] | None = None,
         allow_live_bindings: bool = False,
+        gateway_guard: Callable[[DB, bool], None] | None = None,
     ):
         self.store, self.shop, self.parameters, self.hook = store, shop_id, parameters, hook
         self.decisions = DecisionStore(store.config)
         if type(allow_live_bindings) is not bool:
             raise ValueError("INVALID_LIVE_BINDING_GATE")
         self.allow_live_bindings = allow_live_bindings
+        self.gateway_guard = gateway_guard
 
     @staticmethod
     def actor(db: DB, identity: PlatformIdentity, chat: str) -> FeishuActor:
@@ -134,6 +136,8 @@ class FeishuBusinessStore:
         )
         with connect(self.store.settings) as db:
             actor = self.actor(db, message.identity, message.chat_id)
+            if self.gateway_guard:
+                self.gateway_guard(db, False)
             old = self._previous(db, actor, message.event_id, semantic, message.message_id)
             if old:
                 return old
@@ -190,6 +194,8 @@ class FeishuBusinessStore:
                     ),
                 )
             else:
+                if self.gateway_guard:
+                    self.gateway_guard(db, True)
                 receipt = self._create_message_task(db, actor, message)
         if self.hook:
             self.hook("after_p4_commit")
@@ -246,6 +252,8 @@ class FeishuBusinessStore:
         )
         with connect(self.store.settings) as db:
             actor = self.actor(db, card.identity, card.chat_id)
+            if self.gateway_guard:
+                self.gateway_guard(db, False)
             old = self._previous(db, actor, card.event_id, semantic, None)
             if old:
                 return old
