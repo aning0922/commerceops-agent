@@ -1,6 +1,8 @@
 # 分阶段路线图与外部配置
 
-当前Phase4导航（2026-10-11）：用户已直接授权Phase4/M1持续开发，阶段#39/A#40/B#41/交付#42；本批仅离线与全新自有PG，无旧secret/env/DB读取、无SDK真实认证/长连接/平台读写/provider调用。已核main基线9d97c19009d932036809ac3e2638bb68f4b7f765、同SHA四CI38093693335 SUCCESS、P3 Issues33–35 CLOSED，权威结案[Issue33#6103315682](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)。A唯一共享合同/迁移/业务/outbox/Worker/Graph/锁/CI/Compose/阶段文档owner，B新模块按Issue41独占；[p4-v1候选](contracts/p4-v1.md)共享d039已由Root独审冻结，主体/真实平台门槛另核，当前P4正式平台Gate not_run，主体离线/PG候选见STATUS44，M1未验收。D1=10-10/D30=11-08/300h、P4固定D13–17/50h=A18+B14+交付8+审核集成10估计分配不重置，人工H/L not_reported。旧P3历史失败、Issue23风险、1057offline/337PG/24Web与资源/设计保留；无Phase5/Woo/生产/扩权/新成员/新增paid/强推/破坏清理。下方旧未授权/pending是历史。
+当前Phase4导航（2026-10-11）：Phase4/M1继续in_progress，main基线9d97c19009d932036809ac3e2638bb68f4b7f765/四CI38093693335 SUCCESS/P3 Issues33–35 CLOSED保持。Root已核read-source06cd2af59c338272ad5a0d117da9f8d7cef62094的四CI38120338660全SUCCESS，完整PG union236+139=375（不等后续source43 CI），权威Issue39#6106924247；source43c40bb955a1ce4ef07704173759983eb8c8f4f5/tree25dde89c392b82b71060b05812f38807fb9bbcf2原Core无P1/P2，A06实际PG1通过。M1实际owned Compose/known Q70/T6/10组持久hash恢复通过，C known只读/20拒绝零项/20完成+单T6通过；第4cycle needs_reapproval/v1已批v2待批/零执行，整体AC08未通过，不补批准或降低版本绑定。最终4workflow/2execution/21items/2070内部units，SDK/platform/provider0；本项目stop/down no-v/资源0/保卷。细节与失败分层见STATUS45及PHASE4_ACCEPTANCE，Issue40#6107403734/#6107433806；source43新精确CI、正式Base/Card/Feishu/human/M1/Phase4结案仍pending。A独占共享后端/锁/CI/Compose/阶段文档，B Base三模块与C frontend/npm/UX原owner不变。UX8项及N01仅Issue42#6107359838待授权排期；Web现结构化，PRD+冻结M02自然语言BC02差异待合同核对，不宣称已实现、不擅移M2或改Gate。D1=10-10/D30=11-08/300h/P4 D13–17/50h估计与人工H/L not_reported、18页冻结、旧失败/unknown/Issue23风险及原资源保持；无Phase5/Woo/生产/扩权/新成员/新paid/强推/破坏清理。下方旧pending与未授权保持历史，不覆盖本导航。
+
+历史Phase4首导航（2026-10-11）：用户已直接授权Phase4/M1持续开发，阶段#39/A#40/B#41/交付#42；本批仅离线与全新自有PG，无旧secret/env/DB读取、无SDK真实认证/长连接/平台读写/provider调用。已核main基线9d97c19009d932036809ac3e2638bb68f4b7f765、同SHA四CI38093693335 SUCCESS、P3 Issues33–35 CLOSED，权威结案[Issue33#6103315682](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)。A唯一共享合同/迁移/业务/outbox/Worker/Graph/锁/CI/Compose/阶段文档owner，B新模块按Issue41独占；[p4-v1候选](contracts/p4-v1.md)共享d039已由Root独审冻结，主体/真实平台门槛另核，当前P4正式平台Gate not_run，主体离线/PG候选见STATUS44，M1未验收。D1=10-10/D30=11-08/300h、P4固定D13–17/50h=A18+B14+交付8+审核集成10估计分配不重置，人工H/L not_reported。旧P3历史失败、Issue23风险、1057offline/337PG/24Web与资源/设计保留；无Phase5/Woo/生产/扩权/新成员/新增paid/强推/破坏清理。下方旧未授权/pending是历史。
 
 当前阶段导航（2026-10-11）：Phase3业务Gate已验收通过，d7独审及合前四CI38089663824 SUCCESS；代码已正常合PR37，已核main代码基线ecbc83f370d7fef87d96fc74549dc13c6f84be9f/tree9d245与同SHA四CI38090933423全SUCCESS，[Root回执](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6102921562)。当前仅四文档收口，独审/最终文档CI/Issue33/34/35关闭由Root结案receipt另记，Issues仍Open；不因此进入Phase4或宣称M1整体通过。证据见[当前验收表](PHASE3_ACCEPTANCE.md#当前业务gate与main回执)/[STATUS43](STATUS.md#43-phase3业务gate与代码main已核)。D1=2026-10-10/D30=2026-11-08、Phase3原D7–D12/60h（A32/B18/Review10）计原300h，日期/预算不重置；Agent墙钟、机器运行/等待分开，人工H/L not_reported、不伪造剩余小时。原目标/Gate与历史失败/风险/设计/平台边界保留。
 
@@ -106,3 +108,9 @@ M1/M2 继续单 Worker、全局单 Graph，M3 默认沿用；API 审批并发仍
 M1/M2/M3 范围及估算作为当前设计基线，Phase 1 探针后重估。后续业务确认事项：实际店铺是否允许未知在途按 0 估算的专用批准动作（若不允许，该类计划全部阻止执行）；真实 L/R/S、在途来源、是否要求职责分离；完成/关闭是否沿用同店铺 approver 权限；模型服务与预算。文档默认值不代表真实业务授权。实际采购/库存写入仍属于新的重大范围与权限评审。
 
 **Phase 0 已归档；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1。后继任务按已审核/验证的集成依赖推进，全部必要 Gate、独立审查与实际 CI 通过后由主控确认最终合入 main；下一 Phase 仍须新授权。真实平台探针仅在具备指定测试资源与有效配置后执行。**
+
+## Phase4当前剩余门槛（2026-10-11实际部分收口）
+
+read-source06cd精确四CI与375PG已由Root核通过，source43的A06现场PG1及owned Compose的known/API/T6/持久恢复提供部分新证据；当前AC08仍未通过，第4cycle needs_reapproval/v2未明确批准、零执行，不改变原版本绑定重批Gate。下一步由Root原owner有界核场景/合同及精确source独审/CI，再开展明确资源包下RO preflight、正式Feishu/Base/Card与真人证据；不把Fake投影23verified当remoteACK或整M1完成。细节见STATUS45/PHASE4_ACCEPTANCE。
+
+UX8项及N01只见Issue42#6107359838待用户授权排期；当前Web结构化与PRD+冻结M02自然语言BC02差异待合同核对，不直接改产品、声称已实现、移至M2或减Gate。Phase4在原300h内的D13–17/50h估计与日期保持，人工H/L未报告；Phase5/Woo/生产/新paid/扩权仍未授权。
