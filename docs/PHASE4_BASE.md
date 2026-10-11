@@ -1,4 +1,11 @@
-# Phase4 B：Base 投影离线首批与共享合同建议
+# Phase4 B：正式共享接口适配与 Base 离线投影
+
+当前导航（2026-10-11）：Root已冻结A共享合同source `d039aa1e1ffc28120afdf546c29a4e910c44a528` / tree `c1915bdf3d33a998621937f7538a0440f04ffbb4`，[精确Review5481721958](https://github.com/aning0922/commerceops-agent/pull/43#pullrequestreview-5481721958)无P1/P2、独立49pure通过。B在首批cb1已提交后，按Root指令普通merge精确d039为 `20ae3fcec534a69563107e06e37b32607d9a318c`（parents cb1+d039），无冲突/历史改写。共享九文件按d039原字节继承，B没有直接编辑A文件。A精确CI38107924795读取时仍in_progress，不从本地merge宣称正式包/PR集成Gate通过。
+
+当前B适配完整批在原分支/原[PR44](https://github.com/aning0922/commerceops-agent/pull/44)：已删除临时ProjectionFields与重复的输入校验；projection_contract显式re-export共享ItemProjection/ProjectionRequest/ProjectionResult/BaseProjectionAdapter、唯一normalize/bind函数。BusinessBaseAdapter实际实现 `async project(request)`，返回前调用唯一binding，所有字段来自共享immutable ItemProjection.fields()，Quantity/SyncVersion为int，终态空值为null，时间带时区文本。下方全text/本地DTO/未获freeze/113–121测试是首批历史，不能覆盖本导航和末尾当前适配表。真实schema/空列省略风险仍not_run，strict15不放宽；PG/SDK真实认证/平台/provider/.env读取仍0。新完整批源码/实际检查由原PR下一freeze绑定，当前独立B增量Review与精确CI待Root核收。
+
+## 首批cb1历史证据（冻结前输入建议与失败原样保留）
+
 
 2026-10-11（Asia/Shanghai）。任务 [P4-B #41](https://github.com/aning0922/commerceops-agent/issues/41)，阶段 [#39](https://github.com/aning0922/commerceops-agent/issues/39)，共享接口 owner [A #40](https://github.com/aning0922/commerceops-agent/issues/40)。本轮用户持续授权优先于旧文档的历史未授权标记。
 
@@ -105,3 +112,33 @@ uv run python -m scripts.scan_secrets
 ```
 
 完整离线回归用 `.tools/node/bin` 前置 PATH、项目Python执行 `pytest -m offline -q`，外层 `subprocess.run(..., timeout=240)` 限单批命令，337真实PG仅deselected。新候选targeted121pass/2.84s，72MD0error/275format/199strictmypy/Ruff/锁检查通过。敏感误报调整后实际 current/index/fullhistory 各0，七新增文件owner精确核对、旧全部tracked文件未改；最终完整离线1178=既有1057+本批121，337integration deselected、两条既有SDK warnings，107.98s/exit0，在240s批上限内；source/tree由原PR冻结回执绑定。未运行全scripts.check中的npm/install/build/audit或本地frontend/PG/Compose，不以这些未跑项标通过。
+
+
+## d039共享合同实际适配批
+
+当前唯一路径是A共享Protocol→BusinessBaseAdapter→锁定官方SDK异步transport。共享normalize要求实际15键严格集合且Quantity/SyncVersion必须int；三个终态列明确null/空文本同义，缺键unknown，不允许宽松推导空。readback直接解析raw JSON，保留null/省略/旧非空值差异。B没有第二份字段DTO/共享binding；A在持久标sent前仍须再次调用唯一binding，并复核当前PG版本/唯一Worker/同表锁。B不能用源DTO构造测试证明PG lineage/T6真实事务。
+
+一次project在入口重验同一共享DTO，按可信target_key从构造时传入的目标别名映射取表，不读配置/env。整个操作用同一≤10s的monotonic绝对截止，含写前扫描、至多一次create或update及写后扫描；两次扫描共用同一max_pages总预算，最多100个实际query＋1个实际write，Root真实窗口总cap另外约束。预扫消耗完预算则不开始写；循环不重置deadline、不自行延期/重试/生成token。异步取消写结果为unknown，不从取消推导未发生写入。
+
+| 共享operation | 实际离线规则/调用次数 |
+|---|---|
+| reconcile | 永远仅query；完整原键零/多/缺键/内容版本不符保持unknown/conflict/stale；只有共享bind核过才能verified |
+| create | 先全扫；同内容同版本已有行直接verified/零写；高版本stale/零写；只有A明确create且完整原键零行才至多create1，然后完整回读。unknown恢复必须另走reconcile，不能将零行重新造行 |
+| update | 必须原external_id；原行更高版本stale/零写，当前完全一致直接verified/零写；较旧完整原行的不可变字段匹配才至多update1，再全扫。缺行/错row/不可变内容不符/缺键不写，不create |
+| ACK丢失 | 本次立即unknown；下一原request/reconcile只读恢复，原token/item/row不变；不隐藏重试或用新adapter实例重置外部幂等 |
+| 429/code | HTTP429或未知code单独不作无写证明；只1254290/1254291具体供应商拒绝合同分类可给write_rejected=true/retryable，A最多3尝试另控；5xx/timeout/ACK/内部错误/未知code仍unknown |
+
+共享bind接收实际observed_fields/observed_version/原record。低于request版本、same-version内容不符、缺字段均unknown；高于目标stale只读；错误record冲突。观察到的row/fields只是结果事实，只有verified可被A恢复external_link/标sent。不会以content_matches布尔或SDK ACK替代binding。
+
+新增test_p4_base_adapter覆盖Protocol实例类型、唯一bind实际调用、create/update全生命周期、open→completed/closed、same/higher版本只读、immutable冲突、缺/多行与空列、SDK异常归一、原键ACK恢复、跨预扫/回读共同页预算、model_copy绕过阻断与target未配置零调用，以及预扫/写/回读三个绝对截止取消边界。全部HTTP/记录存储为Fake；新adapter实例恢复不冒称实际进程/PG重启。
+
+适配首轮实际168pass/2fail/4.11s：两个旧临时测试仍期待内容不符conflict及unknown不带观察record，实际共享合同要求unknown并可保留观察事实。按已审合同修正后170pass/4.11s；完整适配新增全操作用例后A/B199pass/4.78s（A49+B150），7文件strictmypy/Ruff通过。再次扫描在新测试target别名的合成高熵字符串上current1/index0/history0，已经缩短合成alias，没有改规则/allowlist；新完整批最终扫描与全回归另记。
+
+资源边界不变：没有读A未提交源、改共享九文件、第二消费者、PG/SDK真实认证/Base/WS/provider/secret/.env/Docker/browser，也未合远端PR/main或关Issue。首批cb1精确CI38108175771属于旧临时DTO包；不能替当前共享适配源码CI或Root独立增量Review。首批1178offline/历史失败/敏感误报保留，当前新source必须另核完整回归与三scope扫描。
+
+
+### 当前完整批作者验证与独审分层
+
+完整A/B离线回归1256=既有1057+A共享49+B150，337integration deselected、两条既有SDK warnings，105.96s/exit0，在240s单批上限内。最终定向A/B199pass/3.80s、全仓Ruff/282format/203strictmypy/uv锁/75MD0error/diff通过；A九文件与精确d039逐字节相同、B仅8个独占文件有增量，current/index/fullhistory最终暂存与新提交扫描随freeze另核。
+
+首批cb1已有Root发布的[独立Review5481738304](https://github.com/aning0922/commerceops-agent/pull/44#pullrequestreview-5481738304)：121pure/10.59s，Ruff/275format/mypy199/72MD/锁/diff/三扫描通过，锁定SDK transport确认为单次httpx调用无retry，首纯模块无P1/P2。该审核明确只覆盖临时DTO首包，不替代当前d039共享接口/全project操作批；当前新source须Root whole-package增量独审与精确CI。B没有自行安排代替Root的作者审核。

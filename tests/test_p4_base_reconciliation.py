@@ -2,23 +2,37 @@
 
 import asyncio
 from typing import Any
+from uuid import UUID
 
 import pytest
 from commerceops.adapters.feishu import projection_contract as contract
 from commerceops.adapters.feishu.business_base import reconcile as scan
 from commerceops.adapters.feishu.projection_rules import (
-    Readback,
-    ReadbackOutcome,
     WriteOutcome,
-    is_current,
     write_outcome,
 )
 
-from tests.test_p4_base_contract import sample, terminal
+from tests.test_p4_base_contract import request, sample, terminal
 
 
-def reconcile(*args: Any, **kwargs: Any) -> Readback:
-    return asyncio.run(scan(*args, **kwargs))
+def reconcile(
+    transport: contract.RecordTransport,
+    app_token: str,
+    table_id: str,
+    projection: contract.ItemProjection,
+    *,
+    expected_record_id: str | None = None,
+    max_pages: int = 100,
+) -> contract.ProjectionResult:
+    return asyncio.run(
+        scan(
+            transport,
+            app_token,
+            table_id,
+            request(projection, external_id=expected_record_id),
+            max_pages=max_pages,
+        )
+    )
 
 
 pytestmark = pytest.mark.offline
@@ -26,9 +40,9 @@ CURSOR = "page-2"
 
 
 def row(
-    fields: contract.ProjectionFields | None = None, identifier: str = "synthetic-row"
+    fields: contract.ItemProjection | None = None, identifier: str = "synthetic-row"
 ) -> dict[str, Any]:
-    return {"record_id": identifier, "fields": (fields or sample()).as_fields()}
+    return {"record_id": identifier, "fields": (fields or sample()).fields()}
 
 
 def page(items: list[dict[str, Any]], **changes: Any) -> contract.ApiReply:
@@ -50,7 +64,7 @@ class FakeRecords:
         app_token: str,
         table_id: str,
         token: str,
-        fields: contract.ProjectionFields,
+        fields: contract.ItemProjection,
         *,
         deadline: float | None = None,
     ) -> contract.ApiReply:
@@ -78,7 +92,7 @@ class FakeRecords:
         app_token: str,
         table_id: str,
         record_id: str,
-        fields: contract.ProjectionFields,
+        fields: contract.ItemProjection,
         *,
         deadline: float | None = None,
     ) -> contract.ApiReply:
@@ -93,14 +107,14 @@ def test_ack_loss_recovery_uses_full_original_key_and_only_reads() -> None:
     assert write_outcome(asyncio.run(fake.create("test-base", "test-table", token, sample()))) == (
         WriteOutcome.UNKNOWN
     )
-    other = row(sample(CommerceOpsItemID="00000000-0000-4000-8000-000000000099"), "other-row")
+    other = row(sample(item_id=UUID("00000000-0000-4000-8000-000000000099")), "other-row")
     fake.pages = [
         page([other], has_more=True, page_token=CURSOR, total=2),
         page(fake.persisted, total=2),
     ]
     result = reconcile(fake, "test-base", "test-table", sample())
-    assert result.outcome == ReadbackOutcome.MATCHED
-    assert result.record_id == "synthetic-row"
+    assert result.outcome == "verified"
+    assert result.external_id == "synthetic-row"
     assert fake.cursors == [None, "page-2"]
     assert fake.creates == [token] and fake.updates == []
 
@@ -114,34 +128,35 @@ def test_update_ack_loss_restores_only_same_record_and_exact_terminal_version() 
     result = reconcile(
         fake, "test-base", "test-table", terminal(), expected_record_id="synthetic-row"
     )
-    assert result.outcome == ReadbackOutcome.MATCHED
-    assert result.record_id == "synthetic-row"
+    assert result.outcome == "verified"
+    assert result.external_id == "synthetic-row"
     assert fake.creates == [] and fake.updates == ["synthetic-row"]
 
 
 @pytest.mark.parametrize(
     "items,expected",
     [
-        ([], ReadbackOutcome.MISSING),
-        ([row(), row(identifier="duplicate-row")], ReadbackOutcome.CONFLICT),
-        ([row(), row()], ReadbackOutcome.INCOMPLETE),
-        ([row(sample(Quantity="101"))], ReadbackOutcome.CONFLICT),
-        ([row(terminal())], ReadbackOutcome.NEWER),
+        ([], "unknown"),
+        ([row(), row(identifier="duplicate-row")], "conflict"),
+        ([row(), row()], "unknown"),
+        ([row(sample(quantity=101))], "unknown"),
+        ([row(terminal())], "stale"),
     ],
 )
 def test_zero_duplicate_mismatched_or_newer_rows_do_not_restore_external_link(
     items: list[dict[str, Any]],
-    expected: ReadbackOutcome,
+    expected: str,
 ) -> None:
     fake = FakeRecords([page(items)])
     result = reconcile(fake, "test-base", "test-table", sample())
-    assert result.outcome == expected and result.record_id is None
+    assert result.outcome == expected
+    assert result.outcome != "verified"
     assert fake.creates == [] and fake.updates == []
 
 
 def test_old_version_and_wrong_record_id_do_not_restore_update() -> None:
     result = reconcile(FakeRecords([page([row()])]), "test-base", "test-table", terminal())
-    assert result.outcome == ReadbackOutcome.OLDER and result.record_id is None
+    assert result.outcome == "unknown" and not result.content_matches
     result = reconcile(
         FakeRecords([page([row()])]),
         "test-base",
@@ -149,7 +164,7 @@ def test_old_version_and_wrong_record_id_do_not_restore_update() -> None:
         sample(),
         expected_record_id="different-row",
     )
-    assert result.outcome == ReadbackOutcome.CONFLICT and result.record_id is None
+    assert result.outcome == "conflict" and result.external_id is None
 
 
 @pytest.mark.parametrize(
@@ -172,8 +187,8 @@ def test_each_required_missing_field_fails_readback(key: str) -> None:
     item = row()
     del item["fields"][key]
     result = reconcile(FakeRecords([page([item])]), "test-base", "test-table", sample())
-    assert result.outcome == ReadbackOutcome.INCOMPLETE
-    assert result.record_id is None
+    assert result.outcome == "unknown"
+    assert result.external_id is None
 
 
 def test_missing_resolution_fields_are_incomplete_while_explicit_null_is_empty() -> None:
@@ -181,20 +196,18 @@ def test_missing_resolution_fields_are_incomplete_while_explicit_null_is_empty()
     for key in ("ResolvedBy", "ResolvedAt", "ResolutionReason"):
         del item["fields"][key]
     fake = FakeRecords([page([item])])
-    assert (
-        reconcile(fake, "test-base", "test-table", sample()).outcome == ReadbackOutcome.INCOMPLETE
-    )
+    assert reconcile(fake, "test-base", "test-table", sample()).outcome == "unknown"
     item = row()
     for key in ("ResolvedBy", "ResolvedAt", "ResolutionReason"):
         item["fields"][key] = None
     assert reconcile(FakeRecords([page([item])]), "test-base", "test-table", sample()).outcome == (
-        ReadbackOutcome.MATCHED
+        "verified"
     )
     item = row(terminal())
     del item["fields"]["ResolutionReason"]
     assert reconcile(
         FakeRecords([page([item])]), "test-base", "test-table", terminal()
-    ).outcome == (ReadbackOutcome.INCOMPLETE)
+    ).outcome == ("unknown")
 
 
 @pytest.mark.parametrize(
@@ -218,7 +231,7 @@ def test_pagination_or_http_failure_does_not_use_partial_match(
 ) -> None:
     fake = FakeRecords([reply])
     result = reconcile(fake, "test-base", "test-table", sample())
-    assert result.outcome == ReadbackOutcome.INCOMPLETE and result.record_id is None
+    assert result.outcome == "unknown" and result.external_id is None
     assert fake.creates == [] and fake.updates == []
 
 
@@ -242,17 +255,13 @@ def test_match_on_page_one_cannot_mask_later_failure_or_cursor_loop(
         ]
     )
     result = reconcile(fake, "test-base", "test-table", sample())
-    assert result.outcome == ReadbackOutcome.INCOMPLETE and result.record_id is None
+    assert result.outcome == "unknown" and result.external_id is None
     assert len(fake.cursors) == 2
 
 
 def test_limit_exhaustion_is_incomplete_and_stale_snapshot_never_selected_for_write() -> None:
     fake = FakeRecords([page([row()], has_more=True, page_token=CURSOR, total=2)])
-    assert reconcile(fake, "test-base", "test-table", sample(), max_pages=1).outcome == (
-        ReadbackOutcome.INCOMPLETE
-    )
-    assert not is_current(sample(), 2)
-    assert is_current(terminal(), 2)
+    assert reconcile(fake, "test-base", "test-table", sample(), max_pages=1).outcome == ("unknown")
     assert fake.creates == [] and fake.updates == []
 
 
@@ -283,11 +292,11 @@ def test_all_pages_share_one_absolute_deadline_and_query_cancellation_does_not_w
 
     fake = WaitingRecords()
 
-    async def run() -> Readback:
+    async def run() -> contract.ProjectionResult:
         deadline = asyncio.get_running_loop().time() + 0.02
-        return await scan(fake, "test-base", "test-table", sample(), deadline=deadline)
+        return await scan(fake, "test-base", "test-table", request(), deadline=deadline)
 
     result = asyncio.run(run())
-    assert result.outcome == ReadbackOutcome.INCOMPLETE and result.record_id is None
+    assert result.outcome == "unknown" and result.external_id is None
     assert len(fake.deadlines) == 2 and fake.deadlines[0] == fake.deadlines[1]
     assert fake.cancelled and fake.creates == [] and fake.updates == []

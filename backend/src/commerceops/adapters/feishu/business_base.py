@@ -3,6 +3,8 @@
 import asyncio
 import json
 import math
+from collections.abc import Mapping
+from types import MappingProxyType
 from typing import Any
 
 from lark_oapi.api.bitable.v1 import (  # type: ignore[import-untyped]
@@ -15,12 +17,20 @@ from lark_oapi.api.bitable.v1 import (  # type: ignore[import-untyped]
 from commerceops.adapters.feishu.projection_contract import (
     BASE_FIELDS,
     ApiReply,
+    ItemProjection,
     ProjectionContractError,
-    ProjectionFields,
+    ProjectionRequest,
+    ProjectionResult,
     RecordTransport,
+    bind_projection_result,
     canonical_uuid,
 )
-from commerceops.adapters.feishu.projection_rules import Readback, ReadbackOutcome, readback_rows
+from commerceops.adapters.feishu.projection_rules import (
+    WriteOutcome,
+    can_update_older,
+    readback_rows,
+    write_outcome,
+)
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 
 
@@ -61,7 +71,7 @@ class BusinessRecordSDK:
         app_token: str,
         table_id: str,
         token: str,
-        fields: ProjectionFields,
+        fields: ItemProjection,
         *,
         deadline: float | None = None,
     ) -> ApiReply:
@@ -75,12 +85,12 @@ class BusinessRecordSDK:
             .table_id(table_id)
             .client_token(token)
             .ignore_consistency_check(False)
-            .request_body(AppTableRecord.builder().fields(fields.wire_fields()).build())
+            .request_body(AppTableRecord.builder().fields(fields.fields()).build())
             .build()
         )
         # 1.7.3 Encoder 对 model.__dict__ 递归删 None；普通 dict body 保留显式 null。
         # 继续使用官方 request/鉴权/transport，不修改 SDK 或全局 Encoder。
-        request.body = {"fields": fields.wire_fields()}
+        request.body = {"fields": fields.fields()}
         try:
             async with asyncio.timeout_at(deadline):
                 return self._reply(
@@ -126,7 +136,7 @@ class BusinessRecordSDK:
         app_token: str,
         table_id: str,
         record_id: str,
-        fields: ProjectionFields,
+        fields: ItemProjection,
         *,
         deadline: float | None = None,
     ) -> ApiReply:
@@ -141,10 +151,10 @@ class BusinessRecordSDK:
             .table_id(table_id)
             .record_id(record_id)
             .ignore_consistency_check(False)
-            .request_body(AppTableRecord.builder().fields(fields.wire_fields()).build())
+            .request_body(AppTableRecord.builder().fields(fields.fields()).build())
             .build()
         )
-        request.body = {"fields": fields.wire_fields()}
+        request.body = {"fields": fields.fields()}
         try:
             async with asyncio.timeout_at(deadline):
                 return self._reply(
@@ -158,12 +168,11 @@ async def reconcile(
     transport: RecordTransport,
     app_token: str,
     table_id: str,
-    fields: ProjectionFields,
+    request: ProjectionRequest,
     *,
-    expected_record_id: str | None = None,
     max_pages: int = 100,
     deadline: float | None = None,
-) -> Readback:
+) -> ProjectionResult:
     """全表/十五字段扫描完才恢复原键；最多 100 页/10,000 行，无写请求。"""
     if type(max_pages) is not int or not 1 <= max_pages <= 100:
         raise ProjectionContractError()
@@ -174,14 +183,14 @@ async def reconcile(
     total: int | None = None
     for _ in range(max_pages):
         if asyncio.get_running_loop().time() >= deadline:
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         try:
             async with asyncio.timeout_at(deadline):
                 reply = await transport.list(app_token, table_id, cursor, deadline=deadline)
         except Exception:
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         if asyncio.get_running_loop().time() >= deadline:
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         items, more = reply.data.get("items"), reply.data.get("has_more")
         observed_total = reply.data.get("total")
         if (
@@ -195,18 +204,187 @@ async def reconcile(
             or observed_total < 0
             or (total is not None and total != observed_total)
         ):
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         total = observed_total
         rows.extend(items)
         if len(rows) > 10000 or len(rows) > total:
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         if not more:
             if len(rows) != total:
-                return Readback(ReadbackOutcome.INCOMPLETE)
-            return readback_rows(fields, rows, expected_record_id=expected_record_id)
+                return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return readback_rows(request, rows)
         next_cursor = reply.data.get("page_token")
         if type(next_cursor) is not str or not next_cursor or next_cursor in seen:
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         seen.add(next_cursor)
         cursor = next_cursor
-    return Readback(ReadbackOutcome.INCOMPLETE)
+    return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+
+
+class _OperationRecords:
+    """仅本次调用的方法次数上限；不持久化、不重试、不调度。"""
+
+    def __init__(self, transport: RecordTransport, max_pages: int):
+        self.transport, self.max_pages = transport, max_pages
+        self.queries = 0
+        self.writes = 0
+
+    async def list(
+        self,
+        app_token: str,
+        table_id: str,
+        page_token: str | None,
+        *,
+        deadline: float | None = None,
+    ) -> ApiReply:
+        if self.queries >= self.max_pages:
+            return ApiReply(None, None)
+        self.queries += 1
+        return await self.transport.list(app_token, table_id, page_token, deadline=deadline)
+
+    async def create(
+        self,
+        app_token: str,
+        table_id: str,
+        token: str,
+        projection: ItemProjection,
+        *,
+        deadline: float | None = None,
+    ) -> ApiReply:
+        if self.writes:
+            return ApiReply(None, None)
+        self.writes += 1
+        return await self.transport.create(
+            app_token, table_id, token, projection, deadline=deadline
+        )
+
+    async def update(
+        self,
+        app_token: str,
+        table_id: str,
+        record_id: str,
+        projection: ItemProjection,
+        *,
+        deadline: float | None = None,
+    ) -> ApiReply:
+        if self.writes:
+            return ApiReply(None, None)
+        self.writes += 1
+        return await self.transport.update(
+            app_token, table_id, record_id, projection, deadline=deadline
+        )
+
+
+class BusinessBaseAdapter:
+    """A 唯一 Worker 调用的正式共享接口；一次调用，未持有任何 PG 或调度状态。"""
+
+    def __init__(self, transport: RecordTransport, targets: Mapping[str, tuple[str, str]]):
+        if not targets or any(
+            type(key) is not str
+            or not key
+            or type(value) is not tuple
+            or len(value) != 2
+            or any(type(part) is not str or not part for part in value)
+            for key, value in targets.items()
+        ):
+            raise ProjectionContractError()
+        self.transport = transport
+        self.targets = MappingProxyType(dict(targets))
+
+    async def project(self, request: ProjectionRequest) -> ProjectionResult:
+        # 防止 model_copy/model_construct 绕过共享 DTO；不复制该 DTO 的校验规则。
+        try:
+            request = ProjectionRequest.model_validate(request.model_dump())
+        except ValueError:
+            return ProjectionResult(outcome="fatal", code="INVALID_PROJECTION_REQUEST")
+        target = self.targets.get(request.target_key)
+        if target is None:
+            return bind_projection_result(
+                request,
+                ProjectionResult(
+                    outcome="fatal",
+                    code="TARGET_NOT_CONFIGURED",
+                ),
+            )
+        deadline = operation_deadline(
+            asyncio.get_running_loop().time() + float(request.timeout_seconds)
+        )
+        try:
+            async with asyncio.timeout_at(deadline):
+                result = await self._project(request, target, deadline)
+        except Exception:
+            result = ProjectionResult(outcome="unknown", code="BASE_OPERATION_UNKNOWN")
+        return bind_projection_result(request, result)
+
+    async def _project(
+        self,
+        request: ProjectionRequest,
+        target: tuple[str, str],
+        deadline: float,
+    ) -> ProjectionResult:
+        app_token, table_id = target
+        records = _OperationRecords(self.transport, request.max_pages)
+        before = await reconcile(
+            records,
+            app_token,
+            table_id,
+            request,
+            max_pages=request.max_pages,
+            deadline=deadline,
+        )
+        if request.operation == "reconcile" or before.outcome in {"verified", "conflict", "stale"}:
+            return before
+        if request.operation == "create":
+            if not (before.code == "ITEM_MISSING" and before.complete):
+                return before
+        elif not can_update_older(request, before):
+            return before
+        if records.queries >= records.max_pages:
+            return ProjectionResult(outcome="unknown", code="READBACK_BUDGET_EXHAUSTED")
+        if asyncio.get_running_loop().time() >= deadline:
+            return ProjectionResult(outcome="unknown", code="BASE_DEADLINE_EXCEEDED")
+        if request.operation == "create":
+            reply = await records.create(
+                app_token,
+                table_id,
+                str(request.client_token),
+                request.projection,
+                deadline=deadline,
+            )
+        else:
+            if request.external_id is None:
+                return ProjectionResult(outcome="fatal", code="INVALID_PROJECTION_REQUEST")
+            reply = await records.update(
+                app_token, table_id, request.external_id, request.projection, deadline=deadline
+            )
+        if asyncio.get_running_loop().time() >= deadline:
+            return ProjectionResult(outcome="unknown", code="BASE_DEADLINE_EXCEEDED")
+        outcome = write_outcome(reply)
+        if outcome == WriteOutcome.DEFERRED:
+            # 只按具体已知供应商拒绝合同；HTTP429/未知code本身不作无写证明。
+            return ProjectionResult(
+                outcome="retryable",
+                code="BASE_WRITE_REJECTED",
+                write_rejected=True,
+                retry_after_seconds=1,
+            )
+        if outcome == WriteOutcome.REJECTED:
+            return ProjectionResult(outcome="fatal", code="BASE_REQUEST_REJECTED")
+        if outcome == WriteOutcome.CONFLICT:
+            return ProjectionResult(outcome="conflict", code="BASE_TOKEN_CONFLICT")
+        if outcome != WriteOutcome.ACKNOWLEDGED:
+            return ProjectionResult(outcome="unknown", code="BASE_WRITE_UNKNOWN")
+        record_id = reply.data["record"]["record_id"]
+        if request.external_id is not None and record_id != request.external_id:
+            return ProjectionResult(outcome="conflict", code="ACK_RECORD_MISMATCH")
+        result = await reconcile(
+            records,
+            app_token,
+            table_id,
+            request,
+            max_pages=request.max_pages,
+            deadline=deadline,
+        )
+        if result.external_id is not None and result.external_id != record_id:
+            return ProjectionResult(outcome="conflict", code="ACK_RECORD_MISMATCH")
+        return result

@@ -39,7 +39,7 @@ def test_locked_sdk_exact_business_columns_fixed_token_and_null_clearing(
         data = (
             {"items": [], "has_more": False, "total": 0}
             if method == "GET"
-            else {"record": {"record_id": "synthetic-row", "fields": sample().wire_fields()}}
+            else {"record": {"record_id": "synthetic-row", "fields": sample().fields()}}
         )
         return SimpleNamespace(
             status_code=200, headers={}, content=json.dumps({"code": 0, "data": data}).encode()
@@ -73,7 +73,7 @@ def test_locked_sdk_exact_business_columns_fixed_token_and_null_clearing(
     assert "view_id" not in query and "filter" not in query
     assert calls[2]["url"].endswith("/records/synthetic-row")
     assert calls[2]["json"]["fields"]["ResolutionReason"] is None
-    assert calls[3]["json"]["fields"] == terminal().wire_fields()
+    assert calls[3]["json"]["fields"] == terminal().fields()
     assert all(call["timeout"] == 2.0 for call in calls)
 
 

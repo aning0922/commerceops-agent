@@ -1,16 +1,15 @@
 """纯错误/版本/回读策略；没有重试、调度、事务或业务状态修改。"""
 
-from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any
+from typing import Any, cast
 
 from commerceops.adapters.feishu.projection_contract import (
     BASE_FIELDS,
-    EMPTY_FIELDS,
     ApiReply,
-    ProjectionContractError,
-    ProjectionFields,
-    positive_integer,
+    ProjectionRequest,
+    ProjectionResult,
+    bind_projection_result,
+    normalize_projection_fields,
 )
 
 
@@ -61,8 +60,6 @@ def write_outcome(reply: ApiReply) -> WriteOutcome:
         return WriteOutcome.CONFLICT
     if reply.http_status >= 500 or reply.code in {1255040, 1254607, 1254608}:
         return WriteOutcome.UNKNOWN
-    if reply.http_status == 429:
-        return WriteOutcome.DEFERRED if reply.code != 0 else WriteOutcome.UNKNOWN
     if reply.code in {1254290, 1254291} and (
         reply.http_status == 200 or 400 <= reply.http_status < 500
     ):
@@ -79,27 +76,10 @@ def write_outcome(reply: ApiReply) -> WriteOutcome:
     return WriteOutcome.UNKNOWN
 
 
-class ReadbackOutcome(StrEnum):
-    MATCHED = "matched"
-    MISSING = "missing"  # 完整分页零行也不证明 unknown 写未成功。
-    CONFLICT = "conflict"
-    INCOMPLETE = "incomplete"
-    OLDER = "older"
-    NEWER = "newer"
-
-
-@dataclass(frozen=True)
-class Readback:
-    outcome: ReadbackOutcome
-    record_id: str | None = field(default=None, repr=False)
-
-
 def readback_rows(
-    fields: ProjectionFields,
+    request: ProjectionRequest,
     rows: list[dict[str, Any]],
-    *,
-    expected_record_id: str | None = None,
-) -> Readback:
+) -> ProjectionResult:
     """只接受调用方确认完整扫描的行；external_link 只在完全匹配时返回。"""
     matches: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -112,40 +92,80 @@ def readback_rows(
             or type(remote) is not dict
             or type(remote.get("CommerceOpsItemID")) is not str
         ):
-            return Readback(ReadbackOutcome.INCOMPLETE)
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         seen.add(record_id)
-        if remote["CommerceOpsItemID"] == fields.item_id:
+        if remote["CommerceOpsItemID"] == str(request.projection.item_id):
             matches.append(row)
     if not matches:
-        return Readback(ReadbackOutcome.MISSING)
+        return ProjectionResult(outcome="unknown", code="ITEM_MISSING", complete=True)
     if len(matches) != 1:
-        return Readback(ReadbackOutcome.CONFLICT)
+        return ProjectionResult(
+            outcome="conflict", code="DUPLICATE_ITEM", complete=True, matched_count=len(matches)
+        )
     match = matches[0]
-    if expected_record_id is not None and match["record_id"] != expected_record_id:
-        return Readback(ReadbackOutcome.CONFLICT)
+    if request.external_id is not None and match["record_id"] != request.external_id:
+        return ProjectionResult(
+            outcome="conflict", code="EXTERNAL_ID_MISMATCH", complete=True, matched_count=1
+        )
     remote = match["fields"]
     # 公开合同尚未确认空列可省略；缺键与明确 null 分开，不擅自填空。
     if not set(BASE_FIELDS).issubset(remote):
-        return Readback(ReadbackOutcome.INCOMPLETE)
-    normalized = {
-        key: "" if key in EMPTY_FIELDS and remote[key] is None else remote[key]
-        for key in BASE_FIELDS
-    }
+        return ProjectionResult(
+            outcome="unknown", code="INCOMPLETE_READBACK", complete=True, matched_count=1
+        )
     try:
-        remote_version = positive_integer(normalized["SyncVersion"])
-    except ProjectionContractError:
-        return Readback(ReadbackOutcome.CONFLICT)
-    if remote_version > fields.version:
-        return Readback(ReadbackOutcome.NEWER)
-    if remote_version < fields.version:
-        return Readback(ReadbackOutcome.OLDER)
-    if normalized != fields.as_fields():
-        return Readback(ReadbackOutcome.CONFLICT)
-    return Readback(ReadbackOutcome.MATCHED, match["record_id"])
+        normalized = normalize_projection_fields(remote)
+    except ValueError:
+        return ProjectionResult(
+            outcome="unknown", code="INVALID_READBACK", complete=True, matched_count=1
+        )
+    version = cast(int, normalized["SyncVersion"])  # 唯一共享 normalize 已严格校验。
+    facts: dict[str, Any] = {
+        "external_id": match["record_id"],
+        "observed_version": version,
+        "complete": True,
+        "matched_count": 1,
+        "observed_fields": normalized,
+    }
+    if version > request.projection.sync_version:
+        return ProjectionResult(outcome="stale", code="STALE_PROJECTION", **facts)
+    if version < request.projection.sync_version:
+        return ProjectionResult(outcome="unknown", code="READBACK_OLDER", **facts)
+    # 对齐只在共享 binding 内裁决，不复制 version/content 校验器。
+    bound = bind_projection_result(
+        request,
+        ProjectionResult(
+            outcome="verified",
+            code="READBACK_VERIFIED",
+            content_matches=True,
+            **facts,
+        ),
+    )
+    if bound.outcome != "verified":
+        return bound.model_copy(update={"content_matches": False})
+    return bound
 
 
-def is_current(fields: ProjectionFields, current_pg_version: int) -> bool:
-    """A 在持有唯一 Worker/同表锁时提供当前 PG 版本；纯比较不替代该锁。"""
-    if type(current_pg_version) is not int or current_pg_version < 1:
-        raise ProjectionContractError()
-    return fields.version == current_pg_version
+def can_update_older(request: ProjectionRequest, result: ProjectionResult) -> bool:
+    """完整且原 row 的较旧版本，仅不可变列匹配时允许更新为可信 PG 新版本。"""
+    if not (
+        result.outcome == "unknown"
+        and result.code == "READBACK_OLDER"
+        and result.complete
+        and result.matched_count == 1
+        and request.external_id is not None
+        and result.external_id == request.external_id
+        and result.observed_fields is not None
+    ):
+        return False
+    changing = {
+        "BusinessStatus",
+        "ResolutionReason",
+        "ResolvedBy",
+        "ResolvedAt",
+        "SyncVersion",
+        "UpdatedAt",
+    }
+    actual = normalize_projection_fields(result.observed_fields)
+    expected = normalize_projection_fields(request.projection.fields())
+    return all(actual[key] == expected[key] for key in BASE_FIELDS if key not in changing)
