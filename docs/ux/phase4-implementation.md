@@ -203,3 +203,13 @@ N01 现已实现精确 `POST /api/v1/tasks/preflight` 客户端白名单/闭合�
 本段执行窗口为 UTC `2026-10-11T19:03:28Z` 至 `2026-10-12T01:03:28Z`，不自动延长；同源运行上限 3 次，测试资源单次不超过 30 分钟。新增 paid/provider 调用 0、平台业务写 0、真实 SDK 关闭；D1/D30/300h 与原 P4 50h 不重置，人工 H/L `not_reported`。
 
 完整 `uv run --frozen python -m scripts.check` 实际 exit0：当前/index/完整历史敏感扫描各0，锁一致，99份Markdown错误0、Ruff/format/mypy（284 source files）通过，offline1531 passed / integration441 deselected（92.47s），4条warning为既有SDK deprecation及终止测试fork警告，不报成新增SDK调用；Node24.21.0锁安装/typecheck通过，npm漏洞0、Python95包漏洞0/跳过0。441未选集成不称本地通过。集中结果与测试/代码哈希见 `frontend/evidence/p4-c09/verification.safe.json`，私有完整日志hash保留；文档最终与待提交新文件敏感扫描在commit前另核。候选冻结后停push，交Root安排原Web独审，真实Gate/精确CI/main仍待裁决。
+
+### C09 原 Web P1 的 scalar span 修正候选
+
+原 Web 对精确 `0fd4a10820e9d42614ee315d11733a56cb2891c4` 正式独审发现唯一 P1：`n01MatchesInput` 只限制 shop/fixture/end，未证明明确参数的 span 对应原句中的 name/value；契约测试的 ready 样例误用 full-token span。没有其他独立 P1/P2，但原 source 不能集成，原85项离线/Fake成功和实际6项not_run不解除P1，全部保留。
+
+Root已核真实服务端 `_explicit_lrs_spans`，派回C-only最小修正：使用code-point array核safe integer索引、start>=2及完整bounds，`slice(start,end)===String(value)`，start前紧邻两字符须为对应`NAME=`或`NAME:`；end后不得仍为ASCII数字，防止把`L=33`截成首位3。只验证服务端返回的有限标量绑定，不增加前端全句NLP、猜参或修改A文法。契约ready的真实scalar偏移为L7..8/R11..12/S15..16；UI `n01.fixture.json` 原本正确，逐case对照冻结Python pure输出，原字节不改。
+
+新增负例包括范围内错误span/value/nameprefix、full-token、UTF16偏移及截短多位数字；新增Unicode空白/0085/天/冒号正例逐项由真实Python输出核准，多位L33的7..9/R12..13/S16..17亦核准。emoji只证明code-point scalar单元边界，不宣称服务端支持含emoji的自然语言原句。shape合法但name绑定错误的响应经实际P3Client离线transport拒绝；页面禁止进入B35/B01，不发创建。
+
+本修正实际执行完整contract **49/49 passed，3.4s** 和P4页面 **20/20 passed，33.9s**；所有旧contract/P4分母保留。证据独立写入 `frontend/evidence/p4-c09-reviewfix/`，不覆盖原0fd/85证据。产品与P4 typecheck、新生产build、schema原22+独立N01 check均通过；3496自有Mock按固定30min期限启动/结束，native退出1无监听。A/backend/共享DTO/锁/根CI、六旧untracked、原a266与原文法不改，未重启PG/Docker网络/SDK/provider。B04/B01产品路径未改，本批不重复其原8/13；Python1531/441是原0fd完整检查，不冒本修正重跑。实际6PW/API import/Create pair仍not_run，旧三轮暂停不变；新精确冻结停push，P1解除以原Web复审和Root核定为准。

@@ -310,7 +310,14 @@ export function fixtureClient(
           return failure("INVALID_REQUEST", 422);
         if (mode === "n01_late")
           await new Promise<void>((resolve) => { hold.release = resolve; });
-        return response({ ...offlineEnvelope, preflight: sample.result });
+        const result = structuredClone(sample.result);
+        if (mode === "n01_badspan" && result.draft) {
+          result.candidates[0].value = 7;
+          result.candidates[0].start = 11;
+          result.candidates[0].end = 12;
+          result.draft.L = 7;
+        }
+        return response({ ...offlineEnvelope, preflight: result });
       }
       if (url.pathname === "/api/v1/tasks" && init.method === "POST") {
         const input = JSON.parse(String(init.body));

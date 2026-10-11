@@ -16,7 +16,7 @@ import type {} from "./test-control";
 const root = resolve(__dirname, "../../../..");
 const evidence = resolve(
   root,
-  `frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09" : "p4-c1"}`,
+  `frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09-reviewfix" ? "p4-c09-reviewfix" : process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09" : "p4-c1"}`,
 );
 let owned: {
   pid: number;
@@ -753,4 +753,14 @@ test("C09 N01迟到解析不能覆盖修改原句或撤权后的旧草稿", asyn
   await frame.evaluate(() => { window.__p4.revoke(); window.__p4.release(); });
   await expect(frame.getByRole("main")).toContainText("身份、业务缓存与预备操作已清除");
   await expect(frame.getByRole("dialog")).toHaveCount(0);
+});
+test("C09 P1 shape合法/范围内异name scalar拒绝进入确认，不发创建", async ({ page }) => {
+  const frame = await open(page, "task_n01_badspan");
+  await natural(frame, "分析库存 L=3 R=7 S=2");
+  await frame.getByRole("button", { name: "检查草稿与参数", exact: true }).click();
+  await expect(frame.getByRole("dialog")).toContainText("暂时无法安全读取服务响应");
+  await expect(frame.getByRole("heading", { name: "草稿参数与来源", exact: true })).toHaveCount(0);
+  await expect(frame.locator('[data-control="B35"]')).toBeDisabled();
+  await expect(frame.locator('dialog [data-control="B01"]')).toBeDisabled();
+  expect(await frame.evaluate(() => window.__p4.calls.filter((c) => c.path === "/api/v1/tasks" && c.method === "POST"))).toEqual([]);
 });

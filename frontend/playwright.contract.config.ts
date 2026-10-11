@@ -11,7 +11,9 @@ export default defineConfig({
       "json",
       {
         outputFile:
-          process.env.COMMERCEOPS_WEB_BATCH === "p4-c09"
+          process.env.COMMERCEOPS_WEB_BATCH === "p4-c09-reviewfix"
+            ? "evidence/p4-c09-reviewfix/contract-results.json"
+            : process.env.COMMERCEOPS_WEB_BATCH === "p4-c09"
             ? "evidence/p4-c09/contract-results.json"
             : "evidence/b04-wiring/contract-results.json",
       },

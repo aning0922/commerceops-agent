@@ -100,10 +100,15 @@ export function validN01Response(status: number, value: unknown): boolean {
 // Bound the response to this exact draft. Indices are Python Unicode code points,
 // so use Array.from instead of JavaScript UTF-16 offsets for the visible source.
 export function n01MatchesInput(read: N01Response, input: N01Input): boolean {
+  const points = [...input.text];
   return read.preflight.shop_id === input.shop_id &&
     read.preflight.source.fixture_case === input.fixture_case &&
     read.preflight.candidates.every((c) => c.source !== "explicit_text" ||
-      (c.start !== null && c.end !== null && c.end <= [...input.text].length));
+      (c.start !== null && c.end !== null && Number.isSafeInteger(c.start) &&
+        Number.isSafeInteger(c.end) && c.start >= 2 && c.end > c.start &&
+        c.end <= points.length && points.slice(c.start, c.end).join("") === String(c.value) &&
+        !(points[c.end] >= "0" && points[c.end] <= "9") &&
+        [c.name + "=", c.name + ":"].includes(points.slice(c.start - 2, c.start).join(""))));
 }
 export function n01CandidateText(text: string, candidate: N01Response["preflight"]["candidates"][number]): string | null {
   return candidate.source === "explicit_text" && candidate.start !== null && candidate.end !== null
