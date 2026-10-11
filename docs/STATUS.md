@@ -720,3 +720,9 @@ Phase3正式结案main9d97c19009d932036809ac3e2638bb68f4b7f765/同SHA四CI380936
 P4-A新独立WTfd38，初始工作区干净、detached HEAD精确9d97，普通创建codex/phase4-feishu。Docker client/server29.6.2已连通，uv按原锁安装项目依赖并下载固定Node24.21/Gitleaks8.30.1到本WT.tools；无全局环境修改、旧secret/env/DB读取或平台认证。共享[p4-v1候选](contracts/p4-v1.md)与strict DTO/Protocol位于application/feishu_business/contracts.py；Root独审后才跨线冻结，B专属路径不写。
 
 首批合同Gate与实际命令结果以原PR/冻结source回执另记，不预填未来SHA/CI。P4实际PG/真人Feishu/Base/Web/性能/cleanCompose仍not_run，M1未验收；本批继续离线及全新自有PG切片，无真实平台调用。预算/人时/旧失败及资源边界以上方导航为准。
+
+合同首候选d75ec5abcf734bf136b6ed667fbe5fb293e2301f/26offline已提交PR43，首独审[5481706893](https://github.com/aning0922/commerceops-agent/pull/43#pullrequestreview-5481706893)指出P1：ProjectionResult缺唯一request/result版本及内容绑定；26独立离线/type/73MD/三scope0不抵阻断。首CI[38107482765](https://github.com/aning0922/commerceops-agent/actions/runs/38107482765)仅绑定d75，结果以Root回执核，不由当前WIP或未来CI覆盖。f507f5deb8523e51f395c1821d3b3980d6405380补明确null清空，仍未冻结跨线接口。
+
+Root已独审交付文档5ff1e1db58093fd201fa348e2d59d0cbca3153ed无P1/P2并授权普通合入；A在f507正常merge成6c2271ef02fbea23323d4f4f013362fc004c3fe9（parents f507+5ff），仅增加[PHASE4_M1_DELIVERY](PHASE4_M1_DELIVERY.md)，无冲突/原文档字节保持。当前共享绑定校验最小修复49offline/0.05s通过，Root复审及精确新CI尚待；其他A身份/SDK/PG主体WIP不混合同修复冻结。
+
+Root裁决40例/95%/provider三轮属Phase6/M3，M1复用P2actual1轨迹及降级证据，不变prompt/model/路由、不新调用。必要新性能冻结100受控入站/20完整baseline离线分析/恢复扫描≤30s，未跑不标通过；原TEST_PLAN/预算/历史不删除。

@@ -126,6 +126,7 @@ class ProjectionResult(Contract):
     complete: bool = False
     matched_count: int = Field(default=0, ge=0)
     content_matches: bool = False
+    observed_fields: dict[str, str | int | None] | None = None
 
     @model_validator(mode="after")
     def verified_requires_readback(self) -> "ProjectionResult":
@@ -144,7 +145,54 @@ class ProjectionResult(Contract):
         return self
 
 
+NULLABLE_BASE_FIELDS = frozenset({"ResolutionReason", "ResolvedBy", "ResolvedAt"})
+
+
+def normalize_projection_fields(fields: dict[str, str | int | None]) -> dict[str, str | int | None]:
+    """唯一比较规范：必须全15键；仅三个终态null/空文本同义。"""
+    if set(fields) != set(BASE_FIELDS):
+        raise ValueError("INCOMPLETE_PROJECTION_READBACK")
+    result = dict(fields)
+    for name, value in fields.items():
+        if name in NULLABLE_BASE_FIELDS:
+            if value in (None, ""):
+                result[name] = None
+            elif type(value) is not str:
+                raise ValueError("INVALID_PROJECTION_READBACK")
+        elif name in {"Quantity", "SyncVersion"}:
+            if type(value) is not int or value < 1:
+                raise ValueError("INVALID_PROJECTION_READBACK")
+        elif type(value) is not str or not value:
+            raise ValueError("INVALID_PROJECTION_READBACK")
+    return result
+
+
+def bind_projection_result(
+    request: ProjectionRequest, result: ProjectionResult
+) -> ProjectionResult:
+    """A/B共用唯一绑定；失败降为unknown/conflict/stale，不凭content_matches批准。"""
+    body = result.model_dump()
+    if result.outcome != "verified":
+        return result
+    if request.external_id is not None and result.external_id != request.external_id:
+        return ProjectionResult(**(body | {"outcome": "conflict", "code": "EXTERNAL_ID_MISMATCH"}))
+    if (
+        result.observed_version is not None
+        and result.observed_version > request.projection.sync_version
+    ):
+        return ProjectionResult(**(body | {"outcome": "stale", "code": "STALE_PROJECTION"}))
+    try:
+        actual = normalize_projection_fields(result.observed_fields or {})
+        expected = normalize_projection_fields(request.projection.fields())
+    except ValueError:
+        actual, expected = {}, request.projection.fields()
+    if result.observed_version != request.projection.sync_version or actual != expected:
+        return ProjectionResult(**(body | {"outcome": "unknown", "code": "READBACK_MISMATCH"}))
+    return result
+
+
 class BaseProjectionAdapter(Protocol):
     """B只执行一次有界transport操作/完整读回；A唯一Worker协调调用。"""
 
+    # B返回前与A持久映射前都调用bind_projection_result；不能复制/放宽规则。
     async def project(self, request: ProjectionRequest) -> ProjectionResult: ...

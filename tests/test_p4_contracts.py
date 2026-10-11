@@ -143,3 +143,101 @@ def test_retryable_requires_evidence_of_explicit_no_write() -> None:
         write_rejected=True,
     )
     assert result.write_rejected
+
+
+def projection_pair() -> tuple[ProjectionRequest, ProjectionResult]:
+    request = ProjectionRequest(
+        outbox_id=uuid4(),
+        organization_id=uuid4(),
+        shop_id=uuid4(),
+        target_key="m1-test",
+        operation="update",
+        client_token=uuid4(),
+        external_id="original-record",
+        projection=item(sync_version=2),
+    )
+    result = ProjectionResult(
+        outcome="verified",
+        code="READBACK_MATCH",
+        external_id="original-record",
+        observed_version=2,
+        complete=True,
+        matched_count=1,
+        content_matches=True,
+        observed_fields=request.projection.fields(),
+    )
+    return request, result
+
+
+def test_single_request_result_binding_accepts_exact_version_content_and_record() -> None:
+    from commerceops.application.feishu_business.contracts import bind_projection_result
+
+    request, result = projection_pair()
+    assert bind_projection_result(request, result).outcome == "verified"
+
+
+@pytest.mark.parametrize("version,expected", [(1, "unknown"), (3, "stale")])
+def test_bound_readback_old_is_unknown_and_newer_is_stale(version: int, expected: str) -> None:
+    from commerceops.application.feishu_business.contracts import bind_projection_result
+
+    request, result = projection_pair()
+    assert result.observed_fields
+    reply = result.model_copy(
+        update={
+            "observed_version": version,
+            "observed_fields": result.observed_fields | {"SyncVersion": version},
+        }
+    )
+    assert bind_projection_result(request, reply).outcome == expected
+
+
+@pytest.mark.parametrize("field", list(BASE_FIELDS))
+def test_any_missing_key_including_nullable_is_not_verified(field: str) -> None:
+    from commerceops.application.feishu_business.contracts import bind_projection_result
+
+    request, result = projection_pair()
+    assert result.observed_fields
+    incomplete = {name: value for name, value in result.observed_fields.items() if name != field}
+    assert (
+        bind_projection_result(
+            request, result.model_copy(update={"observed_fields": incomplete})
+        ).outcome
+        == "unknown"
+    )
+
+
+@pytest.mark.parametrize("field", ["ResolutionReason", "ResolvedBy", "ResolvedAt"])
+def test_empty_nullable_is_explicitly_normalized_but_old_nonempty_is_rejected(field: str) -> None:
+    from commerceops.application.feishu_business.contracts import bind_projection_result
+
+    request, result = projection_pair()
+    assert result.observed_fields
+    blank = result.model_copy(update={"observed_fields": result.observed_fields | {field: ""}})
+    stale_value = result.model_copy(
+        update={"observed_fields": result.observed_fields | {field: "previous-value"}}
+    )
+    assert bind_projection_result(request, blank).outcome == "verified"
+    assert bind_projection_result(request, stale_value).outcome == "unknown"
+
+
+def test_mismatched_external_id_does_not_rebind_original_row() -> None:
+    from commerceops.application.feishu_business.contracts import bind_projection_result
+
+    request, result = projection_pair()
+    reply = result.model_copy(update={"external_id": "another-record"})
+    assert bind_projection_result(request, reply).outcome == "conflict"
+
+
+def test_nonnullable_null_and_quantity_tampering_fail_binding() -> None:
+    from commerceops.application.feishu_business.contracts import bind_projection_result
+
+    request, result = projection_pair()
+    assert result.observed_fields
+    for fields in (
+        {"SKU": None},
+        {"Quantity": 99},
+        {"SyncVersion": 1},
+        {"CommerceOpsItemID": str(uuid4())},
+    ):
+        reply = result.model_copy(update={"observed_fields": result.observed_fields | fields})
+        assert bind_projection_result(request, reply).outcome == "unknown"
