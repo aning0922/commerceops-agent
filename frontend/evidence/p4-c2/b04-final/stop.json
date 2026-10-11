@@ -1,0 +1,6 @@
+{
+  "port": 3490,
+  "listener_count": 0,
+  "lsof_exit": 1,
+  "result": "8passed/27.1s; owned fixture stopped"
+}

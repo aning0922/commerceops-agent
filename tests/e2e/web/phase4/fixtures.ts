@@ -6,7 +6,11 @@ import {
   offlineId,
   offlineTask,
   offlineSession,
+  offlineItemList,
+  offlineItem,
+  offlineReceipt,
 } from "../../../../frontend/lib/b04-offline-source";
+import { readGates, readSync, readEvents } from "./read-fixtures";
 import { P3Client } from "../../../../frontend/lib/p3-transport";
 import {
   readTransport,
@@ -139,28 +143,44 @@ export function fixtureClient(
           ...base,
           principal: {
             ...base.principal,
+            linked_channels: mode.startsWith("c2_")
+              ? ["web", "feishu"]
+              : base.principal.linked_channels,
             role_shop_grants:
-              mode === "other_shop" || mode === "multi_shop"
-                ? [
-                    { role: "operator", shop_id: offlineId(303) },
-                    {
-                      role: mode === "other_shop" ? "approver" : "operator",
-                      shop_id: offlineId(101),
-                    },
-                  ]
-                : [
-                    {
-                      role: noRole ? "approver" : "operator",
-                      shop_id: offlineId(101),
-                    },
-                  ],
+              mode === "c2_admin" || mode === "c2_admin_deep"
+                ? [{ role: "admin", shop_id: offlineId(101) }]
+                : mode === "other_shop" || mode === "multi_shop"
+                  ? [
+                      { role: "operator", shop_id: offlineId(303) },
+                      {
+                        role: mode === "other_shop" ? "approver" : "operator",
+                        shop_id: offlineId(101),
+                      },
+                    ]
+                  : [
+                      {
+                        role: noRole ? "approver" : "operator",
+                        shop_id: offlineId(101),
+                      },
+                    ],
             capabilities: {
               ...base.principal.capabilities,
-              can_create_task: !noRole,
+              can_create_task:
+                !noRole && mode !== "c2_admin" && mode !== "c2_admin_deep",
+              can_read_tasks: mode !== "c2_admin" && mode !== "c2_admin_deep",
+              can_read_operations:
+                mode === "c2_admin" || mode === "c2_admin_deep",
+              home_path:
+                mode === "c2_admin" || mode === "c2_admin_deep"
+                  ? "/admin/operations"
+                  : base.principal.capabilities.home_path,
               can_read_approvals: false,
               can_resolve_items: false,
             },
           },
+          config: mode.startsWith("c2_")
+            ? { ...base.config, sender_gates: readGates(mode) }
+            : base.config,
         });
       }
       if (url.pathname === `/api/v1/tasks/${report.task_id}`) {
@@ -169,6 +189,8 @@ export function fixtureClient(
             hold.release = resolve;
           });
         let value = task();
+        if (mode.startsWith("c2_"))
+          value = { ...value, task: { ...value.task, sync: readSync(mode) } };
         if (mode === "pending")
           value = {
             ...value,
@@ -182,6 +204,8 @@ export function fixtureClient(
         return response(value);
       }
       if (url.pathname.endsWith("/report")) return response(report);
+      if (url.pathname.endsWith("/events"))
+        return response(readEvents(task(), mode));
       if (url.pathname.endsWith("/plans"))
         return response({
           ...offlineEnvelope,
@@ -195,9 +219,63 @@ export function fixtureClient(
         return response({
           ...offlineEnvelope,
           shop_id: offlineId(101),
-          config: offlineSession().config,
+          config: mode.startsWith("c2_")
+            ? { ...offlineSession().config, sender_gates: readGates(mode) }
+            : offlineSession().config,
         });
+      if (url.pathname === "/api/v1/admin/operations")
+        return response({
+          ...offlineEnvelope,
+          config_version: "c2-fake",
+          transport_mode: "local_http",
+          worker_state: "unknown",
+          graph_concurrency_limit: 1,
+          external_sender_enabled: false,
+          recovery_scan_seconds: 10,
+          approval_ttl_seconds: 1800,
+          revalidation_max_age_seconds: 450,
+          sender_gates: readGates(mode),
+        });
+      if (url.pathname === "/api/v1/replenishment-items") {
+        const list = offlineItemList();
+        return response({
+          ...list,
+          items: list.items.map((item) => ({
+            ...item,
+            sync: {
+              ...readSync("c2_unknown"),
+              projections: readSync("c2_unknown").projections.map(
+                (projection, index) => ({
+                  ...projection,
+                  aggregate_id: item.item_id,
+                  outbox_id: offlineId(
+                    1000 + Number.parseInt(item.item_id.slice(-12), 16) + index,
+                  ),
+                }),
+              ),
+            },
+          })),
+        });
+      }
+      if (url.pathname === `/api/v1/replenishment-items/${offlineId(1)}`) {
+        const item = offlineItem(),
+          receipt = offlineReceipt(item, {
+            schema_version: "p3-web-v1",
+            request_key: offlineId(901),
+            action: "close",
+            reason: "明确离线终态示例",
+            expected_version: 1,
+          });
+        return response({
+          ...item,
+          item: { ...receipt.item, sync: readSync("c2_stale") },
+          resolution: receipt.resolution,
+          can_resolve: false,
+          disabled_reasons: ["ITEM_TERMINAL"],
+        });
+      }
       if (url.pathname.endsWith("/explanation")) {
+        if (mode.startsWith("c2_")) return failure("NOT_READY", 409);
         if (mode === "delayed")
           await new Promise<void>((resolve) => {
             hold.release = resolve;

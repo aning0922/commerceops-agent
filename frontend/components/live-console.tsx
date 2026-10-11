@@ -16,6 +16,7 @@ import {
   newCycleEligibility,
 } from "../lib/p3-present";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
+import { eventsBound, syncMeaning } from "../lib/p4-read-facts";
 import {
   LiveReport,
   PlanDetails,
@@ -23,6 +24,7 @@ import {
   Sync,
   VersionList,
   writePending,
+  SenderFacts,
 } from "./live-readviews";
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
@@ -46,6 +48,7 @@ type PageData =
       kind: "events";
       read: DTO["EventsRead"];
       taskId: string;
+      task: DTO["TaskRead"];
       execution: DTO["ExecutionRead"] | null;
     }
   | { kind: "receipt"; read: DTO["RequestRead"] }
@@ -289,6 +292,7 @@ export function LiveConsole({
             kind: "events",
             read: await client!.events(id, { limit: 20, cursor }),
             taskId: id,
+            task,
             execution,
           };
         else if (section === "plans" && !version)
@@ -340,6 +344,8 @@ export function LiveConsole({
         page = { kind: "receipt", read: receipt };
       } else throw new P3Failure("RESOURCE_NOT_FOUND");
       const currentConfig = shop ? await client!.config(shop) : null;
+      if (page.kind === "events" && !eventsBound(page.read, page.task))
+        throw new P3Failure("INVALID_RESPONSE");
       if (currentConfig && currentConfig.shop_id !== shop)
         throw new P3Failure("INVALID_RESPONSE");
       if (accept()) {
@@ -766,7 +772,7 @@ export function LiveConsole({
                           </div>
                           <Status value={label(x.state)} />
                           <span>{localTime(x.updated_at, zone)}</span>
-                          <span>同步：{label(x.sync.state)}</span>
+                          <span>同步：{syncMeaning(x.sync)}</span>
                           <a
                             className="button"
                             data-control="B13"
@@ -1049,10 +1055,62 @@ export function LiveConsole({
                           <small>
                             {localTime(x.occurred_at, zone)} · step{" "}
                             {x.step ?? "未知"} · duration{" "}
-                            {x.duration_ms ?? "未知"}ms
+                            {x.duration_ms === null
+                              ? "未报告"
+                              : `${x.duration_ms}ms`}
                           </small>
                           <p>{x.safe_summary}</p>
                           <p>result_ref：{x.result_ref ?? "无"}</p>
+                          <p>
+                            记录关联 trace：{x.record_trace_id} ·{" "}
+                            {x.relation === "source"
+                              ? "精确来源任务"
+                              : "当前任务"}{" "}
+                            · 渠道：{x.channel}
+                          </p>
+                          <p>
+                            安全引用：
+                            {x.references
+                              .map((ref) => `${ref.kind} ${ref.id}`)
+                              .join("；") || "未报告"}
+                          </p>
+                          {x.tool ? (
+                            <div>
+                              <p>
+                                工具事实：
+                                {
+                                  (
+                                    {
+                                      deterministic: "确定性业务工具",
+                                      sdk_adapter: "SDK adapter 操作",
+                                      commerce_query: "电商查询",
+                                      sdk_method: "已记录 SDK 方法",
+                                      model: "模型事实",
+                                    } as const
+                                  )[x.tool.category]
+                                }{" "}
+                                · {x.tool.name}
+                              </p>
+                              <p>
+                                {x.tool.selected_by_model
+                                  ? "记录明确声明由模型选择"
+                                  : "未记录模型动态选择"}{" "}
+                                · 验证模式：
+                                {x.tool.verification_mode ?? "未报告"}
+                              </p>
+                              {(x.tool.category === "sdk_adapter" ||
+                                x.tool.category === "sdk_method") && (
+                                <p>
+                                  具体 SDK 方法：
+                                  {x.tool.sdk_method ??
+                                    "未报告；不能从 adapter 操作推断 SDK 方法次数"}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p>工具事实未报告，不从 trace 构造工具链。</p>
+                          )}
+                          {x.safe_code && <p>安全状态码：{x.safe_code}</p>}
                           {x.recovery && (
                             <p>
                               恢复事实仅来自持久记录：
@@ -1126,7 +1184,7 @@ export function LiveConsole({
                     · 全局Graph并发：{page.read.graph_concurrency_limit}
                   </p>
                   <p>
-                    sender：禁用 · recovery_scan：
+                    recovery_scan：
                     {page.read.recovery_scan_seconds ?? "未知"}秒
                   </p>
                   <p>
@@ -1134,6 +1192,10 @@ export function LiveConsole({
                     新鲜度：{page.read.revalidation_max_age_seconds ?? "未知"}秒
                   </p>
                   <p>服务端时间：{page.read.server_time}</p>
+                  <SenderFacts
+                    gates={page.read.sender_gates}
+                    externalEnabled={page.read.external_sender_enabled}
+                  />
                   <Disabled
                     control="B34"
                     reason="配置为服务端事实，无修改端点。"
@@ -1194,6 +1256,10 @@ export function LiveConsole({
                     )}{" "}
                     · 读取时事实，不以浏览器时间裁定审批。
                   </p>
+                  <SenderFacts
+                    gates={config.config.sender_gates}
+                    externalEnabled={config.config.external_sender_enabled}
+                  />
                 </Card>
               )}
             </>
@@ -1227,6 +1293,15 @@ export function LiveConsole({
                   : "身份来自服务端session"}
               </p>
               <p>auth_version：{session.principal.auth_version}</p>
+              <p>
+                当前身份关联渠道：
+                {session.principal.linked_channels.join("、") || "未报告"} ·
+                读取时间：{session.server_time}
+              </p>
+              <p>
+                渠道别名来自当前服务端
+                principal；不展示外部账号定位，也不代表发送成功。
+              </p>
               {session.principal.role_shop_grants.map((x) => (
                 <p key={`${x.role}:${x.shop_id}`}>
                   {x.role} → 店铺 {x.shop_id}
@@ -1252,9 +1327,7 @@ export function LiveConsole({
               </button>
             </Modal>
           )}
-          <p className="page-foot">
-            内部协作 · 冻结M1样式 · Phase4飞书/生产未接入
-          </p>
+          <p className="page-foot">内部协作 · 业务结果与同步证据分别记录</p>
         </main>
       </div>
     </div>

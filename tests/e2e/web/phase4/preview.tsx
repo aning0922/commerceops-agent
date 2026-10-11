@@ -32,7 +32,19 @@ function Preview({ mode }: { mode: string }) {
       </p>
       <LiveConsole
         key={mode}
-        path={`/tasks/${report.task_id}${taskView ? "" : "/report"}`}
+        path={
+          mode === "c2_admin"
+            ? "/admin/operations"
+            : mode === "c2_items"
+              ? "/replenishment-items"
+              : mode === "c2_terminal"
+                ? "/replenishment-items/00000000-0000-4000-8000-000000000001"
+                : mode === "c2_admin_deep"
+                  ? `/tasks/${report.task_id}`
+                  : mode === "c2_events" || mode === "c2_bad_trace"
+                    ? `/tasks/${report.task_id}/events`
+                    : `/tasks/${report.task_id}${taskView ? "" : "/report"}`
+        }
         query={{}}
         origin={null}
         localHttp={false}

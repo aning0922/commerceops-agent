@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { DTO } from "../lib/p3-present";
 import { label } from "../lib/p3-present";
+import { syncMeaning } from "../lib/p4-read-facts";
 import { P3Failure, PreparedWrite } from "../lib/p3-transport";
 import type { P3Client } from "../lib/p3-transport";
 import {
@@ -166,7 +167,7 @@ export function ItemListFacts({
               </div>
               <strong>{item.quantity} 件</strong>
               <Status value={item.state} />
-              <span>同步 {label(item.sync.state)}</span>
+              <span>{syncMeaning(item.sync)}</span>
               <a
                 className="button"
                 href={`/replenishment-items/${item.item_id}`}
@@ -563,7 +564,10 @@ function ResolveDialog({
           </p>
           <p>
             原语义 hash：{receipt.resolution.resolution_payload_hash}；同步{" "}
-            {label(receipt.item.sync.state)}。不表示采购或入库成功。
+            {receipt.item.sync.state === "synced"
+              ? syncMeaning(receipt.item.sync)
+              : label(receipt.item.sync.state)}
+            。不表示采购或入库成功。
           </p>
         </Notice>
       )}

@@ -57,3 +57,27 @@ PATH="$PWD/../.tools/node/bin:$PATH" npm exec -- playwright test --config ../tes
 新证据在[reviewfix verification](../../frontend/evidence/p4-c1-reviewfix/verification.json)、[33contract](../../frontend/evidence/p4-c1-reviewfix/contract-results.json)、[8UI](../../frontend/evidence/p4-c1-reviewfix/ui-results.json)与[B04回归](../../frontend/evidence/p4-c1-reviewfix/b04-regression/ui-results.json)；原610、P3和历史失败文件字节保留。自有3496与3490已停止且nolisten，资源/stop附证据。C-only无A/Python改动，因此不重复1270 Python全量；旧成功不冒充本修正执行，最终CI仍须重新验证新冻结源。
 
 Root采用唯一A根CI owner接线：在原run_before_cleanup窗口加入同现phase4 config命令。该config now实际收8（原6+新增2），beforeAll自行用锁定SWC/webpack构建，不能删旧6或用本地8替代CI8。增量独审、新精确整批CI和Issue42结案仍pending；源冻结后先Root复审，不改PR body触发重复CI。
+
+## 原 read7 失败安全诊断与 NOT_READY 单断言对齐
+
+Root派发沿原WT/branch/PR45的最小测试增量。旧610真实read段test_exit1、invariants_passedtrue、PG已停/PID0，却failure_category=null：测试进程非零返回只置passed=false，不进入except。旧实际failed节点仍not_captured/unknown，不能根据随后发现的源码问题倒填旧执行轨迹；write/items未跑事实保持。
+
+现有LiveReporter只额外把同一结构化结果独占wx/600写到当前自有private窗口`read-live-results.json`，不保存TestError/stdout/body/steps等。run_live_batches只在失败read且完成原清理后读取该私有文件；先拒绝已有reporter，必须是本次test进程已launch才消费。成功read、write/items既有closed摘要/window字段和公共reporter格式不改，runtime SourceFiles仍原13路径闭集，无第二caller或新framework。
+
+解析仅接受原read7完整固定标题集的唯一子集、原9顶层字段、原4行字段、已知状态/finite安全duration/固定相对location；额外error/body/URL、未知或重复title/JSON键、缺字段、非法数、过大文件、非600/软链/缺reporter均拒绝。安全输出重建固定标题+状态、expected7、reported actual/pass/fail/skip/not_run计数；actual是reporter记录数，skipped单列，不冒称执行通过。缺/非法/非当前reporter的counts/tests是null，不伪造0。只加已登记Git SHA/原13源hash闭集/UTC stop/资源已停bool，不回显private输入/业务ID/URL/token/DOM/console/network或原stdout。受控类别仅read_test_failed/read_test_timed_out/read_test_interrupted/read_tests_incomplete/unknown，表示结果类别，不能推断assertion/fixture具体根因；无法确定保持unknown。
+
+Root另授权同批仅对齐read.spec.ts原一句文案。自核live_seed仅创建P2/P3/来源/计划，未建explanation task/link/result；explanation读取SQL无缓存row时NOT_READY，GET不创建或调用模型。当前UI精确标题“已有解释尚未就绪 · NOT_READY”，旧断言“已有解释不可用或尚未就绪”已不存在于frontend。只将该断言更新为精确新标题，固定task/report、未调用模型、noPOST/仅login writes及原7分母和其余断言保持。这是源码核定的不一致，未证明旧CI实际失败节点。
+
+本批实际纯回归60/60（0.21s），含新诊断闭集/非法title/缺reporter/旧报告拒绝/解析限制与原owner/origins；此前59/59准备批保留。Ruff全项目通过、296文件format、mypy212、锁检查、frontend typecheck/schema22、diff通过；[verification](../../frontend/evidence/p4-read-diagnostic/verification.json)记录实际scope与源码hash。真实read7、本批PG/API/browser/platform/provider均not_run/not_started，没有占A03唯一PG池。原default13+B04Mock8/真实read7-write10-items7/native200、300秒/23min/75cleanup及A产品/共享CI/合同/锁/权限均未改；没有重复1270全Python。小批freeze先独审、暂不push；Root释放后才在新owned窗口完整原7read一次，仍unknown即停止，不自动第二轮。
+
+## C2：A03 已审四读组接线
+
+Root释放后正常无冲突合入精确A `a1cd66936c3cd268d32c68bfafc8f34555e44aa7`，合并节点 `038868b71d246c88511a25770c2eb02b5b88c9dc`/tree26d056c/parentsb88+a1cd。此前Root已核b88一次真实read7实际7/7、31.65s、invariants/model0/低权flags/停止与自有down无-v保卷，私有完整证据保留；该成功不外推新C2真实数据。旧C1/B/Penpot及原失败字节保留，不重置日期预算或人工H/L。
+
+只用原锁定sync generator与openapi-typescript7.13.0/TS5.9.3同步A OAS（docs/wheel逐字节一致），仍21paths/22operations/旧版本，无新routes/依赖/锁/视觉批次。新增mandatory sender_gates、投影目标/观察/完整唯一/当前历史/attempts/mode、principal linked_channels、事件record_trace/ref/relation/channel/tool/safe_code。旧Mock必需字段最小补齐且明确Fake，终态v2不会留“当前v1”的Mock资格。原严格shape/no-coerce/no-default/no-extra保留；消费额外核冻结模型的enabled/reason/mode、外部资格与controlled_sdk、当前版本旗标、完整唯一观察版本、tool类别/sdk_method/非model选择不变量。旧v1 verified属于合法历史，不拒绝或改写成当前v2成功。
+
+Task/Execution/Item/列表/回执复用现Sync/Notice：业务状态和同步分别呈现，sender资格不等送达或手动重发权限；显示逐条alias/目标/观察/历史当前/完整唯一/attempts/as_of/safe error/mode。旧v1不能证明当前v2；legacy sent未报告完整唯一不能当当前核实；offline_fake核实明确非平台回执。unknown保留原记录待核，stale显示safe码/观察版本，业务终态不重开。新信息使用Notice info语义，不能被当作实际业务list-row计数。ops/config动态读取Gate原因和Worker bool/null，不使用旧固定sender禁用；身份仅当前principal的关联渠道及读取时间，不出外部身份定位。events再核当前task/精确source/ref关系；记录trace不是动态工具链，确定性工具/电商查询/SDK adapter操作/具体SDK方法/model事实分类型。当前A未报告sdk_method则明确未报告，不推方法调用次数或模型选择；不输出平台record/target/token/openID/PID或外链，不为新P4说明复用历史P2 actualprovider。F02/B47/B32手动路径保持原限制。
+
+最终实际契约37/37（4.2s，原33+四读组4）；产品/test-owned tsc、schema22与生产build `SHqDQAyTPzSzDVQ8M0Mnl`通过。P4 headless完整12/12（26.1s，原8+新4），覆盖v1历史/当前Fake、unknown-stale-terminal/20内部项390、trace精确source/不伪SDK方法/模型选择、当前identity键盘/admin角色深链隔离/撤销。原B04Mock最终8/8（27.1s），原断言/分母不改；前序5pass3fail（新信息误用list-row与重复同步文案）、7pass1fail（原失败summary字面量）均保留，修本展示而非减测试。UI首次12/12（22.9s）长截图下部因iframe只绘viewport留白，测试改390宽4096高私有viewport+关键Card采集后12/12（23.2s），再修本展示回归后最终12；最终sync/trace截图经Agent目视核完整，无新视觉页/框架。所有UI是memory Fake、仅自有静态GET，未启动实际PG/业务API/Worker/平台/provider；3496和原B04 3490均自有停止且nolisten。证据独立于旧文件，见[p4-c2 verification](../../frontend/evidence/p4-c2/verification.json)、[37contract](../../frontend/evidence/p4-c2/contract-results.json)、[12UI](../../frontend/evidence/p4-c2/ui-results.json)、[B04最终](../../frontend/evidence/p4-c2/b04-final/ui-results.json)、[sync390](../../frontend/evidence/p4-c2/c2-sync-390.png)、[trace390](../../frontend/evidence/p4-c2/c2-trace-390.png)。
+
+完整scripts.check真实exit1：目录/index/history扫描0、锁、83MD0、Pythonlint通过，继承A的feishu_delivery_read.py:55缩进导致format阻断（321formatted/1needsformat）。同命令后续mypy/offline/npmci/audit为not_run；另行mypy233与上述C检查通过，不宣称完整check成功。Root已派A单owner随A04一行格式修正，C不并写、不忽略；待精确A更新普通合入/CI核。根CI继承A唯一一行现phase4 config，会收当前12（原8不减），必须实际12通过，原default13/B04Mock8/real read7-write10-items7/native200与截止/清理不减；完整包CI/独审/Issue42/M1验收仍pending。C本批一功能freeze先独审，不因A格式停自主交付，也不push或改PR body触发新CI。
