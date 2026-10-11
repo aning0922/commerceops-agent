@@ -3,6 +3,7 @@
 import asyncio
 from collections.abc import Awaitable, Callable
 from contextlib import suppress
+from uuid import UUID
 
 from commerceops.application.replenishment.contracts import WORKFLOW_VERSION as P3_VERSION
 from commerceops.application.runner import RunnerPort, RunRequest, RunResult
@@ -26,22 +27,26 @@ class Worker:
         max_attempts: int = 3,
         reconcile: Callable[[], Awaitable[None]] | None = None,
         recovery_scan_seconds: int = 30,
+        dispatch_jobs: bool = True,
+        task_ids: frozenset[UUID] | None = None,
     ):
         if (
             min(heartbeat_seconds, poll_seconds, cancel_seconds) <= 0
             or max_attempts < 1
             or not 1 <= recovery_scan_seconds <= 30
+            or type(dispatch_jobs) is not bool
         ):
             raise ValueError("invalid worker timing or attempt limit")
         self.session = session
         self.runner = runner
-        self.queue = JobQueue(session)
+        self.queue = JobQueue(session, task_ids=task_ids)
         self.heartbeat_seconds = heartbeat_seconds
         self.poll_seconds = poll_seconds
         self.cancel_seconds = cancel_seconds
         self.max_attempts = max_attempts
         self.reconcile = reconcile
         self.recovery_scan_seconds = recovery_scan_seconds
+        self.dispatch_jobs = dispatch_jobs
         self.current: RunRequest | None = None
         self._job_lock = asyncio.Lock()
 
@@ -69,7 +74,8 @@ class Worker:
         stopping = asyncio.create_task(stop.wait())
         call: asyncio.Task[object] | None = None
         try:
-            await self.queue.recover_confirmed()
+            if self.dispatch_jobs:
+                await self.queue.recover_confirmed()
             next_scan = 0.0
             while not stop.is_set():
                 if heartbeat.done():
@@ -80,7 +86,7 @@ class Worker:
                     next_scan = asyncio.get_running_loop().time() + self.recovery_scan_seconds
                 if stop.is_set():
                     break
-                job = await self.queue.claim()
+                job = await self.queue.claim() if self.dispatch_jobs else None
                 if job is None:
                     await asyncio.wait(
                         [heartbeat, stopping],

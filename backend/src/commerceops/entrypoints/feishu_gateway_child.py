@@ -17,7 +17,11 @@ from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_business import FeishuBusinessStore
-from commerceops.infrastructure.feishu_gateway_window import claim_gateway, guard_gateway
+from commerceops.infrastructure.feishu_gateway_window import (
+    claim_gateway,
+    gateway_process_started,
+    guard_gateway,
+)
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
 
@@ -54,6 +58,7 @@ def serve(config_file: Path, window_file: Path) -> None:
     # lease仅本child的同步连接，不借用WorkerSession/跨loop AsyncConnection。
     with connect(web.database) as lease:
         claim_gateway(lease, settings, window)
+        gateway_process_started(lease, window)
         store = FeishuBusinessStore(
             ReplenishmentStore(web, Path("tests/fixtures/commerce/inventory-v1")),
             settings.shop_id,

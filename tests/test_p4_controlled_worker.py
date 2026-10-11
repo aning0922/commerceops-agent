@@ -376,7 +376,13 @@ def test_one_session_real_ports_ledger_and_stop_on_unknown_no_later_base_dispatc
 
     class Loop:
         def __init__(
-            self, session: Any, runner: Any, *, reconcile: Any, recovery_scan_seconds: int
+            self,
+            session: Any,
+            runner: Any,
+            *,
+            reconcile: Any,
+            recovery_scan_seconds: int,
+            task_ids: Any,
         ):
             self.session = session
             self.maintain = reconcile
@@ -387,6 +393,9 @@ def test_one_session_real_ports_ledger_and_stop_on_unknown_no_later_base_dispatc
 
     monkeypatch.setattr(feishu_worker_child, "WorkerSession", Session)
     monkeypatch.setattr(feishu_worker_child, "trusted_scope", AsyncMock())
+    monkeypatch.setattr(
+        feishu_worker_child, "controlled_task_ids", AsyncMock(return_value=window.task_ids)
+    )
     monkeypatch.setattr(feishu_worker_child, "verified_target", target)
     monkeypatch.setattr(feishu_worker_child, "IMDeliveryStore", IM)
     monkeypatch.setattr(feishu_worker_child, "BaseDeliveryStore", Base)

@@ -21,6 +21,7 @@ class DeliveryGate:
     expires_at: datetime
     enabled: bool = False
     verification_mode: Literal["offline_fake", "controlled_sdk"] = "offline_fake"
+    outbox_ids: frozenset[UUID] | None = None
 
     def __post_init__(self) -> None:
         if (
@@ -31,6 +32,8 @@ class DeliveryGate:
             or self.expires_at.utcoffset() is None
             or type(self.enabled) is not bool
             or self.verification_mode not in ("offline_fake", "controlled_sdk")
+            or self.outbox_ids is not None
+            and (not self.outbox_ids or len(self.outbox_ids) > 2)
         ):
             raise ValueError("INVALID_P4_DELIVERY_GATE")
 

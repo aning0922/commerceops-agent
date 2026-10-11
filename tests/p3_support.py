@@ -1,6 +1,7 @@
 """P3自有临时PG、真实会话和受控进程；不输出密码/token/DSN。"""
 
 import asyncio
+import hashlib
 import json
 import os
 import queue
@@ -393,7 +394,23 @@ class P3Process:
         )
         self.path.chmod(0o600)
         env = os.environ.copy()
-        env.update(PYTHONPATH=str(Path(__file__).resolve().parents[1]), LANGSMITH_TRACING="false")
+        checkout = Path(__file__).resolve().parents[1]
+        self.expected_sources = {
+            name: hashlib.sha256(
+                (checkout / "backend/src/commerceops" / path).read_bytes()
+            ).hexdigest()
+            for name, path in {
+                "Worker": "infrastructure/worker.py",
+                "ApprovalRunner": "workflows/replenishment.py",
+                "InventoryRunner": "workflows/inventory_analysis.py",
+                "WorkerSession": "infrastructure/worker_lock.py",
+            }.items()
+        }
+        self.sources_match: bool | None = None
+        env.update(
+            PYTHONPATH=os.pathsep.join((str(checkout / "backend/src"), str(checkout))),
+            LANGSMITH_TRACING="false",
+        )
         self.process = subprocess.Popen(
             [sys.executable, "-m", "tests.p3_process", str(self.path)],
             stdin=subprocess.PIPE,
@@ -433,13 +450,22 @@ class P3Process:
         assert self.process.stdout
         for line in self.process.stdout:
             event = json.loads(line)
+            if event.get("event") == "source_checked":
+                self.sources_match = event.get("hashes") == self.expected_sources
+                proof = {"four_imports_match": self.sources_match, "hashes": event.get("hashes")}
+                evidence = Path("/run/owned") if Path("/run/owned").is_dir() else self.path.parent
+                leaf = evidence / ("imports-" + self.path.stem + ".safe.json")
+                leaf.write_text(json.dumps(proof, sort_keys=True))
+                leaf.chmod(0o600)
+                if not self.sources_match:
+                    event = {"event": "failed", "category": "SOURCE_HASH_MISMATCH"}
             self.history.append(event)
             self.events.put(event)
 
     def until(self, event: str) -> dict[str, Any]:
         for _ in range(50):
             row = self.events.get(timeout=15)
-            assert row["event"] != "failed"
+            assert row["event"] != "failed", {key: row.get(key) for key in ("category", "trace")}
             if row["event"] == event:
                 return row
         raise AssertionError("P3 owned process barrier not reached")

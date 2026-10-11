@@ -1,10 +1,13 @@
 """只用于受控自有测试的T1提交/ACK屏障；无平台事件/生产身份后门。"""
 
 import asyncio
+import hashlib
 import json
 import os
 import signal
 import sys
+import traceback
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -63,6 +66,15 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
     row = await cursor.fetchone()
     assert row
     emit("started", owner=session.owner, lock_pid=row["pid"])
+    # 原固定checkout源码，不让owned旧依赖镜像中的wheel取代当前bound backend。
+    modules = (Worker, ApprovalRunner, InventoryRunner, WorkerSession)
+    hashes = {}
+    for kind in modules:
+        filename = sys.modules[kind.__module__].__file__
+        if filename is None:
+            raise ValueError("SOURCE_MODULE_FILE_REQUIRED")
+        hashes[kind.__name__] = hashlib.sha256(Path(filename).read_bytes()).hexdigest()
+    emit("source_checked", hashes=hashes)
     stop = asyncio.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):
         asyncio.get_running_loop().add_signal_handler(sig, stop.set)
@@ -80,6 +92,18 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
 
     payload = value["payload"]
     assert isinstance(payload, dict)
+    scoped_tasks = None
+    controlled_window = None
+    if payload.get("p4_scope"):
+        from commerceops.adapters.feishu.business_config import BusinessSettings
+        from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+        from commerceops.entrypoints.feishu_worker_child import controlled_task_ids, trusted_scope
+
+        scope = payload["p4_scope"]
+        controlled_window = ControlledWorkerWindow.model_validate_json(json.dumps(scope["window"]))
+        settings = BusinessSettings.model_validate_json(json.dumps(scope["settings"]))
+        await trusted_scope(config, settings, controlled_window)
+        scoped_tasks = await controlled_task_ids(config, controlled_window)
     factory: CollectorFactory = (
         ControlledP3Factory(payload["controlled"])
         if payload.get("controlled")
@@ -154,17 +178,33 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
         ExplanationRunner(ExplanationStore(config.database, session), provider),
         approval=approval,
     )
+    expiry_timer = None
+    if controlled_window:
+        expiry_timer = asyncio.get_running_loop().call_later(
+            max(0, (controlled_window.expires_at - datetime.now(UTC)).total_seconds() - 15),
+            stop.set,
+        )
     try:
+
+        async def maintenance() -> None:
+            await approval.reconcile(
+                task_ids=None if controlled_window is None else controlled_window.task_ids
+            )
+
         await Worker(
             session,
             runner,
             heartbeat_seconds=0.1,
             poll_seconds=0.02,
-            reconcile=approval.reconcile,
+            reconcile=maintenance,
             recovery_scan_seconds=1,
+            task_ids=scoped_tasks,
         ).run(stop)
     except UnsafeShutdown:
         os._exit(75)
+    finally:
+        if expiry_timer:
+            expiry_timer.cancel()
     emit("stopped")
 
 
@@ -251,5 +291,21 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as error:
-        print(json.dumps({"event": "failed", "category": type(error).__name__}), flush=True)
+        print(
+            json.dumps(
+                {
+                    "event": "failed",
+                    "category": type(error).__name__,
+                    "trace": [
+                        {
+                            "file": Path(frame.filename).name,
+                            "function": frame.name,
+                            "line": frame.lineno,
+                        }
+                        for frame in traceback.extract_tb(error.__traceback__)
+                    ],
+                }
+            ),
+            flush=True,
+        )
         raise SystemExit(2) from None

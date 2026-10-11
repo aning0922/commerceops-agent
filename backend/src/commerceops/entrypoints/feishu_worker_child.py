@@ -8,6 +8,7 @@ import signal
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from commerceops.adapters.feishu.business_base import BusinessBaseAdapter, BusinessRecordSDK
 from commerceops.adapters.feishu.business_config import BusinessSettings
@@ -15,6 +16,7 @@ from commerceops.adapters.feishu.business_factory import BusinessSDKFactory, pri
 from commerceops.adapters.feishu.business_im import BusinessIMSDK
 from commerceops.adapters.feishu.business_preflight import verified_target
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
+from commerceops.application.commerce.analysis_task import WORKFLOW_VERSION as ANALYSIS_VERSION
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
@@ -23,6 +25,7 @@ from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
+from commerceops.infrastructure.feishu_outbox_recovery import trusted_recovery_scope
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
@@ -77,6 +80,16 @@ async def trusted_scope(
         ):
             raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
         require_fixture_shop(row, gateway.parameters.fixture_case)
+        if window.profile == "approved_outbox":
+            await trusted_recovery_scope(config, settings, window, gateway)
+            return
+        if window.profile == "group20" and (
+            gateway.parameters.fixture_case != "baseline"
+            or (gateway.parameters.L, gateway.parameters.R, gateway.parameters.S) != (3, 7, 2)
+            or not settings.allowed_group_chat_ids
+            or gateway.max_workflows > 2
+        ):
+            raise PermissionError("P4_CONTROLLED_GROUP20_SCOPE_REQUIRED")
         cursor = await db.execute(
             """SELECT DISTINCT t.id,s.parameters FROM business.business_tasks t
             JOIN business.p3_task_sources s ON s.task_id=t.id
@@ -105,6 +118,30 @@ async def trusted_scope(
         )
         if await cursor.fetchone():
             raise PermissionError("P4_CONTROLLED_FAKE_HISTORY_DENIED")
+        if window.profile == "group20":
+            cursor = await db.execute(
+                """SELECT t.id,c.chat_id,i.sanitized_payload->>'chat_type' AS chat_type,
+                ip.external_subject, business.lock_p3_permission(t.requester_id,t.organization_id,
+                t.shop_id,r.identity_id,p.auth_version,'operator') AS permitted
+                FROM business.business_tasks t
+                JOIN business.conversations c ON c.id=t.conversation_id
+                JOIN business.inbox_events i ON i.task_id=t.id AND i.source='feishu_business'
+                AND i.sanitized_payload->>'event_type'='im.message.receive_v1'
+                JOIN business.p4_inbox_receipts r ON r.inbox_id=i.id
+                JOIN business.identities ip ON ip.id=r.identity_id
+                AND ip.principal_id=t.requester_id
+                JOIN business.principals p ON p.id=t.requester_id WHERE t.id=ANY(%s)""",
+                (list(window.task_ids),),
+            )
+            group = await cursor.fetchall()
+            if frozenset(t["id"] for t in group) != window.task_ids or any(
+                t["chat_type"] != "group"
+                or t["chat_id"] not in settings.allowed_group_chat_ids
+                or t["external_subject"] not in settings.allowed_open_ids
+                or not t["permitted"]
+                for t in group
+            ):
+                raise PermissionError("P4_CONTROLLED_GROUP20_SCOPE_REQUIRED")
 
 
 async def controlled_work(
@@ -129,6 +166,7 @@ async def controlled_work(
     try:
         await session.start()
         await trusted_scope(config, settings, window)
+        task_ids = await controlled_task_ids(config, window)
         ledger = PersistentSDKLedger(session, sdk_window)
         factory = BusinessSDKFactory(settings, ledger)
         app_token, table_id, field_count = await verified_target(factory)
@@ -141,6 +179,9 @@ async def controlled_work(
             window.expires_at,
             enabled=True,
             verification_mode="controlled_sdk",
+            outbox_ids=None
+            if window.recovery is None
+            else frozenset(p.outbox_id for p in window.recovery.projections),
         )
         im = IMDeliveryStore(
             session,
@@ -169,11 +210,32 @@ async def controlled_work(
         )
 
         async def maintenance() -> None:
-            await approval.reconcile()
+            if window.recovery is None:
+                await approval.reconcile(task_ids=window.task_ids)
             if stop.is_set() or not gate.active():
                 stop.set()
                 return
-            for store, accepted in ((im, {"idle", "sent"}), (base, {"idle", "verified"})):
+            if window.recovery is not None:
+                async with await open_async(config.database) as db:
+                    cursor = await db.execute(
+                        "SELECT after_state FROM business.audit_events WHERE id=%s",
+                        (window.gateway_window_id,),
+                    )
+                    row = await cursor.fetchone()
+                if not row:
+                    raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
+                gateway = GatewayWindow.model_validate_json(
+                    json.dumps(
+                        {key: row["after_state"].get(key) for key in GatewayWindow.model_fields}
+                    )
+                )
+                await trusted_recovery_scope(config, settings, window, gateway, claim=False)
+            stores = (
+                ((base, {"idle", "verified"}),)
+                if window.recovery
+                else ((im, {"idle", "sent"}), (base, {"idle", "verified"}))
+            )
+            for store, accepted in stores:
                 outcome = await store.dispatch_one()
                 if outcome not in accepted:
                     summary["delivery_stopped"] = True
@@ -187,6 +249,8 @@ async def controlled_work(
             runner,
             reconcile=maintenance,
             recovery_scan_seconds=config.recovery_scan_seconds,
+            task_ids=task_ids,
+            **({"dispatch_jobs": False} if window.recovery else {}),
         ).run(stop)
         summary["result"] = (
             "delivery_stopped" if summary.get("delivery_stopped") else "window_stopped"
@@ -210,6 +274,25 @@ async def controlled_work(
     summary["model_requests"] = 0
     summary["verification_mode"] = "controlled_sdk"
     return summary
+
+
+async def controlled_task_ids(config: WebConfig, window: ControlledWorkerWindow) -> frozenset[UUID]:
+    if window.recovery:
+        return window.task_ids
+    async with await open_async(config.database) as db:
+        cursor = await db.execute(
+            """SELECT s.task_id,s.source_task_id FROM business.p3_task_sources s
+            JOIN business.business_tasks t ON t.id=s.source_task_id
+            AND t.organization_id=s.organization_id AND t.shop_id=s.shop_id
+            WHERE s.task_id=ANY(%s) AND s.organization_id=%s AND s.shop_id=%s
+            AND t.kind='inventory_analysis_only'
+            AND t.workflow_version=%s""",
+            (list(window.task_ids), window.organization_id, window.shop_id, ANALYSIS_VERSION),
+        )
+        rows = await cursor.fetchall()
+    if frozenset(row["task_id"] for row in rows) != window.task_ids:
+        raise PermissionError("P4_CONTROLLED_SOURCE_TASK_SCOPE_REQUIRED")
+    return window.task_ids | frozenset(row["source_task_id"] for row in rows)
 
 
 def main() -> None:

@@ -18,7 +18,7 @@ class GatewayWindow(BaseModel):
     shop_id: UUID
     expires_at: datetime
     max_callbacks: int = Field(default=100, ge=1, le=100)
-    max_workflows: int = Field(default=5, ge=1, le=5)
+    max_workflows: int = Field(default=5, ge=0, le=5)
     parameters: Parameters
     enabled: bool = False
 

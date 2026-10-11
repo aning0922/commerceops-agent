@@ -57,11 +57,14 @@ def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
 
     previous = signal.signal(signal.SIGTERM, stopped)
     expired = False
+    manual = False
     try:
         try:
             process.wait(timeout=max(0.01, cutoff - time.monotonic() - 10))
         except subprocess.TimeoutExpired:
             expired = True
+        except KeyboardInterrupt:
+            manual = True
     finally:
         if process.poll() is None:
             process.terminate()
@@ -72,14 +75,35 @@ def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
             process.wait(timeout=max(0.01, min(5, cutoff - time.monotonic())))
         finally:
             signal.signal(signal.SIGTERM, previous)
+    confirmed = False
+    try:
+        from commerceops.infrastructure.web_config import WebConfig
+
+        async def bounded_confirmation() -> None:
+            async with asyncio.timeout(max(0.01, min(5, cutoff - time.monotonic()))):
+                await confirm_gateway_child(
+                    WebConfig.from_file(settings.web_config_file),
+                    window.organization_id,
+                    window.window_id,
+                    process.pid,
+                    process.returncode,
+                )
+
+        asyncio.run(bounded_confirmation())
+        confirmed = True
+    except Exception:
+        confirmed = False
     return {
         "result": "window_stopped"
         if expired
+        else "manual_stopped"
+        if manual
         else "child_exited"
         if process.returncode == 0
         else "failed",
         "child_exit": process.returncode,
         "child_reaped": process.poll() is not None,
+        "lifecycle_termination_confirmed": confirmed,
         "sdk_start_intent": 1,
         "ws_endpoint_discovery": "not_verified",
         "ws_handshake": "not_verified",
@@ -88,6 +112,49 @@ def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
         "external_sender_enabled": False,
         "phase4_gate_passed": False,
     }
+
+
+async def confirm_gateway_child(
+    config: "WebConfig", organization: UUID, window_id: UUID, pid: int, child_exit: int
+) -> None:
+    """原parent wait/reap后复核同namespace原started，持久真实终止回执。"""
+    from uuid import uuid4
+
+    from psycopg.types.json import Jsonb
+
+    from commerceops.infrastructure.worker_lock import (
+        TerminationRequired,
+        open_async,
+        process_namespace,
+        require_process_absent,
+    )
+
+    expected = {"pid": pid, "host": socket.gethostname(), "pid_namespace": process_namespace()}
+    if type(child_exit) is not int:
+        raise TerminationRequired("original child exit required")
+    async with await open_async(config.database) as db, db.transaction():
+        cursor = await db.execute(
+            """SELECT after_state FROM business.audit_events WHERE organization_id=%s
+            AND source='feishu_gateway' AND action='started' AND entity_type='gateway_runtime'
+            AND entity_id=%s""",
+            (organization, str(window_id)),
+        )
+        rows = await cursor.fetchall()
+        if len(rows) != 1 or rows[0]["after_state"] != expected:
+            raise TerminationRequired("original unique Gateway process receipt required")
+        require_process_absent(expected)
+        await db.execute(
+            """INSERT INTO business.audit_events(id,organization_id,source,action,
+            entity_type,entity_id,after_state,trace_id) VALUES(%s,%s,'feishu_gateway',
+            'termination_confirmed','gateway_runtime',%s,%s,%s)""",
+            (
+                uuid4(),
+                organization,
+                str(window_id),
+                Jsonb({"process": expected, "child_exit": child_exit, "child_reaped": True}),
+                window_id,
+            ),
+        )
 
 
 async def confirm_worker_child(config: "WebConfig", organization: UUID, pid: int) -> None:

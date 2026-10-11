@@ -68,6 +68,8 @@ class BaseDeliveryStore:
         self.ledger = ledger
 
     async def _enroll(self) -> None:
+        if self.gate.outbox_ids is not None:
+            return  # 已批准原键恢复仅用已有delivery，不生成伴随意图/新键。
         # 固定原task白名单+单shop/Mock，绝不扫描/升级历史probe或controlled_stub outbox。
         async with await open_async(self.session.settings) as db, db.transaction():
             cur = await db.execute(
@@ -143,8 +145,18 @@ class BaseDeliveryStore:
             await db.execute(
                 """UPDATE business.p4_base_deliveries SET status='unknown',
                 last_error='BASE_ACK_UNPROVEN'
-                WHERE organization_id=%s AND status='sending' AND claimed_by<>%s""",
-                (self.session.organization, self.session.owner),
+                WHERE organization_id=%s AND shop_id=%s AND task_id=ANY(%s)
+                AND (%s::uuid[] IS NULL OR outbox_id=ANY(%s))
+                AND verification_mode=%s AND status='sending' AND claimed_by<>%s""",
+                (
+                    self.session.organization,
+                    self.gate.shop_id,
+                    list(self.gate.task_ids),
+                    None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
+                    None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
+                    self.gate.verification_mode,
+                    self.session.owner,
+                ),
             )
 
     async def dispatch_one(self) -> str:
@@ -183,6 +195,7 @@ class BaseDeliveryStore:
                 AND l.shop_id=d.shop_id AND l.target_key=d.target_key AND l.item_id=d.item_id
                 WHERE d.organization_id=%s AND d.shop_id=%s AND d.task_id=ANY(%s)
                 AND d.target_key=%s AND d.verification_mode=%s
+                AND (%s::uuid[] IS NULL OR d.outbox_id=ANY(%s))
                 AND d.status IN ('pending','unknown') AND d.attempts<3
                 AND d.next_attempt_at<=clock_timestamp()
                 ORDER BY d.created_at,d.version,d.outbox_id FOR UPDATE OF d""",
@@ -192,6 +205,8 @@ class BaseDeliveryStore:
                     list(self.gate.task_ids),
                     self.gate.target_key,
                     self.gate.verification_mode,
+                    None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
+                    None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
                 ),
             )
             for row in await cur.fetchall():

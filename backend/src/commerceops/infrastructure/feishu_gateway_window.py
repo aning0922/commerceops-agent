@@ -1,6 +1,9 @@
 """复用原不可变audit+PG session锁，启动一次，不与Worker共享连接。"""
 
+import os
+import socket
 from typing import Any
+from uuid import uuid4
 
 from psycopg.types.json import Jsonb
 
@@ -9,6 +12,7 @@ from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.infrastructure.web_sessions import DB
+from commerceops.infrastructure.worker_lock import process_namespace
 
 
 def claimed_state(window: GatewayWindow) -> dict[str, Any]:
@@ -82,3 +86,26 @@ def guard_gateway(db: DB, window: GatewayWindow, create_workflow: bool) -> None:
         ).fetchone()
         if not count or count["n"] >= window.max_workflows:
             raise WebFailure("GATEWAY_WORKFLOW_CAP_EXHAUSTED", 503)
+
+
+def gateway_process_started(db: DB, window: GatewayWindow) -> None:
+    """原child在读AppSecret之前持久绑定实际PID/namespace；不是WS证明。"""
+    db.execute(
+        """INSERT INTO business.audit_events(id,organization_id,source,action,
+        entity_type,entity_id,after_state,trace_id) VALUES(%s,%s,'feishu_gateway',
+        'started','gateway_runtime',%s,%s,%s)""",
+        (
+            uuid4(),
+            window.organization_id,
+            str(window.window_id),
+            Jsonb(
+                {
+                    "pid": os.getpid(),
+                    "host": socket.gethostname(),
+                    "pid_namespace": process_namespace(),
+                }
+            ),
+            window.window_id,
+        ),
+    )
+    db.commit()
