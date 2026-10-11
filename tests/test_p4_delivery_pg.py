@@ -86,7 +86,7 @@ def resolve(f: P3Fixture, item: UUID) -> None:
     from uuid import uuid4
 
     result = f.client.post(
-        f"/api/v1/items/{item}/resolve",
+        f"/api/v1/replenishment-items/{item}/resolve",
         headers=f.headers(),
         json={
             "schema_version": "p3-web-v1",
