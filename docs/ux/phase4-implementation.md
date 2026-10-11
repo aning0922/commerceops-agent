@@ -81,3 +81,72 @@ Task/Execution/Item/列表/回执复用现Sync/Notice：业务状态和同步分
 最终实际契约37/37（4.2s，原33+四读组4）；产品/test-owned tsc、schema22与生产build `SHqDQAyTPzSzDVQ8M0Mnl`通过。P4 headless完整12/12（26.1s，原8+新4），覆盖v1历史/当前Fake、unknown-stale-terminal/20内部项390、trace精确source/不伪SDK方法/模型选择、当前identity键盘/admin角色深链隔离/撤销。原B04Mock最终8/8（27.1s），原断言/分母不改；前序5pass3fail（新信息误用list-row与重复同步文案）、7pass1fail（原失败summary字面量）均保留，修本展示而非减测试。UI首次12/12（22.9s）长截图下部因iframe只绘viewport留白，测试改390宽4096高私有viewport+关键Card采集后12/12（23.2s），再修本展示回归后最终12；最终sync/trace截图经Agent目视核完整，无新视觉页/框架。所有UI是memory Fake、仅自有静态GET，未启动实际PG/业务API/Worker/平台/provider；3496和原B04 3490均自有停止且nolisten。证据独立于旧文件，见[p4-c2 verification](../../frontend/evidence/p4-c2/verification.json)、[37contract](../../frontend/evidence/p4-c2/contract-results.json)、[12UI](../../frontend/evidence/p4-c2/ui-results.json)、[B04最终](../../frontend/evidence/p4-c2/b04-final/ui-results.json)、[sync390](../../frontend/evidence/p4-c2/c2-sync-390.png)、[trace390](../../frontend/evidence/p4-c2/c2-trace-390.png)。
 
 完整scripts.check真实exit1：目录/index/history扫描0、锁、83MD0、Pythonlint通过，继承A的feishu_delivery_read.py:55缩进导致format阻断（321formatted/1needsformat）。同命令后续mypy/offline/npmci/audit为not_run；另行mypy233与上述C检查通过，不宣称完整check成功。Root已派A单owner随A04一行格式修正，C不并写、不忽略；待精确A更新普通合入/CI核。根CI继承A唯一一行现phase4 config，会收当前12（原8不减），必须实际12通过，原default13/B04Mock8/real read7-write10-items7/native200与截止/清理不减；完整包CI/独审/Issue42/M1验收仍pending。C本批一功能freeze先独审，不因A格式停自主交付，也不push或改PR body触发新CI。
+
+## M1 录屏与演示路线候选（2026-10-12，离线材料准备）
+
+本节由 Root 释放给原 C owner，仅补交付文档。当前 A08 的 group20 / 可信原 outbox 恢复由 A 继续实施，SDK 保持关闭；本节不代表 A08 已验收。本次 docs-only 不启动业务录制；最后稳定源码的有限复现由 Root 在既有 Phase4 授权内调度，冻结对象、动作数量、额度和期限，无须逐动作再向用户请求开发许可。U01–U08 / N01 实施仍未授权，本轮不修改 Next.js、Penpot 或测试驱动。沿用冻结 18 页的导航和控件语义；原设计候选、失败测试和待确认合同的历史记录不改写。阶段验收仍由 Root 核实全部必要 Gate、独审、精确 CI 和实际回执后裁决。
+
+本工作树当前已提交基线是 `43c40bb955a1ce4ef07704173759983eb8c8f4f5` / tree `25dde89c392b82b71060b05812f38807fb9bbcf2`，既有实际 Web BUILD_ID 为 `so6sfDmeVw7HKWdbGnVJf`。这是下方旧证据的来源，不是当前 A9a / A08 的最终稳定录制版本。Root 本轮实际核定祖先链为 PR45 head `52a4f76344fe15af25fdab4acdb53c2f0493080c` → 本地 source43 → 当前 A9a；PR45 至本地增加的是 A 原后端/Compose/SDK 文档等已集成历史，Web 产品零差异，不算本轮 C 的新修改，无须重合 52、reset 或改写历史。本地 HEAD 不用于推断远端 PR 状态或最终源码，旧 source53/43 也不升级成 A9a 录屏。精确最后稳定 source/tree/CI/build 由 Root 再配对。本轮不联网刷新 GitHub 状态，阶段事实引用 Root 已核 [Issue39 回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6108800023)；UX/N01 仍按 [Issue42 登记](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6107597478) 待明确实施授权。六个旧未跟踪 ac08 驱动保留，不删除、不顺手 stage 到文档包；本轮只有本文件的 tracked 文档改动，不能称整个工作树 clean。
+
+### 既有证据怎样使用
+
+| 材料 | 实际事实 | 可复用范围与限制 |
+|---|---|---|
+| source43 原 AC08，23.32 秒 | 原 known 只读、20 项拒绝零新增、另一组 20×100 联合批准、单项 complete 至 v2 的驱动断言通过；`new_cycle` 段失败 | 保留 `failed/partial` 标签。DOM 21 行断言不是录像中全 20 行可读证据；complete 不能改字幕称 close。 |
+| source43 v2 续测，2.68 秒 | current v2 / Q70 / 旧 v1 禁用的准入及一次 Web 决定回执通过；`wait_same_workflow` 为 `failed_unknown` | 保留原失败。后续 PG 完成事实不倒填当时画面；瞬时失败状态未捕获，不能断言一定是 `needs_reapproval`。 |
+| source43 完成态只读补证，6.96 秒 | `readonly_completed_verified`；登录 POST 一次，其余业务 GET；零创建、决定和业务写。完成态 v2 / Q70 项 / 独立 execution hash / 旧 known 绑定保持通过 | 可作为新的只读结果补证；PG 唯一性、旧 21 items / 2 executions 的完整 digest 由 Root/A 独立实证，不以 API 单条返回冒充数据库计数。 |
+| 完成态录像的本地离线 QA | 完整播放 174 帧，无媒体错误；细采样找到约 2.6 秒的新周期完成态、4.7 秒的 Q70 / v1 / 独立同步分区标题、6 秒的旧 known 完成态 | 三张脱敏静态帧只保留安全固定标签或数量像素，其他原帧像素去除。`simulated_web / Mock / offline_fake` 是明确的核验元数据标注，不能冒充已拍全投影核实卡。 |
+
+只读源录像 SHA256 为 `2c645f6b512c0b7e60940a6508e72e0a250ddb42b3d731145d31a9836e6a152b`。原录像、抽帧、OCR 和失败摘要继续私有留存；不删除、覆盖或重剪成一次成功流程。C 私有材料位置为 `.audit/ac08-private-video-qa/qa-safe.json` 与 `.audit/ac08-readonly-video-qa/qa-safe.json`，均在本工作树，不在 Root 或 A checkout；这些 ignored 文件不是仓库公开附件。后者记录 QA 在 2026-10-11 20:48:43（Asia/Shanghai）前完成、报告 20:50:24 补记，保留 `report_written_after_deadline=true`，不把补记时间伪装成媒体窗口内动作。
+
+可复用脱敏静态素材在 C 私有 `.audit/ac08-readonly-video-qa/` 下：`cycle-completed-redacted.png`、`q70-open-sync-heading-redacted.png`、`known-completed-redacted.png`。旧 C2 的 [同步 390px](../../frontend/evidence/p4-c2/c2-sync-390.png) 和 [轨迹 390px](../../frontend/evidence/p4-c2/c2-trace-390.png) 是独立 memory Fake 预览，只能作标注清楚的界面说明插页，不能拼入真实 API 录像并宣称来自同一任务。
+
+### 最后稳定源码一次录制的前提
+
+1. Root 先给最后稳定 source/tree、独审结论、精确 CI、真实 API/PG 结果和 BUILD_ID 配对。A 独占准备 PG/API、必要时的单 Worker / 全局单 Graph 与清理；C 不起第二套资源，不替 A 改 fixture、权限、outbox 或平台配置。
+2. Root 注册唯一有界窗口，明确剩余 workflow / 决定 / 内部项动作额度、账号 scope、已存在对象与可读缓存引用、工作截止和清理 owner。只读路线用既有完成态，零 Worker、T1、T3、T6；过程路线只执行 Root 一次冻结批中列明的对象、数量和步骤，不逐动作另问用户，也不从本文件、旧额度或旧计划自行扩大范围。仅在复用原 AC08 既有四-workflow 库及其已登记额度的录屏窗口内，不能为凑镜头新建第五备用任务或再成功执行一组 baseline20，不能复活旧 completed task 或重批旧决定/原键。此限制不排除最终干净 Compose 复现由 Root 事前独立登记的一次新自有隔离 baseline20；该新窗口不继承旧额度，仍须完整必要 Gate，不能据此无限增加资源或平台权限。
+3. 所有对象引用和低权限合成账号只从 Root 指定的当次私有材料取得；正文、公开日志和视频字幕不放账号、业务 UUID、URL、nonce 或 Cookie。认证输入不录像，登录成功后才在新隔离 context 中录业务页；登录页只能录不含输入值的安全空白界面。不得使用日常浏览器、HAR、trace、console 或原始 DOM 导出。
+4. 录制只消费现有页面与后端事实。待内容与实际绑定加载后再停留取景，单张核心画面应有可读停留；若瞬时切页只拍到 loading，就记缺镜头，不用旧截图或补造状态替换。录制 caller 的选择与审核由 Root 决定，本材料批不修改已冻结测试入口。
+5. 内容目标约 8–10 分钟，不是 Gate 或延窗理由。Root 的总窗口必须另容纳启动、登录与至少 75 秒退出余量；若仅有短只读窗口，优先完成约 6–7 分钟的必要结果镜头，明确标为只读补证。时间不足、身份/版本/来源不匹配、未知写回执或 API 不允许时停止；不重试换键、不自动批准新版本、不启动 SDK/provider、不延长原窗口。
+
+### 候选镜头顺序与必要画面
+
+时间段只用于编辑规划，实际时长取决于 Root 放行的范围、服务端响应与记录内容；未录到的段保留 `not_captured/not_run`。18 页不等于本次每页已实现或验收，下面只走现有 Web 主闭环，F01/F02 的未验真实渠道能力单独列缺口。
+
+| 顺序 / 候选时间 | 页面、动作与必要画面 | 必须讲清的事实 |
+|---|---|---|
+| 1 / 0:00–0:35 | S01 安全空白登录页；认证后展示 S02 与当前授权身份/店铺范围，遮罩身份定位值 | 低权限合成会话；兼任 operator/approver 仍按各角色自身 scope 与 eligible 校验，不代表两个真人或额外扩权。 |
+| 2 / 0:35–1:15 | S02→S09 读取 Root 指定任务及其报告/审批/执行/内部项链接；若已授权创建，M02 显式核对 Mock case、L/R/S 后准备原请求并明确提交 | 现入口是结构化创建。草稿和 B35 不受理任务；B01 的明确提交才走 T1。N01 自然语言原句解析/歧义接口仍有合同缺口，不用按钮名或自然语言字幕冒充已实现。 |
+| 3 / 1:15–2:35 | S03→M03 冻结报告：来源/时区/最近七个完整自然日、参数、质量与总量；从第 1 行连续读到第 20 行，包含长名称、末项与 100 件值 | 全 20 SKU 不折叠、截断或只拍前几项。未知原始在途继续显示 null/未知；按 0 的有效估算仅属于指定版本的明确假设，不能声称库存原值为 0。实际总量以本次 DTO 为准。 |
+| 4 / 2:35–3:55 | S04 固定 plan/version/hash：总项数/总件数、期限及完整假设集合；先拍默认未勾选，再展示全部未知项及末端动作区 | 普通批准不能替代联合假设确认。既有拒绝案例只读展示“拒绝假设、零新增项”；若 Root 放行新决定，逐项明确勾选完整集合后只提交一次本版本意见，不自动全选或另造拒绝任务。 |
+| 5 / 3:55–4:45 | 原意见回执与 S09：approved/rejected、resume 状态、下一步读取；若 Worker 尚未完成，保留真实待处理状态 | 意见已受理不等于 T4 已执行；队列/Checkpoint 不能当成内部项事务。`needs_reapproval` 必须读 current plan/approval，旧意见不授权新版本；只有 Root 另行批准且资格满足才决定新版本。未知或冲突先读原回执，不能盲重投。 |
+| 6 / 4:45–5:35 | S09 执行事实→S05/S11 内部项：已提交 execution、可见项与数量；同段拍同步卡的当前/历史投影、target/observed version、complete-unique、模式、时间和错误码 | 分别读任务执行结果、内部项跟进状态、同步结果。内部项 open/complete/close 都不等于采购、入库或库存修改；历史 v1 同步不能冒充目标 v2，Fake 核实不能称真实 Base 同步。 |
+| 7 / 5:35–6:30 | S11/M01：优先只读既有 closed 项的原原因、原动作、版本 v1→v2、来源与独立同步；仅在 Root 明确批准 T6 时演示一次 close 原请求和原回执 | close 和 complete 的原因/终态分别呈现，不把原 complete 片段改称 close。关闭内部项不会复活 completed task 或重跑旧 execution；不手动重发平台记录。 |
+| 8 / 6:30–7:30 | S09/M05/B46→M02：先展示旧 completed 与影响；打开新空草稿可取消；另读已完成新周期的报告/快照/plan/approval/item 及旧对象结果 | B46 只开草稿。新周期不继承旧批准、nonce、hash、假设集合或请求键；重新提交必须是被 Root 放行的新 T1。既有 open 项约束保留，不能绕约束重复建项。新旧对象的私有精确绑定由证据核对，不用字幕伪造新标识。 |
+| 9 / 7:30–8:40 | S06 技术详情与 S03/M04 已有解释：事件来源、可靠 Tool 分类/SDK method、模型是否选择、引用、fact/model/usage 和模板/缓存来源 | 确定性金额/库存规则不交给 LLM。tool/usage/null 以 DTO 为准；当前 `model_mode=not_used` / 未报告不补成调用次数或 token 0。历史 actual_provider 缓存注明历史调用、原绑定和成本估算，不冒称本次新增调用；无缓存就显示 NOT_READY，不能临时付费生成解释或合成工具链。 |
+| 10 / 8:40–结束 | 必要时只读展示 390px/键盘焦点/技术信息展开，再汇总本次通过、缺镜头及停止；保留足够资源收回时间 | 自动 Web 录像与真人观察分记；未做的 200% 缩放或身份 Gate 不由旧 Mock 图片替代。退出只关自有浏览器，资源由登记 owner 按原截止停止保卷。 |
+
+若已放行窗口只有完成态对象，段 4–8 全部采用“已发生事实的读取/历史回顾”，不得拍本地假按钮动画或把旧 failed 片段剪成当次连续成功。原 AC08 四个 workflow 角色可作为受控案例说明，但不是新 scope 的默认额度；新周期若因真实 material 变化换版，必须按实际版本记录，不能强迫其停留在 v1 为了简化叙事。
+
+### 画面中的证据标签与脱敏
+
+| 实际来源 | 可用标签 | 不得外推 |
+|---|---|---|
+| 真实 session/API/PG + 自有 Mock + 自动 Web | `simulated_web`；业务 API/PG 为实际，业务数据为 Mock，模型按实际来源标识 | 不称 human_web / human_feishu；低权限合成账号不等于真人可用性实测。 |
+| 离线 Base/IM 替身与 `offline_fake` 核实 | “离线 Fake 投影核实”；分别展示业务、发送资格、当前/历史投影 | 不称 SDK 写入、平台已发送或真实 Base 已完整唯一。配置 enabled/资格本身也不证明已发送。 |
+| memory Fake / 原型 / 历史缓存插页 | 明示独立预览或历史；caption 标原 source/mode/绑定边界 | 不伪装为当前 session、当前任务、当前平台或当次 provider 调用。 |
+| 真人飞书 / 真实 Base | 仅引用 Root 对精确实际平台回执及真人观察的最终结论 | 本轮 SDK 关闭；不为片长添加平台记录、成员、群/表权限或补造截图。 |
+
+私有原片保留原字节、hash、source/tree/build/driver、窗口和结果摘要；素材索引不得包含账号、Cookie、业务 URL 或可重放决定材料。发布前逐帧遮罩 display_name/login 定位信息、组织/店铺与 task/report/snapshot/plan/approval/execution/item 标识、request_key、nonce、hash/trace/外部记录定位值；未知假设与 SKU 如需匿名，整段使用稳定行序号/映射并声明脱敏，不能改变全量成员数、勾选状态、数量、版本或原值 null。保留 Mock/Fake/simulated_web、风险、动作语义和业务/同步边界；不裁掉末项或禁用原因来制造顺畅流程。
+
+新加的解说、字幕或脱敏注释应明确是材料层的说明，不能覆盖当前产品字段，尤其不能把 `pending/unknown/failed` 改写成成功。原标识截图、录屏与 OCR 不发 Issue/聊天；公开素材先做脱敏 QA，再由 Root 决定发布，当前三张静态素材仅供本地复用核对。
+
+### 最终一次录屏仍缺什么
+
+| 缺口 | 已有实证与仍缺内容 | 最小补证方式，须 Root 另行放行 |
+|---|---|---|
+| 全量 20 SKU / 未知假设 / 意见受理 | 原 API/驱动有完整行与明确集合断言，但旧视频只有统计/披露片段，缺全 20 行可读覆盖及从意见到执行的连续画面 | 优先读取既有 report/plan/decision：稳定停留、逐行滚动到末项，再读 execution。复用原 AC08 既有四-workflow 库及其已登记额度的录屏窗口时，限原额度，不增加成功 baseline20，也不为未知/冲突换新键重投；最终干净 Compose 复现的一次新自有隔离 baseline20 可由 Root 事前独立登记，不继承旧额度，仍保留完整必要 Gate。 |
+| 单项 close / 新旧周期结果 | 旧 known 的 close 与新周期完成已由 Root/A/只读 API 独立核；原 Web T6 片段实际是 complete。新脱敏帧可说明新周期 completed 与 Q70/v1，尚无完整 close 原因/版本画面 | 只读既有 closed 项的 resolution、来源和独立同步，再读新旧 task/execution。完整 close 过程只有新的明确 T6 放行才录，不为了素材关闭额外项。 |
+| 三态与可信轨迹/模型说明 | Q70 素材拍到独立同步标题，没拍全 Fake current/history/target-observed/unique 卡；新 scope 不保证存在解释缓存 | 拍现有三态字段与完整投影卡，S06 只展示 DTO 已给的事实；缓存缺失拍 NOT_READY。真人飞书/真实 Base、N01 和尚未授权 UX 整理仍分别列缺口，不以此材料批替代实现或验收。 |
+
+本节仅候选文档及文本检查，不产生新的业务录制、平台/模型调用或测试通过结论。当前资源、SDK、模型门禁与 owner 不变；D1=2026-10-10、D30=2026-11-08、总 300h、原 P4 预算保持，人工 H/L `not_reported`。本轮材料窗口不超过 Root 释放的 90 分钟，不推送、不改 PR body，不进入生产或 Phase5。
