@@ -274,16 +274,17 @@ async def finish_child(
     config = owned_config(directory, value)
     async with await open_async(config.database) as db:
         cursor = await db.execute(
-            """SELECT s.after_state FROM business.audit_events s
+            """SELECT s.after_state AS started_state,e.after_state AS stopped_state
+            FROM business.audit_events s JOIN business.audit_events e
+            ON e.organization_id=s.organization_id AND e.source=s.source
+            AND e.entity_type=s.entity_type AND e.entity_id=s.entity_id
+            AND e.action='stopped'
             WHERE s.organization_id=%s AND s.source='worker' AND s.entity_type='worker_runtime'
-            AND s.entity_id=%s AND s.action='started' AND EXISTS(
-            SELECT 1 FROM business.audit_events e WHERE e.organization_id=s.organization_id
-            AND e.source='worker' AND e.entity_type=s.entity_type
-            AND e.entity_id=s.entity_id AND e.action='stopped')""",
+            AND s.entity_id=%s AND s.action='started'""",
             (UUID(facts["organization"]), owner),
         )
         rows = await cursor.fetchall()
-    if len(rows) != 1 or rows[0]["after_state"] != process:
+    if len(rows) != 1 or rows[0]["started_state"] != process or rows[0]["stopped_state"] != process:
         raise TerminationRequired("M1_OWN_CHILD_PERSISTENT_RECEIPT_MISMATCH")
     await confirm_termination(config.database, owner, "M1 original child clean stop and OS reap")
 

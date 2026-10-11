@@ -41,6 +41,10 @@ pytestmark = pytest.mark.offline
         "wrong_namespace",
         "no_stopped",
         "wrong_persistent_pid",
+        "wrong_stopped_pid",
+        "wrong_stopped_host",
+        "wrong_stopped_namespace",
+        "multiple_stopped",
     ],
 )
 def test_only_clean_reaped_exact_child_can_confirm_original_owner(
@@ -74,11 +78,21 @@ def test_only_clean_reaped_exact_child_can_confirm_original_owner(
         receipt["pid_namespace"] = "another-namespace"
     elif case == "wrong_persistent_pid":
         persistent["pid"] += 1
+    stopped = dict(persistent)
+    if case == "wrong_stopped_pid":
+        stopped["pid"] += 1
+    elif case == "wrong_stopped_host":
+        stopped["host"] = "another-host"
+    elif case == "wrong_stopped_namespace":
+        stopped["pid_namespace"] = "another-namespace"
     confirmed = []
 
     class Cursor:
         async def fetchall(self) -> list[dict[str, Any]]:
-            return [] if case in ("wrong_owner", "no_stopped") else [{"after_state": persistent}]
+            if case in ("wrong_owner", "no_stopped"):
+                return []
+            rows = [{"started_state": persistent, "stopped_state": stopped}]
+            return rows * (2 if case == "multiple_stopped" else 1)
 
     class Database:
         async def __aenter__(self) -> "Database":
