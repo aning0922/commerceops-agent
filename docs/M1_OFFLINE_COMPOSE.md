@@ -38,3 +38,13 @@ docker compose --env-file /dev/null -p m1off-UUID -f compose.yml \
 原db-init migrate/setup-checkpointer/grant-runtime/revision依次完成，role flags/tempDB/schema实际核后，仅一次m1-seed run --rm seed；启动m1-api/m1-worker/m1-web后安全壳/login200不代表业务ready。实际浏览器由C原live读/写合同完成账户登录→新cycle→20全披露→显式全ack T3→T4→T6与同ID恢复，断言不以Mock memory替代。保每步实际收集/JUnit或Playwright/私有manifest，而非本文预填结果。
 
 同容器一次显式Worker恢复由`docker compose … kill -s SIGUSR1 m1-worker`触发；API/Web用正常restart，同project和同volume不seed第二次。终了必须only-owned标签/UID及falsePID0核实、监听0、普通down无-v，保卷/镜像/私有账户与source/JUnit，不prune/删旧资源或读取其他工程私配。当前所有这些实际步骤not_run。
+
+## 首实际装配与生命周期收口
+
+Root已核精确b4独审noP1/P2/35pure/config-only，并释放m1off-d8684a08332d/P4-AC08-WTfd38/UID501:GID20新40min：UTC07:37:23.807641→08:17:23.807641，服务自身30min expiry08:07，SDK/平台/provider0。sealed COPY b4实际build49s/0012 init全0/低rolefalse3/tempDB0/schema1/seed0/API+Next+唯一Worker真实启动/真实PGsynthetic登录/known70不可变计划通过，仅partial。私有driver误从plan内容取plan_id/hash/version而该元数据在approval，KeyError前未发送T3；原公开OAS及已有payload helper确证，Root允许同原固定窗一次仅driver字段修正、不重seed或重建known task。
+
+续验worker-start exit2/private固定TerminationRequired：已停整个父容器后新namespace无法证明原已stopped child；原core保护正确拒绝，不伪状态或SDK/第二T3。第二stop UTC07:47:18.7734250/allfalsePID0，UID/project/net/vol/loopback监听0核后UTC07:50:56.896959 only-owned down0/no-v/no-prune/no-rmi、volume/image/private retained。此scope明确AC08 partial failed，Root已读记录；旧source/known task/plan/CP/原秘密卷保留，不在原window热补丁/第三次或新的盲project。raw logs/metadata/252source-manifest、安全summary在WTfd38 ignored runtime/m1off-d8684a08332d中，源/真实失败不拿35pure掩盖。
+
+Root正式授权最小父监督器修复，core/API/迁移/权限不改：child在原WorkerSession.start后单Pipe只传自己的owner/PID/org/host/ns（无凭据）；父process.join/reap且exit0后核这个明确child和原org/同host/namespace，实际require_process_absent，再读同owner唯一started+原clean stopped不可变audit对比完整pid/host/ns，原confirm_termination取得原全局锁再复核并持久结案。正常退出及SIGUSR1都先此结案，之后旧namespace销毁也已有原确认，不以新namespace假证明；non0/exit75/未reap/livePID/PID复用/错误owner/org/ns/缺stopped/PG失败拒绝，不能清lease/改guard/伪marker。新批source/纯/独审后Root另新actualAC08窗口，不改原b4 image或失败数据。
+
+修复作者定向17pure实际1.03s：真实普通child wait/reap+原require_process_absent，正常只确认精确own owner；错误owner/org/ns/缺stopped/未reap/非0/livePID/持久PID错都0confirm。SIGUSR1测试用两个真正普通process，第一已OS absent与确认才第二唯一child启动，最后正常停也确认；Fake DB/SDK0/不签PG，生产保持spawn，测试仅fork继承Fake（两条fork multi-thread warning保留，信号恢复）。完整1388offline90.08s/375integration deselected/4warnings、257mypy/353format/Ruff/92MD0。初作者type annotation修订已修，不是平台Gate失败；修复source/三scope scan/独审另绑，实际新生命周期尚未PG/Compose运行。

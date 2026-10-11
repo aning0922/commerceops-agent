@@ -6,8 +6,10 @@ import json
 import multiprocessing
 import os
 import signal
+import socket
 import time
 from datetime import UTC, datetime
+from multiprocessing.connection import Connection
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -25,7 +27,14 @@ from commerceops.infrastructure.inventory_repository import InventoryStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore, ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig, private_bytes
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
-from commerceops.infrastructure.worker_lock import WorkerSession, open_async
+from commerceops.infrastructure.worker_lock import (
+    TerminationRequired,
+    WorkerSession,
+    confirm_termination,
+    open_async,
+    process_namespace,
+    require_process_absent,
+)
 from commerceops.workflows.inventory_analysis import InventoryRunner
 from commerceops.workflows.inventory_routing import IntentRunner
 from commerceops.workflows.replenishment import ApprovalRunner
@@ -157,13 +166,24 @@ def owned_config(directory: Path, value: dict[str, Any]) -> WebConfig:
     return config
 
 
-async def work(directory: Path) -> None:
+async def work(directory: Path, started: Connection | None = None) -> None:
     value = request(directory)
     config = owned_config(directory, value)
     facts = json.loads(private_bytes(directory / "demo-facts.json"))
     organization, shop = UUID(facts["organization"]), UUID(facts["shop"])
     session = WorkerSession(config.database, organization)
     await session.start()
+    if started is not None:
+        started.send(
+            {
+                "owner": session.owner,
+                "pid": os.getpid(),
+                "organization": str(organization),
+                "host": socket.gethostname(),
+                "pid_namespace": process_namespace(),
+            }
+        )
+        started.close()
     factory, provider = M1DemoFactory(), ProviderFactory()
     approval = ApprovalRunner(ApprovalStore(config, session), collector_factory=factory)
     stop = asyncio.Event()
@@ -215,14 +235,57 @@ async def work(directory: Path) -> None:
         os._exit(75)  # 原Worker安全退出合同，不由asyncio清理猜未知线程已停。
 
 
-def child(directory: Path) -> None:
+def child(directory: Path, started: Connection | None = None) -> None:
     try:
-        asyncio.run(work(directory))
+        asyncio.run(work(directory, started))
     except Exception as error:
         print(
             json.dumps({"stage": "m1_owned_worker", "category": type(error).__name__}), flush=True
         )
         raise SystemExit(2) from None
+
+
+async def finish_child(
+    directory: Path,
+    value: dict[str, Any],
+    expected_pid: int | None,
+    exitcode: int | None,
+    reaped: bool,
+    receipt: dict[str, Any],
+) -> None:
+    # 只在原父容器namespace仍有效且这个明确child已join/reap/exit0时结案。
+    if not reaped or exitcode != 0 or type(expected_pid) is not int or expected_pid <= 0:
+        raise TerminationRequired("M1_OWN_CHILD_NOT_CLEANLY_REAPED")
+    facts = json.loads(private_bytes(directory / "demo-facts.json"))
+    if (
+        set(receipt) != {"owner", "pid", "organization", "host", "pid_namespace"}
+        or receipt["pid"] != expected_pid
+        or receipt["organization"] != facts["organization"]
+        or receipt["host"] != socket.gethostname()
+        or receipt["pid_namespace"] != process_namespace()
+    ):
+        raise TerminationRequired("M1_OWN_CHILD_RECEIPT_MISMATCH")
+    try:
+        owner = str(UUID(receipt["owner"]))
+    except (ValueError, TypeError, AttributeError):
+        raise TerminationRequired("M1_OWN_CHILD_OWNER_INVALID") from None
+    process = {key: receipt[key] for key in ("pid", "host", "pid_namespace")}
+    require_process_absent(process)  # 活PID/PID复用不以exitcode或session锁释放替代。
+    config = owned_config(directory, value)
+    async with await open_async(config.database) as db:
+        cursor = await db.execute(
+            """SELECT s.after_state FROM business.audit_events s
+            WHERE s.organization_id=%s AND s.source='worker' AND s.entity_type='worker_runtime'
+            AND s.entity_id=%s AND s.action='started' AND EXISTS(
+            SELECT 1 FROM business.audit_events e WHERE e.organization_id=s.organization_id
+            AND e.source='worker' AND e.entity_type=s.entity_type
+            AND e.entity_id=s.entity_id AND e.action='stopped')""",
+            (UUID(facts["organization"]), owner),
+        )
+        rows = await cursor.fetchall()
+    if len(rows) != 1 or rows[0]["after_state"] != process:
+        raise TerminationRequired("M1_OWN_CHILD_PERSISTENT_RECEIPT_MISMATCH")
+    await confirm_termination(config.database, owner, "M1 original child clean stop and OS reap")
 
 
 def supervise(directory: Path) -> None:
@@ -242,8 +305,10 @@ def supervise(directory: Path) -> None:
     signal.signal(signal.SIGUSR1, restart_handler)
     ctx = multiprocessing.get_context("spawn")
     while not stopped:
-        process = ctx.Process(target=child, args=(directory,))
+        received, sent = ctx.Pipe(duplex=False)
+        process = ctx.Process(target=child, args=(directory, sent))
         process.start()
+        sent.close()
         while process.is_alive() and not stopped and not restart:
             if datetime.now(UTC) >= datetime.fromisoformat(value["expires_at"]):
                 stopped = True
@@ -255,7 +320,20 @@ def supervise(directory: Path) -> None:
         if process.is_alive():
             os._exit(75)
         if process.exitcode != 0:
+            received.close()
             raise SystemExit(2)
+        try:
+            if not received.poll(1):
+                raise TerminationRequired("M1_OWN_CHILD_START_RECEIPT_MISSING")
+            receipt = received.recv()
+            asyncio.run(
+                asyncio.wait_for(
+                    finish_child(directory, value, process.pid, process.exitcode, True, receipt),
+                    timeout=5,
+                )
+            )
+        finally:
+            received.close()
         if not restart:
             return
         # 原child已经join/reap，下一唯一Worker仍由原同namespace OS证明决定恢复。
