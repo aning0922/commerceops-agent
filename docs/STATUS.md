@@ -774,3 +774,6 @@ C readonly已由Root核成功并释放，下一步原Core审核A07精确冻结�
 
 
 A07本节后继实际回执：Root完成态只读0356/C已readonly_completed_verified，loginPOST1/businesswrites0、同v2执行/Q70/旧known绑定保持，11:57:36Z（北京时间19:57:36）正常stop/down0/低权tempDB0/资源0/保卷。A07初新PG插件exit3/0tests与第二3pass1fail保留；权威p3_task_sources.parameters关联修复后新project p4a07fix-c2fd67aa5f6b一次4PG实际通过（新2/原2）/command14.953s/JUnit12.171s，12:21:17.619637Z正常stop/down0/三flagsfalse/tempDB0/保卷，SDK/平台Secret/Graph/paid0。原Fake cursor通过不替实际SQL，该修复不删准入检查；详见A07。
+
+
+A07配额P1修复候选（2026-10-11）：Root原Core对5fd发现首包IM/Base仅下限、可接受500次，真人/SDK pilot已暂停。原A仅ControlledWorkerWindow加精确八方法名单/上限auth1bot1/table2/field2/IM2/create1/update1/list4，总≤14；原必要下限与Gateway active/Worker不晚于原expiry保持，通用SDKWindow/B/C/权限迁移锁CI不改。20新增回归、相关86pure/新隔离相关4PG实际通过，20:44:23资源0/低权false/temp0/保卷，原独审P1待精确复审核定，跨窗口恢复Gate not_run。首known70操作接续与disabled配置见PHASE4_A07_WORKER，不启动真实服务。5fd与所有旧失败/证据保留。

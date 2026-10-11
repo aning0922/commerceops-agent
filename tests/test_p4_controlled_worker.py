@@ -16,6 +16,7 @@ from commerceops.adapters.feishu.business_base import BusinessBaseAdapter, Busin
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.adapters.feishu.business_im import BusinessIMSDK
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.feishu_business.sdk_window import SDKWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
 from commerceops.entrypoints import feishu_business, feishu_worker_child
 from commerceops.infrastructure import worker_lock
@@ -117,6 +118,57 @@ def test_controlled_window_rejects_disabled_fake_unbounded_scope_and_caps(change
         ] = {"double": 2, "field3": 3, "list1": 1, "bool_cap": True}[change]
     with pytest.raises((ValidationError, PermissionError, ValueError)):
         ControlledWorkerWindow.model_validate_json(json.dumps(value)).window(settings)
+
+
+@pytest.mark.parametrize(
+    ("method", "ceiling"),
+    [
+        ("auth.v3.tenant_access_token.internal", 1),
+        ("bot.v3.info", 1),
+        ("bitable.v1.app_table.list", 2),
+        ("bitable.v1.app_table_field.list", 2),
+        ("im.v1.message.create", 2),
+        ("bitable.v1.app_table_record.create", 1),
+        ("bitable.v1.app_table_record.update", 1),
+        ("bitable.v1.app_table_record.list", 4),
+    ],
+)
+@pytest.mark.parametrize("amplified", [False, True])
+def test_known70_rejects_each_method_above_approved_ceiling(
+    method: str, ceiling: int, amplified: bool
+) -> None:
+    settings, window, _ = configured()
+    value = window.model_dump(mode="json")
+    value["caps"][method] = 500 if amplified else ceiling + 1
+    with pytest.raises(PermissionError, match="P4_CONTROLLED_WORKER_WINDOW_CLOSED"):
+        ControlledWorkerWindow.model_validate_json(json.dumps(value)).window(settings)
+
+
+@pytest.mark.parametrize(
+    "method", ["im.v1.message.update", "bitable.v1.app_table_record.delete", "unapproved.method"]
+)
+def test_known70_rejects_extra_method_before_sdk_window(method: str) -> None:
+    settings, window, _ = configured()
+    value = window.model_dump(mode="json")
+    value["caps"][method] = 1
+    with pytest.raises((ValidationError, PermissionError)):
+        ControlledWorkerWindow.model_validate_json(json.dumps(value)).window(settings)
+
+
+def test_known70_boundary_is_fourteen_without_changing_general_sdk_window() -> None:
+    settings, window, _ = configured()
+    approved = window.window(settings)
+    assert sum(approved.caps.values()) == 14
+    general = SDKWindow(
+        uuid4(),
+        window.organization_id,
+        window.shop_id,
+        window.expires_at,
+        {"im.v1.message.create": 500},
+        enabled=True,
+        verification_mode="controlled_sdk",
+    )
+    assert general.caps["im.v1.message.create"] == 500
 
 
 def test_formal_cli_default_off_does_not_spawn_or_read_secret(

@@ -121,3 +121,6 @@ UX8项及N01只见Issue42#6107359838待用户授权排期；当前Web结构化�
 原3a15四CI38128391205与完整376PG、原v2 backend completed的新1execution1itemQ70已由Root核定；旧C补证仍分层。Root获用户明确授权同Base建正式P4表后，654只读官方preflight当前唯一表/15字段类型通过，auth/bot/table/field四次HTTP200/code0，记录/IM/WS/provider0/完整生命周期与资源释放0，既有失败与原426失因未知不删除。该资源Gate不签正式业务外写、真人或全M1。
 
 Root已派原A唯一owner继续正式单Worker真实SDK/账本/IM/B适配器/原delivery装配离线实施；当前WIP尚未冻结，定向58pure通过，新必要PG2+原2共4实际通过/20:21:17资源0，实际PG/独审/精确新CI后才安排明确真人pilot窗口。pilot需在SDK窗口包含当前metadata检查的真实方法cap，不以早期10次不完整候选预算自动启动；群20/双渠道/负例/新周期/重复/WSwire仍保原门槛。C只读独占PG预约由Root监督，A不并起资源。UX8/N01待授权未实施，阶段/日期/预算/人工工时/设计与所有历史风险和卷保持。
+
+
+A07配额P1修复候选（2026-10-11）：Root原Core对5fd发现首包IM/Base仅下限、可接受500次，真人/SDK pilot已暂停。原A仅ControlledWorkerWindow加精确八方法名单/上限auth1bot1/table2/field2/IM2/create1/update1/list4，总≤14；原必要下限与Gateway active/Worker不晚于原expiry保持，通用SDKWindow/B/C/权限迁移锁CI不改。20新增回归、相关86pure/新隔离相关4PG实际通过，20:44:23资源0/低权false/temp0/保卷，原独审P1待精确复审核定，跨窗口恢复Gate not_run。首known70操作接续与disabled配置见PHASE4_A07_WORKER，不启动真实服务。5fd与所有旧失败/证据保留。

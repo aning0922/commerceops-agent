@@ -51,3 +51,50 @@ task名单须在原可信Gateway T1持久化后由Root核定。正式子进程�
 完整offline1426/94.62s（修复SQL前快照、integration377 deselected）、359format/262mypy/93MD/Ruff/uv锁均0；敏感误报4固定方法名/类型标注经正常格式与合成case名整理后dir/index/history各0，不改规则。最终修复源码完整offline1426 passed/378 integration deselected/118.78s，4PG实际call全pass/12阶段无fail且COPY镜像backend/scripts/tests与当前逐byte一致；最终source/独审/精确新CI不预填，暂存三scope扫描随freeze核。原CI自动按test_p4前缀将新增PG2纳phase3分区，无共享CI/锁改动。
 
 最小真人pilot仍disabled：known70一任务、私聊请求/本版本批准/Web close三业务动作，Base create1/update1/单页最低list4与原approval/result IM2。正式装配会在同SDK窗口再核metadata，需Root冻结auth1/bot1/table≤2/field≤2及业务caps（最多14、单页正常12次HTTP），不能沿用不含metadata两项的早期10次候选预算。当前metadata与必要定向PG通过，不替代正式装配独审/精确CI、真人即发ready与实际record完整15读回。群20/跨入口/新周期/负例/重复/WSwire及原全M1仍另核；UX8/N01未实施，D1/D30/300h/50h估计、人工H/L not_reported、18页设计、原风险及保卷边界保持。
+
+## 5fd独审P1首包配额修复候选
+
+Root原Core对精确5fd发现P1：controlled-worker只检查IM/Base下限，通用SDKWindow的500次上限可被首包沿用。真人/SDK pilot暂停，5fd不是已验收候选。原授权known70首包预算仍是下表，未增加或改成全M1预算：
+
+| 唯一允许的SDK方法 | 单窗口上限 |
+|---|---|
+| auth.v3.tenant_access_token.internal | 1 |
+| bot.v3.info | 1 |
+| bitable.v1.app_table.list | 2 |
+| bitable.v1.app_table_field.list | 2 |
+| im.v1.message.create | 2 |
+| bitable.v1.app_table_record.create | 1 |
+| bitable.v1.app_table_record.update | 1 |
+| bitable.v1.app_table_record.list | 4 |
+
+只在ControlledWorkerWindow增加不可变KNOWN70方法名单与逐项上限，最多14；原认证/bot/fields/table定位及IM/create/list必要下限保留，省略可选方法不能绕其正数/上限规则。额外方法、各类上限+1与500次放大都拒绝。通用SDKWindow、权限/迁移/B/C/锁/CI及原Gateway active、Worker不晚于Gateway expiry条件原字节保持；跨窗口恢复Gate仍not_run，不在本修复新增恢复设施。
+
+作者先在旧源码用16个高配额回归复现8fail/8pass/3.27s（四IM/Base方法分别上限+1与500均未被拒），随后修复相关86pure/5.36s通过，含20新增配额/额外方法/合法14边界/通用500保持测试；定向mypy2/Ruff通过。新自有隔离project p4a07cap-c4203b9dc947，T0=20:43:40/outer20:53:40，UID501:GID20、新0012/credentials、AppSecret/平台/模型/业务Graph0；一次相关4PG全部passed，command14.868s/JUnit12.076s/0failure-error-skip，低权3flagsfalse/tempDB0，20:44:23正常stop/down no-v0/容器网络0/保卷。新精确SHA/原Core复审与CI另核，不由作者宣P1解除。
+
+## 首known70 pilot的既有入口接续（全部disabled，未执行）
+
+该接续仅使用现有API、Gateway、Worker和Web界面，供Root在精确复审/CI后安排真人时刻。所有待用配置保持enabled=false、未设置新T0；命令是操作顺序示例，本文不会启动服务或读Secret。Root先核新自有PG与已验schema的唯一Base目标、同A principal的Feishu/Web identity与当前operator/approver/shop权限。当前只读资源准备不自动意味着Web登录credential已准备；需按原身份桥接合同核定，不能借旧M1登录或复制旧密码。固定parameters取原DTO：source_mode=mock、dataset_version=inventory-v1、fixture_case=known_inbound、L=3/R=7/S=2，P2/T2/T4用同已审factory，model not_used。
+
+1. Root准备私有business/web/Gateway/Worker JSON和只读单文件mount，核App无其他consumer与所有owned资源归属。Gateway使用新的原window UUID、唯一workflow/max_workflows=1、最多2次业务callback admission；admission不是WS物理帧次数，endpoint/handshake/frame/ACK仍not_verified。Worker使用自己的新SDK window UUID并指向同Gateway window UUID，expiry不晚于该Gateway；Root预定原绝对窗口，不能在捕获T1后延长Gateway。
+2. Root在同PG启动现有API和原Gateway入口；分别用独立受控会话执行以下命令。明确时刻才启用原私有Gateway窗口，CLI的live也不能绕过enabled/expiry。真人A向原bot私聊发送“分析库存并生成补货建议”一次，此时还没有正式Worker分析/发卡。
+
+```bash
+COMMERCEOPS_P3_CONFIG_FILE=/run/owned/web.json \
+  COMMERCEOPS_HOST=127.0.0.1 COMMERCEOPS_PORT=8000 \
+  python -m commerceops.entrypoints.api
+
+python -m commerceops.entrypoints.feishu_business gateway --live \
+  --config /run/owned/p4-business.json --window-file /run/owned/p4-gateway.json
+```
+
+3. Root用commerceops_app只读原PG的p4_inbox_receipts/inbox_events与Gateway claim，核原claim之后唯一T1 task：同org/shop/app/tenant、Feishu channel、im.message.receive_v1，以及原p3_task_sources.parameters等于Gateway原parameters；结果必须恰好一个。task UUID只存600私配，不 stdout/粘贴公开。把该原task放Worker task_ids=[原task]，gateway_window_id保持原值；不造task、复制旧计划/nonce/approval或将Fake历史升级。由原trusted_scope再次完整核验，余量≤15s则not_run，不能换截止。Root此时才启用已约定Worker窗口并启动现有正式入口：
+
+```bash
+COMMERCEOPS_MODE=p4-controlled-test \
+  python -m commerceops.entrypoints.feishu_business worker --live \
+  --config /run/owned/p4-business.json --window-file /run/owned/p4-worker.json
+```
+
+4. Worker先原auth/bot/同表严格metadata验证，随后唯一Graph生成本版本plan与正式卡；真人A只在原版本卡approve一次。等待PG原execution1/item1 Q70以及Base v1原UUID、稳定record anchor和完整15字段唯一verified读回；SDK ACK不替代verified。原approval/result IM最多2，create最多1，两次投影共list最多4，metadata每类最多2；分页/对账也扣同上限，无额外get或补次数。
+5. 原Base v1 verified后，真人A用同principal的既有Web登录，找到同一内部item执行close一次（保原任务/执行/批准不复活）。原T6生成v2 immutable outbox，由仍在原窗口内的同Worker对同稳定record update最多1，完整15字段读回；不增加T6通知或新工作流。records里nullable终态三键absent必须按原B strict binding置UNKNOWN/停止，不能自动填空、放宽B或盲重发；平台UI空白行是否实际默认记录仍未查。
+6. Root提前停止时向原Gateway/Worker父进程发送SIGTERM，或沿各自既有绝对expiry正常收尾。Gateway父层terminate/wait/reap；Worker父层正常终止原child，并在同host/PIDnamespace读唯一完整started/stopped、核原PID OS消失后用既有confirm_termination。缺pair/未回收/namespace不符只报failed/not_verified；非合作Graph保退出75与未确认receipt，不从外层Docker PID0猜确认。之后仅owned正常stop/down no-v，核容器/网络/listener/tempDB0，保卷/原键/全部历史；未知外写与未确认调用保持原UUID账本，不续窗、不补发。Web或Base步骤余量不足即未完成，不把这首包当全M1通过。

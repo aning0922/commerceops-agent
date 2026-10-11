@@ -51,3 +51,6 @@ cycle actual failure_code及完整源/观测差异未捕获：只读diag第一�
 原父截止进入收尾、C失败完成文件到达已cleanup，RuntimeError仅指完成metadata未在父cutoff到达；09:02:13.931583Z stop0/09:02:14.553147Z仅own down0/no-v/PID0、containers0/networks0/listeners0/tempDB0，保留卷/images/700与600完整私包。旧d868 partial/aea SQL失败及原CI未知/旧Gate保留，source43新CI、本四文档精确独审与阶段收口以Root实际回执另记，不预填未来SHA。
 
 [UX8与N01](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6107359838)仅待授权排期，当前Web结构化与PRD+冻结M02自然语言BC02差异待合同核对；不文案冒称实现/移M2/减Gate/并写UI或Penpot。RO资源准备disabled且缺Root确认的单AppSecret/Base/单群身份唯一路径，未读旧.env/旧密码或启动auth/WS。human_feishu/human_web/正式平台、M1/Phase4未验收，日期/原300h/P4 50h估计/人工H-L未报告与生产/Woo/Phase5/付费/扩权边界保持。
+
+
+A07配额P1修复候选（2026-10-11）：Root原Core对5fd发现首包IM/Base仅下限、可接受500次，真人/SDK pilot已暂停。原A仅ControlledWorkerWindow加精确八方法名单/上限auth1bot1/table2/field2/IM2/create1/update1/list4，总≤14；原必要下限与Gateway active/Worker不晚于原expiry保持，通用SDKWindow/B/C/权限迁移锁CI不改。20新增回归、相关86pure/新隔离相关4PG实际通过，20:44:23资源0/低权false/temp0/保卷，原独审P1待精确复审核定，跨窗口恢复Gate not_run。首known70操作接续与disabled配置见PHASE4_A07_WORKER，不启动真实服务。5fd与所有旧失败/证据保留。

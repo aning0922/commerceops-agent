@@ -1,6 +1,8 @@
 """同原Gateway/显式任务白名单的正式SDK Worker窗口；默认关闭。"""
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
+from types import MappingProxyType
 from typing import Literal
 from uuid import UUID
 
@@ -9,6 +11,19 @@ from pydantic import BaseModel, ConfigDict, Field
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.sdk_calls import SDKMethod
 from commerceops.application.feishu_business.sdk_window import SDKWindow
+
+KNOWN70_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {
+        "auth.v3.tenant_access_token.internal": 1,
+        "bot.v3.info": 1,
+        "bitable.v1.app_table.list": 2,
+        "bitable.v1.app_table_field.list": 2,
+        "im.v1.message.create": 2,
+        "bitable.v1.app_table_record.create": 1,
+        "bitable.v1.app_table_record.update": 1,
+        "bitable.v1.app_table_record.list": 4,
+    }
+)
 
 
 class ControlledWorkerWindow(BaseModel):
@@ -36,6 +51,8 @@ class ControlledWorkerWindow(BaseModel):
             or not 15 < remaining <= 300
             or not self.enabled
             or (self.organization_id, self.shop_id) != (settings.organization_id, settings.shop_id)
+            or set(self.caps) - set(KNOWN70_CAPS)
+            or any(value > KNOWN70_CAPS[method] for method, value in self.caps.items())
             or self.caps.get("auth.v3.tenant_access_token.internal") != 1
             or self.caps.get("bot.v3.info") != 1
             or self.caps.get("bitable.v1.app_table_field.list") not in (1, 2)
