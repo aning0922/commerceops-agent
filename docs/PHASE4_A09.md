@@ -55,3 +55,25 @@ Root在原Web对 `e3754fe9d2ebf1eaa58a4a0d23a9f17f11e153bb` / tree `704ad589e927
 此后Root核原Web对最终C `22aa2731445136e63a62465dd9caa662e08285f9` / tree `f8dc83d2f2df4993627e1ca2a4de2c056de77c77` / parent e375 的runner-only增量复审14pure/0.39秒、无P1/P2，释放普通集成。A已无冲突merge；C修正只在source manifest排除上述三个生成sink，其他tracked与六关键源仍完整hash，原CLI/deadline/一freshpair/stop及e375产品保持。原C六actual Web仍0/not_run；新综合源码仅本地待完整检查/敏感扫描/冻结及原Core对CI增量精确独审，随后Root才能释放一次新exact push/CI，不在此预填未来SHA/CI或签实际Gate。
 
 合最终C后本地相关128pure/0.75秒/Ruff/type7files通过；真实源码manifest只读构建324文件、三sink精确排除、hash0差，未创建服务。综合scripts.check实际exit0：1570offline pass/441integration deselected/88.88秒、Ruff389/mypy286/Markdown99 errors0、lock99/Node24.21/tsc/npm42 audit0/Python95 audit0/三scope scan0。Deprecation/fork四警告保留；该结果不替代441实际PG及六actual N01 Web，最终本地freeze与pre/post stage/commit敏感核查由Issue40外部回执记录，原Core增量独审/新CI仍pending。
+
+## e9精确 CI 终态与失败证据补齐段
+
+Root核原Core精确 `e9b9c1bf67c14fc8b9ff12e091c516433aa899e4` / tree `4fa42fbc5c581d389a8293986b6419098329f556` 增量无P1/P2、独立84pure/0.73秒后放唯一正常push。精确 [CI38175892938](https://github.com/aning0922/commerceops-agent/actions/runs/38175892938) run160/attempt1/eventPR/head e9，UTC21:19:35–21:34:57实际completed/FAILURE；synthetic `f9110a2181e2d31e2108e9d4b4a1ef3760d2a19b` parents(main9d97,e9)/同tree。quality/phase3/pg-pair SUCCESS；frontend/n01-web FAILURE，完整阶段/M1不通过。
+
+Root与A各自从exact e9 checkout调用verify_pair核两safe artifacts：281+160=441实际callpass/28组无漏重、源/tree/工具/锁/完整集合一致，G1三/G2六、cleanup0/0与停止true。新workflow6、N01 backend13均在该完整实际PG中通过。Root首次从主目录import旧scripts所报module label异常，经换exact checkout已通过，不是本轮CI defect。权威终态与artifact IDs/digests/安全JSON实算hash见[Issue40#6114057272](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6114057272)。这只核PG，不替Web或正式SDK。
+
+frontend锁/构建/离线准备SUCCESS，真实入口read安全摘要passed/test_exit0/invariants true；write test_exit1/failure_category null/invariants true，随后items未启动。read/write摘要UTC21:26:23.0393681Z/21:34:51.6331331Z均PGfalse/PID0/保卷/provider0，早于21:42:41.921593Z。N01准备SUCCESS、Playwright test_exit1/failure_category null；21:25:34.398562Z停止早于21:42:45.061999Z，PGfalse/PID0/listenersfalse/保卷/无WorkerSDKprovider，本轮registered project保卷stop/down核containers0/networks0。两Web失败后的成功证据校验及upload正确skip，仅留下两个PG artifacts；没有case名/assertion/实际collected或pass counts，不猜六例已执行或非0例，原private全child数组缺公开证明也不补签。原SDK/生产Gate仍暂停。
+
+2026-10-12 Root恢复主控后，原C checkout恢复到原path/branch，tracked22aa对象保持完整；旧六untracked/runtime资产未恢复、cause unknown，旧失败和资产缺口保持，不能称完整恢复。C新源码诊断段04:40:50–06:40:50Z；A新唯一CI接线段04:58:27–06:58:27Z/≤2h，只workflow/必要专用pure/本文件/STATUS，无新PG/SDK/provider/paid/CI/push。原A09 19:03:09–01:03:09Z lease已过期，不借本段续原lease。
+
+本段待原C闭合live-failure-v1 schema与专用policy/validator冻结独审，A只接独立失败白名单sidecar及本轮source/tree/job/run/attempt/build/时间绑定。成功Gate/上传保持，缺文件或绑定不符拒收为unknown，后续not_run不造已执行数；不上传private logs/raw reporter/message/stack/DOM/URL/DSN。当前C WIP仅只读核接口，最终普通merge、实际定向检查/敏感扫描/精确独审及一次新CI另由Root放行，不预填未来SHA/通过。
+
+Root转原C只读源码发现Submission recovery按钮默认位于closed details，旧write两case直接click send-original；已批准同包两测试显式展开，10case/原digest/key/unknown GET/重复次数/业务断言及产品不改。此为静态错位，不追溯声称捕获本CI assertion或已修实际Web。Root只stat确认canonical AppSecret缺失并以O_EXCL重建私有700/600空模板；原known70 account/config目录仍存在，不代表全部旧资产恢复。真实SDK blocked待用户填写及Root后续具体窗口，A不读secret，源码接线不依赖key。
+
+用户此后回复已补回，Root仅stat核canonical regular/non-symlink/nonempty/600/UID501，内容未读；Factory/Gateway仍待本批独审/精确CI及Root新的有限窗口，A无key读取。C副产物来源闭合要求已同步A：frontend原13个source_file hash不删，仅新增immutable live-failure.schema.json为14；N01全tracked自然包含schema，mutable set仅增加第四个精确failure-diagnostic.safe.json，不排除其他代码/fixture。原成功校验及上传除这两项来源同步之外逐项与e9一致，未降低case或业务断言。
+
+本地A接线WIP两job独立失败guard只在原执行step failure时运行，复用C exports并绑定当前source/tree/job/runattempt/build/context登记及该stage window时间。缺失/偏移只固定unknown拒收，无raw回显；status passed只允许C已判定rejected/global-error异常，外层始终job_outcome=failure/gate_passed=false。通过才上传精确一sidecar与极小binding metadata，后续未登记stage保持not_run，不读取旧未启动stage sidecar。定向首55pure/7.27s、加stage/缺window/旧后续样本后相关153pure/9.49s；来源同步后两job绑定相关61pure/9.64s，Ruff/type2/Node嵌入syntax/bash/Python contexts/MD99 errors0通过，第一次dir/index/history扫描0。仅结构/绑定Fake，不作actual Web Gate；C尚未freeze/合入，最终检查与独审/新CI待。
+
+后继实际：本会话已获真人明确恢复CommerceOps；误暂停期间保留五文件，原06:58:27Z截止不顺延、不自建Goal。C最终source `cd239ba5e85f535a6de5cd516abc053e2d260feb` / tree `cd16ec7b00a10bd27c424ebafae6cd2a92dd6280` / parent22aa，14files；Root核原Web独立精确增量无P1/P2、13Nodecontract/856ms+20Pythonpure/0.44s/type通过后释放正常内部合并。A已无冲突普通merge，C frontend/e2e/UX按已审字节继承；A只原五文件CI/必要测试/状态收口，backend/root scripts/锁/Compose相对e9不改。
+
+合后作者受影响173pure/9.50秒/Ruff/type6files通过，Markdown99/errors0/diffcheck0。Node24直接import真实C policy/validator成功，固定spec声明7/10/7/6；闭合失败示例reported0/body-null合法，clean passed及raw message字段拒收。这是纯接口验证，不是实际Playwright执行。schema source清单14与C exact tuple一致、N01仅四固定mutable sinks；本轮actual24+6仍未重跑，新实际CI与任何SDK/Factory由Root后续另放，AppSecret仅Root stat已填不构成SDK验收。最终冻结/敏感扫描/原Core对本五文件增量及C字节融合独审待外部回执，不预填未来通过。

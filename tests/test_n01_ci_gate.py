@@ -48,7 +48,12 @@ def test_n01_deadline_fixed_before_checkout_and_only_verified_public_outputs() -
     runner = next(s["run"] for s in steps if s.get("id") == "n01")
     assert "tests.e2e.web.run_c09_n01" in runner and "--stop-at-utc" in runner
     assert runner.count("rm -f") == 1
-    uploads = [s for s in steps if "actions/upload-artifact" in s.get("uses", "")]
+    uploads = [
+        s
+        for s in steps
+        if "actions/upload-artifact" in s.get("uses", "")
+        and "steps.n01_evidence.outcome" in s.get("if", "")
+    ]
     assert len(uploads) == 1 and "steps.n01_evidence.outcome == 'success'" in uploads[0]["if"]
     assert uploads[0]["with"]["path"].splitlines() == [
         "frontend/evidence/p4-c09/n01/live-results.json",

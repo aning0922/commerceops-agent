@@ -129,6 +129,34 @@ jobs:
           rm -f frontend/evidence/p4-c09/n01/live-results.json \
             frontend/evidence/p4-c09/n01/pg-invariants.safe.json \
             frontend/evidence/p4-c09/n01/resource-stop.safe.json
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          job = os.environ["GITHUB_JOB"]
+          stop_name = "COMMERCEOPS_N01_STOP_AT_UTC" if job == "n01-web" else "COMMERCEOPS_FRONTEND_STOP_AT_UTC"
+          assert job in {"n01-web", "frontend"}
+          audit = root / ".audit"
+          audit.mkdir(exist_ok=True)
+          assert not audit.is_symlink()
+          context = {
+              "schema_version": "ci-live-failure-binding-v1",
+              "source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
+              "source_tree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip(),
+              "job": job,
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "build_id": (root / "frontend/.next/BUILD_ID").read_text().strip(),
+              "registered_at_utc": datetime.now(timezone.utc).isoformat(),
+              "stop_at_utc": os.environ[stop_name],
+          }
+          with (audit / "live-failure-context.safe.json").open("x") as output:
+              json.dump(context, output, sort_keys=True)
+          (audit / "live-failure-context.safe.json").chmod(0o600)
+          PY
           # The C runner reserves 75 seconds for its original children and PG.
           uv run --frozen python -m tests.e2e.web.run_c09_n01 \
             --private-directory "$private_directory" \
@@ -199,6 +227,93 @@ jobs:
           assert datetime.fromisoformat(result["stopped_at_utc"]) <= stop
           print("Current registered N01 project removed; containers0/networks0; volume retained")
           PY
+      - name: Validate only current-source closed failure diagnostic
+        id: n01_failure_evidence
+        if: ${{ always() && steps.n01.outcome == 'failure' }}
+        shell: bash
+        env:
+          COMMERCEOPS_FAILURE_PRIVATE_DIRECTORY: ${{ steps.n01.outputs.private_directory }}
+        run: |
+          "$GITHUB_WORKSPACE/.tools/node/bin/node" --input-type=module - <<'JS'
+          import { readFileSync, writeFileSync, appendFileSync, lstatSync, existsSync } from "node:fs";
+          import { resolve, join } from "node:path";
+          import { execFileSync } from "node:child_process";
+          import { createHash } from "node:crypto";
+          try {
+            const root = process.env.GITHUB_WORKSPACE;
+            if (resolve(root) !== process.cwd()) throw new Error();
+            const read = (path) => {
+              const info = lstatSync(path);
+              if (!info.isFile() || info.isSymbolicLink() || info.uid !== process.getuid() ||
+                  (info.mode & 0o777) !== 0o600 || info.size > 131072) throw new Error();
+              return JSON.parse(readFileSync(path, "utf8"));
+            };
+            const ctx = read(join(root, ".audit/live-failure-context.safe.json"));
+            const fields = ["schema_version", "source_commit", "source_tree", "job", "run_id", "run_attempt", "build_id", "registered_at_utc", "stop_at_utc"];
+            if (Object.keys(ctx).sort().join() !== fields.sort().join() || ctx.schema_version !== "ci-live-failure-binding-v1") throw new Error();
+            const job = process.env.GITHUB_JOB;
+            if (!["frontend", "n01-web"].includes(job) || ctx.job !== job ||
+                ctx.run_id !== process.env.GITHUB_RUN_ID || ctx.run_attempt !== process.env.GITHUB_RUN_ATTEMPT) throw new Error();
+            const git = (ref) => execFileSync("git", ["rev-parse", ref], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+            if (ctx.source_commit !== git("HEAD") || ctx.source_tree !== git("HEAD^{tree}") ||
+                ctx.build_id !== readFileSync(join(root, "frontend/.next/BUILD_ID"), "utf8").trim()) throw new Error();
+            const stopName = job === "n01-web" ? "COMMERCEOPS_N01_STOP_AT_UTC" : "COMMERCEOPS_FRONTEND_STOP_AT_UTC";
+            if (ctx.stop_at_utc !== process.env[stopName]) throw new Error();
+            const began = Date.parse(ctx.registered_at_utc), stop = Date.parse(ctx.stop_at_utc);
+            if (!Number.isFinite(began) || !Number.isFinite(stop) || began >= stop) throw new Error();
+            const privateRoot = process.env.COMMERCEOPS_FAILURE_PRIVATE_DIRECTORY;
+            if (typeof privateRoot !== "string" || resolve(privateRoot) !== privateRoot) throw new Error();
+            const own = lstatSync(privateRoot);
+            if (!own.isDirectory() || own.isSymbolicLink() || own.uid !== process.getuid() || (own.mode & 0o777) !== 0o700) throw new Error();
+            const stages = job === "n01-web" ? ["n01"] : ["read", "write", "items"];
+            const paths = {
+              read: "frontend/evidence/b04-live/read/failure-diagnostic.safe.json",
+              write: "frontend/evidence/b04-live/write/failure-diagnostic.safe.json",
+              items: "frontend/evidence/b04-live/failure-diagnostic.safe.json",
+              n01: "frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json",
+            };
+            const observed = stages.filter((stage) => existsSync(join(privateRoot, ...(job === "n01-web" ? [] : [stage]), "window.json")));
+            if (!observed.length || observed.join() !== stages.slice(0, observed.length).join()) throw new Error();
+            const stage = observed.at(-1);
+            const directory = job === "n01-web" ? privateRoot : join(privateRoot, stage);
+            const window = read(join(directory, "window.json"));
+            const started = Date.parse(window.started_at_utc);
+            if (window.owner !== (job === "n01-web" ? "phase4-C09-Web" : "phase3-WebCI") ||
+                window.owner_uid !== process.getuid() || window.checkout !== root || window.private_directory !== directory ||
+                window.source_commit !== ctx.source_commit || window.build_id !== ctx.build_id ||
+                window.stop_at_utc !== ctx.stop_at_utc || !Number.isFinite(started) || started < began || started >= stop) throw new Error();
+            if (job === "frontend" && window.stage !== stage) throw new Error();
+            const path = paths[stage], absolute = join(root, path);
+            const diagnostic = read(absolute), captured = Date.parse(diagnostic.captured_at_utc);
+            const { liveFailurePolicy, validLiveFailureDiagnostic } = await import("./frontend/tooling/live-reporter.ts");
+            if (!validLiveFailureDiagnostic(diagnostic, liveFailurePolicy()) || diagnostic.stage !== stage ||
+                !Number.isFinite(captured) || captured < started || captured > stop ||
+                lstatSync(absolute).mtimeMs < started ||
+                (diagnostic.status === "passed" && !(diagnostic.rejected_result_count > 0 || diagnostic.global_error_count > 0))) throw new Error();
+            const metadata = {
+              ...ctx, job_outcome: "failure", gate_passed: false, stage, report_status: diagnostic.status,
+              observed_stages: observed, unstarted_stages: stages.slice(observed.length),
+              diagnostic_path: path, diagnostic_sha256: createHash("sha256").update(readFileSync(absolute)).digest("hex"),
+              stage_started_at_utc: window.started_at_utc, captured_at_utc: diagnostic.captured_at_utc,
+            };
+            writeFileSync(join(root, ".audit/live-failure-binding.safe.json"), JSON.stringify(metadata, null, 2) + "\n", { mode: 0o600, flag: "wx" });
+            appendFileSync(process.env.GITHUB_OUTPUT, "sidecar_path=" + path + "\n");
+            console.log("Current-source closed failure diagnostic accepted; job remains failure");
+          } catch {
+            console.error("Failure evidence missing or rejected; actual test counts remain unknown");
+            process.exitCode = 1;
+          }
+          JS
+      - name: Upload only verified failure sidecar and minimal binding
+        if: ${{ always() && steps.n01.outcome == 'failure' && steps.n01_failure_evidence.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # official v4
+        with:
+          name: n01-web-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ steps.n01_failure_evidence.outputs.sidecar_path }}
+            .audit/live-failure-binding.safe.json
+          if-no-files-found: error
+          retention-days: 1
       - name: Require current source six passes PG invariants and complete stop proof
         id: n01_evidence
         shell: bash
@@ -244,7 +359,8 @@ jobs:
           assert cleanup["volume_preserved"] is True and datetime.fromisoformat(cleanup["stopped_at_utc"]) <= stop
           public = root / "frontend/evidence/p4-c09/n01"
           outputs = {str((public / name).relative_to(root)) for name in (
-              "live-results.json", "pg-invariants.safe.json", "resource-stop.safe.json")}
+              "live-results.json", "pg-invariants.safe.json", "resource-stop.safe.json",
+              "failure-diagnostic.safe.json")}
           sources = set(subprocess.check_output(["git", "ls-files", "frontend", "tests/e2e/web"], cwd=root, text=True).splitlines()) - outputs
           assert set(manifest) == sources
           assert hashlib.sha256((private / "source-files.safe.json").read_bytes()).hexdigest() == window["source_manifest_sha256"]
@@ -453,6 +569,34 @@ jobs:
           rm -f frontend/evidence/b04-live/read/live-results.json \
             frontend/evidence/b04-live/write/live-results.json \
             frontend/evidence/b04-live/live-results.json
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          job = os.environ["GITHUB_JOB"]
+          stop_name = "COMMERCEOPS_N01_STOP_AT_UTC" if job == "n01-web" else "COMMERCEOPS_FRONTEND_STOP_AT_UTC"
+          assert job in {"n01-web", "frontend"}
+          audit = root / ".audit"
+          audit.mkdir(exist_ok=True)
+          assert not audit.is_symlink()
+          context = {
+              "schema_version": "ci-live-failure-binding-v1",
+              "source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
+              "source_tree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip(),
+              "job": job,
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "build_id": (root / "frontend/.next/BUILD_ID").read_text().strip(),
+              "registered_at_utc": datetime.now(timezone.utc).isoformat(),
+              "stop_at_utc": os.environ[stop_name],
+          }
+          with (audit / "live-failure-context.safe.json").open("x") as output:
+              json.dump(context, output, sort_keys=True)
+          (audit / "live-failure-context.safe.json").chmod(0o600)
+          PY
           # The frozen entry reserves 75 seconds and stops each owned batch.
           # Run all three stages without a filter or any reused private inputs.
           uv run --frozen python -m tests.e2e.web.run_live_batches \
@@ -460,6 +604,93 @@ jobs:
             --private-directory "$private_directory" \
             --owner ci \
             --stop-at-utc "$COMMERCEOPS_FRONTEND_STOP_AT_UTC"
+      - name: Validate only current-source closed failure diagnostic
+        id: frontend_failure_evidence
+        if: ${{ always() && steps.live.outcome == 'failure' }}
+        shell: bash
+        env:
+          COMMERCEOPS_FAILURE_PRIVATE_DIRECTORY: ${{ steps.live.outputs.private_directory }}
+        run: |
+          "$GITHUB_WORKSPACE/.tools/node/bin/node" --input-type=module - <<'JS'
+          import { readFileSync, writeFileSync, appendFileSync, lstatSync, existsSync } from "node:fs";
+          import { resolve, join } from "node:path";
+          import { execFileSync } from "node:child_process";
+          import { createHash } from "node:crypto";
+          try {
+            const root = process.env.GITHUB_WORKSPACE;
+            if (resolve(root) !== process.cwd()) throw new Error();
+            const read = (path) => {
+              const info = lstatSync(path);
+              if (!info.isFile() || info.isSymbolicLink() || info.uid !== process.getuid() ||
+                  (info.mode & 0o777) !== 0o600 || info.size > 131072) throw new Error();
+              return JSON.parse(readFileSync(path, "utf8"));
+            };
+            const ctx = read(join(root, ".audit/live-failure-context.safe.json"));
+            const fields = ["schema_version", "source_commit", "source_tree", "job", "run_id", "run_attempt", "build_id", "registered_at_utc", "stop_at_utc"];
+            if (Object.keys(ctx).sort().join() !== fields.sort().join() || ctx.schema_version !== "ci-live-failure-binding-v1") throw new Error();
+            const job = process.env.GITHUB_JOB;
+            if (!["frontend", "n01-web"].includes(job) || ctx.job !== job ||
+                ctx.run_id !== process.env.GITHUB_RUN_ID || ctx.run_attempt !== process.env.GITHUB_RUN_ATTEMPT) throw new Error();
+            const git = (ref) => execFileSync("git", ["rev-parse", ref], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+            if (ctx.source_commit !== git("HEAD") || ctx.source_tree !== git("HEAD^{tree}") ||
+                ctx.build_id !== readFileSync(join(root, "frontend/.next/BUILD_ID"), "utf8").trim()) throw new Error();
+            const stopName = job === "n01-web" ? "COMMERCEOPS_N01_STOP_AT_UTC" : "COMMERCEOPS_FRONTEND_STOP_AT_UTC";
+            if (ctx.stop_at_utc !== process.env[stopName]) throw new Error();
+            const began = Date.parse(ctx.registered_at_utc), stop = Date.parse(ctx.stop_at_utc);
+            if (!Number.isFinite(began) || !Number.isFinite(stop) || began >= stop) throw new Error();
+            const privateRoot = process.env.COMMERCEOPS_FAILURE_PRIVATE_DIRECTORY;
+            if (typeof privateRoot !== "string" || resolve(privateRoot) !== privateRoot) throw new Error();
+            const own = lstatSync(privateRoot);
+            if (!own.isDirectory() || own.isSymbolicLink() || own.uid !== process.getuid() || (own.mode & 0o777) !== 0o700) throw new Error();
+            const stages = job === "n01-web" ? ["n01"] : ["read", "write", "items"];
+            const paths = {
+              read: "frontend/evidence/b04-live/read/failure-diagnostic.safe.json",
+              write: "frontend/evidence/b04-live/write/failure-diagnostic.safe.json",
+              items: "frontend/evidence/b04-live/failure-diagnostic.safe.json",
+              n01: "frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json",
+            };
+            const observed = stages.filter((stage) => existsSync(join(privateRoot, ...(job === "n01-web" ? [] : [stage]), "window.json")));
+            if (!observed.length || observed.join() !== stages.slice(0, observed.length).join()) throw new Error();
+            const stage = observed.at(-1);
+            const directory = job === "n01-web" ? privateRoot : join(privateRoot, stage);
+            const window = read(join(directory, "window.json"));
+            const started = Date.parse(window.started_at_utc);
+            if (window.owner !== (job === "n01-web" ? "phase4-C09-Web" : "phase3-WebCI") ||
+                window.owner_uid !== process.getuid() || window.checkout !== root || window.private_directory !== directory ||
+                window.source_commit !== ctx.source_commit || window.build_id !== ctx.build_id ||
+                window.stop_at_utc !== ctx.stop_at_utc || !Number.isFinite(started) || started < began || started >= stop) throw new Error();
+            if (job === "frontend" && window.stage !== stage) throw new Error();
+            const path = paths[stage], absolute = join(root, path);
+            const diagnostic = read(absolute), captured = Date.parse(diagnostic.captured_at_utc);
+            const { liveFailurePolicy, validLiveFailureDiagnostic } = await import("./frontend/tooling/live-reporter.ts");
+            if (!validLiveFailureDiagnostic(diagnostic, liveFailurePolicy()) || diagnostic.stage !== stage ||
+                !Number.isFinite(captured) || captured < started || captured > stop ||
+                lstatSync(absolute).mtimeMs < started ||
+                (diagnostic.status === "passed" && !(diagnostic.rejected_result_count > 0 || diagnostic.global_error_count > 0))) throw new Error();
+            const metadata = {
+              ...ctx, job_outcome: "failure", gate_passed: false, stage, report_status: diagnostic.status,
+              observed_stages: observed, unstarted_stages: stages.slice(observed.length),
+              diagnostic_path: path, diagnostic_sha256: createHash("sha256").update(readFileSync(absolute)).digest("hex"),
+              stage_started_at_utc: window.started_at_utc, captured_at_utc: diagnostic.captured_at_utc,
+            };
+            writeFileSync(join(root, ".audit/live-failure-binding.safe.json"), JSON.stringify(metadata, null, 2) + "\n", { mode: 0o600, flag: "wx" });
+            appendFileSync(process.env.GITHUB_OUTPUT, "sidecar_path=" + path + "\n");
+            console.log("Current-source closed failure diagnostic accepted; job remains failure");
+          } catch {
+            console.error("Failure evidence missing or rejected; actual test counts remain unknown");
+            process.exitCode = 1;
+          }
+          JS
+      - name: Upload only verified failure sidecar and minimal binding
+        if: ${{ always() && steps.live.outcome == 'failure' && steps.frontend_failure_evidence.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # official v4
+        with:
+          name: frontend-live-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ steps.frontend_failure_evidence.outputs.sidecar_path }}
+            .audit/live-failure-binding.safe.json
+          if-no-files-found: error
+          retention-days: 1
       - name: Require complete current-source live results and stopped resources
         id: frontend_evidence
         shell: bash
@@ -504,6 +735,7 @@ jobs:
               "tests/e2e/web/live/write.spec.ts", "tests/e2e/web/live/items.spec.ts",
               "frontend/tooling/live-reporter.ts", "frontend/tooling/live-zoom-proof.mjs",
               "frontend/playwright.live.config.ts",
+              "frontend/tooling/live-failure.schema.json",
           }
           for row, (stage, count, report_path) in zip(result["stages"], (
               ("read", 7, "frontend/evidence/b04-live/read/live-results.json"),

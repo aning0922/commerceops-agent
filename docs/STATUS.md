@@ -813,3 +813,17 @@ Root核efcd的Core/四CI38164348959/422全PG、G1三/G2六/cleanup0/三Web13hash
 Root已核最终C22aa/treef8dc（parent e375）runner-only增量Web独审14pure/0.39s/noP1P2，并释放A无冲突普通merge；精准排除三派生sink，其他tracked/六关键源及旧已审产品仍完整、不改一freshpair/deadline/stop。综合本地完整检查/敏感扫描/最终freeze→原Core CI精确独审→Root一次新exactCI待，六actual N01仍0/not_run。C旧0例准备失败、原3cCI失败与所有边界保持，不push/main/SDK/新localPG。
 
 最终C合后128定向pure/0.75s及324文件manifest/hash0核实；综合完整check实际exit0：1570offline/441deselected/88.88s/Ruff389/type286/MD99/锁/工具链/两audit0/三scope0，四旧warning保留。最终本地freeze及index/commit扫描见Issue40回执，不预填未来CI或阶段完成；281/160全部实际PG与新六N01 Web仍待Root释放精确CI核定。
+
+## 49. e9实际441 PG通过 / 两Web失败及有界证据补齐
+
+Root核e9/tree4fa原Core精确无P1/P2/84pure后正常push；精确CI38175892938/run160/attempt1/eventPR/head e9/checkout f911(parents9d97+e9、同tree)终态FAILURE。quality/phase3/pg-pair SUCCESS，Root/A exact e9分别verify_pair确认281+160=441实际callpass/28组无漏重、source/tool/lock/full匹配、G1三/G2六/cleanup0两/stoppedtrue；Root旧主目录import异常换exact checkout核通过，非CI缺陷。
+
+frontend准备SUCCESS/read摘要passed，write test_exit1/invariants true，items未启动；N01准备SUCCESS/Playwright test_exit1。两个failure_category null不是assertion已知，case名/collected/pass count/assertion全unknown，不能推六例已执行或非0例。两Web成功证据校验/upload skip，仅两个PG安全artifact；N01原项目保卷stop/down0/containers0networks0，frontend read/write摘要PGfalsePID0保卷；都提前于各首步截止，缺原private child完整公开证明不补造。正式SDK/真人/全M1/Phase4仍in_progress，main9d97/Issues39–42 Open保持；实际终态见[Issue40#6114057272](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6114057272)。
+
+原A09六小时lease已过期；Root新C诊断源码04:40:50–06:40:50Z、A单owner CI接线04:58:27–06:58:27Z/≤2h，不重置D1/D30/300h/P4 50h/人工H-L not_reported或18页。C原path/branch已恢复tracked22aa，旧六untracked/runtime未恢复causeunknown与旧资产缺口保留。新失败sidecar schema/专用validator及精确freeze独审待，A只workflow/必要CI纯测/两状态文档，不混C WIP/不新PGSDKpaid/CIpush；成功Gate不变，failure缺失拒收、未知不伪造，原失败历史均保留。
+
+原C静态确认write两case直接点closed details内recovery按钮，Root仅准测试显式展开、不减10case/原断言/键与回放次数；不是已捕获旧CI assertion，实际修复Gate待。Root stat发现canonical AppSecret缺失，仅重建私有空模板待用户填写；SDK blocked且A不读key，旧其他路径缺失causeunknown、部分account/config存在不等全资产完好，本段CI源码不依赖密钥。
+
+用户已补回，Root仅stat确认regular/non-symlink/nonempty600uid501、不读内容，SDK仍等新具体窗口。A接线新增专用失败guard/context/精确一sidecar+一metadata；status passed异常仍jobfailure/gatefalse、missing拒unknown、后续not_run不造counts。frontend来源13→14仅加immutable schema，N01仅精确第四mutable sink；其余成功Gate/upload与e9保持。当前55pure、扩展相关153pure及来源同步后61pure/type/syntax/MD99/首scan0分记，未混C WIP/actualWeb/PG/SDK/CIpush；最终C freeze/独审/普通merge与Root后续CI合同待。
+
+真人已明确恢复CommerceOps，原A截止06:58:27Z不延长。Root核最终C cd239/treecd16/parent22aa十四文件Web精确独审noP1P2、13contract856ms/20pure0.44s/type后放正常merge；A无冲突集成并保持C frontend/e2e/UX字节、backend/scripts/锁/Compose相对e9不变。组合作者173受影响pure9.50s/Ruff/type6/MD99errors0/diffcheck0；Node24真实policy/validator import及闭合失败/cleanpassed拒绝/raw字段拒绝通过，声明7/10/7/6不等actual执行，24+6仍未本轮重跑。最终五文件A增量冻结/敏感核/原Core review与Root新exactCI待，SDK/key读取仍无放行。
