@@ -1,0 +1,90 @@
+{
+  "source_parent": "22aa2731445136e63a62465dd9caa662e08285f9",
+  "commit_binding": "new candidate exact SHA via Git handoff; this report belongs to candidate tree",
+  "source_sha256": {
+    "docs/ux/phase4-implementation.md": "57f6869de96e646bef97ba1ee9707105c36d16645acd1686ea326a550bd7dbdc",
+    "frontend/tooling/live-failure.schema.json": "f98fcb05e7aef7429c7e914d9eca40d85fd661f8cf175487560c196853968034",
+    "frontend/tooling/live-reporter.ts": "e9add270413662c3a2df5c905147052094909d7b0d64b780741c4e74c5eccb1d",
+    "tests/e2e/web/contracts/live-failure.spec.ts": "e08c8d4c949f67f6453acf43613dd849b8ca1b2076a59e9d67f8427eb405082f",
+    "tests/e2e/web/live/write.spec.ts": "50b81aebd9cee62dee1e1152275559808d32d9a21fc18a88669a4dff7e05fe44",
+    "tests/e2e/web/run_c09_n01.py": "c699a8a63bf1924864d2aebbeb975867c61ba4fb040052b217308a18ed6002ad",
+    "tests/e2e/web/run_live_batches.py": "f555c0531e5184e0c0ac762204b2004611ee6f6b7931e46a3cb21cf5241b2b84",
+    "tests/e2e/web/test_c09_source_manifest.py": "7cf5a9136655cc02a7fce1b1f4e8aac15e5eea614f9f9c4d6ffc2afb8d86588d",
+    "tests/e2e/web/test_live_failure_cleanup.py": "60d5a78bde23e08b535c4d0c8147aca11ac6b2f1bf27da5a91447e271a8bd8ae"
+  },
+  "task_window_utc": {
+    "start": "2026-10-12T04:40:50Z",
+    "stop": "2026-10-12T06:40:50Z"
+  },
+  "offline": {
+    "contract_passed": 62,
+    "contract_failed": 0,
+    "contract_seconds": 5.443924,
+    "python_pure_passed": 58,
+    "python_pure_seconds": 0.38,
+    "typecheck": "passed",
+    "ruff_format_mypy": "passed",
+    "markdown_files": 99,
+    "markdown_errors": 0,
+    "direct_node_validator_import": "passed"
+  },
+  "write_interaction": {
+    "only_two_summary_clicks_added": true,
+    "all_other_source_bytes_and_assertions_equal_parent": true,
+    "case_count": 10,
+    "actual_CI_assertion_attribution": "unknown"
+  },
+  "policy": {
+    "source_case_counts": [
+      7,
+      10,
+      7,
+      6
+    ],
+    "source_titles_total": 30,
+    "target_batches": [
+      "b04-read",
+      "b04-write",
+      "b04",
+      "p4-c09-n01"
+    ],
+    "legacy_b02_b03_success": "preserved",
+    "raw_error_material": "never serialized",
+    "actual_body_count_if_unobserved": null,
+    "clean_passed_failure_artifact": "rejected",
+    "anomalous_passed": "diagnostic only, A binds job failure and gate false",
+    "original_source_tuple_count": 13,
+    "current_source_tuple_count": 14,
+    "source_item_only_added": "frontend/tooling/live-failure.schema.json",
+    "mutable_n01_exclusions": 4
+  },
+  "restoration": {
+    "same_path_and_branch": true,
+    "restored_head": "22aa2731445136e63a62465dd9caa662e08285f9",
+    "attach_worktree": "failed existing-managed requirement, not forced",
+    "six_old_untracked_and_runtime_history": "not recovered, reason unknown",
+    "runtime_validation": "same-repo lock-identical ignored dependency reuse, no A source writes"
+  },
+  "CI38175892938": {
+    "precise_failure_assertions": "unknown",
+    "actual_case_counts": "unknown",
+    "frontend_write_process_exit": 1,
+    "N01_process_exit": 1,
+    "gate_accepted": false
+  },
+  "runtime": {
+    "new_PG_API_SDK_provider_browser_services": 0,
+    "new_Docker_networks": 0,
+    "build_or_UI_Gate": "not rerun",
+    "CI_trigger": "none",
+    "push": "none"
+  },
+  "preserved_failures": [
+    "first reporter CJS import.meta 0 tests",
+    "Darwin directory unlink error category mismatch in pure unit",
+    "first full contract60/1 due restored missing Python path; full original JSON not preserved, safe summary and private log retained",
+    "native TypeScript7 AST module unavailable, byte-exact/type verification used",
+    "earlier LIVE_SOURCE_FILES15 phrase corrected to actual13->14",
+    "RuntimeError string in echoed CI code corrected, actual JSON categories null"
+  ]
+}
