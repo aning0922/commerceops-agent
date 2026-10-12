@@ -120,6 +120,7 @@ test("普通批准/十次原字节回放，只有一决定/不显示执行成功
   });
   try {
     await decision(page, "approve", "B02");
+    await page.getByText("原请求技术详情与受控恢复", { exact: true }).click();
     for (let n = 0; n < 9; n++) {
       await page.locator('[data-action="send-original"]').click();
       await expect(page.locator('[data-action="send-original"]')).toBeEnabled();
@@ -422,6 +423,7 @@ test("实际T3提交后丢ACK：unknown不自动POST，GET原键恢复，同键�
       page.getByText("原审批意见已记录 · 不推断执行状态", { exact: true }),
     ).toBeVisible();
     expect(posts).toBe(1);
+    await page.getByText("原请求技术详情与受控恢复", { exact: true }).click();
     await page.locator('[data-action="send-original"]').click();
     await expect(page.getByRole("main")).toContainText("duplicate true");
     expect(posts).toBe(2);

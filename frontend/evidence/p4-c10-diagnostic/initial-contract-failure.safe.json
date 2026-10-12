@@ -1,0 +1,13 @@
+{
+  "scope": "offline contract preparation, not actual Web Gate",
+  "passed": 60,
+  "failed": 1,
+  "duration_ms": 5858.228999999999,
+  "fixed_test_title": "T6局部strip按Python3.12精确对照，FEFF保留/001C–1F和0085移除，不归一组合Unicode",
+  "category": "RESTORED_CHECKOUT_MISSING_PYTHON_RUNTIME_PATH",
+  "private_log_sha256": "d111f26f231e66ce48dcb974269be4ba4d82b114c9c3db7349251edc80745502",
+  "private_log_preserved": true,
+  "full_initial_json_preserved": false,
+  "full_initial_json_replaced_by_final_run": true,
+  "actual_API_PG_browser_services": 0
+}

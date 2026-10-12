@@ -221,3 +221,32 @@ Root已核e375原Web复审P1解除、无新增P1/P2；该产品结论保持。A�
 C只在既有 `run_c09_n01.py` 排除三条固定派生sink：`frontend/evidence/p4-c09/n01/live-results.json`（live-reporter C09分支）、`pg-invariants.safe.json`（live/n01.spec.ts afterAll）和 `resource-stop.safe.json`（runner finally摘要），实际writer路径均核准。其他tracked源、历史evidence/fixture与原6条显式关键files全部保留，缺真实源仍fail closed；不泛排evidence目录，不新增路径接口或通用manifest框架，A共享CI不写。
 
 仅自有tmp纯验证：最终代码 **14/14 passed，0.41s**，覆盖三个输出缺失/新建/改变/删除均不影响input manifest，6关键代码/fixture/其他历史证据的变化仍改变对应hash，缺真实关键源拒绝。真实checkout只读清单也与原全集精确set对照（提交前322条，固定sink3条，其中当时tracked输出1条），代码和fixture均纳入；此数量是提交前实测，不预写提交后数字。初轮mypy测试引用未显式导出的subprocess报错，已改为stdlib patch；最终Ruff/format/mypy通过。产品、49/20与原85证据、原UI scalarfixture不改，不重复18页/底座/build；无PG/API/浏览器/新服务/Docker网络/SDK/provider，实际6PW继续not_run、三轮停止不变。小批精确冻结停push，交原Web runner-only增量审查，不能提前签实际CI Gate。
+
+## C10：现有失败 CI 的只读定位与闭合安全诊断
+
+Root核综合 `e9b9c1bf67c14fc8b9ff12e091c516433aa899e4` 的 [CI38175892938](https://github.com/aning0922/commerceops-agent/actions/runs/38175892938) 终态FAILURE后，派回新的普通C-only收口段：UTC `2026-10-12T04:40:50Z` 至 `06:40:50Z`（Asia/Shanghai 12:40:50–14:40:50），最多2h Agent墙钟。旧6h段已过期，旧本机三轮不续、不第四次联调；本段不启动PG/API/SDK/provider/浏览器服务、Docker网络，不push/触发CI或改A共享CI/后端/迁移/DTO/锁。
+
+原C `phase4-web` 与a266 checkout缺失、worktree registry无C，原因unknown；本会话仅有陈旧active附件、无archive。Root核原branch仍精确22aa且对象存在后，授权普通 `git worktree add` 恢复同原branch/path，恢复HEAD22aa/trackedclean，无force/reset/stash或新branch。attach_worktree固定返回“existing managed worktree”错误，未强制；六旧untracked及旧runtime历史本次未恢复，不能沿用“六资产完好”作为当前事实。此前原字节/hash与22aa历史证据保留。验证临时只读复用同repo已装锁一致依赖的ignored aliases，不改A产品或全局环境。
+
+### 可核实 CI 事实与 unknown 边界
+
+| 现有job | 日志可核实内容 | 仍缺 |
+|---|---|---|
+| frontend `114578090663` | read test_exit0/invariants true/provider0/PG已停；write test_exit1/invariants true/provider0/PG已停；items没有启动记录。实际JSON failure_category均null。 | 逐case状态/实际分母/具体断言无输出，不能据exit1指定某case或业务根因。 |
+| n01-web `114578090517` | test_exit1，owned段244.932s，PG stopped/Pid0/无listener、Worker/SDK未启；实际JSON failure_category=null。 | 没有逐case或expect诊断，不能声称6项都执行/通过；具体断言和实际case数unknown。 |
+
+两个完整job日志只在工具私有store读取，未输出或上传原始内容；早先从全log命中RuntimeError包含workflow回显代码，已更正，不能当实际异常。只读artifact inventory仅pg-existing/pg-phase3，无frontend/N01失败产物；两runner将PW stdout/stderr送DEVNULL，现有reporter只输出有限状态且隐藏raw error，而失败job跳过“require成功证据/上传已核safe报告”，所以现有日志不足。441PG由Root单独核，C不借其成功替Web失败。历史本机0actual/6not_run与本次CI“PW进程失败、实际case数unknown”分别记录。
+
+### 本包最小修正与 A 接线边界
+
+现有live-reporter只在 `b04-read/b04-write/b04/p4-c09-n01` 四目标启用闭合失败sidecar；正常live-results字段及b02/b03历史success行为保持。新 `frontend/tooling/live-failure.schema.json` 结构闭合，30个源码固定title、四stage、固定错误category/matcher enum；专用导出 `liveFailurePolicy()` / `validLiveFailureDiagnostic(value, policy)` 另核title/声明file-line、known tracked test/frontend源码有效line、唯一reported数量/每状态计数/未报告数量/实际body观察不足null、global错误最多16与固定spec源码SHA。无message/value/cause/stack/snippet/expected/actual/响应/DOM/URL/任意路径落盘；message仅512字符首行在内存派生固定枚举，位置只接受已知源码有效行。reported数量不冒body执行；FullResult passed且无异常时不能成为失败产物，异常passed只供诊断，job_outcome=failure/gate_passed=false由A单独绑定，不能签Gate。
+
+固定失败sink为 `frontend/evidence/b04-live/read/failure-diagnostic.safe.json`、`frontend/evidence/b04-live/write/failure-diagnostic.safe.json`、`frontend/evidence/b04-live/failure-diagnostic.safe.json`、`frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json`。C逐阶段启动前只清对应sink，N01只清单sink，其他历史报告/源码/未知目录不删；N01 manifest精确增加此第四mutable排除，原3排除及其他inputs保持。来源绑定额外纳入immutable schema文件，不减少原源分母。A独占workflow失败时验证/上传接线，独审后才下一精确CI；若reporter未启动/被kill且无sidecar，继续unknown，不能用旧sample补结果。
+
+只读还确认write.spec两处交互与已审C09不符：普通批准十次回放、unknown先GET后的重投直接点击折叠details内按钮。Root批准各新增一次显式展开“原请求技术详情与受控恢复”，产品不改；去掉恰两新增行后新spec与22aa逐字节相同，10用例、全部assertions、10次/单digest/key及unknown先GET保留。此静态错位不是CI38175892938具体失败断言的定位，实际效果待精确CI，不声称PG/Web已过。
+
+### 本段实际离线验证与保留失败
+
+最终完整 **62/62 contract passed，5.444s**（含13项C10敏感注入/四stage落盘/旧success/非法metadata回归）；Python **58/58 pure passed，0.38s**（第四sink来源边界/四sink清理/旧read安全诊断/owner）；产品typecheck、Ruff/format/mypy通过。没有page/browser/PG/network服务，本段不重跑18页/底座/build。类型检查覆盖新write；辅助native TypeScript7没有旧AST JS API，AST未核，不冒通过，改用精确字节差异核证。
+
+首C10 contract导入import.meta在CJS失败、0test，改Git root兼容定位后9/9 pure通过；清理纯回归首19pass/1fail为Darwin unlink目录EPERM和Linux EISDIR分类差异，明确两OS异常tuple后仍证明目录保留，非业务assert放松。首完整contract60pass/1fail为恢复checkout缺Python runtime path（T6 strip对照），补同repo只读runtime路径后61/61通过；再加非法FullResult安全负例后的最终62/62。首完整原JSON被后续报告替换，未保存原JSON，明确保留安全失败摘要与私有原log，不伪称完整artifact已恢复。结果在 `frontend/evidence/p4-c10-diagnostic/`，raw日志/敏感素材不提交；新candidate精确独审前nopush/noCI，剩余24真实Web/6N01实际Gate与具体失败根因保持pending/unknown。

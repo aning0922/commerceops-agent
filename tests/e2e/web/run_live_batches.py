@@ -22,6 +22,11 @@ from scripts.prepare_pg import prepare
 from tests.e2e.web.live_batch_owner import OWNERS, verify
 
 READ_REPORTER = "read-live-results.json"
+LIVE_FAILURE_SINKS = {
+    "read": "frontend/evidence/b04-live/read/failure-diagnostic.safe.json",
+    "write": "frontend/evidence/b04-live/write/failure-diagnostic.safe.json",
+    "items": "frontend/evidence/b04-live/failure-diagnostic.safe.json",
+}
 READ_TITLES = (
     "operator真实登录、22记录分页、报告刷新/20SKU/null与实际配置",
     "approver完整计划无默认确认、指定版本只读、缺缓存解释、events无虚构恢复",
@@ -43,6 +48,7 @@ LIVE_SOURCE_FILES = (
     "tests/e2e/web/live/write.spec.ts",
     "tests/e2e/web/live/items.spec.ts",
     "frontend/tooling/live-reporter.ts",
+    "frontend/tooling/live-failure.schema.json",
     "frontend/tooling/live-zoom-proof.mjs",
     "frontend/playwright.live.config.ts",
 )
@@ -237,6 +243,13 @@ def listener_output(root: Path, port: int) -> str:
     )
 
 
+def clear_live_failure_sample(root: Path, stage: str) -> None:
+    """只清本段固定失败sink，不触碰其他阶段/历史成功报告。"""
+    if stage not in LIVE_FAILURE_SINKS:
+        raise ValueError("closed live failure stage required")
+    (root / LIVE_FAILURE_SINKS[stage]).unlink(missing_ok=True)
+
+
 def main(
     root: Path,
     private: Path,
@@ -272,6 +285,7 @@ def main(
     ]:
         if stage not in selected:
             continue
+        clear_live_failure_sample(root, stage)
         project = "p3b04-" + stage + "-" + uuid4().hex[:10]
         directory = private / stage
         prepare(directory)

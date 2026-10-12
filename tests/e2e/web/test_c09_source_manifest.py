@@ -14,6 +14,7 @@ OUTPUTS = (
     "frontend/evidence/p4-c09/n01/live-results.json",
     "frontend/evidence/p4-c09/n01/pg-invariants.safe.json",
     "frontend/evidence/p4-c09/n01/resource-stop.safe.json",
+    "frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json",
 )
 OTHER_INPUTS = (
     "tests/e2e/web/phase4/n01.fixture.json",

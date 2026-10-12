@@ -21,6 +21,7 @@ MUTABLE_N01_OUTPUTS = frozenset(
         "frontend/evidence/p4-c09/n01/live-results.json",
         "frontend/evidence/p4-c09/n01/pg-invariants.safe.json",
         "frontend/evidence/p4-c09/n01/resource-stop.safe.json",
+        "frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json",
     }
 )
 REQUIRED_SOURCE_FILES = (
@@ -44,6 +45,11 @@ def source_manifest() -> dict[str, str]:
     }
 
 
+def clear_n01_failure_sample() -> None:
+    """本段开始前只清固定N01失败sample；无宽泛路径清理。"""
+    (ROOT / "frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json").unlink(missing_ok=True)
+
+
 def main(private: Path, deadline: datetime) -> None:
     now = datetime.now(UTC)
     if deadline.tzinfo is None or not now + timedelta(seconds=75) < deadline <= now + timedelta(
@@ -52,6 +58,7 @@ def main(private: Path, deadline: datetime) -> None:
         raise ValueError("fixed C09 deadline required")
     if private.exists():
         raise ValueError("new private directory required")
+    clear_n01_failure_sample()
     prepare(private)
     ports: set[int] = set()
     while len(ports) < 3:

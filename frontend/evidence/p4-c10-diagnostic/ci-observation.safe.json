@@ -1,0 +1,53 @@
+{
+  "source_commit": "e9b9c1bf67c14fc8b9ff12e091c516433aa899e4",
+  "run_id": 38175892938,
+  "run_outcome": "failure",
+  "frontend_job": {
+    "id": 114578090663,
+    "read": {
+      "test_exit": 0,
+      "invariants": true,
+      "passed_stage": true,
+      "provider_calls": 0,
+      "failure_category": null,
+      "observed_case_count": null
+    },
+    "write": {
+      "test_exit": 1,
+      "invariants": true,
+      "passed_stage": false,
+      "provider_calls": 0,
+      "failure_category": null,
+      "observed_case_count": null
+    },
+    "items": {
+      "started": false,
+      "observed_case_count": null
+    }
+  },
+  "n01_job": {
+    "id": 114578090517,
+    "test_exit": 1,
+    "failure_category": null,
+    "owned_duration_seconds": 244.932,
+    "started_at_utc": "2026-10-11T21:21:29.466664+00:00",
+    "stopped_at_utc": "2026-10-11T21:25:34.398562+00:00",
+    "observed_case_count": null,
+    "pg_running": false,
+    "pg_pid": 0,
+    "listeners_remaining": false,
+    "worker_started": false,
+    "sdk_provider_started": false
+  },
+  "failure_report_artifacts_available": false,
+  "artifact_inventory": [
+    "pg-existing-38175892938-1",
+    "pg-phase3-38175892938-1"
+  ],
+  "precise_assertions": "unknown",
+  "business_root_cause": "unknown",
+  "runtime_error_string_scan": "corrected; workflow echo is not runtime exception evidence",
+  "raw_logs": "only read in private tool-session store, not exported",
+  "static_write_interaction_mismatch": "two replay calls omit required explicit details expansion; fixed without attributing this CI failure",
+  "real_gates": "frontend24/N01six not accepted"
+}
