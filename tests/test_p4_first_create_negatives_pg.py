@@ -3,11 +3,12 @@
 import asyncio
 import hashlib
 import json
+import re
 import shutil
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 import psycopg
@@ -23,6 +24,7 @@ from psycopg import sql
 from psycopg.errors import CheckViolation
 from psycopg.types.json import Jsonb
 
+from tests.diagnostic_plugin import emit
 from tests.p3_support import P3Fixture, initialize_p3
 from tests.p4_recovery_support import settings
 from tests.test_p3_pg import fixture as fixture
@@ -31,6 +33,82 @@ from tests.test_p4_first_create_pg import original_c0
 pytestmark = pytest.mark.integration
 SEND = """UPDATE business.p4_base_deliveries SET status='sending',last_operation='create',
 attempts=2,claimed_by=%s WHERE outbox_id=%s"""
+
+MigrationStage = Literal[
+    "prepare-migrations",
+    "create-db",
+    "migrate0012",
+    "checkpointer",
+    "grant-runtime",
+    "initialize_p3",
+    "original_c0",
+    "snapshot-before",
+    "migrate0013",
+    "snapshot-after",
+    "compare",
+    "revision-check",
+    "cleanup-client",
+    "cleanup-db",
+    "cleanup-admin",
+]
+MIGRATION_STAGES: tuple[MigrationStage, ...] = (
+    "prepare-migrations",
+    "create-db",
+    "migrate0012",
+    "checkpointer",
+    "grant-runtime",
+    "initialize_p3",
+    "original_c0",
+    "snapshot-before",
+    "migrate0013",
+    "snapshot-after",
+    "compare",
+    "revision-check",
+    "cleanup-client",
+    "cleanup-db",
+    "cleanup-admin",
+)
+
+
+def migration_sqlstate(error: BaseException) -> str | None:
+    """仅受限真实异常链与 psycopg 属性；不用 message/orig/SQL/fixture 标识。"""
+    pending = [error]
+    seen: set[int] = set()
+    while pending and len(seen) < 8:
+        current = pending.pop(0)
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        if isinstance(current, psycopg.Error):
+            try:
+                value = current.sqlstate
+            except BaseException:
+                value = None  # 分类读取失败不能替换/吞掉原测试异常。
+            if type(value) is str and re.fullmatch(r"[0-9A-Z]{5}", value):
+                return value
+        links: tuple[BaseException | None, ...]
+        try:
+            links = (current.__cause__, current.__context__)
+        except BaseException:
+            links = ()
+        for linked in links:
+            if isinstance(linked, BaseException) and id(linked) not in seen:
+                pending.append(linked)
+    return None
+
+
+def migration_diag(stage: MigrationStage, error: BaseException | None = None) -> None:
+    if stage not in MIGRATION_STAGES:
+        raise ValueError("INVALID_MIGRATION_DIAGNOSTIC_STAGE")
+    name = type(error).__name__ if error is not None else None
+    if name is not None and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,79}", name) is None:
+        name = "BaseException"
+    emit(
+        "c0_migration_stage",
+        stage=stage,
+        exception_class=name,
+        sqlstate=migration_sqlstate(error) if error is not None else None,
+    )
 
 
 async def current_sender(f: P3Fixture, window: ControlledWorkerWindow) -> WorkerSession:
@@ -223,52 +301,110 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
     tmp_path: Path,
 ) -> None:
     # 同本次新PG namespace另一个随机测试DB；不是原known70库或旧卷。
-    old_migrations = tmp_path / "schema-0012"
-    shutil.copytree("backend/migrations", old_migrations)
-    (old_migrations / "versions/0013_p4_first_create.py").unlink()
-    name = "p4_c0_preserve_" + uuid4().hex
-    owner = fixture.inventory.owner.model_copy(update={"name": name})
-    app = fixture.config.database.model_copy(update={"name": name})
-    with psycopg.connect(**fixture.inventory.owner.kwargs(), autocommit=True) as admin:
-        admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
-        try:
-            migrate(owner, migrations=old_migrations)
-            asyncio.run(setup_checkpointer(owner))
-            grant_runtime(owner)
-            f = initialize_p3(owner, app, tmp_path / "legacy-private")
+    stage: MigrationStage = "prepare-migrations"
+    reported = False
+    try:
+        migration_diag(stage)
+        old_migrations = tmp_path / "schema-0012"
+        shutil.copytree("backend/migrations", old_migrations)
+        (old_migrations / "versions/0013_p4_first_create.py").unlink()
+        name = "p4_c0_preserve_" + uuid4().hex
+        owner = fixture.inventory.owner.model_copy(update={"name": name})
+        app = fixture.config.database.model_copy(update={"name": name})
+        stage = "create-db"
+        migration_diag(stage)
+        with psycopg.connect(**fixture.inventory.owner.kwargs(), autocommit=True) as admin:
+            admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
             try:
-                with original_c0(f):
+                stage = "migrate0012"
+                migration_diag(stage)
+                migrate(owner, migrations=old_migrations)
+                stage = "checkpointer"
+                migration_diag(stage)
+                asyncio.run(setup_checkpointer(owner))
+                stage = "grant-runtime"
+                migration_diag(stage)
+                grant_runtime(owner)
+                stage = "initialize_p3"
+                migration_diag(stage)
+                f = initialize_p3(owner, app, tmp_path / "legacy-private")
+                try:
+                    stage = "original_c0"
+                    migration_diag(stage)
+                    with original_c0(f):
 
-                    def snapshot() -> dict[str, tuple[int, str]]:
-                        with connect(owner) as db:
-                            names = db.execute("""SELECT schemaname,tablename FROM pg_tables
-                            WHERE schemaname IN ('business','checkpoints')
-                            AND tablename<>'alembic_version'
-                            ORDER BY schemaname,tablename""").fetchall()
-                            result = {}
-                            for row in names:
-                                rows = db.execute(
-                                    sql.SQL("SELECT row_to_json(t)::text AS body FROM {} t").format(
-                                        sql.Identifier(row["schemaname"], row["tablename"])
+                        def snapshot() -> dict[str, tuple[int, str]]:
+                            with connect(owner) as db:
+                                names = db.execute("""SELECT schemaname,tablename FROM pg_tables
+                                WHERE schemaname IN ('business','checkpoints')
+                                AND tablename<>'alembic_version'
+                                ORDER BY schemaname,tablename""").fetchall()
+                                result = {}
+                                for row in names:
+                                    rows = db.execute(
+                                        sql.SQL(
+                                            "SELECT row_to_json(t)::text AS body FROM {} t"
+                                        ).format(
+                                            sql.Identifier(row["schemaname"], row["tablename"])
+                                        )
+                                    ).fetchall()
+                                    encoded = "\n".join(sorted(r["body"] for r in rows)).encode()
+                                    result[row["schemaname"] + "." + row["tablename"]] = (
+                                        len(rows),
+                                        hashlib.sha256(encoded).hexdigest(),
                                     )
-                                ).fetchall()
-                                encoded = "\n".join(sorted(r["body"] for r in rows)).encode()
-                                result[row["schemaname"] + "." + row["tablename"]] = (
-                                    len(rows),
-                                    hashlib.sha256(encoded).hexdigest(),
-                                )
-                            return result
+                                return result
 
-                    before = snapshot()
-                    migrate(owner)
-                    assert snapshot() == before
-                    with connect(owner) as db:
-                        assert db.execute(
-                            "SELECT version_num FROM business.alembic_version"
-                        ).fetchone() == {
-                            "version_num": "0013_p4_first_create",
-                        }
+                        stage = "snapshot-before"
+                        migration_diag(stage)
+                        before = snapshot()
+                        stage = "migrate0013"
+                        migration_diag(stage)
+                        migrate(owner)
+                        stage = "snapshot-after"
+                        migration_diag(stage)
+                        after = snapshot()
+                        stage = "compare"
+                        migration_diag(stage)
+                        assert after == before
+                        stage = "revision-check"
+                        migration_diag(stage)
+                        with connect(owner) as db:
+                            assert db.execute(
+                                "SELECT version_num FROM business.alembic_version"
+                            ).fetchone() == {
+                                "version_num": "0013_p4_first_create",
+                            }
+                except BaseException as error:
+                    migration_diag(stage, error)
+                    reported = True
+                    raise
+                finally:
+                    migration_diag("cleanup-client")
+                    try:
+                        f.client.close()
+                    except BaseException as error:
+                        migration_diag("cleanup-client", error)
+                        reported = True
+                        raise
+            except BaseException as error:
+                if not reported:
+                    migration_diag(stage, error)
+                    reported = True
+                raise
             finally:
-                f.client.close()
-        finally:
-            admin.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))
+                migration_diag("cleanup-db")
+                try:
+                    admin.execute(
+                        sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name))
+                    )
+                except BaseException as error:
+                    migration_diag("cleanup-db", error)
+                    reported = True
+                    raise
+            stage = "cleanup-admin"
+            migration_diag(stage)
+    except BaseException as error:
+        if not reported:
+            migration_diag(stage, error)
+        raise
