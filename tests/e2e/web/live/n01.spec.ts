@@ -233,21 +233,38 @@ test("N01 actual迟到解析不复活旧原句/店铺/fixture；参数编辑清�
   await draft(page, "分析库存 L=3 R=7 S=2");
   let release!: () => void, arrived!: () => void;
   const held = new Promise<void>((r) => { release = r; }), called = new Promise<void>((r) => { arrived = r; });
-  await page.route(API + path, async (route) => { const response = await route.fetch(); arrived(); await held; await route.fulfill({ response }); });
-  await page.getByRole("button", { name: "检查草稿与参数", exact: true }).click(); await called;
-  await page.getByLabel("自然语言请求草稿").fill("分析库存 L=4 R=7 S=2"); release();
-  await page.unroute(API + path);
-  await expect(page.getByRole("heading", { name: "草稿参数与来源", exact: true })).toHaveCount(0);
-  await expect(page.locator('[data-control="B35"]')).toBeDisabled();
-  await parse(page); await page.locator('[data-control="B35"]').click();
-  await page.getByLabel("当前operator店铺").selectOption(facts.shop_b);
-  await expect(page.locator('dialog [data-control="B01"]')).toBeDisabled();
-  await page.getByLabel("当前operator店铺").selectOption(facts.shop); await parse(page);
-  await page.getByLabel("Mock案例").selectOption("known_inbound");
-  await expect(page.getByRole("heading", { name: "草稿参数与来源", exact: true })).toHaveCount(0);
-  await page.getByLabel("Mock案例").selectOption("baseline"); await parse(page);
-  await page.getByLabel("L（0–365整数）", { exact: true }).fill("5");
-  await expect(page.locator('[data-control="B35"]')).toBeDisabled();
+  let handler: Promise<void> | undefined;
+  await page.route(API + path, (route) => {
+    handler = (async () => {
+      const response = await route.fetch();
+      arrived();
+      await held;
+      await route.fulfill({ response });
+    })();
+    return handler;
+  });
+  try {
+    await page.getByRole("button", { name: "检查草稿与参数", exact: true }).click(); await called;
+    await page.getByLabel("自然语言请求草稿").fill("分析库存 L=4 R=7 S=2"); release();
+    if (!handler) throw new Error("N01 held parse handler did not start");
+    await handler;
+    await page.unroute(API + path);
+    await expect(page.getByRole("heading", { name: "草稿参数与来源", exact: true })).toHaveCount(0);
+    await expect(page.locator('[data-control="B35"]')).toBeDisabled();
+    await parse(page); await page.locator('[data-control="B35"]').click();
+    await page.getByLabel("当前operator店铺").selectOption(facts.shop_b);
+    await expect(page.locator('dialog [data-control="B01"]')).toBeDisabled();
+    await page.getByLabel("当前operator店铺").selectOption(facts.shop); await parse(page);
+    await page.getByLabel("Mock案例").selectOption("known_inbound");
+    await expect(page.getByRole("heading", { name: "草稿参数与来源", exact: true })).toHaveCount(0);
+    await page.getByLabel("Mock案例").selectOption("baseline"); await parse(page);
+    await page.getByLabel("L（0–365整数）", { exact: true }).fill("5");
+    await expect(page.locator('[data-control="B35"]')).toBeDisabled();
+  } finally {
+    release();
+    try { if (handler) await handler; }
+    finally { await page.unroute(API + path); }
+  }
 });
 test("N01 显式唯一创建实际一pair，受控ACKunknown原键读取/同字节去重及真实409", async ({ page }) => {
   const posts = creates(page);
@@ -288,14 +305,43 @@ test("N01 actual无operator403；迟到响应遇真实撤权401清身份/草稿/
   await draft(page, "分析库存 L=3 R=7 S=2");
   let release!: () => void, arrived!: () => void;
   const held = new Promise<void>((r) => { release = r; }), called = new Promise<void>((r) => { arrived = r; });
-  await page.route(API + path, async (route) => { const response = await route.fetch(); arrived(); await held; await route.fulfill({ response }); });
-  await page.getByRole("button", { name: "检查草稿与参数", exact: true }).click(); await called;
-  probe("revoke"); before = probe("snapshot");
-  const response = await page.evaluate(async (api) => (await fetch(api + "/api/v1/auth/session", { credentials: "include", cache: "no-store" })).status, API);
-  expect(response).toBe(401);
-  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-  await expect(page.getByRole("main")).toContainText("身份、业务缓存与预备操作已清除");
-  release(); await page.unroute(API + path);
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByLabel("自然语言请求草稿")).toHaveCount(0);
+  let handler: Promise<void> | undefined;
+  await page.route(API + path, (route) => {
+    handler = (async () => {
+      const response = await route.fetch();
+      arrived();
+      await held;
+      await route.fulfill({ response });
+    })();
+    return handler;
+  });
+  try {
+    await page.getByRole("button", { name: "检查草稿与参数", exact: true }).click(); await called;
+    probe("revoke"); before = probe("snapshot");
+    const response = await page.evaluate(async (api) => (await fetch(api + "/api/v1/auth/session", { credentials: "include", cache: "no-store" })).status, API);
+    expect(response).toBe(401);
+    await page.bringToFront();
+    await expect.poll(() => page.evaluate(() => document.visibilityState)).toBe("visible");
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(page.getByRole("main")).toContainText(/会话已(?:失效|过期)或授权已变更，请重新登录。/);
+    await expect(page.locator('[data-source-mode="live-session"]')).toHaveCount(0);
+    await expect(page.locator("#live-login")).toBeVisible();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.getByLabel("自然语言请求草稿")).toHaveCount(0);
+    await expect(page.locator(".list-row, .fact-row")).toHaveCount(0);
+    release();
+    if (!handler) throw new Error("N01 held revoked parse handler did not start");
+    await handler;
+    await page.unroute(API + path);
+    await expect(page.getByRole("main")).toContainText(/会话已(?:失效|过期)或授权已变更，请重新登录。/);
+    await expect(page.locator('[data-source-mode="live-session"]')).toHaveCount(0);
+    await expect(page.locator("#live-login")).toBeVisible();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.getByLabel("自然语言请求草稿")).toHaveCount(0);
+    await expect(page.locator(".list-row, .fact-row")).toHaveCount(0);
+  } finally {
+    release();
+    try { if (handler) await handler; }
+    finally { await page.unroute(API + path); }
+  }
 });
