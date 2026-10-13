@@ -92,6 +92,80 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
 
     payload = value["payload"]
     assert isinstance(payload, dict)
+    if payload.get("read_reply_stub") is True:
+        # 原自有子进程/原 lease 的窄 Fake IM crash Gate；不创建 Graph 或业务 runner。
+        from datetime import timedelta
+        from types import SimpleNamespace
+        from uuid import uuid4
+
+        from commerceops.adapters.feishu.contracts import ProbePolicy
+        from commerceops.application.feishu_business.clarification import NoticeResult
+        from commerceops.application.feishu_business.im_delivery import BusinessMessage
+        from commerceops.application.feishu_business.read_reply import READ_REPLY_CAPS
+        from commerceops.application.feishu_business.sdk_window import SDKWindow
+        from commerceops.infrastructure.database import connect
+        from commerceops.infrastructure.feishu_read_reply import ReadReplyDeliveryStore
+        from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
+
+        reply, task = UUID(payload["reply_id"]), UUID(payload["task_id"])
+        ledger = PersistentSDKLedger(
+            session,
+            SDKWindow(
+                uuid4(),
+                session.organization,
+                UUID(legacy["shop"]),
+                datetime.now(UTC) + timedelta(minutes=2),
+                READ_REPLY_CAPS,
+                enabled=True,
+            ),
+        )
+        original_check = session.check
+        observed_claim = False
+
+        async def checked() -> None:
+            nonlocal observed_claim
+            await original_check()
+            with connect(config.database) as db:
+                current = db.execute(
+                    "SELECT status FROM business.p4_read_replies WHERE id=%s", (reply,)
+                ).fetchone()
+            if current and current["status"] == "sending" and not observed_claim:
+                observed_claim = True
+                await barrier("after_read_claim")
+
+        session.check = checked  # type: ignore[method-assign]
+
+        class ReadSender:
+            async def send_message(self, request: BusinessMessage) -> NoticeResult:
+                async def fake_call() -> Any:
+                    await barrier("after_read_started")
+                    emit("fake_read_sent")
+                    return SimpleNamespace(raw=SimpleNamespace(status_code=200), code=0)
+
+                await ledger.invoke("im.v1.message.create", fake_call)
+                await barrier("after_read_sdk")
+                return NoticeResult(outcome="sent", code="IM_ACK", message_id="synthetic-read-ack")
+
+        sender = ReadReplyDeliveryStore(
+            session,
+            ReplenishmentStore(config, DIRECTORY),
+            ProbePolicy(
+                legacy["app"],
+                legacy["tenant"],
+                "synthetic-bot",
+                frozenset({"p4-synthetic-user"}),
+                frozenset(),
+            ),
+            ReadSender(),
+            ledger,
+            reply,
+            task,
+        )
+        try:
+            emit("read_result", outcome=await sender.dispatch_one())
+        finally:
+            await session.close(clean=True)
+        return
     scoped_tasks = None
     controlled_window = None
     if payload.get("p4_scope"):

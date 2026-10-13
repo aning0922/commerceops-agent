@@ -19,6 +19,7 @@ EXISTING_BUSINESS_MODULES = frozenset(
         "tests/test_p3_execution_recovery_pg.py",
         "tests/test_p4_first_create_pg.py",
         "tests/test_p4_first_create_negatives_pg.py",
+        "tests/test_p4_template_results_pg.py",
     }
 )
 FIELDS = frozenset(

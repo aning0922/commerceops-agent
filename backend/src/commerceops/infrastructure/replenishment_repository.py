@@ -371,6 +371,7 @@ class ApprovalStore:
             if not task:
                 raise AnalysisUnsafe("P3_TASK_OWNERSHIP_INVALID")
             if task["active_plan_id"]:
+                await self.verify_template_replay(db, task)
                 cur = await db.execute(
                     "SELECT id FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
                 )
@@ -383,6 +384,7 @@ class ApprovalStore:
                     "outcome": "awaiting_approval",
                 }
             if task["state"] == "completed":
+                await self.verify_template_replay(db, task)
                 return {"outcome": "no_action"}
             if task["state"] not in ("queued", "analyzing"):
                 raise AnalysisUnsafe("P3_STATE_INVALID")
@@ -439,6 +441,24 @@ class ApprovalStore:
                 raise AnalysisUnsafe("P3_SOURCE_BINDING_INVALID")
             if task["config_version"] != self.config.config_version:
                 raise PlanRejected("CONFIG_VERSION_UNSUPPORTED")
+            from commerceops.infrastructure.p3_template_results import TemplateBinding, freeze
+
+            await freeze(
+                db,
+                TemplateBinding(
+                    r.organization_id,
+                    r.shop_id,
+                    task["requester_id"],
+                    r.task_id,
+                    "p2_original",
+                    source["task_id"],
+                    None,
+                    source["snapshot_id"],
+                    source["id"],
+                    source["facts_hash"],
+                ),
+                persisted.report,
+            )
             cur = await db.execute("SELECT clock_timestamp() AS time")
             clock = await cur.fetchone()
             if not clock:
@@ -568,6 +588,42 @@ class ApprovalStore:
             "approval_id": str(approval_id),
             "outcome": "awaiting_approval",
         }
+
+    async def verify_template_replay(self, db: Any, task: dict[str, Any]) -> None:
+        """旧部署完成态缺缓存仍不回填；本版本已提交缓存重放必须完整验证。"""
+        cur = await db.execute(
+            """SELECT * FROM business.p3_template_results
+            WHERE p3_task_id=%s AND source_kind='p2_original'
+            AND template_version='p3-report-template-v1'""",
+            (task["id"],),
+        )
+        rows = await cur.fetchall()
+        if not rows:
+            return
+        cur = await db.execute(
+            SOURCE_SQL, (task["source_task_id"], task["organization_id"], task["shop_id"])
+        )
+        source = await cur.fetchone()
+        if source is None or len(rows) != 1 or source["requester_id"] != task["requester_id"]:
+            raise AnalysisUnsafe("P3_TEMPLATE_REPLAY_SOURCE_INVALID")
+        from commerceops.infrastructure.p3_template_results import TemplateBinding, verify_row
+
+        verify_row(
+            rows[0],
+            TemplateBinding(
+                task["organization_id"],
+                task["shop_id"],
+                task["requester_id"],
+                task["id"],
+                "p2_original",
+                source["task_id"],
+                None,
+                source["snapshot_id"],
+                source["id"],
+                source["facts_hash"],
+            ),
+            _stored(source, source["normalized_request"]).report,
+        )
 
     async def reject(self, r: RunRequest, code: str) -> None:
         await self.session.check()

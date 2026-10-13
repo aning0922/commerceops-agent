@@ -496,6 +496,32 @@ class ExecutionStore:
         row = await cur.fetchone()
         if not row:
             raise AnalysisUnsafe("P3_OBSERVATION_MISSING")
+        _, verified_report = self.verify_row(row, binding)
+        from commerceops.infrastructure.p3_template_results import TemplateBinding, freeze
+
+        cur = await db.execute(
+            "SELECT requester_id FROM business.business_tasks WHERE id=%s AND organization_id=%s",
+            (r.task_id, r.organization_id),
+        )
+        task = await cur.fetchone()
+        if task is None:
+            raise AnalysisUnsafe("P3_TEMPLATE_TASK_MISSING")
+        await freeze(
+            db,
+            TemplateBinding(
+                r.organization_id,
+                r.shop_id,
+                task["requester_id"],
+                r.task_id,
+                "p3_observation",
+                binding["source_task_id"],
+                row["id"],
+                row["id"],
+                row["report_id"],
+                row["facts_hash"],
+            ),
+            verified_report,
+        )
         return row
 
     @staticmethod

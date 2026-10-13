@@ -636,7 +636,8 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
             "report_id": f.client.get(f"/api/v1/tasks/{task}/report").json()["source"]["report_id"]
         },
     )
-    assert missing.status_code == 409 and missing.json()["error"]["code"] == "NOT_READY"
+    assert missing.status_code == 200
+    assert missing.json()["explanation"]["schema_version"] == "p4-p3-template-read-v1"
 
 
 def test_database_plan_and_source_evidence_remain_immutable(fixture: P3Fixture) -> None:

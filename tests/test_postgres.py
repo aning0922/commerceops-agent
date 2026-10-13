@@ -47,7 +47,7 @@ def runtime(settings: DatabaseSettings) -> DatabaseSettings:
 
 def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
     row = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    assert row and row["version_num"] == "0013_p4_first_create"
+    assert row and row["version_num"] == "0015_p4_read_replies"
     assert db.execute("SHOW server_version").fetchone()["server_version"].startswith("17.11")  # type: ignore[index]
     tables = db.execute("""SELECT table_schema, table_name FROM information_schema.tables
         WHERE table_schema IN ('business','checkpoints','public')""").fetchall()

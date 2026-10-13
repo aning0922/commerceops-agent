@@ -34,6 +34,11 @@ class PersistentSDKLedger:
         scope = self.current.get()
         if scope is None or not self.window.allows(method):
             raise PermissionError("SDK_WINDOW_CLOSED")
+        if scope.kind == "read_reply":
+            from commerceops.application.feishu_business.read_reply import READ_REPLY_CAPS
+
+            if dict(self.window.caps) != READ_REPLY_CAPS:
+                raise PermissionError("SDK_READ_REPLY_CAP_MISMATCH")
         if scope.kind == "preflight" and method not in (
             "auth.v3.tenant_access_token.internal",
             "bot.v3.info",
@@ -42,7 +47,7 @@ class PersistentSDKLedger:
         ):
             raise PermissionError("SDK_PREFLIGHT_WRITE_DENIED")
         if (
-            scope.kind in ("approval_card", "task_result", "clarification")
+            scope.kind in ("approval_card", "task_result", "clarification", "read_reply")
             and method != "im.v1.message.create"
         ):
             raise PermissionError("SDK_IM_METHOD_MISMATCH")
@@ -105,7 +110,24 @@ class PersistentSDKLedger:
                 if scope.subject_id != self.window.window_id:
                     raise PermissionError("SDK_PREFLIGHT_WINDOW_MISMATCH")
             else:
-                if scope.kind == "clarification":
+                if scope.kind == "read_reply":
+                    cur = await db.execute(
+                        """SELECT 1 FROM business.p4_read_replies WHERE id=%s
+                        AND organization_id=%s AND shop_id=%s AND task_id=%s
+                        AND status='sending' AND attempts=1 AND claimed_by=%s
+                        AND NOT EXISTS(SELECT 1 FROM business.p4_sdk_calls c
+                            WHERE c.subject_id=business.p4_read_replies.id
+                            AND c.scope_kind='read_reply')
+                        AND business.p4_read_reply_current(id)""",
+                        (
+                            scope.subject_id,
+                            self.window.organization_id,
+                            self.window.shop_id,
+                            scope.task_id,
+                            self.session.owner,
+                        ),
+                    )
+                elif scope.kind == "clarification":
                     cur = await db.execute(
                         """SELECT 1 FROM business.p4_clarification_replies WHERE id=%s
                         AND organization_id=%s AND shop_id=%s AND status='sending'""",

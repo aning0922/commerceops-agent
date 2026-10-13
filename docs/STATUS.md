@@ -841,3 +841,14 @@ Root在[Issue42#6138319062](https://github.com/aning0922/commerceops-agent/issue
 组合精确独审及Root下一唯一自动Hosted五项CI待；新实际完整441PG与read7/write10/items7/N01six、真人/正式SDK/Base闭环/全M1仍pending。D4不重置D1/D30/300h/P4 50h估计、人工H/L not_reported或18页冻结；无新PG/浏览器/SDK/provider/扩权/生产/Woo/P5/push/main。本批未更改ROADMAP阶段未完成事实。
 
 2026-10-13后继核收：b2d409/tree33083原Core组合增量noP1/P2后一次正常push，精确Hosted38348972724 attempt1实际checkout23c4cf9a86b5d59e74d13ce17e3dcdc4ab07ac58/tree33083（parents9d97+b2）；quality/phase3/pg-pair/frontend四SUCCESS。新两个PG safe artifact经A/Root分别原validate/verify_pair核281+160=441 actual全部通过/交集0/G1三/G2六/cleanup0；新frontend成功safe与固定CI成功校验支持read7/write10/items7=24、source14/20items2000units4terminal/native200 marker/390键盘权限覆盖与三段停止保卷，未上传的逐例reporter/zoom明细和截图QA不外推。N01 attempt1仅prepare工具HTTPS read超时，fixedsix0/not_run；Root只定向重跑N01，attempt2其它四SUCCESS为沿用而非重执行，N01新job115142427252仍FAILURE。C闭合sidecar实际6reported/0pass/1fail/5skip、firstbefore_hooks line35提前storageState读cache/body_count=null，不冒六body执行或通过，见[PR43#6139024126](https://github.com/aning0922/commerceops-agent/pull/43#issuecomment-6139024126)。Root释放C402af3f8ed81b6b5fd315d87f7dc5e941864a50c（parent6ed9、仅N01 14insert/4delete）精确Web独审noP1/P2/type0/13closed703ms/69pure0.40s后普通集成：保留默认storageState，page test-fixture在beforeAll之后fresh context/page并finally全部close，原真实session/严格DTO/admin403/revoke401/六body与预算不变。A无冲突普通merge，N01逐byte同402、items逐byte同6ed9；另仅本STATUS简短事实补充。新组合精确核收/独审、新源码actualsix与完整五项Hosted仍pending，不推旧四SUCCESS验收新六例；backend/scripts/CI/锁/Compose/B/产品UI与本地CI1341/180均0带入，无新PG/browser/SDK/provider/Guest/push/main。原日期/300h/P4 50h/H-L not_reported、资产与失败保留。
+
+
+## 51. BC02 后端纯模板 / 专用读取回复的 offline + PG 候选
+
+原 A 同分支实施 Root 批准的两种完整显式读取，接口 d97/tree0e60 已原 Web 独审无 P1/P2、C 消费者 0ce9a131 独审仅 offline/Mock，不签实际 API。当前后端候选：两个原事务冻结 P3 original / observation 的 immutable 纯模板；原 GET 旧 P204 优先、缺历史 cache 不回填；新 p4_read_replies 专用 carrier 与原单 lease/SDK ledger，一原 inbox / payload / asof / UUID，unknown/dead 终止、每 carrier SDK method 全局一次。原 outbox/IM kind、clarification、Worker/Graph/state machine/locks 不扩写。Root 尚未对本候选独审或验收真实平台。
+
+最终作者 1768 offline / 478 deselected / 103.30s，Ruff/format/type/MD 通过；完整 PG collect 478、existing300 + phase3 178 无漏重，新模块 9+18 全纳入既有分区。最终全新自有 PG 27 新 + 5 原 =32 实际通过；模板35.78s / 回复56.58s，SIGKILL三点真实 reap/确认再取 lease、started precommit、unknown不重发、当前身份/角色/chat、caps/expiry/lease/late、no_action/unavailable/历史不回填与业务表0增量分别核验。Fake SDK 不是 wire；实际 SDK/Factory/Secret/provider/IM/Base 全 0。
+
+首 collect0、7+2、8+1，随后同 PID WorkerSession拒绝的10+1，以及 caps JSON DDL误识别迁移失败0业务等分层完整保留；原门禁未减、事实细节和有界资源/停止/源码 hash 见 [BC02 合同](contracts/p4-bc02-template-read.md)。全部本批容器0；首collect工具默认清理仅本轮新卷，后续全保卷与private凭据，原 known70/旧资源不读不迁移不启。原 v4/TOCTOU/PermissionError unknown 保持 HOLD。
+
+待 Root/Core 新精确独审、原 C 普通集成、精确 CI，之后真实 IM另由Root具体窗口放行；未push/改PRbody/main/关Issue。M1/完整BC02/P4仍未正式验收，main/Issues/原D1/D30/300h/P450h/人工H-L not_reported与旧证据不重置。clarification编号仍待用户，本批不碰F02，其他UX hold。

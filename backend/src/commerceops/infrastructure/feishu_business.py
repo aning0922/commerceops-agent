@@ -4,10 +4,12 @@ from collections.abc import Callable
 from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
+from psycopg.errors import SerializationFailure, UniqueViolation
 from psycopg.types.json import Jsonb
 
 from commerceops.adapters.feishu.business_gateway import BusinessCard
 from commerceops.adapters.feishu.contracts import MessageProbe, PlatformIdentity
+from commerceops.application.feishu_business.read_intents import ReadIntent, parse_read_intent
 from commerceops.application.replenishment.contracts import (
     CreateNewCycle,
     FeishuActor,
@@ -18,7 +20,7 @@ from commerceops.domain.commerce_values import facts_hash
 from commerceops.infrastructure.approval_decisions import DecisionStore
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
-from commerceops.infrastructure.web_sessions import DB, actor_guard, role_scope
+from commerceops.infrastructure.web_sessions import DB, actor_guard, now, role_scope
 
 
 class FeishuBusinessStore:
@@ -89,7 +91,31 @@ class FeishuBusinessStore:
         ):
             raise WebFailure("EVENT_CONFLICT")
         actor_guard(db, actor)
-        if not role_scope(db, actor, self.shop, "operator" if message else "approver"):
+        if rows[0]["result"].get("read_intent"):
+            value = rows[0]["result"]
+            intent = ReadIntent(
+                value["read_intent"],
+                UUID(value["referenced_task_id"]),
+                UUID(value["referenced_report_id"]) if value.get("referenced_report_id") else None,
+            )
+            try:
+                self.read_facts(db, actor, intent)
+            except WebFailure as error:
+                if (
+                    error.code != "NOT_READY"
+                    or value.get("facts", {}).get("error", {}).get("code") != "NOT_READY"
+                ):
+                    raise
+                from commerceops.infrastructure.feishu_read_reply import capture
+
+                capture(
+                    db,
+                    self.store,
+                    actor,
+                    intent,
+                    {"server_time": value["as_of"], "error": {"code": "NOT_READY"}},
+                )
+        elif not role_scope(db, actor, self.shop, "operator" if message else "approver"):
             raise WebFailure("ACCESS_DENIED", 403)
         return {**rows[0]["result"], "duplicate": True}
 
@@ -102,7 +128,7 @@ class FeishuBusinessStore:
         semantic: str,
         receipt: dict[str, Any],
         sanitized: dict[str, Any],
-    ) -> None:
+    ) -> UUID:
         inbox = uuid4()
         db.execute(
             """INSERT INTO business.inbox_events
@@ -128,19 +154,83 @@ class FeishuBusinessStore:
         )
         if self.hook:
             self.hook("before_p4_commit")
+        return inbox
 
     def message(self, message: MessageProbe) -> dict[str, Any]:
+        if not parse_read_intent(message.text):
+            return self._message(message)
+        # RR snapshot 在并发原 inbox 提交后不可复用；只重启这一个入站事务，不重发 IM。
+        for attempt in range(3):
+            try:
+                return self._message(message)
+            except (SerializationFailure, UniqueViolation):
+                if attempt == 2:
+                    raise
+        raise WebFailure("EVENT_CONFLICT")
+
+    def _message(self, message: MessageProbe) -> dict[str, Any]:
         # 首切片确定性文法，模糊请求不生成任务/模型请求；正式路由另增量接线。
         semantic = facts_hash(
             {"open_id": message.identity.open_id, "chat": message.chat_id, "text": message.text}
         )
         with connect(self.store.settings) as db:
+            if parse_read_intent(message.text):
+                db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
             actor = self.actor(db, message.identity, message.chat_id)
             if self.gateway_guard:
                 self.gateway_guard(db, False)
             old = self._previous(db, actor, message.event_id, semantic, message.message_id)
             if old:
                 return old
+            if intent := parse_read_intent(message.text):
+                try:
+                    facts = self.read_facts(db, actor, intent)
+                except WebFailure as error:
+                    if error.code != "NOT_READY" or intent.kind != "explain_report":
+                        raise
+                    facts = {
+                        "server_time": now(db).isoformat(),
+                        "identity_mode": "feishu",
+                        "error": {"code": "NOT_READY"},
+                    }
+                from commerceops.infrastructure.feishu_read_reply import capture, insert
+
+                reply = uuid4()
+                payload = capture(db, self.store, actor, intent, facts)
+                receipt = {
+                    "schema_version": "p4-v1",
+                    "identity_mode": "feishu",
+                    "state": "read_completed",
+                    "read_intent": intent.kind,
+                    "referenced_task_id": str(intent.task_id),
+                    "referenced_report_id": str(intent.report_id) if intent.report_id else None,
+                    "as_of": payload.model_dump(mode="json")["as_of"],
+                    "facts": facts,
+                    "model_mode": "not_used",
+                    "reply_id": str(reply),
+                    "reply_payload_hash": facts_hash(payload.model_dump(mode="json")),
+                    "reply_delivery": "pending",
+                    "duplicate": False,
+                }
+                read_inbox = self._record(
+                    db,
+                    actor,
+                    message.event_id,
+                    message.message_id,
+                    semantic,
+                    receipt,
+                    {
+                        "schema_version": "p4-v1",
+                        "event_type": "p4.explicit_read",
+                        "chat_id": message.chat_id,
+                        "chat_type": message.chat_type,
+                        "source_mode": "mock",
+                        "model_mode": "not_used",
+                        "text_sha256": facts_hash(message.text),
+                    },
+                )
+                insert(db, actor, message, read_inbox, reply, payload)
+                return receipt
             if not role_scope(db, actor, self.shop, "operator"):
                 raise WebFailure("ACCESS_DENIED", 403)
             if message.text not in ("分析最近七天库存并生成补货建议", "分析库存并生成补货建议"):
@@ -200,6 +290,25 @@ class FeishuBusinessStore:
         if self.hook:
             self.hook("after_p4_commit")
         return receipt
+
+    def read_facts(self, db: DB, actor: FeishuActor, intent: ReadIntent) -> dict[str, Any]:
+        from commerceops.infrastructure.replenishment_read import (
+            ReplenishmentReadStore,
+            read_visible_task,
+        )
+
+        task = read_visible_task(db, actor, intent.task_id)
+        if task["shop_id"] != self.shop:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        reads = ReplenishmentReadStore(self.store)
+        if intent.kind == "task_status":
+            result = reads.task_in_transaction(db, actor, intent.task_id)
+        elif intent.report_id is not None:
+            result = reads.explanation_in_transaction(db, actor, intent.task_id, intent.report_id)
+        else:
+            raise WebFailure("INVALID_REQUEST", 422)
+        # 复用业务投影但不把 Feishu 身份冒称 session；不调度/发送 IM。
+        return {**result, "identity_mode": "feishu"}
 
     def _create_message_task(
         self,

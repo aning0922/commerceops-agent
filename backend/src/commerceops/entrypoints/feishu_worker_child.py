@@ -20,17 +20,19 @@ from commerceops.application.commerce.analysis_task import WORKFLOW_VERSION as A
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
+from commerceops.application.feishu_business.read_reply import ReadReplyWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.feishu_outbox_recovery import trusted_recovery_scope
+from commerceops.infrastructure.feishu_read_reply import ReadReplyDeliveryStore
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.feishu_workflow_recovery import trusted_workflow_scope
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
-from commerceops.infrastructure.replenishment_repository import ApprovalStore
+from commerceops.infrastructure.replenishment_repository import ApprovalStore, ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, open_async
@@ -357,17 +359,80 @@ async def controlled_task_ids(config: WebConfig, window: ControlledWorkerWindow)
     return window.task_ids | frozenset(row["source_task_id"] for row in rows)
 
 
+async def controlled_read_reply(
+    settings: BusinessSettings, window: ReadReplyWindow, config: WebConfig
+) -> dict[str, Any]:
+    """canonical child 的窄显式模式；不构造 Graph/业务 runner/Worker 调度器。"""
+    sdk = window.window(settings)
+    if config.database.user != "commerceops_app":
+        raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
+    session = WorkerSession(config.database, settings.organization_id)
+    await session.start()
+    try:
+        ledger = PersistentSDKLedger(session, sdk)
+        store = ReadReplyDeliveryStore(
+            session,
+            ReplenishmentStore(config, Path("unused-read-only-fixtures")),
+            settings.policy(),
+            BusinessIMSDK(None),
+            ledger,
+            window.reply_id,
+            window.task_id,
+        )
+        # 每项 metadata/cap/expiry/source/identity 校验先于 Secret/Factory。
+        from commerceops.infrastructure.database import connect
+
+        with connect(config.database) as db:
+            row = db.execute(
+                "SELECT * FROM business.p4_read_replies WHERE id=%s AND task_id=%s",
+                (window.reply_id, window.task_id),
+            ).fetchone()
+            if not row or row["status"] != "pending" or row["attempts"] != 0:
+                raise PermissionError("READ_REPLY_NOT_PENDING")
+            store.current(db, row)
+        await session.check()
+        window.window(settings)
+        factory = BusinessSDKFactory(settings, ledger)
+        await factory.initialize()
+        await factory.verify_bot()
+        store.sender = BusinessIMSDK(factory.business_client(), option=factory.option)
+        await store.recover_unknown()
+        outcome = await store.dispatch_one()
+        return {
+            "result": outcome,
+            "verification_mode": "controlled_sdk",
+            "business_graphs": 0,
+            "model_requests": 0,
+            "base_requests": 0,
+        }
+    finally:
+        await session.close(clean=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Bounded controlled Feishu SDK Worker")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--window-file", required=True, type=Path)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--mode", choices=("workflow", "read_reply"), default="workflow")
     args = parser.parse_args()
     try:
         restrict_sdk_logs()
         if not args.live or os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
             raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
         settings = BusinessSettings.model_validate_json(private_value(args.config))
+        if args.mode == "read_reply":
+            read_window = ReadReplyWindow.model_validate_json(private_value(args.window_file))
+            read_window.window(settings)
+            result = asyncio.run(
+                controlled_read_reply(
+                    settings, read_window, WebConfig.from_file(settings.web_config_file)
+                )
+            )
+            print(json.dumps(result, sort_keys=True))
+            if result["result"] != "sent":
+                raise SystemExit(1)
+            return
         window = ControlledWorkerWindow.model_validate_json(private_value(args.window_file))
         window.window(settings)
         config = WebConfig.from_file(settings.web_config_file)

@@ -101,6 +101,17 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
         connection.execute("""GRANT UPDATE(applied_at,applied_checkpoint_id)
             ON business.p3_revalidation_transitions TO commerceops_app""")
         connection.execute("GRANT SELECT,INSERT ON business.executions TO commerceops_app")
+        connection.execute("GRANT SELECT,INSERT ON business.p3_template_results TO commerceops_app")
+        connection.execute("GRANT SELECT,INSERT ON business.p4_read_replies TO commerceops_app")
+        connection.execute("""GRANT UPDATE(status,attempts,claimed_by,first_attempt_at,
+            message_id,last_error)
+            ON business.p4_read_replies TO commerceops_app""")
+        connection.execute(
+            "REVOKE DELETE,TRUNCATE ON business.p4_read_replies FROM commerceops_app"
+        )
+        connection.execute(
+            "GRANT EXECUTE ON FUNCTION business.p4_read_reply_current(uuid) TO commerceops_app"
+        )
         connection.execute("""GRANT UPDATE(status,completed_at,item_ids)
             ON business.executions TO commerceops_app""")
         connection.execute(

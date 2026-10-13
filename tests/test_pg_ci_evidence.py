@@ -307,7 +307,7 @@ def test_p4_modules_are_in_the_paired_business_partition_without_losing_old_node
     assert len(b["modules"]) == 4
 
 
-def test_five_complete_business_modules_move_with_approval_shards_and_exact_pair(
+def test_six_complete_business_modules_move_with_approval_shards_and_exact_pair(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     moved = [f"tests/test_p3_approval_pg.py::case_{n:02d}" for n in range(28)]
@@ -315,12 +315,13 @@ def test_five_complete_business_modules_move_with_approval_shards_and_exact_pair
     moved += [f"tests/test_p3_execution_recovery_pg.py::case_{n:02d}" for n in range(8)]
     moved += [f"tests/test_p4_first_create_pg.py::case_{n:02d}" for n in range(3)]
     moved += [f"tests/test_p4_first_create_negatives_pg.py::case_{n:02d}" for n in range(7)]
+    moved += [f"tests/test_p4_template_results_pg.py::case_{n:02d}" for n in range(9)]
     assert {node.split("::")[0] for node in moved} == EXISTING_BUSINESS_MODULES
     monkeypatch.setitem(globals(), "FULL", FULL + moved)
     a, b = report("existing"), report("phase3")
     assert a["actual_node_ids"] == sorted(OLD + moved)
     assert b["actual_node_ids"] == sorted(P3)
-    assert len(a["modules"]) == 7
+    assert len(a["modules"]) == 8
     approval = [m for m in a["modules"] if "approval_pg-part-" in m["label"]]
     assert [len(m["expected_node_ids"]) for m in approval] == [14, 14]
     verify_pair(a, b)

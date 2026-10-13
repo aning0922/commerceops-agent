@@ -23,20 +23,30 @@ DTO / OpenAPI 对应 [模板 DTO](../../backend/src/commerceops/application/repl
 
 ## Root/Core 已冻结的 read_reply 必要合同
 
-正式 Feishu 回复是本原 M1 必要功能。现稳定模板切片仅完成读取与入站回执，`reply_delivery=not_requested` 代表外发尚未实现，不能计作端到端通过。后续在同 A owner/分支正常实现以下窄方案，不扩原 outbox 或 p4_im_deliveries.kind，不借 clarification。
+正式 Feishu 回复是本原 M1 必要功能。原接口冻结 d97 时仅有入站 receipt 的历史状态保留；本后端候选已实现专用 carrier / 原事务冻结 / 单 lease 发送接线，入站 `reply_delivery=pending` 表示需要外发，不代表实际送达。使用 forward migration `0015_p4_read_replies`，不扩原 outbox 或 p4_im_deliveries.kind，不借 clarification。
 
 专用 `business.p4_read_replies` 每原 inbox UNIQUE 一行；kind 仅 task_status / explain_report。固定 reply_id、org/shop/principal/identity/App/Tenant/chat/type、explicit task/report/snapshot/facts/source tuple、captured as_of、canonical 安全 payload/hash、UNIQUE provider_uuid。状态 pending/sending/sent/unknown/dead、attempts 0..1、claim/first_attempt/实际 message_id/error/created_at。identity/source/payload/asof/UUID immutable，unknown/dead 终止且 no truncate。同事件去重复用旧行/旧 asof/UUID/payload；新明确消息才取新 asof。
 
 发送前同事务锁并复核 current actor/grant/shop/identity、App/Tenant/OpenID、原 trusted chat 和群 allowlist、inbox receipt、visibleTask、captured source/report/snapshot/facts/status/version/hash。变化、撤权、跨 chat、失效或 stale → dead 安全码且零发送，不重选报告、不更新旧 payload。unknown 不换 UUID、不重发；RO reconcile 只用已有合法 API 和 Root 新窗口，不增加 IM 历史/search 权限，不用人看到消息代写 sent。
 
-复用 BusinessIMSDK / BusinessMessage / NoticeResult、单 WorkerSession lease、PersistentSDKLedger 的 started 预占并在 SDK 前 commit，再一次 invoke/10s deadline；不新建 Task/job/Graph/runner/第二 dispatcher。SDKScope('read_reply') task_id 非空，ledger subject 只认 carrier reply_id/task/完整来源。canonical child 使用窄显式 mode；metadata/cap/expiry/lease 任缺均零调用。scope/ledger 约束在新 forward migration，绝不改已应用 0011 等历史。
+复用 BusinessIMSDK / BusinessMessage / NoticeResult、单 WorkerSession lease、PersistentSDKLedger 的 started 预占并在 SDK 前 commit，再一次 invoke/10s deadline；不新建 Task/job/Graph/runner/第二 dispatcher。SDKScope('read_reply') task_id 非空，ledger subject 只认 carrier reply_id/task/完整来源；每 carrier 的 read_reply method 全局唯一，换窗口也不能再调用。canonical child 使用显式 `--mode read_reply`，在 metadata/source/permission 校验后才可构造原 Factory；auth1/bot1/IM1、总 3 次上限、UTC expiry ≤30 分钟。metadata/cap/expiry/lease 任缺均零调用。scope/ledger 约束仅在新 forward migration，绝不改已应用 0011 等历史。
 
 必要 Gate：两 kind / 新旧 asof；stale/revoke/crosschat/source/report/facts；并发 claim；before-send crash、started 预 commit、after-send unknown 停发；caps/expiry/lease/late sender；PG trigger/grants/SDKscope/source binding。业务 Task/job/approval/execution/Base/model 零增量，inbox/carrier/IM ledger 分列。实际 SDK/Secret/provider/IM/Base 本批均 0。源码、隔离 PG、独审与精确 CI 后，真实 IM 另由 Root 安排有限窗口。
 
-clarification 编号仍等待用户决定，本批不改 F02 创建/持久化/文案；其他 UX 由原 C owner 等待释放。R13 v4 TOCTOU/deadline 与旧 PermissionError unknown 保持 HOLD，不在此批扩 private harness。
+缺失历史 cache / 命名 unavailable 仍 Web NOT_READY；Feishu 在合法完整显式报告 refs 上冻结 `read_code=NOT_READY` 的固定回复，不生成解释、不回填。新 cache 出现或来源/版本变化后，旧待发 payload 不升级；发送复核不匹配即 dead。同事件仍复用原 asof/UUID/payload，只有新明确消息取新 asof。
+
+clarification 编号仍等待用户决定，本批不改 F02 创建/持久化/文案；原 C 仅消费已独审 d97 合同，消费者独审不替 backend/实际 API Gate，其他 UX hold。R13 v4 TOCTOU/deadline 与旧 PermissionError unknown 保持 HOLD，不在此批扩 private harness。
 
 ## 当前验证边界
 
-首冻结提交仅包含 DTO/OpenAPI 与本合同文档，供 Root/Web 独审和 C 离线消费。模板 repository、迁移与 Feishu 接线在同 owner WIP 中，尚未作为稳定业务源码交付。
+接口先冻 d97（5 文件、tree 0e60），原 Web Reviewer 独审无 P1/P2；C 消费者 0ce9a131 独审无 P1/P2，仅 offline / Mock，尚未集成本候选。d97 不替当前 repository、迁移、GET、权限或发送源码验收。
 
-纯模板/旧模型读取相关批 99 passed / 21.89s；DTO/OpenAPI/模板定向 19 passed / 0.80s；mypy 127 文件通过。新隔离 PG 首轮迁移/checkpointer/grants/revision 成功，collection 因测试 helper 名称错误失败、0 业务用例，已修正。第二轮 7 passed / 2 failed / 35.17s，time_only 夹具断言和 Feishu 读取路径仍在定位；失败与后续实际结果分别记账。独审、精确 CI、正式 read_reply/真实平台/M1 整体仍 pending，不借旧 CI 验收新源码。
+最终作者离线 1768 passed / 478 deselected / 103.30s；Ruff/format 413 文件、mypy 308 文件、Markdown 101 文件均通过。完整 PG collection 478，existing 300 / phase3 178，交集 0、并集完整；新增模板 9 / 回复 18 共 27 全部入既有分区。仅将模板完整模块（实测约 34–36s）移入 existing，回复模块仍 phase3；原测试、14-node approval 分片和 300s / 23min / 25min / 75s cleanup 不变，未触发 CI。
+
+最终全新自有 PG 批 27 新 + 5 原回归 = 32 实际通过：模板 9 / 35.78s、回复 18 / 56.58s、原 P3 投影 1 / 3.98s、原重观测 3 / 11.94s、原 P204 cache/budget 1 / 1.46s。三个 SIGKILL 点后实际 reap / OS absence / 原确认流程再取单 lease：claim 后、started 预提交后、Fake SDK 返回后；原 payload/asof/UUID 保持、unknown 不重发。原用户身份/可信 chat、approver-only、原作用表零增量、并发 inbox/claim、caps/expiry/lease/late sender、no_action、unavailable、历史不回填、SDKscope/trigger/grants 均分项验证。Fake SDK/PG 不冒正式 SDK 或 wire。
+
+失败完整保留：模板首轮 collect helper 名误用、业务 0；第二轮 7 passed / 2 failed / 35.17s；第三轮 8 passed / 1 failed / 33.31s。time_only 的 capture provenance 会改变事实字节，不能误断言 facts_hash 相同；相同 facts 不同 observation ID 的 key 隔离另有 pure 验证。角色改动漏增 auth_version 被原 DB 正确拒绝。回复首合批模板 9 passed / 34.01s，回复 10 failed / 1 passed / 32.55s：同存活 PID 连取 WorkerSession 被启动门禁拒绝，原回归未运行。修正为独立准备子进程实际 stop/reap 后，第二批 9+14+5=28 PG 全通过；随后增量批 DDL caps JSON 的 `:1` 被 SQL text 误识别，迁移失败/业务 0，静态核 13 条 DDL 修正后无绑定参数，最终批通过。扫描两类代码/SQL形状误报通过重写表达修正，规则不放宽。
+
+每轮独立登记 owner/project、无发布端口、全新 private600 PG 密码与绝对截止；最终 Runtime/测试源码与实际 snapshot hash 全匹配、停止确认 true、所有本批容器 0。首 collect-only 工具沿旧默认删除本轮新卷；后续全部 stop/down no-v、保本轮卷/凭据，原 known70 / 旧资源 / Secret 不读取、不迁移、不重启。私有收口 receipt hash `d107904bf945961743c038fcea87c08e954841066bd50de7defa4075556dd987` 保留每轮事实。
+
+本候选仍待 Root/Core 精确冻结源码独审、C 普通集成、精确 CI 与未来有限真 IM Gate；未 push / 改 PR body / 合 main / 关 Issue。实际 SDK/Factory/Secret/provider/IM/Base 0，M1 / 全 BC02 / Phase4 未正式验收；旧 P13 v4 / PermissionError unknown 与历史证据不被新 PG 覆盖。

@@ -63,6 +63,7 @@ class SDKScope:
             "approval_card",
             "task_result",
             "clarification",
+            "read_reply",
         ):
             raise ValueError("INVALID_SDK_SCOPE")
         if (self.kind in ("preflight", "clarification")) != (self.task_id is None):

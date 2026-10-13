@@ -3,10 +3,17 @@
 import base64
 import hmac
 import json
+from collections.abc import Coroutine
 from typing import Any
 from uuid import UUID
 
-from commerceops.application.replenishment.contracts import TASK_KIND, WebActor, WebFailure
+from commerceops.application.replenishment.contracts import (
+    TASK_KIND,
+    Actor,
+    FeishuActor,
+    WebActor,
+    WebFailure,
+)
 from commerceops.domain.commerce_values import canonical_bytes, utc_time
 from commerceops.infrastructure.approval_decisions import decision_fields, may_decide, nonce_for
 from commerceops.infrastructure.database import connect
@@ -32,6 +39,43 @@ from commerceops.infrastructure.web_sessions import (
     role_scope,
 )
 
+
+def complete_pure[T](operation: Coroutine[Any, Any, T]) -> T:
+    """仅复用既有 provider=None 的 P204 验证：禁止挂起/外部 await，不建 loop。"""
+    try:
+        operation.send(None)
+    except StopIteration as result:
+        return result.value  # type: ignore[no-any-return]
+    finally:
+        operation.close()
+    raise WebFailure("SERVICE_UNAVAILABLE", 503)
+
+
+def read_visible_task(db: DB, actor: Actor, task_id: UUID) -> dict[str, Any]:
+    task = visible_task(db, actor, task_id)
+    if isinstance(actor, FeishuActor):
+        trusted = db.execute(
+            """SELECT 1 FROM business.conversations c
+            WHERE c.id=%s AND c.organization_id=%s AND c.channel='feishu' AND c.chat_id=%s
+            UNION ALL SELECT 1 FROM business.p4_card_bindings b
+            JOIN business.outbox o ON o.id=b.outbox_id
+            WHERE o.task_id=%s AND o.organization_id=%s AND o.shop_id=%s
+            AND b.source_mode='feishu' AND b.chat_id=%s LIMIT 1""",
+            (
+                task["conversation_id"],
+                actor.organization_id,
+                actor.chat_id,
+                task_id,
+                actor.organization_id,
+                task["shop_id"],
+                actor.chat_id,
+            ),
+        ).fetchone()
+        if trusted is None:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+    return task
+
+
 STATES = (
     "queued",
     "analyzing",
@@ -50,7 +94,14 @@ class ReplenishmentReadStore:
     def __init__(self, store: ReplenishmentStore):
         self.store, self.config, self.settings = store, store.config, store.settings
 
-    async def explanation(self, actor: WebActor, task_id: UUID, report_id: UUID) -> dict[str, Any]:
+    async def explanation(self, actor: Actor, task_id: UUID, report_id: UUID) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+            return self.explanation_in_transaction(db, actor, task_id, report_id)
+
+    def explanation_in_transaction(
+        self, db: DB, actor: Actor, task_id: UUID, report_id: UUID
+    ) -> dict[str, Any]:
         from commerceops.application.commerce.explanation_task import (
             ExplanationTaskRequest,
             logical_key,
@@ -61,81 +112,117 @@ class ReplenishmentReadStore:
             validated_row,
         )
 
-        with connect(self.settings) as db:
-            self._business(db, actor)
-            task = visible_task(db, actor, task_id)
-            source = self._source(db, task)
-            if source and source["id"] != report_id and task["kind"] == TASK_KIND:
-                observation = db.execute(
-                    """SELECT * FROM business.p3_observations WHERE task_id=%s
-                    AND organization_id=%s AND shop_id=%s AND report_id=%s""",
-                    (task_id, actor.organization_id, task["shop_id"], report_id),
-                ).fetchone()
-                if observation:
-                    binding = db.execute(
-                        "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task_id,)
-                    ).fetchone()
-                    if not binding:
-                        raise WebFailure("NOT_READY")
-                    from commerceops.infrastructure.replenishment_execution import ExecutionStore
-
-                    ExecutionStore.verify_row(observation, binding)
-                    # P3重观测没有P2 explanation link；GET不沿用旧事实说明，也不创建模型任务。
-                    raise WebFailure("NOT_READY")
-            if not source or source["id"] != report_id:
-                raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            row = db.execute(
-                """SELECT e.*,t.normalized_request FROM business.model_explanations e
-            JOIN business.explanation_links l ON l.child_task_id=e.child_task_id
-            JOIN business.business_tasks t ON t.id=e.child_task_id
-            JOIN business.explanation_task_results x ON x.child_task_id=t.id AND
- x.result_id=e.id
-            WHERE e.organization_id=%s AND e.shop_id=%s AND e.parent_task_id=%s
-            AND l.requester_id=%s AND e.report_id=%s AND e.facts_hash=%s
-            ORDER BY e.created_at DESC,e.id DESC LIMIT 1""",
-                (
-                    actor.organization_id,
-                    task["shop_id"],
-                    source["task_id"],
-                    source["requester_id"],
-                    report_id,
-                    source["facts_hash"],
-                ),
+        self._business(db, actor)
+        task = read_visible_task(db, actor, task_id)
+        source = self._source(db, task)
+        if source and source["id"] != report_id and task["kind"] == TASK_KIND:
+            observation = db.execute(
+                """SELECT * FROM business.p3_observations WHERE task_id=%s
+                AND organization_id=%s AND shop_id=%s AND report_id=%s""",
+                (task_id, actor.organization_id, task["shop_id"], report_id),
             ).fetchone()
-            if not row:
-                raise WebFailure("NOT_READY")
-            req = ExplanationTaskRequest.model_validate_json(json.dumps(row["normalized_request"]))
-            expected = logical_key(
+            if observation:
+                binding = db.execute(
+                    "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task_id,)
+                ).fetchone()
+                if not binding:
+                    raise WebFailure("NOT_READY")
+                from commerceops.infrastructure.replenishment_execution import ExecutionStore
+
+                _, report = ExecutionStore.verify_row(observation, binding)
+                return self.template_explanation(db, task, report_id, observation, report)
+
+        if not source or source["id"] != report_id:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        row = db.execute(
+            """SELECT e.*,t.normalized_request FROM business.model_explanations e
+        JOIN business.explanation_links l ON l.child_task_id=e.child_task_id
+        JOIN business.business_tasks t ON t.id=e.child_task_id
+        JOIN business.explanation_task_results x ON x.child_task_id=t.id AND
+ x.result_id=e.id
+        WHERE e.organization_id=%s AND e.shop_id=%s AND e.parent_task_id=%s
+        AND l.requester_id=%s AND e.report_id=%s AND e.facts_hash=%s
+        ORDER BY e.created_at DESC,e.id DESC LIMIT 1""",
+            (
                 actor.organization_id,
                 task["shop_id"],
-                source["requester_id"],
                 source["task_id"],
+                source["requester_id"],
                 report_id,
                 source["facts_hash"],
-                req.body_hash,
-                req.evidence_mode,
-            )
-            if req.logical_key != expected:
-                raise WebFailure("NOT_READY")
-            result = validated_row(row, req, actor.organization_id, task["shop_id"])
-            await ExplanationStore.verify(
+            ),
+        ).fetchone()
+        if not row:
+            if task["kind"] == TASK_KIND:
+                return self.template_explanation(
+                    db,
+                    task,
+                    report_id,
+                    source,
+                    _stored(source, source["normalized_request"]).report,
+                )
+            raise WebFailure("NOT_READY")
+        req = ExplanationTaskRequest.model_validate_json(json.dumps(row["normalized_request"]))
+        expected = logical_key(
+            actor.organization_id,
+            task["shop_id"],
+            source["requester_id"],
+            source["task_id"],
+            report_id,
+            source["facts_hash"],
+            req.body_hash,
+            req.evidence_mode,
+        )
+        if req.logical_key != expected:
+            raise WebFailure("NOT_READY")
+        result = validated_row(row, req, actor.organization_id, task["shop_id"])
+        complete_pure(
+            ExplanationStore.verify(
                 result, _stored(source, source["normalized_request"]).report, req
             )
-            return envelope(
-                db,
-                task_id=task_id,
-                report_id=report_id,
-                explanation={
-                    "schema_version": "p204-read-v1",
-                    "analysis_only": True,
-                    "execution_available": False,
-                    "identity_mode": "simulated",
-                    "task_id": str(source["task_id"]),
-                    "explanation_id": str(row["id"]),
-                    "child_task_id": str(row["child_task_id"]),
-                    "result": payload(result),
-                },
-            )
+        )
+        return envelope(
+            db,
+            task_id=task_id,
+            report_id=report_id,
+            explanation={
+                "schema_version": "p204-read-v1",
+                "analysis_only": True,
+                "execution_available": False,
+                "identity_mode": "simulated",
+                "task_id": str(source["task_id"]),
+                "explanation_id": str(row["id"]),
+                "child_task_id": str(row["child_task_id"]),
+                "result": payload(result),
+            },
+        )
+
+    @staticmethod
+    def template_explanation(
+        db: DB, task: dict[str, Any], report_id: UUID, evidence: dict[str, Any], report: Any
+    ) -> dict[str, Any]:
+        from commerceops.infrastructure.p3_template_results import TemplateBinding, read
+
+        observation = evidence.get("schema_version") == "p3-observation-v1"
+        content = read(
+            db,
+            TemplateBinding(
+                task["organization_id"],
+                task["shop_id"],
+                task["requester_id"],
+                task["id"],
+                "p3_observation" if observation else "p2_original",
+                evidence["source_task_id"] if observation else evidence["task_id"],
+                evidence["id"] if observation else None,
+                evidence["id"] if observation else evidence["snapshot_id"],
+                report_id,
+                evidence["facts_hash"],
+            ),
+            report,
+        )
+        if content is None:
+            raise WebFailure("NOT_READY")
+        return envelope(db, task_id=task["id"], report_id=report_id, explanation=content)
 
     def cursor(
         self,
@@ -198,7 +285,7 @@ class ReplenishmentReadStore:
             raise WebFailure("INVALID_CURSOR", 400) from None
 
     @staticmethod
-    def _business(db: DB, actor: WebActor) -> None:
+    def _business(db: DB, actor: Actor) -> None:
         if not has_capability(db, actor, "operator") and not has_capability(db, actor, "approver"):
             raise WebFailure("ACCESS_DENIED", 403)
 
@@ -314,55 +401,59 @@ class ReplenishmentReadStore:
             SOURCE_SQL, (source_id, task["organization_id"], task["shop_id"])
         ).fetchone()
 
-    def read_task(self, actor: WebActor, task_id: UUID) -> dict[str, Any]:
+    def read_task(self, actor: Actor, task_id: UUID) -> dict[str, Any]:
         with connect(self.settings) as db:
-            self._business(db, actor)
-            task = visible_task(db, actor, task_id)
-            source = self._source(db, task)
-            approval = db.execute(
-                "SELECT * FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+            return self.task_in_transaction(db, actor, task_id)
+
+    def task_in_transaction(self, db: DB, actor: Actor, task_id: UUID) -> dict[str, Any]:
+        self._business(db, actor)
+        task = read_visible_task(db, actor, task_id)
+        source = self._source(db, task)
+        approval = db.execute(
+            "SELECT * FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
+        ).fetchone()
+        plan = (
+            db.execute(
+                "SELECT * FROM business.replenishment_plans WHERE id=%s",
+                (task["active_plan_id"],),
             ).fetchone()
-            plan = (
-                db.execute(
-                    "SELECT * FROM business.replenishment_plans WHERE id=%s",
-                    (task["active_plan_id"],),
-                ).fetchone()
-                if approval
-                else None
-            )
-            can_decide = bool(
-                approval and plan and may_decide(db, self.config, actor, task, approval, plan)
-            )
-            execution = db.execute(
-                "SELECT id FROM business.executions WHERE task_id=%s", (task_id,)
-            ).fetchone()
-            item_rows = db.execute(
-                "SELECT id,status FROM business.replenishment_items WHERE task_id=%s ORDER BY id",
-                (task_id,),
-            ).fetchall()
-            can_resolve = any(x["status"] == "open" for x in item_rows) and role_scope(
-                db, actor, task["shop_id"], "approver"
-            )
-            return envelope(
-                db,
-                task=self._summary(db, task),
-                source=source_binding(source) if source else None,
-                current_plan_id=task["active_plan_id"],
-                approval_id=approval["id"] if approval else None,
-                execution_id=execution["id"] if execution else None,
-                visible_item_ids=[x["id"] for x in item_rows],
-                actions={
-                    "can_decide": can_decide,
-                    "can_resolve": can_resolve,
-                    "can_start_new_cycle": task["state"] == "completed"
-                    and source is not None
-                    and source["shop_id"] == task["shop_id"]
-                    and role_scope(db, actor, task["shop_id"], "operator"),
-                    "can_recompute": False,
-                    "disabled_reasons": ["RECOMPUTE_DISABLED"],
-                },
-                failure_code=task["failure_code"],
-            )
+            if approval
+            else None
+        )
+        can_decide = bool(
+            approval and plan and may_decide(db, self.config, actor, task, approval, plan)
+        )
+        execution = db.execute(
+            "SELECT id FROM business.executions WHERE task_id=%s", (task_id,)
+        ).fetchone()
+        item_rows = db.execute(
+            "SELECT id,status FROM business.replenishment_items WHERE task_id=%s ORDER BY id",
+            (task_id,),
+        ).fetchall()
+        can_resolve = any(x["status"] == "open" for x in item_rows) and role_scope(
+            db, actor, task["shop_id"], "approver"
+        )
+        return envelope(
+            db,
+            task=self._summary(db, task),
+            source=source_binding(source) if source else None,
+            current_plan_id=task["active_plan_id"],
+            approval_id=approval["id"] if approval else None,
+            execution_id=execution["id"] if execution else None,
+            visible_item_ids=[x["id"] for x in item_rows],
+            actions={
+                "can_decide": can_decide,
+                "can_resolve": can_resolve,
+                "can_start_new_cycle": task["state"] == "completed"
+                and source is not None
+                and source["shop_id"] == task["shop_id"]
+                and role_scope(db, actor, task["shop_id"], "operator"),
+                "can_recompute": False,
+                "disabled_reasons": ["RECOMPUTE_DISABLED"],
+            },
+            failure_code=task["failure_code"],
+        )
 
     def report(
         self, actor: WebActor, task_id: UUID, report_id: UUID | None = None
