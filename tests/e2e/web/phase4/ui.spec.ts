@@ -16,7 +16,8 @@ import type {} from "./test-control";
 const root = resolve(__dirname, "../../../..");
 const evidence = resolve(
   root,
-  `frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09-reviewfix" ? "p4-c09-reviewfix" : process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09" : "p4-c1"}`,
+  process.env.COMMERCEOPS_WEB_BATCH === "p4-c14-template" ? "runtime/p4-c14-template/ui" :
+    `frontend/evidence/${process.env.COMMERCEOPS_WEB_BATCH === "p4-c09-reviewfix" ? "p4-c09-reviewfix" : process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "p4-c09" : "p4-c1"}`,
 );
 let owned: {
   pid: number;
@@ -231,6 +232,70 @@ test("已有模板降级/离线stub明确标识，null不补0不发新模型", a
   await frame.locator('[data-control="B19"]').click();
   await expect(frame.locator("dialog")).toContainText("离线 stub 记录");
   await expect(frame.locator("dialog")).toContainText("latency：未报告");
+});
+test("BC02 P3原始/重观测模板无子task或模型账单，20依据/390/键盘及旧P204兼容", async ({ page }) => {
+  const frame = await open(page, "p3_original");
+  await frame.locator('[data-control="B19"]').focus();
+  await page.keyboard.press("Enter");
+  const dialog = frame.locator("dialog");
+  await expect(dialog).toContainText("P3 模板");
+  await expect(dialog).toContainText("P2 原始报告");
+  await expect(dialog).toContainText("observation：无重观测");
+  await expect(dialog).toContainText("未使用模型");
+  await expect(dialog).toContainText("input_tokens：未报告");
+  await expect(dialog).toContainText("latency：未报告");
+  await expect(dialog).not.toContainText("子 task：");
+  await expect(dialog.locator("article.list-row")).toHaveCount(20);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await frame.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(frame.locator('[data-control="B19"]')).toBeFocused();
+  await frame.evaluate(() => window.__p4.render("p3_observation"));
+  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  await frame.locator('[data-control="B19"]').click();
+  await expect(dialog).toContainText("P3 重观测");
+  await expect(dialog.locator("article.list-row")).toHaveCount(20);
+  expect(await frame.evaluate(() => window.__p4.calls.filter((x) => x.method !== "GET"))).toEqual([]);
+  await frame.evaluate(() => window.__p4.render("actual"));
+  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  await frame.locator('[data-control="B19"]').click();
+  await expect(dialog).toContainText("子 task：");
+  await expect(dialog).toContainText("历史实际 provider 记录");
+});
+test("BC02 P3异来源/不可用不得显示模板，迟到关闭与身份清理不复活缓存", async ({ page }) => {
+  const frame = await open(page, "p3_bad_source");
+  await frame.locator('[data-control="B19"]').click();
+  await expect(frame.locator("dialog")).toContainText("不可安全读取");
+  await expect(frame.locator("dialog")).not.toContainText("不可变模板示例");
+  await frame.evaluate(() => window.__p4.render("p3_unavailable"));
+  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  await frame.locator('[data-control="B19"]').click();
+  await expect(frame.locator("dialog")).toContainText("服务暂时不可用");
+  await frame.evaluate(() => window.__p4.render("p3_delayed"));
+  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  await frame.locator('[data-control="B19"]').click();
+  await expect(frame.locator("dialog")).toContainText("正在读取已有解释");
+  await page.keyboard.press("Escape");
+  await frame.evaluate(() => window.__p4.release());
+  await expect(frame.locator("dialog")).toHaveCount(0);
+  await frame.locator('[data-control="B19"]').click();
+  await expect(frame.locator("dialog")).toContainText("正在读取已有解释");
+  await frame.evaluate(() => window.__p4.render("p3_observation"));
+  await frame.evaluate(() => window.__p4.release());
+  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  await expect(frame.locator("dialog")).toHaveCount(0);
+  await frame.locator('[data-control="B19"]').click();
+  await expect(frame.locator("dialog")).toContainText("P3 重观测");
+  await expect(frame.locator("dialog")).not.toContainText("P2 原始报告");
+  await frame.evaluate(() => window.__p4.render("p3_delayed"));
+  await expect(frame.locator("main")).toContainText("全部 20 个 SKU");
+  await frame.locator('[data-control="B19"]').click();
+  await expect(frame.locator("dialog")).toContainText("正在读取已有解释");
+  await frame.evaluate(() => window.__p4.revoke());
+  await frame.evaluate(() => window.__p4.release());
+  await expect(frame.locator("main")).toContainText("身份、业务缓存与预备操作已清除");
+  await expect(frame.locator("dialog")).toHaveCount(0);
 });
 test("NOT_READY与异refs安全错误不伪造解释；撤权清cache", async ({ page }) => {
   const frame = await open(page, "not_ready");

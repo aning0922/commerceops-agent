@@ -149,13 +149,27 @@ export function explanationBound(
   const skus = new Map(
     report.facts.items.map((fact) => [fact.sku_key, fact.risk]),
   );
+  const sourceBound = record.schema_version === "p204-read-v1"
+    ? record.task_id === refs.source_task_id
+    : record.schema_version === "p4-p3-template-read-v1" &&
+      record.task_id === report.task_id &&
+      record.source_task_id === refs.source_task_id &&
+      record.report_id === refs.report_id &&
+      record.snapshot_id === refs.snapshot_id &&
+      record.facts_hash === refs.facts_hash &&
+      ((record.source_kind === "p2_original" && record.observation_id === null) ||
+        (record.source_kind === "p3_observation" &&
+          record.observation_id !== null &&
+          record.observation_id === refs.snapshot_id));
   return (
     reportBound(report, report.task_id) &&
     read.task_id === report.task_id &&
     read.report_id === refs.report_id &&
-    record.task_id === refs.source_task_id &&
+    sourceBound &&
     result.facts_hash === refs.facts_hash &&
     bound(result.reference_ids) &&
+    skus.size === report.facts.items.length &&
+    result.lines.length === skus.size &&
     new Set(result.lines.map((line) => line.sku_key)).size ===
       result.lines.length &&
     result.lines.every(

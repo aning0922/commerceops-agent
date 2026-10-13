@@ -573,6 +573,7 @@ export function LiveReport({
 
 function CachedExplanation({ read }: { read: DTO["ExplanationRead"] }) {
   const record = read.explanation;
+  const p3 = record.schema_version === "p4-p3-template-read-v1";
   const result = record.result;
   const metadata = result.metadata;
   const absent = (value: string | number | null) => value ?? "未报告";
@@ -602,7 +603,7 @@ function CachedExplanation({ read }: { read: DTO["ExplanationRead"] }) {
           {String(metadata.stop_required)}。
         </p>
         <p>
-          内层 P2 身份口径：{record.identity_mode}；analysis_only：
+          {p3 ? "P3 模板" : "内层 P2"} 身份口径：{record.identity_mode}；analysis_only：
           {String(record.analysis_only)}；不授执行权。
         </p>
         <p>
@@ -640,8 +641,21 @@ function CachedExplanation({ read }: { read: DTO["ExplanationRead"] }) {
       </Card>
       <Card title="原报告绑定与依据">
         <p>
-          源 task：{record.task_id}；解释：{record.explanation_id}；子 task：
-          {record.child_task_id}。
+          {record.schema_version === "p4-p3-template-read-v1" ? (
+            <>
+              当前 task：{record.task_id}；源 task：{record.source_task_id}；
+              来源：
+              {record.source_kind === "p3_observation" ? "P3 重观测" : "P2 原始报告"}；
+              observation：{record.observation_id ?? "无重观测"}；
+              模板版本：{record.template_version}；创建时间：{record.created_at}；
+              解释：{record.explanation_id}。
+            </>
+          ) : (
+            <>
+              源 task：{record.task_id}；解释：{record.explanation_id}；子 task：
+              {record.child_task_id}。
+            </>
+          )}
         </p>
         <p>
           report：{result.reference_ids.report_id}；snapshot：
