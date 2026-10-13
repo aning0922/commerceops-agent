@@ -239,6 +239,15 @@ async def admitted_first_create(
         or state.window_id != ledger.window.window_id
         or state.task_ids != frozenset({row["task_id"]})
         or state.expires_at != gate.expires_at
+        or state.expires_at != ledger.window.expires_at
+        or state.organization_id != ledger.window.organization_id
+        or state.shop_id != ledger.window.shop_id
+        or not state.enabled
+        or not ledger.window.enabled
+        or ledger.window.verification_mode != "controlled_sdk"
+        or state.caps != dict(ledger.window.caps)
+        or state.workflow_recovery is None
+        or state.workflow_recovery.target_key != gate.target_key
         or state.caps.get("bitable.v1.app_table_record.create") != 1
     ):
         return False
@@ -247,4 +256,16 @@ async def admitted_first_create(
         AND method='bitable.v1.app_table_record.create' LIMIT 1""",
         (projection.outbox_id,),
     )
-    return await cur.fetchone() is None
+    if await cur.fetchone():
+        return False
+    # 原 OS absence/全 sender 终止条件在 dispatch 前再次检查；SQL guard 重核持久回执和锁。
+    cur = await db.execute(
+        """SELECT occurred_at FROM business.audit_events WHERE id=%s AND organization_id=%s
+        AND source='feishu_gateway' AND action='gateway_start_claimed'""",
+        (state.gateway_window_id, state.organization_id),
+    )
+    gateway = await cur.fetchone()
+    if not gateway:
+        return False
+    await old_senders_closed(db, state, gateway["occurred_at"])
+    return True

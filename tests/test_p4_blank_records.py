@@ -1,6 +1,7 @@
 """完整扫描中的空白行仅表示无 item key；坏行与严格匹配规则保持。"""
 
 import pytest
+from commerceops.adapters.feishu.projection_contract import ApiReply
 from commerceops.adapters.feishu.projection_rules import readback_rows
 
 from tests.test_p4_base_contract import request, terminal
@@ -92,6 +93,8 @@ def test_blank_keeps_double_match_anchor_conflict_and_newer_version() -> None:
         ],
     ],
 )
-def test_blank_requires_complete_consistent_pagination_before_missing(pages: list) -> None:
+def test_blank_requires_complete_consistent_pagination_before_missing(
+    pages: list[ApiReply | Exception],
+) -> None:
     result = reconcile(FakeRecords(pages), "fake", "fake", request().projection)
     assert result.outcome == "unknown" and result.external_id is None

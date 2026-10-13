@@ -19,7 +19,7 @@ from commerceops.adapters.feishu.business_base import BusinessBaseAdapter
 from commerceops.adapters.feishu.business_gateway import BusinessCard
 from commerceops.adapters.feishu.projection_contract import ApiReply
 from commerceops.application.feishu_business.delivery import DeliveryGate
-from commerceops.application.feishu_business.sdk_window import SDKWindow
+from commerceops.application.feishu_business.sdk_window import SDKScope, SDKWindow
 from commerceops.application.feishu_business.worker_window import (
     FIRST_CREATE_CAPS,
     KNOWN70_CAPS,
@@ -145,7 +145,7 @@ def original_c0(f: P3Fixture) -> Iterator[ControlledWorkerWindow]:
         )
         incoming = message(f)
         task = UUID(intake.message(incoming)["task_id"])
-        spec = {
+        spec: dict[str, Any] = {
             "schema_version": "p4-worker-v1",
             "window_id": str(uuid4()),
             "gateway_window_id": str(old.window_id),
@@ -288,6 +288,13 @@ def test_original_c0_first_create_ack_loss_readonly_anchor_and_t6_same_record(
             await session.start()
             try:
                 ledger = PersistentSDKLedger(session, window.window(settings(f)))
+
+                # 与正式 Factory 顺序一致：持久当前window/preflight后才进入delivery。
+                async def fake_auth() -> Any:
+                    return SimpleNamespace(raw=SimpleNamespace(status_code=200), code=0)
+
+                with ledger.scope(SDKScope(window.window_id, None, "preflight")):
+                    await ledger.invoke("auth.v3.tenant_access_token.internal", fake_auth)
                 fake = (AckDropRecords if ack_drop else RecordedRecords)(
                     ledger,
                     rows=[blank("blank-" + str(n)) for n in range(5)],

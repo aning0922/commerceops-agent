@@ -13,6 +13,7 @@ from commerceops.application.feishu_business.worker_window import (
     FIRST_CREATE_CAPS,
     ControlledWorkerWindow,
 )
+from commerceops.infrastructure import feishu_first_create_recovery as recovery_module
 from commerceops.infrastructure.feishu_first_create_recovery import admitted_first_create
 
 from tests.test_p4_a09_workflow import value
@@ -91,7 +92,11 @@ def test_first_create_profile_is_single_original_completed_workflow(change: str)
 
 class DB:
     def __init__(self, state: Any, create: Any):
-        self.results = [{"after_state": state} if state else None, create]
+        self.results = [
+            {"after_state": state} if state else None,
+            create,
+            {"occurred_at": "fixed-new-gateway-claim"},
+        ]
 
     async def execute(self, *_: Any) -> "DB":
         return self
@@ -120,18 +125,29 @@ class DB:
         "raised",
         "returned",
         "not_called",
+        "ledger_caps",
+        "ledger_org",
+        "ledger_shop",
+        "ledger_expiry",
+        "ledger_off",
+        "ledger_fake",
+        "target",
+        "old_sender_live",
     ],
 )
-def test_explicit_claim_original_row_and_all_create_statuses_gate_dispatch(change: str) -> None:
+def test_explicit_claim_original_row_and_all_create_statuses_gate_dispatch(
+    change: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     spec = candidate()
     window = ControlledWorkerWindow.model_validate_json(json.dumps(spec))
     projection = window.first_create
-    assert projection
+    assert projection and window.workflow_recovery
     gate = DeliveryGate(
         window.organization_id,
         window.shop_id,
         window.task_ids,
-        "test",
+        window.workflow_recovery.target_key,
         window.expires_at,
         enabled=True,
         verification_mode="controlled_sdk",
@@ -179,6 +195,46 @@ def test_explicit_claim_original_row_and_all_create_statuses_gate_dispatch(chang
         row["last_operation"] = "reconcile"
     elif change in ("started", "raised", "returned", "not_called"):
         create = {"status": change}
-    ledger = SimpleNamespace(window=SimpleNamespace(window_id=UUID(spec["window_id"])))
+    current_sdk = SimpleNamespace(
+        window_id=UUID(spec["window_id"]),
+        organization_id=window.organization_id,
+        shop_id=window.shop_id,
+        expires_at=window.expires_at,
+        enabled=True,
+        verification_mode="controlled_sdk",
+        caps=dict(window.caps),
+    )
+    if change == "ledger_caps":
+        current_sdk.caps["bitable.v1.app_table_record.create"] = 2
+    elif change == "ledger_org":
+        current_sdk.organization_id = uuid4()
+    elif change == "ledger_shop":
+        current_sdk.shop_id = uuid4()
+    elif change == "ledger_expiry":
+        from datetime import timedelta
+
+        current_sdk.expires_at += timedelta(seconds=1)
+    elif change == "ledger_off":
+        current_sdk.enabled = False
+    elif change == "ledger_fake":
+        current_sdk.verification_mode = "offline_fake"
+    elif change == "target":
+        gate = replace(gate, target_key="other")
+    checked = []
+
+    async def closed(_: Any, selected: Any, claimed_at: Any) -> None:
+        assert selected == window and claimed_at == "fixed-new-gateway-claim"
+        checked.append(True)
+        if change == "old_sender_live":
+            raise PermissionError("P4_FIRST_CREATE_RECOVERY_DENIED")
+
+    monkeypatch.setattr(recovery_module, "old_senders_closed", closed)
+    ledger = SimpleNamespace(window=current_sdk)
+    if change == "old_sender_live":
+        with pytest.raises(PermissionError, match="P4_FIRST_CREATE_RECOVERY_DENIED"):
+            asyncio.run(admitted_first_create(DB(state, create), gate, ledger, row))  # type: ignore[arg-type]
+        assert checked == [True]
+        return
     allowed = asyncio.run(admitted_first_create(DB(state, create), gate, ledger, row))  # type: ignore[arg-type]
     assert allowed is (change == "none")
+    assert checked == ([True] if change == "none" else [])
