@@ -9,6 +9,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import { verifyReadResponse } from "../../../../frontend/lib/p3-live-client";
+import { explanationBound } from "../../../../frontend/lib/p3-present";
+import type { DTO } from "../../../../frontend/lib/p3-present";
 import {
   ownedEndpoints,
   assertOwnedListener,
@@ -45,7 +48,7 @@ test.beforeAll(async ({ browser }) => {
       [resolve(root, "tests/e2e/web/live_ready.py"), directory!],
       {
         cwd: root,
-        env: { ...process.env, PYTHONPATH: root },
+        env: { ...process.env, PYTHONPATH: `${resolve(root, "backend/src")}:${root}` },
         encoding: "utf8",
       },
     ),
@@ -316,6 +319,11 @@ test("指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型�
     await expect(page).toHaveURL(/\/access$/);
   });
   await withPage("operator", async (page) => {
+    const writes: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().startsWith(windowInfo.api_origin) && r.method() === "POST")
+        writes.push(new URL(r.url()).pathname);
+    });
     await page.goto(
       windowInfo.web_origin +
         "/tasks/" +
@@ -323,9 +331,56 @@ test("指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型�
         "/report?report_id=" +
         facts.report,
     );
+    const legacyResponse = page.waitForResponse((r) =>
+      new URL(r.url()).pathname === `/api/v1/tasks/${facts.source_task}/explanation` &&
+        r.request().method() === "GET",
+    );
     await page.locator('[data-control="B19"]').click();
+    const legacy = await legacyResponse;
+    expect(legacy.status()).toBe(200);
+    const legacyRead = await legacy.json() as DTO["ExplanationRead"];
+    expect(verifyReadResponse("GET", `/api/v1/tasks/${facts.source_task}/explanation`, 200, legacyRead)).toBe(true);
+    expect(legacyRead.explanation.schema_version).toBe("p204-read-v1");
+    expect(legacyRead.explanation).toHaveProperty("child_task_id");
     await expect(page.getByRole("dialog")).toContainText("已有解释记录");
+    await expect(page.getByRole("dialog")).toContainText("子 task：");
     await page.keyboard.press("Escape");
+    const refs = facts.observation;
+    const path = `/api/v1/tasks/${facts.completed_task}/explanation`;
+    await page.goto(`${windowInfo.web_origin}/tasks/${facts.completed_task}/report?report_id=${refs.report_id}`);
+    const currentResponse = page.waitForResponse((r) =>
+      r.url() === `${windowInfo.api_origin}${path}?report_id=${refs.report_id}` &&
+        r.request().method() === "GET",
+    );
+    await page.locator('[data-control="B19"]').click();
+    const current = await currentResponse;
+    expect(current.status()).toBe(200);
+    const value = await current.json() as DTO["ExplanationRead"];
+    expect(verifyReadResponse("GET", path, 200, value)).toBe(true);
+    expect(value).toMatchObject({
+      task_id: facts.completed_task, report_id: refs.report_id,
+      explanation: {
+        schema_version: "p4-p3-template-read-v1", task_id: facts.completed_task,
+        source_task_id: refs.source_task_id, source_kind: "p3_observation",
+        observation_id: refs.id, snapshot_id: refs.id, report_id: refs.report_id,
+        facts_hash: refs.facts_hash,
+        result: { narrative_mode: "template", metadata: { evidence_mode: "not_used" } },
+      },
+    });
+    expect(value.explanation).not.toHaveProperty("child_task_id");
+    for (const key of ["provider", "requested_model", "returned_model", "request_id", "usage",
+      "latency_ms", "pricing_version", "cost_estimate"] as const)
+      expect(value.explanation.result.metadata[key]).toBeNull();
+    const reportResponse = await page.request.get(`${windowInfo.api_origin}/api/v1/tasks/${facts.completed_task}/report?report_id=${refs.report_id}`);
+    expect(reportResponse.status()).toBe(200);
+    expect(explanationBound(await reportResponse.json() as DTO["ReportRead"], value)).toBe(true);
+    await expect(page.getByRole("dialog")).toContainText("P3 重观测");
+    await expect(page.getByRole("dialog")).not.toContainText("子 task：");
+    await expect(page.getByRole("dialog").locator("article.list-row")).toHaveCount(20);
+    for (const ref of [facts.completed_task, refs.source_task_id, refs.id, refs.report_id, refs.facts_hash])
+      await expect(page.getByRole("dialog")).toContainText(ref);
+    await page.keyboard.press("Escape");
+    expect(writes).toEqual([]);
     await page.goto(windowInfo.web_origin + "/tasks/" + facts.completed_task);
     await page.locator('[data-control="B46"]').click();
     await page.getByRole("button", { name: "确认结构化参数" }).click();
@@ -351,7 +406,7 @@ test("预备后真实撤权401清缓存/原操作，无新增item决定", async 
     execFileSync(
       resolve(root, ".venv/bin/python"),
       [resolve(root, "tests/e2e/web/live_item_revoke.py"), directory!],
-      { cwd: root, env: { ...process.env, PYTHONPATH: root } },
+      { cwd: root, env: { ...process.env, PYTHONPATH: `${resolve(root, "backend/src")}:${root}` } },
     );
     await page.locator('[data-action="resolve-original"]').click();
     await expect(page.locator("#live-login")).toBeVisible();
