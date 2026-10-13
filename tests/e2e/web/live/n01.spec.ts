@@ -1,5 +1,7 @@
-import { test, expect } from "../../../../frontend/tooling/web-test";
-import type { Page } from "../../../../frontend/tooling/web-test";
+import { test as base, expect } from "../../../../frontend/tooling/web-test";
+import type { Page, BrowserContext } from "../../../../frontend/tooling/web-test";
+import type { components } from "../../../../frontend/lib/p3-types.generated";
+import { verifyReadResponse } from "../../../../frontend/lib/p3-live-client";
 import { readFileSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -16,6 +18,72 @@ if (owned.owner !== "phase4-C09-Web" || Date.now() >= Date.parse(owned.stop_at_u
 for (const endpoint of ownedEndpoints(owned, process.env.COMMERCEOPS_LIVE_WEB_URL))
   assertOwnedListener(readOwnedListener(endpoint.port), endpoint.pid);
 assertOwnedBuild(owned.build_id, readFileSync(resolve(root, "frontend/.next/BUILD_ID"), "utf8"));
+type Role = "operator" | "admin";
+type Session = components["schemas"]["SessionRead"];
+type Browser = NonNullable<ReturnType<BrowserContext["browser"]>>;
+type RoleState = {
+  state: Awaited<ReturnType<BrowserContext["storageState"]>>;
+  identity: string;
+  organization: string;
+  home: Session["principal"]["capabilities"]["home_path"];
+};
+// Only this worker's memory holds authentication state; never save or log it.
+const roleStates = new Map<Role, RoleState>();
+const test = base.extend({
+  storageState: async ({}, use) => {
+    const initial = roleStates.get("operator");
+    if (!initial) throw new Error("N01 authenticated operator setup required");
+    await use(initial.state);
+  },
+});
+const contextOptions = (role: Role) => {
+  const initial = roleStates.get(role);
+  if (!initial) throw new Error("N01 authenticated role setup required");
+  return { baseURL: owned.web_origin as string, viewport: { width: 1440, height: 1000 }, storageState: initial.state };
+};
+async function currentSession(page: Page, role: Role): Promise<Session> {
+  const stop = Date.parse(owned.stop_at_utc);
+  if (!Number.isFinite(stop) || Date.now() >= stop) throw new Error("N01 owned session window expired");
+  const response = await page.evaluate(async (api) => {
+    const result = await fetch(api + "/api/v1/auth/session", { credentials: "include", cache: "no-store" });
+    return { status: result.status, value: await result.json() as unknown };
+  }, API);
+  if (Date.now() >= stop || response.status !== 200 || !verifyReadResponse("GET", "/api/v1/auth/session", response.status, response.value))
+    throw new Error("N01 current session response rejected");
+  const session = response.value as Session;
+  const principal = session.principal;
+  const server = Date.parse(session.server_time);
+  const expires = [session.absolute_expires_at, session.idle_expires_at].map(Date.parse);
+  const grants = principal.role_shop_grants;
+  const expectedShops = [facts.shop, facts.shop_b].sort();
+  const operatorShops = grants.filter((grant) => grant.role === "operator").map((grant) => grant.shop_id).sort();
+  if (!Number.isFinite(server) || server >= stop || expires.some((value) => !Number.isFinite(value) || value <= server) ||
+      principal.principal_id !== accounts[role].principal || !principal.linked_channels.includes("web") ||
+      (role === "operator" && (!principal.capabilities.can_create_task || grants.length !== 2 || JSON.stringify(operatorShops) !== JSON.stringify(expectedShops))) ||
+      (role === "admin" && (principal.capabilities.can_create_task || principal.capabilities.can_read_tasks || grants.length !== 0)) ||
+      [...roleStates.values()].some((initial) => initial.organization !== principal.organization_id))
+    throw new Error("N01 current role or store scope rejected");
+  return session;
+}
+function sessionIdentity(session: Session): string {
+  const p = session.principal;
+  return JSON.stringify({
+    principal: p.principal_id, organization: p.organization_id, auth_version: p.auth_version,
+    grants: [...p.role_shop_grants].sort((a, b) => `${a.role}:${a.shop_id}`.localeCompare(`${b.role}:${b.shop_id}`)),
+    capabilities: p.capabilities, linked_channels: [...p.linked_channels].sort(),
+  });
+}
+async function initializeRole(browser: Browser, role: Role) {
+  if (roleStates.has(role)) throw new Error("N01 role already authenticated");
+  const context = await browser.newContext({ baseURL: owned.web_origin, viewport: { width: 1440, height: 1000 } });
+  try {
+    const page = await context.newPage();
+    await initialLogin(page, role);
+    await page.waitForURL((url) => url.origin === owned.web_origin && url.pathname !== "/login");
+    const session = await currentSession(page, role);
+    roleStates.set(role, { state: await context.storageState(), identity: sessionIdentity(session), organization: session.principal.organization_id, home: session.principal.capabilities.home_path });
+  } finally { await context.close(); }
+}
 type Snapshot = Record<string, { count: number; sha256: string }>;
 const probe = (action: "snapshot" | "revoke"): Snapshot => {
   const output = execFileSync(resolve(root, ".venv/bin/python"), [resolve(root, "tests/e2e/web/c09_fixture.py"), dir, action], {
@@ -25,7 +93,11 @@ const probe = (action: "snapshot" | "revoke"): Snapshot => {
 };
 let before: Snapshot;
 const evidence: { test: string; business_unchanged: boolean; explicit_pair_only: boolean }[] = [];
-test.beforeEach(() => { before = probe("snapshot"); });
+test.beforeAll(async ({ browser }) => {
+  await initializeRole(browser, "operator");
+  await initializeRole(browser, "admin");
+});
+test.beforeEach(async ({ page }) => { before = probe("snapshot"); await login(page); });
 test.afterEach(async ({ page }, info) => {
   try {
     const after = probe("snapshot");
@@ -41,10 +113,11 @@ test.afterEach(async ({ page }, info) => {
   } finally { await page.goto("about:blank").catch(() => {}); }
 });
 test.afterAll(() => {
+  roleStates.clear();
   const destination = resolve(root, "frontend/evidence/p4-c09/n01"); mkdirSync(destination, { recursive: true });
   writeFileSync(resolve(destination, "pg-invariants.safe.json"), JSON.stringify({ source: "actual owned PostgreSQL", worker: "not_started", sdk_provider: "not_started", tests: evidence }, null, 2));
 });
-async function login(page: Page, role = "operator") {
+async function initialLogin(page: Page, role: Role) {
   await page.goto("/login");
   await expect(page.locator("#live-login")).toBeVisible();
   try {
@@ -56,9 +129,18 @@ async function login(page: Page, role = "operator") {
   }
   await expect(page.locator('[data-source-mode="live-session"]')).toBeVisible();
 }
+async function login(page: Page, role: Role = "operator") {
+  const initial = roleStates.get(role);
+  if (!initial) throw new Error("N01 authenticated role unavailable");
+  await page.goto(initial.home);
+  const current = await currentSession(page, role);
+  if (sessionIdentity(current) !== initial.identity)
+    throw new Error("N01 original session identity changed");
+  await expect(page.locator('[data-source-mode="live-session"]')).toBeVisible();
+}
 async function draft(page: Page, text: string) {
   await login(page);
-  await page.locator('[data-control="B01"]').click();
+  await page.locator('[data-control="B10"]').click();
   await page.getByLabel("当前operator店铺").selectOption(facts.shop);
   await page.getByRole("button", { name: "使用自然语言请求草稿", exact: true }).click();
   await page.getByLabel("自然语言请求草稿").fill(text);
@@ -184,11 +266,15 @@ test("N01 显式唯一创建实际一pair，受控ACKunknown原键读取/同字�
   expect(conflict).toEqual({ status: 409, code: "IDEMPOTENCY_CONFLICT" });
   expect(probe("snapshot")).toEqual(committed);
 });
-test("N01 actual无operator403；迟到响应遇真实撤权401清身份/草稿/业务缓存", async ({ page }) => {
-  await login(page, "admin");
-  await expect(page.locator('[data-control="B01"]')).toHaveCount(0);
-  expect(await checkedPost(page, { schema_version: "p3-web-v1", shop_id: facts.shop, fixture_case: "baseline", text: "分析库存 L=3 R=7 S=2" })).toEqual({ status: 403, code: "ACCESS_DENIED" });
-  await page.goto("about:blank"); await page.context().clearCookies();
+test("N01 actual无operator403；迟到响应遇真实撤权401清身份/草稿/业务缓存", async ({ page, browser }) => {
+  const adminContext = await browser.newContext(contextOptions("admin"));
+  try {
+    const adminPage = await adminContext.newPage();
+    await login(adminPage, "admin");
+    await expect(adminPage.locator('[data-control="B10"]')).toHaveCount(0);
+    expect(await checkedPost(adminPage, { schema_version: "p3-web-v1", shop_id: facts.shop, fixture_case: "baseline", text: "分析库存 L=3 R=7 S=2" })).toEqual({ status: 403, code: "ACCESS_DENIED" });
+    await adminPage.goto("about:blank"); await adminContext.clearCookies();
+  } finally { await adminContext.close(); }
   await draft(page, "分析库存 L=3 R=7 S=2");
   let release!: () => void, arrived!: () => void;
   const held = new Promise<void>((r) => { release = r; }), called = new Promise<void>((r) => { arrived = r; });
