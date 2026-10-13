@@ -231,6 +231,8 @@ def test_rebalanced_complete_modules_run_once_with_original_serial_300_cap(scope
     moved = [f"tests/test_p3_approval_pg.py::approval_{n:02d}" for n in range(28)]
     moved += [f"tests/test_p3_execution_authority_pg.py::authority_{n}" for n in range(9)]
     moved += [f"tests/test_p3_execution_recovery_pg.py::recovery_{n}" for n in range(8)]
+    moved += [f"tests/test_p4_first_create_pg.py::first_create_{n}" for n in range(3)]
+    moved += [f"tests/test_p4_first_create_negatives_pg.py::negative_{n}" for n in range(7)]
     nodes = OLD + P3 + moved
     assert partition(nodes, "existing") == sorted(OLD + moved)
     assert partition(nodes, "phase3") == sorted(P3)
@@ -254,4 +256,4 @@ def test_rebalanced_complete_modules_run_once_with_original_serial_300_cap(scope
     pg_diagnostic.run_combined(records, {}, command, scope)
     assert sorted(actual) == partition(nodes, scope)
     assert len(actual) == len(set(actual))
-    assert len(calls) == (5 if scope == "existing" else 2)
+    assert len(calls) == (7 if scope == "existing" else 2)

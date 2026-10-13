@@ -11,12 +11,14 @@ from pathlib import Path
 from typing import Any
 
 SCOPES = frozenset({"all", "existing", "phase3"})
-# 完整模块族转移既有quality余量；approval原14节点分片仍由同一runner派生。
+# 完整模块族及新增C0恢复Gate转移既有quality余量；approval原14节点分片不变。
 EXISTING_BUSINESS_MODULES = frozenset(
     {
         "tests/test_p3_approval_pg.py",
         "tests/test_p3_execution_authority_pg.py",
         "tests/test_p3_execution_recovery_pg.py",
+        "tests/test_p4_first_create_pg.py",
+        "tests/test_p4_first_create_negatives_pg.py",
     }
 )
 FIELDS = frozenset(
