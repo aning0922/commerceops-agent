@@ -134,6 +134,8 @@ test("真实T6 Unicode原因/原键回放：一次版本推进与原receipt，�
     await expect(
       page.getByText("内部跟进已记录", { exact: true }),
     ).toBeVisible();
+    await page.getByText("原请求技术详情与受控恢复", { exact: true }).focus();
+    await page.keyboard.press("Enter");
     for (let n = 0; n < 9; n++) {
       await page.locator('[data-action="resolve-original"]').click();
       await expect(
@@ -213,6 +215,9 @@ test("实际T6 commit后受控丢ACK：原GET/同字节恢复，focus不丢原�
     await expect(
       page.getByText("内部项提交待核实", { exact: true }),
     ).toBeVisible();
+    await page.getByText("原请求技术详情与受控恢复", { exact: true }).focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator('[data-action="resolve-original"]')).toBeDisabled();
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(
       page.locator('[data-action="resolve-original"]'),
