@@ -327,7 +327,9 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 grant_runtime(owner)
                 stage = "initialize_p3"
                 migration_diag(stage)
-                f = initialize_p3(owner, app, tmp_path / "legacy-private")
+                legacy_private = tmp_path / "legacy-private"
+                legacy_private.mkdir(mode=0o700)
+                f = initialize_p3(owner, app, legacy_private)
                 try:
                     stage = "original_c0"
                     migration_diag(stage)
