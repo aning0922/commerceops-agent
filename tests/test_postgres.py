@@ -93,6 +93,7 @@ def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
         "executions",
         "replenishment_items",
         "outbox_reconciliations",
+        "p3_template_results",
         "p4_inbox_receipts",
         "p4_card_bindings",
         "p4_clarification_replies",
@@ -102,6 +103,7 @@ def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
         "p4_sdk_windows",
         "p4_sdk_calls",
         "p4_im_deliveries",
+        "p4_read_replies",
     }
     row = db.execute("SELECT max(v) AS version FROM checkpoints.checkpoint_migrations").fetchone()
     assert row and row["version"] == len(AsyncPostgresSaver.MIGRATIONS) - 1
