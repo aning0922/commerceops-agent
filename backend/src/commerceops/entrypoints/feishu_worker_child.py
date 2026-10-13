@@ -88,7 +88,7 @@ async def trusted_scope(
         if window.profile == "approved_outbox":
             await trusted_recovery_scope(config, settings, window, gateway)
             return
-        if window.profile == "approved_workflow":
+        if window.profile in ("approved_workflow", "approved_first_create"):
             await trusted_workflow_scope(config, settings, window, gateway)
             return
         if window.profile == "group20" and (
@@ -227,6 +227,8 @@ async def controlled_work(
             outbox_ids=None
             if window.recovery is None
             else frozenset(p.outbox_id for p in window.recovery.projections),
+            first_create=window.first_create,
+            first_create_window_id=window.window_id if window.first_create is not None else None,
         )
         im = IMDeliveryStore(
             session,
@@ -270,7 +272,7 @@ async def controlled_work(
                     )
                 )
                 await trusted_workflow_scope(config, settings, window, gateway, claim=False)
-            if window.recovery is None:
+            if window.recovery is None and window.first_create is None:
                 await approval.reconcile(task_ids=window.task_ids)
             if stop.is_set() or not gate.active():
                 stop.set()
@@ -292,7 +294,7 @@ async def controlled_work(
                 await trusted_recovery_scope(config, settings, window, gateway, claim=False)
             stores = (
                 ((base, {"idle", "verified"}),)
-                if window.recovery
+                if window.recovery or window.first_create
                 else ((im, {"idle", "sent"}), (base, {"idle", "verified"}))
             )
             for store, accepted in stores:
@@ -310,7 +312,7 @@ async def controlled_work(
             reconcile=maintenance,
             recovery_scan_seconds=config.recovery_scan_seconds,
             task_ids=task_ids,
-            **({"dispatch_jobs": False} if window.recovery else {}),
+            **({"dispatch_jobs": False} if window.recovery or window.first_create else {}),
         ).run(stop)
         summary["result"] = (
             "delivery_stopped" if summary.get("delivery_stopped") else "window_stopped"
@@ -337,7 +339,7 @@ async def controlled_work(
 
 
 async def controlled_task_ids(config: WebConfig, window: ControlledWorkerWindow) -> frozenset[UUID]:
-    if window.recovery:
+    if window.recovery or window.first_create:
         return window.task_ids
     async with await open_async(config.database) as db:
         cursor = await db.execute(

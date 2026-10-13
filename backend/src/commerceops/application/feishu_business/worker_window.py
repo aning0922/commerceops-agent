@@ -12,6 +12,7 @@ from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.recovery import (
     ApprovedOutboxRecovery,
     ApprovedWorkflowRecovery,
+    RecoveryProjection,
 )
 from commerceops.application.feishu_business.sdk_calls import SDKMethod
 from commerceops.application.feishu_business.sdk_window import SDKWindow
@@ -50,6 +51,10 @@ RECOVERY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
     }
 )
 
+FIRST_CREATE_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {**RECOVERY_CAPS, "bitable.v1.app_table_record.create": 1}
+)
+
 
 class ControlledWorkerWindow(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
@@ -63,9 +68,12 @@ class ControlledWorkerWindow(BaseModel):
     expires_at: datetime
     caps: dict[SDKMethod, int] = Field(repr=False)
     enabled: bool = False
-    profile: Literal["known70", "group20", "approved_outbox", "approved_workflow"] = "known70"
+    profile: Literal[
+        "known70", "group20", "approved_outbox", "approved_workflow", "approved_first_create"
+    ] = "known70"
     recovery: ApprovedOutboxRecovery | None = Field(default=None, repr=False)
     workflow_recovery: ApprovedWorkflowRecovery | None = Field(default=None, repr=False)
+    first_create: RecoveryProjection | None = Field(default=None, repr=False)
 
     def window(self, settings: BusinessSettings) -> SDKWindow:
         checked = type(self).model_validate(self.model_dump())
@@ -74,6 +82,7 @@ class ControlledWorkerWindow(BaseModel):
             "group20": GROUP20_CAPS,
             "approved_outbox": RECOVERY_CAPS,
             "approved_workflow": GROUP20_CAPS,
+            "approved_first_create": FIRST_CREATE_CAPS,
         }[checked.profile]
         remaining = (
             (checked.expires_at - datetime.now(UTC)).total_seconds()
@@ -96,7 +105,7 @@ class ControlledWorkerWindow(BaseModel):
             or self.caps.get("bitable.v1.app_table.list", 0) not in (0, 1, 2)
             or settings.base_table_id_file is None
             and self.caps.get("bitable.v1.app_table.list", 0) == 0
-            or self.profile != "approved_outbox"
+            or self.profile not in ("approved_outbox", "approved_first_create")
             and (
                 self.caps.get("im.v1.message.create", 0) < 1
                 or self.caps.get("bitable.v1.app_table_record.create", 0) < 1
@@ -106,9 +115,9 @@ class ControlledWorkerWindow(BaseModel):
             and len(self.task_ids) > 2
             or self.profile != "approved_outbox"
             and self.recovery is not None
-            or self.profile != "approved_workflow"
+            or self.profile not in ("approved_workflow", "approved_first_create")
             and self.workflow_recovery is not None
-            or self.profile == "approved_workflow"
+            or self.profile in ("approved_workflow", "approved_first_create")
             and (
                 self.workflow_recovery is None
                 or self.task_ids != frozenset({self.workflow_recovery.task_id})
@@ -116,6 +125,18 @@ class ControlledWorkerWindow(BaseModel):
                 or self.workflow_recovery.gateway_window_id != self.gateway_window_id
                 or self.workflow_recovery.expires_at != self.expires_at
                 or self.workflow_recovery.target_key != settings.base_target_key
+            )
+            or self.profile != "approved_first_create"
+            and self.first_create is not None
+            or self.profile == "approved_first_create"
+            and (
+                self.first_create is None
+                or self.first_create.version != 1
+                or self.caps.get("bitable.v1.app_table_record.create") != 1
+                or self.workflow_recovery is None
+                or self.workflow_recovery.approval_id is None
+                or self.workflow_recovery.decision_id is None
+                or self.workflow_recovery.execution_id is None
             )
             or self.profile == "approved_outbox"
             and (

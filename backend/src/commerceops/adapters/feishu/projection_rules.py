@@ -90,10 +90,15 @@ def readback_rows(
             or not record_id
             or record_id in seen
             or type(remote) is not dict
-            or type(remote.get("CommerceOpsItemID")) is not str
         ):
             return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         seen.add(record_id)
+        # 完整分页/total 已由 caller 校验；合法空白行没有任何业务字段或 item key。
+        # 仍计入分页总数与 record_id 去重，不能成为 match/anchor/15 字段证明。
+        if remote == {}:
+            continue
+        if type(remote.get("CommerceOpsItemID")) is not str:
+            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
         if remote["CommerceOpsItemID"] == str(request.projection.item_id):
             matches.append(row)
     if not matches:

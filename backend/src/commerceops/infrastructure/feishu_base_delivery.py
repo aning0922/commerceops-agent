@@ -216,6 +216,13 @@ class BaseDeliveryStore:
                     anchor=row["anchor"],
                     attempts=row["attempts"],
                 )
+                if operation == "reconcile" and self.gate.first_create is not None:
+                    from commerceops.infrastructure.feishu_first_create_recovery import (
+                        admitted_first_create,
+                    )
+
+                    if await admitted_first_create(db, self.gate, self.ledger, row):
+                        operation = "create"
                 if operation is None:
                     continue
                 # 原任务operator及原审批actor均需当前有效。读取snapshot不借外写许可绕业务权。

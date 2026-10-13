@@ -310,6 +310,12 @@ async def trusted_workflow_scope(
         )
         if await cur.fetchone():
             denied()  # 不能借 workflow 恢复重发未知卡片或混用 Fake 历史。
+        if window.first_create is not None:
+            from commerceops.infrastructure.feishu_first_create_recovery import (
+                validate_first_create,
+            )
+
+            await validate_first_create(db, window, task, new["occurred_at"], claim=claim)
         if claim:
             await db.execute(
                 """INSERT INTO business.audit_events(id,organization_id,task_id,source,action,

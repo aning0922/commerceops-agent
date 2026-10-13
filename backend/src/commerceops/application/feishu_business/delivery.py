@@ -10,6 +10,7 @@ from commerceops.application.feishu_business.contracts import (
     ProjectionResult,
     bind_projection_result,
 )
+from commerceops.application.feishu_business.recovery import RecoveryProjection
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,8 @@ class DeliveryGate:
     enabled: bool = False
     verification_mode: Literal["offline_fake", "controlled_sdk"] = "offline_fake"
     outbox_ids: frozenset[UUID] | None = None
+    first_create: RecoveryProjection | None = None
+    first_create_window_id: UUID | None = None
 
     def __post_init__(self) -> None:
         if (
@@ -34,6 +37,14 @@ class DeliveryGate:
             or self.verification_mode not in ("offline_fake", "controlled_sdk")
             or self.outbox_ids is not None
             and (not self.outbox_ids or len(self.outbox_ids) > 2)
+            or (self.first_create is None) != (self.first_create_window_id is None)
+            or self.first_create is not None
+            and (
+                self.first_create.version != 1
+                or len(self.task_ids) != 1
+                or self.verification_mode != "controlled_sdk"
+                or self.outbox_ids is not None
+            )
         ):
             raise ValueError("INVALID_P4_DELIVERY_GATE")
 
