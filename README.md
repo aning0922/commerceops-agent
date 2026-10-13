@@ -2,13 +2,15 @@
 
 电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
 
-**当前阶段：Phase2库存分析切片验收Gate已通过；正式main提交/合后CI及阶段结案看Issue29实时回执，Phase3未授权。** 已交付确定性库存规则、Mock金标、PG不可变报告与受限只读接口、固定五意图/有限参数确认、报告说明及持久预算恢复。冻结source45db通过独立审核/精确CI，本次一次真实DeepSeek解释与一次受控本地模板降级已由Root核定必要Gate；真实数据来源仍Mock、身份simulated，不表示正式审批/补货/库存或M1完整应用通过。
+**当前阶段：Phase4/M1 持续开发与分层验收中。** Phase0–3 已结案，已核 main 基线为 `9d97c19009d932036809ac3e2638bb68f4b7f765`；当前候选沿 PR43 交付。用户已授权主控继续 Phase4，正式飞书业务闭环、真人和完整 M1 尚未验收；源码、离线、真实 PG、SDK、Web、CI 与 main 的证据分别记账，不能以部分通过签整个阶段。
 
-caffe为实施main基线，45db为已验证业务source；本次2026-10-10 17:11候选快照为ready_for_phase2_merge。用户委托Root在全部阶段门禁满足后正常合main并核同提交CI，随后关闭Issue29。完整证据、风险、费用与未运行事项见[Phase2验收候选](docs/PHASE2_ACCEPTANCE.md)、[STATUS](docs/STATUS.md)及[Draft PR30](https://github.com/aning0922/commerceops-agent/pull/30)。Phase1有限Gate/历史报告和M1设计0.4.1冻结保持；不会自动进入Phase3/飞书扩权/生产。
+当前依赖、实际测试、阻塞和合并事实见 [STATUS](docs/STATUS.md)、[Phase4 验收](docs/PHASE4_ACCEPTANCE.md)及 [PR43](https://github.com/aning0922/commerceops-agent/pull/43)。[Phase2](docs/PHASE2_ACCEPTANCE.md)与 [Phase3](docs/PHASE3_ACCEPTANCE.md)保留各自结案和失败历史。D1/D30、原 300h、P4 50h 估计和 18 页 M1 设计冻结不重置，人工工时 not_reported；后续阶段、生产、Woo 与扩权须按主控授权另行安排。
+
+离线 M1 使用现成 [Compose 运行指引](docs/M1_OFFLINE_COMPOSE.md)：新私有目录与新 owned project → prepare → db-init/checkpointer/grant/revision → 一次 m1-seed → API/单 Worker/Web → ready → 新业务 T1/20SKU/完整未知确认/T4/同项 T6 → stop/down no-v。seed 的 technical_fixture 基线不是业务 T1；来源为 Mock、审批 simulated_web、投影 offline_fake、provider disabled。账号只从本次本地受保护文件读取。本文新增 N01 镜像输入后的 clean Compose closure 待精确独审及 Root 独立机器窗口，不预写通过。
 
 收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
 
-推荐方案：Python + FastAPI + Pydantic、LangGraph、PostgreSQL 持久任务队列与独立 Worker、飞书官方 SDK、MockCommerce，随后接入 WooCommerce 测试店铺。Next.js 提供精简操作台；pgvector 和 RAG 延后至 P1。
+当前技术栈：Python + FastAPI + Pydantic、LangGraph、PostgreSQL 持久任务队列与独立 Worker、飞书官方 SDK、MockCommerce、Next.js 操作台。WooCommerce 测试店、pgvector 和 RAG 按 ROADMAP 后续范围安排。
 
 第一交付目标是“库存 Agent + 真实飞书审批”。M1 首个可面试版本预计 14–21 工作日；M2 完整 P0 累计 19–28 日；M3 完整求职版本（P0+P1）累计 29–43 日，外部配置与评审等待另计。具体范围及验收见 [ROADMAP](docs/ROADMAP.md)，不承诺全部功能 4–5 周完成。
 
@@ -34,7 +36,7 @@ Phase 1 已建立基础 CI/敏感检查，已完成 Docker/PG、LangGraph Checkp
 
 ## 版本管理与审核
 
-GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段使用独立分支和 PR，修复独立审核问题，按当前授权裁决合并。Phase1已收口；Phase2全必要Gate后的正常main合并也经用户委托Root，具体规范见 [AGENTS.md](AGENTS.md)。每次合并不自动授权进入下一 Phase。
+GitHub 版本与审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)。当前仓库授权、保护和 Hosted Actions 状态见 [STATUS](docs/STATUS.md)与 [AGENTS.md](AGENTS.md)。各阶段保留提交、独审、CI 和失败历史；阶段合并按主控已获授权及实际门禁裁决，每次合并不自动授权下一 Phase。
 
 ## P1-01 工程底座使用
 
