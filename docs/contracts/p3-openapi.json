@@ -6949,7 +6949,21 @@
             "format": "uuid"
           },
           "explanation": {
-            "$ref": "#/components/schemas/P2ExplanationExplanationRead"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/P2ExplanationExplanationRead"
+              },
+              {
+                "$ref": "#/components/schemas/P3TemplateRead"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "schema_version",
+              "mapping": {
+                "p204-read-v1": "#/components/schemas/P2ExplanationExplanationRead",
+                "p4-p3-template-read-v1": "#/components/schemas/P3TemplateRead"
+              }
+            }
           }
         },
         "required": [
@@ -9270,6 +9284,306 @@
           "sdk_method",
           "verification_mode"
         ]
+      },
+      "P3TemplateExplanationItem": {
+        "additionalProperties": false,
+        "properties": {
+          "sku_key": {
+            "title": "Sku Key",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "risk",
+              "stockout",
+              "normal",
+              "no_recent_demand",
+              "manual_check",
+              "quality_blocked"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "reference_ids": {
+            "$ref": "#/components/schemas/P3TemplateExplanationRefs"
+          }
+        },
+        "required": [
+          "sku_key",
+          "reason",
+          "text",
+          "facts_hash",
+          "reference_ids"
+        ],
+        "title": "ExplanationItem",
+        "type": "object"
+      },
+      "P3TemplateExplanationRefs": {
+        "additionalProperties": false,
+        "properties": {
+          "snapshot_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "report_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Report Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "report_id"
+        ],
+        "title": "ExplanationRefs",
+        "type": "object"
+      },
+      "P3TemplateTemplateContent": {
+        "additionalProperties": false,
+        "properties": {
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "narrative_mode": {
+            "const": "template",
+            "title": "Narrative Mode",
+            "type": "string"
+          },
+          "binding_mode": {
+            "const": "caller_references",
+            "title": "Binding Mode",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/P3TemplateExplanationItem"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "reference_ids": {
+            "$ref": "#/components/schemas/P3TemplateExplanationRefs"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/P3TemplateTemplateMetadata"
+          }
+        },
+        "required": [
+          "facts_hash",
+          "narrative_mode",
+          "binding_mode",
+          "summary",
+          "lines",
+          "reference_ids",
+          "metadata"
+        ],
+        "title": "TemplateContent",
+        "type": "object"
+      },
+      "P3TemplateTemplateMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "null"
+          },
+          "error_code": {
+            "enum": [
+              "NO_PROVIDER",
+              "TEMPLATE_REQUIRED"
+            ],
+            "title": "Error Code",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "not_used",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "null"
+          },
+          "requested_model": {
+            "title": "Requested Model",
+            "type": "null"
+          },
+          "returned_model": {
+            "title": "Returned Model",
+            "type": "null"
+          },
+          "prompt_version": {
+            "const": "inventory-explanation-v1",
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "null"
+          },
+          "usage": {
+            "title": "Usage",
+            "type": "null"
+          },
+          "latency_ms": {
+            "title": "Latency Ms",
+            "type": "null"
+          },
+          "pricing_version": {
+            "title": "Pricing Version",
+            "type": "null"
+          },
+          "cost_estimate": {
+            "title": "Cost Estimate",
+            "type": "null"
+          },
+          "stop_required": {
+            "const": false,
+            "title": "Stop Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "content",
+          "error_code",
+          "evidence_mode",
+          "provider",
+          "requested_model",
+          "returned_model",
+          "prompt_version",
+          "request_id",
+          "usage",
+          "latency_ms",
+          "pricing_version",
+          "cost_estimate",
+          "stop_required"
+        ],
+        "title": "TemplateMetadata",
+        "type": "object"
+      },
+      "P3TemplateRead": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p4-p3-template-read-v1",
+            "default": "p4-p3-template-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "identity_mode": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "task_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "source_task_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Source Task Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "p2_original",
+              "p3_observation"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "observation_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observation Id"
+          },
+          "explanation_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Explanation Id",
+            "type": "string"
+          },
+          "report_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "template_version": {
+            "const": "p3-report-template-v1",
+            "title": "Template Version",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "result": {
+            "$ref": "#/components/schemas/P3TemplateTemplateContent"
+          }
+        },
+        "required": [
+          "task_id",
+          "source_task_id",
+          "source_kind",
+          "observation_id",
+          "explanation_id",
+          "report_id",
+          "snapshot_id",
+          "facts_hash",
+          "template_version",
+          "created_at",
+          "result"
+        ],
+        "title": "P3TemplateRead",
+        "type": "object"
       }
     }
   },
