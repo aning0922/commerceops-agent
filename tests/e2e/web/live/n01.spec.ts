@@ -30,10 +30,20 @@ type RoleState = {
 // Only this worker's memory holds authentication state; never save or log it.
 const roleStates = new Map<Role, RoleState>();
 const test = base.extend({
-  storageState: async ({}, use) => {
-    const initial = roleStates.get("operator");
-    if (!initial) throw new Error("N01 authenticated operator setup required");
-    await use(initial.state);
+  page: async ({ browser }, use) => {
+    const context = await browser.newContext(contextOptions("operator"));
+    let page: Page | undefined;
+    try {
+      page = await context.newPage();
+      await use(page);
+    } finally {
+      try {
+        if (page) {
+          await page.goto("about:blank").catch(() => {});
+          await page.close();
+        }
+      } finally { await context.close(); }
+    }
   },
 });
 const contextOptions = (role: Role) => {
