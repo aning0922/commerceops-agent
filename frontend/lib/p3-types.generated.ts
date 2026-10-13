@@ -730,9 +730,8 @@ export interface components {
         /** ExplanationRead */
         readonly P2ExplanationExplanationRead: {
             /**
-             * Schema Version
-             * @default p204-read-v1
-             * @constant
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
             readonly schema_version: "p204-read-v1";
             /**
@@ -1035,7 +1034,7 @@ export interface components {
             readonly task_id: string;
             /** Format: uuid */
             readonly report_id: string;
-            readonly explanation: components["schemas"]["P2ExplanationExplanationRead"];
+            readonly explanation: components["schemas"]["P2ExplanationExplanationRead"] | components["schemas"]["P3TemplateRead"];
         };
         readonly Assumption: {
             readonly key: string;
@@ -1552,6 +1551,146 @@ export interface components {
             readonly selected_by_model: boolean;
             readonly sdk_method: ("im.v1.message.create" | "bitable.v1.app_table_record.create" | "bitable.v1.app_table_record.list" | "bitable.v1.app_table_record.update") | null;
             readonly verification_mode: ("offline_fake" | "controlled_sdk") | null;
+        };
+        /** ExplanationItem */
+        readonly P3TemplateExplanationItem: {
+            /** Sku Key */
+            readonly sku_key: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            readonly reason: "risk" | "stockout" | "normal" | "no_recent_demand" | "manual_check" | "quality_blocked";
+            /** Text */
+            readonly text: string;
+            /** Facts Hash */
+            readonly facts_hash: string;
+            readonly reference_ids: components["schemas"]["P3TemplateExplanationRefs"];
+        };
+        /** ExplanationRefs */
+        readonly P3TemplateExplanationRefs: {
+            /** Snapshot Id */
+            readonly snapshot_id: string;
+            /** Report Id */
+            readonly report_id: string;
+        };
+        /** TemplateContent */
+        readonly P3TemplateTemplateContent: {
+            /** Facts Hash */
+            readonly facts_hash: string;
+            /**
+             * Narrative Mode
+             * @constant
+             */
+            readonly narrative_mode: "template";
+            /**
+             * Binding Mode
+             * @constant
+             */
+            readonly binding_mode: "caller_references";
+            /** Summary */
+            readonly summary: string;
+            /** Lines */
+            readonly lines: readonly components["schemas"]["P3TemplateExplanationItem"][];
+            readonly reference_ids: components["schemas"]["P3TemplateExplanationRefs"];
+            readonly metadata: components["schemas"]["P3TemplateTemplateMetadata"];
+        };
+        /** TemplateMetadata */
+        readonly P3TemplateTemplateMetadata: {
+            /** Content */
+            readonly content: null;
+            /**
+             * Error Code
+             * @enum {string}
+             */
+            readonly error_code: "NO_PROVIDER" | "TEMPLATE_REQUIRED";
+            /**
+             * Evidence Mode
+             * @constant
+             */
+            readonly evidence_mode: "not_used";
+            /** Provider */
+            readonly provider: null;
+            /** Requested Model */
+            readonly requested_model: null;
+            /** Returned Model */
+            readonly returned_model: null;
+            /**
+             * Prompt Version
+             * @constant
+             */
+            readonly prompt_version: "inventory-explanation-v1";
+            /** Request Id */
+            readonly request_id: null;
+            /** Usage */
+            readonly usage: null;
+            /** Latency Ms */
+            readonly latency_ms: null;
+            /** Pricing Version */
+            readonly pricing_version: null;
+            /** Cost Estimate */
+            readonly cost_estimate: null;
+            /**
+             * Stop Required
+             * @constant
+             */
+            readonly stop_required: false;
+        };
+        /** P3TemplateRead */
+        readonly P3TemplateRead: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            readonly schema_version: "p4-p3-template-read-v1";
+            /**
+             * Analysis Only
+             * @default true
+             * @constant
+             */
+            readonly analysis_only: true;
+            /**
+             * Execution Available
+             * @default false
+             * @constant
+             */
+            readonly execution_available: false;
+            /**
+             * Identity Mode
+             * @default simulated
+             * @constant
+             */
+            readonly identity_mode: "simulated";
+            /** Task Id */
+            readonly task_id: string;
+            /** Source Task Id */
+            readonly source_task_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            readonly source_kind: "p2_original" | "p3_observation";
+            /** Observation Id */
+            readonly observation_id: string | null;
+            /** Explanation Id */
+            readonly explanation_id: string;
+            /** Report Id */
+            readonly report_id: string;
+            /** Snapshot Id */
+            readonly snapshot_id: string;
+            /** Facts Hash */
+            readonly facts_hash: string;
+            /**
+             * Template Version
+             * @constant
+             */
+            readonly template_version: "p3-report-template-v1";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            readonly result: components["schemas"]["P3TemplateTemplateContent"];
         };
     };
     responses: never;

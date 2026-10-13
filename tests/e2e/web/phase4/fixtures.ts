@@ -44,7 +44,9 @@ export function task(): DTO["TaskRead"] {
     actions: { ...value.actions, can_start_new_cycle: true },
   };
 }
-export function explanation(mode = "actual"): DTO["ExplanationRead"] {
+export function explanation(mode = "actual"): DTO["ExplanationRead"] & {
+  explanation: DTO["P2ExplanationExplanationRead"];
+} {
   const refs = {
     report_id: report.source.report_id,
     snapshot_id: report.source.snapshot_id,
@@ -96,6 +98,46 @@ export function explanation(mode = "actual"): DTO["ExplanationRead"] {
           pricing_version: nullable ? null : "ds-v41-peak-20261010",
           cost_estimate: nullable ? null : "0",
           stop_required: false,
+        },
+      },
+    },
+  };
+}
+export function p3Explanation(sourceKind: DTO["P3TemplateRead"]["source_kind"] = "p2_original"): DTO["ExplanationRead"] & {
+  explanation: DTO["P3TemplateRead"];
+} {
+  const legacy = explanation("template").explanation.result;
+  return {
+    ...offlineEnvelope,
+    task_id: report.task_id,
+    report_id: report.source.report_id,
+    explanation: {
+      schema_version: "p4-p3-template-read-v1",
+      analysis_only: true,
+      execution_available: false,
+      identity_mode: "simulated",
+      task_id: report.task_id,
+      source_task_id: report.source.source_task_id,
+      source_kind: sourceKind,
+      observation_id: sourceKind === "p3_observation" ? report.source.snapshot_id : null,
+      explanation_id: offlineId(207),
+      report_id: report.source.report_id,
+      snapshot_id: report.source.snapshot_id,
+      facts_hash: report.source.facts_hash,
+      template_version: "p3-report-template-v1",
+      created_at: offlineEnvelope.server_time,
+      result: {
+        ...legacy,
+        narrative_mode: "template",
+        summary: "明确离线 P3 不可变模板示例，不是实际 GET 缓存或模型调用",
+        metadata: {
+          ...legacy.metadata,
+          error_code: "NO_PROVIDER",
+          evidence_mode: "not_used",
+          provider: null, requested_model: null, returned_model: null,
+          prompt_version: "inventory-explanation-v1", request_id: null,
+          usage: null, latency_ms: null, pricing_version: null,
+          cost_estimate: null, stop_required: false,
         },
       },
     },
@@ -280,12 +322,19 @@ export function fixtureClient(
       }
       if (url.pathname.endsWith("/explanation")) {
         if (mode.startsWith("c2_")) return failure("NOT_READY", 409);
-        if (mode === "delayed")
+        if (mode === "delayed" || mode === "p3_delayed")
           await new Promise<void>((resolve) => {
             hold.release = resolve;
           });
         if (mode === "not_ready") return failure("NOT_READY", 409);
         if (mode === "revoked") return failure("SESSION_INVALID", 401);
+        if (mode === "p3_unavailable") return failure("SERVICE_UNAVAILABLE", 503);
+        if (mode.startsWith("p3_")) {
+          const value = p3Explanation(mode === "p3_observation" ? "p3_observation" : "p2_original");
+          return response(mode === "p3_bad_source" ? {
+            ...value, explanation: { ...value.explanation, source_task_id: offlineId(999) },
+          } : value);
+        }
         let value = explanation(mode);
         if (mode === "bad_refs")
           value = {
