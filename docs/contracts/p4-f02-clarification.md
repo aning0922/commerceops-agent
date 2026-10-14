@@ -45,3 +45,17 @@ v2仅显式选定request发送，不扫描全org pending。发送前再核当前
 各次down不-v0，最终UTC12:51:44.401404容器0/网络0/保卷，原known70/原0015/55表0访问/升级。六产品模块+一测试的真实import路径/hash与host相等；0016实际执行前hash也捕获。提交前generic-api-key误报SQL request_key赋值，仅等价SQL换行、不改scanner；全部SQL去空白token流逐项相等，末PG后未再跑PG，该前后两个migration字节hash和等价证据分别保留，不伪称末PG用了换行后的hash。
 
 旧a1864 Base wire/explicitRO/dispatcher/child/锁及private bridge均保持，本首包不解除其P1/HOLD；无新sealed runtime或正式SDK/Factory/AppSecret/provider/IM/Base请求。精确source候选、敏感三层扫描、import/SQL等价hash与owned closure在外置freeze合批，待原Core独审/精确CI；不push/main/关Issue，原预算/日期/人工H-L不重置。
+
+## 正式运行装配源码候选（2026-10-14）
+
+本接续批仍只源码/offline，未启真实Gateway/SDK。可信`BusinessSettings.f02_enabled`默认false，正式Gateway仅显式开启后向原入站store传递其已授权Gateway window ID。每个新F02 reply与原inbox/receipt同事务追加现有不可变audit的`reply_selected/f02_gateway_reply`，冻结实际request/reply/inbox/round/payload hash及org/shop/Gateway；重放不再插新选择。这里是原Gateway业务结果的持久交接，不接受平台输入自报的业务标识，也不新增表、角色、队列或调度器。
+
+原受控parent增加显式`--worker-mode f02_clarification`，仍执行原spawn/截止/terminate/wait/reap/持久终止确认；默认workflow分支保持。F02 Worker window由Root可信准备，只需要runtime/Gateway window、org/shop、固定截止和method caps，不包含手工request/reply ID。它要求配置flag与window均开启、UTC剩余15..300秒、auth1/bot1/IM1..5，没有Base/其他方法；上限5是本运行窗口资源预算，不是产品最多轮次数。实际启动仍须原`--live`和`p4-controlled-test`、低权限runtime role。
+
+child只持有原一个WorkerSession，用原Worker的maintenance，`dispatch_jobs=false`且不构造Graph/Base/业务runner。选择只读取该当前Gateway、该claim时间之后的明确选择audit；冻结首个request为本窗口唯一关联请求，后续只从该request的选择回执找pending/sending reply，不能扫描全org或换到另一请求。补参、确认各自在原Gateway事务生成新载体并自动进入同Worker维护；Factory只在首个合格reply后初始化一次，后续共用同一ledger/window预算。预算耗尽/unknown/窗口停止即停，不自动续窗。
+
+每个选择在Secret/Factory之前和最终sending事务中复用同一权限/轮次/状态谓词，另核当前Gateway claim/终止、原不可变inbox/hash/发起人/初始auth、reply原inbox/回执、完整candidate唯一audit及逐参数来源、固定T1 key、当前scope和冻结payload hash/原UUID。只有同Gateway当前选定reply可recover/领取；stale或越权dead且IM0，sending孤儿unknown，ACK不明unknown终止且不重发。Factory preflight与最终IM之间若Gateway被关闭，发送阶段再次拒绝；已经执行的auth/bot必须分记，不能称总SDK0。
+
+原补参/确认→原T1同事务、稳定key/两Task两jobs、审批/执行门槛未改；F02维护本身只发送通知，确认后产生的jobs仍留给后续原业务Worker授权，不能因此绕过Base HOLD执行Graph。本批没有私有桥接或现有运行元数据更新；产品源码变化使旧5b pin/镜像仅签旧版，后续由Root按新精确source准备。
+
+新增runtime Fake检查覆盖实际原Worker循环、问题→完整参数→创建回执、同一Factory/lease、原provider UUID/冻结全文、无job claim/recovery/Graph/Base、来源/权限/hash拒绝、Gateway关闭与auth后终止、sending orphan、ACK unknown和重复入口、默认关闭/窄caps/原parent进入child。两项必要新PG用例代码追加在原F02 PG模块，覆盖同实际inbox/原T1/真实ledger的完整链和ACK unknown，但本批只collect，不将其写成通过；原14 F02节点保留，该模块现16节点、全PG原497加2为499。完整offline/静态/敏感扫描、精确源码/hash以本批冻结回执为准，独审/新精确CI/真人仍pending。

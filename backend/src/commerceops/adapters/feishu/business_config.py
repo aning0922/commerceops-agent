@@ -29,6 +29,7 @@ class BusinessSettings(BaseModel):
     base_table_id_file: Path | None = Field(default=None, repr=False)
     base_table_name: str | None = Field(default=None, min_length=1, max_length=100, repr=False)
     external_sender_enabled: Literal[False] = False
+    f02_enabled: bool = False
 
     @model_validator(mode="after")
     def verify_structure(self) -> "BusinessSettings":

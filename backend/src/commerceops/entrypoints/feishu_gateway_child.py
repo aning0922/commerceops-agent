@@ -69,6 +69,8 @@ def serve(config_file: Path, window_file: Path, *, web_config_sha256: str | None
             window.parameters,
             allow_live_bindings=True,
             gateway_guard=lambda db, create: guard_gateway(db, window, create),
+            f02_enabled=settings.f02_enabled,
+            f02_gateway_window_id=window.window_id if settings.f02_enabled else None,
         )
         receiver = BoundedReceiver(store, window)
         websocket = lark.ws.Client(

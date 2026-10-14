@@ -11,7 +11,7 @@ import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 from uuid import UUID
 
 from commerceops.adapters.feishu.business_config import verify_config
@@ -207,10 +207,13 @@ async def confirm_worker_child(config: "WebConfig", organization: UUID, pid: int
     )
 
 
-def run_worker(config: Path, window_file: Path) -> dict[str, object]:
+def run_worker(
+    config: Path, window_file: Path, *, mode: Literal["workflow", "f02_clarification"] = "workflow"
+) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import private_value
     from commerceops.adapters.feishu.sdk import restrict_sdk_logs
+    from commerceops.application.feishu_business.f02_window import F02WorkerWindow
     from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
     from commerceops.infrastructure.web_config import WebConfig
 
@@ -218,7 +221,10 @@ def run_worker(config: Path, window_file: Path) -> dict[str, object]:
     if os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
         raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
     settings = BusinessSettings.model_validate_json(private_value(config))
-    window = ControlledWorkerWindow.model_validate_json(private_value(window_file))
+    if mode not in ("workflow", "f02_clarification"):
+        raise PermissionError("P4_CONTROLLED_WORKER_MODE_REQUIRED")
+    window_type = F02WorkerWindow if mode == "f02_clarification" else ControlledWorkerWindow
+    window = window_type.model_validate_json(private_value(window_file))
     window.window(settings)
     web = WebConfig.from_file(settings.web_config_file)
     if web.database.user != "commerceops_app":
@@ -234,6 +240,7 @@ def run_worker(config: Path, window_file: Path) -> dict[str, object]:
             str(config),
             "--window-file",
             str(window_file),
+            *(["--mode", mode] if mode != "workflow" else []),
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
@@ -356,10 +363,15 @@ def main() -> None:
     parser.add_argument("--window-file", type=Path)
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--web-config-sha256")
+    parser.add_argument(
+        "--worker-mode", choices=("workflow", "f02_clarification"), default="workflow"
+    )
     args = parser.parse_args()
     try:
         if args.web_config_sha256 is not None and args.action != "gateway":
             raise PermissionError("P4_GATEWAY_WEB_BINDING_REQUIRED")
+        if args.worker_mode != "workflow" and args.action != "worker":
+            raise PermissionError("P4_CONTROLLED_WORKER_MODE_REQUIRED")
         if args.action == "verify-config":
             result: dict[str, object] = dict(verify_config(args.config))
         else:
@@ -374,7 +386,11 @@ def main() -> None:
                     )
                 )
             elif args.action == "worker":
-                result = run_worker(args.config, args.window_file)
+                result = (
+                    run_worker(args.config, args.window_file)
+                    if args.worker_mode == "workflow"
+                    else run_worker(args.config, args.window_file, mode=args.worker_mode)
+                )
             else:
                 result = asyncio.run(run_preflight(args.config, args.window_file))
         print(json.dumps(result, sort_keys=True))

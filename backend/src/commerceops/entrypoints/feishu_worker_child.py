@@ -7,7 +7,7 @@ import os
 import signal
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 from commerceops.adapters.feishu.business_base import BusinessBaseAdapter, BusinessRecordSDK
@@ -18,12 +18,16 @@ from commerceops.adapters.feishu.business_preflight import verified_target
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 from commerceops.application.commerce.analysis_task import WORKFLOW_VERSION as ANALYSIS_VERSION
 from commerceops.application.feishu_business.delivery import DeliveryGate
+from commerceops.application.feishu_business.f02_window import F02WorkerWindow
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.feishu_business.read_reply import ReadReplyWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+from commerceops.application.runner import RunnerPort
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
+from commerceops.infrastructure.feishu_clarification import ClarificationDeliveryStore
+from commerceops.infrastructure.feishu_f02_runtime import selected_f02_reply
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.feishu_outbox_recovery import trusted_recovery_scope
@@ -415,18 +419,120 @@ async def controlled_read_reply(
         await session.close(clean=True)
 
 
+async def controlled_f02(
+    settings: BusinessSettings, window: F02WorkerWindow, config: WebConfig
+) -> dict[str, Any]:
+    """原单Worker只维护同Gateway选定的一个澄清；无Graph/Task调度/Base。"""
+    sdk = window.window(settings)
+    if config.database.user != "commerceops_app":
+        raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
+    stop = asyncio.Event()
+    loop = asyncio.get_running_loop()
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(signum, stop.set)
+    timer = loop.call_later(
+        max(0, (window.expires_at - datetime.now(UTC)).total_seconds() - 15), stop.set
+    )
+    session = WorkerSession(config.database, settings.organization_id)
+    running = False
+    summary: dict[str, Any] = {"result": "failed", "sent": 0}
+    try:
+        await session.start()
+        ledger = PersistentSDKLedger(session, sdk)
+        factory: BusinessSDKFactory | None = None
+
+        async def maintenance() -> None:
+            nonlocal factory
+            window.window(settings)
+            async with await open_async(config.database) as db:
+                selected = await selected_f02_reply(db, settings, window)
+            if selected is None or stop.is_set():
+                return
+            sender = BusinessIMSDK(None)
+            store = ClarificationDeliveryStore(
+                session,
+                settings.policy(),
+                sender,
+                controlled_sender=True,
+                ledger=ledger,
+                request_ids=frozenset({selected.request_id}),
+                f02_sender=sender,
+                f02_window=selected,
+            )
+            await store.recover_unknown()
+            if await store.prepare_selected() != "ready" or stop.is_set():
+                return
+            await session.check()
+            window.window(settings)
+            if factory is None:
+                factory = BusinessSDKFactory(settings, ledger)
+                await factory.initialize()
+                await factory.verify_bot()
+            store.sender = store.f02_sender = BusinessIMSDK(
+                factory.business_client(), option=factory.option
+            )
+            outcome = await store.dispatch_one()
+            if outcome == "sent":
+                summary["sent"] += 1
+                if summary["sent"] >= window.method_caps["im.v1.message.create"]:
+                    stop.set()
+            elif outcome not in ("idle", "denied"):
+                summary["delivery_stopped"] = True
+                stop.set()
+
+        worker = Worker(
+            session,
+            cast(RunnerPort, None),
+            reconcile=maintenance,
+            recovery_scan_seconds=1,
+            dispatch_jobs=False,
+        )
+        running = True
+        await worker.run(stop)
+        summary["result"] = (
+            "delivery_stopped" if summary.get("delivery_stopped") else "window_stopped"
+        )
+    except UnsafeShutdown:
+        os._exit(75)
+    except Exception as error:
+        summary["failure_category"] = type(error).__name__
+    finally:
+        timer.cancel()
+        if not running:
+            await session.close(clean=True)
+    summary.update(
+        verification_mode="controlled_sdk",
+        business_graphs=0,
+        model_requests=0,
+        base_requests=0,
+    )
+    return summary
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Bounded controlled Feishu SDK Worker")
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--window-file", required=True, type=Path)
     parser.add_argument("--live", action="store_true")
-    parser.add_argument("--mode", choices=("workflow", "read_reply"), default="workflow")
+    parser.add_argument(
+        "--mode", choices=("workflow", "read_reply", "f02_clarification"), default="workflow"
+    )
     args = parser.parse_args()
     try:
         restrict_sdk_logs()
         if not args.live or os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
             raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
         settings = BusinessSettings.model_validate_json(private_value(args.config))
+        if args.mode == "f02_clarification":
+            f02_window = F02WorkerWindow.model_validate_json(private_value(args.window_file))
+            f02_window.window(settings)
+            result = asyncio.run(
+                controlled_f02(settings, f02_window, WebConfig.from_file(settings.web_config_file))
+            )
+            print(json.dumps(result, sort_keys=True))
+            if result["result"] != "window_stopped":
+                raise SystemExit(1)
+            return
         if args.mode == "read_reply":
             read_window = ReadReplyWindow.model_validate_json(private_value(args.window_file))
             read_window.window(settings)

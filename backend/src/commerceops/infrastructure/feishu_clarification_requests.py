@@ -272,6 +272,31 @@ class F02Requests:
                 facts_hash(candidate.model_dump(mode="json")),
             ),
         )
+        if self.business.f02_gateway_window_id is not None:
+            # 与原inbox/receipt/reply同事务；Worker只消费这个Gateway的明确选择回执。
+            db.execute(
+                """INSERT INTO business.audit_events(id,organization_id,source,action,
+                entity_type,entity_id,after_state,trace_id) VALUES(%s,%s,'feishu_clarification',
+                'reply_selected','f02_gateway_reply',%s,%s,%s)""",
+                (
+                    uuid5(NAMESPACE_URL, f"p4-f02-selected:{identifier}"),
+                    actor.organization_id,
+                    str(self.business.f02_gateway_window_id),
+                    Jsonb(
+                        {
+                            "gateway_window_id": str(self.business.f02_gateway_window_id),
+                            "organization_id": str(actor.organization_id),
+                            "shop_id": str(self.business.shop),
+                            "request_id": str(candidate.request_id),
+                            "reply_id": str(identifier),
+                            "inbox_id": str(inbox),
+                            "round": candidate.round,
+                            "payload_hash": facts_hash(candidate.model_dump(mode="json")),
+                        }
+                    ),
+                    inbox,
+                ),
+            )
 
     def accept(
         self, db: DB, actor: FeishuActor, message: MessageProbe, semantic: str

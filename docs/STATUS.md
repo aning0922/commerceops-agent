@@ -909,3 +909,15 @@ offline首1847pass4fail/482deselected，required负例修正后1851pass/483desel
 实际本地33pure通过/2warnings/6.24s；两PG模块仅collect20节点/2.65s，未执行PG。三修改Python文件Ruff/format与mypy通过。新精确增量独审及完整PG/CI待Root，不将作者旧18PG或本Fake算作本修复PG成功。产品源码/0016/权限实现/状态机/Base恢复/CI/锁/前端均0修改，无PG/SDK/Secret/provider/业务数据读取，不push/触CI/main/关Issue；原14:05:49Z硬截止保留。
 
 私有运行pin刷新先于本测试修复完成，仍精确绑定2f3b04b/tree59eaac：四文件最小delta、六前版文件完整归档，17模块pin与2f源码及新sealed archive相等，ENTRY/CLI/manifest链相等；一次现有Fake/AST为56pass/1probe排除/2.97s。业务/身份/窗口/授权字段、96KiB guard和旧006007/freeze/程序归档25项hash保持，live_release=false；最小delta SHA391b7e21080b524fd43b40faf828d7f3509d102532f1b2730f4af80690a74eb0，13:48:32Z停止。本次测试新head不再次刷新private source标签；2f封存镜像仍是相同产品字节证据，最终GitSource标签和实际007绑定待Root后续准备。P4/M1仍未验收，日期/300h/P450h/H-L not_reported/18页和全部旧失败保留。
+
+## 57. F02 Gateway 选择与原单 Worker 正式运行接线候选
+
+Root已核5b普通push及合成b288（parents main9d97+5b、tree892b一致）；38577179420自然FAIL。quality整个分区300/300通过，其中combined-existing236与另64业务分组；G1三/G2六/cleanup0。frontend/N01成功。phase3选197、实155全pass，gateway_window模块actual0/exit137、后42not_run，cleanup0/stopping true；合455/497且pg-pair正确拒绝，未知具体耗时原因保持，与2f旧schema失败分列。未取消、重跑或改Gate。Base/真实007仍HOLD。
+
+原A按已授权F02接续业务源码/offline，正式配置开关默认false；Gateway将实际F02业务结果与原inbox/receipt/reply同事务写不可变选择audit，原受控parent进入明确F02 child模式。Root窗口不需手拼request/reply业务ID；原单Worker只维护当前Gateway选择的同一request，默认禁止job调度，不构造Base/Graph。首次完整来源/当前权限/轮次/hash核验通过才构造Factory，复用原ledger/UUID；发送前再次核Gateway终止和当前来源，stale/dead/unknown无盲重发。原T1两Task/两jobs及审批规则不改，确认后jobs不会被本通知Worker执行。详见[合同装配段](contracts/p4-f02-clarification.md)。
+
+已跑runtime31 pure/Fake/2warnings/4.47s，早一批155相关pure/7.52s；首回归命令错误文件名0test与静态中间失败保留。Gateway来源重核最后调整后的完整offline1914pass/499deselected/4warnings/115.09s；319文件mypy及仓库Ruff通过。两项新必要PG代码只collect，原F02 PG模块16节点/2.90s，不跑PG；总PG497+2=499，原节点不删。不能拿旧14/18作者PG、已有56 private Fake或本Fake代签最新SDK/SQL/真人。必要文档/最终format/敏感扫描与本地source候选另由冻结回执交原Core，不push/改PRbody/main/关Issue。
+
+本批未读旧库/实际业务输入/Secret/env，SDK/Factory真实初始化/provider/PG/新环境0。Base投影/RO/private bridge、迁移/grant/共享锁/CI/Graph/Web均0改；原parent与SDK child的新增F02分支保留原默认业务分支和其门槛。私有final-source af2eb/5b disabled字节保持，不随本产品新head更新。独审、499完整精确PG/CI和真人接线Gate待Root；M1/P4不据源码完成。原预算/日期/人工H-L not_reported/18页不重置。
+
+用户另批一次独立CI收口，必须在本F02源码/offline冻结后再登记T0→T0+45min；最多一新owned PG累计10min含清理，仅定位Gateway/sender及整分区耗时，明确证据才一次最小修正，原deadline/全节点/union/G1/G2/cleanup不减。此前尚未登记或使用该授权；不追溯计时，不续Base或真实SDK诊断。

@@ -34,6 +34,7 @@ class FeishuBusinessStore:
         allow_live_bindings: bool = False,
         gateway_guard: Callable[[DB, bool], None] | None = None,
         f02_enabled: bool = False,
+        f02_gateway_window_id: UUID | None = None,
     ):
         self.store, self.shop, self.parameters, self.hook = store, shop_id, parameters, hook
         self.decisions = DecisionStore(store.config)
@@ -44,6 +45,11 @@ class FeishuBusinessStore:
         if type(f02_enabled) is not bool:
             raise ValueError("INVALID_F02_GATE")
         self.f02_enabled = f02_enabled
+        if f02_gateway_window_id is not None and (
+            type(f02_gateway_window_id) is not UUID or not f02_enabled or gateway_guard is None
+        ):
+            raise ValueError("INVALID_F02_GATEWAY_SELECTION")
+        self.f02_gateway_window_id = f02_gateway_window_id
 
     @staticmethod
     def actor(db: DB, identity: PlatformIdentity, chat: str) -> FeishuActor:

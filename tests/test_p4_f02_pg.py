@@ -10,6 +10,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -450,3 +451,187 @@ def test_fixed_15min_DB_expired_synthetic_request_and_immutable_expiry(fixture: 
     with pytest.raises(WebFailure) as expired:
         s.message(incoming(f, f"确认澄清 {identifier} 第1轮"))
     assert expired.value.code == "CLARIFICATION_EXPIRED" and business_counts(f) == before
+
+
+@pytest.mark.parametrize("outcome", ["sent", "unknown"])
+def test_runtime_gateway_selected_chain_original_worker_ledger_and_no_Base(
+    fixture: P3Fixture, monkeypatch: pytest.MonkeyPatch, outcome: str
+) -> None:
+    """本源码批只collect；由后续精确CI在新库执行，Factory/transport始终Fake。"""
+    from commerceops.adapters.feishu.business_config import BusinessSettings
+    from commerceops.adapters.feishu.ledgered_sdk import ledgered_client
+    from commerceops.application.feishu_business.f02_window import F02WorkerWindow
+    from commerceops.application.feishu_business.gateway_window import GatewayWindow
+    from commerceops.application.feishu_business.sdk_window import SDKScope
+    from commerceops.entrypoints import feishu_worker_child as child
+    from commerceops.entrypoints.feishu_gateway_child import BoundedReceiver
+    from commerceops.infrastructure.feishu_business import FeishuBusinessStore
+    from commerceops.infrastructure.feishu_gateway_window import claimed_state, guard_gateway
+
+    f = fixture
+    original = service(f)
+    gateway = GatewayWindow.model_validate(
+        {
+            "schema_version": "p4-gateway-v1",
+            "window_id": uuid4(),
+            "organization_id": f.inventory.data.organization,
+            "shop_id": f.inventory.data.shop,
+            "expires_at": datetime.now(UTC) + timedelta(seconds=120),
+            "enabled": True,
+            "parameters": original.parameters,
+        }
+    )
+    with connect(f.inventory.owner) as db:
+        db.execute(
+            """INSERT INTO business.audit_events(id,organization_id,source,action,
+            entity_type,entity_id,after_state,trace_id) VALUES(%s,%s,'feishu_gateway',
+            'gateway_start_claimed','gateway_window',%s,%s,%s)""",
+            (
+                gateway.window_id,
+                gateway.organization_id,
+                str(gateway.window_id),
+                Jsonb(claimed_state(gateway)),
+                gateway.window_id,
+            ),
+        )
+    s = FeishuBusinessStore(
+        original.store,
+        original.shop,
+        original.parameters,
+        f02_enabled=True,
+        f02_gateway_window_id=gateway.window_id,
+        gateway_guard=lambda db, create: guard_gateway(db, gateway, create),
+    )
+    receiver = BoundedReceiver(s, gateway)
+    before, cp = business_counts(f), checkpoints(f)
+    first = receiver.message(incoming(f, "分析库存 L=3"))
+    assert business_counts(f) == before
+    sdk_settings = BusinessSettings.model_validate(
+        {
+            "schema_version": "p4-v1",
+            "organization_id": gateway.organization_id,
+            "shop_id": gateway.shop_id,
+            "app_id": f.inventory.data.app,
+            "tenant_key": f.inventory.data.tenant,
+            "bot_open_id": "synthetic-bot",
+            "allowed_open_ids": policy(f).allowed_open_ids,
+            "allowed_group_chat_ids": policy(f).allowed_group_chat_ids,
+            "app_secret_file": Path("/never-read/f02-secret"),
+            "web_config_file": Path("/never-read/f02-web-config"),
+            "base_target_key": "unused-f02",
+            "base_app_token_file": Path("/never-read/f02-base"),
+            "base_table_name": "unused-f02",
+            "f02_enabled": True,
+        }
+    )
+    window = F02WorkerWindow.model_validate(
+        {
+            "schema_version": "p4-f02-worker-window-v1",
+            "window_id": uuid4(),
+            "gateway_window_id": gateway.window_id,
+            "organization_id": gateway.organization_id,
+            "shop_id": gateway.shop_id,
+            "expires_at": gateway.expires_at,
+            "enabled": True,
+            "method_caps": {
+                "auth.v3.tenant_access_token.internal": 1,
+                "bot.v3.info": 1,
+                "im.v1.message.create": 3,
+            },
+        }
+    )
+    sent: list[Any] = []
+    turn_result = first
+
+    class Factory:
+        def __init__(self, settings: Any, ledger: Any):
+            self.ledger, self.option = ledger, None
+
+        async def initialize(self) -> None:
+            with self.ledger.scope(SDKScope(window.window_id, None, "preflight")):
+                await self.ledger.invoke(
+                    "auth.v3.tenant_access_token.internal",
+                    AsyncMock(
+                        return_value=SimpleNamespace(raw=SimpleNamespace(status_code=200), code=0)
+                    ),
+                )
+
+        async def verify_bot(self) -> None:
+            with self.ledger.scope(SDKScope(window.window_id, None, "preflight")):
+                await self.ledger.invoke(
+                    "bot.v3.info",
+                    AsyncMock(
+                        return_value=SimpleNamespace(raw=SimpleNamespace(status_code=200), code=0)
+                    ),
+                )
+
+        def business_client(self) -> Any:
+            async def create(request: Any, option: Any) -> Any:
+                nonlocal turn_result
+                sent.append(request.request_body)
+                if outcome == "unknown":
+                    raise RuntimeError("synthetic ACK loss")
+                if len(sent) == 1:
+                    turn_result = receiver.message(turn(f, turn_result, block="R=7 S=2"))
+                elif len(sent) == 2:
+                    turn_result = receiver.message(turn(f, turn_result, confirm=True))
+                return SimpleNamespace(
+                    raw=SimpleNamespace(status_code=200),
+                    code=0,
+                    data=SimpleNamespace(
+                        message_id="synthetic-ack", chat_id=request.request_body.receive_id
+                    ),
+                )
+
+            forbidden = AsyncMock(side_effect=AssertionError("no Base method"))
+            client = SimpleNamespace(
+                im=SimpleNamespace(v1=SimpleNamespace(message=SimpleNamespace(acreate=create))),
+                bitable=SimpleNamespace(
+                    v1=SimpleNamespace(
+                        app_table_record=SimpleNamespace(
+                            acreate=forbidden, alist=forbidden, aupdate=forbidden
+                        ),
+                        app_table=SimpleNamespace(alist=forbidden),
+                        app_table_field=SimpleNamespace(alist=forbidden),
+                    )
+                ),
+            )
+            return ledgered_client(client, self.ledger)
+
+    monkeypatch.setattr(child, "BusinessSDKFactory", Factory)
+    result = asyncio.run(child.controlled_f02(sdk_settings, window, f.config))
+    assert result["business_graphs"] == result["base_requests"] == result["model_requests"] == 0
+    assert checkpoints(f) == cp
+    with connect(f.config.database) as db:
+        replies = db.execute(
+            "SELECT provider_uuid,status,attempts FROM business.p4_clarification_replies "
+            "WHERE request_id=%s ORDER BY created_at,id",
+            (UUID(first["clarification_id"]),),
+        ).fetchall()
+        calls = db.execute(
+            "SELECT method,count(*) AS n FROM business.p4_sdk_calls WHERE window_id=%s "
+            "GROUP BY method",
+            (window.window_id,),
+        ).fetchall()
+    assert [body.uuid for body in sent] == [str(r["provider_uuid"]) for r in replies]
+    assert all(r["attempts"] == 1 for r in replies)
+    assert {r["method"]: r["n"] for r in calls} == {
+        "auth.v3.tenant_access_token.internal": 1,
+        "bot.v3.info": 1,
+        "im.v1.message.create": 3 if outcome == "sent" else 1,
+    }
+    after = business_counts(f)
+    if outcome == "sent":
+        assert result["result"] == "window_stopped" and result["sent"] == 3
+        assert [r["status"] for r in replies] == ["sent"] * 3
+        assert after["business_tasks"] - before["business_tasks"] == 2
+        assert after["jobs"] - before["jobs"] == 2
+        assert all(after[k] == before[k] for k in before if k not in ("business_tasks", "jobs"))
+        assert (
+            receiver.message(turn(f, turn_result, confirm=True))["task_id"]
+            == turn_result["task_id"]
+        )
+        assert business_counts(f) == after
+    else:
+        assert result["result"] == "delivery_stopped" and replies[0]["status"] == "unknown"
+        assert after == before and len(sent) == 1
