@@ -162,6 +162,66 @@ def run_combined(
     report.pop("failed_target", None)
 
 
+def cleanup_registered_containers(
+    names: list[str],
+    project: str,
+    capture: Callable[[list[str], float], subprocess.CompletedProcess[str]],
+    stage: Callable[[str, int, int], None],
+) -> int:
+    """只按已登记名称一次核全owner/停止状态，按不可变ID删除；不force。"""
+    stage("inspect-registered", 0, 0)
+    if not names:
+        return 0
+    if len(names) != len(set(names)):
+        raise RuntimeError("duplicate registered cleanup container")
+    checked = capture(["docker", "inspect", *names], 5)
+    if checked.returncode:
+        raise RuntimeError("registered cleanup ownership unconfirmed")
+    records = json.loads(checked.stdout)
+    if not isinstance(records, list) or len(records) != len(names):
+        raise RuntimeError("registered cleanup set unconfirmed")
+    ids: list[str] = []
+    observed: set[str] = set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise RuntimeError("registered cleanup metadata unconfirmed")
+        name = record.get("Name")
+        identifier = record.get("Id")
+        config, state = record.get("Config"), record.get("State")
+        labels = config.get("Labels") if isinstance(config, dict) else None
+        if (
+            not isinstance(name, str)
+            or name.removeprefix("/") not in names
+            or name.removeprefix("/") in observed
+            or not isinstance(identifier, str)
+            or re.fullmatch(r"[0-9a-f]{64}", identifier) is None
+            or identifier in ids
+            or not isinstance(labels, dict)
+            or labels.get("com.docker.compose.project") != project
+            or not isinstance(state, dict)
+            or state.get("Running") is not False
+            or type(state.get("Pid")) is not int
+            or state["Pid"] != 0
+            or state.get("Status") != "exited"
+        ):
+            stage("verify-registered", len(ids), 0)
+            raise RuntimeError("registered cleanup owner or stopped state unconfirmed")
+        observed.add(name.removeprefix("/"))
+        ids.append(identifier)
+    if observed != set(names):
+        raise RuntimeError("registered cleanup set unconfirmed")
+    stage("remove-registered", len(ids), 0)
+    removed = capture(["docker", "rm", *ids], 5)
+    confirmed = removed.stdout.splitlines()
+    if len(confirmed) != len(set(confirmed)) or not set(confirmed) <= set(ids):
+        raise RuntimeError("registered cleanup removal receipt unconfirmed")
+    if removed.returncode or set(confirmed) != set(ids):
+        stage("partial-removal", len(ids), len(confirmed))
+        raise RuntimeError("registered cleanup removal unconfirmed")
+    stage("removed-registered", len(ids), len(ids))
+    return len(ids)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--deadline", required=True)
@@ -669,25 +729,32 @@ def main() -> None:
         report["error_class"] = type(error).__name__
         emit({"event": "diagnostic_failed", "code": type(error).__name__})
     finally:
+        cleanup_started = time.monotonic()
+        cleanup_stage = "inspect-registered"
+        owned_verified = owned_removed = 0
+
+        def cleanup_note(stage: str, verified: int, removed: int) -> None:
+            nonlocal cleanup_stage, owned_verified, owned_removed
+            cleanup_stage, owned_verified, owned_removed = stage, verified, removed
+            emit(
+                {
+                    "event": "cleanup_stage",
+                    "stage": stage,
+                    "elapsed_seconds": round(time.monotonic() - cleanup_started, 3),
+                    "remaining_seconds": round(max(0, cleanup_until() - time.monotonic()), 3),
+                    "owned_verified": verified,
+                    "owned_removed": removed,
+                }
+            )
+
         try:
-            for name in containers:
-                checked = capture(
-                    [
-                        "docker",
-                        "inspect",
-                        "--format",
-                        '{{index .Config.Labels "com.docker.compose.project"}}',
-                        name,
-                    ],
-                    5,
-                    cleanup=True,
-                )
-                if checked.returncode == 0 and checked.stdout.strip() == project:
-                    removed = capture(["docker", "rm", name], 5, cleanup=True)
-                    if removed.returncode:
-                        raise RuntimeError("owned container removal unconfirmed")
-                elif checked.returncode == 0:
-                    stopping_confirmed = False
+            cleanup_registered_containers(
+                containers,
+                project,
+                lambda command, seconds: capture(command, seconds, cleanup=True),
+                cleanup_note,
+            )
+            cleanup_note("compose-down", owned_verified, owned_removed)
             cleanup = capture(
                 compose + ["down", "--volumes", "--remove-orphans", "--rmi", "local"],
                 60,
@@ -698,12 +765,30 @@ def main() -> None:
             if not stopping_confirmed:
                 report["cleanup_exit"] = "unconfirmed"
             if cleanup.returncode == 0 and stopping_confirmed:
+                cleanup_note("credential-files", owned_verified, owned_removed)
                 for filename in ("owner_password", "app_password"):
                     (directory / filename).unlink()
                 directory.rmdir()
+                cleanup_note("complete", owned_verified, owned_removed)
         except Exception as error:
             report["cleanup_exit"] = "unconfirmed"
             report["cleanup_error_class"] = type(error).__name__
+            emit(
+                {
+                    "event": "cleanup_failure",
+                    "stage": cleanup_stage,
+                    "exception_class": type(error).__name__,
+                    "elapsed_seconds": round(time.monotonic() - cleanup_started, 3),
+                    "remaining_seconds": round(max(0, cleanup_until() - time.monotonic()), 3),
+                    "owned_verified": owned_verified,
+                    "owned_removed": owned_removed,
+                }
+            )
+        report["cleanup_stage"] = cleanup_stage
+        report["cleanup_elapsed_seconds"] = round(time.monotonic() - cleanup_started, 3)
+        report["cleanup_remaining_seconds"] = round(max(0, cleanup_until() - time.monotonic()), 3)
+        report["cleanup_owned_verified"] = owned_verified
+        report["cleanup_owned_removed"] = owned_removed
         report["finished_at"] = datetime.now(UTC).isoformat()
         save()
         if ci_identity is not None:
@@ -716,6 +801,12 @@ def main() -> None:
                     "project": project,
                     "result": report["result"],
                     "cleanup_exit": report["cleanup_exit"],
+                    "cleanup_stage": report["cleanup_stage"],
+                    "cleanup_error_class": report.get("cleanup_error_class"),
+                    "cleanup_elapsed_seconds": report["cleanup_elapsed_seconds"],
+                    "cleanup_remaining_seconds": report["cleanup_remaining_seconds"],
+                    "cleanup_owned_verified": owned_verified,
+                    "cleanup_owned_removed": owned_removed,
                 }
             ),
             flush=True,

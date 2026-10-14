@@ -2,12 +2,13 @@
 
 import ast
 import io
+import json
 import signal
 import subprocess
 import threading
 import time
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import pytest
 import yaml  # type: ignore[import-untyped]  # 已锁定依赖，仅SafeLoader解析。
@@ -274,3 +275,87 @@ def test_container_confirmation_requires_owner_and_successful_wait(case: str) ->
         assert commands == ["inspect", "inspect", "stop", "inspect", "kill", "wait", "inspect"]
     else:
         assert "stop" not in commands and "kill" not in commands
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "valid",
+        "foreign",
+        "running",
+        "pid",
+        "missing",
+        "partial",
+        "timeout",
+        "duplicate-name",
+        "duplicate-id",
+    ],
+)
+def test_registered_cleanup_batch_requires_every_owner_stopped_state_and_removal(case: str) -> None:
+    names = ["p123-own-" + str(n) for n in range(29)]
+    records: list[dict[str, Any]] = [
+        {
+            "Name": "/" + name,
+            "Id": format(n + 1, "064x"),
+            "Config": {"Labels": {"com.docker.compose.project": "p123-own"}},
+            "State": {"Running": False, "Pid": 0, "Status": "exited"},
+        }
+        for n, name in enumerate(names)
+    ]
+    if case == "foreign":
+        records[-1]["Config"]["Labels"]["com.docker.compose.project"] = "foreign"
+    elif case == "running":
+        records[-1]["State"]["Running"] = True
+    elif case == "pid":
+        records[-1]["State"]["Pid"] = 1
+    elif case == "missing":
+        records.pop()
+    elif case == "duplicate-name":
+        records[-1]["Name"] = names[0]
+    elif case == "duplicate-id":
+        records[-1]["Id"] = records[0]["Id"]
+    commands: list[list[str]] = []
+    stages: list[tuple[str, int, int]] = []
+
+    def capture(command: list[str], seconds: float) -> subprocess.CompletedProcess[str]:
+        commands.append(command)
+        assert seconds == 5
+        if case == "timeout":
+            raise subprocess.TimeoutExpired("redacted", seconds)
+        if command[1] == "inspect":
+            return subprocess.CompletedProcess(command, 0, json.dumps(records), "")
+        assert command == ["docker", "rm", *[r["Id"] for r in records]]
+        ids = [r["Id"] for r in records]
+        return subprocess.CompletedProcess(
+            command,
+            1 if case == "partial" else 0,
+            "\n".join(ids[:3] if case == "partial" else ids),
+            "",
+        )
+
+    def stage(name: str, verified: int, removed: int) -> None:
+        stages.append((name, verified, removed))
+
+    if case == "valid":
+        assert pg_diagnostic.cleanup_registered_containers(names, "p123-own", capture, stage) == 29
+        assert len(commands) == 2 and stages[-1] == ("removed-registered", 29, 29)
+    else:
+        with pytest.raises(subprocess.TimeoutExpired if case == "timeout" else RuntimeError):
+            pg_diagnostic.cleanup_registered_containers(names, "p123-own", capture, stage)
+        assert len(commands) == (2 if case == "partial" else 1)
+        if case == "partial":
+            assert stages[-1] == ("partial-removal", 29, 3)
+    assert all("--force" not in c and "-f" not in c for c in commands)
+
+
+def test_registered_cleanup_empty_and_duplicate_names_never_delete() -> None:
+    def forbidden(command: list[str], seconds: float) -> subprocess.CompletedProcess[str]:
+        raise AssertionError("no command required")
+
+    assert (
+        pg_diagnostic.cleanup_registered_containers([], "p123-own", forbidden, lambda *a: None) == 0
+    )
+    with pytest.raises(RuntimeError):
+        pg_diagnostic.cleanup_registered_containers(
+            ["same", "same"], "p123-own", forbidden, lambda *a: None
+        )

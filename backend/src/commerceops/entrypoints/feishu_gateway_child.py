@@ -44,7 +44,7 @@ class BoundedReceiver:
         return self.store.card(card)
 
 
-def serve(config_file: Path, window_file: Path) -> None:
+def serve(config_file: Path, window_file: Path, *, web_config_sha256: str | None = None) -> None:
     restrict_sdk_logs()  # 在读取任何秘密/构造SDK之前禁原文logger与传播。
     settings = BusinessSettings.model_validate_json(private_value(config_file))
     window = GatewayWindow.model_validate_json(private_value(window_file))
@@ -52,7 +52,11 @@ def serve(config_file: Path, window_file: Path) -> None:
         raise PermissionError("P4_GATEWAY_WINDOW_CLOSED")
     # 独立CLI误用也不能无限留socket；OS alarm只使结果未知，父进程仍必须wait/reap。
     signal.setitimer(signal.ITIMER_REAL, (window.expires_at - datetime.now(UTC)).total_seconds())
-    web = WebConfig.from_file(settings.web_config_file)
+    web = (
+        WebConfig.from_file(settings.web_config_file)
+        if web_config_sha256 is None
+        else WebConfig.from_file(settings.web_config_file, expected_sha256=web_config_sha256)
+    )
     if web.database.user != "commerceops_app":
         raise PermissionError("P4_GATEWAY_RUNTIME_ROLE_REQUIRED")
     # lease仅本child的同步连接，不借用WorkerSession/跨loop AsyncConnection。
@@ -81,9 +85,10 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--window-file", required=True, type=Path)
+    parser.add_argument("--web-config-sha256")
     args = parser.parse_args()
     try:
-        serve(args.config, args.window_file)
+        serve(args.config, args.window_file, web_config_sha256=args.web_config_sha256)
     except Exception as error:
         raise SystemExit(f"P4 gateway child failed: {type(error).__name__}") from None
 

@@ -1,5 +1,6 @@
 """P3显式私有配置；不加载.env、平台凭据或开发身份替身。"""
 
+import hashlib
 import json
 import os
 import stat
@@ -94,9 +95,18 @@ class WebConfig:
             raise ValueError("INVALID_WEB_CONFIGURATION")
 
     @classmethod
-    def from_file(cls, path: Path) -> "WebConfig":
+    def from_file(cls, path: Path, *, expected_sha256: str | None = None) -> "WebConfig":
         try:
-            body = json.loads(private_bytes(path))
+            encoded = private_bytes(path)
+            if expected_sha256 is not None and (
+                type(expected_sha256) is not str
+                or len(expected_sha256) != 64
+                or any(c not in "0123456789abcdef" for c in expected_sha256)
+                or hashlib.sha256(encoded).hexdigest() != expected_sha256
+            ):
+                raise ValueError("INVALID_WEB_CONFIGURATION")
+            # Parse exactly the protected, hash-checked buffer before any secret read.
+            body = json.loads(encoded)
             database = DatabaseSettings.model_validate(body.pop("database"))
             csrf = private_bytes(Path(body.pop("csrf_secret_file")))
             nonce = private_bytes(Path(body.pop("nonce_secret_file")))

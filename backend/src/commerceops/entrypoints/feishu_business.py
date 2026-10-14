@@ -20,13 +20,21 @@ if TYPE_CHECKING:
     from commerceops.infrastructure.web_config import WebConfig
 
 
-def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
+def run_gateway(
+    config: Path, window_file: Path, *, web_config_sha256: str | None = None
+) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import private_value
     from commerceops.adapters.feishu.sdk import restrict_sdk_logs
     from commerceops.application.feishu_business.gateway_window import GatewayWindow
 
     restrict_sdk_logs()
+    if web_config_sha256 is not None and (
+        type(web_config_sha256) is not str
+        or len(web_config_sha256) != 64
+        or any(c not in "0123456789abcdef" for c in web_config_sha256)
+    ):
+        raise PermissionError("P4_GATEWAY_WEB_BINDING_REQUIRED")
     settings = BusinessSettings.model_validate_json(private_value(config))
     window = GatewayWindow.model_validate_json(private_value(window_file))
     if not window.active() or (settings.organization_id, settings.shop_id) != (
@@ -47,6 +55,7 @@ def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
             str(config),
             "--window-file",
             str(window_file),
+            *(["--web-config-sha256", web_config_sha256] if web_config_sha256 is not None else []),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -82,7 +91,11 @@ def run_gateway(config: Path, window_file: Path) -> dict[str, object]:
         async def bounded_confirmation() -> None:
             async with asyncio.timeout(max(0.01, min(5, cutoff - time.monotonic()))):
                 await confirm_gateway_child(
-                    WebConfig.from_file(settings.web_config_file),
+                    WebConfig.from_file(settings.web_config_file)
+                    if web_config_sha256 is None
+                    else WebConfig.from_file(
+                        settings.web_config_file, expected_sha256=web_config_sha256
+                    ),
                     window.organization_id,
                     window.window_id,
                     process.pid,
@@ -342,20 +355,28 @@ def main() -> None:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--window-file", type=Path)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--web-config-sha256")
     args = parser.parse_args()
     try:
+        if args.web_config_sha256 is not None and args.action != "gateway":
+            raise PermissionError("P4_GATEWAY_WEB_BINDING_REQUIRED")
         if args.action == "verify-config":
             result: dict[str, object] = dict(verify_config(args.config))
         else:
             if not args.live or args.window_file is None:
                 raise PermissionError("P4_EXPLICIT_PREFLIGHT_REQUIRED")
-            result = (
-                run_gateway(args.config, args.window_file)
-                if args.action == "gateway"
-                else run_worker(args.config, args.window_file)
-                if args.action == "worker"
-                else asyncio.run(run_preflight(args.config, args.window_file))
-            )
+            if args.action == "gateway":
+                result = (
+                    run_gateway(args.config, args.window_file)
+                    if args.web_config_sha256 is None
+                    else run_gateway(
+                        args.config, args.window_file, web_config_sha256=args.web_config_sha256
+                    )
+                )
+            elif args.action == "worker":
+                result = run_worker(args.config, args.window_file)
+            else:
+                result = asyncio.run(run_preflight(args.config, args.window_file))
         print(json.dumps(result, sort_keys=True))
         if result.get("result") == "failed":
             raise SystemExit(1)

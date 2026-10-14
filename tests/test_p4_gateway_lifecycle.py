@@ -159,3 +159,252 @@ def test_changed_window_binding_rejects_before_workflow_query(field: str) -> Non
     with pytest.raises(WebFailure, match="GATEWAY_WINDOW_CLOSED"):
         guard_gateway(cast(DB, db), original.model_copy(update={field: changes[field]}), True)
     assert db.calls == 1
+
+
+@pytest.mark.parametrize("replacement", ["before-spawn", "after-spawn"])
+def test_parent_bound_webjson_replacement_rejects_child_before_secret_sdk_or_claim(
+    tmp_path: Path,
+    monkeypatch: Patch,
+    replacement: str,
+) -> None:
+    import hashlib
+    from unittest.mock import Mock
+
+    from commerceops.entrypoints import feishu_gateway_child as child
+    from commerceops.infrastructure import web_config as private
+
+    from tests.test_p4_controlled_worker import configured
+
+    settings, _, config = configured()
+    web_path = tmp_path / "web.json"
+    original_body = json.dumps(
+        {
+            "database": config.database.model_dump(mode="json"),
+            "csrf_secret_file": "/never-read/original-csrf",
+            "nonce_secret_file": "/never-read/original-nonce",
+            "origins": list(config.origins),
+            "transport_mode": config.transport_mode,
+        }
+    ).encode()
+    changed = json.dumps(
+        {
+            "database": config.database.model_dump(mode="json"),
+            "csrf_secret_file": "/never-read/replaced",
+        }
+    ).encode()
+    web_path.write_bytes(original_body)
+    web_path.chmod(0o600)
+    settings = settings.model_copy(update={"web_config_file": web_path})
+    config_path, window_path = tmp_path / "business.json", tmp_path / "window.json"
+    config_path.write_text(settings.model_dump_json())
+    config_path.chmod(0o600)
+    current = window(enabled=True).model_copy(
+        update={
+            "organization_id": settings.organization_id,
+            "shop_id": settings.shop_id,
+        }
+    )
+    window_path.write_text(current.model_dump_json())
+    window_path.chmod(0o600)
+    expected = hashlib.sha256(original_body).hexdigest()
+    protected = private.private_bytes
+    secret_reads: list[Path] = []
+
+    def read(path: Path) -> bytes:
+        if path == web_path:
+            return protected(path)
+        secret_reads.append(path)
+        raise AssertionError("secret read before WebJSON binding")
+
+    monkeypatch.setattr(private, "private_bytes", read)
+    monkeypatch.setattr(
+        "commerceops.entrypoints.feishu_gateway_child.signal.setitimer", lambda *args: None
+    )
+    claim, database, sdk = Mock(), Mock(), Mock()
+    monkeypatch.setattr(child, "claim_gateway", claim)
+    monkeypatch.setattr(child, "connect", database)
+    monkeypatch.setattr("commerceops.entrypoints.feishu_gateway_child.lark.ws.Client", sdk)
+    calls: list[list[str]] = []
+
+    class FailedChild:
+        pid = 123456
+        returncode = 1
+
+        def wait(self, timeout: float) -> int:
+            return 1
+
+        def poll(self) -> int:
+            return 1
+
+    def spawn(argv: list[str], **kwargs: Any) -> FailedChild:
+        calls.append(argv)
+        assert argv[-2:] == ["--web-config-sha256", expected]
+        if replacement == "after-spawn":
+            web_path.write_bytes(changed)
+        with pytest.raises(ValueError, match="INVALID_WEB_CONFIGURATION"):
+            child.serve(config_path, window_path, web_config_sha256=argv[-1])
+        return FailedChild()
+
+    monkeypatch.setattr(subprocess, "Popen", spawn)
+    if replacement == "before-spawn":
+        web_path.write_bytes(changed)
+    result = run_gateway(config_path, window_path, web_config_sha256=expected)
+    assert result["result"] == "failed" and result["child_reaped"] is True
+    assert len(calls) == 1 and secret_reads == []
+    claim.assert_not_called()
+    database.assert_not_called()
+    sdk.assert_not_called()
+
+
+def test_bound_webconfig_parses_one_buffer_despite_later_path_replacement(
+    tmp_path: Path,
+    monkeypatch: Patch,
+) -> None:
+    import hashlib
+
+    from commerceops.infrastructure import web_config as private
+
+    from tests.test_p4_controlled_worker import configured
+
+    _, _, config = configured()
+    path = tmp_path / "web.json"
+    body = json.dumps(
+        {
+            "database": config.database.model_dump(mode="json"),
+            "csrf_secret_file": "/never-read/original-csrf",
+            "nonce_secret_file": "/never-read/original-nonce",
+            "origins": list(config.origins),
+            "transport_mode": config.transport_mode,
+        }
+    ).encode()
+    path.write_bytes(body)
+    path.chmod(0o600)
+    protected = private.private_bytes
+    reads: list[Path] = []
+
+    def read(target: Path) -> bytes:
+        reads.append(target)
+        if target == path:
+            return protected(target)
+        path.write_text('{"database":{},"csrf_secret_file":"/replaced"}')
+        return b"a" * 32 if target.name == "original-csrf" else b"b" * 32
+
+    monkeypatch.setattr(private, "private_bytes", read)
+    actual = private.WebConfig.from_file(path, expected_sha256=hashlib.sha256(body).hexdigest())
+    assert actual.database == config.database
+    assert reads == [path, Path("/never-read/original-csrf"), Path("/never-read/original-nonce")]
+    assert actual.csrf_secret == b"a" * 32 and actual.nonce_secret == b"b" * 32
+
+
+@pytest.mark.parametrize("expected", ["", "0" * 64, "A" * 64, "x" * 64])
+def test_invalid_or_changed_webjson_hash_reads_no_secret(
+    tmp_path: Path,
+    monkeypatch: Patch,
+    expected: str,
+) -> None:
+    from commerceops.infrastructure import web_config as private
+
+    path = tmp_path / "web.json"
+    path.write_text("{}")
+    path.chmod(0o600)
+    reads: list[Path] = []
+    protected = private.private_bytes
+
+    def read(target: Path) -> bytes:
+        reads.append(target)
+        assert target == path
+        return protected(target)
+
+    monkeypatch.setattr(private, "private_bytes", read)
+    with pytest.raises(ValueError, match="INVALID_WEB_CONFIGURATION"):
+        private.WebConfig.from_file(path, expected_sha256=expected)
+    assert reads == [path]
+
+
+def test_bound_canonical_claim_failure_reads_no_appsecret_sdk_or_business(
+    tmp_path: Path,
+    monkeypatch: Patch,
+) -> None:
+    import hashlib
+    from unittest.mock import Mock
+
+    from commerceops.entrypoints import feishu_gateway_child as child
+    from commerceops.infrastructure import web_config as private
+
+    from tests.test_p4_controlled_worker import configured
+
+    settings, _, config = configured()
+    path = tmp_path / "web.json"
+    body = json.dumps(
+        {
+            "database": config.database.model_dump(mode="json"),
+            "csrf_secret_file": "/never-read/csrf",
+            "nonce_secret_file": "/never-read/nonce",
+            "origins": list(config.origins),
+            "transport_mode": config.transport_mode,
+        }
+    ).encode()
+    path.write_bytes(body)
+    path.chmod(0o600)
+    settings = settings.model_copy(update={"web_config_file": path})
+    current = window(enabled=True).model_copy(
+        update={
+            "organization_id": settings.organization_id,
+            "shop_id": settings.shop_id,
+        }
+    )
+    files = {
+        Path("/fake/business"): settings.model_dump_json(),
+        Path("/fake/window"): current.model_dump_json(),
+    }
+    config_reads: list[Path] = []
+
+    def value(target: Path) -> str:
+        config_reads.append(target)
+        return files[target]
+
+    monkeypatch.setattr(child, "private_value", value)
+    protected = private.private_bytes
+    reads: list[Path] = []
+
+    def read(target: Path) -> bytes:
+        reads.append(target)
+        return (
+            protected(target)
+            if target == path
+            else b"a" * 32
+            if target.name == "csrf"
+            else b"b" * 32
+        )
+
+    monkeypatch.setattr(private, "private_bytes", read)
+    monkeypatch.setattr(
+        "commerceops.entrypoints.feishu_gateway_child.signal.setitimer", lambda *args: None
+    )
+
+    class Lease:
+        def __enter__(self) -> "Lease":
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            pass
+
+    monkeypatch.setattr(child, "connect", lambda _: Lease())
+    monkeypatch.setattr(
+        child, "claim_gateway", Mock(side_effect=PermissionError("synthetic claim"))
+    )
+    started, sdk, business = Mock(), Mock(), Mock()
+    monkeypatch.setattr(child, "gateway_process_started", started)
+    monkeypatch.setattr("commerceops.entrypoints.feishu_gateway_child.lark.ws.Client", sdk)
+    monkeypatch.setattr(child, "FeishuBusinessStore", business)
+    with pytest.raises(PermissionError):
+        child.serve(
+            Path("/fake/business"),
+            Path("/fake/window"),
+            web_config_sha256=hashlib.sha256(body).hexdigest(),
+        )
+    assert reads == [path, Path("/never-read/csrf"), Path("/never-read/nonce")]
+    assert settings.app_secret_file not in config_reads
+    started.assert_not_called()
+    sdk.assert_not_called()
+    business.assert_not_called()
