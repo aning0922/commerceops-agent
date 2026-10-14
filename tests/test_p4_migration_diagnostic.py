@@ -2,7 +2,6 @@
 
 import json
 import shutil
-from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -12,6 +11,7 @@ import pytest
 
 from tests import test_p4_first_create_negatives_pg as target
 from tests.p3_support import P3Fixture
+from tests.p4_legacy_c0_d97 import LegacyC0Failure
 
 pytestmark = pytest.mark.offline
 HIDDEN = "synthetic-private-text-do-not-output"
@@ -99,6 +99,12 @@ def test_introspection_failure_does_not_replace_the_original_error_or_emit_text(
         "snapshot-after",
         "compare",
         "revision-check",
+        "migrate-current",
+        "snapshot-current",
+        "compare-current",
+        "grant-current",
+        "current-grant-check",
+        "current-revision-check",
         "cleanup-client",
         "cleanup-db",
         "cleanup-admin",
@@ -146,20 +152,58 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
         def __exit__(self, *_: Any) -> None:
             pass
 
-        def execute(self, statement: Any) -> Any:
+        def execute(self, statement: Any, params: Any = None) -> Any:
             nonlocal snapshots
+            self.params = params
             text = statement if isinstance(statement, str) else statement.as_string()
             if "pg_tables" in text:
                 snapshots += 1
-                run("snapshot-before" if snapshots == 1 else "snapshot-after")
-                return SimpleNamespace(
-                    fetchall=lambda: [{"schemaname": "business", "tablename": "fake"}]
-                )
+                run({1: "snapshot-before", 2: "snapshot-after", 3: "snapshot-current"}[snapshots])
+                names = [
+                    {"schemaname": "business", "tablename": "fake"},
+                    {"schemaname": "checkpoints", "tablename": "checkpoints"},
+                ]
+                if snapshots == 3:
+                    names += [
+                        {"schemaname": "business", "tablename": "p3_template_results"},
+                        {"schemaname": "business", "tablename": "p4_read_replies"},
+                    ]
+                return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
-                body = "different" if failure_stage == "compare" and snapshots == 2 else "same"
+                if "p3_template_results" in text or "p4_read_replies" in text:
+                    return SimpleNamespace(fetchall=lambda: [])
+                body = (
+                    "different"
+                    if (
+                        (failure_stage == "compare" and snapshots == 2)
+                        or (failure_stage == "compare-current" and snapshots == 3)
+                    )
+                    else "same"
+                )
                 return SimpleNamespace(fetchall=lambda: [{"body": body}])
-            run("revision-check")
-            return SimpleNamespace(fetchone=lambda: {"version_num": "0013_p4_first_create"})
+            if "has_table_privilege" in text or "has_column_privilege" in text:
+                run("current-grant-check")
+                if "has_column_privilege" in text:
+                    allowed = "payload" not in text
+                else:
+                    allowed = self.params[1] in ("SELECT", "INSERT")
+                return SimpleNamespace(fetchone=lambda: {"allowed": allowed})
+            if "rolsuper" in text:
+                return SimpleNamespace(
+                    fetchone=lambda: {
+                        "rolsuper": False,
+                        "rolcreatedb": False,
+                        "rolcreaterole": False,
+                    }
+                )
+            run("revision-check" if snapshots == 2 else "current-revision-check")
+            return SimpleNamespace(
+                fetchone=lambda: {
+                    "version_num": (
+                        "0013_p4_first_create" if snapshots == 2 else "0015_p4_read_replies"
+                    )
+                }
+            )
 
     def copy(_: str, destination: Path) -> None:
         (destination / "versions").mkdir(parents=True)
@@ -169,25 +213,41 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
         run("checkpointer")
 
     def migrate(_: Any, **kwargs: Any) -> None:
-        run("migrate0012" if kwargs else "migrate0013")
+        run(
+            "migrate-current"
+            if not kwargs
+            else ("migrate0012" if kwargs["migrations"].name == "schema-0012" else "migrate0013")
+        )
 
-    def initialize(*_: Any) -> Any:
-        run("initialize_p3")
-        return SimpleNamespace(client=SimpleNamespace(close=lambda: run("cleanup-client")))
-
-    @contextmanager
-    def original(_: Any) -> Any:
-        run("original_c0")
-        yield None
+    def legacy(*_: Any) -> None:
+        initialized = False
+        for child_stage in ("grant-runtime", "initialize_p3", "original_c0"):
+            target.migration_diag(child_stage)
+            try:
+                run(child_stage)
+                if child_stage == "initialize_p3":
+                    initialized = True
+            except RuntimeError as fault:
+                target.migration_diag(child_stage, fault)
+                if initialized:
+                    target.migration_diag("cleanup-client")
+                    run("cleanup-client")
+                raise LegacyC0Failure("fixed child failure") from fault
+        target.migration_diag("cleanup-client")
+        try:
+            run("cleanup-client")
+        except RuntimeError as fault:
+            target.migration_diag("cleanup-client", fault)
+            raise LegacyC0Failure("fixed child cleanup failure") from fault
 
     monkeypatch.setattr(shutil, "copytree", copy)
     monkeypatch.setattr(psycopg, "connect", lambda **_: Admin())
     monkeypatch.setattr(target, "connect", lambda _: Read())
     monkeypatch.setattr(target, "migrate", migrate)
     monkeypatch.setattr(target, "setup_checkpointer", checkpoint)
-    monkeypatch.setattr(target, "grant_runtime", lambda _: run("grant-runtime"))
-    monkeypatch.setattr(target, "initialize_p3", initialize)
-    monkeypatch.setattr(target, "original_c0", original)
+    monkeypatch.setattr(target, "grant_runtime", lambda _: run("grant-current"))
+    monkeypatch.setattr(target, "extract_legacy", lambda path: path)
+    monkeypatch.setattr(target, "run_legacy_c0", legacy)
     fixture = cast(
         P3Fixture,
         SimpleNamespace(
@@ -200,18 +260,27 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             fixture, tmp_path
         )
     else:
-        with pytest.raises(AssertionError if failure_stage == "compare" else RuntimeError) as found:
+        with pytest.raises(
+            AssertionError if failure_stage in ("compare", "compare-current") else RuntimeError
+        ) as found:
             target.test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 fixture, tmp_path
             )
-        if failure_stage != "compare":
+        if failure_stage in ("grant-runtime", "initialize_p3", "original_c0", "cleanup-client"):
+            assert isinstance(found.value, LegacyC0Failure)
+            assert found.value.__cause__ is error
+        elif failure_stage not in ("compare", "compare-current"):
             assert found.value is error
     output = capsys.readouterr().out
     assert (
         HIDDEN not in output and "CREATE DATABASE" not in output and "DROP DATABASE" not in output
     )
     events = [json.loads(line.removeprefix("PG_DIAG ")) for line in output.splitlines()]
-    failures = [event for event in events if event["exception_class"] is not None]
+    failures = [
+        event
+        for event in events
+        if event["event"] == "c0_migration_stage" and event["exception_class"] is not None
+    ]
     assert len(failures) == (0 if failure_stage is None else 1)
     if failure_stage:
         assert failures[0]["stage"] == failure_stage
@@ -220,3 +289,59 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
         assert "cleanup-db" in operations
     if "original_c0" in operations:
         assert "cleanup-client" in operations
+
+
+def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Path) -> None:
+    import hashlib
+    import subprocess
+    import sys
+
+    from tests.p4_legacy_c0_d97 import FIXTURE, SOURCE_SHA, extract_legacy
+
+    source = extract_legacy(tmp_path / "d97")
+    manifest = json.loads((FIXTURE / "manifest.json").read_text())
+    assert manifest["source_sha"] == SOURCE_SHA
+    assert all(
+        hashlib.sha256((source / entry["path"]).read_bytes()).hexdigest() == entry["sha256"]
+        for entry in manifest["files"]
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            "import sys; sys.path[:0]=[sys.argv[1]+'/backend/src',sys.argv[1]]; "
+            "import tests.p3_process,tests.test_p4_first_create_pg; "
+            "from commerceops.infrastructure.replenishment_repository import ApprovalStore; "
+            "assert str(ApprovalStore.prepare.__code__.co_filename).startswith(sys.argv[1]); "
+            "from pathlib import Path; "
+            "from commerceops.entrypoints.api import create_app; "
+            "from commerceops.infrastructure.database import DatabaseSettings; "
+            "from commerceops.infrastructure.web_config import WebConfig; "
+            "from commerceops.infrastructure.replenishment_repository import ReplenishmentStore; "
+            "from commerceops.workflows.report_explanation import ProviderFactory; "
+            "from commerceops.adapters.commerce.mock import Fixture; "
+            "data=Path(sys.argv[1])/'tests/fixtures/commerce/inventory-v1'; "
+            "database=DatabaseSettings(host='127.0.0.1',name='offline_only',"
+            "user='commerceops_app',password_file=Path('/never-read/offline-password')); "
+            "config=WebConfig(database,b'a'*32,b'b'*32,"
+            "('http://127.0.0.1',),transport_mode='local_http'); "
+            "app=create_app(web_config=config,"
+            "replenishment_store=ReplenishmentStore(config,data)); "
+            "assert '/api/v1/tasks' in app.openapi()['paths']; "
+            "provider=ProviderFactory(); "
+            "assert not provider.allow_actual and provider.key_file is None; "
+            "Fixture.load(data,'baseline'); Fixture.load(data,'known_inbound'); "
+            "print('pinned historical imports verified')",
+            str(source),
+        ],
+        capture_output=True,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stderr.decode()
+    assert result.stdout == b"pinned historical imports verified\n"
+    assert {p.name for p in (source / "backend/migrations/versions").glob("*.py")} == {
+        p.name
+        for p in Path("backend/migrations/versions").glob("*.py")
+        if not p.name.startswith(("0014_", "0015_"))
+    }

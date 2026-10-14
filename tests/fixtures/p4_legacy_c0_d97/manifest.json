@@ -1,0 +1,670 @@
+{
+  "source_sha": "d97c6ae8007eb5b69024e514210860f42359673d",
+  "source_tree": "0e60f6e3280bd75a3edfb8cc52d041301a52629c",
+  "archive_sha256": "daaefa581ada95e448c340da326a0ff0cfa6d88a274894d36f3c9b520a09f2d6",
+  "files": [
+    {
+      "path": "backend/migrations/env.py",
+      "sha256": "1c51bd4897ac24b85f3d6940807ac72caac62e7842eec292660be19413c0dd3d"
+    },
+    {
+      "path": "backend/migrations/versions/0001_task_foundation.py",
+      "sha256": "a04299658766e8d0998fc2b3708dda5379e9d4bae6c380a852a95241d1cae468"
+    },
+    {
+      "path": "backend/migrations/versions/0002_inventory_analysis.py",
+      "sha256": "883471de1618a6d28af07eb75a66125c426ac1f3da1f0cda2aa8a890b755e9ce"
+    },
+    {
+      "path": "backend/migrations/versions/0003_inventory_explanations.py",
+      "sha256": "abc55557f2bdfb38f52d90bd44e44a89eee61e3e1e7445f32854b260468f17b5"
+    },
+    {
+      "path": "backend/migrations/versions/0004_model_call_owner.py",
+      "sha256": "c82643515ff2a711a0fbfa706fd666e802b957a7037fc1e9027adc7b0fe441f9"
+    },
+    {
+      "path": "backend/migrations/versions/0005_p3_approval.py",
+      "sha256": "c6cd84fc10bc07f4a2669cdda9b67e9655cb0290660e5cbdf5c7771a634135e5"
+    },
+    {
+      "path": "backend/migrations/versions/0006_p3_decisions.py",
+      "sha256": "467d631be22a973cf6ea91bfa510b7a565bcac83b6846dba57db4ebf2f2050ec"
+    },
+    {
+      "path": "backend/migrations/versions/0007_p3_execution.py",
+      "sha256": "715e2d870e1db61606f4b74141db360c62a2ecc9ab52cf9481461cb6d4abc0cf"
+    },
+    {
+      "path": "backend/migrations/versions/0008_p4_feishu.py",
+      "sha256": "4e0928b70761f6afba342f359b94752491bfa85eeb345d3c9c4ce80ff2d550c3"
+    },
+    {
+      "path": "backend/migrations/versions/0009_p4_clarification.py",
+      "sha256": "c9970169a2c54ab9f1c02c07f65d524289eb0f0583e72a09cb29589e36db24d2"
+    },
+    {
+      "path": "backend/migrations/versions/0010_p4_base_delivery.py",
+      "sha256": "882f677a627fba07967c748ce49f5e6fa09ea91066ee418d1d4c1b6800e103ab"
+    },
+    {
+      "path": "backend/migrations/versions/0011_p4_sdk_ledger.py",
+      "sha256": "ad295f7b433f083a31c09e9b387edb2bfa7f43cca196823eb478d2e7d475117b"
+    },
+    {
+      "path": "backend/migrations/versions/0012_p4_preflight_methods.py",
+      "sha256": "54223898cfaaa53972331e4c663b393e853d309ed91b609002d8eff14ef8b2eb"
+    },
+    {
+      "path": "backend/migrations/versions/0013_p4_first_create.py",
+      "sha256": "91054dec14376709c6e67054c9380ef17c5b49a49a34a3bc77f55f89ce6f5f4f"
+    },
+    {
+      "path": "backend/src/commerceops/__init__.py",
+      "sha256": "3e97d82394d331116a9fa233b46dc017729a0c142d4d468d7650004b6d51f508"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/__init__.py",
+      "sha256": "bd19d019ffdd5cf4a9174e20550c65781e298c95d126599269269c5a39377953"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/commerce/__init__.py",
+      "sha256": "fdae6bbab8528f3dabe2a97ab02ef03aee2ebe6548dcbb72e8e7c551a3a53bb7"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/commerce/deepseek_routing.py",
+      "sha256": "55e0ac45b3801c7450916b6f423e7b448c4ffe29d5b9bc6b66c15774678cfe89"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/commerce/mock.py",
+      "sha256": "fd7c748e2e85ed98f7fa9e6a485b1349b36890926c7b7eb552dfdacd205ebcd4"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/__init__.py",
+      "sha256": "7385fe0d0a38e5fe037bad2ded7dddd3f15ff46818b5b681d60a67100bb1fa87"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_base.py",
+      "sha256": "a27ade63b4691e458e351f2173a36d0eb810ce8c4b8d51f6de5a68de5b330f12"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_cards.py",
+      "sha256": "431028fef0954514e39c64996c15a01edd07ecd8cf6ad7ed3364970e42603f9a"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_config.py",
+      "sha256": "1dda1ace3a4808a701b8d1a4f797e095b07591cf6dc91d91ca0193decef1e515"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_factory.py",
+      "sha256": "74abb19a406d18d12b6eff149733b72383cfe32f99e0925695c190e1ac9b2622"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_gateway.py",
+      "sha256": "a143451b9286818e0ca46f55ba7043b063b0338db82da6bb82a1667857ceab6d"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_im.py",
+      "sha256": "2cb862e944df4e08b4169a9ff36b72eab6558f916faf59a0e41100868149c7ec"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/business_preflight.py",
+      "sha256": "39d7d3808c3d2cde3140b9d5e1fe51c51e38db957eaba69106413218d3d67a4f"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/contracts.py",
+      "sha256": "e9499543305f3f2f8407ed9c0d4e3fe2f1ac90e10740f9ae007d41e49f860436"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/ledgered_sdk.py",
+      "sha256": "1f2888682e1ccc2279177005fb4c803755fd6de5beecc9d67eba3547a8298d4d"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/projection_contract.py",
+      "sha256": "9c5e56c02efd8ae3ca3050dd4278612dc60bf6c8f3ea90196e4a3c7800487b4e"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/projection_rules.py",
+      "sha256": "f3d648267f352c95b6b188c50404fd28af448b13652021ef5f6e2bfd737f8cf5"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/repository.py",
+      "sha256": "32b725ddd74376a65ab30e5cccdc9b15ea2f4118c0c036229f9157032fa8e1bd"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/feishu/sdk.py",
+      "sha256": "e1c7f6f15bc163a03f3269f9d74a3048c02a1bd69844796f33a709906a602967"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/model_explanation/__init__.py",
+      "sha256": "121da7dcc3badb086e2ddb741d07465ee5e7c070d52fcfbaf620ac4d08ed78a6"
+    },
+    {
+      "path": "backend/src/commerceops/adapters/model_explanation/deepseek.py",
+      "sha256": "29984156eacca0fab97f5225c1faf615b071e8437217554c4c2857e872b99f20"
+    },
+    {
+      "path": "backend/src/commerceops/application/__init__.py",
+      "sha256": "f0604e056b1fcebdce03ba3528929e92bab19465ee5e9493911cdf74a9a72df2"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/__init__.py",
+      "sha256": "7016938c80d5a22f39fe66f2cd67d14b85fe8ba556478fdb340c05a05a10a37f"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/analysis_task.py",
+      "sha256": "ff3da5897e39fca219d8872afe239cd4d5a341f82c9bd9d4867e9b883ce5a733"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/collection.py",
+      "sha256": "2195df130a0294792ca583f7cacd543b235a9b9dc1fe8c2c00e2455f9135f6da"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/contracts.py",
+      "sha256": "dfa4ca71ffcb6c7d92f907201b7a851fa2bf40d3c4b254e62edceeb394afda70"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/explanation_read.py",
+      "sha256": "8467ac8a775cd43d381c4c7b67b91818d50726a4b512abcf3dfbeb6b058835dd"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/explanation_task.py",
+      "sha256": "5fd97aa14debf3019721c84d3333862252d79be4c82d805c7af95f04fceb376d"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/intent_task.py",
+      "sha256": "0d519d6096efe4b70f7b2be844b04bf91db5f2da0c90d1e00a06621cfd92a454"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/inventory_analysis.py",
+      "sha256": "dec0c5fb043940b3582a932087cae198bca2c4474214f0ffe6ca9697cda6a33f"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/inventory_facts.py",
+      "sha256": "7e82d92dc2d8f89aef979b6000f4d035fde3c6142c9343c25bd5a7e4ac399baa"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/inventory_routing.py",
+      "sha256": "1ed3b64c6e8480a373aecc930e1db7815f517d47ec8f5c2b510e036c1fe5bde9"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/ports.py",
+      "sha256": "2f90d2c4c4fbae513eef6f39eba373a9d88ca8c9e52bdcb229387d3f2edaa16c"
+    },
+    {
+      "path": "backend/src/commerceops/application/commerce/read_models.py",
+      "sha256": "e4d5f5bd3dfbca50b60cf627a224b47a35783e52476bef75f759474addc43612"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/__init__.py",
+      "sha256": "1b2c7d1bd2985da57fb2055905eff71bd505ccf1440aa32c629ee604f21cf0c4"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/clarification.py",
+      "sha256": "303c719ece7f41ea81c9bb52ae0e3db4345c28fec8bdeed65ddc78926c88fe12"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/contracts.py",
+      "sha256": "65b1aced7340473c784c6427b5ac4783c2b97df295c58bdf69a9de1c36a7e99b"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/delivery.py",
+      "sha256": "f0729a38c78655d19443a8b972a1e5f688319b26c627f600de655584f0c9b780"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/gateway_window.py",
+      "sha256": "54ee3cb5ad7e05305b633e398da6040ac0328cf66b9b87fe48a57a0146044df3"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/im_delivery.py",
+      "sha256": "33c13d96c0de85df1438379ffe65e7a159f670029dcdd103b83fadfa70addf7e"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/mock_shop.py",
+      "sha256": "c53721c30b18179c3795c70bf5ca8a4f44eb06bd89290f67bf8ef8216c71536c"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/preflight_window.py",
+      "sha256": "b497dff99f642c834eab5f1655c1a7effc0f313828ed1fef6be0eed21deac2a3"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/recovery.py",
+      "sha256": "fedd2cc9fc9f985b2c860acb13ca6f7ec44da42e2d5fa5043328dce24e99cf6b"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/sdk_calls.py",
+      "sha256": "ffdd81b2f2d9d3e177f2b36a26f6b433bff87fe3a3a38f5d279311a6fbad179f"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/sdk_window.py",
+      "sha256": "42509f06c26b56441138f271cbe1ffbb58db823a457684b4dde86571653fa158"
+    },
+    {
+      "path": "backend/src/commerceops/application/feishu_business/worker_window.py",
+      "sha256": "ebe03e4743043c61a5762b40452c55087f196cac696c5ca57067a3e779a5ca80"
+    },
+    {
+      "path": "backend/src/commerceops/application/intake.py",
+      "sha256": "303977c609088dec35f74d43a95877261448ca4570e5fba21663c4573c69626a"
+    },
+    {
+      "path": "backend/src/commerceops/application/model_explanation/__init__.py",
+      "sha256": "83cd5496edbdd178068153aee4c998a7ff8f6fe65f0aac19f548a5266b7af376"
+    },
+    {
+      "path": "backend/src/commerceops/application/model_explanation/contracts.py",
+      "sha256": "867f7249d8b3d63d34168ca0398fbd2d612c543e79b73faa55b187d8b527a4a8"
+    },
+    {
+      "path": "backend/src/commerceops/application/model_explanation/service.py",
+      "sha256": "8d1a1da50fe5146fa2e9cb4aeeebff94b965282fdf39abe090b26e108af27237"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/__init__.py",
+      "sha256": "533b7076c2b57c87d762f53bb8c35fbe22bf84c2ad97f36822ae2b3c7b84fce5"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/contracts.py",
+      "sha256": "5bedec121da9c8b915bd71358099adce309f2526937799d52d2edcbaefc6fdf4"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/decisions.py",
+      "sha256": "ae08e3c8dd9688bada46b32407bfe0e50f6ee343044b86f41dd24264a1575d76"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/execution.py",
+      "sha256": "c5bb39019c7267ad750f7053089b639034ad7a594aa45cdb953e76954dd0911d"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/nl_preflight.py",
+      "sha256": "b98d0328dbdcf46ebc02bc7de57aa88695e3b673049c30d37ad7ea62aca3e1c6"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/planning.py",
+      "sha256": "e239f950566d65cd22fe93fd528f2934b93c4c63886a2e58cea57086cfa85304"
+    },
+    {
+      "path": "backend/src/commerceops/application/replenishment/security.py",
+      "sha256": "98d1d809f90ff7eabcd96d52f3eb196da52799cac32f1962471fc59ab38f0016"
+    },
+    {
+      "path": "backend/src/commerceops/application/runner.py",
+      "sha256": "7d0c65d9a8079d3f4579ce8793bfb58f60a56e3d2db8fde0ee481ac22146ee86"
+    },
+    {
+      "path": "backend/src/commerceops/assets/__init__.py",
+      "sha256": "c46ae8790deebce6b1b34364b4befa2047fcd4b60d85d978d5d4c7334f26f16b"
+    },
+    {
+      "path": "backend/src/commerceops/assets/p3-web-v1.openapi.json",
+      "sha256": "4ee713f30fcd052be78eb6497a72323ace81f2c9bda5d7c0bb1510d9a2a537c2"
+    },
+    {
+      "path": "backend/src/commerceops/assets/p4-n01-web-v1.openapi.json",
+      "sha256": "b9dd7f6175489899b6a69a2109dd2116e637c326d098e041e63e71cab2ca06ef"
+    },
+    {
+      "path": "backend/src/commerceops/domain/__init__.py",
+      "sha256": "fef792e016f19109b6f3b5451847f067a7e97b8625ed1f298e4eeacabc956959"
+    },
+    {
+      "path": "backend/src/commerceops/domain/commerce_values.py",
+      "sha256": "a1ec1daa796a5c28dd78d75af5549c0bd7f5f88abb0267d6f743fe07463f777e"
+    },
+    {
+      "path": "backend/src/commerceops/domain/inventory_rules.py",
+      "sha256": "1e175fb4a8b52befed82e4f5368efc53a738d7995b8ee56ae13cb0be91d6fd64"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/__init__.py",
+      "sha256": "09416d555ccfbf78dc611e662fb384dfc18b9b04f14dbcda7f988e7a21287d4b"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/api.py",
+      "sha256": "834f3feccc62b3068c4ff9f519b032813d12b6762b8a97418b9a69d652a205ef"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/database.py",
+      "sha256": "b3d3debf72e0aa79f6410852683656405a1afd2d7239fc584ed1a35bf82947c4"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/explanation_http.py",
+      "sha256": "9055cf89812641b901be7388376e95b1464809cb0dd957361e45d76a1553135d"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/feishu_business.py",
+      "sha256": "ab1128532907b41879f9d7949f2e75336dbb911fc82f8e26385d0941792dc8e6"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/feishu_gateway_child.py",
+      "sha256": "6bdd7b2a3a3aae516269cbef708911895def3b261cacdc3594bda5413b5d4fd7"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/feishu_worker_child.py",
+      "sha256": "5036c1abba2bed31581fed2812c7d46e074da626972f53a9f9834b113f5d099c"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/inventory_http.py",
+      "sha256": "1412ad52ef0647f000c7e7467871cced1d0ec939d107727202a21762655f757d"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/replenishment_http.py",
+      "sha256": "ff50ef605e744bb81ad891ea69076fa12d84557c64322280d251774bc8c032a1"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/web_openapi.py",
+      "sha256": "348a42ed836e2af93cd7a5ca9d650bda006ec624a43f6ce6286ab21bd7d567d9"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/__init__.py",
+      "sha256": "2783b81ae353bc1580c42c5f7722851d5ebf55c22fa9bc9adc930137fa99dd64"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/approval_decisions.py",
+      "sha256": "78e27978ce00047e8a586263132b910120264941725e7199a601bb2c22a0470c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/approval_recovery.py",
+      "sha256": "f35a3c6add2b0a3002521356adf25d069e88aca0b59b6bc17f701e9c1196f3ba"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/checkpoint.py",
+      "sha256": "915d4276a4ba252f27f86f2438b893b50f71db3bedce387d9611ba329ba1c80c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/checkpoint_probe.py",
+      "sha256": "8807f67a2543a08f9b77d548c557f12338c36995bca9a7f2528f2aafd65c0e2f"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/config.py",
+      "sha256": "d1b035d05f123839112be6a3710fcfa6dc6c2087cfcd75d96db2ee5258d3bc97"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/database.py",
+      "sha256": "235e58e0fef545e081f29fa9643c0499558429481eb6c861e0684d2b74b2d109"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/explanation_repository.py",
+      "sha256": "e32e7495ff10ae1809eb1f3a92b82826ada8d72a8557585a153687406d0a70e5"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_base_delivery.py",
+      "sha256": "87d9a3fbf7cd12508ae998135d9e6fbfe4a76c8bb4e69ebc6e2ce80d22272d12"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_business.py",
+      "sha256": "5c34f121c1197bacc8b380ec95c3f6ffb641fb72fa6e2be03d75c1f9a8129a9c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_delivery_read.py",
+      "sha256": "6d48f838117aca7dfc1dc217ed64c7963a31a839a4b71bff1e5399c9e45f81d7"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_first_create_recovery.py",
+      "sha256": "e75c92e13450c19cdc5cb62da55986c6790de09ec153f11363bcaac1b3371675"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_gateway_window.py",
+      "sha256": "c2f8b9c4b3b3de0de92c5ed6ce44cea135bfbe353415c81fb2cbd26d507cffd3"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_im_delivery.py",
+      "sha256": "76d4a5e2d299bc7763801b67543494e637f261d22d1aba4678f71a0cdf4a3b4e"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_outbox_recovery.py",
+      "sha256": "ccf5adaf808a83b6829ebbcd1e6874006ff86b150aa735307ffcf017bcee8c00"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_sdk_ledger.py",
+      "sha256": "250d3b8aced1a8c0d45e50c641eeb5fcb436766283feda506a20c768ff265c09"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/feishu_workflow_recovery.py",
+      "sha256": "94efdfc586b0eb743a9f981e69729e316d6f64572ce3f6477e0dca8e4fd90e1d"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/intake.py",
+      "sha256": "3d174b45457f9283a9fe54674df92578ac8eb06873125bd826ff9211b077bc62"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/intent_repository.py",
+      "sha256": "a8a5e4e6d2c5c8ea5335313b32a1fad56fbc4db11c28e8042f06413bb10a72e5"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/inventory_repository.py",
+      "sha256": "09674144d3e5f540f169b3cf14655878473256e9af1774ec48da568842c7f6be"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/model_budget_repository.py",
+      "sha256": "1e93c0f2846a758558807149f1cbf013487bec2c33c095adfb5de85f834d2114"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/model_probe_config.py",
+      "sha256": "dd26c3437458f2ddba67756adc174df553ff45ee70fb5b5696a0e986fd978840"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/p204_token_counter.py",
+      "sha256": "a12b3cd9db0adcaffb6715d74b529315c71e998b8a465334a2282c64d86dc963"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/queue.py",
+      "sha256": "7d51b74a7ecaf1e3877f66c139e9782d84dea34fcc82fad299711a46097ed421"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_execution.py",
+      "sha256": "c1b5836531c34675aa4592edbd093a531f3e33a9532768ecb934fd0aaae1df51"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_items.py",
+      "sha256": "6491b13d60a40e0f5bfa0a0f1fa9e4568597c62e80a78b29c6a261abc55a976c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_projection.py",
+      "sha256": "c27f97383d55861982c3488f4c388d0f4fe9d1ba51e622eb749c8b30057412d5"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_read.py",
+      "sha256": "9875a3133860edfae87d84240808f935150355a628f28ecc312e607e3eabcead"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/replenishment_repository.py",
+      "sha256": "36ab74aaee1a577ab95e585cd0e48aab86aceafdb73595418ae3215d607cac86"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/repository.py",
+      "sha256": "54f0b1570a324f0d637aea592a2b3afc968651143dc1a509ebe6a38fabd2192b"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/token_assets/LICENSE.deepseek",
+      "sha256": "1c8f573e830ca9b3ebfeb7ace1823146e22b66f99ee223840e7637c9e745e1c7"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/token_assets/README.md",
+      "sha256": "558b001223da8aeee2ab76bd5e698de559f59383be6ba1f7c7b8c1579099e083"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/token_assets/dsv41.json.gz",
+      "sha256": "b560c0d1f2d08871d9588b054d1e4f63338da5007da5fcccdf9bbdaff01f677c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/web_config.py",
+      "sha256": "a7a6c7a434e64efc8857316549995978501e909a428d1bf08b8a22bd02bf9f3e"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/web_preflight.py",
+      "sha256": "01d028067964e2ea99e74fa545b42be5f6e6a413dc6db335dc1780653e3c52e5"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/web_sessions.py",
+      "sha256": "726638f623c8081ed3b92718f67c9249eee3c0e03ace587b4348e3fd329df781"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/worker.py",
+      "sha256": "c610a9dce6cddefe4a0380b33a7cd0821f2432ecd9d690b04b595e8264127431"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/worker_lock.py",
+      "sha256": "01bd77244789aa1f3cefeb73b80416c5c04e37814aa666eea940f1d019c94080"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/__init__.py",
+      "sha256": "328233eafa3b6ce6751b090684490b2fab1ed142d6de5f1e29eed8d62ea68b6b"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/checkpoint_probe.py",
+      "sha256": "ef8013f239b9b5f63980e559795d84ea008454b4d6d3648d0a37ff007450f8ad"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/inventory_analysis.py",
+      "sha256": "45609a7c5f8489f9a74eb436b74b62a93b6e887fb5b77748f360e28c93582dc0"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/inventory_routing.py",
+      "sha256": "c88ddcc0205e60ca9787c6b7f38efa4eb1cf8b82def58117c56974e31bdbe45e"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/replenishment.py",
+      "sha256": "7b29e3e1b5d1f513550e57fecc0aaee21dd71fb210401b924e9930e6e290bb67"
+    },
+    {
+      "path": "backend/src/commerceops/workflows/report_explanation.py",
+      "sha256": "34e3177ceccf4e2187c5f9ead2ca3b0041637030990706fb38c9ab06c54a3227"
+    },
+    {
+      "path": "tests/__init__.py",
+      "sha256": "95e3da7057050ede6ff847f0b80562287deebfac82d65b7c82677aae77740bee"
+    },
+    {
+      "path": "tests/checkpoint_process.py",
+      "sha256": "441cde9d78d2349add9292f7dd288d4d45aaba99cf00c8e9c6a213707605c786"
+    },
+    {
+      "path": "tests/checkpoint_support.py",
+      "sha256": "bfe9666b0a9345a8432ab39a2e23781a4fb67f8c79b3217f69713085be4001f2"
+    },
+    {
+      "path": "tests/diagnostic_plugin.py",
+      "sha256": "34bc542a004e829ed630abcd89a426c8c4133451446e95270fb0f4c2e1dcdf61"
+    },
+    {
+      "path": "tests/e2e/web/live_item_worker.py",
+      "sha256": "871db916a3faf2273f5f1cd6dfcf9c04910e3318849093067eafd1f7d9160bdd"
+    },
+    {
+      "path": "tests/e2e/web/live_origins.py",
+      "sha256": "cb3fdb569a4b35d3d7e0680b94e82d441a53fa8acf3fd9cde60c1bff7937c6c4"
+    },
+    {
+      "path": "tests/fixtures/commerce/inventory-v1/datasets.json",
+      "sha256": "effe2ee1e94525254dee88bcb430213d40b6760dbf79a999798c7e7400f88aba"
+    },
+    {
+      "path": "tests/fixtures/commerce/inventory-v1/goldens.json",
+      "sha256": "a350ed9e7ce991080ede12b8c520becd86fbf62df1c8bdbaeea328992788ef36"
+    },
+    {
+      "path": "tests/fixtures/commerce/inventory-v1/manifest.json",
+      "sha256": "20abbb8f8a131749e19978f2d919dfc9cc3fc5182b3789ce69c3f6f19fda90c3"
+    },
+    {
+      "path": "tests/inventory_process.py",
+      "sha256": "14a76ad1e4dd79e2f5f02c116d13d15f89f859c03816433c885f253f3bd62964"
+    },
+    {
+      "path": "tests/inventory_support.py",
+      "sha256": "a325d1b2101c2b6ff71b103fda7453a1120dd2aa828ae176747baed1759caeeb"
+    },
+    {
+      "path": "tests/p3_process.py",
+      "sha256": "aa91a721055fbd4702f5ed0e23f1e89e997ebef4acdd795c0d06e6bb4040eb73"
+    },
+    {
+      "path": "tests/p3_support.py",
+      "sha256": "66c26783702289f26bfc0f0a34f21b399221a881f8dea1da3a6968801d0afa36"
+    },
+    {
+      "path": "tests/p4_demo_factory.py",
+      "sha256": "752fd7a82b68fc0ff210ecb733651594372cabc737985de3b11e3ae7ab5a18ac"
+    },
+    {
+      "path": "tests/p4_recovery_support.py",
+      "sha256": "820accae0c322d1350da69cb2d6dc0f70574bd0be4adb42110c7a556115e9425"
+    },
+    {
+      "path": "tests/pg_support.py",
+      "sha256": "49a2cdbb1c1c8e3e7e809f292bd98f9084c6a6d1aa19083116edfa3abb486179"
+    },
+    {
+      "path": "tests/test_p3_approval_pg.py",
+      "sha256": "b96079e5135328fc479933fee603c4409641e1f34fa5b43cd781f33d1861df65"
+    },
+    {
+      "path": "tests/test_p3_execution_pg.py",
+      "sha256": "c782610dd3bf88e62530dfc043767ea518db857dc935412d9bb182f36dc596d4"
+    },
+    {
+      "path": "tests/test_p3_execution_recovery_pg.py",
+      "sha256": "6926dcb9aa0b7dfc9f5d899cdf9d95d8f65d2c348d6251bc1452b12cdd9a35af"
+    },
+    {
+      "path": "tests/test_p3_pg.py",
+      "sha256": "5f9effa40dfa5e96ab018766ce0d84831d0d715b2d6ac15798135999dd69c0e0"
+    },
+    {
+      "path": "tests/test_p4_a08_identity_pg.py",
+      "sha256": "9850fa70b90e3d565efacabd4649abaa43d9e27d23adaf72803d01af2a795c69"
+    },
+    {
+      "path": "tests/test_p4_a08_workflow_pg.py",
+      "sha256": "fada55acbe9250867dda0c88c16587813257d970097c8388b933a70e9da325bd"
+    },
+    {
+      "path": "tests/test_p4_a09_workflow_pg.py",
+      "sha256": "0d687a333c207259fb53ad9fd5903864755276e41cb113ef9f4561a8de9db516"
+    },
+    {
+      "path": "tests/test_p4_base_adapter.py",
+      "sha256": "df0ff1411383f0baaad340e7fcc72f6d5b7feb880ac54dfd62c4cd1d01d9abf8"
+    },
+    {
+      "path": "tests/test_p4_base_contract.py",
+      "sha256": "7a06be43f9b133b233691b455b56f5d2282be08026b8c205442dde294e59c20d"
+    },
+    {
+      "path": "tests/test_p4_base_reconciliation.py",
+      "sha256": "59f58abfe1fb42929d1b1512816bcacfd3f0f334b3071bbd31d1b6e059d49084"
+    },
+    {
+      "path": "tests/test_p4_blank_records.py",
+      "sha256": "d309b2f48c328626c6654179f1de9d58d2c526cc6fb27772e87d7a6cb03029ac"
+    },
+    {
+      "path": "tests/test_p4_delivery_pg.py",
+      "sha256": "3f9cd3df9ad77a8e0a2f2fc579e18da883a04336571f263f4ed42e69cab76d53"
+    },
+    {
+      "path": "tests/test_p4_first_create_pg.py",
+      "sha256": "62ad3594756bfadb16ae3a4ea82895e4aaa1e8fa76c823d9c8b892c911c03561"
+    },
+    {
+      "path": "tests/test_p4_gateway_pg.py",
+      "sha256": "3bfca5c220ea3d8acf066e03f73508399118c1755ffac058159f865f2ce03e0b"
+    },
+    {
+      "path": "tests/test_worker_pg.py",
+      "sha256": "29ef64cf72149454a467285420fc87379984706da3de71ce8620d5805b380ec5"
+    },
+    {
+      "path": "tests/worker_process.py",
+      "sha256": "acd47723c3ee9c85da30c4fed226118b6c80980f1998861254d95b908fcb00ac"
+    }
+  ],
+  "entry_modules": [
+    "tests.p3_support",
+    "tests.p3_process",
+    "tests.test_p4_first_create_pg",
+    "commerceops.entrypoints.database"
+  ],
+  "generation": "git show exact bytes; recursive local imports and subprocess module literals; original migrations and inventory-v1 data; deterministic gzip mtime0/tar uid0; all package runtime OpenAPI/tokenizer data plus tokenizer license/provenance"
+}

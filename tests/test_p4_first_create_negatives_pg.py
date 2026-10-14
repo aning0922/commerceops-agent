@@ -25,7 +25,8 @@ from psycopg.errors import CheckViolation
 from psycopg.types.json import Jsonb
 
 from tests.diagnostic_plugin import emit
-from tests.p3_support import P3Fixture, initialize_p3
+from tests.p3_support import P3Fixture
+from tests.p4_legacy_c0_d97 import LegacyC0Failure, extract_legacy, run_legacy_c0
 from tests.p4_recovery_support import settings
 from tests.test_p3_pg import fixture as fixture
 from tests.test_p4_first_create_pg import original_c0
@@ -47,6 +48,12 @@ MigrationStage = Literal[
     "snapshot-after",
     "compare",
     "revision-check",
+    "migrate-current",
+    "snapshot-current",
+    "compare-current",
+    "grant-current",
+    "current-grant-check",
+    "current-revision-check",
     "cleanup-client",
     "cleanup-db",
     "cleanup-admin",
@@ -64,6 +71,12 @@ MIGRATION_STAGES: tuple[MigrationStage, ...] = (
     "snapshot-after",
     "compare",
     "revision-check",
+    "migrate-current",
+    "snapshot-current",
+    "compare-current",
+    "grant-current",
+    "current-grant-check",
+    "current-revision-check",
     "cleanup-client",
     "cleanup-db",
     "cleanup-admin",
@@ -300,13 +313,15 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
     fixture: P3Fixture,
     tmp_path: Path,
 ) -> None:
-    # 同本次新PG namespace另一个随机测试DB；不是原known70库或旧卷。
+    # 固定d97完整源码闭包在独立子进程真实创建原0012 C0，不借当前0014缓存。
     stage: MigrationStage = "prepare-migrations"
     reported = False
     try:
         migration_diag(stage)
+        historical = extract_legacy(tmp_path / "source-d97")
         old_migrations = tmp_path / "schema-0012"
-        shutil.copytree("backend/migrations", old_migrations)
+        first_create_migrations = historical / "backend/migrations"
+        shutil.copytree(first_create_migrations, old_migrations)
         (old_migrations / "versions/0013_p4_first_create.py").unlink()
         name = "p4_c0_preserve_" + uuid4().hex
         owner = fixture.inventory.owner.model_copy(update={"name": name})
@@ -323,73 +338,125 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 migration_diag(stage)
                 asyncio.run(setup_checkpointer(owner))
                 stage = "grant-runtime"
+                # 旧grant/init/C0及client close由固定d97子进程完整执行并分类。
+                run_legacy_c0(owner, app, tmp_path / "legacy-private", historical)
+
+                def snapshot() -> dict[str, tuple[int, str]]:
+                    with connect(owner) as db:
+                        names = db.execute("""SELECT schemaname,tablename FROM pg_tables
+                            WHERE schemaname IN ('business','checkpoints')
+                            AND tablename<>'alembic_version'
+                            ORDER BY schemaname,tablename""").fetchall()
+                        result = {}
+                        for row in names:
+                            rows = db.execute(
+                                sql.SQL("SELECT row_to_json(t)::text AS body FROM {} t").format(
+                                    sql.Identifier(row["schemaname"], row["tablename"])
+                                )
+                            ).fetchall()
+                            encoded = "\n".join(sorted(r["body"] for r in rows)).encode()
+                            result[row["schemaname"] + "." + row["tablename"]] = (
+                                len(rows),
+                                hashlib.sha256(encoded).hexdigest(),
+                            )
+                        return result
+
+                stage = "snapshot-before"
+                migration_diag(stage)
+                before = snapshot()
+                stage = "migrate0013"
+                migration_diag(stage)
+                migrate(owner, migrations=first_create_migrations)
+                stage = "snapshot-after"
+                migration_diag(stage)
+                after = snapshot()
+                stage = "compare"
+                migration_diag(stage)
+                assert after == before
+                stage = "revision-check"
+                migration_diag(stage)
+                with connect(owner) as db:
+                    assert db.execute(
+                        "SELECT version_num FROM business.alembic_version"
+                    ).fetchone() == {"version_num": "0013_p4_first_create"}
+                stage = "migrate-current"
+                migration_diag(stage)
+                migrate(owner)
+                stage = "snapshot-current"
+                migration_diag(stage)
+                current = snapshot()
+                stage = "compare-current"
+                migration_diag(stage)
+                assert set(current) - set(before) == {
+                    "business.p3_template_results",
+                    "business.p4_read_replies",
+                }
+                assert {key: current[key] for key in before} == before
+                assert current["business.p3_template_results"][0] == 0
+                assert current["business.p4_read_replies"][0] == 0
+                stage = "grant-current"
                 migration_diag(stage)
                 grant_runtime(owner)
-                stage = "initialize_p3"
+                stage = "current-grant-check"
                 migration_diag(stage)
-                legacy_private = tmp_path / "legacy-private"
-                legacy_private.mkdir(mode=0o700)
-                f = initialize_p3(owner, app, legacy_private)
-                try:
-                    stage = "original_c0"
-                    migration_diag(stage)
-                    with original_c0(f):
-
-                        def snapshot() -> dict[str, tuple[int, str]]:
-                            with connect(owner) as db:
-                                names = db.execute("""SELECT schemaname,tablename FROM pg_tables
-                                WHERE schemaname IN ('business','checkpoints')
-                                AND tablename<>'alembic_version'
-                                ORDER BY schemaname,tablename""").fetchall()
-                                result = {}
-                                for row in names:
-                                    rows = db.execute(
-                                        sql.SQL(
-                                            "SELECT row_to_json(t)::text AS body FROM {} t"
-                                        ).format(
-                                            sql.Identifier(row["schemaname"], row["tablename"])
-                                        )
-                                    ).fetchall()
-                                    encoded = "\n".join(sorted(r["body"] for r in rows)).encode()
-                                    result[row["schemaname"] + "." + row["tablename"]] = (
-                                        len(rows),
-                                        hashlib.sha256(encoded).hexdigest(),
-                                    )
-                                return result
-
-                        stage = "snapshot-before"
-                        migration_diag(stage)
-                        before = snapshot()
-                        stage = "migrate0013"
-                        migration_diag(stage)
-                        migrate(owner)
-                        stage = "snapshot-after"
-                        migration_diag(stage)
-                        after = snapshot()
-                        stage = "compare"
-                        migration_diag(stage)
-                        assert after == before
-                        stage = "revision-check"
-                        migration_diag(stage)
-                        with connect(owner) as db:
+                with connect(owner) as db:
+                    for table in ("p3_template_results", "p4_read_replies"):
+                        for privilege in ("SELECT", "INSERT"):
                             assert db.execute(
-                                "SELECT version_num FROM business.alembic_version"
-                            ).fetchone() == {
-                                "version_num": "0013_p4_first_create",
-                            }
-                except BaseException as error:
-                    migration_diag(stage, error)
-                    reported = True
-                    raise
-                finally:
-                    migration_diag("cleanup-client")
-                    try:
-                        f.client.close()
-                    except BaseException as error:
-                        migration_diag("cleanup-client", error)
-                        reported = True
-                        raise
+                                "SELECT has_table_privilege('commerceops_app',%s,%s) AS allowed",
+                                ("business." + table, privilege),
+                            ).fetchone() == {"allowed": True}
+                        for privilege in ("UPDATE", "DELETE", "TRUNCATE"):
+                            assert db.execute(
+                                "SELECT has_table_privilege('commerceops_app',%s,%s) AS allowed",
+                                ("business." + table, privilege),
+                            ).fetchone() == {"allowed": False}
+                    for column in (
+                        "status",
+                        "attempts",
+                        "claimed_by",
+                        "first_attempt_at",
+                        "message_id",
+                        "last_error",
+                    ):
+                        assert db.execute(
+                            "SELECT has_column_privilege('commerceops_app',"
+                            "'business.p4_read_replies',%s,'UPDATE') AS allowed",
+                            (column,),
+                        ).fetchone() == {"allowed": True}
+                    assert db.execute(
+                        "SELECT has_column_privilege('commerceops_app',"
+                        "'business.p4_read_replies','payload','UPDATE') AS allowed"
+                    ).fetchone() == {"allowed": False}
+                    assert db.execute(
+                        "SELECT rolsuper,rolcreatedb,rolcreaterole FROM pg_roles "
+                        "WHERE rolname='commerceops_app'"
+                    ).fetchone() == {
+                        "rolsuper": False,
+                        "rolcreatedb": False,
+                        "rolcreaterole": False,
+                    }
+                stage = "current-revision-check"
+                migration_diag(stage)
+                with connect(owner) as db:
+                    assert db.execute(
+                        "SELECT version_num FROM business.alembic_version"
+                    ).fetchone() == {"version_num": "0015_p4_read_replies"}
+                emit(
+                    "c0_migration_preserved",
+                    source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
+                    original_tables=len(before),
+                    original_rows=sum(v[0] for v in before.values()),
+                    checkpoints=before["checkpoints.checkpoints"][0],
+                    new_tables_empty=2,
+                    original_all_bytes_equal=True,
+                    first_create_head="0013_p4_first_create",
+                    current_head="0015_p4_read_replies",
+                    current_grants_verified=True,
+                )
             except BaseException as error:
+                if isinstance(error, LegacyC0Failure):
+                    reported = True  # 子进程已分类原历史失败，不能冒称当前API失败。
                 if not reported:
                     migration_diag(stage, error)
                     reported = True
