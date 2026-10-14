@@ -852,3 +852,16 @@ Root在[Issue42#6138319062](https://github.com/aning0922/commerceops-agent/issue
 首 collect0、7+2、8+1，随后同 PID WorkerSession拒绝的10+1，以及 caps JSON DDL误识别迁移失败0业务等分层完整保留；原门禁未减、事实细节和有界资源/停止/源码 hash 见 [BC02 合同](contracts/p4-bc02-template-read.md)。全部本批容器0；首collect工具默认清理仅本轮新卷，后续全保卷与private凭据，原 known70/旧资源不读不迁移不启。原 v4/TOCTOU/PermissionError unknown 保持 HOLD。
 
 待 Root/Core 新精确独审、原 C 普通集成、精确 CI，之后真实 IM另由Root具体窗口放行；未push/改PRbody/main/关Issue。M1/完整BC02/P4仍未正式验收，main/Issues/原D1/D30/300h/P450h/人工H-L not_reported与旧证据不重置。clarification编号仍待用户，本批不碰F02，其他UX hold。
+
+
+## 52. 原入站与后续 sender 分离的只读恢复候选
+
+2026-10-14：原3f/五项已核Hosted事实不签本批新源码。Root/Core核005原key Create1 returned200/code0与upperACKdrop1、PG unknown attempts2/C1/anchor0；不是完整读回。原sender started/stopped/parent termination各唯一与OS absence已核，但原approved_outbox单Gateway时间合同无法承接后续sender，准备HOLD及提取错误原字节保留。
+
+本候选区分origin与sender可信lineage，原receipt/source/actor/approval/execution绑定不改；真实approved_workflow_claimed、sender Gateway/SDK/C历史及终止先后重核。新路径仅单原v1只读caps≤10，Graph/job/IM/provider不执行，完整唯一15字段读回后由原PG协调器写anchor/verified。旧sameGateway/C0、权限/键/迁移/锁/前端/CI保护不削弱。详见[RO合同](contracts/p4-sender-readonly-recovery.md)。
+
+全新owned PG首12新节点通过、末夹具设置失败；首helper实际删本轮合成卷，保卷表述已更正。原09:02:09Z截止内同project重建第二轮14必要节点通过，08:53:58Z停PostgreSQL；08:57:45Z完成18已登记stopped容器普通rm，容器/网络0、重建卷保留。最新auth/decision/cap/span补强与最终新PG两节点仍待精确独审/新CI，不代签；本批无PG第三段、实际平台/AppSecret/provider0，旧原库/资产0访问。
+
+源码/privatebranch/相关offline/doc检查与局部commit以最终freeze为准；不预填未跑PG或真实RO通过，不push/main/关Issue。P4/M1仍未据本候选验收，原main/日期/300h/P450h/H-L/18页与历史失败不重置。
+
+作者最终offline检查1806 passed/480 integration排除/4 warnings/103.19s，仓库Ruff/417文件format/type310/Markdown103通过，current/index/history首扫描均0。实际PG与最新源码缺口仍按上段分列，纯检查不替平台或PG；private Fake与候选提交结果由外置最终freeze记账。

@@ -7,12 +7,15 @@ from psycopg.types.json import Jsonb
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
-from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+from commerceops.application.feishu_business.worker_window import (
+    FIRST_CREATE_CAPS,
+    ControlledWorkerWindow,
+)
 from commerceops.domain.commerce_values import facts_hash
 from commerceops.infrastructure.feishu_base_delivery import item_snapshot
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.web_config import WebConfig
-from commerceops.infrastructure.worker_lock import open_async
+from commerceops.infrastructure.worker_lock import open_async, require_process_absent
 
 
 def receipt_hash(row: dict[str, Any]) -> str:
@@ -74,7 +77,11 @@ async def trusted_recovery_scope(
             """SELECT id,after_state,occurred_at FROM business.audit_events
             WHERE id=ANY(%s) AND organization_id=%s AND source='feishu_gateway'
             AND action='gateway_start_claimed' AND entity_type='gateway_window'""",
-            ([recovery.original_gateway_id, window.gateway_window_id], window.organization_id),
+            (
+                [recovery.original_gateway_id, window.gateway_window_id]
+                + ([] if recovery.sender_gateway is None else [recovery.sender_gateway.gateway_id]),
+                window.organization_id,
+            ),
         )
         claims = {row["id"]: row for row in await cur.fetchall()}
         old = claims.get(recovery.original_gateway_id)
@@ -123,8 +130,60 @@ async def trusted_recovery_scope(
             < new["occurred_at"]
         ):
             denied()
+        sender_claim, sender_gateway = old, original
+        if recovery.sender_gateway is not None:
+            lineage = recovery.sender_gateway
+            candidate = claims.get(lineage.gateway_id)
+            if not candidate or facts_hash(candidate["after_state"]) != lineage.gateway_hash:
+                denied()
+            sender_claim = candidate
+            sender_gateway = GatewayWindow.model_validate_json(
+                json.dumps(
+                    {
+                        key: sender_claim["after_state"].get(key)
+                        for key in GatewayWindow.model_fields
+                    }
+                )
+            )
+            if (
+                sender_claim["after_state"] != claimed_state(sender_gateway)
+                or (sender_gateway.organization_id, sender_gateway.shop_id)
+                != (window.organization_id, window.shop_id)
+                or sender_gateway.parameters != original.parameters
+                or sender_gateway.max_workflows != 0
+                or not ended[0]["occurred_at"] < sender_claim["occurred_at"]
+            ):
+                denied()
+            cur = await db.execute(
+                """SELECT id,action,after_state,occurred_at FROM business.audit_events
+                WHERE organization_id=%s AND source='feishu_gateway'
+                AND entity_type='gateway_runtime' AND entity_id=%s
+                AND (action='started' OR id=%s)""",
+                (window.organization_id, str(lineage.gateway_id), lineage.termination_id),
+            )
+            sender_runs = await cur.fetchall()
+            sender_starts = [row for row in sender_runs if row["action"] == "started"]
+            sender_ends = [
+                row
+                for row in sender_runs
+                if row["action"] == "termination_confirmed" and row["id"] == lineage.termination_id
+            ]
+            if (
+                len(sender_starts) != 1
+                or len(sender_ends) != 1
+                or not full_process_receipt(sender_starts[0]["after_state"])
+                or sender_ends[0]["after_state"].get("process") != sender_starts[0]["after_state"]
+                or sender_ends[0]["after_state"].get("child_reaped") is not True
+                or type(sender_ends[0]["after_state"].get("child_exit")) is not int
+                or not sender_claim["occurred_at"]
+                <= sender_starts[0]["occurred_at"]
+                <= sender_ends[0]["occurred_at"]
+                < new["occurred_at"]
+            ):
+                denied()
+            require_process_absent(sender_starts[0]["after_state"])
         cur = await db.execute(
-            """SELECT id,action,after_state,occurred_at FROM business.audit_events
+            """SELECT id,action,after_state,reason,occurred_at FROM business.audit_events
             WHERE organization_id=%s AND source='worker' AND entity_type='worker_runtime'
             AND entity_id=%s AND action IN ('started','stopped','termination_confirmed')""",
             (window.organization_id, str(recovery.worker_owner)),
@@ -144,13 +203,24 @@ async def trusted_recovery_scope(
             or len(confirmations) != 1
             or not full_process_receipt(starts[0]["after_state"])
             or starts[0]["after_state"] != stops[0]["after_state"]
-            or not old["occurred_at"]
+            or not sender_claim["occurred_at"]
             <= starts[0]["occurred_at"]
             <= stops[0]["occurred_at"]
             <= confirmations[0]["occurred_at"]
             < new["occurred_at"]
         ):
             denied()
+        if recovery.sender_gateway is not None:
+            if (
+                not full_process_receipt(confirmations[0]["after_state"])
+                or not confirmations[0]["reason"]
+                or any(
+                    confirmations[0]["after_state"][key] != starts[0]["after_state"][key]
+                    for key in ("host", "pid_namespace")
+                )
+            ):
+                denied()
+            require_process_absent(starts[0]["after_state"])
         cur = await db.execute(
             """SELECT t.version,t.state,t.active_plan_id,t.normalized_request,t.requester_id,
             s.parameters,p.content,p.plan_hash AS content_hash,p.version AS stored_plan_version,
@@ -241,12 +311,104 @@ async def trusted_recovery_scope(
             or sdk["organization_id"] != window.organization_id
             or sdk["shop_id"] != window.shop_id
             or sdk_window_hash(sdk) != recovery.original_sdk_window_hash
-            or not old["occurred_at"]
+            or not sender_claim["occurred_at"]
             <= sdk["created_at"]
             < sdk["expires_at"]
-            <= original.expires_at
+            <= sender_gateway.expires_at
         ):
             denied()
+        if recovery.sender_gateway is not None:
+            cur = await db.execute(
+                """SELECT after_state,occurred_at FROM business.audit_events
+                WHERE id=%s AND organization_id=%s AND source='feishu_recovery'
+                AND action='approved_workflow_claimed' AND entity_type='sdk_window'""",
+                (recovery.original_sdk_window_id, window.organization_id),
+            )
+            sender_authorization = await cur.fetchone()
+            if not sender_authorization:
+                denied()
+            sender = ControlledWorkerWindow.model_validate_json(
+                json.dumps(sender_authorization["after_state"])
+            )
+            workflow = sender.workflow_recovery
+            if (
+                sender.profile != "approved_first_create"
+                or workflow is None
+                or sender.first_create != recovery.projections[0]
+                or sender.window_id != sdk["id"]
+                or sender.gateway_window_id != sender_gateway.window_id
+                or (sender.organization_id, sender.shop_id)
+                != (window.organization_id, window.shop_id)
+                or sender.task_ids != window.task_ids
+                or not sender.enabled
+                or sender.expires_at != sdk["expires_at"]
+                or sender.caps != sdk["method_caps"]
+                or set(sender.caps) - set(FIRST_CREATE_CAPS)
+                or any(
+                    not 1 <= cap <= FIRST_CREATE_CAPS[method] for method, cap in sender.caps.items()
+                )
+                or sender.caps.get("auth.v3.tenant_access_token.internal") != 1
+                or sender.caps.get("bot.v3.info") != 1
+                or sender.caps.get("bitable.v1.app_table_record.create") != 1
+                or workflow.original_gateway_id != recovery.original_gateway_id
+                or workflow.original_gateway_hash != recovery.original_gateway_hash
+                or workflow.gateway_termination_id != recovery.gateway_termination_id
+                or workflow.task_id != recovery.task_id
+                or workflow.task_version != recovery.task_version
+                or workflow.inbox_id != recovery.inbox_id
+                or workflow.receipt_hash != recovery.receipt_hash
+                or workflow.approval_id != recovery.approval_id
+                or workflow.decision_id != recovery.decision_id
+                or workflow.decision_payload_hash != task["decision_payload_hash"]
+                or workflow.execution_id != recovery.execution_id
+                or workflow.operator_auth_version != recovery.operator_auth_version
+                or workflow.target_key != recovery.target_key
+                or workflow.worker_window_id != sender.window_id
+                or workflow.gateway_window_id != sender.gateway_window_id
+                or workflow.expires_at != sender.expires_at
+                or not sender_starts[0]["occurred_at"]
+                <= starts[0]["occurred_at"]
+                <= sender_authorization["occurred_at"]
+                <= sdk["created_at"]
+                or sdk["created_at"] > stops[0]["occurred_at"]
+                or sdk["created_at"] >= sender_ends[0]["occurred_at"]
+            ):
+                denied()
+            cur = await db.execute(
+                """SELECT status,http_status,provider_code,started_at FROM business.p4_sdk_calls
+                WHERE window_id=%s AND subject_id=%s AND task_id IS NULL AND scope_kind='preflight'
+                AND method='auth.v3.tenant_access_token.internal'""",
+                (sdk["id"], sdk["id"]),
+            )
+            authentication = await cur.fetchall()
+            if (
+                len(authentication) != 1
+                or authentication[0]["status"] != "returned"
+                or authentication[0]["http_status"] != 200
+                or authentication[0]["provider_code"] != 0
+                or not sdk["created_at"]
+                <= authentication[0]["started_at"]
+                <= stops[0]["occurred_at"]
+            ):
+                denied()
+            from commerceops.infrastructure.feishu_workflow_recovery import (
+                approval_binding_hash,
+                task_binding_hash,
+            )
+
+            cur = await db.execute(
+                """SELECT t.*,s.source_task_id,s.parameters,s.config_version
+                FROM business.business_tasks t JOIN business.p3_task_sources s ON s.task_id=t.id
+                WHERE t.id=%s""",
+                (recovery.task_id,),
+            )
+            bound_task = await cur.fetchone()
+            if (
+                not bound_task
+                or task_binding_hash(bound_task) != workflow.task_binding_hash
+                or approval_binding_hash(task) != workflow.approval_binding_hash
+            ):
+                denied()
         for projection in recovery.projections:
             cur = await db.execute(
                 """SELECT d.*,o.request_hash,o.payload AS original_payload,
@@ -327,6 +489,40 @@ async def trusted_recovery_scope(
                 )
                 if not await cur.fetchone():
                     denied()
+            if recovery.sender_gateway is not None:
+                cur = await db.execute(
+                    """SELECT window_id,status,http_status,provider_code,started_at
+                    FROM business.p4_sdk_calls WHERE subject_id=%s
+                    AND method='bitable.v1.app_table_record.create'""",
+                    (projection.outbox_id,),
+                )
+                history = await cur.fetchall()
+                cur = await db.execute(
+                    "SELECT count(*) AS n FROM business.p4_base_links WHERE item_id=%s",
+                    (projection.item_id,),
+                )
+                anchor = await cur.fetchone()
+                if (
+                    len(history) != 1
+                    or history[0]["window_id"] != sdk["id"]
+                    or history[0]["status"] != "returned"
+                    or history[0]["http_status"] != 200
+                    or history[0]["provider_code"] != 0
+                    or not sdk["created_at"] <= history[0]["started_at"] < sdk["expires_at"]
+                    or history[0]["started_at"] > sender_ends[0]["occurred_at"]
+                    or item["status"] != "open"
+                    or item["version"] != 1
+                    or delivery["status"] not in {"unknown", "verified"}
+                    or claim
+                    and (
+                        delivery["attempts"] != 2
+                        or delivery["last_operation"] != "create"
+                        or delivery["external_id"] is not None
+                        or not anchor
+                        or anchor["n"] != 0
+                    )
+                ):
+                    denied()
         if claim:
             await db.execute(
                 """INSERT INTO business.audit_events(id,organization_id,task_id,source,action,
@@ -349,5 +545,9 @@ async def trusted_recovery_scope(
                 (window.window_id, window.organization_id),
             )
             bound = await cur.fetchone()
-            if not bound or bound["after_state"] != window.model_dump(mode="json"):
+            expected = window.model_dump(mode="json")
+            legacy = json.loads(json.dumps(expected))
+            if recovery.sender_gateway is None:
+                legacy["recovery"].pop("sender_gateway", None)
+            if not bound or bound["after_state"] not in (expected, legacy):
                 denied()

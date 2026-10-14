@@ -10,6 +10,7 @@ import pytest
 from commerceops.application.feishu_business.recovery import ApprovedOutboxRecovery
 from commerceops.application.feishu_business.worker_window import (
     GROUP20_CAPS,
+    READONLY_RECOVERY_CAPS,
     RECOVERY_CAPS,
     ControlledWorkerWindow,
 )
@@ -18,6 +19,67 @@ from commerceops.infrastructure.worker import Worker
 from tests.test_p4_controlled_worker import configured
 
 pytestmark = pytest.mark.offline
+
+
+def readonly_value() -> tuple[Any, dict[str, Any]]:
+    settings, window, _ = configured()
+    value = window.model_dump(mode="json")
+    recovery = recovery_value()
+    recovery.update(
+        worker_window_id=str(window.window_id),
+        gateway_window_id=str(window.gateway_window_id),
+        expires_at=window.expires_at.isoformat(),
+        task_id=str(next(iter(window.task_ids))),
+        sender_gateway={
+            "gateway_id": str(uuid4()),
+            "gateway_hash": "b" * 64,
+            "termination_id": str(uuid4()),
+        },
+    )
+    value.update(profile="approved_outbox", caps=dict(READONLY_RECOVERY_CAPS), recovery=recovery)
+    return settings, value
+
+
+def test_sender_lineage_readonly_window_has_five_methods_total10() -> None:
+    settings, value = readonly_value()
+    checked = ControlledWorkerWindow.model_validate_json(json.dumps(value))
+    assert dict(checked.window(settings).caps) == dict(READONLY_RECOVERY_CAPS)
+    assert sum(checked.window(settings).caps.values()) == 10
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        "bitable.v1.app_table_record.create",
+        "bitable.v1.app_table_record.update",
+        "im.v1.message.create",
+    ],
+)
+def test_sender_lineage_rejects_every_remote_write_cap(method: str) -> None:
+    settings, value = readonly_value()
+    value["caps"][method] = 1
+    with pytest.raises(PermissionError):
+        ControlledWorkerWindow.model_validate_json(json.dumps(value)).window(settings)
+
+
+@pytest.mark.parametrize("change", ["origin", "new", "two", "v2", "extra", "wrong_profile"])
+def test_sender_lineage_closed_dto_binding(change: str) -> None:
+    settings, value = readonly_value()
+    recovery = value["recovery"]
+    if change in ("origin", "new"):
+        recovery["sender_gateway"]["gateway_id"] = recovery[
+            "original_gateway_id" if change == "origin" else "gateway_window_id"
+        ]
+    elif change == "two":
+        recovery["projections"].append(dict(recovery["projections"][0]))
+    elif change == "v2":
+        recovery["projections"][0]["version"] = 2
+    elif change == "extra":
+        recovery["sender_gateway"]["untrusted"] = True
+    else:
+        value["profile"] = "known70"
+    with pytest.raises((ValueError, PermissionError)):
+        ControlledWorkerWindow.model_validate_json(json.dumps(value)).window(settings)
 
 
 def recovery_value() -> dict[str, Any]:

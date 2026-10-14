@@ -54,6 +54,13 @@ RECOVERY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
 FIRST_CREATE_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
     {**RECOVERY_CAPS, "bitable.v1.app_table_record.create": 1}
 )
+READONLY_RECOVERY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {
+        method: cap
+        for method, cap in RECOVERY_CAPS.items()
+        if method != "bitable.v1.app_table_record.update"
+    }
+)
 
 
 class ControlledWorkerWindow(BaseModel):
@@ -84,6 +91,8 @@ class ControlledWorkerWindow(BaseModel):
             "approved_workflow": GROUP20_CAPS,
             "approved_first_create": FIRST_CREATE_CAPS,
         }[checked.profile]
+        if checked.recovery is not None and checked.recovery.sender_gateway is not None:
+            ceilings = READONLY_RECOVERY_CAPS
         remaining = (
             (checked.expires_at - datetime.now(UTC)).total_seconds()
             if checked.expires_at.utcoffset() is not None

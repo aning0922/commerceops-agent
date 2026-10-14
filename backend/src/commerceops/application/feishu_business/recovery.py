@@ -18,6 +18,16 @@ class RecoveryProjection(BaseModel):
     request_hash: str = Field(pattern="^[a-f0-9]{64}$")
 
 
+class SenderGatewayLineage(BaseModel):
+    """后续首写者的真实Gateway；不替代原入站来源。"""
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    gateway_id: UUID
+    gateway_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    termination_id: UUID
+
+
 class ApprovedOutboxRecovery(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
 
@@ -46,6 +56,7 @@ class ApprovedOutboxRecovery(BaseModel):
     approver_auth_version: int = Field(ge=1)
     target_key: str = Field(min_length=1, max_length=100, repr=False)
     projections: tuple[RecoveryProjection, ...] = Field(min_length=1, max_length=2, repr=False)
+    sender_gateway: SenderGatewayLineage | None = None
 
     @model_validator(mode="after")
     def original_pair(self) -> "ApprovedOutboxRecovery":
@@ -56,6 +67,12 @@ class ApprovedOutboxRecovery(BaseModel):
             or len({p.item_id for p in self.projections}) != 1
             or len({p.outbox_id for p in self.projections}) != len(self.projections)
             or len({p.client_token for p in self.projections}) != len(self.projections)
+            or self.sender_gateway is not None
+            and (
+                tuple(p.version for p in self.projections) != (1,)
+                or self.sender_gateway.gateway_id
+                in (self.original_gateway_id, self.gateway_window_id)
+            )
         ):
             raise ValueError("P4_RECOVERY_ORIGINAL_PAIR_REQUIRED")
         return self
