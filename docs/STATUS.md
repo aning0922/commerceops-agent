@@ -931,3 +931,13 @@ F02a14/tree87e功能冻结后Root原Core独审无P1/P2、独立59pure通过；�
 唯一代码修正仅scripts.pg_diagnostic：保原完整collection/自然大模块、quality六业务模块和approval14分片，将同phase3分区的完整小模块按每批最多20节点串行共用一次pytest进程；不拆模块挑node、不混分区，不增框架/job/Worker，也不更改预算、fixture TTL或任何业务断言。首pure7fail/55pass是既有按模块数量/label预期需同步，新边界测试首OLD排序1fail/63pass分别保留，修正测试预期后159相关pure/9.26s通过；新增保护验证20节点边界、大模块/quality不拆、完整一次覆盖、跨批仍用同绝对截止。新分组运行仍单命令300s、总23min/75reserve/60cleanup及失败即停；safe-report按新精确planned group核每node actual/pass、source/tree/tools/locks/union/G1/G2/cleanup全部保留。
 
 完整collect499/原497集合全部保留，仅F022新node，quality300/phase3199/交集0。最新Ruff与319文件type通过，最终文档/format/敏感扫描与精确source以本轮冻结回执交原CoreCI增量审核。PG额度已关闭，不以本5节点替完整499或宣称新合批实际执行通过；未经Root不push/触CI/取消/改PRbody/main/关Issue。F02产品a14/Base/RO/private bridge、迁移/grant/锁/Graph/Web0追加改；旧SDK/007/全M1/P4仍HOLD或pending，原日期/300h/P450h/H-L not_reported/18页不重置。
+
+## 59. 最小容量测量配置：用户批准的机器上限候选
+
+2026-10-15，北京。用户批准新的容量测量包，Root登记UTC10-14 16:48:25→17:18:25（北京00:48:25→01:18:25），不续旧诊断、不自动续期。原A从2d139669/tree d51e接续，只调整quality/phase3两条PG job的timeout-minutes 25→35及各自登记的绝对诊断timedelta 23→33；frontend/N01/pg-pair及所有其他YAML字段保持。35/33只表示本次允许机器测量的上限，未测出最低所需容量，也不保证CI成功；无账单/资源购买/权限变更。
+
+Root转述原Core只读核算：旧2d quality firstdiag→timeout1264.599s，G1 restart-healthy4.181s触command_timeout（该命令原上限75）；phase3 batch7 36.823s触command_timeout（原上限300），两者命中expires-75全局截止。此为截止事实，不归因为OOM或具体业务断言；499selected/497collected/483callpass保留，Web三批/N01six不能抵缺失G1和16节点。本批不重跑旧CI，不补写旧未执行结果。
+
+Root随后澄清“测试集合不改”是不增删node或放宽保护，允许现有tests/test_pg_diag_shutdown.py两条quality配置断言精确同步到35/33；只改两个常量，不动frontend/N01等25、300/75/60、exit/shutdown/collection/G1/G2断言。同步前实际157pass/2fail（9.06s），均为旧25/23常量不一致，保留失败事实。初始系统Python无yaml导致静态脚本0检查，改用原venv后配置结构核验通过：归一化四值后整个工作流与2d完全相等，两段登记Python AST/bash语法均有效。同步后同一相关pure159/159（8.98s）通过，原测试格式/Ruff及104文档/差异检查通过；敏感扫描、局部commit和冻结回执按实际结果交原Core，不重复全offline或加镜像测试。
+
+原两分区300+199=499/交集0、完整小模块合批、大模块/approval分片、每命令300、G1三/G2六、75秒预留和60秒cleanup/failclosed、source/tree/tools/locks/fullunion配对全部保持。helper/per-test业务实现/产品/迁移/权限/Graph/Worker/Base/private bridge/锁/测试集合均不改。本批无本地PG/Docker测试/SDK/Secret/旧库/provider/browser/真实平台，不push/触CI/改PRbody/main；原Core精确增量独审后由Root释放唯一完整精确CI，机器等待另计，再失败或清理异常立即停止。Base/007与旧卷/密钥/P1资产保留，P4/M1未结案，原日期/300h/P450h/人工H-L not_reported/18页保持。
