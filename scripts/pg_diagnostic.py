@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from scripts.pg_ci_evidence import identity, partition, safe_report
+from scripts.pg_ci_evidence import EXISTING_BUSINESS_MODULES, identity, partition, safe_report
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
 from scripts.prepare_pg import prepare
 
@@ -78,7 +78,41 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
                 groups[f"{label}-part-{offset // 14 + 1}"] = ordered[offset : offset + 14]
         else:
             groups[label] = group
-    return groups
+    # Hosted实证：phase3 20次pytest启动/collection前累计215.688s，末Gateway
+    # 仅余10.399s而尚未collect。合并同分区完整小模块，避免逐模块重启解释器。
+    # 大模块、quality原业务模块及approval 14节点分片保持；单命令仍300s。
+    business = {n for n in phase3 if n.split("::", 1)[0] not in EXISTING_BUSINESS_MODULES}
+    result: dict[str, list[str]] = {}
+    pending: list[tuple[str, list[str]]] = []
+    batch_number = 0
+
+    def flush() -> None:
+        nonlocal batch_number
+        if not pending:
+            return
+        if len(pending) == 1:
+            label, group = pending[0]
+            result[label] = group
+        else:
+            batch_number += 1
+            result[f"combined-phase3-batch-{batch_number}"] = [
+                node for _, group in pending for node in group
+            ]
+        pending.clear()
+
+    for label, group in groups.items():
+        if not set(group) <= business:
+            result[label] = group
+            continue
+        if len(group) > 20:
+            flush()
+            result[label] = group
+            continue
+        if sum(len(part) for _, part in pending) + len(group) > 20:
+            flush()
+        pending.append((label, group))
+    flush()
+    return result
 
 
 def run_combined(

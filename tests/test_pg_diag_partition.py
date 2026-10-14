@@ -33,15 +33,13 @@ def test_all_collected_nodes_run_once_in_serial_bounded_module_commands() -> Non
     pg_diagnostic.run_combined(records, report, command)
     assert [label for label, _, _ in commands] == [
         "combined-existing",
-        "combined-phase3-test_p3_migration_pg",
-        "combined-phase3-test_p3_pg",
+        "combined-phase3-batch-1",
     ]
-    assert [cap for _, _, cap in commands] == [300, 300, 300]
+    assert [cap for _, _, cap in commands] == [300, 300]
     assert set(actual_nodes) == set(OLD + P3) and len(actual_nodes) == len(set(actual_nodes))
     assert report["combined_counts"] == {
         "combined-existing": len(OLD),
-        "combined-phase3-test_p3_migration_pg": 1,
-        "combined-phase3-test_p3_pg": 1,
+        "combined-phase3-batch-1": len(P3),
     }
     assert "failed_target" not in report
 
@@ -163,8 +161,8 @@ def test_second_group_cannot_reset_shared_absolute_deadline(
     with pytest.raises(TimeoutError, match="absolute diagnostic deadline expired"):
         pg_diagnostic.run_combined(records, report, command)
     assert budgets == [275.0]
-    assert calls == ["combined-existing", "combined-phase3-test_p3_migration_pg"]
-    assert report["failed_target"] == "combined-phase3-test_p3_migration_pg"
+    assert calls == ["combined-existing", "combined-phase3-batch-1"]
+    assert report["failed_target"] == "combined-phase3-batch-1"
 
 
 def test_approval_and_future_execution_modules_follow_actual_collection_without_skips() -> None:
@@ -177,16 +175,14 @@ def test_approval_and_future_execution_modules_follow_actual_collection_without_
     assert list(groups) == [
         "combined-existing",
         "combined-phase3-test_p3_approval_pg",
-        "combined-phase3-test_p3_execution_pg",
-        "combined-phase3-test_p3_migration_pg",
-        "combined-phase3-test_p3_pg",
+        "combined-phase3-batch-1",
     ]
     flattened = [node for group in groups.values() for node in group]
     assert len(flattened) == len(nodes) and set(flattened) == set(nodes)
     assert all(
         len({node.split("::")[0] for node in group}) == 1
         for label, group in groups.items()
-        if label.startswith("combined-phase3-")
+        if label.startswith("combined-phase3-") and "batch-" not in label
     )
 
 
@@ -218,10 +214,10 @@ def test_p4_gateway_base_and_future_pg_modules_use_business_partition_with_origi
         return True
 
     pg_diagnostic.run_combined(records, {}, command, "phase3")
-    assert len(calls) == 4
+    assert len(calls) == 1
     assert sorted(actual) == sorted(P3 + p4)
     assert len(actual) == len(set(actual))
-    assert all(label.startswith("combined-phase3-") and len(paths) == 1 for label, paths in calls)
+    assert calls[0][0] == "combined-phase3-batch-1" and len(calls[0][1]) == 4
 
 
 @pytest.mark.parametrize("scope", ["existing", "phase3"])
@@ -256,4 +252,57 @@ def test_rebalanced_complete_modules_run_once_with_original_serial_300_cap(scope
     pg_diagnostic.run_combined(records, {}, command, scope)
     assert sorted(actual) == partition(nodes, scope)
     assert len(actual) == len(set(actual))
-    assert len(calls) == (7 if scope == "existing" else 2)
+    assert len(calls) == (7 if scope == "existing" else 1)
+
+
+def test_small_complete_modules_batch_at_20_without_splitting_large_or_quality_modules() -> None:
+    from scripts.pg_ci_evidence import partition
+
+    modules = {
+        "tests/test_p3_a_pg.py": 8,
+        "tests/test_p3_b_pg.py": 12,
+        "tests/test_p3_c_pg.py": 1,
+        "tests/test_p3_d_pg.py": 21,
+        "tests/test_p4_a_pg.py": 3,
+    }
+    nodes = OLD + [f"{path}::case_{n}" for path, count in modules.items() for n in range(count)]
+    nodes += [f"tests/test_p3_approval_pg.py::case_{n:02d}" for n in range(28)]
+    groups = pg_diagnostic.combined_groups(nodes[::-1])
+    assert sorted(groups["combined-existing"]) == sorted(OLD)
+    assert [len(v) for k, v in groups.items() if "approval_pg-part-" in k] == [14, 14]
+    assert len(groups["combined-phase3-batch-1"]) == 20
+    assert {n.split("::")[0] for n in groups["combined-phase3-batch-1"]} == set(list(modules)[:2])
+    assert len(groups["combined-phase3-test_p3_d_pg"]) == 21
+    assert sorted(n for v in groups.values() for n in v) == sorted(nodes)
+    for group in groups.values():
+        assert set(group) <= set(partition(nodes, "existing")) or set(group) <= set(
+            partition(nodes, "phase3")
+        )
+
+
+def test_later_phase3_batch_still_consumes_same_absolute_deadline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    nodes = OLD + [f"tests/test_p3_large_pg.py::case_{n}" for n in range(21)] + P3
+    records = [collection(nodes)]
+    cutoff, clock = 375.0, [100.0]
+    monkeypatch.setattr("scripts.pg_diag_shutdown.time.monotonic", lambda: clock[0])
+    budgets: list[float] = []
+    calls: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        calls.append(label)
+        budgets.append(pg_diag_shutdown.remaining(cutoff, cap))
+        records.append(collection([n for n in nodes if n.split("::")[0] in paths]))
+        if label != "combined-existing":
+            clock[0] = cutoff + 1
+        return True
+
+    with pytest.raises(TimeoutError):
+        pg_diagnostic.run_combined(records, {}, command)
+    assert budgets == [275.0, 275.0]
+    assert calls == [
+        "combined-existing",
+        "combined-phase3-test_p3_large_pg",
+        "combined-phase3-batch-1",
+    ]

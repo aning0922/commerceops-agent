@@ -85,7 +85,7 @@ def test_complete_dynamic_partitions_pair_and_export_only_closed_metadata() -> N
     assert set(a) == FIELDS and "records" not in a and "unexpected_raw" not in a
     assert a["full_node_ids"] == b["full_node_ids"] == sorted(FULL)
     assert a["actual_node_ids"] == sorted(OLD) and b["actual_node_ids"] == sorted(P3)
-    assert len(b["modules"]) == 2  # 从未来新模块动态派生。
+    assert len(b["modules"]) == 1  # 完整小模块合批，仍核每个实际node。
     verify_pair(a, b)
 
 
@@ -304,7 +304,7 @@ def test_p4_modules_are_in_the_paired_business_partition_without_losing_old_node
     verify_pair(a, b)
     assert a["actual_node_ids"] == sorted(OLD)
     assert b["actual_node_ids"] == sorted(P3 + p4)
-    assert len(b["modules"]) == 4
+    assert len(b["modules"]) == 1
 
 
 def test_six_complete_business_modules_move_with_approval_shards_and_exact_pair(

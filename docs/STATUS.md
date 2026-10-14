@@ -921,3 +921,13 @@ Root已核5b普通push及合成b288（parents main9d97+5b、tree892b一致）；
 本批未读旧库/实际业务输入/Secret/env，SDK/Factory真实初始化/provider/PG/新环境0。Base投影/RO/private bridge、迁移/grant/共享锁/CI/Graph/Web均0改；原parent与SDK child的新增F02分支保留原默认业务分支和其门槛。私有final-source af2eb/5b disabled字节保持，不随本产品新head更新。独审、499完整精确PG/CI和真人接线Gate待Root；M1/P4不据源码完成。原预算/日期/人工H-L not_reported/18页不重置。
 
 用户另批一次独立CI收口，必须在本F02源码/offline冻结后再登记T0→T0+45min；最多一新owned PG累计10min含清理，仅定位Gateway/sender及整分区耗时，明确证据才一次最小修正，原deadline/全节点/union/G1/G2/cleanup不减。此前尚未登记或使用该授权；不追溯计时，不续Base或真实SDK诊断。
+
+## 58. CI 独立有界收口：同分区完整小模块合批候选
+
+F02a14/tree87e功能冻结后Root原Core独审无P1/P2、独立59pure通过；原A随后才登记本窗口UTC15:28:49.557310→16:13:49.557310。旧5b精确Hosted失败证据完整保留：phase3在Gateway-window模块actual0、exit137且timed_out=true，14:25:39.342549→14:25:49.741126仅10.399s。前20个phase3 pytest启动至collection前累计215.688s，模块累计1214.322s，前155节点全pass；只证实共享绝对预算在这里耗尽，不冒称捕获了Gateway业务死锁/断言或给old unknown补成功。quality同源300节点通过，原G1三/G2六/cleanup保留。
+
+唯一新owned项目p4ci-close-25c6e2f8bb登记PG15:41:51.618240→15:51:51.618240，测试止15:50:36.618240/reserve75；同source只读backend/tests挂载+固定PYTHONPATH，复用5b已核镜像运行当前a14源码，不读取.env/旧凭据/原库。唯一5节点实际全pass，CLI84.685s、JUnit81.946s：Gateway1.867s，sender34.370/34.594s，F02完整链3.799s/unknown1.632s。新F02两个真实PG/ledger+Fake节点通过，仍不签真实SDK；本轮未单独捕获容器内每模块import路径/hash，挂载/调用新接口及host冻结hash证据按实际边界分列，不补开PG核hash。准备脚本首语法错误0资源/0test保留。最终15:44:27.954919 down不-v0/容器0/网络0/卷1保留，累计注册PG156.337s<600；Root已独立读closure SHA2ce1d259fabd00fae6d3865807e77dab2d4c900853c69b96dbd765adf9bbd7f0和JUnit。
+
+唯一代码修正仅scripts.pg_diagnostic：保原完整collection/自然大模块、quality六业务模块和approval14分片，将同phase3分区的完整小模块按每批最多20节点串行共用一次pytest进程；不拆模块挑node、不混分区，不增框架/job/Worker，也不更改预算、fixture TTL或任何业务断言。首pure7fail/55pass是既有按模块数量/label预期需同步，新边界测试首OLD排序1fail/63pass分别保留，修正测试预期后159相关pure/9.26s通过；新增保护验证20节点边界、大模块/quality不拆、完整一次覆盖、跨批仍用同绝对截止。新分组运行仍单命令300s、总23min/75reserve/60cleanup及失败即停；safe-report按新精确planned group核每node actual/pass、source/tree/tools/locks/union/G1/G2/cleanup全部保留。
+
+完整collect499/原497集合全部保留，仅F022新node，quality300/phase3199/交集0。最新Ruff与319文件type通过，最终文档/format/敏感扫描与精确source以本轮冻结回执交原CoreCI增量审核。PG额度已关闭，不以本5节点替完整499或宣称新合批实际执行通过；未经Root不push/触CI/取消/改PRbody/main/关Issue。F02产品a14/Base/RO/private bridge、迁移/grant/锁/Graph/Web0追加改；旧SDK/007/全M1/P4仍HOLD或pending，原日期/300h/P450h/H-L not_reported/18页不重置。
