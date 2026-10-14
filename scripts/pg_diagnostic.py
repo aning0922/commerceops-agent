@@ -211,7 +211,8 @@ def cleanup_registered_containers(
     if observed != set(names):
         raise RuntimeError("registered cleanup set unconfirmed")
     stage("remove-registered", len(ids), 0)
-    removed = capture(["docker", "rm", *ids], 5)
+    # 批量删除使用原cleanup剩余预算；capture仍取固定cleanup/总截止的较小值。
+    removed = capture(["docker", "rm", *ids], 60)
     confirmed = removed.stdout.splitlines()
     if len(confirmed) != len(set(confirmed)) or not set(confirmed) <= set(ids):
         raise RuntimeError("registered cleanup removal receipt unconfirmed")

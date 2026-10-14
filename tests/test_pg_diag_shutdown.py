@@ -300,9 +300,15 @@ def test_container_confirmation_requires_owner_and_successful_wait(case: str) ->
         "timeout",
         "duplicate-name",
         "duplicate-id",
+        "slow-removal",
+        "removal-timeout",
+        "expired-removal",
     ],
 )
-def test_registered_cleanup_batch_requires_every_owner_stopped_state_and_removal(case: str) -> None:
+def test_registered_cleanup_batch_requires_every_owner_stopped_state_and_removal(
+    case: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     names = ["p123-own-" + str(n) for n in range(29)]
     records: list[dict[str, Any]] = [
         {
@@ -327,15 +333,28 @@ def test_registered_cleanup_batch_requires_every_owner_stopped_state_and_removal
         records[-1]["Id"] = records[0]["Id"]
     commands: list[list[str]] = []
     stages: list[tuple[str, int, int]] = []
+    clock = [100.0]
+    cleanup_deadline = 160.0
+    limits: list[float] = []
+    monkeypatch.setattr("scripts.pg_diag_shutdown.time.monotonic", lambda: clock[0])
 
     def capture(command: list[str], seconds: float) -> subprocess.CompletedProcess[str]:
+        limit = remaining(cleanup_deadline, seconds)
         commands.append(command)
-        assert seconds == 5
+        limits.append(limit)
         if case == "timeout":
-            raise subprocess.TimeoutExpired("redacted", seconds)
+            raise subprocess.TimeoutExpired("redacted", limit)
         if command[1] == "inspect":
+            assert seconds == 5
+            clock[0] += 0.036
             return subprocess.CompletedProcess(command, 0, json.dumps(records), "")
+        assert seconds == 60
         assert command == ["docker", "rm", *[r["Id"] for r in records]]
+        if case in {"slow-removal", "removal-timeout"}:
+            duration = 6.0 if case == "slow-removal" else 61.0
+            clock[0] += min(duration, limit)
+            if duration > limit:
+                raise subprocess.TimeoutExpired("redacted", limit)
         ids = [r["Id"] for r in records]
         return subprocess.CompletedProcess(
             command,
@@ -346,17 +365,32 @@ def test_registered_cleanup_batch_requires_every_owner_stopped_state_and_removal
 
     def stage(name: str, verified: int, removed: int) -> None:
         stages.append((name, verified, removed))
+        if case == "expired-removal" and name == "remove-registered":
+            clock[0] = cleanup_deadline
 
-    if case == "valid":
+    if case in {"valid", "slow-removal"}:
         assert pg_diagnostic.cleanup_registered_containers(names, "p123-own", capture, stage) == 29
         assert len(commands) == 2 and stages[-1] == ("removed-registered", 29, 29)
+        assert limits == [5, pytest.approx(59.964)]
+        if case == "slow-removal":
+            assert clock[0] == pytest.approx(106.036) and clock[0] < cleanup_deadline
     else:
-        with pytest.raises(subprocess.TimeoutExpired if case == "timeout" else RuntimeError):
+        error = (
+            subprocess.TimeoutExpired
+            if case in {"timeout", "removal-timeout"}
+            else TimeoutError
+            if case == "expired-removal"
+            else RuntimeError
+        )
+        with pytest.raises(error):
             pg_diagnostic.cleanup_registered_containers(names, "p123-own", capture, stage)
-        assert len(commands) == (2 if case == "partial" else 1)
+        assert len(commands) == (2 if case in {"partial", "removal-timeout"} else 1)
         if case == "partial":
             assert stages[-1] == ("partial-removal", 29, 3)
-    assert all("--force" not in c and "-f" not in c for c in commands)
+        elif case in {"removal-timeout", "expired-removal"}:
+            assert stages[-1] == ("remove-registered", 29, 0)
+            assert clock[0] == cleanup_deadline
+    assert all("--force" not in c and "-f" not in c and "-v" not in c for c in commands)
 
 
 def test_registered_cleanup_empty_and_duplicate_names_never_delete() -> None:
