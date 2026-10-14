@@ -7,11 +7,12 @@ import sys
 from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 import pytest
 from commerceops.adapters.feishu.business_base import BusinessBaseAdapter
+from commerceops.adapters.feishu.projection_contract import ApiReply
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.sdk_window import SDKScope
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
@@ -41,6 +42,20 @@ from tests.test_p4_delivery_pg import due
 from tests.test_p4_sender_recovery_pg import prepared_sender
 
 pytestmark = pytest.mark.integration
+
+
+class ReaderRecords(RecordedRecords):
+    """新Fake调用用SDK response形状落ledger，再把ApiReply交adapter；不补写旧回执。"""
+
+    async def list(self, *args: Any, **kwargs: Any) -> ApiReply:
+        async def call() -> Any:
+            reply = await super(RecordedRecords, self).list(*args, **kwargs)
+            return SimpleNamespace(
+                raw=SimpleNamespace(status_code=reply.http_status), code=reply.code, reply=reply
+            )
+
+        response = await self.ledger.invoke("bitable.v1.app_table_record.list", call)
+        return cast(ApiReply, response.reply)
 
 
 def gate(window: ControlledWorkerWindow, *, explicit: bool) -> DeliveryGate:
@@ -82,7 +97,7 @@ async def failed_reader(
         rows = json.loads(rows_file.read_text())["rows"]
         # 新wire规则仍拒required缺失，制造真实失败RO3并保留真实ledger/audit/lifecycle。
         del rows[0]["fields"]["SKU"]
-        fake = RecordedRecords(ledger, rows=rows)
+        fake = ReaderRecords(ledger, rows=rows)
         store = BaseDeliveryStore(
             session,
             BusinessBaseAdapter(fake, {"test": ("fake", "fake")}),
@@ -250,6 +265,22 @@ def test_explicit_ro_single_consumption_concurrent_repeat_and_failure_spent(
                 trusted_scope(f.config, settings(f), other),
                 return_exceptions=True,
             )
+            from commerceops.infrastructure.feishu_outbox_recovery import ReaderStage
+
+            allowed = {s.value for s in ReaderStage} | {"P4_APPROVED_OUTBOX_RECOVERY_DENIED"}
+            safe = {
+                "successes": sum(r is None for r in results),
+                "exception_classes": [
+                    type(r).__name__ if isinstance(r, BaseException) else None for r in results
+                ],
+                "fixed_stage_codes": [
+                    str(r) if isinstance(r, PermissionError) and str(r) in allowed else None
+                    for r in results
+                ],
+            }
+            output = f.private / "manual-admission.safe.json"
+            output.write_text(json.dumps(safe, indent=2) + "\n")
+            output.chmod(0o600)
             assert sum(r is None for r in results) == 1
             assert sum(isinstance(r, PermissionError) for r in results) == 1
             return window if results[0] is None else other

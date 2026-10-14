@@ -1,6 +1,7 @@
 """在原PG/audit与单Worker锁下复核显式原键恢复；绝不重执行T4。"""
 
 import json
+from enum import StrEnum
 from typing import Any, NoReturn
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -67,11 +68,31 @@ def recheck_audit_id(outbox_id: UUID, *, dispatched: bool = False) -> UUID:
     return uuid5(NAMESPACE_URL, f"commerceops:p4:explicit-ro:{outbox_id}:{suffix}")
 
 
+class ReaderStage(StrEnum):
+    INPUT = "P4_RO_READER_INPUT"
+    CLAIM = "P4_RO_READER_CLAIM"
+    PRIOR = "P4_RO_READER_PRIOR"
+    BINDING = "P4_RO_READER_BINDING"
+    GATEWAY_CLAIM = "P4_RO_READER_GATEWAY_CLAIM"
+    GATEWAY_SCOPE = "P4_RO_READER_GATEWAY_SCOPE"
+    SENDER_END = "P4_RO_READER_SENDER_END"
+    WORKER_END = "P4_RO_READER_WORKER_END"
+    GATEWAY_END = "P4_RO_READER_GATEWAY_END"
+    SDK_WINDOW = "P4_RO_READER_SDK_WINDOW"
+    SDK_CALL = "P4_RO_READER_SDK_CALL"
+    SDK_REQUIRED = "P4_RO_READER_SDK_REQUIRED"
+    READBACK_RECEIPT = "P4_RO_READER_READBACK_RECEIPT"
+
+
+def reader_denied(stage: ReaderStage) -> NoReturn:
+    raise PermissionError(stage.value)
+
+
 async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: Any) -> None:
     """最近失败RO的独立可信链；不将reader owner绑定成原C sender。"""
     recovery = window.recovery
     if recovery is None or recovery.explicit_ro_recheck is None:
-        denied()
+        reader_denied(ReaderStage.INPUT)
     reader = recovery.explicit_ro_recheck
     cur = await db.execute(
         """SELECT after_state,occurred_at FROM business.audit_events WHERE id=%s
@@ -81,10 +102,10 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
     )
     authorization = await cur.fetchone()
     if not authorization or facts_hash(authorization["after_state"]) != reader.reader_claim_hash:
-        denied()
+        reader_denied(ReaderStage.CLAIM)
     prior = ControlledWorkerWindow.model_validate_json(json.dumps(authorization["after_state"]))
     if prior.recovery is None:
-        denied()
+        reader_denied(ReaderStage.PRIOR)
     expected = recovery.model_dump(mode="json")
     expected.update(
         worker_window_id=str(prior.window_id),
@@ -107,7 +128,7 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
         or prior.caps.get("auth.v3.tenant_access_token.internal") != 1
         or prior.caps.get("bot.v3.info") != 1
     ):
-        denied()
+        reader_denied(ReaderStage.BINDING)
     cur = await db.execute(
         """SELECT after_state,occurred_at FROM business.audit_events WHERE id=%s
         AND organization_id=%s AND source='feishu_gateway'
@@ -116,7 +137,7 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
     )
     gw_claim = await cur.fetchone()
     if not gw_claim or facts_hash(gw_claim["after_state"]) != reader.reader_gateway.gateway_hash:
-        denied()
+        reader_denied(ReaderStage.GATEWAY_CLAIM)
     gw = GatewayWindow.model_validate_json(
         json.dumps({k: gw_claim["after_state"].get(k) for k in GatewayWindow.model_fields})
     )
@@ -133,14 +154,14 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
         or gw.parameters.model_dump(mode="json") != origin["after_state"]["parameters"]
         or prior.expires_at > gw.expires_at
     ):
-        denied()
+        reader_denied(ReaderStage.GATEWAY_SCOPE)
     cur = await db.execute(
         "SELECT occurred_at FROM business.audit_events WHERE id=%s",
         (recovery.sender_gateway.termination_id if recovery.sender_gateway else None,),
     )
     sender_end = await cur.fetchone()
     if not sender_end or sender_end["occurred_at"] >= gw_claim["occurred_at"]:
-        denied()
+        reader_denied(ReaderStage.SENDER_END)
     cur = await db.execute(
         """SELECT id,action,after_state,reason,occurred_at FROM business.audit_events
         WHERE organization_id=%s AND source='worker' AND entity_type='worker_runtime'
@@ -174,7 +195,7 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
         <= ends[0]["occurred_at"]
         < new_claim_at
     ):
-        denied()
+        reader_denied(ReaderStage.WORKER_END)
     require_process_absent(starts[0]["after_state"])
     cur = await db.execute(
         """SELECT id,action,after_state,occurred_at FROM business.audit_events
@@ -204,7 +225,7 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
         <= gw_ends[0]["occurred_at"]
         < new_claim_at
     ):
-        denied()
+        reader_denied(ReaderStage.GATEWAY_END)
     require_process_absent(gw_starts[0]["after_state"])
     cur = await db.execute(
         "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (reader.reader_window_id,)
@@ -221,7 +242,7 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
         or not authorization["occurred_at"] <= sdk["created_at"] <= stops[0]["occurred_at"]
         or sdk["created_at"] >= gw_ends[0]["occurred_at"]
     ):
-        denied()
+        reader_denied(ReaderStage.SDK_WINDOW)
     cur = await db.execute(
         "SELECT * FROM business.p4_sdk_calls WHERE window_id=%s", (reader.reader_window_id,)
     )
@@ -245,11 +266,11 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
                 else (reader.reader_window_id, None, "preflight")
             )
         ):
-            denied()
+            reader_denied(ReaderStage.SDK_CALL)
     if counts.get("auth.v3.tenant_access_token.internal") != 1 or not counts.get(
         "bitable.v1.app_table_record.list"
     ):
-        denied()
+        reader_denied(ReaderStage.SDK_REQUIRED)
     cur = await db.execute(
         """SELECT after_state FROM business.audit_events WHERE organization_id=%s
         AND task_id=%s AND source='feishu_delivery' AND action='base_projection_checked'
@@ -275,7 +296,7 @@ async def trusted_reader(db: Any, window: ControlledWorkerWindow, new_claim_at: 
             "safe_code": "INCOMPLETE_READBACK",
         }.items()
     ):
-        denied()
+        reader_denied(ReaderStage.READBACK_RECEIPT)
 
 
 async def trusted_recovery_scope(

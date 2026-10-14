@@ -63,3 +63,17 @@ DB CHECK仍0..3，不迁移，不称DB attempt4。`explicit_ro_recheck`可选DTO
 候选commit与private程序freeze供Root/Core审阅，状态HOLD；精确独审、新CI与实际RO均pending。无push/CI/main/Issue关闭，不改变0015/55表schema/权限/审批/库存规则/前端/B/锁/CI或18页。原D1/D30/300h/P450h/H-L not_reported保持。
 
 最终当前源码完整offline1851pass/483deselected/4warnings/103.94s，Ruff通过/format419文件/type312/Markdown103均通过，实际六产品模块+一测试共七个import位置/hash与host完全相等。private adapter/r13 strict type两文件通过；private lint在既有E501/S101/S603/S607例外后仍有两处I001导入排序，按Root停止修复令保留，不记全绿。Root已确认预算spent，只交HOLD冻结给原Core只读审阅，无新PG/诊断/测试批；扫描与候选SHA在外置freeze核收。
+
+## 2026-10-14 人工批准一次续段的最新候选
+
+用户随后明确批准一次60min收口，Root释放原A同WT从F021137649冻结接续，T0 UTC13:05:49.310813→14:05:49.310813；一次定位+最多一次针对性修正验证，失败即停，作者PG≤15min/总≤20min/独审另预留5min、cleanup75s，不复活原窗口。上方budget spent/HOLD为当时历史；本候选仍待新精确独审/CI，不放行真实RO。
+
+生产wire仅非bool int与原规范数字串，全部float拒绝。普通整值float、近整数/高位小数经默认JSON decoder舍入后的float负例通过；没有Decimal/rawnumeric新层，int范围/字符串文法/nullable/完整分页/唯一key/全部值绑定不改。
+
+`trusted_reader`仅13个既有拒绝段加固定安全stage码，无DB值/ID/原异常文本，全部条件保留。新owned p4baserenew-c4a015eedb注册PG窗口13:10:19.080500→作者硬停13:25:19.080500：唯一定位真实PG捕获两个PermissionError/P4_RO_READER_SDK_CALL，当前新window SDK0；不是猜根因。核原Fake RecordedRecords返回ApiReply，但原ledger读取SDK `.raw.status_code`，所以Fake历史http_status=None。唯一针对性修正仅新reader夹具生成SDK-shaped Fake HTTP200/code0再交ApiReply给adapter，不追写旧行/失败资产，不改生产predicate或C1/anchor/hash/角色/终止/时间/caps。
+
+唯一验证18/18实际PG通过（341.91s）：3manual（含撤权）、10sameGateway/v1-v2、2sender/13拒绝子例、3C0；两manual并发准入各1success+1重复Permission拒绝，dispatcher单次/重复idle/缺required失败spent、automatic attempts3/recheck1、核心及CP不变、无新execution/key均核验。首定位1fail原样保留，之后无第三轮/新PG。新库实际0016/56表，app三高权限false，原known70/0015/55表0访问；不是将新库说成原55表。
+
+两轮均down不-v0/容器网络0/保卷，最后UTC13:22:11.697524退出，注册作者窗口累计712.617024s<900，独审资源另由Root指定，不保留在线项目。实际三产品模块+一测试+已冻结0016共五个hash匹配host，F02113所有13文件在Base事实导航追加前逐byte相同。完整1883offline/497deselected/4warnings/107.08s，相关107pure/3.39s，Ruff/format424/type316/Markdown104与敏感扫描分列；最终source/tree/private stage/计时/closure在外置freeze。
+
+本段未改F02字段/迁移/私有bridge/锁/CI/审批/Graph，未AppSecret/SDK/provider/平台/旧DB/push/main/关Issue。旧a1864无效float规则和SDK_CALL失败不抹去；只新source独审+新精确CI后Root可另放实际RO，当前M1/P4/目标真实完整读回仍未验收。

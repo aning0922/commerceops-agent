@@ -1,6 +1,5 @@
 """纯错误/版本/回读策略；没有重试、调度、事务或业务状态修改。"""
 
-import math
 import re
 from enum import StrEnum
 from typing import Any, cast
@@ -19,15 +18,13 @@ MAX_WIRE_INTEGER = 2**53 - 1
 
 
 def wire_integer(value: Any) -> int:
-    """仅list接口两数字列：JSON整数/整值number/规范十进制字符串，无损且有界。"""
+    """仅两列非bool int/规范十进制字符串；float可能已被decoder舍入，一律拒绝。"""
     if type(value) is str:
         if not re.fullmatch(r"[1-9][0-9]{0,15}", value):
             raise ValueError("INVALID_BASE_WIRE_INTEGER")
         number = int(value)
     elif type(value) is int:
         number = value
-    elif type(value) is float and math.isfinite(value) and value.is_integer():
-        number = int(value)
     else:
         raise ValueError("INVALID_BASE_WIRE_INTEGER")
     if not 1 <= number <= MAX_WIRE_INTEGER:

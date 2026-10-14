@@ -889,3 +889,13 @@ offline首1847pass4fail/482deselected，required负例修正后1851pass/483desel
 作者相关87pure，完整1879offline/497deselected/105.16s，Ruff/format424/type316/MD104通过；首0test、历史d97集合1fail及随后33定向通过、1878完整与末1879分层保留。真实六产品+一测试import hash匹配host，0016末PG实际hash捕获；generic-api-key SQL误报仅等价换行，全部SQL去空白token相等，末PG后未重跑，前后hash在freeze分列。不冒末PG加载换行后字节，不修改扫描规则。
 
 仅Fake sender/ledger接线，正式Gateway/SDK child尚未装配，默认关；模型/Factory/Secret/平台IM/Base0。源码局部candidate commit与私有hash/closure交原Core，新独审/精确CI/真人Gate pending，不push/main/关Issue。原Base字节及private freeze、日期/300h/P450h/人工H-L/18页保持；不称F02/M1完整通过。
+
+## 55. Base 人工批准一次续段：新 PG 候选
+
+用户批准60min/PG总20min，Root原A从已冻结F021137649接续；T0 UTC13:05:49.310813→14:05:49.310813，一次定位+一次针对性修正验证。wire拒全部float，仅原int/规范数字串，无Decoder/Decimal层。reader13既有拒绝段固定安全stage、不含行值/ID，原全部校验保留。
+
+唯一新owned定位在真实PG捕获两个PermissionError/P4_RO_READER_SDK_CALL，当前window SDK0；原RecordedRecords Fake返回ApiReply，而ledger按SDK `.raw.status_code`读取，所以历史HTTP None。唯一修正只新reader产生正确SDK-shaped Fake，再交ApiReply；不重标旧receipt/owner/attempt/时间，不松生产scope/hash/roles/term/C1/anchor/caps。唯一18/18（341.91s）=3manual+10sameGateway+2sender+3C0，新manual各1准入/1重复拒绝，dispatcher单次/失败spent/并发零额外请求及原核心/CP/无重复execution/key通过。
+
+新项目p4baserenew-c4a015eedb，注册13:10:19.080500→作者13:25:19.080500（作者≤15min，Root独审另5min）；实际0016/56表/三高权限false，原known70/0015/55表0读写。两轮down不-v0/容器网络0/保卷，最终13:22:11.697524，注册窗口累计712.617024s；首次1fail保留，无第三轮。五实际source/import/migration hash匹配host，F02113全部13文件在Base导航追加前逐byte相同。
+
+完整1883offline/497deselected/4warnings/107.08s、相关107pure/3.39s，Ruff/format424/type316/MD104及三敏感扫描另分列，精确source/tree/阶段安全码/两轮计时和closure以外置freeze交原Core新复审/新CI。私有bridge/迁移/字段/锁/CI/审批/Graph不改，无SDK/Secret/provider/平台/push/main/Issue；目标真实完整RO/P4/M1仍pending，不拿旧45778CI或本Fake签真人。
