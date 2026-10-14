@@ -12,6 +12,7 @@ import { resolve } from "node:path";
 import { verifyReadResponse } from "../../../../frontend/lib/p3-live-client";
 import { explanationBound } from "../../../../frontend/lib/p3-present";
 import type { DTO } from "../../../../frontend/lib/p3-present";
+import { normalizedReason } from "../../../../frontend/lib/p3-item-contract";
 import {
   ownedEndpoints,
   assertOwnedListener,
@@ -121,6 +122,7 @@ test("真实永久执行与item状态/sync独立，20项分页与末项详情", 
 });
 test("真实T6 Unicode原因/原键回放：一次版本推进与原receipt，终态无重开", async () => {
   await withPage("approver", async (page) => {
+    const expectedReason = normalizedReason("\u001f内部跟进 e\u0301\ufeff\u0085")!;
     await page.goto(
       windowInfo.web_origin + "/replenishment-items/" + facts.resolve_item,
     );
@@ -137,6 +139,13 @@ test("真实T6 Unicode原因/原键回放：一次版本推进与原receipt，�
     await expect(
       page.getByText("内部跟进已记录", { exact: true }),
     ).toBeVisible();
+    const dialog = page.getByRole("dialog");
+    const resultLink = dialog.getByRole("link", {
+      name: "查看工作项结果与同步",
+      exact: true,
+    });
+    await expect(resultLink).toBeVisible();
+    await expect(resultLink).toBeFocused();
     await page.getByText("原请求技术详情与受控恢复", { exact: true }).focus();
     await page.keyboard.press("Enter");
     for (let n = 0; n < 9; n++) {
@@ -146,16 +155,45 @@ test("真实T6 Unicode原因/原键回放：一次版本推进与原receipt，�
       ).toBeEnabled();
     }
     await page.locator('[data-action="resolve-receipt"]').click();
-    await expect(page.getByRole("dialog")).toContainText("v2");
+    await expect(resultLink).toBeVisible();
+    await expect(resultLink).toBeFocused();
+    const technical = dialog.locator("details").filter({
+      has: page.getByText("原跟进回执技术详情", { exact: true }),
+    });
+    await technical.locator("summary").focus();
+    await page.keyboard.press("Enter");
+    await expect(technical).toHaveAttribute("open", "");
+    await expect(
+      technical.getByText(/^state completed · v2 · duplicate (?:true|false)$/),
+    ).toBeVisible();
     await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    const summary = page.locator("[data-item-summary]");
+    await expect(summary).toBeVisible();
+    await expect(summary).toBeFocused();
+    await expect(summary).toContainText("已完成");
+    await expect(summary).toContainText("当前版本 v2");
+    await expect(page.getByRole("main")).toContainText("原动作 complete");
+    await expect(page.getByRole("main")).toContainText(expectedReason);
+    await expect(page.getByRole("main")).toContainText("版本 v1 → v2");
     await expect(page.getByText("终态只读", { exact: true })).toBeVisible();
     await expect(page.locator('[data-control="B26"]')).toHaveCount(0);
+    await expect(page.locator('[data-control="B27"]')).toHaveCount(0);
     await page.reload();
     await expect(page.locator('[data-control="B27"]')).toHaveCount(0);
   });
 });
 test("真实迟来同店approver可处理而来源隐藏；operator/admin不借审批/业务权", async () => {
   await withPage("late_approver", async (page) => {
+    const posts: string[] = [];
+    page.on("request", (request) => {
+      if (
+        request.method() === "POST" &&
+        request.url() ===
+          `${windowInfo.api_origin}/api/v1/replenishment-items/${facts.hidden_source_item}/resolve`
+      )
+        posts.push(request.method());
+    });
     await page.goto(
       windowInfo.web_origin +
         "/replenishment-items/" +
@@ -172,6 +210,40 @@ test("真实迟来同店approver可处理而来源隐藏；operator/admin不借�
     await expect(
       page.getByText("内部跟进已记录", { exact: true }),
     ).toBeVisible();
+    const dialog = page.getByRole("dialog");
+    const resultLink = dialog.getByRole("link", {
+      name: "查看工作项结果与同步",
+      exact: true,
+    });
+    await expect(resultLink).toBeVisible();
+    await expect(resultLink).toBeFocused();
+    const technical = dialog.locator("details").filter({
+      has: page.getByText("原跟进回执技术详情", { exact: true }),
+    });
+    await technical.locator("summary").focus();
+    await page.keyboard.press("Enter");
+    await expect(technical).toHaveAttribute("open", "");
+    await expect(
+      technical.getByText(/^state closed · v2 · duplicate false$/),
+    ).toBeVisible();
+    await resultLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(
+      `${windowInfo.web_origin}/replenishment-items/${facts.hidden_source_item}`,
+    );
+    await expect(dialog).toHaveCount(0);
+    const summary = page.locator("[data-item-summary]");
+    await expect(summary).toBeVisible();
+    await expect(summary).toContainText("已关闭");
+    await expect(summary).toContainText("当前版本 v2");
+    await expect(page.getByRole("main")).toContainText("原动作 close");
+    await expect(page.getByRole("main")).toContainText("仅内部关闭，来源按当前查看权受限");
+    await expect(page.getByRole("main")).toContainText("版本 v1 → v2");
+    await expect(page.getByRole("main")).toContainText("业务状态与同步独立");
+    await expect(page.getByText("终态只读", { exact: true })).toBeVisible();
+    for (const control of ["B26", "B27", "B37"])
+      await expect(page.locator(`[data-control="${control}"]`)).toHaveCount(0);
+    expect(posts).toEqual(["POST"]);
   });
   await withPage("operator", async (page) => {
     await page.goto(
