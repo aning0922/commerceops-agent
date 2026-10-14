@@ -44,8 +44,6 @@ jobs:
         run: python -m scripts.scan_secrets
       - name: Install locked Python environment
         run: uv sync --frozen
-      - name: Foundation checks
-        run: uv run --frozen python -m scripts.check
       - name: Real PostgreSQL migration setup constraints and persistence
         shell: bash
         run: |
@@ -108,6 +106,9 @@ jobs:
           run_before_cleanup python -m scripts.bootstrap_tools
           run_before_cleanup python -m scripts.scan_secrets
           run_before_cleanup uv sync --frozen
+          # Keep the complete foundation gate on this same source and deadline.
+          # quality starts its original PG partition without spending this budget first.
+          run_before_cleanup uv run --frozen python -m scripts.check
           test "$(node --version)" = v24.21.0
           test "$(npm --version)" = 11.19.0
           cd "$GITHUB_WORKSPACE/frontend"

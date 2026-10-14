@@ -28,7 +28,18 @@ def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
     triggers = data.get("on", data.get(True))
     assert triggers["pull_request"]["types"] == ["opened", "synchronize", "reopened", "edited"]
     steps = job["steps"]
-    assert sum(step.get("run") == "uv run --frozen python -m scripts.check" for step in steps) == 1
+    assert set(data["jobs"]) == {"quality", "phase3", "pg-pair", "frontend", "n01-web"}
+    foundation = [
+        (name, step)
+        for name, value in data["jobs"].items()
+        for step in value["steps"]
+        if "python -m scripts.check\n" in step.get("run", "")
+    ]
+    assert len(foundation) == 1 and foundation[0][0] == "n01-web"
+    assert "run_before_cleanup uv run --frozen python -m scripts.check\n" in foundation[0][1]["run"]
+    assert "if" not in foundation[0][1] and "continue-on-error" not in foundation[0][1]
+    assert all("scripts.check" not in step.get("run", "") for step in steps)
+    assert data["jobs"]["pg-pair"]["needs"] == ["quality", "phase3"]
     runs = [step for step in steps if "scripts.pg_diagnostic" in step.get("run", "")]
     assert len(runs) == 1
     command = runs[0]["run"]

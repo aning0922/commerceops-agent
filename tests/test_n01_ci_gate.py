@@ -45,6 +45,13 @@ def test_n01_deadline_fixed_before_checkout_and_only_verified_public_outputs() -
     preparation = next(s["run"] for s in steps if s.get("name", "").startswith("Prepare locked"))
     assert "COMMERCEOPS_N01_STOP_AT_UTC" in preparation and "- 85" in preparation
     assert "timeout --signal=TERM --kill-after=10" in preparation
+    foundation = "run_before_cleanup uv run --frozen python -m scripts.check"
+    assert preparation.count(foundation) == 1
+    assert preparation.index("run_before_cleanup uv sync --frozen") < preparation.index(foundation)
+    assert preparation.index(foundation) < preparation.index('cd "$GITHUB_WORKSPACE/frontend"')
+    assert preparation.index(foundation) < preparation.index("run_before_cleanup npm run build")
+    assert "fetch-depth" in steps[1]["with"] and steps[1]["with"]["fetch-depth"] == 0
+    assert "continue-on-error" not in value and "if" not in value
     runner = next(s["run"] for s in steps if s.get("id") == "n01")
     assert "tests.e2e.web.run_c09_n01" in runner and "--stop-at-utc" in runner
     assert runner.count("rm -f") == 1
