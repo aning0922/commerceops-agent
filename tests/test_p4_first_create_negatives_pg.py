@@ -390,17 +390,23 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 assert set(current) - set(before) == {
                     "business.p3_template_results",
                     "business.p4_read_replies",
+                    "business.p4_clarification_requests",
                 }
                 assert {key: current[key] for key in before} == before
                 assert current["business.p3_template_results"][0] == 0
                 assert current["business.p4_read_replies"][0] == 0
+                assert current["business.p4_clarification_requests"][0] == 0
                 stage = "grant-current"
                 migration_diag(stage)
                 grant_runtime(owner)
                 stage = "current-grant-check"
                 migration_diag(stage)
                 with connect(owner) as db:
-                    for table in ("p3_template_results", "p4_read_replies"):
+                    for table in (
+                        "p3_template_results",
+                        "p4_read_replies",
+                        "p4_clarification_requests",
+                    ):
                         for privilege in ("SELECT", "INSERT"):
                             assert db.execute(
                                 "SELECT has_table_privilege('commerceops_app',%s,%s) AS allowed",
@@ -428,6 +434,20 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                         "SELECT has_column_privilege('commerceops_app',"
                         "'business.p4_read_replies','payload','UPDATE') AS allowed"
                     ).fetchone() == {"allowed": False}
+                    columns = db.execute("""SELECT column_name,has_column_privilege(
+                        'commerceops_app','business.p4_clarification_requests',
+                        column_name,'UPDATE') AS allowed FROM information_schema.columns
+                        WHERE table_schema='business'
+                        AND table_name='p4_clarification_requests'""").fetchall()
+                    assert {row["column_name"] for row in columns if row["allowed"]} == {
+                        "round",
+                        "candidate",
+                        "candidate_hash",
+                        "state",
+                        "task_id",
+                        "confirmed_inbox_id",
+                        "updated_at",
+                    }
                     assert db.execute(
                         "SELECT rolsuper,rolcreatedb,rolcreaterole FROM pg_roles "
                         "WHERE rolname='commerceops_app'"
@@ -441,17 +461,17 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 with connect(owner) as db:
                     assert db.execute(
                         "SELECT version_num FROM business.alembic_version"
-                    ).fetchone() == {"version_num": "0015_p4_read_replies"}
+                    ).fetchone() == {"version_num": "0016_p4_clarification_requests"}
                 emit(
                     "c0_migration_preserved",
                     source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
                     original_tables=len(before),
                     original_rows=sum(v[0] for v in before.values()),
                     checkpoints=before["checkpoints.checkpoints"][0],
-                    new_tables_empty=2,
+                    new_tables_empty=3,
                     original_all_bytes_equal=True,
                     first_create_head="0013_p4_first_create",
-                    current_head="0015_p4_read_replies",
+                    current_head="0016_p4_clarification_requests",
                     current_grants_verified=True,
                 )
             except BaseException as error:

@@ -167,10 +167,18 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                     names += [
                         {"schemaname": "business", "tablename": "p3_template_results"},
                         {"schemaname": "business", "tablename": "p4_read_replies"},
+                        {"schemaname": "business", "tablename": "p4_clarification_requests"},
                     ]
                 return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
-                if "p3_template_results" in text or "p4_read_replies" in text:
+                if any(
+                    name in text
+                    for name in (
+                        "p3_template_results",
+                        "p4_read_replies",
+                        "p4_clarification_requests",
+                    )
+                ):
                     return SimpleNamespace(fetchall=lambda: [])
                 body = (
                     "different"
@@ -181,6 +189,21 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                     else "same"
                 )
                 return SimpleNamespace(fetchall=lambda: [{"body": body}])
+            if "information_schema.columns" in text:
+                run("current-grant-check")
+                columns = [
+                    {"column_name": name, "allowed": True}
+                    for name in (
+                        "round",
+                        "candidate",
+                        "candidate_hash",
+                        "state",
+                        "task_id",
+                        "confirmed_inbox_id",
+                        "updated_at",
+                    )
+                ] + [{"column_name": "origin_inbox_id", "allowed": False}]
+                return SimpleNamespace(fetchall=lambda: columns)
             if "has_table_privilege" in text or "has_column_privilege" in text:
                 run("current-grant-check")
                 if "has_column_privilege" in text:
@@ -200,7 +223,9 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             return SimpleNamespace(
                 fetchone=lambda: {
                     "version_num": (
-                        "0013_p4_first_create" if snapshots == 2 else "0015_p4_read_replies"
+                        "0013_p4_first_create"
+                        if snapshots == 2
+                        else "0016_p4_clarification_requests"
                     )
                 }
             )

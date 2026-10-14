@@ -899,3 +899,13 @@ offline首1847pass4fail/482deselected，required负例修正后1851pass/483desel
 新项目p4baserenew-c4a015eedb，注册13:10:19.080500→作者13:25:19.080500（作者≤15min，Root独审另5min）；实际0016/56表/三高权限false，原known70/0015/55表0读写。两轮down不-v0/容器网络0/保卷，最终13:22:11.697524，注册窗口累计712.617024s；首次1fail保留，无第三轮。五实际source/import/migration hash匹配host，F02113全部13文件在Base导航追加前逐byte相同。
 
 完整1883offline/497deselected/4warnings/107.08s、相关107pure/3.39s，Ruff/format424/type316/MD104及三敏感扫描另分列，精确source/tree/阶段安全码/两轮计时和closure以外置freeze交原Core新复审/新CI。私有bridge/迁移/字段/锁/CI/审批/Graph不改，无SDK/Secret/provider/平台/push/main/Issue；目标真实完整RO/P4/M1仍pending，不拿旧45778CI或本Fake签真人。
+
+## 56. 当前 schema 验收预期：测试修复候选
+
+2026-10-14，Root报告2f精确CI38573265163的quality已失败，其余作业继续自然执行、不取消或重跑。Root读取pg-existing artifact：combined-existing actual236/passed235/exit1，唯一actual-not-passed为`tests/test_postgres.py::test_revision_and_schema`，cleanup0/stopping true、G1未过/G2六保留。Root日志hash为8967f0f047762b64e699c36a1ce53ec48298dbe5fd06b224ea8afab6304810e4。原始CI未保assertion trace；本批只确认精确失败节点和源码仍assert0015/缺F02新表的事实，不称捕获实际revision行值或完整失败栈。
+
+本批仅三份必要tests及AGENTS/本事实文档。基础schema验收改为`0016_p4_clarification_requests`，原business全量精确集合只新增`p4_clarification_requests`，public为空/server/checkpoint migration检查保留。C0 forward测试仍从固定d97源码及0012构造旧数据，0013历史revision和旧表/CP全byte比较不变；其随后无revision参数的`migrate(owner)`验收当前head，精确新增三表均为空，并验证F02表SELECT/INSERT允许、整表UPDATE/DELETE/TRUNCATE拒绝、全部列中仅批准七列允许UPDATE。当前head和safe marker对应0016/三新表；旧真实0015专用场景未修改。既有诊断Fake只同步当前head/新空表/窄列授权，不扩诊断框架或跳过用例。
+
+实际本地33pure通过/2warnings/6.24s；两PG模块仅collect20节点/2.65s，未执行PG。三修改Python文件Ruff/format与mypy通过。新精确增量独审及完整PG/CI待Root，不将作者旧18PG或本Fake算作本修复PG成功。产品源码/0016/权限实现/状态机/Base恢复/CI/锁/前端均0修改，无PG/SDK/Secret/provider/业务数据读取，不push/触CI/main/关Issue；原14:05:49Z硬截止保留。
+
+私有运行pin刷新先于本测试修复完成，仍精确绑定2f3b04b/tree59eaac：四文件最小delta、六前版文件完整归档，17模块pin与2f源码及新sealed archive相等，ENTRY/CLI/manifest链相等；一次现有Fake/AST为56pass/1probe排除/2.97s。业务/身份/窗口/授权字段、96KiB guard和旧006007/freeze/程序归档25项hash保持，live_release=false；最小delta SHA391b7e21080b524fd43b40faf828d7f3509d102532f1b2730f4af80690a74eb0，13:48:32Z停止。本次测试新head不再次刷新private source标签；2f封存镜像仍是相同产品字节证据，最终GitSource标签和实际007绑定待Root后续准备。P4/M1仍未验收，日期/300h/P450h/H-L not_reported/18页和全部旧失败保留。
