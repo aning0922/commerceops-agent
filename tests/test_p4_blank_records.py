@@ -60,9 +60,9 @@ def test_blank_duplicate_record_id_still_rejects_whole_scan() -> None:
     assert result.outcome == "unknown" and result.code == "INCOMPLETE_READBACK"
 
 
-def test_blank_does_not_relax_matched_nullable_key_requirement() -> None:
+def test_blank_does_not_relax_matched_required_key_requirement() -> None:
     matched = row()
-    del matched["fields"]["ResolvedAt"]
+    del matched["fields"]["SKU"]
     result = readback_rows(request(), [blank("blank"), matched])
     assert result.outcome == "unknown" and result.code == "INCOMPLETE_READBACK"
 

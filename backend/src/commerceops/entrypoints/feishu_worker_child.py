@@ -231,6 +231,9 @@ async def controlled_work(
             else frozenset(p.outbox_id for p in window.recovery.projections),
             first_create=window.first_create,
             first_create_window_id=window.window_id if window.first_create is not None else None,
+            explicit_ro_window_id=window.window_id
+            if window.recovery is not None and window.recovery.explicit_ro_recheck is not None
+            else None,
         )
         im = IMDeliveryStore(
             session,
@@ -304,6 +307,9 @@ async def controlled_work(
                 if outcome not in accepted:
                     summary["delivery_stopped"] = True
                     stop.set()
+                    return
+                if gate.explicit_ro_window_id is not None:
+                    stop.set()  # 已消费一次；成功/idle也结束，不进入下一次maintenance。
                     return
 
         summary.update({"target_unique": True, "field_count": field_count})

@@ -191,12 +191,12 @@ def test_each_required_missing_field_fails_readback(key: str) -> None:
     assert result.external_id is None
 
 
-def test_missing_resolution_fields_are_incomplete_while_explicit_null_is_empty() -> None:
+def test_only_expected_empty_resolution_fields_may_be_omitted() -> None:
     item = row()
     for key in ("ResolvedBy", "ResolvedAt", "ResolutionReason"):
         del item["fields"][key]
     fake = FakeRecords([page([item])])
-    assert reconcile(fake, "test-base", "test-table", sample()).outcome == "unknown"
+    assert reconcile(fake, "test-base", "test-table", sample()).outcome == "verified"
     item = row()
     for key in ("ResolvedBy", "ResolvedAt", "ResolutionReason"):
         item["fields"][key] = None

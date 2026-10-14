@@ -130,7 +130,7 @@ def test_wrong_content_duplicate_missing_fields_or_record_never_writes(operation
     external = "synthetic-row" if operation != "create" else None
     value = request(operation=operation, external_id=external)
     missing = row()
-    del missing["fields"]["ResolutionReason"]
+    del missing["fields"]["SKU"]
     for rows in ([row(sample(quantity=101))], [row(), row(identifier="duplicate")], [missing]):
         fake = MemoryRecords(rows)
         assert execute(fake, value).outcome in {"unknown", "conflict"}

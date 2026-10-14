@@ -28,6 +28,20 @@ class SenderGatewayLineage(BaseModel):
     termination_id: UUID
 
 
+class ExplicitRORecheck(BaseModel):
+    """一次人工只读对账绑定最近已终止reader；不重标自动attempts。"""
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    recheck_count: Literal[1]
+    reader_gateway: SenderGatewayLineage
+    reader_window_id: UUID
+    reader_window_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    reader_claim_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    reader_owner: UUID
+    reader_termination_id: UUID
+
+
 class ApprovedOutboxRecovery(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
 
@@ -57,6 +71,7 @@ class ApprovedOutboxRecovery(BaseModel):
     target_key: str = Field(min_length=1, max_length=100, repr=False)
     projections: tuple[RecoveryProjection, ...] = Field(min_length=1, max_length=2, repr=False)
     sender_gateway: SenderGatewayLineage | None = None
+    explicit_ro_recheck: ExplicitRORecheck | None = None
 
     @model_validator(mode="after")
     def original_pair(self) -> "ApprovedOutboxRecovery":
@@ -75,6 +90,21 @@ class ApprovedOutboxRecovery(BaseModel):
             )
         ):
             raise ValueError("P4_RECOVERY_ORIGINAL_PAIR_REQUIRED")
+        if self.explicit_ro_recheck is not None:
+            reader = self.explicit_ro_recheck
+            if (
+                self.sender_gateway is None
+                or tuple(p.version for p in self.projections) != (1,)
+                or reader.reader_owner == self.worker_owner
+                or reader.reader_window_id in (self.original_sdk_window_id, self.worker_window_id)
+                or reader.reader_gateway.gateway_id
+                in (
+                    self.original_gateway_id,
+                    self.sender_gateway.gateway_id,
+                    self.gateway_window_id,
+                )
+            ):
+                raise ValueError("P4_EXPLICIT_RO_RECHECK_LINEAGE_REQUIRED")
         return self
 
 

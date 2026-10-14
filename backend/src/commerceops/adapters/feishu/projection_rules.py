@@ -1,5 +1,7 @@
 """纯错误/版本/回读策略；没有重试、调度、事务或业务状态修改。"""
 
+import math
+import re
 from enum import StrEnum
 from typing import Any, cast
 
@@ -11,6 +13,40 @@ from commerceops.adapters.feishu.projection_contract import (
     bind_projection_result,
     normalize_projection_fields,
 )
+from commerceops.application.feishu_business.contracts import NULLABLE_BASE_FIELDS
+
+MAX_WIRE_INTEGER = 2**53 - 1
+
+
+def wire_integer(value: Any) -> int:
+    """仅list接口两数字列：JSON整数/整值number/规范十进制字符串，无损且有界。"""
+    if type(value) is str:
+        if not re.fullmatch(r"[1-9][0-9]{0,15}", value):
+            raise ValueError("INVALID_BASE_WIRE_INTEGER")
+        number = int(value)
+    elif type(value) is int:
+        number = value
+    elif type(value) is float and math.isfinite(value) and value.is_integer():
+        number = int(value)
+    else:
+        raise ValueError("INVALID_BASE_WIRE_INTEGER")
+    if not 1 <= number <= MAX_WIRE_INTEGER:
+        raise ValueError("INVALID_BASE_WIRE_INTEGER")
+    return number
+
+
+def normalize_readback_fields(
+    remote: dict[str, Any], expected: dict[str, str | int | None]
+) -> dict[str, str | int | None]:
+    """只在冻结PG期望None时补三nullable；共享DTO仍只接收完整规范15字段。"""
+    normalized = dict(remote)
+    for key in NULLABLE_BASE_FIELDS:
+        if key not in normalized and expected[key] is None:
+            normalized[key] = None
+    for key in ("Quantity", "SyncVersion"):
+        if key in normalized:
+            normalized[key] = wire_integer(normalized[key])
+    return normalize_projection_fields(normalized)
 
 
 class WriteOutcome(StrEnum):
@@ -113,13 +149,14 @@ def readback_rows(
             outcome="conflict", code="EXTERNAL_ID_MISMATCH", complete=True, matched_count=1
         )
     remote = match["fields"]
-    # 公开合同尚未确认空列可省略；缺键与明确 null 分开，不擅自填空。
-    if not set(BASE_FIELDS).issubset(remote):
+    expected = request.projection.fields()
+    required = set(BASE_FIELDS) - {key for key in NULLABLE_BASE_FIELDS if expected[key] is None}
+    if not required.issubset(remote):
         return ProjectionResult(
             outcome="unknown", code="INCOMPLETE_READBACK", complete=True, matched_count=1
         )
     try:
-        normalized = normalize_projection_fields(remote)
+        normalized = normalize_readback_fields(remote, expected)
     except ValueError:
         return ProjectionResult(
             outcome="unknown", code="INVALID_READBACK", complete=True, matched_count=1

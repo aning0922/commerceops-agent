@@ -196,7 +196,9 @@ class BaseDeliveryStore:
                 WHERE d.organization_id=%s AND d.shop_id=%s AND d.task_id=ANY(%s)
                 AND d.target_key=%s AND d.verification_mode=%s
                 AND (%s::uuid[] IS NULL OR d.outbox_id=ANY(%s))
-                AND d.status IN ('pending','unknown') AND d.attempts<3
+                AND d.status IN ('pending','unknown')
+                AND (d.attempts<3 OR (%s::uuid IS NOT NULL AND d.attempts=3
+                     AND d.status='unknown'))
                 AND d.next_attempt_at<=clock_timestamp()
                 ORDER BY d.created_at,d.version,d.outbox_id FOR UPDATE OF d""",
                 (
@@ -207,15 +209,21 @@ class BaseDeliveryStore:
                     self.gate.verification_mode,
                     None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
                     None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
+                    self.gate.explicit_ro_window_id,
                 ),
             )
             for row in await cur.fetchall():
+                explicit = self.gate.explicit_ro_window_id is not None
+                if explicit and not await self._admitted_recheck(db, row):
+                    continue
                 operation = next_operation(
                     status=row["status"],
                     version=row["version"],
                     anchor=row["anchor"],
                     attempts=row["attempts"],
                 )
+                if explicit:
+                    operation = "reconcile"
                 if operation == "reconcile" and self.gate.first_create is not None:
                     from commerceops.infrastructure.feishu_first_create_recovery import (
                         admitted_first_create,
@@ -258,7 +266,33 @@ class BaseDeliveryStore:
                     external_id=row["anchor"],
                     projection=snapshot,
                 )
-                attempts = row["attempts"] + 1
+                attempts = row["attempts"] if explicit else row["attempts"] + 1
+                if explicit:
+                    from commerceops.infrastructure.feishu_outbox_recovery import recheck_audit_id
+
+                    cur = await db.execute(
+                        """INSERT INTO business.audit_events(id,organization_id,task_id,source,
+                        action,entity_type,entity_id,after_state,trace_id)
+                        VALUES(%s,%s,%s,'feishu_recovery','explicit_ro_recheck_dispatched',
+                        'outbox',%s,%s,%s) ON CONFLICT(id) DO NOTHING RETURNING id""",
+                        (
+                            recheck_audit_id(row["outbox_id"], dispatched=True),
+                            self.gate.organization_id,
+                            row["task_id"],
+                            str(row["outbox_id"]),
+                            Jsonb(
+                                {
+                                    "recheck_count": 1,
+                                    "automatic_attempts": 3,
+                                    "window_id": str(self.gate.explicit_ro_window_id),
+                                    "worker_owner": self.session.owner,
+                                }
+                            ),
+                            self.gate.explicit_ro_window_id,
+                        ),
+                    )
+                    if not await cur.fetchone():
+                        continue
                 await db.execute(
                     """UPDATE business.p4_base_deliveries SET status='sending',
                     attempts=%s,claimed_by=%s,
@@ -358,6 +392,70 @@ class BaseDeliveryStore:
             )
             await self.session.check()
         return final.status
+
+    async def _admitted_recheck(self, db: Any, row: dict[str, Any]) -> bool:
+        from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+        from commerceops.infrastructure.feishu_outbox_recovery import recheck_audit_id
+
+        if (
+            self.ledger is None
+            or self.ledger.window.window_id != self.gate.explicit_ro_window_id
+            or row["attempts"] != 3
+            or row["status"] != "unknown"
+            or row["version"] != 1
+            or row["anchor"] is not None
+            or row["external_id"] is not None
+            or row["last_operation"] != "reconcile"
+            or row["last_error"] != "INCOMPLETE_READBACK"
+        ):
+            return False
+        cur = await db.execute(
+            """SELECT after_state FROM business.audit_events WHERE id=%s
+            AND organization_id=%s AND task_id=%s AND source='feishu_recovery'
+            AND action='explicit_ro_recheck_authorized' AND entity_id=%s
+            AND NOT EXISTS(SELECT 1 FROM business.audit_events WHERE id=%s)""",
+            (
+                recheck_audit_id(row["outbox_id"]),
+                self.gate.organization_id,
+                row["task_id"],
+                str(row["outbox_id"]),
+                recheck_audit_id(row["outbox_id"], dispatched=True),
+            ),
+        )
+        permit = await cur.fetchone()
+        if not permit or permit["after_state"].get("recheck_count") != 1:
+            return False
+        window = ControlledWorkerWindow.model_validate_json(
+            json.dumps(permit["after_state"].get("window"))
+        )
+        recovery = window.recovery
+        if recovery is None or recovery.explicit_ro_recheck is None:
+            return False
+        p = recovery.projections[0]
+        return (
+            window.window_id == self.gate.explicit_ro_window_id
+            and (window.organization_id, window.shop_id, window.task_ids, window.expires_at)
+            == (
+                self.gate.organization_id,
+                self.gate.shop_id,
+                self.gate.task_ids,
+                self.gate.expires_at,
+            )
+            and window.enabled
+            and recovery.target_key == self.gate.target_key
+            and window.caps == dict(self.ledger.window.caps)
+            and self.ledger.window.enabled
+            and self.ledger.window.verification_mode == "controlled_sdk"
+            and row["claimed_by"] == str(recovery.explicit_ro_recheck.reader_owner)
+            and (p.outbox_id, p.item_id, p.version, p.client_token, p.projection_hash)
+            == (
+                row["outbox_id"],
+                row["item_id"],
+                row["version"],
+                row["client_token"],
+                row["projection_hash"],
+            )
+        )
 
     async def reconcile(self) -> None:
         await self.dispatch_one()

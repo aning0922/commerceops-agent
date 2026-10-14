@@ -865,3 +865,17 @@ Root在[Issue42#6138319062](https://github.com/aning0922/commerceops-agent/issue
 源码/privatebranch/相关offline/doc检查与局部commit以最终freeze为准；不预填未跑PG或真实RO通过，不push/main/关Issue。P4/M1仍未据本候选验收，原main/日期/300h/P450h/H-L/18页与历史失败不重置。
 
 作者最终offline检查1806 passed/480 integration排除/4 warnings/103.19s，仓库Ruff/417文件format/type310/Markdown103通过，current/index/history首扫描均0。实际PG与最新源码缺口仍按上段分列，纯检查不替平台或PG；private Fake与候选提交结果由外置最终freeze记账。
+
+## 53. Base wire 与显式单次 RO 候选：HOLD
+
+2026-10-14，Root原A窗口11:04:04Z→12:34:04Z，原45778/Hosted38543318700五SUCCESS/完整480PG为Root基线回执，不能签本批新源码。原007只读SDK五次returned200/code0，六行唯一原key匹配12字段（两数字字符串、三nullable omitted）；完整内容未验，仍unknown/automatic attempts3/INCOMPLETE_READBACK/C1/anchor0。
+
+候选实现endpoint特定有界无损数字转换，仅Quantity/SyncVersion；三declared nullable只在冻结PG期望None时可省略，共享15字段DTO、完整分页/全局原key唯一/全部值严格相等与number写入保留。人工RO独立绑定005 C sender与最新reader的claim/hash/SDK只读历史/真实终止，audit单次消费recheck_count1，dispatcher复核原行/权限/窗口/caps再标dispatched，automatic attempts保持3，无迁移/通用重试。当前正例未通过，不能放行。详见[RO合同本批节](contracts/p4-sender-readonly-recovery.md)。
+
+新owned项目固定20分钟（11:25:58→11:45:58Z）只Fake/PG，首启动flag拒绝0pytest；实际5pass2fail、1pass2fail、最后3pass2fail分记。撤权恢复不复活旧auth版本，正例夹具已拆分；prior DTO UTC序列化比较已修复，末两个人工RO正例仍未成功准入，具体原因未完全确定。两针对性修复用完即HOLD，不继续PG。最终11:41:13Z down不-v0/容器0/网络0/保卷，原库/Secret/SDK/provider0；完整业务/CP不变及人工RO并发/spent正例尚未验证，不用旧pass代签。
+
+offline首1847pass4fail/482deselected，required负例修正后1851pass/483deselected/104.87s；private56pass/1probe排除/2.26s只Fake/AST，新增safe四页observer保留原值在内存。实际import源码hash与失败/closure/旧private字节已保留，最终完整检查/扫描/候选SHA在外置freeze分列；新独审/精确CI/实际RO均pending。F02“持久澄清请求编号，完整参数并明确确认后经原T1正式Task”已批准，仅queued，本批不改0015/55表或实施F02。
+
+不push/触CI/合main/关Issue；业务规则/审批/Graph/前端/B/锁/CI不扩写。P4/M1未结案，原D1/D30/300h/P450h/人工H-L not_reported/18页与历史失败保留。
+
+最终当前源码完整1851offline/483deselected/103.94s，Ruff/format419/type312/Markdown103通过；七项实际import源码hash与host相等。private两文件strict type通过，例外后两处I001未修，按Root停止令保留。Root已确认budget spent，仅当前HOLD冻结/原Core只读独审，无新PG/诊断/测试批；positive admission及目标SDK真实完整读回仍未通过。

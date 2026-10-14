@@ -25,6 +25,7 @@ class DeliveryGate:
     outbox_ids: frozenset[UUID] | None = None
     first_create: RecoveryProjection | None = None
     first_create_window_id: UUID | None = None
+    explicit_ro_window_id: UUID | None = None
 
     def __post_init__(self) -> None:
         if (
@@ -44,6 +45,14 @@ class DeliveryGate:
                 or len(self.task_ids) != 1
                 or self.verification_mode != "controlled_sdk"
                 or self.outbox_ids is not None
+            )
+            or self.explicit_ro_window_id is not None
+            and (
+                self.first_create is not None
+                or self.verification_mode != "controlled_sdk"
+                or self.outbox_ids is None
+                or len(self.outbox_ids) != 1
+                or len(self.task_ids) != 1
             )
         ):
             raise ValueError("INVALID_P4_DELIVERY_GATE")
