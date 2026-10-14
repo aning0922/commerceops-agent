@@ -122,6 +122,11 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
             business.p4_card_bindings TO commerceops_app""")
         connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_clarification_replies
             TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT ON business.p4_clarification_requests
+            TO commerceops_app""")
+        connection.execute("""GRANT UPDATE(round,candidate,candidate_hash,state,task_id,
+            confirmed_inbox_id,updated_at) ON business.p4_clarification_requests
+            TO commerceops_app""")
         connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_base_deliveries
             TO commerceops_app""")
         connection.execute("GRANT SELECT,INSERT ON business.p4_base_links TO commerceops_app")

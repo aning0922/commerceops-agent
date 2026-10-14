@@ -33,6 +33,7 @@ class FeishuBusinessStore:
         hook: Callable[[str], None] | None = None,
         allow_live_bindings: bool = False,
         gateway_guard: Callable[[DB, bool], None] | None = None,
+        f02_enabled: bool = False,
     ):
         self.store, self.shop, self.parameters, self.hook = store, shop_id, parameters, hook
         self.decisions = DecisionStore(store.config)
@@ -40,6 +41,9 @@ class FeishuBusinessStore:
             raise ValueError("INVALID_LIVE_BINDING_GATE")
         self.allow_live_bindings = allow_live_bindings
         self.gateway_guard = gateway_guard
+        if type(f02_enabled) is not bool:
+            raise ValueError("INVALID_F02_GATE")
+        self.f02_enabled = f02_enabled
 
     @staticmethod
     def actor(db: DB, identity: PlatformIdentity, chat: str) -> FeishuActor:
@@ -117,6 +121,10 @@ class FeishuBusinessStore:
                 )
         elif not role_scope(db, actor, self.shop, "operator" if message else "approver"):
             raise WebFailure("ACCESS_DENIED", 403)
+        if rows[0]["result"].get("clarification_id"):
+            from commerceops.infrastructure.feishu_clarification_requests import F02Requests
+
+            F02Requests(self).replay(db, actor, rows[0]["result"])
         return {**rows[0]["result"], "duplicate": True}
 
     def _record(
@@ -128,8 +136,11 @@ class FeishuBusinessStore:
         semantic: str,
         receipt: dict[str, Any],
         sanitized: dict[str, Any],
+        *,
+        inbox_id: UUID | None = None,
+        link_task: bool = True,
     ) -> UUID:
-        inbox = uuid4()
+        inbox = inbox_id or uuid4()
         db.execute(
             """INSERT INTO business.inbox_events
             (id,organization_id,shop_id,source,app_id,tenant_key,event_id,message_id,
@@ -145,7 +156,7 @@ class FeishuBusinessStore:
                 message,
                 semantic,
                 Jsonb({**sanitized, "principal_id": str(actor.principal_id)}),
-                UUID(receipt["task_id"]) if receipt.get("task_id") else None,
+                UUID(receipt["task_id"]) if link_task and receipt.get("task_id") else None,
             ),
         )
         db.execute(
@@ -233,7 +244,15 @@ class FeishuBusinessStore:
                 return receipt
             if not role_scope(db, actor, self.shop, "operator"):
                 raise WebFailure("ACCESS_DENIED", 403)
-            if message.text not in ("分析最近七天库存并生成补货建议", "分析库存并生成补货建议"):
+            if self.f02_enabled:
+                from commerceops.infrastructure.feishu_clarification_requests import F02Requests
+
+                if accepted := F02Requests(self).accept(db, actor, message, semantic):
+                    return accepted
+            if self.f02_enabled or message.text not in (
+                "分析最近七天库存并生成补货建议",
+                "分析库存并生成补货建议",
+            ):
                 reply, provider_uuid = uuid4(), uuid4()
                 receipt = {
                     "schema_version": "p4-v1",

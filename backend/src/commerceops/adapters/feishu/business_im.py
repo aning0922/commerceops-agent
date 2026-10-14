@@ -10,7 +10,11 @@ from lark_oapi.api.im.v1 import (  # type: ignore[import-untyped]
 )
 
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
-from commerceops.application.feishu_business.clarification import ClarificationMessage, NoticeResult
+from commerceops.application.feishu_business.clarification import (
+    ClarificationMessage,
+    F02Message,
+    NoticeResult,
+)
 from commerceops.application.feishu_business.im_delivery import BusinessMessage
 
 
@@ -21,6 +25,18 @@ class BusinessIMSDK:
 
     async def send_clarification(self, request: ClarificationMessage) -> NoticeResult:
         request = ClarificationMessage.model_validate(request.model_dump())
+        return await self.send_message(
+            BusinessMessage(
+                outbox_id=request.reply_id,
+                provider_uuid=request.provider_uuid,
+                chat_id=request.chat_id,
+                kind="text",
+                text=request.text,
+            )
+        )
+
+    async def send_f02(self, request: F02Message) -> NoticeResult:
+        request = F02Message.model_validate(request.model_dump())
         return await self.send_message(
             BusinessMessage(
                 outbox_id=request.reply_id,

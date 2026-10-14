@@ -343,5 +343,5 @@ def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Pat
     assert {p.name for p in (source / "backend/migrations/versions").glob("*.py")} == {
         p.name
         for p in Path("backend/migrations/versions").glob("*.py")
-        if not p.name.startswith(("0014_", "0015_"))
+        if not p.name.startswith(("0014_", "0015_", "0016_"))
     }
