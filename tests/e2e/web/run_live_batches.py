@@ -550,7 +550,30 @@ def main(
                     time.sleep(1)
                 else:
                     raise RuntimeError("owned 20 T4/template not ready")
+                # Read the exact completed execution's canonical observation;
+                # never choose a latest UUID or construct a template/cache row.
+                with connect(settings) as db:
+                    observations = db.execute(
+                        "SELECT o.id,o.report_id,o.facts_hash,o.source_task_id "
+                        "FROM business.executions e JOIN business.p3_observations o "
+                        "ON o.id=e.revalidation_snapshot_id AND o.task_id=e.task_id "
+                        "AND o.organization_id=e.organization_id AND o.shop_id=e.shop_id "
+                        "WHERE e.task_id=%s AND e.status='completed'",
+                        (facts["completed_task"],),
+                    ).fetchall()
+                if (
+                    len(observations) != 1
+                    or str(observations[0]["source_task_id"]) != facts["source_task"]
+                ):
+                    raise RuntimeError("owned execution observation binding unavailable")
+                observation = observations[0]
                 facts.update(
+                    observation={
+                        "id": str(observation["id"]),
+                        "report_id": str(observation["report_id"]),
+                        "facts_hash": observation["facts_hash"],
+                        "source_task_id": str(observation["source_task_id"]),
+                    },
                     resolve_item=str(items[0]["id"]),
                     hidden_source_item=str(items[1]["id"]),
                     operator_item=str(items[2]["id"]),

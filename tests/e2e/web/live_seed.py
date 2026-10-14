@@ -225,10 +225,12 @@ def main(directory: Path) -> None:
         assert plan and UUID(accounts["approver"]["principal"]) in plan["eligible_principal_ids"]
         assert UUID(accounts["dual"]["principal"]) not in plan["eligible_principal_ids"]
         source_row = db.execute(
-            "SELECT source_report_id AS report_id FROM business.p3_task_sources WHERE task_id=%s",
+            "SELECT source_task_id,source_report_id AS report_id,snapshot_id,facts_hash "
+            "FROM business.p3_task_sources WHERE task_id=%s",
             (UUID(str(receipt["task_id"])),),
         ).fetchone()
         assert source_row
+        assert str(source_row["source_task_id"]) == receipt["source_task_id"]
         runtime_flags = db.execute(
             "SELECT rolsuper,rolcreatedb,rolcreaterole FROM pg_roles WHERE "
             "rolname='commerceops_app'"
@@ -242,6 +244,8 @@ def main(directory: Path) -> None:
             "task": receipt["task_id"],
             "source_task": receipt["source_task_id"],
             "report": str(source_row["report_id"]),
+            "snapshot": str(source_row["snapshot_id"]),
+            "facts_hash": source_row["facts_hash"],
             "approval": str(plan["approval_id"]),
             "plan": str(plan["id"]),
             "version": plan["plan_version"],
