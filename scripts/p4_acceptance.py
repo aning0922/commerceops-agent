@@ -3826,11 +3826,16 @@ def _ro_prepare(request: Mapping[str, Any]) -> dict[str, Any]:
     )
 
 
-def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
-    require(
-        request["transport"] == "real" and request.get("root_real_release") is True,
-        "P4A_REAL_PLATFORM_HOLD",
-    )
+def _ro_environment(private_directory: str) -> dict[str, Any]:
+    """仅容许已隔离环境及macOS运行时注入的同UID文本编码标记。"""
+    cf = os.environ.get("__CF_USER_TEXT_ENCODING")
+    if cf is not None:
+        require(
+            sys.platform == "darwin"
+            and re.fullmatch(r"0x[0-9a-fA-F]+:0x[0-9a-fA-F]+:0x[0-9a-fA-F]+", cf) is not None
+            and int(cf.split(":")[0], 16) == os.getuid(),
+            "P4A_RO_ENVIRONMENT",
+        )
     require(
         set(os.environ)
         <= {
@@ -3842,12 +3847,22 @@ def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
             "LC_CTYPE",
             "LANGSMITH_TRACING",
             "SYSTEMROOT",
+            "__CF_USER_TEXT_ENCODING",
         }
-        and Path(os.environ.get("HOME", "")) == Path(request["private_directory"])
-        and Path(os.environ.get("TMPDIR", "")) == Path(request["private_directory"])
+        and Path(os.environ.get("HOME", "")) == Path(private_directory)
+        and Path(os.environ.get("TMPDIR", "")) == Path(private_directory)
         and os.environ.get("LANGSMITH_TRACING") == "false",
         "P4A_RO_ENVIRONMENT",
     )
+    return dict(keys=sorted(os.environ), sha256=digest(canonical(dict(os.environ))))
+
+
+def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
+    require(
+        request["transport"] == "real" and request.get("root_real_release") is True,
+        "P4A_REAL_PLATFORM_HOLD",
+    )
+    _ro_environment(request["private_directory"])
     candidate = binding.manifest["candidate"]
     actual = (
         subprocess.run(
@@ -4612,6 +4627,15 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
         lifecycle=confirmation,
         before_state=before,
         after_state=after,
+        actual_context=dict(
+            candidate=binding.manifest["candidate"],
+            python=sys.executable,
+            cwd=str(Path.cwd()),
+            entry_sha256=binding.manifest["entry_sha256"],
+            python_binary_sha256=binding.manifest["python_binary_sha256"],
+            environment_keys=sorted(os.environ),
+            host_tools=request.get("host_tools"),
+        ),
         child_exits=[
             dict(
                 action=c.request["action"],

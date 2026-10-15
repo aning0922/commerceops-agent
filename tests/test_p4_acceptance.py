@@ -585,3 +585,31 @@ def test_original_real_outer_stays_closed_before_any_resource_without_release(
     assert value["stages"]["RESOURCE"]["state"] == "NOT_RUN"
     assert value["child_exits"] == []
     assert value["cleanup"] == {}
+
+
+def test_isolated_host_environment_admits_OS_marker_but_denies_proxy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts.p4_acceptance import _ro_environment
+
+    for key in list(os.environ):
+        monkeypatch.delenv(key)
+    for key, value in {
+        "HOME": str(tmp_path),
+        "TMPDIR": str(tmp_path),
+        "LANGSMITH_TRACING": "false",
+    }.items():
+        monkeypatch.setenv(key, value)
+    assert _ro_environment(str(tmp_path))["keys"] == sorted(os.environ)
+    if sys.platform == "darwin":
+        monkeypatch.setenv("__CF_USER_TEXT_ENCODING", f"0x{os.getuid():X}:0x0:0x0")
+        assert "__CF_USER_TEXT_ENCODING" in _ro_environment(str(tmp_path))["keys"]
+        monkeypatch.setenv("__CF_USER_TEXT_ENCODING", "0x0:0x0:0x0")
+        if os.getuid() != 0:
+            with pytest.raises(AcceptanceFailure, match="P4A_RO_ENVIRONMENT"):
+                _ro_environment(str(tmp_path))
+        monkeypatch.delenv("__CF_USER_TEXT_ENCODING")
+    monkeypatch.setenv("HTTPS_PROXY", "untrusted-proxy")
+    with pytest.raises(AcceptanceFailure, match="P4A_RO_ENVIRONMENT"):
+        _ro_environment(str(tmp_path))
