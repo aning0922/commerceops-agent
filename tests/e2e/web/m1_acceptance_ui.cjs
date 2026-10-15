@@ -5,7 +5,10 @@ const fs = require("node:fs"), path = require("node:path"), crypto = require("no
 const { execFileSync } = require("node:child_process");
 const digest = (b) => crypto.createHash("sha256").update(b).digest("hex");
 class Failure extends Error {
-  constructor(code, dto = null) { super(code); this.code = code; this.dto = dto; }
+  constructor(code, dto = null, httpStatus = null) {
+    super(code); this.code = code; this.dto = dto;
+    this.http_status = Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null;
+  }
 }
 const ensure = (ok, code) => { if (!ok) throw new Failure(code); };
 const preparedInputInvalid = "PREPARED_INPUT_INVALID", originalRequired = "ORIGINAL_KEY_REQUIRED";
@@ -66,6 +69,53 @@ function responseValidator(schema, frontendModules) {
     ensure(safeNumbers(body), "DTO_NUMERIC_INVALID");
     if (!check(body)) throw new Failure("DTO_INVALID", dtoErrors(check.errors));
   };
+}
+// Self-contained for page.evaluate: one GET of the original key, as required by
+// native requestReceipt(key, "resolve"). No POST, key creation, or retry path.
+async function fetchOriginalResolve({ api, key, timeout }) {
+  const url = new URL("/api/v1/requests/" + encodeURIComponent(key), api);
+  url.searchParams.set("operation", "resolve");
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), timeout);
+  let status = null;
+  try {
+    const response = await fetch(url.href, { method: "GET", credentials: "include",
+      cache: "no-store", redirect: "error", signal: abort.signal });
+    status = response.status;
+    const text = await response.text();
+    try { return { status, body: JSON.parse(text), body_json: true, transport: "RECEIVED" }; }
+    catch { return { status, body: null, body_json: false, transport: "RECEIVED" }; }
+  } catch {
+    return { status, body: null, body_json: null,
+      transport: abort.signal.aborted ? "TIMEOUT" : "NETWORK_ERROR" };
+  } finally { clearTimeout(timer); }
+}
+function inspectOriginalResolve(value, validate, key, itemId) {
+  const status = Number.isInteger(value.status) && value.status >= 100 && value.status <= 599 ? value.status : null;
+  const diagnostic = { operation: "resolve", method: "GET", http_status: status,
+    body_json: value.body_json === true ? true : value.body_json === false ? false : null,
+    schema_valid: null, dto: null, code: "ORIGINAL_GET_FAILED", accepted: false };
+  if (value.transport === "TIMEOUT") diagnostic.code = "ORIGINAL_GET_TIMEOUT";
+  else if (value.transport === "EVALUATION_FAILED") diagnostic.code = "ORIGINAL_GET_EVALUATION_FAILED";
+  else if (value.transport !== "RECEIVED") diagnostic.code = "ORIGINAL_GET_NETWORK_FAILED";
+  else if (value.body_json !== true) diagnostic.code = "ORIGINAL_GET_JSON_INVALID";
+  else {
+    try { validate("GET", "/api/v1/requests/" + key, status, value.body); diagnostic.schema_valid = true; }
+    catch (error) {
+      diagnostic.schema_valid = false;
+      diagnostic.dto = error instanceof Failure ? error.dto : null;
+      diagnostic.code = "ORIGINAL_GET_DTO_INVALID";
+      return diagnostic;
+    }
+    if (status === 200) {
+      const receipt = value.body.receipt;
+      if (value.body.request_key === key && receipt.operation === "resolve" &&
+        receipt.result.request_key === key && receipt.result.item.item_id === itemId) {
+        diagnostic.code = "ORIGINAL_GET_VERIFIED"; diagnostic.accepted = true;
+      } else diagnostic.code = "ORIGINAL_GET_BINDING_INVALID";
+    }
+  }
+  return diagnostic;
 }
 function validateBrowserExecutable(chromium, toolchain) {
   ensure(typeof toolchain.browser_executable === "string" && path.isAbsolute(toolchain.browser_executable) &&
@@ -129,6 +179,22 @@ async function browserProcessReceipt(browser, toolchain, timeout) {
 function processAbsent(pid) {
   try { process.kill(pid, 0); return false; }
   catch (error) { return error.code === "ESRCH" ? true : null; }
+}
+async function pollProcessAbsent(pid, deadlineMs, probe = processAbsent) {
+  const started = performance.now();
+  const end = started + Math.min(3000, Math.max(0, deadlineMs - Date.now()));
+  let value = null, probes = 0;
+  do {
+    value = probe(pid); probes++;
+    if (value === true) return { pid_absent: true, final_state: "ABSENT",
+      timed_out: false, probes, elapsed_ms: Math.ceil(performance.now() - started) };
+    const remaining = Math.min(end - performance.now(), deadlineMs - Date.now());
+    if (remaining <= 0) break;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(50, remaining)));
+  } while (performance.now() <= end && Date.now() <= deadlineMs);
+  return { pid_absent: value === false ? false : null,
+    final_state: value === false ? "PRESENT" : "UNKNOWN", timed_out: true,
+    probes, elapsed_ms: Math.ceil(performance.now() - started) };
 }
 async function execute(input) {
   ensure(input.contract === "p4-acceptance-preparation-v1" && ["t6", "page", "replay"].includes(input.stage), "INPUT_INVALID");
@@ -236,15 +302,17 @@ async function execute(input) {
     } else {
       ensure(uuid(input.request_key), originalRequired); result.request_key = input["request_key"];
     }
-    const original = await page.evaluate(async ({ api, key }) => {
-      const r = await fetch(api + "/api/v1/requests/" + key, { credentials: "include", cache: "no-store" });
-      return { status: r.status, body: await r.json() };
-    }, { api, key: result.request_key }); result.original_key_gets++;
-    ensure(original.status === 200, "ORIGINAL_GET_FAILED");
-    validate("GET", "/api/v1/requests/" + result.request_key, 200, original.body);
-    ensure(original.body.receipt.operation === "resolve" &&
-      original.body.receipt.result.request_key === result.request_key &&
-      original.body.receipt.result.item.item_id === input.item_id, "ORIGINAL_GET_BINDING_INVALID");
+    let original;
+    try { original = await page.evaluate(fetchOriginalResolve,
+      { api, key: result.request_key, timeout: remaining() }); }
+    catch { original = { status: null, body: null, body_json: null, transport: "EVALUATION_FAILED" }; }
+    result.original_key_gets++;
+    const getDiagnostic = inspectOriginalResolve(original, validate, result.request_key, input.item_id);
+    const getFile = path.join(input.output_directory, input.stage + "-original-get.safe.json");
+    exclusiveJson(getFile, getDiagnostic);
+    result.original_get_diagnostic_ref = { path: getFile, sha256: digest(fs.readFileSync(getFile)) };
+    if (!getDiagnostic.accepted)
+      throw new Failure(getDiagnostic.code, getDiagnostic.dto, getDiagnostic.http_status);
     result.original_get = original.body;
     await page.getByText("当前版本 v2", { exact: false }).waitFor();
     ensure(await page.locator('[data-control="B27"]').count() === 0, "TERMINAL_ACTION_VISIBLE");
@@ -262,11 +330,12 @@ async function execute(input) {
       try { await browser.close(); result.browser_closed = true; }
       finally {
         if (result.browser_process) {
-          result.browser_pid_stopped = processAbsent(result.browser_process.pid);
+          const observation = await pollProcessAbsent(result.browser_process.pid, deadline);
+          result.browser_pid_stopped = observation.pid_absent;
           const stopFile = path.join(input.output_directory, input.stage + "-browser-stop.json");
           exclusiveJson(stopFile, { stage: input.stage, run_id: input.run_id,
             parent_handoff_sha256: input.parent_handoff_sha256, pid: result.browser_process.pid,
-            browser_closed: result.browser_closed === true, pid_absent: result.browser_pid_stopped });
+            browser_closed: result.browser_closed === true, ...observation });
           result.browser_stop_ref = { path: stopFile, sha256: digest(fs.readFileSync(stopFile)) };
           ensure(result.browser_pid_stopped === true, "BROWSER_PROCESS_STOP_UNPROVED");
         }
@@ -278,7 +347,8 @@ async function execute(input) {
 }
 
 module.exports = { execute, readPrivate, origin, dtoErrors, responseValidator, launchBoundBrowser,
-  loadBoundChromium, browserProcessReceipt, processAbsent };
+  loadBoundChromium, browserProcessReceipt, processAbsent, pollProcessAbsent,
+  fetchOriginalResolve, inspectOriginalResolve };
 if (require.main === module) {
   (async () => {
     try {
@@ -290,7 +360,8 @@ if (require.main === module) {
       exclusiveJson(path.join(input.output_directory, input.stage + "-ui-result.json"), result);
       process.stdout.write(JSON.stringify({ status: result.status, stage: result.stage }) + "\n");
     } catch (error) {
-      const safe = error instanceof Failure ? { code: error.code, dto: error.dto } :
+      const safe = error instanceof Failure ? { code: error.code, dto: error.dto,
+        ...(error.http_status === null ? {} : { http_status: error.http_status }) } :
         { code: error && error.name === "TimeoutError" ? "UI_TIMEOUT" : "UI_FAILURE", dto: null };
       process.stderr.write(JSON.stringify({ status: "FAILED", ...safe }) + "\n"); process.exitCode = 1;
     }

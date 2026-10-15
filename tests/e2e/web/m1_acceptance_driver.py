@@ -100,10 +100,12 @@ class StageFailure(Exception):
         query_id: str | None = None,
         sqlstate: str | None = None,
         dto: list[dict[str, Any]] | None = None,
+        http_status: int | None = None,
     ) -> None:
         super().__init__(code)
         self.stage, self.code, self.query_id = stage, code, query_id
         self.sqlstate, self.dto = sqlstate, dto
+        self.http_status = http_status
 
 
 def safe_dto_errors(errors: Any) -> list[dict[str, Any]] | None:
@@ -124,7 +126,8 @@ def safe_dto_errors(errors: Any) -> list[dict[str, Any]] | None:
                     for v in row["loc"][:8]
                 ],
                 "type": row["type"]
-                if isinstance(row.get("type"), str) and re.fullmatch(r"[a-z_]{1,50}", row["type"])
+                if isinstance(row.get("type"), str)
+                and re.fullmatch(r"[a-zA-Z_]{1,50}", row["type"])
                 else "validation_error",
             }
         )
@@ -151,6 +154,8 @@ def safe_failure(error: Exception, stage: str) -> dict[str, Any]:
             ):
                 value[key] = field_value
         value["dto"] = safe_dto_errors(error.dto)
+        if type(error.http_status) is int and 100 <= error.http_status <= 599:
+            value["http_status"] = error.http_status
     elif isinstance(error, subprocess.TimeoutExpired) or isinstance(error, TimeoutError):
         value["code"] = "COMMAND_TIMEOUT"
     elif isinstance(error, OSError):
@@ -431,6 +436,9 @@ def ui_command(
             value = json.loads(stderr)
             if value.get("status") == "FAILED" and re.fullmatch(r"[A-Z_]{1,64}", value["code"]):
                 diagnostic = {"code": value["code"], "dto": safe_dto_errors(value.get("dto"))}
+                status = value.get("http_status")
+                if type(status) is int and 100 <= status <= 599:
+                    diagnostic["http_status"] = status
         except (ValueError, TypeError, KeyError, AttributeError):
             diagnostic = None
     return CommandResult(
@@ -1067,6 +1075,7 @@ class _Consumer:
                 self.stage,
                 result.error_code or diagnostic.get("code", "UI_COMMAND_FAILED"),
                 dto=diagnostic.get("dto"),
+                http_status=diagnostic.get("http_status"),
             )
         output, _ = _private_reference(
             _file_ref(self.directory / (stage + "-ui-result.json")), self.root
@@ -1087,6 +1096,15 @@ class _Consumer:
             raise StageFailure(self.stage, "UI_RESULT_BINDING_INVALID")
         observed = output["browser_process"]
         browser_source = output["browser_source_binding"]
+        get_diagnostic, _ = _private_reference(output["original_get_diagnostic_ref"], self.root)
+        if (
+            get_diagnostic["operation"] != "resolve"
+            or get_diagnostic["method"] != "GET"
+            or get_diagnostic["http_status"] != 200
+            or get_diagnostic["schema_valid"] is not True
+            or get_diagnostic["accepted"] is not True
+        ):
+            raise StageFailure(self.stage, "ORIGINAL_GET_DIAGNOSTIC_INVALID")
         started, _ = _private_reference(output["browser_start_ref"], self.root)
         stopped, _ = _private_reference(output["browser_stop_ref"], self.root)
         if (
@@ -1098,6 +1116,8 @@ class _Consumer:
             or stopped["pid"] != observed["pid"]
             or stopped["pid_absent"] is not True
             or stopped["browser_closed"] is not True
+            or stopped["final_state"] != "ABSENT"
+            or stopped["timed_out"] is not False
             or browser_source["registry_executable"] != observed["executable"]
             or browser_source["explicit_executable"] != observed["executable"]
             or browser_source["private_home_preserved"] is not True

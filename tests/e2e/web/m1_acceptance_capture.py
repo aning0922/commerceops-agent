@@ -500,20 +500,32 @@ def require_app_role(db: Any) -> dict[str, Any]:
 
 
 def capture_snapshot(db: Any, context: CaptureContext) -> dict[str, Any]:
-    """Caller opens one fresh transaction/connection; no owner fallback or role switch."""
+    """One fresh explicit RR transaction; query transactions below are savepoints."""
     try:
-        db.execute("SET TRANSACTION READ ONLY")
-        db.execute("SET LOCAL statement_timeout='5000ms'")
-        db.execute("SET LOCAL lock_timeout='3000ms'")
+        if db.info.transaction_status != 0:
+            raise CaptureFailure("FRESH_CONNECTION_REQUIRED", "SNAPSHOT_MODE")
+        with db.transaction():
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+            db.execute("SET LOCAL statement_timeout='5000ms'")
+            db.execute("SET LOCAL lock_timeout='3000ms'")
+            mode = db.execute(
+                "SELECT current_setting('transaction_isolation') AS isolation,"
+                "current_setting('transaction_read_only') AS read_only"
+            ).fetchone()
+            if mode != {"isolation": "repeatable read", "read_only": "on"}:
+                raise CaptureFailure("SNAPSHOT_MODE_INVALID", "SNAPSHOT_MODE")
+            role = require_app_role(db)
+            result = {q.query_id: execute_query(db, q, context) for q in QUERIES}
+    except CaptureFailure:
+        raise
     except Exception as error:
         raise CaptureFailure(
-            "READONLY_SETUP_FAILED", "READONLY", getattr(error, "sqlstate", None)
+            "SNAPSHOT_TRANSACTION_FAILED", "SNAPSHOT_MODE", getattr(error, "sqlstate", None)
         ) from None
-    role = require_app_role(db)
-    result = {q.query_id: execute_query(db, q, context) for q in QUERIES}
     return {
         "schema_revision": context.revision,
         "role": role,
+        "transaction": mode,
         "queries": result,
         "scope": context.scope(),
         "business_validated": False,

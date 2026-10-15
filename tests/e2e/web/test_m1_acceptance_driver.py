@@ -969,3 +969,220 @@ const browser={newBrowserCDPSession:async()=>({send:async()=>({processInfo:[
     )
     assert child.returncode == 0, child.stderr.decode()
     assert child.stdout == b"own-node-pid-rejected-no-browser\n"
+
+
+def test_original_get_uses_native_resolve_query_and_saves_only_safe_diagnostics() -> None:
+    script = r"""
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const h=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+const native=JSON.parse(fs.readFileSync('docs/contracts/p3-openapi.json'));
+const schema=JSON.parse(fs.readFileSync('frontend/lib/p3-read-schema.generated.json'));
+const validate=h.responseValidator(schema,process.cwd()+'/frontend/node_modules');
+const params=native.paths['/api/v1/requests/{request_key}'].get.parameters;
+const operation=params.find(p=>p.name==='operation'&&p.in==='query');
+assert.equal(operation.required,true);assert(operation.schema.enum.includes('resolve'));
+const key='00000000-0000-4000-8000-000000000001',item='00000000-0000-4000-8000-000000000002';
+const marker='private-marker-not-for-diagnostics';let calls=0;
+(async()=>{
+ global.fetch=async (url,options)=>{
+  calls++;const u=new URL(url);assert.equal(options.method,'GET');
+  assert.equal(options.body,undefined);assert.equal(options.credentials,'include');
+  assert.equal(options.cache,'no-store');assert(u.pathname.endsWith('/'+key));
+  assert.deepEqual([...u.searchParams],[['operation','resolve']]);
+  return new Response(JSON.stringify({schema_version:'p3-web-v1',server_time:null,
+   trace_id:key,error:{code:'RESOURCE_NOT_FOUND',safe_message:marker,retryable:false,receipt:null}}),
+   {status:404});
+ };
+ const observed=await h.fetchOriginalResolve({api:'http://127.0.0.1:39001',key,timeout:1000});
+ const safe=h.inspectOriginalResolve(observed,validate,key,item);
+ assert.equal(calls,1);assert.equal(safe.http_status,404);assert.equal(safe.schema_valid,true);
+ assert.equal(safe.code,'ORIGINAL_GET_FAILED');assert.equal(safe.accepted,false);
+ assert(!JSON.stringify(safe).includes(marker));assert(!JSON.stringify(safe).includes(key));
+ const malformed=h.inspectOriginalResolve({...observed,status:200},validate,key,item);
+ assert.equal(malformed.code,'ORIGINAL_GET_DTO_INVALID');assert(malformed.dto.length);
+ assert(!JSON.stringify(malformed).includes(marker));
+ global.fetch=async()=>new Response(marker,{status:503});
+ const nonJSON=h.inspectOriginalResolve(await h.fetchOriginalResolve({
+  api:'http://127.0.0.1:39001',key,timeout:1000}),validate,key,item);
+ assert.equal(nonJSON.http_status,503);assert.equal(nonJSON.body_json,false);
+ assert.equal(nonJSON.code,'ORIGINAL_GET_JSON_INVALID');assert(!JSON.stringify(nonJSON).includes(marker));
+ global.fetch=async()=>{throw new Error(marker);};
+ const network=h.inspectOriginalResolve(await h.fetchOriginalResolve({
+  api:'http://127.0.0.1:39001',key,timeout:1000}),validate,key,item);
+ assert.equal(network.http_status,null);assert.equal(network.code,'ORIGINAL_GET_NETWORK_FAILED');
+ process.stdout.write('native-query-and-safe-diagnostics-unit-passed\n');
+})().catch(()=>{process.stderr.write('original-contract-unit-failed\n');process.exitCode=1;});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"native-query-and-safe-diagnostics-unit-passed\n"
+
+
+def test_http_status_diagnostic_survives_child_exit_without_payload_or_bool_coercion(
+    tmp_path: Path,
+) -> None:
+    script = (
+        "process.stderr.write(JSON.stringify({status:'FAILED',code:'ORIGINAL_GET_DTO_INVALID',"
+        "http_status:403,dto:[{loc:['receipt'],type:'required',input:'private-marker'}]}));"
+        "process.exitCode=1;"
+    )
+    result = ui_command(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        timeout=10,
+    )
+    assert result.code == 1 and result.diagnostic
+    failure = safe_failure(
+        StageFailure(
+            "t6",
+            result.diagnostic["code"],
+            http_status=result.diagnostic["http_status"],
+            dto=result.diagnostic["dto"],
+        ),
+        "t6",
+    )
+    assert failure["http_status"] == 403 and failure["dto"] == [
+        {"loc": ["receipt"], "type": "required"}
+    ]
+    assert "private-marker" not in json.dumps(failure)
+    assert "http_status" not in safe_failure(
+        StageFailure("t6", "HTTP_FAILED", http_status=True), "t6"
+    )
+
+
+def test_browser_stop_poll_is_bounded_and_requires_observed_esrch() -> None:
+    script = r"""
+const assert=require('node:assert/strict');
+const {pollProcessAbsent}=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+(async()=>{
+ let sequence=[false,null,true];
+ const ended=await pollProcessAbsent(123,Date.now()+1000,()=>sequence.shift());
+ assert.equal(ended.pid_absent,true);assert.equal(ended.final_state,'ABSENT');
+ assert.equal(ended.timed_out,false);assert.equal(ended.probes,3);
+ const unknown=await pollProcessAbsent(123,Date.now()+10,()=>null);
+ assert.equal(unknown.pid_absent,null);assert.equal(unknown.final_state,'UNKNOWN');
+ assert.equal(unknown.timed_out,true);
+ const present=await pollProcessAbsent(123,Date.now()-1,()=>false);
+ assert.equal(present.pid_absent,false);assert.equal(present.final_state,'PRESENT');
+ assert.equal(present.timed_out,true);assert.equal(present.probes,1);
+ process.stdout.write('bounded-stop-poll-unit-passed\n');
+})().catch(()=>{process.stderr.write('stop-poll-unit-failed\n');process.exitCode=1;});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=10,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"bounded-stop-poll-unit-passed\n"
+
+
+def test_snapshot_contract_keeps_role_and_queries_in_one_rr_scope_and_recovers_savepoint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    from tests.e2e.web import m1_acceptance_capture as capture
+
+    class MissingRelation(Exception):
+        sqlstate = "42P01"
+
+    class ContractDB:
+        """Protocol double only; the separate owned PG evidence tests real MVCC."""
+
+        def __init__(self) -> None:
+            self.info = SimpleNamespace(transaction_status=0)
+            self.depth, self.begins, self.recovered = 0, 0, 0
+            self.rr = False
+
+        @contextmanager
+        def transaction(self) -> Any:
+            outer = self.depth == 0
+            self.depth += 1
+            self.begins += int(outer)
+            try:
+                yield
+            except MissingRelation:
+                assert self.depth == 2
+                self.recovered += 1
+                raise
+            finally:
+                self.depth -= 1
+
+        def execute(self, sql: str, *_: Any) -> Any:
+            assert self.depth in (1, 2)
+            if sql.startswith("SET TRANSACTION"):
+                self.rr = "REPEATABLE READ" in sql and "READ ONLY" in sql
+            if "current_setting" in sql:
+                return SimpleNamespace(
+                    fetchone=lambda: {
+                        "isolation": "repeatable read" if self.rr else "read committed",
+                        "read_only": "on",
+                    }
+                )
+            if "current_user::text" in sql:
+                assert self.depth == 1 and self.rr
+                return SimpleNamespace(
+                    fetchone=lambda: {
+                        "current_role": "commerceops_app",
+                        "session_role": "commerceops_app",
+                    }
+                )
+            if "FROM pg_roles" in sql:
+                assert self.depth == 1
+                return SimpleNamespace(
+                    fetchone=lambda: {
+                        "rolsuper": False,
+                        "rolcreatedb": False,
+                        "rolcreaterole": False,
+                    }
+                )
+            if sql == "SELECT missing":
+                raise MissingRelation
+            if sql == "SELECT n":
+                assert self.depth == 2 and self.recovered == 1
+                return SimpleNamespace(
+                    description=[SimpleNamespace(name="n", type_code=23)],
+                    fetchall=lambda: [{"n": 1}],
+                )
+            return None
+
+    monkeypatch.setattr(
+        capture,
+        "QUERIES",
+        (
+            capture.Query(
+                "ABSENT",
+                "SELECT missing",
+                (),
+                capture.fields(n=23),
+                minimum_revision=capture.REVISIONS[1],
+            ),
+            capture.Query("FOLLOWING", "SELECT n", (), capture.fields(n=23)),
+        ),
+    )
+    db = ContractDB()
+    result = capture.capture_snapshot(db, replace(context(), revision=capture.REVISIONS[0]))
+    assert db.begins == 1 and db.recovered == 1 and db.depth == 0
+    assert result["transaction"] == {"isolation": "repeatable read", "read_only": "on"}
+    assert result["queries"]["ABSENT"]["status"] == "EXPECTED_ABSENT"
+    assert result["queries"]["FOLLOWING"]["rows"] == [{"n": 1}]
+
+
+def test_snapshot_rejects_an_already_open_transaction_before_any_query() -> None:
+    from types import SimpleNamespace
+
+    from tests.e2e.web.m1_acceptance_capture import capture_snapshot
+
+    with pytest.raises(CaptureFailure, match="FRESH_CONNECTION_REQUIRED"):
+        capture_snapshot(SimpleNamespace(info=SimpleNamespace(transaction_status=2)), context())
