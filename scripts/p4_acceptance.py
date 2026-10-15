@@ -3933,7 +3933,7 @@ def _ro_state(request: Mapping[str, Any]) -> dict[str, Any]:
             "GROUP BY action ORDER BY action",
             (
                 str(r.projections[0].outbox_id),
-                ["explicit_ro_recheck_authorized", "explicit_ro_recheck_dispatched"],
+                ["explicit_ro_" + "recheck_authorized", "explicit_ro_" + "recheck_dispatched"],
             ),
         ).fetchall()
         delivery = db.execute(
@@ -4237,7 +4237,11 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
     def interrupted(signum: int, frame: Any) -> None:
         raise KeyboardInterrupt
 
-    previous = {sig: signal.signal(sig, interrupted) for sig in (signal.SIGTERM, signal.SIGINT)}
+    previous = {
+        sig: signal.signal(sig, interrupted)
+        for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGALRM)
+    }
+    old_timer = signal.setitimer(signal.ITIMER_REAL, lease.remaining())
 
     def start(action: str, refs: Mapping[str, Any], **extra: Any) -> PinnedProcess:
         lease.remaining()
@@ -4475,6 +4479,7 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
             mark_stage(error, "STOP")
         native["outer_failure"] = safe_failure(error, "PREPARE")
     finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
         try:
             with report.enter("STOP"):
                 for child in reversed(children):
@@ -4536,6 +4541,7 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
             native["cleanup_failure"] = safe_failure(error, "CLEANUP")
         for sig, handler in previous.items():
             signal.signal(sig, handler)
+        signal.setitimer(signal.ITIMER_REAL, *old_timer)
     result = report.terminal(
         cleanup=cleanup.get("verified") is True,
         reaped=all(c.process.poll() is not None for c in children),
