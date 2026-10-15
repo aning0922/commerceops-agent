@@ -827,7 +827,7 @@ class RunnerChild:
 def _runner_start(handoff: Mapping[str, Any], request: dict[str, Any]) -> RunnerChild:
     import secrets
 
-    cleanup = request["action"] in ("signal_process", "confirm_process") or (
+    cleanup = request["action"] in ("signal_process", "confirm_process", "process_probe") or (
         request["action"] == "capture" and request.get("kind") == "worker"
     )
     runner = _verified_runner(handoff, cleanup=cleanup)
@@ -1190,6 +1190,33 @@ def process_control_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         "termination_id": str(end[0]["id"]),
         "active_workers": active,
     }
+
+
+def process_probe_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    """同namespace独立OS探针；只读本轮私有入口argv，排除探针自身。"""
+    private = Path(request["private_root"])
+    require(private.is_absolute() and private.is_dir(), "P4A_PRIVATE_ROOT")
+    live = 0
+    for process in Path("/proc").iterdir():
+        if not process.name.isdigit() or int(process.name) == os.getpid():
+            continue
+        try:
+            arguments = (process / "cmdline").read_bytes().split(b"\0")
+            for argument in arguments:
+                if not argument.endswith(b"/run_once.py"):
+                    continue
+                path = Path(os.fsdecode(argument))
+                if path.is_relative_to(private):
+                    live += 1
+                    break
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+    return dict(
+        exit_code=0 if live == 0 else 1,
+        stage_result="COMPLETE" if live == 0 else "FAILED",
+        owned_entry_processes=live,
+        suite_PASS=False,
+    )
 
 
 _APP_EPOCHS: dict[str, dict[str, Any]] = {}
@@ -1864,6 +1891,10 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
             value = json.loads(_docker(["inspect", cid]).stdout)[0]
             require(value["State"]["Running"] is False, "P4A_CONTAINER_STILL_RUNNING")
             exits[name] = value["State"]["ExitCode"]
+            if exits[name] != 0:
+                errors.append(
+                    safe_failure(AcceptanceFailure("P4A_CONTAINER_UNCLEAN_EXIT"), "CLEANUP")
+                )
             _docker(["rm", cid])
         except Exception as error:
             errors.append(safe_failure(error, "CLEANUP"))
@@ -1897,13 +1928,23 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
         and volume["Labels"].get("p4.acceptance.run") == resource["run_id"]
         and volume["Labels"].get("p4.acceptance.owner") == resource["owner_label"]
     )
+    from urllib.parse import urlsplit
+
+    from tests.e2e.web.m1_acceptance_driver import listener_open
+
+    closed_ports = []
+    for name in ("api_origin", "web_origin"):
+        url = urlsplit(handoff["web"][name])
+        require(url.hostname == "127.0.0.1" and url.port is not None, "P4A_RESOURCE_PORTS")
+        closed_ports.append(listener_open(cast(int, url.port)) is False)
     return dict(
-        verified=not errors and not containers and not networks and kept,
+        verified=not errors and not containers and not networks and kept and all(closed_ports),
         all_containers_reaped=len(exits) == len(ids) and not containers,
         container_exit_codes=exits,
         containers=len(containers),
         networks=len(networks),
         own_volume_preserved=kept,
+        registered_listeners_closed=all(closed_ports),
         errors=errors,
     )
 
@@ -2118,6 +2159,19 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
                     app_lifecycle("stop", current, handoff_ref=current_ref)
                 stop_good = resource["run_id"] not in _APP_EPOCHS
                 require(stop_good, "P4A_APP_STOP_FAILED")
+                probe = _runner_result(
+                    _runner_start(
+                        handoff,
+                        {
+                            "action": "process_probe",
+                            "private_root": resource["runner"]["container_private_dir"],
+                        },
+                    ),
+                    handoff,
+                    cleanup=True,
+                )
+                require(probe["owned_entry_processes"] == 0, "P4A_ENTRY_PROCESS_REMAINS")
+                results["independent_process_probe"] = probe
         except Exception as error:
             results["stop_failure"] = safe_failure(error, "STOP")
         try:
@@ -2161,6 +2215,7 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "app_worker",
             "signal_process",
             "confirm_process",
+            "process_probe",
             "prepare_case",
             "schema_case",
             "project_v2",
@@ -2170,7 +2225,7 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
     )
     lease = _runtime(request["runtime"])
     lease.remaining(
-        cleanup=action in ("signal_process", "confirm_process")
+        cleanup=action in ("signal_process", "confirm_process", "process_probe")
         or (action == "capture" and request.get("kind") == "worker")
     )
     from commerceops.infrastructure.worker_lock import process_namespace
@@ -2200,6 +2255,8 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             result = prepare_case_stage(request)
         elif action == "project_v2":
             result = project_v2_stage(request)
+        elif action == "process_probe":
+            result = process_probe_stage(request)
         else:
             result = process_control_stage(request)
     except Exception as error:
