@@ -3831,6 +3831,23 @@ def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
         request["transport"] == "real" and request.get("root_real_release") is True,
         "P4A_REAL_PLATFORM_HOLD",
     )
+    require(
+        set(os.environ)
+        <= {
+            "PATH",
+            "HOME",
+            "TMPDIR",
+            "LANG",
+            "LC_ALL",
+            "LC_CTYPE",
+            "LANGSMITH_TRACING",
+            "SYSTEMROOT",
+        }
+        and Path(os.environ.get("HOME", "")) == Path(request["private_directory"])
+        and Path(os.environ.get("TMPDIR", "")) == Path(request["private_directory"])
+        and os.environ.get("LANGSMITH_TRACING") == "false",
+        "P4A_RO_ENVIRONMENT",
+    )
     candidate = binding.manifest["candidate"]
     actual = (
         subprocess.run(
@@ -3977,6 +3994,7 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     r = request["pg_resource"]
     require(re.fullmatch(r"[a-z][a-z0-9-]{2,63}", r["project"]) is not None, "P4A_RESOURCE_OWNER")
     private_ref(r["compose_ref"])
+    require(private_ref(r["empty_env_ref"]) == b"", "P4A_RO_ENVIRONMENT")
     from commerceops.infrastructure.database import DatabaseSettings
 
     owner = DatabaseSettings.model_validate_json(
@@ -4009,7 +4027,15 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     containers = ids("container")
     if start:
         require(not containers and not ids("network"), "P4A_RESOURCE_ALREADY_RUNNING")
-        compose = ["compose", "--project-name", r["project"], "-f", r["compose_ref"]["path"]]
+        compose = [
+            "compose",
+            "--env-file",
+            r["empty_env_ref"]["path"],
+            "--project-name",
+            r["project"],
+            "-f",
+            r["compose_ref"]["path"],
+        ]
         config = json.loads(_ro_docker(request, [*compose, "config", "--format", "json"]).stdout)
         require(set(config["services"]) == {"postgres"}, "P4A_RO_COMPOSE_SCOPE")
         service = config["services"]["postgres"]
