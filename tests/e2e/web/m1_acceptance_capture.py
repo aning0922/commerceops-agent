@@ -770,12 +770,13 @@ def capture_worker(db: Any, organization_id: str, owner: str) -> dict[str, Any]:
         db.execute("SET LOCAL statement_timeout='3000ms'")
         require_app_role(db)
         cur = db.execute(
-            "SELECT action,entity_id,after_state,reason,occurred_at FROM "
+            "SELECT id,action,entity_id,after_state,reason,occurred_at FROM "
             "business.audit_events WHERE organization_id=%s AND source='worker' "
             "AND entity_type='worker_runtime' AND entity_id=%s ORDER BY occurred_at,id",
             (org, worker),
         )
         if tuple((c.name, c.type_code) for c in cur.description) != fields(
+            id=UUID_OID,
             action=TEXT_OID,
             entity_id=TEXT_OID,
             after_state=JSON_OID,
@@ -805,3 +806,7 @@ def validate_worker(value: dict[str, Any], receipt: dict[str, Any], *, stopped: 
     identity = {k: receipt[k] for k in ("pid", "host", "pid_namespace")}
     if events[0]["after_state"] != identity or (stopped and events[1]["after_state"] != identity):
         raise CaptureFailure("WORKER_PROCESS_BINDING_INVALID", "WORKER_LIFECYCLE")
+    if events[0]["id"] != receipt["process_started_id"] or (
+        stopped and events[-1]["id"] != receipt["termination_id"]
+    ):
+        raise CaptureFailure("WORKER_AUDIT_BINDING_INVALID", "WORKER_LIFECYCLE")

@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from tests.e2e.web.m1_acceptance_capture import (
     CASE_COUNTS,
@@ -770,6 +771,84 @@ def _shared_helpers() -> Any:
     return importlib.import_module("scripts.p4_acceptance")
 
 
+PROCESS_RESTART_SCOPE = "native API and single Worker processes; same runner and PG volume"
+
+
+def validate_app_epoch(epoch: Mapping[str, Any], *, stopped: bool) -> None:
+    """Validate the committed helper's native receipt, including historical counts."""
+    try:
+        ids = ("organization", "owner", "process_started_id") + (
+            ("termination_id",) if stopped else ()
+        )
+        valid = (
+            epoch["epoch"] == "app"
+            and type(epoch["pid"]) is int
+            and epoch["pid"] > 1
+            and type(epoch["active_workers"]) is int
+            and epoch["active_workers"] == 1
+            and epoch["reaped"] is stopped
+            and all(
+                isinstance(epoch[k], str) and 0 < len(epoch[k]) <= 256
+                for k in ("host", "pid_namespace")
+            )
+            and isinstance(epoch["start_ticks"], str)
+            and re.fullmatch(r"[0-9]{1,30}", epoch["start_ticks"]) is not None
+            and re.fullmatch(r"[a-f0-9]{64}", epoch["cmdline_sha256"]) is not None
+            and all(str(UUID(epoch[k])) == epoch[k] for k in ids)
+            and (stopped or "termination_id" not in epoch)
+        )
+    except (KeyError, TypeError, ValueError, AttributeError):
+        valid = False
+    if not valid:
+        raise StageFailure("restart", "APP_EPOCH_INVALID")
+
+
+def validate_restart_epochs(
+    original: Mapping[str, Any], stopped: Mapping[str, Any], current: Mapping[str, Any]
+) -> None:
+    validate_app_epoch(original, stopped=False)
+    validate_app_epoch(stopped, stopped=True)
+    validate_app_epoch(current, stopped=False)
+    if (
+        any(stopped.get(k) != v for k, v in original.items() if k != "reaped")
+        or current["owner"] == original["owner"]
+        or (current["pid"], current["start_ticks"]) == (original["pid"], original["start_ticks"])
+        or any(current[k] != original[k] for k in ("organization", "host", "pid_namespace"))
+    ):
+        raise StageFailure("restart", "RESTART_EPOCH_INVALID")
+
+
+def validate_app_lifecycle(
+    value: Mapping[str, Any], action: str, handoff: Mapping[str, Any]
+) -> None:
+    if action not in ("start", "stop", "restart"):
+        raise StageFailure("restart", "APP_LIFECYCLE_INVALID")
+    live = action != "stop"
+    try:
+        validate_app_epoch(value["epoch"], stopped=not live)
+        valid = (
+            type(value["active_workers"]) is int
+            and value["active_workers"] == int(live)
+            and value["volume"] == handoff["resource"]["volume"]
+            and value["container_ids"] == handoff["resource"]["container_ids"]
+            and value["reaped"] is (action != "start")
+            and value["api_ready"] is live
+            and value["epoch"]["organization"] == handoff["fixture"]["organization_id"]
+            and value["epoch"]["owner"] != handoff["worker"]["owner"]
+        )
+        if live:
+            valid = valid and value["restart_scope"] == PROCESS_RESTART_SCOPE
+            if action == "start":
+                valid = valid and value["stopped_epoch"] is None
+            else:
+                validate_app_epoch(value["stopped_epoch"], stopped=True)
+                valid = valid and value["stopped_epoch"]["owner"] != value["epoch"]["owner"]
+    except (KeyError, TypeError, ValueError, AttributeError):
+        valid = False
+    if not valid:
+        raise StageFailure("restart", "APP_LIFECYCLE_INVALID")
+
+
 @dataclass
 class _Consumer:
     stage: str
@@ -934,18 +1013,8 @@ class _Consumer:
         value: dict[str, Any] = _shared_helpers().app_lifecycle(
             action, self.handoff, handoff_ref=self.handoff_ref
         )
-        live = action != "stop"
-        if (
-            type(value["active_workers"]) is not int
-            or value["active_workers"] != int(live)
-            or value["volume"] != self.handoff["resource"]["volume"]
-            or value["reaped"] is not (not live)
-            or value["api_ready"] is not live
-            or value["epoch"]["organization"] != self.handoff["fixture"]["organization_id"]
-            or value["epoch"]["owner"] == self.handoff["worker"]["owner"]
-        ):
-            raise StageFailure(self.stage, "APP_LIFECYCLE_INVALID")
-        self.worker(value["epoch"], action + "-worker-" + self.stage, stopped=not live)
+        validate_app_lifecycle(value, action, self.handoff)
+        self.worker(value["epoch"], action + "-worker-" + self.stage, stopped=action == "stop")
         self.save(action + "-lifecycle-" + self.stage, value)
         return value
 
@@ -1107,19 +1176,17 @@ class _Consumer:
         first = self.lifecycle("start")
         self.snapshot("before-restart", previous["request_key"], closed=True)
         restarted = self.lifecycle("restart")
-        if (
-            restarted["stopped_epoch"] != first["epoch"]
-            or restarted["stopped_reaped"] is not True
-            or restarted["epoch"]["owner"] == first["epoch"]["owner"]
-        ):
-            raise StageFailure("restart", "RESTART_EPOCH_INVALID")
-        self.worker(first["epoch"], "stopped-before-restart", stopped=True)
+        validate_restart_epochs(first["epoch"], restarted["stopped_epoch"], restarted["epoch"])
+        self.worker(restarted["stopped_epoch"], "stopped-before-restart", stopped=True)
         self.snapshot("after-restart", previous["request_key"], closed=True)
         return {
             "request_key": previous["request_key"],
             "epoch": restarted["epoch"],
             "same_volume": True,
             "old_epoch_stopped_reaped": True,
+            "restart_scope": restarted["restart_scope"],
+            "compose_recreated": False,
+            "clean_compose_gate": "NOT_EVALUATED_BY_PROCESS_RESTART",
         }
 
     def page(self) -> dict[str, Any]:
