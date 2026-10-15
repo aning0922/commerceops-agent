@@ -16,7 +16,7 @@ import time
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from importlib.resources.abc import ResourceReader
 from pathlib import Path
 from types import ModuleType
@@ -1108,18 +1108,36 @@ def capture_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     return {"value": result, "exit_code": 0, "stage_result": "COMPLETE", "suite_PASS": False}
 
 
+def _process_identity(pid: int) -> dict[str, str]:
+    """实际OS启动标识；host用ps，不把PID存在本身当作同一进程。"""
+    require(type(pid) is int and pid > 1, "P4A_PROCESS_PID")
+    if sys.platform == "linux":
+        fields = Path(f"/proc/{pid}/stat").read_text().rsplit(") ", 1)[1].split()
+        return {
+            "start_ticks": fields[19],
+            "cmdline_sha256": digest(Path(f"/proc/{pid}/cmdline").read_bytes()),
+        }
+    require(sys.platform == "darwin", "P4A_PROCESS_PLATFORM")
+    row = subprocess.run(
+        ["/bin/ps", "-ww", "-p", str(pid), "-o", "lstart=", "-o", "command="],
+        capture_output=True,
+        check=True,
+        timeout=5,
+    ).stdout.strip()
+    require(bool(row), "P4A_PROCESS_ABSENT")
+    return {"host_start_command_sha256": digest(row)}
+
+
 def _process_receipt() -> dict[str, Any]:
     import socket
 
     from commerceops.infrastructure.worker_lock import process_namespace
 
-    fields = Path("/proc/self/stat").read_text().rsplit(") ", 1)[1].split()
     return {
         "pid": os.getpid(),
         "host": socket.gethostname(),
         "pid_namespace": process_namespace(),
-        "start_ticks": fields[19],
-        "cmdline_sha256": digest(Path("/proc/self/cmdline").read_bytes()),
+        **_process_identity(os.getpid()),
     }
 
 
@@ -1292,10 +1310,15 @@ def process_control_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     pid = receipt["pid"]
     require(type(pid) is int and pid > 1 and pid != os.getpid(), "P4A_PROCESS_PID")
     if request["action"] == "signal_process":
-        fields = Path(f"/proc/{pid}/stat").read_text().rsplit(") ", 1)[1].split()
+        import socket
+
+        from commerceops.infrastructure.worker_lock import process_namespace
+
+        identity = _process_identity(pid)
         require(
-            fields[19] == receipt["start_ticks"]
-            and digest(Path(f"/proc/{pid}/cmdline").read_bytes()) == receipt["cmdline_sha256"],
+            receipt["host"] == socket.gethostname()
+            and receipt["pid_namespace"] == process_namespace()
+            and all(receipt.get(k) == v for k, v in identity.items()),
             "P4A_PROCESS_REUSED",
         )
         os.kill(pid, signal.SIGTERM)
@@ -1333,7 +1356,44 @@ def process_probe_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     """同namespace独立OS探针；只读本轮私有入口argv，排除探针自身。"""
     private = Path(request["private_root"])
     require(private.is_absolute() and private.is_dir(), "P4A_PRIVATE_ROOT")
+    if "absent_receipts" in request:
+        from commerceops.infrastructure.worker_lock import require_process_absent
+
+        receipts = json.loads(private_ref(request["absent_receipts"]))
+        require(type(receipts) is list and bool(receipts), "P4A_PROCESS_RECEIPTS")
+        for receipt in receipts:
+            require_process_absent({k: receipt[k] for k in ("pid", "host", "pid_namespace")})
+        return dict(
+            exit_code=0,
+            stage_result="COMPLETE",
+            suite_PASS=False,
+            owned_entry_processes=0,
+            actual_absence_checks=len(receipts),
+        )
     live = 0
+    if sys.platform != "linux":
+        require(sys.platform == "darwin", "P4A_PROCESS_PLATFORM")
+        rows = (
+            subprocess.run(
+                ["/bin/ps", "-Aww", "-o", "pid=", "-o", "command="],
+                capture_output=True,
+                check=True,
+                timeout=5,
+            )
+            .stdout.decode()
+            .splitlines()
+        )
+        for row in rows:
+            parts = row.strip().split(None, 1)
+            if len(parts) == 2 and int(parts[0]) != os.getpid():
+                if str(private) + "/" in parts[1] and "/run_once.py" in parts[1]:
+                    live += 1
+        return dict(
+            exit_code=int(live != 0),
+            owned_entry_processes=live,
+            stage_result="COMPLETE" if live == 0 else "FAILED",
+            suite_PASS=False,
+        )
     for process in Path("/proc").iterdir():
         if not process.name.isdigit() or int(process.name) == os.getpid():
             continue
@@ -1571,6 +1631,8 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     transport: Any = None
     summary: dict[str, Any] = {}
     try:
+        if request.get("ready_file"):
+            write_private(Path(request["ready_file"]), _process_receipt())
         if request["transport"] == "fake":
             from tests.p4_acceptance_support import FakeHTTPTransport
 
@@ -1599,14 +1661,29 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         else:
             require(request.get("root_real_release") is True, "P4A_REAL_PLATFORM_HOLD")
             require(request["action"] == "worker" and window.recovery is not None, "P4A_REAL_SCOPE")
-            summary = asyncio.run(
-                native.controlled_work(
-                    settings,
-                    window,
-                    config,
-                    M1DemoFactory(),
+            if "lab_http" in refs:
+                from tests.p4_acceptance_support import FakeHTTPTransport
+
+                lab = json.loads(private_ref(refs["lab_http"]))
+                require(
+                    config.database.name.startswith("p4_ro_lab_")
+                    and lab["database"] == config.database.name
+                    and lab["organization_id"] == str(window.organization_id)
+                    and "dummy-app-material" == settings.app_secret_file.name
+                    and "dummy-base-material" == settings.base_app_token_file.name
+                    and settings.app_secret_file.parent == Path(refs["business"]["path"]).parent,
+                    "P4A_LAB_SCOPE",
                 )
-            )
+                transport = FakeHTTPTransport(Path(lab["external_ref"]["path"]), settings)
+                private_ref(lab["external_ref"])
+                with transport.installed():
+                    summary = asyncio.run(
+                        native.controlled_work(settings, window, config, M1DemoFactory())
+                    )
+            else:
+                summary = asyncio.run(
+                    native.controlled_work(settings, window, config, M1DemoFactory())
+                )
     finally:
         native_module.trusted_scope, native_module.verified_target = original_scope, original_target
         native_module.BusinessBaseAdapter.project = original_project
@@ -1698,12 +1775,28 @@ def gateway_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     )
     from commerceops.infrastructure.web_config import WebConfig
 
-    require(request["transport"] == "fake", "P4A_REAL_PLATFORM_HOLD")
+    real_control = request["transport"] == "real"
+    require(
+        not real_control
+        or (
+            request.get("root_real_release") is True
+            and request.get("control_mode") == "native_no_ws"
+        ),
+        "P4A_REAL_PLATFORM_HOLD",
+    )
     refs = request["private_refs"]
     settings = BusinessSettings.model_validate_json(private_ref(refs["business"]))
     window = GatewayWindow.model_validate_json(private_ref(refs["window"]))
     private_ref(refs["web_config"])
     config = WebConfig.from_file(Path(refs["web_config"]["path"]))
+    if real_control:
+        require(
+            window.max_workflows == 0
+            and window.max_callbacks == 1
+            and not settings.f02_enabled
+            and not settings.external_sender_enabled,
+            "P4A_REAL_SCOPE",
+        )
     stopped = False
 
     def stop(signum: int, frame: Any) -> None:
@@ -1719,7 +1812,15 @@ def gateway_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             claim_gateway(db, settings, window)
         with stage_boundary("PERSIST"):
             gateway_process_started(db, window)
-            write_private(Path(request["ready_file"]), {"claimed": True, "pid": os.getpid()})
+            write_private(
+                Path(request["ready_file"]),
+                {
+                    "claimed": True,
+                    **_process_receipt(),
+                    "native_no_ws_control": real_control,
+                    "SDK_Secret_WS": 0,
+                },
+            )
         with stage_boundary("STOP"):
             while not stopped and window.active():
                 time.sleep(0.05)
@@ -2797,6 +2898,1590 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
     }
 
 
+# 原键非消费准入：只读SQL与确定性谓词，最终原native claim仍完整重核。
+def _ro_cap_limits_native(caps: Any, cap_upper: Any) -> bool:
+    return all((1 <= cap <= cap_upper[method] for method, cap in caps.items()))
+
+
+def _ro_low_role_predicate(role: Any) -> bool:
+    return role["role"] == "commerceops_app" and (
+        not any(role[key] for key in role if key != "role")
+    )
+
+
+def _ro_task_plan_approval_predicate(
+    task: Any, a: Any, e: Any, pl: Any, r: Any, projection: Any
+) -> bool:
+    return bool(
+        task
+        and a
+        and e
+        and pl
+        and (task["state"] == "completed")
+        and (task["version"] == r.task_version == 4)
+        and (task["kind"] == "inventory_replenishment")
+        and (task["workflow_version"] == "p3-inventory-replenishment-v1")
+        and (task["active_plan_id"] == r.plan_id == a["plan_id"] == e["plan_id"])
+        and (pl["version"] == a["plan_version"] == r.plan_version)
+        and (pl["plan_hash"] == a["plan_hash"] == e["plan_hash"] == r.plan_hash)
+        and (pl["status"] == "executed")
+        and (a["status"] == "approved")
+        and (a["consumed_at"] is not None)
+        and (a["decision_id"] == r.decision_id)
+        and (a["decision_action"] in ("approve", "approve_with_assumptions"))
+        and (e["status"] == "completed")
+        and (e["item_ids"] == [projection.item_id])
+    )
+
+
+def _ro_current_A_identity_predicate(
+    receipt: Any,
+    identity: Any,
+    actor: Any,
+    grants: Any,
+    scopes: Any,
+    task: Any,
+    r: Any,
+    settings: Any,
+    receipt_hash: Any,
+) -> bool:
+    return bool(
+        receipt_hash(receipt) == r.receipt_hash
+        and identity["provider"] == "feishu"
+        and (identity["principal_id"] == task["requester_id"])
+        and (
+            (identity["app_id"], identity["tenant_key"])
+            == (settings.app_id, settings.tenant_key)
+            == (receipt["app_id"], receipt["tenant_key"])
+        )
+        and (identity["external_subject"] in settings.allowed_open_ids)
+        and actor["enabled"]
+        and (actor["auth_version"] == r.operator_auth_version)
+        and ({"operator", "approver"} <= set(actor["roles"]))
+        and ({grant["role"] for grant in grants if grant["enabled"]} == {"operator", "approver"})
+        and (len(scopes) == 1)
+        and scopes[0]["enabled"]
+        and (task["normalized_request"]["identity_id"] == str(receipt["identity_id"]))
+        and (receipt["sanitized_payload"]["principal_id"] == str(task["requester_id"]))
+        and (receipt["result"]["task_id"] == str(r.task_id))
+    )
+
+
+def _ro_chat_scope_predicate(
+    conversation: Any, task: Any, receipt: Any, org: Any, settings: Any
+) -> bool:
+    return bool(
+        conversation["organization_id"] == org
+        and conversation["actor_id"] == task["requester_id"]
+        and (conversation["channel"] == "feishu")
+        and (receipt["sanitized_payload"]["chat_type"] in ("p2p", "group"))
+        and (
+            receipt["sanitized_payload"]["chat_type"] == "p2p"
+            or conversation["chat_id"] in settings.allowed_group_chat_ids
+        )
+    )
+
+
+def _ro_current_approver_predicate(approver: Any, a: Any, r: Any, settings: Any) -> bool:
+    return bool(
+        len(approver) == 1
+        and approver[0]["enabled"]
+        and approver[0]["scope_enabled"]
+        and approver[0]["grant_enabled"]
+        and ("approver" in approver[0]["roles"])
+        and (approver[0]["provider"] == "feishu")
+        and (approver[0]["auth_version"] == a["decided_auth_version"] == r.approver_auth_version)
+        and (a["decided_by"] in a["eligible_principal_ids"])
+        and (
+            (approver[0]["app_id"], approver[0]["tenant_key"])
+            == (settings.app_id, settings.tenant_key)
+        )
+        and (approver[0]["external_subject"] in settings.allowed_open_ids)
+    )
+
+
+def _ro_gateway_claim_predicate(claim: Any, expected_hash: Any, facts_hash: Any) -> bool:
+    return bool(claim and facts_hash(claim["after_state"]) == expected_hash)
+
+
+def _ro_gateway_scope_predicate(
+    origin: Any, origin_gw: Any, org: Any, shop: Any, task: Any, receipt: Any, claimed_state: Any
+) -> bool:
+    return bool(
+        origin["after_state"] == claimed_state(origin_gw)
+        and (origin_gw.organization_id, origin_gw.shop_id) == (org, shop)
+        and (origin_gw.parameters.model_dump(mode="json") == task["parameters"])
+        and (origin["occurred_at"] <= receipt["receipt_at"] < origin_gw.expires_at)
+    )
+
+
+def _ro_sender_gateway_scope_predicate(
+    sender: Any,
+    sender_gw: Any,
+    org: Any,
+    shop: Any,
+    origin_gw: Any,
+    origin_end: Any,
+    claimed_state: Any,
+) -> bool:
+    return bool(
+        sender["after_state"] == claimed_state(sender_gw)
+        and (sender_gw.organization_id, sender_gw.shop_id) == (org, shop)
+        and (sender_gw.parameters == origin_gw.parameters)
+        and (sender_gw.max_workflows == 0)
+        and (origin_end["occurred_at"] < sender["occurred_at"])
+    )
+
+
+def _ro_lifecycle_unique_time_predicate(
+    starts: Any, terms: Any, now: Any, full_process_receipt: Any
+) -> bool:
+    return bool(
+        len(starts) == len(terms) == 1
+        and full_process_receipt(starts[0]["after_state"])
+        and (starts[0]["occurred_at"] <= terms[0]["occurred_at"] < now)
+    )
+
+
+def _ro_gateway_reap_predicate(starts: Any, terms: Any) -> bool:
+    return bool(
+        terms[0]["after_state"].get("process") == starts[0]["after_state"]
+        and terms[0]["after_state"].get("child_reaped") is True
+        and (type(terms[0]["after_state"].get("child_exit")) is int)
+    )
+
+
+def _ro_worker_stop_predicate(
+    starts: Any, stops: Any, terms: Any, full_process_receipt: Any
+) -> bool:
+    return bool(
+        len(stops) == 1
+        and stops[0]["after_state"] == starts[0]["after_state"]
+        and full_process_receipt(terms[0]["after_state"])
+        and bool(terms[0]["reason"])
+        and all(
+            terms[0]["after_state"][key] == starts[0]["after_state"][key]
+            for key in ("host", "pid_namespace")
+        )
+        and (starts[0]["occurred_at"] <= stops[0]["occurred_at"] <= terms[0]["occurred_at"])
+    )
+
+
+def _ro_process_absence_check(process: Any, require_process_absent: Any) -> bool:
+    require_process_absent(process)
+    return True
+
+
+def _ro_sender_SDK_claim_predicate(sdk: Any, claim: Any, r: Any, sdk_window_hash: Any) -> bool:
+    return bool(sdk and claim and (sdk_window_hash(sdk) == r.original_sdk_window_hash))
+
+
+def _ro_sender_auth_predicate(auth: Any, sdk: Any, worker_end: Any) -> bool:
+    return bool(
+        len(auth) == 1
+        and (auth[0]["status"], auth[0]["http_status"], auth[0]["provider_code"])
+        == ("returned", 200, 0)
+        and (sdk["created_at"] <= auth[0]["started_at"] <= worker_end["occurred_at"])
+    )
+
+
+def _ro_fixed_native_sender_predicates(
+    sw: Any,
+    projection: Any,
+    sdk: Any,
+    sender_gw: Any,
+    org: Any,
+    shop: Any,
+    r: Any,
+    a: Any,
+    task: Any,
+    sender: Any,
+    sender_start: Any,
+    worker_start: Any,
+    claim: Any,
+    worker_end: Any,
+    sender_end: Any,
+    FIRST_CREATE_CAPS: Any,
+    task_binding_hash: Any,
+    approval_binding_hash: Any,
+) -> Any:
+    wf = sw.workflow_recovery
+    result = {}
+    result["SENDER_FIXED_PREDICATE_01"] = bool(sw.profile == "approved_first_create")
+    if not result["SENDER_FIXED_PREDICATE_01"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_02"] = bool(sw.enabled)
+    if not result["SENDER_FIXED_PREDICATE_02"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_03"] = bool(sw.first_create == projection)
+    if not result["SENDER_FIXED_PREDICATE_03"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_04"] = bool(sw.window_id == sdk["id"])
+    if not result["SENDER_FIXED_PREDICATE_04"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_05"] = bool(sw.gateway_window_id == sender_gw.window_id)
+    if not result["SENDER_FIXED_PREDICATE_05"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_06"] = bool((sw.organization_id, sw.shop_id) == (org, shop))
+    if not result["SENDER_FIXED_PREDICATE_06"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_07"] = bool(sw.task_ids == frozenset({r.task_id}))
+    if not result["SENDER_FIXED_PREDICATE_07"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_08"] = bool(sw.expires_at == sdk["expires_at"])
+    if not result["SENDER_FIXED_PREDICATE_08"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_09"] = bool(sw.caps == sdk["method_caps"])
+    if not result["SENDER_FIXED_PREDICATE_09"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_10"] = bool(not set(sw.caps) - set(FIRST_CREATE_CAPS))
+    if not result["SENDER_FIXED_PREDICATE_10"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_11"] = bool(_ro_cap_limits_native(sw.caps, FIRST_CREATE_CAPS))
+    if not result["SENDER_FIXED_PREDICATE_11"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_12"] = bool(wf is not None)
+    if not result["SENDER_FIXED_PREDICATE_12"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_13"] = bool(wf.worker_window_id == sw.window_id)
+    if not result["SENDER_FIXED_PREDICATE_13"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_14"] = bool(wf.gateway_window_id == sw.gateway_window_id)
+    if not result["SENDER_FIXED_PREDICATE_14"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_15"] = bool(wf.expires_at == sw.expires_at)
+    if not result["SENDER_FIXED_PREDICATE_15"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_16"] = bool(wf.worker_owner != r.worker_owner)
+    if not result["SENDER_FIXED_PREDICATE_16"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_17"] = bool(wf.original_gateway_id == r.original_gateway_id)
+    if not result["SENDER_FIXED_PREDICATE_17"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_18"] = bool(wf.original_gateway_hash == r.original_gateway_hash)
+    if not result["SENDER_FIXED_PREDICATE_18"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_19"] = bool(
+        wf.gateway_termination_id == r.gateway_termination_id
+    )
+    if not result["SENDER_FIXED_PREDICATE_19"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_20"] = bool(wf.task_id == r.task_id)
+    if not result["SENDER_FIXED_PREDICATE_20"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_21"] = bool(wf.task_version == r.task_version)
+    if not result["SENDER_FIXED_PREDICATE_21"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_22"] = bool(wf.inbox_id == r.inbox_id)
+    if not result["SENDER_FIXED_PREDICATE_22"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_23"] = bool(wf.receipt_hash == r.receipt_hash)
+    if not result["SENDER_FIXED_PREDICATE_23"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_24"] = bool(wf.approval_id == r.approval_id)
+    if not result["SENDER_FIXED_PREDICATE_24"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_25"] = bool(wf.decision_id == r.decision_id)
+    if not result["SENDER_FIXED_PREDICATE_25"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_26"] = bool(
+        wf.decision_payload_hash == a["decision_payload_hash"]
+    )
+    if not result["SENDER_FIXED_PREDICATE_26"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_27"] = bool(wf.execution_id == r.execution_id)
+    if not result["SENDER_FIXED_PREDICATE_27"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_28"] = bool(wf.operator_auth_version == r.operator_auth_version)
+    if not result["SENDER_FIXED_PREDICATE_28"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_29"] = bool(wf.target_key == r.target_key)
+    if not result["SENDER_FIXED_PREDICATE_29"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_30"] = bool(wf.task_binding_hash == task_binding_hash(task))
+    if not result["SENDER_FIXED_PREDICATE_30"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_31"] = bool(wf.approval_binding_hash == approval_binding_hash(a))
+    if not result["SENDER_FIXED_PREDICATE_31"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_32"] = bool(sdk["configured_enabled"])
+    if not result["SENDER_FIXED_PREDICATE_32"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_33"] = bool(sdk["verification_mode"] == "controlled_sdk")
+    if not result["SENDER_FIXED_PREDICATE_33"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_34"] = bool(
+        (sdk["organization_id"], sdk["shop_id"]) == (org, shop)
+    )
+    if not result["SENDER_FIXED_PREDICATE_34"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_35"] = bool(
+        sender["occurred_at"]
+        <= sender_start["occurred_at"]
+        <= worker_start["occurred_at"]
+        <= claim["occurred_at"]
+        <= sdk["created_at"]
+        <= worker_end["occurred_at"]
+    )
+    if not result["SENDER_FIXED_PREDICATE_35"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_36"] = bool(sdk["created_at"] < sender_end["occurred_at"])
+    if not result["SENDER_FIXED_PREDICATE_36"]:
+        return result
+    result["SENDER_FIXED_PREDICATE_37"] = bool(
+        sdk["created_at"] < sdk["expires_at"] <= sender_gw.expires_at
+    )
+    if not result["SENDER_FIXED_PREDICATE_37"]:
+        return result
+    return result
+
+
+def _ro_actor_sender(db: Any, settings: Any, window: Any) -> None:
+    from commerceops.application.feishu_business.gateway_window import GatewayWindow
+    from commerceops.application.feishu_business.worker_window import (
+        FIRST_CREATE_CAPS,
+        ControlledWorkerWindow,
+    )
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.feishu_gateway_window import claimed_state
+    from commerceops.infrastructure.feishu_outbox_recovery import (
+        full_process_receipt,
+        receipt_hash,
+        sdk_window_hash,
+    )
+    from commerceops.infrastructure.feishu_workflow_recovery import (
+        approval_binding_hash,
+        task_binding_hash,
+    )
+    from commerceops.infrastructure.worker_lock import require_process_absent
+
+    r = window.recovery
+    org, shop = (window.organization_id, window.shop_id)
+    p = r.projections[0]
+    role = db.execute(
+        "SELECT current_user AS "
+        "role,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls FROM pg_roles "
+        "WHERE rolname=current_user"
+    ).fetchone()
+    require(_ro_low_role_predicate(role), "P4A_" + "BIND_CURRENT_LOW_ROLE")
+    task = db.execute(
+        (
+            "SELECT t.*,s.source_task_id,s.parameters,s.config_version FROM "
+            "business.business_tasks t JOIN business.p3_task_sources s ON s.task_id=t.id WHERE "
+            "t.id=%s AND t.organization_id=%s AND t.shop_id=%s"
+        ),
+        (r.task_id, org, shop),
+    ).fetchone()
+    a = db.execute(
+        "SELECT * FROM business.approvals WHERE id=%s AND task_id=%s", (r.approval_id, r.task_id)
+    ).fetchone()
+    e = db.execute(
+        "SELECT * FROM business.executions WHERE id=%s AND task_id=%s", (r.execution_id, r.task_id)
+    ).fetchone()
+    pl = db.execute(
+        "SELECT * FROM business.replenishment_plans WHERE id=%s", (r.plan_id,)
+    ).fetchone()
+    require(
+        _ro_task_plan_approval_predicate(task, a, e, pl, r, p),
+        "P4A_" + "BIND_CURRENT_TASK_PLAN_APPROVAL",
+    )
+    receipt = db.execute(
+        (
+            "SELECT i.*,r.inbox_id,r.identity_id,r.result,r.created_at AS receipt_at FROM "
+            "business.inbox_events i JOIN business.p4_inbox_receipts r ON r.inbox_id=i.id WHERE "
+            "i.id=%s AND i.task_id=%s AND i.organization_id=%s AND i.shop_id=%s AND "
+            "i.source='feishu_business'"
+        ),
+        (r.inbox_id, r.task_id, org, shop),
+    ).fetchone()
+    identity = db.execute(
+        "SELECT * FROM business.identities WHERE id=%s", (receipt["identity_id"],)
+    ).fetchone()
+    actor = db.execute(
+        "SELECT * FROM business.principals WHERE id=%s AND organization_id=%s",
+        (task["requester_id"], org),
+    ).fetchone()
+    grants = db.execute(
+        (
+            "SELECT role,enabled FROM business.principal_role_shop_grants WHERE principal_id=%s "
+            "AND organization_id=%s AND shop_id=%s"
+        ),
+        (task["requester_id"], org, shop),
+    ).fetchall()
+    scopes = db.execute(
+        (
+            "SELECT enabled FROM business.principal_shop_scopes WHERE principal_id=%s AND "
+            "organization_id=%s AND shop_id=%s"
+        ),
+        (task["requester_id"], org, shop),
+    ).fetchall()
+    require(
+        _ro_current_A_identity_predicate(
+            receipt, identity, actor, grants, scopes, task, r, settings, receipt_hash
+        ),
+        "P4A_" + "BIND_CURRENT_A_SCOPE_AUTH",
+    )
+    conversation = db.execute(
+        "SELECT * FROM business.conversations WHERE id=%s", (task["conversation_id"],)
+    ).fetchone()
+    require(
+        _ro_chat_scope_predicate(conversation, task, receipt, org, settings),
+        "P4A_" + "BIND_CURRENT_CHAT_SCOPE",
+    )
+    approver = db.execute(
+        (
+            "SELECT "
+            "p.enabled,p.roles,p.auth_version,i.provider,i.principal_id,i.app_id,i.tenant_key,i.external_subject,s.enabled"
+            " AS scope_enabled,g.enabled AS grant_enabled FROM business.principals p JOIN "
+            "business.identities i ON i.principal_id=p.id JOIN business.principal_shop_scopes s "
+            "ON s.principal_id=p.id AND s.organization_id=p.organization_id AND s.shop_id=%s JOIN"
+            " business.principal_role_shop_grants g ON g.principal_id=p.id AND "
+            "g.organization_id=p.organization_id AND g.shop_id=s.shop_id AND g.role='approver' "
+            "WHERE p.id=%s AND p.organization_id=%s AND i.id=%s"
+        ),
+        (shop, a["decided_by"], org, a["decided_identity_id"]),
+    ).fetchall()
+    require(
+        _ro_current_approver_predicate(approver, a, r, settings), "P4A_" + "BIND_CURRENT_APPROVER"
+    )
+
+    def lifecycle(source: str, kind: str, entity: Any, term_id: Any, label: str) -> tuple[Any, Any]:
+        rows = db.execute(
+            (
+                "SELECT * FROM business.audit_events WHERE organization_id=%s AND source=%s AND "
+                "entity_type=%s AND entity_id=%s AND action IN "
+                "('started','stopped','termination_confirmed')"
+            ),
+            (org, source, kind, str(entity)),
+        ).fetchall()
+        starts = [x for x in rows if x["action"] == "started"]
+        terms = [x for x in rows if x["action"] == "termination_confirmed" and x["id"] == term_id]
+        require(
+            _ro_lifecycle_unique_time_predicate(
+                starts, terms, datetime.now(UTC), full_process_receipt
+            ),
+            "P4A_" + (label + "_PAIR_TIME"),
+        )
+        require(
+            _ro_process_absence_check(starts[0]["after_state"], require_process_absent),
+            "P4A_" + (label + "_OS_ABSENT"),
+        )
+        if source == "feishu_gateway":
+            require(_ro_gateway_reap_predicate(starts, terms), "P4A_" + (label + "_REAPED"))
+        else:
+            stops = [x for x in rows if x["action"] == "stopped"]
+            require(
+                _ro_worker_stop_predicate(starts, stops, terms, full_process_receipt),
+                "P4A_" + (label + "_STOPPED"),
+            )
+            require(
+                _ro_process_absence_check(terms[0]["after_state"], require_process_absent),
+                "P4A_" + (label + "_PARENT_ABSENT"),
+            )
+        return (starts[0], terms[0])
+
+    origin = db.execute(
+        (
+            "SELECT * FROM business.audit_events WHERE id=%s AND organization_id=%s AND "
+            "source='feishu_gateway' AND action='gateway_start_claimed' AND "
+            "entity_type='gateway_window'"
+        ),
+        (r.original_gateway_id, org),
+    ).fetchone()
+    require(
+        _ro_gateway_claim_predicate(origin, r.original_gateway_hash, facts_hash),
+        "P4A_" + "BIND_ORIGIN_HASH",
+    )
+    ogw = GatewayWindow.model_validate_json(
+        json.dumps({k: origin["after_state"].get(k) for k in GatewayWindow.model_fields})
+    )
+    require(
+        _ro_gateway_scope_predicate(origin, ogw, org, shop, task, receipt, claimed_state),
+        "P4A_" + "BIND_ORIGIN_SCOPE",
+    )
+    _, origin_end = lifecycle(
+        "feishu_gateway",
+        "gateway_runtime",
+        r.original_gateway_id,
+        r.gateway_termination_id,
+        "BIND_ORIGIN",
+    )
+    sender = db.execute(
+        (
+            "SELECT * FROM business.audit_events WHERE id=%s AND organization_id=%s AND "
+            "source='feishu_gateway' AND action='gateway_start_claimed' AND "
+            "entity_type='gateway_window'"
+        ),
+        (r.sender_gateway.gateway_id, org),
+    ).fetchone()
+    require(
+        _ro_gateway_claim_predicate(sender, r.sender_gateway.gateway_hash, facts_hash),
+        "P4A_" + "BIND_SENDER_HASH",
+    )
+    sgw = GatewayWindow.model_validate_json(
+        json.dumps({k: sender["after_state"].get(k) for k in GatewayWindow.model_fields})
+    )
+    require(
+        _ro_sender_gateway_scope_predicate(sender, sgw, org, shop, ogw, origin_end, claimed_state),
+        "P4A_" + "BIND_SENDER_SCOPE",
+    )
+    sender_start, sender_end = lifecycle(
+        "feishu_gateway",
+        "gateway_runtime",
+        r.sender_gateway.gateway_id,
+        r.sender_gateway.termination_id,
+        "BIND_SENDER_GATEWAY",
+    )
+    worker_start, worker_end = lifecycle(
+        "worker", "worker_runtime", r.worker_owner, r.worker_termination_id, "BIND_SENDER_WORKER"
+    )
+    sdk = db.execute(
+        "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (r.original_sdk_window_id,)
+    ).fetchone()
+    claim = db.execute(
+        (
+            "SELECT * FROM business.audit_events WHERE id=%s AND organization_id=%s AND "
+            "source='feishu_recovery' AND action='approved_workflow_claimed' AND "
+            "entity_type='sdk_window'"
+        ),
+        (r.original_sdk_window_id, org),
+    ).fetchone()
+    require(
+        _ro_sender_SDK_claim_predicate(sdk, claim, r, sdk_window_hash),
+        "P4A_" + "BIND_SENDER_SDK_HASH",
+    )
+    sw = ControlledWorkerWindow.model_validate_json(json.dumps(claim["after_state"]))
+    values = _ro_fixed_native_sender_predicates(
+        sw,
+        p,
+        sdk,
+        sgw,
+        org,
+        shop,
+        r,
+        a,
+        task,
+        sender,
+        sender_start,
+        worker_start,
+        claim,
+        worker_end,
+        sender_end,
+        FIRST_CREATE_CAPS,
+        task_binding_hash,
+        approval_binding_hash,
+    )
+    for label, value in values.items():
+        require(value, "P4A_" + label)
+    require(len(values) == 37, "P4A_" + "BIND_ALL_37_SENDER_PREDICATES")
+    auth = db.execute(
+        (
+            "SELECT * FROM business.p4_sdk_calls WHERE window_id=%s AND subject_id=%s AND task_id"
+            " IS NULL AND scope_kind='preflight' AND "
+            "method='auth.v3.tenant_access_token.internal'"
+        ),
+        (sdk["id"], sdk["id"]),
+    ).fetchall()
+    require(_ro_sender_auth_predicate(auth, sdk, worker_end), "P4A_" + "BIND_SENDER_AUTH_LEDGER")
+
+
+def _ro_delivery_preflight(db: Any, window: Any) -> None:
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.feishu_outbox_recovery import full_process_receipt
+    from commerceops.infrastructure.worker_lock import require_process_absent
+
+    recovery = window.recovery
+    projection = recovery.projections[0]
+    recheck = recovery.explicit_ro_recheck
+    rows = db.execute(
+        (
+            "SELECT d.*,o.request_hash,o.payload AS original_payload,o.provider_idempotency_key,"
+            "\n            t.state AS task_state,t.version AS task_version,e.status AS "
+            "execution_status,\n            a.status AS approval_status,a.consumed_at,i.version AS"
+            " current_version,\n            i.status AS item_status FROM "
+            "business.p4_base_deliveries d\n            JOIN business.outbox o ON o.id=d.outbox_id"
+            "\n            JOIN business.business_tasks t ON t.id=d.task_id\n            JOIN "
+            "business.replenishment_items i ON i.id=d.item_id\n            JOIN "
+            "business.executions e ON e.id=i.execution_id\n            JOIN business.approvals a "
+            "ON a.id=e.approval_id\n            WHERE d.outbox_id=%s AND d.task_id=%s AND "
+            "d.organization_id=%s AND d.shop_id=%s"
+        ),
+        (projection.outbox_id, recovery.task_id, window.organization_id, window.shop_id),
+    ).fetchall()
+    require(len(rows) == 1, "P4A_RO_ORIGINAL_BINDING")
+    row = rows[0]
+    require(
+        row["status"] == "unknown"
+        and row["attempts"] == (2 if recheck is None else 3)
+        and (
+            row["claimed_by"]
+            == str(recovery.worker_owner if recheck is None else recheck.reader_owner)
+        )
+        and (
+            recheck is None
+            or (row["last_operation"] == "reconcile" and row["last_error"] == "INCOMPLETE_READBACK")
+        )
+        and (row["external_id"] is None)
+        and (row["version"] == 1)
+        and (row["item_id"] == projection.item_id)
+        and (row["current_version"] == 1)
+        and (row["item_status"] == "open")
+        and (row["task_state"] == "completed")
+        and (row["task_version"] == recovery.task_version)
+        and (row["execution_status"] == "completed")
+        and (row["approval_status"] == "approved")
+        and (row["consumed_at"] is not None)
+        and (row["client_token"] == row["provider_idempotency_key"] == projection.client_token)
+        and (row["request_hash"] == facts_hash(row["original_payload"]) == projection.request_hash)
+        and (row["projection_hash"] == facts_hash(row["projection"]) == projection.projection_hash),
+        "P4A_RO_ORIGINAL_BINDING",
+    )
+    history = db.execute(
+        (
+            "SELECT window_id,status,http_status,provider_code FROM business.p4_sdk_calls"
+            "\n            WHERE subject_id=%s AND method='bitable.v1.app_table_record.create'"
+        ),
+        (projection.outbox_id,),
+    ).fetchall()
+    anchor = db.execute(
+        "SELECT count(*) AS n FROM business.p4_base_links WHERE item_id=%s", (projection.item_id,)
+    ).fetchone()["n"]
+    require(
+        history
+        == [
+            {
+                "window_id": recovery.original_sdk_window_id,
+                "status": "returned",
+                "http_status": 200,
+                "provider_code": 0,
+            }
+        ]
+        and anchor == 0,
+        "P4A_RO_ORIGINAL_BINDING",
+    )
+    ends = db.execute(
+        (
+            "SELECT action,after_state,reason FROM business.audit_events WHERE organization_id=%s"
+            "\n            AND entity_id=%s AND source='worker' AND entity_type='worker_runtime'"
+            "\n            AND action IN ('started','stopped','termination_confirmed')"
+        ),
+        (window.organization_id, str(recovery.worker_owner)),
+    ).fetchall()
+    starts = [e for e in ends if e["action"] == "started"]
+    stops = [e for e in ends if e["action"] == "stopped"]
+    terms = [e for e in ends if e["action"] == "termination_confirmed"]
+    require(
+        len(starts) == len(stops) == len(terms) == 1
+        and starts[0]["after_state"] == stops[0]["after_state"]
+        and full_process_receipt(starts[0]["after_state"])
+        and full_process_receipt(terms[0]["after_state"])
+        and bool(terms[0]["reason"])
+        and all(
+            starts[0]["after_state"][key] == terms[0]["after_state"][key]
+            for key in ("host", "pid_namespace")
+        ),
+        "P4A_RO_ORIGINAL_BINDING",
+    )
+    require_process_absent(starts[0]["after_state"])
+    if recheck is not None:
+        from commerceops.infrastructure.feishu_outbox_recovery import recheck_audit_id
+
+        occupied = db.execute(
+            "SELECT count(*) AS n FROM business.audit_events WHERE id=ANY(%s)",
+            (
+                [
+                    recheck_audit_id(projection.outbox_id),
+                    recheck_audit_id(projection.outbox_id, dispatched=True),
+                ],
+            ),
+        ).fetchone()["n"]
+        require(occupied == 0, "P4A_RO_ONCE_SPENT")
+
+
+def _ro_reference(path: Path) -> dict[str, str]:
+    return {"path": str(path.absolute()), "sha256": digest(bound_bytes(path, private=True))}
+
+
+def _ro_schema(owner: Any, app: Any, revision: str) -> dict[str, Any]:
+    """原库只读元数据；不复用schema_case的建库/迁移路径。"""
+    from commerceops.infrastructure.database import connect
+
+    require(
+        revision in ("0015", "0016")
+        and owner.user == "commerceops_owner"
+        and app.user == "commerceops_app"
+        and app.runtime_password_file is None
+        and (owner.host, owner.port, owner.name) == (app.host, app.port, app.name),
+        "P4A_RO_DATABASE_BINDING",
+    )
+    with connect(owner) as db:
+        db.execute("SET TRANSACTION READ ONLY")
+        db.execute("SET LOCAL statement_timeout='5s'")
+        actual = QUERIES["REVISION"].execute(db, revision=revision, role="owner")
+        tables = QUERIES["TABLES"].execute(db, revision=revision, role="owner")
+        columns = QUERIES["COLUMNS"].execute(db, revision=revision, role="owner")
+    expected = {"business." + t for t in BUSINESS_0015}
+    expected |= {"checkpoints." + t for t in (*CP_DATA_TABLES, "checkpoint_migrations")}
+    if revision == "0016":
+        expected.add("business.p4_clarification_requests")
+    require(
+        actual
+        == [
+            {
+                "revision": {
+                    "0015": "0015_p4_read_replies",
+                    "0016": "0016_p4_clarification_requests",
+                }[revision]
+            }
+        ]
+        and {r["schema"] + "." + r["name"] for r in tables} == expected,
+        "P4A_SCHEMA_REVISION",
+    )
+    with connect(app) as db:
+        db.execute("SET TRANSACTION READ ONLY")
+        role = db.execute(
+            "SELECT current_user::text AS role,rolsuper,rolcreatedb,rolcreaterole,"
+            "rolreplication,rolbypassrls FROM pg_roles WHERE rolname=current_user"
+        ).fetchone()
+        require(role is not None and _ro_low_role_predicate(role), "P4A_ROLE")
+        owners = db.execute(
+            "SELECT count(*) AS n FROM pg_stat_activity "
+            "WHERE datname=current_database() AND usename='commerceops_owner'"
+        ).fetchone()
+        require(owners is not None and owners["n"] == 0, "P4A_RO_OWNER_OPEN")
+    return dict(
+        revision=revision,
+        exact_table_count=len(expected),
+        columns_sha256=digest(canonical(columns)),
+        owner_connection_closed=True,
+        app_role=role,
+    )
+
+
+def _ro_prepare(request: Mapping[str, Any]) -> dict[str, Any]:
+    """从实际原PG派生reader；所有连接READ ONLY，绝不消费once。"""
+    import asyncio
+
+    from commerceops.adapters.feishu.business_config import BusinessSettings
+    from commerceops.application.feishu_business.worker_window import (
+        READONLY_RECOVERY_CAPS,
+        ControlledWorkerWindow,
+    )
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+    from commerceops.infrastructure.feishu_outbox_recovery import sdk_window_hash, trusted_reader
+    from commerceops.infrastructure.web_config import WebConfig
+    from commerceops.infrastructure.worker_lock import open_async
+
+    refs = request["private_refs"]
+    settings = BusinessSettings.model_validate_json(private_ref(refs["business"]))
+    private_ref(refs["web_config"])
+    require(settings.web_config_file == Path(refs["web_config"]["path"]), "P4A_CONFIG_BINDING")
+    web = WebConfig.from_file(settings.web_config_file)
+    owner = DatabaseSettings.model_validate_json(private_ref(refs["owner_database"]))
+    schema = _ro_schema(owner, web.database, request["revision"])
+    template = ControlledWorkerWindow.model_validate_json(private_ref(refs["template"]))
+    r = template.recovery
+    require(
+        not template.enabled
+        and template.profile == "approved_outbox"
+        and r is not None
+        and r.explicit_ro_recheck is None
+        and r.sender_gateway is not None
+        and template.caps == dict(READONLY_RECOVERY_CAPS)
+        and template.workflow_recovery is None
+        and template.first_create is None
+        and len(r.projections) == 1
+        and r.projections[0].version == 1
+        and (template.organization_id, template.shop_id)
+        == (settings.organization_id, settings.shop_id)
+        and r.target_key == settings.base_target_key
+        and not settings.f02_enabled
+        and not settings.external_sender_enabled,
+        "P4A_RO_TEMPLATE",
+    )
+    if r is None:
+        raise AcceptanceFailure("P4A_RO_TEMPLATE")
+    with connect(web.database) as db:
+        db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+        db.execute("SET LOCAL statement_timeout='5s'")
+        delivery = db.execute(
+            "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s "
+            "AND task_id=%s AND organization_id=%s AND shop_id=%s",
+            (r.projections[0].outbox_id, r.task_id, template.organization_id, template.shop_id),
+        ).fetchone()
+        require(
+            delivery is not None
+            and delivery["status"] == "unknown"
+            and delivery["attempts"] == 3
+            and delivery["last_operation"] == "reconcile"
+            and delivery["last_error"] == "INCOMPLETE_READBACK"
+            and delivery["external_id"] is None,
+            "P4A_RO_LAST_READER",
+        )
+        if delivery is None:
+            raise AcceptanceFailure("P4A_RO_LAST_READER")
+        runs = db.execute(
+            "SELECT id,action,occurred_at FROM business.audit_events "
+            "WHERE organization_id=%s AND source='worker' "
+            "AND entity_type='worker_runtime' AND entity_id=%s",
+            (template.organization_id, delivery["claimed_by"]),
+        ).fetchall()
+        starts = [x for x in runs if x["action"] == "started"]
+        stops = [x for x in runs if x["action"] == "stopped"]
+        ends = [x for x in runs if x["action"] == "termination_confirmed"]
+        require(len(starts) == len(stops) == len(ends) == 1, "P4A_RO_READER_LIFECYCLE")
+        claims = db.execute(
+            "SELECT id,after_state FROM business.audit_events WHERE "
+            "organization_id=%s AND task_id=%s AND source='feishu_recovery' "
+            "AND action='approved_outbox_claimed' AND entity_type='sdk_window' "
+            "AND occurred_at BETWEEN %s AND %s",
+            (
+                template.organization_id,
+                r.task_id,
+                starts[0]["occurred_at"],
+                stops[0]["occurred_at"],
+            ),
+        ).fetchall()
+        require(len(claims) == 1, "P4A_RO_READER_CLAIM")
+        prior = ControlledWorkerWindow.model_validate_json(json.dumps(claims[0]["after_state"]))
+        require(
+            prior.window_id == claims[0]["id"]
+            and prior.recovery is not None
+            and prior.recovery.explicit_ro_recheck is None,
+            "P4A_RO_READER_CLAIM",
+        )
+        sdk = db.execute(
+            "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (prior.window_id,)
+        ).fetchone()
+        gw = db.execute(
+            "SELECT after_state FROM business.audit_events WHERE id=%s "
+            "AND organization_id=%s AND source='feishu_gateway' "
+            "AND action='gateway_start_claimed' AND entity_type='gateway_window'",
+            (prior.gateway_window_id, template.organization_id),
+        ).fetchone()
+        terms = db.execute(
+            "SELECT id FROM business.audit_events WHERE organization_id=%s "
+            "AND entity_id=%s AND source='feishu_gateway' "
+            "AND entity_type='gateway_runtime' AND action='termination_confirmed'",
+            (template.organization_id, str(prior.gateway_window_id)),
+        ).fetchall()
+        require(sdk is not None and gw is not None and len(terms) == 1, "P4A_RO_READER_INPUT")
+        if sdk is None or gw is None:
+            raise AcceptanceFailure("P4A_RO_READER_INPUT")
+        payload = template.model_dump(mode="json")
+        payload["recovery"]["explicit_ro_recheck"] = dict(
+            recheck_count=1,
+            reader_window_id=str(prior.window_id),
+            reader_window_hash=sdk_window_hash(sdk),
+            reader_claim_hash=facts_hash(claims[0]["after_state"]),
+            reader_owner=delivery["claimed_by"],
+            reader_termination_id=str(ends[0]["id"]),
+            reader_gateway=dict(
+                gateway_id=str(prior.gateway_window_id),
+                gateway_hash=facts_hash(gw["after_state"]),
+                termination_id=str(terms[0]["id"]),
+            ),
+        )
+        candidate = ControlledWorkerWindow.model_validate_json(json.dumps(payload))
+        _ro_actor_sender(db, settings, candidate)
+        _ro_delivery_preflight(db, candidate)
+        active = db.execute(
+            "SELECT count(*) AS n FROM business.p4_sdk_windows "
+            "WHERE configured_enabled AND expires_at>clock_timestamp()"
+        ).fetchone()
+        locks = db.execute(
+            "SELECT count(*) AS n FROM pg_locks WHERE locktype='advisory' AND granted"
+        ).fetchone()
+        clients = db.execute(
+            "SELECT count(*) AS n FROM pg_stat_activity WHERE "
+            "datname=current_database() AND backend_type='client backend' "
+            "AND pid<>pg_backend_pid()"
+        ).fetchone()
+        require(
+            bool(active and locks and clients and active["n"] == locks["n"] == clients["n"] == 0),
+            "P4A_RO_OTHER_PRODUCER",
+        )
+        origin = db.execute(
+            "SELECT after_state FROM business.audit_events WHERE id=%s", (r.original_gateway_id,)
+        ).fetchone()
+
+    async def check_reader() -> None:
+        async with await open_async(web.database) as connection, connection.transaction():
+            await connection.execute("SET TRANSACTION READ ONLY")
+            await trusted_reader(connection, candidate, datetime.now(UTC))
+
+    asyncio.run(check_reader())
+    if origin is None:
+        raise AcceptanceFailure("P4A_RO_ORIGIN")
+    return dict(
+        schema=schema,
+        prepared_window=payload,
+        origin=origin["after_state"],
+        nonconsuming=True,
+        manual_unconsumed=True,
+        attempts=3,
+        C=1,
+        anchor=0,
+    )
+
+
+def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
+    require(
+        request["transport"] == "real" and request.get("root_real_release") is True,
+        "P4A_REAL_PLATFORM_HOLD",
+    )
+    candidate = binding.manifest["candidate"]
+    actual = (
+        subprocess.run(
+            ["git", "rev-parse", "HEAD", "HEAD^{tree}"],
+            cwd=binding.root,
+            capture_output=True,
+            check=True,
+            timeout=5,
+        )
+        .stdout.decode()
+        .splitlines()
+    )
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=binding.root,
+        capture_output=True,
+        check=True,
+        timeout=5,
+    ).stdout
+    require(
+        actual == [candidate["source_sha"], candidate["tree"]] and not dirty, "P4A_RO_SOURCE_CLEAN"
+    )
+    require(set(request["images"]) == {"postgres", "runner", "web"}, "P4A_RESOURCE_SET")
+    for name, expected in request["images"].items():
+        require(
+            re.fullmatch(r"sha256:[0-9a-f]{64}", expected["id"]) is not None, "P4A_RUNNER_IMAGE"
+        )
+        value = json.loads(_docker(["image", "inspect", expected["id"]]).stdout)[0]
+        require(value["Id"] == expected["id"], "P4A_RUNNER_IMAGE")
+        if name != "postgres":
+            require(
+                expected["source_sha"] == candidate["source_sha"]
+                and expected["source_tree"] == candidate["tree"]
+                and value["Config"]["Labels"].get("p4.acceptance.source_sha")
+                == candidate["source_sha"]
+                and value["Config"]["Labels"].get("p4.acceptance.source_tree") == candidate["tree"],
+                "P4A_CONTEXT_SOURCE_MISMATCH",
+            )
+    require(
+        request["images"]["postgres"]["id"] == request["pg_resource"]["image"], "P4A_PG_RESOURCE"
+    )
+
+
+def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
+    """只管理Root精确登记的一个PG；无volume删除，失败不扩大清理范围。"""
+    import socket
+
+    r = request["pg_resource"]
+    require(re.fullmatch(r"[a-z][a-z0-9-]{2,63}", r["project"]) is not None, "P4A_RESOURCE_OWNER")
+    private_ref(r["compose_ref"])
+    from commerceops.infrastructure.database import DatabaseSettings
+
+    owner = DatabaseSettings.model_validate_json(
+        private_ref(request["private_refs"]["owner_database"])
+    )
+    require(
+        owner.host == "127.0.0.1"
+        and owner.port == r["port"]
+        and str(owner.password_file) == r["owner_secret_file"],
+        "P4A_RO_DATABASE_BINDING",
+    )
+    volume = json.loads(_docker(["volume", "inspect", r["volume"]]).stdout)[0]
+    require(
+        volume["Name"] == r["volume"]
+        and all(volume.get("Labels", {}).get(k) == v for k, v in r["volume_labels"].items())
+        and bool(r["volume_labels"]),
+        "P4A_RESOURCE_OWNER",
+    )
+
+    def ids(kind: str) -> list[str]:
+        args = ["ps", "-aq"] if kind == "container" else ["network", "ls", "-q"]
+        return (
+            _docker([*args, "--filter", "label=com.docker.compose.project=" + r["project"]])
+            .stdout.decode()
+            .split()
+        )
+
+    containers = ids("container")
+    if start:
+        require(not containers and not ids("network"), "P4A_RESOURCE_ALREADY_RUNNING")
+        compose = ["compose", "--project-name", r["project"], "-f", r["compose_ref"]["path"]]
+        config = json.loads(_docker([*compose, "config", "--format", "json"]).stdout)
+        require(set(config["services"]) == {"postgres"}, "P4A_RO_COMPOSE_SCOPE")
+        service = config["services"]["postgres"]
+        ports = service.get("ports", [])
+        require(
+            service["image"] == r["image"]
+            and len(ports) == 1
+            and ports[0]["host_ip"] == "127.0.0.1"
+            and ports[0]["target"] == 5432
+            and str(ports[0]["published"]) == str(r["port"])
+            and not service.get("privileged")
+            and not service.get("network_mode")
+            and not service.get("build")
+            and not service.get("entrypoint")
+            and not service.get("devices")
+            and not service.get("cap_add")
+            and service.get("environment")
+            == {
+                "POSTGRES_USER": "commerceops_owner",
+                "POSTGRES_DB": owner.name,
+                "POSTGRES_PASSWORD_FILE": "/run/secrets/owner_password",
+            }
+            and service.get("command")
+            == [
+                "postgres",
+                "-c",
+                "log_statement=none",
+                "-c",
+                "log_min_error_statement=panic",
+                "-c",
+                "log_parameter_max_length_on_error=0",
+            ]
+            and set(config.get("secrets", {})) == {"owner_password"}
+            and config["secrets"]["owner_password"]["file"] == r["owner_secret_file"]
+            and service.get("secrets") == [{"source": "owner_password", "target": "owner_password"}]
+            and len(service["volumes"]) == 1
+            and service["volumes"][0]["type"] == "volume"
+            and service["volumes"][0]["target"] == "/var/lib/postgresql/data"
+            and config["volumes"][service["volumes"][0]["source"]]["name"] == r["volume"]
+            and service.get("labels", {}).get("p4.ro.run") == r["run_id"],
+            "P4A_RO_COMPOSE_SCOPE",
+        )
+        _docker([*compose, "up", "-d", "postgres"], timeout=45)
+        end = time.monotonic() + min(45, _runtime(request["runtime"]).remaining())
+        while True:
+            containers = ids("container")
+            require(len(containers) == 1, "P4A_RESOURCE_SET")
+            actual = json.loads(_docker(["inspect", containers[0]]).stdout)[0]
+            require(
+                actual["Image"] == r["image"]
+                and actual["Config"]["Labels"].get("p4.ro.run") == r["run_id"]
+                and len(actual["Mounts"]) == 2
+                and any(m.get("Name") == r["volume"] for m in actual["Mounts"])
+                and any(
+                    m.get("Source") == r["owner_secret_file"]
+                    and m.get("Destination") == "/run/secrets/owner_password"
+                    and m.get("RW") is False
+                    for m in actual["Mounts"]
+                )
+                and actual["HostConfig"]["PortBindings"]
+                == {"5432/tcp": [{"HostIp": "127.0.0.1", "HostPort": str(r["port"])}]},
+                "P4A_RESOURCE_OWNER",
+            )
+            if actual["State"].get("Health", {}).get("Status") == "healthy":
+                break
+            require(time.monotonic() < end and actual["State"]["Running"], "P4A_PG_START")
+            time.sleep(0.2)
+        return dict(container_id=actual["Id"], image=actual["Image"], port=r["port"])
+    exits = []
+    for cid in containers:
+        actual = json.loads(_docker(["inspect", cid]).stdout)[0]
+        require(
+            actual["Image"] == r["image"]
+            and actual["Config"]["Labels"].get("p4.ro.run") == r["run_id"]
+            and any(m.get("Name") == r["volume"] for m in actual["Mounts"]),
+            "P4A_RESOURCE_OWNER",
+        )
+        if actual["State"]["Running"]:
+            _docker(["stop", "--time", "15", cid], timeout=25)
+        actual = json.loads(_docker(["inspect", cid]).stdout)[0]
+        require(
+            not actual["State"]["Running"]
+            and not actual["State"]["OOMKilled"]
+            and not actual["State"]["Error"],
+            "P4A_CONTAINER_UNCLEAN_EXIT",
+        )
+        exits.append(actual["State"]["ExitCode"])
+        _docker(["rm", cid])
+    for network in ids("network"):
+        actual = json.loads(_docker(["network", "inspect", network]).stdout)[0]
+        require(not actual["Containers"], "P4A_NETWORK_OWNER")
+        _docker(["network", "rm", network])
+    with socket.socket() as probe:
+        probe.settimeout(1)
+        closed = probe.connect_ex(("127.0.0.1", int(r["port"]))) != 0
+    kept = json.loads(_docker(["volume", "inspect", r["volume"]]).stdout)[0]["Name"] == r["volume"]
+    require(
+        not ids("container")
+        and not ids("network")
+        and kept
+        and closed
+        and all(e == 0 for e in exits),
+        "P4A_RO_RESOURCE_CLEANUP",
+    )
+    return dict(
+        verified=True,
+        containers=0,
+        networks=0,
+        volume_preserved=kept,
+        listener_closed=closed,
+        container_exits=exits,
+    )
+
+
+def original_ro_lab_history(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
+    """仅空白新LAB库；实际原生C0/sender/reader历史，进程退出后才可做真实分支预演。"""
+    from uuid import uuid4
+
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+
+    from tests.p4_acceptance_support import AcceptanceFixture, prepare_single_ro
+    from tests.test_p4_acceptance_pg import initialize_schema
+
+    owner = DatabaseSettings.model_validate_json(private_ref(request["owner_database_ref"]))
+    app = DatabaseSettings.model_validate_json(private_ref(request["app_database_ref"]))
+    require(
+        owner.name.startswith("p4_ro_lab_")
+        and owner.name == app.name
+        and owner.host == app.host == "127.0.0.1"
+        and app.user == "commerceops_app",
+        "P4A_LAB_SCOPE",
+    )
+    with connect(owner) as db:
+        row = db.execute(
+            "SELECT count(*) AS n FROM information_schema.tables "
+            "WHERE table_schema IN ('business','checkpoints')"
+        ).fetchone()
+        require(row is not None and row["n"] == 0, "P4A_LAB_EMPTY_REQUIRED")
+    initialize_schema(owner, request["revision"])
+    private = Path(request["private_directory"])
+    manifest = json.loads(private_ref(request["manifest_ref"]))
+    require(manifest == binding.manifest, "P4A_CONTEXT_SOURCE_MISMATCH")
+    a = AcceptanceFixture.prepare(
+        owner,
+        app,
+        private,
+        _runtime(request["runtime"]),
+        case_kind="recover_single_item",
+        entry_manifest_ref=request["manifest_ref"],
+    )
+    try:
+        result = prepare_single_ro(a, defer_explicit=True)
+        template = result["prior_reader"].model_dump(mode="json")
+        template.update(enabled=False, window_id=str(uuid4()), gateway_window_id=str(uuid4()))
+        template["recovery"].update(
+            worker_window_id=template["window_id"], gateway_window_id=template["gateway_window_id"]
+        )
+        write_private(private / "template.disabled.json", template)
+        write_private(private / "business.json", a.business.model_dump(mode="json"))
+        a.external_behavior("normal")
+        write_private(
+            private / "lab-http.json",
+            dict(
+                database=owner.name,
+                organization_id=str(a.business.organization_id),
+                external_ref=_ro_reference(a.external),
+            ),
+        )
+        # 保持原no active SDK检查；不删除或缩短历史窗口，只等其原expiry。
+        while True:
+            with connect(app) as db:
+                active = db.execute(
+                    "SELECT count(*) AS n FROM business.p4_sdk_windows "
+                    "WHERE configured_enabled AND expires_at>clock_timestamp()"
+                ).fetchone()
+            if active and active["n"] == 0:
+                break
+            _runtime(request["runtime"]).remaining()
+            time.sleep(0.2)
+        return dict(
+            exit_code=0,
+            stage_result="COMPLETE",
+            suite_PASS=False,
+            private_refs=dict(
+                business=_ro_reference(private / "business.json"),
+                web_config=_ro_reference(a.fixture.config_file),
+                template=_ro_reference(private / "template.disabled.json"),
+                owner_database=request["owner_database_ref"],
+                lab_http=_ro_reference(private / "lab-http.json"),
+            ),
+            manual_consumed=False,
+            native_history=True,
+            sdk_real_network=0,
+            prior_history_parent_must_exit=True,
+        )
+    finally:
+        require(a.cleanup(), "P4A_LAB_HISTORY_CLEANUP")
+
+
+def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
+    """同canonical outer：真实原键RO协调、PG生命周期、完整子进程退出；默认HOLD。"""
+    import asyncio
+    import signal
+    from uuid import UUID, uuid4
+
+    from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+    from commerceops.entrypoints.feishu_business import confirm_gateway_child, confirm_worker_child
+    from commerceops.infrastructure.database import connect
+    from commerceops.infrastructure.web_config import WebConfig
+
+    from tests.p4_acceptance_support import PinnedProcess
+
+    report = StageReport(
+        (
+            "SOURCE",
+            "RESOURCE",
+            "SCHEMA",
+            "PREPARE",
+            "PREFLIGHT",
+            "ARM",
+            "AUTHORIZE",
+            "CALL",
+            "PERSIST",
+            "STOP",
+            "CLEANUP",
+        )
+    )
+    lease = _runtime(request["runtime"])
+    require(lease.remaining(cleanup=True) <= 600, "P4A_RO_PG_CAP")
+    private = Path(request["private_directory"])
+    require(private.is_absolute() and private.is_dir(), "P4A_PRIVATE_ROOT")
+    manifest_ref = request["manifest_ref"]
+    require(
+        json.loads(private_ref(manifest_ref)) == binding.manifest, "P4A_CONTEXT_SOURCE_MISMATCH"
+    )
+    children: list[PinnedProcess] = []
+    receipts: list[dict[str, Any]] = []
+    confirmation: list[dict[str, Any]] = []
+    gateway: PinnedProcess | None = None
+    worker: PinnedProcess | None = None
+    window: Any = None
+    web: Any = None
+    prepared: dict[str, Any] = {}
+    native: dict[str, Any] = {}
+    cleanup: dict[str, Any] = {}
+    resource_attempted = False
+
+    def interrupted(signum: int, frame: Any) -> None:
+        raise KeyboardInterrupt
+
+    previous = {sig: signal.signal(sig, interrupted) for sig in (signal.SIGTERM, signal.SIGINT)}
+
+    def start(action: str, refs: Mapping[str, Any], **extra: Any) -> PinnedProcess:
+        lease.remaining()
+        child = PinnedProcess.start(
+            Path(binding.manifest["entry"]),
+            Path(manifest_ref["path"]),
+            dict(
+                contract=CONTRACT,
+                action=action,
+                transport="real",
+                root_real_release=True,
+                private_refs=refs,
+                runtime=request["runtime"],
+                **extra,
+                output_file=str(private / (action + "-" + uuid4().hex + ".json")),
+            ),
+        )
+        children.append(child)
+        return child
+
+    try:
+        with report.enter("SOURCE"):
+            _ro_context(request, binding)
+        with report.enter("RESOURCE"):
+            resource_attempted = True
+            resource = _ro_resource(request, start=True)
+            private_ref(request["private_refs"]["web_config"])
+            web = WebConfig.from_file(Path(request["private_refs"]["web_config"]["path"]))
+            require(
+                web.database.host == "127.0.0.1" and web.database.port == resource["port"],
+                "P4A_RO_DATABASE_BINDING",
+            )
+        with report.enter("SCHEMA"):
+            # _ro_prepare先owner只读元数据并关闭，随后所有原数据均低权只读。
+            prepared = _ro_prepare(request)
+        with report.enter("PREPARE"):
+            write_private(private / "prepared.private.json", prepared)
+        with report.enter("PREFLIGHT"):
+            # 第二次独立非消费检查，防止metadata/prepare之间发生变化。
+            require(_ro_prepare(request) == prepared, "P4A_RO_PREFLIGHT_CHANGED")
+        with report.enter("ARM"):
+            seconds = request.get("sdk_seconds", 300)
+            require(
+                type(seconds) is int
+                and 15 < seconds <= 300
+                and lease.remaining(cleanup=True) >= seconds + 180,
+                "P4A_RO_ARM_CAPACITY",
+            )
+            expiry = datetime.now(UTC) + timedelta(seconds=seconds)
+            payload = prepared["prepared_window"]
+            payload.update(
+                enabled=True,
+                window_id=str(uuid4()),
+                gateway_window_id=str(uuid4()),
+                expires_at=expiry.isoformat(),
+            )
+            payload["recovery"].update(
+                worker_window_id=payload["window_id"],
+                gateway_window_id=payload["gateway_window_id"],
+                expires_at=payload["expires_at"],
+            )
+            window = ControlledWorkerWindow.model_validate_json(json.dumps(payload))
+            window.window(
+                __import__(
+                    "commerceops.adapters.feishu.business_config", fromlist=["BusinessSettings"]
+                ).BusinessSettings.model_validate_json(
+                    private_ref(request["private_refs"]["business"])
+                )
+            )
+            gw = {
+                k: prepared["origin"][k]
+                for k in ("schema_version", "organization_id", "shop_id", "parameters")
+            }
+            gw.update(
+                window_id=payload["gateway_window_id"],
+                expires_at=payload["expires_at"],
+                enabled=True,
+                max_callbacks=1,
+                max_workflows=0,
+            )
+            worker_file, gateway_file = (
+                private / "current-worker.json",
+                private / "current-gateway.json",
+            )
+            write_private(worker_file, payload)
+            write_private(gateway_file, gw)
+            refs = {k: request["private_refs"][k] for k in ("business", "web_config")}
+            gateway = start(
+                "gateway",
+                {**refs, "window": _ro_reference(gateway_file)},
+                control_mode="native_no_ws",
+                ready_file=str(private / "gateway-ready.json"),
+            )
+            end = time.monotonic() + min(15, lease.remaining())
+            while not (private / "gateway-ready.json").exists():
+                require(
+                    gateway.process.poll() is None and time.monotonic() < end, "P4A_GATEWAY_READY"
+                )
+                time.sleep(0.02)
+            receipts.append(json.loads(bound_bytes(private / "gateway-ready.json", private=True)))
+            require(receipts[-1]["pid"] == gateway.process.pid, "P4A_PROCESS_PID")
+        with report.enter("AUTHORIZE"):
+            worker_refs = {**refs, "window": _ro_reference(worker_file)}
+            if "lab_http" in request["private_refs"]:
+                worker_refs["lab_http"] = request["private_refs"]["lab_http"]
+            worker = start("worker", worker_refs, ready_file=str(private / "worker-ready.json"))
+            native = worker.wait(timeout=min(seconds, lease.remaining()))
+            if (private / "worker-ready.json").exists():
+                receipts.append(
+                    json.loads(bound_bytes(private / "worker-ready.json", private=True))
+                )
+                require(receipts[-1]["pid"] == worker.process.pid, "P4A_PROCESS_PID")
+            require(native["stages"]["AUTHORIZE"]["state"] == "PASSED", "P4A_RO_AUTHORIZATION")
+        with report.enter("CALL"):
+            require(
+                native["exit_code"] == 0 and native["stage_result"] == "COMPLETE",
+                "P4A_RO_NATIVE_FAILED",
+            )
+            require(gateway.process.poll() is None, "P4A_GATEWAY_EARLY_EXIT")
+        with report.enter("PERSIST"):
+            with connect(web.database) as db:
+                db.execute("SET TRANSACTION READ ONLY")
+                r = window.recovery
+                p = r.projections[0]
+                row = db.execute(
+                    "SELECT d.*,l.external_id AS anchor_external,l.original_outbox_id "
+                    "FROM business.p4_base_deliveries d JOIN business.p4_base_links l "
+                    "ON l.item_id=d.item_id WHERE d.outbox_id=%s",
+                    (p.outbox_id,),
+                ).fetchall()
+                require(
+                    len(row) == 1
+                    and row[0]["status"] == "verified"
+                    and row[0]["complete_unique_verified"] is True
+                    and row[0]["attempts"] == 3
+                    and row[0]["version"] == row[0]["observed_version"] == 1
+                    and row[0]["external_id"] == row[0]["anchor_external"]
+                    and row[0]["original_outbox_id"] == p.outbox_id,
+                    "P4A_RO_PERSISTENCE",
+                )
+                once = db.execute(
+                    "SELECT action,count(*) AS n FROM business.audit_events "
+                    "WHERE source='feishu_recovery' AND entity_id=%s AND action IN (%s,%s) "
+                    "GROUP BY action",
+                    (
+                        str(p.outbox_id),
+                        "explicit_ro_recheck_authorized",
+                        "explicit_ro_recheck_dispatched",
+                    ),
+                ).fetchall()
+                require(len(once) == 2 and all(x["n"] == 1 for x in once), "P4A_ONCE_COUNT")
+                counts = QUERIES["SDK_COUNTS"].execute(
+                    db, (window.window_id,), revision=request["revision"], role="app"
+                )
+                require(
+                    all(
+                        x["method"] in window.caps
+                        and x["n"] <= window.caps[x["method"]]
+                        and (x["status"], x["http_status"], x["provider_code"])
+                        == ("returned", 200, 0)
+                        for x in counts
+                    ),
+                    "P4A_RO_LEDGER",
+                )
+                write_private(
+                    private / "persisted.private.json",
+                    dict(delivery=row, once=once, method_counts=counts),
+                )
+                # 只读消费接口；不产生request key、不调用consume_stage(t6)或任何UI动作。
+                from tests.e2e.web.m1_acceptance_capture import CaptureContext, capture_snapshot
+
+                actors = db.execute(
+                    "SELECT p.id,p.auth_version,i.id AS identity_id "
+                    "FROM business.business_tasks t JOIN business.principals p "
+                    "ON p.id=t.requester_id JOIN business.identities i ON i.principal_id=p.id "
+                    "AND i.organization_id=p.organization_id AND i.provider='web' "
+                    "WHERE t.id=%s",
+                    (r.task_id,),
+                ).fetchall()
+                threads = db.execute(
+                    "SELECT thread_id FROM business.business_tasks WHERE id=%s "
+                    "OR id=(SELECT source_task_id FROM business.p3_task_sources WHERE task_id=%s) "
+                    "ORDER BY id",
+                    (r.task_id, r.task_id),
+                ).fetchall()
+                quantity = db.execute(
+                    "SELECT count(*) AS n,sum(quantity)::text AS total "
+                    "FROM business.replenishment_items WHERE task_id=%s",
+                    (r.task_id,),
+                ).fetchone()
+                require(
+                    len(actors) == 1 and quantity is not None and quantity["n"] == 1,
+                    "P4A_RO_CAPTURE_CONTEXT",
+                )
+                if quantity is None:
+                    raise AcceptanceFailure("P4A_RO_CAPTURE_CONTEXT")
+                context = dict(
+                    revision=prepared["schema"]["revision"]
+                    + {"0015": "_p4_read_replies", "0016": "_p4_clarification_requests"}[
+                        prepared["schema"]["revision"]
+                    ],
+                    organization_id=str(window.organization_id),
+                    shop_id=str(window.shop_id),
+                    task_id=str(r.task_id),
+                    item_id=str(p.item_id),
+                    principal_id=str(actors[0]["id"]),
+                    identity_id=str(actors[0]["identity_id"]),
+                    auth_version=actors[0]["auth_version"],
+                    checkpoint_threads=tuple(x["thread_id"] for x in threads),
+                    sdk_window_id=str(window.window_id),
+                    sdk_subject_ids=(str(p.outbox_id),),
+                    request_key=None,
+                    case_kind="recover_single_item",
+                    expected_item_count=1,
+                    expected_quantity_total=quantity["total"],
+                )
+                with connect(web.database) as capture_db:
+                    snapshot = capture_snapshot(capture_db, CaptureContext(**context))
+                write_private(
+                    private / "human-handoff.private.json",
+                    dict(
+                        capture_context=context,
+                        before_T6=snapshot,
+                        source=binding.manifest["candidate"],
+                        images=request["images"],
+                        human_action_required=True,
+                        automatic_T6_authorized=False,
+                        original_key_generated_only_by_native_UI=True,
+                        release="HOLD until outer STOP/CLEANUP/exit and Root real-object approval",
+                    ),
+                )
+    except BaseException as error:
+        if not isinstance(error, Exception):
+            mark_stage(error, "STOP")
+        native["outer_failure"] = safe_failure(error, "PREPARE")
+    finally:
+        try:
+            with report.enter("STOP"):
+                for child in reversed(children):
+                    child.terminate()
+                    if child.request["action"] == "worker":
+                        with connect(web.database) as db:
+                            starts = db.execute(
+                                "SELECT entity_id FROM business.audit_events "
+                                "WHERE source='worker' AND action='started' AND "
+                                "organization_id=%s AND (after_state->>'pid')::bigint=%s",
+                                (window.organization_id, child.process.pid),
+                            ).fetchall()
+                        if starts:
+                            require(len(starts) == 1, "P4A_WORKER_STARTED")
+                            asyncio.run(
+                                confirm_worker_child(web, window.organization_id, child.process.pid)
+                            )
+                            confirmation.append(dict(kind="worker", termination_confirmed=True))
+                    else:
+                        require(child.process.returncode == 0, "P4A_GATEWAY_EXIT")
+                        asyncio.run(
+                            confirm_gateway_child(
+                                web,
+                                window.organization_id,
+                                UUID(str(window.gateway_window_id)),
+                                child.process.pid,
+                                child.process.returncode,
+                            )
+                        )
+                        confirmation.append(dict(kind="gateway", termination_confirmed=True))
+                if receipts:
+                    write_private(private / "absent-receipts.json", receipts)
+                    probe = dict(
+                        contract=CONTRACT,
+                        action="process_probe",
+                        runtime=request["runtime"],
+                        private_root=str(private),
+                        absent_receipts=_ro_reference(private / "absent-receipts.json"),
+                        output_file=str(private / "independent-process-probe.json"),
+                    )
+                    independent = PinnedProcess.start(
+                        Path(binding.manifest["entry"]), Path(manifest_ref["path"]), probe
+                    )
+                    require(independent.wait(timeout=10)["exit_code"] == 0, "P4A_PROCESS_ALIVE")
+                require(all(c.process.poll() is not None for c in children), "P4A_PROCESS_ALIVE")
+        except BaseException as error:
+            native["stop_failure"] = safe_failure(error, "STOP")
+        try:
+            with report.enter("CLEANUP"):
+                if resource_attempted:
+                    cleanup = _ro_resource(request, start=False)
+        except BaseException as error:
+            native["cleanup_failure"] = safe_failure(error, "CLEANUP")
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+    result = report.terminal(
+        cleanup=cleanup.get("verified") is True,
+        reaped=all(c.process.poll() is not None for c in children),
+        owned=True,
+    )
+    return dict(
+        **result,
+        stage_result="COMPLETE" if result["exit_code"] == 0 else "FAILED",
+        prepared=prepared,
+        native=native,
+        cleanup=cleanup,
+        lifecycle=confirmation,
+        child_exits=[
+            dict(
+                action=c.request["action"],
+                exit=c.process.returncode,
+                reaped=c.process.poll() is not None,
+            )
+            for c in children
+        ],
+        real_platform_PASS=False,
+        real_RO_verified=result["exit_code"] == 0 and "lab_http" not in request["private_refs"],
+        lab_http="lab_http" in request["private_refs"],
+        human_T6="HOLD until real RO and separate human native UI",
+        suite_PASS=False,
+    )
+
+
 def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
     require(request.get("contract") == CONTRACT, "P4A_CONTRACT")
     if request.get("action") == "source_probe":
@@ -2812,6 +4497,8 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
     require(
         action
         in (
+            "original_ro",
+            "original_ro_lab_history",
             "worker",
             "gateway",
             "capture",
@@ -2847,7 +4534,11 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "P4A_REAL_PLATFORM_HOLD",
         )
     try:
-        if action == "run":
+        if action == "original_ro_lab_history":
+            result = original_ro_lab_history(request, binding)
+        elif action == "original_ro":
+            result = original_ro_stage(request, binding)
+        elif action == "run":
             result = run_stage(request, binding)
         elif action == "worker":
             result = worker_stage(request)

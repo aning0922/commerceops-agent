@@ -209,3 +209,39 @@ API由工具持有停止handler，原Uvicorn正常serve结束后应先形成真�
 run5资源reader、run6复制源码权限及run7 T6/停止失败均保留。
 最终组合源码的完整成功/竞争once/冷重放/独审与精确CI以新冻结回执为准，当前不预写。
 真实SDK/AppSecret/provider/manualRO关闭，原attempts3/Create SPENT1/旧资产和失败事实保持。
+
+
+## 原键真实RO接线整包候选（2026-10-15）
+
+用户批准准备总cap16 Agent有效h、北京时间23:00（15:00Z）硬停。Root 11:02:30Z登记，
+A新增≤2.5h、原Review合计≤0.75h、Root≤0.3h；已发生只读约0.44h计入，原项目容量不增加。
+本批源码仅现有工具/必要测试/事实文档。真实对象仍HOLD；开发仅新自有PG/身份/历史，外HTTP可Fake。
+
+同一canonical run_once/manifest/隔离解释器提供 `action=original_ro`、`transport=real`，
+缺Root真实放行先于PG拒绝。outer先核实际Git/source/image及登记PG资源，再独立只读metadata，
+覆盖0015精确55表/0016精确56表、五项低权flag及owner连接已关闭。
+原数据prepare/preflight以READ ONLY事务核实际task/审批/执行/身份/源receipt/hash/生命周期，
+从最近failed reader真实claim/SDK/终止链派生完整explicit reader，再调用原 `trusted_reader` 只读核验。
+检查C1/anchor0/attempts3/未消费manual及无其他producer；不调用建fixture入口操作原库，
+不把 `claim=False` 当消费前dry-run，不迁移/grant/伪造ledger或历史。
+
+准备后才生成新current Gateway/Worker及UTC+monotonic截止；SDK≤300s，
+arm时PG剩余必须≥SDK秒数+180s，PG总≤600s。current Gateway原生claim/App session lease/
+实际started，无WS/Secret/SDK；不是Fake transport的重标。原 `controlled_work` /
+`trusted_scope` / Factory / ledger / BaseDeliveryStore消费一次并完成原键RO。
+仅auth1/bot1/table-list2/field-list2/record-list4，总≤10；C/U/IM/provider/WS/Graph/jobs0。
+
+STOP按实际子PID wait/reap，再原生Worker/Gateway confirmer，独立新进程检查同host/namespace/
+OS absent；Linux保留/proc启动标识，macOS host以实际ps启动时间+完整命令绑定信号目标。
+PG只按精确project/immutable image/run label/原卷/loopback端口管理，拒绝额外服务/挂载/扩权，
+停止后独立查容器网络0/端口关闭/卷保留/实际exit；业务成功不能覆盖STOP或CLEANUP失败。
+
+LAB历史准备只接受空白新p4_ro_lab数据库，实际原生C0→sender→reader并停止；
+该准备进程退出后，真实命令分支才从SQL重新派生reader和消费once。Fake只替换该LAB低层HTTP，
+不替换SQL/角色/DTO/once/恢复判断。原known70/真实secret不作为开发输入。
+原完整成功与完全相同请求的新进程重放须同冻结候选，不拼版本；重放不得发起新SDK/key。
+
+成功持久化后仅构造现有C `CaptureContext`/`capture_snapshot` 的只读handoff，
+不生成T6 request key、不调用自动consume_stage(t6)/CJS。后续须Root核RO及完整停止退出，
+在同已审源码image部署，由真人原生login→同item→关闭/填原因→准备原请求→明确提交；
+旧2a.next不签当前候选。原独审/精确新CI与真实RO分别记账，未执行不预写通过。

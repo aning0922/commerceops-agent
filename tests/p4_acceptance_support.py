@@ -462,7 +462,7 @@ class AcceptanceFixture:
         self.processes.append(child)
         return child
 
-    def gateway(self, *, workflows: int = 0) -> tuple[Any, PinnedProcess]:
+    def gateway(self, *, workflows: int = 0, seconds: int = 240) -> tuple[Any, PinnedProcess]:
         from tests.p4_recovery_support import gateway
 
         f = self.fixture
@@ -470,7 +470,7 @@ class AcceptanceFixture:
         remaining = self.deadline.remaining()
         require(remaining > 65, "P4A_GATEWAY_CAPACITY")
         window = gateway(
-            f, case=case, seconds=min(240, int(remaining) - 1), max_workflows=workflows
+            f, case=case, seconds=min(seconds, int(remaining) - 1), max_workflows=workflows
         )
         key = uuid4().hex
         business_file, window_file = (
@@ -832,7 +832,9 @@ def sender_manifest(
     return ControlledWorkerWindow.model_validate_json(json.dumps(value))
 
 
-def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) -> dict[str, Any]:
+def prepare_single_ro(
+    a: AcceptanceFixture, *, concurrent_once: bool = False, defer_explicit: bool = False
+) -> dict[str, Any]:
     """实际原生C0、sender、reader、explicit once及完全相同输入的冷重放。"""
     from scripts.p4_acceptance import QUERIES
 
@@ -845,7 +847,7 @@ def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) ->
         if remaining > 0:
             time.sleep(remaining + 0.02)
         a.wait_due(delivery["outbox_id"])
-        sender_gateway, child = a.gateway()
+        sender_gateway, child = a.gateway(seconds=30 if defer_explicit else 240)
         gateways.append((sender_gateway, child))
         sender = sender_manifest(a, old, sender_gateway, origin, owner, delivery)
         a.external_behavior("ack_drop")
@@ -856,7 +858,7 @@ def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) ->
         )
         a.stop_gateway(sender_gateway, child)
         a.wait_due(delivery["outbox_id"])
-        reader_gateway, child = a.gateway()
+        reader_gateway, child = a.gateway(seconds=30 if defer_explicit else 240)
         gateways.append((reader_gateway, child))
         reader = recovery_manifest(a, sender, sent["pg_proof"]["worker_owner"], reader_gateway)
         a.external_behavior("missing_required")
@@ -864,6 +866,16 @@ def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) ->
         require(read["exit_code"] == 1, "P4A_READER_EXPECTED_INCOMPLETE")
         a.stop_gateway(reader_gateway, child)
         a.wait_due(delivery["outbox_id"])
+        if defer_explicit:
+            # 独立LAB历史进程退出后，真实outer才从PG派生reader/arm；不预消费once。
+            return dict(
+                origin_gateway=old,
+                origin_window=origin,
+                origin_owner=owner,
+                delivery=delivery,
+                prior_reader=reader,
+                reader_result=read,
+            )
         current_gateway, child = a.gateway()
         gateways.append((current_gateway, child))
         current = recheck_manifest(a, reader, read["pg_proof"]["worker_owner"], current_gateway)

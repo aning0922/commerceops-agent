@@ -480,3 +480,108 @@ def test_app_stop_still_attempts_API_when_worker_evidence_fails(
         shared.app_lifecycle("stop", h, handoff_ref=reference(handoff_file))
     assert signals == ["signal_process", "signal_process"]
     assert (tmp_path / "app-stop-failures.safe.json").exists()
+
+
+def test_actual_OS_signal_identity_and_independent_absence_probe(tmp_path: Path) -> None:
+    import socket
+    import subprocess
+
+    from commerceops.infrastructure.worker_lock import process_namespace
+
+    from scripts.p4_acceptance import (
+        _process_identity,
+        process_control_stage,
+        process_probe_stage,
+    )
+    from tests.p4_acceptance_support import reference
+
+    tmp_path.chmod(0o700)
+    child = subprocess.Popen([sys.executable, "-I", "-c", "import time; time.sleep(30)"])
+    receipt = {
+        "pid": child.pid,
+        "host": socket.gethostname(),
+        "pid_namespace": process_namespace(),
+        **_process_identity(child.pid),
+    }
+    path = tmp_path / "process.json"
+    write_private(path, receipt)
+    absent = tmp_path / "absent.json"
+    write_private(absent, [receipt])
+    try:
+        with pytest.raises(Exception, match="old process still exists"):
+            process_probe_stage(
+                {"private_root": str(tmp_path), "absent_receipts": reference(absent)}
+            )
+        changed = dict(receipt)
+        changed["host"] = "different-host"
+        write_private(path, changed)
+        with pytest.raises(AcceptanceFailure, match="P4A_PROCESS_REUSED"):
+            process_control_stage({"action": "signal_process", "receipt_ref": reference(path)})
+        assert child.poll() is None
+        write_private(path, receipt)
+        assert (
+            process_control_stage({"action": "signal_process", "receipt_ref": reference(path)})[
+                "exit_code"
+            ]
+            == 0
+        )
+        child.wait(timeout=5)
+        assert (
+            process_probe_stage(
+                {"private_root": str(tmp_path), "absent_receipts": reference(absent)}
+            )["exit_code"]
+            == 0
+        )
+    finally:
+        if child.poll() is None:
+            child.kill()
+        child.wait(timeout=5)
+
+
+def test_original_real_outer_stays_closed_before_any_resource_without_release(
+    tmp_path: Path,
+) -> None:
+    import subprocess
+
+    command, manifest = invocation(tmp_path)
+    manifest["candidate"] = {"source_sha": "unreleased", "tree": "unreleased"}
+    write_private(tmp_path / "manifest.json", manifest)
+    command[command.index("--manifest-sha256") + 1] = digest(
+        (tmp_path / "manifest.json").read_bytes()
+    )
+    lease = Deadline.register(datetime.now(UTC) + timedelta(seconds=590), seconds_cap=600)
+    request = {
+        "contract": CONTRACT,
+        "action": "original_ro",
+        "transport": "real",
+        "root_real_release": False,
+        "private_directory": str(tmp_path),
+        "manifest_ref": {
+            "path": str(tmp_path / "manifest.json"),
+            "sha256": digest((tmp_path / "manifest.json").read_bytes()),
+        },
+        "runtime": {
+            "deadline_utc": lease.expires_at.isoformat(),
+            "monotonic_end": lease.monotonic_end,
+            "cleanup_reserve_seconds": 180,
+        },
+        "private_refs": {},
+        "output_file": str(tmp_path / "outer-result.json"),
+    }
+    write_private(tmp_path / "request.json", request)
+    command[command.index("--request-sha256") + 1] = digest(
+        (tmp_path / "request.json").read_bytes()
+    )
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        env={k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "PYTHONHOME")},
+        capture_output=True,
+        timeout=20,
+    )
+    assert result.returncode == 1
+    value = json.loads((tmp_path / "outer-result.json").read_bytes())
+    assert value["stages"]["SOURCE"]["failure"]["code"] == "P4A_REAL_PLATFORM_HOLD"
+    assert value["stages"]["RESOURCE"]["state"] == "NOT_RUN"
+    assert value["child_exits"] == []
+    assert value["cleanup"] == {}

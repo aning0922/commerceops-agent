@@ -15,7 +15,7 @@ from commerceops.entrypoints.database import grant_runtime, migrate, setup_check
 from commerceops.infrastructure.database import DatabaseSettings, connect, migration_engine
 from psycopg import sql
 
-from scripts.p4_acceptance import CONTRACT, Deadline, schema_contract, write_private
+from scripts.p4_acceptance import CONTRACT, Deadline, _ro_schema, schema_contract, write_private
 from tests.p4_acceptance_support import (
     AcceptanceFixture,
     prepare_batch_ro,
@@ -74,6 +74,13 @@ def test_exact_schema_app_queries_and_expected_metadata_denial(
     result = schema_contract(owner, app, revision)
     assert result["exact_table_count"] == (55 if revision == "0015" else 56)
     assert result["alembic_read_denied_sqlstate"] == "42501"
+    original_metadata = _ro_schema(owner, app, revision)
+    assert original_metadata["exact_table_count"] == result["exact_table_count"]
+    assert original_metadata["owner_connection_closed"] is True
+    assert not any(
+        original_metadata["app_role"][flag]
+        for flag in ("rolsuper", "rolcreatedb", "rolcreaterole", "rolreplication", "rolbypassrls")
+    )
     if revision == "0016":
         with pytest.raises(ValueError, match="revision mismatch"):
             grant_runtime(owner, legacy_revision="0015")
