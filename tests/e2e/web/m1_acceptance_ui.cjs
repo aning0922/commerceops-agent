@@ -69,6 +69,10 @@ function responseValidator(schema, frontendModules) {
 async function execute(input) {
   ensure(input.contract === "p4-acceptance-preparation-v1" && ["t6", "page", "replay"].includes(input.stage), "INPUT_INVALID");
   ensure(uuid(input.item_id) && uuid(input.task_id) && hash(input.parent_handoff_sha256), "INPUT_INVALID");
+  const caseCounts = { recover_single_item: 1, batch_twenty_items: 20 };
+  ensure(Object.hasOwn(caseCounts, input.case_kind) && input.item_count === caseCounts[input.case_kind] &&
+    typeof input.quantity_total === "string" && /^[1-9][0-9]{0,17}(\.[0-9]{1,6})?$/.test(input.quantity_total) &&
+    (input.case_kind !== "batch_twenty_items" || input.quantity_total === "2000"), "CASE_CONTEXT_INVALID");
   ensure(typeof input.source_sha === "string" && /^[a-f0-9]{40}$/.test(input.source_sha), "INPUT_INVALID");
   ensure(typeof input.source_tree === "string" && /^[a-f0-9]{40}$/.test(input.source_tree), "INPUT_INVALID");
   privateDirectory(input.private_root); privateDirectory(input.output_directory);
@@ -98,6 +102,7 @@ async function execute(input) {
   const result = { contract: input.contract, stage: input.stage, source_sha: input.source_sha,
     source_tree: input.source_tree, run_id: input.run_id, project: input.project,
     item_id: input.item_id, task_id: input.task_id, business_posts: 0,
+    case_kind: input.case_kind, item_count: input.item_count, quantity_total: input.quantity_total,
     external_origin_attempts: 0, original_key_gets: 0, screenshot: null, real_platform_pass: false };
   let browser, context, page, routeFailure, prepared;
   const itemPath = "/api/v1/replenishment-items/" + input.item_id;
@@ -124,6 +129,7 @@ async function execute(input) {
           prepared = { contract: input.contract, parent_handoff_sha256: input.parent_handoff_sha256,
             source_sha: input.source_sha, source_tree: input.source_tree, run_id: input.run_id,
             project: input.project, task_id: input.task_id, item_id: input.item_id,
+            case_kind: input.case_kind, item_count: input.item_count, quantity_total: input.quantity_total,
             request_key: body.request_key, body_sha256: digest(bytes), input: body };
           // Complete durable capture BEFORE continuing the exact original request, unchanged.
           exclusiveJson(preparedFile, prepared); result.business_posts++;

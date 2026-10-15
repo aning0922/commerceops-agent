@@ -9,13 +9,14 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
 REVISIONS = ("0015_p4_read_replies", "0016_p4_clarification_requests")
+CASE_COUNTS = {"recover_single_item": 1, "batch_twenty_items": 20}
 UUID_OID, TEXT_OID, INT_OID, BIGINT_OID = 2950, 25, 23, 20
 BOOL_OID, NUMERIC_OID, TIME_OID, JSON_OID, UUID_ARRAY_OID = 16, 1700, 1184, 3802, 2951
 
@@ -44,10 +45,22 @@ class CaptureContext:
     request_key: str | None = None
     sdk_window_id: str | None = None
     sdk_subject_ids: tuple[str, ...] = ()
+    case_kind: str = field(kw_only=True)
+    expected_item_count: int = field(kw_only=True)
+    expected_quantity_total: str = field(kw_only=True)
 
     def __post_init__(self) -> None:
         if self.revision not in REVISIONS or type(self.auth_version) is not int:
             raise CaptureFailure("CONTEXT_INVALID", "CONTEXT")
+        if (
+            self.case_kind not in CASE_COUNTS
+            or type(self.expected_item_count) is not int
+            or self.expected_item_count != CASE_COUNTS[self.case_kind]
+            or not isinstance(self.expected_quantity_total, str)
+            or not re.fullmatch(r"[1-9][0-9]{0,17}(?:\.[0-9]{1,6})?", self.expected_quantity_total)
+            or (self.case_kind == "batch_twenty_items" and self.expected_quantity_total != "2000")
+        ):
+            raise CaptureFailure("CASE_CONTEXT_INVALID", "CONTEXT")
         if self.auth_version < 1 or not 1 <= len(self.checkpoint_threads) <= 6:
             raise CaptureFailure("CONTEXT_INVALID", "CONTEXT")
         try:
@@ -85,6 +98,18 @@ class CaptureContext:
             "threads": list(self.checkpoint_threads),
             "sdk_window": UUID(self.sdk_window_id) if self.sdk_window_id else None,
             "subjects": [UUID(v) for v in self.sdk_subject_ids],
+        }
+
+    def scope(self) -> dict[str, Any]:
+        return {
+            "organization_id": self.organization_id,
+            "shop_id": self.shop_id,
+            "task_id": self.task_id,
+            "item_id": self.item_id,
+            "checkpoint_threads": list(self.checkpoint_threads),
+            "case_kind": self.case_kind,
+            "expected_item_count": self.expected_item_count,
+            "expected_quantity_total": self.expected_quantity_total,
         }
 
 
@@ -490,13 +515,7 @@ def capture_snapshot(db: Any, context: CaptureContext) -> dict[str, Any]:
         "schema_revision": context.revision,
         "role": role,
         "queries": result,
-        "scope": {
-            "organization_id": context.organization_id,
-            "shop_id": context.shop_id,
-            "task_id": context.task_id,
-            "item_id": context.item_id,
-            "checkpoint_threads": list(context.checkpoint_threads),
-        },
+        "scope": context.scope(),
         "business_validated": False,
     }
 
@@ -529,9 +548,9 @@ def validate_business(snapshot: dict[str, Any], context: CaptureContext, *, clos
         raise CaptureFailure("EXECUTION_BINDING_INVALID", "EXECUTIONS")
     execution = executions[0]
     if (
-        len(items) != 20
-        or len({x["sku_key"] for x in items}) != 20
-        or sum(Decimal(x["quantity"]) for x in items) != 2000
+        len(items) != context.expected_item_count
+        or len({x["sku_key"] for x in items}) != context.expected_item_count
+        or sum(Decimal(x["quantity"]) for x in items) != Decimal(context.expected_quantity_total)
         or set(execution["item_ids"]) != {x["id"] for x in items}
         or any(
             x["task_id"] != context.task_id or x["execution_id"] != execution["id"] for x in items

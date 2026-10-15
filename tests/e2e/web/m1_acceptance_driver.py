@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from tests.e2e.web.m1_acceptance_capture import (
+    CASE_COUNTS,
     CaptureContext,
     CaptureFailure,
     checkpoint_fingerprint,
@@ -732,7 +733,7 @@ def _private_reference(ref: Mapping[str, str], root: Path) -> tuple[Any, bytes]:
         or not re.fullmatch(r"[a-f0-9]{64}", ref["sha256"])
     ):
         raise StageFailure("source", "PRIVATE_REFERENCE_INVALID")
-    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     try:
         file_stat = os.fstat(descriptor)
         if (
@@ -803,11 +804,11 @@ class _Consumer:
             or not re.fullmatch(r"[a-f0-9]{64}", candidate["manifest_sha256"])
             or type(resource["cleanup_reserve_seconds"]) is not int
             or resource["cleanup_reserve_seconds"] < 180
+            or fixture["case_kind"] not in CASE_COUNTS
             or type(fixture["item_count"]) is not int
-            or fixture["item_count"] != 20
-            or fixture["quantity_total"] != "2000"
-            or len(fixture["item_ids"]) != 20
-            or len(set(fixture["item_ids"])) != 20
+            or fixture["item_count"] != CASE_COUNTS[fixture["case_kind"]]
+            or len(fixture["item_ids"]) != fixture["item_count"]
+            or len(set(fixture["item_ids"])) != fixture["item_count"]
             or fixture["target_item_id"] not in fixture["item_ids"]
             or h["worker"]["epoch"] != "base_ro"
             or h["worker"]["reaped"] is not True
@@ -838,8 +839,16 @@ class _Consumer:
             "item_id": fixture["target_item_id"],
             "task_id": fixture["task_id"],
             "parent_handoff_sha256": self.handoff_ref["sha256"],
+            "case_kind": fixture["case_kind"],
+            "item_count": fixture["item_count"],
+            "quantity_total": fixture["quantity_total"],
         }
-        self.directory = self.root / "C"
+        self.context({"schema_revision": h["baseline"]["schema_revision"]}, None)
+        parent = self.root / "C"
+        parent.mkdir(mode=0o700, exist_ok=True)
+        if parent.resolve() != parent or parent.stat().st_mode & 0o777 != 0o700:
+            raise StageFailure("source", "PRIVATE_ROOT_INVALID")
+        self.directory = parent / fixture["case_kind"]
         self.directory.mkdir(mode=0o700, exist_ok=True)
         if (
             self.directory.resolve() != self.directory
@@ -860,6 +869,9 @@ class _Consumer:
             f["auth_version"],
             tuple(f["checkpoint_threads"]),
             request_key=key,
+            case_kind=f["case_kind"],
+            expected_item_count=f["item_count"],
+            expected_quantity_total=f["quantity_total"],
         )
 
     def save(self, name: str, value: Any) -> dict[str, str]:
@@ -891,6 +903,8 @@ class _Consumer:
         if value["phase"] != phase:
             raise StageFailure(self.stage, "CAPTURE_PHASE_MISMATCH")
         context = self.context(value, key)
+        if value["scope"] != context.scope():
+            raise StageFailure(self.stage, "CAPTURE_SCOPE_MISMATCH")
         validate_business(value, context, closed=closed)
         f = self.handoff["fixture"]
         if (
@@ -1069,10 +1083,10 @@ class _Consumer:
                 "receipt_ref": ui["prepared_receipt"],
                 "snapshot_ref": _file_ref(self.directory / "after-t6.json"),
                 "v2_outbox": outbox,
-                "item_count": 20,
-                "quantity_total": "2000",
+                "item_count": self.handoff["fixture"]["item_count"],
+                "quantity_total": self.handoff["fixture"]["quantity_total"],
                 "closed_count": 1,
-                "open_count": 19,
+                "open_count": self.handoff["fixture"]["item_count"] - 1,
             }
         finally:
             self.stop_preserving_failure(sys.exception())

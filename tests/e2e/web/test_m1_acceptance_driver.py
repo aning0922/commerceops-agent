@@ -67,6 +67,9 @@ def context() -> CaptureContext:
         2,
         (uid(3),),
         request_key=uid(6),
+        case_kind="batch_twenty_items",
+        expected_item_count=20,
+        expected_quantity_total="2000",
     )
 
 
@@ -202,6 +205,43 @@ def test_fixed_queries_parameterized_scoped_and_no_known_dto_columns() -> None:
 def test_context_rejects_unregistered_types_and_scopes(change: dict[str, Any]) -> None:
     with pytest.raises(CaptureFailure):
         replace(context(), **change)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"case_kind": "unknown_case"},
+        {"case_kind": "recover_single_item"},
+        {"expected_item_count": True},
+        {"expected_item_count": 19},
+        {"expected_quantity_total": "100"},
+        {"expected_quantity_total": "NaN"},
+        {"expected_quantity_total": 2000},
+    ],
+)
+def test_case_has_no_fallback_or_default(change: dict[str, Any]) -> None:
+    with pytest.raises(CaptureFailure, match="CASE_CONTEXT_INVALID"):
+        replace(context(), **change)
+
+
+def test_single_item_case_exact_target_transition_is_separate_from_twenty_gate() -> None:
+    snapshot, receipt = semantic_fixture()
+    single = replace(
+        context(),
+        case_kind="recover_single_item",
+        expected_item_count=1,
+        expected_quantity_total="100",
+    )
+    snapshot["queries"]["ITEMS"]["rows"] = snapshot["queries"]["ITEMS"]["rows"][:1]
+    snapshot["queries"]["EXECUTIONS"]["rows"][0]["item_ids"] = [single.item_id]
+    verify_t6_association(snapshot, single, receipt, "LAB checked", "a" * 64)
+    with pytest.raises(CaptureFailure, match="ITEM_SET_INVALID"):
+        verify_t6_association(snapshot, context(), receipt, "LAB checked", "a" * 64)
+    wrong_total = replace(single, expected_quantity_total="2000")
+    with pytest.raises(CaptureFailure, match="ITEM_SET_INVALID"):
+        verify_t6_association(snapshot, wrong_total, receipt, "LAB checked", "a" * 64)
+    assert single.scope()["case_kind"] == "recover_single_item"
+    assert context().scope()["expected_item_count"] == 20
 
 
 def test_native_receipt_semantic_identity_audit_link_and_timestamp_equivalence() -> None:
