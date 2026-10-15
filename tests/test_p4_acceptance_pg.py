@@ -170,3 +170,41 @@ def test_same_outer_native_full_RO_once_and_fresh_process_original_key_replay(
             if window is not None and process is not None:
                 a.stop_gateway(window, process)
         assert a.cleanup()
+
+
+def test_gateway_session_lock_held_until_actual_child_reap(
+    database: tuple[DatabaseSettings, DatabaseSettings],
+    tmp_path: Path,
+) -> None:
+    owner, app = database
+    initialize_schema(owner, "0016")
+    a = AcceptanceFixture.prepare(
+        owner,
+        app,
+        tmp_path,
+        Deadline.register(datetime.now(UTC) + timedelta(minutes=5)),
+        case_kind="recover_single_item",
+    )
+    window = child = None
+    try:
+        window, child = a.gateway()
+        with connect(app) as db:
+            row = db.execute(
+                "SELECT pg_try_advisory_lock(hashtextextended(%s,0)) AS acquired",
+                ("p4-gateway:" + a.business.app_id,),
+            ).fetchone()
+            assert row == {"acquired": False}
+        a.stop_gateway(window, child)
+        with connect(app) as db:
+            assert db.execute(
+                "SELECT pg_try_advisory_lock(hashtextextended(%s,0)) AS acquired",
+                ("p4-gateway:" + a.business.app_id,),
+            ).fetchone() == {"acquired": True}
+            assert db.execute(
+                "SELECT pg_advisory_unlock(hashtextextended(%s,0)) AS released",
+                ("p4-gateway:" + a.business.app_id,),
+            ).fetchone() == {"released": True}
+    finally:
+        if window is not None and child is not None and not child.confirmed:
+            a.stop_gateway(window, child)
+        assert a.cleanup()

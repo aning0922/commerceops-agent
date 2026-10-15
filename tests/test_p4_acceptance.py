@@ -4,9 +4,12 @@ import json
 import os
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -125,3 +128,123 @@ def test_private_fd_rejects_symlink_and_changed_expected_bytes(tmp_path: Path) -
     link.symlink_to(target)
     with pytest.raises(AcceptanceFailure):
         bound_bytes(link, private=True)
+
+
+def test_cleanup_worker_capture_cannot_lend_its_reserve_to_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts import p4_acceptance as shared
+    from tests.p4_acceptance_support import reference
+
+    tmp_path.chmod(0o700)
+    run, owner, organization = uuid4().hex, str(uuid4()), str(uuid4())
+    ready, config_file, handoff_file = (
+        tmp_path / n for n in ("ready.json", "app.json", "handoff.json")
+    )
+    write_private(ready, {"owner": owner, "organization": organization})
+    write_private(config_file, {"synthetic": True})
+    clock = {
+        "deadline_utc": (datetime.now(UTC) + timedelta(seconds=60)).isoformat(),
+        "monotonic_end": time.monotonic() + 60,
+        "cleanup_reserve_seconds": 180,
+    }
+    runner = {"host_private_dir": str(tmp_path), "container_private_dir": "/run/owned"}
+    handoff = {
+        "contract": CONTRACT,
+        "resource": {"run_id": run, "runtime": clock},
+        "fixture": {
+            "organization_id": organization,
+            "schema_revision": "0016_p4_clarification_requests",
+            **{
+                k: str(uuid4())
+                for k in ("shop_id", "task_id", "target_item_id", "principal_id", "web_identity_id")
+            },
+            "auth_version": 1,
+            "checkpoint_threads": ["synthetic-thread"],
+            "case_kind": "recover_single_item",
+            "item_count": 1,
+            "quantity_total": "70",
+        },
+        "private_refs": {"app_database_config": reference(config_file)},
+    }
+    write_private(handoff_file, handoff)
+    monkeypatch.setitem(shared._APP_OWNERS, (run, owner), reference(ready))
+    entered = []
+
+    def verified(value: Any, *, cleanup: bool = False) -> dict[str, Any]:
+        shared._runtime(clock).remaining(cleanup=cleanup)
+        entered.append(cleanup)
+        return runner
+
+    monkeypatch.setattr(shared, "_verified_runner", verified)
+    monkeypatch.setattr(shared, "_runner_start", lambda *args: object())
+    monkeypatch.setattr(shared, "_runner_result", lambda *args, **kwargs: {"value": {"events": []}})
+    assert (
+        shared.capture_bridge(
+            "worker",
+            handoff,
+            handoff_ref=reference(handoff_file),
+            phase="final-worker",
+            owner=owner,
+        )["phase"]
+        == "final-worker"
+    )
+    assert entered == [True]
+    with pytest.raises(AcceptanceFailure, match="P4A_DEADLINE"):
+        shared.capture_bridge(
+            "snapshot", handoff, handoff_ref=reference(handoff_file), phase="post-replay"
+        )
+    with pytest.raises(AcceptanceFailure, match="P4A_APP_OWNER_UNBOUND"):
+        shared.capture_bridge(
+            "worker",
+            handoff,
+            handoff_ref=reference(handoff_file),
+            phase="final-worker",
+            owner=str(uuid4()),
+        )
+
+
+def test_app_stop_still_attempts_API_when_worker_evidence_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts import p4_acceptance as shared
+    from tests.p4_acceptance_support import reference
+
+    tmp_path.chmod(0o700)
+    run = uuid4().hex
+    app = tmp_path / "app.json"
+    write_private(app, {"synthetic": True})
+    h = {
+        "contract": CONTRACT,
+        "resource": {"run_id": run},
+        "private_refs": {"web_config": reference(app), "app_database_config": reference(app)},
+    }
+    handoff_file = tmp_path / "handoff.json"
+    write_private(handoff_file, h)
+    runner = {"host_private_dir": str(tmp_path), "container_private_dir": "/run/owned"}
+    monkeypatch.setattr(shared, "_verified_runner", lambda *args, **kwargs: runner)
+    children = {}
+    for name in ("worker", "api"):
+        ready = tmp_path / (name + ".json")
+        write_private(ready, {"kind": name})
+        children[name] = SimpleNamespace(process=SimpleNamespace(poll=lambda: None), ready=ready)
+    monkeypatch.setitem(shared._APP_EPOCHS, run, {**children, "epoch": {}})
+    signals = []
+
+    def start(value: Any, request: dict[str, Any]) -> object:
+        signals.append(request["action"])
+        return object()
+
+    def result(child: Any, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        if child is children["worker"]:
+            raise AcceptanceFailure("P4A_QUERY_SHAPE", query_id="WORKER_LIFECYCLE")
+        return {"exit_code": 0}
+
+    monkeypatch.setattr(shared, "_runner_start", start)
+    monkeypatch.setattr(shared, "_runner_result", result)
+    with pytest.raises(AcceptanceFailure, match="P4A_APP_STOP_FAILED"):
+        shared.app_lifecycle("stop", h, handoff_ref=reference(handoff_file))
+    assert signals == ["signal_process", "signal_process"]
+    assert (tmp_path / "app-stop-failures.safe.json").exists()

@@ -1,5 +1,6 @@
 """P4专用验收的来源、阶段、SQL和结果合同；没有CLI或真实平台默认入口。"""
 
+import ast
 import hashlib
 import importlib.abc
 import importlib.machinery
@@ -152,6 +153,34 @@ def write_private(path: Path, value: Any) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def exception_query_id(error: BaseException) -> str | None:
+    trace = error.__traceback__
+    frames = []
+    while trace is not None:
+        frames.append(trace)
+        trace = trace.tb_next
+    for frame in reversed(frames):
+        module = frame.tb_frame.f_globals.get("__name__", "")
+        if not module.startswith(("commerceops.", "scripts.")):
+            continue
+        path = Path(frame.tb_frame.f_code.co_filename)
+        try:
+            tree = ast.parse(bound_bytes(path))
+        except (AcceptanceFailure, SyntaxError):
+            continue
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr in ("execute", "executemany")
+                and node.args
+                and node.lineno <= frame.tb_lineno <= (node.end_lineno or node.lineno)
+            ):
+                source = module + ":" + frame.tb_frame.f_code.co_name + ":" + ast.dump(node.args[0])
+                return "AQ-" + digest(source.encode())[:16]
+    return None
+
+
 def safe_failure(error: BaseException, stage: str, query_id: str | None = None) -> dict[str, Any]:
     require(stage in STAGES, "P4A_STAGE_UNKNOWN")
     state = getattr(error, "sqlstate", None)
@@ -161,7 +190,8 @@ def safe_failure(error: BaseException, stage: str, query_id: str | None = None) 
         "category": type(error).__name__,
         "query_id": query_id
         or getattr(error, "p4a_query_id", None)
-        or (error.query_id if isinstance(error, AcceptanceFailure) else None),
+        or (error.query_id if isinstance(error, AcceptanceFailure) else None)
+        or exception_query_id(error),
         "sqlstate": state
         if isinstance(state, str) and re.fullmatch(r"[0-9A-Z]{5}", state)
         else None,
@@ -617,6 +647,9 @@ def _runtime(value: Mapping[str, Any]) -> Deadline:
     )
 
 
+_APP_OWNERS: dict[tuple[str, str], dict[str, str]] = {}
+
+
 def _docker(arguments: list[str], *, timeout: float = 10) -> subprocess.CompletedProcess[bytes]:
     result = subprocess.run(["docker", *arguments], capture_output=True, timeout=timeout)
     require(result.returncode == 0, "P4A_DOCKER_OPERATION")
@@ -680,9 +713,10 @@ class RunnerChild:
 def _runner_start(handoff: Mapping[str, Any], request: dict[str, Any]) -> RunnerChild:
     import secrets
 
-    runner = _verified_runner(
-        handoff, cleanup=request["action"] in ("signal_process", "confirm_process")
+    cleanup = request["action"] in ("signal_process", "confirm_process") or (
+        request["action"] == "capture" and request.get("kind") == "worker"
     )
+    runner = _verified_runner(handoff, cleanup=cleanup)
     directory = Path(runner["host_private_dir"])
     key = secrets.token_hex(12)
     output, ready, request_file = (
@@ -758,7 +792,20 @@ def capture_bridge(
     _verified_handoff(handoff, handoff_ref)
     require(kind in ("snapshot", "worker"), "P4A_CAPTURE_KIND")
     require(kind != "worker" or owner is not None, "P4A_APP_EPOCH_REQUIRED")
-    runner = _verified_runner(handoff)
+    owner_ref = None
+    if kind == "worker":
+        require(
+            isinstance(owner, str) and (handoff["resource"]["run_id"], owner) in _APP_OWNERS,
+            "P4A_APP_OWNER_UNBOUND",
+        )
+        owner_ref = _APP_OWNERS[(handoff["resource"]["run_id"], str(owner))]
+        receipt = json.loads(private_ref(owner_ref))
+        require(
+            receipt["owner"] == owner
+            and receipt["organization"] == handoff["fixture"]["organization_id"],
+            "P4A_APP_OWNER_UNBOUND",
+        )
+    runner = _verified_runner(handoff, cleanup=kind == "worker")
     fixture = handoff["fixture"]
     context = {
         "revision": fixture["schema_revision"],
@@ -789,7 +836,9 @@ def capture_bridge(
             )
         },
     }
-    value = _runner_result(_runner_start(handoff, request), handoff)
+    if owner_ref is not None:
+        request["owner_receipt_ref"] = _inside_ref(owner_ref, runner)
+    value = _runner_result(_runner_start(handoff, request), handoff, cleanup=kind == "worker")
     result: dict[str, Any] = value["value"]
     return {**result, "phase": phase}
 
@@ -810,6 +859,16 @@ def capture_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     value["checkpoint_threads"] = tuple(value["checkpoint_threads"])
     value["sdk_subject_ids"] = tuple(value["sdk_subject_ids"])
     context = capture.CaptureContext(**value)
+    if request["kind"] == "worker":
+        from commerceops.infrastructure.worker_lock import process_namespace
+
+        receipt = json.loads(private_ref(request["owner_receipt_ref"]))
+        require(
+            receipt["owner"] == request["owner"]
+            and receipt["organization"] == context.organization_id
+            and receipt["pid_namespace"] == process_namespace(),
+            "P4A_APP_OWNER_UNBOUND",
+        )
     with connect(settings) as db:
         if request["kind"] == "worker":
             result = capture.capture_worker(db, context.organization_id, request["owner"])
@@ -1102,6 +1161,10 @@ def app_lifecycle(
             "P4A_APP_EXITED",
         )
         children["epoch"] = epoch
+        _APP_OWNERS[(run_id, epoch["owner"])] = {
+            "path": str(children["worker"].ready),
+            "sha256": digest(bound_bytes(children["worker"].ready, private=True)),
+        }
         return {
             "epoch": epoch,
             "active_workers": epoch["active_workers"],
@@ -1161,14 +1224,30 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     witnesses: list[dict[str, Any]] = []
     original_scope, original_target = native.trusted_scope, native_module.verified_target
     original_project = native_module.BusinessBaseAdapter.project
+    original_dispatch = native_module.BaseDeliveryStore.dispatch_one
+    native_errors: list[dict[str, Any]] = []
+    factory_initialized = False
 
     async def observed_scope(*args: Any, **kwargs: Any) -> Any:
         with report.enter("AUTHORIZE"):
             return await original_scope(*args, **kwargs)
 
     async def observed_target(*args: Any, **kwargs: Any) -> Any:
-        with report.enter("PREFLIGHT"):
-            return await original_target(*args, **kwargs)
+        nonlocal factory_initialized
+        try:
+            with report.enter("PREFLIGHT"):
+                return await original_target(*args, **kwargs)
+        finally:
+            factory_initialized = args[0].client is not None
+
+    async def observed_dispatch(store: Any) -> Any:
+        try:
+            return await original_dispatch(store)
+        except Exception as error:
+            failure = safe_failure(error, "CALL")
+            native_errors.append(failure)
+            report.stages["CALL"].update(state="FAILED", failure=failure)
+            raise
 
     async def observed_project(adapter: Any, value: Any) -> Any:
         # 同窗口可能包含多投影，CALL状态只在完整native返回后汇总。
@@ -1188,6 +1267,7 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
 
     native_module.trusted_scope, native_module.verified_target = observed_scope, observed_target
     native_module.BusinessBaseAdapter.project = observed_project
+    native_module.BaseDeliveryStore.dispatch_one = observed_dispatch
     transport: Any = None
     summary: dict[str, Any] = {}
     try:
@@ -1195,6 +1275,17 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             from tests.p4_acceptance_support import FakeHTTPTransport
 
             private_ref(refs["external_records"])
+            for path in (
+                settings.app_secret_file,
+                settings.base_app_token_file,
+                settings.base_table_id_file,
+            ):
+                if path is not None:
+                    require(
+                        path.parent == Path(refs["business"]["path"]).parent,
+                        "P4A_SYNTHETIC_PRIVATE_ROOT",
+                    )
+                    bound_bytes(path, private=True)
             transport = FakeHTTPTransport(Path(refs["external_records"]["path"]), settings)
             with transport.installed():
                 summary = asyncio.run(
@@ -1219,6 +1310,7 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     finally:
         native_module.trusted_scope, native_module.verified_target = original_scope, original_target
         native_module.BusinessBaseAdapter.project = original_project
+        native_module.BaseDeliveryStore.dispatch_one = original_dispatch
     proof: dict[str, Any] = {}
     try:
         with report.enter("PERSIST"):
@@ -1269,13 +1361,16 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         "exit_code": 0 if passed else 1,
         "stages": report.stages,
         "native_summary": summary,
+        "native_errors": native_errors,
         "witnesses": witnesses,
         "pg_proof": proof,
         "counts": {
             "native_factory_invocations": int(report.stages["PREFLIGHT"]["state"] != "NOT_RUN"),
-            "official_sdk_objects_constructed": int(
-                report.stages["PREFLIGHT"]["state"] != "NOT_RUN"
-            ),
+            "official_sdk_objects_constructed": 1
+            if factory_initialized
+            else 0
+            if report.stages["PREFLIGHT"]["state"] == "NOT_RUN"
+            else "not_separately_observed",
             "fake_transport_calls": 0 if transport is None else transport.calls,
             "real_network_egress": 0 if transport is not None else "not_measured",
             "original_secret_read": 0 if transport is not None else "Root_release_only",
@@ -1305,9 +1400,6 @@ def gateway_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     window = GatewayWindow.model_validate_json(private_ref(refs["window"]))
     private_ref(refs["web_config"])
     config = WebConfig.from_file(Path(refs["web_config"]["path"]))
-    with connect(config.database) as db:
-        claim_gateway(db, settings, window)
-        gateway_process_started(db, window)
     stopped = False
 
     def stop(signum: int, frame: Any) -> None:
@@ -1315,9 +1407,13 @@ def gateway_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         stopped = True
 
     signal.signal(signal.SIGTERM, stop)
-    write_private(Path(request["ready_file"]), {"claimed": True, "pid": os.getpid()})
-    while not stopped and window.active():
-        time.sleep(0.05)
+    # 原App lease是session advisory lock，必须与真实child生命周期同长。
+    with connect(config.database) as db:
+        claim_gateway(db, settings, window)
+        gateway_process_started(db, window)
+        write_private(Path(request["ready_file"]), {"claimed": True, "pid": os.getpid()})
+        while not stopped and window.active():
+            time.sleep(0.05)
     return {"stage_result": "COMPLETE", "exit_code": 0, "suite_PASS": False}
 
 
@@ -1344,7 +1440,10 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
         "P4A_ACTION",
     )
     lease = _runtime(request["runtime"])
-    lease.remaining(cleanup=action in ("signal_process", "confirm_process"))
+    lease.remaining(
+        cleanup=action in ("signal_process", "confirm_process")
+        or (action == "capture" and request.get("kind") == "worker")
+    )
     from commerceops.infrastructure.worker_lock import process_namespace
 
     if "expected_namespace" in request:
