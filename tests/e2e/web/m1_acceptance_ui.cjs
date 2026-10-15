@@ -2,6 +2,7 @@
 // A fixed headless M1 consumer. The product creates its own key; no body/crypto patching.
 process.umask(0o077);
 const fs = require("node:fs"), path = require("node:path"), crypto = require("node:crypto");
+const { execFileSync } = require("node:child_process");
 const digest = (b) => crypto.createHash("sha256").update(b).digest("hex");
 class Failure extends Error {
   constructor(code, dto = null) { super(code); this.code = code; this.dto = dto; }
@@ -66,6 +67,38 @@ function responseValidator(schema, frontendModules) {
     if (!check(body)) throw new Failure("DTO_INVALID", dtoErrors(check.errors));
   };
 }
+function validateBrowserExecutable(chromium, toolchain) {
+  ensure(chromium.executablePath() === toolchain.browser_executable &&
+    digest(fs.readFileSync(toolchain.browser_executable)) === toolchain.browser_sha256, "BROWSER_SOURCE_MISMATCH");
+}
+async function launchBoundBrowser(chromium, toolchain, timeout) {
+  validateBrowserExecutable(chromium, toolchain);
+  return chromium.launch({ executablePath: toolchain.browser_executable, headless: true, timeout,
+    args: ["--disable-background-networking", "--disable-component-update", "--no-default-browser-check"] });
+}
+async function browserProcessReceipt(browser, toolchain, timeout) {
+  const session = await browser.newBrowserCDPSession();
+  let timer;
+  try {
+    const value = await Promise.race([session.send("SystemInfo.getProcessInfo"),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Failure("BROWSER_PROCESS_TIMEOUT")), timeout); })]);
+    const rows = value.processInfo.filter((p) => p.type === "browser");
+    ensure(rows.length === 1 && Number.isSafeInteger(rows[0].id) && rows[0].id > 1 &&
+      rows[0].id !== process.pid, "BROWSER_PROCESS_INVALID");
+    const pid = rows[0].id;
+    // Read only this newly launched browser's command path, never a process inventory/env.
+    const observed = execFileSync("/bin/ps", ["-p", String(pid), "-o", "comm="], {
+      encoding: "utf8", env: { LANG: "C" }, timeout: Math.min(timeout, 2000), maxBuffer: 4096 }).trim();
+    ensure(path.isAbsolute(observed) && fs.realpathSync(observed) === toolchain.browser_executable &&
+      digest(fs.readFileSync(observed)) === toolchain.browser_sha256, "BROWSER_PROCESS_BINARY_MISMATCH");
+    return { pid, executable: observed, executable_sha256: toolchain.browser_sha256,
+      ui_pid: process.pid, observation: "native browser CDP process ID plus owned PID ps comm path/hash" };
+  } finally { clearTimeout(timer); }
+}
+function processAbsent(pid) {
+  try { process.kill(pid, 0); return false; }
+  catch (error) { return error.code === "ESRCH" ? true : null; }
+}
 async function execute(input) {
   ensure(input.contract === "p4-acceptance-preparation-v1" && ["t6", "page", "replay"].includes(input.stage), "INPUT_INVALID");
   ensure(uuid(input.item_id) && uuid(input.task_id) && hash(input.parent_handoff_sha256), "INPUT_INVALID");
@@ -90,8 +123,7 @@ async function execute(input) {
   ensure(digest(packageBytes) === input.toolchain.playwright_package_sha256 &&
     JSON.parse(packageBytes).version === input.toolchain.playwright_version, "PLAYWRIGHT_SOURCE_MISMATCH");
   const { chromium } = require(pwRoot);
-  ensure(chromium.executablePath() === input.toolchain.browser_executable &&
-    digest(fs.readFileSync(chromium.executablePath())) === input.toolchain.browser_sha256, "BROWSER_SOURCE_MISMATCH");
+  validateBrowserExecutable(chromium, input.toolchain);
   const schemaBytes = fs.readFileSync(input.toolchain.read_schema_path);
   ensure(digest(schemaBytes) === input.toolchain.read_schema_sha256, "DTO_SOURCE_MISMATCH");
   const schema = JSON.parse(schemaBytes);
@@ -109,7 +141,12 @@ async function execute(input) {
   const resolvePath = itemPath + "/resolve";
   const preparedFile = path.join(input.output_directory, "t6-native-request.json");
   try {
-    browser = await chromium.launch({ headless: true, timeout: remaining(), args: ["--disable-background-networking", "--disable-component-update", "--no-default-browser-check"] });
+    browser = await launchBoundBrowser(chromium, input.toolchain, remaining());
+    result.browser_process = await browserProcessReceipt(browser, input.toolchain, remaining());
+    const startFile = path.join(input.output_directory, input.stage + "-browser-start.json");
+    exclusiveJson(startFile, { stage: input.stage, run_id: input.run_id,
+      parent_handoff_sha256: input.parent_handoff_sha256, ...result.browser_process });
+    result.browser_start_ref = { path: startFile, sha256: digest(fs.readFileSync(startFile)) };
     context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     page = await context.newPage(); page.setDefaultTimeout(remaining()); page.setDefaultNavigationTimeout(remaining());
     await context.route("**/*", async (route) => {
@@ -188,12 +225,27 @@ async function execute(input) {
       result.screenshot = input.screenshot_name;
     }
     result.status = "PASSED_STAGE_ONLY";
-  } finally { if (browser) { await browser.close(); result.browser_closed = true; } }
+  } finally {
+    if (browser) {
+      try { await browser.close(); result.browser_closed = true; }
+      finally {
+        if (result.browser_process) {
+          result.browser_pid_stopped = processAbsent(result.browser_process.pid);
+          const stopFile = path.join(input.output_directory, input.stage + "-browser-stop.json");
+          exclusiveJson(stopFile, { stage: input.stage, run_id: input.run_id,
+            parent_handoff_sha256: input.parent_handoff_sha256, pid: result.browser_process.pid,
+            browser_closed: result.browser_closed === true, pid_absent: result.browser_pid_stopped });
+          result.browser_stop_ref = { path: stopFile, sha256: digest(fs.readFileSync(stopFile)) };
+          ensure(result.browser_pid_stopped === true, "BROWSER_PROCESS_STOP_UNPROVED");
+        }
+      }
+    }
+  }
   if (routeFailure) throw routeFailure;
   return result;
 }
 
-module.exports = { execute, readPrivate, origin, dtoErrors, responseValidator };
+module.exports = { execute, readPrivate, origin, dtoErrors, responseValidator, launchBoundBrowser };
 if (require.main === module) {
   (async () => {
     try {
