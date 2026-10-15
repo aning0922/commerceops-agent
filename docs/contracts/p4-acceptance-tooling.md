@@ -47,15 +47,19 @@ handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件�
 | contract | 精确 `p4-acceptance-preparation-v1` |
 | candidate | source_sha、tree、manifest_file、manifest_sha256；actual_images各自id/source证明；lock及toolchain指纹 |
 | resource | run_id、project、owner_label、volume、container_ids、registration_ref、runner_namespace、deadline_utc、cleanup_reserve_seconds |
-| private_refs | web_config、web_credentials、external_records；每项path/sha256，配置内仅引用本轮新凭据；不得原env/Secret |
+| private_refs | web_config、app_database_config、web_credentials、external_records；每项path/sha256，配置内仅引用本轮新凭据；不得原env/Secret |
 | fixture | organization_id、shop_id、principal_id、feishu_identity_id、web_identity_id、auth_version；task_id、source_task_id、plan_id、approval_id、decision_id、execution_id；item_ids、target_item_id；item_count=20、quantity_total="2000"；checkpoint_threads |
 | baseline | core scoped row fingerprints；CP_DATA_TABLES精确三表的rows/digest、thread集合、排序/bytes编码合同；migration metadata另列 |
 | base_ro | typed_result原生产ProjectionResult序列化；window_id、outbox_id、item_id、version=1、client_token、projection_hash、request_hash；pg_proof含delivery状态/完整唯一/observed_version/external_id、稳定anchor及真实SDK method counts；证据ref/hash |
-| worker | 当前owner、pid、namespace、process_started_id、termination_id、claim_id/claim_hash、reaped；所有字段来自原持久audit及实际OS/wait |
+| worker | epoch="base_ro"、owner、pid、namespace、process_started_id、termination_id、claim_id/claim_hash、reaped；来自原持久audit及实际OS/wait，这是已结束RO epoch，不代表当前app Worker活跃 |
 | web | api_origin、web_origin、expected_item_path；仅loopback且必须符合本轮登记；实际服务image/container证明 |
 | t6 | request_key、action="close"、reason；均为本轮一次冻结输入，未消费时不可声称成功 |
 
-上述ID均为UUID标准串，hash均64位小写hex；路径必须canonical且落在登记的新私有目录。
+app_database_config字节是实际app角色的原生DatabaseSettings JSON；C独立校验path/hash并按该对象连接，
+禁止从Web配置猜派生连接或退回owner。该对象user必须commerceops_app，runtime_password_file必须null。
+业务/claim ID为UUID标准串、artifact SHA256为64位小写hex；Git SHA/tree为40hex，image ID保留
+sha256:前缀，container ID、UID、PID等使用各自原生类型，不能套UUID规则。
+路径必须canonical且落在登记的新私有目录。
 缺字段、跨candidate/resource/fixture、bool冒整数或未证明source必须拒绝，不能补默认成功值。
 private_refs的hash是私有文件字节绑定，公共报告仅输出计数/布尔/hash，不输出登录内容/nonce/DSN/URL参数。
 
@@ -67,6 +71,8 @@ typed_response、receipt_ref/hash、PG验证的request/actor/identity/auth_versi
 
 `restart`结果分列正常stop前、停止后、same-volume up后：actual IDs/ownership/health、
 单Worker、PID/namespace、停止与回收证据。中途Worker1与最终Worker0属于不同阶段。
+BaseRO epoch必须在handoff前停/reap；C的t6/restart按各自app epoch记录实际active/started/termination，
+历史reaped=true不能签当前app活跃或停止，也不得并行运行两个Worker。
 `page`结果含同target可见状态、实际严格DTO关联和相同CP/core readback；录屏只是证据展示层。
 
 ## SQL、角色和安全失败
@@ -88,6 +94,8 @@ DTO input/ctx、secret或未过滤业务值。数据快照失败不能阻断独�
 一次持久消费/原Factory与ledger/恢复协调→Base v1 complete verified+anchor→
 C同item真实T6一次/原key GET→native v2原记录读回→正常重启/页面→独立stop/reap/cleanup。
 SQL、权限、DTO、ledger、once和协调器都真实，Fake仅外部HTTP transport；不手工verified或写ledger。
+计数分列native_factory_invocations、native_ledger行数、fake_transport_calls和真实network/secret/provider；
+官方SDK纯内存对象构造单列，不把它当真实网络认证或WS启动，也不把Fake transport写成真实平台成功。
 original/sender/reader/current来自新PG真实流程与同namespace的新Python进程，不复制真实历史。
 
 必要失败覆盖来源污染/撤权/窗口混同/错hash/已消费/并发重复；数字串、nullable/required、
