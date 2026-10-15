@@ -264,6 +264,7 @@ class AcceptanceFixture:
         deadline: Deadline,
         *,
         case_kind: str,
+        entry_manifest_ref: Mapping[str, str] | None = None,
     ) -> "AcceptanceFixture":
         from commerceops.entrypoints.api import create_app
         from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
@@ -304,10 +305,20 @@ class AcceptanceFixture:
         )
         external = directory / "external-records.json"
         write_private(external, {"behavior": "partial" if count == 1 else "ack_drop", "rows": []})
-        entry = materialize_entry(directory)
-        manifest_file = directory / "source-manifest.json"
         root = Path(__file__).resolve().parents[1]
-        write_private(manifest_file, source_manifest(root, entry))
+        if entry_manifest_ref is None:
+            # 独立PG回归自行准备其唯一entry；完整outer必须显式传既有冻结context。
+            entry = materialize_entry(directory)
+            manifest_file = directory / "source-manifest.json"
+            write_private(manifest_file, source_manifest(root, entry))
+        else:
+            manifest_file = Path(entry_manifest_ref["path"])
+            manifest = json.loads(
+                bound_bytes(manifest_file, entry_manifest_ref["sha256"], private=True)
+            )
+            entry = Path(manifest["entry"])
+            bound_bytes(entry, manifest["entry_sha256"], private=True)
+            require(manifest["root"] == str(root), "P4A_CWD")
         write_private(directory / "app-database.json", app.model_dump(mode="json"))
         write_private(
             directory / "web-credentials.json",

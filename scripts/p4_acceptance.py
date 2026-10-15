@@ -1610,7 +1610,12 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         return dict(exit_code=0, stage_result="COMPLETE", schema=schema, suite_PASS=False)
     require(revision == "0016", "P4A_SCHEMA_REVISION")
     a = AcceptanceFixture.prepare(
-        owner, app, private, _runtime(request["runtime"]), case_kind=request["case_kind"]
+        owner,
+        app,
+        private,
+        _runtime(request["runtime"]),
+        case_kind=request["case_kind"],
+        entry_manifest_ref=request["source_manifest_ref"],
     )
     try:
         result = (
@@ -2006,6 +2011,7 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
             require(resource["container_ids"]["runner"] == runner["container_id"], "P4A_RUNNER_ID")
         base_request = dict(
             owner_database_ref=_inside_ref(request["owner_database_ref"], runner),
+            source_manifest_ref=_inside_ref(runner["manifest_ref"], runner),
             private_root=runner["container_private_dir"],
         )
         with report.enter("SCHEMA"):
