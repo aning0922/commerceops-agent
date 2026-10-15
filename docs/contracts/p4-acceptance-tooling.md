@@ -52,12 +52,13 @@ handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件�
 | candidate | source_sha、tree、manifest_file、manifest_sha256；actual_images各自id/source证明；lock及toolchain指纹 |
 | resource | run_id、project、owner_label、volume、container_ids、registration_ref、runner_namespace、deadline_utc、cleanup_reserve_seconds |
 | private_refs | web_config、app_database_config、web_credentials、external_records；每项path/sha256，配置内仅引用本轮新凭据；不得原env/Secret |
-| fixture | organization_id、shop_id、principal_id、feishu_identity_id、web_identity_id、auth_version；task_id、source_task_id、plan_id、approval_id、decision_id、execution_id；item_ids、target_item_id；item_count=20、quantity_total="2000"；checkpoint_threads |
-| baseline | core scoped row fingerprints；CP_DATA_TABLES精确三表的rows/digest、thread集合、排序/bytes编码合同；migration metadata另列 |
-| base_ro | typed_result原生产ProjectionResult序列化；window_id、outbox_id、item_id、version=1、client_token、projection_hash、request_hash；pg_proof含delivery状态/完整唯一/observed_version/external_id、稳定anchor及真实SDK method counts；证据ref/hash |
+| fixture | case_kind及绑定预期item_count/quantity_total；organization_id、shop_id、principal_id、feishu_identity_id、web_identity_id、auth_version；task_id、source_task_id、plan_id、approval_id、decision_id、execution_id；item_ids、target_item_id、checkpoint_threads；schema_revision为完整revision |
+| baseline | core=immutable_business(snapshot)原rows；checkpoints=checkpoint_fingerprint(snapshot)精确三表原rows；thread集合、排序/bytes编码合同固定，migration metadata另列 |
+| base_ro | typed_result原生产ProjectionResult序列化；window_id、outbox_id、item_id、version=1、client_token、projection_hash、request_hash；pg_proof含target_key/external_id/verification_mode、delivery状态/完整唯一/observed_version、稳定anchor及真实SDK method counts；证据ref/hash |
 | worker | epoch="base_ro"、owner、pid、namespace、process_started_id、termination_id、claim_id/claim_hash、reaped；来自原持久audit及实际OS/wait，这是已结束RO epoch，不代表当前app Worker活跃 |
 | web | api_origin、web_origin、expected_item_path；仅loopback且必须符合本轮登记；实际服务image/container证明 |
 | t6 | request_phase="unprepared"、request_key=null、action="close"、reason、expected_version=1；初态固定目标/语义，原生UI生成request key |
+| toolchain | node_executable/node_version/node_sha256/playwright_root/playwright_version/playwright_package_sha256/browser_executable/browser_sha256/frontend_node_modules/read_schema_path/read_schema_sha256/ui_helper_sha256；均为实际冻结来源 |
 
 app_database_config字节是实际app角色的原生DatabaseSettings JSON；C独立校验path/hash并按该对象连接，
 禁止从Web配置猜派生连接或退回owner。该对象user必须commerceops_app，runtime_password_file必须null。
@@ -80,15 +81,33 @@ capture kind仅snapshot/worker；phase为显式证据阶段，worker必须传当
 host_private_dir、container_private_dir、uid/gid和该context启动时登记的runtime期限。
 共用桥接核immutable ID/image/owner/mount与manifest，再docker exec同一入口/hash；不启动RPC/服务器，
 不从C WIP导入。Host与runner分别登记相同UTC截止对应的monotonic值，不跨OS复制monotonic绝对值。
+resource.runtime为host固定期限，resource.runner.runtime为runner期限；resource.postgres_container_id
+显式绑定PG，桥接复核其无PortBindings及同一volume/image。web.api_internal_port显式绑定API内部监听端口。
 
 runner入口绑定app_database_config后新建真实app连接；snapshot将精确完整revision、fixture的Web身份/
 auth_version/CP threads及实际请求key/SDK refs构造为C的CaptureContext，调用capture_snapshot(db,context)。
+同时传三个必需keyword：case_kind=fixture.case_kind、expected_item_count=fixture.item_count、
+expected_quantity_total=fixture.quantity_total，禁止默认或按观察值倒填预期。
 worker另开app连接，仅调用capture_worker(db,organization_id,owner)。返回原typed安全结果及phase，
 连接关闭后落本轮新私有结果ref，query失败固定分类且非零；不会退回owner或业务快照签cleanup。
 app_lifecycle action仅start/stop/restart，在同runner内正常启动/停止原生API和单Worker进程，
 返回该app epoch的owner/organization/pid/host/pid_namespace、started/termination及wait/reap证据。
 其Worker不dispatch业务jobs，T6仍为原Web/API事务；v2由A在app Worker停止后单独原生受控投影，
 不得同时再起第二Worker。restart使用相同PG卷与新app epoch，不借base_ro历史回执。
+capture_bridge直接返回原collector dict并加phase。app_lifecycle返回：
+
+```text
+start:   {epoch:{owner,organization,pid,host,pid_namespace,process_started_id,reaped:false,...},
+          active_workers:实际1,reaped:false,api_ready:实际true,volume,container_ids,stopped_epoch:null}
+stop:    {epoch:{旧epoch及termination_id,reaped:true},active_workers:实际0,
+          reaped:true,api_ready:false,volume,container_ids}
+restart: {epoch:新active epoch,active_workers:实际1,reaped:true,api_ready:实际true,
+          volume,container_ids,stopped_epoch:旧已回收epoch}
+```
+
+顶层restart.reaped指旧epoch，新的epoch.reaped仍false。当前正常restart范围为原生API及
+单Worker进程、同一runner/PG卷；不冒称PG或Web已重启。Web重启由C原owner执行并另记。
+active_workers来自原审计未确认计数，api_ready来自实际Server startup/进程状态，不补默认成功。
 
 业务/claim ID为UUID标准串、artifact SHA256为64位小写hex；Git SHA/tree为40hex，image ID保留
 sha256:前缀，container ID、UID、PID等使用各自原生类型，不能套UUID规则。
@@ -98,7 +117,7 @@ private_refs的hash是私有文件字节绑定，公共报告仅输出计数/布
 
 `t6`结果包含contract/stage、同candidate/resource/target引用、request_key、semantic_payload_hash、
 typed_response、receipt_ref/hash、PG验证的request/actor/identity/auth_version/audit/outbox关联，
-以及20项中仅同target从open/v1到closed/v2、其余19open的实际计数。
+以及绑定case中仅同target从open/v1到closed/v2的实际计数；20项case另核其余19open。
 必须真实页面/API一次POST，再原request_key GET；HTTP200/text/v2单独不足。
 真实ResolutionDialog在prepare时通过crypto.randomUUID生成key，工具不得预造UUID、修改crypto或请求体。
 C在prepare后、send前将原生key和canonical wire-body hash写入O_EXCL新私有receipt，绑定
@@ -128,8 +147,19 @@ DTO input/ctx、secret或未过滤业务值。数据快照失败不能阻断独�
 
 ## 完整正向与必要矩阵
 
-同一冻结候选、新合成20item/2000 fixture：native加载/低权SQL/DTO/preflight/arm/
-一次持久消费/原Factory与ledger/恢复协调→Base v1 complete verified+anchor→
+Root已确认保留approved_first_create的单item execution规则，分列同一候选的两个新合成case：
+
+- recover_single_item：主完整正向，新1item execution（冻结known_inbound数据，quantity_total="70"）。
+  原C0→sender→explicit RO一次持久消费、verified/anchor→同target真实页面T6/原key GET→
+  native v2同记录读回→正常restart/page→cleanup/exit和cold replay，对应未来原key真实恢复路径。
+- batch_twenty_items：独立20items/quantity_total="2000"，使用原本支持该execution的普通
+  approved_outbox原key RO及20项披露/一致性；不能标成explicit恢复通过，不降低M1的20SKU Gate。
+
+fixture.case_kind只能取以上两值，item_count分别精确1/20，quantity_total必须显式正数字符串。
+两case均不复制旧known70或真实身份。初始20项走C0被拒的实际失败保留；单item谓词是充分阻断，
+未捕获完整异常位置时不将其写成该次或更早失败的唯一原因。
+
+主链native加载/低权SQL/DTO/preflight/arm/一次持久消费/原Factory与ledger/恢复协调→verified/anchor→
 C同item真实T6一次/原key GET→native v2原记录读回→正常重启/页面→独立stop/reap/cleanup。
 SQL、权限、DTO、ledger、once和协调器都真实，Fake仅外部HTTP transport；不手工verified或写ledger。
 计数分列native_factory_invocations、native_ledger行数、fake_transport_calls和真实network/secret/provider；
