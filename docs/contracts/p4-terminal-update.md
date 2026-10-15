@@ -110,3 +110,8 @@ create/IM/provider0。两阶段只改变资源开放安排，不新增业务规�
 真实与同源LAB统一复用049的同host/PID namespace子进程及受控loopback PG模式；
 PG仅127.0.0.1自有随机/登记端口，API/Web也仅loopback，无公网入口。不保留新runner部署分支，
 不改写历史namespace或终止回执；源码存在不签完整Gate。
+
+阶段读取严格分开：T6提交后的actual GET只接受pending；v2已验证后的LAB只读页面与GET只接受
+synced，不将其放宽为任意状态。发human-ready前，以低权只读核web_credentials.login对应的
+organization/principal/identity、web provider、enabled和当前auth_version；不读取password_hash。
+原键回读、API正常重启、同卷PG重开与C只读页面在同源LAB分别记录，不能扩大为wholeCompose。

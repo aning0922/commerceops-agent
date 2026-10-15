@@ -2729,13 +2729,18 @@ def _human_get_proof(
 
 
 def _human_auth_get(
-    handoff: Mapping[str, Any], key: str, context: Mapping[str, Any]
+    handoff: Mapping[str, Any],
+    key: str,
+    context: Mapping[str, Any],
+    *,
+    expected_sync: Literal["pending", "synced"] = "pending",
 ) -> dict[str, Any]:
     """独立技术认证仅用于同key只读GET；不代替真人业务提交，无刷新重登。"""
     from urllib.parse import urlsplit
 
     import httpx
 
+    require(expected_sync in ("pending", "synced"), "P4A_SYNC_STAGE")
     api, origin = (handoff["web"][name] for name in ("api_origin", "web_origin"))
     for value in (api, origin):
         parsed = urlsplit(value)
@@ -2850,8 +2855,10 @@ def _human_auth_get(
                 current_item.get("item_id") == context["item_id"]
                 and current_item.get("state") == "closed"
                 and current_item.get("version") == 2
-                and current_item.get("sync", {}).get("state") == "pending",
-                "P4A_HUMAN_SYNC_PENDING",
+                and current_item.get("sync", {}).get("state") == expected_sync,
+                "P4A_HUMAN_SYNC_PENDING"
+                if expected_sync == "pending"
+                else "P4A_TERMINAL_SYNC_SYNCED",
             )
             response = send("GET", path)
             require(response.status_code == 200, "P4A_HUMAN_GET_FAILED")
@@ -4928,6 +4935,32 @@ def _terminal_persist(request: Mapping[str, Any], window: Any, native: Mapping[s
     )
 
 
+def human_login_identity(
+    db: Any, credentials_ref: Mapping[str, str], context: Mapping[str, Any]
+) -> None:
+    """只读当前凭据映射；不读password_hash，不把ctx自报身份当作登录来源证明。"""
+    credentials = json.loads(private_ref(credentials_ref))
+    rows = db.execute(
+        "SELECT c.organization_id,c.principal_id,c.identity_id,c.enabled AS credential_enabled,"
+        "i.provider,p.enabled AS principal_enabled,p.auth_version FROM business.web_credentials c "
+        "JOIN business.identities i ON (i.organization_id,i.id,i.principal_id)="
+        "(c.organization_id,c.identity_id,c.principal_id) JOIN business.principals p "
+        "ON (p.organization_id,p.id)=(c.organization_id,c.principal_id) WHERE c.login=%s",
+        (credentials["login"],),
+    ).fetchall()
+    require(
+        len(rows) == 1
+        and all(
+            str(rows[0][k]) == str(context[k])
+            for k in ("organization_id", "principal_id", "identity_id", "auth_version")
+        )
+        and rows[0]["credential_enabled"] is True
+        and rows[0]["principal_enabled"] is True
+        and rows[0]["provider"] == "web",
+        "P4A_HUMAN_CREDENTIAL_BINDING",
+    )
+
+
 def human_web_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     """仅冻结的Web镜像/loopback端口；不挂载私配，不构造业务请求。"""
     r = request["web_resource"]
@@ -5135,7 +5168,9 @@ def terminal_lab_page_readback(
             private_refs=request["private_refs"],
             resource=dict(runtime=request["runtime"]),
         )
-        observation = _human_auth_get(handoff, human["request_key"], context)
+        observation = _human_auth_get(
+            handoff, human["request_key"], context, expected_sync="synced"
+        )
         receipt = _human_get_proof(
             handoff, observation, human["request_key"], context["item_id"], context
         )
@@ -5283,6 +5318,9 @@ def human_t6_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[s
             web = WebConfig.from_file(Path(refs["web_config"]["path"]))
             owner = DatabaseSettings.model_validate_json(private_ref(refs["owner_database"]))
             _ro_schema(owner, web.database, request["revision"])
+            with connect(web.database) as db:
+                db.execute("SET TRANSACTION READ ONLY")
+                human_login_identity(db, refs["web_credentials"], context)
             human_idle_stage(
                 dict(
                     private_refs=refs,
@@ -5426,7 +5464,7 @@ def human_t6_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[s
                 ),
                 "P4A_HUMAN_REQUEST_BINDING",
             )
-            observation = _human_auth_get(handoff, key, context)
+            observation = _human_auth_get(handoff, key, context, expected_sync="pending")
             write_private(get_file, observation)
             receipt = _human_get_proof(handoff, observation, key, ctx.item_id, context)
             require(receipt == rows[0]["result"], "P4A_HUMAN_ORIGINAL_GET_MISMATCH")

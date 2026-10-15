@@ -6,7 +6,7 @@ import sys
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 import httpx
@@ -17,7 +17,10 @@ from scripts.p4_acceptance import AcceptanceFailure, _human_auth_get, digest, wr
 pytestmark = pytest.mark.offline
 
 
-@pytest.mark.parametrize("fault", [None, "login", "session", "original_get", "dto"])
+@pytest.mark.parametrize(
+    "fault",
+    [None, "login", "session", "original_get", "dto", "synced", "premature_sync", "late_pending"],
+)
 def test_current_identity_auth_then_original_GET_never_business_POST_or_refresh(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str | None
 ) -> None:
@@ -80,7 +83,11 @@ def test_current_identity_auth_then_original_GET_never_business_POST_or_refresh(
                         "item_id": context["item_id"],
                         "state": "closed",
                         "version": 2,
-                        "sync": {"state": "pending"},
+                        "sync": {
+                            "state": "synced"
+                            if fault in ("synced", "premature_sync")
+                            else "pending"
+                        },
                     }
                 },
             )
@@ -135,11 +142,14 @@ def test_current_identity_auth_then_original_GET_never_business_POST_or_refresh(
             }
         },
     }
-    if fault:
+    expected_sync: Literal["pending", "synced"] = (
+        "synced" if fault in ("synced", "late_pending") else "pending"
+    )
+    if fault not in (None, "synced"):
         with pytest.raises(AcceptanceFailure):
-            _human_auth_get(handoff, key, context)
+            _human_auth_get(handoff, key, context, expected_sync=expected_sync)
     else:
-        result = _human_auth_get(handoff, key, context)
+        result = _human_auth_get(handoff, key, context, expected_sync=expected_sync)
         assert result["auth"] == {
             "bootstrap_GET": 1,
             "login_POST": 1,
