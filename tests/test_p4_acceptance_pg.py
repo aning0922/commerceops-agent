@@ -15,11 +15,12 @@ from commerceops.entrypoints.database import grant_runtime, migrate, setup_check
 from commerceops.infrastructure.database import DatabaseSettings, connect, migration_engine
 from psycopg import sql
 
-from scripts.p4_acceptance import Deadline, schema_contract
+from scripts.p4_acceptance import CONTRACT, Deadline, schema_contract, write_private
 from tests.p4_acceptance_support import (
     AcceptanceFixture,
     prepare_batch_ro,
     prepare_single_ro,
+    reference,
 )
 
 pytestmark = pytest.mark.integration
@@ -96,6 +97,42 @@ def test_same_outer_native_full_RO_once_and_fresh_process_original_key_replay(
         assert result["verified"]["exit_code"] == 0
         assert result["verified"]["counts"]["real_network_egress"] == 0
         assert result["replay"]["exit_code"] == 1
+        continuation = a.save_continuation(result)
+        item_id = result["delivery"]["item_id"]
+        task_id = next(iter(result["window"].task_ids))
+        # 这里只验证原生API事务与v2装配；真实浏览器T6必须由C完整预演另签。
+        response = a.fixture.client.post(
+            f"/api/v1/replenishment-items/{item_id}/resolve",
+            json={
+                "schema_version": "p3-web-v1",
+                "request_key": str(uuid4()),
+                "action": "close",
+                "expected_version": 1,
+                "reason": "LAB native API regression",
+            },
+            headers=a.fixture.headers(),
+        )
+        assert response.status_code == 200
+        with connect(app) as db:
+            outbox = db.execute(
+                "SELECT * FROM business.outbox WHERE aggregate_id=%s AND aggregate_version=2",
+                (item_id,),
+            ).fetchone()
+        assert outbox is not None
+        t6 = tmp_path / "native-api-only.json"
+        write_private(t6, dict(item_id=str(item_id), task_id=str(task_id), v2_outbox=outbox))
+        child = a.start(
+            {
+                "contract": CONTRACT,
+                "action": "project_v2",
+                "continuation_ref": continuation,
+                "t6_result_ref": reference(t6),
+                "output_file": str(tmp_path / "native-v2-result.json"),
+            }
+        )
+        v2 = child.wait(timeout=min(90, a.deadline.remaining()))
+        assert v2["exit_code"] == 0, v2.get("failure")
+        assert v2["value"]["witnesses"][0]["request"]["operation"] == "update"
     finally:
         assert a.cleanup()
 

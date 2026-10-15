@@ -5,6 +5,7 @@ import hashlib
 import importlib.abc
 import importlib.machinery
 import importlib.util
+import io
 import json
 import os
 import re
@@ -16,6 +17,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from importlib.resources.abc import ResourceReader
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Literal, cast
@@ -297,9 +299,33 @@ class Deadline:
         return value
 
 
+class _VerifiedResources(ResourceReader):
+    """原importlib.resources接口读取启动时已校验的同一份资源bytes。"""
+
+    def __init__(self, resources: Mapping[str, bytes]):
+        self.resources = resources
+
+    def open_resource(self, resource: str) -> io.BytesIO:
+        if resource not in self.resources:
+            raise FileNotFoundError("P4A_RESOURCE_UNKNOWN")
+        return io.BytesIO(self.resources[resource])
+
+    def resource_path(self, resource: str) -> str:
+        raise FileNotFoundError("P4A_RESOURCE_MEMORY_ONLY")
+
+    def is_resource(self, name: str) -> bool:
+        return name in self.resources
+
+    def contents(self) -> Iterator[str]:
+        return iter(self.resources)
+
+
 class _VerifiedLoader(importlib.abc.Loader):
-    def __init__(self, path: Path, body: bytes):
-        self.path, self.body = path, body
+    def __init__(self, path: Path, body: bytes, resources: Mapping[str, bytes]):
+        self.path, self.body, self.resources = path, body, resources
+
+    def get_resource_reader(self, fullname: str) -> _VerifiedResources:
+        return _VerifiedResources(self.resources)
 
     def create_module(self, spec: Any) -> None:
         return None
@@ -334,12 +360,17 @@ class SourceBinding(importlib.abc.MetaPathFinder):
         require(not os.environ.get("PYTHONPATH") and not os.environ.get("PYTHONHOME"), "P4A_ENV")
         self.modules: dict[str, tuple[Path, bytes, bool]] = {}
         self.namespaces: dict[str, Path] = {}
+        self.resources: dict[str, dict[str, bytes]] = {}
         for relative, expected in manifest["files"].items():
             rel = Path(relative)
             require(not rel.is_absolute() and ".." not in rel.parts, "P4A_SOURCE_PATH")
             path = self.root / rel
             if relative.startswith("backend/src/commerceops/"):
                 path = self.package / rel.relative_to("backend/src")
+                if rel.suffix != ".py":
+                    parent = ".".join(rel.relative_to("backend/src").parent.parts)
+                    self.resources.setdefault(parent, {})[rel.name] = bound_bytes(path, expected)
+                    continue
                 mod = rel.relative_to("backend/src").with_suffix("").parts
             elif rel.parts[0] in ("scripts", "tests") and rel.suffix == ".py":
                 mod = rel.with_suffix("").parts
@@ -391,7 +422,7 @@ class SourceBinding(importlib.abc.MetaPathFinder):
         return importlib.util.spec_from_file_location(
             fullname,
             filename,
-            loader=_VerifiedLoader(filename, body),
+            loader=_VerifiedLoader(filename, body, self.resources.get(fullname, {})),
             submodule_search_locations=[str(filename.parent)] if package else None,
         )
 
@@ -413,7 +444,11 @@ def source_manifest(root: Path, entry: Path, *, package_root: Path | None = None
         for path in sorted((root / base).rglob("*.py"))
     }
     files.update({name: digest(bound_bytes(root / name)) for name in ("uv.lock", "pyproject.toml")})
-    for base in ("backend/migrations", "tests/fixtures/commerce/inventory-v1"):
+    for base in (
+        "backend/migrations",
+        "backend/src/commerceops/assets",
+        "tests/fixtures/commerce/inventory-v1",
+    ):
         for path in sorted((root / base).rglob("*")):
             if path.is_file() and "__pycache__" not in path.parts:
                 files[str(path.relative_to(root))] = digest(bound_bytes(path))
@@ -689,7 +724,86 @@ def _verified_runner(handoff: Mapping[str, Any], *, cleanup: bool = False) -> Ma
         and any(m.get("Name") == resource["volume"] for m in pg["Mounts"]),
         "P4A_PG_RESOURCE",
     )
+    host_manifest = json.loads(
+        bound_bytes(Path(candidate["manifest_file"]), candidate["manifest_sha256"], private=True)
+    )
+    runner_manifest = json.loads(private_ref(runner["manifest_ref"]))
+    require(
+        host_manifest["files"] == runner_manifest["files"]
+        and host_manifest["entry_sha256"] == runner_manifest["entry_sha256"]
+        and host_manifest["candidate"]
+        == runner_manifest["candidate"]
+        == {"source_sha": candidate["source_sha"], "tree": candidate["tree"]},
+        "P4A_CONTEXT_SOURCE_MISMATCH",
+    )
+    if not cleanup:
+        verify_full_resources(handoff)
     return cast(Mapping[str, Any], runner)
+
+
+def verify_full_resources(handoff: Mapping[str, Any]) -> None:
+    """外入口核冻结的env/mount/network/command闭包，不接受额外原资产挂载。"""
+    resource, candidate = handoff["resource"], handoff["candidate"]
+    registration = json.loads(private_ref(resource["registration_ref"]))
+    require(
+        registration["run_id"] == resource["run_id"]
+        and registration["project"] == resource["project"]
+        and registration["volume"] == resource["volume"]
+        and registration["deadline_utc"] == resource["deadline_utc"]
+        and registration["cleanup_reserve_seconds"] == resource["cleanup_reserve_seconds"]
+        and registration["PG_published_ports"] is False,
+        "P4A_REGISTRATION_BINDING",
+    )
+    require(set(resource["container_ids"]) == {"postgres", "runner", "web"}, "P4A_RESOURCE_SET")
+    for name, cid in resource["container_ids"].items():
+        actual = json.loads(_docker(["inspect", cid]).stdout)[0]
+        expected = resource["constraints"][name]
+        labels = actual["Config"]["Labels"]
+        require(
+            actual["Id"] == cid
+            and actual["State"]["Running"] is True
+            and actual["Image"] == candidate["actual_images"][name]["id"]
+            and labels.get("p4.acceptance.run") == resource["run_id"]
+            and labels.get("p4.acceptance.owner") == resource["owner_label"]
+            and labels.get("com.docker.compose.project") == resource["project"],
+            "P4A_RESOURCE_OWNER",
+        )
+        image = candidate["actual_images"][name]
+        if name != "postgres":
+            require(
+                image["source_sha"] == candidate["source_sha"]
+                and image["source_tree"] == candidate["tree"],
+                "P4A_IMAGE_SOURCE_BINDING",
+            )
+        mounts = sorted(
+            (m["Type"], m["Source"], m["Destination"], m["RW"]) for m in actual["Mounts"]
+        )
+        require(
+            mounts == sorted(tuple(m) for m in expected["mounts"])
+            and sorted(actual["Config"]["Env"]) == sorted(expected["environment"])
+            and actual["Config"]["Cmd"] == expected["command"]
+            and actual["Config"]["Entrypoint"] == expected["entrypoint"]
+            and actual["Config"]["User"] == expected["user"]
+            and actual["HostConfig"]["Privileged"] is False
+            and not actual["HostConfig"]["CapAdd"],
+            "P4A_RESOURCE_ALLOWLIST",
+        )
+        networks = actual["NetworkSettings"]["Networks"]
+        require(
+            len(networks) == 1
+            and next(iter(networks.values()))["NetworkID"] == resource["network_id"],
+            "P4A_RESOURCE_NETWORK",
+        )
+        ports = actual["HostConfig"]["PortBindings"] or {}
+        require(ports == expected["published_ports"], "P4A_RESOURCE_PORTS")
+        require(
+            not ports
+            if name == "postgres"
+            else all(p["HostIp"] == "127.0.0.1" for entries in ports.values() for p in entries),
+            "P4A_RESOURCE_PORTS",
+        )
+        if name == "postgres":
+            require(actual["State"]["Health"]["Status"] == "healthy", "P4A_PG_HEALTH")
 
 
 def _inside_ref(ref: Mapping[str, str], runner: Mapping[str, Any]) -> dict[str, str]:
@@ -740,6 +854,13 @@ def _runner_start(handoff: Mapping[str, Any], request: dict[str, Any]) -> Runner
         "--user",
         f"{runner['uid']}:{runner['gid']}",
         runner["container_id"],
+        "/usr/bin/env",
+        "-i",
+        "PATH=/app/.venv/bin:/usr/local/bin:/usr/bin:/bin",
+        "HOME=" + runner["container_private_dir"],
+        "TMPDIR=" + runner["container_private_dir"],
+        "LANG=C.UTF-8",
+        "LANGSMITH_TRACING=false",
         runner["python"],
         "-I",
         runner["entry"],
@@ -757,9 +878,16 @@ def _runner_start(handoff: Mapping[str, Any], request: dict[str, Any]) -> Runner
 
 
 def _runner_result(
-    child: RunnerChild, handoff: Mapping[str, Any], *, cleanup: bool = False
+    child: RunnerChild,
+    handoff: Mapping[str, Any],
+    *,
+    cleanup: bool = False,
+    timeout_seconds: int = 30,
 ) -> dict[str, Any]:
-    timeout = min(30, _runtime(handoff["resource"]["runtime"]).remaining(cleanup=cleanup))
+    require(0 < timeout_seconds <= 300, "P4A_COMMAND_CAP")
+    timeout = min(
+        timeout_seconds, _runtime(handoff["resource"]["runtime"]).remaining(cleanup=cleanup)
+    )
     try:
         child.process.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -1417,12 +1545,609 @@ def gateway_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     return {"stage_result": "COMPLETE", "exit_code": 0, "suite_PASS": False}
 
 
+def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    """同一outer内准备新PG fixture、原生RO及实际C快照；只返回阶段证据。"""
+    from uuid import UUID
+
+    import psycopg
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+    from commerceops.infrastructure.worker_lock import process_namespace
+    from psycopg import sql
+
+    from tests.e2e.web import m1_acceptance_capture as capture
+    from tests.p4_acceptance_support import AcceptanceFixture, prepare_batch_ro, prepare_single_ro
+    from tests.test_p4_acceptance_pg import initialize_schema
+
+    owner = DatabaseSettings.model_validate_json(private_ref(request["owner_database_ref"]))
+    require(owner.user == "commerceops_owner" and owner.host == "postgres", "P4A_BOOTSTRAP_ROLE")
+    require(owner.runtime_password_file is not None, "P4A_BOOTSTRAP_ROLE")
+    private = Path(request["private_directory"])
+    require(
+        private.is_dir() and private.parent == Path(request["private_root"]), "P4A_PRIVATE_ROOT"
+    )
+    name = "p4a_" + UUID(request["database_id"]).hex
+    with psycopg.connect(**owner.kwargs(), autocommit=True) as admin:
+        admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
+    owner = owner.model_copy(update={"name": name})
+    app = owner.model_copy(
+        update={
+            "user": "commerceops_app",
+            "password_file": owner.runtime_password_file,
+            "runtime_password_file": None,
+        }
+    )
+    revision = request["revision"]
+    initialize_schema(owner, revision)
+    schema = schema_contract(owner, app, revision)
+    if request["action"] == "schema_case":
+        return dict(exit_code=0, stage_result="COMPLETE", schema=schema, suite_PASS=False)
+    require(revision == "0016", "P4A_SCHEMA_REVISION")
+    a = AcceptanceFixture.prepare(
+        owner, app, private, _runtime(request["runtime"]), case_kind=request["case_kind"]
+    )
+    try:
+        result = (
+            prepare_single_ro(a) if a.case_kind == "recover_single_item" else prepare_batch_ro(a)
+        )
+        f = a.fixture
+        # 仅本轮新私配增加已登记的实际loopback origins；审批/SDK/会话TTL不变。
+        config_value = json.loads(bound_bytes(f.config_file, private=True))
+        config_value["origins"] = list(
+            dict.fromkeys([*config_value["origins"], *request["origins"]])
+        )
+        write_private(f.config_file, config_value)
+        from commerceops.infrastructure.web_config import WebConfig
+
+        f.config = WebConfig.from_file(f.config_file)
+        task_id = next(iter(result["window"].task_ids))
+        delivery = result["delivery"]
+        worker_owner = result["verified"]["pg_proof"]["worker_owner"]
+        with connect(app) as db:
+            task = db.execute(
+                "SELECT t.thread_id,s.source_task_id FROM business.business_tasks t "
+                "JOIN business.p3_task_sources s ON s.task_id=t.id WHERE t.id=%s",
+                (task_id,),
+            ).fetchone()
+            if task is None:
+                raise AcceptanceFailure("P4A_HANDOFF_HISTORY")
+            source = db.execute(
+                "SELECT thread_id FROM business.business_tasks WHERE id=%s",
+                (task["source_task_id"],),
+            ).fetchone()
+            approval = db.execute(
+                "SELECT id,plan_id,decision_id FROM business.approvals WHERE task_id=%s",
+                (task_id,),
+            ).fetchone()
+            execution = db.execute(
+                "SELECT id FROM business.executions WHERE task_id=%s", (task_id,)
+            ).fetchone()
+            identity = db.execute(
+                "SELECT r.identity_id FROM business.p4_inbox_receipts r "
+                "JOIN business.inbox_events i ON i.id=r.inbox_id WHERE i.task_id=%s "
+                "AND i.sanitized_payload->>'event_type'='im.message.receive_v1'",
+                (task_id,),
+            ).fetchone()
+            items = QUERIES["ITEMS"].execute(db, (task_id,), revision="0016", role="app")
+            proof = db.execute(
+                "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s",
+                (delivery["outbox_id"],),
+            ).fetchone()
+            starts = db.execute(
+                "SELECT id,after_state FROM business.audit_events WHERE source='worker' "
+                "AND action='started' AND entity_id=%s",
+                (worker_owner,),
+            ).fetchall()
+            ends = db.execute(
+                "SELECT id FROM business.audit_events WHERE source='worker' "
+                "AND action='termination_confirmed' AND entity_id=%s",
+                (worker_owner,),
+            ).fetchall()
+            claim = db.execute(
+                "SELECT after_state FROM business.audit_events WHERE id=%s",
+                (result["window"].window_id,),
+            ).fetchone()
+        require(
+            bool(source and approval and execution and identity and proof and claim)
+            and len(starts) == len(ends) == 1,
+            "P4A_HANDOFF_HISTORY",
+        )
+        if not (source and approval and execution and identity and proof and claim):
+            raise AcceptanceFailure("P4A_HANDOFF_HISTORY")
+        threads = tuple(dict.fromkeys([task["thread_id"], source["thread_id"]]))
+        context = capture.CaptureContext(
+            "0016_p4_clarification_requests",
+            str(f.actor.organization_id),
+            str(f.inventory.data.shop),
+            str(task_id),
+            str(delivery["item_id"]),
+            str(f.actor.principal_id),
+            str(f.actor.identity_id),
+            f.actor.auth_version,
+            threads,
+            sdk_window_id=str(result["window"].window_id),
+            sdk_subject_ids=(str(delivery["outbox_id"]),),
+            case_kind=a.case_kind,
+            expected_item_count=a.expected_item_count,
+            expected_quantity_total=a.expected_quantity_total,
+        )
+        with connect(app) as db:
+            snapshot = capture.capture_snapshot(db, context)
+        capture.validate_business(snapshot, context, closed=False)
+        capture.validate_base_readback(
+            snapshot,
+            context,
+            version=1,
+            target_key=proof["target_key"],
+            external_id=proof["external_id"],
+            verification_mode=proof["verification_mode"],
+            native_projection_hash=proof["projection_hash"],
+        )
+        start = starts[0]
+        continuation = a.save_continuation(result)
+        return dict(
+            exit_code=0,
+            stage_result="COMPLETE",
+            suite_PASS=False,
+            schema=schema,
+            continuation_ref=continuation,
+            private_refs={
+                "web_config": {
+                    "path": str(f.config_file),
+                    "sha256": digest(bound_bytes(f.config_file, private=True)),
+                },
+                **{
+                    k: {"path": str(p), "sha256": digest(bound_bytes(p, private=True))}
+                    for k, p in (
+                        ("app_database_config", private / "app-database.json"),
+                        ("web_credentials", private / "web-credentials.json"),
+                        ("external_records", a.external),
+                    )
+                },
+            },
+            fixture=dict(
+                case_kind=a.case_kind,
+                item_count=a.expected_item_count,
+                quantity_total=a.expected_quantity_total,
+                organization_id=str(f.actor.organization_id),
+                shop_id=str(f.inventory.data.shop),
+                principal_id=str(f.actor.principal_id),
+                feishu_identity_id=str(identity["identity_id"]),
+                web_identity_id=str(f.actor.identity_id),
+                auth_version=f.actor.auth_version,
+                task_id=str(task_id),
+                source_task_id=str(task["source_task_id"]),
+                plan_id=str(approval["plan_id"]),
+                approval_id=str(approval["id"]),
+                decision_id=str(approval["decision_id"]),
+                execution_id=str(execution["id"]),
+                item_ids=[str(r["id"]) for r in items],
+                target_item_id=str(delivery["item_id"]),
+                checkpoint_threads=list(threads),
+                schema_revision=context.revision,
+            ),
+            baseline=dict(
+                schema_revision=context.revision,
+                core=capture.immutable_business(snapshot),
+                checkpoints=capture.checkpoint_fingerprint(snapshot),
+            ),
+            base_ro=dict(
+                typed_result=result["verified"]["witnesses"][0]["result"],
+                window_id=str(result["window"].window_id),
+                **{k: str(delivery[k]) for k in ("outbox_id", "item_id", "client_token")},
+                version=1,
+                projection_hash=proof["projection_hash"],
+                request_hash=delivery["request_hash"],
+                pg_proof=capture.normalized(proof),
+            ),
+            worker=dict(
+                epoch="base_ro",
+                owner=worker_owner,
+                pid=start["after_state"]["pid"],
+                namespace=process_namespace(),
+                process_started_id=str(start["id"]),
+                termination_id=str(ends[0]["id"]),
+                claim_id=str(result["window"].window_id),
+                claim_hash=digest(canonical(claim["after_state"])),
+                reaped=True,
+            ),
+        )
+    finally:
+        require(a.cleanup(), "P4A_PREPARE_CLEANUP_FAILED")
+
+
+def project_v2_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    """原workflow恢复作用域投影原生T6新outbox；不造claim或delivery。"""
+    from uuid import UUID
+
+    from commerceops.infrastructure.database import connect
+
+    from tests.p4_acceptance_support import AcceptanceFixture
+    from tests.test_p4_a09_workflow_pg import manifest
+
+    a, history = AcceptanceFixture.restore(
+        request["continuation_ref"], _runtime(request["runtime"])
+    )
+    gateway = child = None
+    try:
+        t6 = json.loads(private_ref(request["t6_result_ref"]))
+        outbox_id = UUID(t6["v2_outbox"]["id"])
+        task_id = UUID(t6["task_id"])
+        require(a.case_kind == "recover_single_item", "P4A_V2_CASE")
+        with connect(a.fixture.config.database) as db:
+            pending = db.execute(
+                "SELECT id,aggregate_id,aggregate_version,provider_idempotency_key,request_hash "
+                "FROM business.outbox WHERE id=%s AND task_id=%s AND operation='item_projection'",
+                (outbox_id, task_id),
+            ).fetchone()
+            jobs = db.execute(
+                "SELECT status FROM business.jobs WHERE task_id=%s OR task_id="
+                "(SELECT source_task_id FROM business.p3_task_sources WHERE task_id=%s)",
+                (task_id, task_id),
+            ).fetchall()
+            anchor = db.execute(
+                "SELECT external_id FROM business.p4_base_links WHERE item_id=%s",
+                (UUID(t6["item_id"]),),
+            ).fetchone()
+        if pending is None or anchor is None:
+            raise AcceptanceFailure("P4A_V2_NATIVE_OUTBOX_REQUIRED")
+        require(
+            bool(jobs)
+            and all(j["status"] == "done" for j in jobs)
+            and pending["aggregate_version"] == 2
+            and str(pending["aggregate_id"]) == t6["item_id"]
+            and str(pending["provider_idempotency_key"])
+            == t6["v2_outbox"]["provider_idempotency_key"],
+            "P4A_V2_NATIVE_OUTBOX_REQUIRED",
+        )
+        gateway, child = a.gateway()
+        window = manifest(
+            a.fixture,
+            history["origin_gateway"],
+            gateway,
+            task_id,
+            history["origin_owner"],
+            history["origin_window"].window_id,
+        )
+        a.external_behavior("normal")
+        _, result = a.worker(window, stop_after_verified=outbox_id)
+        require(result["exit_code"] == 0, "P4A_V2_UNVERIFIED")
+        witnesses = result["witnesses"]
+        require(
+            len(witnesses) == 1
+            and witnesses[0]["request"]["outbox_id"] == str(outbox_id)
+            and witnesses[0]["request"]["operation"] == "update"
+            and witnesses[0]["result"]["external_id"] == anchor["external_id"],
+            "P4A_V2_RECORD_CHANGED",
+        )
+        return dict(exit_code=0, stage_result="COMPLETE", value=result, suite_PASS=False)
+    finally:
+        if gateway is not None and child is not None and not child.confirmed:
+            a.stop_gateway(gateway, child)
+        require(a.cleanup(), "P4A_V2_CLEANUP_FAILED")
+
+
+def _outside_ref(ref: Mapping[str, str], runner: Mapping[str, Any]) -> dict[str, str]:
+    try:
+        relative = Path(ref["path"]).relative_to(Path(runner["container_private_dir"]))
+    except ValueError:
+        raise AcceptanceFailure("P4A_REF_MOUNT") from None
+    require(".." not in relative.parts, "P4A_REF_MOUNT")
+    value = {"path": str(Path(runner["host_private_dir"]) / relative), "sha256": ref["sha256"]}
+    private_ref(value)
+    return value
+
+
+def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
+    """独立于业务快照与SDK结果，只处置登记的本轮不可变资源；卷保留。"""
+    resource = handoff["resource"]
+    errors: list[dict[str, Any]] = []
+    exits: dict[str, int] = {}
+    ids = resource["container_ids"]
+    require(isinstance(ids, dict) and bool(ids), "P4A_RESOURCE_IDS")
+    require(len(set(ids.values())) == len(ids), "P4A_RESOURCE_IDS")
+    # 先核所有归属，拒绝混入任何未登记实例，然后才可停止。
+    for name, cid in ids.items():
+        value = json.loads(_docker(["inspect", cid]).stdout)[0]
+        labels = value["Config"]["Labels"]
+        require(
+            value["Id"] == cid
+            and labels.get("p4.acceptance.run") == resource["run_id"]
+            and labels.get("p4.acceptance.owner") == resource["owner_label"]
+            and labels.get("com.docker.compose.project") == resource["project"]
+            and value["Image"] == handoff["candidate"]["actual_images"][name]["id"],
+            "P4A_CLEANUP_OWNER",
+        )
+    for name in sorted(ids, key=lambda n: n == "postgres"):
+        cid = ids[name]
+        try:
+            _docker(["stop", "--time", "15", cid], timeout=25)
+            value = json.loads(_docker(["inspect", cid]).stdout)[0]
+            require(value["State"]["Running"] is False, "P4A_CONTAINER_STILL_RUNNING")
+            exits[name] = value["State"]["ExitCode"]
+            _docker(["rm", cid])
+        except Exception as error:
+            errors.append(safe_failure(error, "CLEANUP"))
+    try:
+        network = json.loads(_docker(["network", "inspect", resource["network_id"]]).stdout)[0]
+        require(
+            network["Id"] == resource["network_id"]
+            and network["Labels"].get("p4.acceptance.run") == resource["run_id"]
+            and network["Labels"].get("p4.acceptance.owner") == resource["owner_label"]
+            and not network["Containers"],
+            "P4A_NETWORK_OWNER",
+        )
+        _docker(["network", "rm", resource["network_id"]])
+    except Exception as error:
+        errors.append(safe_failure(error, "CLEANUP"))
+    containers = _docker(
+        ["ps", "-aq", "--filter", "label=com.docker.compose.project=" + resource["project"]]
+    ).stdout.split()
+    networks = _docker(
+        [
+            "network",
+            "ls",
+            "-q",
+            "--filter",
+            "label=com.docker.compose.project=" + resource["project"],
+        ]
+    ).stdout.split()
+    volume = json.loads(_docker(["volume", "inspect", resource["volume"]]).stdout)[0]
+    kept = (
+        volume["Name"] == resource["volume"]
+        and volume["Labels"].get("p4.acceptance.run") == resource["run_id"]
+        and volume["Labels"].get("p4.acceptance.owner") == resource["owner_label"]
+    )
+    return dict(
+        verified=not errors and not containers and not networks and kept,
+        all_containers_reaped=len(exits) == len(ids) and not containers,
+        container_exit_codes=exits,
+        containers=len(containers),
+        networks=len(networks),
+        own_volume_preserved=kept,
+        errors=errors,
+    )
+
+
+def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
+    """唯一outer的完整合成正向；C只是阶段consumer，结束后才可整体判定。"""
+    from uuid import uuid4
+
+    import commerceops
+
+    from tests.e2e.web.m1_acceptance_driver import consume_stage
+
+    report = StageReport(
+        (
+            "SOURCE",
+            "RESOURCE",
+            "SCHEMA",
+            "PREPARE",
+            "T6",
+            "V2",
+            "RESTART",
+            "PAGE",
+            "COLLECT",
+            "STOP",
+            "CLEANUP",
+        )
+    )
+    handoff = load_handoff(request["resource_handoff_ref"])
+    candidate, resource = handoff["candidate"], handoff["resource"]
+    root = Path(resource["runner"]["host_private_dir"])
+    results: dict[str, Any] = {}
+    stop_good = False
+    cleanup: dict[str, Any] = {}
+    owned = False
+    current_ref: dict[str, str] | None = None
+    current: dict[str, Any] | None = None
+    try:
+        with report.enter("SOURCE"):
+            require(commerceops.__file__ is not None, "P4A_IMPORT_REQUIRED")
+            binding.check_loaded()
+            require(
+                binding.manifest["candidate"]
+                == {"source_sha": candidate["source_sha"], "tree": candidate["tree"]},
+                "P4A_CANDIDATE_SOURCE",
+            )
+            require(
+                json.loads(
+                    bound_bytes(
+                        Path(candidate["manifest_file"]), candidate["manifest_sha256"], private=True
+                    )
+                )
+                == binding.manifest,
+                "P4A_CANDIDATE_MANIFEST",
+            )
+        with report.enter("RESOURCE"):
+            runner = _verified_runner(handoff)
+            owned = True
+            require(request["transport"] == "fake", "P4A_REAL_PLATFORM_HOLD")
+            require(resource["container_ids"]["runner"] == runner["container_id"], "P4A_RUNNER_ID")
+        base_request = dict(
+            owner_database_ref=_inside_ref(request["owner_database_ref"], runner),
+            private_root=runner["container_private_dir"],
+        )
+        with report.enter("SCHEMA"):
+            legacy = root / "legacy"
+            legacy.mkdir(mode=0o700)
+            results["legacy"] = _runner_result(
+                _runner_start(
+                    handoff,
+                    {
+                        **base_request,
+                        "action": "schema_case",
+                        "revision": "0015",
+                        "database_id": str(uuid4()),
+                        "private_directory": str(
+                            Path(runner["container_private_dir"]) / legacy.name
+                        ),
+                    },
+                ),
+                handoff,
+                timeout_seconds=120,
+            )
+        with report.enter("PREPARE"):
+            for kind in ("batch_twenty_items", "recover_single_item"):
+                directory = root / kind
+                directory.mkdir(mode=0o700)
+                prepared = _runner_result(
+                    _runner_start(
+                        handoff,
+                        {
+                            **base_request,
+                            "action": "prepare_case",
+                            "revision": "0016",
+                            "database_id": str(uuid4()),
+                            "case_kind": kind,
+                            "private_directory": str(Path(runner["container_private_dir"]) / kind),
+                            "origins": [handoff["web"]["api_origin"], handoff["web"]["web_origin"]],
+                        },
+                    ),
+                    handoff,
+                    timeout_seconds=300,
+                )
+                prepared["private_refs"] = {
+                    k: _outside_ref(v, runner) for k, v in prepared["private_refs"].items()
+                }
+                continuation = _outside_ref(prepared["continuation_ref"], runner)
+                prepared["continuation_ref"] = continuation
+                results[kind] = prepared
+                if kind == "recover_single_item":
+                    current = {
+                        **handoff,
+                        **{
+                            k: prepared[k]
+                            for k in ("private_refs", "fixture", "baseline", "base_ro", "worker")
+                        },
+                        "t6": dict(
+                            action="close",
+                            expected_version=1,
+                            request_phase="unprepared",
+                            request_key=None,
+                            reason="LAB synthetic acceptance",
+                        ),
+                    }
+                    handoff_file = root / "handoff-single.json"
+                    write_private(handoff_file, current)
+                    current_ref = {
+                        "path": str(handoff_file),
+                        "sha256": digest(bound_bytes(handoff_file, private=True)),
+                    }
+        require(current is not None and current_ref is not None, "P4A_HANDOFF_REQUIRED")
+        # 上方require为运行时合同；cast仅收窄静态类型，不补任何数据。
+        current = cast(dict[str, Any], current)
+        current_ref = cast(dict[str, str], current_ref)
+        with report.enter("T6"):
+            results["t6"] = consume_stage("t6", current, handoff_ref=current_ref)
+        with report.enter("V2"):
+            t6_ref = root / "C" / "recover_single_item" / "t6-result.json"
+            ref = {"path": str(t6_ref), "sha256": digest(bound_bytes(t6_ref, private=True))}
+            results["v2"] = _runner_result(
+                _runner_start(
+                    current,
+                    {
+                        "action": "project_v2",
+                        "continuation_ref": _inside_ref(
+                            results["recover_single_item"]["continuation_ref"], runner
+                        ),
+                        "t6_result_ref": _inside_ref(ref, runner),
+                    },
+                ),
+                current,
+                timeout_seconds=120,
+            )
+        with report.enter("RESTART"):
+            results["restart"] = consume_stage("restart", current, handoff_ref=current_ref)
+        with report.enter("PAGE"):
+            results["page"] = consume_stage("page", current, handoff_ref=current_ref)
+        with report.enter("COLLECT"):
+            final = capture_bridge(
+                "snapshot",
+                current,
+                handoff_ref=current_ref,
+                phase="final-v2",
+                request_key=results["t6"]["request_key"],
+            )
+            from commerceops.domain.commerce_values import facts_hash
+
+            from tests.e2e.web import m1_acceptance_capture as capture
+
+            fixture = current["fixture"]
+            context = capture.CaptureContext(
+                fixture["schema_revision"],
+                fixture["organization_id"],
+                fixture["shop_id"],
+                fixture["task_id"],
+                fixture["target_item_id"],
+                fixture["principal_id"],
+                fixture["web_identity_id"],
+                fixture["auth_version"],
+                tuple(fixture["checkpoint_threads"]),
+                request_key=results["t6"]["request_key"],
+                case_kind=fixture["case_kind"],
+                expected_item_count=fixture["item_count"],
+                expected_quantity_total=fixture["quantity_total"],
+            )
+            capture.validate_business(final, context, closed=True)
+            witness = results["v2"]["value"]["witnesses"][0]
+            capture.validate_base_readback(
+                final,
+                context,
+                version=2,
+                target_key=current["base_ro"]["pg_proof"]["target_key"],
+                external_id=current["base_ro"]["pg_proof"]["external_id"],
+                verification_mode=current["base_ro"]["pg_proof"]["verification_mode"],
+                native_projection_hash=facts_hash(witness["request"]["projection"]),
+            )
+            require(
+                capture.immutable_business(final) == current["baseline"]["core"]
+                and capture.checkpoint_fingerprint(final) == current["baseline"]["checkpoints"],
+                "P4A_BASELINE_CHANGED",
+            )
+            results["final_snapshot"] = final
+    except Exception as error:
+        results["failure"] = safe_failure(error, "PREPARE")
+    finally:
+        try:
+            with report.enter("STOP"):
+                if (
+                    resource["run_id"] in _APP_EPOCHS
+                    and current is not None
+                    and current_ref is not None
+                ):
+                    app_lifecycle("stop", current, handoff_ref=current_ref)
+                stop_good = resource["run_id"] not in _APP_EPOCHS
+                require(stop_good, "P4A_APP_STOP_FAILED")
+        except Exception as error:
+            results["stop_failure"] = safe_failure(error, "STOP")
+        try:
+            with report.enter("CLEANUP"):
+                cleanup = resource_cleanup(handoff)
+                require(cleanup["verified"], "P4A_RESOURCE_CLEANUP_FAILED")
+        except Exception as error:
+            results["cleanup_failure"] = safe_failure(error, "CLEANUP")
+    return {
+        **report.terminal(
+            cleanup=cleanup.get("verified") is True,
+            reaped=stop_good and cleanup.get("all_containers_reaped") is True,
+            owned=owned,
+        ),
+        "evidence": results,
+        "resource_cleanup": cleanup,
+        "real_platform_pass": False,
+        "preparation_only": True,
+    }
+
+
 def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
     require(request.get("contract") == CONTRACT, "P4A_CONTRACT")
     if request.get("action") == "source_probe":
         import commerceops
+        from commerceops.entrypoints.web_openapi import export_web
 
         require(commerceops.__file__ is not None, "P4A_IMPORT_REQUIRED")
+        # 原生产函数实际读取两份包内JSON；不启动API/PG/SDK。
+        require(bool(export_web({"paths": {}})["components"]["schemas"]), "P4A_ASSETS_REQUIRED")
         binding.check_loaded()
         return 0
     action = request.get("action")
@@ -1436,6 +2161,10 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "app_worker",
             "signal_process",
             "confirm_process",
+            "prepare_case",
+            "schema_case",
+            "project_v2",
+            "run",
         ),
         "P4A_ACTION",
     )
@@ -1455,7 +2184,9 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "P4A_REAL_PLATFORM_HOLD",
         )
     try:
-        if action == "worker":
+        if action == "run":
+            result = run_stage(request, binding)
+        elif action == "worker":
             result = worker_stage(request)
         elif action == "gateway":
             result = gateway_stage(request)
@@ -1465,6 +2196,10 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             result = api_stage(request)
         elif action == "app_worker":
             result = app_worker_stage(request)
+        elif action in ("prepare_case", "schema_case"):
+            result = prepare_case_stage(request)
+        elif action == "project_v2":
+            result = project_v2_stage(request)
         else:
             result = process_control_stage(request)
     except Exception as error:

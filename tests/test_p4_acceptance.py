@@ -54,7 +54,9 @@ def invocation(tmp_path: Path) -> tuple[list[str], dict[str, Any]]:
     return command, manifest
 
 
-@pytest.mark.parametrize("pollution", ["none", "pythonpath", "cwd", "helper", "entry", "request"])
+@pytest.mark.parametrize(
+    "pollution", ["none", "pythonpath", "cwd", "helper", "asset", "entry", "request"]
+)
 def test_actual_outer_source_closed_before_any_PG_or_SDK(tmp_path: Path, pollution: str) -> None:
     command, manifest = invocation(tmp_path)
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "PYTHONHOME")}
@@ -66,8 +68,13 @@ def test_actual_outer_source_closed_before_any_PG_or_SDK(tmp_path: Path, polluti
     elif pollution in ("entry", "request"):
         path = tmp_path / ("run_once.py" if pollution == "entry" else "request.json")
         path.write_bytes(path.read_bytes() + b"\n")
-    elif pollution == "helper":
-        manifest["files"]["scripts/p4_acceptance.py"] = "0" * 64
+    elif pollution in ("helper", "asset"):
+        file = (
+            "scripts/p4_acceptance.py"
+            if pollution == "helper"
+            else "backend/src/commerceops/assets/p3-web-v1.openapi.json"
+        )
+        manifest["files"][file] = "0" * 64
         write_private(tmp_path / "manifest.json", manifest)
         command[command.index("--manifest-sha256") + 1] = digest(
             (tmp_path / "manifest.json").read_bytes()

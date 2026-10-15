@@ -7,7 +7,7 @@ import subprocess
 import time
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -316,6 +316,112 @@ class AcceptanceFixture:
         return cls(
             f, business, entry, manifest_file, external, deadline, case_kind, count, total, []
         )
+
+    def save_continuation(self, origin: Mapping[str, Any]) -> dict[str, str]:
+        path = self.fixture.private / "continuation.json"
+        write_private(
+            path,
+            dict(
+                config=reference(self.fixture.config_file),
+                business=self.business.model_dump(mode="json"),
+                entry=str(self.entry),
+                manifest=reference(self.manifest_file),
+                external=str(self.external),
+                seed=asdict(self.fixture.inventory.data),
+                session=self.fixture.client.cookies.get("commerceops_session"),
+                credentials=reference(self.fixture.private / "web-credentials.json"),
+                case_kind=self.case_kind,
+                origin_gateway=origin["origin_gateway"].model_dump(mode="json"),
+                origin_window=origin["origin_window"].model_dump(mode="json"),
+                origin_owner=origin["origin_owner"],
+            ),
+        )
+        return reference(path)
+
+    @classmethod
+    def restore(cls, ref: Mapping[str, str], deadline: Deadline) -> tuple["AcceptanceFixture", Any]:
+        """只重开本轮fixture对象/连接；不seed、不登录、不arm，不构造业务行。"""
+        from commerceops.application.commerce.analysis_task import TrustedReadIdentity
+        from commerceops.application.feishu_business.gateway_window import GatewayWindow
+        from commerceops.entrypoints.api import create_app
+        from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
+        from commerceops.infrastructure.web_sessions import SessionStore
+        from fastapi.testclient import TestClient
+        from pydantic import SecretStr
+
+        from tests.inventory_support import DIRECTORY, InventoryFixture
+        from tests.pg_support import Seed
+
+        value = json.loads(bound_bytes(Path(ref["path"]), ref["sha256"], private=True))
+        cfg = value["config"]
+        bound_bytes(Path(cfg["path"]), cfg["sha256"], private=True)
+        config = WebConfig.from_file(Path(cfg["path"]))
+        require(config.database.user == "commerceops_app", "P4A_ROLE")
+        actor = SessionStore(config).authenticate(value["session"])
+        data = dict(value["seed"])
+        for key in ("organization", "shop", "principal", "conversation", "task"):
+            data[key] = UUID(data[key])
+        seed = Seed(**data)
+        with connect(config.database) as db:
+            identity = db.execute(
+                "SELECT id FROM business.identities WHERE principal_id=%s AND provider='feishu'",
+                (actor.principal_id,),
+            ).fetchone()
+        require(identity is not None, "P4A_HISTORY_REQUIRED")
+        assert identity is not None
+        inventory = InventoryFixture(
+            config.database,
+            config.database,
+            seed,
+            TrustedReadIdentity(
+                identity["id"],
+                actor.principal_id,
+                actor.organization_id,
+                seed.shop,
+                actor.auth_version,
+            ),
+        )
+        store = ReplenishmentStore(config, DIRECTORY)
+        client = TestClient(create_app(web_config=config, replenishment_store=store))
+        client.cookies.set("commerceops_session", value["session"])
+        credential_ref = value["credentials"]
+        credentials = json.loads(
+            bound_bytes(Path(credential_ref["path"]), credential_ref["sha256"], private=True)
+        )
+        f = P3Fixture(
+            inventory,
+            config,
+            store,
+            client,
+            actor,
+            Path(cfg["path"]),
+            Path(ref["path"]).parent,
+            credentials["login"],
+            SecretStr(credentials["password"]),
+        )
+        business = BusinessSettings.model_validate_json(json.dumps(value["business"]))
+        manifest = value["manifest"]
+        bound_bytes(Path(manifest["path"]), manifest["sha256"], private=True)
+        single = value["case_kind"] == "recover_single_item"
+        a = cls(
+            f,
+            business,
+            Path(value["entry"]),
+            Path(manifest["path"]),
+            Path(value["external"]),
+            deadline,
+            value["case_kind"],
+            1 if single else 20,
+            "70" if single else "2000",
+            [],
+        )
+        value["origin_gateway"] = GatewayWindow.model_validate_json(
+            json.dumps(value["origin_gateway"])
+        )
+        value["origin_window"] = ControlledWorkerWindow.model_validate_json(
+            json.dumps(value["origin_window"])
+        )
+        return a, value
 
     def start(self, request: dict[str, Any]) -> PinnedProcess:
         self.deadline.remaining()
@@ -856,7 +962,16 @@ def prepare_batch_ro(a: AcceptanceFixture) -> dict[str, Any]:
                 (next(iter(window.task_ids)),),
             ).fetchall()
         require(len(items) == 20 and all(r["status"] == "open" for r in items), "P4A_BATCH_ITEMS")
-        return dict(window=window, verified=result, items=items, explicit_recheck=False)
+        return dict(
+            window=window,
+            verified=result,
+            items=items,
+            explicit_recheck=False,
+            origin_gateway=old,
+            origin_window=origin,
+            origin_owner=owner,
+            delivery=delivery,
+        )
     finally:
         a.stop_gateway(gateway, child)
 
