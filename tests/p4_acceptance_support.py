@@ -378,13 +378,39 @@ class AcceptanceFixture:
         )
         child.confirmed = True
 
-    def worker(self, window: ControlledWorkerWindow) -> tuple[PinnedProcess, dict[str, Any]]:
+    def worker(
+        self,
+        window: ControlledWorkerWindow,
+        *,
+        stop_after_verified: UUID | None = None,
+        replay_of: PinnedProcess | None = None,
+    ) -> tuple[PinnedProcess, dict[str, Any]]:
         from commerceops.entrypoints.feishu_business import confirm_worker_child
 
         f = self.fixture
-        child = self.start(
-            worker_request(f.config, self.business, window, f.private, self.external)
-        )
+        if replay_of is None:
+            request = worker_request(f.config, self.business, window, f.private, self.external)
+        else:
+            # 冷重放绑定原始私有输入；仅结果文件名不同，不重新arm或改window。
+            request = dict(replay_of.request)
+            request["output_file"] = str(f.private / ("replay-" + uuid4().hex + ".json"))
+        child = self.start(request)
+        if stop_after_verified is not None:
+            end = time.monotonic() + min(60, self.deadline.remaining())
+            while True:
+                with connect(f.config.database) as db:
+                    row = db.execute(
+                        "SELECT status FROM business.p4_base_deliveries WHERE outbox_id=%s",
+                        (stop_after_verified,),
+                    ).fetchone()
+                if row and row["status"] == "verified":
+                    child.process.terminate()
+                    break
+                require(
+                    child.process.poll() is None and time.monotonic() < end,
+                    "P4A_VERIFIED_DEADLINE",
+                )
+                time.sleep(0.05)
         value = child.wait(timeout=min(90, self.deadline.remaining()))
         # 必须wait/reap后由原确认器记录，不能手工补worker audit。
         asyncio.run(confirm_worker_child(f.config, f.actor.organization_id, child.process.pid))
@@ -644,6 +670,195 @@ def sender_manifest(
         },
     )
     return ControlledWorkerWindow.model_validate_json(json.dumps(value))
+
+
+def prepare_single_ro(a: AcceptanceFixture) -> dict[str, Any]:
+    """实际原生C0、sender、reader、explicit once及完全相同输入的冷重放。"""
+    from scripts.p4_acceptance import QUERIES
+
+    require(a.case_kind == "recover_single_item", "P4A_FIXTURE_CASE")
+    gateways: list[tuple[Any, PinnedProcess]] = []
+    try:
+        old, origin, owner, delivery = completed_origin(a)
+        remaining = (origin.expires_at - datetime.now(UTC)).total_seconds()
+        require(remaining < 61, "P4A_ORIGIN_WINDOW")
+        if remaining > 0:
+            time.sleep(remaining + 0.02)
+        a.wait_due(delivery["outbox_id"])
+        sender_gateway, child = a.gateway()
+        gateways.append((sender_gateway, child))
+        sender = sender_manifest(a, old, sender_gateway, origin, owner, delivery)
+        a.external_behavior("ack_drop")
+        _, sent = a.worker(sender)
+        require(
+            sent["exit_code"] == 1 and sent["stages"]["CALL"]["state"] == "PASSED",
+            "P4A_SENDER_EXPECTED_UNKNOWN",
+        )
+        a.stop_gateway(sender_gateway, child)
+        a.wait_due(delivery["outbox_id"])
+        reader_gateway, child = a.gateway()
+        gateways.append((reader_gateway, child))
+        reader = recovery_manifest(a, sender, sent["pg_proof"]["worker_owner"], reader_gateway)
+        a.external_behavior("missing_required")
+        _, read = a.worker(reader)
+        require(read["exit_code"] == 1, "P4A_READER_EXPECTED_INCOMPLETE")
+        a.stop_gateway(reader_gateway, child)
+        a.wait_due(delivery["outbox_id"])
+        current_gateway, child = a.gateway()
+        gateways.append((current_gateway, child))
+        current = recheck_manifest(a, reader, read["pg_proof"]["worker_owner"], current_gateway)
+        a.external_behavior("normal")
+        verified_child, verified = a.worker(current)
+        require(verified["exit_code"] == 0, "P4A_EXPLICIT_RO_UNVERIFIED")
+        with connect(a.fixture.config.database) as db:
+            before = QUERIES["SDK_COUNTS"].execute(
+                db, (current.window_id,), revision="0016", role="app"
+            )
+            links = QUERIES["LINKS"].execute(
+                db, (delivery["item_id"],), revision="0016", role="app"
+            )
+            rows = QUERIES["ITEMS"].execute(
+                db, (next(iter(current.task_ids)),), revision="0016", role="app"
+            )
+        require(len(links) == 1 and len(rows) == 1, "P4A_SINGLE_ANCHOR")
+        require(all(r["status"] == "open" for r in rows), "P4A_ITEM_CHANGED")
+        require(
+            sum(r["n"] for r in before if r["method"] == "bitable.v1.app_table_record.list") == 1,
+            "P4A_RO_CALL_COUNT",
+        )
+        _, replay = a.worker(current, replay_of=verified_child)
+        require(
+            replay["exit_code"] == 1
+            and replay["stages"]["AUTHORIZE"]["state"] == "FAILED"
+            and replay["stages"]["PREFLIGHT"]["state"] == "NOT_RUN",
+            "P4A_REPLAY_NOT_DENIED",
+        )
+        with connect(a.fixture.config.database) as db:
+            after = QUERIES["SDK_COUNTS"].execute(
+                db, (current.window_id,), revision="0016", role="app"
+            )
+            once = db.execute(
+                "SELECT action,count(*) AS n FROM business.audit_events "
+                "WHERE action IN ('explicit_ro_recheck_authorized',"
+                "'explicit_ro_recheck_dispatched') "
+                "AND entity_id=%s GROUP BY action ORDER BY action",
+                (str(delivery["outbox_id"]),),
+            ).fetchall()
+        require(before == after, "P4A_REPLAY_SDK_CHANGED")
+        require(len(once) == 2 and all(r["n"] == 1 for r in once), "P4A_ONCE_COUNT")
+        return dict(
+            origin_gateway=old,
+            origin_window=origin,
+            origin_owner=owner,
+            delivery=delivery,
+            window=current,
+            verified=verified,
+            replay=replay,
+            worker_pid=verified_child.process.pid,
+            links=links,
+        )
+    finally:
+        for window, child in reversed(gateways):
+            if not child.confirmed:
+                a.stop_gateway(window, child)
+
+
+def ordinary_manifest(
+    a: AcceptanceFixture,
+    old: Any,
+    new: Any,
+    original: ControlledWorkerWindow,
+    owner: str,
+    delivery: Mapping[str, Any],
+) -> ControlledWorkerWindow:
+    """20项只走原ordinary outbox RO；不借single first-create/explicit合同。"""
+    from commerceops.application.feishu_business.worker_window import READONLY_RECOVERY_CAPS
+    from commerceops.infrastructure.feishu_outbox_recovery import sdk_window_hash
+
+    from tests.test_p4_a09_workflow_pg import manifest
+
+    f = a.fixture
+    base = manifest(f, old, new, next(iter(original.task_ids)), owner, original.window_id)
+    history = base.workflow_recovery
+    require(history is not None, "P4A_HISTORY_REQUIRED")
+    assert history is not None
+    with connect(f.config.database) as db:
+        approval = db.execute(
+            "SELECT * FROM business.approvals WHERE id=%s", (history.approval_id,)
+        ).fetchone()
+        sdk = db.execute(
+            "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (original.window_id,)
+        ).fetchone()
+    require(bool(approval and sdk), "P4A_HISTORY_REQUIRED")
+    assert approval and sdk
+    value = base.model_dump(mode="json")
+    value.update(
+        profile="approved_outbox", caps=dict(READONLY_RECOVERY_CAPS), workflow_recovery=None
+    )
+    value["recovery"] = dict(
+        schema_version="p4-approved-outbox-v1",
+        worker_window_id=value["window_id"],
+        gateway_window_id=value["gateway_window_id"],
+        expires_at=value["expires_at"],
+        original_gateway_id=str(history.original_gateway_id),
+        original_gateway_hash=history.original_gateway_hash,
+        gateway_termination_id=str(history.gateway_termination_id),
+        worker_owner=owner,
+        worker_termination_id=str(history.worker_termination_id),
+        original_sdk_window_id=str(original.window_id),
+        original_sdk_window_hash=sdk_window_hash(sdk),
+        task_id=str(history.task_id),
+        task_version=history.task_version,
+        inbox_id=str(history.inbox_id),
+        receipt_hash=history.receipt_hash,
+        plan_id=str(approval["plan_id"]),
+        plan_version=approval["plan_version"],
+        plan_hash=approval["plan_hash"],
+        approval_id=str(approval["id"]),
+        decision_id=str(approval["decision_id"]),
+        execution_id=str(history.execution_id),
+        operator_auth_version=history.operator_auth_version,
+        approver_auth_version=approval["decided_auth_version"],
+        target_key=a.business.base_target_key,
+        projections=[
+            {
+                k: str(delivery[k])
+                if k in ("outbox_id", "item_id", "client_token")
+                else delivery[k]
+                for k in (
+                    "outbox_id",
+                    "item_id",
+                    "client_token",
+                    "version",
+                    "projection_hash",
+                    "request_hash",
+                )
+            }
+        ],
+    )
+    return ControlledWorkerWindow.model_validate_json(json.dumps(value))
+
+
+def prepare_batch_ro(a: AcceptanceFixture) -> dict[str, Any]:
+    require(a.case_kind == "batch_twenty_items", "P4A_FIXTURE_CASE")
+    old, origin, owner, delivery = completed_origin(a)
+    a.wait_due(delivery["outbox_id"])
+    gateway, child = a.gateway()
+    try:
+        window = ordinary_manifest(a, old, gateway, origin, owner, delivery)
+        a.external_behavior("normal")
+        _, result = a.worker(window, stop_after_verified=delivery["outbox_id"])
+        require(result["exit_code"] == 0, "P4A_BATCH_RO_UNVERIFIED")
+        with connect(a.fixture.config.database) as db:
+            items = db.execute(
+                "SELECT id,status,quantity::text AS quantity "
+                "FROM business.replenishment_items WHERE task_id=%s ORDER BY id",
+                (next(iter(window.task_ids)),),
+            ).fetchall()
+        require(len(items) == 20 and all(r["status"] == "open" for r in items), "P4A_BATCH_ITEMS")
+        return dict(window=window, verified=result, items=items, explicit_recheck=False)
+    finally:
+        a.stop_gateway(gateway, child)
 
 
 def recovery_manifest(

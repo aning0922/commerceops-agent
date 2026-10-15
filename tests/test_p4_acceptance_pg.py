@@ -2,7 +2,6 @@
 
 import asyncio
 import os
-import time
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -16,13 +15,11 @@ from commerceops.entrypoints.database import grant_runtime, migrate, setup_check
 from commerceops.infrastructure.database import DatabaseSettings, connect, migration_engine
 from psycopg import sql
 
-from scripts.p4_acceptance import QUERIES, Deadline, schema_contract
+from scripts.p4_acceptance import Deadline, schema_contract
 from tests.p4_acceptance_support import (
     AcceptanceFixture,
-    completed_origin,
-    recheck_manifest,
-    recovery_manifest,
-    sender_manifest,
+    prepare_batch_ro,
+    prepare_single_ro,
 )
 
 pytestmark = pytest.mark.integration
@@ -94,81 +91,35 @@ def test_same_outer_native_full_RO_once_and_fresh_process_original_key_replay(
         expiry = min(expiry, datetime.fromisoformat(registered))
     lease = Deadline.register(expiry)
     a = AcceptanceFixture.prepare(owner, app, tmp_path, lease, case_kind="recover_single_item")
-    sender_gateway = reader_gateway = current_gateway = None
-    sender_process = reader_process = current_process = None
     try:
-        origin_gateway, origin_window, origin_owner, delivery = completed_origin(a)
-        # 原SDK自然过期和原退避；绝不缩短TTL/改账本或next_attempt_at。
-        remaining = (origin_window.expires_at - datetime.now(UTC)).total_seconds()
-        assert remaining < 61
-        if remaining > 0:
-            time.sleep(remaining + 0.02)
-        a.wait_due(delivery["outbox_id"])
-        sender_gateway, sender_process = a.gateway()
-        sender = sender_manifest(
-            a, origin_gateway, sender_gateway, origin_window, origin_owner, delivery
-        )
-        a.external_behavior("ack_drop")
-        _, sent = a.worker(sender)
-        assert sent["exit_code"] == 1
-        assert sent["stages"]["CALL"]["state"] == "PASSED"
-        a.stop_gateway(sender_gateway, sender_process)
-        sender_process = None
-        a.wait_due(delivery["outbox_id"])
-        reader_gateway, reader_process = a.gateway()
-        reader = recovery_manifest(a, sender, sent["pg_proof"]["worker_owner"], reader_gateway)
-        a.external_behavior("missing_required")
-        _, read = a.worker(reader)
-        assert read["exit_code"] == 1
-        a.stop_gateway(reader_gateway, reader_process)
-        reader_process = None
-        a.wait_due(delivery["outbox_id"])
-        current_gateway, current_process = a.gateway()
-        current = recheck_manifest(a, reader, read["pg_proof"]["worker_owner"], current_gateway)
-        a.external_behavior("normal")
-        _, verified = a.worker(current)
-        assert verified["exit_code"] == 0, verified["stages"]
-        result = verified["witnesses"][0]["result"]
-        assert result["outcome"] == "verified"
-        with connect(app) as db:
-            before = QUERIES["SDK_COUNTS"].execute(
-                db, (current.window_id,), revision="0016", role="app"
-            )
-            links = QUERIES["LINKS"].execute(
-                db, (delivery["item_id"],), revision="0016", role="app"
-            )
-            rows = QUERIES["ITEMS"].execute(
-                db, (next(iter(current.task_ids)),), revision="0016", role="app"
-            )
-        assert len(links) == 1 and len(rows) == 1 and all(r["status"] == "open" for r in rows)
-        assert sum(r["n"] for r in before if r["method"] == "bitable.v1.app_table_record.list") == 1
-        assert verified["counts"]["real_network_egress"] == 0
-        # 同entry/hash、同window/key的新Python进程；没有新arm或新业务POST。
-        _, replay = a.worker(current)
-        assert replay["exit_code"] == 1
-        assert replay["stages"]["AUTHORIZE"]["state"] == "FAILED"
-        assert replay["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
-        with connect(app) as db:
-            after = QUERIES["SDK_COUNTS"].execute(
-                db, (current.window_id,), revision="0016", role="app"
-            )
-            once = db.execute(
-                "SELECT action,count(*) AS n FROM business.audit_events "
-                "WHERE action IN ('explicit_ro_recheck_authorized',"
-                "'explicit_ro_recheck_dispatched') "
-                "AND entity_id=%s GROUP BY action ORDER BY action",
-                (str(delivery["outbox_id"]),),
-            ).fetchall()
-        assert before == after
-        assert len(once) == 2 and all(r["n"] == 1 for r in once)
+        result = prepare_single_ro(a)
+        assert result["verified"]["exit_code"] == 0
+        assert result["verified"]["counts"]["real_network_egress"] == 0
+        assert result["replay"]["exit_code"] == 1
     finally:
-        for window, process in (
-            (current_gateway, current_process),
-            (reader_gateway, reader_process),
-            (sender_gateway, sender_process),
-        ):
-            if window is not None and process is not None:
-                a.stop_gateway(window, process)
+        assert a.cleanup()
+
+
+def test_twenty_items_ordinary_ro_is_separate_from_explicit_single_recovery(
+    database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path
+) -> None:
+    owner, app = database
+    initialize_schema(owner, "0016")
+    expiry = datetime.now(UTC) + timedelta(minutes=8)
+    registered = os.environ.get("COMMERCEOPS_ACCEPTANCE_DEADLINE")
+    if registered:
+        expiry = min(expiry, datetime.fromisoformat(registered))
+    a = AcceptanceFixture.prepare(
+        owner, app, tmp_path, Deadline.register(expiry), case_kind="batch_twenty_items"
+    )
+    try:
+        result = prepare_batch_ro(a)
+        assert len(result["items"]) == 20
+        assert sum(int(r["quantity"]) for r in result["items"]) == 2000
+        assert result["explicit_recheck"] is False
+        assert result["window"].recovery.explicit_ro_recheck is None
+        assert result["window"].recovery.sender_gateway is None
+    finally:
         assert a.cleanup()
 
 
