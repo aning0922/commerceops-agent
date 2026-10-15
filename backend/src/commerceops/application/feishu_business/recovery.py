@@ -108,6 +108,48 @@ class ApprovedOutboxRecovery(BaseModel):
         return self
 
 
+class ApprovedTerminalUpdate(BaseModel):
+    """已核实原v1锚至原生T6 v2；不授权重读v1、create或工作流恢复。"""
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    schema_version: Literal["p4-terminal-update-v1"]
+    worker_window_id: UUID
+    gateway_window_id: UUID
+    expires_at: datetime
+    verified_recovery: ApprovedOutboxRecovery = Field(repr=False)
+    verified_sdk_window_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    verified_gateway_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    verified_gateway_termination_id: UUID
+    verified_worker_owner: UUID
+    verified_worker_termination_id: UUID
+    external_id: str = Field(min_length=1, max_length=200, repr=False)
+    projection: RecoveryProjection = Field(repr=False)
+    request_key: UUID
+    semantic_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    resolution_id: UUID
+    resolver_id: UUID
+    resolver_identity_id: UUID
+    resolver_auth_version: int = Field(ge=1)
+
+    @model_validator(mode="after")
+    def terminal_pair(self) -> "ApprovedTerminalUpdate":
+        original = self.verified_recovery
+        if (
+            self.expires_at.utcoffset() is None
+            or original.sender_gateway is None
+            or original.explicit_ro_recheck is None
+            or self.worker_window_id == original.worker_window_id
+            or self.gateway_window_id == original.gateway_window_id
+            or self.projection.version != 2
+            or self.projection.item_id != original.projections[0].item_id
+            or self.projection.outbox_id == original.projections[0].outbox_id
+            or self.projection.client_token == original.projections[0].client_token
+        ):
+            raise ValueError("P4_TERMINAL_UPDATE_BINDING_REQUIRED")
+        return self
+
+
 class ApprovedWorkflowRecovery(BaseModel):
     """单个原在途 workflow 的显式跨 Gateway 接续；不是新 T1 或重开审批。"""
 

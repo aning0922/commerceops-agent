@@ -1538,6 +1538,28 @@ def app_lifecycle(
     }
 
 
+def _terminal_lab_state(ref: Mapping[str, str], settings: Any, window: Any, config: Any) -> Path:
+    """不可变LAB控制文件固定可变外端状态路径；它不属于业务请求或源码字节。"""
+    control = json.loads(private_ref(ref))
+    path = Path(control["state_path"])
+    require(
+        window.terminal_update is not None
+        and config.database.name.startswith(("p4a_", "p4_acceptance_", "p4_ro_lab_"))
+        and control.get("contract") == "p4-terminal-lab-http-v1"
+        and control.get("database") == config.database.name
+        and control.get("organization_id") == str(window.organization_id)
+        and control.get("window_id") == str(window.window_id)
+        and settings.app_secret_file.name == "dummy-app-material"
+        and settings.base_app_token_file.name == "dummy-" + "base-material"
+        and path.is_absolute()
+        and path.resolve() == path
+        and path.parent == Path(ref["path"]).parent == settings.app_secret_file.parent,
+        "P4A_LAB_SCOPE",
+    )
+    bound_bytes(path, private=True)
+    return path
+
+
 def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     """原controlled_work完整调用；观测包装只记录，不替换业务判断或返回结果。"""
     import asyncio
@@ -1636,7 +1658,13 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         if request["transport"] == "fake":
             from tests.p4_acceptance_support import FakeHTTPTransport
 
-            private_ref(refs["external_records"])
+            if window.terminal_update is not None:
+                external_path = _terminal_lab_state(
+                    refs["external_transport"], settings, window, config
+                )
+            else:
+                private_ref(refs["external_records"])
+                external_path = Path(refs["external_records"]["path"])
             for path in (
                 settings.app_secret_file,
                 settings.base_app_token_file,
@@ -1648,7 +1676,7 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
                         "P4A_SYNTHETIC_PRIVATE_ROOT",
                     )
                     bound_bytes(path, private=True)
-            transport = FakeHTTPTransport(Path(refs["external_records"]["path"]), settings)
+            transport = FakeHTTPTransport(external_path, settings)
             with transport.installed():
                 summary = asyncio.run(
                     native.controlled_work(
@@ -1660,7 +1688,11 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
                 )
         else:
             require(request.get("root_real_release") is True, "P4A_REAL_PLATFORM_HOLD")
-            require(request["action"] == "worker" and window.recovery is not None, "P4A_REAL_SCOPE")
+            require(
+                request["action"] == "worker"
+                and (window.recovery is not None or window.terminal_update is not None),
+                "P4A_REAL_SCOPE",
+            )
             if "lab_http" in refs:
                 from tests.p4_acceptance_support import FakeHTTPTransport
 
@@ -1674,8 +1706,14 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
                     and settings.app_secret_file.parent == Path(refs["business"]["path"]).parent,
                     "P4A_LAB_SCOPE",
                 )
-                transport = FakeHTTPTransport(Path(lab["external_ref"]["path"]), settings)
-                private_ref(lab["external_ref"])
+                if window.terminal_update is not None:
+                    external_path = _terminal_lab_state(
+                        lab["external_transport"], settings, window, config
+                    )
+                else:
+                    private_ref(lab["external_ref"])
+                    external_path = Path(lab["external_ref"]["path"])
+                transport = FakeHTTPTransport(external_path, settings)
                 with transport.installed():
                     summary = asyncio.run(
                         native.controlled_work(settings, window, config, M1DemoFactory())
@@ -2473,7 +2511,9 @@ def _outside_ref(ref: Mapping[str, str], runner: Mapping[str, Any]) -> dict[str,
     return value
 
 
-def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
+def resource_cleanup(
+    handoff: Mapping[str, Any], *, preserved_volume_ref: Mapping[str, str] | None = None
+) -> dict[str, Any]:
     """独立于业务快照与SDK结果，只处置登记的本轮不可变资源；卷保留。"""
     resource = handoff["resource"]
     errors: list[dict[str, Any]] = []
@@ -2562,6 +2602,14 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
         and volume["Labels"].get("p4.acceptance.run") == resource["run_id"]
         and volume["Labels"].get("p4.acceptance.owner") == resource["owner_label"]
     )
+    if preserved_volume_ref is not None:
+        # 原卷只保留、不改label；Root独立冻结已有卷metadata，不冒充本次新建卷。
+        provenance = json.loads(private_ref(preserved_volume_ref))
+        kept = (
+            provenance.get("Name") == resource["volume"]
+            and all(volume.get(k) == provenance.get(k) for k in ("Name", "Driver", "Labels"))
+            and provenance.get("Driver") == "local"
+        )
     from urllib.parse import urlsplit
 
     from tests.e2e.web.m1_acceptance_driver import listener_open
@@ -2583,6 +2631,626 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
         registered_listeners_closed=all(closed_ports),
         errors=errors,
     )
+
+
+def _human_get_proof(
+    handoff: Mapping[str, Any],
+    observation: Mapping[str, Any],
+    key: str,
+    item: str,
+    context: Mapping[str, Any],
+) -> dict[str, Any]:
+    """仅调用C导出的纯校验器；不执行CJS execute、不启动浏览器或发HTTP。"""
+    expected = {
+        "api_origin": handoff["web"]["api_origin"],
+        "method": "GET",
+        "path": "/api/v1/requests/" + key + "?operation=resolve",
+        "principal_id": context["principal_id"],
+        "identity_id": context["identity_id"],
+        "auth_version": context["auth_version"],
+    }
+    require(all(observation.get(k) == v for k, v in expected.items()), "P4A_HUMAN_GET_SOURCE")
+    value = observation["value"]
+    require(
+        value.get("status") == 200
+        and value.get("transport") == "RECEIVED"
+        and value.get("body_json") is True,
+        "P4A_HUMAN_GET_FAILED",
+    )
+    toolchain = handoff["candidate"]["toolchain"]
+    node = Path(toolchain["node_executable"])
+    require(binary_digest(node.resolve()) == toolchain["node_sha256"], "P4A_NODE_SOURCE")
+    schema = Path(toolchain["read_schema_path"])
+    bound_bytes(schema, toolchain["read_schema_sha256"])
+    helper = Path(__file__).resolve().parents[1] / "tests/e2e/web/m1_acceptance_ui.cjs"
+    bound_bytes(helper, toolchain["ui_helper_sha256"])
+    program = (
+        "const fs=require('node:fs'),c=require(process.argv[1]);"
+        "const x=JSON.parse(fs.readFileSync(0,'utf8'));"
+        "const schema=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));"
+        "const v=c.responseValidator(schema,process.argv[3]);"
+        "v('GET','/api/v1/replenishment-items/'+x.item,x.item_status,x.item_body);"
+        "const r=c.inspectOriginalResolve(x.value,v,x.key,x.item);"
+        "process.stdout.write(JSON.stringify(r));process.exitCode=r.accepted?0:1;"
+    )
+    child = subprocess.run(
+        [str(node), "-e", program, str(helper), str(schema), toolchain["frontend_node_modules"]],
+        input=canonical(
+            dict(
+                value=value,
+                key=key,
+                item=item,
+                item_status=observation["item_read"]["status"],
+                item_body=observation["item_read"]["body"],
+            )
+        ),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        timeout=10,
+        check=False,
+        env={"PATH": str(node.parent) + ":/usr/bin:/bin", "LANGSMITH_TRACING": "false"},
+    )
+    require(child.returncode == 0, "P4A_HUMAN_GET_DTO")
+    body = value["body"]
+    require(
+        body.get("status") == "succeeded" and body["receipt"]["operation"] == "resolve",
+        "P4A_HUMAN_GET_BINDING",
+    )
+    return cast(dict[str, Any], body["receipt"]["result"])
+
+
+def _human_auth_get(
+    handoff: Mapping[str, Any], key: str, context: Mapping[str, Any]
+) -> dict[str, Any]:
+    """独立安全认证仅用于同key只读GET；不代真人登录/业务提交，无刷新重登。"""
+    from urllib.parse import urlsplit
+
+    import httpx
+
+    api, origin = (handoff["web"][name] for name in ("api_origin", "web_origin"))
+    for value in (api, origin):
+        parsed = urlsplit(value)
+        require(
+            parsed.scheme == "http"
+            and parsed.hostname == "127.0.0.1"
+            and parsed.port
+            and not parsed.username
+            and not parsed.password
+            and not parsed.query
+            and not parsed.fragment
+            and not parsed.path,
+            "P4A_HUMAN_ORIGIN",
+        )
+    credentials = json.loads(private_ref(handoff["private_refs"]["web_credentials"]))
+    require(
+        set(credentials) == {"login", "password"}
+        and all(type(v) is str and bool(v) for v in credentials.values()),
+        "P4A_HUMAN_CREDENTIALS",
+    )
+    timeout = min(10, _runtime(handoff["resource"]["runtime"]).remaining())
+    with httpx.Client(
+        base_url=api,
+        headers={"Origin": origin},
+        timeout=timeout,
+        follow_redirects=False,
+        trust_env=False,
+    ) as client:
+
+        def send(method: str, path: str, **kwargs: Any) -> Any:
+            allowed = (
+                method == "GET"
+                and path
+                in (
+                    "/api/v1/auth/csrf",
+                    "/api/v1/auth/session",
+                    "/api/v1/requests/" + key + "?operation=resolve",
+                    "/api/v1/replenishment-items/" + context["item_id"],
+                )
+                or method == "POST"
+                and path in ("/api/v1/auth/login", "/api/v1/auth/logout")
+            )
+            require(allowed, "P4A_HUMAN_HTTP_SCOPE")
+            remaining = _runtime(handoff["resource"]["runtime"]).remaining(
+                cleanup=path == "/api/v1/auth/logout"
+            )
+            return client.request(method, path, timeout=min(10, remaining), **kwargs)
+
+        bootstrap = send("GET", "/api/v1/auth/csrf")
+        require(bootstrap.status_code == 200, "P4A_HUMAN_AUTH_BOOTSTRAP")
+        csrf = bootstrap.json().get("csrf_token")
+        require(type(csrf) is str and bool(csrf), "P4A_HUMAN_AUTH_BOOTSTRAP")
+        login = send(
+            "POST",
+            "/api/v1/auth/login",
+            json={"schema_version": "p3-web-v1", **credentials},
+            headers={"X-CSRF-Token": csrf},
+        )
+        require(login.status_code == 200, "P4A_HUMAN_AUTH_LOGIN")
+        try:
+            session = send("GET", "/api/v1/auth/session")
+            require(session.status_code == 200, "P4A_HUMAN_AUTH_SESSION")
+            actor = session.json()
+            principal = actor.get("principal", {})
+            require(
+                principal.get("principal_id") == context["principal_id"]
+                and principal.get("organization_id") == context["organization_id"]
+                and principal.get("auth_version") == context["auth_version"]
+                and "web" in principal.get("linked_channels", []),
+                "P4A_HUMAN_AUTH_IDENTITY",
+            )
+            # Root冻结的原generated schema，纯校验auth响应，不输出其中CSRF/token/账号。
+            tc = handoff["candidate"]["toolchain"]
+            node = Path(tc["node_executable"])
+            require(binary_digest(node.resolve()) == tc["node_sha256"], "P4A_NODE_SOURCE")
+            helper = Path(__file__).resolve().parents[1] / "tests/e2e/web/m1_acceptance_ui.cjs"
+            bound_bytes(helper, tc["ui_helper_sha256"])
+            bound_bytes(Path(tc["read_schema_path"]), tc["read_schema_sha256"])
+            program = (
+                "const fs=require('node:fs'),c=require(process.argv[1]);"
+                "const schema=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));"
+                "const v=c.responseValidator(schema,process.argv[3]);"
+                "for(const x of JSON.parse(fs.readFileSync(0,'utf8')))v(x.m,x.p,x.s,x.b);"
+            )
+            responses = [
+                dict(m="GET", p="/api/v1/auth/csrf", s=200, b=bootstrap.json()),
+                dict(m="POST", p="/api/v1/auth/login", s=200, b=login.json()),
+                dict(m="GET", p="/api/v1/auth/session", s=200, b=actor),
+            ]
+            checked = subprocess.run(
+                [
+                    str(node),
+                    "-e",
+                    program,
+                    str(helper),
+                    tc["read_schema_path"],
+                    tc["frontend_node_modules"],
+                ],
+                input=canonical(responses),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=10,
+                check=False,
+                env={"PATH": str(node.parent) + ":/usr/bin:/bin", "LANGSMITH_TRACING": "false"},
+            )
+            require(checked.returncode == 0, "P4A_HUMAN_AUTH_DTO")
+            path = "/api/v1/requests/" + key + "?operation=resolve"
+            item_response = send("GET", "/api/v1/replenishment-items/" + context["item_id"])
+            require(item_response.status_code == 200, "P4A_HUMAN_ITEM_GET_FAILED")
+            current_item = item_response.json().get("item", {})
+            require(
+                current_item.get("item_id") == context["item_id"]
+                and current_item.get("state") == "closed"
+                and current_item.get("version") == 2
+                and current_item.get("sync", {}).get("state") == "pending",
+                "P4A_HUMAN_SYNC_PENDING",
+            )
+            response = send("GET", path)
+            require(response.status_code == 200, "P4A_HUMAN_GET_FAILED")
+            observation = dict(
+                api_origin=api,
+                method="GET",
+                path=path,
+                principal_id=context["principal_id"],
+                identity_id=context["identity_id"],
+                auth_version=context["auth_version"],
+                observed_at=datetime.now(UTC).isoformat(),
+                value=dict(
+                    status=response.status_code,
+                    body=response.json(),
+                    body_json=True,
+                    transport="RECEIVED",
+                ),
+                auth=dict(
+                    bootstrap_GET=1,
+                    login_POST=1,
+                    session_GET=1,
+                    original_key_GET=1,
+                    business_POST=0,
+                ),
+            )
+            observation["item_read"] = {"status": 200, "body": item_response.json()}
+            observation["auth"]["item_GET"] = 1
+            observation["auth"]["logout_POST"] = 1
+            return observation
+        finally:
+            primary = sys.exception()
+            try:
+                logout = send(
+                    "POST",
+                    "/api/v1/auth/logout",
+                    json={"schema_version": "p3-web-v1"},
+                    headers={"X-CSRF-Token": login.json()["csrf_token"]},
+                )
+                require(logout.status_code == 200, "P4A_HUMAN_AUTH_LOGOUT")
+            except Exception as logout_error:
+                if primary is None:
+                    raise
+                cast(Any, primary).p4a_cleanup_failure = safe_failure(logout_error, "STOP")
+
+
+def human_idle_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    """独立app连接证明human阶段无活跃Worker或新SDK账；不启动任何执行器。"""
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+
+    settings = DatabaseSettings.model_validate_json(
+        private_ref(request["private_refs"]["app_database_config"])
+    )
+    require(
+        settings.user == "commerceops_app" and settings.runtime_password_file is None, "P4A_ROLE"
+    )
+    with connect(settings) as db:
+        db.execute("SET TRANSACTION READ ONLY")
+        active = _active_workers(db)
+        calls = db.execute(
+            "SELECT count(*) AS n FROM business.p4_sdk_calls c JOIN business.p4_sdk_windows w "
+            "ON w.id=c.window_id WHERE w.organization_id=%s AND c.started_at>=%s",
+            (request["organization_id"], request["stage_started_utc"]),
+        ).fetchone()
+    require(active == 0 and calls is not None and calls["n"] == 0, "P4A_HUMAN_SIDE_EFFECT")
+    return dict(
+        value=dict(active_workers=0, new_SDK_calls=0),
+        exit_code=0,
+        stage_result="COMPLETE",
+        suite_PASS=False,
+    )
+
+
+def human_t6_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
+    """有界human-only父协调；真人报告与GET由Root可信交接，父不造key或POST。"""
+    import signal
+    from dataclasses import replace
+
+    from commerceops.application.replenishment.contracts import ResolveInput
+    from commerceops.application.replenishment.execution import resolution_hash
+    from commerceops.domain.commerce_values import facts_hash
+
+    from tests.e2e.web import m1_acceptance_capture as capture
+
+    require(request.get("transport") in ("lab", "real"), "P4A_TRANSPORT")
+    require(
+        request.get("transport") != "real" or request.get("root_real_release") is True,
+        "P4A_REAL_PLATFORM_HOLD",
+    )
+    report = StageReport(
+        ("SOURCE", "RESOURCE", "PREPARE", "T6", "COLLECT", "PERSIST", "STOP", "CLEANUP")
+    )
+    handoff = load_handoff(request["resource_handoff_ref"])
+    candidate, resource = handoff["candidate"], handoff["resource"]
+    runner = resource["runner"]
+    root = Path(runner["host_private_dir"])
+    api: RunnerChild | None = None
+    cleanup: dict[str, Any] = {}
+    owned = stopped = False
+    evidence: dict[str, Any] = {}
+    started = datetime.now(UTC)
+    context = dict(request["capture_context"])
+    context["checkpoint_threads"] = tuple(context["checkpoint_threads"])
+    context["sdk_subject_ids"] = tuple(context["sdk_subject_ids"])
+    ctx = capture.CaptureContext(**context)
+    require(
+        ctx.request_key is None
+        and ctx.case_kind == "recover_single_item"
+        and ctx.expected_item_count == 1,
+        "P4A_HUMAN_CONTEXT",
+    )
+    report_file, get_file = (Path(request[k]) for k in ("human_report_file", "original_get_file"))
+    require(
+        all(p.is_absolute() and p.is_relative_to(root) for p in (report_file, get_file)),
+        "P4A_HUMAN_PRIVATE_PATH",
+    )
+    require(not report_file.exists() and not get_file.exists(), "P4A_HUMAN_EVIDENCE_EARLY")
+    refs = {
+        name: _inside_ref(handoff["private_refs"][name], runner)
+        for name in ("web_config", "app_database_config")
+    }
+
+    def interrupted(signum: int, frame: Any) -> None:
+        raise KeyboardInterrupt
+
+    previous = {
+        sig: signal.signal(sig, interrupted)
+        for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGALRM)
+    }
+    old_timer = signal.setitimer(signal.ITIMER_REAL, _runtime(resource["runtime"]).remaining())
+    try:
+        with report.enter("SOURCE"):
+            binding.check_loaded()
+            require(
+                binding.manifest["candidate"]
+                == {"source_sha": candidate["source_sha"], "tree": candidate["tree"]},
+                "P4A_CONTEXT_SOURCE_MISMATCH",
+            )
+            require(
+                _runtime(resource["runtime"]).remaining(cleanup=True) <= 600, "P4A_HUMAN_PG_CAP"
+            )
+            require(
+                request["transport"] != "real" or "volume_provenance_ref" in request,
+                "P4A_HUMAN_VOLUME_PROVENANCE",
+            )
+        with report.enter("RESOURCE"):
+            verify_full_resources(handoff)
+            owned = True
+        with report.enter("PREPARE"):
+            idle_request = dict(
+                action="human_idle",
+                private_refs=refs,
+                organization_id=context["organization_id"],
+                stage_started_utc=started.isoformat(),
+            )
+            _runner_result(_runner_start(handoff, idle_request), handoff)
+            api = _runner_start(
+                handoff,
+                dict(action="api", private_refs=refs, api_port=handoff["web"]["api_internal_port"]),
+            )
+            end = time.monotonic() + min(25, _runtime(resource["runtime"]).remaining())
+            while not api.ready.exists():
+                require(api.process.poll() is None and time.monotonic() < end, "P4A_API_READY")
+                time.sleep(0.05)
+            before = capture_bridge(
+                "snapshot",
+                handoff,
+                handoff_ref=request["resource_handoff_ref"],
+                phase="before-human-t6",
+                sdk_window_id=ctx.sdk_window_id,
+                sdk_subject_ids=ctx.sdk_subject_ids,
+            )
+            require(
+                before["scope"] == ctx.scope() and before["schema_revision"] == ctx.revision,
+                "P4A_HUMAN_CONTEXT",
+            )
+            capture.validate_business(before, ctx, closed=False)
+            require(
+                all(x["resolution_id"] is None for x in capture.rows(before, "ITEMS"))
+                and not capture.rows(before, "ITEM_AUDIT"),
+                "P4A_HUMAN_ALREADY_RESOLVED",
+            )
+            proof = handoff["base_ro"]["pg_proof"]
+            capture.validate_base_readback(
+                before,
+                ctx,
+                version=1,
+                target_key=proof["target_key"],
+                external_id=proof["external_id"],
+                verification_mode=proof["verification_mode"],
+                native_projection_hash=handoff["base_ro"]["projection_hash"],
+            )
+            before_file = root / "human-before.private.json"
+            write_private(before_file, before)
+            write_private(
+                root / "human-ready.private.json",
+                dict(
+                    candidate={"source_sha": candidate["source_sha"], "tree": candidate["tree"]},
+                    run_id=resource["run_id"],
+                    target_item_id=ctx.item_id,
+                    stage_started_utc=started.isoformat(),
+                    before_ref=_ro_reference(before_file),
+                    api_ready=True,
+                    active_workers=0,
+                    human_report_file=str(report_file),
+                    original_get_file=str(get_file),
+                    raw_HTTP_bytes="not_captured",
+                    automatic_POST=False,
+                ),
+            )
+        with report.enter("T6"):
+            while not report_file.exists():
+                _runtime(resource["runtime"]).remaining()
+                require(api.process.poll() is None, "P4A_API_EXITED")
+                time.sleep(0.1)
+            human = json.loads(bound_bytes(report_file, private=True))
+            require(
+                all(
+                    type(human.get(k)) is type(v) and human.get(k) == v
+                    for k, v in dict(
+                        mode="human_web" if request["transport"] == "real" else "simulated_web",
+                        action="close",
+                        human_reported_once=True,
+                        run_id=resource["run_id"],
+                        source_sha=candidate["source_sha"],
+                        item_id=ctx.item_id,
+                        principal_id=ctx.principal_id,
+                        identity_id=ctx.identity_id,
+                        auth_version=ctx.auth_version,
+                    ).items()
+                ),
+                "P4A_HUMAN_REPORT_BINDING",
+            )
+            at = datetime.fromisoformat(human["reported_at"])
+            require(
+                started <= at <= datetime.now(UTC)
+                and type(human["reason"]) is str
+                and human["reason"] == human["reason"].strip(),
+                "P4A_HUMAN_REPORT_TIME",
+            )
+            first = capture_bridge(
+                "snapshot",
+                handoff,
+                handoff_ref=request["resource_handoff_ref"],
+                phase="discover-native-key",
+                sdk_window_id=ctx.sdk_window_id,
+                sdk_subject_ids=ctx.sdk_subject_ids,
+            )
+            selected = [x for x in capture.rows(first, "ITEMS") if x["id"] == ctx.item_id]
+            require(
+                len(selected) == 1 and selected[0]["resolution_request_key"] is not None,
+                "P4A_HUMAN_NATIVE_KEY_REQUIRED",
+            )
+            key = selected[0]["resolution_request_key"]
+            after_ctx = replace(ctx, request_key=key)
+        with report.enter("COLLECT"):
+            after = capture_bridge(
+                "snapshot",
+                handoff,
+                handoff_ref=request["resource_handoff_ref"],
+                phase="after-human-t6",
+                request_key=key,
+                sdk_window_id=ctx.sdk_window_id,
+                sdk_subject_ids=ctx.sdk_subject_ids,
+            )
+            require(
+                after["scope"] == after_ctx.scope() and after["schema_revision"] == ctx.revision,
+                "P4A_HUMAN_CONTEXT",
+            )
+            capture.validate_business(after, after_ctx, closed=True)
+            rows = capture.rows(after, "REQUEST")
+            require(
+                len(rows) == 1
+                and all(
+                    rows[0][k] == v
+                    for k, v in dict(
+                        organization_id=ctx.organization_id,
+                        principal_id=ctx.principal_id,
+                        operation="resolve",
+                        request_key=key,
+                        task_id=ctx.task_id,
+                    ).items()
+                ),
+                "P4A_HUMAN_REQUEST_BINDING",
+            )
+            observation = _human_auth_get(handoff, key, context)
+            write_private(get_file, observation)
+            receipt = _human_get_proof(handoff, observation, key, ctx.item_id, context)
+            require(receipt == rows[0]["result"], "P4A_HUMAN_ORIGINAL_GET_MISMATCH")
+            semantic = ResolveInput.model_validate_json(
+                json.dumps(
+                    dict(
+                        schema_version="p3-web-v1",
+                        request_key=key,
+                        action="close",
+                        reason=human["reason"],
+                        expected_version=1,
+                    )
+                )
+            )
+            semantic_hash = resolution_hash(ctx.item_id, semantic)
+            capture.verify_t6_association(after, after_ctx, receipt, human["reason"], semantic_hash)
+            outbox = capture.verify_t6_outbox(
+                before,
+                after,
+                after_ctx,
+                facts_hash(
+                    dict(schema_version="p3-web-v1", item_id=ctx.item_id, version=2, state="closed")
+                ),
+            )
+            require(
+                capture.immutable_business(before) == capture.immutable_business(after)
+                and capture.checkpoint_fingerprint(before) == capture.checkpoint_fingerprint(after),
+                "P4A_HUMAN_CORE_CP_CHANGED",
+            )
+            require(
+                capture.rows(before, "SDK_LEDGER") == capture.rows(after, "SDK_LEDGER")
+                and capture.rows(before, "MODEL_CALLS") == capture.rows(after, "MODEL_CALLS"),
+                "P4A_HUMAN_SIDE_EFFECT",
+            )
+            item = next(x for x in capture.rows(after, "ITEMS") if x["id"] == ctx.item_id)
+            require(
+                started <= datetime.fromisoformat(item["resolved_at"]) <= at, "P4A_HUMAN_STALE_T6"
+            )
+            capture.validate_base_readback(
+                after,
+                after_ctx,
+                version=1,
+                target_key=proof["target_key"],
+                external_id=proof["external_id"],
+                verification_mode=proof["verification_mode"],
+                native_projection_hash=handoff["base_ro"]["projection_hash"],
+            )
+            _runner_result(_runner_start(handoff, idle_request), handoff)
+        with report.enter("PERSIST"):
+            write_private(root / "human-after.private.json", after)
+            write_private(
+                root / "human-t6-result.private.json",
+                dict(
+                    request_key=key,
+                    semantic_hash=semantic_hash,
+                    source={"source_sha": candidate["source_sha"], "tree": candidate["tree"]},
+                    capture_context={**context, "request_key": key},
+                    receipt=receipt,
+                    v2_outbox=outbox,
+                    human_report_ref=_ro_reference(report_file),
+                    original_get_ref=_ro_reference(get_file),
+                    raw_HTTP_bytes="not_captured",
+                    network_exactly_once="not_observed",
+                    human_reported_once=True,
+                    business="closed/v2",
+                    sync="pending",
+                ),
+            )
+            evidence = dict(
+                mode=human["mode"],
+                human_reported_once=True,
+                persisted_resolution=1,
+                persisted_request=1,
+                new_v2_outbox=1,
+                semantic_binding=True,
+                immutable_core_three_CP=True,
+                Worker_SDK_WS_Graph=0,
+                raw_HTTP_bytes="not_captured",
+                network_exactly_once="not_observed",
+                business="closed/v2",
+                sync="pending",
+            )
+    except BaseException as error:
+        evidence["failure"] = safe_failure(error, "T6")
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        try:
+            with report.enter("STOP"):
+                if api is not None:
+                    require(api.ready.exists(), "P4A_API_STOP_RECEIPT")
+                    receipt_ref = _ro_reference(api.ready)
+                    if api.process.poll() is None:
+                        _runner_result(
+                            _runner_start(
+                                handoff,
+                                dict(
+                                    action="signal_process",
+                                    receipt_ref=_inside_ref(receipt_ref, runner),
+                                ),
+                            ),
+                            handoff,
+                            cleanup=True,
+                        )
+                    _runner_result(api, handoff, cleanup=True)
+                    receipts = root / "human-api-absence.private.json"
+                    write_private(receipts, [json.loads(private_ref(receipt_ref))])
+                    _runner_result(
+                        _runner_start(
+                            handoff,
+                            dict(
+                                action="process_probe",
+                                private_root=runner["container_private_dir"],
+                                absent_receipts=_inside_ref(_ro_reference(receipts), runner),
+                            ),
+                        ),
+                        handoff,
+                        cleanup=True,
+                    )
+                stopped = True
+        except BaseException as error:
+            evidence["stop_failure"] = safe_failure(error, "STOP")
+        try:
+            with report.enter("CLEANUP"):
+                cleanup = resource_cleanup(
+                    handoff, preserved_volume_ref=request.get("volume_provenance_ref")
+                )
+                require(cleanup.get("verified") is True, "P4A_RESOURCE_CLEANUP_FAILED")
+        except BaseException as error:
+            evidence["cleanup_failure"] = safe_failure(error, "CLEANUP")
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+        signal.setitimer(signal.ITIMER_REAL, *old_timer)
+    return {
+        **report.terminal(
+            cleanup=cleanup.get("verified") is True,
+            reaped=stopped and cleanup.get("all_containers_reaped") is True,
+            owned=owned,
+        ),
+        "evidence": evidence,
+        "resource_cleanup": cleanup,
+        "suite_PASS": False,
+        "scope": "human T6 only; real v2 and M1 not signed",
+    }
 
 
 def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
@@ -3926,6 +4594,8 @@ def _ro_state(request: Mapping[str, Any]) -> dict[str, Any]:
     require(config.database.user == "commerceops_app", "P4A_ROLE")
     template = ControlledWorkerWindow.model_validate_json(private_ref(refs["template"]))
     r = template.recovery
+    if r is None and template.terminal_update is not None:
+        r = template.terminal_update.verified_recovery
     if r is None:
         raise AcceptanceFailure("P4A_RO_TEMPLATE")
     fingerprints = {}
@@ -4255,6 +4925,183 @@ def original_ro_lab_history(request: Mapping[str, Any], binding: SourceBinding) 
         require(a.cleanup(), "P4A_LAB_HISTORY_CLEANUP")
 
 
+def _terminal_prepare(request: Mapping[str, Any]) -> dict[str, Any]:
+    """真实v2父入口非消费准备；native admission/enrollment仍由正式Worker执行。"""
+    from commerceops.adapters.feishu.business_config import BusinessSettings
+    from commerceops.application.feishu_business.worker_window import (
+        RECOVERY_CAPS,
+        ControlledWorkerWindow,
+    )
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+    from commerceops.infrastructure.web_config import WebConfig
+
+    from tests.e2e.web.m1_acceptance_capture import (
+        CaptureContext,
+        capture_snapshot,
+        validate_business,
+    )
+
+    refs = request["private_refs"]
+    settings = BusinessSettings.model_validate_json(private_ref(refs["business"]))
+    private_ref(refs["web_config"])
+    require(settings.web_config_file == Path(refs["web_config"]["path"]), "P4A_CONFIG_BINDING")
+    web = WebConfig.from_file(settings.web_config_file)
+    owner = DatabaseSettings.model_validate_json(private_ref(refs["owner_database"]))
+    schema = _ro_schema(owner, web.database, request["revision"])
+    template = ControlledWorkerWindow.model_validate_json(private_ref(refs["template"]))
+    terminal = template.terminal_update
+    require(
+        not template.enabled
+        and template.profile == "terminal_update"
+        and terminal is not None
+        and template.caps == dict(RECOVERY_CAPS)
+        and not settings.f02_enabled
+        and not settings.external_sender_enabled
+        and (template.organization_id, template.shop_id)
+        == (settings.organization_id, settings.shop_id),
+        "P4A_TERMINAL_TEMPLATE",
+    )
+    if terminal is None:
+        raise AcceptanceFailure("P4A_TERMINAL_TEMPLATE")
+    human = json.loads(private_ref(refs["human_result"]))
+    outer = json.loads(private_ref(refs["human_outer_result"]))
+    require(
+        outer.get("exit_code") == 0
+        and outer.get("cleanup_verified") is True
+        and outer.get("reap_verified") is True
+        and outer.get("ownership_verified") is True
+        and all(v.get("state") == "PASSED" for v in outer["stages"].values()),
+        "P4A_TERMINAL_HUMAN_NOT_COMPLETE",
+    )
+    expected_mode = "simulated_web" if "lab_http" in refs else "human_web"
+    require(
+        outer["evidence"].get("mode") == expected_mode
+        and human["source"] == json.loads(private_ref(request["manifest_ref"]))["candidate"]
+        and human["request_key"] == str(terminal.request_key)
+        and human["semantic_hash"] == terminal.semantic_hash
+        and human["v2_outbox"]["id"] == str(terminal.projection.outbox_id),
+        "P4A_TERMINAL_HUMAN_BINDING",
+    )
+    context = dict(human["capture_context"])
+    context["checkpoint_threads"] = tuple(context["checkpoint_threads"])
+    context["sdk_subject_ids"] = tuple(context["sdk_subject_ids"])
+    ctx = CaptureContext(**context)
+    require(
+        (
+            ctx.organization_id,
+            ctx.shop_id,
+            ctx.task_id,
+            ctx.item_id,
+            ctx.principal_id,
+            ctx.identity_id,
+            ctx.auth_version,
+        )
+        == (
+            str(template.organization_id),
+            str(template.shop_id),
+            str(terminal.verified_recovery.task_id),
+            str(terminal.projection.item_id),
+            str(terminal.resolver_id),
+            str(terminal.resolver_identity_id),
+            terminal.resolver_auth_version,
+        ),
+        "P4A_TERMINAL_HUMAN_BINDING",
+    )
+    with connect(web.database) as db:
+        snapshot = capture_snapshot(db, ctx)
+    validate_business(snapshot, ctx, closed=True)
+    with connect(web.database) as db:
+        db.execute("SET TRANSACTION READ ONLY")
+        require(_active_workers(db) == 0, "P4A_WORKER_COUNT")
+        row = db.execute(
+            "SELECT after_state FROM business.audit_events WHERE id=%s",
+            (terminal.verified_recovery.original_gateway_id,),
+        ).fetchone()
+        require(
+            row is not None
+            and facts_hash(row["after_state"]) == terminal.verified_recovery.original_gateway_hash,
+            "P4A_TERMINAL_ORIGIN",
+        )
+        prior = db.execute(
+            "SELECT outbox_id FROM business.p4_base_deliveries WHERE outbox_id=%s",
+            (terminal.projection.outbox_id,),
+        ).fetchone()
+        require(prior is None, "P4A_TERMINAL_ALREADY_ADMITTED")
+    return dict(
+        schema=schema,
+        prepared_window=template.model_dump(mode="json"),
+        origin=cast(dict[str, Any], row)["after_state"],
+        capture_context=context,
+        nonconsuming=True,
+        human_T6_complete=True,
+    )
+
+
+def _terminal_persist(request: Mapping[str, Any], window: Any, native: Mapping[str, Any]) -> None:
+    from dataclasses import replace
+
+    from commerceops.infrastructure.database import connect
+    from commerceops.infrastructure.web_config import WebConfig
+
+    from tests.e2e.web import m1_acceptance_capture as capture
+
+    terminal = window.terminal_update
+    require(terminal is not None, "P4A_TERMINAL_TEMPLATE")
+    human = json.loads(private_ref(request["private_refs"]["human_result"]))
+    context = dict(human["capture_context"])
+    context["checkpoint_threads"] = tuple(context["checkpoint_threads"])
+    context["sdk_subject_ids"] = tuple(context["sdk_subject_ids"])
+    ctx = replace(
+        capture.CaptureContext(**context),
+        sdk_window_id=str(window.window_id),
+        sdk_subject_ids=(str(terminal.projection.outbox_id),),
+    )
+    web = WebConfig.from_file(Path(request["private_refs"]["web_config"]["path"]))
+    with connect(web.database) as db:
+        after = capture.capture_snapshot(db, ctx)
+    capture.validate_business(after, ctx, closed=True)
+    for version, p in ((1, terminal.verified_recovery.projections[0]), (2, terminal.projection)):
+        capture.validate_base_readback(
+            after,
+            ctx,
+            version=version,
+            target_key=terminal.verified_recovery.target_key,
+            external_id=terminal.external_id,
+            verification_mode="controlled_sdk",
+            native_projection_hash=p.projection_hash,
+        )
+    counts = native["pg_proof"]["method_counts"]
+    require(
+        all(
+            x["method"] in window.caps
+            and 0 < x["n"] <= window.caps[x["method"]]
+            and x["status"] == "returned"
+            and x["http_status"] == 200
+            and x["provider_code"] == 0
+            for x in counts
+        )
+        and sum(x["n"] for x in counts if x["method"] == "bitable.v1.app_table_record.update") == 1,
+        "P4A_TERMINAL_METHOD_COUNTS",
+    )
+    projection = capture.validate_base_readback(
+        after,
+        ctx,
+        version=2,
+        target_key=terminal.verified_recovery.target_key,
+        external_id=terminal.external_id,
+        verification_mode="controlled_sdk",
+        native_projection_hash=terminal.projection.projection_hash,
+    )
+    require(
+        projection["outbox_id"] == str(terminal.projection.outbox_id), "P4A_TERMINAL_PERSISTENCE"
+    )
+    write_private(
+        Path(request["private_directory"]) / "terminal-persisted.private.json",
+        dict(snapshot=after, projection=projection, method_counts=counts),
+    )
+
+
 def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
     """同canonical outer：真实原键RO协调、PG生命周期、完整子进程退出；默认HOLD。"""
     import asyncio
@@ -4268,6 +5115,8 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
 
     from tests.p4_acceptance_support import PinnedProcess
 
+    terminal_mode = request["action"] == "terminal_v2"
+    prepare = _terminal_prepare if terminal_mode else _ro_prepare
     report = StageReport(
         (
             "SOURCE",
@@ -4348,12 +5197,12 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
             before = _ro_state(request)
         with report.enter("SCHEMA"):
             # _ro_prepare先owner只读元数据并关闭，随后所有原数据均低权只读。
-            prepared = _ro_prepare(request)
+            prepared = prepare(request)
         with report.enter("PREPARE"):
             write_private(private / "prepared.private.json", prepared)
         with report.enter("PREFLIGHT"):
             # 第二次独立非消费检查，防止metadata/prepare之间发生变化。
-            require(_ro_prepare(request) == prepared, "P4A_RO_PREFLIGHT_CHANGED")
+            require(prepare(request) == prepared, "P4A_RO_PREFLIGHT_CHANGED")
         with report.enter("ARM"):
             seconds = request.get("sdk_seconds", 300)
             require(
@@ -4361,6 +5210,10 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
                 and 15 < seconds <= 300
                 and lease.remaining(cleanup=True) >= seconds + 180,
                 "P4A_RO_ARM_CAPACITY",
+            )
+            require(
+                not terminal_mode or lease.remaining(cleanup=True) >= 480,
+                "P4A_TERMINAL_ARM_CAPACITY",
             )
             expiry = datetime.now(UTC) + timedelta(seconds=seconds)
             payload = prepared["prepared_window"]
@@ -4370,7 +5223,7 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
                 gateway_window_id=str(uuid4()),
                 expires_at=expiry.isoformat(),
             )
-            payload["recovery"].update(
+            payload["terminal_update" if terminal_mode else "recovery"].update(
                 worker_window_id=payload["window_id"],
                 gateway_window_id=payload["gateway_window_id"],
                 expires_at=payload["expires_at"],
@@ -4434,117 +5287,124 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
             )
             require(gateway.process.poll() is None, "P4A_GATEWAY_EARLY_EXIT")
         with report.enter("PERSIST"):
-            with connect(web.database) as db:
-                db.execute("SET TRANSACTION READ ONLY")
-                r = window.recovery
-                p = r.projections[0]
-                row = db.execute(
-                    "SELECT d.*,l.external_id AS anchor_external,l.original_outbox_id "
-                    "FROM business.p4_base_deliveries d JOIN business.p4_base_links l "
-                    "ON l.item_id=d.item_id WHERE d.outbox_id=%s",
-                    (p.outbox_id,),
-                ).fetchall()
-                require(
-                    len(row) == 1
-                    and row[0]["status"] == "verified"
-                    and row[0]["complete_unique_verified"] is True
-                    and row[0]["attempts"] == 3
-                    and row[0]["version"] == row[0]["observed_version"] == 1
-                    and row[0]["external_id"] == row[0]["anchor_external"]
-                    and row[0]["original_outbox_id"] == p.outbox_id,
-                    "P4A_RO_PERSISTENCE",
-                )
-                once = db.execute(
-                    "SELECT action,count(*) AS n FROM business.audit_events "
-                    "WHERE source='feishu_recovery' AND entity_id=%s AND action IN (%s,%s) "
-                    "GROUP BY action",
-                    (
-                        str(p.outbox_id),
-                        "explicit_ro_recheck_authorized",
-                        "explicit_ro_recheck_dispatched",
-                    ),
-                ).fetchall()
-                require(len(once) == 2 and all(x["n"] == 1 for x in once), "P4A_ONCE_COUNT")
-                counts = QUERIES["SDK_COUNTS"].execute(
-                    db, (window.window_id,), revision=request["revision"], role="app"
-                )
-                require(
-                    all(
-                        x["method"] in window.caps
-                        and x["n"] <= window.caps[x["method"]]
-                        and (x["status"], x["http_status"], x["provider_code"])
-                        == ("returned", 200, 0)
-                        for x in counts
-                    ),
-                    "P4A_RO_LEDGER",
-                )
-                write_private(
-                    private / "persisted.private.json",
-                    dict(delivery=row, once=once, method_counts=counts),
-                )
-                # 只读消费接口；不产生request key、不调用consume_stage(t6)或任何UI动作。
-                from tests.e2e.web.m1_acceptance_capture import CaptureContext, capture_snapshot
+            if terminal_mode:
+                _terminal_persist(request, window, native)
+            else:
+                with connect(web.database) as db:
+                    db.execute("SET TRANSACTION READ ONLY")
+                    r = window.recovery
+                    p = r.projections[0]
+                    row = db.execute(
+                        "SELECT d.*,l.external_id AS anchor_external,l.original_outbox_id "
+                        "FROM business.p4_base_deliveries d JOIN business.p4_base_links l "
+                        "ON l.item_id=d.item_id WHERE d.outbox_id=%s",
+                        (p.outbox_id,),
+                    ).fetchall()
+                    require(
+                        len(row) == 1
+                        and row[0]["status"] == "verified"
+                        and row[0]["complete_unique_verified"] is True
+                        and row[0]["attempts"] == 3
+                        and row[0]["version"] == row[0]["observed_version"] == 1
+                        and row[0]["external_id"] == row[0]["anchor_external"]
+                        and row[0]["original_outbox_id"] == p.outbox_id,
+                        "P4A_RO_PERSISTENCE",
+                    )
+                    once = db.execute(
+                        "SELECT action,count(*) AS n FROM business.audit_events "
+                        "WHERE source='feishu_recovery' AND entity_id=%s AND action IN (%s,%s) "
+                        "GROUP BY action",
+                        (
+                            str(p.outbox_id),
+                            "explicit_ro_recheck_authorized",
+                            "explicit_ro_recheck_dispatched",
+                        ),
+                    ).fetchall()
+                    require(len(once) == 2 and all(x["n"] == 1 for x in once), "P4A_ONCE_COUNT")
+                    counts = QUERIES["SDK_COUNTS"].execute(
+                        db, (window.window_id,), revision=request["revision"], role="app"
+                    )
+                    require(
+                        all(
+                            x["method"] in window.caps
+                            and x["n"] <= window.caps[x["method"]]
+                            and (x["status"], x["http_status"], x["provider_code"])
+                            == ("returned", 200, 0)
+                            for x in counts
+                        ),
+                        "P4A_RO_LEDGER",
+                    )
+                    write_private(
+                        private / "persisted.private.json",
+                        dict(delivery=row, once=once, method_counts=counts),
+                    )
+                    # 只读消费接口；不产生request key、不调用consume_stage(t6)或任何UI动作。
+                    from tests.e2e.web.m1_acceptance_capture import CaptureContext, capture_snapshot
 
-                actors = db.execute(
-                    "SELECT p.id,p.auth_version,i.id AS identity_id "
-                    "FROM business.business_tasks t JOIN business.principals p "
-                    "ON p.id=t.requester_id JOIN business.identities i ON i.principal_id=p.id "
-                    "AND i.organization_id=p.organization_id AND i.provider='web' "
-                    "WHERE t.id=%s",
-                    (r.task_id,),
-                ).fetchall()
-                threads = db.execute(
-                    "SELECT thread_id FROM business.business_tasks WHERE id=%s "
-                    "OR id=(SELECT source_task_id FROM business.p3_task_sources WHERE task_id=%s) "
-                    "ORDER BY id",
-                    (r.task_id, r.task_id),
-                ).fetchall()
-                quantity = db.execute(
-                    "SELECT count(*) AS n,sum(quantity)::text AS total "
-                    "FROM business.replenishment_items WHERE task_id=%s",
-                    (r.task_id,),
-                ).fetchone()
-                require(
-                    len(actors) == 1 and quantity is not None and quantity["n"] == 1,
-                    "P4A_RO_CAPTURE_CONTEXT",
-                )
-                if quantity is None:
-                    raise AcceptanceFailure("P4A_RO_CAPTURE_CONTEXT")
-                context = dict(
-                    revision=prepared["schema"]["revision"]
-                    + {"0015": "_p4_read_replies", "0016": "_p4_clarification_requests"}[
-                        prepared["schema"]["revision"]
-                    ],
-                    organization_id=str(window.organization_id),
-                    shop_id=str(window.shop_id),
-                    task_id=str(r.task_id),
-                    item_id=str(p.item_id),
-                    principal_id=str(actors[0]["id"]),
-                    identity_id=str(actors[0]["identity_id"]),
-                    auth_version=actors[0]["auth_version"],
-                    checkpoint_threads=tuple(x["thread_id"] for x in threads),
-                    sdk_window_id=str(window.window_id),
-                    sdk_subject_ids=(str(p.outbox_id),),
-                    request_key=None,
-                    case_kind="recover_single_item",
-                    expected_item_count=1,
-                    expected_quantity_total=quantity["total"],
-                )
-                with connect(web.database) as capture_db:
-                    snapshot = capture_snapshot(capture_db, CaptureContext(**context))
-                write_private(
-                    private / "human-handoff.private.json",
-                    dict(
-                        capture_context=context,
-                        before_T6=snapshot,
-                        source=binding.manifest["candidate"],
-                        images=request["images"],
-                        human_action_required=True,
-                        automatic_T6_authorized=False,
-                        original_key_generated_only_by_native_UI=True,
-                        release="HOLD until outer STOP/CLEANUP/exit and Root real-object approval",
-                    ),
-                )
+                    actors = db.execute(
+                        "SELECT p.id,p.auth_version,i.id AS identity_id "
+                        "FROM business.business_tasks t JOIN business.principals p "
+                        "ON p.id=t.requester_id JOIN business.identities i ON i.principal_id=p.id "
+                        "AND i.organization_id=p.organization_id AND i.provider='web' "
+                        "WHERE t.id=%s",
+                        (r.task_id,),
+                    ).fetchall()
+                    threads = db.execute(
+                        "SELECT thread_id FROM business.business_tasks WHERE id=%s "
+                        "OR id=(SELECT source_task_id FROM business.p3_task_sources "
+                        "WHERE task_id=%s) "
+                        "ORDER BY id",
+                        (r.task_id, r.task_id),
+                    ).fetchall()
+                    quantity = db.execute(
+                        "SELECT count(*) AS n,sum(quantity)::text AS total "
+                        "FROM business.replenishment_items WHERE task_id=%s",
+                        (r.task_id,),
+                    ).fetchone()
+                    require(
+                        len(actors) == 1 and quantity is not None and quantity["n"] == 1,
+                        "P4A_RO_CAPTURE_CONTEXT",
+                    )
+                    if quantity is None:
+                        raise AcceptanceFailure("P4A_RO_CAPTURE_CONTEXT")
+                    context = dict(
+                        revision=prepared["schema"]["revision"]
+                        + {"0015": "_p4_read_replies", "0016": "_p4_clarification_requests"}[
+                            prepared["schema"]["revision"]
+                        ],
+                        organization_id=str(window.organization_id),
+                        shop_id=str(window.shop_id),
+                        task_id=str(r.task_id),
+                        item_id=str(p.item_id),
+                        principal_id=str(actors[0]["id"]),
+                        identity_id=str(actors[0]["identity_id"]),
+                        auth_version=actors[0]["auth_version"],
+                        checkpoint_threads=tuple(x["thread_id"] for x in threads),
+                        sdk_window_id=str(window.window_id),
+                        sdk_subject_ids=(str(p.outbox_id),),
+                        request_key=None,
+                        case_kind="recover_single_item",
+                        expected_item_count=1,
+                        expected_quantity_total=quantity["total"],
+                    )
+                    with connect(web.database) as capture_db:
+                        snapshot = capture_snapshot(capture_db, CaptureContext(**context))
+                    write_private(
+                        private / "human-handoff.private.json",
+                        dict(
+                            capture_context=context,
+                            before_T6=snapshot,
+                            source=binding.manifest["candidate"],
+                            images=request["images"],
+                            human_action_required=True,
+                            automatic_T6_authorized=False,
+                            original_key_generated_only_by_native_UI=True,
+                            release=(
+                                "HOLD until outer STOP/CLEANUP/exit and Root real-object approval"
+                            ),
+                        ),
+                    )
+
     except BaseException as error:
         if not isinstance(error, Exception):
             mark_stage(error, "STOP")
@@ -4602,6 +5462,22 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
                         before["immutable_business"] == after["immutable_business"],
                         "P4A_RO_BUSINESS_CHANGED",
                     )
+                    if terminal_mode:
+                        require(
+                            before["manual_once"] == after["manual_once"]
+                            and before["delivery"] == after["delivery"],
+                            "P4A_TERMINAL_V1_CHANGED",
+                        )
+                        held_methods = {
+                            "bitable.v1.app_table_record.create",
+                            "im.v1.message.create",
+                        }
+                        require(
+                            [x for x in before["sdk_ledger"] if x["method"] in held_methods]
+                            == [x for x in after["sdk_ledger"] if x["method"] in held_methods],
+                            "P4A_TERMINAL_FORBIDDEN_METHOD",
+                        )
+
         except BaseException as error:
             native["stop_failure"] = safe_failure(error, "STOP")
         try:
@@ -4645,9 +5521,16 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
             for c in children
         ],
         real_platform_PASS=False,
-        real_RO_verified=result["exit_code"] == 0 and "lab_http" not in request["private_refs"],
+        real_RO_verified=not terminal_mode
+        and result["exit_code"] == 0
+        and "lab_http" not in request["private_refs"],
+        real_terminal_v2_verified=terminal_mode
+        and result["exit_code"] == 0
+        and "lab_http" not in request["private_refs"],
         lab_http="lab_http" in request["private_refs"],
-        human_T6="HOLD until real RO and separate human native UI",
+        human_T6="separately bound completed human outer"
+        if terminal_mode
+        else "HOLD until real RO and separate human native UI",
         suite_PASS=False,
     )
 
@@ -4668,6 +5551,9 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
         action
         in (
             "original_ro",
+            "human_t6",
+            "terminal_v2",
+            "human_idle",
             "original_ro_lab_history",
             "worker",
             "gateway",
@@ -4706,7 +5592,11 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
     try:
         if action == "original_ro_lab_history":
             result = original_ro_lab_history(request, binding)
-        elif action == "original_ro":
+        elif action == "human_t6":
+            result = human_t6_stage(request, binding)
+        elif action == "human_idle":
+            result = human_idle_stage(request)
+        elif action in ("original_ro", "terminal_v2"):
             result = original_ro_stage(request, binding)
         elif action == "run":
             result = run_stage(request, binding)

@@ -2,7 +2,7 @@
 
 import asyncio
 import json
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from psycopg.types.json import Jsonb
@@ -22,6 +22,9 @@ from commerceops.application.feishu_business.sdk_window import SDKScope
 from commerceops.domain.commerce_values import facts_hash
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.worker_lock import WorkerSession, open_async
+
+if TYPE_CHECKING:
+    from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
 
 
 def item_snapshot(item: dict[str, Any], plan: dict[str, Any], version: int) -> ItemProjection:
@@ -59,6 +62,8 @@ class BaseDeliveryStore:
         adapter: BaseProjectionAdapter,
         gate: DeliveryGate,
         ledger: PersistentSDKLedger | None = None,
+        *,
+        terminal_window: "ControlledWorkerWindow | None" = None,
     ):
         if gate.organization_id != session.organization:
             raise ValueError("INVALID_P4_DELIVERY_ORGANIZATION")
@@ -66,8 +71,97 @@ class BaseDeliveryStore:
         if gate.verification_mode == "controlled_sdk" and ledger is None:
             raise ValueError("CONTROLLED_BASE_REQUIRES_METHOD_LEDGER")
         self.ledger = ledger
+        self.terminal_window = terminal_window
+        if terminal_window is not None and (
+            terminal_window.terminal_update is None
+            or terminal_window.profile != "terminal_update"
+            or ledger is None
+            or ledger.window.window_id != terminal_window.window_id
+            or dict(ledger.window.caps) != terminal_window.caps
+            or gate.outbox_ids != frozenset({terminal_window.terminal_update.projection.outbox_id})
+            or gate.task_ids != terminal_window.task_ids
+            or (gate.organization_id, gate.shop_id, gate.expires_at)
+            != (
+                terminal_window.organization_id,
+                terminal_window.shop_id,
+                terminal_window.expires_at,
+            )
+            or gate.target_key != terminal_window.terminal_update.verified_recovery.target_key
+            or gate.first_create is not None
+            or gate.explicit_ro_window_id is not None
+        ):
+            raise PermissionError("P4_TERMINAL_UPDATE_GATE_REQUIRED")
 
     async def _enroll(self) -> None:
+        if self.terminal_window is not None:
+            from commerceops.infrastructure.feishu_outbox_recovery import (
+                terminal_authorization_id,
+                terminal_denied,
+                terminal_intent,
+            )
+
+            window = self.terminal_window
+            terminal = window.terminal_update
+            if terminal is None:
+                terminal_denied()
+            async with await open_async(self.session.settings) as db, db.transaction():
+                cur = await db.execute(
+                    "SELECT after_state FROM business.audit_events WHERE id=%s "
+                    "AND organization_id=%s AND task_id=%s AND source='feishu_recovery' "
+                    "AND action='terminal_update_authorized' AND entity_type='outbox'",
+                    (
+                        terminal_authorization_id(terminal.projection.outbox_id),
+                        window.organization_id,
+                        terminal.verified_recovery.task_id,
+                    ),
+                )
+                authorization = await cur.fetchone()
+                if not authorization or authorization["after_state"] != window.model_dump(
+                    mode="json"
+                ):
+                    terminal_denied()
+                outbox, snapshot = await terminal_intent(db, window)
+                await db.execute(
+                    "INSERT INTO business.p4_base_deliveries(outbox_id,organization_id,shop_id,"
+                    "task_id,item_id,target_key,client_token,version,projection,projection_hash,"
+                    "verification_mode) VALUES(%s,%s,%s,%s,%s,%s,%s,2,%s,%s,'controlled_sdk') "
+                    "ON CONFLICT(outbox_id) DO NOTHING",
+                    (
+                        outbox["id"],
+                        window.organization_id,
+                        window.shop_id,
+                        terminal.verified_recovery.task_id,
+                        snapshot.item_id,
+                        self.gate.target_key,
+                        outbox["provider_idempotency_key"],
+                        Jsonb(snapshot.model_dump(mode="json")),
+                        facts_hash(snapshot.model_dump(mode="json")),
+                    ),
+                )
+                cur = await db.execute(
+                    "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s FOR UPDATE",
+                    (outbox["id"],),
+                )
+                enrolled = await cur.fetchone()
+                expected = {
+                    "organization_id": window.organization_id,
+                    "shop_id": window.shop_id,
+                    "task_id": terminal.verified_recovery.task_id,
+                    "item_id": snapshot.item_id,
+                    "target_key": self.gate.target_key,
+                    "client_token": outbox["provider_idempotency_key"],
+                    "version": 2,
+                    "projection": snapshot.model_dump(mode="json"),
+                    "projection_hash": facts_hash(snapshot.model_dump(mode="json")),
+                    "verification_mode": "controlled_sdk",
+                    "status": "pending",
+                    "attempts": 0,
+                    "external_id": None,
+                }
+                if not enrolled or any(enrolled[k] != v for k, v in expected.items()):
+                    terminal_denied()
+                await self.session.check()
+            return
         if self.gate.outbox_ids is not None:
             return  # 已批准原键恢复仅用已有delivery，不生成伴随意图/新键。
         # 固定原task白名单+单shop/Mock，绝不扫描/升级历史probe或controlled_stub outbox。
@@ -200,6 +294,7 @@ class BaseDeliveryStore:
                 AND (d.attempts<3 OR (%s::uuid IS NOT NULL AND d.attempts=3
                      AND d.status='unknown'))
                 AND d.next_attempt_at<=clock_timestamp()
+                AND (NOT %s OR (d.status='pending' AND d.attempts=0))
                 ORDER BY d.created_at,d.version,d.outbox_id FOR UPDATE OF d""",
                 (
                     self.gate.organization_id,
@@ -210,6 +305,7 @@ class BaseDeliveryStore:
                     None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
                     None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
                     self.gate.explicit_ro_window_id,
+                    self.terminal_window is not None,
                 ),
             )
             for row in await cur.fetchall():

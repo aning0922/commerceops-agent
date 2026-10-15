@@ -245,6 +245,20 @@ def worker_request(
     write_private(business_file, business.model_dump(mode="json"))
     write_private(window_file, window.model_dump(mode="json"))
     require(config.database.user == "commerceops_app", "P4A_ROLE")
+    external_refs = {"external_records": reference(external)}
+    if window.terminal_update is not None:
+        control = directory / ("terminal-http-" + key + ".json")
+        write_private(
+            control,
+            dict(
+                contract="p4-terminal-lab-http-v1",
+                state_path=str(external),
+                database=config.database.name,
+                organization_id=str(window.organization_id),
+                window_id=str(window.window_id),
+            ),
+        )
+        external_refs = {"external_transport": reference(control)}
     return {
         "contract": CONTRACT,
         "action": "worker",
@@ -253,7 +267,7 @@ def worker_request(
             "web_config": reference(config_file),
             "business": reference(business_file),
             "window": reference(window_file),
-            "external_records": reference(external),
+            **external_refs,
         },
         "output_file": str(directory / ("worker-result-" + key + ".json")),
     }
@@ -1415,3 +1429,95 @@ def native_negative_matrix(
     finally:
         clean = [a.cleanup() for a in fixtures]
         require(all(clean), "P4A_MATRIX_CLEANUP")
+
+
+def terminal_update_manifest(
+    a: AcceptanceFixture, verified: Mapping[str, Any], gateway: Any
+) -> ControlledWorkerWindow:
+    """只从本轮合成PG原生RO/T6推导独立terminal DTO；不插入delivery或授权账。"""
+    from commerceops.application.feishu_business.worker_window import RECOVERY_CAPS
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.feishu_base_delivery import item_snapshot
+    from commerceops.infrastructure.feishu_outbox_recovery import sdk_window_hash
+
+    prior = verified["window"]
+    recovery = prior.recovery
+    require(recovery is not None, "P4A_HISTORY_REQUIRED")
+    assert recovery is not None
+    item_id = recovery.projections[0].item_id
+    owner = verified["verified"]["pg_proof"]["worker_owner"]
+    with connect(a.fixture.config.database) as db:
+        item = db.execute(
+            "SELECT * FROM business.replenishment_items WHERE id=%s", (item_id,)
+        ).fetchone()
+        outbox = db.execute(
+            "SELECT * FROM business.outbox WHERE aggregate_id=%s AND aggregate_version=2",
+            (item_id,),
+        ).fetchone()
+        plan = db.execute(
+            "SELECT content FROM business.replenishment_plans WHERE id=%s", (recovery.plan_id,)
+        ).fetchone()
+        sdk = db.execute(
+            "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (prior.window_id,)
+        ).fetchone()
+        gw = db.execute(
+            "SELECT after_state FROM business.audit_events WHERE id=%s", (prior.gateway_window_id,)
+        ).fetchone()
+        gateway_end = db.execute(
+            "SELECT id FROM business.audit_events WHERE source='feishu_gateway' "
+            "AND action='termination_confirmed' AND entity_id=%s",
+            (str(prior.gateway_window_id),),
+        ).fetchone()
+        worker_end = db.execute(
+            "SELECT id FROM business.audit_events WHERE source='worker' "
+            "AND action='termination_confirmed' AND entity_id=%s",
+            (owner,),
+        ).fetchone()
+    require(all((item, outbox, plan, sdk, gw, gateway_end, worker_end)), "P4A_HISTORY_REQUIRED")
+    assert item and outbox and plan and sdk and gw and gateway_end and worker_end
+    wid = uuid4()
+    return ControlledWorkerWindow.model_validate_json(
+        json.dumps(
+            dict(
+                schema_version="p4-worker-v1",
+                window_id=str(wid),
+                gateway_window_id=str(gateway.window_id),
+                organization_id=str(a.business.organization_id),
+                shop_id=str(a.business.shop_id),
+                task_ids=[str(recovery.task_id)],
+                expires_at=gateway.expires_at.isoformat(),
+                enabled=True,
+                profile="terminal_update",
+                caps=dict(RECOVERY_CAPS),
+                terminal_update=dict(
+                    schema_version="p4-terminal-update-v1",
+                    worker_window_id=str(wid),
+                    gateway_window_id=str(gateway.window_id),
+                    expires_at=gateway.expires_at.isoformat(),
+                    verified_recovery=recovery.model_dump(mode="json"),
+                    verified_sdk_window_hash=sdk_window_hash(sdk),
+                    verified_gateway_hash=facts_hash(gw["after_state"]),
+                    verified_gateway_termination_id=str(gateway_end["id"]),
+                    verified_worker_owner=owner,
+                    verified_worker_termination_id=str(worker_end["id"]),
+                    external_id=verified["links"][0]["external_id"],
+                    projection=dict(
+                        outbox_id=str(outbox["id"]),
+                        item_id=str(item_id),
+                        client_token=str(outbox["provider_idempotency_key"]),
+                        version=2,
+                        projection_hash=facts_hash(
+                            item_snapshot(item, plan["content"], 2).model_dump(mode="json")
+                        ),
+                        request_hash=outbox["request_hash"],
+                    ),
+                    request_key=str(item["resolution_request_key"]),
+                    semantic_hash=item["resolution_payload_hash"],
+                    resolution_id=str(item["resolution_id"]),
+                    resolver_id=str(item["resolved_by"]),
+                    resolver_identity_id=str(item["resolved_identity_id"]),
+                    resolver_auth_version=item["resolved_auth_version"],
+                ),
+            )
+        )
+    )

@@ -204,3 +204,151 @@ def test_gateway_session_lock_held_until_actual_child_reap(
         if window is not None and child is not None and not child.confirmed:
             a.stop_gateway(window, child)
         assert a.cleanup()
+
+
+@pytest.mark.parametrize("revision", ["0015", "0016"])
+def test_terminal_native_enrollment_same_anchor_once_and_cold_replay(
+    database: tuple[DatabaseSettings, DatabaseSettings],
+    tmp_path: Path,
+    revision: str,
+) -> None:
+    from tests.p4_acceptance_support import terminal_update_manifest
+
+    owner, app = database
+    initialize_schema(owner, revision)
+    expiry = datetime.now(UTC) + timedelta(minutes=15)
+    registered = os.environ.get("COMMERCEOPS_ACCEPTANCE_DEADLINE")
+    if registered:
+        expiry = min(expiry, datetime.fromisoformat(registered))
+    a = AcceptanceFixture.prepare(
+        owner, app, tmp_path, Deadline.register(expiry), case_kind="recover_single_item"
+    )
+    gateway = child = None
+    try:
+        ro = prepare_single_ro(a)
+        item = ro["delivery"]["item_id"]
+        response = a.fixture.client.post(
+            f"/api/v1/replenishment-items/{item}/resolve",
+            json=dict(
+                schema_version="p3-web-v1",
+                request_key=str(uuid4()),
+                action="close",
+                expected_version=1,
+                reason="synthetic native terminal update",
+            ),
+            headers=a.fixture.headers(),
+        )
+        assert response.status_code == 200
+        with connect(app) as db:
+            assert db.execute(
+                "SELECT count(*) AS n FROM business.p4_base_deliveries WHERE version=2"
+            ).fetchone() == {"n": 0}
+        import json
+
+        from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+
+        from tests.p4_acceptance_support import worker_request
+
+        # 每个真实准入拒绝均在新进程执行；不得消耗SDK或登记v2 delivery。
+        for field in (
+            "external_id",
+            "semantic_hash",
+            "request_key",
+            "resolver_identity_id",
+            "verified_sdk_window_hash",
+            "verified_worker_owner",
+        ):
+            gateway, child = a.gateway()
+            window = terminal_update_manifest(a, ro, gateway)
+            value = window.model_dump(mode="json")
+            value["window_id"] = str(uuid4())
+            value["terminal_update"]["worker_window_id"] = value["window_id"]
+            value["terminal_update"][field] = (
+                "synthetic-wrong-record"
+                if field == "external_id"
+                else "0" * 64
+                if field.endswith("hash")
+                else str(uuid4())
+            )
+            rejected = ControlledWorkerWindow.model_validate_json(json.dumps(value))
+            _, denial = a.worker(rejected)
+            assert denial["exit_code"] == 1
+            assert denial["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
+            with connect(app) as db:
+                assert db.execute(
+                    "SELECT count(*) AS n FROM business.p4_base_deliveries WHERE version=2"
+                ).fetchone() == {"n": 0}
+            a.stop_gateway(gateway, child)
+        gateway, child = a.gateway()
+        window = terminal_update_manifest(a, ro, gateway)
+        a.external_behavior("normal")
+        first = a.start(
+            worker_request(a.fixture.config, a.business, window, a.fixture.private, a.external)
+        )
+        other_request = dict(first.request)
+        other_request["output_file"] = str(a.fixture.private / "terminal-concurrent-other.json")
+        second = a.start(other_request)
+        pairs = [(c, c.wait(timeout=min(60, a.deadline.remaining()))) for c in (first, second)]
+        for c, v in pairs:
+            a.confirm_worker(c, v, allow_no_start=True)
+        assert sorted(v["exit_code"] for _, v in pairs) == [0, 1], json.dumps(
+            [v for _, v in pairs], default=str
+        )
+        process, result = next((c, v) for c, v in pairs if v["exit_code"] == 0)
+        loser = next(v for _, v in pairs if v["exit_code"] == 1)
+        assert loser["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
+        assert result["exit_code"] == 0, __import__("json").dumps(result, default=str)
+        assert result["native_summary"]["terminal_update_outcome"] == "verified"
+        assert len(result["witnesses"]) == 1
+        witness = result["witnesses"][0]
+        assert witness["request"]["operation"] == "update"
+        assert witness["result"]["external_id"] == ro["links"][0]["external_id"]
+        with connect(app) as db:
+            before = db.execute(
+                "SELECT * FROM business.p4_sdk_calls WHERE window_id=%s ORDER BY id",
+                (window.window_id,),
+            ).fetchall()
+            assert db.execute(
+                "SELECT version,status,attempts FROM business.p4_base_deliveries ORDER BY version"
+            ).fetchall() == [
+                {"version": 1, "status": "verified", "attempts": 3},
+                {"version": 2, "status": "verified", "attempts": 1},
+            ]
+            assert sum(x["method"] == "bitable.v1.app_table_record.update" for x in before) == 1
+            assert not any(
+                x["method"] in ("bitable.v1.app_table_record.create", "im.v1.message.create")
+                for x in before
+            )
+        _, replay = a.worker(window, replay_of=process)
+        assert replay["exit_code"] == 1
+        assert replay["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
+        with connect(app) as db:
+            assert (
+                db.execute(
+                    "SELECT * FROM business.p4_sdk_calls WHERE window_id=%s ORDER BY id",
+                    (window.window_id,),
+                ).fetchall()
+                == before
+            )
+        a.stop_gateway(gateway, child)
+        gateway, child = a.gateway()
+        replacement = terminal_update_manifest(a, ro, gateway)
+        _, denial = a.worker(replacement)
+        assert denial["exit_code"] == 1 and denial["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
+        a.stop_gateway(gateway, child)
+        gateway, child = a.gateway()
+        revoked = terminal_update_manifest(a, ro, gateway)
+        assert revoked.terminal_update is not None
+        with connect(owner) as db:
+            db.execute(
+                "UPDATE business.principals SET enabled=false,"
+                "auth_version=auth_version+1 WHERE id=%s",
+                (revoked.terminal_update.resolver_id,),
+            )
+        _, denial = a.worker(revoked)
+        assert denial["exit_code"] == 1 and denial["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
+        assert any(x["function"] == "terminal_intent" for x in denial["failure"]["locations"])
+    finally:
+        if gateway is not None and child is not None and not child.confirmed:
+            a.stop_gateway(gateway, child)
+        assert a.cleanup()

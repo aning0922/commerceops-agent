@@ -841,3 +841,525 @@ async def trusted_recovery_scope(
                 legacy["recovery"].pop("sender_gateway", None)
             if not bound or bound["after_state"] not in (expected, legacy):
                 denied()
+
+
+def terminal_authorization_id(outbox_id: UUID) -> UUID:
+    return uuid5(NAMESPACE_URL, f"commerceops:p4:terminal-update:{outbox_id}")
+
+
+def terminal_denied() -> NoReturn:
+    raise PermissionError("P4_TERMINAL_UPDATE_DENIED")
+
+
+async def terminal_intent(db: Any, window: ControlledWorkerWindow) -> tuple[Any, Any]:
+    """native enrollment/dispatch共同重核；不生成意图、回执或新的业务键。"""
+    from commerceops.application.replenishment.contracts import ResolveInput
+    from commerceops.application.replenishment.execution import resolution_hash
+
+    terminal = window.terminal_update
+    if terminal is None:
+        terminal_denied()
+    recovery, projection = terminal.verified_recovery, terminal.projection
+    cur = await db.execute(
+        "SELECT t.requester_id,a.decided_by FROM business.business_tasks t "
+        "JOIN business.approvals a ON a.id=%s AND a.task_id=t.id WHERE t.id=%s "
+        "AND t.organization_id=%s AND t.shop_id=%s",
+        (recovery.approval_id, recovery.task_id, window.organization_id, window.shop_id),
+    )
+    actors = await cur.fetchone()
+    if not actors:
+        terminal_denied()
+    for principal in sorted({terminal.resolver_id, actors["requester_id"], actors["decided_by"]}):
+        await db.execute("SELECT id FROM business.principals WHERE id=%s FOR UPDATE", (principal,))
+    cur = await db.execute(
+        "SELECT * FROM business.replenishment_items WHERE id=%s AND organization_id=%s "
+        "AND shop_id=%s AND task_id=%s FOR SHARE",
+        (projection.item_id, window.organization_id, window.shop_id, recovery.task_id),
+    )
+    item = await cur.fetchone()
+    if not item or any(
+        item[k] != v
+        for k, v in {
+            "status": "closed",
+            "version": 2,
+            "execution_id": recovery.execution_id,
+            "approved_plan_id": recovery.plan_id,
+            "resolution_id": terminal.resolution_id,
+            "resolved_by": terminal.resolver_id,
+            "resolved_identity_id": terminal.resolver_identity_id,
+            "resolved_auth_version": terminal.resolver_auth_version,
+            "resolution_request_key": terminal.request_key,
+            "resolution_payload_hash": terminal.semantic_hash,
+        }.items()
+    ):
+        terminal_denied()
+    request = ResolveInput.model_validate_json(
+        json.dumps(
+            dict(
+                schema_version="p3-web-v1",
+                request_key=str(terminal.request_key),
+                action="close",
+                reason=item["resolution_reason"],
+                expected_version=1,
+            )
+        )
+    )
+    if resolution_hash(str(item["id"]), request) != terminal.semantic_hash:
+        terminal_denied()
+    cur = await db.execute(
+        "SELECT result,request_hash,task_id FROM business.web_requests WHERE organization_id=%s "
+        "AND principal_id=%s AND operation='resolve' AND request_key=%s FOR SHARE",
+        (window.organization_id, terminal.resolver_id, terminal.request_key),
+    )
+    receipt = await cur.fetchone()
+    if (
+        not receipt
+        or receipt["request_hash"] != terminal.semantic_hash
+        or receipt["task_id"] != recovery.task_id
+    ):
+        terminal_denied()
+    from commerceops.infrastructure.replenishment_items import ItemStore
+    from commerceops.infrastructure.web_sessions import json_native
+
+    result = receipt["result"]
+    if (
+        type(result) is not dict
+        or result.get("schema_version") != "p3-web-v1"
+        or result.get("identity_mode") != "session"
+        or result.get("request_key") != str(terminal.request_key)
+        or result.get("duplicate") is not False
+        or result.get("resolution") != json_native(ItemStore.resolution(item))
+        or type(result.get("item")) is not dict
+        or result["item"].get("item_id") != str(item["id"])
+        or result["item"].get("version") != 2
+        or result["item"].get("state") != "closed"
+    ):
+        terminal_denied()
+    cur = await db.execute(
+        "SELECT actor_id,source,action FROM business.audit_events WHERE organization_id=%s "
+        "AND task_id=%s AND entity_type='replenishment_item' AND entity_id=%s",
+        (window.organization_id, recovery.task_id, str(item["id"])),
+    )
+    if await cur.fetchall() != [
+        {"actor_id": terminal.resolver_id, "source": "replenishment", "action": "item_closed"}
+    ]:
+        terminal_denied()
+    cur = await db.execute(
+        "SELECT business.lock_p3_permission(%s,%s,%s,%s,%s,'approver') AS resolver_ok,"
+        "business.lock_p3_permission(t.requester_id,t.organization_id,t.shop_id,"
+        "(t.normalized_request->>'identity_id')::uuid,%s,'operator') AS creator_ok,"
+        "business.lock_p3_permission(a.decided_by,a.organization_id,a.shop_id,"
+        "a.decided_identity_id,%s,'approver') AS approver_ok "
+        "FROM business.business_tasks t JOIN business.approvals a ON a.id=%s WHERE t.id=%s",
+        (
+            terminal.resolver_id,
+            window.organization_id,
+            window.shop_id,
+            terminal.resolver_identity_id,
+            terminal.resolver_auth_version,
+            recovery.operator_auth_version,
+            recovery.approver_auth_version,
+            recovery.approval_id,
+            recovery.task_id,
+        ),
+    )
+    permission = await cur.fetchone()
+    if not permission or not all(permission.values()):
+        terminal_denied()
+    cur = await db.execute(
+        "SELECT d.*,l.original_outbox_id,l.external_id AS anchor FROM "
+        "business.p4_base_deliveries d "
+        "JOIN business.p4_base_links l ON l.organization_id=d.organization_id AND "
+        "l.shop_id=d.shop_id "
+        "AND l.target_key=d.target_key AND l.item_id=d.item_id WHERE d.outbox_id=%s "
+        "AND d.organization_id=%s AND d.shop_id=%s FOR SHARE OF d",
+        (recovery.projections[0].outbox_id, window.organization_id, window.shop_id),
+    )
+    v1 = await cur.fetchone()
+    if not v1 or any(
+        v1[k] != v
+        for k, v in {
+            "task_id": recovery.task_id,
+            "item_id": item["id"],
+            "target_key": recovery.target_key,
+            "status": "verified",
+            "version": 1,
+            "observed_version": 1,
+            "complete_unique_verified": True,
+            "verification_mode": "controlled_sdk",
+            "attempts": 3,
+            "original_outbox_id": recovery.projections[0].outbox_id,
+            "projection_hash": recovery.projections[0].projection_hash,
+            "client_token": recovery.projections[0].client_token,
+            "external_id": terminal.external_id,
+            "anchor": terminal.external_id,
+            "claimed_by": str(terminal.verified_worker_owner),
+        }.items()
+    ):
+        terminal_denied()
+    cur = await db.execute(
+        "SELECT * FROM business.outbox WHERE organization_id=%s AND shop_id=%s AND task_id=%s "
+        "AND aggregate_id=%s AND aggregate_version=2 FOR SHARE",
+        (window.organization_id, window.shop_id, recovery.task_id, item["id"]),
+    )
+    outboxes = await cur.fetchall()
+    expected = dict(schema_version="p3-web-v1", item_id=str(item["id"]), version=2, state="closed")
+    if len(outboxes) != 1:
+        terminal_denied()
+    outbox = outboxes[0]
+    if any(
+        outbox[k] != v
+        for k, v in {
+            "id": projection.outbox_id,
+            "destination": "bitable",
+            "operation": "item_projection",
+            "provider_idempotency_key": projection.client_token,
+            "request_hash": projection.request_hash,
+            "payload": expected,
+            "dedupe_key": f"item:{item['id']}:2",
+            "sender_enabled": False,
+            "source_mode": "mock",
+            "status": "pending",
+            "attempts": 0,
+        }.items()
+    ) or projection.request_hash != facts_hash(expected):
+        terminal_denied()
+    cur = await db.execute(
+        "SELECT content FROM business.replenishment_plans WHERE id=%s", (recovery.plan_id,)
+    )
+    plan = await cur.fetchone()
+    if not plan:
+        terminal_denied()
+    snapshot = item_snapshot(item, plan["content"], 2)
+    if facts_hash(snapshot.model_dump(mode="json")) != projection.projection_hash:
+        terminal_denied()
+    if (
+        facts_hash(v1["projection"]) != v1["projection_hash"]
+        or item_snapshot(item, plan["content"], 1).model_dump(mode="json") != v1["projection"]
+    ):
+        terminal_denied()
+    return outbox, snapshot
+
+
+async def _terminal_closed(
+    db: Any, org: UUID, source: str, kind: str, entity: str, end_id: UUID, before: Any
+) -> None:
+    cur = await db.execute(
+        "SELECT id,action,after_state,reason,occurred_at FROM business.audit_events "
+        "WHERE organization_id=%s AND source=%s AND entity_type=%s AND entity_id=%s "
+        "AND action IN ('started','stopped','termination_confirmed')",
+        (org, source, kind, entity),
+    )
+    events = await cur.fetchall()
+    starts = [x for x in events if x["action"] == "started"]
+    ends = [x for x in events if x["action"] == "termination_confirmed"]
+    if (
+        len(starts) != 1
+        or len(ends) != 1
+        or ends[0]["id"] != end_id
+        or not full_process_receipt(starts[0]["after_state"])
+        or not starts[0]["occurred_at"] <= ends[0]["occurred_at"] < before
+    ):
+        terminal_denied()
+    process, end = starts[0]["after_state"], ends[0]["after_state"]
+    if source == "feishu_gateway":
+        if (
+            end.get("process") != process
+            or end.get("child_reaped") is not True
+            or type(end.get("child_exit")) is not int
+        ):
+            terminal_denied()
+    else:
+        stops = [x for x in events if x["action"] == "stopped"]
+        if (
+            len(stops) != 1
+            or stops[0]["after_state"] != process
+            or not starts[0]["occurred_at"] <= stops[0]["occurred_at"] <= ends[0]["occurred_at"]
+            or not full_process_receipt(end)
+            or not ends[0]["reason"]
+            or any(end[k] != process[k] for k in ("host", "pid_namespace"))
+        ):
+            terminal_denied()
+    require_process_absent(process)
+
+
+async def trusted_terminal_scope(
+    config: WebConfig,
+    settings: BusinessSettings,
+    window: ControlledWorkerWindow,
+    gateway: GatewayWindow,
+    *,
+    claim: bool = True,
+) -> None:
+    """独立verified-v1→T6-v2入口；旧恢复分支完全不参与此授权。"""
+    window.window(settings)
+    terminal = window.terminal_update
+    if (
+        terminal is None
+        or not gateway.active()
+        or gateway.max_workflows != 0
+        or settings.f02_enabled
+        or settings.external_sender_enabled
+    ):
+        terminal_denied()
+    recovery = terminal.verified_recovery
+    async with await open_async(config.database) as db, db.transaction():
+        cur = await db.execute(
+            "SELECT id,after_state,occurred_at FROM business.audit_events WHERE id=ANY(%s) "
+            "AND organization_id=%s AND source='feishu_gateway' AND action='gateway_start_claimed'",
+            (
+                [
+                    recovery.original_gateway_id,
+                    window.gateway_window_id,
+                    recovery.gateway_window_id,
+                ],
+                window.organization_id,
+            ),
+        )
+        claims = {x["id"]: x for x in await cur.fetchall()}
+        old, current, verified = (
+            claims.get(x)
+            for x in (
+                recovery.original_gateway_id,
+                window.gateway_window_id,
+                recovery.gateway_window_id,
+            )
+        )
+        if (
+            not old
+            or not current
+            or not verified
+            or current["after_state"] != claimed_state(gateway)
+            or facts_hash(old["after_state"]) != recovery.original_gateway_hash
+            or facts_hash(verified["after_state"]) != terminal.verified_gateway_hash
+        ):
+            terminal_denied()
+        original = GatewayWindow.model_validate_json(
+            json.dumps({k: old["after_state"].get(k) for k in GatewayWindow.model_fields})
+        )
+        if (
+            old["after_state"] != claimed_state(original)
+            or gateway.parameters != original.parameters
+            or (original.organization_id, original.shop_id)
+            != (window.organization_id, window.shop_id)
+        ):
+            terminal_denied()
+        await _terminal_closed(
+            db,
+            window.organization_id,
+            "feishu_gateway",
+            "gateway_runtime",
+            str(recovery.gateway_window_id),
+            terminal.verified_gateway_termination_id,
+            current["occurred_at"],
+        )
+        await _terminal_closed(
+            db,
+            window.organization_id,
+            "worker",
+            "worker_runtime",
+            str(terminal.verified_worker_owner),
+            terminal.verified_worker_termination_id,
+            current["occurred_at"],
+        )
+        cur = await db.execute(
+            "SELECT after_state,occurred_at FROM business.audit_events WHERE id=%s AND "
+            "organization_id=%s "
+            "AND source='feishu_recovery' AND action='approved_outbox_claimed' AND "
+            "entity_type='sdk_window'",
+            (recovery.worker_window_id, window.organization_id),
+        )
+        ro_claim = await cur.fetchone()
+        if not ro_claim:
+            terminal_denied()
+        prior = ControlledWorkerWindow.model_validate_json(json.dumps(ro_claim["after_state"]))
+        if (
+            prior.recovery != recovery
+            or prior.profile != "approved_outbox"
+            or not prior.enabled
+            or prior.terminal_update is not None
+            or prior.caps != dict(READONLY_RECOVERY_CAPS)
+            or (prior.organization_id, prior.shop_id) != (window.organization_id, window.shop_id)
+            or prior.task_ids != window.task_ids
+        ):
+            terminal_denied()
+        cur = await db.execute(
+            "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (prior.window_id,)
+        )
+        sdk = await cur.fetchone()
+        if (
+            not sdk
+            or sdk_window_hash(sdk) != terminal.verified_sdk_window_hash
+            or sdk["method_caps"] != prior.caps
+            or not sdk["configured_enabled"]
+            or sdk["verification_mode"] != "controlled_sdk"
+            or (sdk["organization_id"], sdk["shop_id"]) != (window.organization_id, window.shop_id)
+        ):
+            terminal_denied()
+        cur = await db.execute(
+            "SELECT method,status,http_status,provider_code,scope_kind,task_id,subject_id "
+            "FROM business.p4_sdk_calls WHERE window_id=%s",
+            (prior.window_id,),
+        )
+        calls = await cur.fetchall()
+        counts = {m: sum(x["method"] == m for x in calls) for m in READONLY_RECOVERY_CAPS}
+        if (
+            not calls
+            or any(
+                x["method"] not in READONLY_RECOVERY_CAPS
+                or x["status"] != "returned"
+                or x["http_status"] != 200
+                or x["provider_code"] != 0
+                for x in calls
+            )
+            or any(n > READONLY_RECOVERY_CAPS[m] for m, n in counts.items())
+            or counts["auth.v3.tenant_access_token.internal"] != 1
+            or counts["bot.v3.info"] != 1
+            or counts["bitable.v1.app_table_field.list"] < 1
+            or counts["bitable.v1.app_table_record.list"] < 1
+        ):
+            terminal_denied()
+        for dispatched in (False, True):
+            cur = await db.execute(
+                "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s "
+                "AND task_id=%s AND source='feishu_recovery' AND entity_id=%s",
+                (
+                    recheck_audit_id(recovery.projections[0].outbox_id, dispatched=dispatched),
+                    window.organization_id,
+                    recovery.task_id,
+                    str(recovery.projections[0].outbox_id),
+                ),
+            )
+            once = await cur.fetchone()
+            expected_once = (
+                {
+                    "recheck_count": 1,
+                    "automatic_attempts": 3,
+                    "window_id": str(prior.window_id),
+                    "worker_owner": str(terminal.verified_worker_owner),
+                }
+                if dispatched
+                else {"recheck_count": 1, "window": prior.model_dump(mode="json")}
+            )
+            if not once or once["after_state"] != expected_once:
+                terminal_denied()
+
+        from commerceops.infrastructure.feishu_first_create_recovery import old_senders_closed
+
+        await old_senders_closed(db, window, current["occurred_at"])
+        await terminal_intent(db, window)
+        cur = await db.execute(
+            """SELECT t.version,t.state,t.active_plan_id,t.normalized_request,t.requester_id,
+            s.parameters,p.content,p.plan_hash AS content_hash,p.version AS stored_plan_version,
+            p.status AS plan_status,a.*,e.id AS execution_id,
+            e.status AS execution_status,e.plan_hash AS execution_hash,e.item_ids,
+            r.inbox_id,r.identity_id,r.result,r.created_at AS receipt_at,i.payload_hash,
+            i.sanitized_payload,i.app_id,i.tenant_key,
+            pr.auth_version AS operator_auth_version,
+            ip.external_subject AS operator_open_id,c.chat_id
+            FROM business.business_tasks t JOIN business.p3_task_sources s ON s.task_id=t.id
+            JOIN business.replenishment_plans p ON p.id=t.active_plan_id
+            JOIN business.approvals a ON a.plan_id=p.id
+            JOIN business.executions e ON e.task_id=t.id AND e.plan_id=p.id AND e.approval_id=a.id
+            JOIN business.inbox_events i ON i.task_id=t.id AND i.source='feishu_business'
+            JOIN business.p4_inbox_receipts r ON r.inbox_id=i.id
+            JOIN business.principals pr ON pr.id=t.requester_id
+            JOIN business.identities ip ON ip.id=r.identity_id AND ip.principal_id=t.requester_id
+            JOIN business.conversations c ON c.id=t.conversation_id AND c.channel='feishu'
+            WHERE t.id=%s AND t.organization_id=%s AND t.shop_id=%s
+            AND t.kind='inventory_replenishment'
+            AND t.workflow_version='p3-inventory-replenishment-v1'
+            AND i.sanitized_payload->>'event_type'='im.message.receive_v1'
+            AND r.inbox_id=%s FOR SHARE OF t,p,a,e,pr,ip""",
+            (recovery.task_id, window.organization_id, window.shop_id, recovery.inbox_id),
+        )
+        task = await cur.fetchone()
+        # a.* includes task/plan bindings; select t aliases separately to avoid same-name ambiguity.
+        if (
+            not task
+            or task["state"] != "completed"
+            or task["version"] != recovery.task_version
+            or task["active_plan_id"] != recovery.plan_id
+            or task["plan_id"] != recovery.plan_id
+            or task["plan_version"] != recovery.plan_version
+            or task["plan_hash"] != recovery.plan_hash
+            or task["id"] != recovery.approval_id
+            or task["decision_id"] != recovery.decision_id
+            or task["status"] != "approved"
+            or task["consumed_at"] is None
+            or task["plan_status"] != "executed"
+            or task["content_hash"] != recovery.plan_hash
+            or task["stored_plan_version"] != recovery.plan_version
+            or task["decision_action"] not in ("approve", "approve_with_assumptions")
+            or task["execution_id"] != recovery.execution_id
+            or task["execution_status"] != "completed"
+            or task["execution_hash"] != recovery.plan_hash
+            or task["parameters"] != original.parameters.model_dump(mode="json")
+            or not old["occurred_at"] <= task["receipt_at"] < original.expires_at
+            or receipt_hash(task) != recovery.receipt_hash
+            or task["operator_auth_version"] != recovery.operator_auth_version
+            or task["decided_auth_version"] != recovery.approver_auth_version
+            or (task["app_id"], task["tenant_key"]) != (settings.app_id, settings.tenant_key)
+            or task["operator_open_id"] not in settings.allowed_open_ids
+            or task["normalized_request"].get("identity_id") != str(task["identity_id"])
+            or task["result"].get("task_id") != str(recovery.task_id)
+            or task["sanitized_payload"].get("chat_type") not in ("p2p", "group")
+            or task["sanitized_payload"].get("chat_type") == "group"
+            and task["chat_id"] not in settings.allowed_group_chat_ids
+        ):
+            denied()
+        cur = await db.execute(
+            """SELECT business.lock_p3_permission(%s,%s,%s,%s,%s,'operator') AS creator_ok,
+            business.lock_p3_permission(%s,%s,%s,%s,%s,'approver') AS approver_ok""",
+            (
+                task["requester_id"],
+                window.organization_id,
+                window.shop_id,
+                task["identity_id"],
+                recovery.operator_auth_version,
+                task["decided_by"],
+                window.organization_id,
+                window.shop_id,
+                task["decided_identity_id"],
+                recovery.approver_auth_version,
+            ),
+        )
+        permissions = await cur.fetchone()
+        if not permissions or not permissions["creator_ok"] or not permissions["approver_ok"]:
+            denied()
+        cur = await db.execute(
+            "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s FOR UPDATE",
+            (terminal.projection.outbox_id,),
+        )
+        delivery = await cur.fetchone()
+        authorization_id = terminal_authorization_id(terminal.projection.outbox_id)
+        if claim:
+            if delivery is not None:
+                terminal_denied()  # cold replay/unknown cannot mint a second admission.
+            cur = await db.execute(
+                "INSERT INTO "
+                "business.audit_events(id,organization_id,task_id,source,action,entity_type,entity_id,after_state,trace_id)"
+                " "
+                "VALUES(%s,%s,%s,'feishu_recovery','terminal_update_authorized','outbox',%s,%s,%s)"
+                " ON CONFLICT(id) DO NOTHING RETURNING id",
+                (
+                    authorization_id,
+                    window.organization_id,
+                    recovery.task_id,
+                    str(terminal.projection.outbox_id),
+                    Jsonb(window.model_dump(mode="json")),
+                    window.window_id,
+                ),
+            )
+            if not await cur.fetchone():
+                terminal_denied()
+        else:
+            cur = await db.execute(
+                "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s",
+                (authorization_id, window.organization_id),
+            )
+            bound = await cur.fetchone()
+            if not bound or bound["after_state"] != window.model_dump(mode="json"):
+                terminal_denied()
+            if delivery and (delivery["attempts"] != 0 or delivery["status"] != "pending"):
+                terminal_denied()

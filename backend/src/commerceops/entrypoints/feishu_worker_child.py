@@ -91,6 +91,11 @@ async def trusted_scope(
         ):
             raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
         require_fixture_shop(row, gateway.parameters.fixture_case)
+        if window.profile == "terminal_update":
+            from commerceops.infrastructure.feishu_outbox_recovery import trusted_terminal_scope
+
+            await trusted_terminal_scope(config, settings, window, gateway)
+            return
         if window.profile == "approved_outbox":
             await trusted_recovery_scope(config, settings, window, gateway)
             return
@@ -231,8 +236,12 @@ async def controlled_work(
             enabled=True,
             verification_mode="controlled_sdk",
             outbox_ids=None
-            if window.recovery is None
-            else frozenset(p.outbox_id for p in window.recovery.projections),
+            if window.recovery is None and window.terminal_update is None
+            else frozenset({window.terminal_update.projection.outbox_id})
+            if window.terminal_update is not None
+            else frozenset(p.outbox_id for p in window.recovery.projections)
+            if window.recovery is not None
+            else None,
             first_create=window.first_create,
             first_create_window_id=window.window_id if window.first_create is not None else None,
             explicit_ro_window_id=window.window_id
@@ -255,17 +264,46 @@ async def controlled_work(
             ),
             gate,
             ledger,
+            **({"terminal_window": window} if window.terminal_update is not None else {}),
         )
-        approval = ApprovalRunner(ApprovalStore(config, session), collector_factory=collector)
-        provider = ProviderFactory()
-        runner = InventoryCompositeRunner(
-            InventoryRunner(InventoryStore(config.database, session), collector),
-            ExplanationRunner(ExplanationStore(config.database, session), provider),
-            IntentRunner(IntentStore(config.database, session), provider),
-            approval,
-        )
+        runner: Any
+        if window.terminal_update is not None:
+            from commerceops.entrypoints.worker import TechnicalRunner
+
+            runner = TechnicalRunner()
+        else:
+            approval = ApprovalRunner(ApprovalStore(config, session), collector_factory=collector)
+            provider = ProviderFactory()
+            runner = InventoryCompositeRunner(
+                InventoryRunner(InventoryStore(config.database, session), collector),
+                ExplanationRunner(ExplanationStore(config.database, session), provider),
+                IntentRunner(IntentStore(config.database, session), provider),
+                approval,
+            )
 
         async def maintenance() -> None:
+            if window.terminal_update is not None:
+                from commerceops.infrastructure.feishu_outbox_recovery import trusted_terminal_scope
+
+                async with await open_async(config.database) as db:
+                    cursor = await db.execute(
+                        "SELECT after_state FROM business.audit_events WHERE id=%s",
+                        (window.gateway_window_id,),
+                    )
+                    row = await cursor.fetchone()
+                if not row:
+                    raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
+                gateway = GatewayWindow.model_validate_json(
+                    json.dumps(
+                        {key: row["after_state"].get(key) for key in GatewayWindow.model_fields}
+                    )
+                )
+                await trusted_terminal_scope(config, settings, window, gateway, claim=False)
+                outcome = await base.dispatch_one()
+                summary["terminal_update_outcome"] = outcome
+                summary["delivery_stopped"] = outcome != "verified"
+                stop.set()  # 一次dispatch即结束；unknown/已知失败也不进入下一轮。
+                return
             if window.workflow_recovery is not None:
                 async with await open_async(config.database) as db:
                     cursor = await db.execute(
@@ -324,7 +362,11 @@ async def controlled_work(
             reconcile=maintenance,
             recovery_scan_seconds=config.recovery_scan_seconds,
             task_ids=task_ids,
-            **({"dispatch_jobs": False} if window.recovery or window.first_create else {}),
+            **(
+                {"dispatch_jobs": False}
+                if window.recovery or window.first_create or window.terminal_update
+                else {}
+            ),
         ).run(stop)
         summary["result"] = (
             "delivery_stopped" if summary.get("delivery_stopped") else "window_stopped"
@@ -351,7 +393,7 @@ async def controlled_work(
 
 
 async def controlled_task_ids(config: WebConfig, window: ControlledWorkerWindow) -> frozenset[UUID]:
-    if window.recovery or window.first_create:
+    if window.recovery or window.first_create or window.terminal_update:
         return window.task_ids
     async with await open_async(config.database) as db:
         cursor = await db.execute(

@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.recovery import (
     ApprovedOutboxRecovery,
+    ApprovedTerminalUpdate,
     ApprovedWorkflowRecovery,
     RecoveryProjection,
 )
@@ -76,11 +77,19 @@ class ControlledWorkerWindow(BaseModel):
     caps: dict[SDKMethod, int] = Field(repr=False)
     enabled: bool = False
     profile: Literal[
-        "known70", "group20", "approved_outbox", "approved_workflow", "approved_first_create"
+        "known70",
+        "group20",
+        "approved_outbox",
+        "approved_workflow",
+        "approved_first_create",
+        "terminal_update",
     ] = "known70"
     recovery: ApprovedOutboxRecovery | None = Field(default=None, repr=False)
     workflow_recovery: ApprovedWorkflowRecovery | None = Field(default=None, repr=False)
     first_create: RecoveryProjection | None = Field(default=None, repr=False)
+    terminal_update: ApprovedTerminalUpdate | None = Field(
+        default=None, repr=False, exclude_if=lambda value: value is None
+    )
 
     def window(self, settings: BusinessSettings) -> SDKWindow:
         checked = type(self).model_validate(self.model_dump())
@@ -90,6 +99,7 @@ class ControlledWorkerWindow(BaseModel):
             "approved_outbox": RECOVERY_CAPS,
             "approved_workflow": GROUP20_CAPS,
             "approved_first_create": FIRST_CREATE_CAPS,
+            "terminal_update": RECOVERY_CAPS,
         }[checked.profile]
         if checked.recovery is not None and checked.recovery.sender_gateway is not None:
             ceilings = READONLY_RECOVERY_CAPS
@@ -114,7 +124,7 @@ class ControlledWorkerWindow(BaseModel):
             or self.caps.get("bitable.v1.app_table.list", 0) not in (0, 1, 2)
             or settings.base_table_id_file is None
             and self.caps.get("bitable.v1.app_table.list", 0) == 0
-            or self.profile not in ("approved_outbox", "approved_first_create")
+            or self.profile not in ("approved_outbox", "approved_first_create", "terminal_update")
             and (
                 self.caps.get("im.v1.message.create", 0) < 1
                 or self.caps.get("bitable.v1.app_table_record.create", 0) < 1
@@ -155,6 +165,21 @@ class ControlledWorkerWindow(BaseModel):
                 or self.recovery.gateway_window_id != self.gateway_window_id
                 or self.recovery.expires_at != self.expires_at
                 or self.recovery.target_key != settings.base_target_key
+            )
+            or self.profile != "terminal_update"
+            and self.terminal_update is not None
+            or self.profile == "terminal_update"
+            and (
+                self.terminal_update is None
+                or self.recovery is not None
+                or self.workflow_recovery is not None
+                or self.first_create is not None
+                or self.caps != dict(RECOVERY_CAPS)
+                or self.task_ids != frozenset({self.terminal_update.verified_recovery.task_id})
+                or self.terminal_update.worker_window_id != self.window_id
+                or self.terminal_update.gateway_window_id != self.gateway_window_id
+                or self.terminal_update.expires_at != self.expires_at
+                or self.terminal_update.verified_recovery.target_key != settings.base_target_key
             )
         ):
             raise PermissionError("P4_CONTROLLED_WORKER_WINDOW_CLOSED")

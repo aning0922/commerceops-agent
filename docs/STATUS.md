@@ -1013,3 +1013,38 @@ CLARIFICATIONS/42P01与timeout57014、call/load/SQL/DTO非零负例分层保留�
 Core另发现fadb诊断直接透传child字段P2；父边界按既有loc/type有界合同和一层cleanup固定字段
 重建，恶意额外字段回归及新冻结全链另核，不用本次T6/V2局部通过拼签新源码。
 run10完整失败索引SHA256为35e0552d570ca75d2ed91af8f876ed8546a757f18e4f1a417a48dce7204eba4c。
+
+## 61. 真人T6与原记录v2新批：今晚未验收WIP交接
+
+用户批准立即接续，Root T0为2026-10-15 13:34:15Z，今晚15:00Z安全停止；必要时明日
+01:00–09:00Z仍属同批。5.5 Agent有效h/A3.5/C0.5/独审1/Root0.5为原批准上限，
+机器等待另记、不重置300h/P4 50h、日期、人工H/L not_reported及18页冻结。
+
+原049/tree8855真实RO分项已核，manual SPENT/Create1/automatic attempts3不变。
+新terminal DTO/profile、native当前权限及来源准入、确定性v2授权/单项enrollment/单次dispatch，
+以及human-only API/只读capture/认证GET/stop/probe和terminal_v2有界父分支为未提交WIP。
+C四consumer、迁移/grant/CI/锁/前端不改；今晚原库/身份历史/AppSecret/真实SDK/平台0访问。
+
+三新owned项目共六轮，每轮实际运行0015/0016两节点；前五轮各2fail，依次保留：授权JSON
+state读取错位、低权FOR SHARE锁表42501、子例复用Gateway/撤权夹具、Fake可变状态被误pin、
+撤权未递增auth_version。修正未放宽生产权限/生命周期谓词。末轮两节点通过337.05s、
+tests CLI0，native正向同锚v2/一次update/并发唯一胜者/冷重放/新Gateway重复拒绝/撤权通过；
+这是开发节点，不代签最终同源最外human链。最后14:46:34Z down0/控制器0，独立核三项目
+容器（含已停）/网络0、三卷保留、开发控制进程0，固定22:53:16窗口未续期。
+
+末full check日志走完：dir/index/git敏感扫描0、Markdown106错误0、format438/type328通过，
+2069offline通过/506PG排除/121.90s、Node/typecheck及依赖审计0。原CLI会话exit未恢复，
+明确分列unknown。前两次5个公开dummy字面量扫描命中、随后PATH缺mypy、Ruff长行中断
+均保留，未加扫描豁免、未上传。最后文档补记仅做文档/差异检查，不重跑已结束整套测试。
+
+完整human预演、从已核RO与原生T6自动派生disabled模板、同600s绝对截止父协调及private
+bootstrap、同最终源码/parent/image双schema完整链和失败/unknown/timeout/清理、原独审与
+新精确CI、真人与实际update≤1均pending；当前不作完整准备PASS或最终freeze。
+真实HTTP字节not_captured、网络恰好一次未观测；原人工报告与原key GET/PG语义证据分列。
+受保护交接索引保存每轮结果/log/源码hash与测试前后关系，供Root明早同批接续；
+没有push/CI触发/PRbody/main/Issue结案，M1/Phase4仍in_progress。
+
+Root要求明早先处理现有测试分组容量：新两个节点合计337.05s，而当前验收模块7节点仍
+独占同一300s命令。仅最小分批/必要独立测试模块，保完整506集合/两分区/G1G2/35与33总限额/
+300命令/75 reserve及原清理保护；不启动已知超时CI，不借旧40min通知重新授权。
+本轮无durations/JUnit，各节点/fixture独立时长unknown，须保留337.05s原实测和失败历史。
