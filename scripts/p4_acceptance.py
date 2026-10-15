@@ -3874,6 +3874,79 @@ def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
     )
 
 
+def _ro_state(request: Mapping[str, Any]) -> dict[str, Any]:
+    """独立app只读账本/业务指纹；冷重放和失败同样记录，不补写历史。"""
+    from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+    from commerceops.infrastructure.database import connect
+    from commerceops.infrastructure.web_config import WebConfig
+    from psycopg import sql
+
+    refs = request["private_refs"]
+    private_ref(refs["web_config"])
+    config = WebConfig.from_file(Path(refs["web_config"]["path"]))
+    require(config.database.user == "commerceops_app", "P4A_ROLE")
+    template = ControlledWorkerWindow.model_validate_json(private_ref(refs["template"]))
+    r = template.recovery
+    if r is None:
+        raise AcceptanceFailure("P4A_RO_TEMPLATE")
+    fingerprints = {}
+    with connect(config.database) as db:
+        db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+        db.execute("SET LOCAL statement_timeout='5s'")
+        for name in (
+            "business_tasks",
+            "approvals",
+            "executions",
+            "replenishment_items",
+            "replenishment_plans",
+            "jobs",
+            "inbox_events",
+            "p4_inbox_receipts",
+            "principals",
+            "identities",
+            "principal_shop_scopes",
+            "principal_role_shop_grants",
+        ):
+            data = db.execute(
+                sql.SQL("SELECT row_to_json(t)::text AS body FROM business.{} t").format(
+                    sql.Identifier(name)
+                )
+            ).fetchall()
+            fingerprints[name] = digest("\n".join(sorted(x["body"] for x in data)).encode())
+        for name in (*CP_DATA_TABLES, "checkpoint_migrations"):
+            data = db.execute(
+                sql.SQL("SELECT row_to_json(t)::text AS body FROM checkpoints.{} t").format(
+                    sql.Identifier(name)
+                )
+            ).fetchall()
+            fingerprints["checkpoints." + name] = digest(
+                "\n".join(sorted(x["body"] for x in data)).encode()
+            )
+        ledger = db.execute(
+            "SELECT method,status,http_status,provider_code,count(*) AS n "
+            "FROM business.p4_sdk_calls GROUP BY method,status,http_status,provider_code "
+            "ORDER BY method,status,http_status,provider_code"
+        ).fetchall()
+        once = db.execute(
+            "SELECT action,count(*) AS n FROM business.audit_events WHERE "
+            "source='feishu_recovery' AND entity_id=%s AND action=ANY(%s) "
+            "GROUP BY action ORDER BY action",
+            (
+                str(r.projections[0].outbox_id),
+                ["explicit_ro_recheck_authorized", "explicit_ro_recheck_dispatched"],
+            ),
+        ).fetchall()
+        delivery = db.execute(
+            "SELECT status,attempts,version,observed_version,"
+            "complete_unique_verified,external_id IS NOT NULL AS has_external_id "
+            "FROM business.p4_base_deliveries WHERE outbox_id=%s",
+            (r.projections[0].outbox_id,),
+        ).fetchone()
+    return dict(
+        immutable_business=fingerprints, sdk_ledger=ledger, manual_once=once, delivery=delivery
+    )
+
+
 def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     """只管理Root精确登记的一个PG；无volume删除，失败不扩大清理范围。"""
     import socket
@@ -4158,6 +4231,8 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
     native: dict[str, Any] = {}
     cleanup: dict[str, Any] = {}
     resource_attempted = False
+    before: dict[str, Any] = {}
+    after: dict[str, Any] = {}
 
     def interrupted(signum: int, frame: Any) -> None:
         raise KeyboardInterrupt
@@ -4195,6 +4270,7 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
                 web.database.host == "127.0.0.1" and web.database.port == resource["port"],
                 "P4A_RO_DATABASE_BINDING",
             )
+            before = _ro_state(request)
         with report.enter("SCHEMA"):
             # _ro_prepare先owner只读元数据并关闭，随后所有原数据均低权只读。
             prepared = _ro_prepare(request)
@@ -4444,6 +4520,12 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
                     )
                     require(independent.wait(timeout=10)["exit_code"] == 0, "P4A_PROCESS_ALIVE")
                 require(all(c.process.poll() is not None for c in children), "P4A_PROCESS_ALIVE")
+                if before:
+                    after = _ro_state(request)
+                    require(
+                        before["immutable_business"] == after["immutable_business"],
+                        "P4A_RO_BUSINESS_CHANGED",
+                    )
         except BaseException as error:
             native["stop_failure"] = safe_failure(error, "STOP")
         try:
@@ -4466,6 +4548,8 @@ def original_ro_stage(request: Mapping[str, Any], binding: SourceBinding) -> dic
         native=native,
         cleanup=cleanup,
         lifecycle=confirmation,
+        before_state=before,
+        after_state=after,
         child_exits=[
             dict(
                 action=c.request["action"],
