@@ -33,11 +33,15 @@ C只消费已提交并由Root统一集成的源码，不从A未提交目录导�
 C的 `tests/e2e/web/m1_acceptance_driver.py` 提供同步函数：
 
 ```python
-def consume_stage(stage: str, handoff: Mapping[str, Any]) -> dict[str, Any]: ...
+def consume_stage(
+    stage: str, handoff: Mapping[str, Any], *, handoff_ref: Mapping[str, str]
+) -> dict[str, Any]: ...
 ```
 
 stage仅 `t6`、`restart`、`page`。函数失败抛异常，调用方固定stage分类，实际最外CLI非零；
 成功返回阶段证据，不生成整体PASS。若已有C内部函数，consumer可窄封装，不新建业务launcher。
+handoff_ref独立携带原文件path及已校验原bytes的sha256，由共用loader交给C；不能用重新
+json.dumps(mapping)的hash替代原文件hash，不能把自引用hash写回原JSON。
 A在同一入口中执行native v2投影/外部原记录读回，不由C伪造Base已同步状态。
 
 handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件中存在：
@@ -57,6 +61,35 @@ handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件�
 
 app_database_config字节是实际app角色的原生DatabaseSettings JSON；C独立校验path/hash并按该对象连接，
 禁止从Web配置猜派生连接或退回owner。该对象user必须commerceops_app，runtime_password_file必须null。
+PG不publish任何host端口，app连接host为postgres。Host阶段consumer通过共用窄桥接调用：
+
+```python
+def capture_bridge(
+    kind: str, handoff: Mapping[str, Any], *, handoff_ref: Mapping[str, str],
+    phase: str, owner: str | None = None, request_key: str | None = None,
+    sdk_window_id: str | None = None, sdk_subject_ids: tuple[str, ...] = (),
+) -> dict[str, Any]: ...
+
+def app_lifecycle(
+    action: str, handoff: Mapping[str, Any], *, handoff_ref: Mapping[str, str]
+) -> dict[str, Any]: ...
+```
+
+capture kind仅snapshot/worker；phase为显式证据阶段，worker必须传当时app epoch owner，
+不得fallback到base_ro。resource.runner固定container_id、namespace、python、entry、manifest_ref、
+host_private_dir、container_private_dir、uid/gid和该context启动时登记的runtime期限。
+共用桥接核immutable ID/image/owner/mount与manifest，再docker exec同一入口/hash；不启动RPC/服务器，
+不从C WIP导入。Host与runner分别登记相同UTC截止对应的monotonic值，不跨OS复制monotonic绝对值。
+
+runner入口绑定app_database_config后新建真实app连接；snapshot将精确完整revision、fixture的Web身份/
+auth_version/CP threads及实际请求key/SDK refs构造为C的CaptureContext，调用capture_snapshot(db,context)。
+worker另开app连接，仅调用capture_worker(db,organization_id,owner)。返回原typed安全结果及phase，
+连接关闭后落本轮新私有结果ref，query失败固定分类且非零；不会退回owner或业务快照签cleanup。
+app_lifecycle action仅start/stop/restart，在同runner内正常启动/停止原生API和单Worker进程，
+返回该app epoch的owner/organization/pid/host/pid_namespace、started/termination及wait/reap证据。
+其Worker不dispatch业务jobs，T6仍为原Web/API事务；v2由A在app Worker停止后单独原生受控投影，
+不得同时再起第二Worker。restart使用相同PG卷与新app epoch，不借base_ro历史回执。
+
 业务/claim ID为UUID标准串、artifact SHA256为64位小写hex；Git SHA/tree为40hex，image ID保留
 sha256:前缀，container ID、UID、PID等使用各自原生类型，不能套UUID规则。
 路径必须canonical且落在登记的新私有目录。
