@@ -172,5 +172,18 @@ original/sender/reader/current来自新PG真实流程与同namespace的新Python
 原键cold-process replay不得再arm、再POST或另造key，检查原ledger精确计数。
 整体PASS仅在全部required阶段、reap/cleanup/归属和exit一致后生成；阶段通过不得提前签整包。
 
-当前仅接口冻结；完整成功/必要失败/重放/独审与精确CI仍pending。
+MATRIX阶段顺序使用新fixture运行原生准入与wire；两规范正例与预期拒绝分列，负例子CLI实际非零。
+DTO或并发锁拒绝发生在Worker started前时，必须真实查询0 started并已OS wait/reap，
+单列no-start，不补造stopped/termination。并发once使用同window/私有输入的两新进程，
+原锁只容一个Worker；成功一次与拒绝一次、SDK/持久once精确计数及后续冷重放分别核实。
+源码/字段/列/权限/调用/采集失败保留原固定code与实际外层stage，不以PREPARE覆盖T6等阶段。
+
+收尾向登记的immutable容器ID显式发送SIGTERM并记录命令exit与发前running、wait/reap、
+actual exit、OOM/error、端口关闭和资源归属。仅本工具确实发送信号的Web143可分类
+expected_owned_SIGTERM；保留143，不伪装0。意外143、无信号证据或未知停止均拒绝。
+API由工具持有停止handler，原Uvicorn正常serve结束后应先形成真实result/exit，不能补成功文件。
+
+截至2026-10-15 06:45:27Z，run4五PG及run8两wire正例/13预期拒绝是已执行DEV证据；
+run5资源reader、run6复制源码权限及run7 T6/停止失败均保留。
+最终组合源码的完整成功/竞争once/冷重放/独审与精确CI以新冻结回执为准，当前不预写。
 真实SDK/AppSecret/provider/manualRO关闭，原attempts3/Create SPENT1/旧资产和失败事实保持。

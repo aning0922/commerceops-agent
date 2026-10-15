@@ -941,3 +941,45 @@ Root转述原Core只读核算：旧2d quality firstdiag→timeout1264.599s，G1 
 Root随后澄清“测试集合不改”是不增删node或放宽保护，允许现有tests/test_pg_diag_shutdown.py两条quality配置断言精确同步到35/33；只改两个常量，不动frontend/N01等25、300/75/60、exit/shutdown/collection/G1/G2断言。同步前实际157pass/2fail（9.06s），均为旧25/23常量不一致，保留失败事实。初始系统Python无yaml导致静态脚本0检查，改用原venv后配置结构核验通过：归一化四值后整个工作流与2d完全相等，两段登记Python AST/bash语法均有效。同步后同一相关pure159/159（8.98s）通过，原测试格式/Ruff及104文档/差异检查通过；敏感扫描、局部commit和冻结回执按实际结果交原Core，不重复全offline或加镜像测试。
 
 原两分区300+199=499/交集0、完整小模块合批、大模块/approval分片、每命令300、G1三/G2六、75秒预留和60秒cleanup/failclosed、source/tree/tools/locks/fullunion配对全部保持。helper/per-test业务实现/产品/迁移/权限/Graph/Worker/Base/private bridge/锁/测试集合均不改。本批无本地PG/Docker测试/SDK/Secret/旧库/provider/browser/真实平台，不push/触CI/改PRbody/main；原Core精确增量独审后由Root释放唯一完整精确CI，机器等待另计，再失败或清理异常立即停止。Base/007与旧卷/密钥/P1资产保留，P4/M1未结案，原日期/300h/P450h/人工H-L not_reported/18页保持。
+
+
+## 60. 完整验收工具准备：统一入口候选，正式平台仍 HOLD
+
+本节记账截至2026-10-15 06:45:27Z；后续精确freeze/回执独立记录，未执行项不预写通过。
+[Root新包](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6184152897)
+固定04:01:35Z→14:01:35Z，12 Agent有效h初分A5/C4/Review2/Root1；A到约4h先报Root。
+墙钟、机器等待和有效Agent工时分列，人工H/L not_reported；原300h/P4 50h、D1/D30及18页保持。
+
+A新私有run_once为唯一业务验收入口，helper绑定解释器/CWD/本库模块及包内JSON的同一校验字节。
+全新PG内真实schema/角色/SQL/原Factory、原SDK ledger、原审批/T1/Graph、once和恢复协调器保持；
+Fake仅最低HTTP transport。0015/55与0016/56在新DB验角色和实际query，app读alembic的42501仍拒绝。
+legacy grant开关只供新0015 bootstrap；默认head行为及权限策略不改，不接触原known70数据库。
+
+Root保留first-create的单item execution准入，明确分列recover_single_item（1项/Q70）与
+batch_twenty_items（20项/Q2000）。前者是原C0/sender/reader/explicit once主链，后者只签
+ordinary原键RO及20项一致性。T6由原生UI生成key，一次原POST与原键GET；v2 outbox只来自原事务。
+API/单Worker正常process restart保留同PG卷，不冒称PG/Web或整个Compose已重建。
+
+| 实际DEV批 | 已核结果 | 保留失败/限制 |
+| --- | --- | --- |
+| run1 | 新schema修后局部通过，已停保卷 | 曾publish loopback PG，标nonconforming/partial，不签整包 |
+| run2 | 0015/0016查询局部通过，已停保卷 | 20项不能借single first-create；原失败及单item充分阻断保留 |
+| run3 | 两schema通过，已停保卷 | sender CheckViolation/缺stopped，未捕获原具体SQL位置；不伪造停止回执 |
+| run4 | 五实际PG节点全通过/205.903s，05:57:30Z资源0/0保卷 | DEV；不代签Web/T6/v2/全包 |
+| run5 | 原single RO再次通过，06:08:35Z资源0/0保卷 | native API-v2恢复及非空C collector在原生资源reader PREPARE失败 |
+| run6 | 334文件校验前拒绝，down0/0保卷 | harness1，bound outer未启动；内部校验1/PermissionError，复制的p4_performance.py为root/0600 |
+| run7 | SOURCE/RESOURCE/SCHEMA/PREPARE通过；两case真实非空C collector、原生once/冷重放通过 | bound outer1，T6 BROWSER_SOURCE_MISMATCH；v2/restart/page未运行；API缺结果保持失败，Web实际143单列 |
+| run8 | 2dc矩阵入口0/214.263s，两规范正例、13预期拒绝实际负例CLI全1；06:45:27Z PG/runner0、容器网络0、卷保留 | stage only，不签整包；新竞争once与最终C组合尚待同候选实跑 |
+
+每run先登记owner/project/labels、不可变images/资源ID、UTC与各context monotonic固定截止，
+reserve≥180s，PG无任何host publish；只启本轮PG/runner/必要Web，旧m1整profile不启动。
+实际失败输出固定stage/code/queryID/SQLSTATE或DTO loc/type，不输出原异常、SQL参数、URL/token。
+collector失败独立于生命周期/OS/归属/清理；未started的负例仅在实际0 started且OS wait后记no-start，
+不补stopped/termination。最终PASS必须全部required阶段及实际reap/退出码/清理/归属一致。
+正常由本工具向本轮immutable Web容器发送SIGTERM并wait/reap/端口关闭时可分类
+expected_owned_SIGTERM，保留actual143；意外143、未知停止或API缺结果均不能放行。
+
+原平台/旧资产/真实AppSecret/manualRO/provider未消费；原Base/007 HOLD不解除。
+没有push/CI触发/PRbody/main/Issue结案，没有迁移/业务规则/审批/权限策略/产品UI/B/锁/CI改动。
+最终完整组合、源码freeze、独立审核、精确CI和Root裁决仍以各自新回执为准，M1/Phase4仍in_progress。
+详见[接口和证据合同](contracts/p4-acceptance-tooling.md)。
