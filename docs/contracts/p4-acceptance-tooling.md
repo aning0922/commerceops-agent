@@ -245,3 +245,12 @@ LAB历史准备只接受空白新p4_ro_lab数据库，实际原生C0→sender→
 不生成T6 request key、不调用自动consume_stage(t6)/CJS。后续须Root核RO及完整停止退出，
 在同已审源码image部署，由真人原生login→同item→关闭/填原因→准备原请求→明确提交；
 旧2a.next不签当前候选。原独审/精确新CI与真实RO分别记账，未执行不预写通过。
+
+
+本批历史敏感扫描保留348a9f4本地提交及实际一次finding。Root核实其
+`scripts/p4_acceptance.py:3936`为两个公开SQL audit action名称，无私有值；
+精确整行SHA256为`07e3542d6dbdbc59bbd099207f38277800daec3217315d0f5dde8549e6df32d5`。
+仅按既有vendor/validate_rules机制增加第五个指定rule/path/整行AND例外，
+provenance固定原commit/line/hash；不改222上游规则regex/entropy、不加ignore、不跳过历史，
+相邻凭据/改值/换路径及扩展规则的拒绝测试属于本批必要检查。
+以普通后续提交修正当前写法；57f5/348历史不改写，最终扫描与测试以冻结回执实际结果为准。

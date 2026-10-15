@@ -4019,7 +4019,8 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
             ]
             and set(config.get("secrets", {})) == {"owner_password"}
             and config["secrets"]["owner_password"]["file"] == r["owner_secret_file"]
-            and service.get("secrets") == [{"source": "owner_password", "target": "owner_password"}]
+            and service.get("secrets")
+            == [{"source": "owner_password", "target": "/run/secrets/owner_password"}]
             and len(service["volumes"]) == 1
             and service["volumes"][0]["type"] == "volume"
             and service["volumes"][0]["target"] == "/var/lib/postgresql/data"
