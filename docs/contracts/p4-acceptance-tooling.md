@@ -66,10 +66,17 @@ PG不publish任何host端口，app连接host为postgres。Host阶段consumer通�
 
 ```python
 def capture_bridge(
-    kind: str, handoff: Mapping[str, Any], *, handoff_ref: Mapping[str, str],
-    phase: str, owner: str | None = None, request_key: str | None = None,
-    sdk_window_id: str | None = None, sdk_subject_ids: tuple[str, ...] = (),
+    kind: str,
+    handoff: Mapping[str, Any],
+    *,
+    handoff_ref: Mapping[str, str],
+    phase: str,
+    owner: str | None = None,
+    request_key: str | None = None,
+    sdk_window_id: str | None = None,
+    sdk_subject_ids: tuple[str, ...] = (),
 ) -> dict[str, Any]: ...
+
 
 def app_lifecycle(
     action: str, handoff: Mapping[str, Any], *, handoff_ref: Mapping[str, str]
