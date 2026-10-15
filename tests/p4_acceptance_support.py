@@ -84,6 +84,10 @@ class FakeHTTPTransport:
             if behavior == "timeout":
                 raise httpx.ReadTimeout("synthetic timeout")
             if method == "GET":
+                delay = state.get("read_delay_seconds", 0)
+                require(type(delay) in (int, float) and 0 <= delay <= 1, "P4A_FAKE_DELAY")
+                if delay:
+                    await asyncio.sleep(delay)
                 rows = json.loads(json.dumps(state["rows"]))
                 if behavior == "partial":
                     rows = [{"record_id": "synthetic-partial", "fields": {"SKU": "synthetic"}}]
@@ -91,7 +95,9 @@ class FakeHTTPTransport:
                     require(bool(rows), "P4A_FAKE_ROW_REQUIRED")
                     del rows[0]["fields"]["SKU"]
                 elif behavior == "duplicate":
-                    rows += rows
+                    duplicate = json.loads(json.dumps(rows[0]))
+                    duplicate["record_id"] = "synthetic-duplicate"
+                    rows.append(duplicate)
                 elif behavior == "wrong_content":
                     require(bool(rows), "P4A_FAKE_ROW_REQUIRED")
                     rows[0]["fields"]["SKU"] = "synthetic-wrong"
@@ -99,6 +105,16 @@ class FakeHTTPTransport:
                     for row in rows:
                         for key in ("Quantity", "SyncVersion"):
                             row["fields"][key] = str(row["fields"][key])
+                elif behavior == "nullable_omitted":
+                    for row in rows:
+                        for key in ("ResolutionReason", "ResolvedBy", "ResolvedAt"):
+                            if row["fields"].get(key) is None:
+                                row["fields"].pop(key, None)
+                elif behavior in ("bool_number", "float_number"):
+                    for row in rows:
+                        row["fields"]["Quantity"] = (
+                            True if behavior == "bool_number" else float(row["fields"]["Quantity"])
+                        )
                 data: dict[str, Any] = {"items": rows, "total": len(rows), "has_more": False}
                 if behavior == "pagination_cycle":
                     data.update(has_more=True, page_token="synthetic-cycle")  # noqa: S106
@@ -152,6 +168,7 @@ class PinnedProcess:
     request: dict[str, Any]
     request_file: Path
     confirmed: bool = False
+    lifecycle_not_started: bool = False
 
     @classmethod
     def start(cls, entry: Path, manifest_file: Path, request: dict[str, Any]) -> "PinnedProcess":
@@ -450,7 +467,11 @@ class AcceptanceFixture:
 
         f = self.fixture
         case = "known_inbound" if self.case_kind == "recover_single_item" else "baseline"
-        window = gateway(f, case=case, seconds=240, max_workflows=workflows)
+        remaining = self.deadline.remaining()
+        require(remaining > 65, "P4A_GATEWAY_CAPACITY")
+        window = gateway(
+            f, case=case, seconds=min(240, int(remaining) - 1), max_workflows=workflows
+        )
         key = uuid4().hex
         business_file, window_file = (
             f.private / ("gateway-business-" + key + ".json"),
@@ -502,7 +523,6 @@ class AcceptanceFixture:
         stop_after_verified: UUID | None = None,
         replay_of: PinnedProcess | None = None,
     ) -> tuple[PinnedProcess, dict[str, Any]]:
-        from commerceops.entrypoints.feishu_business import confirm_worker_child
 
         f = self.fixture
         if replay_of is None:
@@ -529,10 +549,33 @@ class AcceptanceFixture:
                 )
                 time.sleep(0.05)
         value = child.wait(timeout=min(90, self.deadline.remaining()))
-        # 必须wait/reap后由原确认器记录，不能手工补worker audit。
-        asyncio.run(confirm_worker_child(f.config, f.actor.organization_id, child.process.pid))
-        child.confirmed = True
+        self.confirm_worker(child, value)
         return child, value
+
+    def confirm_worker(
+        self, child: PinnedProcess, value: Mapping[str, Any], *, allow_no_start: bool = False
+    ) -> None:
+        from commerceops.entrypoints.feishu_business import confirm_worker_child
+
+        require(child.process.returncode == value["exit_code"], "P4A_CHILD_EXIT_DISAGREEMENT")
+        with connect(self.fixture.config.database) as db:
+            starts = db.execute(
+                "SELECT id FROM business.audit_events WHERE source='worker' AND action='started' "
+                "AND organization_id=%s AND (after_state->>'pid')::bigint=%s",
+                (self.fixture.actor.organization_id, child.process.pid),
+            ).fetchall()
+        if not starts:
+            require(allow_no_start and value["exit_code"] == 1, "P4A_WORKER_STARTED")
+            # 已wait/reap、实际0 started；此分支绝不补stopped/termination audit。
+            child.lifecycle_not_started = True
+            return
+        require(len(starts) == 1, "P4A_WORKER_STARTED")
+        asyncio.run(
+            confirm_worker_child(
+                self.fixture.config, self.fixture.actor.organization_id, child.process.pid
+            )
+        )
+        child.confirmed = True
 
     def external_behavior(self, behavior: str) -> None:
         value = json.loads(bound_bytes(self.external, private=True))
@@ -566,7 +609,7 @@ class AcceptanceFixture:
         for child in self.processes:
             try:
                 child.terminate()
-                if child.confirmed:
+                if child.confirmed or child.lifecycle_not_started:
                     continue
                 if child.request["action"] == "worker":
                     asyncio.run(
@@ -789,7 +832,7 @@ def sender_manifest(
     return ControlledWorkerWindow.model_validate_json(json.dumps(value))
 
 
-def prepare_single_ro(a: AcceptanceFixture) -> dict[str, Any]:
+def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) -> dict[str, Any]:
     """实际原生C0、sender、reader、explicit once及完全相同输入的冷重放。"""
     from scripts.p4_acceptance import QUERIES
 
@@ -825,7 +868,36 @@ def prepare_single_ro(a: AcceptanceFixture) -> dict[str, Any]:
         gateways.append((current_gateway, child))
         current = recheck_manifest(a, reader, read["pg_proof"]["worker_owner"], current_gateway)
         a.external_behavior("normal")
-        verified_child, verified = a.worker(current)
+        race: dict[str, Any] | None = None
+        if concurrent_once:
+            state = json.loads(bound_bytes(a.external, private=True))
+            state["read_delay_seconds"] = 1
+            write_private(a.external, state)
+            first = a.start(
+                worker_request(a.fixture.config, a.business, current, a.fixture.private, a.external)
+            )
+            second_request = dict(first.request)
+            second_request["output_file"] = str(a.fixture.private / "concurrent-second.json")
+            second = a.start(second_request)
+            pairs = [(c, c.wait(timeout=min(90, a.deadline.remaining()))) for c in (first, second)]
+            for c, v in pairs:
+                a.confirm_worker(c, v, allow_no_start=True)
+            winners = [(c, v) for c, v in pairs if v["exit_code"] == 0]
+            losers = [(c, v) for c, v in pairs if v["exit_code"] == 1]
+            require(len(winners) == len(losers) == 1, "P4A_CONCURRENT_ONCE")
+            verified_child, verified = winners[0]
+            require(
+                losers[0][1]["stages"]["PREFLIGHT"]["state"] == "NOT_RUN",
+                "P4A_CONCURRENT_SDK_STARTED",
+            )
+            race = dict(
+                actual_child_exits=[v["exit_code"] for _, v in pairs],
+                same_window_and_private_refs=True,
+                no_start_count=sum(c.lifecycle_not_started for c, _ in pairs),
+                expected_rejections=1,
+            )
+        else:
+            verified_child, verified = a.worker(current)
         require(verified["exit_code"] == 0, "P4A_EXPLICIT_RO_UNVERIFIED")
         with connect(a.fixture.config.database) as db:
             before = QUERIES["SDK_COUNTS"].execute(
@@ -873,6 +945,7 @@ def prepare_single_ro(a: AcceptanceFixture) -> dict[str, Any]:
             replay=replay,
             worker_pid=verified_child.process.pid,
             links=links,
+            concurrent_once=race,
         )
     finally:
         for window, child in reversed(gateways):
@@ -1123,3 +1196,195 @@ def recheck_manifest(
         },
     )
     return ControlledWorkerWindow.model_validate_json(json.dumps(value))
+
+
+def native_negative_matrix(
+    owner: DatabaseSettings,
+    app: DatabaseSettings,
+    directory: Path,
+    deadline: Deadline,
+    manifest_ref: Mapping[str, str],
+) -> dict[str, Any]:
+    """顺序单Worker、多份新fixture的原生准入与wire矩阵；仅HTTP transport为Fake。"""
+    cases = (
+        "numeric_string",
+        "nullable_omitted",
+        "missing_required",
+        "duplicate",
+        "wrong_content",
+        "pagination_cycle",
+        "timeout",
+        "bool_number",
+        "float_number",
+        "revoked",
+    )
+    prepared: list[tuple[str, AcceptanceFixture, tuple[Any, ...]]] = []
+    fixtures: list[AcceptanceFixture] = []
+    records: list[dict[str, Any]] = []
+
+    def sdk_count(a: AcceptanceFixture, window: ControlledWorkerWindow) -> int:
+        with connect(app) as db:
+            row = db.execute(
+                "SELECT count(*) AS n FROM business.p4_sdk_calls WHERE window_id=%s",
+                (window.window_id,),
+            ).fetchone()
+        require(row is not None, "P4A_MATRIX_LEDGER")
+        assert row
+        return int(row["n"])
+
+    try:
+        # 仅让原生30秒退避在准备其它fixture时自然经过；不并行Worker/改DB期限。
+        for case in cases:
+            private = directory / case
+            private.mkdir(mode=0o700)
+            a = AcceptanceFixture.prepare(
+                owner,
+                app,
+                private,
+                deadline,
+                case_kind="batch_twenty_items",
+                entry_manifest_ref=manifest_ref,
+            )
+            fixtures.append(a)
+            prepared.append((case, a, completed_origin(a)))
+        for index, (case, a, origin) in enumerate(prepared):
+            old, original, worker_owner, delivery = origin
+            a.wait_due(delivery["outbox_id"])
+            gateway, gateway_child = a.gateway()
+            try:
+                if index == 0:
+                    for fault in ("wrong_hash", "window_mix", "projection_hash"):
+                        window = ordinary_manifest(
+                            a, old, gateway, original, worker_owner, delivery
+                        )
+                        value = window.model_dump(mode="json")
+                        if fault == "wrong_hash":
+                            value["recovery"]["original_gateway_hash"] = "0" * 64
+                        elif fault == "window_mix":
+                            value["recovery"]["original_sdk_window_id"] = str(
+                                prepared[1][2][1].window_id
+                            )
+                        else:
+                            value["recovery"]["projections"][0]["projection_hash"] = "0" * 64
+                        invalid = ControlledWorkerWindow.model_validate_json(json.dumps(value))
+                        _, rejected = a.worker(invalid)
+                        require(
+                            rejected["exit_code"] == 1
+                            and rejected["stages"]["AUTHORIZE"]["state"] == "FAILED"
+                            and rejected["stages"]["PREFLIGHT"]["state"] == "NOT_RUN"
+                            and sdk_count(a, invalid) == 0,
+                            "P4A_MATRIX_ADMISSION",
+                        )
+                        records.append(
+                            dict(case=fault, actual_negative_CLI_exit=1, native_ledger_rows=0)
+                        )
+                    window = ordinary_manifest(a, old, gateway, original, worker_owner, delivery)
+                    request = worker_request(
+                        a.fixture.config, a.business, window, a.fixture.private, a.external
+                    )
+                    ref = request["private_refs"]["window"]
+                    raw = json.loads(bound_bytes(Path(ref["path"]), private=True))
+                    raw["enabled"] = "invalid-bool"
+                    write_private(Path(ref["path"]), raw)
+                    request["private_refs"]["window"] = reference(Path(ref["path"]))
+                    child = a.start(request)
+                    value = child.wait(timeout=min(30, deadline.remaining()))
+                    a.confirm_worker(child, value, allow_no_start=True)
+                    require(
+                        value["exit_code"] == 1
+                        and value["failure"]["category"] == "ValidationError"
+                        and sdk_count(a, window) == 0
+                        and child.lifecycle_not_started,
+                        "P4A_MATRIX_DTO",
+                    )
+                    records.append(
+                        dict(
+                            case="DTO",
+                            actual_negative_CLI_exit=1,
+                            failure=value["failure"],
+                            no_native_start=True,
+                        )
+                    )
+                    denial = a.start(
+                        dict(
+                            contract=CONTRACT,
+                            action="sql_denial",
+                            app_database_ref=reference(a.fixture.private / "app-database.json"),
+                            output_file=str(a.fixture.private / "sql-denial.json"),
+                        )
+                    )
+                    denied = denial.wait(timeout=min(30, deadline.remaining()))
+                    require(
+                        denied["exit_code"] == 1 and denied["failure"]["sqlstate"] == "42501",
+                        "P4A_MATRIX_SQL",
+                    )
+                    records.append(
+                        dict(case="SQL", actual_negative_CLI_exit=1, failure=denied["failure"])
+                    )
+                window = ordinary_manifest(a, old, gateway, original, worker_owner, delivery)
+                if case == "revoked":
+                    # 本轮新fixture明确撤权；collector和准入始终使用actual app。
+                    with connect(owner) as db:
+                        db.execute(
+                            "UPDATE business.principals SET enabled=false,"
+                            "auth_version=auth_version+1 "
+                            "WHERE id=%s AND organization_id=%s",
+                            (a.fixture.actor.principal_id, a.fixture.actor.organization_id),
+                        )
+                a.external_behavior("normal" if case == "revoked" else case)
+                positive = case in ("numeric_string", "nullable_omitted")
+                _, result = a.worker(
+                    window, stop_after_verified=delivery["outbox_id"] if positive else None
+                )
+                with connect(app) as db:
+                    actual = db.execute(
+                        "SELECT status,complete_unique_verified FROM business.p4_base_deliveries "
+                        "WHERE outbox_id=%s",
+                        (delivery["outbox_id"],),
+                    ).fetchone()
+                    links = db.execute(
+                        "SELECT count(*) AS n FROM business.p4_base_links WHERE item_id=%s",
+                        (delivery["item_id"],),
+                    ).fetchone()
+                require(actual is not None and links is not None, "P4A_MATRIX_ROWS")
+                assert actual and links
+                if positive:
+                    require(
+                        result["exit_code"] == 0
+                        and actual["status"] == "verified"
+                        and actual["complete_unique_verified"] is True
+                        and links["n"] == 1,
+                        "P4A_MATRIX_CANONICAL",
+                    )
+                else:
+                    require(
+                        result["exit_code"] == 1
+                        and actual["status"] != "verified"
+                        and actual["complete_unique_verified"] is False
+                        and links["n"] == 0,
+                        "P4A_MATRIX_UNSAFE_VERIFIED",
+                    )
+                    if case == "revoked":
+                        require(sdk_count(a, window) == 0, "P4A_REVOKED_SDK_STARTED")
+                records.append(
+                    dict(
+                        case=case,
+                        actual_child_exit=result["exit_code"],
+                        expected_positive=positive,
+                        native_ledger_rows=sdk_count(a, window),
+                        native_method_counts=result["pg_proof"].get("method_counts"),
+                        fake_transport_calls=result["counts"]["fake_transport_calls"],
+                        expected_rejection=not positive,
+                    )
+                )
+            finally:
+                a.stop_gateway(gateway, gateway_child)
+        return dict(
+            expected_rejections=sum(not r.get("expected_positive", False) for r in records),
+            canonical_positive_cases=2,
+            records=records,
+            suite_PASS=False,
+        )
+    finally:
+        clean = [a.cleanup() for a in fixtures]
+        require(all(clean), "P4A_MATRIX_CLEANUP")

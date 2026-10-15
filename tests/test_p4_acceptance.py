@@ -117,6 +117,14 @@ def test_safe_DTO_error_only_contract_loc_type_no_input_context_or_message() -> 
     )
 
 
+def test_consumer_failure_keeps_fixed_code_and_actual_outer_stage() -> None:
+    from tests.e2e.web.m1_acceptance_driver import StageFailure
+
+    value = safe_failure(StageFailure("t6", "BROWSER_SOURCE_MISMATCH"), "T6")
+    assert value["stage"] == "T6" and value["code"] == "BROWSER_SOURCE_MISMATCH"
+    assert value["query_id"] is None and value["sqlstate"] is None
+
+
 def test_deadline_cannot_roll_or_arm_inside_cleanup_reserve() -> None:
     with pytest.raises(AcceptanceFailure):
         Deadline.register(datetime.now(UTC) + timedelta(seconds=100))

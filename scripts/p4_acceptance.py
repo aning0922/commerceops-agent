@@ -42,6 +42,7 @@ STAGES = (
     "SOURCE",
     "RESOURCE",
     "SCHEMA",
+    "MATRIX",
     "ROLE",
     "PREPARE",
     "PREFLIGHT",
@@ -214,6 +215,11 @@ def safe_failure(error: BaseException, stage: str, query_id: str | None = None) 
         value = error.safe()  # type: ignore[attr-defined]
         if isinstance(value, dict):
             result.update({k: value[k] for k in ("code", "query_id", "sqlstate")})
+    if type(error).__module__ == "tests.e2e.web.m1_acceptance_driver":
+        from tests.e2e.web.m1_acceptance_driver import safe_failure as consumer_failure
+
+        value = consumer_failure(cast(Exception, error), stage)
+        result.update({k: value[k] for k in ("code", "query_id", "sqlstate", "dto")})
     # Pydantic原始input/ctx/msg不进入输出。loc仅合同字段名或整数下标。
     from pydantic import BaseModel, ValidationError
 
@@ -1115,6 +1121,11 @@ def api_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     )
 
     class ObservedServer(uvicorn.Server):
+        @contextmanager
+        def capture_signals(self) -> Iterator[None]:
+            # 本工具由asyncio loop持有固定stop handler；不在正常serve后重抛SIGTERM。
+            yield
+
         async def startup(self, sockets: Any = None) -> None:
             await super().startup(sockets)
             require(self.started, "P4A_API_START")
@@ -1127,16 +1138,21 @@ def api_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     )
 
     async def serve() -> None:
+        import signal
+
         def stop() -> None:
             server.should_exit = True
 
-        timer = asyncio.get_running_loop().call_later(
-            _runtime(request["runtime"]).remaining(), stop
-        )
+        loop = asyncio.get_running_loop()
+        for signum in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(signum, stop)
+        timer = loop.call_later(_runtime(request["runtime"]).remaining(), stop)
         try:
             await server.serve()
         finally:
             timer.cancel()
+            for signum in (signal.SIGTERM, signal.SIGINT):
+                loop.remove_signal_handler(signum)
 
     asyncio.run(serve())
     return {"exit_code": 0, "stage_result": "COMPLETE", "suite_PASS": False}
@@ -1619,14 +1635,14 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     )
     try:
         result = (
-            prepare_single_ro(a) if a.case_kind == "recover_single_item" else prepare_batch_ro(a)
+            prepare_single_ro(a, concurrent_once=True)
+            if a.case_kind == "recover_single_item"
+            else prepare_batch_ro(a)
         )
         f = a.fixture
         # 仅本轮新私配增加已登记的实际loopback origins；审批/SDK/会话TTL不变。
         config_value = json.loads(bound_bytes(f.config_file, private=True))
-        config_value["origins"] = list(
-            dict.fromkeys([*config_value["origins"], *request["origins"]])
-        )
+        config_value["origins"] = list(dict.fromkeys(request["origins"]))
         write_private(f.config_file, config_value)
         from commerceops.infrastructure.web_config import WebConfig
 
@@ -1787,6 +1803,56 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         require(a.cleanup(), "P4A_PREPARE_CLEANUP_FAILED")
 
 
+def negative_matrix_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    from uuid import UUID
+
+    import psycopg
+    from commerceops.infrastructure.database import DatabaseSettings
+    from psycopg import sql
+
+    from tests.p4_acceptance_support import native_negative_matrix
+    from tests.test_p4_acceptance_pg import initialize_schema
+
+    owner = DatabaseSettings.model_validate_json(private_ref(request["owner_database_ref"]))
+    require(
+        owner.user == "commerceops_owner"
+        and owner.host == "postgres"
+        and owner.runtime_password_file is not None,
+        "P4A_BOOTSTRAP_ROLE",
+    )
+    name = "p4a_" + UUID(request["database_id"]).hex
+    with psycopg.connect(**owner.kwargs(), autocommit=True) as db:
+        db.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
+    owner = owner.model_copy(update={"name": name})
+    app = owner.model_copy(
+        update={
+            "user": "commerceops_app",
+            "password_file": owner.runtime_password_file,
+            "runtime_password_file": None,
+        }
+    )
+    initialize_schema(owner, "0016")
+    schema = schema_contract(owner, app, "0016")
+    result = native_negative_matrix(
+        owner,
+        app,
+        Path(request["private_directory"]),
+        _runtime(request["runtime"]),
+        request["source_manifest_ref"],
+    )
+    return dict(exit_code=0, stage_result="COMPLETE", value=result, schema=schema, suite_PASS=False)
+
+
+def sql_denial_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+
+    app = DatabaseSettings.model_validate_json(private_ref(request["app_database_ref"]))
+    require(app.user == "commerceops_app" and app.runtime_password_file is None, "P4A_ROLE")
+    with connect(app) as db:
+        db.execute("SELECT version_num FROM business.alembic_version").fetchall()
+    raise AcceptanceFailure("P4A_APP_METADATA_PERMISSION")
+
+
 def project_v2_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     """原workflow恢复作用域投影原生T6新outbox；不造claim或delivery。"""
     from uuid import UUID
@@ -1874,6 +1940,8 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
     resource = handoff["resource"]
     errors: list[dict[str, Any]] = []
     exits: dict[str, int] = {}
+    classifications: dict[str, str] = {}
+    signals: dict[str, Any] = {}
     ids = resource["container_ids"]
     require(isinstance(ids, dict) and bool(ids), "P4A_RESOURCE_IDS")
     require(len(set(ids.values())) == len(ids), "P4A_RESOURCE_IDS")
@@ -1892,11 +1960,34 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
     for name in sorted(ids, key=lambda n: n == "postgres"):
         cid = ids[name]
         try:
-            _docker(["stop", "--time", "15", cid], timeout=25)
+            before = json.loads(_docker(["inspect", cid]).stdout)[0]
+            started = time.monotonic()
+            _docker(["stop", "--signal", "SIGTERM", "--time", "15", cid], timeout=25)
+            signals[name] = dict(
+                requested_signal="SIGTERM",
+                immutable_container_id=cid,
+                running_before_signal=before["State"]["Running"],
+                command_exit=0,
+                command_seconds=round(time.monotonic() - started, 6),
+            )
             value = json.loads(_docker(["inspect", cid]).stdout)[0]
             require(value["State"]["Running"] is False, "P4A_CONTAINER_STILL_RUNNING")
             exits[name] = value["State"]["ExitCode"]
-            if exits[name] != 0:
+            expected_term = (
+                name == "web"
+                and exits[name] == 143
+                and before["State"]["Running"] is True
+                and value["State"]["OOMKilled"] is False
+                and not value["State"]["Error"]
+            )
+            classifications[name] = (
+                "normal_exit"
+                if exits[name] == 0
+                else "expected_owned_SIGTERM"
+                if expected_term
+                else "unexpected_exit"
+            )
+            if exits[name] != 0 and not expected_term:
                 errors.append(
                     safe_failure(AcceptanceFailure("P4A_CONTAINER_UNCLEAN_EXIT"), "CLEANUP")
                 )
@@ -1946,6 +2037,8 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
         verified=not errors and not containers and not networks and kept and all(closed_ports),
         all_containers_reaped=len(exits) == len(ids) and not containers,
         container_exit_codes=exits,
+        container_exit_classification=classifications,
+        signal_receipts=signals,
         containers=len(containers),
         networks=len(networks),
         own_volume_preserved=kept,
@@ -1967,6 +2060,7 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
             "SOURCE",
             "RESOURCE",
             "SCHEMA",
+            "MATRIX",
             "PREPARE",
             "T6",
             "V2",
@@ -2032,6 +2126,24 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
                 ),
                 handoff,
                 timeout_seconds=120,
+            )
+        with report.enter("MATRIX"):
+            matrix = root / "matrix"
+            matrix.mkdir(mode=0o700)
+            results["matrix"] = _runner_result(
+                _runner_start(
+                    handoff,
+                    {
+                        **base_request,
+                        "action": "negative_matrix",
+                        "database_id": str(uuid4()),
+                        "private_directory": str(
+                            Path(runner["container_private_dir"]) / matrix.name
+                        ),
+                    },
+                ),
+                handoff,
+                timeout_seconds=300,
             )
         with report.enter("PREPARE"):
             for kind in ("batch_twenty_items", "recover_single_item"):
@@ -2153,7 +2265,10 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
             )
             results["final_snapshot"] = final
     except Exception as error:
-        results["failure"] = safe_failure(error, "PREPARE")
+        failed_stage = next(
+            (name for name, row in report.stages.items() if row["state"] == "FAILED"), "PREPARE"
+        )
+        results["failure"] = safe_failure(error, failed_stage)
     finally:
         try:
             with report.enter("STOP"):
@@ -2226,6 +2341,8 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "schema_case",
             "project_v2",
             "run",
+            "negative_matrix",
+            "sql_denial",
         ),
         "P4A_ACTION",
     )
@@ -2261,6 +2378,10 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             result = prepare_case_stage(request)
         elif action == "project_v2":
             result = project_v2_stage(request)
+        elif action == "negative_matrix":
+            result = negative_matrix_stage(request)
+        elif action == "sql_denial":
+            result = sql_denial_stage(request)
         elif action == "process_probe":
             result = process_probe_stage(request)
         else:
@@ -2272,7 +2393,7 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "failure": safe_failure(
                 error,
                 "COLLECT"
-                if action == "capture"
+                if action in ("capture", "sql_denial")
                 else "STOP"
                 if action in ("signal_process", "confirm_process")
                 else "PREPARE",

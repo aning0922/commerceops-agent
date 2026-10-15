@@ -93,10 +93,11 @@ def test_same_outer_native_full_RO_once_and_fresh_process_original_key_replay(
     lease = Deadline.register(expiry)
     a = AcceptanceFixture.prepare(owner, app, tmp_path, lease, case_kind="recover_single_item")
     try:
-        result = prepare_single_ro(a)
+        result = prepare_single_ro(a, concurrent_once=True)
         assert result["verified"]["exit_code"] == 0
         assert result["verified"]["counts"]["real_network_egress"] == 0
         assert result["replay"]["exit_code"] == 1
+        assert sorted(result["concurrent_once"]["actual_child_exits"]) == [0, 1]
         continuation = a.save_continuation(result)
         item_id = result["delivery"]["item_id"]
         task_id = next(iter(result["window"].task_ids))
