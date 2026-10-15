@@ -844,3 +844,43 @@ def test_worker_pg_audit_ids_bind_the_native_receipt(mismatch: str | None) -> No
             validate_worker(value, epoch, stopped=True)
     else:
         validate_worker(value, epoch, stopped=True)
+
+
+def test_js_launch_uses_the_hash_checked_executable_and_rejects_before_launch(
+    tmp_path: Path,
+) -> None:
+    # The fake file is never executed; this is a binding/rejection unit test, not
+    # evidence of a real browser process. The real PID/binary/stop proof is captured
+    # only by the existing CJS helper in the final integrated page chain.
+    binary = tmp_path / "unit-placeholder-browser"
+    binary.write_bytes(b"unit placeholder, never executed")
+    script = r"""
+const fs=require('node:fs'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const {launchBoundBrowser}=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+const file=process.argv[1];
+const hash=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const bound={browser_executable:file,browser_sha256:hash};let launches=[];
+const chromium={executablePath:()=>file,
+ launch:async options=>{launches.push(options);return 'unit-only';}};
+(async()=>{
+ assert.equal(await launchBoundBrowser(chromium,bound,1234),'unit-only');
+ assert.equal(launches.length,1);assert.equal(launches[0].executablePath,file);
+ assert.equal(launches[0].headless,true);assert.equal(launches[0].timeout,1234);
+ assert(launches[0].args.includes('--disable-background-networking'));
+ launches=[];
+ await assert.rejects(launchBoundBrowser(chromium,{...bound,browser_sha256:'0'.repeat(64)},1234),
+  error=>error.code==='BROWSER_SOURCE_MISMATCH');
+ await assert.rejects(launchBoundBrowser({...chromium,executablePath:()=>file+'-other'},bound,1234),
+  error=>error.code==='BROWSER_SOURCE_MISMATCH');
+ assert.equal(launches.length,0);process.stdout.write('binding-unit-only-no-browser-started\n');
+})().catch(()=>{process.stderr.write('binding-unit-failed\n');process.exitCode=1;});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script, str(binary)],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"binding-unit-only-no-browser-started\n"

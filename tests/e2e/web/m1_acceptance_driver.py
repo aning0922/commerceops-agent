@@ -1082,8 +1082,29 @@ class _Consumer:
             or output["business_posts"] != int(stage == "t6")
             or output["original_key_gets"] != 1
             or output["browser_closed"] is not True
+            or output["browser_pid_stopped"] is not True
         ):
             raise StageFailure(self.stage, "UI_RESULT_BINDING_INVALID")
+        observed = output["browser_process"]
+        started, _ = _private_reference(output["browser_start_ref"], self.root)
+        stopped, _ = _private_reference(output["browser_stop_ref"], self.root)
+        if (
+            type(observed["pid"]) is not int
+            or observed["pid"] <= 1
+            or observed["executable"] != h["candidate"]["toolchain"]["browser_executable"]
+            or observed["executable_sha256"] != h["candidate"]["toolchain"]["browser_sha256"]
+            or any(started.get(k) != v for k, v in observed.items())
+            or stopped["pid"] != observed["pid"]
+            or stopped["pid_absent"] is not True
+            or stopped["browser_closed"] is not True
+            or any(
+                v["parent_handoff_sha256"] != self.handoff_ref["sha256"]
+                or v["run_id"] != self.binding["run_id"]
+                or v["stage"] != stage
+                for v in (started, stopped)
+            )
+        ):
+            raise StageFailure(self.stage, "BROWSER_PROCESS_PROOF_INVALID")
         return dict(output)
 
     def t6(self) -> dict[str, Any]:
@@ -1150,6 +1171,7 @@ class _Consumer:
                 "semantic_payload_hash": semantic_hash,
                 "typed_response": ui["typed_response"],
                 "receipt_ref": ui["prepared_receipt"],
+                "ui_evidence_ref": _file_ref(self.directory / "t6-ui-result.json"),
                 "snapshot_ref": _file_ref(self.directory / "after-t6.json"),
                 "v2_outbox": outbox,
                 "item_count": self.handoff["fixture"]["item_count"],
@@ -1208,6 +1230,8 @@ class _Consumer:
                 "original_key_gets": 2,
                 "same_volume": True,
                 "checkpoint_core_unchanged": True,
+                "page_ui_evidence_ref": _file_ref(self.directory / "page-ui-result.json"),
+                "replay_ui_evidence_ref": _file_ref(self.directory / "replay-ui-result.json"),
             }
         finally:
             self.stop_preserving_failure(sys.exception())
