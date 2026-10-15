@@ -1086,6 +1086,7 @@ class _Consumer:
         ):
             raise StageFailure(self.stage, "UI_RESULT_BINDING_INVALID")
         observed = output["browser_process"]
+        browser_source = output["browser_source_binding"]
         started, _ = _private_reference(output["browser_start_ref"], self.root)
         stopped, _ = _private_reference(output["browser_stop_ref"], self.root)
         if (
@@ -1097,6 +1098,11 @@ class _Consumer:
             or stopped["pid"] != observed["pid"]
             or stopped["pid_absent"] is not True
             or stopped["browser_closed"] is not True
+            or browser_source["registry_executable"] != observed["executable"]
+            or browser_source["explicit_executable"] != observed["executable"]
+            or browser_source["private_home_preserved"] is not True
+            or browser_source["install_or_fallback"] is not False
+            or started["browser_source_binding"] != browser_source
             or any(
                 v["parent_handoff_sha256"] != self.handoff_ref["sha256"]
                 or v["run_id"] != self.binding["run_id"]

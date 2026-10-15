@@ -68,8 +68,39 @@ function responseValidator(schema, frontendModules) {
   };
 }
 function validateBrowserExecutable(chromium, toolchain) {
-  ensure(chromium.executablePath() === toolchain.browser_executable &&
+  ensure(typeof toolchain.browser_executable === "string" && path.isAbsolute(toolchain.browser_executable) &&
+    fs.realpathSync(toolchain.browser_executable) === toolchain.browser_executable &&
+    fs.statSync(toolchain.browser_executable).isFile() && hash(toolchain.browser_sha256) &&
+    chromium.executablePath() === toolchain.browser_executable &&
     digest(fs.readFileSync(toolchain.browser_executable)) === toolchain.browser_sha256, "BROWSER_SOURCE_MISMATCH");
+}
+function loadBoundChromium(toolchain) {
+  // The outer entry intentionally owns a private HOME. Bind only this child to
+  // the already approved cache; never infer an executable from that HOME or install one.
+  const corePackage = require.resolve("playwright-core/package.json", { paths: [toolchain.playwright_root] });
+  ensure(JSON.parse(fs.readFileSync(corePackage)).version === toolchain.playwright_version,
+    "PLAYWRIGHT_SOURCE_MISMATCH");
+  const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(corePackage), "browsers.json")));
+  const chromiumSource = manifest.browsers.find((b) => b.name === "chromium");
+  ensure(chromiumSource && /^[0-9]{1,8}$/.test(chromiumSource.revision), "BROWSER_CACHE_SOURCE_INVALID");
+  const executable = toolchain.browser_executable;
+  ensure(typeof executable === "string" && path.isAbsolute(executable) &&
+    fs.realpathSync(executable) === executable && fs.statSync(executable).isFile() &&
+    hash(toolchain.browser_sha256) && digest(fs.readFileSync(executable)) === toolchain.browser_sha256,
+    "BROWSER_SOURCE_MISMATCH");
+  const expectedDirectory = "chromium-" + chromiumSource.revision;
+  let directory = path.dirname(executable);
+  while (path.basename(directory) !== expectedDirectory && path.dirname(directory) !== directory)
+    directory = path.dirname(directory);
+  ensure(path.basename(directory) === expectedDirectory, "BROWSER_CACHE_SOURCE_INVALID");
+  const cacheRoot = path.dirname(directory);
+  ensure(fs.realpathSync(cacheRoot) === cacheRoot && fs.statSync(cacheRoot).isDirectory(), "BROWSER_CACHE_SOURCE_INVALID");
+  process.env.PLAYWRIGHT_BROWSERS_PATH = cacheRoot;
+  const { chromium } = require(toolchain.playwright_root);
+  validateBrowserExecutable(chromium, toolchain);
+  return { chromium, source: { cache_root: cacheRoot, revision: chromiumSource.revision,
+    registry_executable: chromium.executablePath(), explicit_executable: executable,
+    private_home_preserved: true, install_or_fallback: false } };
 }
 async function launchBoundBrowser(chromium, toolchain, timeout) {
   validateBrowserExecutable(chromium, toolchain);
@@ -122,8 +153,7 @@ async function execute(input) {
   const packageBytes = fs.readFileSync(path.join(pwRoot, "package.json"));
   ensure(digest(packageBytes) === input.toolchain.playwright_package_sha256 &&
     JSON.parse(packageBytes).version === input.toolchain.playwright_version, "PLAYWRIGHT_SOURCE_MISMATCH");
-  const { chromium } = require(pwRoot);
-  validateBrowserExecutable(chromium, input.toolchain);
+  const { chromium, source: browserSource } = loadBoundChromium(input.toolchain);
   const schemaBytes = fs.readFileSync(input.toolchain.read_schema_path);
   ensure(digest(schemaBytes) === input.toolchain.read_schema_sha256, "DTO_SOURCE_MISMATCH");
   const schema = JSON.parse(schemaBytes);
@@ -136,6 +166,7 @@ async function execute(input) {
     item_id: input.item_id, task_id: input.task_id, business_posts: 0,
     case_kind: input.case_kind, item_count: input.item_count, quantity_total: input.quantity_total,
     external_origin_attempts: 0, original_key_gets: 0, screenshot: null, real_platform_pass: false };
+  result.browser_source_binding = browserSource;
   let browser, context, page, routeFailure, prepared;
   const itemPath = "/api/v1/replenishment-items/" + input.item_id;
   const resolvePath = itemPath + "/resolve";
@@ -145,7 +176,8 @@ async function execute(input) {
     result.browser_process = await browserProcessReceipt(browser, input.toolchain, remaining());
     const startFile = path.join(input.output_directory, input.stage + "-browser-start.json");
     exclusiveJson(startFile, { stage: input.stage, run_id: input.run_id,
-      parent_handoff_sha256: input.parent_handoff_sha256, ...result.browser_process });
+      parent_handoff_sha256: input.parent_handoff_sha256,
+      browser_source_binding: browserSource, ...result.browser_process });
     result.browser_start_ref = { path: startFile, sha256: digest(fs.readFileSync(startFile)) };
     context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     page = await context.newPage(); page.setDefaultTimeout(remaining()); page.setDefaultNavigationTimeout(remaining());
@@ -245,7 +277,8 @@ async function execute(input) {
   return result;
 }
 
-module.exports = { execute, readPrivate, origin, dtoErrors, responseValidator, launchBoundBrowser };
+module.exports = { execute, readPrivate, origin, dtoErrors, responseValidator, launchBoundBrowser,
+  loadBoundChromium, browserProcessReceipt, processAbsent };
 if (require.main === module) {
   (async () => {
     try {
