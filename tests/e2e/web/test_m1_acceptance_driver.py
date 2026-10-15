@@ -22,11 +22,13 @@ from tests.e2e.web.m1_acceptance_capture import (
     canonical_digest,
     capture_worker,
     validate_base_readback,
+    validate_worker,
     verify_t6_association,
     verify_t6_outbox,
 )
 from tests.e2e.web.m1_acceptance_driver import (
     NATIVE_COUNTERS,
+    PROCESS_RESTART_SCOPE,
     STAGES,
     ZERO_REAL_COUNTERS,
     CleanupPlan,
@@ -42,6 +44,8 @@ from tests.e2e.web.m1_acceptance_driver import (
     run_consumer,
     safe_failure,
     ui_command,
+    validate_app_lifecycle,
+    validate_restart_epochs,
     validate_transport_counters,
     verify_container,
     write_private_json,
@@ -713,3 +717,130 @@ def test_native_t6_outbox_delta_cannot_be_fabricated_from_projection() -> None:
     added["payload"]["state"] = "open"
     with pytest.raises(CaptureFailure, match="OUTBOX_BINDING_INVALID"):
         verify_t6_outbox(before, after, c, "a" * 64)
+
+
+def native_app_epoch(index: int = 1) -> dict[str, Any]:
+    """Native receipt shape from committed e2626df; unit input, never runtime proof."""
+    return {
+        "epoch": "app",
+        "organization": uid(1),
+        "owner": uid(100 + index),
+        "process_started_id": uid(200 + index),
+        "active_workers": 1,
+        "reaped": False,
+        "pid": 5000 + index,
+        "host": "unit-runner",
+        "pid_namespace": "pid:[123]",
+        "start_ticks": str(9000 + index),
+        "cmdline_sha256": "a" * 64,
+    }
+
+
+def native_lifecycle_result(action: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    h: dict[str, Any] = {
+        "resource": {"volume": "unit_pg_data", "container_ids": ["b" * 64]},
+        "fixture": {"organization_id": uid(1)},
+        "worker": {"owner": uid(99)},
+    }
+    old = native_app_epoch()
+    stopped = {**old, "reaped": True, "termination_id": uid(300)}
+    value: dict[str, Any] = {
+        "epoch": stopped if action == "stop" else native_app_epoch(2),
+        "active_workers": 0 if action == "stop" else 1,
+        "reaped": action != "start",
+        "api_ready": action != "stop",
+        **h["resource"],
+    }
+    if action != "stop":
+        value.update(
+            stopped_epoch=stopped if action == "restart" else None,
+            restart_scope=PROCESS_RESTART_SCOPE,
+        )
+    return value, h
+
+
+@pytest.mark.parametrize("action", ["start", "stop", "restart"])
+def test_committed_lifecycle_distinguishes_current_worker_from_reaped_old_epoch(
+    action: str,
+) -> None:
+    value, handoff = native_lifecycle_result(action)
+    validate_app_lifecycle(value, action, handoff)
+    if action == "restart":
+        assert value["reaped"] is True and value["epoch"]["reaped"] is False
+        assert "stopped_reaped" not in value
+        validate_restart_epochs(native_app_epoch(), value["stopped_epoch"], value["epoch"])
+    if action == "stop":
+        # The receipt retains its historical started count; the outer current count is zero.
+        assert value["epoch"]["active_workers"] == 1 and value["active_workers"] == 0
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "missing_old",
+        "missing_termination",
+        "wrong_count",
+        "bool_count",
+        "old_reap_unproved",
+        "new_marked_reaped",
+        "missing_started",
+        "wrong_container",
+        "compose_scope",
+    ],
+)
+def test_lifecycle_missing_or_mixed_epoch_evidence_fails_closed(fault: str) -> None:
+    value, handoff = native_lifecycle_result("restart")
+    if fault == "missing_old":
+        del value["stopped_epoch"]
+    elif fault == "missing_termination":
+        del value["stopped_epoch"]["termination_id"]
+    elif fault == "wrong_count":
+        value["active_workers"] = 2
+    elif fault == "bool_count":
+        value["active_workers"] = True
+    elif fault == "old_reap_unproved":
+        value["reaped"] = False
+    elif fault == "new_marked_reaped":
+        value["epoch"]["reaped"] = True
+    elif fault == "missing_started":
+        del value["epoch"]["process_started_id"]
+    elif fault == "wrong_container":
+        value["container_ids"] = ["c" * 64]
+    else:
+        value["restart_scope"] = "all Compose containers rebuilt"
+    with pytest.raises(StageFailure):
+        validate_app_lifecycle(value, "restart", handoff)
+
+
+@pytest.mark.parametrize("fault", ["old_pid", "same_process", "same_owner", "foreign_namespace"])
+def test_restart_requires_original_stop_and_distinct_new_process(fault: str) -> None:
+    value, _ = native_lifecycle_result("restart")
+    old = native_app_epoch()
+    if fault == "old_pid":
+        value["stopped_epoch"]["pid"] += 1
+    elif fault == "same_process":
+        value["epoch"].update(pid=old["pid"], start_ticks=old["start_ticks"])
+    elif fault == "same_owner":
+        value["epoch"]["owner"] = old["owner"]
+    else:
+        value["epoch"]["pid_namespace"] = "pid:[foreign]"
+    with pytest.raises(StageFailure, match="RESTART_EPOCH_INVALID"):
+        validate_restart_epochs(old, value["stopped_epoch"], value["epoch"])
+
+
+@pytest.mark.parametrize("mismatch", [None, "started", "termination"])
+def test_worker_pg_audit_ids_bind_the_native_receipt(mismatch: str | None) -> None:
+    epoch = {**native_app_epoch(), "reaped": True, "termination_id": uid(300)}
+    process = {k: epoch[k] for k in ("pid", "host", "pid_namespace")}
+    events = [
+        {"id": epoch["process_started_id"], "action": "started", "after_state": process},
+        {"id": uid(299), "action": "stopped", "after_state": process},
+        {"id": epoch["termination_id"], "action": "termination_confirmed", "after_state": {}},
+    ]
+    value = {"owner": epoch["owner"], "organization_id": epoch["organization"], "events": events}
+    if mismatch:
+        events[0 if mismatch == "started" else -1]["id"] = uid(999)
+        with pytest.raises(CaptureFailure, match="WORKER_AUDIT_BINDING_INVALID"):
+            validate_worker(value, epoch, stopped=True)
+    else:
+        validate_worker(value, epoch, stopped=True)
