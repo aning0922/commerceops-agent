@@ -14,7 +14,8 @@ Root冻结全部源码/私有parent/镜像后安排原独审和新精确五job C
 今晚仅offline及全新owned合成PG，外HTTP可Fake；原库/身份历史/AppSecret/平台零访问。
 
 真人阶段PG/API/Web，Worker/SDK/WS/Graph为0。只允许真人原生登录同身份、同open/v1项，
-填写原因、准备原请求、明确close一次。协调器不生成request key、不登录/点击/POST。
+填写原因、准备原请求、明确close一次。协调器不生成request key、不代替真人业务提交；
+为actual GET使用独立技术认证（CSRF/login/session/GET/logout）保持既有认证安全，无刷新重登。
 使用现有api/capture/signal/process_probe/deadline及独立资源清理，不调用LAB consume_stage(t6)。
 原HTTP字节为not_captured，不新增observer/DevTools/HAR，不据此报告网络恰好一次POST。
 验收以新鲜app角色RR只读前后快照、native PG key/semantic_hash/result、当前身份/原因/审计、
@@ -89,3 +90,23 @@ Root另将CI容量列为明早前置：本轮两个新节点合计pytest337.05s�
 本轮未开--durations或JUnit，每个节点及fixture独立秒数未采集，不能将337.05均分当实测。
 保存原命令、完整日志及当前分组位置；后续真实计时须保留慢测试，不隐藏或降低断言。
 此项是同批测试接线前置，旧40min异步授权不重开今晚CI窗口。
+
+## 统一整改与两阶段模型（2026-10-16凌晨，北京）
+
+用户取消原23:00硬停；Root集中核准总cap8 Agent有效h，A5.5/C0.5/Review1/Root1，
+此前用量及126秒诊断不清零，从原P4/300h调配，不另增总预算。
+两原库阶段为原则授权，具体执行仍HOLD，待最终同源隔离全链、独审、精确新CI及Root具体UTC。
+
+同一run_once事先绑定两个不重叠绝对窗口：第一段PG≤600、真人等待≤300、清理reserve180；
+第二段PG≤600、SDK≤300、清理reserve180；两段总跨度≤1200，不由第一段完成时间滚动续期。
+images/source/config/端口与资源计划在开库前准备。第一段实际剩余须够完整等待加60秒证据采集，
+否则不发human-ready；第二段必须剩余至少480秒才arm，否则HOLD。T6若已提交不重投。
+第一段必须actual GET/PG一致且完整stop/reap/cleanup，第二段才重新开同卷、复核当前权限/
+原生RO与v1锚/唯一v2并自动派生disabled模板；模板来自持久claim/lifecycle/item/outbox，
+不由操作者拼recovery或成功JSON。模板及arm不能消费旧RO一次额度。
+
+全批Feishu SDK方法上限不变：auth1/bot1/table2/field2/update1/record-list4≤11，
+create/IM/provider0。两阶段只改变资源开放安排，不新增业务规则/迁移/grant/权限或重跑原RO。
+真实与同源LAB统一复用049的同host/PID namespace子进程及受控loopback PG模式；
+PG仅127.0.0.1自有随机/登记端口，API/Web也仅loopback，无公网入口。不保留新runner部署分支，
+不改写历史namespace或终止回执；源码存在不签完整Gate。

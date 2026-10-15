@@ -76,6 +76,21 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             ordered = sorted(group)
             for offset in range(0, len(ordered), 14):
                 groups[f"{label}-part-{offset // 14 + 1}"] = ordered[offset : offset + 14]
+        elif path == "tests/test_p4_acceptance_pg.py" and any(
+            "::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[" in node
+            for node in group
+        ):
+            # 新terminal两schema合计实测337.05s，不能共用原300s命令。
+            # 原节点保留一组，各terminal节点独立；覆盖仍由完整collection核对。
+            terminal = sorted(
+                node
+                for node in group
+                if "::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[" in node
+            )
+            original = [node for node in group if node not in terminal]
+            parts = ([original] if original else []) + [[node] for node in terminal]
+            for index, part in enumerate(parts, 1):
+                groups[f"{label}-part-{index}"] = part
         else:
             groups[label] = group
     # Hosted实证：phase3 20次pytest启动/collection前累计215.688s，末Gateway
@@ -105,7 +120,7 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             result[label] = group
             continue
         # 验收模块虽仅5节点，single/20项两条原生恢复链已实测约200s；独占原300s预算。
-        if len(group) > 20 or label == "combined-phase3-test_p4_acceptance_pg":
+        if len(group) > 20 or label.startswith("combined-phase3-test_p4_acceptance_pg"):
             flush()
             result[label] = group
             continue
@@ -149,7 +164,12 @@ def run_combined(
             []
             if label == "combined"
             else group
-            if label.startswith("combined-phase3-test_p3_approval_pg-part-")
+            if label.startswith(
+                (
+                    "combined-phase3-test_p3_approval_pg-part-",
+                    "combined-phase3-test_p4_acceptance_pg-part-",
+                )
+            )
             else sorted({node.split("::", 1)[0] for node in group})
         )
         # 仍使用main的同一expires-75预算；不重置absolute deadline或放宽单命令300s。

@@ -6,6 +6,7 @@ import sys
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -157,3 +158,134 @@ def test_current_identity_auth_then_original_GET_never_business_POST_or_refresh(
         assert calls[-1] == ("POST", "/api/v1/auth/logout")
     if fault in ("login", "session", "dto"):
         assert not any("/requests/" in path for _, path in calls)
+
+
+def phase_request(tmp_path: Path) -> tuple[dict[str, Any], Any]:
+    from types import SimpleNamespace
+
+    from commerceops.infrastructure.database import DatabaseSettings
+
+    tmp_path.chmod(0o700)
+    start = datetime.now(UTC) - timedelta(seconds=1)
+    candidate = {"source_sha": "a" * 40, "tree": "b" * 40}
+    owner_file = tmp_path / "owner.json"
+    write_private(
+        owner_file,
+        DatabaseSettings(
+            host="127.0.0.1",
+            name="p4_ro_lab_synthetic",
+            user="commerceops_owner",
+            password_file=tmp_path / "dummy-material",
+        ).model_dump(mode="json"),
+    )
+    phases = {}
+    for i, name in enumerate(("human", "terminal")):
+        end = start + timedelta(seconds=600 * (i + 1))
+        phases[name] = dict(
+            not_before_utc=(start + timedelta(seconds=600 * i)).isoformat(),
+            runtime=dict(
+                deadline_utc=end.isoformat(),
+                monotonic_end=time.monotonic() + (end - datetime.now(UTC)).total_seconds(),
+                cleanup_reserve_seconds=180,
+            ),
+            private_directory=str(tmp_path),
+            pg_resource=dict(volume="p4terminal-shared", project="p4terminal-" + name),
+            private_refs=dict(
+                owner_database=dict(path=str(owner_file), sha256=digest(owner_file.read_bytes())),
+                lab_http={},
+            ),
+        )
+    end = start + timedelta(seconds=1200)
+    return dict(
+        transport="lab",
+        phases=phases,
+        runtime=dict(
+            deadline_utc=end.isoformat(),
+            monotonic_end=time.monotonic() + 1199,
+            cleanup_reserve_seconds=180,
+        ),
+    ), SimpleNamespace(manifest=dict(candidate=candidate), check_loaded=lambda: None)
+
+
+@pytest.mark.parametrize("fault", ["real_release", "overlap", "extended_total", "different_volume"])
+def test_two_phase_plan_rejects_before_starting_any_resource(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    from scripts import p4_acceptance as acceptance
+
+    request, binding = phase_request(tmp_path)
+    if fault == "real_release":
+        request.update(transport="real", root_real_release=True)
+    elif fault == "overlap":
+        request["phases"]["terminal"]["not_before_utc"] = (
+            datetime.now(UTC) + timedelta(seconds=10)
+        ).isoformat()
+    elif fault == "extended_total":
+        end = datetime.now(UTC) + timedelta(seconds=1201)
+        request["phases"]["terminal"]["runtime"]["deadline_utc"] = request["runtime"][
+            "deadline_utc"
+        ] = end.isoformat()
+    else:
+        request["phases"]["terminal"]["pg_resource"]["volume"] = "another-volume"
+    calls = []
+    monkeypatch.setattr(acceptance, "_ro_resource", lambda *a, **kw: calls.append(a))
+    with pytest.raises(AcceptanceFailure):
+        acceptance.human_terminal_stage(request, binding)
+    assert calls == []
+
+
+def test_human_resource_failure_still_closes_web_and_original_pg(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts import p4_acceptance as acceptance
+
+    request, binding = phase_request(tmp_path)
+    phase = request["phases"]["human"]
+    phase.update(
+        revision="0015",
+        manifest_ref={},
+        toolchain={},
+        web=dict(api_origin="http://127.0.0.1:18180", web_origin="http://127.0.0.1:18181"),
+        api_port=18180,
+        web_resource=dict(port=18181),
+        run_id=str(uuid4()),
+        human_report_file=str(tmp_path / "human-report.json"),
+        original_get_file=str(tmp_path / "get.json"),
+        capture_context=dict(
+            revision="0015_p4_read_replies",
+            organization_id=str(uuid4()),
+            shop_id=str(uuid4()),
+            task_id=str(uuid4()),
+            item_id=str(uuid4()),
+            principal_id=str(uuid4()),
+            identity_id=str(uuid4()),
+            auth_version=1,
+            checkpoint_threads=["synthetic"],
+            sdk_subject_ids=[],
+            sdk_window_id=None,
+            request_key=None,
+            case_kind="recover_single_item",
+            expected_item_count=1,
+            expected_quantity_total="70",
+        ),
+    )
+    calls = []
+    monkeypatch.setattr(acceptance, "_ro_context", lambda *a: None)
+
+    def pg(*args: Any, start: bool) -> dict[str, bool]:
+        calls.append("PG-up" if start else "PG-down")
+        return dict(verified=True)
+
+    def web(*args: Any, start: bool) -> dict[str, bool]:
+        calls.append("Web-up" if start else "Web-down")
+        if start:
+            raise AcceptanceFailure("P4A_RESOURCE_ALLOWLIST")
+        return dict(verified=True)
+
+    monkeypatch.setattr(acceptance, "_ro_resource", pg)
+    monkeypatch.setattr(acceptance, "human_web_resource", web)
+    result = acceptance.human_t6_stage(phase, binding)
+    assert result["exit_code"] == 1 and result["stages"]["RESOURCE"]["state"] == "FAILED"
+    assert result["cleanup_verified"] is True and result["stages"]["T6"]["state"] == "NOT_RUN"
+    assert calls == ["PG-up", "Web-up", "Web-down", "PG-down"]

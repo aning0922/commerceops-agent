@@ -1,111 +1,54 @@
-# Phase 4 / M1 交付与验收准备
+# Phase 4 / M1 剩余验收地图
 
-状态：**准备中，所有 Phase 4 实现和真人平台验收均为 `not_run`**。本文只整理交付路线、证据形状和演示顺序；它不创建业务能力，不证明 Compose、飞书、Base 或 Web 已通过。
+更新：2026-10-15 夜间。**P4 / M1 仍为 partial；已有实现、实际 PG/Web 和真实 v1 RO 证据，真人 T6 / 实际 v2 及下列交付缺口尚未闭合。** 本页是剩余证据导航，不代替 Root 逐项验收，也不授权平台操作。
 
-## 1. 基线、范围和使用方式
+## 当前证据基线
 
-- 本文基线为 `9d97c19009d932036809ac3e2638bb68f4b7f765`。该 main 的四项 CI 为 [38093693335](https://github.com/aning0922/commerceops-agent/actions/runs/38093693335)（quality、frontend、phase3、pg-pair 均 SUCCESS），并继承 [Phase 3 验收](PHASE3_ACCEPTANCE.md) 和 [Issue #33 最终回执](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)。
-- M1 退出合同是 PRD AC01–07、AC09–11，外加 AC08 的干净 Compose 离线复现和真实飞书部分；Woo 真实店证据属于 M2，不能在 M1 演示中暗示已接入。
-- 日历和容量保持 `D1=2026-10-10`、`D30=2026-11-08`、总计 300 小时；Phase 4 是 D13–D17（10 月 22–26 日）的 50 小时容量。本准备批占交付流 8 小时容量；人工有效工时仍为 `not_reported`。
-- P1 的 G3 只证明受限技术探针。P3 的 PG/Web Gate 证明正式服务端规则。两者都不替代本阶段的真人飞书正式业务、Base 投影或完整 M1 演示。
+- [Issue39 当前裁决](https://github.com/aning0922/commerceops-agent/issues/39)与原班 owner 协调为状态入口。PR43 已提交基线为 `049874ea3b5a2f814cce438f4602cc35cfd8b31d` / tree `8855ebc76c0fcb143a51410ac2cd53a4ddb92f9b`；[CI38734359318](https://github.com/aning0922/commerceops-agent/actions/runs/38734359318)五项 SUCCESS，Root 已核完整 504 PG、G1/G2、Web/N01 与清理。该 CI 不覆盖 A 当前未提交的 T6/v2 或新增 506 集合。
+- 同 049 的 LAB full12 已由 Root 核定通过，证明其合成业务与外部 Fake 范围；不能当作真人操作或真实 Base v2。真实原 v1 RO 已 `verified / complete_unique`，原 manual 已 SPENT、Create1 / attempts3 保持，不为补地图重跑。
+- C 原工作区 `phase4-web` / `codex/phase4-web`，本轮从 `432f3c2` 开始且 tracked clean；原四采集文件保持已审字节，不并改 A 源码。main 最后已核仍为 P3 的 `9d97c190`；P4 未合 main，未结案。
+- 依据为 [PRD AC01–11](PRD.md#7-p0-交付验收)、[TEST_PLAN](TEST_PLAN.md)、冻结 18 逻辑界面的 [screens](ux/screens.yaml) / [交接映射](ux/ux-freeze-candidate.md)。冻结设计不等于 18 页均有当前真人证据；不新增设计批次。
+- 原交付路线、故障分镜和历史结论保留于 [本页旧版](https://github.com/aning0922/commerceops-agent/blob/432f3c273fb94e820d8c9cabd55fa968e0efa279/docs/PHASE4_M1_DELIVERY.md)、[历史验收](PHASE4_ACCEPTANCE.md)、[Web 与原片 QA 记录](ux/phase4-implementation.md#既有证据怎样使用)。历史失败不改成通过，旧 pending 不覆盖当前已核事实。
 
-Phase 4 实施完成后，由阶段 owner 把实际源码 SHA、命令、开始/结束时间、`source_mode`、`model_mode`、`approval_mode`、环境版本和脱敏证据路径填入本文引用的运行报告。不得把模板的空格或待办改写成“通过”。
+## 逐 AC 证据与最小缺口
 
-## 2. 交付依赖和冻结点
+“已证实”指表内限定证据；“范围有限”不等于整项 AC 验收。真人缺口不要求重做已经通过的全部技术矩阵。
 
-| 项目 | 唯一 owner / 输入 | 交付流的使用限制 |
+| AC | 已证实 / 可复用证据 | 范围有限 / 仍缺证据与最小补项 |
 | --- | --- | --- |
-| 正式飞书入口、回调到 T3、正式卡片和异步通知 | P4-A | 必须调用 P3 当前服务端授权、版本、nonce、hash、假设确认和恢复规则；卡片的已送达/已点击不是业务状态真值。 |
-| Base transport、投影纯规则与事实分类 | P4-B | PostgreSQL 是真值；B只返回有界transport/完整读回事实，不拥有sender、持久outbox或调度器。 |
-| outbox持久存储、版本顺序、IM/Base sender与恢复协调 | P4-A | 同表串行写由唯一Worker协调；外部unknown原键对账、不盲发，不让Base反向改变业务或回滚内部完成。 |
-| migration、共享 outbox 合同、Worker/Graph、根锁和 CI | P4-A 指定的单一 owner | 本文不定义或猜测接口、表、环境变量或执行命令；稳定合同冻结后才接线。 |
-| Next.js 状态接线与端到端页面 | P4 Web owner | 只能在后端稳定 DTO/错误语义发布后把 mock 标记替换为真实读取/动作。 |
-| 证据、演示、录屏和阶段收口 | 总控 + 本交付流 | 只消费已冻结的结果；不读密钥、不操作旧 PG/Compose/飞书资源。 |
+| AC01 私聊、群 @ 闭环 | 049 正式 Gateway/T1/审批/执行的隔离 PG；原单用户真实 Gateway/Worker 历史；真实原项 v1 RO 完整唯一锚已核。 | **范围有限**：真实窗口曾接受新 T1，不等于私聊全部步骤及真人审批已签；原窗口 group_count=0。补齐私聊原链的可信回执/真人归属映射，并完成一次真实群 @ 全 20 SKU / 假设确认 / Base 关联，不重造原私聊任务。 |
+| AC02 金标、事实不漂移 | P2 已验收金标；known70、twenty 20×100、raw null / effective 0 的 PG 与 Web；确定性规则不交给模型。 | **已证实限定技术范围**：把最终实际群报告逐项对回冻结 fixture / 参数 / 完整 20 行；无需新增模型调用或重算旧金标。 |
+| AC03 拒绝零项、相反决定唯一 | `test_p4_a08_group_pg` 的联合确认/拒绝、十重放、相反 actor；P3 真实 PG 并发与 Web 决定场景，049 完整回归可复用。 | **范围有限**：缺当前正式真人卡片拒绝/冲突结果与原 task/decision 的配对；安排到同一有限群/审批批，拒绝分支不生成 item，不重复整个 PG 并发矩阵。 |
+| AC04 十重放、提交边界恢复 | `test_p4_gateway_pg` 事件/ACK 重放；`test_p4_a09_workflow_pg` 跨 Gateway 五边界；单 Worker/执行唯一与 049 LAB 持久恢复。 | **范围有限**：技术矩阵不是真人点击十次或真实跨窗演示；核已有正式入站重放/kill 回执是否足量，再只补未覆盖的正式路径。不得在已终态原项上重做业务。 |
+| AC05 身份、跨组织、hash、过期、撤权 | P3 authority、P4 group/identity/preflight/撤权 PG、真实 Web 权限和 N01 零业务拒绝均有可复用技术证据。 | **范围有限**：真实卡片的未授权人/当前范围拒绝与已审业务记录仍需配对；最少安排既有未授权测试身份的一次负向操作。其余完整组合用已核 PG/契约证明，不能声称平台全部负向已实测。 |
+| AC06 外部故障、unknown 恢复 | Base adapter/reconciliation、delivery/IM PG 的 timeout/429/5xx/冲突/旧版本/unknown 不盲发；真实原 v1 unknown 后同键只读 verified / 同 record 锚。 | **范围有限**：已有真实恢复，不能再写“平台恢复全未跑”；仍缺真实 T6 后同 record v2 update/readback及当前同步画面。全部自然 429/5xx 并未因此被观测；Fake 注入、实际 unknown、真实 SDK 各自标识，不额外写记录制造故障。 |
+| AC07 待审批跨进程、早决定不丢 | P3 checkpoint/ready、P4 A08/A09 五边界和同原 workflow/nonce/plan 恢复 PG 已覆盖；早期 SDK 重启未核事实保留。 | **范围有限**：正式真人卡片等待/恢复后原决定的关联演示未齐；可与群审批批共用一个已登记等待点，不重开同 pool 成功批。 |
+| AC08 M1 干净 Compose、真实飞书 | 多次自有 Compose/真实 API+PG/Mock Web 部分闭环；049 LAB full12 / CI 的资源停止和不变量证据；旧录像有只读完成态补证。 | **缺最终交付证据**：最终稳定 SHA 在新空 checkout/新 owned project 的原始统一命令、成功新周期与重启/原回执回放、停止清理，以及对应真实私聊/群证据。LAB 进程 restart 不等于干净 Compose 重建。旧 source43 AC08 整体 failed/partial 保留；Woo 真实店只读属于 M2。 |
+| AC09 来源、规则、模型/usage、工具与审批轨迹 | P2 一次 actual provider 解释及 usage/耗时已验收；P4 模板/冻结结果、read reply、events 来源绑定与真实 Web 只读可复用。 | **范围有限**：最终运行的来源/版本/审批/SDK 方法/同步轨迹和已有解释展示需串联；历史模型调用仅沿原绑定引用，不冒成本次新调用，无缓存显示 NOT_READY。P1 动态 Tool Agent / 40×3 不扩大为本次 M1 新 paid Gate。 |
+| AC10 完整未知键、版本绑定、拒绝与幂等 | P3 A01–A08 与 P4 group20 的漏/多/篡改/跨版本/撤权/十重放 PG；Web 完整集合与 null/0 显示已有技术证据。 | **范围有限**：至少一次正式真人完整确认及拒绝的卡片/PG 关联未签；与群成功 20 项和独立拒绝计划合批。普通 approve 不代替联合确认，不能截断到前几项。 |
+| AC11 T6、原因审计、新周期 | P3 C01–C05、旧 Mock complete/close、049 LAB T6/原键/重启、旧新周期完成态只读补证。 | **缺当前真人/平台闭环**：原项一次 human_web close、同 key GET / PG semantic hash/result/身份审计、唯一 v2 outbox、同 record update/readback；A 当前 WIP 不算通过。保留旧 task/execution/approval 与 3CP；新周期用已核历史或最终干净 Compose 补证，不重放旧 execution。 |
 
-当前需要冻结、但尚未在本基线中声明为 Phase 4 稳定运行合同的接口至少包括：飞书入站请求到正式任务创建的最小 payload、卡片回调与 `DecisionReceipt` 的对应、正式通知投递/回执语义、Base projection 的原键和版本比较规则、sync 状态读模型，以及 Web 对这些对象的 DTO 与错误码。它们均标为 **待 P4-A/P4-B 合同冻结**，不能由演示文档代为实现或用 mock 冒充集成。
+## F02、查询解释、群与恢复的实际边界
 
-## 3. 最短干净 Compose 离线闭环（待实际验证）
+| 能力 | 当前可复用事实 | 仍需补的最少证据 |
+| --- | --- | --- |
+| F02 参数澄清 | [F02 合同](contracts/p4-f02-clarification.md)有默认关闭、原请求/轮次/当前身份、完整候选、显式确认同事务原 T1；049 包含正式 child 装配和 `test_p4_f02_pg` 的实际 Gateway-selected / Worker ledger 链（外 HTTP Fake）。 | 真实飞书“缺参→补参→确认→同原 T1”及原 UUID 回执仍缺；不能沿用首包“未接 child”旧状态，也不能以源码/PG 宣称真人已过。可作为后续一条群或私聊正式请求的前置步骤，避免额外成功业务批。 |
+| 查询同任务、解释已有结果 | `test_p4_template_results_pg` / `test_p4_read_reply_pg` 已有真实 PG：固定来源、并发/十重放、零新业务、当前权限、不可变载体和 unknown；原 P2 actual 解释、Web 已有解释/NOT_READY 均可复用。 | 当前正式飞书原任务的进度查询与已有结论解释回复未有完整真人/SDK闭合证据；并入同一现场批，不新增模型付费调用。不得用 NOT_READY 冒充已有解释成功。 |
+| 群 / 负向 / 恢复 | 049 group20 / callback / 原workflow / Base恢复已实际走隔离 PG、Fake 与 Web；原真实单用户窗口明确 group_count=0。 | 真人群 @、真实完整卡片/确认拒绝及必要权限负向；non@/self-bot 若平台不投递，只能证明平台行为，收到后的应用过滤仍按源码/受控测试记账。真实跨窗恢复与 PG kill/restart 分记。 |
 
-这是一条受限离线演示路线：仅使用仓库内 MockCommerce fixture、本次自有随机 Compose project/卷和本地受控身份；不读取或加载飞书、Base、模型或 Woo 配置。实际可运行前，实施 owner 必须确认 P4 后的启动、迁移、Worker、API、Web 和 fixture 入口；下面现存命令仅是已核静态入口，未在本文工作树执行。
+## 最少现场批与可并行离线项
 
-1. 在新、空的项目 checkout 中校验锁和工具：`uv sync --frozen`、`uv run --frozen python -m scripts.bootstrap_tools`。现有技术检查入口是 `uv run --frozen python -m scripts.check`，前端静态入口是 `PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend ci --ignore-scripts` 与 `npm --prefix frontend run typecheck`。
-2. 创建仅本次使用的 PG secret 目录：`uv run --frozen python -m scripts.prepare_pg`；目录保持未跟踪、0700，文件 0600。不得输出文件内容、DSN、容器 inspect 的环境全文或任何密钥。
-3. 用唯一 Compose project 名启动 PostgreSQL，且不发布宿主机端口：`docker compose -p <owned-project> up -d --wait postgres`；运行 `db-init`、官方 checkpointer setup、runtime grant、revision。现有 compose 文件只静态确认了 `postgres`、`db-init` 与 `pg-test` profile；Phase 4 的长期 Worker/API/Web 编排还没有在本基线被证明可运行。
-4. 使用冻结 Mock fixture 创建分析和正式 workflow，等待 Worker 产生不可变报告、plan、approval 和 card/Base outbox 意图。展示任务、报告、plan、审批、execution、internal item 与 sync 状态的关联；没有正式 sender 回执时只显示 pending/unknown，不能写成 synced。
-5. 通过同一个正式服务端路径完成：无未知在途的批准或未知在途完整键集合的联合确认；等待内部 execution 与 item 创建；完成或关闭一个 item 并记录原因。此段只能在 P4 接线和真实 PG 验证后演示。
-6. 重启自有 Compose 应用进程并只读取持久状态；同一 request key/回执回放不再创建任务、决定、execution、item 或 projection。最后仅对明确定义为本次 owned 的 project 执行 `docker compose -p <owned-project> down`；是否删除卷由实际测试合同决定，禁止广泛 prune 或操作旧项目。
+剩余至少分成两个逻辑现场批；可在一次协调中安排，但不能承诺共享一个 600 秒原库窗口或自动继承方法额度。
 
-离线闭环最低实测记录：输入 fixture 与版本、身份/店铺范围、DB revision、source/model/approval mode、每个持久 ID 的脱敏关联、命令 exit、PG/Worker stop 证明、屏幕或 API 脱敏摘要。任何无法启动、不可复现或运行到 mock-only 的步骤都要原样标 `not_run`/`blocked`，而不是缩短流程。
+1. **当前唯一下一步：A 收齐同一最终 T6/v2 入口的隔离全链、故障清理、精确独审和新 CI，再由 Root 释放原项真人 T6 → 原 record v2。** 真实 v1 RO 不重跑，manual 不重置。人类明确提交一次 + DB 唯一效果不等于观测到网络 exactly-once；原 HTTP bytes 可为 not_captured，不增加 observer/DevTools/HAR。
+2. **随后一次有限飞书场景批**：将 F02 补参、同任务查询/已有解释、群 @ / 全 20 项联合确认、独立拒绝、必要未授权点击和等待恢复配成一个明确对象清单。不能保证一个计划同时提供“拒绝零项”与“批准 20 项”；相反决定竞争的实际胜者决定后续最小对象数，由 Root 预先限定总量、pool 约束和原键。缺私聊完整归属时优先核原证据，不重跑已 verified 的私聊 RO。
 
-## 4. 四个崩溃窗口演示（待实际验证）
+可在正式现场前并行完成：最终新 checkout/Compose 的离线完整复现及录制、C 消费者/DTO/采集契约交叉核对、证据逐 AC 关联、说明文案/脱敏字幕准备、旧 P2 模型来源与性能报告的范围核对。已通过的 504 PG/Web 与金标不为填摘要重复运行；A 新源码仍须必要回归和精确 CI。性能复用 [P4 固定 100 事件/20 分析/扫描报告](contracts/p4-performance.md)，不能把 Mock 本地 p95 外推平台/供应商 SLA。
 
-| 编号 | 受控位置 | 演示动作 | 必须留下的结果 |
-| --- | --- | --- | --- |
-| R01 | inbox 事务提交后、平台 ACK 前 | 在自有受控入站处理进程 kill，再启动同一版本服务并投递相同事件 | 一个正式 task、一个首 job；重投只得到原持久回执。 |
-| R05 | plan/card outbox 提交后、checkpoint 中断前 | 在提交钩子 kill，完成旧进程终止确认后恢复 | 不新建 plan/card intent；真实卡片仅在 ready 后发送。 |
-| R11 | execution/item 事务提交后、checkpoint 前 | 在 T4 commit 后 kill，恢复同一 workflow | 原 execution 和每 SKU 单一 item 被回读；没有第二次内部补货创建。 |
-| R13 | Base 创建成功但响应未知 | 以原 projection key 模拟/记录外部 unknown，然后只做受控原键查询对账 | 状态为 unknown 后进入对账；确认已有行时绑定原记录，未确认时停下，不换键重建。 |
+## 干净 Compose、18 页与录屏的剩余交付
 
-所有 kill/restart 只能作用本次自有进程、容器和随机数据库。每个窗口要记录 injection 点、PID/容器终止确认、重启后数据库断言和清理/保卷事实。P1/P3 的历史故障证据可作为解释背景，不能替代 P4 正式业务路径的重新验证。
-
-## 5. 真人飞书与 Base 录屏分镜（待 P4 代码审核后执行）
-
-执行前的最小核验：测试应用已发布且仍具既有 scope；目标是已授权测试企业、测试群、A/B/C 三个既有测试身份和指定测试 Base；Gateway 使用受保护的本地配置，不把 secret、token、ID、连接 URL 或原始回调内容录入 Git、聊天、日志、截图或 Actions artifact。无法把目标限定为这些资源时，停止外部步骤并继续离线工作。
-
-| 段落 | 真人动作 | 屏幕/服务端应验证的事实 | 不能据此声称 |
-| --- | --- | --- | --- |
-| F1 私聊闭环 | A 在机器人私聊发起正式分析，合资格审批人按通知操作 | 新正式 task、可信 report/plan/approval、callback actor 与 PG 决定/执行/item/Base projection 可关联 | 接收 ACK 已完成补货；真实采购或库存更新。 |
-| F2 群 @ 闭环 | A 在唯一测试群 @ 机器人发起另一正式分析 | 同一正式入站合同、群/组织/店铺范围、20 SKU 全量披露（不可截断）与关联记录 | 普通非 @ 消息或 bot 自身消息已被业务过滤验证，除非本轮另有受控证据。 |
-| F3 联合确认与拒绝 | 对未知在途计划由 A 或 B 一次点击完整确认键集合；另一个新计划由合资格用户拒绝 | `approve_with_assumptions` 精确键集合与当前 hash/version；raw null 保留、effective=0；拒绝为零 item | 普通 approve 可以代替确认；已拒绝计划可执行。 |
-| F4 冲突、重复、过期、撤权与跨店 | 两个 approver 并发相反决定；同一点击重放十次；受控过期/撤权/跨店/篡改卡片值 | 只有一个决定；十次不重复审计/resume/execution；其余均被当前服务端角色、scope、nonce、hash、expiry 拒绝 | 卡片 value 或客户端时间被信任。 |
-| F5 Base 投影与恢复 | 观察已创建内部 item 的 Base create/read/update；注入 timeout/429/5xx/unknown 之一并对账 | PG state 与 sync state 分开；原键、记录锚点和投影版本读回；旧投影不覆盖新版本 | Base 可反向批准/完成；unknown 等于失败或可安全换键重试。 |
-| F6 T6 与通知 | 同店 approver 对一个 open item complete 或 close，提供原因；观察异步结果通知 | item version/audit/PG 状态/投影依次一致；通知明确为异步结果 | 已采购、已入库、真实库存已变化。 |
-
-录制时每段开头显示脱敏后的场景编号、客户端（桌面/移动）与版本、操作者角色和时间；每段结尾显示脱敏关联摘要而非内部 ID 或秘密。F1–F6 由真人点击才标 `approval_mode=human_feishu`；自动化浏览器只能标 `simulated_web`。如果卡片客户端提示文字未被观察到，记录“未观察到”，不要用服务端结果反推 Toast。
-
-## 6. 脱敏证据索引模板
-
-每次真实或故障验证生成一条记录；索引可提交，但原始秘密、原始 token、完整 URL、聊天文本、open_id/chat_id/app_token、数据库密码和连接串不进入索引。
-
-| evidence_id | Gate / AC | source_mode | model_mode | approval_mode | frozen SHA | command / scenario | started / stopped | safe ID links | outcome | artifact digest / owner | limitations |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `<P4-...>` | `<ACxx/Rxx>` | `mock|postgres|human_feishu|controlled_fault` | `not_used|existing_p2_evidence` | `human_feishu|simulated_web|not_applicable` | `<sha>` | `<redacted>` | `<UTC>` | `<opaque task/plan/item/projection relation>` | `passed|failed|unknown|not_run` | `<sha256/path access restricted>` | `<what it does not prove>` |
-
-运行报告另列五维时间账本：
-
-| 日期 / 工作包 | 人工有效工时 | Agent 墙钟 | 机器执行 | 机器等待 / CI | 外部测试窗口 | 说明 |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `<YYYY-MM-DD / P4-A|P4-B|delivery>` | `not_reported or actual` | `<actual>` | `<actual>` | `<actual>` | `<actual>` | 不把等待、真人协调或未发生工作计为人工开发。 |
-
-## 7. Web 接线清单（不等于已接线）
-
-冻结的 18 页和 P3 当前 Next.js 已提供布局、权限状态、20-SKU 展示、窄屏及键盘验收基线。Phase 4 Web owner 在 API/DTO 冻结后逐项确认：
-
-1. task/report/plan/approval/item/event/sync 读取全部来自当前服务端且遵循 P3 同一身份、店铺和可见性谓词；列表 count 不能泄漏隐藏对象。
-2. 页面同时显示业务状态与 Base/通知同步状态；`pending`、`failed`、`unknown` 不冒充已同步，callback receipt 不冒充 execution 成功。
-3. 审批详情实际渲染 `item_count` 全量（上限 20），展示 hash/version/期限/质量/未知在途 raw null 与 effective=0；响应不完整时禁用决定。
-4. 普通 approve 与联合确认是不同操作；后者仅提交服务端给出的完整键集合。保留原 request key/body 用于 unknown 回读，不产生新键或反向动作。
-5. 决定和 T6 resolve 的 duplicate/conflict/expired/revoked/cross-scope/unknown 错误按冻结安全文案呈现；不回显隐藏对象或原始响应。
-6. 对 1440、1280、390 宽度、键盘焦点、登录/撤权、20 SKU 长列表和异步状态重新做真实 Web 验收。Playwright 证明页面/API 行为，不能替代 `human_feishu`。
-
-## 8. 逐 AC 待验表
-
-| AC | M1 必要证据 | 已有可复用前提 | Phase 4 缺口 / 最短下一步 |
-| --- | --- | --- | --- |
-| AC01 | 私聊与群 @ 各一正式闭环，PG task/approval/execution/item/Base 行关联 | P1 G3 技术探针、P3 服务端规则 | P4-A/B 审核后在限定测试资源执行 F1/F2/F5。 |
-| AC02 | 固定 fixture 金标，模型不改数 | Phase 2 金标与 P3 report 绑定 | P4 流程引用同一可信 report，做关联回读，不重新改计算。 |
-| AC03 | 拒绝零 item；并发相反决定唯一生效 | P3 PG Gate | 真人卡片拒绝/冲突与正式 callback→T3 对应记录。 |
-| AC04 | 重复十次、提交边界 kill/restart 后单一 item | P3 受控恢复 Gate | 正式飞书入口重放 R01、正式 execution R11、投影不重复的 P4 证据。 |
-| AC05 | 未授权/跨店/hash 篡改/过期/撤权不执行 | P3 角色/hash/nonce/expiry Gate | 通过正式 callback/Web 入口做受控负向证据，不能仅借离线 unit。 |
-| AC06 | timeout、429/5xx、sync failed/unknown 状态和安全恢复 | P1 Base probe、P3 outbox 逻辑意图 | P4-B 对 Base 真实限定写入及对账；R13/R14–R16 适用部分。 |
-| AC07 | 待审批跨进程恢复，过早决定不丢 | P3 checkpoint/worker Gate | P4 card callback 与恢复路径的正式关联演示。 |
-| AC08（M1） | 干净 Compose 离线复现与真实飞书证据 | 现有 Compose/PG 技术基线 | 按第 3 节实际跑通；F1/F2 留真人证据。Woo 留 M2。 |
-| AC09 | 来源、规则、模型、token/耗时、工具、审批轨迹可查 | P2/P3 事实、模型受限历史一次调用 | P4 将正式入站、卡片、outbox/Base 轨迹接到只读展示；无新 paid 调用。 |
-| AC10 | 当前版本完整未知键联合确认；漏/多/篡改/跨版本拒绝 | P3 A01–A08 PG Gate | F3 真人卡片 + F4 负向正式入口证据。 |
-| AC11 | 有权单项 complete/close、原因/审计、重试幂等、新周期 | P3 C01–C05 PG Gate | F6 正式通知/Base 投影和 UI 关联；不重放旧 execution。 |
-
-## 9. 最小外部条件与完成判定
-
-P4-A/P4-B 通过独立审核、精确 SHA CI、真实 PG/Compose 后，才安排有限真人窗口。窗口前只需核验：测试应用/群/成员/Base 仍可用且属既有授权范围、长连接配置已发布、Gateway 和 Base target 指向受保护的本地配置、每个写入对象可被唯一限定为测试对象。若任一项不可核验，暂停那条外部线并记录最小解锁条件，不扩大 scope、成员或测试资源。
-
-本文自身的合入前检查应为：路线、模板、待验表通过普通文档检查和项目敏感扫描，且只变更本文件。本批已完成文档检查和项目敏感扫描；它不构成 Phase 4、M1、任何 AC 或真实平台 Gate 的验收。
+- 最终 Compose 演示固定同一 source/tree/build/命令和新 owned project/volume：完整 20 SKU/未知键、拒绝零项、批准/执行、单项 T6、新旧周期隔离、持久重启与原键只读回放；结果按实际记录，失败保持 partial。只使用 MockCommerce，Fake/模型模式逐段标明；不能启动旧 profile 意外创建另一套 seed/API/Worker。
+- 页面沿 S01/S02/S09 → S03/M03/M04 → S04 → S05/S11/M01 → S06 → M05/M02，F01/F02 采用相应真实渠道材料。18 逻辑页是设计范围，无须另造 18 次业务写入；S07/S08、390px、键盘/焦点、登录撤权的既有 Web 证据可作附录，缺当前展示则标缺镜头。
+- 旧影片只有部分 20 行/投影标题与完成态，不是完整当前同步卡/close 原因/全链新周期录像。旧 QA 文档记载的两份私有 QA JSON 与三帧之一在本 C 当前路径未找到，**本轮仅确认路径缺失，不删除资产、不推断已丢失，也不把历史索引当现存文件证明**；由 Root 从既有保留包定位，若无法定位就明确缺素材。
+- 最终录屏须完整可读地覆盖 20 行与 unknown/null、原因/版本、业务终态和独立同步、来源/usage/模型模式；真人与 simulated_web 分段，认证输入不录，原值/URL/标识/密钥不公开，不把旧 Fake 画面剪成真实 Base 过程。先保存私有原片和来源/hash，再脱敏 QA；片长不构成延长窗口理由。
+- 最终 Root 汇总逐 AC 证据、剩余限制、无未解决 P1/P2、新精确 CI、正常 main 合并/合后同 SHA CI及 Issue 结案。P4/M1 未因本地图或当前 v1 RO 分项 PASS 而完成；原 300h / P4 计划 50h、H/L not_reported 及全部旧资源/Penpot/失败保留。

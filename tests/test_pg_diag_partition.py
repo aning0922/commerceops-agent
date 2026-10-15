@@ -340,3 +340,32 @@ def test_later_phase3_batch_still_consumes_same_absolute_deadline(
         "combined-phase3-test_p3_large_pg",
         "combined-phase3-batch-1",
     ]
+
+
+def test_terminal_schema_nodes_are_separate_commands_without_recollecting_whole_module() -> None:
+    path = "tests/test_p4_acceptance_pg.py"
+    original = [f"{path}::original_{n}" for n in range(5)]
+    terminal = [
+        f"{path}::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[{revision}]"
+        for revision in ("0015", "0016")
+    ]
+    nearby = ["tests/test_p4_a_pg.py::before", "tests/test_p4_z_pg.py::after"]
+    nodes = OLD + nearby + original + terminal[::-1]
+    records = [collection(nodes)]
+    commands: list[tuple[str, list[str], float]] = []
+    actual: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        selected = [node for node in nodes if node in paths or node.split("::")[0] in paths]
+        commands.append((label, paths, cap))
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, scope="phase3")
+    parts = [entry for entry in commands if "test_p4_acceptance_pg" in entry[0]]
+    assert [paths for _, paths, _ in parts] == [original, terminal[:1], terminal[1:]]
+    assert all(cap == 300 and path not in paths for _, paths, cap in parts)
+    assert sorted(actual) == sorted(nearby + original + terminal)
+    assert len(actual) == len(set(actual))
+    assert not any("combined-existing" == label for label, _, _ in commands)

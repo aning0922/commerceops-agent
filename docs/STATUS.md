@@ -1048,3 +1048,34 @@ Root要求明早先处理现有测试分组容量：新两个节点合计337.05s
 独占同一300s命令。仅最小分批/必要独立测试模块，保完整506集合/两分区/G1G2/35与33总限额/
 300命令/75 reserve及原清理保护；不启动已知超时CI，不借旧40min通知重新授权。
 本轮无durations/JUnit，各节点/fixture独立时长unknown，须保留337.05s原实测和失败历史。
+
+## 62. 统一整改接续：两阶段实际入口候选
+
+用户取消原23:00硬停并继续托管。Root集中批准本批8 Agent有效h，A5.5/C0.5/Review1/Root1，
+此前全部用量及126秒诊断累计，从原P4/300h内调配。0fc82f0启动快照与夜间17文件hash一致，
+原branch普通ff-only保留；不改写历史。原RO已SPENT，原库/Secret/SDK仍须最终同源隔离全链、
+原独审、新精确CI与Root具体UTC及真人就绪后统一释放；本批原则授权不等于现在开真实。
+
+同一run_once新增human_terminal两阶段模式：预先固定不重叠绝对UTC，各PG≤600、合计≤1200、
+各reserve180，human等待≤300、SDK≤300。图片/源码/配置先准备；真人前余量不足完整等待与
+60秒采集则不发READY，后段不足480秒则不arm。先完整停前段，再从native RO claim/真实终止/
+稳定v1锚与T6持久事实自动派生disabled模板；不代真人业务提交，技术认证只供actual GET，
+不重投已提交T6、不重跑原RO、不增加C/IM/provider或原业务/权限/迁移规则。
+
+CI保留旧5验收节点独立一组，两个terminal schema节点各自独立，防止再次被小模块合批；
+原完整集合、两分区、G1/G2、35/33总限额、300命令/75 reserve/60 cleanup均保持。
+337.05秒旧合计不删，各节点实测另补。相关37pure及6文件type已过；此前完整离线check日志
+完成但wrapper exit未知保持。整改后一次完整check实际CLI0/166.90s，随后host tools固定及
+来源检查有增量，最终源码同源完整预演/检查另核，不能借旧结果代签。
+
+短owned前置p4terminal-preflight-cf3b012812：两schema真实低权执行新增派生及native准入的
+18条SELECT（含行锁权限），两节点2pass/2.94s；16:05:02Z down0/容器网络0/保卷，SDK0。
+Root已审C单文档地图按原diff集成，文件SHA256为
+2a21bccf7038b17ef840fd910b42fb6e8767642995e0443d99612fd194eed8bf，C四consumer不改。
+当前是源码候选，不是完整human准备PASS；下一步同一源码/privateparent/image执行双schema
+实际外层、必要失败清理及冷重放。没有push/触CI/main/Issue结案，M1/Phase4仍in_progress。
+
+本节接线核对补记：原生产恢复要求同host/PID namespace，重建runner不兼容原native终止证明；
+未运行该部署草稿、不改写历史回执，已收敛至Root同意的049同host子进程/受控loopback PG模式。
+新owned历史、human和v2必须同host产生；PG/API/Web只绑定127.0.0.1自有登记端口，
+沿用现有PG/source/tool/control，不保留第二部署框架。完整同源LAB仍待实际结果。

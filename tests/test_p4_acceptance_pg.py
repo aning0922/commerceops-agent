@@ -81,6 +81,21 @@ def test_exact_schema_app_queries_and_expected_metadata_denial(
         original_metadata["app_role"][flag]
         for flag in ("rolsuper", "rolcreatedb", "rolcreaterole", "rolreplication", "rolbypassrls")
     )
+    # 在昂贵RO历史前，以空库真实DDL/低权执行完整SELECT（含实际行锁权限）。
+    # 只检查生产查询对schema/grant的兼容，不插入业务行或替换业务准入。
+    from commerceops.infrastructure.feishu_outbox_recovery import terminal_intent
+
+    from scripts.p4_acceptance import terminal_window_from_native
+
+    checked = 0
+    for operation in (terminal_intent, terminal_window_from_native):
+        for statement in operation.__code__.co_consts:
+            if not isinstance(statement, str) or not statement.startswith("SELECT "):
+                continue
+            with connect(app) as db:
+                db.execute(statement, (None,) * statement.count("%s")).fetchall()
+            checked += 1
+    assert checked >= 10
     if revision == "0016":
         with pytest.raises(ValueError, match="revision mismatch"):
             grant_runtime(owner, legacy_revision="0015")
