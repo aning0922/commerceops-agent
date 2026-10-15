@@ -884,3 +884,88 @@ const chromium={executablePath:()=>file,
     )
     assert child.returncode == 0, child.stderr.decode()
     assert child.stdout == b"binding-unit-only-no-browser-started\n"
+
+
+def test_cold_private_home_binds_only_the_registered_browser_cache(tmp_path: Path) -> None:
+    import hashlib
+
+    home = tmp_path / "private-home"
+    home.mkdir(mode=0o700)
+    env = controlled_environment({"HOME": str(home), "TMPDIR": str(home)})
+    node = str(ROOT / ".tools/node/bin/node")
+    pw = str(ROOT / "frontend/node_modules/playwright")
+    metadata = subprocess.run(
+        [
+            node,
+            "-e",
+            "process.stdout.write(require(process.argv[1]).chromium.executablePath())",
+            pw,
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        timeout=10,
+        check=True,
+    )
+    original = Path(metadata.stdout.decode())
+    start = next(i for i, part in enumerate(original.parts) if part.startswith("chromium-"))
+    cache = tmp_path / "approved-cache"
+    binary = cache.joinpath(*original.parts[start:])
+    binary.parent.mkdir(parents=True, mode=0o700)
+    binary.write_bytes(b"unit placeholder only; never executed")
+    wrong_revision = tmp_path.joinpath("wrong-cache", "chromium-0", *original.parts[start + 1 :])
+    wrong_revision.parent.mkdir(parents=True, mode=0o700)
+    wrong_revision.write_bytes(binary.read_bytes())
+    bound = {
+        "playwright_root": pw,
+        "playwright_version": "1.64.0",
+        "browser_executable": str(binary),
+        "browser_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
+    }
+    script = r"""
+const assert=require('node:assert/strict');
+const {loadBoundChromium}=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+const input=JSON.parse(process.argv[1]),home=process.env.HOME;
+const bound=loadBoundChromium(input);
+assert.equal(bound.chromium.executablePath(),input.browser_executable);
+assert.equal(process.env.HOME,home);assert.equal(bound.source.private_home_preserved,true);
+assert.equal(bound.source.install_or_fallback,false);
+assert.throws(()=>loadBoundChromium({...input,browser_sha256:'0'.repeat(64)}),
+ error=>error.code==='BROWSER_SOURCE_MISMATCH');
+assert.throws(()=>loadBoundChromium({...input,browser_executable:process.argv[2]}),
+ error=>error.code==='BROWSER_CACHE_SOURCE_INVALID');
+process.stdout.write(JSON.stringify({cache_root:bound.source.cache_root,metadata_only:true}));
+"""
+    child = subprocess.run(
+        [node, "-e", script, json.dumps(bound), str(wrong_revision)],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert json.loads(child.stdout) == {"cache_root": str(cache), "metadata_only": True}
+    assert str(original) != str(binary)
+
+
+def test_browser_process_receipt_rejects_the_observer_pid_before_os_lookup() -> None:
+    script = r"""
+const assert=require('node:assert/strict');
+const {browserProcessReceipt}=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+const browser={newBrowserCDPSession:async()=>({send:async()=>({processInfo:[
+ {type:'browser',id:process.pid}]})})};
+(async()=>{
+ await assert.rejects(browserProcessReceipt(browser,{},1000),
+  error=>error.code==='BROWSER_PROCESS_INVALID');
+ process.stdout.write('own-node-pid-rejected-no-browser\n');
+})().catch(()=>{process.stderr.write('pid-rejection-unit-failed\n');process.exitCode=1;});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=10,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"own-node-pid-rejected-no-browser\n"
