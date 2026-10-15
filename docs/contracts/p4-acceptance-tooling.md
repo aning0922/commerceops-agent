@@ -58,7 +58,7 @@ handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件�
 | worker | epoch="base_ro"、owner、pid、namespace、process_started_id、termination_id、claim_id/claim_hash、reaped；来自原持久audit及实际OS/wait，这是已结束RO epoch，不代表当前app Worker活跃 |
 | web | api_origin、web_origin、expected_item_path；仅loopback且必须符合本轮登记；实际服务image/container证明 |
 | t6 | request_phase="unprepared"、request_key=null、action="close"、reason、expected_version=1；初态固定目标/语义，原生UI生成request key |
-| toolchain | node_executable/node_version/node_sha256/playwright_root/playwright_version/playwright_package_sha256/browser_executable/browser_sha256/frontend_node_modules/read_schema_path/read_schema_sha256/ui_helper_sha256；均为实际冻结来源 |
+| candidate.toolchain | node_executable/node_version/node_sha256/playwright_root/playwright_version/playwright_package_sha256/browser_executable/browser_sha256/frontend_node_modules/read_schema_path/read_schema_sha256/ui_helper_sha256；均为实际冻结来源 |
 
 app_database_config字节是实际app角色的原生DatabaseSettings JSON；C独立校验path/hash并按该对象连接，
 禁止从Web配置猜派生连接或退回owner。该对象user必须commerceops_app，runtime_password_file必须null。
@@ -102,10 +102,11 @@ start:   {epoch:{owner,organization,pid,host,pid_namespace,process_started_id,re
 stop:    {epoch:{旧epoch及termination_id,reaped:true},active_workers:实际0,
           reaped:true,api_ready:false,volume,container_ids}
 restart: {epoch:新active epoch,active_workers:实际1,reaped:true,api_ready:实际true,
-          volume,container_ids,stopped_epoch:旧已回收epoch}
+          volume,container_ids,stopped_epoch:旧已回收epoch及termination_id}
 ```
 
-顶层restart.reaped指旧epoch，新的epoch.reaped仍false。当前正常restart范围为原生API及
+顶层restart.reaped指旧epoch，新的epoch.reaped仍false。stopped_epoch为旧epoch的新终止证据副本，
+不重写原start回执。当前正常restart范围为原生API及
 单Worker进程、同一runner/PG卷；不冒称PG或Web已重启。Web重启由C原owner执行并另记。
 active_workers来自原审计未确认计数，api_ready来自实际Server startup/进程状态，不补默认成功。
 
