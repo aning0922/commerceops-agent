@@ -280,6 +280,40 @@ def test_small_complete_modules_batch_at_20_without_splitting_large_or_quality_m
         )
 
 
+def test_acceptance_five_nodes_keep_complete_independent_300s_command() -> None:
+    acceptance = [
+        "tests/test_p4_acceptance_pg.py::test_exact_schema_app_queries_and_expected_metadata_denial[0015]",
+        "tests/test_p4_acceptance_pg.py::test_exact_schema_app_queries_and_expected_metadata_denial[0016]",
+        "tests/test_p4_acceptance_pg.py::test_same_outer_native_full_RO_once_and_fresh_process_original_key_replay",
+        "tests/test_p4_acceptance_pg.py::test_twenty_items_ordinary_ro_is_separate_from_explicit_single_recovery",
+        "tests/test_p4_acceptance_pg.py::test_gateway_session_lock_held_until_actual_child_reap",
+    ]
+    before = [f"tests/test_p4_a09_workflow_pg.py::case_{n}" for n in range(6)]
+    after = [f"tests/test_p4_clarification_pg.py::case_{n}" for n in range(9)]
+    nodes = OLD + before + acceptance + after
+    records = [collection(nodes)]
+    commands: list[tuple[str, list[str], float]] = []
+    actual: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        selected = [node for node in nodes if node.split("::", 1)[0] in paths]
+        commands.append((label, paths, cap))
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command)
+    assert commands == [
+        ("combined-existing", sorted({n.split("::", 1)[0] for n in OLD}), 300),
+        ("combined-phase3-test_p4_a09_workflow_pg", ["tests/test_p4_a09_workflow_pg.py"], 300),
+        ("combined-phase3-test_p4_acceptance_pg", ["tests/test_p4_acceptance_pg.py"], 300),
+        ("combined-phase3-test_p4_clarification_pg", ["tests/test_p4_clarification_pg.py"], 300),
+    ]
+    assert actual == nodes and len(actual) == len(set(actual))
+    group = pg_diagnostic.combined_groups(nodes)["combined-phase3-test_p4_acceptance_pg"]
+    assert group == acceptance
+
+
 def test_later_phase3_batch_still_consumes_same_absolute_deadline(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

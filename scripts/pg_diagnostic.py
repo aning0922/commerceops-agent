@@ -104,7 +104,8 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         if not set(group) <= business:
             result[label] = group
             continue
-        if len(group) > 20:
+        # 验收模块虽仅5节点，single/20项两条原生恢复链已实测约200s；独占原300s预算。
+        if len(group) > 20 or label == "combined-phase3-test_p4_acceptance_pg":
             flush()
             result[label] = group
             continue
