@@ -1,5 +1,7 @@
 # 工程约束
 
+验收工具run10补记（2026-10-15）：fadb完整check2025offline/504PG排除/审计0；新owned run SOURCE至T6/V2实际通过，RESTART因external_records误pin可变传输存储而hash拒绝，PAGE/COLLECT未运行，最外1。STOP/CLEANUP含四库inventory通过，容器网络0/端口关闭/保卷；仅本次事实，不拼签最终候选。A在停止后合批改不可变v1快照引用及Core指出的child诊断safe shape P2，保留原native/v2/引用准入；新SHA须全链重跑/独审/精确CI，真实仍HOLD。
+
 验收准备预算补充（2026-10-15）：C432精确交付后Root将原C4h已确认空余调配，当前A5.75/C3/Review2.25/Root1，总仍12 Agent有效h；A近5.2h报告，原14:01:35Z硬截止、日期及300h/P4 50h不变。工具修正与C432须同一冻结源码完整运行并独审，旧40min CI异步授权不重开窗口。
 
 最新验收工具准备导航（2026-10-15）：Root按[完整准备包](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6184152897)登记04:01:35Z→14:01:35Z，12 Agent有效h/A5+C4+Review2+Root1；人工H/L仍not_reported，原300h/P4 50h/日期与18页不重置。A唯一新私有run_once入口及scripts/p4_acceptance helper，C四验收consumer文件按精确提交普通内部合入；不改业务状态机/迁移/审批/权限策略/B/产品UI/锁/CI，不push或启动真实SDK。每个新owned run固定≤20min（必要完整≤30min）、reserve≥180，PG无宿主端口、独立namespace/低权app/保卷。两新case严格分列：single1项/Q70原C0→sender→reader→explicit once及同键冷重放，twenty20项/Q2000仅ordinary原键RO，不放宽first-create单item谓词。run4实际5PG/205.903s通过；run5资源reader失败、run6复制源码0600在绑定前失败、run7完整入口exit1/T6浏览器来源错位、API缺结果及Web143均保留，资源0/0/卷保留不代签通过。2dc的run8实际原生矩阵214.263s：两规范wire正例通过、13预期拒绝的实际负例CLI均1，hash/混窗/撤权ledger0，06:45:27Z stop0/0保卷。loader包内JSON、非root源码可读、API正常stop与expected_owned_SIGTERM分类及C浏览器修正分层验证；最终组合源码全链/竞争once/重放/精确freeze、独审及新CI以新回执为准，不预写。原known70/真实身份/旧私配/原AppSecret/manualRO/provider0，Base/007及正式平台仍HOLD；历史40min异步答复不重开窗口。详见[工具合同](docs/contracts/p4-acceptance-tooling.md)及STATUS60。

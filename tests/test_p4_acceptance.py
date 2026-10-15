@@ -190,6 +190,79 @@ def test_remote_failure_preserves_actual_stage_code_and_SQLSTATE(code: str) -> N
     assert value["sqlstate"] == "42501" and value["query_id"] == "FIXED_QUERY"
 
 
+@pytest.mark.parametrize("dto_key", ["dto", "dto_errors"])
+def test_child_diagnostics_rebuild_bounded_shape_before_actual_outer_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, dto_key: str
+) -> None:
+    from scripts import p4_acceptance as shared
+
+    tmp_path.chmod(0o700)
+    unsafe = "NEVER-PRINT-private-body-token"
+    dto = [
+        {
+            "loc": ["item_id", unsafe, True, -1, 1001] * 3,
+            "type": "int_type",
+            "input": unsafe,
+            "ctx": {"body": unsafe},
+            "message": unsafe,
+            "unknown": unsafe,
+        }
+    ] * 20
+    child = dict(
+        stage="CALL",
+        code="SQL_FAILED",
+        category="TypeError",
+        query_id="CLARIFICATIONS",
+        sqlstate="42P01",
+        **{dto_key: dto},
+        input=unsafe,
+        body=unsafe,
+        message=unsafe,
+        cleanup_failure=dict(
+            stage="STOP",
+            code="P4A_CLEANUP_FAILED",
+            category="RuntimeError",
+            sqlstate="57014",
+            query_id=unsafe,
+            dto=dto,
+            body=unsafe,
+            cleanup_failure={"message": unsafe},
+        ),
+    )
+
+    def failed(request: Any) -> Any:
+        shared.raise_child_failure({"failure": child}, "PREPARE")
+
+    monkeypatch.setattr(shared, "worker_stage", failed)
+    runtime = Deadline.register(datetime.now(UTC) + timedelta(minutes=10))
+    output = tmp_path / "result.json"
+    binding: Any = SimpleNamespace(check_loaded=lambda: None)
+    code = shared.outer_request(
+        dict(
+            contract=CONTRACT,
+            action="worker",
+            transport="fake",
+            output_file=str(output),
+            runtime=dict(
+                deadline_utc=runtime.expires_at.isoformat(),
+                monotonic_end=runtime.monotonic_end,
+                cleanup_reserve_seconds=180,
+            ),
+        ),
+        binding,
+    )
+    result = json.loads(output.read_bytes())
+    detail = result["failure"]
+    assert code == result["exit_code"] == 1 and detail["stage"] == "CALL"
+    assert detail["code"] == "SQL_FAILED" and detail["sqlstate"] == "42P01"
+    assert detail["query_id"] == "CLARIFICATIONS" and unsafe not in output.read_text()
+    assert len(detail[dto_key]) == 8 and all(len(r["loc"]) == 8 for r in detail[dto_key])
+    assert all(set(r) == {"loc", "type"} for r in detail[dto_key])
+    cleanup = detail["cleanup_failure"]
+    assert cleanup["query_id"] is None and cleanup["sqlstate"] == "57014"
+    assert set(cleanup) == {"stage", "code", "category", "query_id", "sqlstate", "dto"}
+
+
 @pytest.mark.parametrize("fault", ["none", "undeclared", "missing", "owner", "connection"])
 def test_retained_database_inventory_refuses_gaps_and_closes_own_connection(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str

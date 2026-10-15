@@ -64,6 +64,8 @@ handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件�
 
 app_database_config字节是实际app角色的原生DatabaseSettings JSON；C独立校验path/hash并按该对象连接，
 禁止从Web配置猜派生连接或退回owner。该对象user必须commerceops_app，runtime_password_file必须null。
+external_records引用不可变v1读回证据快照，实际Fake传输的可变存储由A continuation独立绑定使用；
+native v2正常更新同一record后，不重写handoff或原v1快照。新v2仍须原SDK/ledger及PG typed读回核对。
 PG不publish任何host端口，app连接host为postgres。Host阶段consumer通过共用窄桥接调用：
 
 ```python
@@ -153,6 +155,8 @@ app读alembic_version的42501为预期拒绝，不能为collector扩权。
 阶段从NOT_RUN开始，进入前记ENTERED，实际结束才PASSED/FAILED；未进入保留NOT_RUN。
 公开失败只含固定stage/code、queryID+SQLSTATE或DTOloc/type。禁止原异常message、SQL/参数、
 DTO input/ctx、secret或未过滤业务值。数据快照失败不能阻断独立lifecycle/OS/归属/清理。
+父边界重建child固定安全字段；dto/dto_errors仅有界loc/type，cleanup_failure仅一层固定诊断，
+不透传input/ctx/body/message、未知键或嵌套cleanup。实际stage/C固定code/SQLSTATE与非零退出保持。
 实际负例CLI必须非零；suite的expected rejection另字段，不把负例进程exit0包装为成功。
 
 ## 完整正向与必要矩阵

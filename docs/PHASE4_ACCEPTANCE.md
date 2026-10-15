@@ -1,5 +1,11 @@
 # Phase4 / M1 分层验收（实施中）
 
+验收工具run10补记（2026-10-15）：fadb新owned预演最外1，SOURCE/RESOURCE/SCHEMA/MATRIX/
+两case PREPARE/真实UI T6/native v2通过；RESTART因external_records误pin可变传输存储而
+hash拒绝，PAGE/COLLECT未运行，原输入不改。STOP/CLEANUP含四库inventory通过、容器网络0/
+端口关闭/保卷。停止后仅A装配改不可变v1证据快照、父诊断边界重建固定safe shape；
+新统一SHA完整预演、独审与精确CI仍pending，M1/真实平台HOLD不变，详情STATUS60。
+
 最新验收工具准备导航（2026-10-15）：Root按[完整准备包](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6184152897)登记04:01:35Z→14:01:35Z，12 Agent有效h/A5+C4+Review2+Root1；人工H/L仍not_reported，原300h/P4 50h/日期与18页不重置。A唯一新私有run_once入口及scripts/p4_acceptance helper，C四验收consumer文件按精确提交普通内部合入；不改业务状态机/迁移/审批/权限策略/B/产品UI/锁/CI，不push或启动真实SDK。每个新owned run固定≤20min（必要完整≤30min）、reserve≥180，PG无宿主端口、独立namespace/低权app/保卷。两新case严格分列：single1项/Q70原C0→sender→reader→explicit once及同键冷重放，twenty20项/Q2000仅ordinary原键RO，不放宽first-create单item谓词。run4实际5PG/205.903s通过；run5资源reader失败、run6复制源码0600在绑定前失败、run7完整入口exit1/T6浏览器来源错位、API缺结果及Web143均保留，资源0/0/卷保留不代签通过。2dc的run8实际原生矩阵214.263s：两规范wire正例通过、13预期拒绝的实际负例CLI均1，hash/混窗/撤权ledger0，06:45:27Z stop0/0保卷。loader包内JSON、非root源码可读、API正常stop与expected_owned_SIGTERM分类及C浏览器修正分层验证；最终组合源码全链/竞争once/重放/精确freeze、独审及新CI以新回执为准，不预写。原known70/真实身份/旧私配/原AppSecret/manualRO/provider0，Base/007及正式平台仍HOLD；历史40min异步答复不重开窗口。详见[工具合同](contracts/p4-acceptance-tooling.md)及STATUS60。
 
 最新Hosted/P4导航（2026-10-13，D4）：人类已明确授权仓库Public/保护/fork、恢复GitHub Hosted Actions并继续P4，随后结束本地CI；以[Root阶段回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6138181766)为准。原fd38/codex/phase4-feishu/PR43继续，已核main9d97，P4/M1仍in_progress、Issues39–42未结案；localCI未完成，1341及两未提交180预算文件/旧失败私有资产保留，不带入P4。40dc的Hosted38210480544 attempt2实际checkout7add/tree245933：quality/phase3/pg-pair SUCCESS，frontend/n01 FAILURE；原helper核281+160=441完整PG、交集0/G1三/G2六/cleanup0/stopping confirmed，Hosted临时PG down --volumes不记保卷，旧私有卷另保留。Root释放普通合入[已审C6ed9](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6138319062)两spec：作者62+48相关pure，独立Web noP1/P2/type/13 closed契约719ms/69pure1.22s；同身份合法内存session生命周期、角色隔离/fresh context/page/逐body真实严格DTO核验，401/403不刷新重登，第六例真实revoke保留。组合独审与新精确五项Hosted尚待，actual read7/write10/items7/N01six、SDK/真人/全M1仍pending，不以源码或旧441代签。仅两已审spec与必要三事实文档；backend/scripts/CI/锁/Compose/B/产品UI不改，无新PG/浏览器/SDK/provider/push/main。D1=10-10/D30=11-08/原300h/P4 50h估计与18页冻结不重置，人工H/L not_reported；下方旧Private/暂停/候选导航按当时历史保留，不覆盖本次直接授权。

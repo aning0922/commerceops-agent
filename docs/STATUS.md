@@ -1002,3 +1002,14 @@ Core对461的两P2为actualstage与保留DB inventory闭合；工具v2 caps亦�
 Root随后核C432精确交付及新12字段索引，普通内部合入后统一重跑；C的MVCC机制证据只签
 0016 collector机制，不代签全链或0015。预算在原12h内调整为A5.75/C3/Review2.25/Root1，
 硬截止14:01:35Z不变。A此时自估约3.8h，人工H/L与实际计量仍not_reported。
+
+run10/fadb259按08:00:52Z→08:20:52Z登记，最外实际1：SOURCE/RESOURCE/SCHEMA/MATRIX/PREPARE/
+T6/V2通过，RESTART在consumer入口PRIVATE_HASH_MISMATCH拒绝，PAGE/COLLECT未运行；
+STOP/CLEANUP通过，API/Worker实际0、Web实际143有owned SIGTERM证据，容器网络0/端口关闭/保卷。
+四新UUID库的owner元数据与连接inventory闭合。故意残留连接被拒后释放复核0；capture真实
+CLARIFICATIONS/42P01与timeout57014、call/load/SQL/DTO非零负例分层保留，不代签新候选。
+该次仅external_records的hash在native v2后变化：handoff误pin实际可变传输存储，其他三私配匹配。
+改为独立不可变v1证据快照，原continuation仍使用原运行存储，原v2业务链不改。
+Core另发现fadb诊断直接透传child字段P2；父边界按既有loc/type有界合同和一层cleanup固定字段
+重建，恶意额外字段回归及新冻结全链另核，不用本次T6/V2局部通过拼签新源码。
+run10完整失败索引SHA256为35e0552d570ca75d2ed91af8f876ed8546a757f18e4f1a417a48dce7204eba4c。

@@ -101,6 +101,30 @@ def stage_boundary(stage: str) -> Iterator[None]:
         raise
 
 
+def safe_child_detail(value: Any, fallback: str) -> dict[str, Any]:
+    """只重建既有child诊断合同；不复制未知键或递归异常数据。"""
+    from tests.e2e.web.m1_acceptance_driver import safe_dto_errors
+
+    detail = value if isinstance(value, dict) else {}
+
+    def fixed(name: str, pattern: str, default: Any = None) -> Any:
+        item = detail.get(name)
+        return item if isinstance(item, str) and re.fullmatch(pattern, item) else default
+
+    stage = detail.get("stage")
+    result = dict(
+        stage=stage if isinstance(stage, str) and stage in STAGES else fallback,
+        code=fixed("code", r"[A-Z][A-Z0-9_]{0,79}", "P4A_INTERNAL"),
+        category=fixed("category", r"[A-Za-z][A-Za-z0-9_]{0,63}", "ChildFailure"),
+        query_id=fixed("query_id", r"(?:[A-Z][A-Z0-9_]{0,79}|AQ-[0-9a-f]{16})"),
+        sqlstate=fixed("sqlstate", r"[A-Z0-9]{5}"),
+    )
+    for key in ("dto", "dto_errors"):
+        if key in detail:
+            result[key] = safe_dto_errors(detail[key])
+    return result
+
+
 def raise_child_failure(result: Mapping[str, Any], fallback: str) -> None:
     detail = result.get("failure")
     if not isinstance(detail, dict):
@@ -112,22 +136,23 @@ def raise_child_failure(result: Mapping[str, Any], fallback: str) -> None:
             ),
             {},
         )
-    code = detail.get("code")
-    if not isinstance(code, str) or not re.fullmatch(r"[A-Z0-9_]{1,80}", code):
-        code = "P4A_RUNNER_CHILD_FAILED"
+    raw_detail = detail if isinstance(detail, dict) else {}
+    detail = safe_child_detail(detail, fallback)
+    code = detail["code"]
     error = AcceptanceFailure(
         code, query_id=detail.get("query_id"), sqlstate=detail.get("sqlstate")
     )
     # C的固定安全码不带P4A前缀；已校验闭合字符集，不将其降为INTERNAL。
     error.code = code
-    for key in ("dto", "dto_errors", "cleanup_failure"):
+    error.p4a_category = detail["category"]  # type: ignore[attr-defined]
+    for key in ("dto", "dto_errors"):
         if key in detail:
             setattr(error, "p4a_" + key, detail[key])
-    actual_stage = detail.get("stage")
-    mark_stage(
-        error,
-        actual_stage if isinstance(actual_stage, str) and actual_stage in STAGES else fallback,
-    )
+    if isinstance(raw_detail.get("cleanup_failure"), dict):
+        error.p4a_cleanup_failure = safe_child_detail(  # type: ignore[attr-defined]
+            raw_detail["cleanup_failure"], "STOP"
+        )
+    mark_stage(error, detail["stage"])
     raise error
 
 
@@ -267,11 +292,16 @@ def safe_failure(error: BaseException, stage: str, query_id: str | None = None) 
     result["locations"] = locations
     cleanup_failure = getattr(error, "p4a_cleanup_failure", None)
     if isinstance(cleanup_failure, dict):
-        result["cleanup_failure"] = cleanup_failure
+        result["cleanup_failure"] = safe_child_detail(cleanup_failure, "STOP")
+    category = getattr(error, "p4a_category", None)
+    if isinstance(category, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", category):
+        result["category"] = category
+    from tests.e2e.web.m1_acceptance_driver import safe_dto_errors
+
     for key in ("dto", "dto_errors"):
         value = getattr(error, "p4a_" + key, None)
-        if isinstance(value, (list, dict)):
-            result[key] = value
+        if value is not None:
+            result[key] = safe_dto_errors(value)
     if type(error).__module__ == "tests.e2e.web.m1_acceptance_capture":
         value = error.safe()  # type: ignore[attr-defined]
         if isinstance(value, dict):
@@ -1853,6 +1883,8 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             )
         start = starts[0]
         continuation = a.save_continuation(result)
+        external_snapshot = private / "external-records-v1.json"
+        write_private(external_snapshot, json.loads(bound_bytes(a.external, private=True)))
         return dict(
             exit_code=0,
             stage_result="COMPLETE",
@@ -1886,7 +1918,7 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
                     for k, p in (
                         ("app_database_config", private / "app-database.json"),
                         ("web_credentials", private / "web-credentials.json"),
-                        ("external_records", a.external),
+                        ("external_records", external_snapshot),
                     )
                 },
             },
