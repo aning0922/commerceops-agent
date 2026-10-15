@@ -53,7 +53,7 @@ handoff固定顶层字段如下，实际值仅本轮合成资源的私有文件�
 | base_ro | typed_result原生产ProjectionResult序列化；window_id、outbox_id、item_id、version=1、client_token、projection_hash、request_hash；pg_proof含delivery状态/完整唯一/observed_version/external_id、稳定anchor及真实SDK method counts；证据ref/hash |
 | worker | epoch="base_ro"、owner、pid、namespace、process_started_id、termination_id、claim_id/claim_hash、reaped；来自原持久audit及实际OS/wait，这是已结束RO epoch，不代表当前app Worker活跃 |
 | web | api_origin、web_origin、expected_item_path；仅loopback且必须符合本轮登记；实际服务image/container证明 |
-| t6 | request_key、action="close"、reason；均为本轮一次冻结输入，未消费时不可声称成功 |
+| t6 | request_phase="unprepared"、request_key=null、action="close"、reason、expected_version=1；初态固定目标/语义，原生UI生成request key |
 
 app_database_config字节是实际app角色的原生DatabaseSettings JSON；C独立校验path/hash并按该对象连接，
 禁止从Web配置猜派生连接或退回owner。该对象user必须commerceops_app，runtime_password_file必须null。
@@ -67,6 +67,11 @@ private_refs的hash是私有文件字节绑定，公共报告仅输出计数/布
 typed_response、receipt_ref/hash、PG验证的request/actor/identity/auth_version/audit/outbox关联，
 以及20项中仅同target从open/v1到closed/v2、其余19open的实际计数。
 必须真实页面/API一次POST，再原request_key GET；HTTP200/text/v2单独不足。
+真实ResolutionDialog在prepare时通过crypto.randomUUID生成key，工具不得预造UUID、修改crypto或请求体。
+C在prepare后、send前将原生key和canonical wire-body hash写入O_EXCL新私有receipt，绑定
+原handoff digest/candidate/resource/target；原handoff不重写。可读prepared DOM或在network-send前
+observer读取后原样continue，严格一次原始POST。返回actual request_key及receipt ref/hash供后续原键
+GET/replay；server semantic_payload_hash由真实PG/native规则另核，不与wire-body hash混同。
 新v2 outbox/key只由原T6产生，不由工具写入。A读回必须使用该outbox原key和同一Fake外部record。
 
 `restart`结果分列正常stop前、停止后、same-volume up后：actual IDs/ownership/health、
