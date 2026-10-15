@@ -125,12 +125,155 @@ def test_consumer_failure_keeps_fixed_code_and_actual_outer_stage() -> None:
     assert value["query_id"] is None and value["sqlstate"] is None
 
 
+@pytest.mark.parametrize("stage", ["ROLE", "AUTHORIZE", "PREFLIGHT", "CALL", "PERSIST", "STOP"])
+def test_outer_action_keeps_inner_failure_stage_and_nonzero(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
+) -> None:
+    from scripts import p4_acceptance as shared
+
+    tmp_path.chmod(0o700)
+    output = tmp_path / "result.json"
+
+    def fail(request: Any) -> dict[str, Any]:
+        with shared.stage_boundary("PREPARE"), shared.stage_boundary(stage):
+            raise AcceptanceFailure("P4A_NATIVE_TEST", query_id="FIXED_QUERY", sqlstate="42501")
+
+    monkeypatch.setattr(shared, "worker_stage", fail)
+    runtime = Deadline.register(datetime.now(UTC) + timedelta(minutes=5))
+    request = dict(
+        contract=CONTRACT,
+        action="worker",
+        transport="fake",
+        output_file=str(output),
+        runtime=dict(
+            deadline_utc=runtime.expires_at.isoformat(),
+            monotonic_end=runtime.monotonic_end,
+            cleanup_reserve_seconds=180,
+        ),
+    )
+    binding: Any = SimpleNamespace(check_loaded=lambda: None)
+    code = shared.outer_request(request, binding)
+    result = json.loads(output.read_bytes())
+    assert code == result["exit_code"] == 1
+    assert result["failure"]["stage"] == stage
+    assert result["failure"]["query_id"] == "FIXED_QUERY"
+    assert result["failure"]["sqlstate"] == "42501"
+    assert result["suite_PASS"] is False
+
+
 def test_deadline_cannot_roll_or_arm_inside_cleanup_reserve() -> None:
     with pytest.raises(AcceptanceFailure):
         Deadline.register(datetime.now(UTC) + timedelta(seconds=100))
     fixed = Deadline.register(datetime.now(UTC) + timedelta(seconds=240))
     assert 0 < fixed.remaining() <= 60
     assert 180 < fixed.remaining(cleanup=True) <= 240
+
+
+def test_remote_failure_preserves_actual_stage_code_and_SQLSTATE() -> None:
+    from scripts import p4_acceptance as shared
+
+    with pytest.raises(AcceptanceFailure) as raised:
+        shared.raise_child_failure(
+            {
+                "failure": {
+                    "stage": "PREFLIGHT",
+                    "code": "P4A_NATIVE_DENIED",
+                    "query_id": "FIXED_QUERY",
+                    "sqlstate": "42501",
+                }
+            },
+            "PREPARE",
+        )
+    value = safe_failure(raised.value, "PREPARE")
+    assert value["stage"] == "PREFLIGHT" and value["code"] == "P4A_NATIVE_DENIED"
+    assert value["sqlstate"] == "42501" and value["query_id"] == "FIXED_QUERY"
+
+
+@pytest.mark.parametrize("fault", ["none", "undeclared", "missing", "owner", "connection"])
+def test_retained_database_inventory_refuses_gaps_and_closes_own_connection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    from commerceops.infrastructure import database
+
+    from scripts import p4_acceptance as shared
+    from tests.p4_acceptance_support import reference
+
+    tmp_path.chmod(0o700)
+    plans = []
+    for purpose in (
+        "legacy_schema_probe",
+        "negative_matrix",
+        "batch_twenty_items",
+        "recover_single_item",
+    ):
+        key = uuid4()
+        plan = dict(
+            id=str(key),
+            name="p4a_" + key.hex,
+            owner="commerceops_owner",
+            purpose=purpose,
+            registration_file="database-" + key.hex + ".json",
+        )
+        plans.append(plan)
+        write_private(
+            tmp_path / plan["registration_file"], {**plan, "created": True, "run_id": "owned"}
+        )
+    settings = tmp_path / "owner.json"
+    write_private(
+        settings,
+        database.DatabaseSettings(
+            host="postgres",
+            user="commerceops_owner",
+            name="commerceops",
+            password_file=tmp_path / "not-read-in-metadata-unit",
+        ).model_dump(mode="json"),
+    )
+    observed = [
+        {"name": n, "owner": "commerceops_owner"}
+        for n in ["postgres", "commerceops", "template0", "template1", *[p["name"] for p in plans]]
+    ]
+    clients = []
+    if fault == "undeclared":
+        observed.append(dict(name="p4a_unregistered", owner="commerceops_owner"))
+    elif fault == "missing":
+        observed.pop()
+    elif fault == "owner":
+        observed[-1]["owner"] = "different_owner"
+    elif fault == "connection":
+        clients.append(dict(database=plans[0]["name"], role="commerceops_app", pid=7, state="idle"))
+
+    class MetadataDB:
+        closed = False
+
+        def __enter__(self) -> Any:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            self.closed = True
+
+        def execute(self, query: str, params: Any = None) -> Any:
+            if "current_user" in query:
+                return SimpleNamespace(fetchone=lambda: dict(role="commerceops_owner", pid=99))
+            if "FROM pg_database" in query:
+                return SimpleNamespace(fetchall=lambda: observed)
+            if "FROM pg_stat_activity" in query:
+                assert "pid<>pg_backend_pid()" in query
+                return SimpleNamespace(fetchall=lambda: clients)
+            return None
+
+    connection = MetadataDB()
+    monkeypatch.setattr(database, "connect", lambda settings: connection)
+    result = shared.database_inventory_stage(
+        dict(
+            owner_database_ref=reference(settings),
+            databases=plans,
+            private_root=str(tmp_path),
+            run_id="owned",
+        )
+    )
+    assert result["exit_code"] == (0 if fault == "none" else 1)
+    assert result["value"]["inventory_connection_closed"] is True and connection.closed
+    assert result["suite_PASS"] is False
 
 
 def test_private_fd_rejects_symlink_and_changed_expected_bytes(tmp_path: Path) -> None:

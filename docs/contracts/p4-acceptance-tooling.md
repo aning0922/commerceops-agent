@@ -3,6 +3,8 @@
 本合同属于[完整准备包](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6184152897)，
 版本 `p4-acceptance-preparation-v1`。它定义 A/C 工具接口；源码存在或局部测试不表示准入完成。
 总上限12 Agent有效h、A初分配5h、北京时间2026-10-15 22:01:35硬停不变。
+Root在C交付432后调配其已确认空余：A cap为5.75h、C3h、Review2.25h、Root1h，
+总额仍12h；A接近5.2h须报告，计入原预算，不续旧机器窗口。
 
 ## 唯一入口与源码
 
@@ -178,6 +180,15 @@ original/sender/reader/current来自新PG真实流程与同namespace的新Python
 重复key、分页、内容和超时；加载/SQL/DTO/调用/采集/超时的安全诊断、非零退出与独立清理。
 原键cold-process replay不得再arm、再POST或另造key，检查原ledger精确计数。
 整体PASS仅在全部required阶段、reap/cleanup/归属和exit一致后生成；阶段通过不得提前签整包。
+
+每个新UUID数据库在CREATE前进入同一冻结resource/registration的四项清单：legacy schema、
+negative matrix、twenty fixture、single fixture/replay，明确owner、用途及保留关联。
+CREATE成功立即写本轮O_EXCL回执；最终owner只读比对实际pg_database集合/owner及业务连接，
+明确排除自身PID、随后关闭自身连接。已创建缺失/未登记库/owner错位/残留业务连接均拒绝整体PASS；
+未进入的预登记步骤不倒填created。证据/replay库保留于自有卷，不DROP、不down-v。
+load/SQL/DTO/call/capture/timeout固定子case均在同一entry/hash的实际新进程执行；
+SQL42501、collector不匹配schema的42P01、实际callee签名拒绝、PG语句57014取消分别分记。
+受控保持新legacy库app连接的inventory拒绝及连接释放后复核独立记录，不用组件DEV代签整体。
 
 MATRIX阶段顺序使用新fixture运行原生准入与wire；两规范正例与预期拒绝分列，负例子CLI实际非零。
 DTO或并发锁拒绝发生在Worker started前时，必须真实查询0 started并已OS wait/reap，

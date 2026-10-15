@@ -983,3 +983,22 @@ expected_owned_SIGTERM，保留actual143；意外143、未知停止或API缺结�
 没有push/CI触发/PRbody/main/Issue结案，没有迁移/业务规则/审批/权限策略/产品UI/B/锁/CI改动。
 最终完整组合、源码freeze、独立审核、精确CI和Root裁决仍以各自新回执为准，M1/Phase4仍in_progress。
 详见[接口和证据合同](contracts/p4-acceptance-tooling.md)。
+
+
+本节后续补记（07:11，run9/461af8a）：同候选13矩阵、两正向fixture与实际双进程once/冷重放完成；
+页面T6在进入原键GET前已跨过严格200/typed检查，但response bytes未保留、T6后PG关联未采集，
+不得签完整T6。原键GET具体status/body未保留，记unknown；源码证实consumer漏必需operation参数，
+由原C修，不改产品API。bound outer实际1，STOP/CLEANUP均通过，API真实结果/exit0；
+Web143有本工具向immutable ID发送SIGTERM的exit0/wait/reap/端口关闭证据，分类expected_owned_SIGTERM。
+最终容器网络0、卷保留，未续旧窗口。统一失败索引由Root持有，SHA256
+fd41a6be92992e7b911f711e3614be93d3378bcf6e0467f73aa30299b98c1e99。
+
+Core对461的两P2为actualstage与保留DB inventory闭合；工具v2 caps亦需缩到原single SDK额度。
+同包补第一实际阶段传递、四个新UUID库预登记用途/fixture/replay关联、owner只读库集合/owner/连接核对，
+排除并关闭检查自身连接；不DROP证据/replay库、不down-v。六类同入口诊断负例及异常闭合拒绝
+与C的GET/readonly repeatable快照/有界close修正合批，必须新统一源码从SOURCE重跑，不拼旧局部。
+截至此补记，新修后的完整预演/精确freeze/增量独审与CI尚待；原预算/日期/正式HOLD不变。
+
+Root随后核C432精确交付及新12字段索引，普通内部合入后统一重跑；C的MVCC机制证据只签
+0016 collector机制，不代签全链或0015。预算在原12h内调整为A5.75/C3/Review2.25/Root1，
+硬截止14:01:35Z不变。A此时自估约3.8h，人工H/L与实际计量仍not_reported。

@@ -915,7 +915,7 @@ def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) ->
             sum(r["n"] for r in before if r["method"] == "bitable.v1.app_table_record.list") == 1,
             "P4A_RO_CALL_COUNT",
         )
-        _, replay = a.worker(current, replay_of=verified_child)
+        replay_child, replay = a.worker(current, replay_of=verified_child)
         require(
             replay["exit_code"] == 1
             and replay["stages"]["AUTHORIZE"]["state"] == "FAILED"
@@ -934,6 +934,10 @@ def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) ->
                 (str(delivery["outbox_id"]),),
             ).fetchall()
         require(before == after, "P4A_REPLAY_SDK_CHANGED")
+        require(
+            replay_child.request["private_refs"] == verified_child.request["private_refs"],
+            "P4A_REPLAY_INPUT_CHANGED",
+        )
         require(len(once) == 2 and all(r["n"] == 1 for r in once), "P4A_ONCE_COUNT")
         return dict(
             origin_gateway=old,
@@ -946,6 +950,17 @@ def prepare_single_ro(a: AcceptanceFixture, *, concurrent_once: bool = False) ->
             worker_pid=verified_child.process.pid,
             links=links,
             concurrent_once=race,
+            replay_proof=dict(
+                actual_child_exit=replay["exit_code"],
+                authorization=replay["stages"]["AUTHORIZE"]["state"],
+                preflight=replay["stages"]["PREFLIGHT"]["state"],
+                original_private_refs_equal=True,
+                native_sdk_counts_before=before,
+                native_sdk_counts_after=after,
+                native_once_events=once,
+                sdk_counts_equal=before == after,
+                reaped=all(c.process.returncode is not None for c in a.processes),
+            ),
         )
     finally:
         for window, child in reversed(gateways):

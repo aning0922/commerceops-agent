@@ -75,7 +75,55 @@ class AcceptanceFailure(RuntimeError):
 
 def require(condition: bool, code: str) -> None:
     if not condition:
-        raise AcceptanceFailure(code)
+        error = AcceptanceFailure(code)
+        if code in ("P4A_ROLE", "P4A_BOOTSTRAP_ROLE"):
+            mark_stage(error, "ROLE")
+        raise error
+
+
+def failure_stage(error: BaseException, fallback: str) -> str:
+    value = getattr(error, "p4a_stage", None)
+    return value if isinstance(value, str) and value in STAGES else fallback
+
+
+def mark_stage(error: BaseException, stage: str) -> None:
+    require(stage in STAGES, "P4A_STAGE_UNKNOWN")
+    if getattr(error, "p4a_stage", None) not in STAGES:
+        cast(Any, error).p4a_stage = stage
+
+
+@contextmanager
+def stage_boundary(stage: str) -> Iterator[None]:
+    try:
+        yield
+    except BaseException as error:
+        mark_stage(error, stage)
+        raise
+
+
+def raise_child_failure(result: Mapping[str, Any], fallback: str) -> None:
+    detail = result.get("failure")
+    if not isinstance(detail, dict):
+        detail = next(
+            (
+                r.get("failure", {})
+                for r in result.get("stages", {}).values()
+                if r.get("state") == "FAILED"
+            ),
+            {},
+        )
+    code = detail.get("code")
+    if not isinstance(code, str) or not re.fullmatch(r"[A-Z0-9_]{1,80}", code):
+        code = "P4A_RUNNER_CHILD_FAILED"
+    error = AcceptanceFailure(
+        code, query_id=detail.get("query_id"), sqlstate=detail.get("sqlstate")
+    )
+    actual_stage = detail.get("stage")
+    mark_stage(
+        error,
+        actual_stage if isinstance(actual_stage, str) and actual_stage in STAGES else fallback,
+    )
+    raise error
 
 
 def digest(body: bytes) -> str:
@@ -185,6 +233,7 @@ def exception_query_id(error: BaseException) -> str | None:
 
 
 def safe_failure(error: BaseException, stage: str, query_id: str | None = None) -> dict[str, Any]:
+    stage = failure_stage(error, stage)
     require(stage in STAGES, "P4A_STAGE_UNKNOWN")
     state = getattr(error, "sqlstate", None)
     result: dict[str, Any] = {
@@ -211,6 +260,9 @@ def safe_failure(error: BaseException, stage: str, query_id: str | None = None) 
         )
         trace = trace.tb_next
     result["locations"] = locations
+    cleanup_failure = getattr(error, "p4a_cleanup_failure", None)
+    if isinstance(cleanup_failure, dict):
+        result["cleanup_failure"] = cleanup_failure
     if type(error).__module__ == "tests.e2e.web.m1_acceptance_capture":
         value = error.safe()  # type: ignore[attr-defined]
         if isinstance(value, dict):
@@ -262,6 +314,7 @@ class StageReport:
         try:
             yield row
         except BaseException as error:
+            mark_stage(error, stage)
             row.update(state="FAILED", failure=safe_failure(error, stage))
             raise
         else:
@@ -760,6 +813,7 @@ def verify_full_resources(handoff: Mapping[str, Any]) -> None:
         and registration["PG_published_ports"] is False,
         "P4A_REGISTRATION_BINDING",
     )
+    require(registration["databases"] == resource["databases"], "P4A_DATABASE_PLAN")
     require(set(resource["container_ids"]) == {"postgres", "runner", "web"}, "P4A_RESOURCE_SET")
     for name, cid in resource["container_ids"].items():
         actual = json.loads(_docker(["inspect", cid]).stdout)[0]
@@ -833,9 +887,12 @@ class RunnerChild:
 def _runner_start(handoff: Mapping[str, Any], request: dict[str, Any]) -> RunnerChild:
     import secrets
 
-    cleanup = request["action"] in ("signal_process", "confirm_process", "process_probe") or (
-        request["action"] == "capture" and request.get("kind") == "worker"
-    )
+    cleanup = request["action"] in (
+        "signal_process",
+        "confirm_process",
+        "process_probe",
+        "database_inventory",
+    ) or (request["action"] == "capture" and request.get("kind") == "worker")
     runner = _verified_runner(handoff, cleanup=cleanup)
     directory = Path(runner["host_private_dir"])
     key = secrets.token_hex(12)
@@ -905,10 +962,7 @@ def _runner_result(
     result: dict[str, Any] = json.loads(bound_bytes(child.output, private=True))
     require(child.process.returncode == result["exit_code"], "P4A_CHILD_EXIT_DISAGREEMENT")
     if result["exit_code"] != 0:
-        failure = result.get("failure", {})
-        raise AcceptanceFailure(
-            "P4A_CAPTURE_FAILED", query_id=failure.get("query_id"), sqlstate=failure.get("sqlstate")
-        )
+        raise_child_failure(result, "COLLECT")
     return result
 
 
@@ -1004,6 +1058,10 @@ def capture_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             "P4A_APP_OWNER_UNBOUND",
         )
     with connect(settings) as db:
+        if request.get("fault_probe") == "call_signature":
+            with stage_boundary("CALL"):
+                callback: Any = capture.capture_snapshot
+                callback(db)  # 实际版本化callee拒绝缺必需context，不伪造返回或业务状态。
         if request["kind"] == "worker":
             result = capture.capture_worker(db, context.organization_id, request["owner"])
         else:
@@ -1064,38 +1122,50 @@ def app_worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             loop.add_signal_handler(signum, stop.set)
         timer = loop.call_later(_runtime(request["runtime"]).remaining(), stop.set)
         session = WorkerSession(settings, organization)
-        await session.start()
+        original_close = session.close
+
+        async def observed_close(*args: Any, **kwargs: Any) -> Any:
+            with stage_boundary("STOP"):
+                return await original_close(*args, **kwargs)
+
+        cast(Any, session).close = observed_close
+        with stage_boundary("AUTHORIZE"):
+            await session.start()
         running = False
         try:
-            with connect(settings) as db:
-                start = db.execute(
-                    "SELECT id FROM business.audit_events WHERE source='worker' "
-                    "AND action='started' AND entity_id=%s",
-                    (session.owner,),
-                ).fetchall()
-                active = _active_workers(db)
-            require(len(start) == 1, "P4A_WORKER_STARTED")
-            require(active == 1, "P4A_WORKER_COUNT")
-            write_private(
-                Path(request["ready_file"]),
-                {
-                    "epoch": "app",
-                    "organization": str(organization),
-                    "owner": session.owner,
-                    "process_started_id": str(start[0]["id"]),
-                    "active_workers": active,
-                    "reaped": False,
-                    **_process_receipt(),
-                },
-            )
+            with stage_boundary("PERSIST"):
+                with connect(settings) as db:
+                    start = db.execute(
+                        "SELECT id FROM business.audit_events WHERE source='worker' "
+                        "AND action='started' AND entity_id=%s",
+                        (session.owner,),
+                    ).fetchall()
+                    active = _active_workers(db)
+                require(len(start) == 1, "P4A_WORKER_STARTED")
+                require(active == 1, "P4A_WORKER_COUNT")
+                write_private(
+                    Path(request["ready_file"]),
+                    {
+                        "epoch": "app",
+                        "organization": str(organization),
+                        "owner": session.owner,
+                        "process_started_id": str(start[0]["id"]),
+                        "active_workers": active,
+                        "reaped": False,
+                        **_process_receipt(),
+                    },
+                )
             running = True
-            await Worker(
-                session, TechnicalRunner(), dispatch_jobs=False, task_ids=frozenset({task})
-            ).run(stop)
+            with stage_boundary("CALL"):
+                await Worker(
+                    session, TechnicalRunner(), dispatch_jobs=False, task_ids=frozenset({task})
+                ).run(stop)
         finally:
             timer.cancel()
             if not running:
-                await session.close(clean=True)
+                with stage_boundary("STOP"):
+                    await session.close(clean=True)
+            cast(Any, session).close = original_close
 
     asyncio.run(serve())
     return {"exit_code": 0, "stage_result": "COMPLETE", "suite_PASS": False}
@@ -1127,9 +1197,21 @@ def api_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             yield
 
         async def startup(self, sockets: Any = None) -> None:
-            await super().startup(sockets)
-            require(self.started, "P4A_API_START")
-            write_private(Path(request["ready_file"]), {"api_ready": True, **_process_receipt()})
+            with stage_boundary("PREPARE"):
+                await super().startup(sockets)
+                require(self.started, "P4A_API_START")
+            with stage_boundary("PERSIST"):
+                write_private(
+                    Path(request["ready_file"]), {"api_ready": True, **_process_receipt()}
+                )
+
+        async def main_loop(self) -> None:
+            with stage_boundary("CALL"):
+                await super().main_loop()
+
+        async def shutdown(self, sockets: Any = None) -> None:
+            with stage_boundary("STOP"):
+                await super().shutdown(sockets)
 
     port = request["api_port"]
     require(type(port) is int and 1024 <= port <= 65535, "P4A_API_PORT")
@@ -1396,8 +1478,13 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     original_scope, original_target = native.trusted_scope, native_module.verified_target
     original_project = native_module.BusinessBaseAdapter.project
     original_dispatch = native_module.BaseDeliveryStore.dispatch_one
+    original_close = native_module.WorkerSession.close
     native_errors: list[dict[str, Any]] = []
     factory_initialized = False
+
+    async def observed_close(*args: Any, **kwargs: Any) -> Any:
+        with stage_boundary("STOP"):
+            return await original_close(*args, **kwargs)
 
     async def observed_scope(*args: Any, **kwargs: Any) -> Any:
         with report.enter("AUTHORIZE"):
@@ -1415,6 +1502,7 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         try:
             return await original_dispatch(store)
         except Exception as error:
+            mark_stage(error, "CALL")
             failure = safe_failure(error, "CALL")
             native_errors.append(failure)
             report.stages["CALL"].update(state="FAILED", failure=failure)
@@ -1433,12 +1521,14 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             row.update(state="PASSED", calls=len(witnesses))
             return result
         except BaseException as error:
+            mark_stage(error, "CALL")
             row.update(state="FAILED", failure=safe_failure(error, "CALL"))
             raise
 
     native_module.trusted_scope, native_module.verified_target = observed_scope, observed_target
     native_module.BusinessBaseAdapter.project = observed_project
     native_module.BaseDeliveryStore.dispatch_one = observed_dispatch
+    native_module.WorkerSession.close = observed_close
     transport: Any = None
     summary: dict[str, Any] = {}
     try:
@@ -1482,6 +1572,7 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         native_module.trusted_scope, native_module.verified_target = original_scope, original_target
         native_module.BusinessBaseAdapter.project = original_project
         native_module.BaseDeliveryStore.dispatch_one = original_dispatch
+        native_module.WorkerSession.close = original_close
     proof: dict[str, Any] = {}
     try:
         with report.enter("PERSIST"):
@@ -1531,6 +1622,9 @@ def worker_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         "stage_result": "COMPLETE" if passed else "FAILED",
         "exit_code": 0 if passed else 1,
         "stages": report.stages,
+        "failure": next(
+            (r["failure"] for r in report.stages.values() if r["state"] == "FAILED"), None
+        ),
         "native_summary": summary,
         "native_errors": native_errors,
         "witnesses": witnesses,
@@ -1579,18 +1673,22 @@ def gateway_stage(request: Mapping[str, Any]) -> dict[str, Any]:
 
     signal.signal(signal.SIGTERM, stop)
     # 原App lease是session advisory lock，必须与真实child生命周期同长。
-    with connect(config.database) as db:
-        claim_gateway(db, settings, window)
-        gateway_process_started(db, window)
-        write_private(Path(request["ready_file"]), {"claimed": True, "pid": os.getpid()})
-        while not stopped and window.active():
-            time.sleep(0.05)
+    with stage_boundary("ROLE"):
+        connection = connect(config.database)
+    with stage_boundary("STOP"), connection as db:
+        with stage_boundary("AUTHORIZE"):
+            claim_gateway(db, settings, window)
+        with stage_boundary("PERSIST"):
+            gateway_process_started(db, window)
+            write_private(Path(request["ready_file"]), {"claimed": True, "pid": os.getpid()})
+        with stage_boundary("STOP"):
+            while not stopped and window.active():
+                time.sleep(0.05)
     return {"stage_result": "COMPLETE", "exit_code": 0, "suite_PASS": False}
 
 
 def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     """同一outer内准备新PG fixture、原生RO及实际C快照；只返回阶段证据。"""
-    from uuid import UUID
 
     import psycopg
     from commerceops.infrastructure.database import DatabaseSettings, connect
@@ -1608,9 +1706,10 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     require(
         private.is_dir() and private.parent == Path(request["private_root"]), "P4A_PRIVATE_ROOT"
     )
-    name = "p4a_" + UUID(request["database_id"]).hex
-    with psycopg.connect(**owner.kwargs(), autocommit=True) as admin:
+    name = database_plan_name(request)
+    with stage_boundary("SCHEMA"), psycopg.connect(**owner.kwargs(), autocommit=True) as admin:
         admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
+    database_created(request, name)
     owner = owner.model_copy(update={"name": name})
     app = owner.model_copy(
         update={
@@ -1620,10 +1719,22 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         }
     )
     revision = request["revision"]
-    initialize_schema(owner, revision)
-    schema = schema_contract(owner, app, revision)
+    with stage_boundary("SCHEMA"):
+        initialize_schema(owner, revision)
+        schema = schema_contract(owner, app, revision)
     if request["action"] == "schema_case":
-        return dict(exit_code=0, stage_result="COMPLETE", schema=schema, suite_PASS=False)
+        app_file = private / "app-database.json"
+        write_private(app_file, app.model_dump(mode="json"))
+        return dict(
+            exit_code=0,
+            stage_result="COMPLETE",
+            schema=schema,
+            suite_PASS=False,
+            app_database_ref={
+                "path": str(app_file),
+                "sha256": digest(bound_bytes(app_file, private=True)),
+            },
+        )
     require(revision == "0016", "P4A_SCHEMA_REVISION")
     a = AcceptanceFixture.prepare(
         owner,
@@ -1718,18 +1829,19 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             expected_item_count=a.expected_item_count,
             expected_quantity_total=a.expected_quantity_total,
         )
-        with connect(app) as db:
-            snapshot = capture.capture_snapshot(db, context)
-        capture.validate_business(snapshot, context, closed=False)
-        capture.validate_base_readback(
-            snapshot,
-            context,
-            version=1,
-            target_key=proof["target_key"],
-            external_id=proof["external_id"],
-            verification_mode=proof["verification_mode"],
-            native_projection_hash=proof["projection_hash"],
-        )
+        with stage_boundary("COLLECT"):
+            with connect(app) as db:
+                snapshot = capture.capture_snapshot(db, context)
+            capture.validate_business(snapshot, context, closed=False)
+            capture.validate_base_readback(
+                snapshot,
+                context,
+                version=1,
+                target_key=proof["target_key"],
+                external_id=proof["external_id"],
+                verification_mode=proof["verification_mode"],
+                native_projection_hash=proof["projection_hash"],
+            )
         start = starts[0]
         continuation = a.save_continuation(result)
         return dict(
@@ -1738,6 +1850,23 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             suite_PASS=False,
             schema=schema,
             continuation_ref=continuation,
+            native_recovery_evidence={
+                "case_kind": a.case_kind,
+                "concurrent_once": result.get("concurrent_once"),
+                "cold_replay": result.get("replay_proof"),
+                "native_factory_and_transport": result["verified"]["counts"],
+                "current_method_counts": result["verified"]["pg_proof"]["method_counts"],
+                "child_lifecycles": [
+                    {
+                        "action": c.request["action"],
+                        "actual_exit": c.process.returncode,
+                        "OS_waited": c.process.returncode is not None,
+                        "native_confirmed": c.confirmed,
+                        "verified_no_native_start": c.lifecycle_not_started,
+                    }
+                    for c in a.processes
+                ],
+            },
             private_refs={
                 "web_config": {
                     "path": str(f.config_file),
@@ -1800,11 +1929,17 @@ def prepare_case_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             ),
         )
     finally:
-        require(a.cleanup(), "P4A_PREPARE_CLEANUP_FAILED")
+        primary = sys.exception()
+        try:
+            with stage_boundary("STOP"):
+                require(a.cleanup(), "P4A_PREPARE_CLEANUP_FAILED")
+        except Exception as cleanup_error:
+            if primary is None:
+                raise
+            cast(Any, primary).p4a_cleanup_failure = safe_failure(cleanup_error, "STOP")
 
 
 def negative_matrix_stage(request: Mapping[str, Any]) -> dict[str, Any]:
-    from uuid import UUID
 
     import psycopg
     from commerceops.infrastructure.database import DatabaseSettings
@@ -1820,9 +1955,10 @@ def negative_matrix_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         and owner.runtime_password_file is not None,
         "P4A_BOOTSTRAP_ROLE",
     )
-    name = "p4a_" + UUID(request["database_id"]).hex
-    with psycopg.connect(**owner.kwargs(), autocommit=True) as db:
+    name = database_plan_name(request)
+    with stage_boundary("SCHEMA"), psycopg.connect(**owner.kwargs(), autocommit=True) as db:
         db.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
+    database_created(request, name)
     owner = owner.model_copy(update={"name": name})
     app = owner.model_copy(
         update={
@@ -1831,8 +1967,9 @@ def negative_matrix_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             "runtime_password_file": None,
         }
     )
-    initialize_schema(owner, "0016")
-    schema = schema_contract(owner, app, "0016")
+    with stage_boundary("SCHEMA"):
+        initialize_schema(owner, "0016")
+        schema = schema_contract(owner, app, "0016")
     result = native_negative_matrix(
         owner,
         app,
@@ -1840,7 +1977,248 @@ def negative_matrix_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         _runtime(request["runtime"]),
         request["source_manifest_ref"],
     )
+    result["diagnostic_faults"] = diagnostic_faults(request)
     return dict(exit_code=0, stage_result="COMPLETE", value=result, schema=schema, suite_PASS=False)
+
+
+def diagnostic_faults(request: Mapping[str, Any]) -> dict[str, Any]:
+    """同entry的固定诊断负例；只用新legacy库，独立关闭连接和wait/reap。"""
+    from uuid import uuid4
+
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+
+    from tests.p4_acceptance_support import PinnedProcess
+
+    directory = Path(request["private_directory"]) / "diagnostic"
+    directory.mkdir(mode=0o700)
+    manifest_ref = request["source_manifest_ref"]
+    manifest = json.loads(private_ref(manifest_ref))
+    entry = Path(manifest["entry"])
+    records: dict[str, Any] = {}
+
+    def invoke(label: str, value: dict[str, Any]) -> dict[str, Any]:
+        value.update(
+            contract=CONTRACT,
+            runtime=request["runtime"],
+            output_file=str(directory / (label + ".json")),
+        )
+        if "expected_namespace" in request:
+            value["expected_namespace"] = request["expected_namespace"]
+        child = PinnedProcess.start(entry, Path(manifest_ref["path"]), value)
+        result = child.wait(timeout=min(30, _runtime(request["runtime"]).remaining()))
+        require(child.process.returncode == result["exit_code"], "P4A_CHILD_EXIT_DISAGREEMENT")
+        records[label] = dict(
+            actual_outer_exit=child.process.returncode,
+            reaped=child.process.returncode is not None,
+            failure=result.get("failure"),
+            result_ref={
+                "path": value["output_file"],
+                "sha256": digest(bound_bytes(Path(value["output_file"]), private=True)),
+            },
+        )
+        return result
+
+    corrupted = dict(manifest)
+    corrupted["files"] = {**manifest["files"], "scripts/p4_acceptance.py": "0" * 64}
+    bad_manifest = directory / "wrong-source-manifest.json"
+    write_private(bad_manifest, corrupted)
+    source = PinnedProcess.start(
+        entry,
+        bad_manifest,
+        dict(
+            contract=CONTRACT,
+            action="source_probe",
+            output_file=str(directory / "unused-source.json"),
+        ),
+    )
+    try:
+        stdout, _ = source.process.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        source.terminate()
+        raise AcceptanceFailure("P4A_SOURCE_FAULT_TIMEOUT") from None
+    load_failure = json.loads(stdout)
+    require(
+        source.process.returncode == 1 and load_failure["code"] == "P4A_BOOTSTRAP",
+        "P4A_SOURCE_FAULT",
+    )
+    records["load"] = dict(
+        actual_outer_exit=1, reaped=True, failure=load_failure, PG_SDK_not_run=True
+    )
+    legacy = request["legacy_app_database_ref"]
+    context = dict(
+        revision="0016_p4_clarification_requests",
+        organization_id=str(uuid4()),
+        shop_id=str(uuid4()),
+        task_id=str(uuid4()),
+        item_id=str(uuid4()),
+        principal_id=str(uuid4()),
+        identity_id=str(uuid4()),
+        auth_version=1,
+        checkpoint_threads=["p4a-diagnostic"],
+        request_key=None,
+        sdk_window_id=None,
+        sdk_subject_ids=[],
+        case_kind="recover_single_item",
+        expected_item_count=1,
+        expected_quantity_total="70",
+    )
+    for label, fault in (("call", "call_signature"), ("capture", None)):
+        value = dict(
+            action="capture",
+            kind="snapshot",
+            private_refs={"app_database_config": legacy},
+            capture_context=context,
+        )
+        if fault is not None:
+            value["fault_probe"] = fault
+        result = invoke(label, value)
+        require(result["exit_code"] == 1, "P4A_DIAGNOSTIC_REJECT_REQUIRED")
+        require(
+            result["failure"]["stage"] == ("CALL" if fault else "COLLECT"), "P4A_DIAGNOSTIC_STAGE"
+        )
+        if label == "capture":
+            require(result["failure"]["sqlstate"] == "42P01", "P4A_DIAGNOSTIC_SQLSTATE")
+    timeout = invoke(
+        "timeout",
+        dict(
+            action="sql_denial",
+            app_database_ref=legacy,
+            fault_probe="statement_timeout",
+        ),
+    )
+    require(
+        timeout["exit_code"] == 1 and timeout["failure"]["sqlstate"] == "57014", "P4A_TIMEOUT_FAULT"
+    )
+    inventory_request = dict(
+        action="database_inventory",
+        run_id=request["run_id"],
+        private_root=request["private_root"],
+        owner_database_ref=request["owner_database_ref"],
+        databases=request["databases"],
+    )
+    app = DatabaseSettings.model_validate_json(private_ref(legacy))
+    with connect(app) as held:
+        held.execute("SET TRANSACTION READ ONLY")
+        held.execute("SELECT 1").fetchone()
+        closure = invoke("cleanup_connection_fault", dict(inventory_request))
+        require(
+            closure["exit_code"] == 1
+            and bool(closure["value"]["active_business_connections"])
+            and closure["value"]["inventory_connection_closed"] is True,
+            "P4A_CLOSURE_FAULT_NOT_DETECTED",
+        )
+    require(held.closed, "P4A_DIAGNOSTIC_CONNECTION_REMAINS")
+    repaired = invoke("cleanup_connection_released", dict(inventory_request))
+    require(
+        repaired["exit_code"] == 0 and repaired["value"]["verified"], "P4A_CLOSURE_RECOVERY_FAILED"
+    )
+    return dict(records=records, held_connection_closed=held.closed, whole_PASS=False)
+
+
+def database_plan_name(request: Mapping[str, Any]) -> str:
+    from uuid import UUID
+
+    plan = request["database_plan"]
+    require(
+        plan["id"] == request["database_id"]
+        and plan["name"] == "p4a_" + UUID(plan["id"]).hex
+        and plan["owner"] == "commerceops_owner"
+        and plan["registration_file"] == "database-" + UUID(plan["id"]).hex + ".json",
+        "P4A_DATABASE_PLAN",
+    )
+    return str(plan["name"])
+
+
+def database_created(request: Mapping[str, Any], name: str) -> None:
+    plan = request["database_plan"]
+    require(database_plan_name(request) == name, "P4A_DATABASE_PLAN")
+    path = Path(request["private_root"]) / plan["registration_file"]
+    with stage_boundary("PERSIST"):
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(
+                canonical(
+                    {
+                        **plan,
+                        "created": True,
+                        "created_utc": datetime.now(UTC).isoformat(),
+                        "run_id": request["run_id"],
+                    }
+                )
+                + b"\n"
+            )
+            stream.flush()
+            os.fsync(stream.fileno())
+
+
+def database_inventory_stage(request: Mapping[str, Any]) -> dict[str, Any]:
+    """仅owner元数据：保留库逐项闭合，排除且关闭本检查自身连接。"""
+    from commerceops.infrastructure.database import DatabaseSettings, connect
+
+    settings = DatabaseSettings.model_validate_json(private_ref(request["owner_database_ref"]))
+    require(settings.user == "commerceops_owner" and settings.host == "postgres", "P4A_ROLE")
+    plans = request["databases"]
+    require(len(plans) == 4 and len({p["name"] for p in plans}) == 4, "P4A_DATABASE_PLAN")
+    declared: dict[str, Any] = {}
+    for plan in plans:
+        path = Path(request["private_root"]) / plan["registration_file"]
+        if not path.exists():
+            continue  # 未进入的已登记步骤不会被倒填成created。
+        receipt = json.loads(bound_bytes(path, private=True))
+        require(
+            all(receipt[k] == v for k, v in plan.items())
+            and receipt["created"] is True
+            and receipt["run_id"] == request["run_id"],
+            "P4A_DATABASE_REGISTRATION",
+        )
+        declared[plan["name"]] = receipt
+    with stage_boundary("CLEANUP"), connect(settings) as db:
+        db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+        db.execute("SET LOCAL statement_timeout='5000ms'")
+        db.execute("SET LOCAL lock_timeout='3000ms'")
+        role = db.execute("SELECT current_user::text AS role,pg_backend_pid() AS pid").fetchone()
+        require(role is not None and role["role"] == "commerceops_owner", "P4A_ROLE")
+        observed = db.execute(
+            "SELECT datname::text AS name,pg_get_userbyid(datdba)::text AS owner "
+            "FROM pg_database ORDER BY datname"
+        ).fetchall()
+        clients = db.execute(
+            "SELECT datname::text AS database,usename::text AS role,pid,state::text AS state "
+            "FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid() "
+            "AND (datname=ANY(%s::text[]) OR usename='commerceops_app') ORDER BY datname,pid",
+            ([p["name"] for p in plans],),
+        ).fetchall()
+        actual = {r["name"]: r["owner"] for r in observed}
+        defaults = {"template0", "template1", "postgres", "commerceops"}
+        expected = defaults | set(declared)
+        verified = (
+            set(actual) == expected
+            and all(actual[n] == receipt["owner"] for n, receipt in declared.items())
+            and not clients
+        )
+    closed = db.closed
+    value = dict(
+        verified=verified and closed,
+        plans=plans,
+        created_receipts=list(declared.values()),
+        observed=observed,
+        unregistered=sorted(set(actual) - expected),
+        missing=sorted(expected - set(actual)),
+        active_business_connections=clients,
+        excluded_inventory_connection_pid=role["pid"] if role is not None else None,
+        inventory_connection_closed=closed,
+        connection_scope="registered DBs + all app clients; inventory PID excluded",
+        retained_for="same-volume replay and evidence; no DROP/no down-v",
+    )
+    return dict(
+        exit_code=0 if value["verified"] else 1,
+        stage_result="COMPLETE" if value["verified"] else "FAILED",
+        value=value,
+        suite_PASS=False,
+        failure=None
+        if value["verified"]
+        else safe_failure(AcceptanceFailure("P4A_DATABASE_CLOSURE"), "CLEANUP"),
+    )
 
 
 def sql_denial_stage(request: Mapping[str, Any]) -> dict[str, Any]:
@@ -1849,6 +2227,10 @@ def sql_denial_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     app = DatabaseSettings.model_validate_json(private_ref(request["app_database_ref"]))
     require(app.user == "commerceops_app" and app.runtime_password_file is None, "P4A_ROLE")
     with connect(app) as db:
+        if request.get("fault_probe") == "statement_timeout":
+            with stage_boundary("CALL"):
+                db.execute("SET LOCAL statement_timeout='25ms'")
+                db.execute("SELECT pg_sleep(1)").fetchone()
         db.execute("SELECT version_num FROM business.alembic_version").fetchall()
     raise AcceptanceFailure("P4A_APP_METADATA_PERMISSION")
 
@@ -1862,9 +2244,10 @@ def project_v2_stage(request: Mapping[str, Any]) -> dict[str, Any]:
     from tests.p4_acceptance_support import AcceptanceFixture
     from tests.test_p4_a09_workflow_pg import manifest
 
-    a, history = AcceptanceFixture.restore(
-        request["continuation_ref"], _runtime(request["runtime"])
-    )
+    with stage_boundary("PREPARE"):
+        a, history = AcceptanceFixture.restore(
+            request["continuation_ref"], _runtime(request["runtime"])
+        )
     gateway = child = None
     try:
         t6 = json.loads(private_ref(request["t6_result_ref"]))
@@ -1906,9 +2289,13 @@ def project_v2_stage(request: Mapping[str, Any]) -> dict[str, Any]:
             history["origin_owner"],
             history["origin_window"].window_id,
         )
+        # 原single SDK只有known70额度；恢复不得借通用group20模板抬高IM/create cap。
+        window = window.model_copy(update={"caps": dict(history["origin_window"].caps)})
         a.external_behavior("normal")
-        _, result = a.worker(window, stop_after_verified=outbox_id)
-        require(result["exit_code"] == 0, "P4A_V2_UNVERIFIED")
+        with stage_boundary("CALL"):
+            _, result = a.worker(window, stop_after_verified=outbox_id)
+        if result["exit_code"] != 0:
+            raise_child_failure(result, "PERSIST")
         witnesses = result["witnesses"]
         require(
             len(witnesses) == 1
@@ -1919,9 +2306,18 @@ def project_v2_stage(request: Mapping[str, Any]) -> dict[str, Any]:
         )
         return dict(exit_code=0, stage_result="COMPLETE", value=result, suite_PASS=False)
     finally:
-        if gateway is not None and child is not None and not child.confirmed:
-            a.stop_gateway(gateway, child)
-        require(a.cleanup(), "P4A_V2_CLEANUP_FAILED")
+        primary = sys.exception()
+        try:
+            with stage_boundary("STOP"):
+                try:
+                    if gateway is not None and child is not None and not child.confirmed:
+                        a.stop_gateway(gateway, child)
+                finally:
+                    require(a.cleanup(), "P4A_V2_CLEANUP_FAILED")
+        except Exception as cleanup_error:
+            if primary is None:
+                raise
+            cast(Any, primary).p4a_cleanup_failure = safe_failure(cleanup_error, "STOP")
 
 
 def _outside_ref(ref: Mapping[str, str], runner: Mapping[str, Any]) -> dict[str, str]:
@@ -2049,7 +2445,6 @@ def resource_cleanup(handoff: Mapping[str, Any]) -> dict[str, Any]:
 
 def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, Any]:
     """唯一outer的完整合成正向；C只是阶段consumer，结束后才可整体判定。"""
-    from uuid import uuid4
 
     import commerceops
 
@@ -2103,10 +2498,24 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
             owned = True
             require(request["transport"] == "fake", "P4A_REAL_PLATFORM_HOLD")
             require(resource["container_ids"]["runner"] == runner["container_id"], "P4A_RUNNER_ID")
+            database_plans = {p["purpose"]: p for p in resource["databases"]}
+            require(
+                len(resource["databases"]) == 4
+                and set(database_plans)
+                == {
+                    "legacy_schema_probe",
+                    "negative_matrix",
+                    "batch_twenty_items",
+                    "recover_single_item",
+                },
+                "P4A_DATABASE_PLAN",
+            )
         base_request = dict(
             owner_database_ref=_inside_ref(request["owner_database_ref"], runner),
             source_manifest_ref=_inside_ref(runner["manifest_ref"], runner),
             private_root=runner["container_private_dir"],
+            run_id=resource["run_id"],
+            databases=resource["databases"],
         )
         with report.enter("SCHEMA"):
             legacy = root / "legacy"
@@ -2118,7 +2527,8 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
                         **base_request,
                         "action": "schema_case",
                         "revision": "0015",
-                        "database_id": str(uuid4()),
+                        "database_id": database_plans["legacy_schema_probe"]["id"],
+                        "database_plan": database_plans["legacy_schema_probe"],
                         "private_directory": str(
                             Path(runner["container_private_dir"]) / legacy.name
                         ),
@@ -2127,6 +2537,8 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
                 handoff,
                 timeout_seconds=120,
             )
+        legacy_app = _outside_ref(results["legacy"]["app_database_ref"], runner)
+        base_request["legacy_app_database_ref"] = _inside_ref(legacy_app, runner)
         with report.enter("MATRIX"):
             matrix = root / "matrix"
             matrix.mkdir(mode=0o700)
@@ -2136,7 +2548,8 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
                     {
                         **base_request,
                         "action": "negative_matrix",
-                        "database_id": str(uuid4()),
+                        "database_id": database_plans["negative_matrix"]["id"],
+                        "database_plan": database_plans["negative_matrix"],
                         "private_directory": str(
                             Path(runner["container_private_dir"]) / matrix.name
                         ),
@@ -2156,7 +2569,8 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
                             **base_request,
                             "action": "prepare_case",
                             "revision": "0016",
-                            "database_id": str(uuid4()),
+                            "database_id": database_plans[kind]["id"],
+                            "database_plan": database_plans[kind],
                             "case_kind": kind,
                             "private_directory": str(Path(runner["container_private_dir"]) / kind),
                             "origins": [handoff["web"]["api_origin"], handoff["web"]["web_origin"]],
@@ -2297,7 +2711,35 @@ def run_stage(request: Mapping[str, Any], binding: SourceBinding) -> dict[str, A
             results["stop_failure"] = safe_failure(error, "STOP")
         try:
             with report.enter("CLEANUP"):
+                inventory = None
+                try:
+                    inventory = _runner_result(
+                        _runner_start(
+                            handoff,
+                            {
+                                "action": "database_inventory",
+                                "run_id": resource["run_id"],
+                                "owner_database_ref": _inside_ref(
+                                    request["owner_database_ref"], resource["runner"]
+                                ),
+                                "databases": resource["databases"],
+                                "private_root": resource["runner"]["container_private_dir"],
+                            },
+                        ),
+                        handoff,
+                        cleanup=True,
+                    )
+                    results["database_inventory"] = inventory
+                except Exception as error:
+                    results["database_inventory_failure"] = safe_failure(error, "CLEANUP")
                 cleanup = resource_cleanup(handoff)
+                cleanup["physical_cleanup_verified"] = cleanup["verified"]
+                cleanup["database_inventory_verified"] = (
+                    inventory is not None
+                    and inventory["value"]["verified"] is True
+                    and inventory["value"]["inventory_connection_closed"] is True
+                )
+                cleanup["verified"] = cleanup["verified"] and cleanup["database_inventory_verified"]
                 require(cleanup["verified"], "P4A_RESOURCE_CLEANUP_FAILED")
         except Exception as error:
             results["cleanup_failure"] = safe_failure(error, "CLEANUP")
@@ -2343,12 +2785,14 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "run",
             "negative_matrix",
             "sql_denial",
+            "database_inventory",
         ),
         "P4A_ACTION",
     )
     lease = _runtime(request["runtime"])
     lease.remaining(
-        cleanup=action in ("signal_process", "confirm_process", "process_probe")
+        cleanup=action
+        in ("signal_process", "confirm_process", "process_probe", "database_inventory")
         or (action == "capture" and request.get("kind") == "worker")
     )
     from commerceops.infrastructure.worker_lock import process_namespace
@@ -2382,6 +2826,8 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             result = negative_matrix_stage(request)
         elif action == "sql_denial":
             result = sql_denial_stage(request)
+        elif action == "database_inventory":
+            result = database_inventory_stage(request)
         elif action == "process_probe":
             result = process_probe_stage(request)
         else:
@@ -2392,11 +2838,17 @@ def outer_request(request: Mapping[str, Any], binding: SourceBinding) -> int:
             "exit_code": 1,
             "failure": safe_failure(
                 error,
-                "COLLECT"
-                if action in ("capture", "sql_denial")
-                else "STOP"
-                if action in ("signal_process", "confirm_process")
-                else "PREPARE",
+                {
+                    "capture": "COLLECT",
+                    "sql_denial": "COLLECT",
+                    "signal_process": "STOP",
+                    "confirm_process": "STOP",
+                    "process_probe": "STOP",
+                    "project_v2": "V2",
+                    "negative_matrix": "MATRIX",
+                    "schema_case": "SCHEMA",
+                    "database_inventory": "CLEANUP",
+                }.get(str(action), "PREPARE"),
             ),
             "suite_PASS": False,
         }
