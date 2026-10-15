@@ -3854,11 +3854,18 @@ def _ro_context(request: Mapping[str, Any], binding: SourceBinding) -> None:
         actual == [candidate["source_sha"], candidate["tree"]] and not dirty, "P4A_RO_SOURCE_CLEAN"
     )
     require(set(request["images"]) == {"postgres", "runner", "web"}, "P4A_RESOURCE_SET")
+    require(set(request["host_tools"]) == {"docker", "compose"}, "P4A_RO_HOST_TOOLS")
+    for tool in request["host_tools"].values():
+        require(
+            Path(tool["path"]).is_absolute()
+            and binary_digest(Path(tool["path"])) == tool["sha256"],
+            "P4A_RO_HOST_TOOLS",
+        )
     for name, expected in request["images"].items():
         require(
             re.fullmatch(r"sha256:[0-9a-f]{64}", expected["id"]) is not None, "P4A_RUNNER_IMAGE"
         )
-        value = json.loads(_docker(["image", "inspect", expected["id"]]).stdout)[0]
+        value = json.loads(_ro_docker(request, ["image", "inspect", expected["id"]]).stdout)[0]
         require(value["Id"] == expected["id"], "P4A_RUNNER_IMAGE")
         if name != "postgres":
             require(
@@ -3947,6 +3954,22 @@ def _ro_state(request: Mapping[str, Any]) -> dict[str, Any]:
     )
 
 
+def _ro_docker(
+    request: Mapping[str, Any], arguments: list[str], *, timeout: float = 10
+) -> subprocess.CompletedProcess[bytes]:
+    """固定实际CLI二进制；不恢复HOME或读取操作者Docker config来寻找compose plugin。"""
+    compose = arguments[0] == "compose"
+    tool = request["host_tools"]["compose" if compose else "docker"]
+    require(binary_digest(Path(tool["path"])) == tool["sha256"], "P4A_RO_HOST_TOOLS")
+    result = subprocess.run(
+        [tool["path"], *(arguments[1:] if compose else arguments)],
+        capture_output=True,
+        timeout=timeout,
+    )
+    require(result.returncode == 0, "P4A_DOCKER_OPERATION")
+    return result
+
+
 def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     """只管理Root精确登记的一个PG；无volume删除，失败不扩大清理范围。"""
     import socket
@@ -3965,7 +3988,7 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
         and str(owner.password_file) == r["owner_secret_file"],
         "P4A_RO_DATABASE_BINDING",
     )
-    volume = json.loads(_docker(["volume", "inspect", r["volume"]]).stdout)[0]
+    volume = json.loads(_ro_docker(request, ["volume", "inspect", r["volume"]]).stdout)[0]
     require(
         volume["Name"] == r["volume"]
         and all(volume.get("Labels", {}).get(k) == v for k, v in r["volume_labels"].items())
@@ -3976,7 +3999,9 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     def ids(kind: str) -> list[str]:
         args = ["ps", "-aq"] if kind == "container" else ["network", "ls", "-q"]
         return (
-            _docker([*args, "--filter", "label=com.docker.compose.project=" + r["project"]])
+            _ro_docker(
+                request, [*args, "--filter", "label=com.docker.compose.project=" + r["project"]]
+            )
             .stdout.decode()
             .split()
         )
@@ -3985,12 +4010,13 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
     if start:
         require(not containers and not ids("network"), "P4A_RESOURCE_ALREADY_RUNNING")
         compose = ["compose", "--project-name", r["project"], "-f", r["compose_ref"]["path"]]
-        config = json.loads(_docker([*compose, "config", "--format", "json"]).stdout)
+        config = json.loads(_ro_docker(request, [*compose, "config", "--format", "json"]).stdout)
         require(set(config["services"]) == {"postgres"}, "P4A_RO_COMPOSE_SCOPE")
         service = config["services"]["postgres"]
         ports = service.get("ports", [])
         require(
             service["image"] == r["image"]
+            and service.get("pull_policy") == "never"
             and len(ports) == 1
             and ports[0]["host_ip"] == "127.0.0.1"
             and ports[0]["target"] == 5432
@@ -4028,12 +4054,12 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
             and service.get("labels", {}).get("p4.ro.run") == r["run_id"],
             "P4A_RO_COMPOSE_SCOPE",
         )
-        _docker([*compose, "up", "-d", "postgres"], timeout=45)
+        _ro_docker(request, [*compose, "up", "-d", "postgres"], timeout=45)
         end = time.monotonic() + min(45, _runtime(request["runtime"]).remaining())
         while True:
             containers = ids("container")
             require(len(containers) == 1, "P4A_RESOURCE_SET")
-            actual = json.loads(_docker(["inspect", containers[0]]).stdout)[0]
+            actual = json.loads(_ro_docker(request, ["inspect", containers[0]]).stdout)[0]
             require(
                 actual["Image"] == r["image"]
                 and actual["Config"]["Labels"].get("p4.ro.run") == r["run_id"]
@@ -4056,7 +4082,7 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
         return dict(container_id=actual["Id"], image=actual["Image"], port=r["port"])
     exits = []
     for cid in containers:
-        actual = json.loads(_docker(["inspect", cid]).stdout)[0]
+        actual = json.loads(_ro_docker(request, ["inspect", cid]).stdout)[0]
         require(
             actual["Image"] == r["image"]
             and actual["Config"]["Labels"].get("p4.ro.run") == r["run_id"]
@@ -4064,8 +4090,8 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
             "P4A_RESOURCE_OWNER",
         )
         if actual["State"]["Running"]:
-            _docker(["stop", "--time", "15", cid], timeout=25)
-        actual = json.loads(_docker(["inspect", cid]).stdout)[0]
+            _ro_docker(request, ["stop", "--time", "15", cid], timeout=25)
+        actual = json.loads(_ro_docker(request, ["inspect", cid]).stdout)[0]
         require(
             not actual["State"]["Running"]
             and not actual["State"]["OOMKilled"]
@@ -4073,15 +4099,18 @@ def _ro_resource(request: Mapping[str, Any], *, start: bool) -> dict[str, Any]:
             "P4A_CONTAINER_UNCLEAN_EXIT",
         )
         exits.append(actual["State"]["ExitCode"])
-        _docker(["rm", cid])
+        _ro_docker(request, ["rm", cid])
     for network in ids("network"):
-        actual = json.loads(_docker(["network", "inspect", network]).stdout)[0]
+        actual = json.loads(_ro_docker(request, ["network", "inspect", network]).stdout)[0]
         require(not actual["Containers"], "P4A_NETWORK_OWNER")
-        _docker(["network", "rm", network])
+        _ro_docker(request, ["network", "rm", network])
     with socket.socket() as probe:
         probe.settimeout(1)
         closed = probe.connect_ex(("127.0.0.1", int(r["port"]))) != 0
-    kept = json.loads(_docker(["volume", "inspect", r["volume"]]).stdout)[0]["Name"] == r["volume"]
+    kept = (
+        json.loads(_ro_docker(request, ["volume", "inspect", r["volume"]]).stdout)[0]["Name"]
+        == r["volume"]
+    )
     require(
         not ids("container")
         and not ids("network")
