@@ -169,7 +169,8 @@ def test_deadline_cannot_roll_or_arm_inside_cleanup_reserve() -> None:
     assert 180 < fixed.remaining(cleanup=True) <= 240
 
 
-def test_remote_failure_preserves_actual_stage_code_and_SQLSTATE() -> None:
+@pytest.mark.parametrize("code", ["P4A_NATIVE_DENIED", "SQL_FAILED"])
+def test_remote_failure_preserves_actual_stage_code_and_SQLSTATE(code: str) -> None:
     from scripts import p4_acceptance as shared
 
     with pytest.raises(AcceptanceFailure) as raised:
@@ -177,7 +178,7 @@ def test_remote_failure_preserves_actual_stage_code_and_SQLSTATE() -> None:
             {
                 "failure": {
                     "stage": "PREFLIGHT",
-                    "code": "P4A_NATIVE_DENIED",
+                    "code": code,
                     "query_id": "FIXED_QUERY",
                     "sqlstate": "42501",
                 }
@@ -185,7 +186,7 @@ def test_remote_failure_preserves_actual_stage_code_and_SQLSTATE() -> None:
             "PREPARE",
         )
     value = safe_failure(raised.value, "PREPARE")
-    assert value["stage"] == "PREFLIGHT" and value["code"] == "P4A_NATIVE_DENIED"
+    assert value["stage"] == "PREFLIGHT" and value["code"] == code
     assert value["sqlstate"] == "42501" and value["query_id"] == "FIXED_QUERY"
 
 

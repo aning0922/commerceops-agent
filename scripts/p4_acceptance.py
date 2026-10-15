@@ -118,6 +118,11 @@ def raise_child_failure(result: Mapping[str, Any], fallback: str) -> None:
     error = AcceptanceFailure(
         code, query_id=detail.get("query_id"), sqlstate=detail.get("sqlstate")
     )
+    # C的固定安全码不带P4A前缀；已校验闭合字符集，不将其降为INTERNAL。
+    error.code = code
+    for key in ("dto", "dto_errors", "cleanup_failure"):
+        if key in detail:
+            setattr(error, "p4a_" + key, detail[key])
     actual_stage = detail.get("stage")
     mark_stage(
         error,
@@ -263,6 +268,10 @@ def safe_failure(error: BaseException, stage: str, query_id: str | None = None) 
     cleanup_failure = getattr(error, "p4a_cleanup_failure", None)
     if isinstance(cleanup_failure, dict):
         result["cleanup_failure"] = cleanup_failure
+    for key in ("dto", "dto_errors"):
+        value = getattr(error, "p4a_" + key, None)
+        if isinstance(value, (list, dict)):
+            result[key] = value
     if type(error).__module__ == "tests.e2e.web.m1_acceptance_capture":
         value = error.safe()  # type: ignore[attr-defined]
         if isinstance(value, dict):
