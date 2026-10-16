@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.recovery import (
     ApprovedOutboxRecovery,
+    ApprovedQueuedStart,
     ApprovedTerminalUpdate,
     ApprovedWorkflowRecovery,
     RecoveryProjection,
@@ -83,11 +84,15 @@ class ControlledWorkerWindow(BaseModel):
         "approved_workflow",
         "approved_first_create",
         "terminal_update",
+        "approved_queued_start",
     ] = "known70"
     recovery: ApprovedOutboxRecovery | None = Field(default=None, repr=False)
     workflow_recovery: ApprovedWorkflowRecovery | None = Field(default=None, repr=False)
     first_create: RecoveryProjection | None = Field(default=None, repr=False)
     terminal_update: ApprovedTerminalUpdate | None = Field(
+        default=None, repr=False, exclude_if=lambda value: value is None
+    )
+    queued_start: ApprovedQueuedStart | None = Field(
         default=None, repr=False, exclude_if=lambda value: value is None
     )
 
@@ -100,6 +105,7 @@ class ControlledWorkerWindow(BaseModel):
             "approved_workflow": GROUP20_CAPS,
             "approved_first_create": FIRST_CREATE_CAPS,
             "terminal_update": RECOVERY_CAPS,
+            "approved_queued_start": KNOWN70_CAPS,
         }[checked.profile]
         if checked.recovery is not None and checked.recovery.sender_gateway is not None:
             ceilings = READONLY_RECOVERY_CAPS
@@ -180,6 +186,25 @@ class ControlledWorkerWindow(BaseModel):
                 or self.terminal_update.gateway_window_id != self.gateway_window_id
                 or self.terminal_update.expires_at != self.expires_at
                 or self.terminal_update.verified_recovery.target_key != settings.base_target_key
+            )
+            or self.profile != "approved_queued_start"
+            and self.queued_start is not None
+            or self.profile == "approved_queued_start"
+            and (
+                self.queued_start is None
+                or self.recovery is not None
+                or self.workflow_recovery is not None
+                or self.terminal_update is not None
+                or self.first_create is not None
+                or self.caps != dict(KNOWN70_CAPS)
+                or self.task_ids != frozenset({self.queued_start.task_id})
+                or self.queued_start.worker_window_id != self.window_id
+                or self.queued_start.gateway_window_id != self.gateway_window_id
+                or self.queued_start.expires_at != self.expires_at
+                or self.queued_start.target_key != settings.base_target_key
+                or len(settings.allowed_open_ids) != 1
+                or settings.allowed_group_chat_ids
+                or settings.f02_enabled
             )
         ):
             raise PermissionError("P4_CONTROLLED_WORKER_WINDOW_CLOSED")

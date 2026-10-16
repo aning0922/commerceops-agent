@@ -194,3 +194,40 @@ class ApprovedWorkflowRecovery(BaseModel):
         ):
             raise ValueError("P4_WORKFLOW_RECOVERY_BINDING_REQUIRED")
         return self
+
+
+class ApprovedQueuedStart(BaseModel):
+    """原 T1 已提交、从未启动 Worker；独立一次接续，不伪造旧 SDK/Worker。"""
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    schema_version: Literal["p4-approved-queued-start-v1"]
+    worker_window_id: UUID
+    gateway_window_id: UUID
+    expires_at: datetime
+    original_gateway_id: UUID
+    original_gateway_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    gateway_termination_id: UUID
+    task_id: UUID
+    source_task_id: UUID
+    task_version: int = Field(ge=1, le=1)
+    task_binding_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    source_binding_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    job_ids: tuple[UUID, UUID]
+    jobs_binding_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    inbox_id: UUID
+    receipt_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    operator_auth_version: int = Field(ge=1)
+    target_key: str = Field(min_length=1, max_length=100, repr=False)
+
+    @model_validator(mode="after")
+    def queued_pair(self) -> "ApprovedQueuedStart":
+        if (
+            self.expires_at.utcoffset() is None
+            or self.original_gateway_id == self.gateway_window_id
+            or self.worker_window_id in (self.original_gateway_id, self.gateway_window_id)
+            or self.task_id == self.source_task_id
+            or self.job_ids[0] == self.job_ids[1]
+        ):
+            raise ValueError("P4_QUEUED_START_BINDING_REQUIRED")
+        return self

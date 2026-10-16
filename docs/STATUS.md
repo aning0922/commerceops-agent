@@ -1079,3 +1079,60 @@ Root已审C单文档地图按原diff集成，文件SHA256为
 未运行该部署草稿、不改写历史回执，已收敛至Root同意的049同host子进程/受控loopback PG模式。
 新owned历史、human和v2必须同host产生；PG/API/Web只绑定127.0.0.1自有登记端口，
 沿用现有PG/source/tool/control，不保留第二部署框架。完整同源LAB仍待实际结果。
+
+
+## 63. 原已受理 queued task 的一次恢复候选
+
+Root于2026-10-16 08:58:43Z登记用户新批8 Agent有效h，建议A5.5/Core1.25/Root1.25，
+从原P4/300h内调配；旧9.5h及追加3h全部实际用量、失败、SPENT继续累计，机器等待分列。
+原A/WTfd38/codex/phase4-feishu/PR43接续，不新建会话/分支，C源码及未提交文档仍C独占。
+原实际fresh链已经有一个queued inventory task及原source、两个ready/attempt0 job，
+原Gateway已原生停止，Worker未启动；旧唯一RO已SPENT。具体原对象仅在私有证据绑定，
+本批准备没有重开实际PG、读原AppSecret/Token或启动真实Gateway/SDK。
+
+独审过的窄合同为docs/contracts/p4-queued-start-recovery.md，新增approved_queued_start，
+固定原task/source/job/inbox/receipt/旧Gateway hash、真实OS终止、原参数/config及当前A身份；
+queued v1初次无审批，后续原生审批仍绑定原新阶段plan/version/hash/nonce/TTL及当前权限。
+父permit文件fsync先独立消费，parent attempt独立commit，原单Worker锁内admission attempt
+再独立commit，完整验证及authorized commit先于Factory/Secret。失败/并发/跨窗/冷重放不能
+删除、回滚或重领这些事实。新Gateway max_workflows0，旧profile、迁移/权限/业务规则不改。
+
+原Gateway child仅本profile显式选择锁定SDK的最小运行就绪适配：原_connect完成、WS OPEN、
+原两handler装配及原receive task调度后持久ready；丢连接持久lost，无自动重连。
+这不是subscription/raw-wire/ACK正式Gate，不新增observer或修改SDK库。
+实际父入口沿用私有local_services_cli和共享handoff，同进程消费permit、持有PG/API/Web、
+等待Root绑定ready、本机arm并连续准入/观察/原native Gateway与Worker启动、停止和独立probe。
+后续真实父窗口最多1500s/末reserve180，页面ready后留600s登录机会、业务300、启动余量180；
+真实具体UTC/对象/ledger仍待Root统一释放。原SDK14上限及所有旧消耗不重置。
+
+WIP作者证据：10新增owned PG节点实际通过/CLI0，覆盖父attempt独立提交、6类失败保留、
+并发once、Worker admission撤权/transport_lost失败保留及冷重放，资源down0/容器网络0/保卷；
+97相关纯测及336文件type通过，实际完整collect516PG（原506+10），不改CI分区/预算/G1G2。
+新私有外层首两次分别在代码文件0600和较大manifest读取边界准备失败，均未进业务流程；
+新WS传输Fake缺protobuf必填SeqID/LogID导致连接lost，随后只修传输编码，原SDK解析/handler/
+SQL/权限/DTO/Worker/Graph不替身。后来新增离线实际Frame→原SDK card handler→ACK回归通过。
+
+同实际外层曾完整完成原任务原生SDK事件审批、v1 verified、同登录浏览器一次原生Web close、
+same item/record v2 verified；业务SDK12，冷Worker/冷父入口拒绝且SDK增量0，CLI/cleanup0。
+原receipt hash篡改、当前A撤权与WS endpoint失败的外层均SDK0、attempt保留、资源清理0；
+unknown update ACK外端已保存时仍unknown/停止、不补发，资源清理0。全部仍是开发候选回执，
+最终冻结源码、私有父入口和完整必要正负矩阵之间的精确对应由新的私有索引另核。
+
+一次P3_REVALIDATION_COLLECTION_STALE发生于原生审批已记录后的T4重新采集，
+原任务进入needs_attention，随后本profile原保护拒绝继续；仅5次SDK（metadata4+IM1），
+无Base写。旧失败未保存当时collection_started/collected/PG stamp，三个时间谓词中具体哪项
+触发仍unknown。随后一次owned只读时间探针仅证实该次PG clock落在host请求前后之间，
+不证明旧失败原因；另一次附安全时间诊断的重跑通过也不证明原因解决。未改P3源码、采集时钟、
+TTL/断言或审批规则；与WS Frame修正分列交原Core判断，不把通过重跑解释成业务根因已修复。
+首敏感扫描在新测试两处monkeypatch类型注解误报，随后只调整签名换行/逗号；不加规则豁免。
+
+本节不宣称最终freeze、独审/精确CI通过或真实M1/Phase4完成。源码先本地普通commit，
+Root另行释放唯一push/精确CI；PR synchronize及edited会触CI，目前不push、不改PR正文，
+不合main/关Issue。旧实际资源、凭据、失败与原SPENT保持；人工H/L仍not_reported。
+
+
+本批完整scripts.check实际CLI0/155.319947s：2102offline通过/516PG排除/117.42s、
+Markdown107错误0、format447/type336通过、Node漏洞0/Python95依赖漏洞0，三层敏感扫描0。
+此后仅补本事实，不重跑整套离线检查；本地冻结SHA及最终同源owned矩阵由私有索引另核。
+原SPENT RO快照自动派生了新disabled模板，实际配置正文/引用密钥/实际PG/SDK读取均0；
+Root仍须独审/新精确CI后另给绝对UTC和绑定配置引用/新permit，不复用或改写旧入口。

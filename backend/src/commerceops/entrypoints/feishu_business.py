@@ -21,7 +21,11 @@ if TYPE_CHECKING:
 
 
 def run_gateway(
-    config: Path, window_file: Path, *, web_config_sha256: str | None = None
+    config: Path,
+    window_file: Path,
+    *,
+    web_config_sha256: str | None = None,
+    queued_ready: bool = False,
 ) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import private_value
@@ -56,6 +60,7 @@ def run_gateway(
             "--window-file",
             str(window_file),
             *(["--web-config-sha256", web_config_sha256] if web_config_sha256 is not None else []),
+            *(["--queued-ready"] if queued_ready else []),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -363,6 +368,7 @@ def main() -> None:
     parser.add_argument("--window-file", type=Path)
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--web-config-sha256")
+    parser.add_argument("--queued-ready", action="store_true")
     parser.add_argument(
         "--worker-mode", choices=("workflow", "f02_clarification"), default="workflow"
     )
@@ -370,6 +376,8 @@ def main() -> None:
     try:
         if args.web_config_sha256 is not None and args.action != "gateway":
             raise PermissionError("P4_GATEWAY_WEB_BINDING_REQUIRED")
+        if args.queued_ready and args.action != "gateway":
+            raise PermissionError("P4_QUEUED_GATEWAY_SCOPE_REQUIRED")
         if args.worker_mode != "workflow" and args.action != "worker":
             raise PermissionError("P4_CONTROLLED_WORKER_MODE_REQUIRED")
         if args.action == "verify-config":
@@ -380,9 +388,12 @@ def main() -> None:
             if args.action == "gateway":
                 result = (
                     run_gateway(args.config, args.window_file)
-                    if args.web_config_sha256 is None
+                    if args.web_config_sha256 is None and not args.queued_ready
                     else run_gateway(
-                        args.config, args.window_file, web_config_sha256=args.web_config_sha256
+                        args.config,
+                        args.window_file,
+                        web_config_sha256=args.web_config_sha256,
+                        queued_ready=args.queued_ready,
                     )
                 )
             elif args.action == "worker":

@@ -31,6 +31,7 @@ from commerceops.infrastructure.feishu_f02_runtime import selected_f02_reply
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.feishu_outbox_recovery import trusted_recovery_scope
+from commerceops.infrastructure.feishu_queued_start import trusted_queued_start
 from commerceops.infrastructure.feishu_read_reply import ReadReplyDeliveryStore
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.feishu_workflow_recovery import trusted_workflow_scope
@@ -51,7 +52,11 @@ from commerceops.workflows.report_explanation import (
 
 
 async def trusted_scope(
-    config: WebConfig, settings: BusinessSettings, window: ControlledWorkerWindow
+    config: WebConfig,
+    settings: BusinessSettings,
+    window: ControlledWorkerWindow,
+    *,
+    worker_owner: str | None = None,
 ) -> None:
     async with await open_async(config.database) as db:
         cursor = await db.execute(
@@ -91,6 +96,11 @@ async def trusted_scope(
         ):
             raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
         require_fixture_shop(row, gateway.parameters.fixture_case)
+        if window.profile == "approved_queued_start":
+            if worker_owner is None:
+                raise PermissionError("P4_QUEUED_START_OWNER_REQUIRED")
+            await trusted_queued_start(config, settings, window, gateway, worker_owner=worker_owner)
+            return
         if window.profile == "terminal_update":
             from commerceops.infrastructure.feishu_outbox_recovery import trusted_terminal_scope
 
@@ -221,7 +231,10 @@ async def controlled_work(
     summary: dict[str, Any] = {"result": "failed", "method_counts": "not_verified"}
     try:
         await session.start()
-        await trusted_scope(config, settings, window)
+        if window.queued_start is not None:
+            await trusted_scope(config, settings, window, worker_owner=session.owner)
+        else:
+            await trusted_scope(config, settings, window)
         task_ids = await controlled_task_ids(config, window)
         ledger = PersistentSDKLedger(session, sdk_window)
         factory = BusinessSDKFactory(settings, ledger)
@@ -304,7 +317,7 @@ async def controlled_work(
                 summary["delivery_stopped"] = outcome != "verified"
                 stop.set()  # 一次dispatch即结束；unknown/已知失败也不进入下一轮。
                 return
-            if window.workflow_recovery is not None:
+            if window.workflow_recovery is not None or window.queued_start is not None:
                 async with await open_async(config.database) as db:
                     cursor = await db.execute(
                         "SELECT after_state FROM business.audit_events WHERE id=%s",
@@ -318,7 +331,12 @@ async def controlled_work(
                         {key: row["after_state"].get(key) for key in GatewayWindow.model_fields}
                     )
                 )
-                await trusted_workflow_scope(config, settings, window, gateway, claim=False)
+                if window.queued_start is not None:
+                    await trusted_queued_start(
+                        config, settings, window, gateway, worker_owner=session.owner, claim=False
+                    )
+                else:
+                    await trusted_workflow_scope(config, settings, window, gateway, claim=False)
             if window.recovery is None and window.first_create is None:
                 await approval.reconcile(task_ids=window.task_ids)
             if stop.is_set() or not gate.active():
