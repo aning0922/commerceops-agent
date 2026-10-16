@@ -5,6 +5,8 @@ import asyncio
 import json
 import os
 import signal
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
@@ -269,10 +271,27 @@ async def controlled_work(
             gate,
             ledger,
         )
+
+        @asynccontextmanager
+        async def recovery_write_guard() -> AsyncIterator[None]:
+            if stop.is_set():
+                raise PermissionError("P4_TERMINAL_RECOVERY_STOPPED")
+            async with base.guard_terminal_update():
+                if stop.is_set():
+                    raise PermissionError("P4_TERMINAL_RECOVERY_STOPPED")
+                yield
+
         base = BaseDeliveryStore(
             session,
             BusinessBaseAdapter(
-                BusinessRecordSDK(client, option=factory.option),
+                BusinessRecordSDK(
+                    client,
+                    option=factory.option,
+                    before_update=recovery_write_guard
+                    if window.terminal_update is not None
+                    and window.terminal_update.recovery_of is not None
+                    else None,
+                ),
                 {settings.base_target_key: (app_token, table_id)},
             ),
             gate,

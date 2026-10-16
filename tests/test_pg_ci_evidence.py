@@ -353,7 +353,7 @@ def test_six_complete_business_modules_move_with_approval_shards_and_exact_pair(
     a, b = report("existing"), report("phase3")
     assert a["actual_node_ids"] == sorted(OLD + moved)
     assert b["actual_node_ids"] == sorted(P3)
-    assert len(a["modules"]) == 8
+    assert len(a["modules"]) == 6
     approval = [m for m in a["modules"] if "approval_pg-part-" in m["label"]]
     assert [len(m["expected_node_ids"]) for m in approval] == [14, 14]
     verify_pair(a, b)

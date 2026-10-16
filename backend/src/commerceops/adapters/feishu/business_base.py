@@ -3,9 +3,10 @@
 import asyncio
 import json
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from contextlib import AbstractAsyncContextManager, nullcontext
 from types import MappingProxyType
-from typing import Any
+from typing import Any, Literal
 
 from lark_oapi.api.bitable.v1 import (  # type: ignore[import-untyped]
     AppTableRecord,
@@ -32,6 +33,7 @@ from commerceops.adapters.feishu.projection_rules import (
     write_outcome,
 )
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
+from commerceops.application.feishu_business.contracts import ReadbackDiagnostic
 
 
 def operation_deadline(deadline: float | None = None) -> float:
@@ -45,9 +47,16 @@ def operation_deadline(deadline: float | None = None) -> float:
 
 
 class BusinessRecordSDK:
-    def __init__(self, client: Any, *, option: Any = None):
+    def __init__(
+        self,
+        client: Any,
+        *,
+        option: Any = None,
+        before_update: Callable[[], AbstractAsyncContextManager[None]] | None = None,
+    ):
         restrict_sdk_logs()
         self.client, self.option = client, option
+        self.before_update = before_update
 
     @staticmethod
     def _reply(response: Any) -> ApiReply:
@@ -157,9 +166,12 @@ class BusinessRecordSDK:
         request.body = {"fields": fields.fields()}
         try:
             async with asyncio.timeout_at(deadline):
-                return self._reply(
-                    await self.client.bitable.v1.app_table_record.aupdate(request, self.option)
-                )
+                async with (
+                    self.before_update() if self.before_update is not None else nullcontext()
+                ):
+                    return self._reply(
+                        await self.client.bitable.v1.app_table_record.aupdate(request, self.option)
+                    )
         except Exception:
             return ApiReply(None, None)
 
@@ -181,16 +193,26 @@ async def reconcile(
     cursor: str | None = None
     seen: set[str] = set()
     total: int | None = None
+
+    def incomplete(
+        reason: Literal["transport", "envelope", "cursor", "total", "limit"],
+    ) -> ProjectionResult:
+        return ProjectionResult(
+            outcome="unknown",
+            code="INCOMPLETE_READBACK",
+            diagnostic=ReadbackDiagnostic(stage="pagination", reason=reason),
+        )
+
     for _ in range(max_pages):
         if asyncio.get_running_loop().time() >= deadline:
-            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return incomplete("limit")
         try:
             async with asyncio.timeout_at(deadline):
                 reply = await transport.list(app_token, table_id, cursor, deadline=deadline)
         except Exception:
-            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return incomplete("transport")
         if asyncio.get_running_loop().time() >= deadline:
-            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return incomplete("limit")
         items, more = reply.data.get("items"), reply.data.get("has_more")
         observed_total = reply.data.get("total")
         if (
@@ -200,25 +222,29 @@ async def reconcile(
             or any(type(row) is not dict for row in items)
             or len(items) > 100
             or (more and not items)
-            or type(observed_total) is not int
-            or observed_total < 0
-            or (total is not None and total != observed_total)
         ):
-            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return incomplete("envelope")
+        if (
+            type(observed_total) is not int
+            or observed_total < 0
+            or total is not None
+            and total != observed_total
+        ):
+            return incomplete("total")
         total = observed_total
         rows.extend(items)
         if len(rows) > 10000 or len(rows) > total:
-            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return incomplete("total")
         if not more:
             if len(rows) != total:
-                return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+                return incomplete("total")
             return readback_rows(request, rows)
         next_cursor = reply.data.get("page_token")
         if type(next_cursor) is not str or not next_cursor or next_cursor in seen:
-            return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+            return incomplete("cursor")
         seen.add(next_cursor)
         cursor = next_cursor
-    return ProjectionResult(outcome="unknown", code="INCOMPLETE_READBACK")
+    return incomplete("limit")
 
 
 class _OperationRecords:

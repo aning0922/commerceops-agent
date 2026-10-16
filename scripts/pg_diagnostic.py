@@ -91,6 +91,12 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             ordered = sorted(group)
             for offset in range(0, len(ordered), 14):
                 groups[f"{label}-part-{offset // 14 + 1}"] = ordered[offset : offset + 14]
+        elif path == "tests/test_p4_terminal_recovery_pg.py":
+            # 相互独立DB先构造本命令完整失败历史，保留自然30s backoff；
+            # 全12节点实测119.071/103.384/108.805s，各四节点独占原300s命令。
+            ordered = sorted(group)
+            for offset in range(0, len(ordered), 4):
+                groups[f"{label}-part-{offset // 4 + 1}"] = ordered[offset : offset + 4]
         elif path == "tests/test_p4_acceptance_pg.py" and any(
             "::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[" in node
             for node in group
@@ -135,7 +141,12 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             result[label] = group
             continue
         # 验收模块虽仅5节点，single/20项两条原生恢复链已实测约200s；独占原300s预算。
-        if len(group) > 20 or label.startswith("combined-phase3-test_p4_acceptance_pg"):
+        if len(group) > 20 or label.startswith(
+            (
+                "combined-phase3-test_p4_acceptance_pg",
+                "combined-phase3-test_p4_terminal_recovery_pg",
+            )
+        ):
             flush()
             result[label] = group
             continue
@@ -183,6 +194,7 @@ def run_combined(
                 (
                     "combined-phase3-test_p3_approval_pg-part-",
                     "combined-phase3-test_p4_acceptance_pg-part-",
+                    "combined-phase3-test_p4_terminal_recovery_pg-part-",
                 )
             )
             else sorted({node.split("::", 1)[0] for node in group})

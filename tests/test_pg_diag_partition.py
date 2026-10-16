@@ -7,7 +7,10 @@ from scripts import pg_diag_shutdown, pg_diagnostic
 pytestmark = pytest.mark.offline
 
 OLD = ["tests/test_worker_pg.py::test_lock", "tests/test_inventory_pg.py::test_facts"]
-P3 = ["tests/test_p3_pg.py::test_session", "tests/test_p3_migration_pg.py::test_preservation"]
+P3 = [
+    "tests/test_p3_revalidation_pg.py::test_session",
+    "tests/test_p3_migration_pg.py::test_preservation",
+]
 
 
 def collection(nodes: list[str], **changes: object) -> dict[str, object]:
@@ -15,6 +18,25 @@ def collection(nodes: list[str], **changes: object) -> dict[str, object]:
         "event": "pytest_progress",
         "data": {"event": "collection", "count": len(nodes), "nodes": nodes, **changes},
     }
+
+
+@pytest.mark.parametrize("size", [1, 4, 12, 13])
+def test_terminal_recovery_shards_pass_exact_nodes_once_without_whole_module_replay(
+    size: int,
+) -> None:
+    nodes = [f"tests/test_p4_terminal_recovery_pg.py::case_{n:02d}" for n in range(size)]
+    records = [collection(OLD + nodes)]
+    actual: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        assert cap == 300 and "terminal_recovery_pg-part-" in label
+        assert 1 <= len(paths) <= 4 and all("::" in path for path in paths)
+        actual.extend(paths)
+        records.append(collection(paths))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, "phase3")
+    assert actual == nodes and len(set(actual)) == len(nodes)
 
 
 def test_all_collected_nodes_run_once_in_serial_bounded_module_commands() -> None:
@@ -252,7 +274,7 @@ def test_rebalanced_complete_modules_run_once_with_original_serial_300_cap(scope
     pg_diagnostic.run_combined(records, {}, command, scope)
     assert sorted(actual) == partition(nodes, scope)
     assert len(actual) == len(set(actual))
-    assert len(calls) == (7 if scope == "existing" else 1)
+    assert len(calls) == (6 if scope == "existing" else 1)
 
 
 def test_small_complete_modules_batch_at_20_without_splitting_large_or_quality_modules() -> None:

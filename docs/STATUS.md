@@ -1192,3 +1192,35 @@ bc0d/treef262与精确CI38891565819五绿/516PG仍只签旧源码；实际319索
 JSON往返增量后的完整scripts.check实际CLI0/149.09s，仍2125offline通过/518PG排除、
 343文件type/454format/Markdown107错误0、Node与Python95依赖审计0、三层敏感扫描0。
 仅补本事实后普通本地提交交原Core，精确SHA与私有证据路径/hash由本次功能交接给出。
+
+## 66. 原v2 unknown完整恢复包：新owned候选
+
+Root统一合同Issue39#6219180668 / PR43#6219181443，总cap8 Agent有效h（A5.5/Core1.5/Root1），
+旧6h及所有既有用量累计，机器等待单列；原300h/P4/日期/人工H-L/18页不重置。
+原046/ea实际T6 COMMITTED与原key GET成功保持，后续SDK5全部returned/200/0但Update0，
+delivery unknown/attempt1/INCOMPLETE_READBACK与旧once/SPENT原样保留，不重复真人操作。
+
+候选在原terminal profile/store/adapter/父入口内增加窄recovery_of，绑定完整v1 PG锚、原失败
+window/完整ledger/update0、停止历史与当前身份权限。独立授权/dispatch once持久化，不SQL
+重置pending。对账先读完整v2可零写结算；仅完整可信v1可同record Update一次并严格读回v2。
+三nullable仅按已核完整v1中的None补省，数字仍拒绝float；发前角色/意图锁、lease/Gateway/
+stop/deadline重核。固定无值诊断与停写后完整SDK行导出见[完整合同](contracts/p4-terminal-recovery.md)。
+
+新owned首四节点4pass/223.82s；扩展首轮10pass2fail/684.53s，两个测试变量覆盖使Gateway
+停止器收到Worker引用，失败与cleanup0/容器网络0/保卷均保留。修正及按实际选中节点先构造
+独立DB失败历史后，原30秒backoff自然经过，12节点三完整组实际CLI119.071/103.384/108.805s，
+全部通过，cleanup0/容器网络0/保卷；包括0015/0016、同记录更新/已v2零写、错误hash、
+并发、认证/写前/写后停止、发前撤权和冷重放SDK delta0。仅Fake底层HTTP，SQL/角色/once/
+原生进程与退出真实。首三处敏感扫描新字面量误报改为固定名称/SQL参数，规则无豁免。
+
+完整scripts.check实际CLI0/162.711s：2153offline通过/530integration排除，346文件type、
+458format、Markdown108错误0、Node与Python95依赖审计0、dir/index/git敏感扫描0。
+最后本事实文档另作Markdown检查，不冒称未运行的完整业务Gate。完整collect530=原518+12，
+原helper最小分组候选372+158、交集0；旧Hosted命令实际时长与新增三组原始证据保留，
+两个quality合组新owned实际20/20及12/12通过，CLI151.623/128.303s，cleanup0/资源0/保卷；
+不放宽35/33/300/75reserve/60cleanup或原G1/G2/Web，Hosted容量由Root结合分层实测核定。
+
+同冻结私有最外层整链矩阵、原Core整包结论、精确新CI与真实原记录同步仍pending；Root允许
+Core源码/入口阅读与同候选owned outer并行，最后一次整包结论，不新增中间Gate。
+当前原库/Secret/真实SDK0访问，C产品/四consumer、迁移/grant/锁及main不改，A不push/触CI/
+改PR正文。未来真实PG<=600/SDK<=300/reserve>=180/arm余量>=480，必须另有Root具体UTC。

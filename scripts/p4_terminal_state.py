@@ -248,6 +248,34 @@ def collect_final_t6(
                 else (organization, shop, task)
             )
             facts[key] = db.execute(query, params).fetchall()
+        # 原/当前窗口均从同task的不可变授权审计取得；不扫描其他任务或采集wire值。
+        terminal_actions = [
+            "terminal_update_authorized",
+            "terminal_recovery_authorized",
+            "terminal_recovery_dispatched",
+        ]
+        facts["terminal_audit"] = db.execute(
+            "SELECT * FROM business.audit_events WHERE organization_id=%s AND task_id=%s "
+            "AND ((source='feishu_recovery' AND action=ANY(%s)) "
+            "OR (source='feishu_delivery' AND action='base_projection_checked')) ORDER BY id",
+            (organization, task, terminal_actions),
+        ).fetchall()
+        window_ids = {
+            UUID(str(event["after_state"]["window_id"]))
+            for event in facts["terminal_audit"]
+            if event["action"] in terminal_actions[:2]
+        }
+        facts["sdk_windows"] = db.execute(
+            "SELECT * FROM business.p4_sdk_windows WHERE organization_id=%s AND shop_id=%s "
+            "AND id=ANY(%s) ORDER BY id",
+            (organization, shop, list(window_ids)),
+        ).fetchall()
+        facts["sdk_calls"] = db.execute(
+            "SELECT c.* FROM business.p4_sdk_calls c JOIN business.p4_sdk_windows w "
+            "ON w.id=c.window_id WHERE w.organization_id=%s AND w.shop_id=%s "
+            "AND w.id=ANY(%s) ORDER BY c.id",
+            (organization, shop, list(window_ids)),
+        ).fetchall()
         end = db.execute("SELECT clock_timestamp() AS at_utc").fetchone()
         if end is None:
             raise RuntimeError("P4_T6_DATABASE_UTC_MISSING")
@@ -257,3 +285,102 @@ def collect_final_t6(
     classification = classify_t6(facts)
     write_private(output.with_suffix(".classification.json"), classification)
     return classification
+
+
+def terminal_recovery_from_native(db: Any, context: Mapping[str, Any], *, expires_at: Any) -> Any:
+    """只读当前PG原失败态派生disabled模板；真正准入仍由原生Worker锁内复核。"""
+    from uuid import uuid5
+
+    from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+    from commerceops.infrastructure.feishu_outbox_recovery import (
+        sdk_window_hash,
+        terminal_authorization_id,
+    )
+    from commerceops.infrastructure.feishu_terminal_recovery import state_hash
+
+    from scripts.p4_acceptance import require, terminal_window_from_native
+
+    template = terminal_window_from_native(db, context, expires_at=expires_at, queued=True)
+    terminal = template.terminal_update
+    require(terminal is not None, "P4A_TERMINAL_RECOVERY_TEMPLATE")
+    if terminal is None:
+        raise PermissionError("P4A_TERMINAL_RECOVERY_TEMPLATE")
+    delivery = db.execute(
+        "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s AND organization_id=%s "
+        "AND shop_id=%s AND task_id=%s",
+        (
+            terminal.projection.outbox_id,
+            template.organization_id,
+            template.shop_id,
+            terminal.verified_recovery.task_id,
+        ),
+    ).fetchone()
+    require(
+        delivery is not None and delivery["status"] == "unknown" and delivery["attempts"] == 1,
+        "P4A_TERMINAL_RECOVERY_FAILED_STATE",
+    )
+    if delivery is None:
+        raise PermissionError("P4A_TERMINAL_RECOVERY_FAILED_STATE")
+    authorization = db.execute(
+        "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s "
+        "AND task_id=%s AND source='feishu_recovery' AND action='terminal_update_authorized'",
+        (
+            terminal_authorization_id(terminal.projection.outbox_id),
+            template.organization_id,
+            terminal.verified_recovery.task_id,
+        ),
+    ).fetchone()
+    require(authorization is not None, "P4A_TERMINAL_RECOVERY_FAILED_WINDOW")
+    if authorization is None:
+        raise PermissionError("P4A_TERMINAL_RECOVERY_FAILED_WINDOW")
+    prior = ControlledWorkerWindow.model_validate_json(json.dumps(authorization["after_state"]))
+    sdk = db.execute(
+        "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (prior.window_id,)
+    ).fetchone()
+    calls = db.execute(
+        "SELECT * FROM business.p4_sdk_calls WHERE window_id=%s ORDER BY id",
+        (prior.window_id,),
+    ).fetchall()
+    gateway = db.execute(
+        "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s "
+        "AND source='feishu_gateway' AND action='gateway_start_claimed'",
+        (prior.gateway_window_id, template.organization_id),
+    ).fetchone()
+
+    def termination(source: str, entity: str) -> UUID:
+        rows = db.execute(
+            "SELECT id FROM business.audit_events WHERE organization_id=%s AND source=%s "
+            "AND entity_id=%s AND action='termination_confirmed'",
+            (template.organization_id, source, entity),
+        ).fetchall()
+        require(len(rows) == 1, "P4A_TERMINAL_RECOVERY_FAILED_LIFECYCLE")
+        return rows[0]["id"]  # type: ignore[no-any-return]
+
+    require(sdk is not None and gateway is not None, "P4A_TERMINAL_RECOVERY_FAILED_LEDGER")
+    if sdk is None or gateway is None:
+        raise PermissionError("P4A_TERMINAL_RECOVERY_FAILED_LEDGER")
+    value = template.model_dump(mode="json")
+    wid, gid = (
+        uuid5(prior.window_id, "terminal-recovery-disabled-worker"),
+        uuid5(prior.window_id, "terminal-recovery-disabled-gateway"),
+    )
+    value.update(window_id=str(wid), gateway_window_id=str(gid))
+    value["terminal_update"].update(
+        worker_window_id=str(wid),
+        gateway_window_id=str(gid),
+        recovery_of=dict(
+            recovery_count=1,
+            failed_window_id=str(prior.window_id),
+            failed_window_hash=facts_hash(authorization["after_state"]),
+            failed_sdk_window_hash=sdk_window_hash(sdk),
+            failed_ledger_hash=facts_hash(json_native(calls)),
+            failed_delivery_hash=state_hash(delivery),
+            failed_gateway_hash=facts_hash(gateway["after_state"]),
+            failed_gateway_termination_id=str(
+                termination("feishu_gateway", str(prior.gateway_window_id))
+            ),
+            failed_worker_owner=delivery["claimed_by"],
+            failed_worker_termination_id=str(termination("worker", delivery["claimed_by"])),
+        ),
+    )
+    return ControlledWorkerWindow.model_validate_json(json.dumps(value))

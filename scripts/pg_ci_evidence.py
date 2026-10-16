@@ -25,6 +25,20 @@ EXISTING_BUSINESS_MODULES = frozenset(
 # 38783752352全局expires-75耗尽；迁移两个已完整通过的既有固定组。
 # 旧phase3 batch-3=16节点/245.816s，batch-4=19节点/187.596s；不拆模块、不增时限。
 EXISTING_REBALANCED_GROUPS = {
+    # 38912191768: 原完整p3_pg命令91.921s；恢复包新增12节点实测331.260s。
+    # 下列完整模块转移及两个原quality小组复用既有机制，所有节点/时限不变。
+    "combined-existing-p3-native-regression": frozenset({"tests/test_p3_pg.py"}),
+    "combined-existing-p3-recovery-evidence": frozenset(
+        {
+            "tests/test_p3_execution_authority_pg.py",
+            "tests/test_p3_execution_recovery_pg.py",
+            "tests/test_p3_evidence_pg.py",
+            "tests/test_p3_pool_pg.py",
+        }
+    ),
+    "combined-existing-p4-create-and-template": frozenset(
+        {"tests/test_p4_first_create_pg.py", "tests/test_p4_template_results_pg.py"}
+    ),
     "combined-existing-p4-a08-recovery": frozenset(
         {
             "tests/test_p4_a08_recovery_pg.py",

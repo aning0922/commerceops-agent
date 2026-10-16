@@ -2,6 +2,10 @@
 
 import asyncio
 import json
+import os
+import socket
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -92,6 +96,101 @@ class BaseDeliveryStore:
         ):
             raise PermissionError("P4_TERMINAL_UPDATE_GATE_REQUIRED")
 
+    @asynccontextmanager
+    async def guard_terminal_update(self) -> AsyncIterator[None]:
+        """新恢复的条件写前复核；角色/原意图行锁持有至SDK方法结束。"""
+        from commerceops.infrastructure.feishu_outbox_recovery import (
+            full_process_receipt,
+            terminal_denied,
+            terminal_intent,
+        )
+        from commerceops.infrastructure.feishu_terminal_recovery import (
+            recovery_authorized,
+            recovery_once_id,
+        )
+
+        window = self.terminal_window
+        if window is None or window.terminal_update is None:
+            terminal_denied()
+        terminal = window.terminal_update
+        if terminal.recovery_of is None:
+            terminal_denied()
+        await self.session.check()
+        async with await open_async(self.session.settings) as db, db.transaction():
+            await terminal_intent(db, window)
+            await recovery_authorized(db, window)
+            cur = await db.execute(
+                "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s "
+                "AND source='feishu_recovery' AND action='terminal_recovery_dispatched'",
+                (recovery_once_id(window, dispatched=True), window.organization_id),
+            )
+            once = await cur.fetchone()
+            if (
+                not once
+                or once["after_state"].get("window") != window.model_dump(mode="json")
+                or once["after_state"].get("worker_owner") != self.session.owner
+            ):
+                terminal_denied()
+            cur = await db.execute(
+                "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s FOR UPDATE",
+                (terminal.projection.outbox_id,),
+            )
+            delivery = await cur.fetchone()
+            if not delivery or any(
+                delivery.get(key) != value
+                for key, value in dict(
+                    status="sending",
+                    attempts=2,
+                    claimed_by=self.session.owner,
+                    version=2,
+                    last_operation="reconcile",
+                    projection_hash=terminal.projection.projection_hash,
+                    client_token=terminal.projection.client_token,
+                ).items()
+            ):
+                terminal_denied()
+            cur = await db.execute(
+                "SELECT 1 FROM business.audit_events WHERE id=%s AND organization_id=%s "
+                "AND source='feishu_gateway' AND action='gateway_start_claimed' "
+                "AND clock_timestamp()<%s AND NOT EXISTS(SELECT 1 FROM business.audit_events "
+                "WHERE organization_id=%s AND source='feishu_gateway' "
+                "AND entity_type='gateway_runtime' "
+                "AND entity_id=%s AND action='termination_confirmed')",
+                (
+                    window.gateway_window_id,
+                    window.organization_id,
+                    window.expires_at,
+                    window.organization_id,
+                    str(window.gateway_window_id),
+                ),
+            )
+            if not await cur.fetchone() or not self.gate.active():
+                terminal_denied()
+            cur = await db.execute(
+                "SELECT after_state FROM business.audit_events WHERE organization_id=%s "
+                "AND source='feishu_gateway' AND entity_type='gateway_runtime' "
+                "AND entity_id=%s AND action='started'",
+                (window.organization_id, str(window.gateway_window_id)),
+            )
+            starts = await cur.fetchall()
+            from commerceops.infrastructure.worker_lock import process_namespace
+
+            if len(starts) != 1:
+                terminal_denied()
+            process = starts[0]["after_state"]
+            if (
+                not full_process_receipt(process)
+                or process["host"] != socket.gethostname()
+                or process["pid_namespace"] != process_namespace()
+            ):
+                terminal_denied()
+            try:
+                os.kill(process["pid"], 0)
+            except OSError:
+                terminal_denied()
+            await self.session.check()
+            yield
+
     async def _enroll(self) -> None:
         if self.terminal_window is not None:
             from commerceops.infrastructure.feishu_outbox_recovery import (
@@ -99,12 +198,18 @@ class BaseDeliveryStore:
                 terminal_denied,
                 terminal_intent,
             )
+            from commerceops.infrastructure.feishu_terminal_recovery import (
+                recovery_authorized,
+                state_hash,
+            )
 
             window = self.terminal_window
             terminal = window.terminal_update
             if terminal is None:
                 terminal_denied()
             async with await open_async(self.session.settings) as db, db.transaction():
+                if terminal.recovery_of is not None:
+                    await recovery_authorized(db, window)
                 cur = await db.execute(
                     "SELECT after_state FROM business.audit_events WHERE id=%s "
                     "AND organization_id=%s AND task_id=%s AND source='feishu_recovery' "
@@ -116,28 +221,30 @@ class BaseDeliveryStore:
                     ),
                 )
                 authorization = await cur.fetchone()
-                if not authorization or authorization["after_state"] != window.model_dump(
-                    mode="json"
+                if terminal.recovery_of is None and (
+                    not authorization
+                    or authorization["after_state"] != window.model_dump(mode="json")
                 ):
                     terminal_denied()
                 outbox, snapshot = await terminal_intent(db, window)
-                await db.execute(
-                    "INSERT INTO business.p4_base_deliveries(outbox_id,organization_id,shop_id,"
-                    "task_id,item_id,target_key,client_token,version,projection,projection_hash,"
-                    "verification_mode) VALUES(%s,%s,%s,%s,%s,%s,%s,2,%s,%s,'controlled_sdk') "
-                    "ON CONFLICT(outbox_id) DO NOTHING",
-                    (
-                        outbox["id"],
-                        window.organization_id,
-                        window.shop_id,
-                        terminal.verified_recovery.task_id,
-                        snapshot.item_id,
-                        self.gate.target_key,
-                        outbox["provider_idempotency_key"],
-                        Jsonb(snapshot.model_dump(mode="json")),
-                        facts_hash(snapshot.model_dump(mode="json")),
-                    ),
-                )
+                if terminal.recovery_of is None:
+                    await db.execute(
+                        "INSERT INTO business.p4_base_deliveries(outbox_id,organization_id,shop_id,"
+                        "task_id,item_id,target_key,client_token,version,projection,projection_hash,"
+                        "verification_mode) VALUES(%s,%s,%s,%s,%s,%s,%s,2,%s,%s,'controlled_sdk') "
+                        "ON CONFLICT(outbox_id) DO NOTHING",
+                        (
+                            outbox["id"],
+                            window.organization_id,
+                            window.shop_id,
+                            terminal.verified_recovery.task_id,
+                            snapshot.item_id,
+                            self.gate.target_key,
+                            outbox["provider_idempotency_key"],
+                            Jsonb(snapshot.model_dump(mode="json")),
+                            facts_hash(snapshot.model_dump(mode="json")),
+                        ),
+                    )
                 cur = await db.execute(
                     "SELECT * FROM business.p4_base_deliveries WHERE outbox_id=%s FOR UPDATE",
                     (outbox["id"],),
@@ -154,11 +261,15 @@ class BaseDeliveryStore:
                     "projection": snapshot.model_dump(mode="json"),
                     "projection_hash": facts_hash(snapshot.model_dump(mode="json")),
                     "verification_mode": "controlled_sdk",
-                    "status": "pending",
-                    "attempts": 0,
+                    "status": "unknown" if terminal.recovery_of is not None else "pending",
+                    "attempts": 1 if terminal.recovery_of is not None else 0,
                     "external_id": None,
                 }
                 if not enrolled or any(enrolled[k] != v for k, v in expected.items()):
+                    terminal_denied()
+                if terminal.recovery_of is not None and (
+                    state_hash(enrolled) != terminal.recovery_of.failed_delivery_hash
+                ):
                     terminal_denied()
                 await self.session.check()
             return
@@ -282,7 +393,28 @@ class BaseDeliveryStore:
         await self.recover_unknown()
         request: ProjectionRequest | None = None
         attempts = 0
+        recovering = (
+            self.terminal_window is not None
+            and self.terminal_window.terminal_update is not None
+            and self.terminal_window.terminal_update.recovery_of is not None
+        )
         async with await open_async(self.session.settings) as db, db.transaction():
+            baseline: ItemProjection | None = None
+            if self.terminal_window is not None:
+                from commerceops.infrastructure.feishu_outbox_recovery import terminal_intent
+
+                await terminal_intent(db, self.terminal_window)
+                terminal = self.terminal_window.terminal_update
+                if terminal is None:
+                    raise PermissionError("P4_TERMINAL_V1_REQUIRED")
+                cur = await db.execute(
+                    "SELECT projection FROM business.p4_base_deliveries WHERE outbox_id=%s",
+                    (terminal.verified_recovery.projections[0].outbox_id,),
+                )
+                v1 = await cur.fetchone()
+                if not v1:
+                    raise PermissionError("P4_TERMINAL_V1_REQUIRED")
+                baseline = ItemProjection.model_validate_json(json.dumps(v1["projection"]))
             cur = await db.execute(
                 """SELECT d.*,l.external_id AS anchor FROM business.p4_base_deliveries d
                 LEFT JOIN business.p4_base_links l ON l.organization_id=d.organization_id
@@ -305,7 +437,7 @@ class BaseDeliveryStore:
                     None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
                     None if self.gate.outbox_ids is None else list(self.gate.outbox_ids),
                     self.gate.explicit_ro_window_id,
-                    self.terminal_window is not None,
+                    self.terminal_window is not None and not recovering,
                 ),
             )
             for row in await cur.fetchall():
@@ -320,6 +452,15 @@ class BaseDeliveryStore:
                 )
                 if explicit:
                     operation = "reconcile"
+                if recovering:
+                    from commerceops.infrastructure.feishu_terminal_recovery import (
+                        dispatch_recovery,
+                    )
+
+                    if self.terminal_window is None:
+                        raise PermissionError("P4_TERMINAL_RECOVERY_REQUIRED")
+                    await dispatch_recovery(db, self.terminal_window, row, self.session.owner)
+                    operation = "update"  # adapter仍先完整read；once准许至多一次有条件update。
                 if operation == "reconcile" and self.gate.first_create is not None:
                     from commerceops.infrastructure.feishu_first_create_recovery import (
                         admitted_first_create,
@@ -361,6 +502,7 @@ class BaseDeliveryStore:
                     client_token=row["client_token"],
                     external_id=row["anchor"],
                     projection=snapshot,
+                    verified_v1=baseline,
                 )
                 attempts = row["attempts"] if explicit else row["attempts"] + 1
                 if explicit:
@@ -394,7 +536,12 @@ class BaseDeliveryStore:
                     attempts=%s,claimed_by=%s,
                     last_operation=%s,first_attempt_at=COALESCE(first_attempt_at,clock_timestamp())
                     WHERE outbox_id=%s""",
-                    (attempts, self.session.owner, operation, row["outbox_id"]),
+                    (
+                        attempts,
+                        self.session.owner,
+                        "reconcile" if recovering else operation,
+                        row["outbox_id"],
+                    ),
                 )
                 break
             await self.session.check()
@@ -430,6 +577,10 @@ class BaseDeliveryStore:
             final = disposition(
                 request, result, current_version=current["version"], attempts=attempts
             )
+            if recovering and final.status == "pending":
+                from dataclasses import replace
+
+                final = replace(final, status="unknown")  # 新once已消费；已知拒绝也不能续跑。
             await db.execute(
                 """UPDATE business.p4_base_deliveries SET status=%s,last_error=%s,
                 external_id=COALESCE(external_id,%s),observed_version=%s,complete_unique_verified=%s,
@@ -481,6 +632,11 @@ class BaseDeliveryStore:
                             "complete_unique_verified": final.status == "verified",
                             "verification_mode": self.gate.verification_mode,
                             "safe_code": final.code,
+                            **(
+                                {"readback_diagnostic": result.diagnostic.model_dump(mode="json")}
+                                if result.diagnostic is not None
+                                else {}
+                            ),
                         }
                     ),
                     uuid4(),

@@ -101,6 +101,10 @@ class ProjectionRequest(Contract):
     client_token: UUID
     external_id: str | None = Field(default=None, min_length=1, max_length=256, repr=False)
     projection: ItemProjection
+    # 仅store从已verified的PG v1锚提供；不能由远端缺列反推期望值。
+    verified_v1: ItemProjection | None = Field(
+        default=None, repr=False, exclude_if=lambda value: value is None
+    )
     # 整个operation含完整分页的绝对总deadline，不能逐页/SDK请求重置。
     timeout_seconds: int = Field(default=10, ge=1, le=10)
     max_pages: int = Field(default=100, ge=1, le=100)
@@ -113,6 +117,72 @@ class ProjectionRequest(Contract):
             self.operation == "create" and self.external_id is not None
         ):
             raise ValueError("INVALID_PROJECTION")
+        if self.verified_v1 is not None:
+            before = self.verified_v1
+            changing = {
+                "BusinessStatus",
+                "ResolutionReason",
+                "ResolvedBy",
+                "ResolvedAt",
+                "SyncVersion",
+                "UpdatedAt",
+            }
+            if (
+                self.operation not in ("update", "reconcile")
+                or self.external_id is None
+                or before.sync_version != 1
+                or before.business_status != "open"
+                or self.projection.sync_version != 2
+                or self.projection.business_status != "closed"
+                or any(
+                    before.fields()[name] != self.projection.fields()[name]
+                    for name in BASE_FIELDS
+                    if name not in changing
+                )
+            ):
+                raise ValueError("INVALID_VERIFIED_V1_BASELINE")
+        return self
+
+
+class ReadbackDiagnostic(Contract):
+    """仅固定stage/shape与字段名；禁止保存外部响应值或标识符。"""
+
+    stage: Literal["pagination", "row", "fields", "version", "content"]
+    reason: Literal[
+        "transport",
+        "envelope",
+        "cursor",
+        "total",
+        "limit",
+        "row_shape",
+        "item_identity",
+        "missing",
+        "duplicate",
+        "record",
+        "required",
+        "field_type",
+        "v1_content",
+        "older",
+        "newer",
+        "mismatch",
+        "verified",
+    ]
+    fields: tuple[str, ...] = ()
+    field_types: tuple[
+        Literal["null", "text", "integer", "float", "boolean", "object", "array", "other"], ...
+    ] = ()
+    pagination_complete: bool = False
+    unique: bool = False
+
+    @model_validator(mode="after")
+    def safe_fields(self) -> "ReadbackDiagnostic":
+        if (
+            len(set(self.fields)) != len(self.fields)
+            or not set(self.fields) <= set(BASE_FIELDS)
+            or self.field_types
+            and len(self.field_types) != len(self.fields)
+        ):
+            raise ValueError("INVALID_READBACK_DIAGNOSTIC")
         return self
 
 
@@ -127,6 +197,9 @@ class ProjectionResult(Contract):
     matched_count: int = Field(default=0, ge=0)
     content_matches: bool = False
     observed_fields: dict[str, str | int | None] | None = None
+    diagnostic: ReadbackDiagnostic | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def verified_requires_readback(self) -> "ProjectionResult":

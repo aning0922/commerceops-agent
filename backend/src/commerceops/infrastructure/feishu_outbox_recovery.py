@@ -1005,7 +1005,7 @@ async def terminal_intent(db: Any, window: ControlledWorkerWindow) -> tuple[Any,
         terminal_denied()
     cur = await db.execute(
         "SELECT * FROM business.outbox WHERE organization_id=%s AND shop_id=%s AND task_id=%s "
-        "AND aggregate_id=%s AND aggregate_version=2 FOR SHARE",
+        "AND aggregate_id=%s AND aggregate_version=2 FOR UPDATE",
         (window.organization_id, window.shop_id, recovery.task_id, item["id"]),
     )
     outboxes = await cur.fetchall()
@@ -1347,6 +1347,36 @@ async def trusted_terminal_scope(
         )
         delivery = await cur.fetchone()
         authorization_id = terminal_authorization_id(terminal.projection.outbox_id)
+        if terminal.recovery_of is not None:
+            from commerceops.infrastructure.feishu_terminal_recovery import (
+                failed_terminal_source,
+                recovery_authorized,
+                recovery_once_id,
+            )
+
+            if delivery is None:
+                terminal_denied()
+            await failed_terminal_source(db, window, delivery, current["occurred_at"])
+            if claim:
+                cur = await db.execute(
+                    "INSERT INTO business.audit_events(id,organization_id,task_id,source,action,"
+                    "entity_type,entity_id,after_state,trace_id) "
+                    "VALUES(%s,%s,%s,'feishu_recovery','terminal_recovery_authorized',"
+                    "'outbox',%s,%s,%s) ON CONFLICT(id) DO NOTHING RETURNING id",
+                    (
+                        recovery_once_id(window),
+                        window.organization_id,
+                        recovery.task_id,
+                        str(terminal.projection.outbox_id),
+                        Jsonb(window.model_dump(mode="json")),
+                        window.window_id,
+                    ),
+                )
+                if not await cur.fetchone():
+                    terminal_denied()
+            else:
+                await recovery_authorized(db, window)
+            return
         if claim:
             if delivery is not None:
                 terminal_denied()  # cold replay/unknown cannot mint a second admission.

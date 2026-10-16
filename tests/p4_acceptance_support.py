@@ -56,6 +56,8 @@ class FakeHTTPTransport:
         status = 200
         body: dict[str, Any] = {"code": 0}
         if path == "/open-apis/auth/v3/tenant_access_token/internal" and method == "POST":
+            if state.get("behavior") == "auth_pause":
+                await self.pause("auth")
             body.update(tenant_access_token=str(uuid4()), expire=7200)
         elif path == "/open-apis/bot/v3/info" and method == "GET":
             body["bot"] = {"open_id": self.settings.bot_open_id}
@@ -105,6 +107,13 @@ class FakeHTTPTransport:
                     for row in rows:
                         for key in ("Quantity", "SyncVersion"):
                             row["fields"][key] = str(row["fields"][key])
+                elif behavior == "nullable_numeric_string":
+                    for row in rows:
+                        for key in ("ResolutionReason", "ResolvedBy", "ResolvedAt"):
+                            if row["fields"].get(key) is None:
+                                row["fields"].pop(key, None)
+                        for key in ("Quantity", "SyncVersion"):
+                            row["fields"][key] = str(row["fields"][key])
                 elif behavior == "nullable_omitted":
                     for row in rows:
                         for key in ("ResolutionReason", "ResolvedBy", "ResolvedAt"):
@@ -118,7 +127,11 @@ class FakeHTTPTransport:
                 data: dict[str, Any] = {"items": rows, "total": len(rows), "has_more": False}
                 if behavior == "pagination_cycle":
                     data.update(has_more=True, page_token="synthetic-cycle")  # noqa: S106
+                elif behavior == "wrong_total":
+                    data["total"] = len(rows) + 1
                 body["data"] = data
+                if behavior == "preupdate_pause":
+                    await self.pause("preupdate")
             elif method == "POST":
                 record = {
                     "record_id": "synthetic-" + uuid4().hex,
@@ -132,14 +145,26 @@ class FakeHTTPTransport:
                 record_id = path.rsplit("/", 1)[1]
                 matches = [r for r in state["rows"] if r["record_id"] == record_id]
                 require(len(matches) == 1, "P4A_FAKE_UPDATE_TARGET")
+                if behavior == "update_pause_before":
+                    await self.pause("before-update")
                 matches[0]["fields"] = kwargs["json"]["fields"]
                 write_private(self.path, state)
+                if behavior == "update_pause_after":
+                    await self.pause("after-update")
                 body["data"] = {} if behavior == "ack_drop" else {"record": matches[0]}
             else:
                 require(False, "P4A_FAKE_METHOD")
         else:
             require(False, "P4A_FAKE_REQUEST")
         return SimpleNamespace(status_code=status, headers={}, content=json.dumps(body).encode())
+
+    async def pause(self, boundary: str) -> None:
+        # 只属于新owned底层HTTP夹具；原生Worker/事务/ledger不注入任何钩子。
+        ready = self.path.with_suffix("." + boundary + ".ready")
+        ready.touch(mode=0o600, exist_ok=False)
+        release = self.path.with_suffix("." + boundary + ".release")
+        while not release.exists():
+            await asyncio.sleep(0.02)
 
     @contextmanager
     def installed(self) -> Iterator[None]:

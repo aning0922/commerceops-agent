@@ -108,6 +108,23 @@ class ApprovedOutboxRecovery(BaseModel):
         return self
 
 
+class TerminalRecovery(BaseModel):
+    """已结束且SDK update0的原unknown/attempt1；只授权独立一次恢复。"""
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    recovery_count: int = Field(ge=1, le=1)
+    failed_window_id: UUID
+    failed_window_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    failed_sdk_window_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    failed_ledger_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    failed_delivery_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    failed_gateway_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    failed_gateway_termination_id: UUID
+    failed_worker_owner: UUID
+    failed_worker_termination_id: UUID
+
+
 class ApprovedTerminalUpdate(BaseModel):
     """已核实原v1锚至原生T6 v2；不授权重读v1、create或工作流恢复。"""
 
@@ -133,6 +150,9 @@ class ApprovedTerminalUpdate(BaseModel):
     resolver_id: UUID
     resolver_identity_id: UUID
     resolver_auth_version: int = Field(ge=1)
+    recovery_of: TerminalRecovery | None = Field(
+        default=None, repr=False, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def terminal_pair(self) -> "ApprovedTerminalUpdate":
@@ -149,6 +169,12 @@ class ApprovedTerminalUpdate(BaseModel):
             or self.projection.item_id != original.projections[0].item_id
             or self.projection.outbox_id == original.projections[0].outbox_id
             or self.projection.client_token == original.projections[0].client_token
+            or self.recovery_of is not None
+            and (
+                not isinstance(original, VerifiedQueuedV1)
+                or self.recovery_of.failed_window_id
+                in (self.worker_window_id, original.worker_window_id)
+            )
         ):
             raise ValueError("P4_TERMINAL_UPDATE_BINDING_REQUIRED")
         return self
