@@ -20,6 +20,19 @@ if TYPE_CHECKING:
     from commerceops.infrastructure.web_config import WebConfig
 
 
+def native_child_command(module: str, *, queued: bool = False) -> list[str]:
+    """Queued parent/children must inherit the same verified sealed execution root."""
+    if not queued:
+        return [sys.executable, "-m", module]
+    binding = getattr(sys, "_p4_queued_source_binding", None)
+    if binding is None:
+        raise PermissionError("P4_QUEUED_SEALED_SOURCE_REQUIRED")
+    binding["check_loaded"]()
+    if Path.cwd() != binding["root"] or Path(sys.executable) != binding["python"]:
+        raise PermissionError("P4_QUEUED_SEALED_SOURCE_REQUIRED")
+    return [*binding["command"], "--module", module]
+
+
 def run_gateway(
     config: Path,
     window_file: Path,
@@ -52,9 +65,9 @@ def run_gateway(
     cutoff = time.monotonic() + remaining
     process = subprocess.Popen(  # noqa: S603 - fixed executable/module, verified file args, no shell
         [
-            sys.executable,
-            "-m",
-            "commerceops.entrypoints.feishu_gateway_child",
+            *native_child_command(
+                "commerceops.entrypoints.feishu_gateway_child", queued=queued_ready
+            ),
             "--config",
             str(config),
             "--window-file",
@@ -237,9 +250,11 @@ def run_worker(
     deadline = time.monotonic() + (window.expires_at - datetime.now(UTC)).total_seconds()
     child = subprocess.Popen(  # noqa: S603 - fixed module, verified files, no shell
         [
-            sys.executable,
-            "-m",
-            "commerceops.entrypoints.feishu_worker_child",
+            *native_child_command(
+                "commerceops.entrypoints.feishu_worker_child",
+                queued=isinstance(window, ControlledWorkerWindow)
+                and window.queued_start is not None,
+            ),
             "--live",
             "--config",
             str(config),

@@ -1136,3 +1136,17 @@ Markdown107错误0、format447/type336通过、Node漏洞0/Python95依赖漏洞0
 此后仅补本事实，不重跑整套离线检查；本地冻结SHA及最终同源owned矩阵由私有索引另核。
 原SPENT RO快照自动派生了新disabled模板，实际配置正文/引用密钥/实际PG/SDK读取均0；
 Root仍须独审/新精确CI后另给绝对UTC和绑定配置引用/新permit，不复用或改写旧入口。
+
+## 64. queued-start 私有执行来源 P1 修复接续
+
+Core审核9454产品SQL暂未见额外P1/P2，但发现私有父入口在校验前已import可变WT项目代码，
+后续native子进程仍从可变WT执行；事后hash/git clean及LAB-only来源检查不能闭合该P1。
+旧9454及321引用索引223093f0全部保留历史，不代签实际准入。Root明确在原8h批内最小修复，
+无新预算/框架/真实许可；原合同0b3c5562不变，C源码/SQL/迁移/角色权限/业务规则不改。
+
+修复采用唯一封存副本：私有准备阶段把已提交源码/必要运行时/原私有入口复制到本批自有目录，
+封存为只读；唯一命令先用-I -S标准库引导验证入口、源码及运行时，复用原SourceBinding
+执行已校验内存字节并核加载来源。queued profile原Gateway/Worker子进程argv要求继承同一
+封存根/解释器/CWD/引导命令，缺绑定或来源污染先拒绝；旧profile原argv不改。
+当前仅argv增量81相关纯测/type2通过；同封存副本的拒绝测试、完整正负链、独审/CI另核，
+不预写通过。所有实际PG/AppSecret/Gateway/SDK仍HOLD，未push/编辑PR正文/触CI/main。
