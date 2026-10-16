@@ -15,6 +15,7 @@ from commerceops.application.feishu_business.recovery import (
     ApprovedTerminalUpdate,
     ApprovedWorkflowRecovery,
     RecoveryProjection,
+    VerifiedQueuedV1,
 )
 from commerceops.application.feishu_business.sdk_calls import SDKMethod
 from commerceops.application.feishu_business.sdk_window import SDKWindow
@@ -67,6 +68,13 @@ READONLY_RECOVERY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
 
 class ControlledWorkerWindow(BaseModel):
     model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    @property
+    def requires_sealed_source(self) -> bool:
+        return self.queued_start is not None or (
+            self.terminal_update is not None
+            and isinstance(self.terminal_update.verified_recovery, VerifiedQueuedV1)
+        )
 
     schema_version: Literal["p4-worker-v1"]
     window_id: UUID

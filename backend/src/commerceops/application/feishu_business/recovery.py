@@ -117,7 +117,9 @@ class ApprovedTerminalUpdate(BaseModel):
     worker_window_id: UUID
     gateway_window_id: UUID
     expires_at: datetime
-    verified_recovery: ApprovedOutboxRecovery = Field(repr=False)
+    verified_recovery: "ApprovedOutboxRecovery | VerifiedQueuedV1" = Field(
+        repr=False, discriminator="schema_version"
+    )
     verified_sdk_window_hash: str = Field(pattern="^[a-f0-9]{64}$")
     verified_gateway_hash: str = Field(pattern="^[a-f0-9]{64}$")
     verified_gateway_termination_id: UUID
@@ -137,10 +139,12 @@ class ApprovedTerminalUpdate(BaseModel):
         original = self.verified_recovery
         if (
             self.expires_at.utcoffset() is None
-            or original.sender_gateway is None
-            or original.explicit_ro_recheck is None
+            or isinstance(original, ApprovedOutboxRecovery)
+            and (original.sender_gateway is None or original.explicit_ro_recheck is None)
             or self.worker_window_id == original.worker_window_id
             or self.gateway_window_id == original.gateway_window_id
+            or isinstance(original, VerifiedQueuedV1)
+            and self.gateway_window_id == original.original_gateway_id
             or self.projection.version != 2
             or self.projection.item_id != original.projections[0].item_id
             or self.projection.outbox_id == original.projections[0].outbox_id
@@ -231,3 +235,66 @@ class ApprovedQueuedStart(BaseModel):
         ):
             raise ValueError("P4_QUEUED_START_BINDING_REQUIRED")
         return self
+
+
+class VerifiedQueuedV1(BaseModel):
+    """原queued窗口已真实创建并核实的单v1；不冒充explicit RO历史。"""
+
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    schema_version: Literal["p4-verified-queued-v1"]
+    queued_start: ApprovedQueuedStart = Field(repr=False)
+    task_version: int = Field(ge=1)
+    plan_id: UUID
+    plan_version: int = Field(ge=1)
+    plan_hash: str = Field(pattern="^[a-f0-9]{64}$")
+    approval_id: UUID
+    decision_id: UUID
+    execution_id: UUID
+    operator_auth_version: int = Field(ge=1)
+    approver_auth_version: int = Field(ge=1)
+    projections: tuple[RecoveryProjection, ...] = Field(min_length=1, max_length=1, repr=False)
+
+    @model_validator(mode="after")
+    def verified_pair(self) -> "VerifiedQueuedV1":
+        if (
+            self.projections[0].version != 1
+            or self.operator_auth_version != self.queued_start.operator_auth_version
+        ):
+            raise ValueError("P4_VERIFIED_QUEUED_V1_BINDING_REQUIRED")
+        return self
+
+    @property
+    def worker_window_id(self) -> UUID:
+        return self.queued_start.worker_window_id
+
+    @property
+    def gateway_window_id(self) -> UUID:
+        return self.queued_start.gateway_window_id
+
+    @property
+    def original_gateway_id(self) -> UUID:
+        return self.queued_start.original_gateway_id
+
+    @property
+    def original_gateway_hash(self) -> str:
+        return self.queued_start.original_gateway_hash
+
+    @property
+    def task_id(self) -> UUID:
+        return self.queued_start.task_id
+
+    @property
+    def inbox_id(self) -> UUID:
+        return self.queued_start.inbox_id
+
+    @property
+    def receipt_hash(self) -> str:
+        return self.queued_start.receipt_hash
+
+    @property
+    def target_key(self) -> str:
+        return self.queued_start.target_key
+
+
+ApprovedTerminalUpdate.model_rebuild()

@@ -1150,3 +1150,45 @@ Core审核9454产品SQL暂未见额外P1/P2，但发现私有父入口在校验�
 封存根/解释器/CWD/引导命令，缺绑定或来源污染先拒绝；旧profile原argv不改。
 当前仅argv增量81相关纯测/type2通过；同封存副本的拒绝测试、完整正负链、独审/CI另核，
 不预写通过。所有实际PG/AppSecret/Gateway/SDK仍HOLD，未push/编辑PR正文/触CI/main。
+
+## 65. 原item T6/v2完整分段收口包
+
+用户批准新cap6 Agent有效h，Root T0=2026-10-16 12:16:00.960321Z，建议A4/Core1/Root1，
+原负责人/WT/PR43接续。原8h用量、SDK9/Create1及全部once SPENT累计，不重置日期/P4/300h。
+bc0d/treef262与精确CI38891565819五绿/516PG仍只签旧源码；实际319索引记录原v1 verified、
+原审批一次、update0，T6最终commit unknown。原真实资源全停保卷，不重做DM/审批/create。
+
+当前新增显式VerifiedQueuedV1来源，原terminal的legacy RO守卫保持；新来源复核原queued
+三份独立授权、task/source/job不可变hash、原SDK精确caps/成功method主体、v1锚及真实终止。
+同A/当前角色、原生T6 key/semantic hash/receipt/audit/唯一v2 outbox与原record绑定，
+沿原terminal durable once/enrollment/单dispatch，不造旧RO claim。新来源原生Worker子进程
+明确继承同sealed解释器/CWD/bootstrap；旧terminal/RO来源的历史argv保持。
+
+新增停写后采集helper：要求绑定writers实际退出，等待同app数据库连接消退，再用RR READ ONLY
+读取带DB UTC的最终原item/web_requests/audit/v2 outbox，先保存后分类。API停止前的快照
+不能授权重投；COMMITTED跳过真人写，UNCOMMITTED仍需新Root具体准入，其他UNKNOWN即停。
+真实资源范围以合同新批段为准：PG-only600、必要真人Web1800、v2 PG600/SDK300，各清理180；
+真人登录机会至少600，操作/结果读取最多600，不随SDK300而关闭页面。新方法<=11，C/IM/provider0。
+
+首轮66相关pure通过；初次有UTC Z/+00:00比较失败，修正测试比较而非准入。开发双schema
+保留全部失败：owned传输数据库前缀拒绝；writer存活拒绝的测试异常类写错；双重reserve导致
+容量不足；拒绝案例共用Gateway违反“旧进程终止早于新claim”。分别修夹具/登记，生产保护不放宽。
+旧项目固定截止内曾2pass/37.68s，后续更严格矩阵另用全新owned项目；最终两schema2pass/67.90s，
+包括真实queued流水线/v1、T6拒绝与在途晚到、阻止提前采集、已提交只读、4类来源/锚/hash拒绝、
+唯一same-record v2、冷重放和当前撤权。两项目均down不-v0/容器网络0/保卷，真实资产/平台0访问。
+七相关源码type通过；完整检查、私有分段父入口同候选全链、冻结独审和一次新精确CI仍待，
+本节不签完整准备或真实Gate，不push/改PR正文/dispatch/main。C产品及四consumer不改。
+
+本功能批完整scripts.check随后实际CLI0/156.03s：2125offline通过/518PG排除，343文件type、
+454文件format、Markdown107错误0，Node及95依赖Python审计0，三层敏感扫描0。此前完整检查
+分别在新测试公共字段名赋值误报、测试局部dict推断类型处停止，均保留；只改未提交测试变量名/
+类型注解，不加扫描豁免。当前可冻结原生功能批交独审；私有分段父入口完整同源Gate仍pending。
+
+跨进程接线再补原生快照JSON往返：持久快照统一用既有json_native处理UUID/UTC/Decimal，
+两个状态读取前后分类一致，拒绝float/bool数量；新增同双schema两节点2pass/69.00s，
+原67.90s与37.68s分别保留，不代签本次。该owned项目仍固定20min/reserve180，结束down0/
+容器网络0/保卷，完整私有最外入口仍pending；源码增量后的完整检查另记。
+
+JSON往返增量后的完整scripts.check实际CLI0/149.09s，仍2125offline通过/518PG排除、
+343文件type/454format/Markdown107错误0、Node与Python95依赖审计0、三层敏感扫描0。
+仅补本事实后普通本地提交交原Core，精确SHA与私有证据路径/hash由本次功能交接给出。

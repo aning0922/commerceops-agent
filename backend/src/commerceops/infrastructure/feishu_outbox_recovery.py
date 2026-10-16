@@ -9,6 +9,7 @@ from psycopg.types.json import Jsonb
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.feishu_business.recovery import VerifiedQueuedV1
 from commerceops.application.feishu_business.worker_window import (
     FIRST_CREATE_CAPS,
     READONLY_RECOVERY_CAPS,
@@ -869,6 +870,11 @@ async def terminal_intent(db: Any, window: ControlledWorkerWindow) -> tuple[Any,
     actors = await cur.fetchone()
     if not actors:
         terminal_denied()
+    if isinstance(recovery, VerifiedQueuedV1) and (
+        actors["requester_id"] != actors["decided_by"]
+        or actors["requester_id"] != terminal.resolver_id
+    ):
+        terminal_denied()
     for principal in sorted({terminal.resolver_id, actors["requester_id"], actors["decided_by"]}):
         await db.execute("SELECT id FROM business.principals WHERE id=%s FOR UPDATE", (principal,))
     cur = await db.execute(
@@ -987,7 +993,7 @@ async def terminal_intent(db: Any, window: ControlledWorkerWindow) -> tuple[Any,
             "observed_version": 1,
             "complete_unique_verified": True,
             "verification_mode": "controlled_sdk",
-            "attempts": 3,
+            "attempts": 1 if isinstance(recovery, VerifiedQueuedV1) else 3,
             "original_outbox_id": recovery.projections[0].outbox_id,
             "projection_hash": recovery.projections[0].projection_hash,
             "client_token": recovery.projections[0].client_token,
@@ -1162,87 +1168,95 @@ async def trusted_terminal_scope(
             terminal.verified_worker_termination_id,
             current["occurred_at"],
         )
-        cur = await db.execute(
-            "SELECT after_state,occurred_at FROM business.audit_events WHERE id=%s AND "
-            "organization_id=%s "
-            "AND source='feishu_recovery' AND action='approved_outbox_claimed' AND "
-            "entity_type='sdk_window'",
-            (recovery.worker_window_id, window.organization_id),
-        )
-        ro_claim = await cur.fetchone()
-        if not ro_claim:
-            terminal_denied()
-        prior = ControlledWorkerWindow.model_validate_json(json.dumps(ro_claim["after_state"]))
-        if (
-            prior.recovery != recovery
-            or prior.profile != "approved_outbox"
-            or not prior.enabled
-            or prior.terminal_update is not None
-            or prior.caps != dict(READONLY_RECOVERY_CAPS)
-            or (prior.organization_id, prior.shop_id) != (window.organization_id, window.shop_id)
-            or prior.task_ids != window.task_ids
-        ):
-            terminal_denied()
-        cur = await db.execute(
-            "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (prior.window_id,)
-        )
-        sdk = await cur.fetchone()
-        if (
-            not sdk
-            or sdk_window_hash(sdk) != terminal.verified_sdk_window_hash
-            or sdk["method_caps"] != prior.caps
-            or not sdk["configured_enabled"]
-            or sdk["verification_mode"] != "controlled_sdk"
-            or (sdk["organization_id"], sdk["shop_id"]) != (window.organization_id, window.shop_id)
-        ):
-            terminal_denied()
-        cur = await db.execute(
-            "SELECT method,status,http_status,provider_code,scope_kind,task_id,subject_id "
-            "FROM business.p4_sdk_calls WHERE window_id=%s",
-            (prior.window_id,),
-        )
-        calls = await cur.fetchall()
-        counts = {m: sum(x["method"] == m for x in calls) for m in READONLY_RECOVERY_CAPS}
-        if (
-            not calls
-            or any(
-                x["method"] not in READONLY_RECOVERY_CAPS
-                or x["status"] != "returned"
-                or x["http_status"] != 200
-                or x["provider_code"] != 0
-                for x in calls
-            )
-            or any(n > READONLY_RECOVERY_CAPS[m] for m, n in counts.items())
-            or counts["auth.v3.tenant_access_token.internal"] != 1
-            or counts["bot.v3.info"] != 1
-            or counts["bitable.v1.app_table_field.list"] < 1
-            or counts["bitable.v1.app_table_record.list"] < 1
-        ):
-            terminal_denied()
-        for dispatched in (False, True):
+        if isinstance(recovery, VerifiedQueuedV1):
+            from commerceops.infrastructure.feishu_queued_terminal import trusted_queued_v1_source
+
+            await trusted_queued_v1_source(db, window, verified["occurred_at"])
+        else:
             cur = await db.execute(
-                "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s "
-                "AND task_id=%s AND source='feishu_recovery' AND entity_id=%s",
-                (
-                    recheck_audit_id(recovery.projections[0].outbox_id, dispatched=dispatched),
-                    window.organization_id,
-                    recovery.task_id,
-                    str(recovery.projections[0].outbox_id),
-                ),
+                "SELECT after_state,occurred_at FROM business.audit_events WHERE id=%s AND "
+                "organization_id=%s "
+                "AND source='feishu_recovery' AND action='approved_outbox_claimed' AND "
+                "entity_type='sdk_window'",
+                (recovery.worker_window_id, window.organization_id),
             )
-            once = await cur.fetchone()
-            expected_once = (
-                {
-                    "recheck_count": 1,
-                    "automatic_attempts": 3,
-                    "window_id": str(prior.window_id),
-                    "worker_owner": str(terminal.verified_worker_owner),
-                }
-                if dispatched
-                else {"recheck_count": 1, "window": prior.model_dump(mode="json")}
-            )
-            if not once or once["after_state"] != expected_once:
+            ro_claim = await cur.fetchone()
+            if not ro_claim:
                 terminal_denied()
+            prior = ControlledWorkerWindow.model_validate_json(json.dumps(ro_claim["after_state"]))
+            if (
+                prior.recovery != recovery
+                or prior.profile != "approved_outbox"
+                or not prior.enabled
+                or prior.terminal_update is not None
+                or prior.caps != dict(READONLY_RECOVERY_CAPS)
+                or (prior.organization_id, prior.shop_id)
+                != (window.organization_id, window.shop_id)
+                or prior.task_ids != window.task_ids
+            ):
+                terminal_denied()
+            cur = await db.execute(
+                "SELECT * FROM business.p4_sdk_windows WHERE id=%s", (prior.window_id,)
+            )
+            sdk = await cur.fetchone()
+            if (
+                not sdk
+                or sdk_window_hash(sdk) != terminal.verified_sdk_window_hash
+                or sdk["method_caps"] != prior.caps
+                or not sdk["configured_enabled"]
+                or sdk["verification_mode"] != "controlled_sdk"
+                or (sdk["organization_id"], sdk["shop_id"])
+                != (window.organization_id, window.shop_id)
+            ):
+                terminal_denied()
+            cur = await db.execute(
+                "SELECT method,status,http_status,provider_code,scope_kind,task_id,subject_id "
+                "FROM business.p4_sdk_calls WHERE window_id=%s",
+                (prior.window_id,),
+            )
+            calls = await cur.fetchall()
+            counts = {m: sum(x["method"] == m for x in calls) for m in READONLY_RECOVERY_CAPS}
+            if (
+                not calls
+                or any(
+                    x["method"] not in READONLY_RECOVERY_CAPS
+                    or x["status"] != "returned"
+                    or x["http_status"] != 200
+                    or x["provider_code"] != 0
+                    for x in calls
+                )
+                or any(n > READONLY_RECOVERY_CAPS[m] for m, n in counts.items())
+                or counts["auth.v3.tenant_access_token.internal"] != 1
+                or counts["bot.v3.info"] != 1
+                or counts["bitable.v1.app_table_field.list"] < 1
+                or counts["bitable.v1.app_table_record.list"] < 1
+            ):
+                terminal_denied()
+            for dispatched in (False, True):
+                cur = await db.execute(
+                    "SELECT after_state FROM business.audit_events "
+                    "WHERE id=%s AND organization_id=%s "
+                    "AND task_id=%s AND source='feishu_recovery' AND entity_id=%s",
+                    (
+                        recheck_audit_id(recovery.projections[0].outbox_id, dispatched=dispatched),
+                        window.organization_id,
+                        recovery.task_id,
+                        str(recovery.projections[0].outbox_id),
+                    ),
+                )
+                once = await cur.fetchone()
+                expected_once = (
+                    {
+                        "recheck_count": 1,
+                        "automatic_attempts": 3,
+                        "window_id": str(prior.window_id),
+                        "worker_owner": str(terminal.verified_worker_owner),
+                    }
+                    if dispatched
+                    else {"recheck_count": 1, "window": prior.model_dump(mode="json")}
+                )
+                if not once or once["after_state"] != expected_once:
+                    terminal_denied()
 
         from commerceops.infrastructure.feishu_first_create_recovery import old_senders_closed
 

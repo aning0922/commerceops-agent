@@ -244,17 +244,17 @@ def run_worker(
     window_type = F02WorkerWindow if mode == "f02_clarification" else ControlledWorkerWindow
     window = window_type.model_validate_json(private_value(window_file))
     window.window(settings)
+    child_command = native_child_command(
+        "commerceops.entrypoints.feishu_worker_child",
+        queued=isinstance(window, ControlledWorkerWindow) and window.requires_sealed_source,
+    )
     web = WebConfig.from_file(settings.web_config_file)
     if web.database.user != "commerceops_app":
         raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
     deadline = time.monotonic() + (window.expires_at - datetime.now(UTC)).total_seconds()
     child = subprocess.Popen(  # noqa: S603 - fixed module, verified files, no shell
         [
-            *native_child_command(
-                "commerceops.entrypoints.feishu_worker_child",
-                queued=isinstance(window, ControlledWorkerWindow)
-                and window.queued_start is not None,
-            ),
+            *child_command,
             "--live",
             "--config",
             str(config),

@@ -4271,7 +4271,7 @@ def _ro_state(request: Mapping[str, Any]) -> dict[str, Any]:
     config = WebConfig.from_file(Path(refs["web_config"]["path"]))
     require(config.database.user == "commerceops_app", "P4A_ROLE")
     template = ControlledWorkerWindow.model_validate_json(private_ref(refs["template"]))
-    r = template.recovery
+    r: Any = template.recovery
     if r is None and template.terminal_update is not None:
         r = template.terminal_update.verified_recovery
     if r is None:
@@ -4604,11 +4604,12 @@ def original_ro_lab_history(request: Mapping[str, Any], binding: SourceBinding) 
 
 
 def terminal_window_from_native(
-    db: Any, context: Mapping[str, Any], *, expires_at: datetime
+    db: Any, context: Mapping[str, Any], *, expires_at: datetime, queued: bool = False
 ) -> Any:
     """只读原生已核RO/close事实派生disabled模板；不接收操作者拼接的recovery。"""
     from uuid import NAMESPACE_URL, uuid5
 
+    from commerceops.application.feishu_business.recovery import VerifiedQueuedV1
     from commerceops.application.feishu_business.worker_window import (
         RECOVERY_CAPS,
         ControlledWorkerWindow,
@@ -4645,7 +4646,7 @@ def terminal_window_from_native(
     delivery = deliveries[0]
     require(
         delivery["status"] == "verified"
-        and delivery["attempts"] == 3
+        and delivery["attempts"] == (1 if queued else 3)
         and delivery["observed_version"] == 1
         and delivery["complete_unique_verified"] is True
         and delivery["external_id"] == delivery["anchor_external"]
@@ -4664,23 +4665,82 @@ def terminal_window_from_native(
     require(all(len(v) == 1 for v in by_action.values()), "P4A_TERMINAL_NATIVE_LIFECYCLE")
     claims = db.execute(
         "SELECT id,after_state FROM business.audit_events WHERE organization_id=%s AND task_id=%s "
-        "AND source='feishu_recovery' AND action='approved_outbox_claimed' "
-        "AND entity_type='sdk_window' AND occurred_at BETWEEN %s AND %s",
+        "AND source='feishu_recovery' AND action=%s "
+        "AND entity_type=%s AND occurred_at BETWEEN %s AND %s",
         (
             item["organization_id"],
             item["task_id"],
+            "queued_start_authorized" if queued else "approved_outbox_claimed",
+            "queued_workflow" if queued else "sdk_window",
             by_action["started"][0]["occurred_at"],
             by_action["stopped"][0]["occurred_at"],
         ),
     ).fetchall()
     require(len(claims) == 1, "P4A_TERMINAL_NATIVE_RO_CLAIM")
     prior = ControlledWorkerWindow.model_validate_json(json.dumps(claims[0]["after_state"]))
-    recovery = prior.recovery
+    if queued:
+        require(
+            prior.profile == "approved_queued_start" and prior.queued_start is not None,
+            "P4A_TERMINAL_NATIVE_QUEUED_CLAIM",
+        )
+        task = db.execute(
+            "SELECT t.version,p.id AS plan_id,p.version AS plan_version,p.plan_hash,"
+            "a.id AS approval_id,a.decision_id,a.decided_auth_version,e.id AS execution_id "
+            "FROM business.business_tasks t JOIN business.replenishment_plans p "
+            "ON p.id=t.active_plan_id JOIN business.approvals a ON a.plan_id=p.id "
+            "JOIN business.executions e ON e.task_id=t.id AND e.approval_id=a.id WHERE t.id=%s",
+            (item["task_id"],),
+        ).fetchone()
+        require(task is not None, "P4A_TERMINAL_NATIVE_QUEUED_TASK")
+        if task is None or prior.queued_start is None:
+            raise AcceptanceFailure("P4A_TERMINAL_NATIVE_QUEUED_TASK")
+        recovery: Any = VerifiedQueuedV1.model_validate_json(
+            json.dumps(
+                dict(
+                    schema_version="p4-verified-queued-v1",
+                    queued_start=prior.queued_start.model_dump(mode="json"),
+                    task_version=task["version"],
+                    plan_id=str(task["plan_id"]),
+                    plan_version=task["plan_version"],
+                    plan_hash=task["plan_hash"],
+                    approval_id=str(task["approval_id"]),
+                    decision_id=str(task["decision_id"]),
+                    execution_id=str(task["execution_id"]),
+                    operator_auth_version=prior.queued_start.operator_auth_version,
+                    approver_auth_version=task["decided_auth_version"],
+                    projections=[
+                        {
+                            k: delivery[k]
+                            for k in (
+                                "outbox_id",
+                                "item_id",
+                                "client_token",
+                                "version",
+                                "projection_hash",
+                            )
+                        }
+                        | {
+                            "request_hash": db.execute(
+                                "SELECT request_hash FROM business.outbox WHERE id=%s",
+                                (delivery["outbox_id"],),
+                            ).fetchone()["request_hash"]
+                        }
+                    ],
+                ),
+                default=str,
+            )
+        )
+    else:
+        recovery = prior.recovery
     require(
-        prior.window_id == claims[0]["id"]
+        (uuid5(prior.window_id, "queued-worker-authorized") if queued else prior.window_id)
+        == claims[0]["id"]
         and recovery is not None
-        and recovery.explicit_ro_recheck is not None
-        and recovery.sender_gateway is not None
+        and (
+            queued
+            or recovery.explicit_ro_recheck is not None
+            and recovery.sender_gateway is not None
+        )
         and recovery.task_id == item["task_id"]
         and recovery.projections[0].outbox_id == delivery["outbox_id"],
         "P4A_TERMINAL_NATIVE_RO_CLAIM",

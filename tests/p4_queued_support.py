@@ -166,6 +166,14 @@ def stop_ready(f: P3Fixture, window: Any, child: subprocess.Popen[bytes]) -> Non
     except subprocess.TimeoutExpired:
         child.kill()
         child.wait(timeout=5)
+    with connect(f.config.database) as db:
+        starts = db.execute(
+            "SELECT count(*) AS n FROM business.audit_events WHERE organization_id=%s "
+            "AND source='feishu_gateway' AND action='started' AND entity_id=%s",
+            (f.actor.organization_id, str(window.window_id)),
+        ).fetchone()
+    if starts == {"n": 0}:
+        return  # 已实际wait/reap；未启动不能补造stopped或termination审计。
     asyncio.run(
         confirm_gateway_child(
             f.config, f.actor.organization_id, window.window_id, child.pid, child.returncode

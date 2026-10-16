@@ -1,5 +1,38 @@
 # P4 真人 T6 与原记录 v2 接线合同 v1
 
+## 2026-10-16 原item分段收口新批
+
+用户批准完整包，Root T0=12:16:00.960321Z，新cap6 Agent有效h，建议A4/Core1/Root1，
+旧8h实际用量、SDK9/Create1、所有once与失败不重置；日期/P4/300h/H-L/18页保持。
+基线bc0d/treef262、精确CI38891565819五绿/516PG和真实319索引保留。
+原任务审批一次与原record v1 verified成立；最终T6 commit unknown/update0，不能重做DM/审批/create。
+
+本包只新增当前approved_queued_start成功v1的显式窄来源carrier，不改旧human_t6/terminal_v2/
+explicit RO的attempts3、claim或guard。绑定原task/plan/approval/execution/item/record、原queued
+授权与SDK窗口/hash/真实终止、当前actor/identity/角色/shop、原生T6 key/hash/回执/唯一v2 outbox。
+v2持久once、原单Worker锁/Factory/enrollment/ledger/单dispatch及全字段唯一readback保持。
+Create/IM/provider/WS/Graph/jobs均0；不补造旧claim、不重跑旧RO，不改迁移/权限/核心状态机。
+
+当前真实三段均HOLD，完整同源owned验证、冻结原Core独审和Root释放的一次新精确CI后，
+才由Root集中绑定每段唯一UTC/实际对象。原sealed166、日志、失败、配置及SPENT不改：
+
+- PG-only只读<=600s，含cleanup>=180s；先核T6 commit，先保存安全事实再判断。
+- 必要真人PG/API/Web<=1800s，startup<=300s；页面ready后至少600s登录机会，
+  用户当次ready后操作/结果读取<=600s，cleanup>=180s。已提交只读原键回执，不再T6；
+  未获确证未提交不得构造新close或重投。SDK/Worker/WS/Graph0，不继承旧“已登录”。
+- v2 PG<=600s、SDK<=300s、cleanup>=180s；新方法精确auth1/bot1/table2/field2/update1/list4<=11，
+  Create0/IM0/provider0。只原record的唯一v2，unknown/失败即停，不重发或续窗。
+
+真人收尾顺序固定：保存原请求GET；停止API接收写入并等待全部API写进程退出；
+PG仍活时用RR只读事务采带数据库UTC的最终item/web_requests/audit/v2 outbox；
+先持久保存事实再分类，最后清理PG。较早快照、页面口述、任意日志均不能代最终提交状态。
+私有parent继承已审sealed source/实际最外入口，外HTTP与明确合成真人可Fake，SQL/权限/
+once/父子进程及清理不得替身。不新增framework、observer或第二调度器，C四consumer不改。
+必要验证含两种T6状态、完整成功、晚到/inflight提交、拒绝/unknown、撤权、冷重放及失败清理。
+源码改变必须新冻结/独审/精确CI；本包只授权一次，由Root统一释放，A不自行push/PRbody/dispatch。
+
+以下保留原批历史与旧RO来源合同，不覆盖本段新来源及30min真人资源边界。
+
 本批由用户批准立即开始，Root T0 为 2026-10-15 13:34:15Z。
 今晚 14:45Z 交接、15:00Z 停止；未完成明日 01:00–09:00Z 同批接续。
 总 5.5 Agent 有效h，其中 A≤3.5/C≤0.5/独审≤1/Root≤0.5；不重置原项目日期或预算。
