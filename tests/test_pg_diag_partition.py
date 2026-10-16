@@ -307,7 +307,7 @@ def test_acceptance_five_nodes_keep_complete_independent_300s_command() -> None:
         ("combined-existing", sorted({n.split("::", 1)[0] for n in OLD}), 300),
         ("combined-phase3-test_p4_a09_workflow_pg", ["tests/test_p4_a09_workflow_pg.py"], 300),
         ("combined-phase3-test_p4_acceptance_pg", ["tests/test_p4_acceptance_pg.py"], 300),
-        ("combined-phase3-test_p4_clarification_pg", ["tests/test_p4_clarification_pg.py"], 300),
+        ("combined-existing-p4-clarification-delivery", ["tests/test_p4_clarification_pg.py"], 300),
     ]
     assert actual == nodes and len(actual) == len(set(actual))
     group = pg_diagnostic.combined_groups(nodes)["combined-phase3-test_p4_acceptance_pg"]
@@ -369,3 +369,58 @@ def test_terminal_schema_nodes_are_separate_commands_without_recollecting_whole_
     assert sorted(actual) == sorted(nearby + original + terminal)
     assert len(actual) == len(set(actual))
     assert not any("combined-existing" == label for label, _, _ in commands)
+
+
+@pytest.mark.parametrize("scope", ["existing", "phase3"])
+def test_measured_fixed_groups_move_whole_and_terminal_commands_stay_five_one_one(
+    scope: str,
+) -> None:
+    from scripts.pg_ci_evidence import partition
+
+    measured = {
+        "tests/test_p4_a08_recovery_pg.py": 10,
+        "tests/test_p4_a08_scope_pg.py": 1,
+        "tests/test_p4_a08_workflow_pg.py": 5,
+        "tests/test_p4_clarification_pg.py": 9,
+        "tests/test_p4_controlled_worker_pg.py": 2,
+        "tests/test_p4_delivery_pg.py": 5,
+        "tests/test_p4_explicit_ro_pg.py": 3,
+    }
+    moved = [f"{path}::case_{n}" for path, count in measured.items() for n in range(count)]
+    path = "tests/test_p4_acceptance_pg.py"
+    acceptance = [f"{path}::original_{n}" for n in range(5)] + [
+        f"{path}::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[{revision}]"
+        for revision in ("0015", "0016")
+    ]
+    full = OLD + P3 + moved + acceptance
+    records = [collection(full)]
+    commands: list[tuple[str, list[str]]] = []
+    actual: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        assert cap == 300
+        selected = [n for n in full if n in paths or n.split("::")[0] in paths]
+        commands.append((label, selected))
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, scope)
+    assert sorted(actual) == partition(full, scope) and len(actual) == len(set(actual))
+    assert not set(partition(full, "existing")) & set(partition(full, "phase3"))
+    if scope == "existing":
+        assert sorted(actual) == sorted(OLD + moved)
+        fixed = [(name, nodes) for name, nodes in commands if name != "combined-existing"]
+        assert [(name, len(nodes)) for name, nodes in fixed] == [
+            ("combined-existing-p4-a08-recovery", 16),
+            ("combined-existing-p4-clarification-delivery", 19),
+        ]
+        assert all(
+            sum(n.split("::")[0] == module for n in nodes) in (0, count)
+            for _, nodes in fixed
+            for module, count in measured.items()
+        )
+    else:
+        assert sorted(actual) == sorted(P3 + acceptance)
+        terminal = [nodes for name, nodes in commands if "test_p4_acceptance_pg" in name]
+        assert terminal == [acceptance[:5], acceptance[5:6], acceptance[6:]]

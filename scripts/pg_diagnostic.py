@@ -13,7 +13,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from scripts.pg_ci_evidence import EXISTING_BUSINESS_MODULES, identity, partition, safe_report
+from scripts.pg_ci_evidence import (
+    EXISTING_MODULES,
+    EXISTING_REBALANCED_GROUPS,
+    identity,
+    partition,
+    safe_report,
+)
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
 from scripts.prepare_pg import prepare
 
@@ -70,6 +76,15 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             "/", "-"
         )
         group = [node for node in phase3 if node.split("::", 1)[0] == path]
+        moved = next(
+            ((name, paths) for name, paths in EXISTING_REBALANCED_GROUPS.items() if path in paths),
+            None,
+        )
+        if moved is not None:
+            name, paths = moved
+            if name not in groups:
+                groups[name] = [node for node in phase3 if node.split("::", 1)[0] in paths]
+            continue
         # 610实证此唯一approval模块累计300s；仅其按完整collection规范顺序14节点子批。
         # 不筛选通过节点、改用例或放宽任何命令/总deadline；其余自然模块原样。
         if path == "tests/test_p3_approval_pg.py" and len(group) > 14:
@@ -96,7 +111,7 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
     # Hosted实证：phase3 20次pytest启动/collection前累计215.688s，末Gateway
     # 仅余10.399s而尚未collect。合并同分区完整小模块，避免逐模块重启解释器。
     # 大模块、quality原业务模块及approval 14节点分片保持；单命令仍300s。
-    business = {n for n in phase3 if n.split("::", 1)[0] not in EXISTING_BUSINESS_MODULES}
+    business = {n for n in phase3 if n.split("::", 1)[0] not in EXISTING_MODULES}
     result: dict[str, list[str]] = {}
     pending: list[tuple[str, list[str]]] = []
     batch_number = 0

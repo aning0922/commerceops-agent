@@ -307,6 +307,38 @@ def test_p4_modules_are_in_the_paired_business_partition_without_losing_old_node
     assert len(b["modules"]) == 1
 
 
+def test_rebalanced_fixed_groups_still_require_exact_paired_actual_and_passed_nodes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    measured = {
+        "tests/test_p4_a08_recovery_pg.py": 10,
+        "tests/test_p4_a08_scope_pg.py": 1,
+        "tests/test_p4_a08_workflow_pg.py": 5,
+        "tests/test_p4_clarification_pg.py": 9,
+        "tests/test_p4_controlled_worker_pg.py": 2,
+        "tests/test_p4_delivery_pg.py": 5,
+        "tests/test_p4_explicit_ro_pg.py": 3,
+    }
+    moved = [f"{path}::case_{n}" for path, count in measured.items() for n in range(count)]
+    monkeypatch.setitem(globals(), "FULL", FULL + moved)
+    a, b = report("existing"), report("phase3")
+    assert a["actual_node_ids"] == sorted(OLD + moved)
+    assert b["actual_node_ids"] == sorted(P3)
+    assert [(m["label"], len(m["expected_node_ids"])) for m in a["modules"]][1:] == [
+        ("combined-existing-p4-a08-recovery", 16),
+        ("combined-existing-p4-clarification-delivery", 19),
+    ]
+    verify_pair(a, b)
+    missing = copy.deepcopy(a)
+    missing["modules"][1]["passed_node_ids"].pop()
+    with pytest.raises(ValueError):
+        verify_pair(missing, b)
+    crossed = copy.deepcopy(b)
+    crossed["actual_node_ids"].append(moved[0])
+    with pytest.raises(ValueError):
+        verify_pair(a, crossed)
+
+
 def test_six_complete_business_modules_move_with_approval_shards_and_exact_pair(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

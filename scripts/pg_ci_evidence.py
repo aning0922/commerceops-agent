@@ -22,6 +22,26 @@ EXISTING_BUSINESS_MODULES = frozenset(
         "tests/test_p4_template_results_pg.py",
     }
 )
+# 38783752352全局expires-75耗尽；迁移两个已完整通过的既有固定组。
+# 旧phase3 batch-3=16节点/245.816s，batch-4=19节点/187.596s；不拆模块、不增时限。
+EXISTING_REBALANCED_GROUPS = {
+    "combined-existing-p4-a08-recovery": frozenset(
+        {
+            "tests/test_p4_a08_recovery_pg.py",
+            "tests/test_p4_a08_scope_pg.py",
+            "tests/test_p4_a08_workflow_pg.py",
+        }
+    ),
+    "combined-existing-p4-clarification-delivery": frozenset(
+        {
+            "tests/test_p4_clarification_pg.py",
+            "tests/test_p4_controlled_worker_pg.py",
+            "tests/test_p4_delivery_pg.py",
+            "tests/test_p4_explicit_ro_pg.py",
+        }
+    ),
+}
+EXISTING_MODULES = EXISTING_BUSINESS_MODULES.union(*EXISTING_REBALANCED_GROUPS.values())
 FIELDS = frozenset(
     {
         "schema_version",
@@ -96,7 +116,7 @@ def partition(full: list[str], scope: str) -> list[str]:
         n
         for n in nodes
         if n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))
-        and n.split("::")[0] not in EXISTING_BUSINESS_MODULES
+        and n.split("::")[0] not in EXISTING_MODULES
     ]
     existing = [n for n in nodes if n not in set(phase3)]
     if scope != "all" and (not phase3 or not existing):
