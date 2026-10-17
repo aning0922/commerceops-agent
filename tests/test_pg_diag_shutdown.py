@@ -23,6 +23,7 @@ def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
     data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
     job = data["jobs"]["quality"]
     assert job["timeout-minutes"] == 35
+    assert data["jobs"]["phase3"]["timeout-minutes"] == 45
     assert data["permissions"] == {"contents": "read"}
     # PyYAML YAML1.1 将键 on 解析为True；不改变Actions文件的on字段。
     triggers = data.get("on", data.get(True))
@@ -54,9 +55,13 @@ def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
         assert flag in command
 
 
-def test_workflow_registers_deadline_before_install_and_valid_python() -> None:
+@pytest.mark.parametrize("job_name,minutes", [("quality", 33), ("phase3", 43)])
+def test_workflow_registers_deadline_before_install_and_valid_python(
+    job_name: str,
+    minutes: int,
+) -> None:
     data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
-    steps = data["jobs"]["quality"]["steps"]
+    steps = data["jobs"][job_name]["steps"]
     deadline_index = next(
         i for i, s in enumerate(steps) if s.get("name") == "Register absolute diagnostic deadline"
     )
@@ -68,7 +73,7 @@ def test_workflow_registers_deadline_before_install_and_valid_python() -> None:
     assert lines[0] == "python3 - <<'PY'" and lines[-1] == "PY"
     source = "\n".join(lines[1:-1])
     ast.parse(source)
-    assert "timedelta(minutes=33)" in source and "datetime.now(timezone.utc)" in source
+    assert f"timedelta(minutes={minutes})" in source and "datetime.now(timezone.utc)" in source
 
 
 def test_expired_entry_creates_no_resources(
