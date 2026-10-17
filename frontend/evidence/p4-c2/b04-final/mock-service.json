@@ -1,0 +1,17 @@
+{
+  "owner": "phase3-owned-b04-mock",
+  "uid": 501,
+  "launcher_pid": 91844,
+  "platform": "darwin",
+  "architecture": "arm64",
+  "checkout": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent",
+  "port": 3490,
+  "pid": 91873,
+  "started_observed_utc": "2026-10-11T06:12:40.783Z",
+  "build_id": "SHqDQAyTPzSzDVQ8M0Mnl",
+  "source_mode": "mock",
+  "backend_API_PG_Worker": "not_started",
+  "headless": true,
+  "wrong_checkout_rejected": true,
+  "wrong_launcher_rejected": true
+}

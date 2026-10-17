@@ -1,0 +1,495 @@
+{
+  "config": {
+    "argv": [
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/.tools/node/bin/node",
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.b04-offline.config.ts"
+    ],
+    "configFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/playwright.b04-offline.config.ts",
+    "rootDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "b04-offline.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "b04-offline.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "baseURL": "http://127.0.0.1:3490",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "off",
+          "video": "off",
+          "screenshot": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "evidence/b04-linux-fix/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run start -- --port 3490",
+      "url": "http://127.0.0.1:3490/replenishment-items",
+      "reuseExistingServer": false,
+      "timeout": 60000,
+      "env": {
+        "NEXT_TELEMETRY_DISABLED": "1",
+        "COMMERCEOPS_UI_MODE": "mock",
+        "COMMERCEOPS_MOCK_BATCH": "b04-wiring",
+        "COMMERCEOPS_API_ORIGIN": "",
+        "COMMERCEOPS_WEB_TRANSPORT": "",
+        "COMMERCEOPS_MOCK_ROLE": "operator"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "b04-offline.spec.ts",
+      "file": "b04-offline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "明确Mock20项/390完整披露；execution completed仍不能推断项跟进或sync成功",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6272,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.list-row')\nExpected: \u001b[32m20\u001b[39m\nReceived: \u001b[31m22\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.list-row') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.list-row')\u001b[22m\n\u001b[2m    - locator resolved to 0 elements\u001b[22m\n\u001b[2m    - unexpected value \"0\"\u001b[22m\n\u001b[2m    13 × locator resolved to 22 elements\u001b[22m\n\u001b[2m       - unexpected value \"22\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.list-row')\nExpected: \u001b[32m20\u001b[39m\nReceived: \u001b[31m22\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.list-row') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.list-row')\u001b[22m\n\u001b[2m    - locator resolved to 0 elements\u001b[22m\n\u001b[2m    - unexpected value \"0\"\u001b[22m\n\u001b[2m    13 × locator resolved to 22 elements\u001b[22m\n\u001b[2m       - unexpected value \"22\"\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:104:43",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                      "column": 43,
+                      "line": 104
+                    },
+                    "snippet": "  102 | }) => {\n  103 |   await page.goto(\"/replenishment-items\");\n> 104 |   await expect(page.locator(\".list-row\")).toHaveCount(20);\n      |                                           ^\n  105 |   await expect(page.getByRole(\"main\")).toContainText(\"明确离线 Mock\");\n  106 |   await page.setViewportSize({ width: 390, height: 844 });\n  107 |   expect("
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                        "column": 43,
+                        "line": 104
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.list-row')\nExpected: \u001b[32m20\u001b[39m\nReceived: \u001b[31m22\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.list-row') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.list-row')\u001b[22m\n\u001b[2m    - locator resolved to 0 elements\u001b[22m\n\u001b[2m    - unexpected value \"0\"\u001b[22m\n\u001b[2m    13 × locator resolved to 22 elements\u001b[22m\n\u001b[2m       - unexpected value \"22\"\u001b[22m\n\n\n  102 | }) => {\n  103 |   await page.goto(\"/replenishment-items\");\n> 104 |   await expect(page.locator(\".list-row\")).toHaveCount(20);\n      |                                           ^\n  105 |   await expect(page.getByRole(\"main\")).toContainText(\"明确离线 Mock\");\n  106 |   await page.setViewportSize({ width: 390, height: 844 });\n  107 |   expect(\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:104:43"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:03:54.941Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline/b04-offline-明确Mock20项-390完-da728-on-completed仍不能推断项跟进或sync成功/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                    "column": 43,
+                    "line": 104
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-627c584b168535c718a6",
+          "file": "b04-offline.spec.ts",
+          "line": 100,
+          "column": 5
+        },
+        {
+          "title": "原因pristine/空白/1001字符，Tab/ShiftTab/Enter/Space/Esc与终态回执/无重开",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6286,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog')\nExpected substring: \u001b[32m\"同步 失败\"\u001b[39m\nReceived string:    \u001b[31m\"记录内部跟进完成关闭仅单项内部跟进，终态不能重开；不修改库存、采购或入库。item：00000000-0000-4000-8000-000000000001 · 原版本 v1 · action complete本次原请求原键：3545a14b-387b-49da-a8af-dd16f02a4d95原因：跟进已完成 · expected_version 1仅本次原键/原字节，不自动提交、不换键、不发送相反动作。显式同键重投原请求读取原请求回执内部跟进已记录原 resolution：00000000-0000-4000-8000-000000000068 · 原处理人 00000000-0000-4000-8000-000000000069 · 2026-10-11T01:00:00Zstate completed · v2 · duplicate false原语义 hash：bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb；同步 同步失败。不表示采购或入库成功。\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    14 × locator resolved to <dialog open=\"\" class=\"modal\" aria-labelledby=\"_r_2_\">…</dialog>\u001b[22m\n\u001b[2m       - unexpected value \"记录内部跟进完成关闭仅单项内部跟进，终态不能重开；不修改库存、采购或入库。item：00000000-0000-4000-8000-000000000001 · 原版本 v1 · action complete本次原请求原键：3545a14b-387b-49da-a8af-dd16f02a4d95原因：跟进已完成 · expected_version 1仅本次原键/原字节，不自动提交、不换键、不发送相反动作。显式同键重投原请求读取原请求回执内部跟进已记录原 resolution：00000000-0000-4000-8000-000000000068 · 原处理人 00000000-0000-4000-8000-000000000069 · 2026-10-11T01:00:00Zstate completed · v2 · duplicate false原语义 hash：bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb；同步 同步失败。不表示采购或入库成功。\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog')\nExpected substring: \u001b[32m\"同步 失败\"\u001b[39m\nReceived string:    \u001b[31m\"记录内部跟进完成关闭仅单项内部跟进，终态不能重开；不修改库存、采购或入库。item：00000000-0000-4000-8000-000000000001 · 原版本 v1 · action complete本次原请求原键：3545a14b-387b-49da-a8af-dd16f02a4d95原因：跟进已完成 · expected_version 1仅本次原键/原字节，不自动提交、不换键、不发送相反动作。显式同键重投原请求读取原请求回执内部跟进已记录原 resolution：00000000-0000-4000-8000-000000000068 · 原处理人 00000000-0000-4000-8000-000000000069 · 2026-10-11T01:00:00Zstate completed · v2 · duplicate false原语义 hash：bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb；同步 同步失败。不表示采购或入库成功。\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    14 × locator resolved to <dialog open=\"\" class=\"modal\" aria-labelledby=\"_r_2_\">…</dialog>\u001b[22m\n\u001b[2m       - unexpected value \"记录内部跟进完成关闭仅单项内部跟进，终态不能重开；不修改库存、采购或入库。item：00000000-0000-4000-8000-000000000001 · 原版本 v1 · action complete本次原请求原键：3545a14b-387b-49da-a8af-dd16f02a4d95原因：跟进已完成 · expected_version 1仅本次原键/原字节，不自动提交、不换键、不发送相反动作。显式同键重投原请求读取原请求回执内部跟进已记录原 resolution：00000000-0000-4000-8000-000000000068 · 原处理人 00000000-0000-4000-8000-000000000069 · 2026-10-11T01:00:00Zstate completed · v2 · duplicate false原语义 hash：bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb；同步 同步失败。不表示采购或入库成功。\"\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:169:42",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                      "column": 42,
+                      "line": 169
+                    },
+                    "snippet": "  167 |   await expect(page.getByText(\"内部跟进已记录\", { exact: true })).toBeVisible();\n  168 |   await expect(page.getByRole(\"dialog\")).toContainText(\"state completed · v2\");\n> 169 |   await expect(page.getByRole(\"dialog\")).toContainText(\"同步 失败\");\n      |                                          ^\n  170 |   await page.keyboard.press(\"Escape\");\n  171 |   await expect(page.getByText(\"终态只读\", { exact: true })).toBeVisible();\n  172 |   await expect(page.locator(\"[data-item-summary]\")).toBeFocused();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                        "column": 42,
+                        "line": 169
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog')\nExpected substring: \u001b[32m\"同步 失败\"\u001b[39m\nReceived string:    \u001b[31m\"记录内部跟进完成关闭仅单项内部跟进，终态不能重开；不修改库存、采购或入库。item：00000000-0000-4000-8000-000000000001 · 原版本 v1 · action complete本次原请求原键：3545a14b-387b-49da-a8af-dd16f02a4d95原因：跟进已完成 · expected_version 1仅本次原键/原字节，不自动提交、不换键、不发送相反动作。显式同键重投原请求读取原请求回执内部跟进已记录原 resolution：00000000-0000-4000-8000-000000000068 · 原处理人 00000000-0000-4000-8000-000000000069 · 2026-10-11T01:00:00Zstate completed · v2 · duplicate false原语义 hash：bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb；同步 同步失败。不表示采购或入库成功。\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('dialog') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    14 × locator resolved to <dialog open=\"\" class=\"modal\" aria-labelledby=\"_r_2_\">…</dialog>\u001b[22m\n\u001b[2m       - unexpected value \"记录内部跟进完成关闭仅单项内部跟进，终态不能重开；不修改库存、采购或入库。item：00000000-0000-4000-8000-000000000001 · 原版本 v1 · action complete本次原请求原键：3545a14b-387b-49da-a8af-dd16f02a4d95原因：跟进已完成 · expected_version 1仅本次原键/原字节，不自动提交、不换键、不发送相反动作。显式同键重投原请求读取原请求回执内部跟进已记录原 resolution：00000000-0000-4000-8000-000000000068 · 原处理人 00000000-0000-4000-8000-000000000069 · 2026-10-11T01:00:00Zstate completed · v2 · duplicate false原语义 hash：bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb；同步 同步失败。不表示采购或入库成功。\"\u001b[22m\n\n\n  167 |   await expect(page.getByText(\"内部跟进已记录\", { exact: true })).toBeVisible();\n  168 |   await expect(page.getByRole(\"dialog\")).toContainText(\"state completed · v2\");\n> 169 |   await expect(page.getByRole(\"dialog\")).toContainText(\"同步 失败\");\n      |                                          ^\n  170 |   await page.keyboard.press(\"Escape\");\n  171 |   await expect(page.getByText(\"终态只读\", { exact: true })).toBeVisible();\n  172 |   await expect(page.locator(\"[data-item-summary]\")).toBeFocused();\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:169:42"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:03.143Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline/b04-offline-原因pristine-空白--a3732-ab-Enter-Space-Esc与终态回执-无重开/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                    "column": 42,
+                    "line": 169
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-b0f4d0816f09112a3180",
+          "file": "b04-offline.spec.ts",
+          "line": 140,
+          "column": 5
+        },
+        {
+          "title": "关闭原因保留FEFF/组合字符，dirty关闭需显式丢弃；terminal/readonly无入口",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2817,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:11.192Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-884df4e02157afd966dc",
+          "file": "b04-offline.spec.ts",
+          "line": 180,
+          "column": 5
+        },
+        {
+          "title": "注入ACK unknown仅原键恢复，不自动提交/新键，GET回执后显式同键回放",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1274,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:14.323Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-563ed866d19e32a17ae1",
+          "file": "b04-offline.spec.ts",
+          "line": 201,
+          "column": 5
+        },
+        {
+          "title": "unknown原键404仍待核实；409版本/终态与损坏绑定分别呈现",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:15.602Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-84c3d859590322de147c",
+          "file": "b04-offline.spec.ts",
+          "line": 224,
+          "column": 5
+        },
+        {
+          "title": "注入401清预备请求/身份/业务缓存；404同安全状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2077,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:19.749Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-99f5d5e2a2d41719e061",
+          "file": "b04-offline.spec.ts",
+          "line": 248,
+          "column": 5
+        },
+        {
+          "title": "新联动范围filter与隐藏来源：当前can_resolve可用不借旧task/plan权限",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6110,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.list-row')\nExpected: \u001b[32m20\u001b[39m\nReceived: \u001b[31m22\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.list-row') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.list-row')\u001b[22m\n\u001b[2m    14 × locator resolved to 22 elements\u001b[22m\n\u001b[2m       - unexpected value \"22\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.list-row')\nExpected: \u001b[32m20\u001b[39m\nReceived: \u001b[31m22\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.list-row') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.list-row')\u001b[22m\n\u001b[2m    14 × locator resolved to 22 elements\u001b[22m\n\u001b[2m       - unexpected value \"22\"\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:269:43",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                      "column": 43,
+                      "line": 269
+                    },
+                    "snippet": "  267 |   await expect(page.getByRole(\"main\")).toContainText(\"服务端总计 0\");\n  268 |   await page.locator('[data-control=\"B24\"]').selectOption(\"all\");\n> 269 |   await expect(page.locator(\".list-row\")).toHaveCount(20);\n      |                                           ^\n  270 |   await prepare(page, \"hidden_source\");\n  271 |   await expect(page.getByRole(\"main\")).not.toContainText(offlineId(103));\n  272 |   await expect(page.locator('[data-control=\"B37\"]')).toHaveCount(0);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                        "column": 43,
+                        "line": 269
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.list-row')\nExpected: \u001b[32m20\u001b[39m\nReceived: \u001b[31m22\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.list-row') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.list-row')\u001b[22m\n\u001b[2m    14 × locator resolved to 22 elements\u001b[22m\n\u001b[2m       - unexpected value \"22\"\u001b[22m\n\n\n  267 |   await expect(page.getByRole(\"main\")).toContainText(\"服务端总计 0\");\n  268 |   await page.locator('[data-control=\"B24\"]').selectOption(\"all\");\n> 269 |   await expect(page.locator(\".list-row\")).toHaveCount(20);\n      |                                           ^\n  270 |   await prepare(page, \"hidden_source\");\n  271 |   await expect(page.getByRole(\"main\")).not.toContainText(offlineId(103));\n  272 |   await expect(page.locator('[data-control=\"B37\"]')).toHaveCount(0);\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:269:43"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:21.831Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline/b04-offline-新联动范围filter与隐藏来源：当前can-resolve可用不借旧task-plan权限/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                    "column": 43,
+                    "line": 269
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-d97d7515b05c394da669",
+          "file": "b04-offline.spec.ts",
+          "line": 261,
+          "column": 5
+        },
+        {
+          "title": "预备后200会话身份变更仍清原操作，不把旧项交给新principal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1201,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:04:29.458Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-b32046b07969821e60a4",
+          "file": "b04-offline.spec.ts",
+          "line": 276,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T06:03:49.434Z",
+    "duration": 41582.001,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

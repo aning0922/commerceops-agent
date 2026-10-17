@@ -13,7 +13,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from scripts.pg_ci_evidence import identity, partition, safe_report
+from scripts.pg_ci_evidence import (
+    EXISTING_MODULES,
+    EXISTING_REBALANCED_GROUPS,
+    identity,
+    partition,
+    safe_report,
+)
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
 from scripts.prepare_pg import prepare
 
@@ -54,7 +60,11 @@ def collected_nodes(records: list[dict[str, object]]) -> list[str]:
 
 
 def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
-    phase3 = [node for node in nodes if node.split("::", 1)[0].startswith("tests/test_p3")]
+    phase3 = [
+        node
+        for node in nodes
+        if node.split("::", 1)[0].startswith(("tests/test_p3", "tests/test_p4"))
+    ]
     if not phase3:
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
@@ -65,8 +75,86 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
             "/", "-"
         )
-        groups[label] = [node for node in phase3 if node.split("::", 1)[0] == path]
-    return groups
+        group = [node for node in phase3 if node.split("::", 1)[0] == path]
+        moved = next(
+            ((name, paths) for name, paths in EXISTING_REBALANCED_GROUPS.items() if path in paths),
+            None,
+        )
+        if moved is not None:
+            name, paths = moved
+            if name not in groups:
+                groups[name] = [node for node in phase3 if node.split("::", 1)[0] in paths]
+            continue
+        # 610实证此唯一approval模块累计300s；仅其按完整collection规范顺序14节点子批。
+        # 不筛选通过节点、改用例或放宽任何命令/总deadline；其余自然模块原样。
+        if path == "tests/test_p3_approval_pg.py" and len(group) > 14:
+            ordered = sorted(group)
+            for offset in range(0, len(ordered), 14):
+                groups[f"{label}-part-{offset // 14 + 1}"] = ordered[offset : offset + 14]
+        elif path == "tests/test_p4_terminal_recovery_pg.py":
+            # 相互独立DB先构造本命令完整失败历史，保留自然30s backoff；
+            # 全12节点实测119.071/103.384/108.805s，各四节点独占原300s命令。
+            ordered = sorted(group)
+            for offset in range(0, len(ordered), 4):
+                groups[f"{label}-part-{offset // 4 + 1}"] = ordered[offset : offset + 4]
+        elif path == "tests/test_p4_acceptance_pg.py" and any(
+            "::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[" in node
+            for node in group
+        ):
+            # 新terminal两schema合计实测337.05s，不能共用原300s命令。
+            # 原节点保留一组，各terminal节点独立；覆盖仍由完整collection核对。
+            terminal = sorted(
+                node
+                for node in group
+                if "::test_terminal_native_enrollment_same_anchor_once_and_cold_replay[" in node
+            )
+            original = [node for node in group if node not in terminal]
+            parts = ([original] if original else []) + [[node] for node in terminal]
+            for index, part in enumerate(parts, 1):
+                groups[f"{label}-part-{index}"] = part
+        else:
+            groups[label] = group
+    # Hosted实证：phase3 20次pytest启动/collection前累计215.688s，末Gateway
+    # 仅余10.399s而尚未collect。合并同分区完整小模块，避免逐模块重启解释器。
+    # 大模块、quality原业务模块及approval 14节点分片保持；单命令仍300s。
+    business = {n for n in phase3 if n.split("::", 1)[0] not in EXISTING_MODULES}
+    result: dict[str, list[str]] = {}
+    pending: list[tuple[str, list[str]]] = []
+    batch_number = 0
+
+    def flush() -> None:
+        nonlocal batch_number
+        if not pending:
+            return
+        if len(pending) == 1:
+            label, group = pending[0]
+            result[label] = group
+        else:
+            batch_number += 1
+            result[f"combined-phase3-batch-{batch_number}"] = [
+                node for _, group in pending for node in group
+            ]
+        pending.clear()
+
+    for label, group in groups.items():
+        if not set(group) <= business:
+            result[label] = group
+            continue
+        # 验收模块虽仅5节点，single/20项两条原生恢复链已实测约200s；独占原300s预算。
+        if len(group) > 20 or label.startswith(
+            (
+                "combined-phase3-test_p4_acceptance_pg",
+                "combined-phase3-test_p4_terminal_recovery_pg",
+            )
+        ):
+            flush()
+            result[label] = group
+            continue
+        if sum(len(part) for _, part in pending) + len(group) > 20:
+            flush()
+        pending.append((label, group))
+    flush()
+    return result
 
 
 def run_combined(
@@ -98,7 +186,19 @@ def run_combined(
     for label, group in groups.items():
         report["failed_target"] = label
         start = len(records)
-        paths = [] if label == "combined" else sorted({node.split("::", 1)[0] for node in group})
+        paths = (
+            []
+            if label == "combined"
+            else group
+            if label.startswith(
+                (
+                    "combined-phase3-test_p3_approval_pg-part-",
+                    "combined-phase3-test_p4_acceptance_pg-part-",
+                    "combined-phase3-test_p4_terminal_recovery_pg-part-",
+                )
+            )
+            else sorted({node.split("::", 1)[0] for node in group})
+        )
         # 仍使用main的同一expires-75预算；不重置absolute deadline或放宽单命令300s。
         completed = test_command(label, paths, 300)
         if completed:
@@ -142,6 +242,67 @@ def run_combined(
         if set(collected_nodes(records[start:])) != set(group):
             raise RuntimeError("actual integration group collection mismatch")
     report.pop("failed_target", None)
+
+
+def cleanup_registered_containers(
+    names: list[str],
+    project: str,
+    capture: Callable[[list[str], float], subprocess.CompletedProcess[str]],
+    stage: Callable[[str, int, int], None],
+) -> int:
+    """只按已登记名称一次核全owner/停止状态，按不可变ID删除；不force。"""
+    stage("inspect-registered", 0, 0)
+    if not names:
+        return 0
+    if len(names) != len(set(names)):
+        raise RuntimeError("duplicate registered cleanup container")
+    checked = capture(["docker", "inspect", *names], 5)
+    if checked.returncode:
+        raise RuntimeError("registered cleanup ownership unconfirmed")
+    records = json.loads(checked.stdout)
+    if not isinstance(records, list) or len(records) != len(names):
+        raise RuntimeError("registered cleanup set unconfirmed")
+    ids: list[str] = []
+    observed: set[str] = set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise RuntimeError("registered cleanup metadata unconfirmed")
+        name = record.get("Name")
+        identifier = record.get("Id")
+        config, state = record.get("Config"), record.get("State")
+        labels = config.get("Labels") if isinstance(config, dict) else None
+        if (
+            not isinstance(name, str)
+            or name.removeprefix("/") not in names
+            or name.removeprefix("/") in observed
+            or not isinstance(identifier, str)
+            or re.fullmatch(r"[0-9a-f]{64}", identifier) is None
+            or identifier in ids
+            or not isinstance(labels, dict)
+            or labels.get("com.docker.compose.project") != project
+            or not isinstance(state, dict)
+            or state.get("Running") is not False
+            or type(state.get("Pid")) is not int
+            or state["Pid"] != 0
+            or state.get("Status") != "exited"
+        ):
+            stage("verify-registered", len(ids), 0)
+            raise RuntimeError("registered cleanup owner or stopped state unconfirmed")
+        observed.add(name.removeprefix("/"))
+        ids.append(identifier)
+    if observed != set(names):
+        raise RuntimeError("registered cleanup set unconfirmed")
+    stage("remove-registered", len(ids), 0)
+    # 批量删除使用原cleanup剩余预算；capture仍取固定cleanup/总截止的较小值。
+    removed = capture(["docker", "rm", *ids], 60)
+    confirmed = removed.stdout.splitlines()
+    if len(confirmed) != len(set(confirmed)) or not set(confirmed) <= set(ids):
+        raise RuntimeError("registered cleanup removal receipt unconfirmed")
+    if removed.returncode or set(confirmed) != set(ids):
+        stage("partial-removal", len(ids), len(confirmed))
+        raise RuntimeError("registered cleanup removal unconfirmed")
+    stage("removed-registered", len(ids), len(ids))
+    return len(ids)
 
 
 def main() -> None:
@@ -651,25 +812,32 @@ def main() -> None:
         report["error_class"] = type(error).__name__
         emit({"event": "diagnostic_failed", "code": type(error).__name__})
     finally:
+        cleanup_started = time.monotonic()
+        cleanup_stage = "inspect-registered"
+        owned_verified = owned_removed = 0
+
+        def cleanup_note(stage: str, verified: int, removed: int) -> None:
+            nonlocal cleanup_stage, owned_verified, owned_removed
+            cleanup_stage, owned_verified, owned_removed = stage, verified, removed
+            emit(
+                {
+                    "event": "cleanup_stage",
+                    "stage": stage,
+                    "elapsed_seconds": round(time.monotonic() - cleanup_started, 3),
+                    "remaining_seconds": round(max(0, cleanup_until() - time.monotonic()), 3),
+                    "owned_verified": verified,
+                    "owned_removed": removed,
+                }
+            )
+
         try:
-            for name in containers:
-                checked = capture(
-                    [
-                        "docker",
-                        "inspect",
-                        "--format",
-                        '{{index .Config.Labels "com.docker.compose.project"}}',
-                        name,
-                    ],
-                    5,
-                    cleanup=True,
-                )
-                if checked.returncode == 0 and checked.stdout.strip() == project:
-                    removed = capture(["docker", "rm", name], 5, cleanup=True)
-                    if removed.returncode:
-                        raise RuntimeError("owned container removal unconfirmed")
-                elif checked.returncode == 0:
-                    stopping_confirmed = False
+            cleanup_registered_containers(
+                containers,
+                project,
+                lambda command, seconds: capture(command, seconds, cleanup=True),
+                cleanup_note,
+            )
+            cleanup_note("compose-down", owned_verified, owned_removed)
             cleanup = capture(
                 compose + ["down", "--volumes", "--remove-orphans", "--rmi", "local"],
                 60,
@@ -680,12 +848,30 @@ def main() -> None:
             if not stopping_confirmed:
                 report["cleanup_exit"] = "unconfirmed"
             if cleanup.returncode == 0 and stopping_confirmed:
+                cleanup_note("credential-files", owned_verified, owned_removed)
                 for filename in ("owner_password", "app_password"):
                     (directory / filename).unlink()
                 directory.rmdir()
+                cleanup_note("complete", owned_verified, owned_removed)
         except Exception as error:
             report["cleanup_exit"] = "unconfirmed"
             report["cleanup_error_class"] = type(error).__name__
+            emit(
+                {
+                    "event": "cleanup_failure",
+                    "stage": cleanup_stage,
+                    "exception_class": type(error).__name__,
+                    "elapsed_seconds": round(time.monotonic() - cleanup_started, 3),
+                    "remaining_seconds": round(max(0, cleanup_until() - time.monotonic()), 3),
+                    "owned_verified": owned_verified,
+                    "owned_removed": owned_removed,
+                }
+            )
+        report["cleanup_stage"] = cleanup_stage
+        report["cleanup_elapsed_seconds"] = round(time.monotonic() - cleanup_started, 3)
+        report["cleanup_remaining_seconds"] = round(max(0, cleanup_until() - time.monotonic()), 3)
+        report["cleanup_owned_verified"] = owned_verified
+        report["cleanup_owned_removed"] = owned_removed
         report["finished_at"] = datetime.now(UTC).isoformat()
         save()
         if ci_identity is not None:
@@ -698,6 +884,12 @@ def main() -> None:
                     "project": project,
                     "result": report["result"],
                     "cleanup_exit": report["cleanup_exit"],
+                    "cleanup_stage": report["cleanup_stage"],
+                    "cleanup_error_class": report.get("cleanup_error_class"),
+                    "cleanup_elapsed_seconds": report["cleanup_elapsed_seconds"],
+                    "cleanup_remaining_seconds": report["cleanup_remaining_seconds"],
+                    "cleanup_owned_verified": owned_verified,
+                    "cleanup_owned_removed": owned_removed,
                 }
             ),
             flush=True,

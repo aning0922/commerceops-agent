@@ -11,6 +11,51 @@ from pathlib import Path
 from typing import Any
 
 SCOPES = frozenset({"all", "existing", "phase3"})
+# 完整模块族及新增C0恢复Gate转移既有quality余量；approval原14节点分片不变。
+EXISTING_BUSINESS_MODULES = frozenset(
+    {
+        "tests/test_p3_approval_pg.py",
+        "tests/test_p3_execution_authority_pg.py",
+        "tests/test_p3_execution_recovery_pg.py",
+        "tests/test_p4_first_create_pg.py",
+        "tests/test_p4_first_create_negatives_pg.py",
+        "tests/test_p4_template_results_pg.py",
+    }
+)
+# 38783752352全局expires-75耗尽；迁移两个已完整通过的既有固定组。
+# 旧phase3 batch-3=16节点/245.816s，batch-4=19节点/187.596s；不拆模块、不增时限。
+EXISTING_REBALANCED_GROUPS = {
+    # 38912191768: 原完整p3_pg命令91.921s；恢复包新增12节点实测331.260s。
+    # 下列完整模块转移及两个原quality小组复用既有机制，所有节点/时限不变。
+    "combined-existing-p3-native-regression": frozenset({"tests/test_p3_pg.py"}),
+    "combined-existing-p3-recovery-evidence": frozenset(
+        {
+            "tests/test_p3_execution_authority_pg.py",
+            "tests/test_p3_execution_recovery_pg.py",
+            "tests/test_p3_evidence_pg.py",
+            "tests/test_p3_pool_pg.py",
+        }
+    ),
+    "combined-existing-p4-create-and-template": frozenset(
+        {"tests/test_p4_first_create_pg.py", "tests/test_p4_template_results_pg.py"}
+    ),
+    "combined-existing-p4-a08-recovery": frozenset(
+        {
+            "tests/test_p4_a08_recovery_pg.py",
+            "tests/test_p4_a08_scope_pg.py",
+            "tests/test_p4_a08_workflow_pg.py",
+        }
+    ),
+    "combined-existing-p4-clarification-delivery": frozenset(
+        {
+            "tests/test_p4_clarification_pg.py",
+            "tests/test_p4_controlled_worker_pg.py",
+            "tests/test_p4_delivery_pg.py",
+            "tests/test_p4_explicit_ro_pg.py",
+        }
+    ),
+}
+EXISTING_MODULES = EXISTING_BUSINESS_MODULES.union(*EXISTING_REBALANCED_GROUPS.values())
 FIELDS = frozenset(
     {
         "schema_version",
@@ -81,7 +126,12 @@ def partition(full: list[str], scope: str) -> list[str]:
     if scope not in SCOPES:
         raise ValueError("closed CI scope required")
     nodes = canonical_nodes(full)
-    phase3 = [n for n in nodes if n.split("::")[0].startswith("tests/test_p3")]
+    phase3 = [
+        n
+        for n in nodes
+        if n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))
+        and n.split("::")[0] not in EXISTING_MODULES
+    ]
     existing = [n for n in nodes if n not in set(phase3)]
     if scope != "all" and (not phase3 or not existing):
         raise ValueError("both CI partitions must be nonempty")
@@ -243,6 +293,14 @@ def validate(report: dict[str, Any]) -> tuple[list[str], list[str]]:
     modules = report["modules"]
     if not isinstance(modules, list) or not modules:
         raise ValueError("module terminal proof required")
+    # 同一已核runner的精确分组，拒绝伪造part label/改14-node集合或遗漏其他模块。
+    from scripts.pg_diagnostic import combined_groups
+
+    planned = {
+        label: sorted(group)
+        for label, group in combined_groups(full).items()
+        if set(group) <= set(selected)
+    }
     union = []
     for m in modules:
         if not isinstance(m, dict) or set(m) != {
@@ -265,20 +323,14 @@ def validate(report: dict[str, Any]) -> tuple[list[str], list[str]]:
             or m["exit_code"] != 0
         ):
             raise ValueError("all actual nodes must pass and terminate")
-        paths = {n.split("::")[0] for n in expected}
-        if report["scope"] == "phase3":
-            if len(paths) != 1:
-                raise ValueError("one natural P3 module per command required")
-            path = next(iter(paths))
-            label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
-                "/", "-"
-            )
-        else:
-            label = "combined-existing"
-        if m["label"] != label:
+        if not isinstance(m["label"], str) or planned.get(m["label"]) != expected:
             raise ValueError("module label binding required")
         union.extend(expected)
-    if canonical_nodes(union) != actual or (report["scope"] == "existing" and len(modules) != 1):
+    if (
+        canonical_nodes(union) != actual
+        or len(modules) != len(planned)
+        or {m["label"] for m in modules} != set(planned)
+    ):
         raise ValueError("module coverage must match actual partition")
     if report["scope"] == "existing" and (
         report["g1_complete"] is not True

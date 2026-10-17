@@ -130,7 +130,8 @@ def test_material_change_one_real_new_version_nonce_confirmation_and_p2_bytes_pr
         explanation = f.client.get(
             f"/api/v1/tasks/{task}/explanation?report_id={report.json()['source']['report_id']}"
         )
-        assert explanation.status_code == 409 and explanation.json()["error"]["code"] == "NOT_READY"
+        assert explanation.status_code == 200
+        assert explanation.json()["explanation"]["schema_version"] == "p4-p3-template-read-v1"
         with connect(f.config.database) as db:
             assert db.execute("SELECT count(*) AS n FROM business.model_calls").fetchone() == {
                 "n": 0

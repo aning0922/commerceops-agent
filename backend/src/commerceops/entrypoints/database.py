@@ -3,6 +3,7 @@
 import argparse
 import asyncio
 from pathlib import Path
+from typing import Literal
 
 from alembic import command
 from alembic.config import Config
@@ -34,13 +35,21 @@ async def setup_checkpointer(settings: DatabaseSettings) -> None:
         await saver.setup()
 
 
-def grant_runtime(settings: DatabaseSettings) -> None:
+def grant_runtime(
+    settings: DatabaseSettings, *, legacy_revision: Literal["0015"] | None = None
+) -> None:
+    if legacy_revision not in (None, "0015"):
+        raise ValueError("unsupported runtime bootstrap revision")
     if settings.runtime_password_file is None:
         raise ValueError("runtime password file required")
     secret = settings.runtime_password_file.read_text().strip()
     if not secret:
         raise ValueError("empty runtime password")
     with connect(settings) as connection:
+        if legacy_revision is not None:
+            row = connection.execute("SELECT version_num FROM business.alembic_version").fetchone()
+            if row != {"version_num": "0015_p4_read_replies"}:
+                raise ValueError("runtime bootstrap revision mismatch")
         existing = connection.execute(
             "SELECT 1 FROM pg_roles WHERE rolname = %s", (RUNTIME_ROLE,)
         ).fetchone()
@@ -101,10 +110,46 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
         connection.execute("""GRANT UPDATE(applied_at,applied_checkpoint_id)
             ON business.p3_revalidation_transitions TO commerceops_app""")
         connection.execute("GRANT SELECT,INSERT ON business.executions TO commerceops_app")
+        connection.execute("GRANT SELECT,INSERT ON business.p3_template_results TO commerceops_app")
+        connection.execute("GRANT SELECT,INSERT ON business.p4_read_replies TO commerceops_app")
+        connection.execute("""GRANT UPDATE(status,attempts,claimed_by,first_attempt_at,
+            message_id,last_error)
+            ON business.p4_read_replies TO commerceops_app""")
+        connection.execute(
+            "REVOKE DELETE,TRUNCATE ON business.p4_read_replies FROM commerceops_app"
+        )
+        connection.execute(
+            "GRANT EXECUTE ON FUNCTION business.p4_read_reply_current(uuid) TO commerceops_app"
+        )
         connection.execute("""GRANT UPDATE(status,completed_at,item_ids)
             ON business.executions TO commerceops_app""")
         connection.execute(
             "GRANT SELECT,INSERT,UPDATE ON business.replenishment_items TO commerceops_app"
+        )
+
+        connection.execute("""GRANT SELECT,INSERT ON business.p4_inbox_receipts,
+            business.p4_card_bindings TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_clarification_replies
+            TO commerceops_app""")
+        if legacy_revision is None:
+            connection.execute("""GRANT SELECT,INSERT ON business.p4_clarification_requests
+                TO commerceops_app""")
+            connection.execute("""GRANT UPDATE(round,candidate,candidate_hash,state,task_id,
+                confirmed_inbox_id,updated_at) ON business.p4_clarification_requests
+                TO commerceops_app""")
+        connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_base_deliveries
+            TO commerceops_app""")
+        connection.execute("GRANT SELECT,INSERT ON business.p4_base_links TO commerceops_app")
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.p4_sender_state TO commerceops_app"
+        )
+        # SELECT FOR UPDATE用于原window cap串行；immutable trigger仍拒绝任何行修改。
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.p4_sdk_windows TO commerceops_app"
+        )
+        connection.execute(
+            "GRANT SELECT,INSERT,UPDATE ON business.p4_sdk_calls,"
+            "business.p4_im_deliveries TO commerceops_app"
         )
 
 

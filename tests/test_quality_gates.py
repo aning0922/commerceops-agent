@@ -16,7 +16,12 @@ from scripts import scan_secrets as secret_scan
 from scripts.check_docs import document_errors
 from scripts.repository_files import versionable_files
 from scripts.scan_secrets import sensitive_path
-from scripts.vendor_gitleaks_rules import B_PUBLIC_ROW, P3_DOCUMENT_DIGEST, P3_PUBLIC_ROW
+from scripts.vendor_gitleaks_rules import (
+    B_PUBLIC_ROW,
+    P3_DOCUMENT_DIGEST,
+    P3_PUBLIC_ROW,
+    RO_PUBLIC_ROW,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.offline
@@ -434,5 +439,70 @@ def test_b_wider_path_rejected_without_losing_p3_validation(
     (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
     patcher: pytest.MonkeyPatch = request.getfixturevalue("monkeypatch")
     patcher.setattr(secret_scan, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="invalid scanner rules"):
+        secret_scan.validate_rules()
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    ["exact", "one_character", "other_path", "adjacent_generic", "adjacent_pat", "history"],
+)
+def test_ro_historical_action_exception_is_one_exact_line(repository: Path, scenario: str) -> None:
+    filename = "scripts/p4_acceptance.py" if scenario != "other_path" else "scripts/p4_other.py"
+    path = repository / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = RO_PUBLIC_ROW
+    value = ""
+    if scenario == "one_character":
+        row = row.replace("recheck_authorized", "recheck_authorizee")
+    if scenario in ("adjacent_generic", "history"):
+        value = secrets.token_urlsafe(32)
+        row += f'\napi_key = "{value}"'
+    if scenario == "adjacent_pat":
+        value = synthetic_value()
+        row += f'\ngithub_token = "{value}"'
+    path.write_text(row + "\n")
+    git(repository, "add", ".")
+    git(repository, "commit", "-m", "synthetic reviewed RO public action boundary")
+    if scenario == "history":
+        path.write_text(RO_PUBLIC_ROW + "\n")
+        git(repository, "add", ".")
+        git(repository, "commit", "-m", "remove current synthetic value and retain history")
+    result = run_scan(repository)
+    if scenario == "exact":
+        assert result.returncode == 0, result.stdout
+        assert "git: findings=0, exit=0" in result.stdout
+        return
+    output = assert_redacted_block(result, value or row)
+    assert (
+        f'"rule": "{"github-pat" if scenario == "adjacent_pat" else "generic-api-key"}"' in output
+    )
+    for scope in ["git"] if scenario == "history" else ["dir", "index", "git"]:
+        assert f'"scope": "{scope}"' in output
+
+
+@pytest.mark.parametrize("mutation", ["path", "regex", "commit", "line", "digest"])
+def test_ro_exception_cannot_be_broadened_by_updated_config_hash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str
+) -> None:
+    (tmp_path / "scripts").mkdir()
+    config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
+    generic = next(rule for rule in config["rules"] if rule["id"] == "generic-api-key")
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    if mutation == "path":
+        generic["allowlists"][3]["paths"] = [r"(?:^|/)scripts/.*"]
+    elif mutation == "regex":
+        generic["allowlists"][3]["regexes"] = [".*"]
+    elif mutation == "commit":
+        provenance["exceptions"][4]["source_commit"] = "0" * 40
+    elif mutation == "line":
+        provenance["exceptions"][4]["source_line"] = 3937
+    else:
+        provenance["exceptions"][4]["exact_line_sha256"] = "0" * 64
+    content = tomli_w.dumps(config).encode()
+    provenance["config_sha256"] = hashlib.sha256(content).hexdigest()
+    (tmp_path / ".gitleaks.toml").write_bytes(content)
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    monkeypatch.setattr(secret_scan, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid scanner rules"):
         secret_scan.validate_rules()

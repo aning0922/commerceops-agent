@@ -1,0 +1,159 @@
+{
+  "config": {
+    "argv": [
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/.tools/node/bin/node",
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "../tests/e2e/web/phase4/playwright.config.ts",
+      "--grep",
+      "M05→"
+    ],
+    "configFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4/playwright.config.ts",
+    "rootDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "testIgnore": [],
+        "testMatch": [
+          "ui.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/p4-c1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/phase4",
+        "testIgnore": [],
+        "testMatch": "ui.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "headless": true,
+          "trace": "off",
+          "video": "off",
+          "screenshot": "off",
+          "browserName": "chromium",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/evidence/p4-c1/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ui.spec.ts",
+      "file": "ui.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "M05→空授权草稿：缺参有reason，无POST；确认+B01新key后才显式提交",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2454,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjQ4NzcpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-11T04:16:17.026Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d425444c687fa36b5882-4816c3f79d1aed32caf1",
+          "file": "ui.spec.ts",
+          "line": 120,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T04:16:14.489Z",
+    "duration": 6012.992,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

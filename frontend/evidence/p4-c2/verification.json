@@ -1,0 +1,55 @@
+{
+  "merge_parent_before_freeze": "038868b71d246c88511a25770c2eb02b5b88c9dc",
+  "merged_a": "a1cd66936c3cd268d32c68bfafc8f34555e44aa7",
+  "prior_b88_read7": "actual7passed on b88, preserved privately; not a C2 real-data result",
+  "source_sha256": {
+    "frontend/components/item-views.tsx": "33c37e4627e113f11758746cf4483cc19a46dcfd949abcd42f0c098c4376fe3a",
+    "frontend/components/live-console.tsx": "6c46c9349c2fd7be3333154462033c2ce165eb242711c4b59b318c5e804b0e12",
+    "frontend/components/live-readviews.tsx": "34121ae10a7c9824609df77a86de4f864402a275c9f0c03e9b48eaa82264c974",
+    "frontend/lib/b04-offline-source.ts": "508efcaf8ff4df878d7b89b7ed0b8b2c58413259ef4b8c822b1911738266c617",
+    "frontend/lib/p3-item-contract.ts": "7966663475546ea25b393971b8738a8ca39f2c31a6a42b447e0288d462213917",
+    "frontend/lib/p3-live-client.ts": "fbc6f0248648f01a84e681d0726b7be2d757f8590419b16ed901e9248a231746",
+    "frontend/lib/p3-read-schema.generated.json": "498bbd60d319bdf6df289c8e97ce61b635334b5e505adc82cf9cb68b8faa77f2",
+    "frontend/lib/p3-types.generated.ts": "375fe844c2ec6f6e580a21fa9a05170b071ce2672ce2be0658269ec37ebd2b2b",
+    "frontend/lib/p4-read-facts.ts": "fba43af4c787732ae33cb2db49710fecbf6226dc481508f8ffc0bb953876f4a7",
+    "tests/e2e/web/contracts/read-schema.spec.ts": "a6995ef01f37fc199ea0b04db15fddece51d285925cdae580d4c843ada1fa74e",
+    "tests/e2e/web/contracts/p4-read-facts.spec.ts": "bfa9e755c8a315f1a23b159becee29db0f3d6285f4043d634be27bb273fe9b7a",
+    "tests/e2e/web/phase4/fixtures.ts": "bc757c2cf0e49dd7ca061f426de5e2a03280adc9b3f3138181967a58ce6c1ce0",
+    "tests/e2e/web/phase4/read-fixtures.ts": "4cbe0f22865a605bd84e5007717775ccbc8437e10a88ad1bb18431ca1565d417",
+    "tests/e2e/web/phase4/preview.tsx": "aabb18ea402b1e6cc5f603e812bd833161c8e02c282bbae29e364b58bae557b9",
+    "tests/e2e/web/phase4/ui.spec.ts": "85ace8ea234d6792054f56123f6858933e86bad6251345d35db3e252b98fa0e1"
+  },
+  "actual_contract": {
+    "passed": 37,
+    "seconds": 4.2
+  },
+  "actual_p4_ui": {
+    "passed": 12,
+    "seconds": 26.1,
+    "original_retained": 8,
+    "new_c2": 4
+  },
+  "actual_b04_mock": {
+    "passed": 8,
+    "seconds": 27.1,
+    "history": "first5pass3fail, second7pass1fail; fixed own display only, original assertions unchanged"
+  },
+  "build_id": "SHqDQAyTPzSzDVQ8M0Mnl",
+  "product_preview_typecheck": 0,
+  "mypy_source_files": 233,
+  "schema_operations": 22,
+  "oas_paths": 21,
+  "full_scripts_check": {
+    "exit": 1,
+    "blocking_owner": "A",
+    "path": "backend/src/commerceops/infrastructure/feishu_delivery_read.py",
+    "line": 55,
+    "reason": "preexisting worker_ready indentation; owner A will correct; C unchanged",
+    "completed_before_block": "scans0,lock,83MD0,Pythonlint",
+    "after_block": "mypy/offline/npmci/audit not run in this full command; separately mypy233 and frontend typechecks passed"
+  },
+  "ports3490_3496_nolisten": true,
+  "actual_pg_api_worker_platform_provider": "not_started in C2 headless memory tests",
+  "shared_ci_actual12_and_full24_native200": "pending; no inference from prior passes",
+  "independent_frozen_review_and_push": "pending"
+}

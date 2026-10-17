@@ -574,10 +574,58 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
     assert versions["total"] == 1 and versions["current_plan_version"] == 1
     first = f.client.get(f"/api/v1/tasks/{task}/events?limit=1").json()
     assert first["items"][0]["action"] == "workflow_created" and first["next_cursor"]
-    following = f.client.get(
-        f"/api/v1/tasks/{task}/events", params={"limit": 1, "cursor": first["next_cursor"]}
-    ).json()
-    assert following["items"][0]["action"] == "approval_prepared"
+    pages = [first]
+    cursor = first["next_cursor"]
+    cursors = {cursor}
+    # 原query允许<=100，完整分页与同一来源的完整响应对照，不猜某一页就是终页。
+    for _ in range(99):
+        following = f.client.get(
+            f"/api/v1/tasks/{task}/events", params={"limit": 1, "cursor": cursor}
+        ).json()
+        assert len(following["items"]) == 1
+        pages.append(following)
+        cursor = following["next_cursor"]
+        if cursor is None:
+            break
+        assert cursor not in cursors
+        cursors.add(cursor)
+    else:
+        raise AssertionError("owned event pagination did not terminate within 100 pages")
+    events = [page["items"][0] for page in pages]
+    complete = f.client.get(f"/api/v1/tasks/{task}/events", params={"limit": 100}).json()
+    assert complete["next_cursor"] is None and complete["items"] == events
+    assert len({event["event_id"] for event in events}) == len(events)
+    assert [event["action"] for event in events] == [
+        "workflow_created",
+        "analysis_started",
+        "analysis_report_saved",
+        "approval_prepared",
+        "approval_checkpoint_ready",
+    ]
+    report_id = f.client.get(f"/api/v1/tasks/{task}/report").json()["source"]["report_id"]
+    approval_id = f.client.get("/api/v1/approvals?view=mine").json()["items"][0]["approval_id"]
+    bindings = {
+        "workflow_created": ("task", task),
+        "analysis_started": ("task", created["source_task_id"]),
+        "analysis_report_saved": ("report", report_id),
+        "approval_prepared": ("plan", versions["items"][0]["plan_id"]),
+        "approval_checkpoint_ready": ("approval", approval_id),
+    }
+    for event in events:
+        relation = "source" if event["action"].startswith("analysis_") else "task"
+        related = created["source_task_id"] if relation == "source" else task
+        kind, result_id = bindings[event["action"]]
+        assert event["relation"] == relation and event["task_id"] == related
+        assert event["result_ref"] == result_id
+        assert event["references"] == [
+            {"kind": "task", "id": related},
+            {"kind": kind, "id": result_id},
+        ]
+        if event["action"] == "approval_checkpoint_ready":
+            assert event["tool"] is None
+        else:
+            assert event["tool"]["category"] == "deterministic"
+            assert event["tool"]["selected_by_model"] is False
     listed = f.client.get("/api/v1/approvals?view=mine").json()
     assert listed["total"] == 1 and listed["counts"]["pending"] == 1 and len(listed["items"]) == 1
     history = f.client.get("/api/v1/approvals?view=history").json()
@@ -588,7 +636,8 @@ def test_read_config_version_history_events_and_approval_counts(fixture: P3Fixtu
             "report_id": f.client.get(f"/api/v1/tasks/{task}/report").json()["source"]["report_id"]
         },
     )
-    assert missing.status_code == 409 and missing.json()["error"]["code"] == "NOT_READY"
+    assert missing.status_code == 200
+    assert missing.json()["explanation"]["schema_version"] == "p4-p3-template-read-v1"
 
 
 def test_database_plan_and_source_evidence_remain_immutable(fixture: P3Fixture) -> None:

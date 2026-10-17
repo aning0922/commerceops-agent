@@ -1,0 +1,435 @@
+{
+  "config": {
+    "argv": [
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/.tools/node/bin/node",
+      "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.b04-offline.config.ts"
+    ],
+    "configFile": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/playwright.b04-offline.config.ts",
+    "rootDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": [
+          "b04-offline.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+        "snapshotDir": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web",
+        "testIgnore": [],
+        "testMatch": "b04-offline.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "browserName": "chromium",
+          "headless": true,
+          "baseURL": "http://127.0.0.1:3490",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "trace": "off",
+          "video": "off",
+          "screenshot": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "evidence/b04-linux-fix/ui-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run start -- --port 3490",
+      "url": "http://127.0.0.1:3490/replenishment-items",
+      "reuseExistingServer": false,
+      "timeout": 60000,
+      "env": {
+        "NEXT_TELEMETRY_DISABLED": "1",
+        "COMMERCEOPS_UI_MODE": "mock",
+        "COMMERCEOPS_MOCK_BATCH": "b04-wiring",
+        "COMMERCEOPS_API_ORIGIN": "",
+        "COMMERCEOPS_WEB_TRANSPORT": "",
+        "COMMERCEOPS_MOCK_ROLE": "operator"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "b04-offline.spec.ts",
+      "file": "b04-offline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "明确Mock20项/390完整披露；execution completed仍不能推断项跟进或sync成功",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8316,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('main')\nExpected substring: \u001b[32m\"协作同步：失败\"\u001b[39m\nReceived string:    \u001b[31m\"明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。 审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。Agent 执行轨迹以当前服务端授权与冻结事实为准。刷新会话与当前页实际已发生轨迹as_of：2026/10/11 09:00:00 · Asia/Shanghai · 无内部思维链或原始checkpoint。暂无可读事件，不虚构恢复完成。手动重试无重启或手动重试端点。Worker 执行回执执行仅由 Worker 完成；任务完成与每个内部项跟进完成分别记账。仅内部工作项，不表示采购、入库或库存修改。执行事实已完成task：00000000-0000-4000-8000-000000000066 · execution：00000000-0000-4000-8000-00000000006a计划：00000000-0000-4000-8000-000000000067 · 审批：00000000-0000-4000-8000-00000000006b复核快照：00000000-0000-4000-8000-00000000006coperation：offline-execution · hash：aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa完成时间：2026-10-11T01:00:00Z · 错误：无此回执列出 20 项；不推断这些工作项已跟进完成。00000000-0000-4000-8000-000000000001查看内部项00000000-0000-4000-8000-000000000002查看内部项00000000-0000-4000-8000-000000000003查看内部项00000000-0000-4000-8000-000000000004查看内部项00000000-0000-4000-8000-000000000005查看内部项00000000-0000-4000-8000-000000000006查看内部项00000000-0000-4000-8000-000000000007查看内部项00000000-0000-4000-8000-000000000008查看内部项00000000-0000-4000-8000-000000000009查看内部项00000000-0000-4000-8000-00000000000a查看内部项00000000-0000-4000-8000-00000000000b查看内部项00000000-0000-4000-8000-00000000000c查看内部项00000000-0000-4000-8000-00000000000d查看内部项00000000-0000-4000-8000-00000000000e查看内部项00000000-0000-4000-8000-00000000000f查看内部项00000000-0000-4000-8000-000000000010查看内部项00000000-0000-4000-8000-000000000011查看内部项00000000-0000-4000-8000-000000000012查看内部项00000000-0000-4000-8000-000000000013查看内部项00000000-0000-4000-8000-000000000014查看内部项执行同步 · 独立投影事实协作同步：同步失败业务状态与同步独立；待同步不表示已写外部平台。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 同步失败投影 v1 · 当前目标 v1 · 观察版本 未报告完整唯一核实：未核实 · 当前版本 · attempts：1原同步状态：失败 · outbox：dead · source：controlled_stub · 验证模式：离线 Fake安全错误码：CONTROLLED_SYNC_FAILURE · 读取证据时间：2026-10-11T01:00:00Z同步异常不撤销已经提交的业务结果。手动恢复未开放执行与恢复由 Worker 合同控制，无手动执行或重试操作。本次实际配置当前店铺：00000000-0000-4000-8000-000000000065 · offline-components-v1审批TTL：1800秒 · 新鲜度上限：450秒 · 最大计划：20项服务端时间：2026/10/11 09:00:00 · Asia/Shanghai · 读取时事实，不以浏览器时间裁定审批。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGURED内部协作 · 业务结果与同步证据分别记录\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('main') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('main')\u001b[22m\n\u001b[2m    14 × locator resolved to <main id=\"main\">…</main>\u001b[22m\n\u001b[2m       - unexpected value \"明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。 审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。Agent 执行轨迹以当前服务端授权与冻结事实为准。刷新会话与当前页实际已发生轨迹as_of：2026/10/11 09:00:00 · Asia/Shanghai · 无内部思维链或原始checkpoint。暂无可读事件，不虚构恢复完成。手动重试无重启或手动重试端点。Worker 执行回执执行仅由 Worker 完成；任务完成与每个内部项跟进完成分别记账。仅内部工作项，不表示采购、入库或库存修改。执行事实已完成task：00000000-0000-4000-8000-000000000066 · execution：00000000-0000-4000-8000-00000000006a计划：00000000-0000-4000-8000-000000000067 · 审批：00000000-0000-4000-8000-00000000006b复核快照：00000000-0000-4000-8000-00000000006coperation：offline-execution · hash：aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa完成时间：2026-10-11T01:00:00Z · 错误：无此回执列出 20 项；不推断这些工作项已跟进完成。00000000-0000-4000-8000-000000000001查看内部项00000000-0000-4000-8000-000000000002查看内部项00000000-0000-4000-8000-000000000003查看内部项00000000-0000-4000-8000-000000000004查看内部项00000000-0000-4000-8000-000000000005查看内部项00000000-0000-4000-8000-000000000006查看内部项00000000-0000-4000-8000-000000000007查看内部项00000000-0000-4000-8000-000000000008查看内部项00000000-0000-4000-8000-000000000009查看内部项00000000-0000-4000-8000-00000000000a查看内部项00000000-0000-4000-8000-00000000000b查看内部项00000000-0000-4000-8000-00000000000c查看内部项00000000-0000-4000-8000-00000000000d查看内部项00000000-0000-4000-8000-00000000000e查看内部项00000000-0000-4000-8000-00000000000f查看内部项00000000-0000-4000-8000-000000000010查看内部项00000000-0000-4000-8000-000000000011查看内部项00000000-0000-4000-8000-000000000012查看内部项00000000-0000-4000-8000-000000000013查看内部项00000000-0000-4000-8000-000000000014查看内部项执行同步 · 独立投影事实协作同步：同步失败业务状态与同步独立；待同步不表示已写外部平台。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 同步失败投影 v1 · 当前目标 v1 · 观察版本 未报告完整唯一核实：未核实 · 当前版本 · attempts：1原同步状态：失败 · outbox：dead · source：controlled_stub · 验证模式：离线 Fake安全错误码：CONTROLLED_SYNC_FAILURE · 读取证据时间：2026-10-11T01:00:00Z同步异常不撤销已经提交的业务结果。手动恢复未开放执行与恢复由 Worker 合同控制，无手动执行或重试操作。本次实际配置当前店铺：00000000-0000-4000-8000-000000000065 · offline-components-v1审批TTL：1800秒 · 新鲜度上限：450秒 · 最大计划：20项服务端时间：2026/10/11 09:00:00 · Asia/Shanghai · 读取时事实，不以浏览器时间裁定审批。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGURED内部协作 · 业务结果与同步证据分别记录\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('main')\nExpected substring: \u001b[32m\"协作同步：失败\"\u001b[39m\nReceived string:    \u001b[31m\"明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。 审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。Agent 执行轨迹以当前服务端授权与冻结事实为准。刷新会话与当前页实际已发生轨迹as_of：2026/10/11 09:00:00 · Asia/Shanghai · 无内部思维链或原始checkpoint。暂无可读事件，不虚构恢复完成。手动重试无重启或手动重试端点。Worker 执行回执执行仅由 Worker 完成；任务完成与每个内部项跟进完成分别记账。仅内部工作项，不表示采购、入库或库存修改。执行事实已完成task：00000000-0000-4000-8000-000000000066 · execution：00000000-0000-4000-8000-00000000006a计划：00000000-0000-4000-8000-000000000067 · 审批：00000000-0000-4000-8000-00000000006b复核快照：00000000-0000-4000-8000-00000000006coperation：offline-execution · hash：aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa完成时间：2026-10-11T01:00:00Z · 错误：无此回执列出 20 项；不推断这些工作项已跟进完成。00000000-0000-4000-8000-000000000001查看内部项00000000-0000-4000-8000-000000000002查看内部项00000000-0000-4000-8000-000000000003查看内部项00000000-0000-4000-8000-000000000004查看内部项00000000-0000-4000-8000-000000000005查看内部项00000000-0000-4000-8000-000000000006查看内部项00000000-0000-4000-8000-000000000007查看内部项00000000-0000-4000-8000-000000000008查看内部项00000000-0000-4000-8000-000000000009查看内部项00000000-0000-4000-8000-00000000000a查看内部项00000000-0000-4000-8000-00000000000b查看内部项00000000-0000-4000-8000-00000000000c查看内部项00000000-0000-4000-8000-00000000000d查看内部项00000000-0000-4000-8000-00000000000e查看内部项00000000-0000-4000-8000-00000000000f查看内部项00000000-0000-4000-8000-000000000010查看内部项00000000-0000-4000-8000-000000000011查看内部项00000000-0000-4000-8000-000000000012查看内部项00000000-0000-4000-8000-000000000013查看内部项00000000-0000-4000-8000-000000000014查看内部项执行同步 · 独立投影事实协作同步：同步失败业务状态与同步独立；待同步不表示已写外部平台。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 同步失败投影 v1 · 当前目标 v1 · 观察版本 未报告完整唯一核实：未核实 · 当前版本 · attempts：1原同步状态：失败 · outbox：dead · source：controlled_stub · 验证模式：离线 Fake安全错误码：CONTROLLED_SYNC_FAILURE · 读取证据时间：2026-10-11T01:00:00Z同步异常不撤销已经提交的业务结果。手动恢复未开放执行与恢复由 Worker 合同控制，无手动执行或重试操作。本次实际配置当前店铺：00000000-0000-4000-8000-000000000065 · offline-components-v1审批TTL：1800秒 · 新鲜度上限：450秒 · 最大计划：20项服务端时间：2026/10/11 09:00:00 · Asia/Shanghai · 读取时事实，不以浏览器时间裁定审批。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGURED内部协作 · 业务结果与同步证据分别记录\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('main') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('main')\u001b[22m\n\u001b[2m    14 × locator resolved to <main id=\"main\">…</main>\u001b[22m\n\u001b[2m       - unexpected value \"明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。 审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。Agent 执行轨迹以当前服务端授权与冻结事实为准。刷新会话与当前页实际已发生轨迹as_of：2026/10/11 09:00:00 · Asia/Shanghai · 无内部思维链或原始checkpoint。暂无可读事件，不虚构恢复完成。手动重试无重启或手动重试端点。Worker 执行回执执行仅由 Worker 完成；任务完成与每个内部项跟进完成分别记账。仅内部工作项，不表示采购、入库或库存修改。执行事实已完成task：00000000-0000-4000-8000-000000000066 · execution：00000000-0000-4000-8000-00000000006a计划：00000000-0000-4000-8000-000000000067 · 审批：00000000-0000-4000-8000-00000000006b复核快照：00000000-0000-4000-8000-00000000006coperation：offline-execution · hash：aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa完成时间：2026-10-11T01:00:00Z · 错误：无此回执列出 20 项；不推断这些工作项已跟进完成。00000000-0000-4000-8000-000000000001查看内部项00000000-0000-4000-8000-000000000002查看内部项00000000-0000-4000-8000-000000000003查看内部项00000000-0000-4000-8000-000000000004查看内部项00000000-0000-4000-8000-000000000005查看内部项00000000-0000-4000-8000-000000000006查看内部项00000000-0000-4000-8000-000000000007查看内部项00000000-0000-4000-8000-000000000008查看内部项00000000-0000-4000-8000-000000000009查看内部项00000000-0000-4000-8000-00000000000a查看内部项00000000-0000-4000-8000-00000000000b查看内部项00000000-0000-4000-8000-00000000000c查看内部项00000000-0000-4000-8000-00000000000d查看内部项00000000-0000-4000-8000-00000000000e查看内部项00000000-0000-4000-8000-00000000000f查看内部项00000000-0000-4000-8000-000000000010查看内部项00000000-0000-4000-8000-000000000011查看内部项00000000-0000-4000-8000-000000000012查看内部项00000000-0000-4000-8000-000000000013查看内部项00000000-0000-4000-8000-000000000014查看内部项执行同步 · 独立投影事实协作同步：同步失败业务状态与同步独立；待同步不表示已写外部平台。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 同步失败投影 v1 · 当前目标 v1 · 观察版本 未报告完整唯一核实：未核实 · 当前版本 · attempts：1原同步状态：失败 · outbox：dead · source：controlled_stub · 验证模式：离线 Fake安全错误码：CONTROLLED_SYNC_FAILURE · 读取证据时间：2026-10-11T01:00:00Z同步异常不撤销已经提交的业务结果。手动恢复未开放执行与恢复由 Worker 合同控制，无手动执行或重试操作。本次实际配置当前店铺：00000000-0000-4000-8000-000000000065 · offline-components-v1审批TTL：1800秒 · 新鲜度上限：450秒 · 最大计划：20项服务端时间：2026/10/11 09:00:00 · Asia/Shanghai · 读取时事实，不以浏览器时间裁定审批。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGURED内部协作 · 业务结果与同步证据分别记录\"\u001b[22m\n\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:130:40",
+                    "location": {
+                      "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                      "column": 40,
+                      "line": 130
+                    },
+                    "snippet": "  128 |   );\n  129 |   await expect(page.locator(\".list-row\")).toHaveCount(20);\n> 130 |   await expect(page.getByRole(\"main\")).toContainText(\"协作同步：失败\");\n      |                                        ^\n  131 |   await expect(\n  132 |     page.getByRole(\"button\", { name: \"手动恢复未开放\" }),\n  133 |   ).toBeDisabled();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                        "column": 40,
+                        "line": 130
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('main')\nExpected substring: \u001b[32m\"协作同步：失败\"\u001b[39m\nReceived string:    \u001b[31m\"明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。 审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。Agent 执行轨迹以当前服务端授权与冻结事实为准。刷新会话与当前页实际已发生轨迹as_of：2026/10/11 09:00:00 · Asia/Shanghai · 无内部思维链或原始checkpoint。暂无可读事件，不虚构恢复完成。手动重试无重启或手动重试端点。Worker 执行回执执行仅由 Worker 完成；任务完成与每个内部项跟进完成分别记账。仅内部工作项，不表示采购、入库或库存修改。执行事实已完成task：00000000-0000-4000-8000-000000000066 · execution：00000000-0000-4000-8000-00000000006a计划：00000000-0000-4000-8000-000000000067 · 审批：00000000-0000-4000-8000-00000000006b复核快照：00000000-0000-4000-8000-00000000006coperation：offline-execution · hash：aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa完成时间：2026-10-11T01:00:00Z · 错误：无此回执列出 20 项；不推断这些工作项已跟进完成。00000000-0000-4000-8000-000000000001查看内部项00000000-0000-4000-8000-000000000002查看内部项00000000-0000-4000-8000-000000000003查看内部项00000000-0000-4000-8000-000000000004查看内部项00000000-0000-4000-8000-000000000005查看内部项00000000-0000-4000-8000-000000000006查看内部项00000000-0000-4000-8000-000000000007查看内部项00000000-0000-4000-8000-000000000008查看内部项00000000-0000-4000-8000-000000000009查看内部项00000000-0000-4000-8000-00000000000a查看内部项00000000-0000-4000-8000-00000000000b查看内部项00000000-0000-4000-8000-00000000000c查看内部项00000000-0000-4000-8000-00000000000d查看内部项00000000-0000-4000-8000-00000000000e查看内部项00000000-0000-4000-8000-00000000000f查看内部项00000000-0000-4000-8000-000000000010查看内部项00000000-0000-4000-8000-000000000011查看内部项00000000-0000-4000-8000-000000000012查看内部项00000000-0000-4000-8000-000000000013查看内部项00000000-0000-4000-8000-000000000014查看内部项执行同步 · 独立投影事实协作同步：同步失败业务状态与同步独立；待同步不表示已写外部平台。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 同步失败投影 v1 · 当前目标 v1 · 观察版本 未报告完整唯一核实：未核实 · 当前版本 · attempts：1原同步状态：失败 · outbox：dead · source：controlled_stub · 验证模式：离线 Fake安全错误码：CONTROLLED_SYNC_FAILURE · 读取证据时间：2026-10-11T01:00:00Z同步异常不撤销已经提交的业务结果。手动恢复未开放执行与恢复由 Worker 合同控制，无手动执行或重试操作。本次实际配置当前店铺：00000000-0000-4000-8000-000000000065 · offline-components-v1审批TTL：1800秒 · 新鲜度上限：450秒 · 最大计划：20项服务端时间：2026/10/11 09:00:00 · Asia/Shanghai · 读取时事实，不以浏览器时间裁定审批。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGURED内部协作 · 业务结果与同步证据分别记录\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('main') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('main')\u001b[22m\n\u001b[2m    14 × locator resolved to <main id=\"main\">…</main>\u001b[22m\n\u001b[2m       - unexpected value \"明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。 审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。Agent 执行轨迹以当前服务端授权与冻结事实为准。刷新会话与当前页实际已发生轨迹as_of：2026/10/11 09:00:00 · Asia/Shanghai · 无内部思维链或原始checkpoint。暂无可读事件，不虚构恢复完成。手动重试无重启或手动重试端点。Worker 执行回执执行仅由 Worker 完成；任务完成与每个内部项跟进完成分别记账。仅内部工作项，不表示采购、入库或库存修改。执行事实已完成task：00000000-0000-4000-8000-000000000066 · execution：00000000-0000-4000-8000-00000000006a计划：00000000-0000-4000-8000-000000000067 · 审批：00000000-0000-4000-8000-00000000006b复核快照：00000000-0000-4000-8000-00000000006coperation：offline-execution · hash：aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa完成时间：2026-10-11T01:00:00Z · 错误：无此回执列出 20 项；不推断这些工作项已跟进完成。00000000-0000-4000-8000-000000000001查看内部项00000000-0000-4000-8000-000000000002查看内部项00000000-0000-4000-8000-000000000003查看内部项00000000-0000-4000-8000-000000000004查看内部项00000000-0000-4000-8000-000000000005查看内部项00000000-0000-4000-8000-000000000006查看内部项00000000-0000-4000-8000-000000000007查看内部项00000000-0000-4000-8000-000000000008查看内部项00000000-0000-4000-8000-000000000009查看内部项00000000-0000-4000-8000-00000000000a查看内部项00000000-0000-4000-8000-00000000000b查看内部项00000000-0000-4000-8000-00000000000c查看内部项00000000-0000-4000-8000-00000000000d查看内部项00000000-0000-4000-8000-00000000000e查看内部项00000000-0000-4000-8000-00000000000f查看内部项00000000-0000-4000-8000-000000000010查看内部项00000000-0000-4000-8000-000000000011查看内部项00000000-0000-4000-8000-000000000012查看内部项00000000-0000-4000-8000-000000000013查看内部项00000000-0000-4000-8000-000000000014查看内部项执行同步 · 独立投影事实协作同步：同步失败业务状态与同步独立；待同步不表示已写外部平台。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 同步失败投影 v1 · 当前目标 v1 · 观察版本 未报告完整唯一核实：未核实 · 当前版本 · attempts：1原同步状态：失败 · outbox：dead · source：controlled_stub · 验证模式：离线 Fake安全错误码：CONTROLLED_SYNC_FAILURE · 读取证据时间：2026-10-11T01:00:00Z同步异常不撤销已经提交的业务结果。手动恢复未开放执行与恢复由 Worker 合同控制，无手动执行或重试操作。本次实际配置当前店铺：00000000-0000-4000-8000-000000000065 · offline-components-v1审批TTL：1800秒 · 新鲜度上限：450秒 · 最大计划：20项服务端时间：2026/10/11 09:00:00 · Asia/Shanghai · 读取时事实，不以浏览器时间裁定审批。真实外部发送资格：当前禁用。资格不等于已经送达，也不授予手动重发权限。IM · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGUREDBase · 未配置发送器资格：禁用验证模式：未报告 · Worker：未报告读取证据时间：2026-10-11T01:00:00Z · reason：NOT_CONFIGURED内部协作 · 业务结果与同步证据分别记录\"\u001b[22m\n\n\n  128 |   );\n  129 |   await expect(page.locator(\".list-row\")).toHaveCount(20);\n> 130 |   await expect(page.getByRole(\"main\")).toContainText(\"协作同步：失败\");\n      |                                        ^\n  131 |   await expect(\n  132 |     page.getByRole(\"button\", { name: \"手动恢复未开放\" }),\n  133 |   ).toBeDisabled();\n    at /Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts:130:40"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:09:43.426Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/frontend/test-results/b04-offline/b04-offline-明确Mock20项-390完-da728-on-completed仍不能推断项跟进或sync成功/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/aipuli/.codex/worktrees/phase4-web/commerceops-agent/tests/e2e/web/b04-offline.spec.ts",
+                    "column": 40,
+                    "line": 130
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-627c584b168535c718a6",
+          "file": "b04-offline.spec.ts",
+          "line": 100,
+          "column": 5
+        },
+        {
+          "title": "原因pristine/空白/1001字符，Tab/ShiftTab/Enter/Space/Esc与终态回执/无重开",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1566,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:09:53.730Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-b0f4d0816f09112a3180",
+          "file": "b04-offline.spec.ts",
+          "line": 140,
+          "column": 5
+        },
+        {
+          "title": "关闭原因保留FEFF/组合字符，dirty关闭需显式丢弃；terminal/readonly无入口",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3303,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:09:55.641Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-884df4e02157afd966dc",
+          "file": "b04-offline.spec.ts",
+          "line": 180,
+          "column": 5
+        },
+        {
+          "title": "注入ACK unknown仅原键恢复，不自动提交/新键，GET回执后显式同键回放",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1299,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:09:58.950Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-563ed866d19e32a17ae1",
+          "file": "b04-offline.spec.ts",
+          "line": 201,
+          "column": 5
+        },
+        {
+          "title": "unknown原键404仍待核实；409版本/终态与损坏绑定分别呈现",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4167,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:10:00.255Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-84c3d859590322de147c",
+          "file": "b04-offline.spec.ts",
+          "line": 224,
+          "column": 5
+        },
+        {
+          "title": "注入401清预备请求/身份/业务缓存；404同安全状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2085,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:10:04.429Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-99f5d5e2a2d41719e061",
+          "file": "b04-offline.spec.ts",
+          "line": 248,
+          "column": 5
+        },
+        {
+          "title": "新联动范围filter与隐藏来源：当前can_resolve可用不借旧task/plan权限",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2113,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:10:06.521Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-d97d7515b05c394da669",
+          "file": "b04-offline.spec.ts",
+          "line": 261,
+          "column": 5
+        },
+        {
+          "title": "预备后200会话身份变更仍清原操作，不把旧项交给新principal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1175,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:10:08.639Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fa8fea738257ba34b845-b32046b07969821e60a4",
+          "file": "b04-offline.spec.ts",
+          "line": 276,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T06:09:37.589Z",
+    "duration": 32272.148,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

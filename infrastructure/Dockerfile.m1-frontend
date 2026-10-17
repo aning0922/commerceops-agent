@@ -1,0 +1,11 @@
+FROM node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
+WORKDIR /app/frontend
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY frontend ./
+COPY docs/contracts/p3-openapi.json /app/docs/contracts/p3-openapi.json
+COPY docs/contracts/p4-n01-openapi.json /app/docs/contracts/p4-n01-openapi.json
+RUN npm run check:toolchain && npm run check:read-schema && npm run build
+USER node
+CMD ["node", "node_modules/next/dist/bin/next", "start", "--hostname", "0.0.0.0", "--port", "3000"]

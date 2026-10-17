@@ -1,0 +1,6 @@
+{
+  "port": 3490,
+  "listener_count": 0,
+  "lsof_exit": 1,
+  "result": "7pass/1fail; old failed summary label changed; fixture stopped"
+}

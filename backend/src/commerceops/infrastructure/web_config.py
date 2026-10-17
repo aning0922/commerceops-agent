@@ -1,8 +1,10 @@
 """P3显式私有配置；不加载.env、平台凭据或开发身份替身。"""
 
+import hashlib
 import json
 import os
 import stat
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -11,14 +13,27 @@ from commerceops.infrastructure.database import DatabaseSettings
 
 
 def private_bytes(path: Path) -> bytes:
-    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    with os.fdopen(descriptor, "rb") as stream:
-        info = os.fstat(stream.fileno())
-        if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+    # 原私配助手强化为逐级dir_fd读取；不创建/resolve/chmod未知路径。
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("INVALID_WEB_CONFIGURATION")
+    with ExitStack() as stack:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        current = os.open(path.anchor, flags)
+        stack.callback(os.close, current)
+        for name in path.parts[1:-1]:
+            current = os.open(name, flags, dir_fd=current)
+            stack.callback(os.close, current)
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=current)
+        with os.fdopen(descriptor, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+                raise ValueError("INVALID_WEB_CONFIGURATION")
+            if info.st_uid != os.geteuid():
+                raise ValueError("INVALID_WEB_CONFIGURATION")
+            body = stream.read(32769)
+        if len(body) > 32768:
             raise ValueError("INVALID_WEB_CONFIGURATION")
-        if info.st_uid != os.geteuid():
-            raise ValueError("INVALID_WEB_CONFIGURATION")
-        return stream.read()
+        return body
 
 
 @dataclass(frozen=True)
@@ -80,9 +95,18 @@ class WebConfig:
             raise ValueError("INVALID_WEB_CONFIGURATION")
 
     @classmethod
-    def from_file(cls, path: Path) -> "WebConfig":
+    def from_file(cls, path: Path, *, expected_sha256: str | None = None) -> "WebConfig":
         try:
-            body = json.loads(private_bytes(path))
+            encoded = private_bytes(path)
+            if expected_sha256 is not None and (
+                type(expected_sha256) is not str
+                or len(expected_sha256) != 64
+                or any(c not in "0123456789abcdef" for c in expected_sha256)
+                or hashlib.sha256(encoded).hexdigest() != expected_sha256
+            ):
+                raise ValueError("INVALID_WEB_CONFIGURATION")
+            # Parse exactly the protected, hash-checked buffer before any secret read.
+            body = json.loads(encoded)
             database = DatabaseSettings.model_validate(body.pop("database"))
             csrf = private_bytes(Path(body.pop("csrf_secret_file")))
             nonce = private_bytes(Path(body.pop("nonce_secret_file")))

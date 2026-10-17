@@ -109,6 +109,24 @@ class WebActor:
     auth_version: int
 
 
+@dataclass(frozen=True)
+class FeishuActor:
+    """只由正式Gateway的PG identity桥接构造，不依赖Web session。"""
+
+    principal_id: UUID
+    identity_id: UUID
+    organization_id: UUID
+    auth_version: int
+    app_id: str
+    tenant_key: str
+    open_id: str
+    chat_id: str
+    topic_key: str = "p4-inventory-v1"
+
+
+Actor = WebActor | FeishuActor
+
+
 class WebFailure(Exception):
     def __init__(self, code: str, status: int = 409):
         self.code, self.status = code, status

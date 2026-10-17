@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { DTO } from "../lib/p3-present";
 import { label } from "../lib/p3-present";
+import { syncMeaning } from "../lib/p4-read-facts";
 import { P3Failure, PreparedWrite } from "../lib/p3-transport";
 import type { P3Client } from "../lib/p3-transport";
 import {
@@ -49,22 +50,32 @@ export function ExecutionFacts({
       <Card title="执行事实">
         <Status value={read.status} />
         <p>
-          task：{read.task_id} · execution：{read.execution_id}
-        </p>
-        <p>
-          计划：{read.plan_id} · 审批：{read.approval_id}
-        </p>
-        <p>复核快照：{read.revalidation_snapshot_id}</p>
-        <p>
-          operation：{read.operation_key} · hash：{read.request_hash}
-        </p>
-        <p>
-          完成时间：{read.completed_at ?? "未报告"} · 错误：
-          {read.error_code ?? "无"}
+          {read.status === "completed"
+            ? "业务执行回执已提交；下一步查看每个内部项的跟进状态。"
+            : read.status === "rejected"
+              ? "本次执行已拒绝；读取当前任务记录，不重新提交旧意见。"
+              : "当前执行需核实；先读取既有任务与回执，不手动重投。"}
         </p>
         <p>
           此回执列出 {read.item_ids.length} 项；不推断这些工作项已跟进完成。
         </p>
+        <details>
+          <summary>执行技术详情</summary>
+          <p>
+            task：{read.task_id} · execution：{read.execution_id}
+          </p>
+          <p>
+            计划：{read.plan_id} · 审批：{read.approval_id}
+          </p>
+          <p>复核快照：{read.revalidation_snapshot_id}</p>
+          <p>
+            operation：{read.operation_key} · hash：{read.request_hash}
+          </p>
+          <p>
+            完成时间：{read.completed_at ?? "未报告"} · 错误：
+            {read.error_code ?? "无"}
+          </p>
+        </details>
         <div className="list-table">
           {read.item_ids.map((id) => (
             <article className="list-row" key={id}>
@@ -166,7 +177,7 @@ export function ItemListFacts({
               </div>
               <strong>{item.quantity} 件</strong>
               <Status value={item.state} />
-              <span>同步 {label(item.sync.state)}</span>
+              <span>{syncMeaning(item.sync)}</span>
               <a
                 className="button"
                 href={`/replenishment-items/${item.item_id}`}
@@ -223,6 +234,11 @@ export function ItemDetails({
             pool：{item.stock_pool_key} · {item.quantity} 件
           </p>
           <Status value={item.state} />
+          <p>
+            {item.state === "open"
+              ? "内部项仍待跟进；仅当前有权身份可记录内部完成或关闭。"
+              : "内部项已进入终态；下一步核对原跟进记录和独立同步，不重新打开。"}
+          </p>
           <p>
             当前版本 v{item.version}；内部跟进完成不等于采购、入库或库存修改。
           </p>
@@ -322,8 +338,10 @@ function ResolveDialog({
     [discard, setDiscard] = useState(false);
   const [problem, setProblem] = useState(""),
     [phase, setPhase] = useState<
-      "draft" | "ready" | "pending" | "unknown" | "settled"
+      "draft" | "ready" | "pending" | "unknown" | "settled" | "failed"
     >("draft");
+  const [readAttempted, setReadAttempted] = useState(false);
+  const [attemptedWrite, setAttemptedWrite] = useState(false);
   const [prepared, setPrepared] = useState<{
     before: DTO["ItemRead"];
     input: DTO["ResolveInput"];
@@ -333,7 +351,8 @@ function ResolveDialog({
   const alive = useRef(true),
     busy = useRef(false),
     original = useRef<DTO["ResolveReceipt"] | undefined>(undefined),
-    sendButton = useRef<HTMLButtonElement>(null);
+    sendButton = useRef<HTMLButtonElement>(null),
+    resultLink = useRef<HTMLAnchorElement>(null);
   useEffect(
     () => () => {
       alive.current = false;
@@ -343,6 +362,9 @@ function ResolveDialog({
   useEffect(() => {
     if (prepared) sendButton.current?.focus();
   }, [prepared]);
+  useEffect(() => {
+    if (receipt) resultLink.current?.focus();
+  }, [receipt]);
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -358,7 +380,7 @@ function ResolveDialog({
       setProblem("请先核实原回执，关闭会丢失内存原请求；不表示撤销操作。");
       return;
     }
-    if (phase === "settled" || reason.length === 0) {
+    if (phase === "settled" || phase === "failed" || reason.length === 0) {
       close();
       return;
     }
@@ -427,8 +449,15 @@ function ResolveDialog({
     }
   }
   async function send() {
-    if (!prepared || busy.current) return;
+    if (
+      !prepared ||
+      busy.current ||
+      phase === "failed" ||
+      (phase === "unknown" && !readAttempted)
+    )
+      return;
     busy.current = true;
+    setAttemptedWrite(true);
     setPhase("pending");
     setProblem("");
     try {
@@ -439,7 +468,7 @@ function ResolveDialog({
         setPhase(
           !(error instanceof P3Failure) || error.code === "WRITE_RESULT_UNKNOWN"
             ? "unknown"
-            : "ready",
+            : "failed",
         );
       }
     } finally {
@@ -449,6 +478,7 @@ function ResolveDialog({
   async function readOriginal() {
     if (!prepared || busy.current) return;
     busy.current = true;
+    setReadAttempted(true);
     try {
       const value = await client.requestReceipt(
         prepared.write.requestKey,
@@ -460,6 +490,12 @@ function ResolveDialog({
         value.receipt.operation !== "resolve"
       )
         throw new P3Failure("WRITE_RESULT_UNKNOWN");
+      if (phase === "failed") {
+        setProblem(
+          "已找到原键关联的已有回执；这不解除本次版本或终态冲突，请只读核对，不重提此请求。",
+        );
+        return;
+      }
       accept(value.receipt.result);
     } catch (error) {
       if (alive.current)
@@ -521,32 +557,54 @@ function ResolveDialog({
           </p>
           <p>仅本次原键/原字节，不自动提交、不换键、不发送相反动作。</p>
           <div className="actions">
-            <button
-              ref={sendButton}
-              data-control={action === "complete" ? "B07" : "B08"}
-              data-action="resolve-original"
-              disabled={phase === "pending"}
-              onClick={() => void send()}
-            >
-              {phase === "pending"
-                ? "正在核实"
-                : receipt || phase === "unknown"
-                  ? "显式同键重投原请求"
-                  : "明确提交本次内部项操作"}
-            </button>
-            <button
-              data-action="resolve-receipt"
-              disabled={phase === "pending"}
-              onClick={() => void readOriginal()}
-            >
-              读取原请求回执
-            </button>
+            {!attemptedWrite && !receipt && (
+              <button
+                ref={sendButton}
+                data-control={action === "complete" ? "B07" : "B08"}
+                data-action="resolve-original"
+                disabled={phase === "pending"}
+                onClick={() => void send()}
+              >
+                {phase === "pending" ? "正在提交" : "明确提交本次内部项操作"}
+              </button>
+            )}
+            {attemptedWrite && (
+              <button
+                className={phase === "unknown" ? "primary" : ""}
+                data-action="resolve-receipt"
+                disabled={phase === "pending"}
+                onClick={() => void readOriginal()}
+              >
+                读取原请求回执
+              </button>
+            )}
           </div>
+          {attemptedWrite && (
+            <details>
+              <summary>原请求技术详情与受控恢复</summary>
+              <p>成功回执不需要再次提交。未知先读取原回执；冲突不盲重提。</p>
+              <div className="actions">
+                <button
+                  data-control={action === "complete" ? "B07" : "B08"}
+                  data-action="resolve-original"
+                  disabled={
+                    phase === "pending" ||
+                    phase === "failed" ||
+                    (phase === "unknown" && !readAttempted)
+                  }
+                  onClick={() => void send()}
+                >
+                  显式同键重投原请求
+                </button>
+              </div>
+            </details>
+          )}
         </Card>
       )}
       {problem && (
         <Notice
           title={phase === "unknown" ? "内部项提交待核实" : "操作尚未完成"}
+          tone={phase === "unknown" ? "warning" : "danger"}
         >
           {problem}
         </Notice>
@@ -554,17 +612,34 @@ function ResolveDialog({
       {receipt && (
         <Notice title="内部跟进已记录">
           <p>
-            原 resolution：{receipt.resolution.resolution_id} · 原处理人{" "}
-            {receipt.resolution.resolved_by} · {receipt.resolution.resolved_at}
+            本次内部项操作已记录。工作项跟进与同步结果分别读取，不需要再次提交。
           </p>
-          <p>
-            state {receipt.item.state} · v{receipt.item.version} · duplicate{" "}
-            {String(receipt.duplicate)}
-          </p>
-          <p>
-            原语义 hash：{receipt.resolution.resolution_payload_hash}；同步{" "}
-            {label(receipt.item.sync.state)}。不表示采购或入库成功。
-          </p>
+          <a
+            ref={resultLink}
+            className="button primary"
+            href={`/replenishment-items/${receipt.item.item_id}`}
+          >
+            查看工作项结果与同步
+          </a>
+          <details>
+            <summary>原跟进回执技术详情</summary>
+            <p>
+              原 resolution：{receipt.resolution.resolution_id} · 原处理人{" "}
+              {receipt.resolution.resolved_by} ·{" "}
+              {receipt.resolution.resolved_at}
+            </p>
+            <p>
+              state {receipt.item.state} · v{receipt.item.version} · duplicate{" "}
+              {String(receipt.duplicate)}
+            </p>
+            <p>
+              原语义 hash：{receipt.resolution.resolution_payload_hash}；同步{" "}
+              {receipt.item.sync.state === "synced"
+                ? syncMeaning(receipt.item.sync)
+                : label(receipt.item.sync.state)}
+              。不表示采购或入库成功。
+            </p>
+          </details>
         </Notice>
       )}
       {discard && (

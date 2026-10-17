@@ -1,5 +1,15 @@
 # 分阶段路线图与外部配置
 
+最新A09导航（2026-10-12）：Root核A08 efcd/Core无P1P2/精确四CI38164348959 SUCCESS及422完整PG配对后释放原A/C功能合批。A唯一backend串行实现单原workflow跨Gateway可信恢复、N01 Web-only零业务写入preflight闭合DTO/API；原P3 22合同字节保留/N01第23操作，PRD-J01两原句缺LRS澄清、不截断或猜参，C独占本地确认/fresh原CreateNewCycle与UX4，B/C产品0差。作者新恢复6+原回归15=21PG及N01完整13PG通过，首5恢复fail及N0111/13pass两夹具fail/无children hashfalse完整保留；真实SDK/Factory/Secret/provider0/自有资源已停保卷。PG-only/ASGI不冒正式SDK/真人/全BC02/M1；完整检查1531offline/441deselected/93.00s exit0，冻结独审/新精确CI待。原main9d97/Issues39–42 Open/P4 in_progress，D1/D30/300h/P4 50h/H-L not_reported/18页不变；A09实际19:03:09Z→01:03:09Z≤6h，仅offline新PG/同源三，不续A08旧20:37:16Z SDK诊断。详见[PHASE4_A09](PHASE4_A09.md)及[STATUS48](STATUS.md#48-a09跨gateway原workflow与n01-web-preflight候选)；下方旧HOLD/pending是历史。
+
+最新A08共同准入P1（2026-10-12）：Root Core在已push cdbc发现T1未绑定当前App/Tenant/白名单及原identity/requester；原全库scope修复有效，后续SDK/N01仍HOLD。原A共同准入最小fix/p2p-group必要PG正验证，不改B/C/迁移/文法/CI；新freeze/独审/CI待。原38163010570 cancelled及pg-pair artifact失败/union skipped分层保留，主控不降低Gate、原夜间截止及50h300h不续。详见[当前A08](PHASE4_A08.md)，下方已跑旧证据不抵新P1。
+
+当前A08导航（2026-10-12）：main9d97/Phase4及M1 in_progress。Root source9a四CI38151837270/383PG/三Web13hash回执与新发现scope P1分别记账，P1未独审解决前SDK关闭。A08有限group20=73/known70原14/原键outbox-only=11与T1+真实source白名单候选见[详细证据](PHASE4_A08.md)、[合同](contracts/p4-a08-recovery.md)和[STATUS47](STATUS.md#47-a08有限业务原键恢复与scope-p1候选)。配置CAS#6111090153、第二live#6111191331的queued T1/Worker0/SDK0/旧Gatewayreap not_verified不改写；原binder仅Root获真人“已发”后一次。完整跨窗workflow/实际SDK/真人/M1仍pending，必要Gate不缩减；本段四小时硬截止/原50h300h/人时未知/18页与B/C/旧风险资源保持。下方旧导航为历史，不预填新冻结SHA/独审/CI/main/Issues关闭。
+
+当前Phase4导航（2026-10-11）：Phase4/M1继续in_progress，main基线9d97c19009d932036809ac3e2638bb68f4b7f765/四CI38093693335 SUCCESS/P3 Issues33–35 CLOSED保持。Root已核read-source06cd2af59c338272ad5a0d117da9f8d7cef62094的四CI38120338660全SUCCESS，完整PG union236+139=375（不等后续source43 CI），权威Issue39#6106924247；source43c40bb955a1ce4ef07704173759983eb8c8f4f5/tree25dde89c392b82b71060b05812f38807fb9bbcf2原Core无P1/P2，A06实际PG1通过。M1实际owned Compose/known Q70/T6/10组持久hash恢复通过，C known只读/20拒绝零项/20完成+单T6通过；第4cycle needs_reapproval/v1已批v2待批/零执行，整体AC08未通过，不补批准或降低版本绑定。最终4workflow/2execution/21items/2070内部units，SDK/platform/provider0；本项目stop/down no-v/资源0/保卷。细节与失败分层见STATUS45及PHASE4_ACCEPTANCE，Issue40#6107403734/#6107433806；source43新精确CI、正式Base/Card/Feishu/human/M1/Phase4结案仍pending。A独占共享后端/锁/CI/Compose/阶段文档，B Base三模块与C frontend/npm/UX原owner不变。UX8项及N01仅Issue42#6107359838待授权排期；Web现结构化，PRD+冻结M02自然语言BC02差异待合同核对，不宣称已实现、不擅移M2或改Gate。D1=10-10/D30=11-08/300h/P4 D13–17/50h估计与人工H/L not_reported、18页冻结、旧失败/unknown/Issue23风险及原资源保持；无Phase5/Woo/生产/扩权/新成员/新paid/强推/破坏清理。下方旧pending与未授权保持历史，不覆盖本导航。
+
+历史Phase4首导航（2026-10-11）：用户已直接授权Phase4/M1持续开发，阶段#39/A#40/B#41/交付#42；本批仅离线与全新自有PG，无旧secret/env/DB读取、无SDK真实认证/长连接/平台读写/provider调用。已核main基线9d97c19009d932036809ac3e2638bb68f4b7f765、同SHA四CI38093693335 SUCCESS、P3 Issues33–35 CLOSED，权威结案[Issue33#6103315682](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)。A唯一共享合同/迁移/业务/outbox/Worker/Graph/锁/CI/Compose/阶段文档owner，B新模块按Issue41独占；[p4-v1候选](contracts/p4-v1.md)共享d039已由Root独审冻结，主体/真实平台门槛另核，当前P4正式平台Gate not_run，主体离线/PG候选见STATUS44，M1未验收。D1=10-10/D30=11-08/300h、P4固定D13–17/50h=A18+B14+交付8+审核集成10估计分配不重置，人工H/L not_reported。旧P3历史失败、Issue23风险、1057offline/337PG/24Web与资源/设计保留；无Phase5/Woo/生产/扩权/新成员/新增paid/强推/破坏清理。下方旧未授权/pending是历史。
+
 当前阶段导航（2026-10-11）：Phase3业务Gate已验收通过，d7独审及合前四CI38089663824 SUCCESS；代码已正常合PR37，已核main代码基线ecbc83f370d7fef87d96fc74549dc13c6f84be9f/tree9d245与同SHA四CI38090933423全SUCCESS，[Root回执](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6102921562)。当前仅四文档收口，独审/最终文档CI/Issue33/34/35关闭由Root结案receipt另记，Issues仍Open；不因此进入Phase4或宣称M1整体通过。证据见[当前验收表](PHASE3_ACCEPTANCE.md#当前业务gate与main回执)/[STATUS43](STATUS.md#43-phase3业务gate与代码main已核)。D1=2026-10-10/D30=2026-11-08、Phase3原D7–D12/60h（A32/B18/Review10）计原300h，日期/预算不重置；Agent墙钟、机器运行/等待分开，人工H/L not_reported、不伪造剩余小时。原目标/Gate与历史失败/风险/设计/平台边界保留。
 
 历史A05两修复集成导航（2026-10-11）：Root已核A精确087恢复测试/Core无P1P2+独立19PG94.91s/19pure0.89与B精确849 Linux only-owned/Web无P1P2+27contract/Linux ARM8/22.1s；原CI972双job失败、partial28actual27pass/73not_run、旧236/G1G2cleanup0成功及unknown assertion trace全部保留。原Core外层zsh reserved status wrapper1不冒称整wrapper0；B两次SWC准备环境0test失败及随后公开registry锁定npm准备/断网ARM8成功分记，Root停止回执核对另行记账。A已普通merge两精确fix无冲突，backend/锁/sharedCI原195行不改；新x64四CI/修复后real24/main/postmainCI/Issue33仍pending，阶段in_progress。详见[两修复集成](PHASE3_A05_TWO_FIXES.md)及[STATUS42](STATUS.md#42-a05-两项修复独审核收与正常集成候选)。下方原候选/失败/当时待核按历史保留。
@@ -104,3 +114,19 @@ M1/M2 继续单 Worker、全局单 Graph，M3 默认沿用；API 审批并发仍
 M1/M2/M3 范围及估算作为当前设计基线，Phase 1 探针后重估。后续业务确认事项：实际店铺是否允许未知在途按 0 估算的专用批准动作（若不允许，该类计划全部阻止执行）；真实 L/R/S、在途来源、是否要求职责分离；完成/关闭是否沿用同店铺 approver 权限；模型服务与预算。文档默认值不代表真实业务授权。实际采购/库存写入仍属于新的重大范围与权限评审。
 
 **Phase 0 已归档；Phase 1 托管执行中，P1-01 已完成，P1-02 已内部集成并验收 G1。后继任务按已审核/验证的集成依赖推进，全部必要 Gate、独立审查与实际 CI 通过后由主控确认最终合入 main；下一 Phase 仍须新授权。真实平台探针仅在具备指定测试资源与有效配置后执行。**
+
+## Phase4当前剩余门槛（2026-10-11实际部分收口）
+
+read-source06cd精确四CI与375PG已由Root核通过，source43的A06现场PG1及owned Compose的known/API/T6/持久恢复提供部分新证据；当前AC08仍未通过，第4cycle needs_reapproval/v2未明确批准、零执行，不改变原版本绑定重批Gate。下一步由Root原owner有界核场景/合同及精确source独审/CI，再开展明确资源包下RO preflight、正式Feishu/Base/Card与真人证据；不把Fake投影23verified当remoteACK或整M1完成。细节见STATUS45/PHASE4_ACCEPTANCE。
+
+UX8项及N01只见Issue42#6107359838待用户授权排期；当前Web结构化与PRD+冻结M02自然语言BC02差异待合同核对，不直接改产品、声称已实现、移至M2或减Gate。Phase4在原300h内的D13–17/50h估计与日期保持，人工H/L未报告；Phase5/Woo/生产/新paid/扩权仍未授权。
+
+
+## A07当前后继门槛（2026-10-11）
+
+原3a15四CI38128391205与完整376PG、原v2 backend completed的新1execution1itemQ70已由Root核定；旧C补证仍分层。Root获用户明确授权同Base建正式P4表后，654只读官方preflight当前唯一表/15字段类型通过，auth/bot/table/field四次HTTP200/code0，记录/IM/WS/provider0/完整生命周期与资源释放0，既有失败与原426失因未知不删除。该资源Gate不签正式业务外写、真人或全M1。
+
+Root已派原A唯一owner继续正式单Worker真实SDK/账本/IM/B适配器/原delivery装配离线实施；当前WIP尚未冻结，定向58pure通过，新必要PG2+原2共4实际通过/20:21:17资源0，实际PG/独审/精确新CI后才安排明确真人pilot窗口。pilot需在SDK窗口包含当前metadata检查的真实方法cap，不以早期10次不完整候选预算自动启动；群20/双渠道/负例/新周期/重复/WSwire仍保原门槛。C只读独占PG预约由Root监督，A不并起资源。UX8/N01待授权未实施，阶段/日期/预算/人工工时/设计与所有历史风险和卷保持。
+
+
+A07配额P1修复候选（2026-10-11）：Root原Core对5fd发现首包IM/Base仅下限、可接受500次，真人/SDK pilot已暂停。原A仅ControlledWorkerWindow加精确八方法名单/上限auth1bot1/table2/field2/IM2/create1/update1/list4，总≤14；原必要下限与Gateway active/Worker不晚于原expiry保持，通用SDKWindow/B/C/权限迁移锁CI不改。20新增回归、相关86pure/新隔离相关4PG实际通过，20:44:23资源0/低权false/temp0/保卷，原独审P1待精确复审核定，跨窗口恢复Gate not_run。首known70操作接续与disabled配置见PHASE4_A07_WORKER，不启动真实服务。5fd与所有旧失败/证据保留。

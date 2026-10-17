@@ -19,9 +19,9 @@ def main() -> None:
         ("Python lint", ["ruff", "check", "."]),
         ("Python format", ["ruff", "format", "--check", "."]),
         ("Python typecheck", ["mypy"]),
-        ("离线技术 smoke 与合成阻断", [sys.executable, "-m", "pytest", "-m", "offline"]),
         ("Node 锁文件安装", ["npm", "--prefix", "frontend", "ci", "--ignore-scripts"]),
         ("Node 工具链校验", ["npm", "--prefix", "frontend", "run", "check:toolchain"]),
+        ("离线技术 smoke 与合成阻断", [sys.executable, "-m", "pytest", "-m", "offline"]),
         ("Frontend tooling typecheck", ["npm", "--prefix", "frontend", "run", "typecheck"]),
         (
             "Frontend tooling 漏洞查询",

@@ -14,10 +14,11 @@ from commerceops.application.commerce.analysis_task import InventoryTaskRequest
 from commerceops.application.replenishment.contracts import (
     TASK_KIND,
     WORKFLOW_VERSION,
+    Actor,
     CreateFromReport,
     CreateInput,
     CreateNewCycle,
-    WebActor,
+    FeishuActor,
     WebFailure,
 )
 from commerceops.application.replenishment.planning import PlanRejected, freeze_plan
@@ -60,7 +61,7 @@ def parameters_of(row: dict[str, Any]) -> dict[str, Any]:
     return request.model_dump(mode="json", exclude={"schema_version"})
 
 
-def has_capability(db: DB, actor: WebActor, role: str) -> bool:
+def has_capability(db: DB, actor: Actor, role: str) -> bool:
     principal = actor_guard(db, actor)
     if role not in principal["roles"]:
         return False
@@ -74,7 +75,7 @@ def has_capability(db: DB, actor: WebActor, role: str) -> bool:
     return row is not None
 
 
-def visible_task(db: DB, actor: WebActor, task_id: UUID) -> dict[str, Any]:
+def visible_task(db: DB, actor: Actor, task_id: UUID) -> dict[str, Any]:
     actor_guard(db, actor)
     task = db.execute(
         "SELECT * FROM business.business_tasks WHERE id=%s AND organization_id=%s",
@@ -105,179 +106,193 @@ class ReplenishmentStore:
         self.fixture_directory = fixture_directory
 
     def create(
-        self, actor: WebActor, request: CreateInput, hook: Callable[[str], None] | None = None
+        self, actor: Actor, request: CreateInput, hook: Callable[[str], None] | None = None
+    ) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            receipt = self.create_in_transaction(db, actor, request, hook=hook)
+        if hook:
+            hook("after_commit")
+        return receipt
+
+    def create_in_transaction(
+        self,
+        db: DB,
+        actor: Actor,
+        request: CreateInput,
+        *,
+        hook: Callable[[str], None] | None = None,
     ) -> dict[str, Any]:
         payload = request.model_dump(mode="json", exclude={"request_key"})
         request_hash = facts_hash({"path": "/api/v1/tasks", "body": payload})
-        with connect(self.settings) as db:
-            db.execute(
-                "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",
-                (f"web:create_task:{actor.principal_id}:{request.request_key}",),
+        db.execute(
+            "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",
+            (f"web:create_task:{actor.principal_id}:{request.request_key}",),
+        )
+        actor_guard(db, actor)
+        old = db.execute(
+            """SELECT * FROM business.web_requests
+        WHERE principal_id=%s AND operation='create_task' AND request_key=%s""",
+            (actor.principal_id, request.request_key),
+        ).fetchone()
+        if old:
+            visible_task(db, actor, old["task_id"])
+            if old["request_hash"] != request_hash:
+                raise WebFailure("IDEMPOTENCY_CONFLICT")
+            return envelope(
+                db,
+                **{
+                    k: v
+                    for k, v in old["result"].items()
+                    if k
+                    not in (
+                        "schema_version",
+                        "identity_mode",
+                        "server_time",
+                        "trace_id",
+                        "duplicate",
+                    )
+                },
+                duplicate=True,
             )
-            actor_guard(db, actor)
-            old = db.execute(
-                """SELECT * FROM business.web_requests
-            WHERE principal_id=%s AND operation='create_task' AND request_key=%s""",
-                (actor.principal_id, request.request_key),
+        if not has_capability(db, actor, "operator"):
+            raise WebFailure("ACCESS_DENIED", 403)
+        if isinstance(request, CreateFromReport):
+            source_task = db.execute(
+                """SELECT * FROM business.business_tasks WHERE id=%s
+            AND organization_id=%s AND requester_id=%s AND kind='inventory_analysis_only'
+            AND workflow_version='p203-inventory-analysis-v1'""",
+                (request.source_task_id, actor.organization_id, actor.principal_id),
             ).fetchone()
-            if old:
-                visible_task(db, actor, old["task_id"])
-                if old["request_hash"] != request_hash:
-                    raise WebFailure("IDEMPOTENCY_CONFLICT")
-                return envelope(
-                    db,
-                    **{
-                        k: v
-                        for k, v in old["result"].items()
-                        if k
-                        not in (
-                            "schema_version",
-                            "identity_mode",
-                            "server_time",
-                            "trace_id",
-                            "duplicate",
-                        )
-                    },
-                    duplicate=True,
-                )
-            if not has_capability(db, actor, "operator"):
-                raise WebFailure("ACCESS_DENIED", 403)
-            if isinstance(request, CreateFromReport):
-                source_task = db.execute(
-                    """SELECT * FROM business.business_tasks WHERE id=%s
-                AND organization_id=%s AND requester_id=%s AND kind='inventory_analysis_only'
-                AND workflow_version='p203-inventory-analysis-v1'""",
-                    (request.source_task_id, actor.organization_id, actor.principal_id),
-                ).fetchone()
-                if not source_task or not role_scope(db, actor, source_task["shop_id"], "operator"):
-                    raise WebFailure("RESOURCE_NOT_FOUND", 404)
-                shop = source_task["shop_id"]
-                source_id = request.source_task_id
-                source = db.execute(SOURCE_SQL, (source_id, actor.organization_id, shop)).fetchone()
-                if source is None or source["source_state"] != "completed":
-                    raise WebFailure("NOT_READY")
-                if (source["id"], source["snapshot_id"], source["facts_hash"]) != (
-                    request.source_report_id,
-                    request.snapshot_id,
-                    request.facts_hash,
-                ):
-                    raise WebFailure("PLAN_CHANGED")
-                _stored(source, source["normalized_request"])
-                params = parameters_of(source)
-            else:
-                shop, source_id = request.shop_id, uuid4()
-                if not role_scope(db, actor, shop, "operator"):
-                    raise WebFailure("RESOURCE_NOT_FOUND", 404)
-                params = request.parameters.model_dump(mode="json")
-                try:
-                    Fixture.load(self.fixture_directory, request.parameters.fixture_case)
-                except (ValueError, KeyError, OSError):
-                    raise WebFailure("INVALID_REQUEST", 422) from None
-                source = None
-            target = db.execute(
-                """SELECT * FROM business.shops WHERE id=%s AND organization_id=%s
-            AND adapter_kind='mock' AND environment IN ('mock','test')""",
-                (shop, actor.organization_id),
-            ).fetchone()
-            if not target:
+            if not source_task or not role_scope(db, actor, source_task["shop_id"], "operator"):
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            conversation = self._conversation(db, actor)
-            if source is None:
-                if not isinstance(request, CreateNewCycle):
-                    raise WebFailure("SERVICE_UNAVAILABLE", 503)
-                self._task(
-                    db,
-                    actor,
-                    shop,
-                    conversation,
-                    source_id,
-                    "inventory_analysis_only",
-                    "p203-inventory-analysis-v1",
-                    request.parameters.analysis_request().model_dump(mode="json"),
-                )
-                TaskRepository(db, TaskScope(actor.organization_id, shop)).enqueue(
-                    source_id, "analyze", f"analysis:{source_id}", f"task:{source_id}"
-                )
-            task_id = uuid4()
+            shop = source_task["shop_id"]
+            source_id = request.source_task_id
+            source = db.execute(SOURCE_SQL, (source_id, actor.organization_id, shop)).fetchone()
+            if source is None or source["source_state"] != "completed":
+                raise WebFailure("NOT_READY")
+            if (source["id"], source["snapshot_id"], source["facts_hash"]) != (
+                request.source_report_id,
+                request.snapshot_id,
+                request.facts_hash,
+            ):
+                raise WebFailure("PLAN_CHANGED")
+            _stored(source, source["normalized_request"])
+            params = parameters_of(source)
+        else:
+            shop, source_id = request.shop_id, uuid4()
+            if not role_scope(db, actor, shop, "operator"):
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            params = request.parameters.model_dump(mode="json")
+            try:
+                Fixture.load(self.fixture_directory, request.parameters.fixture_case)
+            except (ValueError, KeyError, OSError):
+                raise WebFailure("INVALID_REQUEST", 422) from None
+            source = None
+        target = db.execute(
+            """SELECT * FROM business.shops WHERE id=%s AND organization_id=%s
+        AND adapter_kind='mock' AND environment IN ('mock','test')""",
+            (shop, actor.organization_id),
+        ).fetchone()
+        if not target:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        conversation = self._conversation(db, actor)
+        if source is None:
+            if not isinstance(request, CreateNewCycle):
+                raise WebFailure("SERVICE_UNAVAILABLE", 503)
             self._task(
                 db,
                 actor,
                 shop,
                 conversation,
-                task_id,
-                TASK_KIND,
-                WORKFLOW_VERSION,
-                {
-                    "schema_version": "p3-web-v1",
-                    "mode": request.mode,
-                    "identity_id": str(actor.identity_id),
-                    "request": payload,
-                },
-            )
-            db.execute(
-                """INSERT INTO business.p3_task_sources
-            (organization_id,shop_id,task_id,source_task_id,source_report_id,snapshot_id,
-            facts_hash,mode,parameters,config_version) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    actor.organization_id,
-                    shop,
-                    task_id,
-                    source_id,
-                    source["id"] if source else None,
-                    source["snapshot_id"] if source else None,
-                    source["facts_hash"] if source else None,
-                    request.mode,
-                    Jsonb(params),
-                    self.config.config_version,
-                ),
+                source_id,
+                "inventory_analysis_only",
+                "p203-inventory-analysis-v1",
+                request.parameters.analysis_request().model_dump(mode="json"),
             )
             TaskRepository(db, TaskScope(actor.organization_id, shop)).enqueue(
-                task_id, "analyze", f"p3:{task_id}", f"task:{task_id}"
+                source_id, "analyze", f"analysis:{source_id}", f"task:{source_id}"
             )
-            self._audit(db, actor.organization_id, task_id, actor.principal_id, "workflow_created")
-            receipt = envelope(
-                db,
-                request_key=request.request_key,
-                task_id=task_id,
-                source_task_id=source_id,
-                state="queued",
-                duplicate=False,
-            )
-            # datetime/UUID统一JSON，原回执不含Cookie/CSRF/nonce。
-            from commerceops.domain.commerce_values import canonical_bytes
+        task_id = uuid4()
+        self._task(
+            db,
+            actor,
+            shop,
+            conversation,
+            task_id,
+            TASK_KIND,
+            WORKFLOW_VERSION,
+            {
+                "schema_version": "p3-web-v1",
+                "mode": request.mode,
+                "identity_id": str(actor.identity_id),
+                "request": payload,
+            },
+        )
+        db.execute(
+            """INSERT INTO business.p3_task_sources
+        (organization_id,shop_id,task_id,source_task_id,source_report_id,snapshot_id,
+        facts_hash,mode,parameters,config_version) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (
+                actor.organization_id,
+                shop,
+                task_id,
+                source_id,
+                source["id"] if source else None,
+                source["snapshot_id"] if source else None,
+                source["facts_hash"] if source else None,
+                request.mode,
+                Jsonb(params),
+                self.config.config_version,
+            ),
+        )
+        TaskRepository(db, TaskScope(actor.organization_id, shop)).enqueue(
+            task_id, "analyze", f"p3:{task_id}", f"task:{task_id}"
+        )
+        self._audit(db, actor.organization_id, task_id, actor.principal_id, "workflow_created")
+        receipt = envelope(
+            db,
+            request_key=request.request_key,
+            task_id=task_id,
+            source_task_id=source_id,
+            state="queued",
+            duplicate=False,
+        )
+        # datetime/UUID统一JSON，原回执不含Cookie/CSRF/nonce。
+        from commerceops.domain.commerce_values import canonical_bytes
 
-            db.execute(
-                """INSERT INTO business.web_requests
-            (organization_id,principal_id,operation,request_key,request_hash,task_id,result)
-            VALUES (%s,%s,'create_task',%s,%s,%s,%s)""",
-                (
-                    actor.organization_id,
-                    actor.principal_id,
-                    request.request_key,
-                    request_hash,
-                    task_id,
-                    Jsonb(json.loads(canonical_bytes(receipt))),
-                ),
-            )
-            if hook:
-                hook("before_commit")
+        db.execute(
+            """INSERT INTO business.web_requests
+        (organization_id,principal_id,operation,request_key,request_hash,task_id,result)
+        VALUES (%s,%s,'create_task',%s,%s,%s,%s)""",
+            (
+                actor.organization_id,
+                actor.principal_id,
+                request.request_key,
+                request_hash,
+                task_id,
+                Jsonb(json.loads(canonical_bytes(receipt))),
+            ),
+        )
         if hook:
-            hook("after_commit")
+            hook("before_commit")
         return receipt
 
     @staticmethod
-    def _conversation(db: DB, actor: WebActor) -> UUID:
+    def _conversation(db: DB, actor: Actor) -> UUID:
         proposed = uuid4()
+        channel = "feishu" if isinstance(actor, FeishuActor) else "web"
+        chat = actor.chat_id if isinstance(actor, FeishuActor) else str(actor.principal_id)
+        topic = actor.topic_key if isinstance(actor, FeishuActor) else "p3"
         db.execute(
             """INSERT INTO business.conversations
-        (id,organization_id,channel,chat_id,actor_id,topic_key)
-        VALUES (%s,%s,'web',%s,%s,'p3') ON CONFLICT DO NOTHING""",
-            (proposed, actor.organization_id, str(actor.principal_id), actor.principal_id),
+            (id,organization_id,channel,chat_id,actor_id,topic_key)
+            VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING""",
+            (proposed, actor.organization_id, channel, chat, actor.principal_id, topic),
         )
         row = db.execute(
             """SELECT id FROM business.conversations WHERE organization_id=%s
-        AND channel='web' AND chat_id=%s AND actor_id=%s AND topic_key='p3'""",
-            (actor.organization_id, str(actor.principal_id), actor.principal_id),
+            AND channel=%s AND chat_id=%s AND actor_id=%s AND topic_key=%s""",
+            (actor.organization_id, channel, chat, actor.principal_id, topic),
         ).fetchone()
         if row is None:
             raise WebFailure("SERVICE_UNAVAILABLE", 503)
@@ -286,7 +301,7 @@ class ReplenishmentStore:
     @staticmethod
     def _task(
         db: DB,
-        actor: WebActor,
+        actor: Actor,
         shop: UUID,
         conversation: UUID,
         task: UUID,
@@ -356,6 +371,7 @@ class ApprovalStore:
             if not task:
                 raise AnalysisUnsafe("P3_TASK_OWNERSHIP_INVALID")
             if task["active_plan_id"]:
+                await self.verify_template_replay(db, task)
                 cur = await db.execute(
                     "SELECT id FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
                 )
@@ -368,6 +384,7 @@ class ApprovalStore:
                     "outcome": "awaiting_approval",
                 }
             if task["state"] == "completed":
+                await self.verify_template_replay(db, task)
                 return {"outcome": "no_action"}
             if task["state"] not in ("queued", "analyzing"):
                 raise AnalysisUnsafe("P3_STATE_INVALID")
@@ -424,6 +441,24 @@ class ApprovalStore:
                 raise AnalysisUnsafe("P3_SOURCE_BINDING_INVALID")
             if task["config_version"] != self.config.config_version:
                 raise PlanRejected("CONFIG_VERSION_UNSUPPORTED")
+            from commerceops.infrastructure.p3_template_results import TemplateBinding, freeze
+
+            await freeze(
+                db,
+                TemplateBinding(
+                    r.organization_id,
+                    r.shop_id,
+                    task["requester_id"],
+                    r.task_id,
+                    "p2_original",
+                    source["task_id"],
+                    None,
+                    source["snapshot_id"],
+                    source["id"],
+                    source["facts_hash"],
+                ),
+                persisted.report,
+            )
             cur = await db.execute("SELECT clock_timestamp() AS time")
             clock = await cur.fetchone()
             if not clock:
@@ -553,6 +588,42 @@ class ApprovalStore:
             "approval_id": str(approval_id),
             "outcome": "awaiting_approval",
         }
+
+    async def verify_template_replay(self, db: Any, task: dict[str, Any]) -> None:
+        """旧部署完成态缺缓存仍不回填；本版本已提交缓存重放必须完整验证。"""
+        cur = await db.execute(
+            """SELECT * FROM business.p3_template_results
+            WHERE p3_task_id=%s AND source_kind='p2_original'
+            AND template_version='p3-report-template-v1'""",
+            (task["id"],),
+        )
+        rows = await cur.fetchall()
+        if not rows:
+            return
+        cur = await db.execute(
+            SOURCE_SQL, (task["source_task_id"], task["organization_id"], task["shop_id"])
+        )
+        source = await cur.fetchone()
+        if source is None or len(rows) != 1 or source["requester_id"] != task["requester_id"]:
+            raise AnalysisUnsafe("P3_TEMPLATE_REPLAY_SOURCE_INVALID")
+        from commerceops.infrastructure.p3_template_results import TemplateBinding, verify_row
+
+        verify_row(
+            rows[0],
+            TemplateBinding(
+                task["organization_id"],
+                task["shop_id"],
+                task["requester_id"],
+                task["id"],
+                "p2_original",
+                source["task_id"],
+                None,
+                source["snapshot_id"],
+                source["id"],
+                source["facts_hash"],
+            ),
+            _stored(source, source["normalized_request"]).report,
+        )
 
     async def reject(self, r: RunRequest, code: str) -> None:
         await self.session.check()

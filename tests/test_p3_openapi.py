@@ -20,6 +20,17 @@ def test_registered_runtime_openapi_matches_approved_subset_without_pending_rout
     source = (ROOT / "docs/contracts/p3-openapi.json").read_bytes()
     assert files("commerceops.assets").joinpath("p3-web-v1.openapi.json").read_bytes() == source
     contract = json.loads(source)
+    n01_source = (ROOT / "docs/contracts/p4-n01-openapi.json").read_bytes()
+    assert (
+        files("commerceops.assets").joinpath("p4-n01-web-v1.openapi.json").read_bytes()
+        == n01_source
+    )
+    n01 = json.loads(n01_source)
+    assert sum(len(operations) for operations in contract["paths"].values()) == 22
+    assert set(n01["paths"]) == {"/api/v1/tasks/preflight"}
+    assert set(n01["paths"]["/api/v1/tasks/preflight"]) == {"post"}
+    contract["paths"].update(n01["paths"])
+    contract["components"]["schemas"].update(n01["components"]["schemas"])
     config = WebConfig(
         database=DatabaseSettings(
             host="127.0.0.1", name="offline", user="offline", password_file=Path("unused-offline")
@@ -35,8 +46,8 @@ def test_registered_runtime_openapi_matches_approved_subset_without_pending_rout
         for path, operations in schema["paths"].items()
         if path.startswith("/api/v1/")
     }
-    assert len(actual) == 21 and sum(len(operations) for operations in actual.values()) == 22
-    assert sum(len(operations) for operations in contract["paths"].values()) == 22
+    assert len(actual) == 22 and sum(len(operations) for operations in actual.values()) == 23
+    assert sum(len(operations) for operations in contract["paths"].values()) == 23
     for path, operations in actual.items():
         for method, operation in operations.items():
             expected = copy.deepcopy(contract["paths"][path][method])

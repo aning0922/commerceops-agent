@@ -19,7 +19,7 @@
     "test:web:install": "playwright install chromium",
     "test:contract": "playwright test --config playwright.contract.config.ts",
     "test:live": "playwright test --config playwright.live.config.ts",
-    "check:read-schema": "node tooling/sync-p3-read-schema.mjs --check"
+    "check:read-schema": "node tooling/sync-p3-read-schema.mjs --check && node tooling/sync-p4-n01-schema.mjs --check"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans-sc": "5.3.0",
