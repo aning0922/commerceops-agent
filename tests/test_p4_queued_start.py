@@ -5,6 +5,7 @@ import importlib
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
@@ -250,3 +251,204 @@ def test_owned_transport_frame_reaches_native_sdk_card_handler_and_ack(
                 await asyncio.gather(*tasks, return_exceptions=True)
 
     asyncio.run(run())
+
+
+def group_inputs() -> tuple[Any, Any]:
+    from commerceops.application.feishu_business.gateway_window import GatewayWindow
+    from commerceops.application.replenishment.contracts import Parameters
+
+    settings, _, _ = configured()
+    settings = settings.model_copy(
+        update={
+            "allowed_open_ids": frozenset({"offline-A", "offline-B"}),
+            "allowed_group_chat_ids": frozenset({"offline-group"}),
+        }
+    )
+    window = GatewayWindow(
+        schema_version="p4-gateway-v1",
+        window_id=uuid4(),
+        organization_id=settings.organization_id,
+        shop_id=settings.shop_id,
+        expires_at=datetime.now(UTC) + timedelta(seconds=240),
+        enabled=True,
+        max_workflows=1,
+        max_callbacks=14,
+        parameters=Parameters(
+            source_mode="mock",
+            dataset_version="inventory-v1",
+            fixture_case="baseline",
+            L=3,
+            R=7,
+            S=2,
+        ),
+    )
+    return settings, window
+
+
+@pytest.mark.parametrize("workflows", [0, 1])
+def test_explicit_group_parent_binds_exact_sources_config_window_and_child_argv(
+    workflows: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from commerceops.adapters.feishu import business_factory
+    from commerceops.entrypoints import feishu_business as parent
+    from commerceops.infrastructure.web_config import WebConfig
+
+    settings, window = group_inputs()
+    window = window.model_copy(update={"max_workflows": workflows})
+    bodies = {Path("config"): settings.model_dump_json(), Path("window"): window.model_dump_json()}
+    web_sha = "a" * 64
+    binding = parent.group_ready_binding(bodies[Path("config")], bodies[Path("window")], web_sha)
+    monkeypatch.setattr(business_factory, "private_value", lambda path: bodies[path])
+    monkeypatch.setattr(
+        WebConfig,
+        "from_file",
+        lambda *a, **kw: SimpleNamespace(database=SimpleNamespace(user="commerceops_app")),
+    )
+    captured = []
+
+    class AtSpawn(Exception):
+        pass
+
+    def spawn(argv: list[str], **kwargs: Any) -> None:
+        captured.append(argv)
+        raise AtSpawn
+
+    monkeypatch.setattr(parent.subprocess, "Popen", spawn)
+    with pytest.raises(AtSpawn):
+        parent.run_gateway(
+            Path("config"),
+            Path("window"),
+            group_ready=True,
+            web_config_sha256=web_sha,
+            group_binding_sha256=binding,
+        )
+    assert "--group-ready" in captured[0] and "--queued-ready" not in captured[0]
+    assert captured[0][captured[0].index("--group-binding-sha256") + 1] == binding
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "group",
+        "actors",
+        "f02",
+        "external",
+        "parameters",
+        "workflows",
+        "org",
+        "mixed_config",
+        "mixed_window",
+        "mixed_web",
+        "mixed_source",
+    ],
+)
+def test_group_ready_rejects_scope_or_binding_before_secret_or_database(
+    change: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from commerceops.entrypoints import feishu_gateway_child as child
+    from commerceops.entrypoints.feishu_business import group_ready_binding
+
+    settings, window = group_inputs()
+    web_sha = "a" * 64
+    old_config, old_window = settings.model_dump_json(), window.model_dump_json()
+    binding = group_ready_binding(old_config, old_window, web_sha)
+    if change == "group":
+        settings = settings.model_copy(update={"allowed_group_chat_ids": frozenset()})
+    elif change == "actors":
+        settings = settings.model_copy(update={"allowed_open_ids": frozenset({"A"})})
+    elif change == "f02":
+        settings = settings.model_copy(update={"f02_enabled": True})
+    elif change == "external":
+        settings = settings.model_copy(update={"external_sender_enabled": True})
+    elif change == "parameters":
+        window = window.model_copy(
+            update={"parameters": window.parameters.model_copy(update={"L": 4})}
+        )
+    elif change == "workflows":
+        window = window.model_copy(update={"max_workflows": 2})
+    elif change == "org":
+        window = window.model_copy(update={"organization_id": uuid4()})
+    elif change == "mixed_config":
+        settings = settings.model_copy(update={"app_id": "other-app"})
+    elif change == "mixed_window":
+        window = window.model_copy(update={"window_id": uuid4()})
+    elif change == "mixed_web":
+        web_sha = "b" * 64
+    else:
+        binding = "c" * 64
+    bodies = {Path("config"): settings.model_dump_json(), Path("window"): window.model_dump_json()}
+    monkeypatch.setattr(child, "private_value", lambda path: bodies[path])
+    monkeypatch.setattr(
+        child, "connect", lambda *a: pytest.fail("database before group validation")
+    )
+    monkeypatch.setattr(child.signal, "setitimer", lambda *a: None)
+    with pytest.raises((PermissionError, ValueError)):
+        child.serve(
+            Path("config"),
+            Path("window"),
+            group_ready=True,
+            web_config_sha256=web_sha,
+            group_binding_sha256=binding,
+        )
+
+
+@pytest.mark.parametrize("workflows", [0, 1])
+def test_group_ready_child_accepts_only_explicit_bound_option_before_native_claim(
+    workflows: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from commerceops.entrypoints import feishu_gateway_child as child
+    from commerceops.entrypoints.feishu_business import group_ready_binding
+
+    settings, window = group_inputs()
+    window = window.model_copy(update={"max_workflows": workflows})
+    bodies = {Path("config"): settings.model_dump_json(), Path("window"): window.model_dump_json()}
+    digest = group_ready_binding(bodies[Path("config")], bodies[Path("window")], "a" * 64)
+    monkeypatch.setattr(child, "private_value", lambda path: bodies[path])
+    monkeypatch.setattr(
+        child.WebConfig,
+        "from_file",
+        lambda *a, **kw: SimpleNamespace(database=SimpleNamespace(user="commerceops_app")),
+    )
+    monkeypatch.setattr(child.signal, "setitimer", lambda *a: None)
+
+    class AtClaim(Exception):
+        pass
+
+    def connect(*args: Any):
+        raise AtClaim
+
+    monkeypatch.setattr(child, "connect", connect)
+    with pytest.raises(AtClaim):
+        child.serve(
+            Path("config"),
+            Path("window"),
+            group_ready=True,
+            web_config_sha256="a" * 64,
+            group_binding_sha256=digest,
+        )
+    # The same group cannot enter the original known70 queued-ready branch.
+    with pytest.raises(PermissionError, match="P4_QUEUED_GATEWAY_SCOPE_REQUIRED"):
+        child.serve(Path("config"), Path("window"), queued_ready=True)
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        dict(group_ready=True),
+        dict(group_ready=True, queued_ready=True),
+        dict(group_binding_sha256="a" * 64),
+    ],
+)
+def test_group_option_incomplete_or_mixed_rejects_before_inputs(
+    options: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commerceops.entrypoints import feishu_gateway_child as child
+
+    monkeypatch.setattr(
+        child, "private_value", lambda *a: pytest.fail("input read before flag validation")
+    )
+    with pytest.raises(PermissionError, match="P4_GROUP_GATEWAY_BINDING_REQUIRED"):
+        child.serve(Path("config"), Path("window"), **options)

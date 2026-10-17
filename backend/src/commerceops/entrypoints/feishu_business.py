@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import signal
@@ -11,13 +12,53 @@ import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID
 
 from commerceops.adapters.feishu.business_config import verify_config
 
 if TYPE_CHECKING:
     from commerceops.infrastructure.web_config import WebConfig
+
+
+def group_ready_binding(config_body: str, window_body: str, web_config_sha256: str) -> str:
+    """Bind this explicit group transport option to exact inputs and both native entries."""
+    from commerceops.adapters.feishu.queued_gateway_ready import SDK_WS_SHA256
+
+    entry = Path(__file__)
+    value = {
+        "config": hashlib.sha256(config_body.encode()).hexdigest(),
+        "window": hashlib.sha256(window_body.encode()).hexdigest(),
+        "web_config": web_config_sha256,
+        "parent_source": hashlib.sha256(entry.read_bytes()).hexdigest(),
+        "child_source": hashlib.sha256(
+            entry.with_name("feishu_gateway_child.py").read_bytes()
+        ).hexdigest(),
+        "sdk_ws": SDK_WS_SHA256,
+    }
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def require_group_ready_scope(settings: Any, window: Any) -> None:
+    """Only the existing fixed group20 G1/G2; no expansion of old queued recovery."""
+    if (
+        (settings.organization_id, settings.shop_id) != (window.organization_id, window.shop_id)
+        or len(settings.allowed_group_chat_ids) != 1
+        or len(settings.allowed_open_ids) < 2
+        or settings.f02_enabled
+        or settings.external_sender_enabled
+        or window.max_workflows not in (0, 1)
+        or window.parameters.model_dump()
+        != dict(
+            source_mode="mock",
+            dataset_version="inventory-v1",
+            fixture_case="baseline",
+            L=3,
+            R=7,
+            S=2,
+        )
+    ):
+        raise PermissionError("P4_GROUP_GATEWAY_SCOPE_REQUIRED")
 
 
 def native_child_command(module: str, *, queued: bool = False) -> list[str]:
@@ -39,6 +80,8 @@ def run_gateway(
     *,
     web_config_sha256: str | None = None,
     queued_ready: bool = False,
+    group_ready: bool = False,
+    group_binding_sha256: str | None = None,
 ) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import private_value
@@ -46,19 +89,35 @@ def run_gateway(
     from commerceops.application.feishu_business.gateway_window import GatewayWindow
 
     restrict_sdk_logs()
+    if group_ready and (queued_ready or web_config_sha256 is None or group_binding_sha256 is None):
+        raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+    if group_binding_sha256 is not None and not group_ready:
+        raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
     if web_config_sha256 is not None and (
         type(web_config_sha256) is not str
         or len(web_config_sha256) != 64
         or any(c not in "0123456789abcdef" for c in web_config_sha256)
     ):
         raise PermissionError("P4_GATEWAY_WEB_BINDING_REQUIRED")
-    settings = BusinessSettings.model_validate_json(private_value(config))
-    window = GatewayWindow.model_validate_json(private_value(window_file))
+    config_body, window_body = private_value(config), private_value(window_file)
+    settings = BusinessSettings.model_validate_json(config_body)
+    window = GatewayWindow.model_validate_json(window_body)
     if not window.active() or (settings.organization_id, settings.shop_id) != (
         window.organization_id,
         window.shop_id,
     ):
         raise PermissionError("P4_GATEWAY_WINDOW_CLOSED")
+    group_flags: list[str] = []
+    if group_ready:
+        from commerceops.infrastructure.web_config import WebConfig
+
+        if web_config_sha256 is None or group_binding_sha256 is None:
+            raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+        require_group_ready_scope(settings, window)
+        if group_ready_binding(config_body, window_body, web_config_sha256) != group_binding_sha256:
+            raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+        WebConfig.from_file(settings.web_config_file, expected_sha256=web_config_sha256)
+        group_flags = ["--group-ready", "--group-binding-sha256", group_binding_sha256]
     remaining = (window.expires_at - datetime.now(UTC)).total_seconds()
     if remaining <= 10:
         raise PermissionError("P4_GATEWAY_STOP_RESERVE_REQUIRED")
@@ -74,6 +133,7 @@ def run_gateway(
             str(window_file),
             *(["--web-config-sha256", web_config_sha256] if web_config_sha256 is not None else []),
             *(["--queued-ready"] if queued_ready else []),
+            *group_flags,
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -396,6 +456,8 @@ def main() -> None:
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--web-config-sha256")
     parser.add_argument("--queued-ready", action="store_true")
+    parser.add_argument("--group-ready", action="store_true")
+    parser.add_argument("--group-binding-sha256")
     parser.add_argument(
         "--worker-mode", choices=("workflow", "f02_clarification", "read_reply"), default="workflow"
     )
@@ -405,6 +467,8 @@ def main() -> None:
             raise PermissionError("P4_GATEWAY_WEB_BINDING_REQUIRED")
         if args.queued_ready and args.action != "gateway":
             raise PermissionError("P4_QUEUED_GATEWAY_SCOPE_REQUIRED")
+        if (args.group_ready or args.group_binding_sha256 is not None) and args.action != "gateway":
+            raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
         if args.worker_mode != "workflow" and args.action != "worker":
             raise PermissionError("P4_CONTROLLED_WORKER_MODE_REQUIRED")
         if args.action == "verify-config":
@@ -415,12 +479,16 @@ def main() -> None:
             if args.action == "gateway":
                 result = (
                     run_gateway(args.config, args.window_file)
-                    if args.web_config_sha256 is None and not args.queued_ready
+                    if args.web_config_sha256 is None
+                    and not args.queued_ready
+                    and not args.group_ready
                     else run_gateway(
                         args.config,
                         args.window_file,
                         web_config_sha256=args.web_config_sha256,
                         queued_ready=args.queued_ready,
+                        group_ready=args.group_ready,
+                        group_binding_sha256=args.group_binding_sha256,
                     )
                 )
             elif args.action == "worker":

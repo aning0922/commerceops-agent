@@ -19,6 +19,7 @@ from commerceops.adapters.feishu.queued_gateway_ready import (
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.replenishment.contracts import WebFailure
+from commerceops.entrypoints.feishu_business import group_ready_binding, require_group_ready_scope
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_business import FeishuBusinessStore
 from commerceops.infrastructure.feishu_gateway_ready import gateway_transport_event
@@ -55,12 +56,26 @@ def serve(
     *,
     web_config_sha256: str | None = None,
     queued_ready: bool = False,
+    group_ready: bool = False,
+    group_binding_sha256: str | None = None,
 ) -> None:
     restrict_sdk_logs()  # 在读取任何秘密/构造SDK之前禁原文logger与传播。
-    settings = BusinessSettings.model_validate_json(private_value(config_file))
-    window = GatewayWindow.model_validate_json(private_value(window_file))
+    if group_ready and (queued_ready or web_config_sha256 is None or group_binding_sha256 is None):
+        raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+    if group_binding_sha256 is not None and not group_ready:
+        raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+    config_body, window_body = private_value(config_file), private_value(window_file)
+    settings = BusinessSettings.model_validate_json(config_body)
+    window = GatewayWindow.model_validate_json(window_body)
     if not window.active():
         raise PermissionError("P4_GATEWAY_WINDOW_CLOSED")
+    if group_ready:
+        if web_config_sha256 is None or group_binding_sha256 is None:
+            raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+        require_group_ready_scope(settings, window)
+        if group_ready_binding(config_body, window_body, web_config_sha256) != group_binding_sha256:
+            raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+        require_transport_shape()
     # 独立CLI误用也不能无限留socket；OS alarm只使结果未知，父进程仍必须wait/reap。
     signal.setitimer(signal.ITIMER_REAL, (window.expires_at - datetime.now(UTC)).total_seconds())
     web = (
@@ -104,7 +119,7 @@ def serve(
                 persist_ready=lambda: gateway_transport_event(web, window, lost=False),
                 persist_lost=lambda: gateway_transport_event(web, window, lost=True),
             )
-            if queued_ready
+            if queued_ready or group_ready
             else lark.ws.Client(
                 settings.app_id,
                 private_value(settings.app_secret_file),
@@ -122,6 +137,8 @@ def main() -> None:
     parser.add_argument("--window-file", required=True, type=Path)
     parser.add_argument("--web-config-sha256")
     parser.add_argument("--queued-ready", action="store_true")
+    parser.add_argument("--group-ready", action="store_true")
+    parser.add_argument("--group-binding-sha256")
     args = parser.parse_args()
     try:
         serve(
@@ -129,6 +146,8 @@ def main() -> None:
             args.window_file,
             web_config_sha256=args.web_config_sha256,
             queued_ready=args.queued_ready,
+            group_ready=args.group_ready,
+            group_binding_sha256=args.group_binding_sha256,
         )
     except Exception as error:
         raise SystemExit(f"P4 gateway child failed: {type(error).__name__}") from None
