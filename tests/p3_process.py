@@ -92,6 +92,15 @@ async def worker_main(config: WebConfig, value: dict[str, object]) -> None:
 
     payload = value["payload"]
     assert isinstance(payload, dict)
+    if payload.get("p4_template_unavailable") is True:
+        # 仅新owned历史准备：真实原Graph落unavailable，不伪造SQL/进程退出。
+        from commerceops.application.replenishment.template_result import TemplateRenderError
+        from commerceops.infrastructure import p3_template_results
+
+        async def unavailable(*args: Any, **kwargs: Any) -> Any:
+            raise TemplateRenderError("owned initial formatter unavailable")
+
+        p3_template_results.render = unavailable
     if payload.get("read_reply_stub") is True:
         # 原自有子进程/原 lease 的窄 Fake IM crash Gate；不创建 Graph 或业务 runner。
         from datetime import timedelta

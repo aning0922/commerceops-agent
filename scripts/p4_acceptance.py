@@ -20,7 +20,14 @@ from datetime import UTC, datetime, timedelta
 from importlib.resources.abc import ResourceReader
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
+
+if TYPE_CHECKING:
+    from uuid import UUID
+
+    from commerceops.adapters.feishu.business_config import BusinessSettings
+    from commerceops.application.feishu_business.gateway_window import GatewayWindow
+    from commerceops.application.feishu_business.read_reply import ReadReplyWindow
 
 CONTRACT = "p4-acceptance-preparation-v1"
 CP_DATA_TABLES = ("checkpoints", "checkpoint_blobs", "checkpoint_writes")
@@ -4601,6 +4608,92 @@ def original_ro_lab_history(request: Mapping[str, Any], binding: SourceBinding) 
         )
     finally:
         require(a.cleanup(), "P4A_LAB_HISTORY_CLEANUP")
+
+
+def read_reply_window_from_native(
+    db: Any,
+    settings: "BusinessSettings",
+    gateway: "GatewayWindow",
+    *,
+    task_id: "UUID",
+    kind: Literal["task_status", "explain_report"],
+    identity_id: "UUID",
+    chat_id: str,
+    text_sha256: str,
+    report_id: "UUID | None",
+    expires_at: datetime,
+) -> "ReadReplyWindow":
+    """只读精确选择本Gateway之后的新入站carrier；不扫pending、不授权/发送。"""
+    from uuid import NAMESPACE_URL, uuid5
+
+    from commerceops.application.feishu_business.read_reply import READ_REPLY_CAPS, ReadReplyWindow
+    from commerceops.infrastructure.feishu_gateway_window import guard_gateway
+
+    require(
+        gateway.active()
+        and (settings.organization_id, settings.shop_id)
+        == (gateway.organization_id, gateway.shop_id)
+        and re.fullmatch(r"[a-f0-9]{64}", text_sha256) is not None
+        and bool(chat_id)
+        and (kind == "explain_report") == (report_id is not None),
+        "P4A_READ_SELECTION_SCOPE",
+    )
+    role = db.execute("SELECT current_user::text AS role").fetchone()
+    require(role is not None and role["role"] == "commerceops_app", "P4A_READ_SELECTION_ROLE")
+    guard_gateway(db, gateway, False)
+    # 不按组织状态选任意pending，也不择最新；Root预绑定任务/种类/actor/chat/规范文本hash。
+    rows = db.execute(
+        """SELECT r.*,p.result AS inbound_receipt FROM business.p4_read_replies r
+        JOIN business.p4_inbox_receipts p ON p.inbox_id=r.inbox_id AND p.identity_id=r.identity_id
+        JOIN business.inbox_events e ON e.id=r.inbox_id AND e.organization_id=r.organization_id
+        JOIN business.audit_events g ON g.id=%s AND g.organization_id=r.organization_id
+        WHERE r.organization_id=%s AND r.shop_id=%s AND r.task_id=%s AND r.kind=%s
+        AND r.identity_id=%s AND r.chat_id=%s AND r.app_id=%s AND r.tenant_key=%s
+        AND r.open_id=ANY(%s) AND r.created_at>=g.occurred_at AND p.created_at>=g.occurred_at
+        AND e.source='feishu_business' AND e.app_id=r.app_id AND e.tenant_key=r.tenant_key
+        AND e.sanitized_payload->>'event_type'='p4.explicit_read'
+        AND e.sanitized_payload->>'text_sha256'=%s
+        AND (%s::uuid IS NULL OR r.report_id=%s) ORDER BY r.id LIMIT 2""",
+        (
+            gateway.window_id,
+            settings.organization_id,
+            settings.shop_id,
+            task_id,
+            kind,
+            identity_id,
+            chat_id,
+            settings.app_id,
+            settings.tenant_key,
+            list(settings.allowed_open_ids),
+            text_sha256,
+            report_id,
+            report_id,
+        ),
+    ).fetchall()
+    require(len(rows) == 1, "P4A_READ_SELECTION_UNIQUE")
+    row = rows[0]
+    receipt = row["inbound_receipt"]
+    require(
+        row["status"] == "pending"
+        and row["attempts"] == 0
+        and receipt.get("reply_id") == str(row["id"])
+        and receipt.get("reply_payload_hash") == row["payload_hash"]
+        and receipt.get("as_of") == row["payload"]["as_of"],
+        "P4A_READ_SELECTION_RECEIPT",
+    )
+    template = ReadReplyWindow(
+        schema_version="p4-read-reply-window-v1",
+        window_id=uuid5(NAMESPACE_URL, f"p4-read-sender:{gateway.window_id}:{row['id']}"),
+        organization_id=row["organization_id"],
+        shop_id=row["shop_id"],
+        reply_id=row["id"],
+        task_id=row["task_id"],
+        expires_at=expires_at,
+        method_caps={str(method): cap for method, cap in READ_REPLY_CAPS.items()},
+    )
+    # 只投影已有SDKWindow结构/时限校验；模板本身仍disabled，当前权限由原child锁内重核。
+    template.model_copy(update={"enabled": True}).window(settings)
+    return template
 
 
 def terminal_window_from_native(

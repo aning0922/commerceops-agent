@@ -1224,3 +1224,63 @@ stop/deadline重核。固定无值诊断与停写后完整SDK行导出见[完整
 Core源码/入口阅读与同候选owned outer并行，最后一次整包结论，不新增中间Gate。
 当前原库/Secret/真实SDK0访问，C产品/四consumer、迁移/grant/锁及main不改，A不push/触CI/
 改PR正文。未来真实PG<=600/SDK<=300/reserve>=180/arm余量>=480，必须另有Root具体UTC。
+
+## 67. 原记录v2已核收；M1父入口接续批
+
+2026-10-17，Asia/Shanghai。Root及独立只读Reviewer已正式核收同原记录v2：source0c908807/
+tree6cf9bdd2、私有e303，实际12:49:00–12:49:46。SDK7均returned/HTTP200/code0，auth1/
+bot1/table1/field1/list2/Update1，Create/IM/provider0；同record完整唯一v2 verified、attempts2、
+observed_version2。CLI/op/cleanup均0，原授权/dispatch once各1，旧SDK5失败账本及SPENT保持；
+原T6未重做。writers退出后、PG down前保存完整快照，独立17个PID均不存在，容器网络/挂载0、
+端口关闭、原卷保留。实际索引7c152952…f278、独审receipt5b52d786…22c，
+[Issue39核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6229884679) /
+[PR43回执](https://github.com/aning0922/commerceops-agent/pull/43#issuecomment-6229884891)。
+不变性仅原对象七类行，不称全库execution计数已采；raw wire未采。该链SDK9+5+7=21，
+不计其他独立探针，未用额度不转新业务。原恢复包A2.6–3.9h粗估/4.5h cap与全部历史独立保留。
+
+用户要求成功后继续M1，Root释放新功能批总cap7 Agent有效h：A5/Review1.25/Root0.5/Cdoc0.25，
+从原P4/300h内安排，不重置日期、原计划50h、H/L或18页；完整历史余量unknown，机器等待单列。
+原A/WTfd38/PR43接续，原库/凭据/AppSecret/真实SDK/IM/Base/provider重新HOLD，仅offline和
+全新owned环境。主体在原feishu_business父入口增加read_reply模式、复用ReadReplyWindow及
+子进程，并要求原sent/OS reap/真实termination后成功；旧workflow/F02 argv及业务行为保持。
+并在原验收helper增加READ ONLY精确selection：按预绑定Gateway/任务/kind/identity/chat/
+应用规范文本hash选唯一新入站，旧pending/0条/多条不选，生成已有disabled Window而不消费once。
+不改DTO/API、迁移/grant、Graph/审批/业务状态机、依赖锁或C产品/四consumer。
+
+C交付文档61d95f9已按Root授权普通cherry-pick；旧10月15日基线与C已核10月17日稿冲突经事实
+核对后接入，内容sha80fec08d…4ca1完全保持C原稿，本地接入5f56a8d，不合整个旧C分支。
+原main9d97与M1/P4 in_progress保持，新批最终source以冻结交接为准，不以旧530精确CI代签。
+
+新测试从实际生成的disabled window启用同一输入进入原最外CLI。原Factory/低权PG/lease/当前
+身份/asof/source/hash/once/SDKledger及stop/reap不替换，Fake只在新owned底层HTTP；F02的
+Gateway claim/process_started沿原helper和实际子进程，不手写替代审计。查询/解释各自carrier，
+ready与NOT_READY分开，不补旧cache、不调用模型。group20复用原Gate，最短顺序与当前矩阵见
+[PHASE4_ACCEPTANCE当前节](PHASE4_ACCEPTANCE.md#2026-10-17-当前矩阵)。
+
+开发首外置脚本import路径错误发生在0资源/0测试；首owned在collection唯一数仍残留旧12时停止，
+0测试，down0/资源0/保卷。修正后首read父链实际7pass1fail，NOT_READY首例child1/summary缺失/
+terminationfalse，旧进程在pytest父PID内初始化后仍活；精确child异常未采。该失败与清理0保留，
+未放宽准入。夹具改为独立P3进程真实落unavailable、stop/reap退出，再读取与发送，不伪造终止。
+修正后的开发组合10个新PG节点全通过：F02成功/unknown两例、0015/0016两种读取、0016
+NOT_READY/unknown/撤权/错task共八例。三组CLI54.015/52.550/27.296s，05:14:34Z
+down0/容器网络0/保卷；包含真实SIGTERM/stop/reap/termination、同carrier冷重放SDK增量0，
+完整实际命令、生成disabled输入及启用映射、原生CLI结果均在受保护索引。此为HTTP Fake技术
+证据，不签平台/真人；最终冻结源码的整链与受影响回归另核，不拼接旧7pass1fail。
+59项受影响既有PG全部通过，包括group20的11项、跨任务/CP隔离、双schema DDL/低权SQL、
+原parent真实终止、F02与read/template；05:21:00Z down0/资源0/保卷。首次完整检查在一个
+dummy文件名触发generic-api-key时停止，改为固定变量比较而不改规则/豁免，旧失败保留；
+随后完整scripts.check退出0/159.179s、2163offline/540integration排除，最后新增的只读
+selection数据流另作整链和最终检查，不以这次旧540代签新增节点。
+Root补充要求后，已将新Gateway原生入站→只读selection→disabled模板→同parent发送合为
+实测；新增多条候选时零window/SDK拒绝，原旧pending保持不变。11个新owned节点全pass，
+三组CLI56.209/59.263/33.241s，05:31:17Z down0/资源0/保卷；SDK/window/once/lifecycle
+完整PG事实在writers退出后导出。接收仍是simulated_feishu/no_WS，不签真实消息入站。
+最终本批检查、冻结独审及新精确CI以新的回执记录，不预填未来结果；
+真实F02/查询/群/负向、完整干净Compose与演示仍pending。
+
+最终源码完整scripts.check实际退出0/154.120s，含只读selection和PG证据导出；
+2163offline通过/541integration排除，lint/type/format/Markdown、Node/Python95依赖审计及
+dir/index/git敏感扫描均0。完整collect541=原530+新11，原530节点模块字节保持，
+372+169并集541/交集0，原25个合批计划完整覆盖一次；CI35/33/300、75reserve/60cleanup、
+G1/G2/Web/N01、锁/Compose/C四consumer未改。只追加本事实再作Markdown核，不冒称未来
+冻结复验/独审或新Hosted已通过；冻结后新11整链与精确SHA/命令/输入/结果/清理索引另交Root。

@@ -1,5 +1,84 @@
 # Phase4 / M1 分层验收（实施中）
 
+## 2026-10-17 当前矩阵
+
+以下以[Root本次实际核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6229884679)
+和[PR43回执](https://github.com/aning0922/commerceops-agent/pull/43#issuecomment-6229884891)为准；
+下方旧 NOT_RUN、HOLD 和待恢复描述保留为当时历史，不覆盖本次单记录成功。
+**P4/M1仍未完成，main仍为9d97c190；当前新功能批只用offline/Fake和全新owned PG。**
+
+| 能力 | 真实已核范围 | 当前技术准备与尚缺证据 |
+| --- | --- | --- |
+| 原私聊任务/审批/Base v1 | 原任务受理、一次原审批、原item/v1锚和只读恢复已核；旧SDK9/Create1及SPENT保留 | 本批不重新发送、登录、批准或创建；旧技术与失败回执继续引用 |
+| 原item T6/Base v2 | T6已COMMITTED且原key GET成功；10月17日12:49–12:49:46同record v2 verified/attempts2/observed_version2、完整唯一读回，SDK7/Update1/CreateIMprovider0 | CLI/op/cleanup均0、writers退出后采集/停PG/资源0/保卷；真实只读Web结果观察和整体M1交付仍待 |
+| F02澄清 | 真实平台/真人缺参→补参→确认→原T1未验 | 原实现复用；本批生成disabled输入、原parent f02_clarification、原生Gateway claim/单Worker/Factory/轮次/去重，仅HTTP Fake；完整候选结果以本批实际索引为准 |
+| 两种显式读取 | 真实进度/解释IM闭环未验；不把旧Web读取当飞书发送成功 | read_reply子进程已有；本批补父入口及原验收helper的精确只读selection，每个carrier独立cap3；ready和NOT_READY分列，不回填历史cache/不新增模型调用 |
+| group20/负向/恢复 | 真实群@、完整未知键联合确认/独立拒绝、20项Base及真人负向尚未验 | 复用现有20SKU×100=2000、单unknown完整集合、拒绝0项/成功20项、十重放/冲突与权限Gate；原同item恢复不外推20item未知恢复 |
+| 干净Compose/新周期/演示 | 旧AC08 partial/failed保留；真实单项成功不等于整套演示通过 | 新owned PG Compose只证明本次技术环境；最终空checkout统一入口、完整服务新周期/重启/回放/录屏仍待 |
+| 回归/独审/CI/main | source0c908807/tree6cf9bdd2、e303、CI38953939340五绿/530 PG已核 | 新父入口候选须受影响回归、完整检查、独审和Root释放的新精确CI；不自push/改PR正文/合main/关Issue |
+
+本次真实不变性仅原task/approval/item/关闭请求/item audit/outbox/link七类对象行；未采全库
+execution逐表计数。原始HTTP wire未采集，实际结论来自真实SDK严格读回及PG落账，
+不称网络exactly-once。历史失败SDK5/update0与此前SDK9/Create1保留，本链累计21次SDK，
+不包含其他独立探针；未用额度不转作新业务。交付地图见[原C单一owner稿](PHASE4_M1_DELIVERY.md)。
+
+### 下一有限真实批的最短顺序与范围
+
+1. F02先按一个已登记chat/request展示缺参编号、补齐参数、完整候选与明确确认；确认前零业务写，
+   确认后仅原T1的formal/source两Task及两jobs。通知Worker不调度这些jobs，不称native reply关联。
+2. group20先用独立拒绝计划证明0项，再在原open-pool约束允许时做独立成功计划，完整显示20行及
+   唯一unknown键并由合法approver联合确认。沿原任务/决定做十重放及相反人冲突；不为演示删项、
+   关项或绕pool，也不用单项recovery_of处理20item未知结果。
+3. 查询进度与解释分别在业务Worker已停止/reap后运行，各从原入站选定一个不可变carrier，
+   绑定当前task/version/asof/source/hash/权限。原单Worker lease不允许与group业务Worker并行。
+   解释优先读已有ready模板；NOT_READY单列，不生成新模型请求或回填历史。
+
+F02可否复用某个群任务，必须先满足同chat/原source/参数/轮次/当前角色的原合同；本批不把独立
+用例强串成已验证组合。group20原profile为同Gateway最多两任务，默认参数baseline/L3/R7/S2，
+SDK上限73=auth1+bot1+table2+field2+IM4+create20+update1+list42；这是上限，不是容量实测。
+F02为auth1+bot1+IM≤5，每个read carrier为auth1+bot1+IM1。实际App/tenant/群白名单、A/B当前
+角色映射、pool可用性与各窗口时间容量合并交Root准入；不沿用原记录恢复窗口或自动续窗。
+
+### 真实接收、选取和发送的数据流（待Root统一准入）
+
+以下是容量预案，**不是新UTC或平台授权**。普通Gateway的active期限与F02/普通业务Worker均
+最多300秒，不能靠刷新expiry、换Gateway或默认调度续跑。新owned无WS Gateway+合成MessageProbe
+证明的是原生claim/低权SQL/入站事务/发送父子链，**真实WS接收仍NOT_RUN**；预先已有carrier的
+PG用例不代签实时消息入口。实际接收使用原`feishu_business gateway --live`普通WS分支，不能
+用仅限其他合同的queued-ready或native_no_ws分支伪装F02/查询接收。
+
+| 段 | 既有入口与显式绑定 | 账本与通过条件 |
+| --- | --- | --- |
+| F02收发同段 | 先固定Gateway UUID/参数/App/tenant/chat/A身份，配置显式f02_enabled；Gateway真实claim后启动同Gateway的parent `worker --worker-mode f02_clarification --live` | Worker只轮询本Gateway原生reply_selected的首个request；收到缺参消息才创建Factory，回复带原编号；补参/完整确认沿原round。成功另核consumed、原T1两Task/两jobs，不以CLI0或一条澄清回复代签完整链 |
+| read接收 | 预绑定稳定task、读取kind、actor identity/chat、解释report与应用规范文本的facts_hash；Gateway max_workflows=0，用户只发送预定查询各一次 | 真消息经原Gateway/FeishuBusinessStore事务生成inbox/receipt和immutable carrier；WS连接/TLS或用户“已发”不能替代该PG事实 |
+| read只读选取 | 在本次Root许可内，以原helper `read_reply_window_from_native` 在commerceops_app的READ ONLY事务选取；匹配Gateway claim之后、预绑定task/kind/identity/chat/文本hash/report的新回执 | 0条或多于1条即HOLD，不扫描组织pending、不择最新；核原reply UUID/payload_hash/asof，生成仍disabled的ReadReplyWindow。旧pending不能被选为本次消息；只读准备重复不改window UUID/IM UUID，也不消费once |
+| read发送 | 保存生成模板/原回执/selection谓词及hash，停止接收Gateway并确认reap/termination；仅按原许可启用该window，顺序执行parent `worker --worker-mode read_reply --live` | 每carrier独立auth1/bot1/IM1；原child再核当前权限、source/asof/hash、pending/attempt0及lease，原IM UUID只发送一次。sent+child0+reap+真实termination才父成功；unknown/失败停，不换key重发 |
+
+可供Root裁定的单次read资源预算示例：PG总600秒，接收/只读selection截至T+180，关闭Gateway
+后两个sender共用固定T+300的SDK expiry并顺序发送，原parent保留15秒停止余量；最迟T+420
+进入清理，T+600硬停，reserve≥180。Root须在启用前核足够的停止Gateway/两个sender预算，
+否则不arm；不能因为已收到消息就挤占清理。每条auth/bot/IM各一次，原SDK单请求timeout10秒，
+纯请求最多约30秒加启动/SQL/退出开销，60–90秒/条是保守排程预算，不是平台实测响应保证。
+sender的绝对expiry在开窗前固定；不按消息到达时间续窗。接收未按时得到两条唯一新回执、剩余
+不足预留发送/清理预算、首个sender失败或unknown，则后续未跑明确记NOT_RUN。parent只接收已绑定
+window文件，不会自动发现carrier；selection/helper调用及实际UUID绑定是许可内明确步骤，须在
+Root最终命令/输入索引中给出。准备只读取配置JSON和PG，不读AppSecret；真正发送才经原child准入
+读取该窗口凭据。已完成旧T6的登录/审批/关闭不重做。
+
+F02建议固定300秒Gateway/SDK窗口，并在原外层资源截止前保留清理；真人须在开窗前就绪，原
+F02 parent先启动等待同Gateway选择，收到原入站后才认证/发回复。三轮通知在owned HTTP Fake
+只用auth1/bot1/IM3，正式上限仍IM≤5；实际WS就绪和真人三轮耗时尚未测，若未在固定期限完整
+确认，则记partial，不续窗补齐。F02/群任务只有在原来源合同满足时才能复用；不能假定F02、
+20项批准及查询都能挤入同一个300秒Gateway。群拒绝与群成功可分别用新Gateway接收各自合法
+新T1、绑定其原Worker窗口，先拒绝释放原pool再成功；若旧任务已受理但需要跨窗，另核已有
+approved_workflow等原恢复合同及Root新窗口，不能换Gateway硬套普通group20或借单item恢复。
+
+正式响应时间及20项网络容量均unknown。owned父子耗时只是Fake技术测量；Root须一次集中确认
+实际身份/白名单、稳定任务/cache及pool、接收截止/selection/发送/清理时间和总请求预算。
+普通Gateway的连接发现/认证/WS网络请求未纳入Worker业务SDK账本，数量未独立测得，不能写0、
+不能把业务cap3/7/73当全部平台流量上限；需要在实际许可中单列该原接收分支的固定连接窗口。
+本批不改SDK重连策略或声称已有真实WS-ready证明。
+
 验收工具run10补记（2026-10-15）：fadb新owned预演最外1，SOURCE/RESOURCE/SCHEMA/MATRIX/
 两case PREPARE/真实UI T6/native v2通过；RESTART因external_records误pin可变传输存储而
 hash拒绝，PAGE/COLLECT未运行，原输入不改。STOP/CLEANUP含四库inventory通过、容器网络0/

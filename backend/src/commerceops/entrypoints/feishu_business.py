@@ -226,12 +226,16 @@ async def confirm_worker_child(config: "WebConfig", organization: UUID, pid: int
 
 
 def run_worker(
-    config: Path, window_file: Path, *, mode: Literal["workflow", "f02_clarification"] = "workflow"
+    config: Path,
+    window_file: Path,
+    *,
+    mode: Literal["workflow", "f02_clarification", "read_reply"] = "workflow",
 ) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import private_value
     from commerceops.adapters.feishu.sdk import restrict_sdk_logs
     from commerceops.application.feishu_business.f02_window import F02WorkerWindow
+    from commerceops.application.feishu_business.read_reply import ReadReplyWindow
     from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
     from commerceops.infrastructure.web_config import WebConfig
 
@@ -239,9 +243,15 @@ def run_worker(
     if os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
         raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
     settings = BusinessSettings.model_validate_json(private_value(config))
-    if mode not in ("workflow", "f02_clarification"):
+    if mode not in ("workflow", "f02_clarification", "read_reply"):
         raise PermissionError("P4_CONTROLLED_WORKER_MODE_REQUIRED")
-    window_type = F02WorkerWindow if mode == "f02_clarification" else ControlledWorkerWindow
+    window_type = (
+        F02WorkerWindow
+        if mode == "f02_clarification"
+        else ReadReplyWindow
+        if mode == "read_reply"
+        else ControlledWorkerWindow
+    )
     window = window_type.model_validate_json(private_value(window_file))
     window.window(settings)
     child_command = native_child_command(
@@ -316,7 +326,9 @@ def run_worker(
         confirmed = False  # 缺原真实完整pair/OS证明时不替代人工终止合同。
     return {
         "result": "window_stopped"
-        if child.returncode == 0 and confirmed and summary.get("result") == "window_stopped"
+        if child.returncode == 0
+        and confirmed
+        and summary.get("result") == ("sent" if mode == "read_reply" else "window_stopped")
         else "failed",
         "child_exit": child.returncode,
         "child_reaped": child.poll() is not None,
@@ -385,7 +397,7 @@ def main() -> None:
     parser.add_argument("--web-config-sha256")
     parser.add_argument("--queued-ready", action="store_true")
     parser.add_argument(
-        "--worker-mode", choices=("workflow", "f02_clarification"), default="workflow"
+        "--worker-mode", choices=("workflow", "f02_clarification", "read_reply"), default="workflow"
     )
     args = parser.parse_args()
     try:
