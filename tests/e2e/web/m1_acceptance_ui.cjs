@@ -3,6 +3,7 @@
 process.umask(0o077);
 const fs = require("node:fs"), path = require("node:path"), crypto = require("node:crypto");
 const { execFileSync } = require("node:child_process");
+const { isDeepStrictEqual } = require("node:util");
 const digest = (b) => crypto.createHash("sha256").update(b).digest("hex");
 class Failure extends Error {
   constructor(code, dto = null, httpStatus = null) {
@@ -10,7 +11,7 @@ class Failure extends Error {
     this.http_status = Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null;
   }
 }
-const ensure = (ok, code) => { if (!ok) throw new Failure(code); };
+const ensure = (ok, code, dto = null, httpStatus = null) => { if (!ok) throw new Failure(code, dto, httpStatus); };
 const preparedInputInvalid = "PREPARED_INPUT_INVALID", originalRequired = "ORIGINAL_KEY_REQUIRED";
 const uuid = (v) => typeof v === "string" && /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(v);
 const hash = (v) => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
@@ -117,6 +118,162 @@ function inspectOriginalResolve(value, validate, key, itemId) {
   }
   return diagnostic;
 }
+const REAL_READONLY = "persisted_real_v2_readonly";
+function evidenceMode(input) {
+  const mode = input.evidence_mode === undefined ? "lab_mock" : input.evidence_mode;
+  ensure(["lab_mock", REAL_READONLY].includes(mode), "EVIDENCE_MODE_INVALID");
+  ensure(mode !== REAL_READONLY || (["page", "replay"].includes(input.stage) &&
+    input.case_kind === "recover_single_item" && input.item_count === 1 && uuid(input.request_key)),
+  "REAL_READONLY_SCOPE_INVALID");
+  ensure(mode !== REAL_READONLY || input.screenshot_name == null ||
+    input.screenshot_name === "page-persisted-v2-readonly.png", "REAL_SCREENSHOT_NAME_INVALID");
+  return mode;
+}
+// These are existing A artifacts, not caller-supplied expected action/reason/status.
+// Their hashes must be selected by the authorized outer owner. The browser cannot
+// independently attest which image serves a port; A retains live ownership checks.
+function readonlyBinding(input, human, base, handoff, manifest) {
+  const c = human.capture_context, r = human.receipt, p = base.projection;
+  ensure(c && r && p && human.business === "closed/v2" && human.human_reported_once === true &&
+    isDeepStrictEqual(human.request_key, input.request_key) &&
+    isDeepStrictEqual(c.request_key, input.request_key) &&
+    c.item_id === input.item_id && c.task_id === input.task_id &&
+    c.case_kind === input.case_kind && c.expected_item_count === input.item_count &&
+    c.expected_quantity_total === input.quantity_total &&
+    [c.organization_id, c.shop_id, c.principal_id, c.identity_id].every(uuid) &&
+    Number.isSafeInteger(c.auth_version) && c.auth_version > 0,
+  "REAL_ORIGINAL_CONTEXT_INVALID");
+  ensure(isDeepStrictEqual(r.request_key, input.request_key) && r.item?.item_id === input.item_id &&
+    r.item.shop_id === c.shop_id && r.item.state === "closed" && r.item.version === 2 &&
+    isDeepStrictEqual(r.resolution?.request_key, input.request_key) && r.resolution.action === "close" &&
+    typeof r.resolution.reason === "string" && r.resolution.reason.trim().length > 0 &&
+    r.resolution.resolved_by === c.principal_id &&
+    Number.isFinite(Date.parse(r.resolution.resolved_at)) &&
+    r.resolution.before_version === 1 && r.resolution.after_version === 2 &&
+    hash(r.resolution.resolution_payload_hash) &&
+    r.resolution.resolution_payload_hash === human.semantic_hash,
+  "REAL_ORIGINAL_RECEIPT_INVALID");
+  const outbox = base.snapshot?.queries?.OUTBOX;
+  const rows = outbox?.rows?.filter((x) => x.id === p.outbox_id);
+  ensure(p.item_id === input.item_id && p.outbox_id === human.v2_outbox?.id &&
+    p.version === 2 && p.status === "verified" && p.observed_version === 2 &&
+    p.complete_unique_verified === true && p.verification_mode === "controlled_sdk" &&
+    outbox?.status === "PASSED" && rows?.length === 1 &&
+    rows[0].aggregate_id === input.item_id && rows[0].task_id === input.task_id &&
+    rows[0].aggregate_version === 2 && rows[0].destination === "bitable" &&
+    rows[0].organization_id === c.organization_id && rows[0].shop_id === c.shop_id &&
+    ["blocked", "pending", "sending", "sent", "retry_wait", "unknown", "dead"].includes(rows[0].status),
+  "REAL_BASE_HISTORY_INVALID");
+  ensure(handoff.candidate?.source_sha === input.source_sha &&
+    handoff.candidate.tree === input.source_tree &&
+    manifest.candidate?.source_sha === input.source_sha && manifest.candidate.tree === input.source_tree &&
+    handoff.web?.api_origin === input.api_origin && handoff.web.web_origin === input.web_origin &&
+    handoff.resource?.run_id === input.run_id && handoff.resource.project === input.project &&
+    input.original_record_ref?.sha256 === input.parent_handoff_sha256 &&
+    isDeepStrictEqual(handoff.private_refs?.web_credentials, input.credentials_ref),
+  "REAL_PAGE_SOURCE_INVALID");
+  for (const name of ["runner", "web"]) {
+    const image = handoff.candidate.actual_images?.[name];
+    ensure(image && /^sha256:[a-f0-9]{64}$/.test(image.id) &&
+      image.source_sha === input.source_sha && image.source_tree === input.source_tree,
+    "REAL_PAGE_IMAGE_INVALID");
+  }
+  return { context: c, receipt: r, projection: p, outbox_status: rows[0].status };
+}
+function verifyReadonlySession(session, binding) {
+  const p = session.principal, c = binding.context;
+  ensure(p?.principal_id === c.principal_id && p.organization_id === c.organization_id &&
+    isDeepStrictEqual(p.auth_version, c.auth_version) && p.linked_channels.includes("web") &&
+    p.role_shop_grants.some((g) => g.shop_id === c.shop_id) &&
+    session.config?.source_mode === "mock" && session.config.transport_mode === "local_http",
+  "REAL_SESSION_IDENTITY_INVALID");
+}
+function verifyReadonlyFacts(original, current, execution, binding) {
+  const r = original.receipt?.result, expected = binding.receipt, c = binding.context;
+  ensure(original.status === "succeeded" && original.request_key === expected.request_key &&
+    original.receipt?.operation === "resolve" && r?.request_key === expected.request_key &&
+    isDeepStrictEqual(r.resolution, expected.resolution) &&
+    isDeepStrictEqual(current.resolution, expected.resolution), "REAL_RESOLUTION_CHANGED");
+  // Receipt sync is historical (pending); only the current item GET proves current sync.
+  for (const key of ["item_id", "shop_id", "sku_key", "stock_pool_key", "quantity", "state", "version"]) {
+    ensure(r.item?.[key] === expected.item[key] && current.item?.[key] === expected.item[key],
+      "REAL_ITEM_CHANGED");
+  }
+  ensure(execution.task_id === c.task_id && execution.status === "completed" &&
+    execution.item_ids.filter((id) => id === c.item_id).length === 1 && current.can_resolve === false,
+  "REAL_TASK_ITEM_BINDING_INVALID");
+  const sync = current.item.sync, projections = sync.projections;
+  const candidates = projections.filter((p) => p.destination_alias === "Base" && p.is_current_version);
+  ensure(sync.state === "synced" && candidates.length === 1, "REAL_CURRENT_SYNC_INVALID");
+  const p = candidates[0];
+  ensure(p.outbox_id === binding.projection.outbox_id && p.aggregate_id === c.item_id &&
+    p.projection_version === 2 && p.target_version === 2 && p.observed_version === 2 &&
+    p.state === "synced" && p.outbox_status === binding.outbox_status && p.complete_unique_verified === true &&
+    p.verification_mode === "controlled_sdk" && ["mock", "controlled_stub"].includes(p.source_mode) &&
+    p.error_code === null, "REAL_CURRENT_PROJECTION_INVALID");
+  return p;
+}
+// Self-contained, GET only. This is also used for the current session and the
+// task->item execution association, which ItemRead does not expose in its DTO.
+async function fetchReadonly({ api, path: pathname, timeout }) {
+  const abort = new AbortController(), timer = setTimeout(() => abort.abort(), timeout);
+  try {
+    const response = await fetch(new URL(pathname, api).href, { method: "GET", credentials: "include",
+      cache: "no-store", redirect: "error", signal: abort.signal });
+    return { status: response.status, body: await response.json() };
+  } finally { clearTimeout(timer); }
+}
+function evidenceLabel(mode) {
+  return mode === REAL_READONLY
+    ? "AUTOMATIC · PG persisted-state read · MockCommerce business source · historical accepted Base v2 / controlled SDK · this run: SDK/platform writes 0 · not human observation"
+    : "LAB / synthetic Mock · native business checks · Fake external transport · no real platform";
+}
+function checkSessionRequest(auth, method, pathname, request = null, probe = null) {
+  if (method === "GET" && pathname === "/api/v1/auth/session" && auth.login_posts === 0 &&
+    request !== null && typeof request === "object" && probe && probe.request === null)
+    probe.request = request;
+  if (method !== "POST") return;
+  ensure(["/api/v1/auth/login", "/api/v1/auth/logout"].includes(pathname), "REAL_BUSINESS_POST_BLOCKED");
+  const name = pathname.endsWith("/logout") ? "logout_posts" : "login_posts";
+  ensure(auth[name] === 0, "REAL_AUTH_RETRY_BLOCKED");
+  auth[name]++;
+}
+function checkSessionResponse(auth, method, pathname, status, request = null, probe = null) {
+  if (![401, 403].includes(status)) return;
+  // LiveConsole's first mount probes session before showing the login form.
+  // Bind at request dispatch: the login can finish before this response arrives.
+  // Never infer the request's phase from the login counter at response time.
+  if (status === 401 && method === "GET" && pathname === "/api/v1/auth/session" &&
+    request !== null && probe?.request === request && auth.anonymous_session_401 === 0) {
+    auth.anonymous_session_401++; return;
+  }
+  throw new Failure("REAL_AUTH_REJECTED", null, status);
+}
+async function verifyReadonlyPage(page, binding, projection) {
+  const r = binding.receipt.resolution, item = binding.receipt.item;
+  const card = (title) => page.locator("section.card").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
+  const visible = async (locator) => { await locator.waitFor({ state: "visible" }); ensure(await locator.count() === 1, "REAL_PAGE_FACT_MISSING"); };
+  await visible(page.locator('[data-source-mode="live-session"]'));
+  const summary = page.locator('[data-item-summary]');
+  await visible(summary.getByText("已关闭", { exact: true }));
+  await visible(summary.getByText(`${item.item_id} · ${item.sku_key}`, { exact: true }));
+  await visible(summary.getByText(`pool：${item.stock_pool_key} · ${item.quantity} 件`, { exact: true }));
+  const record = card("跟进记录");
+  await visible(record.getByText(`原动作 ${r.action} · 原因：${r.reason}`, { exact: true }));
+  await visible(record.getByText(`原处理人 ${r.resolved_by} · ${r.resolved_at}`, { exact: true }));
+  await visible(record.getByText(`版本 v1 → v2 · hash ${r.resolution_payload_hash}`, { exact: true }));
+  const sync = card("同步 · 独立投影事实");
+  await visible(sync.getByText("协作同步：当前版本核实；请核对逐条验证模式", { exact: true }));
+  const p = sync.locator('[data-projection-version="2"]');
+  await visible(p.getByText("Base · 当前版本完整唯一核实（按记录验证模式）", { exact: true }));
+  await visible(p.getByText("投影 v2 · 当前目标 v2 · 观察版本 v2", { exact: true }));
+  await visible(p.getByText(`完整唯一核实：是 · 当前版本 · attempts：${projection.attempts}`, { exact: true }));
+  await p.getByText("投影技术详情", { exact: true }).click();
+  await visible(p.getByText(`原同步状态：已同步 · outbox：${projection.outbox_status} · source：${projection.source_mode} · 验证模式：受控 SDK`, { exact: true }));
+  await visible(page.getByText("终态只读", { exact: true }));
+  ensure(await page.locator('[data-control="B26"], [data-control="B27"]').count() === 0,
+    "TERMINAL_ACTION_VISIBLE");
+}
 function validateBrowserExecutable(chromium, toolchain) {
   ensure(typeof toolchain.browser_executable === "string" && path.isAbsolute(toolchain.browser_executable) &&
     fs.realpathSync(toolchain.browser_executable) === toolchain.browser_executable &&
@@ -198,6 +355,7 @@ async function pollProcessAbsent(pid, deadlineMs, probe = processAbsent) {
 }
 async function execute(input) {
   ensure(input.contract === "p4-acceptance-preparation-v1" && ["t6", "page", "replay"].includes(input.stage), "INPUT_INVALID");
+  const mode = evidenceMode(input), realReadonly = mode === REAL_READONLY;
   ensure(uuid(input.item_id) && uuid(input.task_id) && hash(input.parent_handoff_sha256), "INPUT_INVALID");
   const caseCounts = { recover_single_item: 1, batch_twenty_items: 20 };
   ensure(Object.hasOwn(caseCounts, input.case_kind) && input.item_count === caseCounts[input.case_kind] &&
@@ -224,6 +382,19 @@ async function execute(input) {
   ensure(digest(schemaBytes) === input.toolchain.read_schema_sha256, "DTO_SOURCE_MISMATCH");
   const schema = JSON.parse(schemaBytes);
   const validate = responseValidator(schema, input.toolchain.frontend_node_modules);
+  let binding;
+  if (realReadonly) {
+    const human = readPrivate(input.original_record_ref, input.private_root);
+    const base = readPrivate(input.accepted_base_v2_ref, input.private_root);
+    const handoff = readPrivate(input.page_source_ref, input.private_root);
+    const manifest = readPrivate({ path: handoff.candidate?.manifest_file,
+      sha256: handoff.candidate?.manifest_sha256 }, input.private_root);
+    binding = readonlyBinding(input, human, base, handoff, manifest);
+    ensure(manifest.files?.["tests/e2e/web/m1_acceptance_ui.cjs"] === digest(fs.readFileSync(__filename)) &&
+      manifest.files?.["frontend/lib/p3-read-schema.generated.json"] === digest(schemaBytes),
+    "REAL_CONSUMER_SOURCE_INVALID");
+    validate("POST", "/api/v1/replenishment-items/" + input.item_id + "/resolve", 200, binding.receipt);
+  }
   const credential = readPrivate(input.credentials_ref, input.private_root);
   ensure(typeof credential.login === "string" && typeof credential.password === "string" &&
     credential.login.length > 0 && credential.password.length > 0, "CREDENTIAL_SHAPE_INVALID");
@@ -233,7 +404,17 @@ async function execute(input) {
     case_kind: input.case_kind, item_count: input.item_count, quantity_total: input.quantity_total,
     external_origin_attempts: 0, original_key_gets: 0, screenshot: null, real_platform_pass: false };
   result.browser_source_binding = browserSource;
-  let browser, context, page, routeFailure, prepared;
+  if (realReadonly) Object.assign(result, { evidence_mode: mode, observer: "automatic",
+    observation_scope: "current API/PG persisted state; historical accepted Base v2; not a new platform verification",
+    business_source: "MockCommerce", this_consumer_sdk_calls: 0, this_consumer_platform_writes: 0,
+    original_record_ref: input.original_record_ref, accepted_base_v2_ref: input.accepted_base_v2_ref,
+    page_source_ref: input.page_source_ref,
+    source_binding_scope: "hash-bound A handoff/manifest; live process and image ownership remains the outer owner's check",
+    identity_binding_scope: "session principal/org/auth_version; web identity mapping from A original artifact",
+    auth: { login_posts: 0, logout_posts: 0, anonymous_session_401: 0,
+      automatic_refresh_or_relogin: 0 } });
+  let browser, context, page, routeFailure, prepared, loginSession, primary;
+  const anonymousProbe = { request: null };
   const itemPath = "/api/v1/replenishment-items/" + input.item_id;
   const resolvePath = itemPath + "/resolve";
   const preparedFile = path.join(input.output_directory, "t6-native-request.json");
@@ -247,15 +428,28 @@ async function execute(input) {
     result.browser_start_ref = { path: startFile, sha256: digest(fs.readFileSync(startFile)) };
     context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     page = await context.newPage(); page.setDefaultTimeout(remaining()); page.setDefaultNavigationTimeout(remaining());
+    if (realReadonly) page.on("response", (response) => {
+      const u = new URL(response.url());
+      if (u.origin === api) {
+        try { checkSessionResponse(result.auth, response.request().method(), u.pathname,
+          response.status(), response.request(), anonymousProbe); }
+        catch (error) { routeFailure = error; }
+      }
+    });
     await context.route("**/*", async (route) => {
       try {
         const request = route.request(), u = new URL(request.url());
+        const logout = realReadonly && u.origin === api && u.pathname === "/api/v1/auth/logout";
+        if (realReadonly && routeFailure && !logout) throw routeFailure;
         if (![api, web].includes(u.origin)) { result.external_origin_attempts++; throw new Failure("EXTERNAL_ORIGIN_BLOCKED"); }
         ensure(["GET", "HEAD", "OPTIONS"].includes(request.method()) ||
           (request.method() === "POST" && u.origin === api &&
-            (u.pathname === "/api/v1/auth/login" || (input.stage === "t6" && u.pathname === resolvePath))),
+            (u.pathname === "/api/v1/auth/login" || logout || (input.stage === "t6" && u.pathname === resolvePath))),
           "UNAPPROVED_METHOD_BLOCKED");
-        if (request.method() === "POST" && u.origin === api && u.pathname !== "/api/v1/auth/login") {
+        if (realReadonly && u.origin === api) {
+          checkSessionRequest(result.auth, request.method(), u.pathname, request, anonymousProbe);
+        }
+        if (request.method() === "POST" && u.origin === api && u.pathname !== "/api/v1/auth/login" && !logout) {
           ensure(input.stage === "t6" && u.pathname === resolvePath && result.business_posts === 0, "EXTRA_BUSINESS_POST_BLOCKED");
           const bytes = request.postDataBuffer(), body = JSON.parse(bytes.toString("utf8"));
           ensure(Object.keys(body).sort().join(",") === ["action", "expected_version", "reason", "schema_version", "request_key"].sort().join(","), preparedInputInvalid);
@@ -275,8 +469,20 @@ async function execute(input) {
     await page.goto(web + "/login");
     await page.locator("#live-login").fill(credential.login);
     await page.locator("#live-password").fill(credential.password);
+    const loginResponse = realReadonly ? page.waitForResponse((r) => r.request().method() === "POST" &&
+      r.url() === api + "/api/v1/auth/login", { timeout: remaining() }).catch(() => null) : null;
     await page.getByRole("button", { name: "登录", exact: true }).click();
+    if (realReadonly) {
+      const response = await loginResponse;
+      ensure(response && response.status() === 200, "REAL_LOGIN_FAILED", null, response?.status() ?? null);
+      loginSession = await response.json();
+      validate("POST", "/api/v1/auth/login", 200, loginSession);
+      verifyReadonlySession(loginSession, binding);
+      if (routeFailure) throw routeFailure;
+    }
     await page.locator('[data-source-mode="live-session"]').waitFor();
+    const currentResponse = realReadonly ? page.waitForResponse((r) => r.request().method() === "GET" &&
+      r.url() === api + itemPath, { timeout: remaining() }).catch(() => null) : null;
     await page.goto(web + "/replenishment-items/" + input.item_id);
     if (input.stage === "t6") {
       ensure(input.request_phase === "unprepared" && input.request_key === null && input.reason &&
@@ -314,41 +520,91 @@ async function execute(input) {
     if (!getDiagnostic.accepted)
       throw new Failure(getDiagnostic.code, getDiagnostic.dto, getDiagnostic.http_status);
     result.original_get = original.body;
+    if (realReadonly) {
+      if (routeFailure) throw routeFailure;
+      const response = await currentResponse;
+      ensure(response && response.status() === 200, "REAL_ITEM_GET_FAILED");
+      const current = await response.json(); validate("GET", itemPath, 200, current);
+      const read = async (pathname) => {
+        const value = await page.evaluate(fetchReadonly, { api, path: pathname, timeout: remaining() });
+        if (routeFailure) throw routeFailure;
+        ensure(value.status === 200, "REAL_READ_FAILED");
+        validate("GET", pathname, 200, value.body); return value.body;
+      };
+      verifyReadonlySession(await read("/api/v1/auth/session"), binding);
+      const execution = await read("/api/v1/tasks/" + input.task_id + "/execution");
+      const projection = verifyReadonlyFacts(original.body, current, execution, binding);
+      await verifyReadonlyPage(page, binding, projection);
+      result.current_item = current;
+      result.task_item_binding = { task_id: execution.task_id, item_id: input.item_id,
+        execution_id: execution.execution_id };
+      result.readonly_checks = { original_resolution_unchanged: true, task_item_bound: true,
+        current_closed_v2: true, current_base_v2_synced: true,
+        complete_unique_verified: true, verification_mode: projection.verification_mode,
+        rendered_native_facts: true };
+    }
     await page.getByText("当前版本 v2", { exact: false }).waitFor();
     ensure(await page.locator('[data-control="B27"]').count() === 0, "TERMINAL_ACTION_VISIBLE");
     if (input.screenshot_name) {
-      ensure(["t6-closed-v2.png", "page-after-restart.png"].includes(input.screenshot_name), "SCREENSHOT_NAME_INVALID");
+      ensure(realReadonly || ["t6-closed-v2.png", "page-after-restart.png"].includes(input.screenshot_name), "SCREENSHOT_NAME_INVALID");
       ensure(await page.locator('input[type="password"]').count() === 0, "PASSWORD_IN_CAPTURE");
-      await page.evaluate(() => { const d = document.createElement("div"); d.textContent = "LAB / synthetic Mock · native business checks · Fake external transport · no real platform";
-        d.style.cssText = "position:fixed;bottom:8px;right:8px;z-index:2147483647;background:#123246;color:white;padding:10px;font:14px sans-serif;pointer-events:none"; document.body.appendChild(d); });
-      await page.screenshot({ path: path.join(input.output_directory, input.screenshot_name), fullPage: false });
+      await page.evaluate(({ label, real }) => { const d = document.createElement("div"); d.textContent = label;
+        d.style.cssText = "position:fixed;bottom:8px;right:8px;z-index:2147483647;background:#123246;color:white;padding:10px;font:14px sans-serif;pointer-events:none";
+        if (real) d.style.maxWidth = "75vw";
+        document.body.appendChild(d); }, { label: evidenceLabel(mode), real: realReadonly });
+      await page.screenshot({ path: path.join(input.output_directory, input.screenshot_name), fullPage: realReadonly });
       result.screenshot = input.screenshot_name;
     }
     result.status = "PASSED_STAGE_ONLY";
-  } finally {
-    if (browser) {
-      try { await browser.close(); result.browser_closed = true; }
-      finally {
-        if (result.browser_process) {
-          const observation = await pollProcessAbsent(result.browser_process.pid, deadline);
-          result.browser_pid_stopped = observation.pid_absent;
-          const stopFile = path.join(input.output_directory, input.stage + "-browser-stop.json");
-          exclusiveJson(stopFile, { stage: input.stage, run_id: input.run_id,
-            parent_handoff_sha256: input.parent_handoff_sha256, pid: result.browser_process.pid,
-            browser_closed: result.browser_closed === true, ...observation });
-          result.browser_stop_ref = { path: stopFile, sha256: digest(fs.readFileSync(stopFile)) };
-          ensure(result.browser_pid_stopped === true, "BROWSER_PROCESS_STOP_UNPROVED");
+  } catch (error) { primary = routeFailure || error; throw primary; }
+  finally {
+    try {
+      if (realReadonly && loginSession) {
+        const logout = await page.evaluate(async ({ api, csrf, timeout }) => {
+          const abort = new AbortController(), timer = setTimeout(() => abort.abort(), timeout);
+          try {
+            const response = await fetch(api + "/api/v1/auth/logout", { method: "POST", credentials: "include",
+              cache: "no-store", redirect: "error", signal: abort.signal,
+              headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
+              body: JSON.stringify({ schema_version: "p3-web-v1" }) });
+            return { status: response.status, body: await response.json() };
+          } finally { clearTimeout(timer); }
+        }, { api, csrf: loginSession.csrf_token, timeout: remaining() });
+        ensure(logout.status === 200, "REAL_LOGOUT_FAILED");
+        validate("POST", "/api/v1/auth/logout", 200, logout.body);
+        ensure(result.auth.login_posts === 1 && result.auth.logout_posts === 1, "REAL_AUTH_COUNTS_INVALID");
+        result.auth.logout_verified = true;
+      }
+    } catch (error) { result.auth.cleanup_failed = true; if (!primary) primary = error; }
+    finally {
+      if (browser) {
+        try { await browser.close(); result.browser_closed = true; }
+        finally {
+          if (result.browser_process) {
+            const observation = await pollProcessAbsent(result.browser_process.pid, deadline);
+            result.browser_pid_stopped = observation.pid_absent;
+            const stopFile = path.join(input.output_directory, input.stage + "-browser-stop.json");
+            exclusiveJson(stopFile, { stage: input.stage, run_id: input.run_id,
+              parent_handoff_sha256: input.parent_handoff_sha256, pid: result.browser_process.pid,
+              browser_closed: result.browser_closed === true, ...observation });
+            result.browser_stop_ref = { path: stopFile, sha256: digest(fs.readFileSync(stopFile)) };
+            ensure(result.browser_pid_stopped === true, "BROWSER_PROCESS_STOP_UNPROVED");
+          }
         }
       }
     }
   }
+  if (primary) throw primary;
   if (routeFailure) throw routeFailure;
   return result;
 }
 
 module.exports = { execute, readPrivate, origin, dtoErrors, responseValidator, launchBoundBrowser,
   loadBoundChromium, browserProcessReceipt, processAbsent, pollProcessAbsent,
-  fetchOriginalResolve, inspectOriginalResolve };
+  fetchOriginalResolve, inspectOriginalResolve, evidenceMode, evidenceLabel, readonlyBinding,
+  verifyReadonlySession, verifyReadonlyFacts, verifyReadonlyPage, fetchReadonly,
+  checkSessionRequest,
+  checkSessionResponse };
 if (require.main === module) {
   (async () => {
     try {

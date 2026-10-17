@@ -1186,3 +1186,246 @@ def test_snapshot_rejects_an_already_open_transaction_before_any_query() -> None
 
     with pytest.raises(CaptureFailure, match="FRESH_CONNECTION_REQUIRED"):
         capture_snapshot(SimpleNamespace(info=SimpleNamespace(transaction_status=2)), context())
+
+
+def test_real_readonly_accepted_artifacts_and_current_dtos_without_browser() -> None:
+    script = r"""
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const h=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+const schema=JSON.parse(fs.readFileSync('frontend/lib/p3-read-schema.generated.json'));
+const validate=h.responseValidator(schema,process.cwd()+'/frontend/node_modules');
+const id=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
+const stamp='2026-10-17T04:49:10Z',meta={schema_version:'p3-web-v1',identity_mode:'session',
+ server_time:stamp,trace_id:id(99)};
+const context={organization_id:id(1),shop_id:id(2),principal_id:id(3),identity_id:id(4),
+ auth_version:2,item_id:id(5),task_id:id(6),request_key:id(7),case_kind:'recover_single_item',
+ expected_item_count:1,expected_quantity_total:'70'};
+const resolution={resolution_id:id(8),request_key:id(7),action:'close',reason:'原跟进原因',
+ resolved_by:id(3),resolved_at:stamp,before_version:1,after_version:2,resolution_payload_hash:'a'.repeat(64)};
+const projection={aggregate_id:id(5),projection_version:2,outbox_status:'pending',state:'synced',
+ source_mode:'controlled_stub',as_of:stamp,error_code:null,outbox_id:id(9),destination_alias:'Base',
+ target_version:2,observed_version:2,complete_unique_verified:true,is_current_version:true,
+ attempts:2,verification_mode:'controlled_sdk'};
+const sync={state:'synced',sender_enabled:false,projections:[projection],sender_gates:[]};
+const item={item_id:id(5),shop_id:id(2),sku_key:'unit-SKU',stock_pool_key:'unit-pool',
+ quantity:70,state:'closed',version:2,created_at:stamp,updated_at:stamp,
+ sync:{...sync,state:'pending',projections:[]}};
+const receipt={...meta,request_key:id(7),item,resolution,duplicate:false};
+const human={capture_context:context,receipt,request_key:id(7),business:'closed/v2',
+ human_reported_once:true,semantic_hash:'a'.repeat(64),v2_outbox:{id:id(9)}};
+const base={projection:{item_id:id(5),outbox_id:id(9),version:2,status:'verified',
+ observed_version:2,complete_unique_verified:true,verification_mode:'controlled_sdk'},
+ snapshot:{queries:{OUTBOX:{status:'PASSED',rows:[{id:id(9),aggregate_id:id(5),task_id:id(6),
+ aggregate_version:2,destination:'bitable',organization_id:id(1),shop_id:id(2),status:'pending'}]}}}};
+const credentials_ref={path:'/unit-only/credentials-not-read',sha256:'b'.repeat(64)};
+const input={stage:'page',evidence_mode:'persisted_real_v2_readonly',
+ case_kind:'recover_single_item',
+ item_count:1,quantity_total:'70',item_id:id(5),task_id:id(6),request_key:id(7),
+ source_sha:'c'.repeat(40),source_tree:'d'.repeat(40),run_id:'unit',project:'unit',
+ api_origin:'http://127.0.0.1:39001',web_origin:'http://127.0.0.1:39002',credentials_ref,
+ original_record_ref:{sha256:'e'.repeat(64)},parent_handoff_sha256:'e'.repeat(64)};
+const image={id:'sha256:'+'f'.repeat(64),source_sha:input.source_sha,source_tree:input.source_tree};
+const handoff={candidate:{source_sha:input.source_sha,tree:input.source_tree,
+ actual_images:{runner:image,web:image}},web:{api_origin:input.api_origin,web_origin:input.web_origin},
+ resource:{run_id:'unit',project:'unit'},private_refs:{web_credentials:credentials_ref}};
+const manifest={candidate:{source_sha:input.source_sha,tree:input.source_tree}};
+const current={...meta,item:{...item,sync},resolution,visible_source_task_id:null,
+ visible_plan_id:null,can_resolve:false,disabled_reasons:[]};
+const original={...meta,request_key:id(7),status:'succeeded',
+ receipt:{operation:'resolve',result:receipt}};
+const execution={...meta,execution_id:id(10),task_id:id(6),plan_id:id(11),approval_id:id(12),
+ operation_key:'unit',request_hash:'a'.repeat(64),revalidation_snapshot_id:id(13),
+ status:'completed',item_ids:[id(5)],completed_at:stamp,error_code:null,sync};
+const session={principal:{principal_id:id(3),organization_id:id(1),auth_version:2,
+ linked_channels:['web'],role_shop_grants:[{role:'operator',shop_id:id(2)}]},
+ config:{source_mode:'mock',transport_mode:'local_http'}};
+validate('POST','/api/v1/replenishment-items/'+id(5)+'/resolve',200,receipt);
+validate('GET','/api/v1/requests/'+id(7),200,original);
+validate('GET','/api/v1/replenishment-items/'+id(5),200,current);
+validate('GET','/api/v1/tasks/'+id(6)+'/execution',200,execution);
+assert.equal(h.evidenceMode(input),'persisted_real_v2_readonly');
+const binding=h.readonlyBinding(input,human,base,handoff,manifest);
+h.verifyReadonlySession(session,binding);
+assert.deepEqual(h.verifyReadonlyFacts(original,current,execution,binding),projection);
+assert.equal(original.receipt.result.item.sync.state,'pending');
+// Render the existing React component on the CPU, without a browser/server.
+// This catches display wording/DTO drift in the browser consumer's exact locators.
+const swc=require('./frontend/node_modules/next/dist/build/swc');
+const compile=(mod,file)=>mod._compile(swc.transformSync(fs.readFileSync(file,'utf8'),{
+ jsc:{parser:{syntax:'typescript',tsx:file.endsWith('.tsx')},
+  transform:{react:{runtime:'automatic'}}},module:{type:'commonjs'}}).code,file);
+require.extensions['.ts']=compile;require.extensions['.tsx']=compile;
+const React=require('./frontend/node_modules/react');
+const {renderToStaticMarkup}=require('./frontend/node_modules/react-dom/server');
+const {ItemDetails}=require('./frontend/components/item-views.tsx');
+const html=renderToStaticMarkup(React.createElement(ItemDetails,{read:current,client:{}}));
+const paragraphs=[...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].map(x=>
+ x[1].replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim());
+for(const text of [
+ `原动作 close · 原因：${resolution.reason}`,
+ `原处理人 ${resolution.resolved_by} · ${resolution.resolved_at}`,
+ `版本 v1 → v2 · hash ${resolution.resolution_payload_hash}`,
+ '投影 v2 · 当前目标 v2 · 观察版本 v2',
+ '完整唯一核实：是 · 当前版本 · attempts：2',
+ '原同步状态：已同步 · outbox：pending · source：controlled_stub · 验证模式：受控 SDK',
+]) assert(paragraphs.includes(text),text);
+assert(html.includes('协作同步：当前版本核实；请核对逐条验证模式'));
+assert(html.includes('Base · 当前版本完整唯一核实（按记录验证模式）'));
+assert(html.includes('终态只读'));assert(!html.includes('data-control="B27"'));
+for(const edit of [x=>x.stage='t6',x=>x.request_key=null,x=>x.case_kind='batch_twenty_items',
+ x=>x.evidence_mode='real',x=>x.screenshot_name='page-after-restart.png']) {
+ const x=structuredClone(input);edit(x);assert.throws(()=>h.evidenceMode(x));
+}
+for(const edit of [
+ x=>x.human.capture_context.task_id=id(90),x=>x.human.request_key=id(90),
+ x=>x.human.receipt.resolution.resolved_by=id(90),x=>x.human.receipt.resolution.action='complete',
+ x=>x.human.receipt.resolution.resolved_at=null,x=>x.human.receipt.resolution.reason='',
+ x=>x.base.projection.verification_mode='offline_fake',x=>x.base.projection.observed_version=1,
+ x=>x.base.projection.complete_unique_verified=false,x=>x.base.projection.outbox_id=id(90),
+ x=>x.base.snapshot.queries.OUTBOX.rows[0].task_id=id(90),
+ x=>x.handoff.web.api_origin='http://127.0.0.1:39003',
+ x=>x.handoff.candidate.actual_images.web.source_sha='0'.repeat(40),
+ x=>x.manifest.candidate.tree='0'.repeat(40),x=>x.input.parent_handoff_sha256='0'.repeat(64),
+ x=>x.handoff.private_refs.web_credentials={...x.handoff.private_refs.web_credentials,sha256:'0'.repeat(64)},
+]) {const x=structuredClone({input,human,base,handoff,manifest});edit(x);
+ assert.throws(()=>h.readonlyBinding(x.input,x.human,x.base,x.handoff,x.manifest));}
+for(const edit of [x=>x.principal.principal_id=id(90),x=>x.principal.organization_id=id(90),
+ x=>x.principal.auth_version=3,x=>x.principal.role_shop_grants=[],
+ x=>x.principal.linked_channels=[],x=>x.config.source_mode='real']) {
+ const x=structuredClone(session);edit(x);assert.throws(()=>h.verifyReadonlySession(x,binding));
+}
+for(const edit of [
+ x=>x.original.request_key=id(90),x=>x.original.receipt.operation='decision',
+ x=>x.original.receipt.result.resolution.reason='changed',x=>x.current.resolution.resolved_by=id(90),
+ x=>x.current.resolution.resolved_at='2026-10-17T05:00:00Z',x=>x.current.item.version=1,
+ x=>x.current.item.state='open',x=>x.current.item.sync.state='pending',x=>x.current.can_resolve=true,
+ x=>x.execution.task_id=id(90),x=>x.execution.item_ids=[],x=>x.execution.item_ids.push(id(5)),
+ x=>x.current.item.sync.projections[0].projection_version=1,
+ x=>x.current.item.sync.projections[0].target_version=1,x=>x.current.item.sync.projections[0].observed_version=1,
+ x=>x.current.item.sync.projections[0].complete_unique_verified=false,
+ x=>x.current.item.sync.projections[0].is_current_version=false,
+ x=>x.current.item.sync.projections[0].verification_mode='offline_fake',
+ x=>x.current.item.sync.projections[0].outbox_id=id(90),
+ x=>x.current.item.sync.projections[0].destination_alias='IM',
+ x=>x.current.item.sync.projections[0].outbox_status='sent',
+ x=>x.current.item.sync.projections.push(structuredClone(projection)),
+]) {const x=structuredClone({original,current,execution});edit(x);
+ assert.throws(()=>h.verifyReadonlyFacts(x.original,x.current,x.execution,binding));}
+process.stdout.write('real-readonly-contract-unit-only-no-resources\n');
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"real-readonly-contract-unit-only-no-resources\n"
+
+
+def test_readonly_auth_labels_and_single_get_do_not_start_resources() -> None:
+    script = r"""
+const assert=require('node:assert/strict');
+const h=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+assert.equal(h.evidenceMode({stage:'t6'}),'lab_mock');
+assert.equal(h.evidenceLabel('lab_mock'),
+ 'LAB / synthetic Mock · native business checks · Fake external transport · no real platform');
+const label=h.evidenceLabel('persisted_real_v2_readonly');
+for(const text of ['AUTOMATIC','MockCommerce','historical accepted Base v2',
+ 'SDK/platform writes 0','not human observation']) assert(label.includes(text));
+const auth={login_posts:0,logout_posts:0,automatic_refresh_or_relogin:0};
+h.checkSessionRequest(auth,'GET','/api/v1/auth/session');
+assert.equal(auth.login_posts,0);
+h.checkSessionRequest(auth,'POST','/api/v1/auth/login');
+assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/login'),
+ e=>e.code==='REAL_AUTH_RETRY_BLOCKED');
+for(const path of ['/api/v1/replenishment-items/x/resolve','/api/v1/tasks','/api/v1/auth/reset'])
+ assert.throws(()=>h.checkSessionRequest(auth,'POST',path),e=>e.code==='REAL_BUSINESS_POST_BLOCKED');
+h.checkSessionRequest(auth,'POST','/api/v1/auth/logout');
+assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/logout'));
+assert.deepEqual(auth,{login_posts:1,logout_posts:1,automatic_refresh_or_relogin:0});
+const probe={login_posts:0,anonymous_session_401:0};
+const request={},tracking={request:null};
+h.checkSessionRequest(probe,'GET','/api/v1/auth/session',request,tracking);
+h.checkSessionResponse(probe,'GET','/api/v1/auth/session',401,request,tracking);
+assert.equal(probe.anonymous_session_401,1);
+assert.throws(()=>h.checkSessionResponse(probe,'GET','/api/v1/auth/session',401,request,tracking));
+for(const status of [401,403]) {
+ assert.throws(()=>h.checkSessionResponse({login_posts:1},'GET','/api/v1/auth/session',status));
+ assert.throws(()=>h.checkSessionResponse({login_posts:1},'POST','/api/v1/auth/login',status));
+ assert.throws(()=>h.checkSessionResponse({login_posts:0},'GET','/api/v1/items',status));
+}
+(async()=>{
+ let calls=0;
+ global.fetch=async(url,opts)=>{calls++;assert.equal(opts.method,'GET');assert.equal(opts.body,undefined);
+  assert.equal(opts.redirect,'error');assert.equal(opts.cache,'no-store');
+  assert.equal(opts.credentials,'include');return new Response('{}',{status:401});};
+ assert.equal((await h.fetchReadonly({api:'http://127.0.0.1:39001',
+  path:'/api/v1/auth/session',timeout:100})).status,401);
+ assert.equal(calls,1);
+ process.stdout.write('auth-and-label-unit-only-no-resources\n');
+})().catch(()=>{process.exitCode=1});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"auth-and-label-unit-only-no-resources\n"
+
+
+def test_anonymous_session_response_uses_dispatched_request_not_login_timing() -> None:
+    script = r"""
+const assert=require('node:assert/strict');
+const h=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+(async()=>{
+ const auth={login_posts:0,logout_posts:0,anonymous_session_401:0};
+ const probe={request:null},anonymous={},secondAnonymous={},login={},current={},logout={};
+ const session='/api/v1/auth/session';
+ h.checkSessionRequest(auth,'GET',session,anonymous,probe);
+ h.checkSessionRequest(auth,'GET',session,secondAnonymous,probe);
+ assert.equal(probe.request,anonymous);
+ let deliver;
+ const late=new Promise(resolve=>{deliver=resolve}).then(()=>
+  h.checkSessionResponse(auth,'GET',session,401,anonymous,probe));
+ // The login request and its response both precede the original anonymous 401.
+ h.checkSessionRequest(auth,'POST','/api/v1/auth/login',login,probe);
+ h.checkSessionResponse(auth,'POST','/api/v1/auth/login',200,login,probe);
+ assert.equal(auth.login_posts,1);assert.equal(auth.anonymous_session_401,0);
+ h.checkSessionRequest(auth,'GET',session,current,probe);
+ assert.equal(probe.request,anonymous);
+ for(const request of [secondAnonymous,current,{},login])
+  assert.throws(()=>h.checkSessionResponse(auth,'GET',session,401,request,probe),
+   e=>e.code==='REAL_AUTH_REJECTED'&&e.http_status===401);
+ await Promise.resolve();deliver();await late;
+ assert.equal(auth.anonymous_session_401,1);
+ // Identity reuse, an unmarked request, a different endpoint, or any 403 cannot borrow it.
+ assert.throws(()=>h.checkSessionResponse(auth,'GET',session,401,anonymous,probe));
+ assert.throws(()=>h.checkSessionResponse(auth,'GET','/api/v1/items',401,anonymous,probe));
+ assert.throws(()=>h.checkSessionResponse(auth,'POST',session,401,anonymous,probe));
+ for(const request of [anonymous,current,login])
+  assert.throws(()=>h.checkSessionResponse(auth,'GET',session,403,request,probe));
+ const afterLogin={request:null};
+ h.checkSessionRequest(auth,'GET',session,current,afterLogin);
+ assert.equal(afterLogin.request,null);
+ assert.throws(()=>h.checkSessionResponse(auth,'GET',session,401,current,afterLogin));
+ assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/login',{},probe));
+ h.checkSessionRequest(auth,'POST','/api/v1/auth/logout',logout,probe);
+ assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/logout',{},probe));
+ assert.deepEqual(auth,{login_posts:1,logout_posts:1,anonymous_session_401:1});
+ process.stdout.write('request-identity-ordering-unit-only-no-resources\n');
+})().catch(error=>{process.stderr.write(error.stack);process.exitCode=1});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"request-identity-ordering-unit-only-no-resources\n"

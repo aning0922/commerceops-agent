@@ -1,5 +1,138 @@
 # M1 离线 Compose 装配与运行
 
+## 新 clone 的 Mock 核心启动说明（2026-10-18，静态工作稿）
+
+本节只核对冻结 c460 源码和已有命令，没有执行 clone、安装、build、启动或新的验收。它说明新使用者在自己新环境中的人工运行路径，不授权本会话启动资源。先取得包含 `c460d6f63f95060a2b25ae9418ca6e3020f89169` 的审定 P4 源码或 Root 后续发布的组合版本；不能只按默认分支、旧 PR45 head 或本地文档 commit 判断业务源码相同。下方历史段落继续保留。
+
+### 三种入口不要混用
+
+| 入口及仓库依据 | 新 clone 已有什么 | 不能据此认为有什么 |
+| --- | --- | --- |
+| `compose.yml` + `compose.m1-offline.yml`，`scripts/m1_offline_demo.py` 的 `prepare/seed/api/worker` | 实际 PG、原 API、单 Worker 与 Next 生产 Web 的 Mock 装配；可人工创建、审批及跟进内部项 | 不是单独运行一个 frontend memory Mock 页；不是飞书/模型入口，也不是完整四场景自动验收命令 |
+| `frontend/app/[[...path]]/page.tsx` 的 Mock/B04 预览分支 | 静态或 memory DTO 的界面预览；不要求业务数据库 | 不能证明真实 session/PG、持久化、执行或外部投递 |
+| `tests/e2e/web/m1_acceptance_driver.py`、`m1_acceptance_capture.py`、`m1_acceptance_ui.cjs` 及 c460 的 `scripts/p4_acceptance.py` | 已有消费、采集、浏览器及清理能力；共享入口按 manifest/request 与 hash 绑定来源 | Python consumer 库不是冷启动 CLI；CJS 也需要输入文件及 hash。不能不生成新 manifest/handoff 就消费旧窗口，不能把模块导入退出 0 当业务通过 |
+
+容器化人工路径需要完整 Git 源码、Docker daemon/Compose、POSIX shell、Python 3.12.13 和 uv 0.11.25；从当前 checkout `uv sync --frozen` 建立自己的环境。源码依据是 `.python-version`、`pyproject.toml`、`uv.lock`、`infrastructure/Dockerfile`。前端镜像还需仓库两份公开 schema，不能只复制 frontend 目录；Node/npm 在 `infrastructure/Dockerfile.m1-frontend` 中固定，使用容器化 Web 不要求主机安装 Playwright。主机 Node/Chromium 是自动浏览器验收的额外依赖。冷缓存仍需获取锁定依赖和基础镜像；这里的“离线”指业务平台/模型关闭，不是断网安装包。此批未新增跨操作系统实跑，非 POSIX 的原生运行没有保证。
+
+README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其早期“没有 Next.js/正式业务 API”等阶段描述不能作为当前 P4 产品说明。外部导航随最终集成由原 owner 同步，本批只在原三文档内说明这一差别，不修改那些文件或据此新增工程任务。
+
+### 人工路径：复用现有公开命令
+
+所有参数从新 checkout 和新环境生成，不从旧 `runtime`、他人的 `.venv`、账号或窗口 DTO 复制。
+
+| 要绑定的参数 | 取值来源 / 约束 |
+| --- | --- |
+| `COMPOSE_PROJECT_NAME` | 新的 `m1off-` 项目名；同时作为 `docker compose -p` 和本次请求的 project |
+| `COMMERCEOPS_PG_RUNTIME_DIR`、`COMMERCEOPS_DEMO_PRIVATE_DIR` | 指向同一个新、canonical 绝对私有目录；最终目录 `0700`、生成文件 `0600`，不使用旧业务卷 |
+| `COMMERCEOPS_DEMO_UID/GID` | 当前操作者实际 UID/GID，与私有目录 owner 一致；供 seed/API/Worker 读取本次文件 |
+| `COMMERCEOPS_DEMO_API_PORT/WEB_PORT` | 本机两个不同空闲端口，范围 1024–65535；只绑定 loopback，选出端口不等于持续保留监听 |
+| `m1_expiry` 与外层硬截止 | 新的含时区绝对 UTC；`prepare` 要求剩余大于 75 秒且不超过 1,800 秒。构建也消耗同一窗口，不因慢下载重置；停止全部服务的外层截止需另外管理 |
+
+1. 在新源码根目录完成 `uv sync --frozen`，显式绑定上表参数。可在 Bash 中用下列公共标准库片段生成本次非秘密参数；本批只审文本，没有执行。两个 socket 关闭后端口仍可能被占用，后续冲突应停止并收尾，不复用旧项目。原 `scripts.prepare_pg`/`m1_offline_demo prepare` 创建凭据，不需要 Feishu AppSecret、模型 key 或旧数据库配置。
+
+   ```bash
+   m1_root="$(pwd -P)"
+   read -r COMPOSE_PROJECT_NAME COMMERCEOPS_DEMO_API_PORT COMMERCEOPS_DEMO_WEB_PORT m1_expiry m1_hard_stop < <(
+     "$m1_root/.venv/bin/python" - <<'PY'
+   import socket
+   from datetime import UTC, datetime, timedelta
+   from uuid import uuid4
+   with socket.socket() as api, socket.socket() as web:
+       api.bind(("127.0.0.1", 0))
+       web.bind(("127.0.0.1", 0))
+       now = datetime.now(UTC)
+       print("m1off-" + uuid4().hex, api.getsockname()[1], web.getsockname()[1],
+             (now + timedelta(minutes=25)).isoformat(),
+             (now + timedelta(minutes=30)).isoformat())
+   PY
+   )
+   export COMPOSE_PROJECT_NAME COMMERCEOPS_DEMO_API_PORT COMMERCEOPS_DEMO_WEB_PORT
+   export COMMERCEOPS_PG_RUNTIME_DIR="$m1_root/runtime/$COMPOSE_PROJECT_NAME"
+   export COMMERCEOPS_DEMO_PRIVATE_DIR="$COMMERCEOPS_PG_RUNTIME_DIR"
+   export COMMERCEOPS_DEMO_UID="$(id -u)" COMMERCEOPS_DEMO_GID="$(id -g)"
+   ```
+
+   `m1_hard_stop` 是操作者必须管理的绝对停止时间，不是自动计时器。以下是分步说明，不是带 trap 的一键脚本；出错后应主动进入第 7 步收尾，不能认为 shell 非零或 Worker expiry 已停止所有服务。
+2. 运行现有准备入口（下面是参数化说明，本批没有执行）：
+
+   ```bash
+   uv run --frozen python -m scripts.m1_offline_demo prepare \
+     --directory "$COMMERCEOPS_DEMO_PRIVATE_DIR" --project "$COMPOSE_PROJECT_NAME" \
+     --api-port "$COMMERCEOPS_DEMO_API_PORT" --web-port "$COMMERCEOPS_DEMO_WEB_PORT" \
+     --expires-at "$m1_expiry"
+   ```
+
+3. 组合 `docker compose --env-file /dev/null -p "$COMPOSE_PROJECT_NAME" -f compose.yml -f compose.m1-offline.yml --profile init --profile m1-offline-demo`，只操作本项目的明确服务名。先 `build db-init m1-seed m1-api m1-worker m1-web`，再 `up -d --wait --wait-timeout 90 postgres`。
+4. 对同一 Compose 调用依次执行 `run --rm --no-deps db-init python -m commerceops.entrypoints.database` 的 `migrate`、`setup-checkpointer`、`grant-runtime`、`revision` 四个动作，再 `run --rm --no-deps m1-seed` 一次。seed 会拒绝已有标记；重启不再 seed。它依赖仓库的 `tests` fixture 与 factory，使用的是 Docker `test` target，不能拿只含 `commerceops` 包的 wheel 代替整个源码装配。
+5. 同一 Compose 调用 `up -d --wait --wait-timeout 90 m1-api m1-worker m1-web`。overlay 已令 Web 使用 `COMMERCEOPS_UI_MODE=live`、`local_http` 和本次 API loopback origin；数据仍为 Mock。单独的 `commerceops-api` 默认只提供基础入口，只有显式业务配置才装配业务路由，不是本 Mock 装配的替代命令。
+6. 仅从本次受保护的 `demo-account.json` 本地取得合成登录信息，不复制进说明或控制台。用本次 Web 端口进入 `/login`，再从任务页明确新建请求。seed 的 `technical_fixture` 不是新业务任务；baseline 配合 L=3/R=7/S=2 的 20 项及完整假设确认、known_inbound 的 70 件都由现有 factory 提供。先读计划/版本，再显式提交本版本意见；内部项完成/关闭仍需原因和原请求回执。此处的合成授权不代表真人体验。
+7. 任何命令失败或到截止即停止业务；先对同一 Compose 调用 `stop --timeout 30 m1-worker m1-api m1-web`，再 `stop --timeout 30 postgres`、`ps -a`，最后 `down --timeout 30`，不带 `-v`。Worker 父监督器负责同容器 child 的正常 stop/join/reap 和持久 audit；若停止非零，记录未知，不把它当成功，也不因此省略剩余清理。用本次 project label 单独查容器/网络、核两个监听关闭及本卷保留，正式验收再由原工具采低权停止证明。API/Web 不随 Worker expiry 自动退出，必须由操作者在 `m1_hard_stop` 前停止全部服务；不要用无作用域的清理命令处理其他项目。
+
+### 私有自动采集器的限制，不新增一键验收 Gate
+
+上述公开分步可作为可重现命令交付；不以“一条命令完整验收”作为新的必要 Gate。静态核对尚未发现人工 Mock 产品启动缺少不可替代的配置/装配，因此本批没有新增 A 工程任务。已通过的四场景整批调用者仍是私有验收资料，不能冒充 clone 自带能力；它的不便携也不使已有公开服务失效。
+
+| 私有验收限制 | 对新使用者的准确说明 |
+| --- | --- |
+| 固定来源、工具链与 handoff | 自动验收输入需要当前 checkout 的环境、schema、工具版本/hash 和新窗口绑定；旧 `run-input` 不能复用。人工路径可直接使用本节分步，不必先构造旧验收 DTO |
+| 具体四场景私有调用者 | 私有 `compose-commands.py`/`ui-commands.cjs` 及绝对路径不在公开 clone 中；现有 consumer/helper 不应伪装成自包含场景 CLI，也不要求为此新增通用 launcher |
+| 停写后低权采集和自动清理报告 | 已审整批入口有 `CleanupPlan/cleanup_owned` 及诊断最多 20 秒/清理至少 180 秒的约束；人工启动与停止按前述公开命令执行，不把自动报告缺失当成公共产品启动缺配置 |
+| 本次未做新机器运行 | 当前只核冻结源码和文档。后续实际使用或必要复验如暴露不可替代的配置/装配缺陷，再集中交 Root/A；不借已有 541 PG、旧私有成功或录像宣称本次冷 clone 已通过 |
+
+本批不改权限、状态机、Next.js、迁移或平台功能，不为文档移植工作启动服务。投影、真实查询、群与负向恢复的 Gate 不因人工 Mock 启动说明而减少；29 outbox pending/attempts 0 的既有边界保持。
+
+## 当前交付导航：c460 有限离线复现已核收（工作稿）
+
+本节为既有 M1 交付的文档工作稿，待与 A 的稳定事实合批审核、集成。依据 Root 的 Issue39 核收评论 6233059628、6234076316，并纳入已独审 RO140200 与观察于 2026-10-17 14:16:09.975121Z 的后台只读日志；新增原件与 hash 见交付地图。没有因整理本文而启动服务或平台动作；下方旧装配说明和失败记录全部保留，旧 `not_run/partial` 不代表本节这次运行的结论。
+
+- 业务源码固定为 `c460d6f63f95060a2b25ae9418ca6e3020f89169`，tree `fbdef75c80267596a5dd62fda1f28be6dd18a70c`。同源码 CI39015392794 五项成功、541 PG 的既有核收保持；这不是本次文档的新 CI。
+- 本次从同一 Git archive 提取新自有目录，archive SHA256 `656e18693f67c5d154d6af3d533563ba06f5b661d1f657b99695ddde455f4c89`；1,075 个受版本管理文件的字节及 1,163 个归档成员的模式核验通过。目录和可执行文件为 `0755`，普通文件为 `0644`；外层私有目录仍为 `0700`。
+- 实际运行 2026-10-17 10:47:00–10:48:22.689954Z（北京时间 18:47:00–18:48:22.689954），82.689954 秒是机器运行时间，不能当成录像时长。原 launcher 退出 0，结论仅为 `PASS_SCOPE_OFFLINE_DEMO_ONLY`。
+- 原独审 `a6d70d4d8ad7ee82e5166518d33d997c5e6e0212d3330da952f0e07d1b0babeb` 无 P1/P2，签的是 `simulated_web / MockCommerce / offline_fake` 的核心生命周期和持久读取；真实飞书与整体 M1 另行验收。
+
+| 本次原生 UI 场景 | 已保存的实际结果 |
+| --- | --- |
+| baseline 拒绝假设 | rejected，零 execution、零内部项 |
+| baseline 完整假设确认并批准 | completed，1 execution、20 items、2,000 units |
+| known inbound 单项 | completed，1 item、70 units；显式关闭后 closed/v2，原原因保留 |
+| 同 SKU、同库存池新周期 | completed，1 新 item、70 units；新 task/execution/item 与旧对象不同 |
+
+总计 4 formal、4 analysis 支持任务及 1 technical fixture，3 executions、22 items。11 POST 均非重复；84 GET 留存原件，重启后的 11 次原键 GET 的完整 `receipt.result` 与各自 POST 回执一致。正常恢复实际范围为 Worker `SIGUSR1` 后 API/Web restart；原 task/execution/item 绑定、closed/v2、原因和终态 B27 不可用保持。自动化执行不等于真人操作或真人已经观察这些页面。
+
+**同步边界：29 条 outbox 仍 pending、attempts 0。** 本调用者未执行 SyncRead、drain 或投影验证。`offline_fake` 是来源模式，不是投影成功回执；不能用本次结果声明 Fake 投影、真实 Base 同步或群闭环完成。
+
+### 私有原件与执行说明的边界
+
+以下位置相对原 C 工作区，属于保留的私有证据，不随仓库 clone 分发；这里只列审计定位，不列账号、业务定位值、秘密或实际服务地址。
+
+| 材料 | 私有位置 / 固定来源 |
+| --- | --- |
+| 完整实际索引，149 引用 | `runtime/m1-clean-c460-batch-88094ef275/C-complete-native-delivery.safe.json`；SHA256 `cbf5da8b111a6b76f2eb3d0edf2906e882aea9d9fc17158f57ba5f43d9768791` |
+| 原始命令与生命周期入口 | 同目录 `compose-commands.py`；SHA256 `1aa302d2ba82ed3bd3bb4ce45a74f1caea5c69c0dbed4366f5ba144b02341481` |
+| 原生业务调用者 | 同目录 `ui-commands.cjs`；SHA256 `f912d4c79e031af4322651b454af729d49516e82acf689c7dcddcaba58e2a1d2` |
+| 来源、权限与业务证据 | 同目录 `evidence/source-archive-verification.safe.json`、`actual-service-image-binding.private.json`、`runtime-node-permissions.stdout.private`、`ui-success.private.json`、`before-restart.private.json`、`writer-stopped-snapshot.private.json` |
+| 收尾与停止证据 | 同目录 `evidence/cleanup.safe.json`、`worker-stop.safe.json`、`browser-stop.safe.json` 及根目录 `independent-final-resource-check.safe.json` |
+
+实际 argv 为从工程根目录调用 `.venv/bin/python` 和本次私有 `compose-commands.py`。这是历史命令说明，**不应直接重跑**：私有输入和固定 UTC 已过期，工具链引用带原机器的绝对位置，原片和私有件也未完成公开脱敏。当前材料不是已交付的可分发一键包。仓库内下方通用 recipe 仍可解释装配步骤，但不能代替本次精确调用者、环境绑定或授权。
+
+最终运行说明还须在原 owner 的审核中说明：如何从新 checkout 取得审定装配、核 Node 24.21.0 / Playwright 1.64.0 / Chromium 1248 及其来源，如何重新生成全新私有输入，而不引用旧凭据、旧机器路径或过期窗口。本工作稿仅列该缺项，不发布执行许可、不新建脚本或另一包装入口。
+
+### 已验证的保护与保留的失败
+
+解包采用归档模式的规范权限，不能在 `umask 077` 下仅凭文件字节相等就认定目录可遍历。实际 Web 容器镜像与本次 build manifest 匹配；以 `USER node` 检查源码目录、配置及生成的 `.next` 路径，读取/遍历退出 0。调用者保留刚提交的决定，只等待同一审批的业务推进；只有明确的新 pending、更高版本且可决定的审批才进入下一次显式意见，不盲重发。GET 原件在 HTTP/schema 断言前保存。
+
+原入口的固定机器窗不超过 1,800 秒，工作截止比硬截止提前至少 200 秒，失败诊断最多 20 秒，最后至少 180 秒留给原 `cleanup_owned`。失败时仅在项目、工作目录和服务归属核验后采集过滤的状态/镜像及有限 Web stdout/stderr，私有输出 `0600`，安全索引只含文件名、哈希和固定码；不采集 Config.Env 或秘密。诊断失败不能阻止清理。本次成功未触发失败诊断，不把未触发写成运行时故障路径全验。
+
+writers 退出后的低权快照为 `commerceops_app`，三个高权 flags 均 false；Worker started/stopped/termination-confirmed 各 2。原清理全部命令 0，PG false/PID 0、down 不带 `-v`，本项目容器/网络为 0、两个监听关闭、卷保留；浏览器 PID absent。旧导入、网络容量、解包权限差异及已批准 v2 页 B02 禁用等失败保持原结论；旧逐次 GET 缺失的具体中间时序仍 unknown，不由本次成功倒填唯一根因。
+
+最终逐 AC 边界见 [交付地图](PHASE4_M1_DELIVERY.md)，原片、截图和待 QA 的时间轴见 [Web 交接](ux/phase4-implementation.md)。本文不要求重复已核真实 F02、原 T6 或 Base v2。随后唯一原库 RO 已证明原两文本 exact hash、原 actor/chat 谓词下的本地 inbox/carrier 为 0，72 引用独审、三段 RO rollback/I/U/D=0、F02 保护行和清理均已核；不把该零行推广成用户未发送或全部入站为零。
+
+Root 后台只读另见北京时间 21:02:10/21 两个消息事件：首推 app not online、retry 1/2/3 均 FAIL，旧 Gateway 21:01:45 已停；UI 无正文，事件与原两文本的精确关联仍 UNKNOWN。查询回复 Gate 未过，恢复由 A/Root 按实际证据制定，Gateway、SDK 回复及业务写窗口保持关闭。上述后台只读不授予执行许可，也不是本离线 Compose 的投影证据。
+
+本地媒体有限核对已另记：七图中五图为加载或会话核实态；两张 closed/v2 长图和 45.80 秒原片仍带定位标识。现存文件/命令/回执可作私有技术证据，不把它们称为已脱敏求职成片，不因素材缺陷改写已核业务结果。
+
+## 历史装配说明与失败记录（以下原文保留）
+
 当前 Phase4/M1 持续开发，main 基线 9d97、候选沿 PR43，授权与分层证据见 [STATUS](STATUS.md)和 [Phase4 验收](PHASE4_ACCEPTANCE.md)。本轮（2026-10-13）只补 frontend 镜像的独立 N01 schema 输入并整理现成运行流程；这份源码候选未执行新 build/start、PG 或 Web closure。精确独审后由 Root 另注册全新 owned 30min 机器窗口，不能将历史 partial、memory Preview 或本文命令当作新 clean Compose 通过。
 
 历史首包检查：7pure0.74s（项目/Mock/TTL/loopback/sourceFake约束），Docker Compose仅config解析0：postgres无hostport、API/Web host_ip均127.0.0.1、frontend无volume/secret、API/Worker仅app_password/user501:20；services_started0。完整1372offline87.59s/375integration deselected、252mypy/347format/Ruff/91MD0（含read恢复文档）实际核，scan及sourcefreeze另绑。初次新测试误引不存在helper名字导致ImportError/collection0，与初type3/import排序错误保留，换成已有projection_pair后7passed；无Dockerbuild失败假造或真实PG/SDK。上述原提交结果不能签本轮新 image、AC08 或原失败34PG；后面的实际 partial/失败记录保持历史。
