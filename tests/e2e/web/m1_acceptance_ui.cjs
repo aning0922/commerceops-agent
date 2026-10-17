@@ -228,19 +228,23 @@ function evidenceLabel(mode) {
     ? "AUTOMATIC · PG persisted-state read · MockCommerce business source · historical accepted Base v2 / controlled SDK · this run: SDK/platform writes 0 · not human observation"
     : "LAB / synthetic Mock · native business checks · Fake external transport · no real platform";
 }
-function checkSessionRequest(auth, method, pathname) {
+function checkSessionRequest(auth, method, pathname, request = null, probe = null) {
+  if (method === "GET" && pathname === "/api/v1/auth/session" && auth.login_posts === 0 &&
+    request !== null && typeof request === "object" && probe && probe.request === null)
+    probe.request = request;
   if (method !== "POST") return;
   ensure(["/api/v1/auth/login", "/api/v1/auth/logout"].includes(pathname), "REAL_BUSINESS_POST_BLOCKED");
   const name = pathname.endsWith("/logout") ? "logout_posts" : "login_posts";
   ensure(auth[name] === 0, "REAL_AUTH_RETRY_BLOCKED");
   auth[name]++;
 }
-function checkSessionResponse(auth, method, pathname, status) {
+function checkSessionResponse(auth, method, pathname, status, request = null, probe = null) {
   if (![401, 403].includes(status)) return;
   // LiveConsole's first mount probes session before showing the login form.
-  // This single anonymous 401 is not a failed login or a reauthentication path.
+  // Bind at request dispatch: the login can finish before this response arrives.
+  // Never infer the request's phase from the login counter at response time.
   if (status === 401 && method === "GET" && pathname === "/api/v1/auth/session" &&
-    auth.login_posts === 0 && auth.anonymous_session_401 === 0) {
+    request !== null && probe?.request === request && auth.anonymous_session_401 === 0) {
     auth.anonymous_session_401++; return;
   }
   throw new Failure("REAL_AUTH_REJECTED", null, status);
@@ -410,6 +414,7 @@ async function execute(input) {
     auth: { login_posts: 0, logout_posts: 0, anonymous_session_401: 0,
       automatic_refresh_or_relogin: 0 } });
   let browser, context, page, routeFailure, prepared, loginSession, primary;
+  const anonymousProbe = { request: null };
   const itemPath = "/api/v1/replenishment-items/" + input.item_id;
   const resolvePath = itemPath + "/resolve";
   const preparedFile = path.join(input.output_directory, "t6-native-request.json");
@@ -426,7 +431,8 @@ async function execute(input) {
     if (realReadonly) page.on("response", (response) => {
       const u = new URL(response.url());
       if (u.origin === api) {
-        try { checkSessionResponse(result.auth, response.request().method(), u.pathname, response.status()); }
+        try { checkSessionResponse(result.auth, response.request().method(), u.pathname,
+          response.status(), response.request(), anonymousProbe); }
         catch (error) { routeFailure = error; }
       }
     });
@@ -440,8 +446,8 @@ async function execute(input) {
           (request.method() === "POST" && u.origin === api &&
             (u.pathname === "/api/v1/auth/login" || logout || (input.stage === "t6" && u.pathname === resolvePath))),
           "UNAPPROVED_METHOD_BLOCKED");
-        if (realReadonly && request.method() === "POST" && u.origin === api) {
-          checkSessionRequest(result.auth, request.method(), u.pathname);
+        if (realReadonly && u.origin === api) {
+          checkSessionRequest(result.auth, request.method(), u.pathname, request, anonymousProbe);
         }
         if (request.method() === "POST" && u.origin === api && u.pathname !== "/api/v1/auth/login" && !logout) {
           ensure(input.stage === "t6" && u.pathname === resolvePath && result.business_posts === 0, "EXTRA_BUSINESS_POST_BLOCKED");

@@ -1346,9 +1346,11 @@ h.checkSessionRequest(auth,'POST','/api/v1/auth/logout');
 assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/logout'));
 assert.deepEqual(auth,{login_posts:1,logout_posts:1,automatic_refresh_or_relogin:0});
 const probe={login_posts:0,anonymous_session_401:0};
-h.checkSessionResponse(probe,'GET','/api/v1/auth/session',401);
+const request={},tracking={request:null};
+h.checkSessionRequest(probe,'GET','/api/v1/auth/session',request,tracking);
+h.checkSessionResponse(probe,'GET','/api/v1/auth/session',401,request,tracking);
 assert.equal(probe.anonymous_session_401,1);
-assert.throws(()=>h.checkSessionResponse(probe,'GET','/api/v1/auth/session',401));
+assert.throws(()=>h.checkSessionResponse(probe,'GET','/api/v1/auth/session',401,request,tracking));
 for(const status of [401,403]) {
  assert.throws(()=>h.checkSessionResponse({login_posts:1},'GET','/api/v1/auth/session',status));
  assert.throws(()=>h.checkSessionResponse({login_posts:1},'POST','/api/v1/auth/login',status));
@@ -1374,3 +1376,56 @@ for(const status of [401,403]) {
     )
     assert child.returncode == 0, child.stderr.decode()
     assert child.stdout == b"auth-and-label-unit-only-no-resources\n"
+
+
+def test_anonymous_session_response_uses_dispatched_request_not_login_timing() -> None:
+    script = r"""
+const assert=require('node:assert/strict');
+const h=require('./tests/e2e/web/m1_acceptance_ui.cjs');
+(async()=>{
+ const auth={login_posts:0,logout_posts:0,anonymous_session_401:0};
+ const probe={request:null},anonymous={},secondAnonymous={},login={},current={},logout={};
+ const session='/api/v1/auth/session';
+ h.checkSessionRequest(auth,'GET',session,anonymous,probe);
+ h.checkSessionRequest(auth,'GET',session,secondAnonymous,probe);
+ assert.equal(probe.request,anonymous);
+ let deliver;
+ const late=new Promise(resolve=>{deliver=resolve}).then(()=>
+  h.checkSessionResponse(auth,'GET',session,401,anonymous,probe));
+ // The login request and its response both precede the original anonymous 401.
+ h.checkSessionRequest(auth,'POST','/api/v1/auth/login',login,probe);
+ h.checkSessionResponse(auth,'POST','/api/v1/auth/login',200,login,probe);
+ assert.equal(auth.login_posts,1);assert.equal(auth.anonymous_session_401,0);
+ h.checkSessionRequest(auth,'GET',session,current,probe);
+ assert.equal(probe.request,anonymous);
+ for(const request of [secondAnonymous,current,{},login])
+  assert.throws(()=>h.checkSessionResponse(auth,'GET',session,401,request,probe),
+   e=>e.code==='REAL_AUTH_REJECTED'&&e.http_status===401);
+ await Promise.resolve();deliver();await late;
+ assert.equal(auth.anonymous_session_401,1);
+ // Identity reuse, an unmarked request, a different endpoint, or any 403 cannot borrow it.
+ assert.throws(()=>h.checkSessionResponse(auth,'GET',session,401,anonymous,probe));
+ assert.throws(()=>h.checkSessionResponse(auth,'GET','/api/v1/items',401,anonymous,probe));
+ assert.throws(()=>h.checkSessionResponse(auth,'POST',session,401,anonymous,probe));
+ for(const request of [anonymous,current,login])
+  assert.throws(()=>h.checkSessionResponse(auth,'GET',session,403,request,probe));
+ const afterLogin={request:null};
+ h.checkSessionRequest(auth,'GET',session,current,afterLogin);
+ assert.equal(afterLogin.request,null);
+ assert.throws(()=>h.checkSessionResponse(auth,'GET',session,401,current,afterLogin));
+ assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/login',{},probe));
+ h.checkSessionRequest(auth,'POST','/api/v1/auth/logout',logout,probe);
+ assert.throws(()=>h.checkSessionRequest(auth,'POST','/api/v1/auth/logout',{},probe));
+ assert.deepEqual(auth,{login_posts:1,logout_posts:1,anonymous_session_401:1});
+ process.stdout.write('request-identity-ordering-unit-only-no-resources\n');
+})().catch(error=>{process.stderr.write(error.stack);process.exitCode=1});
+"""
+    child = subprocess.run(
+        [str(ROOT / ".tools/node/bin/node"), "-e", script],
+        cwd=ROOT,
+        env=controlled_environment({}),
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.returncode == 0, child.stderr.decode()
+    assert child.stdout == b"request-identity-ordering-unit-only-no-resources\n"
