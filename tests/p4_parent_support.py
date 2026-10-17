@@ -234,7 +234,6 @@ def prepare_parent(
             [
                 str(bootstrap),
                 str(Path(__file__).resolve().parents[1]),
-                str(Path(__file__).resolve().parents[1] / "backend/src"),
             ]
         ),
     )
