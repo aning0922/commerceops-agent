@@ -95,6 +95,48 @@ def test_complete_two_pages_with_unrelated_rows_keeps_only_original_two() -> Non
     assert HistoryPage.from_record(p1.record()) == p1
 
 
+@pytest.mark.parametrize("partial", [False, True])
+def test_forensic_page_evidence_never_serializes_original_wire_or_tokens(partial: bool) -> None:
+    from scripts.p4_acceptance import history_page_evidence
+
+    r = request()
+    first = row(r)
+    private_marker = "owned-extra-wire-sensitive"
+    first["extra"] = {"token": private_marker}
+    p1 = page(r, [first], more=True)
+    records = [p1.record()]
+    if not partial:
+        records.append(page(r, [row(r, 1)], token=NEXT_PAGE).record())
+    result = history_page_evidence(r, records)
+    assert result["complete_unique_pair"] is not partial
+    assert result["pages"][0]["raw_sha256"] == p1.record()["raw_sha256"]
+    assert result["pages"][0]["exact_text_counts"] == [1, 0]
+    assert all(v["request_token_matches_previous"] for v in result["pages"])
+    if not partial:
+        assert (
+            result["pages"][0]["response_token_sha256"]
+            == result["pages"][1]["request_token_sha256"]
+        )
+    encoded = json.dumps(result)
+    assert NEXT_PAGE not in encoded and private_marker not in encoded
+    assert "raw_body_b64" not in encoded and "wire_row" not in encoded
+
+
+def test_forensic_page_corruption_is_a_fixed_safe_failure() -> None:
+    from scripts.p4_acceptance import history_page_evidence
+
+    r = request()
+    corrupted = page(r, [row(r), row(r, 1)]).record()
+    corrupted["raw_sha256"] = "0" * 64
+    result = history_page_evidence(r, [corrupted])
+    assert result == {
+        "complete_unique_pair": False,
+        "pages": [],
+        "originals": [],
+        "failure": "P4A_HISTORY_PAGE_UNVERIFIED",
+    }
+
+
 @pytest.mark.parametrize(
     "field,value",
     [

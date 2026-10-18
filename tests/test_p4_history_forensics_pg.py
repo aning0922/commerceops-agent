@@ -1,5 +1,6 @@
 """新 owned：同一固定 collector 的真实只读、原 once 与权限失败证据。"""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -30,6 +31,11 @@ def test_fixed_collector_preserves_once_and_captures_full_related_state(
             store.register(request)
             store.hold(request)
         elif state == "verified":
+            wire = inputs.directory / "external-records.json"
+            body = json.loads(wire.read_bytes())
+            extra_marker = "owned-extra-wire-sensitive"
+            body["history_pages"][0]["items"][0]["access_token"] = extra_marker
+            wire.write_text(json.dumps(body))
             assert inputs.run("owned-fixture-history")[0] == 0
         baseline = protected(f)
         result = history_forensics(app, request)
@@ -47,7 +53,17 @@ def test_fixed_collector_preserves_once_and_captures_full_related_state(
         else:
             assert queries["HF_BATCH"][0]["status"] == state
             assert queries["HF_BATCH"][0]["request_hash"]
+        if state == "hold":
+            wrong = request.model_copy(update={"chat_id": "owned-wrong-chat"})
+            denied = history_forensics(app, wrong)
+            assert not denied["complete"] and denied["rollback_completed"]
+            assert denied["failures"][0]["code"] == "P4A_HISTORY_FORENSICS_BINDING"
+            assert "HF_MESSAGES" not in denied["queries"]
         if state == "verified":
+            assert queries["HF_BATCH"][0]["page_evidence"]["complete_unique_pair"]
+            assert "owned-page-two" not in json.dumps(result)
+            assert "owned-extra-wire-sensitive" not in json.dumps(result)
+            assert all("wire_row" not in row for row in queries["HF_MESSAGES"])
             assert len(queries["HF_MESSAGES"]) == 2 and len(queries["HF_SOURCES"]) >= 2
             assert {row["message_id"] for row in queries["HF_MESSAGES"]} <= {
                 row["message_id"] for row in queries["HF_SOURCES"]

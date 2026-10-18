@@ -109,3 +109,5 @@ Fake仅底层HTTP，SQL/角色/once/进程和清理真实。
 最终冻结独审后由Root释放唯一新完整CI，45/43及旧558不减，新增节点另计。
 真实RO或CI失败/unknown停止；本包不授权任何真实重取、回复、新消息或业务写入，
 不新增迁移、表、权限、状态机、wrapper/框架/observer或重试。
+
+原第1窗口16:55–17:05Z未启动，仍0/2：Root/Reviewer指出同chat批次扫描及新证据保存pagination token两项P2。原计划保留，修正后由Root另定UTC，不自动顺延。新collector仅原recovery并核app/tenant/chat，0行是合法观察；页面原字节仅在内存验证，新证据仅安全结构/链匹配、原文匹配计数、页面SHA和token摘要，不保存raw body或token原值。截止TimeoutError直接上抛，不吞入普通查询故障。

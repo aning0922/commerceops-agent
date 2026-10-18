@@ -781,25 +781,22 @@ HISTORY_FORENSICS_QUERIES = {
         ),
         Query(
             "HF_BATCH",
-            "SELECT to_jsonb(b) AS row FROM business.p4_history_recoveries b "
-            "WHERE id=%s OR (app_id=%s AND tenant_key=%s AND chat_id=%s) ORDER BY id",
-            (("row", 3802),),
+            "SELECT to_jsonb(b)-'pages' AS row,pages FROM business.p4_history_recoveries b "
+            "WHERE id=%s",
+            (("row", 3802), ("pages", 3802)),
             revisions=("0017",),
         ),
         Query(
             "HF_MESSAGES",
-            "SELECT to_jsonb(m) AS row FROM business.p4_history_messages m "
+            "SELECT to_jsonb(m)-'wire_row' AS row FROM business.p4_history_messages m "
             "WHERE recovery_id=%s ORDER BY kind,id",
             (("row", 3802),),
             revisions=("0017",),
         ),
         Query(
             "HF_REPLIES",
-            "SELECT to_jsonb(r) AS row FROM business.p4_read_replies r WHERE "
-            "id IN (SELECT reply_id FROM business.p4_history_messages WHERE recovery_id=%s) "
-            "OR (organization_id=%s AND shop_id=%s AND principal_id=%s AND app_id=%s "
-            "AND tenant_key=%s AND chat_id=%s AND task_id=ANY(%s) "
-            "AND (kind='task_status' OR (kind='explain_report' AND report_id=ANY(%s)))) "
+            "SELECT to_jsonb(r) AS row FROM business.p4_read_replies r "
+            "WHERE id IN (SELECT reply_id FROM business.p4_history_messages WHERE recovery_id=%s) "
             "ORDER BY id",
             (("row", 3802),),
             revisions=("0017",),
@@ -809,10 +806,8 @@ HISTORY_FORENSICS_QUERIES = {
             "SELECT to_jsonb(s) AS row FROM business.p4_read_message_sources s "
             "WHERE history_message_id IN "
             "(SELECT id FROM business.p4_history_messages WHERE recovery_id=%s) "
-            "OR inbox_id IN (SELECT inbox_id FROM business.p4_read_replies WHERE "
-            "organization_id=%s AND shop_id=%s AND principal_id=%s AND app_id=%s "
-            "AND tenant_key=%s AND chat_id=%s AND task_id=ANY(%s) "
-            "AND (kind='task_status' OR (kind='explain_report' AND report_id=ANY(%s)))) "
+            "OR inbox_id IN (SELECT existing_inbox_id FROM business.p4_history_messages "
+            "WHERE recovery_id=%s) "
             "ORDER BY app_id,tenant_key,message_id",
             (("row", 3802),),
             revisions=("0017",),
@@ -886,6 +881,85 @@ HISTORY_FORENSICS_QUERIES = {
 }
 
 
+def history_page_evidence(history: Any, records: list[Any]) -> dict[str, Any]:
+    """原页只在内存验证；新取证只保存摘要，不复制分页 token 或原始 wire。"""
+    from commerceops.application.feishu_business.history import (
+        HistoryPage,
+        strict_json,
+        verify_pages,
+    )
+
+    pages = []
+    summaries = []
+    previous_token = None
+    try:
+        for record in records:
+            page = HistoryPage.from_record(record)
+            value = strict_json(page.body)
+            data = value.get("data", {}) if isinstance(value, dict) else {}
+            if not isinstance(data, dict):
+                data = {}
+            token = data.get("page_token")
+            items = data.get("items")
+            counts = [0, 0]
+            if isinstance(items, list):
+                for item in items:
+                    if not isinstance(item, dict) or not isinstance(item.get("body"), dict):
+                        continue
+                    content = item["body"].get("content")
+                    if not isinstance(content, str):
+                        continue
+                    try:
+                        body = strict_json(content)
+                    except ValueError:
+                        continue
+                    if isinstance(body, dict):
+                        for index, text in enumerate(history.expected_texts):
+                            counts[index] += body.get("text") == text
+            summaries.append(
+                dict(
+                    raw_sha256=hashlib.sha256(page.body).hexdigest(),
+                    http_status=page.http_status if type(page.http_status) is int else None,
+                    observed_at=page.observed_at.isoformat(),
+                    request_token_sha256=hashlib.sha256(page.request_token.encode()).hexdigest()
+                    if isinstance(page.request_token, str)
+                    else None,
+                    response_token_sha256=hashlib.sha256(token.encode()).hexdigest()
+                    if isinstance(token, str)
+                    else None,
+                    has_more=data.get("has_more") if type(data.get("has_more")) is bool else None,
+                    item_count=len(items) if isinstance(items, list) else None,
+                    request_token_matches_previous=page.request_token == previous_token,
+                    exact_text_counts=counts,
+                )
+            )
+            previous_token = token if data.get("has_more") is True else None
+            pages.append(page)
+        messages = verify_pages(history, pages)
+        return dict(
+            complete_unique_pair=True,
+            pages=summaries,
+            originals=[
+                dict(
+                    message_id=m.message_id,
+                    text_sha256=hashlib.sha256(m.text.encode()).hexdigest(),
+                    sent_at=m.sent_at.isoformat(),
+                    observed_at=m.observed_at.isoformat(),
+                    page_sha256=m.page_sha256,
+                )
+                for m in messages
+            ],
+            failure=None,
+        )
+    except (ValueError, TypeError, KeyError):
+        return dict(
+            complete_unique_pair=False,
+            pages=summaries,
+            originals=[],
+            failure="P4A_HISTORY_PAGE_UNVERIFIED",
+        )
+
+
 def history_forensics(app: Any, history: Any) -> dict[str, Any]:
     """原恢复键的固定只读取证；不使用 Worker/Factory 或行锁权限函数。"""
     from commerceops.application.feishu_business.read_intents import parse_read_intent
@@ -894,27 +968,14 @@ def history_forensics(app: Any, history: Any) -> dict[str, Any]:
     require(app.user == "commerceops_app" and app.runtime_password_file is None, "P4A_ROLE")
     intents = [parse_read_intent(text) for text in history.expected_texts]
     require(all(intent is not None for intent in intents), "P4A_HISTORY_FORENSICS_SCOPE")
-    tasks = list({intent.task_id for intent in intents if intent})
-    reports = [intent.report_id for intent in intents if intent and intent.report_id]
-    related = (
-        history.recovery_id,
-        history.organization_id,
-        history.shop_id,
-        history.principal_id,
-        history.app_id,
-        history.tenant_key,
-        history.chat_id,
-        tasks,
-        reports,
-    )
     scope = (history.organization_id, history.shop_id, history.principal_id)
     parameters = {
         "HF_ROLE": (),
         "HF_CATALOG": (),
-        "HF_BATCH": (history.recovery_id, history.app_id, history.tenant_key, history.chat_id),
+        "HF_BATCH": (history.recovery_id,),
         "HF_MESSAGES": (history.recovery_id,),
-        "HF_REPLIES": related,
-        "HF_SOURCES": related,
+        "HF_REPLIES": (history.recovery_id,),
+        "HF_SOURCES": (history.recovery_id, history.recovery_id),
         "HF_WINDOWS": (history.recovery_id, history.recovery_id),
         "HF_CALLS": (history.recovery_id, history.recovery_id),
         "HF_LIFECYCLE": (
@@ -939,7 +1000,30 @@ def history_forensics(app: Any, history: Any) -> dict[str, Any]:
                 try:
                     with db.transaction():
                         rows = query.execute(db, parameters[name], revision="0017", role="app")
+                    if name == "HF_BATCH":
+                        require(len(rows) <= 1, "P4A_HISTORY_FORENSICS_BINDING")
+                        for row in rows:
+                            require(
+                                (
+                                    row["row"]["app_id"],
+                                    row["row"]["tenant_key"],
+                                    row["row"]["chat_id"],
+                                    row["row"]["organization_id"],
+                                    row["row"]["shop_id"],
+                                )
+                                == (
+                                    history.app_id,
+                                    history.tenant_key,
+                                    history.chat_id,
+                                    str(history.organization_id),
+                                    str(history.shop_id),
+                                ),
+                                "P4A_HISTORY_FORENSICS_BINDING",
+                            )
                     result["queries"][name] = [row["row"] for row in rows]
+                    if name == "HF_BATCH":
+                        for raw, safe in zip(rows, result["queries"][name], strict=True):
+                            safe["page_evidence"] = history_page_evidence(history, raw["pages"])
                     if name == "HF_ROLE":
                         require(
                             result["queries"][name]
@@ -974,18 +1058,23 @@ def history_forensics(app: Any, history: Any) -> dict[str, Any]:
                             == expected,
                             "P4A_SCHEMA_TABLES",
                         )
+                except TimeoutError:
+                    raise
                 except Exception as error:
                     state = getattr(error, "sqlstate", None)
                     result["failures"].append(
                         dict(
                             query_id=name,
                             category=type(error).__name__,
+                            code=error.code if isinstance(error, AcceptanceFailure) else None,
                             sqlstate=state
                             if isinstance(state, str) and re.fullmatch(r"[A-Z0-9]{5}", state)
                             else None,
                         )
                     )
-                    if name in ("HF_ROLE", "HF_CATALOG"):
+                    if name in ("HF_ROLE", "HF_CATALOG") or (
+                        name == "HF_BATCH" and isinstance(error, AcceptanceFailure)
+                    ):
                         break
             tx = result["queries"].get("HF_TRANSACTION")
             result["complete"] = (
