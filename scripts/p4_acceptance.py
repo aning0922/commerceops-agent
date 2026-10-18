@@ -929,7 +929,7 @@ def history_page_evidence(history: Any, records: list[Any]) -> dict[str, Any]:
                     else None,
                     has_more=data.get("has_more") if type(data.get("has_more")) is bool else None,
                     item_count=len(items) if isinstance(items, list) else None,
-                    request_token_matches_previous=page.request_token == previous_token,
+                    pagination_chain_match=page.request_token in (previous_token,),
                     exact_text_counts=counts,
                 )
             )

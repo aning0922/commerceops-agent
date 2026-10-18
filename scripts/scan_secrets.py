@@ -69,6 +69,19 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
         ),
         "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
     },
+    {
+        "declaration_line": 932,
+        "declaration_sha256": "ac094857ba462db6538609bdbce945d7c3a5d7bb7556c3355345e90c5230f6a8",
+        "fingerprint": (
+            "7499f7cf08b4058951783a78a9e89ff076cd2ae5:scripts/p4_acceptance.py:generic-api-key:932"
+        ),
+        "match_sha256": "b122fc8bcb1fed4197e23a043989ac031736a4b8bd62e923c60c69f755fb69f3",
+        "path": "scripts/p4_acceptance.py",
+        "reported_line": 932,
+        "reported_line_sha256": "ac094857ba462db6538609bdbce945d7c3a5d7bb7556c3355345e90c5230f6a8",
+        "rule": "generic-api-key",
+        "source_commit": "7499f7cf08b4058951783a78a9e89ff076cd2ae5",
+    },
 )
 
 
@@ -148,7 +161,7 @@ def validate_rules() -> None:
 
 
 def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
-    """Two reviewed cross-line git findings; all raw findings remain visible."""
+    """Exact independently reviewed public findings; all raw findings remain visible."""
     if scope != "git":
         return False
     for row in APPROVED_TEST_HISTORY:

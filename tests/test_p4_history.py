@@ -111,7 +111,7 @@ def test_forensic_page_evidence_never_serializes_original_wire_or_tokens(partial
     assert result["complete_unique_pair"] is not partial
     assert result["pages"][0]["raw_sha256"] == p1.record()["raw_sha256"]
     assert result["pages"][0]["exact_text_counts"] == [1, 0]
-    assert all(v["request_token_matches_previous"] for v in result["pages"])
+    assert all(v["pagination_chain_match"] for v in result["pages"])
     if not partial:
         assert (
             result["pages"][0]["response_token_sha256"]
