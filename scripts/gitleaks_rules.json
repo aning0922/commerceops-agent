@@ -44,5 +44,29 @@
       "source_commit": "348a9f4ca0c4159d9b3a2cbdf0921623e5bb5600",
       "source_line": 3936
     }
+  ],
+  "historical_findings": [
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_p4_queued_start.py",
+      "source_commit": "72bc597a1978f5dd78853e678ca57e68f0586ab6",
+      "declaration_line": 445,
+      "reported_line": 446,
+      "declaration_sha256": "0e616f2f1e514fb1f6a4f553c3fc314d69384f4a8481ec98614d217a9b3c0017",
+      "reported_line_sha256": "552256c040cb6f95fc625b89b82f08c722790b022a9bf7e8502031d725c59729",
+      "fingerprint": "72bc597a1978f5dd78853e678ca57e68f0586ab6:tests/test_p4_queued_start.py:generic-api-key:446",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_p4_queued_start.py",
+      "source_commit": "be1b79380be3eac042a04f5cd75bb980044cb770",
+      "declaration_line": 445,
+      "reported_line": 446,
+      "declaration_sha256": "0e616f2f1e514fb1f6a4f553c3fc314d69384f4a8481ec98614d217a9b3c0017",
+      "reported_line_sha256": "552256c040cb6f95fc625b89b82f08c722790b022a9bf7e8502031d725c59729",
+      "fingerprint": "be1b79380be3eac042a04f5cd75bb980044cb770:tests/test_p4_queued_start.py:generic-api-key:446",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    }
   ]
 }

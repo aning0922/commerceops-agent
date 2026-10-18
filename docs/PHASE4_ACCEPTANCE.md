@@ -1,5 +1,29 @@
 # Phase4 / M1 分层验收（实施中）
 
+## 2026-10-18 当前准备矩阵
+
+Root已恢复原A与原Reviewer接续，同一WTfd38/PR43从be1b7938继续；本节覆盖下方旧待验导航，
+历史失败和已核收范围仍保留。真实F02、原私聊任务/审批、真人T6与原Base v1/v2已按原对象核收，
+依据见[当前交付地图](PHASE4_M1_DELIVERY.md#当前交付工作稿2026-10-17待合批审核)。不重复登录、
+发消息、审批、T6或Base写入。原两查询在精确actor/chat/text hash谓词下本地inbox/carrier为0，
+不等于用户未发送；平台近时失败事件与原文本的精确关联仍UNKNOWN，恢复与真实回复继续HOLD。
+过期04:04–04:24提案未执行，不挪动窗口。
+
+| 当前对象 | 实际证据与准备边界 |
+| --- | --- |
+| group原生ready增量 | be1b7938合入显式group-ready来源绑定及已审C af731消费者；原Reviewer公共39pure与C静态结论保留。默认Gateway、旧queued保护和生产业务权限不放宽 |
+| owned前三次 | 不同私有候选分别在工具符号链接、owned TTL配置和W2 preflight停止；第三次保存的SQL证实审批JSON时间串与原生datetime哈希不等。原PermissionError未捕获具体谓词，不倒填唯一根因 |
+| owned第四次 | 同be1b/私有772a490e，实际G1完整20行卡、停止/reap及G2原生preflight通过；拒绝落rejected、0执行/0项、13个决定ACK（11 info/2 warning；控制帧另列）。SQL实际auth/bot/table/field/IM各2，共10次Fake底层HTTP调用；不是仅含第一段的outer累计5次 |
+| 第四次停止失败 | W2 parent在自身expiry−15s收尾时又收到outer SIGTERM，TimeoutExpired后KeyboardInterrupt，native−2、无完整生命周期确认。整链CLI1，success/cold未运行；不把拒绝业务状态升级为全链通过。独立容器/网络/卷挂载0、父PGID均不存在、端口关闭、保卷，最终RO rollback/IUD0、旧保护行未变 |
+| 下一最终候选 | 仅私有类型还原、固定停止安排和失败账本采集；先完整低成本检查，再同候选reject0+success20/Q2000、漏确认/重放/冲突、ready-lost/必要HTTP故障、原键严格15字段读回及冷重放/清理。当前完整成功尚未取得，不拼接四次失败签同源PASS |
+| 新只读Web消费者 | 已审persisted_real_v2_readonly page/replay尚待实际运行。复用原生closed-v2合成历史，当前同源API/Web、原键GET、认证POST与业务POST0分列；截图可null。此项无新T6/SDK/平台写，不把合成历史称真实平台 |
+| 检查与历史误报 | be1b离线2185passed/541deselected、116.72s，Ruff/format通过；原full check在扫描阻断，随后发现测试mypy5项。当前测试改名/type修正，git仅按已审两条完整finding及Match/原行hash分类；原始2条和native exit1保留，dir/index不分类，.gitleaksignore拒绝及全历史扫描保持。修正后完整scripts.check native0/158.84s、2194offline/541integration排除、type350、95依赖审计0；本次事实追加另核Markdown/扫描，后续owned仍待 |
+
+本批A总cap5/Review1.25/Root0.75有效Agent小时，原上次保守1.17h墙钟上界及全部旧用量继续累计，
+机器等待分列；C资源串行，不触原真实库/身份/AppSecret/SDK。最终整包冻结独审后，Root才释放
+普通push及一次精确五job CI；当前不push、改PR正文、触CI或合main。main仍9d97，M1/P4仍
+in_progress；c460旧五绿/541PG不验收新候选。D1/D30、300h、P4原50h估计、人工H/L与18页不重置。
+
 ## 2026-10-17 当前矩阵
 
 以下以[Root本次实际核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6229884679)

@@ -3,6 +3,8 @@
 import asyncio
 import importlib
 import json
+import signal
+import subprocess
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,6 +19,7 @@ from commerceops.application.feishu_business.worker_window import (
     KNOWN70_CAPS,
     ControlledWorkerWindow,
 )
+from commerceops.infrastructure.web_config import WebConfig
 from websockets.protocol import State
 
 from tests.test_p4_controlled_worker import configured
@@ -314,7 +317,7 @@ def test_explicit_group_parent_binds_exact_sources_config_window_and_child_argv(
         captured.append(argv)
         raise AtSpawn
 
-    monkeypatch.setattr(parent.subprocess, "Popen", spawn)
+    monkeypatch.setattr(subprocess, "Popen", spawn)
     with pytest.raises(AtSpawn):
         parent.run_gateway(
             Path("config"),
@@ -383,7 +386,7 @@ def test_group_ready_rejects_scope_or_binding_before_secret_or_database(
     monkeypatch.setattr(
         child, "connect", lambda *a: pytest.fail("database before group validation")
     )
-    monkeypatch.setattr(child.signal, "setitimer", lambda *a: None)
+    monkeypatch.setattr(signal, "setitimer", lambda *a: None)
     with pytest.raises((PermissionError, ValueError)):
         child.serve(
             Path("config"),
@@ -408,16 +411,16 @@ def test_group_ready_child_accepts_only_explicit_bound_option_before_native_clai
     digest = group_ready_binding(bodies[Path("config")], bodies[Path("window")], "a" * 64)
     monkeypatch.setattr(child, "private_value", lambda path: bodies[path])
     monkeypatch.setattr(
-        child.WebConfig,
+        WebConfig,
         "from_file",
         lambda *a, **kw: SimpleNamespace(database=SimpleNamespace(user="commerceops_app")),
     )
-    monkeypatch.setattr(child.signal, "setitimer", lambda *a: None)
+    monkeypatch.setattr(signal, "setitimer", lambda *a: None)
 
     class AtClaim(Exception):
         pass
 
-    def connect(*args: Any):
+    def connect(*args: Any) -> None:
         raise AtClaim
 
     monkeypatch.setattr(child, "connect", connect)
@@ -442,8 +445,9 @@ def test_group_ready_child_accepts_only_explicit_bound_option_before_native_clai
         dict(group_binding_sha256="a" * 64),
     ],
 )
-def test_group_option_incomplete_or_mixed_rejects_before_inputs(
-    options: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+def test_group_flags_require_complete_exclusive_binding(
+    options: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from commerceops.entrypoints import feishu_gateway_child as child
 

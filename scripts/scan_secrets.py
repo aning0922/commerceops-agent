@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import tomllib
 from pathlib import Path
+from typing import Any
 
 from scripts.repository_files import indexed_files, versionable_files
 from scripts.vendor_gitleaks_rules import (
@@ -37,6 +38,38 @@ def sensitive_path(path: Path) -> bool:
         or name in {"id_rsa", "id_ed25519", ".netrc", ".npmrc.credentials"}
         or bool({"runtime", "backups"}.intersection(path.parts))
     )
+
+
+APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_p4_queued_start.py",
+        "source_commit": "72bc597a1978f5dd78853e678ca57e68f0586ab6",
+        "declaration_line": 445,
+        "reported_line": 446,
+        "declaration_sha256": "0e616f2f1e514fb1f6a4f553c3fc314d69384f4a8481ec98614d217a9b3c0017",
+        "reported_line_sha256": "552256c040cb6f95fc625b89b82f08c722790b022a9bf7e8502031d725c59729",
+        "fingerprint": (
+            "72bc597a1978f5dd78853e678ca57e68f0586ab6:"
+            "tests/test_p4_queued_start.py:generic-api-key:446"
+        ),
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_p4_queued_start.py",
+        "source_commit": "be1b79380be3eac042a04f5cd75bb980044cb770",
+        "declaration_line": 445,
+        "reported_line": 446,
+        "declaration_sha256": "0e616f2f1e514fb1f6a4f553c3fc314d69384f4a8481ec98614d217a9b3c0017",
+        "reported_line_sha256": "552256c040cb6f95fc625b89b82f08c722790b022a9bf7e8502031d725c59729",
+        "fingerprint": (
+            "be1b79380be3eac042a04f5cd75bb980044cb770:"
+            "tests/test_p4_queued_start.py:generic-api-key:446"
+        ),
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+)
 
 
 def validate_rules() -> None:
@@ -109,6 +142,51 @@ def validate_rules() -> None:
         or ro_evidence.get("source_line") != 3936
     ):
         raise ValueError("invalid scanner rules")
+
+    if provenance.get("historical_findings") != list(APPROVED_TEST_HISTORY):
+        raise ValueError("invalid historical scanner finding")
+
+
+def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
+    """Two reviewed cross-line git findings; all raw findings remain visible."""
+    if scope != "git":
+        return False
+    for row in APPROVED_TEST_HISTORY:
+        if any(
+            item.get(key) != row[field]
+            for key, field in (
+                ("RuleID", "rule"),
+                ("File", "path"),
+                ("StartLine", "reported_line"),
+                ("Commit", "source_commit"),
+                ("Fingerprint", "fingerprint"),
+            )
+        ):
+            continue
+        match = item.get("Match")
+        if (
+            not isinstance(match, str)
+            or hashlib.sha256(match.encode()).hexdigest() != row["match_sha256"]
+        ):
+            return False
+        result = subprocess.run(
+            ["git", "show", row["source_commit"] + ":" + row["path"]],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode:
+            return False
+        lines = result.stdout.splitlines()
+        return all(
+            len(lines) >= row[line]
+            and hashlib.sha256(lines[row[line] - 1]).hexdigest() == row[digest]
+            for line, digest in (
+                ("declaration_line", "declaration_sha256"),
+                ("reported_line", "reported_line_sha256"),
+            )
+        )
+    return False
 
 
 def scan(root: Path) -> int:
@@ -213,7 +291,10 @@ def scan(root: Path) -> int:
             if not isinstance(findings, list) or bool(findings) != bool(process.returncode):
                 print(f"ERROR {scope}: 命中与退出码不一致")
                 return 2
+            reviewed = 0
             for item in findings:
+                approved = approved_history_finding(scope, item)
+                reviewed += int(approved)
                 # 永远不输出 Secret/Match/整条报告，也不输出原始 stdout/stderr。
                 print(
                     json.dumps(
@@ -223,12 +304,23 @@ def scan(root: Path) -> int:
                             "file": item["File"],
                             "line": item["StartLine"],
                             "commit": item.get("Commit", ""),
+                            "fingerprint": item.get("Fingerprint", ""),
+                            "classification": "reviewed_public_false_positive"
+                            if approved
+                            else "blocking",
                         },
                         ensure_ascii=False,
                     )
                 )
-            result_code = max(result_code, process.returncode)
-            print(f"{scope}: findings={len(findings)}, exit={process.returncode}")
+            scope_code = int(len(findings) > reviewed)
+            result_code = max(result_code, scope_code)
+            print(f"{scope}: findings={len(findings)}, exit={scope_code}")
+            if reviewed:
+                print(
+                    f"{scope}: native_exit={process.returncode}, "
+                    f"reviewed_false_positives={reviewed}, "
+                    f"blocking_findings={len(findings) - reviewed}"
+                )
     return result_code
 
 

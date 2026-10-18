@@ -1284,3 +1284,49 @@ dir/index/git敏感扫描均0。完整collect541=原530+新11，原530节点模�
 372+169并集541/交集0，原25个合批计划完整覆盖一次；CI35/33/300、75reserve/60cleanup、
 G1/G2/Web/N01、锁/Compose/C四consumer未改。只追加本事实再作Markdown核，不冒称未来
 冻结复验/独审或新Hosted已通过；冻结后新11整链与精确SHA/命令/输入/结果/清理索引另交Root。
+
+
+## 68. group20与只读Web同批接续：完整候选仍待验证
+
+2026-10-18，Asia/Shanghai。用户确认额度恢复，Root接续原A/Reviewer；A仍唯一WTfd38/
+codex/phase4-feishu/PR43，不改历史提交，不重做已通过真人。公共be1b7938/tree842a9406为
+72bc597与af73176普通合并，工作区开始时干净；后续仅本批必要测试/type、精确历史扫描判定
+及事实导航。原Reviewer公共39pure与C静态结论保持，当前源码完整技术Gate不由此签发。
+
+真实F02、原私聊任务/审批、T6与同原record Base v1/v2已核收，复用原回执；当前原库/真实
+身份/Secret/SDK重新HOLD。原两查询精确本地inbox/carrier零行、平台近时失败事件与文本关联
+UNKNOWN分列；用户不重发，真实恢复HOLD，过期04:04–04:24提案NOT_EXECUTED，不复活。
+最新交付事实见[交付地图](PHASE4_M1_DELIVERY.md#当前交付工作稿2026-10-17待合批审核)。
+
+四个owned候选失败独立保留：前三次分别为工具symlink、合成TTL配置与W2原生preflight拒绝。
+第三次保存SQL可证JSON时间精度与datetime导致提交审批hash不等；原PermissionError具体
+谓词trace未知，不倒填唯一根因。第四次私有772a490e在be1b上实际通过G1原生ready/20行卡/
+停机reap/G2 preflight；原拒绝落rejected、0执行/0项，13决定ACK（11info/2warning）；SQL实际auth/bot/table/
+field/IM各2，总10次，outer先前只计phase1的5次不能替代完整SQL。W2在expiry−15s原生
+TimeoutExpired收尾时再次收到SIGTERM，KeyboardInterrupt/native−2、生命周期未确认；
+CLI1，success/cold未跑，非完整PASS。最后RO rollback/IUD0、旧保护行未变；独立核容器/
+网络/挂载0、PGID不存在、端口关闭、保卷。独立停止诊断索引48e1bdc5…514ad4。
+
+当前只修私有类型还原、原截止内避开parent自身收尾的停止安排和失败SDK账本采集。先完整
+低成本check，再以同一最终候选做reject0+success20/Q2000、必要拒绝/漏确认/10重放/冲突、
+ready-lost/HTTP故障、同原键15字段严格读回、冷重放与清理；Fake仅owned底层HTTP/WS和明确
+合成人。随后串行复用原生closed-v2合成历史，实际跑已审C page/replay，当前同源API/Web、
+认证POST与业务POST0分记，不新增T6/SDK/平台写。完整准备及真实group/Web/M1仍pending。
+
+be1b独立离线2185passed/541deselected、116.72s/native0；Ruff/format通过，原full check先
+在generic-api-key测试跨行声明误报阻断，后发现mypy5项。Root/原Reviewer准许当前声明改名与
+测试type修正；历史仅对实际72bc与be1b两个git finding按rule/path/commit/fingerprint/
+scanner446、declaration445及Match/原行SHA严格分类，原native1和两条命中保留。不增加规则/
+目录豁免，dir/index不分类，.gitleaksignore拒绝和--all --full-history -m保持。最终完整检查、
+同候选owned索引、整包独审与新精确CI以实际后续回执另记，不预填成功。
+
+本批A总cap5/Review1.25/Root0.75 Agent有效h不重置，先前A≤1.17h保守墙钟上界继续累计，
+机器等待单列，C资源串行。原300h/P4 50h/日期/H-L/18页不重置；main9d97、M1/P4仍
+in_progress。未push/PRbody/CI/main，最终Root独审后另释放一次精确五job CI；旧c460 CI不代签。
+
+
+本批必要修正的完整scripts.check已实际退出0/158.84s，staged tree8c30a78f：2194offline
+通过/541integration排除、type350、format462、Markdown108、Node/Python95依赖审计0。
+dir/index当前0；git原始2条/native1保留为已审公开误报，blocking0，不称历史从未命中。
+停止后有效决定ACK复核为13（11info/2warning），空载荷控制帧另列；本段只追加检查和
+计数事实，再核Markdown/扫描，不将其写成未运行的group/Web成功或新CI。

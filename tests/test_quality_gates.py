@@ -506,3 +506,91 @@ def test_ro_exception_cannot_be_broadened_by_updated_config_hash(
     monkeypatch.setattr(secret_scan, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid scanner rules"):
         secret_scan.validate_rules()
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "path",
+        "source_commit",
+        "reported_line",
+        "fingerprint",
+        "declaration_sha256",
+        "reported_line_sha256",
+        "match_sha256",
+    ],
+)
+def test_history_finding_provenance_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, field: str
+) -> None:
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / ".gitleaks.toml").write_bytes((ROOT / ".gitleaks.toml").read_bytes())
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    record = provenance["historical_findings"][0]
+    record[field] = (
+        record[field] + 1 if isinstance(record[field], int) else str(record[field]) + "changed"
+    )
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    monkeypatch.setattr(secret_scan, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="historical scanner finding"):
+        secret_scan.validate_rules()
+
+
+def test_public_test_declaration_in_another_commit_is_not_approved(repository: Path) -> None:
+    target = repository / "tests/test_p4_queued_start.py"
+    target.parent.mkdir()
+    declaration = "def test_group_option_" + "incomplete_or_mixed_rejects_before_inputs("
+    target.write_text(
+        "\n" * 444
+        + declaration
+        + "\n    options: dict[str, Any], monkeypatch: pytest."
+        + "MonkeyPatch\n) -> None:\n    pass\n"
+    )
+    git(repository, "add", ".")
+    git(repository, "commit", "-m", "synthetic unapproved public declaration")
+    target.unlink()
+    git(repository, "add", "-u")
+    git(repository, "commit", "-m", "remove current declaration")
+    result = run_scan(repository)
+    assert result.returncode == 1
+    assert '"scope": "git"' in result.stdout
+    assert '"rule": "generic-api-key"' in result.stdout
+
+
+def test_two_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
+    report = tmp_path / "native-report.json"
+    result = subprocess.run(
+        [
+            str(ROOT / ".tools/gitleaks"),
+            "git",
+            str(ROOT),
+            "--config",
+            str(ROOT / ".gitleaks.toml"),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=--all --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+    )
+    assert result.returncode == 1
+    rows = json.loads(report.read_text())
+    assert len(rows) == 2
+    for row in rows:
+        assert secret_scan.approved_history_finding("git", row)
+        assert not secret_scan.approved_history_finding("dir", row)
+        assert not secret_scan.approved_history_finding("index", row)
+        for field in ("RuleID", "File", "StartLine", "Commit", "Fingerprint", "Match"):
+            changed = dict(row)
+            changed[field] = (
+                changed[field] + 1
+                if isinstance(changed[field], int)
+                else changed[field] + "changed"
+            )
+            assert not secret_scan.approved_history_finding("git", changed)
