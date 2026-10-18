@@ -581,8 +581,30 @@ def test_killed_native_auth_window_keeps_committed_once_and_does_not_retry(
         pid = json.loads((inputs.directory / "interrupted.spawn.safe.json").read_bytes())["PID"]
         os.killpg(pid, signal.SIGKILL)
         assert future.result(timeout=10)[0] == -signal.SIGKILL
+        # Linux pytest PID1 adopts the killed canonical child. Reap only this
+        # registered group; a zombie must not stand in for verified absence.
+        reaped = []
+        reap_deadline = time.monotonic() + 5
+        while time.monotonic() < reap_deadline:
+            try:
+                child_pid, status = os.waitpid(-pid, os.WNOHANG)
+            except ChildProcessError:
+                child_pid = 0
+            if child_pid:
+                assert os.WIFSIGNALED(status) and os.WTERMSIG(status) == signal.SIGKILL
+                reaped.append(child_pid)
+                continue
+            try:
+                os.killpg(pid, 0)
+            except ProcessLookupError:
+                break
+            time.sleep(0.02)
         with pytest.raises(ProcessLookupError):
             os.killpg(pid, 0)
+        write_private(
+            inputs.directory / "interrupted-group-reaped.safe.json",
+            {"PGID": pid, "adopted_children_reaped": reaped, "group_absent": True},
+        )
     with connect(f.config.database) as db:
         assert (
             required(
