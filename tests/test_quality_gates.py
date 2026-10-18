@@ -557,7 +557,7 @@ def test_public_test_declaration_in_another_commit_is_not_approved(repository: P
     assert '"rule": "generic-api-key"' in result.stdout
 
 
-def test_two_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
+def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
     report = tmp_path / "native-report.json"
     result = subprocess.run(
         [
@@ -581,7 +581,7 @@ def test_two_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> N
     )
     assert result.returncode == 1
     rows = json.loads(report.read_text())
-    assert len(rows) == 2
+    assert len(rows) == 3
     for row in rows:
         assert secret_scan.approved_history_finding("git", row)
         assert not secret_scan.approved_history_finding("dir", row)

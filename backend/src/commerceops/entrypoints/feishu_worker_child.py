@@ -520,44 +520,57 @@ async def controlled_history_recovery(
 ) -> dict[str, Any]:
     """取回与 materialize 原两条读取；发送仍由两个原 read_reply 窗口分别消费。"""
     from commerceops.adapters.feishu.history import collect_history
+    from commerceops.application.feishu_business.history import history_failure
     from commerceops.application.replenishment.contracts import Parameters
     from commerceops.infrastructure.feishu_business import FeishuBusinessStore
     from commerceops.infrastructure.feishu_history import HistoryRecoveryStore
 
-    sdk = request.window(settings)
-    if config.database.user != "commerceops_app":
-        raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
-    session = WorkerSession(config.database, settings.organization_id)
-    await session.start()
-    store = HistoryRecoveryStore(
-        FeishuBusinessStore(
-            ReplenishmentStore(config, Path("unused-read-only-fixtures")),
-            settings.shop_id,
-            Parameters(
-                source_mode="mock",
-                dataset_version="inventory-v1",
-                fixture_case="baseline",
-                L=3,
-                R=7,
-                S=2,
-            ),
-        )
-    )
+    stage = "WINDOW"
+    session = None
+    store = None
     registered = False
+    failure = None
+    diagnostics: dict[str, Any] = {"primary": None, "hold": None, "session_close": None}
+    result: dict[str, Any] = {}
     try:
+        sdk = request.window(settings)
+        if config.database.user != "commerceops_app":
+            raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
+        session = WorkerSession(config.database, settings.organization_id)
+        stage = "SESSION_START"
+        await session.start()
+        store = HistoryRecoveryStore(
+            FeishuBusinessStore(
+                ReplenishmentStore(config, Path("unused-read-only-fixtures")),
+                settings.shop_id,
+                Parameters(
+                    source_mode="mock",
+                    dataset_version="inventory-v1",
+                    fixture_case="baseline",
+                    L=3,
+                    R=7,
+                    S=2,
+                ),
+            )
+        )
         async with asyncio.timeout(
             max(0.01, (request.expires_at - datetime.now(UTC)).total_seconds())
         ):
             await session.check()
+            stage = "REGISTER"
             store.register(request)
             registered = True
             ledger = PersistentSDKLedger(session, sdk)
             factory = BusinessSDKFactory(settings, ledger)
+            stage = "FACTORY_AUTH"
             await factory.initialize()
+            stage = "BOT"
             await factory.verify_bot()
+            stage = "HISTORY_LIST"
             await collect_history(factory, request, store)
+            stage = "MATERIALIZE"
             receipts = store.finish(request)
-            return {
+            result = {
                 "result": "history_verified",
                 "verification_mode": "controlled_sdk",
                 "original_messages": 2,
@@ -567,12 +580,27 @@ async def controlled_history_recovery(
                 "base_requests": 0,
                 "IM_requests": 0,
             }
-    except BaseException:
-        if registered:
-            store.hold(request)
-        raise
+    except BaseException as error:
+        failure = error
+        diagnostics["primary"] = history_failure(error, stage)
+        if registered and store is not None:
+            try:
+                store.hold(request)
+            except BaseException as hold_error:
+                diagnostics["hold"] = history_failure(hold_error, "HOLD")
     finally:
-        await session.close(clean=True)
+        if session is not None:
+            try:
+                await session.close(clean=True)
+            except BaseException as close_error:
+                diagnostics["session_close"] = history_failure(close_error, "SESSION_CLOSE")
+                if failure is None:
+                    failure = close_error
+                    diagnostics["primary"] = diagnostics["session_close"]
+    if failure is not None:
+        cast(Any, failure).p4_history_diagnostic = diagnostics
+        raise failure
+    return result
 
 
 async def controlled_f02(
@@ -729,7 +757,32 @@ def main() -> None:
         print(json.dumps(result, sort_keys=True))
         if result["result"] != "window_stopped":
             raise SystemExit(1)
-    except Exception:
+    except Exception as error:
+        if args.mode == "history_recovery":
+            from commerceops.application.feishu_business.history import (
+                history_failure,
+                safe_history_failure,
+            )
+
+            captured = getattr(error, "p4_history_diagnostic", {})
+            captured = captured if isinstance(captured, dict) else {}
+            primary = captured.get("primary") or history_failure(error, "BOOTSTRAP")
+            diagnostic: dict[str, Any] = {"primary": safe_history_failure(primary)}
+            for key in ("hold", "session_close"):
+                diagnostic[key] = (
+                    safe_history_failure(captured[key]) if captured.get(key) is not None else None
+                )
+            print(
+                json.dumps(
+                    {
+                        "result": "failed",
+                        "verification_mode": "controlled_sdk",
+                        "failure": diagnostic,
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
         raise SystemExit("P4_CONTROLLED_WORKER_FAILED") from None
 
 

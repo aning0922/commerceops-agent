@@ -996,7 +996,10 @@ def history_forensics(app: Any, history: Any) -> dict[str, Any]:
             db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             db.execute("SET LOCAL statement_timeout='5s'")
             db.execute("SET LOCAL lock_timeout='2s'")
+            scope_blocked = False
             for name, query in HISTORY_FORENSICS_QUERIES.items():
+                if scope_blocked and name != "HF_TRANSACTION":
+                    continue
                 try:
                     with db.transaction():
                         rows = query.execute(db, parameters[name], revision="0017", role="app")
@@ -1075,7 +1078,7 @@ def history_forensics(app: Any, history: Any) -> dict[str, Any]:
                     if name in ("HF_ROLE", "HF_CATALOG") or (
                         name == "HF_BATCH" and isinstance(error, AcceptanceFailure)
                     ):
-                        break
+                        scope_blocked = True
             tx = result["queries"].get("HF_TRANSACTION")
             result["complete"] = (
                 not result["failures"]

@@ -375,7 +375,38 @@ def run_worker(
         except (ValueError, UnicodeError):
             continue
         if type(row) is dict and row.get("verification_mode") == "controlled_sdk":
-            summary = row
+            if mode == "history_recovery" and row.get("result") == "failed":
+                from commerceops.application.feishu_business.history import safe_history_failure
+
+                raw = row.get("failure")
+                raw = raw if isinstance(raw, dict) else {}
+                summary = {
+                    "result": "failed",
+                    "verification_mode": "controlled_sdk",
+                    "failure": {
+                        "primary": safe_history_failure(raw.get("primary")),
+                        **{
+                            key: safe_history_failure(raw[key])
+                            if raw.get(key) is not None
+                            else None
+                            for key in ("hold", "session_close")
+                        },
+                    },
+                }
+            else:
+                summary = row
+    if mode == "history_recovery" and not summary:
+        from commerceops.application.feishu_business.history import safe_history_failure
+
+        summary = {
+            "result": "failed",
+            "verification_mode": "controlled_sdk",
+            "failure": {
+                "primary": safe_history_failure(None),
+                "hold": None,
+                "session_close": None,
+            },
+        }
     confirmed = False
     try:
 
@@ -406,6 +437,7 @@ def run_worker(
         "lifecycle_termination_confirmed": confirmed,
         "official_summary": summary,
         "phase4_gate_passed": False,
+        **({"history_child_PID": child.pid} if mode == "history_recovery" else {}),
     }
 
 

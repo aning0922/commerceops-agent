@@ -4,9 +4,11 @@ import base64
 import hashlib
 import json
 import re
+import traceback
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Literal, Self
 from uuid import UUID
@@ -25,6 +27,78 @@ ORIGINAL_END = datetime(2026, 10, 17, 13, 5, 45, tzinfo=UTC)
 HISTORY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
     {"auth.v3.tenant_access_token.internal": 1, "bot.v3.info": 1, "im.v1.message.list": 2}
 )
+
+HISTORY_FAILURE_STAGES = frozenset(
+    {
+        "BOOTSTRAP",
+        "WINDOW",
+        "SESSION_START",
+        "REGISTER",
+        "FACTORY_AUTH",
+        "BOT",
+        "HISTORY_LIST",
+        "MATERIALIZE",
+        "HOLD",
+        "SESSION_CLOSE",
+        "NOT_CAPTURED",
+    }
+)
+
+
+def safe_history_failure(value: Any) -> dict[str, Any]:
+    """只重建固定诊断，不传递异常原文、响应、参数或未知字段。"""
+    value = value if isinstance(value, dict) else {}
+    stage = value.get("stage")
+    result: dict[str, Any] = {
+        "stage": stage
+        if isinstance(stage, str) and stage in HISTORY_FAILURE_STAGES
+        else "NOT_CAPTURED",
+        "category": "NotCaptured",
+        "code": None,
+        "sqlstate": None,
+        "frames": [],
+    }
+    for key, pattern in (
+        ("category", r"[A-Za-z][A-Za-z0-9_]{0,63}"),
+        ("code", r"[A-Z][A-Z0-9_]{0,79}"),
+        ("sqlstate", r"[A-Z0-9]{5}"),
+    ):
+        item = value.get(key)
+        if isinstance(item, str) and re.fullmatch(pattern, item):
+            result[key] = item
+    frames = value.get("frames")
+    if isinstance(frames, list):
+        for frame in frames[-8:]:
+            if not isinstance(frame, dict):
+                continue
+            file, function, line = frame.get("file"), frame.get("function"), frame.get("line")
+            if (
+                isinstance(file, str)
+                and re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", file)
+                and isinstance(function, str)
+                and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,63}", function)
+                and type(line) is int
+                and 0 < line < 1000000
+            ):
+                result["frames"].append(dict(file=file, function=function, line=line))
+    return result
+
+
+def history_failure(error: BaseException, stage: str) -> dict[str, Any]:
+    from commerceops.application.replenishment.contracts import WebFailure
+
+    return safe_history_failure(
+        dict(
+            stage=stage,
+            category=type(error).__name__,
+            code=error.code if isinstance(error, WebFailure) else None,
+            sqlstate=getattr(error, "sqlstate", None),
+            frames=[
+                dict(file=Path(f.filename).name, function=f.name, line=f.lineno)
+                for f in traceback.extract_tb(error.__traceback__)
+            ],
+        )
+    )
 
 
 class HistoryRecoveryRequest(Contract):

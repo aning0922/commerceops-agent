@@ -30,6 +30,12 @@ def test_fixed_collector_preserves_once_and_captures_full_related_state(
             store = HistoryRecoveryStore(service(f))
             store.register(request)
             store.hold(request)
+            code, native = inputs.run("cold-held-original")
+            assert (
+                code == 1 and native["child_reaped"] and native["lifecycle_termination_confirmed"]
+            )
+            detail = native["official_summary"]["failure"]["primary"]
+            assert detail["stage"] == "REGISTER" and detail["sqlstate"] == "23505"
         elif state == "verified":
             wire = inputs.directory / "external-records.json"
             body = json.loads(wire.read_bytes())
@@ -59,6 +65,7 @@ def test_fixed_collector_preserves_once_and_captures_full_related_state(
             assert not denied["complete"] and denied["rollback_completed"]
             assert denied["failures"][0]["code"] == "P4A_HISTORY_FORENSICS_BINDING"
             assert "HF_MESSAGES" not in denied["queries"]
+            assert denied["queries"]["HF_TRANSACTION"][0]["I"] == 0
         if state == "verified":
             assert queries["HF_BATCH"][0]["page_evidence"]["complete_unique_pair"]
             assert "owned-page-two" not in json.dumps(result)

@@ -111,3 +111,29 @@ Fake仅底层HTTP，SQL/角色/once/进程和清理真实。
 不新增迁移、表、权限、状态机、wrapper/框架/observer或重试。
 
 原第1窗口16:55–17:05Z未启动，仍0/2：Root/Reviewer指出同chat批次扫描及新证据保存pagination token两项P2。原计划保留，修正后由Root另定UTC，不自动顺延。新collector仅原recovery并核app/tenant/chat，0行是合法观察；页面原字节仅在内存验证，新证据仅安全结构/链匹配、原文匹配计数、页面SHA和token摘要，不保存raw body或token原值。截止TimeoutError直接上抛，不吞入普通查询故障。
+
+## 2026-10-19 第一 owned 失败及最终整包接续
+
+Root重定第1新owned为10-18 17:12–17:22Z，work17:19；实际启动后夹具初始化
+OperationalError/sqlstate未捕获，三RO命令及4PG均未运行。原生驱动1，容器/网络0、
+端口关闭、保卷和标签由独立探针确认。候选根因仅为宿主接线，未作已证结论。
+17:16:43Z尚余137s，小于210s保守上界，未启动同项目续段；窗口1/2保留。
+原库RO0/1、原两条回复和真实SDK仍HOLD，原DB once仍UNKNOWN。
+
+Root在同新增120min/总435min、最多两owned的既有授权内重排：先离线完成
+原历史parent的失败finalizer与public history child/parent安全诊断，再于唯一剩余owned
+同源验证全部必要路径；之后才准入唯一原库只读。最后完整CI仍由Root独审后释放。
+
+公共诊断仅history模式：阶段/类型/允许错误码/SQLSTATE/固定栈位置，不传异常原文、
+locals或响应。原始异常、hold异常、session close异常分别保留，缺child摘要明确NOT_CAPTURED，
+不改变原非零、业务条件、once、迁移或权限。私有parent在writers真实reap后有界采集，
+然后独立清理并出最终结果；原失败、reap、采集、清理错误互不覆盖。
+最终采集预留90s及reap15s，不挤占180s清理；读取仍用同一低权collector。
+绑定/目录失败后只补事务元数据以证明只读/rollback，不再继续读取业务数据。
+
+待释放第2窗口的保守work预算385s：夹具接线50、业务成功/冷重放60、native非0 30、
+采集失败40、业务清理失败40、三RO65、4PG100，另留35s work和180s cleanup。
+先业务再纯RO/PG，保证SDK子窗、reap及采集余量。正常和预期失败的native exit分记，
+测试blocker清理与被测入口cleanup失败分别记录，不拼接为实际运行成功。
+当前相关126pure已通过；4新PG仍仅collect，最终owned/原RO/独审/新CI均未通过。
+本次只验证历史取回的诊断和取证，不据此放行两条真实回复或解除原历史尝试。
