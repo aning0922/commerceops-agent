@@ -318,6 +318,8 @@ def test_rebalanced_fixed_groups_still_require_exact_paired_actual_and_passed_no
         "tests/test_p4_controlled_worker_pg.py": 2,
         "tests/test_p4_delivery_pg.py": 5,
         "tests/test_p4_explicit_ro_pg.py": 3,
+        "tests/test_p4_history_pg.py": 14,
+        "tests/test_p4_read_reply_parent_pg.py": 9,
     }
     moved = [f"{path}::case_{n}" for path, count in measured.items() for n in range(count)]
     monkeypatch.setitem(globals(), "FULL", FULL + moved)
@@ -327,6 +329,8 @@ def test_rebalanced_fixed_groups_still_require_exact_paired_actual_and_passed_no
     assert [(m["label"], len(m["expected_node_ids"])) for m in a["modules"]][1:] == [
         ("combined-existing-p4-a08-recovery", 16),
         ("combined-existing-p4-clarification-delivery", 19),
+        ("combined-existing-p4-verified-history", 14),
+        ("combined-existing-p4-read-reply-parent", 9),
     ]
     verify_pair(a, b)
     missing = copy.deepcopy(a)

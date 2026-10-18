@@ -22,7 +22,7 @@ pytestmark = pytest.mark.offline
 def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
     data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
     job = data["jobs"]["quality"]
-    assert job["timeout-minutes"] == 35
+    assert job["timeout-minutes"] == 45
     assert data["jobs"]["phase3"]["timeout-minutes"] == 45
     assert data["permissions"] == {"contents": "read"}
     # PyYAML YAML1.1 将键 on 解析为True；不改变Actions文件的on字段。
@@ -55,7 +55,7 @@ def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
         assert flag in command
 
 
-@pytest.mark.parametrize("job_name,minutes", [("quality", 33), ("phase3", 43)])
+@pytest.mark.parametrize("job_name,minutes", [("quality", 43), ("phase3", 43)])
 def test_workflow_registers_deadline_before_install_and_valid_python(
     job_name: str,
     minutes: int,

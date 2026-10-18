@@ -54,6 +54,8 @@ EXISTING_REBALANCED_GROUPS = {
             "tests/test_p4_explicit_ro_pg.py",
         }
     ),
+    "combined-existing-p4-verified-history": frozenset({"tests/test_p4_history_pg.py"}),
+    "combined-existing-p4-read-reply-parent": frozenset({"tests/test_p4_read_reply_parent_pg.py"}),
 }
 EXISTING_MODULES = EXISTING_BUSINESS_MODULES.union(*EXISTING_REBALANCED_GROUPS.values())
 FIELDS = frozenset(
