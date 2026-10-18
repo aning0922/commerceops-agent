@@ -1,41 +1,190 @@
+<div align="center">
+
 # CommerceOps Agent
 
-电商运营智能体与企业自动化系统。面向 AI Agent / AI 应用 / 企业自动化工程岗位的工程作品，首要场景为库存分析、人工审批与内部补货任务闭环。
+**从库存分析到人工审批，让电商运营任务有据可查。**
 
-**当前阶段：Phase2库存分析切片验收Gate已通过；正式main提交/合后CI及阶段结案看Issue29实时回执，Phase3未授权。** 已交付确定性库存规则、Mock金标、PG不可变报告与受限只读接口、固定五意图/有限参数确认、报告说明及持久预算恢复。冻结source45db通过独立审核/精确CI，本次一次真实DeepSeek解释与一次受控本地模板降级已由Root核定必要Gate；真实数据来源仍Mock、身份simulated，不表示正式审批/补货/库存或M1完整应用通过。
+面向电商运营的 AI Agent 工作台 · 确定性分析 · 人工审批 · 可恢复执行
 
-caffe为实施main基线，45db为已验证业务source；本次2026-10-10 17:11候选快照为ready_for_phase2_merge。用户委托Root在全部阶段门禁满足后正常合main并核同提交CI，随后关闭Issue29。完整证据、风险、费用与未运行事项见[Phase2验收候选](docs/PHASE2_ACCEPTANCE.md)、[STATUS](docs/STATUS.md)及[Draft PR30](https://github.com/aning0922/commerceops-agent/pull/30)。Phase1有限Gate/历史报告和M1设计0.4.1冻结保持；不会自动进入Phase3/飞书扩权/生产。
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square)
+![Next.js 16](https://img.shields.io/badge/Next.js-16-171717?style=flat-square&logo=nextdotjs&logoColor=white)
+![PostgreSQL 17](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 
-收口范围、审核记录、未验证闸门和后续待办见 [PHASE0_CLOSEOUT](docs/PHASE0_CLOSEOUT.md)；归档入口为 [PR #1](https://github.com/aning0922/commerceops-agent/pull/1)。
+[界面预览](#界面预览) · [核心能力](#核心能力) · [快速开始](#快速开始) · [系统架构](#系统架构) · [项目进度](#项目进度) · [文档导航](#文档导航)
 
-推荐方案：Python + FastAPI + Pydantic、LangGraph、PostgreSQL 持久任务队列与独立 Worker、飞书官方 SDK、MockCommerce，随后接入 WooCommerce 测试店铺。Next.js 提供精简操作台；pgvector 和 RAG 延后至 P1。
+</div>
 
-第一交付目标是“库存 Agent + 真实飞书审批”。M1 首个可面试版本预计 14–21 工作日；M2 完整 P0 累计 19–28 日；M3 完整求职版本（P0+P1）累计 29–43 日，外部配置与评审等待另计。具体范围及验收见 [ROADMAP](docs/ROADMAP.md)，不承诺全部功能 4–5 周完成。
+CommerceOps Agent 将库存风险分析、补货建议、审批决策和内部工作项放进同一个可追踪流程。运营人员查看分析与建议，审批人核对计划和风险，系统在执行前重新校验权限与数据，并保存操作回执和审计记录。
 
-## 阅读顺序
+LLM 负责意图理解、结果解释和受限流程路由；库存计算、权限判断、幂等与状态变更由确定性代码完成。当前补货执行范围为**内部工作项的创建、完成和关闭**，不涉及真实采购、支付或库存修改。
 
-1. [产品需求与验收](docs/PRD.md)
-2. [整体架构](docs/ARCHITECTURE.md) → [核心数据模型](docs/DATA_MODEL.md) → [Agent 与恢复设计](docs/AGENT_DESIGN.md)
-3. [飞书集成](docs/FEISHU_INTEGRATION.md)与[电商适配](docs/COMMERCE_INTEGRATION.md)
-4. [测试计划](docs/TEST_PLAN.md) → [路线图与外部配置](docs/ROADMAP.md)
-5. [复用审计及本地环境](docs/REUSE_AUDIT.md)、[架构决策](docs/DECISIONS.md)、[官方来源与版本核查](docs/RESEARCH.md)
+## 界面预览
 
-## 评审重点
+![CommerceOps 任务中心：任务概览、状态筛选与 Agent 入口](frontend/evidence/b01/tasks-1440.png)
 
-- P0 的“执行”定义为创建内部补货项，并投影到飞书多维表格；显式完成/关闭操作使下一轮可重新分析审批，不代表采购下单、支付或库存已增加。
-- 初始为单 Worker、全局单 Graph；多 Worker 验证单独后置。在途未知需使用绑定当前计划的专用确认批准动作。
-- PostgreSQL 是业务状态权威来源，LangGraph checkpoint 是工作流进度；两者通过幂等业务命令和恢复协调衔接。
-- 飞书使用企业自建应用、新版卡片回调与长连接；真实租户接入已在 Phase 1 受控技术探针验证，正式业务闭环留待后续阶段。
-- Mock 数据、受控模型替身和真实测试店数据全程标识；不能用离线测试冒充真实联调。
+*任务中心的已实现界面，截图来自 B01 离线 Mock 模式。页面中的身份、数据和操作均为演示样例。*
 
-工程底座实际安装、启动和检查命令见 [DEVELOPMENT](docs/DEVELOPMENT.md)。Compose/PG/迁移、持久 Worker 和 Checkpoint 已在集成分支实际验证；当前 main/集成提交及合并证据见 STATUS，不能把另一提交的测试直接算作当前 main 实跑。
+更多界面：[库存分析报告](frontend/evidence/b01/report-1440.png) · [移动端报告](frontend/evidence/b01/report-390.png) · [真实 API 联调中的审批页](frontend/evidence/b04-live/write/assumptions-1280.png)。联调使用自有 Mock 业务数据与真实 PostgreSQL/API/Web，具体范围见 [Phase3 验收记录](docs/PHASE3_ACCEPTANCE.md)。
 
-Phase 1 已建立基础 CI/敏感检查，已完成 Docker/PG、LangGraph Checkpoint、飞书真实回调三个闸门的阶段验证。受限动态只读 Tool 组合展示放在 Phase 6，不改动 P0 写操作流程。
+## 核心能力
 
-## 版本管理与审核
+| 能力 | 已实现内容 |
+| --- | --- |
+| 库存风险分析 | 根据销量、库存与在途数据运行确定性规则，生成补货建议、风险标记和不可变报告版本。 |
+| Agent 辅助 | 支持固定意图与有限参数确认、报告解释、持久预算控制，以及受控模板降级。 |
+| 人工审批 | 审批绑定计划版本、内容摘要与有效期；在途未知时，要求对当前版本的完整假设集合显式确认。 |
+| 内部补货闭环 | 审批后重新校验，按整份计划原子创建内部工作项；支持带理由、版本校验的完成与关闭。 |
+| 可靠执行 | 持久任务队列、单 Worker、LangGraph 中断与恢复；使用持久幂等键和原始回执处理重投与丢响应。 |
+| Web 工作台 | 任务、报告、审批、内部补货及管理视图；按当前身份与店铺范围授权，支持移动端、键盘操作与 200% 缩放。 |
 
-GitHub 审核仓库：[aning0922/commerceops-agent](https://github.com/aning0922/commerceops-agent)（Private，需要仓库访问权限）。Phase 0 首次提交与修订 PR 保留完整历史；后续阶段使用独立分支和 PR，修复独立审核问题，按当前授权裁决合并。Phase1已收口；Phase2全必要Gate后的正常main合并也经用户委托Root，具体规范见 [AGENTS.md](AGENTS.md)。每次合并不自动授权进入下一 Phase。
+一次典型流程：
 
-## P1-01 工程底座使用
+```text
+提出分析请求 → 查看库存报告 → 冻结补货计划 → 人工审批
+                                              ↓
+跟踪工作项与审计 ← 创建内部补货项 ← 执行前重新校验
+```
 
-本任务的本机 liveness 入口、锁文件安装和统一质量检查见 [开发说明](docs/DEVELOPMENT.md)，实际技术运行与保留边界见 [实施证据](docs/P1_01_EVIDENCE.md)。这份底座交付不代表业务、数据库恢复或真实平台 Gate 已通过。
+计划、身份或数据发生变化时，系统会阻止失效决定继续执行，并按合同要求重新确认；审批意见已记录与内部工作项已创建是两个独立状态。
+
+## 快速开始
+
+### 1. 准备环境
+
+使用 **Python 3.12.13** 与 **uv 0.11.25**。项目工具脚本会将固定版本的 Node.js **24.21.0**、npm **11.19.0** 和 Gitleaks 安装到仓库的 `.tools/`，不修改全局工具链。只有数据库联调需要 Docker 与 Compose。
+
+```sh
+git clone https://github.com/aning0922/commerceops-agent.git
+cd commerceops-agent
+
+uv sync --frozen
+uv run --frozen python -m scripts.bootstrap_tools
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend ci --ignore-scripts
+```
+
+仓库当前为 Private，克隆需要对应访问权限。依赖由 `uv.lock` 与 `frontend/package-lock.json` 固定。
+
+### 2. 预览 Web 工作台
+
+从仓库根目录启动显式 Mock 模式，无需数据库、模型密钥或飞书凭据：
+
+```sh
+PATH="$PWD/.tools/node/bin:$PATH" \
+  COMMERCEOPS_UI_MODE=mock \
+  COMMERCEOPS_MOCK_ROLE=operator \
+  NEXT_TELEMETRY_DISABLED=1 \
+  npm --prefix frontend run dev
+```
+
+打开 [http://127.0.0.1:3000](http://127.0.0.1:3000)。将启动变量 `COMMERCEOPS_MOCK_ROLE` 改为 `approver` 或 `admin` 并重启，可查看对应角色样例。Mock 模式用于界面演示，不连接业务 API，也不产生真实审批或补货记录。
+
+### 3. 启动 API 基础入口
+
+在另一个终端从仓库根目录执行：
+
+```sh
+uv run --frozen commerceops-api
+```
+
+检查进程存活：
+
+```sh
+curl --fail http://127.0.0.1:8000/health/live
+# {"status":"ok","service":"commerceops-api"}
+```
+
+这个启动方式用于确认 API 进程可用；完整业务联调还需独立 PostgreSQL、迁移、Worker 和显式私有配置。数据库初始化见 [开发说明](docs/DEVELOPMENT.md#p1-02-postgresql-与一次性初始化)，会话、权限及业务 API 见 [Phase3 Web 合同](docs/contracts/p3-web-v1.md)，前端接线与测试见 [Web 实施记录](docs/ux/phase3-implementation.md)。
+
+## 系统架构
+
+```mermaid
+flowchart LR
+    Web[Next.js 工作台] --> API[FastAPI · 身份与权限]
+    API --> DB[(PostgreSQL<br/>业务状态 · 队列 · 回执)]
+    DB -->|领取任务| Worker[单 Worker · LangGraph]
+    Worker -->|业务事务| DB
+    Worker --> Rules[确定性规则 · MockCommerce]
+    Worker -. 意图与解释 .-> LLM[受限模型调用]
+    Worker -. 工作流进度 .-> CP[(PostgreSQL Checkpoint)]
+```
+
+- **业务事实持久化**：PostgreSQL 保存业务状态、幂等回执与审计；LangGraph checkpoint 保存工作流进度，不能替代业务事务。
+- **副作用有明确边界**：执行前校验当前身份、权限、计划版本及数据；整份计划原子执行，重试复用持久执行记录。
+- **并发与恢复可控**：当前采用单 Worker、全局单 Graph 执行并发；恢复时校验旧进程终止状态，保留中断与失败证据。
+
+| 层次 | 技术 |
+| --- | --- |
+| Web | Next.js 16、React 19、TypeScript、Playwright |
+| API 与业务 | Python 3.12、FastAPI、Pydantic |
+| 工作流 | LangGraph、独立 Worker、PostgreSQL 持久队列 |
+| 数据与迁移 | PostgreSQL 17、SQLAlchemy、psycopg、Alembic |
+| 集成 | MockCommerce、飞书官方 SDK；正式平台业务接入按阶段推进 |
+| 工程质量 | uv / npm 锁文件、Ruff、mypy、pytest、Gitleaks、GitHub Actions |
+
+详细设计见 [架构](docs/ARCHITECTURE.md)、[数据模型](docs/DATA_MODEL.md)与 [Agent 及恢复设计](docs/AGENT_DESIGN.md)。
+
+## 项目进度
+
+**截至 2026-10-18，`main` 已完成 Phase3 验收；Phase4 在独立 PR 中开发，尚未合入 `main`。**
+
+| 阶段 | 交付重点 | 状态 |
+| --- | --- | --- |
+| Phase0 | 产品需求、架构、数据与测试规划 | 已结案 |
+| Phase1 | 工程底座、PostgreSQL、持久 Worker、Checkpoint 与有限飞书技术探针 | 已结案 |
+| Phase2 | 确定性库存分析、不可变报告、受限意图与解释 | 已结案 |
+| Phase3 | Web 会话与权限、人工审批、内部补货项与恢复闭环 | 已验收并合入 `main` |
+| Phase4 | 正式飞书业务接入、Base 投影与 Web 扩展 | 开发中：[PR #43](https://github.com/aning0922/commerceops-agent/pull/43) · [#44](https://github.com/aning0922/commerceops-agent/pull/44) · [#45](https://github.com/aning0922/commerceops-agent/pull/45) |
+
+Phase3 结案基线为 `9d97c19`。该提交的[四项 CI 检查](https://github.com/aning0922/commerceops-agent/actions/runs/38093693335)均通过，记录了 **1,057 项离线测试、337 项真实 PostgreSQL 测试和 24 项真实 API/Web 自动化测试**。这些是指定提交的历史验收结果，使用 Mock 业务数据与自动化测试身份；详情以 [Issue #33 结案回执](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)为准。
+
+当前已验收范围不包含真实飞书 Card/Base 业务外写、WooCommerce 实店、生产部署或 M1 整体验收。历史失败、未验证项目和已接受风险继续保留在 [STATUS](docs/STATUS.md) 与 [Phase3 验收记录](docs/PHASE3_ACCEPTANCE.md)；文档中的阶段收口快照应结合对应 Issue 的后续回执阅读。
+
+## 开发与检查
+
+从仓库根目录运行：
+
+```sh
+# 文档链接与差异空白
+uv run --frozen python -m scripts.check_docs
+
+# 确定性离线测试，不连接外部服务
+uv run --frozen python -m pytest -m offline
+
+# 前端类型检查
+PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
+
+# 可提交文件、暂存区与 Git 可达历史的敏感信息检查
+uv run --frozen python -m scripts.scan_secrets
+```
+
+完整质量检查入口为 `uv run --frozen python -m scripts.check`。真实 PG、浏览器业务联调和外部平台测试分别准备环境、分别记录证据；离线通过不替代集成验收。流程见 [开发说明](docs/DEVELOPMENT.md)、[测试计划](docs/TEST_PLAN.md)与 [CI 配置](.github/workflows/quality.yml)。
+
+## 仓库结构
+
+```text
+commerceops-agent/
+├── backend/
+│   ├── src/commerceops/     # 领域规则、应用用例、工作流、适配器与入口
+│   └── migrations/         # 数据库版本迁移
+├── frontend/               # Next.js 工作台、类型合同与界面证据
+├── tests/                  # 离线、PostgreSQL、恢复与 Web 集成测试
+├── scripts/                # 工具链、质量检查与隔离测试工具
+├── docs/                   # 产品、架构、接口合同、UX 与验收记录
+├── infrastructure/         # 容器运行环境
+└── compose.yml             # 本地 PostgreSQL 与初始化配置
+```
+
+## 文档导航
+
+| 想了解什么 | 从这里开始 |
+| --- | --- |
+| 产品解决什么问题 | [产品需求](docs/PRD.md) · [路线图](docs/ROADMAP.md) |
+| 如何运行与开发 | [开发说明](docs/DEVELOPMENT.md) · [工程约束](AGENTS.md) |
+| 如何保证一致性与恢复 | [架构](docs/ARCHITECTURE.md) · [数据模型](docs/DATA_MODEL.md) · [Agent 设计](docs/AGENT_DESIGN.md) |
+| 页面与接口如何协作 | [UX 文档](docs/ux/README.md) · [Web 合同](docs/contracts/p3-web-v1.md) · [前端实施](docs/ux/phase3-implementation.md) |
+| 外部平台如何接入 | [飞书集成](docs/FEISHU_INTEGRATION.md) · [电商适配](docs/COMMERCE_INTEGRATION.md) |
+| 已经验证到哪一步 | [项目状态](docs/STATUS.md) · [Phase2 验收](docs/PHASE2_ACCEPTANCE.md) · [Phase3 验收](docs/PHASE3_ACCEPTANCE.md) |
+| 为什么这样设计 | [架构决策](docs/DECISIONS.md) · [调研证据](docs/RESEARCH.md) · [复用审计](docs/REUSE_AUDIT.md) |
+
+开发通过独立分支、PR、独立审核与精确提交的 CI 留下可追溯记录；合并与阶段推进遵循 [AGENTS.md](AGENTS.md) 中的授权和验收约束。
