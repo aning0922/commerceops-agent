@@ -1,5 +1,7 @@
 # 工程约束
 
+原历史取回取证整改包（2026-10-19，台北）：用户批准总315→435 Agent有效分钟，新增≤120（A75/原Review25/Root20，可总额内调配），旧用量不重置。原824/CI39137562112五绿558已核；原库0016→0017已真实COMMIT/native0并清理接纳。原取回child1/父1、已清理保卷；具体异常、SDK实际数及DB once仍UNKNOWN，不预写SPENT，不重取或发送。先同一固定只读collector及无Worker/SDK能力的窄入口、新owned窗口1/2实际SQL/低权/失败清理并冻结独审；唯一原PG RO≤600s/cleanup≥180s仍须Root新UTC，原资产保持关闭。随后按核账事实修原parent失败finalizer/public固定诊断，窗口2/2验证同最终入口成功/非0/采集与清理失败/冷重放，再独审和Root唯一新CI；45/43、旧558节点不减。AppSecret/真实SDK/回复/真实重取/业务写0；不新表/状态机/重试/框架，不自行push/CI/main。详见[原合同整改段](docs/contracts/p4-original-query-history.md)；当前新RO及新CI均未运行。
+
 原两条查询历史恢复候选（2026-10-18）：用户已批准固定p2p/UTC四分钟/两页50条的只读取回及原两条独立回复，四小时整包含此前设计与预审，不重置旧预算/SDK/Create/attempt/once。A唯一0017独立verified_history来源、原message跨实时/历史唯一键、当前权限及原read_reply/native父child接线；C仍独占验收consumer。原始message_id未知，实际API/SDK0，原库/Secret/真实群继续HOLD；不伪造WS/inbox/Gateway，不扩大查询或unknown重试。最终原生FK候选新14PG/134.666s及旧相关31PG/212.246s两命令和外层0，11:10:49Z资源0/0保卷；旧541保留、完整555=372+183/交集0，13节点开发结果与全部失败单列。C31a三schema兼容已普通合入，冻结独审和精确新CI由Root另释放，不自行push/CI/main。原9ee/39101285628五绿不代签新源码。详见[本批合同](docs/contracts/p4-original-query-history.md)。
 
 [本批原v2恢复合同](docs/contracts/p4-terminal-recovery.md)；当前仅owned准备，原资产继续HOLD。

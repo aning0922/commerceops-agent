@@ -759,6 +759,254 @@ def schema_contract(owner: Any, app: Any, revision: str) -> dict[str, Any]:
     }
 
 
+HISTORY_FORENSICS_QUERIES = {
+    q.id: q
+    for q in (
+        Query(
+            "HF_ROLE",
+            "SELECT jsonb_build_object('role',current_user,'rolsuper',r.rolsuper,"
+            "'rolcreatedb',r.rolcreatedb,'rolcreaterole',r.rolcreaterole,"
+            "'rolreplication',r.rolreplication,'rolbypassrls',r.rolbypassrls) AS row "
+            "FROM pg_roles r WHERE r.rolname=current_user",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_CATALOG",
+            "SELECT jsonb_build_object('schema',schemaname,'name',tablename) AS row "
+            "FROM pg_tables WHERE schemaname IN ('business','checkpoints') "
+            "ORDER BY schemaname,tablename",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_BATCH",
+            "SELECT to_jsonb(b) AS row FROM business.p4_history_recoveries b "
+            "WHERE id=%s OR (app_id=%s AND tenant_key=%s AND chat_id=%s) ORDER BY id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_MESSAGES",
+            "SELECT to_jsonb(m) AS row FROM business.p4_history_messages m "
+            "WHERE recovery_id=%s ORDER BY kind,id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_REPLIES",
+            "SELECT to_jsonb(r) AS row FROM business.p4_read_replies r WHERE "
+            "id IN (SELECT reply_id FROM business.p4_history_messages WHERE recovery_id=%s) "
+            "OR (organization_id=%s AND shop_id=%s AND principal_id=%s AND app_id=%s "
+            "AND tenant_key=%s AND chat_id=%s AND task_id=ANY(%s) "
+            "AND (kind='task_status' OR (kind='explain_report' AND report_id=ANY(%s)))) "
+            "ORDER BY id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_SOURCES",
+            "SELECT to_jsonb(s) AS row FROM business.p4_read_message_sources s "
+            "WHERE history_message_id IN "
+            "(SELECT id FROM business.p4_history_messages WHERE recovery_id=%s) "
+            "OR inbox_id IN (SELECT inbox_id FROM business.p4_read_replies WHERE "
+            "organization_id=%s AND shop_id=%s AND principal_id=%s AND app_id=%s "
+            "AND tenant_key=%s AND chat_id=%s AND task_id=ANY(%s) "
+            "AND (kind='task_status' OR (kind='explain_report' AND report_id=ANY(%s)))) "
+            "ORDER BY app_id,tenant_key,message_id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_WINDOWS",
+            "SELECT to_jsonb(w) AS row FROM business.p4_sdk_windows w WHERE id=%s "
+            "OR id IN (SELECT window_id FROM business.p4_sdk_calls WHERE subject_id IN "
+            "(SELECT reply_id FROM business.p4_history_messages WHERE recovery_id=%s)) "
+            "ORDER BY id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_CALLS",
+            "SELECT to_jsonb(c) AS row FROM business.p4_sdk_calls c WHERE window_id=%s "
+            "OR subject_id IN (SELECT reply_id FROM business.p4_history_messages "
+            "WHERE recovery_id=%s) ORDER BY started_at,id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_LIFECYCLE",
+            "SELECT to_jsonb(e) AS row FROM business.audit_events e WHERE organization_id=%s "
+            "AND source='worker' AND entity_type='worker_runtime' AND entity_id IN "
+            "(SELECT entity_id FROM business.audit_events WHERE organization_id=%s "
+            "AND source='worker' AND entity_type='worker_runtime' AND action='started' "
+            "AND occurred_at>=%s AND occurred_at<=%s) ORDER BY occurred_at,id",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_PRINCIPAL",
+            "SELECT to_jsonb(p) AS row FROM business.principals p "
+            "WHERE id=%s AND organization_id=%s",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_IDENTITY",
+            "SELECT to_jsonb(i) AS row FROM business.identities i "
+            "WHERE id=%s AND organization_id=%s",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_SHOP_SCOPE",
+            "SELECT to_jsonb(s) AS row FROM business.principal_shop_scopes s "
+            "WHERE organization_id=%s AND shop_id=%s AND principal_id=%s",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_ROLE_GRANTS",
+            "SELECT to_jsonb(g) AS row FROM business.principal_role_shop_grants g "
+            "WHERE organization_id=%s AND shop_id=%s AND principal_id=%s ORDER BY role",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+        Query(
+            "HF_TRANSACTION",
+            "SELECT jsonb_build_object('database_UTC',clock_timestamp(),"
+            "'readonly',current_setting('transaction_read_only'),"
+            "'isolation',current_setting('transaction_isolation'),"
+            "'I',COALESCE(sum(n_tup_ins),0),'U',COALESCE(sum(n_tup_upd),0),"
+            "'D',COALESCE(sum(n_tup_del),0)) AS row FROM pg_stat_xact_user_tables",
+            (("row", 3802),),
+            revisions=("0017",),
+        ),
+    )
+}
+
+
+def history_forensics(app: Any, history: Any) -> dict[str, Any]:
+    """原恢复键的固定只读取证；不使用 Worker/Factory 或行锁权限函数。"""
+    from commerceops.application.feishu_business.read_intents import parse_read_intent
+    from commerceops.infrastructure.database import connect
+
+    require(app.user == "commerceops_app" and app.runtime_password_file is None, "P4A_ROLE")
+    intents = [parse_read_intent(text) for text in history.expected_texts]
+    require(all(intent is not None for intent in intents), "P4A_HISTORY_FORENSICS_SCOPE")
+    tasks = list({intent.task_id for intent in intents if intent})
+    reports = [intent.report_id for intent in intents if intent and intent.report_id]
+    related = (
+        history.recovery_id,
+        history.organization_id,
+        history.shop_id,
+        history.principal_id,
+        history.app_id,
+        history.tenant_key,
+        history.chat_id,
+        tasks,
+        reports,
+    )
+    scope = (history.organization_id, history.shop_id, history.principal_id)
+    parameters = {
+        "HF_ROLE": (),
+        "HF_CATALOG": (),
+        "HF_BATCH": (history.recovery_id, history.app_id, history.tenant_key, history.chat_id),
+        "HF_MESSAGES": (history.recovery_id,),
+        "HF_REPLIES": related,
+        "HF_SOURCES": related,
+        "HF_WINDOWS": (history.recovery_id, history.recovery_id),
+        "HF_CALLS": (history.recovery_id, history.recovery_id),
+        "HF_LIFECYCLE": (
+            history.organization_id,
+            history.organization_id,
+            history.not_before,
+            history.expires_at + timedelta(seconds=30),
+        ),
+        "HF_PRINCIPAL": (history.principal_id, history.organization_id),
+        "HF_IDENTITY": (history.identity_id, history.organization_id),
+        "HF_SHOP_SCOPE": scope,
+        "HF_ROLE_GRANTS": scope,
+        "HF_TRANSACTION": (),
+    }
+    result: dict[str, Any] = dict(complete=False, queries={}, failures=[], rollback_completed=False)
+    with connect(app) as db:
+        try:
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+            db.execute("SET LOCAL statement_timeout='5s'")
+            db.execute("SET LOCAL lock_timeout='2s'")
+            for name, query in HISTORY_FORENSICS_QUERIES.items():
+                try:
+                    with db.transaction():
+                        rows = query.execute(db, parameters[name], revision="0017", role="app")
+                    result["queries"][name] = [row["row"] for row in rows]
+                    if name == "HF_ROLE":
+                        require(
+                            result["queries"][name]
+                            == [
+                                dict(
+                                    role="commerceops_app",
+                                    rolsuper=False,
+                                    rolcreatedb=False,
+                                    rolcreaterole=False,
+                                    rolreplication=False,
+                                    rolbypassrls=False,
+                                )
+                            ],
+                            "P4A_ROLE",
+                        )
+                    elif name == "HF_CATALOG":
+                        expected = {"business." + t for t in BUSINESS_0015}
+                        expected |= {
+                            "checkpoints." + t for t in (*CP_DATA_TABLES, "checkpoint_migrations")
+                        }
+                        expected |= {
+                            "business." + t
+                            for t in (
+                                "p4_clarification_requests",
+                                "p4_history_recoveries",
+                                "p4_history_messages",
+                                "p4_read_message_sources",
+                            )
+                        }
+                        require(
+                            {r["schema"] + "." + r["name"] for r in result["queries"][name]}
+                            == expected,
+                            "P4A_SCHEMA_TABLES",
+                        )
+                except Exception as error:
+                    state = getattr(error, "sqlstate", None)
+                    result["failures"].append(
+                        dict(
+                            query_id=name,
+                            category=type(error).__name__,
+                            sqlstate=state
+                            if isinstance(state, str) and re.fullmatch(r"[A-Z0-9]{5}", state)
+                            else None,
+                        )
+                    )
+                    if name in ("HF_ROLE", "HF_CATALOG"):
+                        break
+            tx = result["queries"].get("HF_TRANSACTION")
+            result["complete"] = (
+                not result["failures"]
+                and bool(tx)
+                and tx[0]
+                == {
+                    **tx[0],
+                    "readonly": "on",
+                    "isolation": "repeatable read",
+                    "I": 0,
+                    "U": 0,
+                    "D": 0,
+                }
+            )
+        finally:
+            db.rollback()
+            result["rollback_completed"] = True
+    return result
+
+
 def private_ref(value: Mapping[str, Any]) -> bytes:
     require(set(value) == {"path", "sha256"}, "P4A_REF_SHAPE")
     require(isinstance(value["path"], str) and Path(value["path"]).is_absolute(), "P4A_REF_PATH")

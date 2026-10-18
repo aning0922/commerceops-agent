@@ -81,3 +81,31 @@ quality372 + phase3183，交集0。新增 14 项仍进入既有 phase3 分组，
 不泛化捕获。旧 d97 固定源码闭包与 0012→0013 保留测试不改历史。
 原 6337 身份映射验证另属先前批：normal0/7 行、permission1/42501/writer0 与 outer driver1 分列，
 不以此合同重新开启原库或修订旧提交。
+## 2026-10-19 取证整改接续（台北）
+
+用户已批准[完整整改合同](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6252003251)；
+Root 授权文件摘要 8b9f932af1a3c1abd400430c1cc2f85507364a167bbc33ffbbed1e091e272a9d。
+总有效分钟由315增至435，新增最多120（A75/原Reviewer25/Root20，可统一调配），
+此前 A186–207 分钟为未精确计量估计，所有既有消耗、失败和窗口保留，机器等待单列。
+
+824 精确 CI39137562112 五作业通过、395+163=558及交集0由Root接纳。
+原库0016→0017已原生COMMIT返回、父/child0，52表数据指纹和旧角色/ACL不变、资源清理保卷。
+原历史取回于10-18 15:43:08Z启动、15:45:37Z清理，父/child1、summary空。
+原两条message_id未验证，原始异常和HTTP未捕获，实际SDK/AppSecret及数据库once状态仍UNKNOWN；
+不得由“实际启动机会用1/1”推填数据库once已SPENT。
+
+整改先构造固定query-ID、schema17精确目录、低权app、RR READ ONLY、真实SQLSTATE、
+rollback及I/U/D0的共享collector；独立窄RO入口无Worker/Factory/SDK启动分支。
+第1新owned PG固定10-18 16:55–17:05Z，work cutoff17:02Z，cleanup至少180s；
+最多两个新owned窗口，各600s，未启动不记消耗，不自动顺延。先冻结该入口及实际成功/SQL拒绝/
+清理失败证据给原Reviewer；只有独审及Root新的绝对UTC放行才能开唯一原PG RO窗口。
+原RO不读AppSecret、不调用SDK，不执行行锁权限函数、业务修复或恢复操作。
+
+原库只读核账后，才完成既有父入口的reap→最终采集→清理→结果出口，
+保留原始失败、采集失败、清理失败三个独立事实；采集预算不挪用180s清理。
+公共child/parent通过既有JSON通道保留固定stage/category/code/SQLSTATE，禁止任意异常文本和秘密。
+第2owned用同最终outer/argv验证成功、native非0、采集失败、清理失败和原键新进程重放，
+Fake仅底层HTTP，SQL/角色/once/进程和清理真实。
+最终冻结独审后由Root释放唯一新完整CI，45/43及旧558不减，新增节点另计。
+真实RO或CI失败/unknown停止；本包不授权任何真实重取、回复、新消息或业务写入，
+不新增迁移、表、权限、状态机、wrapper/框架/observer或重试。
