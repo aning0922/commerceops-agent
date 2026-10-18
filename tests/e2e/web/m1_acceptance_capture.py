@@ -15,7 +15,11 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-REVISIONS = ("0015_p4_read_replies", "0016_p4_clarification_requests")
+REVISIONS = (
+    "0015_p4_read_replies",
+    "0016_p4_clarification_requests",
+    "0017_p4_verified_history",
+)
 CASE_COUNTS = {"recover_single_item": 1, "batch_twenty_items": 20}
 UUID_OID, TEXT_OID, INT_OID, BIGINT_OID = 2950, 25, 23, 20
 BOOL_OID, NUMERIC_OID, TIME_OID, JSON_OID, UUID_ARRAY_OID = 16, 1700, 1184, 3802, 2951
