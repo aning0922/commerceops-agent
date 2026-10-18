@@ -138,6 +138,9 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
         if legacy_revision != "0015":
             connection.execute("""GRANT SELECT,INSERT ON business.p4_clarification_requests
                 TO commerceops_app""")
+            connection.execute("""GRANT UPDATE(round,candidate,candidate_hash,state,task_id,
+                confirmed_inbox_id,updated_at) ON business.p4_clarification_requests
+                TO commerceops_app""")
         if legacy_revision is None:
             connection.execute("""GRANT SELECT,INSERT ON business.p4_history_recoveries,
                 business.p4_history_messages,business.p4_read_message_sources TO commerceops_app""")
@@ -148,9 +151,6 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
             connection.execute(
                 "REVOKE DELETE,TRUNCATE ON business.p4_history_recoveries FROM commerceops_app"
             )
-            connection.execute("""GRANT UPDATE(round,candidate,candidate_hash,state,task_id,
-                confirmed_inbox_id,updated_at) ON business.p4_clarification_requests
-                TO commerceops_app""")
         connection.execute("""GRANT SELECT,INSERT,UPDATE ON business.p4_base_deliveries
             TO commerceops_app""")
         connection.execute("GRANT SELECT,INSERT ON business.p4_base_links TO commerceops_app")

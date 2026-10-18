@@ -31,6 +31,77 @@ from tests.test_p4_gateway_pg import service
 pytestmark = pytest.mark.integration
 
 
+@pytest.mark.parametrize("revision", ["0015", "0016", "0017"])
+def test_explicit_revision_bootstrap_keeps_exact_F02_and_history_column_permissions(
+    database: tuple[DatabaseSettings, DatabaseSettings], revision: str
+) -> None:
+    owner, app = database
+    initialize_schema(owner, revision)
+    with connect(app) as db:
+        assert db.execute("SELECT current_user AS role").fetchone() == {"role": "commerceops_app"}
+
+        def table_exists(table: str) -> bool:
+            row = db.execute("SELECT to_regclass(%s) IS NOT NULL AS present", (table,)).fetchone()
+            assert row is not None
+            return bool(row["present"])
+
+        def exact_permissions(table: str, update_columns: set[str]) -> None:
+            row = db.execute(
+                """SELECT has_table_privilege(current_user,%s,'SELECT') AS readable,
+                has_table_privilege(current_user,%s,'INSERT') AS insertable,
+                has_table_privilege(current_user,%s,'UPDATE') AS table_update,
+                has_table_privilege(current_user,%s,'DELETE') AS deletable,
+                has_table_privilege(current_user,%s,'TRUNCATE') AS truncatable""",
+                (table,) * 5,
+            ).fetchone()
+            assert row == {
+                "readable": True,
+                "insertable": True,
+                "table_update": False,
+                "deletable": False,
+                "truncatable": False,
+            }
+            columns = db.execute(
+                """SELECT a.attname,
+                has_column_privilege(current_user,a.attrelid,a.attname,'UPDATE') AS updatable
+                FROM pg_attribute a WHERE a.attrelid=to_regclass(%s)
+                AND a.attnum>0 AND NOT a.attisdropped""",
+                (table,),
+            ).fetchall()
+            assert {row["attname"] for row in columns if row["updatable"]} == update_columns
+
+        requests = "business.p4_clarification_requests"
+        assert table_exists(requests) == (revision != "0015")
+        if revision != "0015":
+            exact_permissions(
+                requests,
+                {
+                    "round",
+                    "candidate",
+                    "candidate_hash",
+                    "state",
+                    "task_id",
+                    "confirmed_inbox_id",
+                    "updated_at",
+                },
+            )
+            # Actual row-lock permission used by the original F02 native sender guard.
+            assert (
+                db.execute("SELECT id FROM business.p4_clarification_requests FOR SHARE").fetchall()
+                == []
+            )
+        for table in ("p4_history_recoveries", "p4_history_messages", "p4_read_message_sources"):
+            qualified = "business." + table
+            assert table_exists(qualified) == (revision == "0017")
+            if revision == "0017":
+                exact_permissions(
+                    qualified,
+                    {"status", "pages", "completed_at", "error_code"}
+                    if table == "p4_history_recoveries"
+                    else set(),
+                )
+
+
 @pytest.mark.parametrize("outcome", ["sent", "unknown"])
 def test_disabled_F02_template_native_parent_rounds_confirm_cold_stop_and_no_graph(
     database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path, outcome: str
