@@ -53,6 +53,11 @@ from tests.e2e.web.m1_acceptance_driver import (
 
 pytestmark = pytest.mark.offline
 ROOT = Path(__file__).resolve().parents[3]
+SUPPORTED_CAPTURE_REVISIONS = (
+    "0015_p4_read_replies",
+    "0016_p4_clarification_requests",
+    "0017_p4_verified_history",
+)
 
 
 def uid(number: int) -> str:
@@ -196,6 +201,7 @@ def test_fixed_queries_parameterized_scoped_and_no_known_dto_columns() -> None:
     assert "request_hash" in request.sql and ",status" not in request.sql
 
 
+@pytest.mark.parametrize("revision", SUPPORTED_CAPTURE_REVISIONS)
 @pytest.mark.parametrize(
     "change",
     [
@@ -206,9 +212,11 @@ def test_fixed_queries_parameterized_scoped_and_no_known_dto_columns() -> None:
         {"revision": "future"},
     ],
 )
-def test_context_rejects_unregistered_types_and_scopes(change: dict[str, Any]) -> None:
+def test_context_rejects_unregistered_types_and_scopes(
+    change: dict[str, Any], revision: str
+) -> None:
     with pytest.raises(CaptureFailure):
-        replace(context(), **change)
+        replace(context(), **{"revision": revision, **change})
 
 
 @pytest.mark.parametrize(
@@ -248,11 +256,17 @@ def test_single_item_case_exact_target_transition_is_separate_from_twenty_gate()
     assert context().scope()["expected_item_count"] == 20
 
 
-def test_native_receipt_semantic_identity_audit_link_and_timestamp_equivalence() -> None:
+@pytest.mark.parametrize("revision", SUPPORTED_CAPTURE_REVISIONS)
+def test_native_receipt_semantic_identity_audit_link_and_timestamp_equivalence(
+    revision: str,
+) -> None:
     snapshot, receipt = semantic_fixture()
-    verify_t6_association(snapshot, context(), receipt, "LAB checked", "a" * 64)
+    verify_t6_association(
+        snapshot, replace(context(), revision=revision), receipt, "LAB checked", "a" * 64
+    )
 
 
+@pytest.mark.parametrize("revision", SUPPORTED_CAPTURE_REVISIONS)
 @pytest.mark.parametrize(
     "part",
     [
@@ -267,7 +281,7 @@ def test_native_receipt_semantic_identity_audit_link_and_timestamp_equivalence()
         "timestamp",
     ],
 )
-def test_receipt_or_pg_mismatch_cannot_pass(part: str) -> None:
+def test_receipt_or_pg_mismatch_cannot_pass(part: str, revision: str) -> None:
     snapshot, receipt = semantic_fixture()
     item = snapshot["queries"]["ITEMS"]["rows"][0]
     if part == "reason":
@@ -289,7 +303,9 @@ def test_receipt_or_pg_mismatch_cannot_pass(part: str) -> None:
     elif part == "timestamp":
         receipt["resolution"]["resolved_at"] = "2026-10-15T00:00:01Z"
     with pytest.raises(CaptureFailure):
-        verify_t6_association(snapshot, context(), receipt, "LAB checked", "a" * 64)
+        verify_t6_association(
+            snapshot, replace(context(), revision=revision), receipt, "LAB checked", "a" * 64
+        )
 
 
 def test_base_binding_does_not_relabel_native_controlled_shape_as_real_transport() -> None:
@@ -1086,8 +1102,10 @@ const {pollProcessAbsent}=require('./tests/e2e/web/m1_acceptance_ui.cjs');
     assert child.stdout == b"bounded-stop-poll-unit-passed\n"
 
 
+@pytest.mark.parametrize("revision", SUPPORTED_CAPTURE_REVISIONS)
+@pytest.mark.parametrize("missing_relation", [True, False])
 def test_snapshot_contract_keeps_role_and_queries_in_one_rr_scope_and_recovers_savepoint(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, revision: str, missing_relation: bool
 ) -> None:
     from contextlib import contextmanager
     from types import SimpleNamespace
@@ -1148,9 +1166,10 @@ def test_snapshot_contract_keeps_role_and_queries_in_one_rr_scope_and_recovers_s
                     }
                 )
             if sql == "SELECT missing":
-                raise MissingRelation
-            if sql == "SELECT n":
-                assert self.depth == 2 and self.recovered == 1
+                if missing_relation:
+                    raise MissingRelation
+            if sql in ("SELECT missing", "SELECT n"):
+                assert self.depth == 2 and self.recovered == int(missing_relation)
                 return SimpleNamespace(
                     description=[SimpleNamespace(name="n", type_code=23)],
                     fetchall=lambda: [{"n": 1}],
@@ -1172,10 +1191,21 @@ def test_snapshot_contract_keeps_role_and_queries_in_one_rr_scope_and_recovers_s
         ),
     )
     db = ContractDB()
-    result = capture.capture_snapshot(db, replace(context(), revision=capture.REVISIONS[0]))
-    assert db.begins == 1 and db.recovered == 1 and db.depth == 0
+    selected = replace(context(), revision=revision)
+    if missing_relation and revision != "0015_p4_read_replies":
+        with pytest.raises(CaptureFailure, match="SQL_FAILED") as failure:
+            capture.capture_snapshot(db, selected)
+        assert failure.value.query_id == "ABSENT" and failure.value.sqlstate == "42P01"
+        assert db.begins == 1 and db.recovered == 1 and db.depth == 0
+        return
+    result = capture.capture_snapshot(db, selected)
+    assert result["schema_revision"] == revision
+    assert db.begins == 1 and db.recovered == int(missing_relation) and db.depth == 0
     assert result["transaction"] == {"isolation": "repeatable read", "read_only": "on"}
-    assert result["queries"]["ABSENT"]["status"] == "EXPECTED_ABSENT"
+    assert result["queries"]["ABSENT"]["status"] == (
+        "EXPECTED_ABSENT" if missing_relation else "PASSED"
+    )
+    assert result["queries"]["ABSENT"]["rows"] == (None if missing_relation else [{"n": 1}])
     assert result["queries"]["FOLLOWING"]["rows"] == [{"n": 1}]
 
 
