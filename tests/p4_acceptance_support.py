@@ -81,6 +81,18 @@ class FakeHTTPTransport:
                 "message_id": "synthetic-" + uuid4().hex,
                 "chat_id": kwargs["json"]["receive_id"],
             }
+        elif path == "/open-apis/im/v1/messages" and method == "GET":
+            queries = state.setdefault("history_requests", [])
+            queries.append(kwargs.get("params"))
+            write_private(self.path, state)
+            if state.get("behavior") == "history_timeout":
+                raise httpx.ReadTimeout("owned historical response unknown")
+            pages = state["history_pages"]
+            require(len(queries) <= len(pages), "P4A_FAKE_HISTORY_PAGE_COUNT")
+            body = {"code": 0, "data": pages[len(queries) - 1]}
+            if state.get("behavior") == "history_denied":
+                status = 403
+                body = {"code": 230027}
         elif "/tables/synthetic-table/records" in path:
             behavior = state.get("behavior", "normal")
             if behavior == "timeout":

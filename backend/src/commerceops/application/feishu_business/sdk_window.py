@@ -13,6 +13,7 @@ METHODS: frozenset[str] = frozenset(
         "auth.v3.tenant_access_token.internal",
         "bot.v3.info",
         "im.v1.message.create",
+        "im.v1.message.list",
         "bitable.v1.app_table_record.create",
         "bitable.v1.app_table_record.list",
         "bitable.v1.app_table_record.update",
@@ -64,7 +65,8 @@ class SDKScope:
             "task_result",
             "clarification",
             "read_reply",
+            "history_read",
         ):
             raise ValueError("INVALID_SDK_SCOPE")
-        if (self.kind in ("preflight", "clarification")) != (self.task_id is None):
+        if (self.kind in ("preflight", "clarification", "history_read")) != (self.task_id is None):
             raise ValueError("INVALID_SDK_TASK_BINDING")

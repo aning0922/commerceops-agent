@@ -22,6 +22,7 @@ from commerceops.application.commerce.analysis_task import WORKFLOW_VERSION as A
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.f02_window import F02WorkerWindow
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.feishu_business.history import HistoryRecoveryRequest
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.feishu_business.read_reply import ReadReplyWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
@@ -479,6 +480,22 @@ async def controlled_read_reply(
             if not row or row["status"] != "pending" or row["attempts"] != 0:
                 raise PermissionError("READ_REPLY_NOT_PENDING")
             store.current(db, row)
+            if row.get("history_message_id") is not None:
+                from uuid import NAMESPACE_URL, uuid5
+
+                origin = db.execute(
+                    "SELECT recovery_id FROM business.p4_history_messages WHERE id=%s",
+                    (row["history_message_id"],),
+                ).fetchone()
+                if (
+                    not origin
+                    or window.window_id
+                    != uuid5(
+                        NAMESPACE_URL, f"p4-history-sender:{origin['recovery_id']}:{row['id']}"
+                    )
+                    or (window.expires_at - datetime.now(UTC)).total_seconds() > 300
+                ):
+                    raise PermissionError("READ_REPLY_HISTORY_WINDOW_INVALID")
         await session.check()
         window.window(settings)
         factory = BusinessSDKFactory(settings, ledger)
@@ -494,6 +511,66 @@ async def controlled_read_reply(
             "model_requests": 0,
             "base_requests": 0,
         }
+    finally:
+        await session.close(clean=True)
+
+
+async def controlled_history_recovery(
+    settings: BusinessSettings, request: "HistoryRecoveryRequest", config: WebConfig
+) -> dict[str, Any]:
+    """取回与 materialize 原两条读取；发送仍由两个原 read_reply 窗口分别消费。"""
+    from commerceops.adapters.feishu.history import collect_history
+    from commerceops.application.replenishment.contracts import Parameters
+    from commerceops.infrastructure.feishu_business import FeishuBusinessStore
+    from commerceops.infrastructure.feishu_history import HistoryRecoveryStore
+
+    sdk = request.window(settings)
+    if config.database.user != "commerceops_app":
+        raise PermissionError("P4_CONTROLLED_RUNTIME_ROLE_REQUIRED")
+    session = WorkerSession(config.database, settings.organization_id)
+    await session.start()
+    store = HistoryRecoveryStore(
+        FeishuBusinessStore(
+            ReplenishmentStore(config, Path("unused-read-only-fixtures")),
+            settings.shop_id,
+            Parameters(
+                source_mode="mock",
+                dataset_version="inventory-v1",
+                fixture_case="baseline",
+                L=3,
+                R=7,
+                S=2,
+            ),
+        )
+    )
+    registered = False
+    try:
+        async with asyncio.timeout(
+            max(0.01, (request.expires_at - datetime.now(UTC)).total_seconds())
+        ):
+            await session.check()
+            store.register(request)
+            registered = True
+            ledger = PersistentSDKLedger(session, sdk)
+            factory = BusinessSDKFactory(settings, ledger)
+            await factory.initialize()
+            await factory.verify_bot()
+            await collect_history(factory, request, store)
+            receipts = store.finish(request)
+            return {
+                "result": "history_verified",
+                "verification_mode": "controlled_sdk",
+                "original_messages": 2,
+                "reply_ids": [v["reply_id"] for v in receipts],
+                "business_graphs": 0,
+                "model_requests": 0,
+                "base_requests": 0,
+                "IM_requests": 0,
+            }
+    except BaseException:
+        if registered:
+            store.hold(request)
+        raise
     finally:
         await session.close(clean=True)
 
@@ -594,7 +671,9 @@ def main() -> None:
     parser.add_argument("--window-file", required=True, type=Path)
     parser.add_argument("--live", action="store_true")
     parser.add_argument(
-        "--mode", choices=("workflow", "read_reply", "f02_clarification"), default="workflow"
+        "--mode",
+        choices=("workflow", "read_reply", "f02_clarification", "history_recovery"),
+        default="workflow",
     )
     args = parser.parse_args()
     try:
@@ -602,6 +681,22 @@ def main() -> None:
         if not args.live or os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
             raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
         settings = BusinessSettings.model_validate_json(private_value(args.config))
+        if args.mode == "history_recovery":
+            from commerceops.application.feishu_business.history import HistoryRecoveryRequest
+
+            history_request = HistoryRecoveryRequest.model_validate_json(
+                private_value(args.window_file)
+            )
+            history_request.window(settings)
+            result = asyncio.run(
+                controlled_history_recovery(
+                    settings, history_request, WebConfig.from_file(settings.web_config_file)
+                )
+            )
+            print(json.dumps(result, sort_keys=True))
+            if result["result"] != "history_verified":
+                raise SystemExit(1)
+            return
         if args.mode == "f02_clarification":
             f02_window = F02WorkerWindow.model_validate_json(private_value(args.window_file))
             f02_window.window(settings)

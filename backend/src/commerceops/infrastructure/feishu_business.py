@@ -76,10 +76,10 @@ class FeishuBusinessStore:
         )
 
     def _previous(
-        self, db: DB, actor: FeishuActor, event: str, semantic: str, message: str | None
+        self, db: DB, actor: FeishuActor, event: str | None, semantic: str, message: str | None
     ) -> dict[str, Any] | None:
         # 两层键统一排序锁；同message新event仍回同一原inbox/task。
-        keys = [f"p4:event:{actor.app_id}:{actor.tenant_key}:{event}"]
+        keys = [f"p4:event:{actor.app_id}:{actor.tenant_key}:{event}"] if event is not None else []
         if message:
             keys.append(f"p4:message:{actor.app_id}:{actor.tenant_key}:{message}")
         for key in sorted(keys):
@@ -92,6 +92,43 @@ class FeishuBusinessStore:
             (actor.app_id, actor.tenant_key, event, message, message),
         ).fetchall()
         if not rows:
+            schema = (
+                db.execute("SELECT to_regclass('business.p4_history_messages') AS t").fetchone()
+                if message
+                else None
+            )
+            if message and schema and schema["t"] is not None:
+                history = db.execute(
+                    """SELECT m.*,b.request,b.organization_id,b.shop_id
+                    FROM business.p4_history_messages m
+                    JOIN business.p4_history_recoveries b ON b.id=m.recovery_id
+                    JOIN business.p4_read_replies r ON r.history_message_id=m.id
+                    WHERE m.app_id=%s AND m.tenant_key=%s
+                    AND m.message_id=%s AND b.status='verified'""",
+                    (actor.app_id, actor.tenant_key, message),
+                ).fetchone()
+                if history:
+                    if (
+                        history["organization_id"],
+                        history["shop_id"],
+                        history["semantic_hash"],
+                        history["request"]["principal_id"],
+                        history["request"]["identity_id"],
+                    ) != (
+                        actor.organization_id,
+                        self.shop,
+                        semantic,
+                        str(actor.principal_id),
+                        str(actor.identity_id),
+                    ):
+                        raise WebFailure("EVENT_CONFLICT")
+                    actor_guard(db, actor)
+                    current = db.execute(
+                        "SELECT business.p4_read_reply_current(%s) AS ok", (history["reply_id"],)
+                    ).fetchone()
+                    if not current or not current["ok"]:
+                        raise WebFailure("READ_REPLY_STALE")
+                    return {**history["receipt"], "duplicate": True}
             return None
         if (
             len(rows) != 1

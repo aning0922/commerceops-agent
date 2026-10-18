@@ -18,7 +18,7 @@ from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_read_reply import ReadReplyDeliveryStore
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.worker_lock import WorkerSession
-from psycopg.errors import CheckViolation, InsufficientPrivilege
+from psycopg.errors import CheckViolation, FeatureNotSupported, InsufficientPrivilege
 
 from tests.p3_support import P3Fixture, P3Process, run_graphs
 from tests.test_p3_pg import fixture as fixture
@@ -275,10 +275,46 @@ def test_carrier_identity_no_mutation_delete_truncate_and_scope_no_forgery(
             "UPDATE business.p4_read_replies SET provider_uuid=gen_random_uuid()",
             "UPDATE business.p4_read_replies SET payload_hash=repeat('0',64)",
             "DELETE FROM business.p4_read_replies",
-            "TRUNCATE business.p4_read_replies",
+            "TRUNCATE business.p4_read_replies CASCADE",
         ):
             with pytest.raises(CheckViolation), db.transaction():
                 db.execute(query)
+        revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
+        related = db.execute("SELECT to_regclass('business.p4_history_messages') AS t").fetchone()
+        if revision == {"version_num": "0017_p4_verified_history"}:
+            assert related and related["t"] is not None
+            before = db.execute(
+                """SELECT row_to_json(r)::text AS body
+                    FROM business.p4_read_replies r ORDER BY id"""
+            ).fetchall()
+            history_before = db.execute(
+                """SELECT row_to_json(m)::text AS body
+                    FROM business.p4_history_messages m ORDER BY id"""
+            ).fetchall()
+            with pytest.raises(FeatureNotSupported) as refused, db.transaction():
+                db.execute("TRUNCATE business.p4_read_replies")
+            assert refused.value.sqlstate == "0A000"
+            assert (
+                db.execute(
+                    """SELECT row_to_json(r)::text AS body
+                    FROM business.p4_read_replies r ORDER BY id"""
+                ).fetchall()
+                == before
+            )
+            assert (
+                db.execute(
+                    """SELECT row_to_json(m)::text AS body
+                    FROM business.p4_history_messages m ORDER BY id"""
+                ).fetchall()
+                == history_before
+            )
+        else:
+            assert revision in (
+                {"version_num": "0015_p4_read_replies"},
+                {"version_num": "0016_p4_clarification_requests"},
+            )
+            with pytest.raises(CheckViolation), db.transaction():
+                db.execute("TRUNCATE business.p4_read_replies")
     with connect(f.config.database) as db:
         for query in (
             "UPDATE business.p4_read_replies SET payload=payload",

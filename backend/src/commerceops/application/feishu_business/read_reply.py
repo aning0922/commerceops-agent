@@ -101,12 +101,23 @@ class ReadReplyPayload(Contract):
                 raise ValueError("INVALID_READ_REPLY_TASK")
         return self
 
-    def message(self, identifier: UUID, provider_uuid: UUID, chat: str) -> BusinessMessage:
+    def message(
+        self,
+        identifier: UUID,
+        provider_uuid: UUID,
+        chat: str,
+        *,
+        original_sent_at: datetime | None = None,
+    ) -> BusinessMessage:
         # 逐行原模板完整卡片，不通过截断适配 text 的 3000 字符上限。
         lines = [
             f"任务：{self.task_id}；版本：{self.task_version}；状态：{self.task_state}。",
             f"读取时间：{self.as_of.isoformat()}。",
         ]
+        if original_sent_at is not None:
+            if original_sent_at.utcoffset() != timedelta(0) or original_sent_at > self.as_of:
+                raise ValueError("INVALID_HISTORY_REPLY_TIME")
+            lines.insert(0, f"这是原查询的延迟处理；原发送时间：{original_sent_at.isoformat()}。")
         if self.source is not None:
             lines.append(
                 f"报告：{self.source.report_id}；快照：{self.source.snapshot_id}；"

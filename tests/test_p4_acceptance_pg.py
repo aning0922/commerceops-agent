@@ -27,7 +27,7 @@ pytestmark = pytest.mark.integration
 
 
 def initialize_schema(owner: DatabaseSettings, revision: str) -> None:
-    if revision == "0016":
+    if revision == "0017":
         migrate(owner)
     else:
         config = Config()
@@ -36,11 +36,11 @@ def initialize_schema(owner: DatabaseSettings, revision: str) -> None:
         try:
             with engine.begin() as db:
                 config.attributes["connection"] = db
-                command.upgrade(config, "0015")
+                command.upgrade(config, revision)
         finally:
             engine.dispose()
     asyncio.run(setup_checkpointer(owner))
-    grant_runtime(owner, **({"legacy_revision": "0015"} if revision == "0015" else {}))  # type: ignore[arg-type]
+    grant_runtime(owner, **({"legacy_revision": revision} if revision in ("0015", "0016") else {}))  # type: ignore[arg-type]
 
 
 @pytest.fixture

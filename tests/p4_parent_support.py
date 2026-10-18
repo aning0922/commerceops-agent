@@ -30,6 +30,10 @@ MODULES = (
     "commerceops.infrastructure.feishu_f02_runtime",
     "commerceops.infrastructure.feishu_sdk_ledger",
     "commerceops.infrastructure.worker_lock",
+    "commerceops.application.feishu_business.history",
+    "commerceops.adapters.feishu.history",
+    "commerceops.infrastructure.feishu_history",
+    "commerceops.infrastructure.feishu_business",
     "tests.p4_parent_support",
     "tests.p4_acceptance_support",
     "scripts.p4_acceptance",
@@ -71,7 +75,7 @@ def install_owned_HTTP() -> None:
 
     class HTTP(FakeHTTPTransport):
         async def request(self, method: str, url: str, **kwargs: Any) -> Any:
-            is_im = urlsplit(url).path == "/open-apis/im/v1/messages"
+            is_im = urlsplit(url).path == "/open-apis/im/v1/messages" and method == "POST"
             # 不采集认证正文或token；IM只含这个新owned样例的数据。
             if is_im:
                 write_private(
@@ -177,7 +181,7 @@ class ParentInputs:
 def prepare_parent(
     f: P3Fixture, template: dict[str, Any] | None, *, mode: str, behavior: str = "normal"
 ) -> ParentInputs:
-    assert mode in ("read_reply", "f02_clarification")
+    assert mode in ("read_reply", "f02_clarification", "history_recovery")
     assert template is None or template["enabled"] is False
     directory = f.private / "native-parent"
     directory.mkdir(mode=0o700)

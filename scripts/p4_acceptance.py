@@ -4610,6 +4610,59 @@ def original_ro_lab_history(request: Mapping[str, Any], binding: SourceBinding) 
         require(a.cleanup(), "P4A_LAB_HISTORY_CLEANUP")
 
 
+def read_reply_window_from_history(
+    db: Any,
+    settings: "BusinessSettings",
+    *,
+    recovery_id: "UUID",
+    original_message_id: str,
+    expires_at: datetime,
+) -> "ReadReplyWindow":
+    """只选择原完整历史批的一个已冻结 message；不伪造 Gateway 或新入站。"""
+    from uuid import NAMESPACE_URL, uuid5
+
+    from commerceops.application.feishu_business.read_reply import READ_REPLY_CAPS, ReadReplyWindow
+
+    current = db.execute("SELECT current_user AS role").fetchone()
+    require(current is not None and current["role"] == "commerceops_app", "P4A_HISTORY_ROLE")
+    require(
+        datetime.now(UTC) < expires_at <= datetime.now(UTC) + timedelta(seconds=300),
+        "P4A_HISTORY_REPLY_DEADLINE",
+    )
+    rows = db.execute(
+        """SELECT r.* FROM business.p4_history_messages m
+        JOIN business.p4_history_recoveries b ON b.id=m.recovery_id AND b.status='verified'
+        JOIN business.p4_read_replies r ON r.id=m.reply_id
+        WHERE b.id=%s AND m.message_id=%s AND b.organization_id=%s AND b.shop_id=%s
+        AND b.app_id=%s AND b.tenant_key=%s AND r.open_id=ANY(%s)
+        AND business.p4_read_reply_current(r.id) LIMIT 2""",
+        (
+            recovery_id,
+            original_message_id,
+            settings.organization_id,
+            settings.shop_id,
+            settings.app_id,
+            settings.tenant_key,
+            list(settings.allowed_open_ids),
+        ),
+    ).fetchall()
+    require(len(rows) == 1, "P4A_HISTORY_REPLY_UNIQUE")
+    row = rows[0]
+    require(row["status"] == "pending" and row["attempts"] == 0, "P4A_HISTORY_REPLY_NOT_PENDING")
+    template = ReadReplyWindow(
+        schema_version="p4-read-reply-window-v1",
+        window_id=uuid5(NAMESPACE_URL, f"p4-history-sender:{recovery_id}:{row['id']}"),
+        organization_id=row["organization_id"],
+        shop_id=row["shop_id"],
+        reply_id=row["id"],
+        task_id=row["task_id"],
+        expires_at=expires_at,
+        method_caps={str(method): cap for method, cap in READ_REPLY_CAPS.items()},
+    )
+    template.model_copy(update={"enabled": True}).window(settings)
+    return template
+
+
 def read_reply_window_from_native(
     db: Any,
     settings: "BusinessSettings",

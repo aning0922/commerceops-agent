@@ -71,6 +71,8 @@ class BusinessSDKFactory:
         ):
             raise PermissionError("P4_FACTORY_WINDOW_CLOSED")
         await self.ledger.session.check()
+        if "im.v1.message.list" in window.caps:
+            await self.ledger.authorize_history()
         secret = private_value(self.settings.app_secret_file)
         restrict_sdk_logs()
         # 不设置app_secret/client_assertion/cache，SDK verify缺显式token只会抛异常。

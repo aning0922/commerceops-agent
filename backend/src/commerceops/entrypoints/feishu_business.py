@@ -289,12 +289,13 @@ def run_worker(
     config: Path,
     window_file: Path,
     *,
-    mode: Literal["workflow", "f02_clarification", "read_reply"] = "workflow",
+    mode: Literal["workflow", "f02_clarification", "read_reply", "history_recovery"] = "workflow",
 ) -> dict[str, object]:
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.business_factory import private_value
     from commerceops.adapters.feishu.sdk import restrict_sdk_logs
     from commerceops.application.feishu_business.f02_window import F02WorkerWindow
+    from commerceops.application.feishu_business.history import HistoryRecoveryRequest
     from commerceops.application.feishu_business.read_reply import ReadReplyWindow
     from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
     from commerceops.infrastructure.web_config import WebConfig
@@ -303,10 +304,12 @@ def run_worker(
     if os.environ.get("COMMERCEOPS_MODE") != "p4-controlled-test":
         raise PermissionError("P4_CONTROLLED_TEST_MODE_REQUIRED")
     settings = BusinessSettings.model_validate_json(private_value(config))
-    if mode not in ("workflow", "f02_clarification", "read_reply"):
+    if mode not in ("workflow", "f02_clarification", "read_reply", "history_recovery"):
         raise PermissionError("P4_CONTROLLED_WORKER_MODE_REQUIRED")
     window_type = (
-        F02WorkerWindow
+        HistoryRecoveryRequest
+        if mode == "history_recovery"
+        else F02WorkerWindow
         if mode == "f02_clarification"
         else ReadReplyWindow
         if mode == "read_reply"
@@ -388,7 +391,14 @@ def run_worker(
         "result": "window_stopped"
         if child.returncode == 0
         and confirmed
-        and summary.get("result") == ("sent" if mode == "read_reply" else "window_stopped")
+        and summary.get("result")
+        == (
+            "history_verified"
+            if mode == "history_recovery"
+            else "sent"
+            if mode == "read_reply"
+            else "window_stopped"
+        )
         else "failed",
         "child_exit": child.returncode,
         "child_reaped": child.poll() is not None,
@@ -459,7 +469,9 @@ def main() -> None:
     parser.add_argument("--group-ready", action="store_true")
     parser.add_argument("--group-binding-sha256")
     parser.add_argument(
-        "--worker-mode", choices=("workflow", "f02_clarification", "read_reply"), default="workflow"
+        "--worker-mode",
+        choices=("workflow", "f02_clarification", "read_reply", "history_recovery"),
+        default="workflow",
     )
     args = parser.parse_args()
     try:

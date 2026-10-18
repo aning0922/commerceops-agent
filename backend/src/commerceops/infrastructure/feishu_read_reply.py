@@ -86,11 +86,15 @@ def capture(
 def insert(
     db: DB,
     actor: FeishuActor,
-    message: MessageProbe,
-    inbox: UUID,
+    message: MessageProbe | None,
+    inbox: UUID | None,
     identifier: UUID,
     payload: ReadReplyPayload,
+    *,
+    history_message_id: UUID | None = None,
 ) -> None:
+    if (history_message_id is None) != (message is not None and inbox is not None):
+        raise WebFailure("READ_REPLY_ORIGIN_INVALID")
     value = payload.model_dump(mode="json")
     source = payload.source
     task = db.execute(
@@ -98,13 +102,15 @@ def insert(
     ).fetchone()
     if task is None:
         raise WebFailure("RESOURCE_NOT_FOUND", 404)
+    history_column = ",history_message_id" if history_message_id is not None else ""
+    history_parameter = ",%s" if history_message_id is not None else ""
     db.execute(
-        """INSERT INTO business.p4_read_replies
+        f"""INSERT INTO business.p4_read_replies
         (id,inbox_id,organization_id,shop_id,principal_id,identity_id,auth_version,
         app_id,tenant_key,open_id,chat_id,chat_type,kind,task_id,task_version,task_state,
         source_kind,source_task_id,observation_id,report_id,snapshot_id,facts_hash,as_of,
-        payload,canonical_payload,payload_hash,provider_uuid)
-        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+        payload,canonical_payload,payload_hash,provider_uuid{history_column})
+        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s{history_parameter})""",
         (
             identifier,
             inbox,
@@ -117,7 +123,7 @@ def insert(
             actor.tenant_key,
             actor.open_id,
             actor.chat_id,
-            message.chat_type,
+            message.chat_type if message is not None else "p2p",
             payload.kind,
             payload.task_id,
             payload.task_version,
@@ -133,7 +139,8 @@ def insert(
             canonical_bytes(value).decode(),
             facts_hash(value),
             uuid4(),
-        ),
+        )
+        + ((history_message_id,) if history_message_id is not None else ()),
     )
 
 
@@ -238,7 +245,15 @@ class ReadReplyDeliveryStore:
             WHERE r.inbox_id=%s AND r.identity_id=%s""",
             (row["inbox_id"], row["identity_id"]),
         ).fetchone()
-        if (
+        if row.get("history_message_id") is not None:
+            origin = db.execute(
+                """SELECT business.p4_read_reply_origin_current(r) AS ok
+                FROM business.p4_read_replies r WHERE r.id=%s""",
+                (row["id"],),
+            ).fetchone()
+            if not origin or not origin["ok"]:
+                raise WebFailure("READ_REPLY_RECEIPT_INVALID")
+        elif (
             receipt is None
             or receipt["result"].get("reply_id") != str(row["id"])
             or receipt["result"].get("reply_payload_hash") != row["payload_hash"]
@@ -316,7 +331,19 @@ class ReadReplyDeliveryStore:
                 (self.session.owner, row["id"]),
             )
         # 不持网络事务；started 预占由原 ledger 在 SDK 前单独 commit。
-        request = payload.message(row["id"], row["provider_uuid"], row["chat_id"])
+        original_sent_at = None
+        if row.get("history_message_id") is not None:
+            with connect(self.store.settings) as db:
+                original = db.execute(
+                    "SELECT sent_at FROM business.p4_history_messages WHERE id=%s",
+                    (row["history_message_id"],),
+                ).fetchone()
+                if original is None:
+                    raise WebFailure("READ_REPLY_RECEIPT_INVALID")
+                original_sent_at = original["sent_at"]
+        request = payload.message(
+            row["id"], row["provider_uuid"], row["chat_id"], original_sent_at=original_sent_at
+        )
         try:
             await self.session.check()
             remaining = (self.ledger.window.expires_at - datetime.now(UTC)).total_seconds()

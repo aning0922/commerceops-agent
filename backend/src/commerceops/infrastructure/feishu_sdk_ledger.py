@@ -30,10 +30,47 @@ class PersistentSDKLedger:
         finally:
             self.current.reset(token)
 
+    async def authorize_history(self) -> None:
+        """历史取回 once 已提交且当前权限成立，才允许 Factory 读取 Secret。"""
+        from commerceops.application.feishu_business.history import HISTORY_CAPS
+
+        if dict(self.window.caps) != HISTORY_CAPS or not self.window.enabled:
+            raise PermissionError("SDK_HISTORY_CAP_MISMATCH")
+        await self.session.check()
+        async with await open_async(self.session.settings) as db:
+            cur = await db.execute(
+                """SELECT 1 FROM business.p4_history_recoveries
+                WHERE id=%s AND organization_id=%s AND shop_id=%s
+                AND (request->>'expires_at')::timestamptz=%s
+                AND business.p4_history_collection_current(id)""",
+                (
+                    self.window.window_id,
+                    self.window.organization_id,
+                    self.window.shop_id,
+                    self.window.expires_at,
+                ),
+            )
+            if not await cur.fetchone():
+                raise PermissionError("SDK_HISTORY_ONCE_CLOSED")
+
     async def invoke(self, method: SDKMethod, call: Callable[[], Awaitable[Any]]) -> Any:
         scope = self.current.get()
         if scope is None or not self.window.allows(method):
             raise PermissionError("SDK_WINDOW_CLOSED")
+        if (
+            method == "im.v1.message.list"
+            or scope.kind == "history_read"
+            or "im.v1.message.list" in self.window.caps
+        ):
+            await self.authorize_history()
+            if not (
+                (scope.kind == "history_read" and method == "im.v1.message.list")
+                or (
+                    scope.kind == "preflight"
+                    and method in ("auth.v3.tenant_access_token.internal", "bot.v3.info")
+                )
+            ):
+                raise PermissionError("SDK_HISTORY_METHOD_MISMATCH")
         if scope.kind == "read_reply":
             from commerceops.application.feishu_business.read_reply import READ_REPLY_CAPS
 
@@ -106,7 +143,7 @@ class PersistentSDKLedger:
                 or not self.window.allows(method)
             ):
                 raise PermissionError("SDK_METHOD_CAP_EXHAUSTED")
-            if scope.kind == "preflight":
+            if scope.kind in ("preflight", "history_read"):
                 if scope.subject_id != self.window.window_id:
                     raise PermissionError("SDK_PREFLIGHT_WINDOW_MISMATCH")
             else:

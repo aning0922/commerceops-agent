@@ -7,6 +7,7 @@ SDKMethod = Literal[
     "auth.v3.tenant_access_token.internal",
     "bot.v3.info",
     "im.v1.message.create",
+    "im.v1.message.list",
     "bitable.v1.app_table_record.create",
     "bitable.v1.app_table_record.list",
     "bitable.v1.app_table_record.update",

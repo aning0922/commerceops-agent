@@ -1,5 +1,7 @@
 # 工程约束
 
+原两条查询历史恢复候选（2026-10-18）：用户已批准固定p2p/UTC四分钟/两页50条的只读取回及原两条独立回复，四小时整包含此前设计与预审，不重置旧预算/SDK/Create/attempt/once。A唯一0017独立verified_history来源、原message跨实时/历史唯一键、当前权限及原read_reply/native父child接线；C仍独占验收consumer。原始message_id未知，实际API/SDK0，原库/Secret/真实群继续HOLD；不伪造WS/inbox/Gateway，不扩大查询或unknown重试。最终原生FK候选新14PG/134.666s及旧相关31PG/212.246s两命令和外层0，11:10:49Z资源0/0保卷；旧541保留、完整555=372+183/交集0，13节点开发结果与全部失败单列。C31a三schema兼容已普通合入，冻结独审和精确新CI由Root另释放，不自行push/CI/main。原9ee/39101285628五绿不代签新源码。详见[本批合同](docs/contracts/p4-original-query-history.md)。
+
 [本批原v2恢复合同](docs/contracts/p4-terminal-recovery.md)；当前仅owned准备，原资产继续HOLD。
 
 原v2 unknown完整恢复批（2026-10-16）：Root登记[统一合同](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6219180668)，总cap8 Agent有效h（A5.5/Core1.5/Root1，旧6h及全部既有用量继续累计，机器等待单列）。原046/ea、518PG与旧SDK9/Create1、后续失败SDK5/update0、旧once/SPENT全部保留。T6已COMMITTED且原key GET成功，不重复登录/审批/关闭。A唯一在原store/adapter/Worker/父入口内完成可信完整v1读前校验、原unknown/attempt1窄准入、独立持久once与read-first恢复；仅远端完整v2可零写结算，仅可信完整v1可同record Update至多1并严格全v2读回，其他HOLD。不SQL重置pending、不复活旧窗口，不改C产品/四consumer、迁移、权限、业务规则或新增框架/observer。先新owned双schema实际失败态整链/中断/竞争/冷重放/清理，再同冻结原Core整包独审和Root释放唯一精确新CI；当前原库/Secret/真实SDK0访问，不自行push/PRbody/CI/main。后续真实PG<=600/SDK<=300/reserve>=180/arm余量>=480，仅Root统一对象与UTC准入。SQL/角色/once/native退出必须真实；Fake仅新owned底层HTTP。实际失败原始wire未捕获，nullable反例不是唯一根因结论。
