@@ -1,5 +1,31 @@
 # Phase 4 / M1 剩余验收地图
 
+## 唯一当前验收清单（2026-10-18，北京时间）
+
+本节按 Root 本轮实时回执收敛，以下原五项为唯一现行状态；④已闭合，不再安排重做。下方折叠区保留旧事实、失败和当时的清单，不再作为第二份当前安排。[原 AC01–11](PRD.md#7-p0-交付验收) 与 M1 范围不变，准备、owned 工具验证、CI、自动化页面证据和真人渠道证据各按实际范围核收。
+
+当前 main 仍为 P3 核收基线 `9d97c19009d932036809ac3e2638bb68f4b7f765`，M1 未完成。已核旧公开候选为 `9ee82e15f44b667de6ab861bebfa56d90d742288`，Root 集成 `41cc82bd` / tree 前缀 `8591` 与其同树；[CI39101285628](https://github.com/aning0922/commerceops-agent/actions/runs/39101285628) 五项 SUCCESS、PG 372+169=541、零缺项，G1三/G2六、Web read/write/items、N01六及 cleanup 通过。该 CI 只签旧公开 source；A 已开始新的历史恢复公开源码实现，尚未冻结，影响核验、独审及精确 CI 待完成，不由9ee五绿代签。现行结论依据 [Root④核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6247929850) / [Root最新接续](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6248706530)。
+
+真实原私聊/批准、F02三轮原T1、真人原T6与同record Base v2已核收，不让人重做。`persisted_real_v2_readonly` 已在9ee/tree8591下实际完成 page/replay 并独审无P1/P2，原五项④闭合：各原key GET1、业务POST0、本轮SDK/平台写0，自动化读取当前API/PG持久状态，不冒称新真人观察或新Base核实。原两查询 exact 本地 inbox/carrier0、四次近时平台失败与原文不能精确配对的历史事实保留；`im:message:readonly` 已经官方UI开通，但历史恢复包SDK调用仍0、原message_id仍未知。原4h包实现中，首次官方API唯一匹配后才取得并冻结ID；实际恢复与各一次回复仍HOLD，不能预填成功。
+
+群工具方面，089及037准备已核；6337 owned正常/权限两例已独审，无生产P1/P2，外层testdriver exit1仍保留为原观察，不改写成全退出0。既有925 owned 的reject0/success20、Q2000、13/14 ACK、原20键15字段读回/冷重放/cleanup继续按其限定范围复用。原B/C映射尚未实际部署，合成owned身份不是真实角色证明；A新公开源码冻结后的影响核验仍待，真实群仍HOLD，准备或CI均不签真人群/角色正向准入。
+
+| 原五项／当前状态 | 原 AC 映射 | 复用证据 | 仅缺项 | Owner | 依赖 | 完成判据 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ① 真实群完整20项未知联合确认及独立拒绝 | AC01/02/03/10 | 已核私聊、F02、P2 金标、上述925 owned 全量确认/拒绝与完整读回；准备不冒充真人群 | 真实群原计划的全20项/完整未知键联合确认，及独立拒绝计划；PG task→approval→execution→item→Base 唯一关联 | A 执行与关联；Root 准入/核收，原 Reviewer 独审 | 089/037准备已核，6337 owned正常/权限两例独审范围可复用；原B/C实际部署、新公开源码冻结后的影响核验及有限真实窗口仍待 | 正向原计划逐项关联20 items/Q2000和Base；完整键/版本/事实不漂移；独立拒绝为零执行/零内部项/零新增Base；原回执和清理核收，不拿同一计划同时证明批准与拒绝 |
+| ② 同原计划重复/冲突、权限负向与跨进程恢复 | AC03/04/05/07/10 | 已核完整过期、撤权、跨店、篡改及 kill 矩阵；既有C Web/N01权限负向、PG唯一决定/恢复及6337 owned正常/权限两例独审材料 | 同原计划真人10重复、双合资格人冲突及尚缺的正式跨进程关联；不伪造真实 callback，不无故多造任务或重跑整套技术矩阵 | A 正式通道/恢复；C 提供既有权限证据；Root/原 Reviewer 核收 | 与①共用冻结计划/角色/原事件和已登记等待点；原B/C实际部署仍待，新source冻结后先核影响，只补缺失关联 | 真人重复/相反决定精确对回原 plan/decision/callback；仅一个决定和一组执行/内部项生效，跨进程恢复不丢早决定、不增项；当前权限负向沿原证据范围签收 |
+| ③ 两条原消息可信恢复及各一次真实查询回复 | AC09/BC02 | 原两文本 exact 本地零行、既有 read-reply PG/权限/重放与解释来源证据；四次近时平台失败的原文关联仍未知 | 两原 message_id 目前未知，首次官方 API 唯一匹配取得并冻结后，保留各 ID 的可信来源恢复与各一次真实查询回复；不重发、不补造、不用其他查询替换，不作无期重投等待 | A 原消息恢复/回复；Root 统一准入/核收 | 用户已批准且im:message:readonly已官方UI开通；SDK0/原ID未知，4h实现中；新source冻结、可信取回/来源适配、独审/精确CI与实际回复仍待；范围依[Root合同](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6246990688)及[最新回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6248706530)，不扩展对象或期限 | 各原 message_id、文本hash、actor/chat及历史来源可信配对后合法恢复；各一次真实回复与同原任务/本地 ledger/平台回执闭合；失败明确保留 HOLD，不以准备或零行冒充回复成功 |
+| ④ 原T6/v2只读Web与原key GET：已闭合 | AC06/11 | 原真人T6/同record Base v2；9ee下af731 consumer的真实automatic page/replay已实跑并独审无P1/P2 | 本项无新增执行缺项；复用已核收页面/原key/当前来源证据，不增加真人或展示Gate | A原运行、C展示核对、原Reviewer独审；Root已核收 | 依[Root④正式回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6247929850)闭合；后续仅按实际源码影响复用 | 各native0/原key GET1、业务POST0、本轮SDK/平台写0；原closed/v2/原因/处理人/时间、当前Base v2/unique/controlled_sdk、来源与身份绑定及cleanup均已核；认证动作单列，不重做人类登录/批准/T6或平台写入 |
+| ⑤ 最终交付、独审、精确 CI、main 合后与 Issue 结案 | AC08/09及整体 | c460 四 Compose 场景与原键/恢复/清理；既有素材和私有候选、公开分步运行说明；上述精确541 PG/Web/N01基线 | 最终候选按受影响范围补链、资料/来源/限制交付、独审及最终集成核收；不加“一条命令完整验收”或通用框架 Gate | C 交付；A 公共接线；原 Reviewer 独审；Root 集成/CI/main/结案 | ①–③必要Gate到齐、④已闭合；新公开源码冻结，既有证据经影响范围核对；素材仍遵循私有/脱敏边界 | 无未解决P1/P2；最终候选精确CI通过，Root逐Gate签收后正常合main、同SHA合后CI及对应Issue结案；旧c460只补受影响链，不为文档重复整批，M1完成由Root裁决 |
+
+本清单只收敛现有验收与准备包，不是整项 M1 的完成期限或剩余工时承诺。D1=2026-10-10、D30=2026-11-08、项目300h/P4计划50h、全部历史用量与失败保持；人工 H/L 仍 unknown。旧私有资源、原素材和冻结18页设计继续保留，不因本次文档重置预算或扩展 Gate。
+
+## 历史材料（仅当时状态，原文保留）
+
+<details><summary>展开旧运行说明、交付工作稿、逐 AC 地图与历史证据</summary>
+
+以下原文中的“当前”“待验”“唯一下一步”仅指其记录日期，不覆盖上方唯一五行清单；旧失败不改写为成功，已核事实也不因旧 pending 重开。
+
 ## 新 clone 运行包的交付范围（2026-10-18，静态增量）
 
 现有公共 Compose/CLI 足以说明人工启动 Mock 核心服务的路径；可重现的公开分步命令就是本次交付选择，不新增“一条命令完整验收”必要 Gate。详细参数、顺序和源码依据见 [新 clone 启动说明](M1_OFFLINE_COMPOSE.md)。本次只读源码并补文档，没有安装或运行服务，没有改变 c460 冻结或 A 当前验收。
@@ -147,3 +173,5 @@ c460 源码为 `c460d6f63f95060a2b25ae9418ca6e3020f89169`，本次完整实际�
 - 旧影片只有部分 20 行/投影标题与完成态，不是完整当前同步卡/close 原因/全链新周期录像。既有盘点中，旧 QA 文档记载的两份私有 QA JSON 与三帧之一在原 C 路径未找到，**仅记当次路径缺证，不删除资产、不推断已丢失，也不把历史索引当现存文件证明**；由 Root 从既有保留包定位，若无法定位就明确缺素材。
 - 最终录屏须完整可读地覆盖 20 行与 unknown/null、原因/版本、业务终态和独立同步、来源/usage/模型模式；真人与 simulated_web 分段，认证输入不录，原值/URL/标识/密钥不公开，不把旧 Fake 画面剪成真实 Base 过程。先保存私有原片和来源/hash，再脱敏 QA；片长不构成延长窗口理由。
 - 最终 Root 汇总逐 AC 证据、剩余限制、无未解决 P1/P2、新精确 CI、正常 main 合并/合后同 SHA CI及 Issue 结案。P4/M1 未因本地图或原记录 T6/Base v2 单项 PASS 而完成；原 300h / P4 计划 50h、H/L not_reported 及全部旧资源/Penpot/失败保留。
+
+</details>
