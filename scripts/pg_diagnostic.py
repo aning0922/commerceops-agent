@@ -83,7 +83,15 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         if moved is not None:
             name, paths = moved
             if name not in groups:
-                groups[name] = [node for node in phase3 if node.split("::", 1)[0] in paths]
+                complete = [node for node in phase3 if node.split("::", 1)[0] in paths]
+                if name == "combined-existing-p4-verified-history":
+                    # 39154216134完整14节点累计触发300s；仅按完整collection排序分7+7。
+                    # 新节点仍自动纳入，保持原existing分区、命令上限和精确配对。
+                    ordered = sorted(complete)
+                    for offset in range(0, len(ordered), 7):
+                        groups[f"{name}-part-{offset // 7 + 1}"] = ordered[offset : offset + 7]
+                else:
+                    groups[name] = complete
             continue
         # 610实证此唯一approval模块累计300s；仅其按完整collection规范顺序14节点子批。
         # 不筛选通过节点、改用例或放宽任何命令/总deadline；其余自然模块原样。
@@ -195,6 +203,7 @@ def run_combined(
                     "combined-phase3-test_p3_approval_pg-part-",
                     "combined-phase3-test_p4_acceptance_pg-part-",
                     "combined-phase3-test_p4_terminal_recovery_pg-part-",
+                    "combined-existing-p4-verified-history-part-",
                 )
             )
             else sorted({node.split("::", 1)[0] for node in group})

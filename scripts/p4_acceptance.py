@@ -881,9 +881,163 @@ HISTORY_FORENSICS_QUERIES = {
 }
 
 
+def history_item_evidence(
+    history: Any, item: Any, previous_sent: datetime
+) -> tuple[dict[str, Any], datetime]:
+    """只输出固定字段类型、诊断枚举和摘要；相似文本不授予verified来源。"""
+    import unicodedata
+
+    from commerceops.application.feishu_business.history import (
+        ORIGINAL_END,
+        ORIGINAL_START,
+        strict_json,
+    )
+
+    missing = object()
+
+    def field(*path: str) -> Any:
+        value = item
+        for name in path:
+            if type(value) is not dict or name not in value:
+                return missing
+            value = value[name]
+        return value
+
+    def kind(value: Any) -> str:
+        return next(
+            (
+                label
+                for cls, label in (
+                    (type(None), "NULL"),
+                    (bool, "BOOL"),
+                    (int, "INT"),
+                    (float, "FLOAT"),
+                    (str, "STR"),
+                    (list, "LIST"),
+                    (dict, "OBJECT"),
+                )
+                if type(value) is cls
+            ),
+            "MISSING" if value is missing else "UNKNOWN",
+        )
+
+    def match(value: Any, expected: str) -> bool | None:
+        return value == expected if type(value) is str else None
+
+    def stats(value: Any) -> dict[str, Any]:
+        if type(value) is not str:
+            return dict(characters=None, utf8_bytes=None, sha256=None, utf8_valid=None)
+        try:
+            body = value.encode("utf-8")
+        except UnicodeEncodeError:
+            return dict(characters=len(value), utf8_bytes=None, sha256=None, utf8_valid=False)
+        return dict(
+            characters=len(value),
+            utf8_bytes=len(body),
+            sha256=hashlib.sha256(body).hexdigest(),
+            utf8_valid=True,
+        )
+
+    paths = (
+        "message_id",
+        "chat_id",
+        "msg_type",
+        "create_time",
+        "update_time",
+        "deleted",
+        "updated",
+        "sender",
+        "sender.id",
+        "sender.id_type",
+        "sender.sender_type",
+        "sender.tenant_key",
+        "body",
+        "body.content",
+    )
+    msg_type = field("msg_type")
+    message_kind = (
+        {"text": "TEXT", "post": "RICH_TEXT"}.get(msg_type, "NON_TEXT")
+        if type(msg_type) is str
+        else "UNKNOWN"
+    )
+    created = field("create_time")
+    valid_time = type(created) is str and re.fullmatch(r"[1-9][0-9]{12}", created) is not None
+    sent = datetime.fromtimestamp(int(created) / 1000, UTC) if valid_time else None
+    content = field("body", "content")
+    text = None
+    if type(field("body")) is not dict:
+        structure = "BODY_NOT_OBJECT"
+    elif type(content) is not str:
+        structure = "CONTENT_NOT_STRING"
+    else:
+        try:
+            decoded = strict_json(content)
+        except ValueError:
+            structure = "JSON_INVALID"
+        else:
+            if type(decoded) is not dict:
+                structure = "JSON_NOT_OBJECT"
+            elif "text" not in decoded:
+                structure = "JSON_NO_TEXT"
+            elif type(decoded["text"]) is not str:
+                structure = "JSON_TEXT_NOT_STRING"
+            else:
+                structure = "JSON_TEXT"
+                text = decoded["text"]
+    comparisons = []
+    for expected in history.expected_texts:
+        difference = "UNKNOWN"
+        if text is not None:
+            if text == expected:
+                difference = "EXACT"
+            elif text.strip() == expected.strip():
+                difference = "EDGE_WHITESPACE_ONLY"
+            elif "".join(c for c in text if not c.isspace()) == "".join(
+                c for c in expected if not c.isspace()
+            ):
+                difference = "WHITESPACE_ONLY"
+            elif unicodedata.normalize("NFKC", text) == unicodedata.normalize("NFKC", expected):
+                difference = "UNICODE_COMPATIBILITY_ONLY"
+            else:
+                difference = "CONTENT_DIFFERENT"
+        comparisons.append(
+            dict(exact=text == expected if text is not None else None, difference=difference)
+        )
+    evidence = dict(
+        diagnostic_only=True,
+        row_type=kind(item),
+        wire_types={path: kind(field(*path.split("."))) for path in paths},
+        message_kind=message_kind,
+        deleted=field("deleted") if type(field("deleted")) is bool else None,
+        updated=field("updated") if type(field("updated")) is bool else None,
+        create_time_format_valid=valid_time,
+        time_in_original_window=ORIGINAL_START <= sent <= ORIGINAL_END if sent else None,
+        time_order_valid=sent >= previous_sent if sent else None,
+        update_time_matches_create_time=(
+            field("update_time") == created
+            if type(field("update_time")) is str and valid_time
+            else None
+        ),
+        chat_matches=match(field("chat_id"), history.chat_id),
+        sender_matches=dict(
+            subject=match(field("sender", "id"), history.open_id),
+            id_type=match(field("sender", "id_type"), "open_id"),
+            sender_type=match(field("sender", "sender_type"), "user"),
+            tenant=match(field("sender", "tenant_key"), history.tenant_key),
+        ),
+        message_id=stats(field("message_id")),
+        content=stats(content),
+        text_structure=structure,
+        text=stats(text),
+        expected_comparisons=comparisons,
+    )
+    return evidence, sent if sent is not None else previous_sent
+
+
 def history_page_evidence(history: Any, records: list[Any]) -> dict[str, Any]:
     """原页只在内存验证；新取证只保存摘要，不复制分页 token 或原始 wire。"""
     from commerceops.application.feishu_business.history import (
+        ORIGINAL_START,
         HistoryPage,
         strict_json,
         verify_pages,
@@ -892,6 +1046,7 @@ def history_page_evidence(history: Any, records: list[Any]) -> dict[str, Any]:
     pages = []
     summaries = []
     previous_token = None
+    previous_sent = ORIGINAL_START
     try:
         for record in records:
             page = HistoryPage.from_record(record)
@@ -902,8 +1057,11 @@ def history_page_evidence(history: Any, records: list[Any]) -> dict[str, Any]:
             token = data.get("page_token")
             items = data.get("items")
             counts = [0, 0]
+            item_evidence = []
             if isinstance(items, list):
-                for item in items:
+                for item in items[:50]:
+                    evidence, previous_sent = history_item_evidence(history, item, previous_sent)
+                    item_evidence.append(evidence)
                     if not isinstance(item, dict) or not isinstance(item.get("body"), dict):
                         continue
                     content = item["body"].get("content")
@@ -931,6 +1089,8 @@ def history_page_evidence(history: Any, records: list[Any]) -> dict[str, Any]:
                     item_count=len(items) if isinstance(items, list) else None,
                     pagination_chain_match=page.request_token in (previous_token,),
                     exact_text_counts=counts,
+                    item_evidence=item_evidence,
+                    classification_complete=isinstance(items, list) and len(items) <= 50,
                 )
             )
             previous_token = token if data.get("has_more") is True else None
