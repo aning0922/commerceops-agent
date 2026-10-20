@@ -1,5 +1,21 @@
 # Phase4 / M1 分层验收（实施中）
 
+## 2026-10-20 九小时收口候选
+
+本批授权与累计账目见[STATUS69](STATUS.md#69-m1九小时收口批离线准备候选)。877的五绿CI39386976160只验其563节点及同树源码，不代签本次修改。已核原私聊/F02/T6/Base v2/只读Web沿用原对象证据；C三份交付文档9ccd已普通合入，未写C四个consumer。
+
+| 门槛 | 当前候选与事实 | 尚待证据 |
+|---|---|---|
+| 原两条私聊历史 | 保留旧只读分类、失败/unknown及once，不继续专项恢复/重取/回复 | 继续HOLD，不挪作新群样本 |
+| B/C正式映射 | 复用原窄writer/parent，默认disabled；只准原B/C七行、A3/B2/C1及低权读回；旧历史行只在PG内计算整行hash | 同源码owned失败/清理验证、独审及Root唯一原配置窗 |
+| 群20 | 原reject0/success20固定两case，真实每窗≤1200s/SDK90/回调30、Update0；保留原nonce/角色/版本/once | 当前源码原生整链与通知回执、正式平台两群窗 |
+| 新群只读两样本 | 同一个成功群任务及ready报告；原parser移除真实bot mention后的全文与预绑定hash一致；group-ready在准入前拒绝私聊/其他群 | 实际native WS-ready、Root工具实际通知返回后≥240s、人类各一次新消息及两条独立sender真实账本 |
+| 跨PG发送 | 原UUID未消费disabled模板在实际sender启动时派生deadline；pending0/原新群receipt/hash/无既有SDK窗口才准入 | 实际PG正例、已消费/冷重放/权限及失败后最终采集 |
+| CI容量 | 原563节点不减；必要2PG仅collect候选；read-parent完整11节点分6+5、history14仍7+7 | 同最终源码owned实际分组耗时、整包独审与Root精确新CI；45/43/300s保持 |
+
+当前新资源与真实平台访问为0；已有90相关offline及15私有边界检查通过，私有原群入口47项函数级纯测保留；这些均不签PG/平台/完整M1。新owned至多2窗各≤1800s，现有父入口含多次启停，必须预先纳入同owner/project/volume的两份固定窗口；总控已区分窗口内预定restart与另开独立窗口，具体编排未核定前不启动。新source冻结、全检查与精确节点核对另记实际结果，不预填成功。所有旧失败、unknown、预算/日期/人工H-L/18页保留；不进入Phase5。
+
+
 ## 2026-10-18 当前准备矩阵
 
 Root已恢复原A与原Reviewer接续，同一WTfd38/PR43从be1b7938继续；本节覆盖下方旧待验导航，

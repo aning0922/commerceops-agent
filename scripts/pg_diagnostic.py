@@ -84,12 +84,19 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             name, paths = moved
             if name not in groups:
                 complete = [node for node in phase3 if node.split("::", 1)[0] in paths]
-                if name == "combined-existing-p4-verified-history":
+                if name in (
+                    "combined-existing-p4-verified-history",
+                    "combined-existing-p4-read-reply-parent",
+                ):
                     # 39154216134完整14节点累计触发300s；仅按完整collection排序分7+7。
                     # 新节点仍自动纳入，保持原existing分区、命令上限和精确配对。
+                    # 877的read-parent原9项实254.819s；新完整11项按6+5，仍每命令300s。
+                    width = 7 if name.endswith("verified-history") else 6
                     ordered = sorted(complete)
-                    for offset in range(0, len(ordered), 7):
-                        groups[f"{name}-part-{offset // 7 + 1}"] = ordered[offset : offset + 7]
+                    for offset in range(0, len(ordered), width):
+                        groups[f"{name}-part-{offset // width + 1}"] = ordered[
+                            offset : offset + width
+                        ]
                 else:
                     groups[name] = complete
             continue
@@ -204,6 +211,7 @@ def run_combined(
                     "combined-phase3-test_p4_acceptance_pg-part-",
                     "combined-phase3-test_p4_terminal_recovery_pg-part-",
                     "combined-existing-p4-verified-history-part-",
+                    "combined-existing-p4-read-reply-parent-part-",
                 )
             )
             else sorted({node.split("::", 1)[0] for node in group})

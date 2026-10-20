@@ -1330,3 +1330,22 @@ in_progress。未push/PRbody/CI/main，最终Root独审后另释放一次精确�
 dir/index当前0；git原始2条/native1保留为已审公开误报，blocking0，不称历史从未命中。
 停止后有效决定ACK复核为13（11info/2warning），空载荷控制帧另列；本段只追加检查和
 计数事实，再核Markdown/扫描，不将其写成未运行的group/Web成功或新CI。
+
+
+## 69. M1九小时收口批：离线准备候选
+
+用户批准[540分钟完整方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)，Root于08:21:55.423330Z[登记接续](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)，计划A330/C60/Review90/Root60分钟，总额内调配，旧用量与失败不重置。A上一90分钟批约31–38分钟保留，本批有效用量按估计另报，非精确计量；机器和真人等待单列，原300h/P4余额UNKNOWN。
+
+基线877/treef2f精确CI39386976160五SUCCESS，563=395+168完整/disjoint/actual=passed，G1三/G2六/Web/N01/cleanup0已由Root核收。C文档9ccd经原Reviewer无P1/P2并由Root释放，已ff普通合入，C7文件独占边界保留。main及本次新独审/精确CI/合后CI/Issues39–42结案仍pending。
+
+旧两条私聊查询停止专项恢复，旧SDK3（auth1/bot1/list1）HTTP200/code0及messages/source/reply0分列；旧第二项差1字符的离线hash对比是分类证据，不授权改写/新carrier或回复。原未知异常与Secret读取数UNKNOWN，不追填SPENT或根因。当前新群两查询可用同一个新的成功群任务及ready报告，均为新消息一次；不额外建两业务任务，不重做已核原私聊/F02/审批/T6/v2/只读Web。
+
+A候选仅现有group-ready接收器的同群准入、固定只读subject/ready模板核验、未消费disabled发送模板派生及必要契约。私有现有group/R8/B-C父入口保持默认disabled/同SourceBinding，旧历史行只用PG服务端整行hash保护；实际WS-ready触发Root工具通知，完整可复制纯文本、规范hash、通知实际返回后≥240s，迟到/缺失HOLD。现有父入口中旧DM fixture分支不作为新群来源；发送及失败采集仍沿原read_reply/原once，不续已注册窗口、不SQL重置pending。
+
+离线相关90项和私有15边界检查已通过，原群入口47函数级纯测另列；一次私有复制脚本引号SyntaxError在AST阶段拒绝，未创建资源；旧模块路径/静态pin失败保留，随后函数级检查不冒完整CLI通过。必要2PG尚仅收集候选，原563不减；完整read-parent11固定6+5、history7+7，原CI read-parent9耗254.819s只余45.181s，quality40m17/phase341m44旧事实保留。新分组实际owned耗时与45/43总容量还未测得。
+
+资源上限：新owned至多2窗各≤1800s/cleanup≥180s，原B/C配置PG一次≤600s/cleanup≥180s；真实群两窗各≤1200s，各内部Gateway/SDK≤300s，回调总≤30、业务SDK≤90；新群读接收一次PG≤600s/Gateway≤300s，回复一次PG≤600s/SDK≤300s、两sender合≤6，全业务SDK≤96、BaseCreate≤20/Update0/paid0。PG/Compose生命周期复用须在精确计划证明不超2窗；总控允许事前固定的同owner/资源窗口内restart及多个子进程，不允许事后重命名独立窗口或复用失败窗口，未核定不启动。Root独占最多2次新合前完整CI+1次合后CI及正常main；A不自行push/改PR正文/触CI。当前本批PG/原库/Secret/真实SDK/服务/push/CI均0，所有实际Gate pending。
+
+本次实际collect-only退出0：565=397existing+168phase3，交集0，原563加必要2节点；read-parent完整11按6+5，history14按7+7。首完整scripts.check退出0/157.660s，2300offline通过/565integration排除，type361、Markdown109、Python95包及npm审计0；原CI五绿与本地离线结果分层。随后仅增强pinned Lark DTO→原BusinessGateway handler→mention全文hash的既有两参数断言，3/3通过并mypy2文件通过；最终组合检查以新日志为准。私有现有read-parent的15边界检查再次通过，实际PG及通知工具演练尚未执行。
+
+最终组合scripts.check实际退出0/149.493s，运行期间全部受检文件hash无变化：2300offline通过/565integration排除，Ruff474文件、mypy361文件、Markdown109文件、Python95包和npm审计0。检查后仅将本节首检查type数量笔误346更正为361，并以check_docs退出0复核；原3个pinned-SDK规范化pure及完整90相关pure亦通过。以上不签当前PG/平台/独审/CI。

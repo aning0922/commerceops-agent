@@ -331,7 +331,8 @@ def test_rebalanced_fixed_groups_still_require_exact_paired_actual_and_passed_no
         ("combined-existing-p4-clarification-delivery", 19),
         ("combined-existing-p4-verified-history-part-1", 7),
         ("combined-existing-p4-verified-history-part-2", 7),
-        ("combined-existing-p4-read-reply-parent", 9),
+        ("combined-existing-p4-read-reply-parent-part-1", 6),
+        ("combined-existing-p4-read-reply-parent-part-2", 3),
     ]
     verify_pair(a, b)
     missing = copy.deepcopy(a)

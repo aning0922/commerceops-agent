@@ -33,8 +33,15 @@ from commerceops.infrastructure.web_config import WebConfig
 
 
 class BoundedReceiver:
-    def __init__(self, store: FeishuBusinessStore, window: GatewayWindow):
+    def __init__(
+        self,
+        store: FeishuBusinessStore,
+        window: GatewayWindow,
+        *,
+        group_chat_ids: frozenset[str] = frozenset(),
+    ):
         self.store, self.window, self.admitted = store, window, 0
+        self.group_chat_ids = group_chat_ids
 
     def admit(self) -> None:
         if not self.window.active() or self.admitted >= self.window.max_callbacks:
@@ -42,10 +49,16 @@ class BoundedReceiver:
         self.admitted += 1  # 当前SDK业务callback admissions，不称raw frame/ACK/wire次数。
 
     def message(self, message: MessageProbe) -> dict[str, Any]:
+        if self.group_chat_ids and (
+            message.chat_type != "group" or message.chat_id not in self.group_chat_ids
+        ):
+            raise WebFailure("GATEWAY_GROUP_SCOPE_REQUIRED", 403)
         self.admit()
         return self.store.message(message)
 
     def card(self, card: BusinessCard) -> dict[str, Any]:
+        if self.group_chat_ids and card.chat_id not in self.group_chat_ids:
+            raise WebFailure("GATEWAY_GROUP_SCOPE_REQUIRED", 403)
         self.admit()
         return self.store.card(card)
 
@@ -108,7 +121,13 @@ def serve(
             f02_enabled=settings.f02_enabled,
             f02_gateway_window_id=window.window_id if settings.f02_enabled else None,
         )
-        receiver = BoundedReceiver(store, window)
+        receiver = BoundedReceiver(
+            store,
+            window,
+            group_chat_ids=frozenset(settings.allowed_group_chat_ids)
+            if group_ready
+            else frozenset(),
+        )
         handler = BusinessGateway(receiver, settings.policy()).dispatcher()
         websocket = (
             QueuedReadyClient(

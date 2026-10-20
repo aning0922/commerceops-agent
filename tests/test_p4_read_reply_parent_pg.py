@@ -21,7 +21,13 @@ from commerceops.infrastructure.feishu_business import FeishuBusinessStore
 from commerceops.infrastructure.feishu_gateway_window import guard_gateway
 from commerceops.infrastructure.web_sessions import json_native
 
-from scripts.p4_acceptance import AcceptanceFailure, read_reply_window_from_native, write_private
+from scripts.p4_acceptance import (
+    AcceptanceFailure,
+    group_read_subject,
+    read_reply_window_from_native,
+    read_reply_window_from_saved_selection,
+    write_private,
+)
 from tests.p3_support import P3Fixture, P3Process, initialize_p3
 from tests.p4_parent_support import ParentInputs, native_gateway, prepare_parent
 from tests.test_p4_acceptance_pg import database as database
@@ -31,6 +37,157 @@ from tests.test_p4_read_reply_pg import prepared
 from tests.test_p4_template_results_pg import counts
 
 pytestmark = pytest.mark.integration
+
+
+def completed_group_inputs(
+    f: P3Fixture,
+) -> tuple[UUID, UUID, str, ParentInputs, BusinessSettings]:
+    from tests.test_p3_approval_pg import wait_state
+    from tests.test_p4_a08_group_pg import group_card
+
+    store, task, card, _, child = group_card(f)
+    try:
+        store.card(card)
+        wait_state(f, task, "completed")
+    finally:
+        if child.process.poll() is None:
+            child.stop_clean()
+    inputs = prepare_parent(f, None, mode="read_reply")
+    body = json.loads(inputs.business.read_bytes())
+    body.update(
+        allowed_group_chat_ids=[card.chat_id],
+        allowed_open_ids=[message(f).identity.open_id, "p4-synthetic-B"],
+    )
+    inputs.business.write_text(json.dumps(body))
+    settings = BusinessSettings.model_validate_json(inputs.business.read_bytes())
+    with connect(f.config.database) as db:
+        row = db.execute(
+            "SELECT id FROM business.identities WHERE app_id=%s AND tenant_key=%s "
+            "AND external_subject=%s",
+            (settings.app_id, settings.tenant_key, message(f).identity.open_id),
+        ).fetchone()
+    assert row
+    return task, row["id"], card.chat_id, inputs, settings
+
+
+def test_new_completed_group_subject_has_two_exact_queries_without_business_writes(
+    database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path
+) -> None:
+    from tests.test_p4_template_results_pg import counts
+
+    owner, app = database
+    initialize_schema(owner, "0017")
+    f = initialize_p3(owner, app, tmp_path)
+    try:
+        task, identity, chat, _, settings = completed_group_inputs(f)
+        before = counts(f)
+        with connect(app) as db:
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+            subject = group_read_subject(
+                db, settings, task_id=task, identity_id=identity, chat_id=chat
+            )
+            assert subject["template_status"] == "ready" and subject["task_state"] == "completed"
+            assert [q["kind"] for q in subject["queries"]] == ["task_status", "explain_report"]
+            assert all(facts_hash(q["text"]) == q["text_sha256"] for q in subject["queries"])
+            with pytest.raises(AcceptanceFailure, match="P4A_GROUP_READ_SCOPE"):
+                group_read_subject(
+                    db, settings, task_id=task, identity_id=identity, chat_id="other"
+                )
+            with pytest.raises(AcceptanceFailure, match="P4A_GROUP_READ_ACTOR"):
+                group_read_subject(db, settings, task_id=task, identity_id=uuid4(), chat_id=chat)
+            tx = db.execute(
+                "SELECT COALESCE(sum(n_tup_ins),0) AS i,COALESCE(sum(n_tup_upd),0) AS u,"
+                "COALESCE(sum(n_tup_del),0) AS d FROM pg_stat_xact_user_tables"
+            ).fetchone()
+            assert tx == {"i": 0, "u": 0, "d": 0}
+            db.rollback()
+        assert counts(f) == before
+    finally:
+        f.client.close()
+
+
+def test_group_saved_selection_can_arm_only_unspent_same_UUID_in_later_sender_phase(
+    database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path
+) -> None:
+    owner, app = database
+    initialize_schema(owner, "0017")
+    f = initialize_p3(owner, app, tmp_path)
+    try:
+        task, identity, chat, inputs, settings = completed_group_inputs(f)
+        store = service(f)
+        gw = GatewayWindow(
+            schema_version="p4-gateway-v1",
+            window_id=uuid4(),
+            organization_id=settings.organization_id,
+            shop_id=settings.shop_id,
+            expires_at=datetime.now(UTC) + timedelta(seconds=120),
+            enabled=True,
+            parameters=store.parameters,
+            max_workflows=0,
+            max_callbacks=2,
+        )
+        with connect(app) as db:
+            db.execute("SET TRANSACTION READ ONLY")
+            subject = group_read_subject(
+                db, settings, task_id=task, identity_id=identity, chat_id=chat
+            )
+        q = subject["queries"][1]
+        receiver = BoundedReceiver(
+            FeishuBusinessStore(
+                store.store,
+                store.shop,
+                store.parameters,
+                gateway_guard=lambda db, create: guard_gateway(db, gw, create),
+            ),
+            gw,
+        )
+        with native_gateway(f, inputs, gw.model_dump(mode="json")):
+            receipt = receiver.message(replace(message(f, kind="group"), text=q["text"]))
+            with connect(app) as db:
+                db.execute("SET TRANSACTION READ ONLY")
+                selected = read_reply_window_from_native(
+                    db,
+                    settings,
+                    gw,
+                    task_id=task,
+                    kind="explain_report",
+                    identity_id=identity,
+                    chat_id=chat,
+                    text_sha256=q["text_sha256"],
+                    report_id=UUID(subject["report_id"]),
+                    expires_at=gw.expires_at,
+                )
+        # Only a never-registered disabled template can receive the new phase's deadline.
+        past = selected.model_copy(update={"expires_at": datetime.now(UTC) - timedelta(seconds=1)})
+        with connect(app) as db:
+            db.execute("SET TRANSACTION READ ONLY")
+            fresh = read_reply_window_from_saved_selection(
+                db,
+                settings,
+                gw,
+                past,
+                payload_hash=receipt["reply_payload_hash"],
+                text_sha256=q["text_sha256"],
+                expires_at=datetime.now(UTC) + timedelta(seconds=120),
+            )
+            assert not fresh.enabled and fresh.window_id == selected.window_id
+            assert fresh.reply_id == selected.reply_id and fresh.task_id == task
+        inputs.bind_window(fresh.model_dump(mode="json"))
+        assert inputs.run("new-group-selected-send")[0] == 0
+        with connect(app) as db:
+            db.execute("SET TRANSACTION READ ONLY")
+            with pytest.raises(AcceptanceFailure, match="P4A_READ_ARM_UNSPENT_SELECTION"):
+                read_reply_window_from_saved_selection(
+                    db,
+                    settings,
+                    gw,
+                    fresh,
+                    payload_hash=receipt["reply_payload_hash"],
+                    text_sha256=q["text_sha256"],
+                    expires_at=datetime.now(UTC) + timedelta(seconds=120),
+                )
+    finally:
+        f.client.close()
 
 
 def receive_and_select(

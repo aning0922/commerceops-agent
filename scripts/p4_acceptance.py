@@ -5110,6 +5110,216 @@ def original_ro_lab_history(request: Mapping[str, Any], binding: SourceBinding) 
         require(a.cleanup(), "P4A_LAB_HISTORY_CLEANUP")
 
 
+def group_read_subject(
+    db: Any,
+    settings: "BusinessSettings",
+    *,
+    task_id: "UUID",
+    identity_id: "UUID",
+    chat_id: str,
+) -> dict[str, Any]:
+    """只读固定新群任务及现成ready模板，生成两条完整规范文本；不调用锁权限函数。"""
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.inventory_repository import _stored
+    from commerceops.infrastructure.p3_template_results import TemplateBinding, verify_row
+
+    meta = db.execute(
+        "SELECT current_user AS role,current_setting('transaction_read_only') AS readonly"
+    ).fetchone()
+    require(meta == {"role": "commerceops_app", "readonly": "on"}, "P4A_GROUP_READ_ROLE")
+    require(
+        set(settings.allowed_group_chat_ids) == {chat_id} and len(settings.allowed_open_ids) == 2,
+        "P4A_GROUP_READ_SCOPE",
+    )
+    actor = db.execute(
+        """SELECT i.id AS identity_id,i.principal_id,i.external_subject AS open_id,p.auth_version
+        FROM business.identities i JOIN business.principals p ON p.id=i.principal_id
+        JOIN business.organizations o ON o.id=i.organization_id
+        JOIN business.principal_shop_scopes s ON s.organization_id=p.organization_id
+            AND s.principal_id=p.id AND s.shop_id=%s AND s.enabled
+        JOIN business.principal_role_shop_grants g ON g.organization_id=p.organization_id
+            AND g.principal_id=p.id AND g.shop_id=s.shop_id AND g.role='operator' AND g.enabled
+        WHERE i.id=%s AND i.organization_id=%s AND i.provider='feishu' AND p.enabled
+        AND i.app_id=%s AND i.tenant_key=%s AND i.external_subject=ANY(%s)
+        AND o.feishu_app_id=i.app_id AND o.feishu_tenant_key=i.tenant_key
+        AND 'operator'=ANY(p.roles)""",
+        (
+            settings.shop_id,
+            identity_id,
+            settings.organization_id,
+            settings.app_id,
+            settings.tenant_key,
+            list(settings.allowed_open_ids),
+        ),
+    ).fetchall()
+    require(len(actor) == 1, "P4A_GROUP_READ_ACTOR")
+    task = db.execute(
+        """SELECT t.* FROM business.business_tasks t WHERE t.id=%s
+        AND t.organization_id=%s AND t.shop_id=%s AND t.requester_id=%s
+        AND t.kind='inventory_replenishment' AND t.state='completed'
+        AND (EXISTS(SELECT 1 FROM business.conversations c WHERE c.id=t.conversation_id
+            AND c.organization_id=t.organization_id AND c.channel='feishu' AND c.chat_id=%s)
+        OR EXISTS(SELECT 1 FROM business.p4_card_bindings b
+            JOIN business.outbox x ON x.id=b.outbox_id
+            WHERE x.task_id=t.id AND x.organization_id=t.organization_id AND x.shop_id=t.shop_id
+            AND b.source_mode='feishu' AND b.chat_id=%s))""",
+        (
+            task_id,
+            settings.organization_id,
+            settings.shop_id,
+            actor[0]["principal_id"],
+            chat_id,
+            chat_id,
+        ),
+    ).fetchall()
+    require(len(task) == 1, "P4A_GROUP_READ_COMPLETED_TASK")
+    source = db.execute(
+        "SELECT * FROM business.p3_task_sources WHERE task_id=%s "
+        "AND organization_id=%s AND shop_id=%s",
+        (task_id, settings.organization_id, settings.shop_id),
+    ).fetchone()
+    require(source is not None, "P4A_GROUP_READ_SOURCE")
+    report = db.execute(
+        "SELECT a.*,t.normalized_request,s.content_hash,s.content AS snapshot_content,"
+        "s.window_start,s.window_end FROM business.analysis_reports a "
+        "JOIN business.business_tasks t ON t.id=a.task_id AND t.organization_id=a.organization_id "
+        "AND t.shop_id=a.shop_id JOIN business.commerce_snapshots s "
+        "ON s.id=a.snapshot_id AND s.task_id=a.task_id "
+        "WHERE a.id=%s AND a.task_id=%s AND a.organization_id=%s AND a.shop_id=%s",
+        (
+            source["source_report_id"],
+            source["source_task_id"],
+            settings.organization_id,
+            settings.shop_id,
+        ),
+    ).fetchone()
+    require(report is not None, "P4A_GROUP_READ_REPORT")
+    templates = db.execute(
+        "SELECT * FROM business.p3_template_results WHERE p3_task_id=%s AND organization_id=%s "
+        "AND shop_id=%s AND source_kind='p2_original'",
+        (task_id, settings.organization_id, settings.shop_id),
+    ).fetchall()
+    require(len(templates) == 1 and templates[0]["status"] == "ready", "P4A_GROUP_READ_NOT_READY")
+    binding = TemplateBinding(
+        settings.organization_id,
+        settings.shop_id,
+        task[0]["requester_id"],
+        task_id,
+        "p2_original",
+        source["source_task_id"],
+        None,
+        source["snapshot_id"],
+        source["source_report_id"],
+        source["facts_hash"],
+    )
+    require(
+        verify_row(templates[0], binding, _stored(report, report["normalized_request"]).report)
+        is not None,
+        "P4A_GROUP_READ_NOT_READY",
+    )
+    texts = [f"查询任务{task_id}进度", f"解释任务{task_id}的报告{source['source_report_id']}"]
+    return dict(
+        task_id=str(task_id),
+        task_version=task[0]["version"],
+        task_state=task[0]["state"],
+        report_id=str(source["source_report_id"]),
+        identity_id=str(identity_id),
+        chat_id=chat_id,
+        auth_version=actor[0]["auth_version"],
+        source_kind="p2_original",
+        template_status="ready",
+        queries=[
+            dict(kind=k, text=t, text_sha256=facts_hash(t))
+            for k, t in zip(("task_status", "explain_report"), texts, strict=True)
+        ],
+    )
+
+
+def read_reply_window_from_saved_selection(
+    db: Any,
+    settings: "BusinessSettings",
+    gateway: "GatewayWindow",
+    selected: "ReadReplyWindow",
+    *,
+    payload_hash: str,
+    text_sha256: str,
+    expires_at: datetime,
+) -> "ReadReplyWindow":
+    """跨PG阶段只派生未消费的disabled发送模板；不续已注册窗口或重置pending。"""
+    from uuid import NAMESPACE_URL, uuid5
+
+    from commerceops.application.feishu_business.read_reply import ReadReplyWindow
+
+    meta = db.execute(
+        "SELECT current_user AS role,current_setting('transaction_read_only') AS readonly"
+    ).fetchone()
+    require(meta == {"role": "commerceops_app", "readonly": "on"}, "P4A_READ_ARM_ROLE")
+    require(
+        not selected.enabled
+        and gateway.max_workflows == 0
+        and gateway.max_callbacks == 2
+        and len(settings.allowed_group_chat_ids) == 1
+        and len(settings.allowed_open_ids) == 2
+        and (selected.organization_id, selected.shop_id)
+        == (settings.organization_id, settings.shop_id)
+        and selected.window_id
+        == uuid5(NAMESPACE_URL, f"p4-read-sender:{gateway.window_id}:{selected.reply_id}")
+        and (gateway.organization_id, gateway.shop_id)
+        == (settings.organization_id, settings.shop_id)
+        and all(re.fullmatch(r"[a-f0-9]{64}", x) for x in (payload_hash, text_sha256)),
+        "P4A_READ_ARM_SCOPE",
+    )
+    rows = db.execute(
+        """SELECT r.*,p.result AS receipt FROM business.p4_read_replies r
+        JOIN business.p4_inbox_receipts p ON p.inbox_id=r.inbox_id AND p.identity_id=r.identity_id
+        JOIN business.inbox_events e ON e.id=r.inbox_id
+        JOIN business.audit_events a ON a.id=%s AND a.organization_id=r.organization_id
+        WHERE r.id=%s AND r.task_id=%s AND r.organization_id=%s AND r.shop_id=%s
+        AND r.app_id=%s AND r.tenant_key=%s AND r.open_id=ANY(%s)
+        AND r.chat_type='group' AND r.chat_id=ANY(%s) AND r.history_message_id IS NULL
+        AND r.status='pending' AND r.attempts=0 AND r.payload_hash=%s
+        AND r.created_at>=a.occurred_at AND p.created_at>=a.occurred_at
+        AND e.source='feishu_business' AND e.sanitized_payload->>'event_type'='p4.explicit_read'
+        AND a.source='feishu_gateway' AND a.entity_type='gateway_window'
+        AND a.action='gateway_start_claimed'
+        AND e.sanitized_payload->>'text_sha256'=%s
+        AND NOT EXISTS(SELECT 1 FROM business.p4_sdk_windows w WHERE w.id=%s)""",
+        (
+            gateway.window_id,
+            selected.reply_id,
+            selected.task_id,
+            settings.organization_id,
+            settings.shop_id,
+            settings.app_id,
+            settings.tenant_key,
+            list(settings.allowed_open_ids),
+            list(settings.allowed_group_chat_ids),
+            payload_hash,
+            text_sha256,
+            selected.window_id,
+        ),
+    ).fetchall()
+    require(len(rows) == 1, "P4A_READ_ARM_UNSPENT_SELECTION")
+    row = rows[0]
+    require(
+        row["receipt"].get("reply_id") == str(selected.reply_id)
+        and row["receipt"].get("reply_payload_hash") == payload_hash
+        and row["receipt"].get("as_of") == row["payload"]["as_of"]
+        and row["payload"].get("error") is None,
+        "P4A_READ_ARM_RECEIPT",
+    )
+    fresh = ReadReplyWindow.model_validate_json(
+        json.dumps(
+            {
+                **selected.model_dump(mode="json"),
+                "expires_at": expires_at.isoformat(),
+            }
+        )
+    )
+    fresh.model_copy(update={"enabled": True}).window(settings)
+    return fresh
+
+
 def read_reply_window_from_history(
     db: Any,
     settings: "BusinessSettings",
