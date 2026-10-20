@@ -1,8 +1,8 @@
 # M1 离线 Compose 装配与运行
 
-## 新 clone 的 Mock 核心启动说明（2026-10-18，静态工作稿）
+## 新 clone 的 Mock 核心启动说明（2026-10-20，877静态准备）
 
-本节只核对冻结 c460 源码和已有命令，没有执行 clone、安装、build、启动或新的验收。它说明新使用者在自己新环境中的人工运行路径，不授权本会话启动资源。先取得包含 `c460d6f63f95060a2b25ae9418ca6e3020f89169` 的审定 P4 源码或 Root 后续发布的组合版本；不能只按默认分支、旧 PR45 head 或本地文档 commit 判断业务源码相同。下方历史段落继续保留。
+本节以已核 `877da961afb26a73460ce5af2661582fd2a304ea` / tree `f2f09ebb1aa6d7988fed2a78a497d64de1a7a928` 为本批准备基线；[CI39386976160](https://github.com/aning0922/commerceops-agent/actions/runs/39386976160)五job/563 PG的范围依[Root核收方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)。本批只读对照已有公开recipe，没有执行clone、安装、build或服务启动。Compose两文件、m1_offline_demo脚本、前端镜像文件/package/schema相对已核c460无字节变化；数据库migrate/grant随当前源码执行，不能据此声称877已经重做干净机器四场景。最终交付以Root冻结的组合版本为准；main仍P3，不按默认分支、旧PR45 head或文档commit推断业务来源相同。
 
 ### 三种入口不要混用
 
@@ -10,9 +10,9 @@
 | --- | --- | --- |
 | `compose.yml` + `compose.m1-offline.yml`，`scripts/m1_offline_demo.py` 的 `prepare/seed/api/worker` | 实际 PG、原 API、单 Worker 与 Next 生产 Web 的 Mock 装配；可人工创建、审批及跟进内部项 | 不是单独运行一个 frontend memory Mock 页；不是飞书/模型入口，也不是完整四场景自动验收命令 |
 | `frontend/app/[[...path]]/page.tsx` 的 Mock/B04 预览分支 | 静态或 memory DTO 的界面预览；不要求业务数据库 | 不能证明真实 session/PG、持久化、执行或外部投递 |
-| `tests/e2e/web/m1_acceptance_driver.py`、`m1_acceptance_capture.py`、`m1_acceptance_ui.cjs` 及 c460 的 `scripts/p4_acceptance.py` | 已有消费、采集、浏览器及清理能力；共享入口按 manifest/request 与 hash 绑定来源 | Python consumer 库不是冷启动 CLI；CJS 也需要输入文件及 hash。不能不生成新 manifest/handoff 就消费旧窗口，不能把模块导入退出 0 当业务通过 |
+| `tests/e2e/web/m1_acceptance_driver.py`、`m1_acceptance_capture.py`、`m1_acceptance_ui.cjs` 及同一当前源码的 `scripts/p4_acceptance.py` | 已有消费、采集、浏览器及清理能力；共享入口按 manifest/request 与 hash 绑定来源 | Python consumer 库不是冷启动 CLI；CJS 也需要输入文件及 hash。不能不生成新 manifest/handoff 就消费旧窗口，不能把模块导入退出 0 当业务通过 |
 
-容器化人工路径需要完整 Git 源码、Docker daemon/Compose、POSIX shell、Python 3.12.13 和 uv 0.11.25；从当前 checkout `uv sync --frozen` 建立自己的环境。源码依据是 `.python-version`、`pyproject.toml`、`uv.lock`、`infrastructure/Dockerfile`。前端镜像还需仓库两份公开 schema，不能只复制 frontend 目录；Node/npm 在 `infrastructure/Dockerfile.m1-frontend` 中固定，使用容器化 Web 不要求主机安装 Playwright。主机 Node/Chromium 是自动浏览器验收的额外依赖。冷缓存仍需获取锁定依赖和基础镜像；这里的“离线”指业务平台/模型关闭，不是断网安装包。此批未新增跨操作系统实跑，非 POSIX 的原生运行没有保证。
+容器化人工路径需要完整 Git 源码、Docker daemon/Compose、POSIX shell、Python 3.12.13 和 uv 0.11.25；从当前 checkout `uv sync --frozen` 建立自己的环境。源码依据是 `.python-version`、`pyproject.toml`、`uv.lock`、`infrastructure/Dockerfile`。前端镜像还需仓库两份公开 schema，不能只复制 frontend 目录；Node/npm 在 `infrastructure/Dockerfile.m1-frontend` 中固定，使用容器化 Web 不要求主机安装 Playwright。主机 Node/Chromium 是自动浏览器验收的额外依赖。当前采集器已准确注册0015/0016/0017；这只保持相应历史快照兼容，不授权对旧库执行迁移或沿用旧schema输入。冷缓存仍需获取锁定依赖和基础镜像；这里的“离线”指业务平台/模型关闭，不是断网安装包。此批未新增跨操作系统实跑，非 POSIX 的原生运行没有保证。
 
 README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其早期“没有 Next.js/正式业务 API”等阶段描述不能作为当前 P4 产品说明。外部导航随最终集成由原 owner 同步，本批只在原三文档内说明这一差别，不修改那些文件或据此新增工程任务。
 
@@ -63,7 +63,7 @@ README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其�
    ```
 
 3. 组合 `docker compose --env-file /dev/null -p "$COMPOSE_PROJECT_NAME" -f compose.yml -f compose.m1-offline.yml --profile init --profile m1-offline-demo`，只操作本项目的明确服务名。先 `build db-init m1-seed m1-api m1-worker m1-web`，再 `up -d --wait --wait-timeout 90 postgres`。
-4. 对同一 Compose 调用依次执行 `run --rm --no-deps db-init python -m commerceops.entrypoints.database` 的 `migrate`、`setup-checkpointer`、`grant-runtime`、`revision` 四个动作，再 `run --rm --no-deps m1-seed` 一次。seed 会拒绝已有标记；重启不再 seed。它依赖仓库的 `tests` fixture 与 factory，使用的是 Docker `test` target，不能拿只含 `commerceops` 包的 wheel 代替整个源码装配。
+4. 对同一 Compose 调用依次执行 `run --rm --no-deps db-init python -m commerceops.entrypoints.database` 的 `migrate`、`setup-checkpointer`、`grant-runtime`、`revision` 四个动作；877当前head为 `0017_p4_verified_history`，以本次实际revision输出核对最终冻结源码后，再 `run --rm --no-deps m1-seed` 一次。seed 会拒绝已有标记；重启不再 seed。它依赖仓库的 `tests` fixture 与 factory，使用的是 Docker `test` target，不能拿只含 `commerceops` 包的 wheel 代替整个源码装配。
 5. 同一 Compose 调用 `up -d --wait --wait-timeout 90 m1-api m1-worker m1-web`。overlay 已令 Web 使用 `COMMERCEOPS_UI_MODE=live`、`local_http` 和本次 API loopback origin；数据仍为 Mock。单独的 `commerceops-api` 默认只提供基础入口，只有显式业务配置才装配业务路由，不是本 Mock 装配的替代命令。
 6. 仅从本次受保护的 `demo-account.json` 本地取得合成登录信息，不复制进说明或控制台。用本次 Web 端口进入 `/login`，再从任务页明确新建请求。seed 的 `technical_fixture` 不是新业务任务；baseline 配合 L=3/R=7/S=2 的 20 项及完整假设确认、known_inbound 的 70 件都由现有 factory 提供。先读计划/版本，再显式提交本版本意见；内部项完成/关闭仍需原因和原请求回执。此处的合成授权不代表真人体验。
 7. 任何命令失败或到截止即停止业务；先对同一 Compose 调用 `stop --timeout 30 m1-worker m1-api m1-web`，再 `stop --timeout 30 postgres`、`ps -a`，最后 `down --timeout 30`，不带 `-v`。Worker 父监督器负责同容器 child 的正常 stop/join/reap 和持久 audit；若停止非零，记录未知，不把它当成功，也不因此省略剩余清理。用本次 project label 单独查容器/网络、核两个监听关闭及本卷保留，正式验收再由原工具采低权停止证明。API/Web 不随 Worker expiry 自动退出，必须由操作者在 `m1_hard_stop` 前停止全部服务；不要用无作用域的清理命令处理其他项目。
@@ -77,11 +77,11 @@ README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其�
 | 固定来源、工具链与 handoff | 自动验收输入需要当前 checkout 的环境、schema、工具版本/hash 和新窗口绑定；旧 `run-input` 不能复用。人工路径可直接使用本节分步，不必先构造旧验收 DTO |
 | 具体四场景私有调用者 | 私有 `compose-commands.py`/`ui-commands.cjs` 及绝对路径不在公开 clone 中；现有 consumer/helper 不应伪装成自包含场景 CLI，也不要求为此新增通用 launcher |
 | 停写后低权采集和自动清理报告 | 已审整批入口有 `CleanupPlan/cleanup_owned` 及诊断最多 20 秒/清理至少 180 秒的约束；人工启动与停止按前述公开命令执行，不把自动报告缺失当成公共产品启动缺配置 |
-| 本次未做新机器运行 | 当前只核冻结源码和文档。后续实际使用或必要复验如暴露不可替代的配置/装配缺陷，再集中交 Root/A；不借已有 541 PG、旧私有成功或录像宣称本次冷 clone 已通过 |
+| 本次未做新机器运行 | 本批只核877来源和recipe差异；c460既有541 PG/私有四场景、877的563 PG及旧录像均按原范围引用，不称本次冷clone通过。最终只补源码影响所必需的链，不新增通用launcher或整批重跑Gate |
 
 本批不改权限、状态机、Next.js、迁移或平台功能，不为文档移植工作启动服务。投影、真实查询、群与负向恢复的 Gate 不因人工 Mock 启动说明而减少；29 outbox pending/attempts 0 的既有边界保持。
 
-## 当前交付导航：c460 有限离线复现已核收（工作稿）
+## 已核历史交付：c460 有限离线复现（原范围保持）
 
 本节为既有 M1 交付的文档工作稿，待与 A 的稳定事实合批审核、集成。依据 Root 的 Issue39 核收评论 6233059628、6234076316，并纳入已独审 RO140200 与观察于 2026-10-17 14:16:09.975121Z 的后台只读日志；新增原件与 hash 见交付地图。没有因整理本文而启动服务或平台动作；下方旧装配说明和失败记录全部保留，旧 `not_run/partial` 不代表本节这次运行的结论。
 

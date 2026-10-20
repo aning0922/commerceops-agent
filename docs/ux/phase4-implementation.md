@@ -1,5 +1,43 @@
 # Phase4 / M1 Web 接线交接
 
+## 当前展示与交付说明（2026-10-20，台北时间）
+
+唯一当前验收状态见[交付地图](../PHASE4_M1_DELIVERY.md)，人工 Mock 启动步骤见[Compose 说明](../M1_OFFLINE_COMPOSE.md)。本节只整理材料来源与演示文字，不建立另一份验收清单。依据[最新 M1 收口方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)及[9h 整包授权](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)，原两条私聊保持 HOLD、停止专项恢复；进度查询与既有结论解释改为原定新群任务的独立样本，不要求重发，也不把新样本写成原私聊恢复。
+
+静态准备基线为 `877da961afb26a73460ce5af2661582fd2a304ea` / tree `f2f09ebb1aa6d7988fed2a78a497d64de1a7a928`，其精确 CI39386976160 五 job SUCCESS、563 PG 与4个安全 artifact 已由 Root 核收；它不代签未来群、查询或真实负向。最终业务来源由 Root 冻结，main 仍为 P3 基线，M1 尚未完成。当前四个 C acceptance 文件与877相同，0015/0016/0017兼容已集成，本次没有需要变更消费端的来源差异。
+
+### 既有材料的准确用途
+
+| 材料 | 已核来源与事实 | 本轮可用范围 |
+| --- | --- | --- |
+| c460 核心四场景原件 | `runtime/m1-clean-c460-batch-88094ef275/C-complete-native-delivery.safe.json`；SHA256 `cbf5da8b111a6b76f2eb3d0edf2906e882aea9d9fc17158f57ba5f43d9768791` | 仅按原 `simulated_web / MockCommerce / offline_fake` 范围引用：3 executions、22 items、11 POST、84 GET、11次原键读回与受控重启；29 outbox pending、attempts 0，未执行 SyncRead/drain，不签投影成功 |
+| 45.80秒原片与七图 | 原片位于上述运行目录的 `video/page@5f4771dc3df38eef4be2a29cb066b47b.webm`；SHA256 `ae14edf181346c39800c1940fb8e1b1ca888a829741640276b94d3ea2e39e9ec` | 私有自动化技术记录；五张图是加载/会话核实状态，两张长图有未遮罩定位文本，不作公开材料或全20行可读证明 |
+| 57秒选帧候选及字幕 | `runtime/m1-career-demo-candidate-20261017/output/commerceops-career-demo.private-candidate.mp4`；SHA256 `49c4e7eb5921a26b73cf18f6f0442b98dd4addc2aedf024525d5848bd253f2b1`；同目录已有 `captions.zh-CN.srt`、shot-list与说明 | H264、1280×960、10fps、570帧、无音轨；六个静态状态含四张实际UI裁切及开场/收尾。原Reviewer仅核 `PRIVATE_UNPUBLISHED_CANDIDATE_ONLY`，不是连续真人录屏或公开脱敏通过；旧稿“尚无SRT”仅属制作前历史 |
+| 选帧候选索引 | `runtime/m1-career-demo-candidate-20261017/candidate-delivery.safe.json`；SHA256 `0013c2b0fd13e87e1a8707df027fde434775654ed6e611c276c418b01f39367a` | 继续作为私有来源索引，不随clone分发；本轮只核存在与hash，未重剪、重新渲染或上传媒体 |
+| 原真实私聊/F02/T6/Base v2与原只读Web | 复用Root已核原件；原 `persisted_real_v2_readonly` automatic page/replay及各原key GET1、业务POST0、当轮SDK/平台写0已闭合 | 原只读Web无需再补真人观察Gate，不重做登录、批准、T6或SDK。旧strict pair=false、history差异、child UNKNOWN和HOLD保留，不由画面补成成功 |
+
+这些 ignored 私有件不是公共仓库附件；公开文本只给来源和摘要，不复制身份、业务定位值、服务地址或原始JSON。既有memory Fake插页继续标明独立来源，不能拼成同一次真实平台闭环。
+
+### 当前演示文字与待回填位置
+
+下面是文字顺序与证据槽位，不是新录制计划、已核时间码或要求补镜头的Gate；原片、失败原件、遮罩、私有launcher及备份保持原样。
+
+| 顺序 | 可用叙述 | 所需来源及当前边界 |
+| --- | --- | --- |
+| 1 / 核心运行 | “现有公开Compose分步启动Mock核心服务；四场景展示显式确认、拒绝、终态、关闭及新周期。” | 启动说明以当前冻结源码为准；演示段引用c460实际来源，不把877静态比对说成新冷clone实跑 |
+| 2 / 原核心结果与恢复 | “原四场景产生3次执行、22个内部项；受控重启后原回执与关闭状态保持。” | 原索引及选帧候选按各自范围引用；完整20行在DTO通过与画面全量可读分记，缺镜头仍是 `not_captured/not_verified` |
+| 3 / 已核真实链与只读结果 | “原真实私聊、F02、T6与同record Base v2已核；原只读页面显示既有关闭结果。” | 引用各原回执，不以Mock原片冒充真实渠道，不把只读页面表述成新SDK投递 |
+| 4 / 新群与独立查询、解释 | “新群样本按自身消息、任务/报告、只读结果与回复回执核收；原私聊专项恢复已停止。” | **PENDING / not_captured**；只在A/Root冻结原定新群对象、当前身份/店铺scope及独立样本后回填。不得用旧DM零行或近时失败事件替代新样本；已有解释缺失仍明确NOT_READY，不新增付费模型调用 |
+| 5 / 必要真实负向与最终交付 | “已有权限/恢复覆盖按原范围复用，余下受影响链及最终交付以核收为准。” | **PENDING / not_captured**；合成B/C预演不是真实身份准入，实际plan/callback/receipt、最终source/tree/CI/main及结案由Root统一配对；不在文字中补造对象或成功结果 |
+
+最终证据到齐后，C仅回填原三份文档中的受影响位置，保留原消息HOLD和全部失败；本次预留10–15个C有效分钟用于实际结果回填。此批不启动PG/API/Web/浏览器、Secret或SDK，不发布或新增设计；冻结18页、Penpot、旧工时和人工H/L unknown不因材料整理改变。
+
+## 历史展示工作稿（2026-10-17至18，原文保留）
+
+<details><summary>展开制作前字幕、时间轴、材料检查及当时待办</summary>
+
+以下原文中的“当前”“尚无字幕”“查询恢复待验”及“须补当前Web观察”仅指记录当时；现行范围以上方说明和唯一交付地图为准。旧原文不构成继续原私聊恢复、重开已闭合只读Web或公开媒体的要求。
+
 ## 展示材料与新 clone 的启动边界（2026-10-18，静态增量）
 
 新使用者的人工 Mock 启动路径见 [Compose 说明](../M1_OFFLINE_COMPOSE.md)：使用仓库现有服务、生成本次私有配置和合成账号，再通过实际 Web/API/PG 操作。容器化 Web 不要求为了观看或人工使用而安装 Playwright；memory Mock/B04 预览也不等于这个业务装配。只有需要自动浏览器验收时，才须绑定当前 checkout 的 Node、Playwright、Chromium、schema 与新输入，不能从原机器拷贝旧路径、账号或窗口 DTO。
@@ -67,6 +105,8 @@
 - 入点/出点、字幕与画面一致、完整行可读、长图区域、遮罩覆盖和公开版本的 hash/来源绑定仍待逐帧 QA。若成片确有缺镜头，先报告缺项，不自开服务、补业务写入或追加设计。
 
 本工作稿没有新增产品、回归、浏览器或平台通过结论。原 18 页、owner、D1/D30 和项目 300h 保持；人工 H/L unknown，旧失败和工时不重置。最终字幕和公开成片尚待 QA、Root 核收；当前只交可审文本差异。
+
+</details>
 
 ## 历史 Web 接线与材料记录（以下原文保留）
 
