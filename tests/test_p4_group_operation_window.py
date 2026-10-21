@@ -1,7 +1,10 @@
 """Explicit long group operation admission; no database, SDK, network or secret."""
 
 import json
+import os
+import socket
 from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -9,7 +12,9 @@ from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
 from commerceops.entrypoints.feishu_business import require_group_ready_scope
+from commerceops.infrastructure.worker_lock import process_namespace
 from pydantic import ValidationError
+from pytest import MonkeyPatch
 
 from tests.test_p4_controlled_worker import configured
 
@@ -162,3 +167,21 @@ def test_old_default_claims_remain_byte_shape_compatible() -> None:
         assert "group_operation_chat_id" not in old
         decoded = type(original).model_validate_json(json.dumps(old))
         assert decoded.model_dump(mode="json") == old
+
+
+def test_native_ready_receipt_uses_the_explicit_long_scope(monkeypatch: MonkeyPatch) -> None:
+    from commerceops.infrastructure import feishu_gateway_ready as ready
+
+    _, _, gateway = operation()
+    _, _, config = configured()
+    process = dict(pid=os.getpid(), host=socket.gethostname(), pid_namespace=process_namespace())
+    connection = MagicMock()
+    connection.__enter__.return_value = connection
+    connection.execute.return_value.fetchall.return_value = [{"after_state": process}]
+    monkeypatch.setattr(ready, "connect", lambda settings: connection)
+    ready.gateway_transport_event(config, gateway, lost=False)
+    assert connection.execute.call_args.args[1][2] == "ready"
+    with pytest.raises(PermissionError, match="P4_QUEUED_GATEWAY_PROCESS_REQUIRED"):
+        ready.gateway_transport_event(
+            config, gateway.model_copy(update={"group_operation_chat_id": None}), lost=False
+        )

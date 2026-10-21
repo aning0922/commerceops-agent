@@ -37,7 +37,14 @@ def gateway_transport_event(config: WebConfig, window: GatewayWindow, *, lost: b
             AND entity_id=%s""",
             (window.organization_id, str(window.window_id)),
         ).fetchall()
-        if len(row) != 1 or row[0]["after_state"] != process or (not lost and not window.active()):
+        if (
+            len(row) != 1
+            or row[0]["after_state"] != process
+            or (
+                not lost
+                and not window.active(group_operation=window.group_operation_chat_id is not None)
+            )
+        ):
             raise PermissionError("P4_QUEUED_GATEWAY_PROCESS_REQUIRED")
         action = "transport_lost" if lost else "ready"
         db.execute(
