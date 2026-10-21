@@ -20,6 +20,41 @@ def collection(nodes: list[str], **changes: object) -> dict[str, object]:
     }
 
 
+@pytest.mark.parametrize("scope", ["all", "existing", "phase3"])
+def test_read_parent_six_five_keep_exact_commands_across_job_boundary(scope: str) -> None:
+    parent = [f"tests/test_p4_read_reply_parent_pg.py::case_{n:02d}" for n in range(11)]
+    full = OLD + P3 + parent
+    records = [collection(full[::-1])]
+    actual: list[str] = []
+    parent_calls: list[tuple[str, list[str]]] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        assert cap == 300
+        selected = [n for n in full if n in paths or n.split("::")[0] in paths]
+        if "read-reply-parent" in label:
+            assert all("::" in path for path in paths)
+            parent_calls.append((label, paths))
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, scope)
+    expected = (
+        full if scope == "all" else OLD + parent[6:] if scope == "existing" else P3 + parent[:6]
+    )
+    assert sorted(actual) == sorted(expected) and len(actual) == len(set(actual))
+    assert sorted(parent_calls) == sorted(
+        [("combined-phase3-p4-read-reply-parent-part-1", parent[:6])]
+        if scope == "phase3"
+        else [("combined-existing-p4-read-reply-parent-part-2", parent[6:])]
+        if scope == "existing"
+        else [
+            ("combined-phase3-p4-read-reply-parent-part-1", parent[:6]),
+            ("combined-existing-p4-read-reply-parent-part-2", parent[6:]),
+        ]
+    )
+
+
 @pytest.mark.parametrize("size", [1, 4, 12, 13])
 def test_terminal_recovery_shards_pass_exact_nodes_once_without_whole_module_replay(
     size: int,

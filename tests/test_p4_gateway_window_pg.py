@@ -23,17 +23,20 @@ pytestmark = pytest.mark.integration
 def test_explicit_long_group_claim_keeps_once_and_exact_scope(fixture: P3Fixture) -> None:
     """Real low-privilege immutable claim; long default/wrong group fail before claim."""
     f = fixture
-    settings = BusinessSettings.model_validate_json(
-        Path("docs/contracts/p4-config.example.json").read_bytes()
-    ).model_copy(
-        update={
-            "organization_id": f.actor.organization_id,
-            "shop_id": f.inventory.data.shop,
-            "app_id": f.inventory.data.app,
-            "tenant_key": f.inventory.data.tenant,
-            "allowed_group_chat_ids": frozenset({"owned-long-group"}),
-            "allowed_open_ids": frozenset({"owned-A", "owned-B"}),
-        }
+    settings = BusinessSettings(
+        schema_version="p4-v1",
+        organization_id=f.actor.organization_id,
+        shop_id=f.inventory.data.shop,
+        app_id=f.inventory.data.app,
+        tenant_key=f.inventory.data.tenant,
+        bot_open_id="synthetic-bot",
+        allowed_open_ids=frozenset({"owned-A", "owned-B"}),
+        allowed_group_chat_ids=frozenset({"owned-long-group"}),
+        app_secret_file=Path("/never-read/app-secret"),
+        web_config_file=Path("/never-read/web-config"),
+        base_target_key="synthetic",
+        base_app_token_file=Path("/never-read/base-token"),
+        base_table_name="synthetic",
     )
     window = GatewayWindow.model_validate_json(
         json.dumps(

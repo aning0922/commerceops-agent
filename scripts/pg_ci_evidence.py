@@ -124,15 +124,28 @@ def nodes_hash(nodes: list[str]) -> str:
     ).hexdigest()
 
 
+def read_reply_parent_parts(nodes: list[str]) -> list[list[str]]:
+    """Keep the existing sorted six-node command boundary shared by scope and executor."""
+    ordered = sorted(
+        n for n in nodes if n.split("::", 1)[0] == "tests/test_p4_read_reply_parent_pg.py"
+    )
+    return [ordered[offset : offset + 6] for offset in range(0, len(ordered), 6)]
+
+
 def partition(full: list[str], scope: str) -> list[str]:
     if scope not in SCOPES:
         raise ValueError("closed CI scope required")
     nodes = canonical_nodes(full)
+    parent_parts = read_reply_parent_parts(nodes)
+    phase3_parent = set(parent_parts[0]) if parent_parts else set()
     phase3 = [
         n
         for n in nodes
-        if n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))
-        and n.split("::")[0] not in EXISTING_MODULES
+        if (
+            n.split("::")[0].startswith(("tests/test_p3", "tests/test_p4"))
+            and n.split("::")[0] not in EXISTING_MODULES
+        )
+        or n in phase3_parent
     ]
     existing = [n for n in nodes if n not in set(phase3)]
     if scope != "all" and (not phase3 or not existing):

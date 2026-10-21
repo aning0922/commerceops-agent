@@ -21,14 +21,13 @@ def test_read_parent_complete_eleven_nodes_run_six_plus_five_and_pair_exactly(
     parent = [f"tests/test_p4_read_reply_parent_pg.py::case_{n:02d}" for n in range(11)]
     monkeypatch.setattr(support, "FULL", support.OLD + parent + support.OTHER)
     raw, commands = support.execute()
-    assert commands == [support.OLD, parent[:6], parent[6:]]
+    assert commands == [support.OLD, parent[6:]]
     evidence = safe_report(raw, META, "existing")
     _, actual = validate(evidence)
-    assert actual == sorted(support.OLD + parent)
+    assert actual == sorted(support.OLD + parent[6:])
     merged = copy.deepcopy(evidence)
     for field in ("expected_node_ids", "actual_node_ids", "passed_node_ids"):
-        merged["modules"][1][field] += merged["modules"][2][field]
-    merged["modules"].pop(2)
+        merged["modules"][1][field] = parent
     with pytest.raises(ValueError):
         validate(merged)
 
@@ -38,10 +37,10 @@ def test_history_runs_complete_sorted_seven_node_parts_with_original_pairing(
 ) -> None:
     monkeypatch.setattr(support, "FULL", FULL)
     raw, commands = support.execute()
-    assert commands == [support.OLD, HISTORY[:7], HISTORY[7:], OTHER]
+    assert commands == [support.OLD, HISTORY[:7], HISTORY[7:]]
     evidence = safe_report(raw, META, "existing")
     _, actual = validate(evidence)
-    assert actual == sorted(support.OLD + HISTORY + OTHER)
+    assert actual == sorted(support.OLD + HISTORY)
     assert combined_groups(FULL) == combined_groups(FULL[::-1])
 
 

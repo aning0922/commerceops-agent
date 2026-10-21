@@ -18,6 +18,7 @@ from scripts.pg_ci_evidence import (
     EXISTING_REBALANCED_GROUPS,
     identity,
     partition,
+    read_reply_parent_parts,
     safe_report,
 )
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
@@ -84,14 +85,16 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
             name, paths = moved
             if name not in groups:
                 complete = [node for node in phase3 if node.split("::", 1)[0] in paths]
-                if name in (
-                    "combined-existing-p4-verified-history",
-                    "combined-existing-p4-read-reply-parent",
-                ):
+                if name == "combined-existing-p4-read-reply-parent":
+                    # 39623794226 existing绝对截止耗尽；仅完整前六项移phase3。
+                    # 保留原6+5边界、独立命令及300s上限，与证据分区共用排序规则。
+                    for index, part in enumerate(read_reply_parent_parts(complete), 1):
+                        scope = "phase3" if index == 1 else "existing"
+                        groups[f"combined-{scope}-p4-read-reply-parent-part-{index}"] = part
+                elif name == "combined-existing-p4-verified-history":
                     # 39154216134完整14节点累计触发300s；仅按完整collection排序分7+7。
                     # 新节点仍自动纳入，保持原existing分区、命令上限和精确配对。
-                    # 877的read-parent原9项实254.819s；新完整11项按6+5，仍每命令300s。
-                    width = 7 if name.endswith("verified-history") else 6
+                    width = 7
                     ordered = sorted(complete)
                     for offset in range(0, len(ordered), width):
                         groups[f"{name}-part-{offset // width + 1}"] = ordered[
@@ -212,6 +215,7 @@ def run_combined(
                     "combined-phase3-test_p4_terminal_recovery_pg-part-",
                     "combined-existing-p4-verified-history-part-",
                     "combined-existing-p4-read-reply-parent-part-",
+                    "combined-phase3-p4-read-reply-parent-part-",
                 )
             )
             else sorted({node.split("::", 1)[0] for node in group})

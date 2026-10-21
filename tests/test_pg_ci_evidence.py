@@ -319,21 +319,30 @@ def test_rebalanced_fixed_groups_still_require_exact_paired_actual_and_passed_no
         "tests/test_p4_delivery_pg.py": 5,
         "tests/test_p4_explicit_ro_pg.py": 3,
         "tests/test_p4_history_pg.py": 14,
-        "tests/test_p4_read_reply_parent_pg.py": 9,
+        "tests/test_p4_read_reply_parent_pg.py": 11,
     }
     moved = [f"{path}::case_{n}" for path, count in measured.items() for n in range(count)]
     monkeypatch.setitem(globals(), "FULL", FULL + moved)
     a, b = report("existing"), report("phase3")
-    assert a["actual_node_ids"] == sorted(OLD + moved)
-    assert b["actual_node_ids"] == sorted(P3)
+    parent = sorted(n for n in moved if "test_p4_read_reply_parent_pg.py::" in n)
+    first_six = parent[:6]
+    assert a["actual_node_ids"] == sorted(set(OLD + moved) - set(first_six))
+    assert b["actual_node_ids"] == sorted(P3 + first_six)
     assert [(m["label"], len(m["expected_node_ids"])) for m in a["modules"]][1:] == [
         ("combined-existing-p4-a08-recovery", 16),
         ("combined-existing-p4-clarification-delivery", 19),
         ("combined-existing-p4-verified-history-part-1", 7),
         ("combined-existing-p4-verified-history-part-2", 7),
-        ("combined-existing-p4-read-reply-parent-part-1", 6),
-        ("combined-existing-p4-read-reply-parent-part-2", 3),
+        ("combined-existing-p4-read-reply-parent-part-2", 5),
     ]
+    assert (
+        next(
+            m["expected_node_ids"]
+            for m in b["modules"]
+            if m["label"] == "combined-phase3-p4-read-reply-parent-part-1"
+        )
+        == first_six
+    )
     verify_pair(a, b)
     missing = copy.deepcopy(a)
     missing["modules"][1]["passed_node_ids"].pop()
