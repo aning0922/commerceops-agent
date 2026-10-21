@@ -8,7 +8,10 @@ from uuid import uuid4
 from psycopg.types.json import Jsonb
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
-from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.feishu_business.gateway_window import (
+    GatewayWindow,
+    require_group_operation_scope,
+)
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.infrastructure.web_sessions import DB
@@ -26,7 +29,13 @@ def claimed_state(window: GatewayWindow) -> dict[str, Any]:
 
 
 def claim_gateway(db: DB, settings: BusinessSettings, window: GatewayWindow) -> None:
-    if not window.active() or (window.organization_id, window.shop_id) != (
+    window = GatewayWindow.model_validate(window.model_dump())
+    if window.group_operation_chat_id is not None:
+        require_group_operation_scope(settings, window.group_operation_chat_id)
+    if not window.active(group_operation=window.group_operation_chat_id is not None) or (
+        window.organization_id,
+        window.shop_id,
+    ) != (
         settings.organization_id,
         settings.shop_id,
     ):

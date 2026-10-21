@@ -44,7 +44,10 @@ class BoundedReceiver:
         self.group_chat_ids = group_chat_ids
 
     def admit(self) -> None:
-        if not self.window.active() or self.admitted >= self.window.max_callbacks:
+        if (
+            not self.window.active(group_operation=bool(self.group_chat_ids))
+            or self.admitted >= self.window.max_callbacks
+        ):
             raise WebFailure("GATEWAY_CALLBACK_CAP_EXHAUSTED", 503)
         self.admitted += 1  # 当前SDK业务callback admissions，不称raw frame/ACK/wire次数。
 
@@ -80,7 +83,9 @@ def serve(
     config_body, window_body = private_value(config_file), private_value(window_file)
     settings = BusinessSettings.model_validate_json(config_body)
     window = GatewayWindow.model_validate_json(window_body)
-    if not window.active():
+    if window.group_operation_chat_id is not None and not group_ready:
+        raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+    if not window.active(group_operation=group_ready):
         raise PermissionError("P4_GATEWAY_WINDOW_CLOSED")
     if group_ready:
         if web_config_sha256 is None or group_binding_sha256 is None:

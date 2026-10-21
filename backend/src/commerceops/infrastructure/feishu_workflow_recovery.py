@@ -81,7 +81,12 @@ async def trusted_workflow_scope(
 ) -> None:
     recovery = window.workflow_recovery
     window.window(settings)
-    if recovery is None or gateway.max_workflows != 0 or not gateway.active():
+    if (
+        recovery is None
+        or gateway.max_workflows != 0
+        or gateway.group_operation_chat_id != window.group_operation_chat_id
+        or not gateway.active(group_operation=window.group_operation_chat_id is not None)
+    ):
         denied()
     async with await open_async(config.database) as db, db.transaction():
         cur = await db.execute(
@@ -201,6 +206,11 @@ async def trusted_workflow_scope(
             or receipt_hash(task) != recovery.receipt_hash
             or task["result"].get("task_id") != str(task["id"])
             or task["sanitized_payload"].get("chat_type") not in ("p2p", "group")
+            or window.group_operation_chat_id is not None
+            and (
+                task["sanitized_payload"].get("chat_type") != "group"
+                or task["chat_id"] != window.group_operation_chat_id
+            )
             or task["sanitized_payload"].get("chat_type") == "group"
             and task["chat_id"] not in settings.allowed_group_chat_ids
             or claim

@@ -92,7 +92,8 @@ async def trusted_scope(
         )
         if (
             state != claimed_state(gateway)
-            or not gateway.active()
+            or not gateway.active(group_operation=window.group_operation_chat_id is not None)
+            or gateway.group_operation_chat_id != window.group_operation_chat_id
             or (gateway.organization_id, gateway.shop_id)
             != (window.organization_id, window.shop_id)
             or window.expires_at > gateway.expires_at

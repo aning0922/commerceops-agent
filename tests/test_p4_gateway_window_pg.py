@@ -20,6 +20,64 @@ from tests.test_p4_gateway_pg import counts, message, service
 pytestmark = pytest.mark.integration
 
 
+def test_explicit_long_group_claim_keeps_once_and_exact_scope(fixture: P3Fixture) -> None:
+    """Real low-privilege immutable claim; long default/wrong group fail before claim."""
+    f = fixture
+    settings = BusinessSettings.model_validate_json(
+        Path("docs/contracts/p4-config.example.json").read_bytes()
+    ).model_copy(
+        update={
+            "organization_id": f.actor.organization_id,
+            "shop_id": f.inventory.data.shop,
+            "app_id": f.inventory.data.app,
+            "tenant_key": f.inventory.data.tenant,
+            "allowed_group_chat_ids": frozenset({"owned-long-group"}),
+            "allowed_open_ids": frozenset({"owned-A", "owned-B"}),
+        }
+    )
+    window = GatewayWindow.model_validate_json(
+        json.dumps(
+            dict(
+                schema_version="p4-gateway-v1",
+                window_id=str(uuid4()),
+                organization_id=str(settings.organization_id),
+                shop_id=str(settings.shop_id),
+                expires_at=(datetime.now(UTC) + timedelta(seconds=540)).isoformat(),
+                max_workflows=0,
+                max_callbacks=14,
+                enabled=True,
+                group_operation_chat_id="owned-long-group",
+                parameters=dict(
+                    source_mode="mock",
+                    dataset_version="inventory-v1",
+                    fixture_case="baseline",
+                    L=3,
+                    R=7,
+                    S=2,
+                ),
+            )
+        )
+    )
+    with connect(f.config.database) as db:
+        with pytest.raises(PermissionError):
+            claim_gateway(db, settings, window.model_copy(update={"group_operation_chat_id": None}))
+        with pytest.raises(PermissionError):
+            claim_gateway(
+                db, settings, window.model_copy(update={"group_operation_chat_id": "other"})
+            )
+        claim_gateway(db, settings, window)
+        guard_gateway(db, window, False)
+        with pytest.raises(WebFailure):
+            guard_gateway(db, window.model_copy(update={"group_operation_chat_id": "other"}), False)
+        with pytest.raises(UniqueViolation):
+            claim_gateway(db, settings, window)
+        db.rollback()
+        row = db.execute(
+            "SELECT count(*) AS n FROM business.audit_events WHERE id=%s", (window.window_id,)
+        ).fetchone()
+        assert row is not None and row["n"] == 1
+
+
 def test_once_app_lease_original_replay_quota_and_expiry_have_no_duplicate_business(
     fixture: P3Fixture,
 ) -> None:

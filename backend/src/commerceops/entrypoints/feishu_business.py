@@ -41,6 +41,12 @@ def group_ready_binding(config_body: str, window_body: str, web_config_sha256: s
 
 def require_group_ready_scope(settings: Any, window: Any) -> None:
     """Only the existing fixed group20 G1/G2; no expansion of old queued recovery."""
+    if window.group_operation_chat_id is not None:
+        from commerceops.application.feishu_business.gateway_window import (
+            require_group_operation_scope,
+        )
+
+        require_group_operation_scope(settings, window.group_operation_chat_id)
     if (
         (settings.organization_id, settings.shop_id) != (window.organization_id, window.shop_id)
         or len(settings.allowed_group_chat_ids) != 1
@@ -102,7 +108,12 @@ def run_gateway(
     config_body, window_body = private_value(config), private_value(window_file)
     settings = BusinessSettings.model_validate_json(config_body)
     window = GatewayWindow.model_validate_json(window_body)
-    if not window.active() or (settings.organization_id, settings.shop_id) != (
+    if window.group_operation_chat_id is not None and not group_ready:
+        raise PermissionError("P4_GROUP_GATEWAY_BINDING_REQUIRED")
+    if not window.active(group_operation=group_ready) or (
+        settings.organization_id,
+        settings.shop_id,
+    ) != (
         window.organization_id,
         window.shop_id,
     ):

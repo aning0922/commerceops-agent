@@ -9,6 +9,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
+from commerceops.application.feishu_business.gateway_window import require_group_operation_scope
 from commerceops.application.feishu_business.recovery import (
     ApprovedOutboxRecovery,
     ApprovedQueuedStart,
@@ -85,6 +86,9 @@ class ControlledWorkerWindow(BaseModel):
     expires_at: datetime
     caps: dict[SDKMethod, int] = Field(repr=False)
     enabled: bool = False
+    group_operation_chat_id: str | None = Field(
+        default=None, min_length=1, max_length=512, exclude_if=lambda value: value is None
+    )
     profile: Literal[
         "known70",
         "group20",
@@ -106,6 +110,13 @@ class ControlledWorkerWindow(BaseModel):
 
     def window(self, settings: BusinessSettings) -> SDKWindow:
         checked = type(self).model_validate(self.model_dump())
+        long_group = checked.group_operation_chat_id is not None
+        if checked.group_operation_chat_id is not None:
+            require_group_operation_scope(settings, checked.group_operation_chat_id)
+            if checked.profile != "approved_workflow" or checked.caps.get(
+                "bitable.v1.app_table_record.update", 0
+            ):
+                raise PermissionError("P4_GROUP_OPERATION_SCOPE_REQUIRED")
         ceilings = {
             "known70": KNOWN70_CAPS,
             "group20": GROUP20_CAPS,
@@ -124,7 +135,7 @@ class ControlledWorkerWindow(BaseModel):
         )
         if (
             self.expires_at.utcoffset() is None
-            or not 15 < remaining <= 300
+            or not 15 < remaining <= (600 if long_group else 300)
             or not self.enabled
             or (self.organization_id, self.shop_id) != (settings.organization_id, settings.shop_id)
             or set(self.caps) - set(ceilings)
