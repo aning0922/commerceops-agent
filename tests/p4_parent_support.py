@@ -35,6 +35,7 @@ MODULES = (
     "commerceops.infrastructure.feishu_history",
     "commerceops.infrastructure.feishu_business",
     "tests.p4_parent_support",
+    "tests.p4_queued_transport",
     "tests.p4_acceptance_support",
     "scripts.p4_acceptance",
 )
