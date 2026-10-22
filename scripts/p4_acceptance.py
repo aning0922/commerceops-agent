@@ -5235,6 +5235,22 @@ def group_read_subject(
     )
 
 
+def _read_group_operation(gateway: "GatewayWindow", settings: "BusinessSettings") -> bool:
+    """Only the explicit two-sample group profile uses four callback slots and 600s."""
+    if gateway.group_operation_chat_id is None:
+        return False
+    require(
+        gateway.max_workflows == 0
+        and gateway.max_callbacks == 4
+        and settings.allowed_group_chat_ids == frozenset({gateway.group_operation_chat_id})
+        and len(settings.allowed_open_ids) == 2
+        and not settings.f02_enabled
+        and not settings.external_sender_enabled,
+        "P4A_READ_GROUP_OPERATION_SCOPE",
+    )
+    return True
+
+
 def read_reply_window_from_saved_selection(
     db: Any,
     settings: "BusinessSettings",
@@ -5254,10 +5270,11 @@ def read_reply_window_from_saved_selection(
         "SELECT current_user AS role,current_setting('transaction_read_only') AS readonly"
     ).fetchone()
     require(meta == {"role": "commerceops_app", "readonly": "on"}, "P4A_READ_ARM_ROLE")
+    group_operation = _read_group_operation(gateway, settings)
     require(
         not selected.enabled
         and gateway.max_workflows == 0
-        and gateway.max_callbacks == 2
+        and gateway.max_callbacks == (4 if group_operation else 2)
         and len(settings.allowed_group_chat_ids) == 1
         and len(settings.allowed_open_ids) == 2
         and (selected.organization_id, selected.shop_id)
@@ -5269,6 +5286,19 @@ def read_reply_window_from_saved_selection(
         and all(re.fullmatch(r"[a-f0-9]{64}", x) for x in (payload_hash, text_sha256)),
         "P4A_READ_ARM_SCOPE",
     )
+    if group_operation:
+        from commerceops.infrastructure.feishu_gateway_window import claimed_state
+
+        claim = db.execute(
+            "SELECT after_state FROM business.audit_events WHERE id=%s AND organization_id=%s "
+            "AND source='feishu_gateway' AND action='gateway_start_claimed' "
+            "AND entity_type='gateway_window' AND entity_id=%s",
+            (gateway.window_id, gateway.organization_id, str(gateway.window_id)),
+        ).fetchone()
+        require(
+            claim is not None and claim["after_state"] == claimed_state(gateway),
+            "P4A_READ_ARM_ORIGINAL_CLAIM",
+        )
     rows = db.execute(
         """SELECT r.*,p.result AS receipt FROM business.p4_read_replies r
         JOIN business.p4_inbox_receipts p ON p.inbox_id=r.inbox_id AND p.identity_id=r.identity_id
@@ -5392,8 +5422,10 @@ def read_reply_window_from_native(
     from commerceops.application.feishu_business.read_reply import READ_REPLY_CAPS, ReadReplyWindow
     from commerceops.infrastructure.feishu_gateway_window import guard_gateway
 
+    group_operation = _read_group_operation(gateway, settings)
     require(
-        gateway.active()
+        gateway.active(group_operation=group_operation)
+        and (not group_operation or chat_id == gateway.group_operation_chat_id)
         and (settings.organization_id, settings.shop_id)
         == (gateway.organization_id, gateway.shop_id)
         and re.fullmatch(r"[a-f0-9]{64}", text_sha256) is not None
