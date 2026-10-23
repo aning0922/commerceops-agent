@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">CommerceOps Agent</title>
+  <desc id="description">A product identity illustration connecting inventory analysis, human review, internal execution and reconciliation. This is a conceptual workflow, not a product screenshot.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1280" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A1928"/>
+      <stop offset="0.6" stop-color="#0C2530"/>
+      <stop offset="1" stop-color="#103E3D"/>
+    </linearGradient>
+    <linearGradient id="line" x1="54" y1="316" x2="1226" y2="316" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2DD4BF" stop-opacity="0.1"/>
+      <stop offset="0.5" stop-color="#5EEAD4" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#2DD4BF" stop-opacity="0.1"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" stroke="#91C6C0" stroke-opacity="0.055"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="440" rx="24" fill="url(#background)"/>
+  <rect width="1280" height="440" rx="24" fill="url(#grid)"/>
+  <circle cx="1164" cy="82" r="130" stroke="#5EEAD4" stroke-opacity="0.07"/>
+  <circle cx="1164" cy="82" r="180" stroke="#5EEAD4" stroke-opacity="0.04"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <rect x="54" y="46" width="42" height="42" rx="12" fill="#153F42" stroke="#37635F"/>
+    <path d="M81 58H70L64 64V71L70 77H81M74 64H85V71H74" stroke="#78E4D0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="111" y="72" fill="#A8C9CB" font-size="13" font-weight="600" letter-spacing="3">COMMERCE OPERATIONS</text>
+    <rect x="1070" y="49" width="156" height="30" rx="15" fill="#103C38" stroke="#28594F"/>
+    <circle cx="1088" cy="64" r="3.5" fill="#72E4B7"/>
+    <text x="1101" y="69" fill="#BBF7D0" font-size="11" font-weight="700" letter-spacing="1.6">M1 · ACCEPTED</text>
+    <text x="52" y="158" fill="#F2F8F9" font-size="64" font-weight="700" letter-spacing="-2">CommerceOps<tspan fill="#6EE7CB"> Agent</tspan></text>
+    <text x="56" y="199" fill="#A6C0C7" font-size="21" letter-spacing="0.2">From inventory insights to accountable action.</text>
+    <path d="M54 303H1226" stroke="url(#line)" stroke-width="2"/>
+    <g>
+      <rect x="54" y="253" width="266" height="104" rx="14" fill="#102B38" stroke="#284451"/>
+      <text x="76" y="284" fill="#6FDCCB" font-size="11" font-weight="600" letter-spacing="2">01 / ANALYZE</text>
+      <text x="76" y="316" fill="#EEF6F8" font-size="20" font-weight="600">Deterministic insights</text>
+      <text x="76" y="339" fill="#91AEB8" font-size="12">Frozen facts. Traceable rules.</text>
+    </g>
+    <g>
+      <rect x="356" y="253" width="266" height="104" rx="14" fill="#102F3A" stroke="#2F4C56"/>
+      <text x="378" y="284" fill="#6FDCCB" font-size="11" font-weight="600" letter-spacing="2">02 / REVIEW</text>
+      <text x="378" y="316" fill="#EEF6F8" font-size="20" font-weight="600">Human decisions</text>
+      <text x="378" y="339" fill="#91AEB8" font-size="12">Full disclosure. Explicit approval.</text>
+    </g>
+    <g>
+      <rect x="658" y="253" width="266" height="104" rx="14" fill="#11343C" stroke="#325459"/>
+      <text x="680" y="284" fill="#6FDCCB" font-size="11" font-weight="600" letter-spacing="2">03 / EXECUTE</text>
+      <text x="680" y="316" fill="#EEF6F8" font-size="20" font-weight="600">Internal work items</text>
+      <text x="680" y="339" fill="#91AEB8" font-size="12">Atomic writes. Durable receipts.</text>
+    </g>
+    <g>
+      <rect x="960" y="253" width="266" height="104" rx="14" fill="#123B3F" stroke="#375E5E"/>
+      <text x="982" y="284" fill="#6FDCCB" font-size="11" font-weight="600" letter-spacing="2">04 / RECONCILE</text>
+      <text x="982" y="316" fill="#EEF6F8" font-size="20" font-weight="600">Recoverable delivery</text>
+      <text x="982" y="339" fill="#91AEB8" font-size="12">One source of truth. Verified sync.</text>
+    </g>
+    <path d="m335 299 4 4-4 4m302-8 4 4-4 4m302-8 4 4-4 4" stroke="#5ECDBB" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="56" y="399" fill="#87A7B0" font-size="11" font-weight="500" letter-spacing="2">WEB + FEISHU</text>
+    <text x="1224" y="399" text-anchor="end" fill="#87A7B0" font-size="11" letter-spacing="1.2">FACTS / APPROVAL / RECOVERY</text>
+  </g>
+</svg>
