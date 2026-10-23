@@ -1,5 +1,7 @@
 # 阶段状态与主控交接
 
+Phase4/M1当前导航（2026-10-23，台北，D14）：所有必要业务/真人平台Gate已由Root及原Reviewer核收，状态为`business_gates_passed / ready_for_final_review`。source160d66a/tree90fc8cc及CI39909049939五绿/567PG已核；两新群查询各sent/attempt1、新SDK6/两窗、17保护组不变、父native0/清理保卷，合同scoped109/11与全库142/17分列。最后仅A/C文档合批、原Reviewer最终增量审查、Root预留CI8/main/合后CI与Issues实际结案，详见[第70节](#70-phase4m1业务门槛已核收与最后文档合批)及[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)。正式complete不预写；下方旧导航及第1–69节均按原日期保留，旧查询HOLD/失败/unknown不重开，Phase5未授权。
+
 最新Hosted/P4导航（2026-10-13，D4）：人类已明确授权仓库Public/保护/fork、恢复GitHub Hosted Actions并继续P4，随后结束本地CI；以[Root阶段回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6138181766)为准。原fd38/codex/phase4-feishu/PR43继续，已核main9d97，P4/M1仍in_progress、Issues39–42未结案；localCI未完成，1341及两未提交180预算文件/旧失败私有资产保留，不带入P4。40dc的Hosted38210480544 attempt2实际checkout7add/tree245933：quality/phase3/pg-pair SUCCESS，frontend/n01 FAILURE；原helper核281+160=441完整PG、交集0/G1三/G2六/cleanup0/stopping confirmed，Hosted临时PG down --volumes不记保卷，旧私有卷另保留。Root释放普通合入[已审C6ed9](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6138319062)两spec：作者62+48相关pure，独立Web noP1/P2/type/13 closed契约719ms/69pure1.22s；同身份合法内存session生命周期、角色隔离/fresh context/page/逐body真实严格DTO核验，401/403不刷新重登，第六例真实revoke保留。组合独审与新精确五项Hosted尚待，actual read7/write10/items7/N01six、SDK/真人/全M1仍pending，不以源码或旧441代签。仅两已审spec与必要三事实文档；backend/scripts/CI/锁/Compose/B/产品UI不改，无新PG/浏览器/SDK/provider/push/main。D1=10-10/D30=11-08/原300h/P4 50h估计与18页冻结不重置，人工H/L not_reported；下方旧Private/暂停/候选导航按当时历史保留，不覆盖本次直接授权。
 
 最新A09导航（2026-10-12）：Root核A08 efcd/Core无P1P2/精确四CI38164348959 SUCCESS及422完整PG配对后释放原A/C功能合批。A唯一backend串行实现单原workflow跨Gateway可信恢复、N01 Web-only零业务写入preflight闭合DTO/API；原P3 22合同字节保留/N01第23操作，PRD-J01两原句缺LRS澄清、不截断或猜参，C独占本地确认/fresh原CreateNewCycle与UX4，B/C产品0差。作者新恢复6+原回归15=21PG及N01完整13PG通过，首5恢复fail及N0111/13pass两夹具fail/无children hashfalse完整保留；真实SDK/Factory/Secret/provider0/自有资源已停保卷。PG-only/ASGI不冒正式SDK/真人/全BC02/M1；完整检查1531offline/441deselected/93.00s exit0，冻结独审/新精确CI待。原main9d97/Issues39–42 Open/P4 in_progress，D1/D30/300h/P4 50h/H-L not_reported/18页不变；A09实际19:03:09Z→01:03:09Z≤6h，仅offline新PG/同源三，不续A08旧20:37:16Z SDK诊断。详见[PHASE4_A09](PHASE4_A09.md)及[STATUS48](STATUS.md#48-a09跨gateway原workflow与n01-web-preflight候选)；下方旧HOLD/pending是历史。
@@ -1349,3 +1351,41 @@ A候选仅现有group-ready接收器的同群准入、固定只读subject/ready�
 本次实际collect-only退出0：565=397existing+168phase3，交集0，原563加必要2节点；read-parent完整11按6+5，history14按7+7。首完整scripts.check退出0/157.660s，2300offline通过/565integration排除，type361、Markdown109、Python95包及npm审计0；原CI五绿与本地离线结果分层。随后仅增强pinned Lark DTO→原BusinessGateway handler→mention全文hash的既有两参数断言，3/3通过并mypy2文件通过；最终组合检查以新日志为准。私有现有read-parent的15边界检查再次通过，实际PG及通知工具演练尚未执行。
 
 最终组合scripts.check实际退出0/149.493s，运行期间全部受检文件hash无变化：2300offline通过/565integration排除，Ruff474文件、mypy361文件、Markdown109文件、Python95包和npm审计0。检查后仅将本节首检查type数量笔误346更正为361，并以check_docs退出0复核；原3个pinned-SDK规范化pure及完整90相关pure亦通过。以上不签当前PG/平台/独审/CI。
+
+## 70. Phase4/M1业务门槛已核收与最后文档合批
+
+2026-10-23（Asia/Taipei，D14），Root及原Reviewer已核收所有必要业务/真人平台Gate，
+当前`business_gates_passed / ready_for_final_review`。唯一[最终权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)
+承接实际最终文档独审、CI8、main合并SHA、合后CI及Issues结案；本快照均不预填未来结果。
+当前已核业务source为`160d66acf5f21887abdfd5bada2232118755268e`，
+tree为`90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；Root已核[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939)
+attempt1五作业SUCCESS、完整567PG、G1三/G2六、Web/N01、精确配对及清理。
+
+| 对象 | 最终业务事实与证据边界 |
+| --- | --- |
+| 已核原链 | 真实私聊、F02、原T6/同record Base v2及原key GET、只读Web均复用原对象和原独审回执，不重做登录、消息、审批、Create或Update |
+| 两真实群 | 两轮群卡5/4、完整20SKU与全部假设联合批准、独立拒绝零项、重复/冲突/角色拒绝、20项Base读回已核收；旧过期卡/失败/once仍保留 |
+| 两新群查询 | 固定T=07:06:00Z，native WS实际ready；Root实际ready工具返回07:08:29.068Z，通知实际返回07:08:54.591Z，至07:16:00Z保留425.409秒；唯一选择两条，两个sender分别07:22:06.127231Z及07:24:05.771283Z原生0，两carrier各sent/attempt1 |
+| 来源与回复身份 | 原入站message、reply、SDK window、IM call及外部sent message_id关联；`source_kind=p2_original`指报告来源，不能写成WS来源。客户端已读、原始wire ACK未捕获，不称网络exactly-once |
+| SDK合同口径 | 原23+已审reject10+success70=103次/9窗，callID去重103；新auth2/bot2/IM2共6次/2窗，均returned/HTTP200/code0，与旧ID集合无交集；scoped累计109次/11窗，calls≤114 |
+| SDK全库口径 | 旧protected全集136次/15窗在四快照count/hash完全相同，加本轮新6/2后全库142/17；差33/6为开窗前存量与合同范围差，历史用途不作猜测，不计作本次新增 |
+| 业务不变性与停止 | 四快照17保护组全同，新Create/Update/Base/Graph/model为0；writers退出后采集，父07:24:07.842294Z实际native0/reaped，PG stop原生0；独立核18登记PID均不存在、端口关闭、容器/网络0、原卷保留；query PG累计3/3，不再启动 |
+| 只读采集类型 | IUD值为规范字符串`"0"`；Root汇总初次以int假设比对失败及后续纠正保留在核收回执，不属于运行/数据失败，不改写原始JSON |
+| 原件与独审 | 完整真实query冻结索引SHA256 `8799fe105cfc6d6147f101a14935e00e01e7eecf265d5439097ad6456c7779c6`、Root SDK对齐回执SHA256 `527715ce9ec7dd5b8634207e3681c320a54f4af5f1ada93f9d7403c70d61bd31`均已由原Reviewer接受；不再扩大历史归属调查 |
+| 交付材料 | 干净Compose、恢复/轨迹说明及录屏按既有离线Mock/自动化材料的有限边界记录，详见[交付地图](PHASE4_M1_DELIVERY.md)；不冒真实平台录屏、不称Woo已接入 |
+
+旧两条查询停止专项恢复，继续HOLD；不重发旧文本、不重取历史、不重置once/attempt或复活过期卡。
+owned15/16失败、owned17旧source432的合成通过、controller外层OS退出NOT_CAPTURED、CI6前端漏洞审计失败与
+CI7修复后成功分别保留，不用新成功覆盖旧失败。完整分层证据见[PHASE4_ACCEPTANCE](PHASE4_ACCEPTANCE.md)。
+Issue23及历史未知根因/未定位风险保持原值；真实资源已停止保卷，Phase5/Woo/生产/扩权均未授权。
+
+用户已批准最后40 Agent有效分钟：本包1940→1980，当前有效池460→500；
+规划A226/Review101/C10/Root160及统筹3，由Root总额内调配，旧用量与历史净余UNKNOWN保留，
+机器/真人/中断等待另记。A在本次文档批前累计169–215分钟，余文档估7–11分钟；
+实际文档用量与冻结由A回交Root账本，其他角色不代填。
+D1=2026-10-10、D30=2026-11-08、原300h/P4计划50h、人工H/L UNKNOWN与18页冻结不重置。
+
+本批A只提交四份阶段文档，C只提交其三份交付文档；Root转交C精确commit后由A普通merge本地冻结，
+不读未提交WIP，不改业务/前端/测试/锁/workflow，不push/改PR正文/触CI或再开PG/SDK/真人。
+原Reviewer对最终docs/source增量一次审查后，Root才释放预留CI8；按实际成功结果正常main及唯一合后CI1，
+失败不自动重试。正式complete和Issues关闭均以固定权威回执后续实际更新为准，不再为未来SHA补写而开docsCI循环。

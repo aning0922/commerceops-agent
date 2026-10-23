@@ -1,4 +1,31 @@
-# Phase4 / M1 分层验收（实施中）
+# Phase4 / M1 分层验收
+
+## 2026-10-23 必要业务门槛已核收，正式结案待最后收口
+
+当前状态为`business_gates_passed / ready_for_final_review`。Root与原Reviewer已核收必要业务及真人平台Gate，
+依据为[固定权威结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)。
+原私聊、F02、两真实群、T6/v2及只读Web复用各自已核原件；本轮真实查询独审也已接受。
+最后仅文档合批/最终增量独审、预留CI8、正常main、合后CI1及Issues结案待实际完成，
+这些动态事实由同一固定回执承接，不预填未来SHA或将候选写成正式complete。
+
+| Gate | 已核实际证据 | 范围与保留边界 |
+| --- | --- | --- |
+| 技术源码与精确CI | source `160d66acf5f21887abdfd5bada2232118755268e`，tree `90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939) attempt1五作业SUCCESS，567PG、G1三/G2六、Web/N01、精确配对和清理通过 | 这是已核业务源码CI；最终文档候选的独审/CI8及main/合后CI尚待实际回执 |
+| 原私聊/F02/原T6及Base v2 | 原真人显式审批、原item关闭、同record v2及原key GET、只读Web已按原对象核收 | 不重发旧T1、不重复批准/关闭/Create/Update；原失败及恢复轨迹保留 |
+| 两真实群与20项 | 两轮群卡5/4，完整20SKU及全部假设联合批准、独立拒绝零项、重复/冲突/角色拒绝、20项Base读回已核收 | 两成功/拒绝case分列；不将全部历史负例或unknown改写成成功，不追加真人动作 |
+| 新群进度与解释 | native WS实际入站和唯一选择；`task_status`、`explain_report`各sent/attempt1，外部消息ID与reply/window/IM call关联；实际通知返回后425.409秒机会 | 两新消息各一次、沿同成功群task/report；`source_kind=p2_original`为报告来源；旧两条查询/失败once继续HOLD，客户端已读与raw wire ACK为NOT_CAPTURED |
+| 本轮真实SDK | auth2/bot2/IM2共6次，均returned/HTTP200/provider_code0，新增2窗；原合同23+已审reject10+success70=103次/9窗，callID去重且新旧集合无交集；合同scoped累计109次/11窗≤114 | 全库另记142次/17窗，旧protected全集136次/15窗四快照hash不变；差33/6为既存范围差，不猜用途、不算本轮新增；新Create/Update/Base/Graph/model为0 |
+| 保护集合与原生停止 | 四份快照17保护组count/hash全同；两sender原生0，父native0/reaped于07:24:07.842294Z；独立核18登记PID均不存在、端口关闭、容器/网络0、保卷 | 所有writers停止后采集，真实query PG累计3/3；不再开库/SDK/冷重放或补平台动作；只读采集IUD为规范字符串`"0"` |
+| 交付与演示 | 既有干净Compose、恢复说明、轨迹及媒体按原离线Mock/自动化材料交付，交付地图见[PHASE4_M1_DELIVERY](PHASE4_M1_DELIVERY.md) | 不将合成演示或剪辑当真实平台录屏；Woo未接入，Phase5未授权，Issue23及其他未定位风险保留 |
+
+本轮真实查询完整冻结索引SHA256：
+`8799fe105cfc6d6147f101a14935e00e01e7eecf265d5439097ad6456c7779c6`；
+Root SDK集合核收回执SHA256：
+`527715ce9ec7dd5b8634207e3681c320a54f4af5f1ada93f9d7403c70d61bd31`。
+两份原件及其引用由Root/原Reviewer按固定回执核收；旧owned15/16失败与owned17合成成功分列，
+owned17旧source432及controller外层OS退出NOT_CAPTURED不转写成source160真实结果。
+日期、预算及最后授权见[STATUS70](STATUS.md#70-phase4m1业务门槛已核收与最后文档合批)。
+以下各节仅为其日期的历史候选与验收记录，旧pending不覆盖本节已核事实，失败/HOLD也不由本节抹除。
 
 ## 2026-10-20 九小时收口候选
 

@@ -1,5 +1,9 @@
 # 分阶段路线图与外部配置
 
+Phase4/M1当前收口（2026-10-23，台北，D14）：Root与原Reviewer已核收必要业务及真人平台Gate，当前`business_gates_passed / ready_for_final_review`。source160d66a/tree90fc8cc的CI39909049939五绿，567PG、G1三/G2六、Web/N01、精确配对和清理通过；两新群查询及原私聊/F02/群20/T6/v2已按原件核收，不重复平台或真人操作。完整分层事实见[验收表](PHASE4_ACCEPTANCE.md)及[STATUS70](STATUS.md#70-phase4m1业务门槛已核收与最后文档合批)。
+
+用户批准的最后40 Agent有效分钟只用于文档合批、最终独审、预留CI8、正常main与合后CI1；本包总规划1980、当前有效池500，旧用量不清零。正式main/合后CI/Issues结案以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)实际更新为准，不预填未来SHA或complete。D1=2026-10-10、D30=2026-11-08、原300h/P4计划50h、人工H/L UNKNOWN和18页冻结保持。Phase5/Woo、生产与扩权未授权；离线Mock Compose/媒体、旧查询HOLD、历史失败及未定位风险保持各自边界。下方旧阶段导航、状态词和工期均为原日期的历史规划/快照。
+
 M1九小时收口批导航（2026-10-20，台北）：用户已批准[本批方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)，[批准登记](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)绑定Root T0=08:21:55.423330Z，总540 Agent有效分钟，计划A330/C60/Review90/Root60可总额内调配；旧用量保留，机器/真人等待另记，原300h/P4与日期/H-L/18页不重置。877/treef2f精确CI39386976160五绿及563=395+168、交集0/cleanup0已由Root核收；C文档9ccd已获Root释放并普通ff合入。旧两条私聊历史查询停止专项恢复并保持HOLD，不重取、不改写原文、不发送。新两条群只读样本可绑定同一个成功的新群任务及ready报告，不额外建两项业务任务；复用已核原私聊/F02/T6/v2/只读Web，不重做人类操作。当前仅离线候选：显式group-ready拒绝私聊/其他群、两条完整规范文本与精确hash、同原生read_reply未消费disabled模板分段接线；私有父入口以实际WS-ready驱动Root工具通知并保留通知返回后至少240s，迟到HOLD且不续窗。群20与新查询共用既有入口，无新表/迁移/状态机/通用框架。保留旧563节点并新增必要2PG；read-reply-parent完整11节点固定6+5，原history7+7、45/43/300s不放宽。新owned最多2窗各≤1800s及cleanup≥180s，原B/C配置PG一次≤600s，真实群两窗各≤1200s、读接收/回复各一次PG≤600s；业务SDK≤96、Create≤20/Update0/paid0，具体对象与UTC仍由Root统一准入。当前新PG/原库/Secret/SDK/服务/push/CI均0，实际PG、整包独审、容量与新CI仍pending；总控已明确允许提前登记窗口内的原卷restart/多个子进程，但须逐一绑定同owner/资源/绝对截止，不事后把独立窗口改名；具体两窗编排仍待核定。详见STATUS69；下方旧导航保留历史。
 
 最新A09导航（2026-10-12）：Root核A08 efcd/Core无P1P2/精确四CI38164348959 SUCCESS及422完整PG配对后释放原A/C功能合批。A唯一backend串行实现单原workflow跨Gateway可信恢复、N01 Web-only零业务写入preflight闭合DTO/API；原P3 22合同字节保留/N01第23操作，PRD-J01两原句缺LRS澄清、不截断或猜参，C独占本地确认/fresh原CreateNewCycle与UX4，B/C产品0差。作者新恢复6+原回归15=21PG及N01完整13PG通过，首5恢复fail及N0111/13pass两夹具fail/无children hashfalse完整保留；真实SDK/Factory/Secret/provider0/自有资源已停保卷。PG-only/ASGI不冒正式SDK/真人/全BC02/M1；完整检查1531offline/441deselected/93.00s exit0，冻结独审/新精确CI待。原main9d97/Issues39–42 Open/P4 in_progress，D1/D30/300h/P4 50h/H-L not_reported/18页不变；A09实际19:03:09Z→01:03:09Z≤6h，仅offline新PG/同源三，不续A08旧20:37:16Z SDK诊断。详见[PHASE4_A09](PHASE4_A09.md)及[STATUS48](STATUS.md#48-a09跨gateway原workflow与n01-web-preflight候选)；下方旧HOLD/pending是历史。
@@ -46,7 +50,7 @@ M1九小时收口批导航（2026-10-20，台北）：用户已批准[本批方�
 | Phase 1 工程底座与技术探针 | 最终架构确认；Docker；外部配置用于真测 | 基础 CI/敏感扫描先行，uv/Node 锁、PG migration、单 Worker/单 Graph 槽、checkpoint crash probe、飞书回调/Base probe | G1 Docker、G2 LangGraph Checkpoint、G3 飞书真实回调；缺证据记阻塞，不算通过 | 3–5 工作日 |
 | Phase 2 确定性库存垂直切片 | Phase 1 本地底座 | Mock fixtures、统一契约、快照、规则、API 报告、模型受限说明 | 金标完全一致；空/异常/分页失败不产生错误执行计划；必要代码/真实Gate通过；本次17:11快照ready_for_phase2_merge，正式main/CI/结案看Issue29实时回执 | 3–4 工作日 |
 | Phase 3 审批与恢复闭环 | Phase 2；G2 图恢复结论 | 显式在途假设确认、approval、interrupt/resume、内部补货创建/完成/关闭、outbox、最小 Web | 拒绝/重复、HTTP 审批冲突、单 Worker 重启、提交后崩溃；关闭后新周期 | 5–7 工作日 |
-| Phase 4 飞书闭环与 M1 交付 | Phase 3；G3 真实回调；测试组织 | 飞书正式卡片/Base（2–3 日）+ Compose 离线复现、轨迹/故障演示与录屏（1–2 日） | M1 指定 AC；能解释数据、审批、恢复；不含 Woo | 3–5 工作日 |
+| Phase 4 飞书闭环与 M1 交付 | Phase 3；G3 真实回调；测试组织 | 飞书正式卡片/Base（2–3 日）+ Compose 离线复现、轨迹/故障演示与录屏（1–2 日） | M1 必要业务/真人平台Gate已核收；最终文档独审/CI/main结案以固定权威回执为准；离线演示边界见验收表，不含Woo | 原计划3–5工作日/50h，不重置 |
 | Phase 5 Woo 只读与 M2 交付 | M1；测试店 | Woo adapter/真实数据对账（3–4 日）+ 完整恢复/备份/交付验证（2–3 日） | M2 全部 AC；Woo 两页以上、金额/时区/退款、备份还原证据 | 额外 5–7 工作日 |
 | Phase 6 P1 与 M3 交付 | M2 验收后新授权 | 日报/追问/定时及动态只读工具展示，再 SOP RAG/文案草稿 | 日报金标、调度去重、动态工具白名单/预算/轨迹评测、引用与审核草稿 | 额外 10–15 工作日 |
 
