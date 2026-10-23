@@ -1,24 +1,54 @@
 # Phase 4 / M1 剩余验收地图
 
-## 唯一当前验收清单（2026-10-20，台北时间）
+## 唯一当前验收清单（2026-10-23，台北时间）
 
-本节按[用户已批准的 M1 收口方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)及[9h 整包授权](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)接续原 A/C/Reviewer；以下原五项为唯一现行状态；[原AC01–11](PRD.md#7-p0-交付验收)与M1范围不变，④继续闭合，不新增设计、展示或通用框架 Gate。原两条私聊保留 HOLD 并停止专项恢复；查询/解释转为原定新群任务的独立样本，不要求用户重发，不称原私聊已经恢复。下方旧“不得替换/必须恢复原两条”的安排仅属旧合同历史，不能据此继续专项恢复或阻塞新样本验收。
+本节按[用户已批准的 M1 收口方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)及此前[9h整包授权](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)接续原 A/C/Reviewer；以下原五项为唯一现行状态；[原AC01–11](PRD.md#7-p0-交付验收)与M1范围不变，④继续闭合，不新增设计、展示或通用框架 Gate。原两条私聊保留 HOLD 并停止专项恢复；查询/解释转为原定新群任务的独立样本，不要求用户重发，不称原私聊已经恢复。下方旧“不得替换/必须恢复原两条”的安排仅属旧合同历史，不能据此继续专项恢复或阻塞新样本验收。
 
-已核公开候选为 `877da961afb26a73460ce5af2661582fd2a304ea` / tree `f2f09ebb1aa6d7988fed2a78a497d64de1a7a928`；[CI39386976160](https://github.com/aning0922/commerceops-agent/actions/runs/39386976160)五 job SUCCESS、563 PG、4个安全 artifact 的核收见上述 Root 最终方案回执。它只证明该精确源码和已跑范围，不代签本包未来群/查询/真实负向或后续候选。main 仍为 P3 基线 `9d97c19009d932036809ac3e2638bb68f4b7f765`，M1 未完成；31a6 采集器的0015/0016/0017兼容已正常集成，当前四个 C acceptance 文件与877逐字相同，未发现必须修改consumer的来源差异。
+当前已核功能source为 `160d66acf5f21887abdfd5bada2232118755268e` / tree `90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939)五作业SUCCESS、567 PG及Web/N01通过。Next精确16.4.2有限安全升级已保留，原C双文件修复8b08573的本地audit0漏洞、contract67/B04 Mock8/Phase4 Mock22及build仅签其原范围，不代签后续源码。
+
+原真实DM/F02、两轮群5+4动作、20 SKU/20 Base、原T6/v2/只读Web及最后两条新群查询所需真人平台Gate已收齐；新查询原独审PASS，各sent/attempt1、SDK6成功、17保护组不变、资源stop。raw wire/ACK及客户端已读均NOT_CAPTURED，不补写。旧两条群查询与旧原DM查询保持HOLD，原库/history恢复停止；新样本通过不回填旧消息成功。
+
+本三文档为最终文档候选，docs/source Review、CI8、main、post1及Issues结案当前仍PENDING；main仍为原P3基线9d97，不预填未来SHA或完成。Root将后续实际结果统一登记在[固定权威结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)，以该回执收口，不为合后结果循环改文档。
+
+两轮真实group已由[原Reviewer独审核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6335727639)：reject仅1个有效决定，duplicate返回原决定，execution/item/Base均0；success为1 execution、20 items各100件、总2000，20原键/15字段complete_unique、version1/attempt1，Create20/Update0。来源2f/manifest514b、整包索引08923a04；native前后SQL、真实人类报告与publisher completion完整，rawWS ACK/完整wire仍NOT_CAPTURED。8进程及资源全停保卷，33旧保护一致。①两群及②本轮分层重复/冲突/C拒绝的有限Gate已核收，旧技术矩阵保持原范围，查询通知HOLD不使①②回退。
+
+<details><summary>旧查询窗口停止与UNKNOWN（保留历史，不覆盖新样本通过）</summary>
+
+查询新一次实际PG1因Root通知逾时停止，父错误ROOT_NOTICE_MISSING_OR_LATE（run_chain:630），不是业务或用户内容失败。final采集08:34:00.980155、PG1 stop08:34:02.518838，Root实际通知start08:34:04.577/return08:34:36.793。用户随后已发2条，但native inbox/source/message身份未采，仍UNKNOWN；不能用较早carrier0否定发送，不要求重发。PG1已用1/2，PG2/selector/sender均0，SDK新增0、累计仍103；AppSecret访问次数未完整采证，不能写0。17保护组一致、全停保卷；停止索引35391907、人类与Secret补记6c59d263，失败与once保留。原A仅准备一次原库RO可行性，群history扩权/迁移3–4h分支未授权，不新增框架。③query与⑤最终M1/main继续PENDING。
+
+此前1480包的当时资源账仍保留：group6/6，SDK80+23=103/114、9 SDK窗，Create20/Update0；旧query PG1用1/2、PG2/selector/sender0，owned14/14、premerge5/6、post0/1；不能把它当作最新全量累计。
+
+旧群消息HOLD及原库/history恢复停止已由用户接受新样本替代验收；本段旧“③PENDING”只指当时，失败、once及Secret未知不改写。
+
+</details>
+
+<details><summary>此前技术基线与失败准备记录（仅当时状态）</summary>
+
+当前准确公共source为 `2f13836344fef1624efbe7b60f786a5b1bba735d` / tree `c512bd8a75e03273c68e51df389dcf19bebf7680`；[CI39715326419](https://github.com/aning0922/commerceops-agent/actions/runs/39715326419)整体SUCCESS：attempt1的quality391与phase3 175合计566全过，G1三/G2六、pg-pair、N01及清理通过；仅frontend在attempt2以job119638053874通过，实际audit零漏洞、contract/Mock/live read-write-items/来源/清理通过。不是五作业都在attempt2重跑。范围依[Root技术核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6332980125)，main仍为P3基线 `9d97c19009d932036809ac3e2638bb68f4b7f765`，M1未完成；技术通过不代签真人平台或最终main/合后CI。
+
+已核历史公开基线为 `0661797b7b0c4bac78dcbb6f18abd6552875493a` / tree `da112ae63cb2de73206a143fd5d8ee3db4c4e4de`；[CI39417453535](https://github.com/aning0922/commerceops-agent/actions/runs/39417453535)五 job SUCCESS、565 PG（397+168，交集0），Web读/写/items及N01六项已由Root核收。066已含C9ccd交付文档；此前877/563 PG仅保留原来源范围。该CI不代签本包未来真实群/查询/负向或后续候选。main仍为P3基线 `9d97c19009d932036809ac3e2638bb68f4b7f765`，M1未完成；四个C acceptance文件在877→066无差异，0015/0016/0017兼容已集成，无须新增消费端或展示检查。
+
+本轮执行准备依[Root权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6331532093)：main仍9d97，PR43当前head为36e；CI39644522303整体FAILURE，quality391/391及两Web作业成功，phase3为174/175，全量565/566。唯一nullable_digits-0016 call受global剩余166秒截止中断；两个Gateway实际pass、G1三/G2六及cleanup已通过，但不能签M1。owned14额外本机驱动profiles有P1失败且已retired，不再使用、不新开owned15。新授权只将phase3容量改50/48分钟，quality45/43及391+175/566、300/75/60秒既有限制和既有Gates保持；A下一候选及CI尚未产生，source换绑由A负责。当前为执行准备，完整CI和技术统一准入前不要求用户登录或待命。
+
+旧npm503及所有失败保持；上述“当前”“下一候选尚未产生”只指当时，不覆盖本页最新导航。
+
+</details>
 
 真实原私聊/批准、F02三轮原T1、真人原T6、同record Base v2及原 `persisted_real_v2_readonly` page/replay 已核收并复用。原只读Web为automatic、各原key GET1/业务POST0/该轮SDK与平台写0，不冒称真人连续录屏或本轮新平台验证。旧history第二条差异、strict pair=false、旧child UNKNOWN及原HOLD按各自回执保留；停止专项恢复不是把失败改为成功，也不把新群样本的结果回填给旧私聊。
 
-群工具既有089/037准备、6337 owned正常/权限两例独审和925 owned全20项/Q2000/完整读回/冷重放/cleanup按已核范围复用；外层testdriver exit1及全部旧失败不改写。合成B/C预演不是真实角色部署或真人群准入证据；当前角色/店铺绑定和最终准入仍由A/Root在冻结原对象与时限内核实。新群、同新群任务的独立查询/解释、必要真实负向及最终main/结案均为 **PENDING**。
+群工具既有089/037准备、6337 owned正常/权限两例独审和925 owned全20项/Q2000/完整读回/冷重放/cleanup按已核范围复用；外层testdriver exit1及全部旧失败不改写。合成B/C预演仅保留工具准备范围；实际两群与本轮有限负向以本页最新独审结果为准，新两条查询已按自身来源独审通过；最终文档/CI8/main/结案仍PENDING。
+
+历史owned W2已按[Root安全回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6307662383)独审核收：同066/helper851427，正常两回复、冷重放零新增、精确transport timeout负例、B/C低权拒绝及44 PID/资源清理。原件index SHA256 `c891b22f3f8922c14d1fe9991b2d02f1ea21ebb0079124dfe288e18518d4c209`，review SHA256 `23a67f7844287843c8df4bd0414893a899c39844443f05bebd4d3bc74588d909`。2026-10-21原PG B/C配置parent另已actual native0、create7，旧表及A auth3受保护、清理完成、SDK0；原件与群绑定由A/Root统一封存。这些是owned工具与PG配置事实，均不签平台Gate或当前真人就绪。
 
 | 原五项／当前状态 | 原 AC 映射 | 复用证据 | 仅缺项 | Owner | 依赖 | 完成判据 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ① 真实群完整20项未知联合确认及独立拒绝：PENDING | AC01/02/03/10 | 原私聊/F02、P2金标、089/037准备及925 owned全量确认/拒绝；不冒充真人群 | 原定新群完整20项/全部未知键联合确认、独立拒绝；PG task→approval→execution→item→Base唯一关联 | A执行与关联；Root统一准入；原Reviewer独审 | 最终源码冻结/影响核验，当前合资格身份与同店scope、原计划与有限窗口；沿9h批准方案，不由C另造任务 | 正向20 items/Q2000逐项对回冻结事实/版本/键与Base；独立拒绝零执行/零内部项/零新增Base；原回执及cleanup核收，同一计划不兼作批准和拒绝证据 |
-| ② 同原计划重复/冲突、必要真实负向与恢复：PENDING | AC03/04/05/07/10 | 已核PG过期/撤权/跨店/篡改/kill矩阵、C Web/N01权限负向、6337 owned两例；合成B/C结果仅为预演 | 同原计划真人10重复、双合资格人冲突和批准方案内仍缺的真实负向/跨进程关联；不伪造callback、不重跑整套矩阵 | A正式通道/恢复；C仅复用既有权限材料；Root/原Reviewer核收 | 与①共用冻结计划/角色/原事件/等待点；先核已有证据，只补最终受影响链 | 同原plan/decision/callback精确关联，仅一个决定/一组执行生效；跨进程不丢早决定、不增项；负向不产生越权业务，不把技术覆盖说成平台全负向实测 |
-| ③ 新群任务查询/既有结论解释独立样本：PENDING | AC09/BC02 | 877现有read-reply/来源/权限/重放能力与已核解释材料；旧DM调查结果仅作历史，不作本项成功前提 | 在原定新群任务中冻结独立进度查询/既有结论解释样本及实际回复；原两条私聊停止专项恢复、不要求重发 | A查询/解释与原回复链；Root冻结样本/准入；原Reviewer核收 | 依[新整包授权](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)限定task/report/actor/chat/消息来源与回复次数；不得把新样本称原DM已恢复，不新增付费模型调用 | 新样本自身的message/event→task/report→只读结果→回复ledger/平台回执闭合，各按冻结范围一次；无新业务写/重复回复，缺已有解释仍明确NOT_READY，不伪造已有结论成功 |
-| ④ 原T6/v2只读Web与原key GET：已闭合、复用 | AC06/11 | 原真人T6/同record Base v2；9ee下af731 automatic page/replay实际通过并独审无P1/P2；877保留同consumer | 无新增执行缺项，不重做人类登录/批准/关闭或增加展示Gate | A原运行、C展示核对、原Reviewer独审；Root已核收 | [原④正式回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6247929850)继续有效；后续只按源码实际影响复用 | 原closed/v2/原因/处理人/时间、当前Base v2/unique/controlled_sdk、原key GET各1、业务POST0、当轮SDK0和cleanup均按原证据；技术认证单列，不冒成本轮新SDK核实 |
-| ⑤ 最终交付/独审/精确CI/main合后/Issue结案：PENDING | AC08/09及整体 | c460新owned Compose四场景与原键/恢复/cleanup、既有分步运行说明、私有素材；877五绿563 PG与4安全artifact | 最终候选只补受影响链，回填新群/新查询/真实负向原件，再完成同批增审/CI/main/结案；不新增一键完整验收Gate | C原交付文件；A主体/公共接线；原Reviewer独审；Root统一集成/CI/main/结案 | ①–③必要证据到齐、④复用、最终source冻结并核影响；私有媒体不随clone分发或上传raw，不以剪辑补造过程 | 无未解决P1/P2；最终精确CI、Root逐Gate签收、正常main合入及合后同SHA CI、对应Issue结案；C不自行发布/触CI/合main，未完成处保持PENDING |
+| ① 真实群完整20项未知联合确认及独立拒绝：已核收 | AC01/02/03/10 | 上述原Reviewer两群独审、native前后SQL、人类报告及publisher completion；既有金标/owned范围保留 | 本轮两群无新增缺项；rawWS ACK/完整wire未捕获，不倒填 | A执行/关联；原Reviewer独审；Root核收 | source2f/manifest514b、整包索引08923a04；与查询通知HOLD分别记账 | success1 execution/20 items各100/Q2000、20原键15字段complete_unique/v1/attempt1；reject1有效决定/duplicate回原决定、零execution/item/Base；8进程及资源全停保卷、33旧保护一致 |
+| ② 本轮分层重复/冲突/C拒绝：有限Gate已核收 | AC03/04/05/07/10 | 上述两群实际关联及本轮有限负向；旧PG过期/撤权/跨店/篡改/kill、C Web/N01及owned证据各保留范围 | 本轮所签有限Gate无新增缺项，不扩为平台全部负向或新恢复实测 | A执行/恢复；原Reviewer独审；Root核收 | 原5/4真人动作及每卡重复1；技术10仍由真实PG证明，不要求重做真人 | 本轮仅一个有效决定/一组执行生效；重复/冲突/C拒绝按原独审范围签收，不增越权业务；查询通知HOLD不回退本项 |
+| ③ 两条新群查询/既有结论解释样本：已核收 | AC09/BC02 | 新样本原独审PASS及Root固定回执；已核SUCCESS20/既有解释及来源/权限证据 | 本次新样本无新增执行缺项；raw wire/ACK、客户端已读未捕获 | A原执行；原Reviewer独审；Root核收 | 新样本与旧群消息/原DM独立记账；旧查询HOLD、原库/history恢复停止 | 两条各sent/attempt1、SDK6成功；17保护组不变、资源stop；不宣称客户端已读或旧消息恢复 |
+| ④ 原T6/v2只读Web与原key GET：已闭合、复用 | AC06/11 | 原真人T6/同record Base v2；9ee下af731 automatic page/replay实际通过并独审无P1/P2；066保留同consumer | 无新增执行缺项，不重做人类登录/批准/关闭或增加展示Gate | A原运行、C展示核对、原Reviewer独审；Root已核收 | [原④正式回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6247929850)继续有效；后续只按源码实际影响复用 | 原closed/v2/原因/处理人/时间、当前Base v2/unique/controlled_sdk、原key GET各1、业务POST0、当轮SDK0和cleanup均按原证据；技术认证单列，不冒成本轮新SDK核实 |
+| ⑤ 最终交付/独审/精确CI/main合后/Issue结案：PENDING | AC08/09及整体 | c460新owned Compose四场景与原键/恢复/cleanup、既有分步运行说明、私有素材；160d66功能CI567 PG/Web/N01、新查询原独审及既有证据 | 最终候选只补受影响链，本三文档已回填必要实际结果；仍待最终docs/source Review、CI8/main/post1及Issue结案；不新增一键完整验收Gate | C原交付文件；A主体/公共接线；原Reviewer独审；Root统一集成/CI/main/结案 | ①②本轮有限Gate及③新查询已核、④复用、最终source冻结并核影响；私有媒体不随clone分发或上传raw，不以剪辑补造过程 | 无未解决P1/P2；最终精确CI、Root逐Gate签收、正常main合入及合后同SHA CI、对应Issue结案；C不自行发布/触CI/合main，未完成处保持PENDING |
 
-本9h包为540 Agent有效分钟，初分A330/C60/Review90/Root60，由Root总额内调配；本页准备不构成整项M1按时完成承诺。旧用量、风险、SDK/attempt/once与失败均保留，不清零；D1=2026-10-10、D30=2026-11-08、项目300h/P4原计划50h、人工H/L unknown及冻结18页/Penpot/备份不因本包重置。
+当前文档收口池500/完整包1980 Agent有效分钟，C累计上限10分钟（本轮前约5–6、最终文档约3–4），不新增资源或CI次数；原24–25等历史用量和未知项不清零，机器/真人等待另计。此前1480及更早预算/调用账仅为当时记录；本轮新查询SDK6成功与既有群Create20/Update0分别记账，全量累计/once/资源账以Root固定回执为准，不自行推算未报告总数。10月23日为D14，D1=2026-10-10、D30=2026-11-08、项目300h/P4计划50h不重置，人类净工时未知，冻结18页/Penpot/备份保持。
 
 ## 历史材料（仅当时状态，原文保留）
 

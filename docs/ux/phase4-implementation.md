@@ -1,10 +1,31 @@
 # Phase4 / M1 Web 接线交接
 
-## 当前展示与交付说明（2026-10-20，台北时间）
+## 当前展示与交付说明（2026-10-23，台北时间）
 
 唯一当前验收状态见[交付地图](../PHASE4_M1_DELIVERY.md)，人工 Mock 启动步骤见[Compose 说明](../M1_OFFLINE_COMPOSE.md)。本节只整理材料来源与演示文字，不建立另一份验收清单。依据[最新 M1 收口方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)及[9h 整包授权](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)，原两条私聊保持 HOLD、停止专项恢复；进度查询与既有结论解释改为原定新群任务的独立样本，不要求重发，也不把新样本写成原私聊恢复。
 
-静态准备基线为 `877da961afb26a73460ce5af2661582fd2a304ea` / tree `f2f09ebb1aa6d7988fed2a78a497d64de1a7a928`，其精确 CI39386976160 五 job SUCCESS、563 PG 与4个安全 artifact 已由 Root 核收；它不代签未来群、查询或真实负向。最终业务来源由 Root 冻结，main 仍为 P3 基线，M1 尚未完成。当前四个 C acceptance 文件与877相同，0015/0016/0017兼容已集成，本次没有需要变更消费端的来源差异。
+当前已核功能source为 `160d66acf5f21887abdfd5bada2232118755268e` / tree `90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939)五作业SUCCESS、567 PG及Web/N01通过。Next精确16.4.2有限安全升级已保留，原C双文件修复8b08573的本地audit0漏洞、contract67/B04 Mock8/Phase4 Mock22及build仅签其原范围，不代签后续源码。
+
+原真实DM/F02、两轮群5+4动作、20 SKU/20 Base、原T6/v2/只读Web及最后两条新群查询所需真人平台Gate已收齐；新查询原独审PASS，各sent/attempt1、SDK6成功、17保护组不变、资源stop。raw wire/ACK及客户端已读均NOT_CAPTURED，不补写。旧两条群查询与旧原DM查询保持HOLD，原库/history恢复停止；新样本通过不回填旧消息成功。
+
+本三文档为最终文档候选，docs/source Review、CI8、main、post1及Issues结案当前仍PENDING；main仍为原P3基线9d97，不预填未来SHA或完成。Root将后续实际结果统一登记在[固定权威结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)，以该回执收口，不为合后结果循环改文档。
+
+历史owned W2已按[Root安全回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6307662383)独审核收：同066/helper851427，正常两回复、冷重放零新增、精确transport timeout负例、B/C低权拒绝及44 PID/资源清理。原件index SHA256 `c891b22f3f8922c14d1fe9991b2d02f1ea21ebb0079124dfe288e18518d4c209`，review SHA256 `23a67f7844287843c8df4bd0414893a899c39844443f05bebd4d3bc74588d909`。2026-10-21原PG B/C配置parent另已actual native0、create7，旧表及A auth3受保护、清理完成、SDK0；原件与群绑定由A/Root统一封存。这些是owned工具与PG配置事实，均不签平台Gate或当前真人就绪。
+
+### 统一真人操作与通知清单（已执行群的时序记录，非重做指令）
+
+两轮真实group已由[原Reviewer独审核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6335727639)：reject仅1个有效决定，duplicate返回原决定，execution/item/Base均0；success为1 execution、20 items各100件、总2000，20原键/15字段complete_unique、version1/attempt1，Create20/Update0。来源2f/manifest514b、整包索引08923a04；native前后SQL、真实人类报告与publisher completion完整，rawWS ACK/完整wire仍NOT_CAPTURED。8进程及资源全停保卷，33旧保护一致。①两群及②本轮分层重复/冲突/C拒绝的有限Gate已核收，旧技术矩阵保持原范围，查询通知HOLD不使①②回退。
+
+旧查询PG1通知逾时、两条旧群消息持久身份UNKNOWN及Secret访问次数未完整采证均保留在交付地图历史记录；原库/history恢复停止，旧消息HOLD，不要求重发。最后两条新样本已独审PASS，二者按自身消息/来源/回复证据核收，不由新成功补旧失败。
+
+以下清单保留已执行群的原时序约束，不要求再次操作或待命；本清单按[交付地图](../PHASE4_M1_DELIVERY.md)和Root本轮准入执行；旧CI39644522303失败、npm503及owned14 profiles P1/retired事实保留，不用旧失败覆盖当前技术核收，也不重开owned15。
+
+1. 当前2f138技术核收后，仍由Root确认本轮完整source换绑及统一技术准入；随后，先核A/B/C fresh ready及正确群，再按既有父入口机械绑定本轮UTC；两轮均按已审入口和当下状态逐轮绑定，不复用旧截止。不用retired owned14 profiles，不新开owned15。
+2. 新卡送达后，B完整读完并确认三账号可立即操作；G2操作入口就绪后，Root才发实际操作通知。通知实际返回后仍须留至少6分钟用于规定动作和回报，读卡及等待账号准备不计入这6分钟，不提前开G2再等B读卡。现场只做既定动态检查，保持原整体窗口、TTL及清理上限，不临时追加调试或改工具。
+3. 两轮分别按已批准的真人5/4动作完成独立拒绝与20 SKU全假设联合批准，每卡重复1；技术10重复仍由真实PG证明，不要求真人重复10次。逐轮绑定同版本/事实/完整未知键，不能以同计划同时证明批准和拒绝。
+4. 两条进度/既有解释查询只从同一真实SUCCESS20 task/report派生，并由Root/A冻结消息与回复来源；不沿用旧两DM或合成ID。已有解释缺失仍NOT_READY，不新增模型调用。
+5. 收齐各轮实际结果、唯一task→approval→execution→item→Base关联、查询ledger/平台回执及停止清理证据后，C才统一回填原三文档、必要检查并一次本地commit交Root。真实标识/私有raw不入Git。
+6. 资源账仅引用本轮实际source/UTC、调用/attempt、PID/服务退出与保卷结果；未知仍记unknown，机器/真人等待另计。main、合后CI与Issue结案由Root最终receipt核收，不预写完成。
 
 ### 既有材料的准确用途
 
@@ -24,13 +45,13 @@
 
 | 顺序 | 可用叙述 | 所需来源及当前边界 |
 | --- | --- | --- |
-| 1 / 核心运行 | “现有公开Compose分步启动Mock核心服务；四场景展示显式确认、拒绝、终态、关闭及新周期。” | 启动说明以当前冻结源码为准；演示段引用c460实际来源，不把877静态比对说成新冷clone实跑 |
+| 1 / 核心运行 | “现有公开Compose分步启动Mock核心服务；四场景展示显式确认、拒绝、终态、关闭及新周期。” | 启动说明以当前冻结源码为准；演示段引用c460实际来源，不把066来源核对说成新冷clone实跑 |
 | 2 / 原核心结果与恢复 | “原四场景产生3次执行、22个内部项；受控重启后原回执与关闭状态保持。” | 原索引及选帧候选按各自范围引用；完整20行在DTO通过与画面全量可读分记，缺镜头仍是 `not_captured/not_verified` |
 | 3 / 已核真实链与只读结果 | “原真实私聊、F02、T6与同record Base v2已核；原只读页面显示既有关闭结果。” | 引用各原回执，不以Mock原片冒充真实渠道，不把只读页面表述成新SDK投递 |
-| 4 / 新群与独立查询、解释 | “新群样本按自身消息、任务/报告、只读结果与回复回执核收；原私聊专项恢复已停止。” | **PENDING / not_captured**；只在A/Root冻结原定新群对象、当前身份/店铺scope及独立样本后回填。不得用旧DM零行或近时失败事件替代新样本；已有解释缺失仍明确NOT_READY，不新增付费模型调用 |
-| 5 / 必要真实负向与最终交付 | “已有权限/恢复覆盖按原范围复用，余下受影响链及最终交付以核收为准。” | **PENDING / not_captured**；合成B/C预演不是真实身份准入，实际plan/callback/receipt、最终source/tree/CI/main及结案由Root统一配对；不在文字中补造对象或成功结果 |
+| 4 / 新群与独立查询、解释 | “两轮真实群独立拒绝及20项/Q2000成功、两条新查询均已独审核收。” | 新查询各sent/attempt1、SDK6成功、17保护组不变、资源stop；旧查询HOLD。raw wire/ACK及客户端已读NOT_CAPTURED，不由原Mock媒体补画面 |
+| 5 / 必要真实负向与最终交付 | “必要真人平台Gate已收齐，最终文档与集成结案仍待核收。” | docs/source Review、CI8/main/post1及Issues仍PENDING；后续实况只依[固定回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)，不预填未来SHA，不补wire或Secret访问0 |
 
-最终证据到齐后，C仅回填原三份文档中的受影响位置，保留原消息HOLD和全部失败；本次预留10–15个C有效分钟用于实际结果回填。此批不启动PG/API/Web/浏览器、Secret或SDK，不发布或新增设计；冻结18页、Penpot、旧工时和人工H/L unknown不因材料整理改变。
+本三文档已按已核事实统一回填，交原Review及A正常集成；当前池500/包1980，C累计上限10分钟，旧用量/失败与unknown不重置，机器/真人等待另计。10月23日D14、D1/D30/项目300h/P4计划50h保持，人类净工时未知。原媒体仍为PRIVATE_UNPUBLISHED_CANDIDATE_ONLY，自动化/静态剪辑不称连续真人录屏；本批不启动资源、改设计或重录。
 
 ## 历史展示工作稿（2026-10-17至18，原文保留）
 
