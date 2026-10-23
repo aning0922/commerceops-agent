@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "dc6d4b4aeed2d12db629ad1c889540b09ed04687f82028f942bcd7231e1f4ec3",
+  "config_sha256": "97b307b3d350e677783c1ebcc2699ebb7f2c1df5ca44cd48cb534fb792b43038",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -11,19 +11,19 @@
     {
       "rule": "aws-amazon-bedrock-api-key-short-lived",
       "path": "(?:^|/)\\.gitleaks\\.toml$",
-      "reason": "该规则自身固定 regex 声明的精确 TOML 行",
+      "reason": "\u8be5\u89c4\u5219\u81ea\u8eab\u56fa\u5b9a regex \u58f0\u660e\u7684\u7cbe\u786e TOML \u884c",
       "exact_line_sha256": "9d040becc66343baff7c507a4941e130ee7cfc96298d2be04650b11391389e40"
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)docs/DATA_MODEL\\.md$",
-      "reason": "公开 identities 字段说明的精确 Markdown 行",
+      "reason": "\u516c\u5f00 identities \u5b57\u6bb5\u8bf4\u660e\u7684\u7cbe\u786e Markdown \u884c",
       "exact_line_sha256": "3716668c9be9e82d8924d3b13323c5296acb4a80402598a6e4c157dee7628838"
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)docs/contracts/p3-checks\\.json$",
-      "reason": "2a194a8历史公开OpenAPI文件SHA256，Root与独审核实非凭据，仅此旧整行",
+      "reason": "2a194a8\u5386\u53f2\u516c\u5f00OpenAPI\u6587\u4ef6SHA256\uff0cRoot\u4e0e\u72ec\u5ba1\u6838\u5b9e\u975e\u51ed\u636e\uff0c\u4ec5\u6b64\u65e7\u6574\u884c",
       "exact_line_sha256": "4405db53329b7d9b9fb9d5ff920a1e9221dd3ecc57202de57bf838325a03f901",
       "source_commit": "2a194a8bb3b324982b1ba7a7971eb6e852ce06a6",
       "source_line": 7
@@ -31,10 +31,53 @@
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)frontend/evidence/b02-read/validation\\.json$",
-      "reason": "973bf64历史公开B只读验证metadata扫描状态，Root核实非凭据，仅此旧整行",
+      "reason": "973bf64\u5386\u53f2\u516c\u5f00B\u53ea\u8bfb\u9a8c\u8bc1metadata\u626b\u63cf\u72b6\u6001\uff0cRoot\u6838\u5b9e\u975e\u51ed\u636e\uff0c\u4ec5\u6b64\u65e7\u6574\u884c",
       "exact_line_sha256": "2fd5c5a9ece651f39320ee19c19b067b6f388064fd47cc64bdd2c6dc78f53437",
       "source_commit": "973bf6447211f084355d61b9d58adfd95dfa2788",
       "source_line": 27
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "(?:^|/)scripts/p4_acceptance\\.py$",
+      "reason": "348a9f4\u5386\u53f2\u53ea\u8bfbSQL audit action\u516c\u5f00\u540d\u79f0\uff0cRoot\u6838\u5b9e\u6574\u884c\u65e0\u79c1\u6709\u503c\uff0c\u4ec5\u6b64\u65e7\u6574\u884c",
+      "exact_line_sha256": "07e3542d6dbdbc59bbd099207f38277800daec3217315d0f5dde8549e6df32d5",
+      "source_commit": "348a9f4ca0c4159d9b3a2cbdf0921623e5bb5600",
+      "source_line": 3936
+    }
+  ],
+  "historical_findings": [
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_p4_queued_start.py",
+      "source_commit": "72bc597a1978f5dd78853e678ca57e68f0586ab6",
+      "declaration_line": 445,
+      "reported_line": 446,
+      "declaration_sha256": "0e616f2f1e514fb1f6a4f553c3fc314d69384f4a8481ec98614d217a9b3c0017",
+      "reported_line_sha256": "552256c040cb6f95fc625b89b82f08c722790b022a9bf7e8502031d725c59729",
+      "fingerprint": "72bc597a1978f5dd78853e678ca57e68f0586ab6:tests/test_p4_queued_start.py:generic-api-key:446",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_p4_queued_start.py",
+      "source_commit": "be1b79380be3eac042a04f5cd75bb980044cb770",
+      "declaration_line": 445,
+      "reported_line": 446,
+      "declaration_sha256": "0e616f2f1e514fb1f6a4f553c3fc314d69384f4a8481ec98614d217a9b3c0017",
+      "reported_line_sha256": "552256c040cb6f95fc625b89b82f08c722790b022a9bf7e8502031d725c59729",
+      "fingerprint": "be1b79380be3eac042a04f5cd75bb980044cb770:tests/test_p4_queued_start.py:generic-api-key:446",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "declaration_line": 932,
+      "declaration_sha256": "ac094857ba462db6538609bdbce945d7c3a5d7bb7556c3355345e90c5230f6a8",
+      "fingerprint": "7499f7cf08b4058951783a78a9e89ff076cd2ae5:scripts/p4_acceptance.py:generic-api-key:932",
+      "match_sha256": "b122fc8bcb1fed4197e23a043989ac031736a4b8bd62e923c60c69f755fb69f3",
+      "path": "scripts/p4_acceptance.py",
+      "reported_line": 932,
+      "reported_line_sha256": "ac094857ba462db6538609bdbce945d7c3a5d7bb7556c3355345e90c5230f6a8",
+      "rule": "generic-api-key",
+      "source_commit": "7499f7cf08b4058951783a78a9e89ff076cd2ae5"
     }
   ]
 }

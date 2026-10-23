@@ -730,9 +730,8 @@ export interface components {
         /** ExplanationRead */
         readonly P2ExplanationExplanationRead: {
             /**
-             * Schema Version
-             * @default p204-read-v1
-             * @constant
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
              */
             readonly schema_version: "p204-read-v1";
             /**
@@ -785,6 +784,7 @@ export interface components {
             readonly auth_version: number;
             readonly role_shop_grants: readonly components["schemas"]["RoleShopGrant"][];
             readonly capabilities: components["schemas"]["Capabilities"];
+            readonly linked_channels: readonly ("web" | "feishu")[];
         };
         readonly DeploymentConfig: {
             readonly config_version: string;
@@ -802,8 +802,8 @@ export interface components {
             readonly source_mode: "mock";
             /** @constant */
             readonly model_requests_enabled: false;
-            /** @constant */
-            readonly external_sender_enabled: false;
+            readonly external_sender_enabled: boolean;
+            readonly sender_gates: readonly components["schemas"]["SenderGate"][];
         };
         readonly CsrfBootstrap: {
             /** @constant */
@@ -926,13 +926,23 @@ export interface components {
             /** Format: date-time */
             readonly as_of: string;
             readonly error_code: string | null;
+            /** Format: uuid */
+            readonly outbox_id: string;
+            /** @enum {string} */
+            readonly destination_alias: "IM" | "Base";
+            readonly target_version: number;
+            readonly observed_version: number | null;
+            readonly complete_unique_verified: boolean;
+            readonly is_current_version: boolean;
+            readonly attempts: number;
+            readonly verification_mode: ("offline_fake" | "controlled_sdk") | null;
         };
         readonly SyncRead: {
             /** @enum {string} */
             readonly state: "not_requested" | "pending" | "synced" | "failed" | "unknown";
-            /** @constant */
-            readonly sender_enabled: false;
+            readonly sender_enabled: boolean;
             readonly projections: readonly components["schemas"]["Projection"][];
+            readonly sender_gates: readonly components["schemas"]["SenderGate"][];
         };
         readonly AllowedActions: {
             readonly can_decide: boolean;
@@ -1024,7 +1034,7 @@ export interface components {
             readonly task_id: string;
             /** Format: uuid */
             readonly report_id: string;
-            readonly explanation: components["schemas"]["P2ExplanationExplanationRead"];
+            readonly explanation: components["schemas"]["P2ExplanationExplanationRead"] | components["schemas"]["P3TemplateRead"];
         };
         readonly Assumption: {
             readonly key: string;
@@ -1135,8 +1145,8 @@ export interface components {
             readonly decided_by: string;
             /** Format: date-time */
             readonly decided_at: string;
-            /** @constant */
-            readonly decision_source: "web";
+            /** @enum {string} */
+            readonly decision_source: "web" | "feishu";
             readonly reason_code: "INBOUND_ASSUMPTION_DECLINED" | null;
             /** @enum {string} */
             readonly resume_state: "queued" | "waiting_checkpoint" | "consumed";
@@ -1305,6 +1315,17 @@ export interface components {
             readonly result_ref: string | null;
             readonly safe_summary: string;
             readonly recovery: components["schemas"]["RecoveryFact"] | null;
+            /** Format: uuid */
+            readonly record_trace_id: string;
+            /** Format: uuid */
+            readonly task_id: string;
+            /** @enum {string} */
+            readonly relation: "task" | "source";
+            /** @enum {string} */
+            readonly channel: "web" | "feishu" | "worker" | "unknown";
+            readonly tool: components["schemas"]["ToolFact"] | null;
+            readonly references: readonly components["schemas"]["EventReference"][];
+            readonly safe_code: string | null;
         };
         readonly TaskListCounts: {
             readonly queued: number;
@@ -1437,11 +1458,11 @@ export interface components {
             readonly worker_state: "running" | "stopped" | "needs_attention" | "unknown";
             /** @constant */
             readonly graph_concurrency_limit: 1;
-            /** @constant */
-            readonly external_sender_enabled: false;
+            readonly external_sender_enabled: boolean;
             readonly recovery_scan_seconds: number | null;
             readonly approval_ttl_seconds: number | null;
             readonly revalidation_max_age_seconds: number | null;
+            readonly sender_gates: readonly components["schemas"]["SenderGate"][];
         };
         readonly RequestResult: {
             /** @constant */
@@ -1505,6 +1526,171 @@ export interface components {
         readonly LogoutInput: {
             /** @constant */
             readonly schema_version: "p3-web-v1";
+        };
+        readonly SenderGate: {
+            /** @enum {string} */
+            readonly destination_alias: "IM" | "Base";
+            readonly sender_enabled: boolean;
+            /** @enum {string} */
+            readonly reason_code: "NOT_CONFIGURED" | "DISABLED_BY_CONFIGURATION" | "WINDOW_EXPIRED" | "WORKER_NOT_READY" | "CONTROLLED_WINDOW_ACTIVE";
+            readonly verification_mode: ("offline_fake" | "controlled_sdk") | null;
+            /** Format: date-time */
+            readonly as_of: string;
+            readonly worker_ready: boolean | null;
+        };
+        readonly EventReference: {
+            /** @enum {string} */
+            readonly kind: "task" | "report" | "plan" | "approval" | "execution" | "item" | "projection";
+            /** Format: uuid */
+            readonly id: string;
+        };
+        readonly ToolFact: {
+            /** @enum {string} */
+            readonly category: "deterministic" | "sdk_adapter" | "commerce_query" | "sdk_method" | "model";
+            readonly name: string;
+            readonly selected_by_model: boolean;
+            readonly sdk_method: ("im.v1.message.create" | "bitable.v1.app_table_record.create" | "bitable.v1.app_table_record.list" | "bitable.v1.app_table_record.update") | null;
+            readonly verification_mode: ("offline_fake" | "controlled_sdk") | null;
+        };
+        /** ExplanationItem */
+        readonly P3TemplateExplanationItem: {
+            /** Sku Key */
+            readonly sku_key: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            readonly reason: "risk" | "stockout" | "normal" | "no_recent_demand" | "manual_check" | "quality_blocked";
+            /** Text */
+            readonly text: string;
+            /** Facts Hash */
+            readonly facts_hash: string;
+            readonly reference_ids: components["schemas"]["P3TemplateExplanationRefs"];
+        };
+        /** ExplanationRefs */
+        readonly P3TemplateExplanationRefs: {
+            /** Snapshot Id */
+            readonly snapshot_id: string;
+            /** Report Id */
+            readonly report_id: string;
+        };
+        /** TemplateContent */
+        readonly P3TemplateTemplateContent: {
+            /** Facts Hash */
+            readonly facts_hash: string;
+            /**
+             * Narrative Mode
+             * @constant
+             */
+            readonly narrative_mode: "template";
+            /**
+             * Binding Mode
+             * @constant
+             */
+            readonly binding_mode: "caller_references";
+            /** Summary */
+            readonly summary: string;
+            /** Lines */
+            readonly lines: readonly components["schemas"]["P3TemplateExplanationItem"][];
+            readonly reference_ids: components["schemas"]["P3TemplateExplanationRefs"];
+            readonly metadata: components["schemas"]["P3TemplateTemplateMetadata"];
+        };
+        /** TemplateMetadata */
+        readonly P3TemplateTemplateMetadata: {
+            /** Content */
+            readonly content: null;
+            /**
+             * Error Code
+             * @enum {string}
+             */
+            readonly error_code: "NO_PROVIDER" | "TEMPLATE_REQUIRED";
+            /**
+             * Evidence Mode
+             * @constant
+             */
+            readonly evidence_mode: "not_used";
+            /** Provider */
+            readonly provider: null;
+            /** Requested Model */
+            readonly requested_model: null;
+            /** Returned Model */
+            readonly returned_model: null;
+            /**
+             * Prompt Version
+             * @constant
+             */
+            readonly prompt_version: "inventory-explanation-v1";
+            /** Request Id */
+            readonly request_id: null;
+            /** Usage */
+            readonly usage: null;
+            /** Latency Ms */
+            readonly latency_ms: null;
+            /** Pricing Version */
+            readonly pricing_version: null;
+            /** Cost Estimate */
+            readonly cost_estimate: null;
+            /**
+             * Stop Required
+             * @constant
+             */
+            readonly stop_required: false;
+        };
+        /** P3TemplateRead */
+        readonly P3TemplateRead: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            readonly schema_version: "p4-p3-template-read-v1";
+            /**
+             * Analysis Only
+             * @default true
+             * @constant
+             */
+            readonly analysis_only: true;
+            /**
+             * Execution Available
+             * @default false
+             * @constant
+             */
+            readonly execution_available: false;
+            /**
+             * Identity Mode
+             * @default simulated
+             * @constant
+             */
+            readonly identity_mode: "simulated";
+            /** Task Id */
+            readonly task_id: string;
+            /** Source Task Id */
+            readonly source_task_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            readonly source_kind: "p2_original" | "p3_observation";
+            /** Observation Id */
+            readonly observation_id: string | null;
+            /** Explanation Id */
+            readonly explanation_id: string;
+            /** Report Id */
+            readonly report_id: string;
+            /** Snapshot Id */
+            readonly snapshot_id: string;
+            /** Facts Hash */
+            readonly facts_hash: string;
+            /**
+             * Template Version
+             * @constant
+             */
+            readonly template_version: "p3-report-template-v1";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            readonly result: components["schemas"]["P3TemplateTemplateContent"];
         };
     };
     responses: never;

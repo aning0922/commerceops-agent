@@ -1,0 +1,57 @@
+{
+  "source_parent_before_freeze": "12fb7f52bdff38e8a25014a64fa9b8d12f2341eb",
+  "merged_a_source": "545137d014e38ea8ac387139334e92095837dc85",
+  "test_source_note": "parent plus the two minimal generated decision_source enum changes and the new strict consumer test; product byte hashes below",
+  "source_sha256": {
+    "frontend/components/live-readviews.tsx": "e9960ad1cbf26f9d0d1069529f5b4e6819af5971cae3d94c1cd7c7603f3e7181",
+    "frontend/components/live-console.tsx": "9e229dfad6396a7d68bcf8bb876503f3415506c4f046e598b9dbfae5689b77cb",
+    "frontend/components/live-actions.tsx": "5eb9fdc76203cf3c9c580df5a27cd753732ab561214a6e19b40c32d0a0bdf3fa",
+    "frontend/lib/p3-present.ts": "38b4f5ec1135e4c6f2cc17fdfe04ed0ea4293688c637c00967a9888750aa8984",
+    "frontend/lib/p3-read-schema.generated.json": "f140f6c786c2c095eb149d82912cd0a9c88d4852ea844554faf892ca401ce466",
+    "frontend/lib/p3-types.generated.ts": "994eeda76bb07b7e193eefa45c5e17c0d413bdeef2afadd107d1a1093f65381b",
+    "tests/e2e/web/phase4/build-preview.mjs": "beda36252dee2c9880e0edd3aa378bd34c00a8a603ac0240eabffb2e8dd8bba5",
+    "tests/e2e/web/phase4/fixtures.ts": "24db70ba974375a39e5ce8001e7966b174118d75077baa7cbf9f42b0fc4475b8",
+    "tests/e2e/web/phase4/mock-server.mjs": "de5f619511adead40c418391e3092f25ccefb28561bb470e6dd85d2a01112b0b",
+    "tests/e2e/web/phase4/playwright.config.ts": "78e79d08d31cd0b35125b039822415a8135974af936f0559467222bbced630ff",
+    "tests/e2e/web/phase4/preview.tsx": "420b2b92957af6513f63efd9e6c70f7c63a814da93f1d92bbfc83080e7be537f",
+    "tests/e2e/web/phase4/report.fixture.json": "9583fee873153ac534bcaea331516db4c788b61777b308889bbee248c84440fa",
+    "tests/e2e/web/phase4/swc-loader.cjs": "26f7e3af12b1038b61a0d83c96b363c504908d63452676b9bd2bb0f46d96fa2e",
+    "tests/e2e/web/phase4/test-control.ts": "6249d1b7e22134e71e1a3b92d8d25d30c9fc07ea9318093bc16727050ab8d6cc",
+    "tests/e2e/web/phase4/tsconfig.json": "f11d38739fa69df1b21d01b2c95f03d4301148af43925ec6e230b3bcdbb639a1",
+    "tests/e2e/web/phase4/ui.spec.ts": "c2054753487ebf6114e2ac94951f5da5be82856df97e4110719fa590c6f9a6b6",
+    "tests/e2e/web/contracts/p4-m1.spec.ts": "0a576d47d96f1633a10c74240b52461f094c10d03ca9cc51b650d4d6d0728670",
+    "tests/e2e/web/contracts/p4-decision-source.spec.ts": "5a0d66f56e9e2babe89a741975d6f3d432bec070b070e5e56de88a1a18cfd84f"
+  },
+  "quality": {
+    "command": "uv run --frozen python -m scripts.check",
+    "exit": 0,
+    "offline_passed": 1270,
+    "integration_deselected": 358,
+    "warnings": 2,
+    "node_vulnerabilities": 0,
+    "python_packages": 95,
+    "python_vulnerabilities": 0,
+    "scanner_dir_index_history_findings": [
+      0,
+      0,
+      0
+    ],
+    "private_log_sha256": "a0c84990930a77378679e576b81dddcae4582d69f70d4d417e9acebb1e368db8"
+  },
+  "contract": {
+    "passed": 32,
+    "failed": 0,
+    "seconds": 3.0
+  },
+  "ui": {
+    "passed": 6,
+    "failed": 0,
+    "seconds": 13.0,
+    "headless": true,
+    "memory_mock": true
+  },
+  "build_id": "TO6Hj7zslszJvKlp_AsA4",
+  "actual_api_pg_worker_provider": "not_started",
+  "frontend_ci_six_ui_collection": "pending A owner integration",
+  "independent_review_exact_ci": "pending"
+}

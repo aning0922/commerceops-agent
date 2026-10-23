@@ -1,0 +1,62 @@
+# 仅与compose.yml合用的新自有演示profile；无Feishu/model secrets或平台sender。
+x-m1-backend: &m1-backend
+  profiles: [m1-offline-demo]
+  build:
+    context: .
+    dockerfile: infrastructure/Dockerfile
+    target: test
+  user: '${COMMERCEOPS_DEMO_UID:?}:${COMMERCEOPS_DEMO_GID:?}'
+  environment: &m1-environment
+    COMMERCEOPS_MODE: m1-offline-demo
+    COMMERCEOPS_DEMO_PROJECT: '${COMPOSE_PROJECT_NAME:?}'
+    COMMERCEOPS_DB_HOST: postgres
+    COMMERCEOPS_DB_NAME: commerceops
+    COMMERCEOPS_DB_USER: commerceops_app
+    COMMERCEOPS_DB_PASSWORD_FILE: /run/secrets/app_password
+    LANGSMITH_TRACING: 'false'
+  secrets: [app_password]
+  volumes:
+    - '${COMMERCEOPS_DEMO_PRIVATE_DIR:?}:/run/m1-demo:ro'
+  depends_on:
+    postgres:
+      condition: service_healthy
+  stop_grace_period: 30s
+services:
+  m1-seed:
+    <<: *m1-backend
+    environment:
+      <<: *m1-environment
+      COMMERCEOPS_DB_USER: commerceops_owner
+      COMMERCEOPS_DB_PASSWORD_FILE: /run/secrets/owner_password
+      COMMERCEOPS_DB_RUNTIME_PASSWORD_FILE: /run/secrets/app_password
+    secrets: [owner_password, app_password]
+    volumes:
+      - '${COMMERCEOPS_DEMO_PRIVATE_DIR:?}:/run/m1-demo:rw'
+    command: [python, -m, scripts.m1_offline_demo, seed, --directory, /run/m1-demo]
+  m1-api:
+    <<: *m1-backend
+    command: [python, -m, scripts.m1_offline_demo, api, --directory, /run/m1-demo]
+    ports: ['127.0.0.1:${COMMERCEOPS_DEMO_API_PORT:?}:8000']
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/health/live",timeout=2)']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+  m1-worker:
+    <<: *m1-backend
+    command: [python, -m, scripts.m1_offline_demo, worker, --directory, /run/m1-demo]
+  m1-web:
+    profiles: [m1-offline-demo]
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile.m1-frontend
+    environment:
+      COMMERCEOPS_UI_MODE: live
+      COMMERCEOPS_WEB_TRANSPORT: local_http
+      COMMERCEOPS_API_ORIGIN: 'http://127.0.0.1:${COMMERCEOPS_DEMO_API_PORT:?}'
+      NEXT_TELEMETRY_DISABLED: '1'
+    ports: ['127.0.0.1:${COMMERCEOPS_DEMO_WEB_PORT:?}:3000']
+    depends_on:
+      m1-api:
+        condition: service_healthy
+    stop_grace_period: 20s

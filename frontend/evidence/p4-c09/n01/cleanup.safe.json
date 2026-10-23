@@ -1,0 +1,30 @@
+{
+  "projects": [
+    {
+      "project": "p4c09-n01-2ad3770888",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volumes_preserved": 1,
+      "volume_deletion": false
+    },
+    {
+      "project": "p4c09-n01-991fd784b0",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volumes_preserved": 0,
+      "volume_deletion": false
+    },
+    {
+      "project": "p4c09-n01-ceaf737353",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volumes_preserved": 0,
+      "volume_deletion": false
+    }
+  ],
+  "current_docker_network_count": 31,
+  "owned_networks_released": 1,
+  "other_resources_modified": false,
+  "actual_web_tests": 0,
+  "actual_create_calls": 0
+}

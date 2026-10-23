@@ -1,0 +1,52 @@
+{
+  "parent": "0fd4a10820e9d42614ee315d11733a56cb2891c4",
+  "old_source_review": "one P1, not releasable",
+  "new_candidate_review": "pending independent confirmation",
+  "build_id": "PRF-zGvKWNuzyPIZvyChO",
+  "source_sha256": {
+    "docs/ux/phase4-implementation.md": "6ab8d92130ead15a42fe78dea65466443c5e3391b3393d7e9bbe981b62150643",
+    "frontend/lib/p4-n01.ts": "bcefa609340727d23946b52266ffe0b76a1b228e328554a9894d753ce45db259",
+    "frontend/playwright.contract.config.ts": "3ff574565377cd3e87a6cd7fc889c658d9fa04a3f5e11e3eda1dc957da53cc64",
+    "tests/e2e/web/contracts/n01-preflight.spec.ts": "56029d7306cda293add8825a612b92489027ec129c6ec36274a8d50183dd5c3a",
+    "tests/e2e/web/phase4/fixtures.ts": "fee812b57063c39962aaf67e4a7f23d160eba28dc3e1296dbfe9a6d932e805a0",
+    "tests/e2e/web/phase4/playwright.config.ts": "fcdd7ca6821ad66fa16fbf2e2ada066639bc0f8fc25c261c9a1ce5932a2aeb12",
+    "tests/e2e/web/phase4/ui.spec.ts": "388e5e8cc5a97fa11f87bca36c53f453c8288ccddb52f80dd30458470fd44129"
+  },
+  "tests": {
+    "contract-results.json": {
+      "passed": 49,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 3396.752,
+      "sha256": "3df9298b4987c4e2ddd8a500b8396d9821ad106e7f99dc03a0bedeb30838aa65"
+    },
+    "ui-results.json": {
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 33921.511,
+      "sha256": "132b97427fb41936726f2d5555b03086d9b2b614f8545682d60a4339501cfa5c"
+    }
+  },
+  "typecheck": "product and P4 passed",
+  "schema_check": "original22 plus independent N01 passed",
+  "python_fixture_span_check": "all original UI fixtures and Unicode/colon/unit/multi-digit examples match frozen A pure parser",
+  "original_UI_fixture_sha256": "4815c878a685b505d478b8aac092afeb356be06889d2649bb4ca0ee42e8512f9",
+  "original_UI_fixture_unchanged": true,
+  "original_85_evidence": "preserved at exact parent, no overwrite",
+  "actual_n01_web": {
+    "expected": 6,
+    "actual": 0,
+    "not_run": 6,
+    "create_calls": 0
+  },
+  "runtime": {
+    "PG_network_SDK_provider": "not_started",
+    "native_3496_stop_exit": 1,
+    "no_listener": true,
+    "max_owned_mock_minutes": 30
+  },
+  "whole_engineering_check": "1531passed/441deselected belongs to parent, not rerun for frontend-only binding fix",
+  "B04_B01": "original8/13 at parent, not rerun in this fix",
+  "commit_binding": "exact new SHA via Git handoff; report contained in new candidate tree"
+}

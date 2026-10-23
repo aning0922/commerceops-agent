@@ -1,0 +1,21 @@
+# P4集成后原P3读取分页契约的真实失败与最小修复
+
+Root核C52 CI38118162669实际checkout1ee0c6d96261e336eac382122cb562f57b142aef/tree76f198e75579e4616a54e5cdfe54733fb6b6ab9f同52a：phase3原14+14审批分区和后7模块通过，test_p3_pg expected34/actual34/callpass33/exit1，唯一失败test_read_config_version_history_events_and_approval_counts；后44not_run（selected136/actual92），cleanup0/stoptrue。此时safeJSON无assertion trace，Root的新增source事件假设不是根因证明。quality继承原A format缺口失败/frontend实际成功/pg-pair拒绝均另记，不能以单job成功算整个Gate。
+
+作者按Root授权只对这个已捕获失败注册新p4read-3a9cd42254b5/P4-READ-WTfd38，自有UTC2026-10-11T06:49:44.076759开始，固定原截止07:19:44.076759/最多两轮；nohostport/noSDK/provider/旧库/旧secret。git archive精确已审e7/treeb9fd COPY封存250 Python manifest，薄Compose WIP不入镜像。0012 migrate/checkpointer/grant/revision各exit0；首轮1collect/0pass/1call failed，command6.831s，完整JUnit/plugin实际保存，stop0/falsePID0/保卷。
+
+首轮已捕获tests/test_p3_pg.py:580具体AssertionError：actual analysis_started，旧expected approval_prepared。已审A03原events读取合同追加当前task绑定source的inventory_analysis audit，时间升序依次workflow_created→analysis_started→analysis_report_saved→approval_prepared；旧测试第二页固定approval_prepared不适配该正式source trace。该断言证据来自本次精确e7实际PG，不替旧972/610未捕获assertion或其他失败定根因。
+
+最小修复只原该测试分页预期+本文：仍第一页workflow_created/cursor，随后每页精确action/relation/task_id（来源两页必须原source_task_id、审批必须原task）、工具deterministic/model未选、4唯一event/cursor完整终止，最后approval_prepared必须出现一次。原config TTL86400/revalidation900、plan history total1/current version1、mine pending total1/count/item1、history0、NOT_READY409和其来源report绑定原字节保留。不改backend/query/权限/cursor/DTO、不删test/skip或宽泛接受任何事件。
+
+新普通冻结/Root独立增审后才能同原07:19截止内最多第二轮完整原test_p3_pg.py当前34，完整JUnit/plugin/hash/image/低rolefalse3/tempDB0/停止和only-owned no-vdown保卷分别记；未知/截止或第二轮失败停止，不第三轮/盲rerun旧CI。精确e7已在先授权下普通push，CI38119133260当时in_progress保持，不取消或拿旧CI替新源。SDK真实auth/bot/table/fields仍0，后续只读资源包disabled，不因本文解除sender或宣布Phase4/M1通过。
+
+## 第二轮真实失败与停止
+
+Root已核精确27cee70515e6d3fbd3c2fb9c4e933898b50839a0增审noP1/P2/86pure2.53s/34collect/无backend改，释放原窗口第二轮。COPY27cee/250源hash，完整原34实际33passed/1failed、command78.426s/JUnit34/f1/e0/skip0/suite76.451s/testcase74.747s，还是该节点但新AssertionError在tests/test_p3_pg.py:596：bool(next_cursor)为true，作者新增“approval_prepared是终页”的断言错误；原analysis_started/action/relation/model字段全部已匹配。首单node JUnit1/f1/e0/skip0/suite4.909s/testcase3.117s也保留。metadata命令因Gate失败not_run，不假填roleflags/tempDB。本窗口已两轮，明确不再启动第三轮或延长。
+
+实际stop UTC06:57:42.338510 exit0/3containers falsePID0，UID501/project/network/volume标签复核后UTC07:01:20.501585正常only-owned down0无-v/no-prune/no-rmi、network removed/volume+images+private+两轮JUnit保留。安全summary/source manifest/JUnit/诊断及原失败绝对私有目录为WTfd38的runtime/p4read-3a9cd42254b5，Root回执另绑定。不用源修改或offline通过掩盖actual Gate仍失败。
+
+源码精确核原ApprovalRecovery.mark_ready在approval_prepared/真实wait checkpoint后还写原有approval_checkpoint_ready（approval_recovery.py审源中实际audit调用），原测试从未要求approval_prepared是终页。作者第一修复只读了新增来源四事件，未完整核旧ready audit，新增终页预期过早。本次最小普通增量改成五页严格顺序：最后必须原task的approval_checkpoint_ready/tool null，5uniqueevent、该页才cursor nil；前四页及全部旧TTL/history/count/NOT_READY不削弱，不改backend或来源过滤。新源只offline/collect待精确增审与Root另裁实际窗口，不能把第二失败标通过或自动续两轮。
+
+Root追加收口改成完整有界分页：最多100页×1，cursor不重复且实际nil才停止，再与同一task limit100完整响应逐item完全对照，event ID唯一；核精确已确认workflow/source-start/source-report/prepare/checkpoint-ready序列。每个event的relation/task/result_ref/references都绑定原current/source task及同来源report、plan history、mine approval，工具deterministic/modelfalse（ready生命周期tool null），不能把合法tail忽略或接受未知跨主体ref。原TTL/history/counts/NOT_READY原断言仍原字节。此为正常新增最小测试强约束，仍无backend修改、无第三轮PG或SDK。

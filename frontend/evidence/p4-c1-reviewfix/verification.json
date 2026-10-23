@@ -1,0 +1,37 @@
+{
+  "reviewed_parent": "6106195a8be22f905c71837a24f48ca96abc2045",
+  "finding": "P1 task-detail B46 bypass of completed/current operator/source shop UI contract; backend final permissions unchanged",
+  "source_sha256": {
+    "frontend/components/live-console.tsx": "727c01312ab4647148d142b0c8d99cb2dc70ddc995a5d41f573421047a75354a",
+    "frontend/lib/p3-present.ts": "29dc9c3b0ceeb1871b5b42254ada5a9a2238b8e14dd49f36d119db2a728b129e",
+    "tests/e2e/web/contracts/p4-m1.spec.ts": "02cf697b641268679e74d5ff7e8a091eafc34bf654fe396e1ba23b7cc7874660",
+    "tests/e2e/web/phase4/fixtures.ts": "fcc2054745e7f2a740ebf6fe61143ad420ecd880106140871bc96eb800c2bf9a",
+    "tests/e2e/web/phase4/preview.tsx": "15274728218e8a549885e44f9941db5bf3164de4e38a8e126da8f8433cf1b6f3",
+    "tests/e2e/web/phase4/test-control.ts": "901a8cb9cd12fe4a89564c057f8c8df3eae83cb0cc2af468546868afb7c2dc2b",
+    "tests/e2e/web/phase4/ui.spec.ts": "4fa96c3b9465b03f5fe51dd8467eabb87b123fc9fad9fbe173dda8bc8fbbbcab"
+  },
+  "checks": {
+    "product_typecheck": 0,
+    "preview_typecheck": 0,
+    "schema22_check": 0,
+    "production_build_id": "6LHxKG0dBLKGyORdN3i_Y",
+    "contract_passed": 33,
+    "contract_seconds": 2.8,
+    "ui_actual_passed": 8,
+    "ui_seconds": 15.1,
+    "ui_original_preserved": 6,
+    "new_ui_cases": 2,
+    "b04_actual_passed": 8,
+    "b04_seconds": 20.4,
+    "ports_3490_3496_nolisten": true,
+    "api_pg_worker_provider_platform": "not_started",
+    "full_python_suite": "not_repeated; C-only delta, prior610 1270 success preserved"
+  },
+  "private_log_sha256": {
+    ".audit/p4-reviewfix-contract.log": "fc4220b33d4e02c8851b2cc63b3a00177fdab45aab92f82588ada37c0b9560d0",
+    ".audit/p4-reviewfix-build.log": "79e11100c006426a5b4df22a33794105f35623214573905a394d0fdd697560fe",
+    ".audit/p4-reviewfix-ui.log": "ebdba5a58f750e1ace4bb0d7643be0a085806ad5044aba64ba8150a2f37477ee",
+    ".audit/p4-reviewfix-b04.log": "e5e0c96e64c8e35e301afcd1dc9d1620b6c5b0c7bb2559e7ae15b59025dd26a7"
+  },
+  "independent_delta_review_and_final_ci": "pending"
+}

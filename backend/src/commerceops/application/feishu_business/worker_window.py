@@ -1,0 +1,238 @@
+"""同原Gateway/显式任务白名单的正式SDK Worker窗口；默认关闭。"""
+
+from collections.abc import Mapping
+from datetime import UTC, datetime
+from types import MappingProxyType
+from typing import Literal
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from commerceops.adapters.feishu.business_config import BusinessSettings
+from commerceops.application.feishu_business.gateway_window import require_group_operation_scope
+from commerceops.application.feishu_business.recovery import (
+    ApprovedOutboxRecovery,
+    ApprovedQueuedStart,
+    ApprovedTerminalUpdate,
+    ApprovedWorkflowRecovery,
+    RecoveryProjection,
+    VerifiedQueuedV1,
+)
+from commerceops.application.feishu_business.sdk_calls import SDKMethod
+from commerceops.application.feishu_business.sdk_window import SDKWindow
+
+KNOWN70_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {
+        "auth.v3.tenant_access_token.internal": 1,
+        "bot.v3.info": 1,
+        "bitable.v1.app_table.list": 2,
+        "bitable.v1.app_table_field.list": 2,
+        "im.v1.message.create": 2,
+        "bitable.v1.app_table_record.create": 1,
+        "bitable.v1.app_table_record.update": 1,
+        "bitable.v1.app_table_record.list": 4,
+    }
+)
+
+# 单页原适配器实际调用预算；分页/错误额外调用仍计数，耗尽即停止。
+GROUP20_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {
+        **KNOWN70_CAPS,
+        "im.v1.message.create": 4,
+        "bitable.v1.app_table_record.create": 20,
+        "bitable.v1.app_table_record.update": 1,
+        "bitable.v1.app_table_record.list": 42,
+    }
+)
+RECOVERY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {
+        "auth.v3.tenant_access_token.internal": 1,
+        "bot.v3.info": 1,
+        "bitable.v1.app_table.list": 2,
+        "bitable.v1.app_table_field.list": 2,
+        "bitable.v1.app_table_record.update": 1,
+        "bitable.v1.app_table_record.list": 4,
+    }
+)
+
+FIRST_CREATE_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {**RECOVERY_CAPS, "bitable.v1.app_table_record.create": 1}
+)
+READONLY_RECOVERY_CAPS: Mapping[SDKMethod, int] = MappingProxyType(
+    {
+        method: cap
+        for method, cap in RECOVERY_CAPS.items()
+        if method != "bitable.v1.app_table_record.update"
+    }
+)
+
+
+class ControlledWorkerWindow(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+
+    @property
+    def requires_sealed_source(self) -> bool:
+        return self.queued_start is not None or (
+            self.terminal_update is not None
+            and isinstance(self.terminal_update.verified_recovery, VerifiedQueuedV1)
+        )
+
+    schema_version: Literal["p4-worker-v1"]
+    window_id: UUID
+    gateway_window_id: UUID
+    organization_id: UUID
+    shop_id: UUID
+    task_ids: frozenset[UUID] = Field(min_length=1, max_length=5, repr=False)
+    expires_at: datetime
+    caps: dict[SDKMethod, int] = Field(repr=False)
+    enabled: bool = False
+    group_operation_chat_id: str | None = Field(
+        default=None, min_length=1, max_length=512, exclude_if=lambda value: value is None
+    )
+    profile: Literal[
+        "known70",
+        "group20",
+        "approved_outbox",
+        "approved_workflow",
+        "approved_first_create",
+        "terminal_update",
+        "approved_queued_start",
+    ] = "known70"
+    recovery: ApprovedOutboxRecovery | None = Field(default=None, repr=False)
+    workflow_recovery: ApprovedWorkflowRecovery | None = Field(default=None, repr=False)
+    first_create: RecoveryProjection | None = Field(default=None, repr=False)
+    terminal_update: ApprovedTerminalUpdate | None = Field(
+        default=None, repr=False, exclude_if=lambda value: value is None
+    )
+    queued_start: ApprovedQueuedStart | None = Field(
+        default=None, repr=False, exclude_if=lambda value: value is None
+    )
+
+    def window(self, settings: BusinessSettings) -> SDKWindow:
+        checked = type(self).model_validate(self.model_dump())
+        long_group = checked.group_operation_chat_id is not None
+        if checked.group_operation_chat_id is not None:
+            require_group_operation_scope(settings, checked.group_operation_chat_id)
+            if checked.profile != "approved_workflow" or checked.caps.get(
+                "bitable.v1.app_table_record.update", 0
+            ):
+                raise PermissionError("P4_GROUP_OPERATION_SCOPE_REQUIRED")
+        ceilings = {
+            "known70": KNOWN70_CAPS,
+            "group20": GROUP20_CAPS,
+            "approved_outbox": RECOVERY_CAPS,
+            "approved_workflow": GROUP20_CAPS,
+            "approved_first_create": FIRST_CREATE_CAPS,
+            "terminal_update": RECOVERY_CAPS,
+            "approved_queued_start": KNOWN70_CAPS,
+        }[checked.profile]
+        if checked.recovery is not None and checked.recovery.sender_gateway is not None:
+            ceilings = READONLY_RECOVERY_CAPS
+        remaining = (
+            (checked.expires_at - datetime.now(UTC)).total_seconds()
+            if checked.expires_at.utcoffset() is not None
+            else 0
+        )
+        if (
+            self.expires_at.utcoffset() is None
+            or not 15 < remaining <= (600 if long_group else 300)
+            or not self.enabled
+            or (self.organization_id, self.shop_id) != (settings.organization_id, settings.shop_id)
+            or set(self.caps) - set(ceilings)
+            or any(
+                type(value) is not int or not 1 <= value <= ceilings[method]
+                for method, value in self.caps.items()
+            )
+            or self.caps.get("auth.v3.tenant_access_token.internal") != 1
+            or self.caps.get("bot.v3.info") != 1
+            or self.caps.get("bitable.v1.app_table_field.list") not in (1, 2)
+            or self.caps.get("bitable.v1.app_table.list", 0) not in (0, 1, 2)
+            or settings.base_table_id_file is None
+            and self.caps.get("bitable.v1.app_table.list", 0) == 0
+            or self.profile not in ("approved_outbox", "approved_first_create", "terminal_update")
+            and (
+                self.caps.get("im.v1.message.create", 0) < 1
+                or self.caps.get("bitable.v1.app_table_record.create", 0) < 1
+            )
+            or self.caps.get("bitable.v1.app_table_record.list", 0) < 2
+            or self.profile == "group20"
+            and len(self.task_ids) > 2
+            or self.profile != "approved_outbox"
+            and self.recovery is not None
+            or self.profile not in ("approved_workflow", "approved_first_create")
+            and self.workflow_recovery is not None
+            or self.profile in ("approved_workflow", "approved_first_create")
+            and (
+                self.workflow_recovery is None
+                or self.task_ids != frozenset({self.workflow_recovery.task_id})
+                or self.workflow_recovery.worker_window_id != self.window_id
+                or self.workflow_recovery.gateway_window_id != self.gateway_window_id
+                or self.workflow_recovery.expires_at != self.expires_at
+                or self.workflow_recovery.target_key != settings.base_target_key
+            )
+            or self.profile != "approved_first_create"
+            and self.first_create is not None
+            or self.profile == "approved_first_create"
+            and (
+                self.first_create is None
+                or self.first_create.version != 1
+                or self.caps.get("bitable.v1.app_table_record.create") != 1
+                or self.workflow_recovery is None
+                or self.workflow_recovery.approval_id is None
+                or self.workflow_recovery.decision_id is None
+                or self.workflow_recovery.execution_id is None
+            )
+            or self.profile == "approved_outbox"
+            and (
+                self.recovery is None
+                or self.task_ids != frozenset({self.recovery.task_id})
+                or self.recovery.worker_window_id != self.window_id
+                or self.recovery.gateway_window_id != self.gateway_window_id
+                or self.recovery.expires_at != self.expires_at
+                or self.recovery.target_key != settings.base_target_key
+            )
+            or self.profile != "terminal_update"
+            and self.terminal_update is not None
+            or self.profile == "terminal_update"
+            and (
+                self.terminal_update is None
+                or self.recovery is not None
+                or self.workflow_recovery is not None
+                or self.first_create is not None
+                or self.caps != dict(RECOVERY_CAPS)
+                or self.task_ids != frozenset({self.terminal_update.verified_recovery.task_id})
+                or self.terminal_update.worker_window_id != self.window_id
+                or self.terminal_update.gateway_window_id != self.gateway_window_id
+                or self.terminal_update.expires_at != self.expires_at
+                or self.terminal_update.verified_recovery.target_key != settings.base_target_key
+            )
+            or self.profile != "approved_queued_start"
+            and self.queued_start is not None
+            or self.profile == "approved_queued_start"
+            and (
+                self.queued_start is None
+                or self.recovery is not None
+                or self.workflow_recovery is not None
+                or self.terminal_update is not None
+                or self.first_create is not None
+                or self.caps != dict(KNOWN70_CAPS)
+                or self.task_ids != frozenset({self.queued_start.task_id})
+                or self.queued_start.worker_window_id != self.window_id
+                or self.queued_start.gateway_window_id != self.gateway_window_id
+                or self.queued_start.expires_at != self.expires_at
+                or self.queued_start.target_key != settings.base_target_key
+                or len(settings.allowed_open_ids) != 1
+                or settings.allowed_group_chat_ids
+                or settings.f02_enabled
+            )
+        ):
+            raise PermissionError("P4_CONTROLLED_WORKER_WINDOW_CLOSED")
+        return SDKWindow(
+            self.window_id,
+            self.organization_id,
+            self.shop_id,
+            self.expires_at,
+            self.caps,
+            enabled=True,
+            verification_mode="controlled_sdk",
+        )

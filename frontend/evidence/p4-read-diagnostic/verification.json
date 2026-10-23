@@ -1,0 +1,30 @@
+{
+  "parent_before_freeze": "3d1758b2711830b4863d9e93d732bd1429603d49",
+  "scope": "read-only failed read7 safe metadata; one source-verified NOT_READY literal assertion alignment",
+  "source_sha256": {
+    "tests/e2e/web/run_live_batches.py": "43731413134052c071abdc1a44e99716a8cbbf7402b6622d8bc78757e6bc2c21",
+    "frontend/tooling/live-reporter.ts": "c7faabff92eb8ab3b037a6d4994a6bd32c2c7109a9c5239d40970cdf9317dbfc",
+    "tests/e2e/web/live/read.spec.ts": "d74dd9104388972d05edab4eccf91cd614d5bac74810c4837bde21f5a92498d5",
+    "tests/e2e/web/test_live_read_diagnostic.py": "58f4b7f1037df866ae8ecd17e194eed8d2d7320b99aeed75a3b03976724b5737"
+  },
+  "offline_pure": {
+    "command": "uv run --frozen pytest tests/e2e/web/test_live_read_diagnostic.py tests/e2e/web/test_live_batch_owner.py tests/e2e/web/test_live_origins.py -m offline -q",
+    "actual_passed": 60,
+    "seconds": 0.21,
+    "log_sha256": "a69a2226fcf8f546b1433237471111d00952eb5f9051856ada897bc3a7acb1c8"
+  },
+  "static": {
+    "ruff_all": 0,
+    "ruff_format_296_files": 0,
+    "mypy_212_files": 0,
+    "uv_lock_check": 0,
+    "frontend_typecheck": 0,
+    "schema22_check": 0
+  },
+  "real_read7": "not_run",
+  "original_read_failed_node": "not_captured",
+  "source_verified_literal_mismatch": "old read assertion not equal to exact current NOT_READY title; not evidence of old CI actual node",
+  "pg_api_browser_platform_provider": "not_started",
+  "full_python_offline_suite": "not_repeated; only diagnostics pure and existing owner/origins selected",
+  "independent_review_push_owned_read_window": "pending"
+}

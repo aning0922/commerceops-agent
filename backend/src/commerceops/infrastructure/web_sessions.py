@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 import psycopg
 
-from commerceops.application.replenishment.contracts import WebActor, WebFailure
+from commerceops.application.replenishment.contracts import Actor, FeishuActor, WebActor, WebFailure
 from commerceops.application.replenishment.security import (
     csrf_token,
     digest,
@@ -56,11 +56,35 @@ def envelope(db: DB, **fields: Any) -> dict[str, Any]:
     )
 
 
-def actor_guard(db: DB, actor: WebActor) -> dict[str, Any]:
+def actor_guard(db: DB, actor: Actor) -> dict[str, Any]:
     principal = db.execute(
         """SELECT * FROM business.principals WHERE id=%s AND organization_id=%s FOR SHARE""",
         (actor.principal_id, actor.organization_id),
     ).fetchone()
+    if isinstance(actor, FeishuActor):
+        identity = db.execute(
+            """SELECT i.id FROM business.identities i JOIN business.organizations o
+            ON o.id=i.organization_id AND o.feishu_app_id=i.app_id
+            AND o.feishu_tenant_key=i.tenant_key WHERE i.id=%s AND i.organization_id=%s
+            AND i.principal_id=%s AND i.provider='feishu' AND i.app_id=%s
+            AND i.tenant_key=%s AND i.external_subject=%s FOR SHARE OF i""",
+            (
+                actor.identity_id,
+                actor.organization_id,
+                actor.principal_id,
+                actor.app_id,
+                actor.tenant_key,
+                actor.open_id,
+            ),
+        ).fetchone()
+        if (
+            not principal
+            or not principal["enabled"]
+            or principal["auth_version"] != actor.auth_version
+            or not identity
+        ):
+            raise WebFailure("IDENTITY_DENIED", 403)
+        return principal
     session = db.execute(
         """SELECT * FROM business.web_sessions WHERE id=%s AND kind='session' FOR SHARE""",
         (actor.session_id,),
@@ -86,7 +110,7 @@ def actor_guard(db: DB, actor: WebActor) -> dict[str, Any]:
     return principal
 
 
-def role_scope(db: DB, actor: WebActor, shop: UUID, role: str) -> bool:
+def role_scope(db: DB, actor: Actor, shop: UUID, role: str) -> bool:
     actor_guard(db, actor)
     row = db.execute(
         "SELECT business.lock_p3_permission(%s,%s,%s,%s,%s,%s) AS allowed",
@@ -102,7 +126,19 @@ def role_scope(db: DB, actor: WebActor, shop: UUID, role: str) -> bool:
     return bool(row and row["allowed"])
 
 
-def deployment(config: WebConfig, timezone: str | None = None) -> dict[str, Any]:
+def deployment(
+    config: WebConfig,
+    timezone: str | None = None,
+    *,
+    db: DB | None = None,
+    organization: UUID | None = None,
+    shops: list[UUID] | None = None,
+) -> dict[str, Any]:
+    from commerceops.infrastructure.feishu_delivery_read import external_enabled, sender_gates
+
+    gates = (
+        sender_gates(db, organization, shops) if db is not None and organization is not None else []
+    )
     return {
         "config_version": config.config_version,
         "shop_timezone": timezone,
@@ -115,7 +151,8 @@ def deployment(config: WebConfig, timezone: str | None = None) -> dict[str, Any]
         "transport_mode": config.transport_mode,
         "source_mode": "mock",
         "model_requests_enabled": False,
-        "external_sender_enabled": False,
+        "external_sender_enabled": external_enabled(gates),
+        "sender_gates": gates,
     }
 
 
@@ -347,6 +384,13 @@ class SessionStore:
             if "admin" in roles
             else "/access",
         }
+        bridge = db.execute(
+            """SELECT 1 FROM business.identities i JOIN business.organizations o
+            ON o.id=i.organization_id AND o.feishu_app_id=i.app_id
+            AND o.feishu_tenant_key=i.tenant_key
+            WHERE i.provider='feishu' AND i.principal_id=%s AND i.organization_id=%s LIMIT 1""",
+            (actor.principal_id, actor.organization_id),
+        ).fetchone()
         return envelope(
             db,
             principal={
@@ -356,11 +400,17 @@ class SessionStore:
                 "auth_version": actor.auth_version,
                 "role_shop_grants": grants,
                 "capabilities": capabilities,
+                "linked_channels": ["web", "feishu"] if bridge else ["web"],
             },
             csrf_token=self._csrf(row),
             absolute_expires_at=row["absolute_expires_at"],
             idle_expires_at=row["idle_expires_at"],
-            config=deployment(self.config),
+            config=deployment(
+                self.config,
+                db=db,
+                organization=actor.organization_id,
+                shops=sorted({g["shop_id"] for g in grants}),
+            ),
         )
 
     def read(self, token: str | None) -> dict[str, Any]:

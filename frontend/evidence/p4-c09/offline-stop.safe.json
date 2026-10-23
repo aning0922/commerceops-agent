@@ -1,0 +1,51 @@
+{
+  "observed_at_utc": "2026-10-11T20:27:37.942727+00:00",
+  "no_listeners": true,
+  "native_checks": [
+    {
+      "port": 3410,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3411,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3412,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3413,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3414,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3415,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3490,
+      "exit_code": 1,
+      "listeners": 0
+    },
+    {
+      "port": 3496,
+      "exit_code": 1,
+      "listeners": 0
+    }
+  ],
+  "maximum_lifetime": "30 minutes per Playwright config",
+  "b01_start_uid_cwd_probe": "not_verified; probe occurred after successful teardown",
+  "b01_run_source": "Playwright new webServer, reuseExistingServer=false, exact checkout config",
+  "b01_build_id": "5fDxN-Axb18MAcYy903OP",
+  "API_PG_provider": "not_started by offline suites"
+}

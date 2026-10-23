@@ -1,0 +1,245 @@
+{
+  "source": "frozen A deterministic parser; offline fixture only, no API/PG/provider",
+  "source_commit": "3c393e33d7a9c479a87b0f0db1475b61681ff535",
+  "parser_sha256": "b98d0328dbdcf46ebc02bc7de57aa88695e3b673049c30d37ad7ea62aca3e1c6",
+  "cases": [
+    {
+      "text": "分析库存 L=3 R=7 S=2",
+      "result": {
+        "schema_version": "p4-n01-web-v1",
+        "status": "ready",
+        "reason": "EXPLICIT_PARAMETERS",
+        "shop_id": "00000000-0000-4000-8000-000000000065",
+        "source": {
+          "source_mode": "mock",
+          "dataset_version": "inventory-v1",
+          "fixture_case": "baseline",
+          "evidence_mode": "not_used"
+        },
+        "window": {
+          "kind": "last_seven_complete_days",
+          "start": "2026-09-30T16:00:00Z",
+          "end": "2026-10-07T16:00:00Z",
+          "timezone": "Asia/Shanghai",
+          "as_of": "2026-10-08T02:00:00Z",
+          "source": "mock_fixture"
+        },
+        "scope": {
+          "kind": "all_fixture_products",
+          "shop_id": "00000000-0000-4000-8000-000000000065",
+          "source": "selected_shop"
+        },
+        "candidates": [
+          {
+            "name": "L",
+            "value": 3,
+            "source": "explicit_text",
+            "start": 7,
+            "end": 8
+          },
+          {
+            "name": "R",
+            "value": 7,
+            "source": "explicit_text",
+            "start": 11,
+            "end": 12
+          },
+          {
+            "name": "S",
+            "value": 2,
+            "source": "explicit_text",
+            "start": 15,
+            "end": 16
+          }
+        ],
+        "missing": [],
+        "draft": {
+          "source_mode": "mock",
+          "dataset_version": "inventory-v1",
+          "fixture_case": "baseline",
+          "L": 3,
+          "R": 7,
+          "S": 2
+        },
+        "requires_confirmation": true,
+        "execution_available": false
+      }
+    },
+    {
+      "text": "分析库存 L=4",
+      "result": {
+        "schema_version": "p4-n01-web-v1",
+        "status": "clarify",
+        "reason": "MISSING_PARAMETERS",
+        "shop_id": "00000000-0000-4000-8000-000000000065",
+        "source": {
+          "source_mode": "mock",
+          "dataset_version": "inventory-v1",
+          "fixture_case": "baseline",
+          "evidence_mode": "not_used"
+        },
+        "window": {
+          "kind": "last_seven_complete_days",
+          "start": "2026-09-30T16:00:00Z",
+          "end": "2026-10-07T16:00:00Z",
+          "timezone": "Asia/Shanghai",
+          "as_of": "2026-10-08T02:00:00Z",
+          "source": "mock_fixture"
+        },
+        "scope": {
+          "kind": "all_fixture_products",
+          "shop_id": "00000000-0000-4000-8000-000000000065",
+          "source": "selected_shop"
+        },
+        "candidates": [
+          {
+            "name": "L",
+            "value": 4,
+            "source": "explicit_text",
+            "start": 7,
+            "end": 8
+          },
+          {
+            "name": "R",
+            "value": 7,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          },
+          {
+            "name": "S",
+            "value": 2,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          }
+        ],
+        "missing": [
+          "R",
+          "S"
+        ],
+        "draft": null,
+        "requires_confirmation": true,
+        "execution_available": false
+      }
+    },
+    {
+      "text": "分析库存 L=3/4 R=7 S=2",
+      "result": {
+        "schema_version": "p4-n01-web-v1",
+        "status": "clarify",
+        "reason": "INVALID_PARAMETERS",
+        "shop_id": "00000000-0000-4000-8000-000000000065",
+        "source": {
+          "source_mode": "mock",
+          "dataset_version": "inventory-v1",
+          "fixture_case": "baseline",
+          "evidence_mode": "not_used"
+        },
+        "window": {
+          "kind": "last_seven_complete_days",
+          "start": "2026-09-30T16:00:00Z",
+          "end": "2026-10-07T16:00:00Z",
+          "timezone": "Asia/Shanghai",
+          "as_of": "2026-10-08T02:00:00Z",
+          "source": "mock_fixture"
+        },
+        "scope": {
+          "kind": "all_fixture_products",
+          "shop_id": "00000000-0000-4000-8000-000000000065",
+          "source": "selected_shop"
+        },
+        "candidates": [
+          {
+            "name": "L",
+            "value": 3,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          },
+          {
+            "name": "R",
+            "value": 7,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          },
+          {
+            "name": "S",
+            "value": 2,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          }
+        ],
+        "missing": [
+          "L",
+          "R",
+          "S"
+        ],
+        "draft": null,
+        "requires_confirmation": true,
+        "execution_available": false
+      }
+    },
+    {
+      "text": "只分析 SKU-A 最近三天 L=3 R=7 S=2",
+      "result": {
+        "schema_version": "p4-n01-web-v1",
+        "status": "unsupported",
+        "reason": "UNSUPPORTED_TEXT",
+        "shop_id": "00000000-0000-4000-8000-000000000065",
+        "source": {
+          "source_mode": "mock",
+          "dataset_version": "inventory-v1",
+          "fixture_case": "baseline",
+          "evidence_mode": "not_used"
+        },
+        "window": {
+          "kind": "last_seven_complete_days",
+          "start": "2026-09-30T16:00:00Z",
+          "end": "2026-10-07T16:00:00Z",
+          "timezone": "Asia/Shanghai",
+          "as_of": "2026-10-08T02:00:00Z",
+          "source": "mock_fixture"
+        },
+        "scope": {
+          "kind": "all_fixture_products",
+          "shop_id": "00000000-0000-4000-8000-000000000065",
+          "source": "selected_shop"
+        },
+        "candidates": [
+          {
+            "name": "L",
+            "value": 3,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          },
+          {
+            "name": "R",
+            "value": 7,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          },
+          {
+            "name": "S",
+            "value": 2,
+            "source": "demo_assumption",
+            "start": null,
+            "end": null
+          }
+        ],
+        "missing": [
+          "L",
+          "R",
+          "S"
+        ],
+        "draft": null,
+        "requires_confirmation": true,
+        "execution_available": false
+      }
+    }
+  ]
+}

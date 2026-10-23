@@ -452,7 +452,7 @@ class ApprovalRunner:
             and transition["transition_hash"] == transition_digest(transition)
         )
 
-    async def reconcile(self) -> None:
+    async def reconcile(self, *, task_ids: frozenset[UUID] | None = None) -> None:
         await self.store.session.check()
         async with await open_async(self.store.settings) as db:
             cur = await db.execute(
@@ -461,13 +461,18 @@ class ApprovalRunner:
              JOIN business.approvals a ON a.task_id=t.id AND a.plan_id=t.active_plan_id
              JOIN business.jobs j ON j.task_id=t.id AND j.dedupe_key='p3:'||t.id::text
              WHERE t.kind='inventory_replenishment' AND t.workflow_version=%s
+             AND (%s::uuid[] IS NULL OR t.id=ANY(%s))
              AND (t.state IN ('awaiting_approval','needs_reapproval') OR
  (t.state='needs_attention'
              AND t.failure_code='WORKER_TERMINATION_UNCONFIRMED'))
              AND (a.ready_at IS NULL OR (a.status='pending' AND
  a.expires_at<=clock_timestamp()))
              ORDER BY t.created_at,t.id LIMIT 20""",
-                (WORKFLOW_VERSION,),
+                (
+                    WORKFLOW_VERSION,
+                    None if task_ids is None else list(task_ids),
+                    None if task_ids is None else list(task_ids),
+                ),
             )
             rows = await cur.fetchall()
         async with checkpointer(self.store.settings) as saver:

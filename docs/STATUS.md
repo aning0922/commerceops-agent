@@ -1,5 +1,19 @@
 # 阶段状态与主控交接
 
+Phase4/M1当前导航（2026-10-23，台北，D14）：所有必要业务/真人平台Gate已由Root及原Reviewer核收，状态为`business_gates_passed / ready_for_final_review`。source160d66a/tree90fc8cc及CI39909049939五绿/567PG已核；两新群查询各sent/attempt1、新SDK6/两窗、17保护组不变、父native0/清理保卷，合同scoped109/11与全库142/17分列。最后仅A/C文档合批、原Reviewer最终增量审查、Root预留CI8/main/合后CI与Issues实际结案，详见[第70节](#70-phase4m1业务门槛已核收与最后文档合批)及[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)。正式complete不预写；下方旧导航及第1–69节均按原日期保留，旧查询HOLD/失败/unknown不重开，Phase5未授权。
+
+最新Hosted/P4导航（2026-10-13，D4）：人类已明确授权仓库Public/保护/fork、恢复GitHub Hosted Actions并继续P4，随后结束本地CI；以[Root阶段回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6138181766)为准。原fd38/codex/phase4-feishu/PR43继续，已核main9d97，P4/M1仍in_progress、Issues39–42未结案；localCI未完成，1341及两未提交180预算文件/旧失败私有资产保留，不带入P4。40dc的Hosted38210480544 attempt2实际checkout7add/tree245933：quality/phase3/pg-pair SUCCESS，frontend/n01 FAILURE；原helper核281+160=441完整PG、交集0/G1三/G2六/cleanup0/stopping confirmed，Hosted临时PG down --volumes不记保卷，旧私有卷另保留。Root释放普通合入[已审C6ed9](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6138319062)两spec：作者62+48相关pure，独立Web noP1/P2/type/13 closed契约719ms/69pure1.22s；同身份合法内存session生命周期、角色隔离/fresh context/page/逐body真实严格DTO核验，401/403不刷新重登，第六例真实revoke保留。组合独审与新精确五项Hosted尚待，actual read7/write10/items7/N01six、SDK/真人/全M1仍pending，不以源码或旧441代签。仅两已审spec与必要三事实文档；backend/scripts/CI/锁/Compose/B/产品UI不改，无新PG/浏览器/SDK/provider/push/main。D1=10-10/D30=11-08/原300h/P4 50h估计与18页冻结不重置，人工H/L not_reported；下方旧Private/暂停/候选导航按当时历史保留，不覆盖本次直接授权。
+
+最新A09导航（2026-10-12）：Root核A08 efcd/Core无P1P2/精确四CI38164348959 SUCCESS及422完整PG配对后释放原A/C功能合批。A唯一backend串行实现单原workflow跨Gateway可信恢复、N01 Web-only零业务写入preflight闭合DTO/API；原P3 22合同字节保留/N01第23操作，PRD-J01两原句缺LRS澄清、不截断或猜参，C独占本地确认/fresh原CreateNewCycle与UX4，B/C产品0差。作者新恢复6+原回归15=21PG及N01完整13PG通过，首5恢复fail及N0111/13pass两夹具fail/无children hashfalse完整保留；真实SDK/Factory/Secret/provider0/自有资源已停保卷。PG-only/ASGI不冒正式SDK/真人/全BC02/M1；完整检查1531offline/441deselected/93.00s exit0，冻结独审/新精确CI待。原main9d97/Issues39–42 Open/P4 in_progress，D1/D30/300h/P4 50h/H-L not_reported/18页不变；A09实际19:03:09Z→01:03:09Z≤6h，仅offline新PG/同源三，不续A08旧20:37:16Z SDK诊断。详见[PHASE4_A09](PHASE4_A09.md)及[STATUS48](STATUS.md#48-a09跨gateway原workflow与n01-web-preflight候选)；下方旧HOLD/pending是历史。
+
+最新A08共同准入P1（2026-10-12）：cdbc复合freeze/push后Root Core发现T1共同selector未绑定当前App/Tenant/白名单和身份原映射；先前recover/claim/reconcile白名单修复确认有效，cdbc仍HOLD。CI38163010570 actual cdbc/attempt1/completed/cancelled；三主job cancelled、pg-pair download-artifact failure/union skipped分记，不归新PG断言失败。原A正在既有截止内最小补共用准入及p2p/group真实PG负例、SDK/Graph/queue之前拒绝；pure64已过，新PG/完整check/新freeze独审CI pending。详情[当前修复](PHASE4_A08.md)；main9d97/Issues Open/SDK与后续A09未释放，下方旧当时证据保留。
+
+当前A08（2026-10-12）：main9d97/Phase4及M1 in_progress/Issues39–42 Open。source9a四CI38151837270/383PG/三Web批13hash由[Root](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6110882129)核过，随后controlled Worker全库recover/claim/reconcile P1阻断SDK；A08贯穿原T1+真实source白名单、有限group20与原键outbox恢复，不复活failed/不刷新审批TTL。当前作者纯1464pass/410integration deselected及同窗五kill PG通过，完整受影响矩阵/实际imports核对进行中，freeze/独审/新CI尚未填。原配置CAS/第二live失败与停止见[47节](#47-a08有限业务原键恢复与scope-p1候选)及[详细证据](PHASE4_A08.md)；新真人T1仅queued、Worker/业务SDK0，旧Gatewayreap not_verified不补造。B/C产品不写，已审C docs967d待必要验证及源码提交后普通合；完整跨窗workflow/正式SDK/真人/M1验收仍pending。原预算日期/人工not_reported/18页/风险资源保持；SDK关闭，下方旧“当前”保持历史。
+
+当前Phase4导航（2026-10-11）：Phase4/M1继续in_progress，main基线9d97c19009d932036809ac3e2638bb68f4b7f765/四CI38093693335 SUCCESS/P3 Issues33–35 CLOSED保持。Root已核read-source06cd2af59c338272ad5a0d117da9f8d7cef62094的四CI38120338660全SUCCESS，完整PG union236+139=375（不等后续source43 CI），权威Issue39#6106924247；source43c40bb955a1ce4ef07704173759983eb8c8f4f5/tree25dde89c392b82b71060b05812f38807fb9bbcf2原Core无P1/P2，A06实际PG1通过。M1实际owned Compose/known Q70/T6/10组持久hash恢复通过，C known只读/20拒绝零项/20完成+单T6通过；第4cycle needs_reapproval/v1已批v2待批/零执行，整体AC08未通过，不补批准或降低版本绑定。最终4workflow/2execution/21items/2070内部units，SDK/platform/provider0；本项目stop/down no-v/资源0/保卷。细节与失败分层见STATUS45及PHASE4_ACCEPTANCE，Issue40#6107403734/#6107433806；source43新精确CI、正式Base/Card/Feishu/human/M1/Phase4结案仍pending。A独占共享后端/锁/CI/Compose/阶段文档，B Base三模块与C frontend/npm/UX原owner不变。UX8项及N01仅Issue42#6107359838待授权排期；Web现结构化，PRD+冻结M02自然语言BC02差异待合同核对，不宣称已实现、不擅移M2或改Gate。D1=10-10/D30=11-08/300h/P4 D13–17/50h估计与人工H/L not_reported、18页冻结、旧失败/unknown/Issue23风险及原资源保持；无Phase5/Woo/生产/扩权/新成员/新paid/强推/破坏清理。下方旧pending与未授权保持历史，不覆盖本导航。
+
+历史Phase4首导航（2026-10-11）：用户已直接授权Phase4/M1持续开发，阶段#39/A#40/B#41/交付#42；本批仅离线与全新自有PG，无旧secret/env/DB读取、无SDK真实认证/长连接/平台读写/provider调用。已核main基线9d97c19009d932036809ac3e2638bb68f4b7f765、同SHA四CI38093693335 SUCCESS、P3 Issues33–35 CLOSED，权威结案[Issue33#6103315682](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)。A唯一共享合同/迁移/业务/outbox/Worker/Graph/锁/CI/Compose/阶段文档owner，B新模块按Issue41独占；[p4-v1候选](contracts/p4-v1.md)共享d039已由Root独审冻结，主体/真实平台门槛另核，当前P4正式平台Gate not_run，主体离线/PG候选见STATUS44，M1未验收。D1=10-10/D30=11-08/300h、P4固定D13–17/50h=A18+B14+交付8+审核集成10估计分配不重置，人工H/L not_reported。旧P3历史失败、Issue23风险、1057offline/337PG/24Web与资源/设计保留；无Phase5/Woo/生产/扩权/新成员/新增paid/强推/破坏清理。下方旧未授权/pending是历史。
+
 当前导航（2026-10-11）：Phase3业务Gate已验收通过，d7独审5480963449及合前四CI38089663824 SUCCESS；Root已正常合PR37，已核代码基线main ecbc83f370d7fef87d96fc74549dc13c6f84be9f/tree9d245，同SHA四CI38090933423全部SUCCESS，[权威主控回执6102921562](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6102921562)。业务证据集中于[验收表](PHASE3_ACCEPTANCE.md#当前业务gate与main回执)，状态见第43节。当前仅四文档收口；文档最终提交/独审/精确CI及Issue33/34/35关闭由Root结案receipt另记，Issues仍Open，不内部自指未来SHA或预写已关闭。历史失败/风险/预算/平台边界保持。
 
 历史A05两修复集成导航（2026-10-11）：Root已核A精确087恢复测试/Core无P1P2+独立19PG94.91s/19pure0.89与B精确849 Linux only-owned/Web无P1P2+27contract/Linux ARM8/22.1s；原CI972双job失败、partial28actual27pass/73not_run、旧236/G1G2cleanup0成功及unknown assertion trace全部保留。原Core外层zsh reserved status wrapper1不冒称整wrapper0；B两次SWC准备环境0test失败及随后公开registry锁定npm准备/断网ARM8成功分记，Root停止回执核对另行记账。A已普通merge两精确fix无冲突，backend/锁/sharedCI原195行不改；新x64四CI/修复后real24/main/postmainCI/Issue33仍pending，阶段in_progress。详见[两修复集成](PHASE3_A05_TWO_FIXES.md)及[STATUS42](STATUS.md#42-a05-两项修复独审核收与正常集成候选)。下方原候选/失败/当时待核按历史保留。
@@ -709,3 +723,669 @@ Root核d7最终Review5480963449无P1/P2、合前精确四CI38089663824 SUCCESS�
 A原WT62c8/原branch仅正常fetch及ff-only同步已发生ecbc，当前唯一收口AGENTS/STATUS/ROADMAP/验收四docs，不增业务/测试/CI/锁/原UX。已知业务Gate与实际代码main四CI明确通过；正式文档提交/独审/最终CI及Issue33/34/35关闭由Issue33 Root结案receipt另记，Issues现在仍Open，不内部自指未来文档SHA/CI或制造第三轮completed文档循环。Root后续核文档delta/精确CI再正常合文档main及合后CI、关Issue；A不自行合main/关Issue或进入Phase4。
 
 972原assertion traceunknown、新受控gap不宣称彻底复现旧CI根因、Core wrapper1/pytest0、SWC准备0test失败及ARM→当前x64实证、333/988/旧CI失败取消/Review旧fullcheck not_verified、Issue23 not_identified/risk_accepted保留。D1=2026-10-10/D30=2026-11-08、原Phase3 D7–D12/60h=A32+B18+Review10计原300h，不重置预算日期；Agent墙钟与机器运行/等待按实际日志区分，人工H/L not_reported，不伪造已用/剩余小时。human_feishu/human_web、正式Base/Card/outbox外写/BC02BC06/Woo/生产/新增paid/Phase4/M1整体等未授权或未验收边界不变；历史P1有限G3/P2只读有限参数不替代，M1设计18页冻结无新视觉批次，P1/P2/原B/Penpot资产、凭据与卷保留。
+
+
+## 44. Phase4直接授权与P4-A首批合同候选
+
+Phase3正式结案main9d97c19009d932036809ac3e2638bb68f4b7f765/同SHA四CI38093693335 SUCCESS/Issues33–35 CLOSED，以[Root回执](https://github.com/aning0922/commerceops-agent/issues/33#issuecomment-6103315682)为准；第43节的文档收口pending为当时快照。用户明确授权[Phase4 #39](https://github.com/aning0922/commerceops-agent/issues/39)，A#40/B#41/交付#42分工如合同。
+
+P4-A新独立WTfd38，初始工作区干净、detached HEAD精确9d97，普通创建codex/phase4-feishu。Docker client/server29.6.2已连通，uv按原锁安装项目依赖并下载固定Node24.21/Gitleaks8.30.1到本WT.tools；无全局环境修改、旧secret/env/DB读取或平台认证。共享[p4-v1候选](contracts/p4-v1.md)与strict DTO/Protocol位于application/feishu_business/contracts.py；Root独审后才跨线冻结，B专属路径不写。
+
+首批合同Gate与实际命令结果以原PR/冻结source回执另记，不预填未来SHA/CI。P4实际PG/真人Feishu/Base/Web/性能/cleanCompose仍not_run，M1未验收；本批继续离线及全新自有PG切片，无真实平台调用。预算/人时/旧失败及资源边界以上方导航为准。
+
+合同首候选d75ec5abcf734bf136b6ed667fbe5fb293e2301f/26offline已提交PR43，首独审[5481706893](https://github.com/aning0922/commerceops-agent/pull/43#pullrequestreview-5481706893)指出P1：ProjectionResult缺唯一request/result版本及内容绑定；26独立离线/type/73MD/三scope0不抵阻断。首CI[38107482765](https://github.com/aning0922/commerceops-agent/actions/runs/38107482765)仅绑定d75，结果以Root回执核，不由当前WIP或未来CI覆盖。f507f5deb8523e51f395c1821d3b3980d6405380补明确null清空，仍未冻结跨线接口。
+
+Root已独审交付文档5ff1e1db58093fd201fa348e2d59d0cbca3153ed无P1/P2并授权普通合入；A在f507正常merge成6c2271ef02fbea23323d4f4f013362fc004c3fe9（parents f507+5ff），仅增加[PHASE4_M1_DELIVERY](PHASE4_M1_DELIVERY.md)，无冲突/原文档字节保持。当前共享绑定校验最小修复49offline/0.05s通过，Root复审及精确新CI尚待；其他A身份/SDK/PG主体WIP不混合同修复冻结。
+
+Root裁决40例/95%/provider三轮属Phase6/M3，M1复用P2actual1轨迹及降级证据，不变prompt/model/路由、不新调用。必要新性能冻结100受控入站/20完整baseline离线分析/恢复扫描≤30s，未跑不标通过；原TEST_PLAN/预算/历史不删除。
+
+P4-A01主体首候选已完成作者1120offline/89.90s、原337+19实际PG完整356及跨入口2PG/11.70s；SDK12/分区59及Root合同d039四CI回执分层，见[PHASE4_A01](PHASE4_A01.md)/[作者安全摘要](contracts/p4-a01-author-evidence.json)。原18失败/cast、235+1表集合、18+1remap、OAS62+1、性能TerminationRequired/保护拒启动皆保留。性能100/20/调度候选有实际统计，但预冻结sample/gold与实际pendinginterrupt补证待，不能称M1性能全验收。最后PGUTC03:51:14.468721早停/stop0/falsePID0/保卷，原03:54:10截止已结束，无续期。新主体source以PR43 freeze回执绑定，独审/精确CI/正式renderer/outbox/Base/完整Web读合同/clarification-new_cycle/真人M1均待Root核收；不写未来CI/main或关闭Issue。
+
+A01 source5f68553及普通合已审B1ec1后545137d/tree9c02由Root核源码独审无P1/P2；545CI38110473072三jobquality/phase3/pg-pair成功、frontend生成schema同步失败。完整358=236+101+21的实际CI精确集合已核，不将Core另轮仅collect21/exit0且actualcount/time/rolebits not_verified冒称独立21通过。B150offline加入后作者1270offline/87.21s，与旧选取104差别分记；B八blob同冻结原源。
+
+A02作者候选完成固定澄清/inbox窄reply/零业务对象、SDK原UUID发送与同Worker维护、全20冻结计划纯renderer、性能gold/真pending补证，见[PHASE4_A02](PHASE4_A02.md)/[安全摘要](contracts/p4-a02-author-evidence.json)。30PG/56.65s与另1WorkerPG/6.84s plugin完整，1284offline/88.94s/367integration deselected；100本地入站p95=.013282208s/20预定完整gold分析p95=.805768959s/真pending idle及busy下一点均实修ready（scan1s配置），没有平台网络/human/provider。低权3flagsfalse/tempDB0/revision0009；原新owned20min UTC04:22:39.414183→04:42:39.414183，04:33:01 stop0/falsePID0、04:34:09仅own down0/network_removed/保卷image-private。A02本地源码冻结及独审/新CI另核，正式Card/outbox/Base/v1unknown→v2/四读组/20runtime/cleanCompose/真人未完成。
+
+C610/CI38111683908当前FAILURE，A只读核[Issue40回执](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6105516903)：quality成功；原approval模块28expected/28actual/27callpass、末card_only call约0.207s后遇300秒硬截止，exit137/timedout/stoppingtrue/cleanup0，后94not_run，assertion trace无failed不猜恢复根因。real frontend read批test_exit1/invariants_passedtrue/PGfalsePID0但failure_category/null且具体nodeunknown，write/items/上传not_run；pg-pair正确失败。Root范围裁决前不重跑/取消/新PG或改原截止；旧545成功不替新Gate，C新cycle P1未解除不合。
+
+Root后核A02精确5ae Core无P1/P2/独立30PG53.159s+另1Worker1.462s、首次漏诊断标记0test保持；已普通push5ae。其CI38113580257 quality/phase3/pgpair成功367=236+101+21+9/threeG1/sixG2/cleanup0，同checkout29f9ec/treeb2fa/source5ae，frontend lockedschema仍FAIL/wholeFAIL，不写全阶段成功。唯一累计慢approval模块23bc拆完整canonical14+14，各command300/原job25/absolute75cleanup/所有node-assertion不变，独立68pure/实际collect28/源码无P1/P2；旧610fail/972unknown不覆写。
+
+A03首切片433静态Core/Base无P1/P2，仅collect新PG5；Root释放已审C3d普通mergee060，47Cblob同源；a554仅根CI接现8UI一行，独立增审无P1/P2，A不写C产品。新36首轮33+3fail为新增helper错T6路由404，只一行a1cd修复/增审后同原owned20min完整36pass84.04s、JUnit/plugin一致；真正twenty同factory P2/T2/T4/20Fake Basecreate+40list/2000units/原unknown集合/1execution+20anchor实证，platform/provider0。低权3false/tempDB0，05:25:25stop0/falsePID0，05:26:21仅own down保卷释放pool给C一次read7。见[完整分层A03](PHASE4_A03.md)/[安全摘要](contracts/p4-a03-author-evidence.json)。当前未push集成/未开新CI，独立PG复验与C b88/read7实际另核；frontend旧readtraceunknown不混测试路由根因。
+
+正式Card/result/SDK方法账本/entry/全四Web读组最终同步/cleanCompose/human仍待，15列表用户已回复已有但实际schema/app资源需Root审后preflight，未平台启动/未由旧probe推断。SDK空3键实际absent/null/empty仍not_verified，原完整binding任一缺键unknown/noanchor/不sent不放宽；日期/原50h/300h/人工H-L not_reported及边界不变。
+
+## 45. Phase4源码与受控M1部分验收
+
+Root权威[read/CI回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6106924247)已核06cd2af59c338272ad5a0d117da9f8d7cef62094、精确CI38120338660四job SUCCESS，完整PG236+139=375/disjoint/callpass375/exit0/G1三/G2六/cleanup0/停止true；frontend三实际read/write/items、安全13hash零偏差、20items/2000units/provider0。该CI只绑定06cd/treee047及其checkout，不签后续b0/b4/A06/停止修复/source43。当前main仍9d97/同SHA四CI38093693335、P3结案保持；PR43/main/新CI与Phase4结案由Root裁决，A不合main/关Issue。
+
+后续原Core精确复审source43c40bb955a1ce4ef07704173759983eb8c8f4f5/tree25dde89c392b82b71060b05812f38807fb9bbcf2，59pure5.37s/type2/Ruff/scan0、PG1仅collect2.11s、noP1/P2；先前6d实际PG的UndefinedColumn sourceP1静态解除后，Root释放新actual。A06现场PG单node真正pass15.655s/exit0，JUnit1pass10.366s/0failure-error-skip；org/app/tenant/mock shop、同App lease、一次claim/replay/quota/expiry/full window JSON与wrongshop/payload负例通过，SDK0。作者42pure4.22s/type3/92MD/三scope0是作者证据，不替Root独审；6d第二AC08 PG失败及old stopped.after_state P1/修复、只pure或collect历史均保留。
+
+新项目m1off-a6e82834c857/P4-AC08-THIRD-WTfd38/UID501:GID20，UTC T0 08:33:24.939856Z、service09:03:24.939856Z/outer09:13:24.939856Z、75s收尾不延期；Web53311/API53312 loopback、PG nohost，新owned卷/新密码，只封存COPY source43，258Python+227frontend共485hash与Git零偏差，BUILD_ID so6sfDmeVw7HKWdbGnVJf。原0012/低权三flagsfalse/tempDB0/schema、seed一次、真实PGsynthetic login/known不可变1item70通过，随后私有caller误把ItemSummary当有task_id而KeyError，第一次整体partial failed/stop/down0保卷。原trace仅类别捕获，不伪装完整stack。
+
+Root/Core核公开DTO后只准同原T0/卷/image/source的一次caller续验，不newseed/newknown/重T3。先真实只读核旧namespace started=stopped完整process/同org-owner/唯一termination_confirmed原reason、其他runtime sessions0、原Worker锁可取后才恢复；不在新namespace补确认。原known completed/唯一execution/唯一open Q70实际读回，TaskRead.visible_item_ids→ItemRead.visible_source_task_id对向绑定；T6close原项v2+同原keyduplicate只一次效果。SIGUSR1及正常全服务restart后，task/plan/approval/execution/item/jobs/outbox和checkpoint/checkpoint_blobs/checkpoint_writes共10组完整SHA256/count严格相同；started/stopped/termination从2/1/1到4/3/3，3个started-stopped fullprocess pair匹配，唯一活动Worker。source mock/approval simulated_web/projection offline_fake/model not_used，不等Feishu或远端ACK。
+
+原C实际headless exit1、已停headless进程、raw视频只private且QA未签。known_read_only、group20_rejected_zero_items、group20_completed_20_items、single_T6_terminal_v2通过；三create validreceipt且额度耗尽，无第5/补批准/新key/重seed。当前有效WebActor/actor_guard/当前operator+approver+visible_task只读PG实核：4replen workflows=2completed+1rejected+1needs_reapproval，2execution/21items/2070内部units；Aknown70 closed v2、rejected20零执行项、completed20为2000units/19open+1completed v2；第4cycle v1 approved、v2 pending，两版各1item70、零execution/item。已有execution/plan/item绑定完整；outbox28外部active0/Fake verified投影23/SDKmethodrows0。AC08整体failed/not_accepted，不能以通过四步签新周期完成或以UI停止直接断言后端缺陷。
+
+更深source/report/snapshot/nonce差异只读诊断未完成：一次误用p3_task_sources.report_id而KeyError（现schema为source_report_id），校正的第二只读命令在父固定cleanup停container时exit137；不是业务重试/新平台调用。actual failure_code与observation delta未捕获。源码revalidate的material_hash变化走replace，唯一该路径创建待批v2并设置PLAN_CHANGED；缺数据/范围/过期走fail只invalidated旧plan。因此PLAN_CHANGED是源码推断。collect包含同shop全部open_items，material_hash保留它们；一次offline原known+原twenty disjoint19open复核显示fixture/params相同、数值仍1×70而material hash不同，支持合理版本重批/场景预期遗漏，不替actual observation delta，不建立Core或Mock factory缺陷。原版本/nonce/hash明确重批保护保持，Root原owner有界下一步pending。
+
+父09:02:09Z原75s reserve进入收尾，failed completion元数据到达时已cleanup；RuntimeError是完成文件未在父cutoff到达，不记为backend断言。09:02:13.931583Z stop0/09:02:14.553147Z down0/no-v，本project标签/PID0核后containers0/networks0/两个listeners0/tempDB0，images/volume/private保留。完整原failed ledger、唯一continuation ledger、JUnit/plugin/485manifest/两次release/current Actor readback/Cstopproof在ignored700与600包；[实际收口](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6107403734)、[offline分类](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6107433806)。旧d868两partial、aea SQL失败、972 assertion trace unknown、wrapper1/pytest0、SWC0test、oldCI/read unknown/Issue23风险保持。
+
+[UX8及N01登记](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6107359838)只待授权排期；现Web是结构化输入，PRD+冻结M02的自然语言BC02差异须合同核对，不靠文案宣自由NL已实现、不擅移M2或改Gate，不并写C UI/Penpot。正式RO preflight准备仍disabled/operable false，缺Root确认的canonical4094单AppSecret、Base绑定及A/B单群身份非秘密JSON唯一路径；未枚举旧凭据或读旧.env/密码，认证/WS/真人/平台0。M1/Phase4未验收，source43最终CI与阶段文档精确独审/CI未预填；D1/D30/300h/50h估计、人工H-L未报告、18页冻结及生产/Woo/Phase5/付费/扩权边界不变。
+
+
+## 46. 官方当前schema预检通过与A07正式Worker装配候选
+
+2026-10-11，Asia/Shanghai。Root已核3a15/tree6f精确四CI38128391205 SUCCESS，完整PG236+140=376；这是原源码回归，不替当前A07 WIP。后端原v2已实际completed/审批消费/新增1execution1itemQ70，旧21items2execution摘要保持，总3executions22items2140；C完成态只读由Root独占预约，原4488 C_not_started_due_handoff_budget/authGET0与父控退出记录/停止保卷不删除。
+
+官方资源4层：2d4 Docker125/CLI-SDK未启动；426 auth/bot/table各1 HTTP200/code0、ValueError具体分支未捕获；4c完整2table/目标0/P4_TARGET_NOT_UNIQUE、字段0；用户明确授权Root同Base原生UI建独立P4表后，654当前exact匹配1/完整15字段正确类型，schema_verified，4methods各1 HTTP200/code0，记录CRUD/IM/WS/新provider0。654原child fullstartedstopped/同namespace OSabsence/terminationconfirmed与tasks/jobs/outbox0，11:48:56Z原释放及同outer账本只读补证11:50:23Z stop/down0/资源0/保卷分记，未续SDK窗口；平台UI空白行是否实际记录仍未知。原426根因不被后续追溯改写，P1旧表与所有风险/凭据/卷保持。
+
+[详细A07](PHASE4_A07_WORKER.md)记录原A唯一owner的正式受控装配WIP：同Session Factory+持久SDKLedger+真实IM/B适配器+原delivery/Worker，defaultoff/explicitlive/同Gateway任务与参数/Fake历史拒绝/严格当前schema/有限caps/未知停止/完整child OS死亡确认。新增25pure，含旧回归定向58/5.86s通过；初新PGscope collect1/2.79s历史保留；随后新2+原2共4PG实际通过，最终修复源码1426offline/378integration deselected/118.78s通过。源码freeze/独审/新精确CI尚待，不预填SHA或Gate。B模块/C产品/锁/审批状态机未改，新两行Worker维护stop检查避免额外Graph claim。
+
+C readonly已由Root核成功并释放，下一步原Core审核A07精确冻结源码及新CI；真人pilot合同disabled，SDK当前目标预检通过不代表正式写权限/真人/群20/新周期/全M1。UX8/N01未实施；main9d97/Phase4 in_progress/Issues39–42未关闭，D1=10-10/D30=11-08/300h/P4 D13–17/50h估计、人工H-L not_reported、18页设计与生产/Woo/Phase5/扩权/新paid边界保持。
+
+
+A07本节后继实际回执：Root完成态只读0356/C已readonly_completed_verified，loginPOST1/businesswrites0、同v2执行/Q70/旧known绑定保持，11:57:36Z（北京时间19:57:36）正常stop/down0/低权tempDB0/资源0/保卷。A07初新PG插件exit3/0tests与第二3pass1fail保留；权威p3_task_sources.parameters关联修复后新project p4a07fix-c2fd67aa5f6b一次4PG实际通过（新2/原2）/command14.953s/JUnit12.171s，12:21:17.619637Z正常stop/down0/三flagsfalse/tempDB0/保卷，SDK/平台Secret/Graph/paid0。原Fake cursor通过不替实际SQL，该修复不删准入检查；详见A07。
+
+
+A07配额P1修复候选（2026-10-11）：Root原Core对5fd发现首包IM/Base仅下限、可接受500次，真人/SDK pilot已暂停。原A仅ControlledWorkerWindow加精确八方法名单/上限auth1bot1/table2/field2/IM2/create1/update1/list4，总≤14；原必要下限与Gateway active/Worker不晚于原expiry保持，通用SDKWindow/B/C/权限迁移锁CI不改。20新增回归、相关86pure/新隔离相关4PG实际通过，20:44:23资源0/低权false/temp0/保卷，原独审P1待精确复审核定，跨窗口恢复Gate not_run。首known70操作接续与disabled配置见PHASE4_A07_WORKER，不启动真实服务。5fd与所有旧失败/证据保留。
+
+## 47. A08有限业务原键恢复与scope P1候选
+
+原A已获Root主体功能批授权，限定group20完整joint/reject/replay10/conflict与旧可信已批准T1的原键outbox恢复；完整合同和实际失败/修复/停止分层见[PHASE4_A08](PHASE4_A08.md)、[冻结候选合同](contracts/p4-a08-recovery.md)。旧source9a四CI/383PG、PG-only配置CAS及第二live失败分别引用[Root源码回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6110882129)、[CAS](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6111090153)、[失败收口](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6111191331)，不追溯推翻旧successful CI，也不把新queued T1或旧failed配置case转成approved。
+
+Root独立Core在9a确认scope escape P1；A最小限定既有队列recover/claim与审批maintenance，注册集合仅window.task_ids及真实同org/shop source。outbox-only禁Graph job、审批维护、新delivery/result IM，只原unknown v1完整读回/原v2已有意图update。Gateway原parent增加手动stop安全摘要及同namespace原started/OS缺席/不可变终止proof；旧第二live缺proof不补造。
+
+作者已跑完整offline1464pass及最后完整受影响30PG=新27+旧3全部pass，JUnit 30PG testcaseΣ366.360s（全40caseΣ367.377s/suite374.548s）、33child安全回执四actual import全部匹配/source251零变化；批总40中31pass/9pure因未挂docs而fail，原exit1保留。补docs只读挂载与扫描等价增量后13cases=10pure+3影响PG全部pass/testcaseΣ29.528s（suite35.645s），3child四imports match，17:59:35.746090Z低权false/temp0/资源0/保卷。最终if/else与DeliveryGate formatter等价调整后scripts.check actual exit0：1464offline/410deselected/95.17s、Ruff374/mypy274/Markdown96/锁/工具链及npm-Python audits0/三scope scan0；独审/新精确CI未完成，精确freeze随后外部回执不自指未来SHA。18cases/15fail、共享child2fail、后2cases/1pass1fail等历史保留：测试child把backend/src丢出PYTHONPATH而加载旧依赖wheel已定位，waiting重入无新after_ready hook已改核真实PGready/state；不用于解释原972 assertion trace unknown或重开旧P3Gate。
+
+完整跨窗workflow/审批未完成/真正SDK断线恢复与整M1仍pending，不能用completed outbox-only或同窗合成PG替平台Gate。当前SDK/真人0、B/C产品原字节、Root释放已审C docs967d后正常内部合待本地源码提交/PG停止，不push/main/关Issue。原50h/300h内A08整体8–12 Agent有效h估计；本段真实16:37:16Z开始/硬20:37:16Z止、wall≤4h/Token≤80k（遥测unknown）/同源≤三、人工H/L not_reported。D1/D30/日期预算/冻结18页/旧失败与资产凭据卷保持。
+
+用户已授权N01+U02/U03/U06/U08后续合批，依赖A08源码稳定、独审及精确CI后Root释放A09；A仅无业务副作用Web NL preflight闭合DTO，C独占M02文本/明确确认/原fresh submit与四UX。13–19 Agenth规划原预算内，不能混A08、自动提交/审批/新paid/通用draft框架，Feishu F02/B47续答仍分记，今晚20:37:16Z不续期。
+
+## 48. A09跨Gateway原workflow与N01 Web preflight候选
+
+Root核efcd的Core/四CI38164348959/422全PG、G1三/G2六/cleanup0/三Web13hash后释放A09；不是A09新源验收。原A先冻结N01合同给C，再串行补单原workflow恢复与Web-only preflight，原P3 22操作字节保留、第23N01操作；详情及所有实际分层见[PHASE4_A09](PHASE4_A09.md)、[恢复合同](contracts/p4-a09-workflow-recovery.md)、[N01合同](contracts/p4-n01-web-v1.md)。
+
+恢复实际21/21 pass（新6+原15）/196.692 testcaseΣ秒/201.415 suite、504source0差/21 Worker四imports匹配、19:29:13Z资源0；N01实际13/13/23.134 testcaseΣ秒/24.758 suite、509source0差/实际同进程4 N01模块1回执匹配/无Worker child、19:40:23Z资源0。首恢复5fail/trace未捕获、修去immutable receipt额外锁后定向1pass；首N01 11pass2夹具fail且无children/fourimports=false不作通过，全部保留。所有真实SDK/Factory/Secret/provider0，低权三false/tempDB0/stop-down0/no-v保卷；零业务canonical/4CP、新explicit原键创建及撤权均核。
+
+完整检查重验实际exit0：1531offline pass/441integration deselected/93.00s，Ruff384/mypy282/Markdown98、锁/工具链/tsc/两audits0/三scope scans0；补最终文档后Markdown99/errors0。首目录scan公开合同文件名两误报/exit1保留，仅等价JSON换行、不改规则。最终精确freeze/独审/CI尚待。C M02文本→本地明确确认→原CreateNewCycle fresh submit/四UX与真实Web由原C/Root验收；A不并写frontend/B。正式SDK/跨窗平台/human/BC02完整能力及M1 pending，F02/B47分记未做、其余UX4项不外推。原main9d97/Issues39–42未关、P4 in_progress，原日期/50h300h/18页/人工H-L及旧失败/风险/资源保留；A09有界6h只offline/new-owned-PG，不能续原A08 SDK或另开预算。
+
+首冻结3c393/treef67、原Core62pure无P1/P2后已普通push；精确CI38170558418实际quality/frontend SUCCESS、phase3/pg-pair FAILURE。existing236全pass/G1三/G2六/cleanup0；phase3计划205、actual collected140/135pass，a08 workflow5collected/pass0/exit137、后65not_run。全局23分钟期限剩约13.7秒触发原75秒收尾，首case只到setup、无call outcome；不是300秒模块耗尽或五业务断言失败，pg-pair正确拒签。Root核后仅批准45完整模块族移quality：281/160/441，原approval14+14、串行300秒、23/25分钟/75秒/G1G2/源工具锁全集验证不降；当前collect及100pure/0.42s通过，未重跑PG。
+
+原Web精确e375修正P1解除、无新P1/P2后Root释放普通merge，A已无冲突集成、C原字节保持。必要n01-web job骨架绑定首步23分钟与C固定入口/六actual cases/current source及4 API imports/PG不变量/完整stop与本轮保卷down，仅三public白名单成功上传。原C六例实际仍0/not_run；其manifest包含生成报告冲突已交原C最小修，A不并写。综合完整检查/冻结/Core精确复审/新CI pending，旧38170558418失败/所有历史保留；SDK/新本地PG网络0，不自动push/main/关Issue，同原A09硬01:03:09Z及日期预算不延长。详情见[PHASE4_A09](PHASE4_A09.md)及Issue40实际回执。
+
+本地综合check旧approval假定phase3导致1545pass6fail/89.17s；最小existing夹具修后全量1551offline/441deselected/90.34s/check exit0、Ruff388/type285/MD99/锁/工具链/audits0/三scope0。后补五清理Fake例与相关114pure/0.67s另记；final C runner修正/综合freeze独审与新精确CI仍pending，不把纯测试或collect作为actual六Web/PG Gate。
+
+Root已核最终C22aa/treef8dc（parent e375）runner-only增量Web独审14pure/0.39s/noP1P2，并释放A无冲突普通merge；精准排除三派生sink，其他tracked/六关键源及旧已审产品仍完整、不改一freshpair/deadline/stop。综合本地完整检查/敏感扫描/最终freeze→原Core CI精确独审→Root一次新exactCI待，六actual N01仍0/not_run。C旧0例准备失败、原3cCI失败与所有边界保持，不push/main/SDK/新localPG。
+
+最终C合后128定向pure/0.75s及324文件manifest/hash0核实；综合完整check实际exit0：1570offline/441deselected/88.88s/Ruff389/type286/MD99/锁/工具链/两audit0/三scope0，四旧warning保留。最终本地freeze及index/commit扫描见Issue40回执，不预填未来CI或阶段完成；281/160全部实际PG与新六N01 Web仍待Root释放精确CI核定。
+
+## 49. e9实际441 PG通过 / 两Web失败及有界证据补齐
+
+Root核e9/tree4fa原Core精确无P1/P2/84pure后正常push；精确CI38175892938/run160/attempt1/eventPR/head e9/checkout f911(parents9d97+e9、同tree)终态FAILURE。quality/phase3/pg-pair SUCCESS，Root/A exact e9分别verify_pair确认281+160=441实际callpass/28组无漏重、source/tool/lock/full匹配、G1三/G2六/cleanup0两/stoppedtrue；Root旧主目录import异常换exact checkout核通过，非CI缺陷。
+
+frontend准备SUCCESS/read摘要passed，write test_exit1/invariants true，items未启动；N01准备SUCCESS/Playwright test_exit1。两个failure_category null不是assertion已知，case名/collected/pass count/assertion全unknown，不能推六例已执行或非0例。两Web成功证据校验/upload skip，仅两个PG安全artifact；N01原项目保卷stop/down0/containers0networks0，frontend read/write摘要PGfalsePID0保卷；都提前于各首步截止，缺原private child完整公开证明不补造。正式SDK/真人/全M1/Phase4仍in_progress，main9d97/Issues39–42 Open保持；实际终态见[Issue40#6114057272](https://github.com/aning0922/commerceops-agent/issues/40#issuecomment-6114057272)。
+
+原A09六小时lease已过期；Root新C诊断源码04:40:50–06:40:50Z、A单owner CI接线04:58:27–06:58:27Z/≤2h，不重置D1/D30/300h/P4 50h/人工H-L not_reported或18页。C原path/branch已恢复tracked22aa，旧六untracked/runtime未恢复causeunknown与旧资产缺口保留。新失败sidecar schema/专用validator及精确freeze独审待，A只workflow/必要CI纯测/两状态文档，不混C WIP/不新PGSDKpaid/CIpush；成功Gate不变，failure缺失拒收、未知不伪造，原失败历史均保留。
+
+原C静态确认write两case直接点closed details内recovery按钮，Root仅准测试显式展开、不减10case/原断言/键与回放次数；不是已捕获旧CI assertion，实际修复Gate待。Root stat发现canonical AppSecret缺失，仅重建私有空模板待用户填写；SDK blocked且A不读key，旧其他路径缺失causeunknown、部分account/config存在不等全资产完好，本段CI源码不依赖密钥。
+
+用户已补回，Root仅stat确认regular/non-symlink/nonempty600uid501、不读内容，SDK仍等新具体窗口。A接线新增专用失败guard/context/精确一sidecar+一metadata；status passed异常仍jobfailure/gatefalse、missing拒unknown、后续not_run不造counts。frontend来源13→14仅加immutable schema，N01仅精确第四mutable sink；其余成功Gate/upload与e9保持。当前55pure、扩展相关153pure及来源同步后61pure/type/syntax/MD99/首scan0分记，未混C WIP/actualWeb/PG/SDK/CIpush；最终C freeze/独审/普通merge与Root后续CI合同待。
+
+真人已明确恢复CommerceOps，原A截止06:58:27Z不延长。Root核最终C cd239/treecd16/parent22aa十四文件Web精确独审noP1P2、13contract856ms/20pure0.44s/type后放正常merge；A无冲突集成并保持C frontend/e2e/UX字节、backend/scripts/锁/Compose相对e9不变。组合作者173受影响pure9.50s/Ruff/type6/MD99errors0/diffcheck0；Node24真实policy/validator import及闭合失败/cleanpassed拒绝/raw字段拒绝通过，声明7/10/7/6不等actual执行，24+6仍未本轮重跑。最终五文件A增量冻结/敏感核/原Core review与Root新exactCI待，SDK/key读取仍无放行。
+
+## 50. Hosted恢复 / 441 PG实证与C两spec普通集成候选
+
+人类授权Public/保护/fork、Hosted恢复/P4继续及随后结束本地CI，见[Issue39#6138181766](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6138181766)。原main9d97/PR43与阶段未结案保持；localCI firstbatch未完成，不复用1341或两未提交180预算改动。本地旧失败、私有资产及原缺口保留，不把停止记成功。
+
+40dc Hosted38210480544 attempt2终态FAILURE：quality/phase3/pg-pair SUCCESS，frontend/n01 FAILURE。实际checkout merge7add07eb3c9fd946d41b3cccae9b0bdeda75c94d/tree245933b49aed27d46746f132d3ffbbdc32f5b77f，parents为main9d97与40dc；safe artifacts11787471574/11787720749已由A与Root分别重跑原validate/verify_pair核281+160=441 actual pass/28组/交集0/full集合与source/tree/tools/locks一致、G1三/G2六/cleanup exit0/stopping confirmed。safe schema无保卷字段，Hosted临时PG cleanup down --volumes；旧P4/local私有卷未触，不能混写本次PG保卷。两Web闭合失败由原C读证，实际429缺HTTPstatus未签。
+
+Root在[Issue42#6138319062](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6138319062)核C6ed9fc342f117bd8d02b4423acb316a594d2c26d两spec、作者62+48相关pure及原Web精确独审noP1/P2/type/13 closed契约719ms/69pure1.22s后释放本普通集成。items显式展开原recovery details；N01用同既有operator/admin真实登录生命周期、角色物理隔离、仅内存storageState与每body fresh context/page，逐body真实GET严格核principal/org/store/grants/auth_version，401/403/变化不刷新不重登，原失效seed会话不使用；第六例真实revoke→401/清缓存和admin403保持。未改限流/种子/账号/预算/认证或产品。A无冲突普通merge且两spec逐byte匹配C，另仅本三份阶段事实文档；必要本地检查及精确组合freeze见Root后续核收回执，不预填未来SHA/CI/actual24+6通过。
+
+组合精确独审及Root下一唯一自动Hosted五项CI待；新实际完整441PG与read7/write10/items7/N01six、真人/正式SDK/Base闭环/全M1仍pending。D4不重置D1/D30/300h/P4 50h估计、人工H/L not_reported或18页冻结；无新PG/浏览器/SDK/provider/扩权/生产/Woo/P5/push/main。本批未更改ROADMAP阶段未完成事实。
+
+2026-10-13后继核收：b2d409/tree33083原Core组合增量noP1/P2后一次正常push，精确Hosted38348972724 attempt1实际checkout23c4cf9a86b5d59e74d13ce17e3dcdc4ab07ac58/tree33083（parents9d97+b2）；quality/phase3/pg-pair/frontend四SUCCESS。新两个PG safe artifact经A/Root分别原validate/verify_pair核281+160=441 actual全部通过/交集0/G1三/G2六/cleanup0；新frontend成功safe与固定CI成功校验支持read7/write10/items7=24、source14/20items2000units4terminal/native200 marker/390键盘权限覆盖与三段停止保卷，未上传的逐例reporter/zoom明细和截图QA不外推。N01 attempt1仅prepare工具HTTPS read超时，fixedsix0/not_run；Root只定向重跑N01，attempt2其它四SUCCESS为沿用而非重执行，N01新job115142427252仍FAILURE。C闭合sidecar实际6reported/0pass/1fail/5skip、firstbefore_hooks line35提前storageState读cache/body_count=null，不冒六body执行或通过，见[PR43#6139024126](https://github.com/aning0922/commerceops-agent/pull/43#issuecomment-6139024126)。Root释放C402af3f8ed81b6b5fd315d87f7dc5e941864a50c（parent6ed9、仅N01 14insert/4delete）精确Web独审noP1/P2/type0/13closed703ms/69pure0.40s后普通集成：保留默认storageState，page test-fixture在beforeAll之后fresh context/page并finally全部close，原真实session/严格DTO/admin403/revoke401/六body与预算不变。A无冲突普通merge，N01逐byte同402、items逐byte同6ed9；另仅本STATUS简短事实补充。新组合精确核收/独审、新源码actualsix与完整五项Hosted仍pending，不推旧四SUCCESS验收新六例；backend/scripts/CI/锁/Compose/B/产品UI与本地CI1341/180均0带入，无新PG/browser/SDK/provider/Guest/push/main。原日期/300h/P4 50h/H-L not_reported、资产与失败保留。
+
+
+## 51. BC02 后端纯模板 / 专用读取回复的 offline + PG 候选
+
+原 A 同分支实施 Root 批准的两种完整显式读取，接口 d97/tree0e60 已原 Web 独审无 P1/P2、C 消费者 0ce9a131 独审仅 offline/Mock，不签实际 API。当前后端候选：两个原事务冻结 P3 original / observation 的 immutable 纯模板；原 GET 旧 P204 优先、缺历史 cache 不回填；新 p4_read_replies 专用 carrier 与原单 lease/SDK ledger，一原 inbox / payload / asof / UUID，unknown/dead 终止、每 carrier SDK method 全局一次。原 outbox/IM kind、clarification、Worker/Graph/state machine/locks 不扩写。Root 尚未对本候选独审或验收真实平台。
+
+最终作者 1768 offline / 478 deselected / 103.30s，Ruff/format/type/MD 通过；完整 PG collect 478、existing300 + phase3 178 无漏重，新模块 9+18 全纳入既有分区。最终全新自有 PG 27 新 + 5 原 =32 实际通过；模板35.78s / 回复56.58s，SIGKILL三点真实 reap/确认再取 lease、started precommit、unknown不重发、当前身份/角色/chat、caps/expiry/lease/late、no_action/unavailable/历史不回填与业务表0增量分别核验。Fake SDK 不是 wire；实际 SDK/Factory/Secret/provider/IM/Base 全 0。
+
+首 collect0、7+2、8+1，随后同 PID WorkerSession拒绝的10+1，以及 caps JSON DDL误识别迁移失败0业务等分层完整保留；原门禁未减、事实细节和有界资源/停止/源码 hash 见 [BC02 合同](contracts/p4-bc02-template-read.md)。全部本批容器0；首collect工具默认清理仅本轮新卷，后续全保卷与private凭据，原 known70/旧资源不读不迁移不启。原 v4/TOCTOU/PermissionError unknown 保持 HOLD。
+
+待 Root/Core 新精确独审、原 C 普通集成、精确 CI，之后真实 IM另由Root具体窗口放行；未push/改PRbody/main/关Issue。M1/完整BC02/P4仍未正式验收，main/Issues/原D1/D30/300h/P450h/人工H-L not_reported与旧证据不重置。clarification编号仍待用户，本批不碰F02，其他UX hold。
+
+
+## 52. 原入站与后续 sender 分离的只读恢复候选
+
+2026-10-14：原3f/五项已核Hosted事实不签本批新源码。Root/Core核005原key Create1 returned200/code0与upperACKdrop1、PG unknown attempts2/C1/anchor0；不是完整读回。原sender started/stopped/parent termination各唯一与OS absence已核，但原approved_outbox单Gateway时间合同无法承接后续sender，准备HOLD及提取错误原字节保留。
+
+本候选区分origin与sender可信lineage，原receipt/source/actor/approval/execution绑定不改；真实approved_workflow_claimed、sender Gateway/SDK/C历史及终止先后重核。新路径仅单原v1只读caps≤10，Graph/job/IM/provider不执行，完整唯一15字段读回后由原PG协调器写anchor/verified。旧sameGateway/C0、权限/键/迁移/锁/前端/CI保护不削弱。详见[RO合同](contracts/p4-sender-readonly-recovery.md)。
+
+全新owned PG首12新节点通过、末夹具设置失败；首helper实际删本轮合成卷，保卷表述已更正。原09:02:09Z截止内同project重建第二轮14必要节点通过，08:53:58Z停PostgreSQL；08:57:45Z完成18已登记stopped容器普通rm，容器/网络0、重建卷保留。最新auth/decision/cap/span补强与最终新PG两节点仍待精确独审/新CI，不代签；本批无PG第三段、实际平台/AppSecret/provider0，旧原库/资产0访问。
+
+源码/privatebranch/相关offline/doc检查与局部commit以最终freeze为准；不预填未跑PG或真实RO通过，不push/main/关Issue。P4/M1仍未据本候选验收，原main/日期/300h/P450h/H-L/18页与历史失败不重置。
+
+作者最终offline检查1806 passed/480 integration排除/4 warnings/103.19s，仓库Ruff/417文件format/type310/Markdown103通过，current/index/history首扫描均0。实际PG与最新源码缺口仍按上段分列，纯检查不替平台或PG；private Fake与候选提交结果由外置最终freeze记账。
+
+## 53. Base wire 与显式单次 RO 候选：HOLD
+
+2026-10-14，Root原A窗口11:04:04Z→12:34:04Z，原45778/Hosted38543318700五SUCCESS/完整480PG为Root基线回执，不能签本批新源码。原007只读SDK五次returned200/code0，六行唯一原key匹配12字段（两数字字符串、三nullable omitted）；完整内容未验，仍unknown/automatic attempts3/INCOMPLETE_READBACK/C1/anchor0。
+
+候选实现endpoint特定有界无损数字转换，仅Quantity/SyncVersion；三declared nullable只在冻结PG期望None时可省略，共享15字段DTO、完整分页/全局原key唯一/全部值严格相等与number写入保留。人工RO独立绑定005 C sender与最新reader的claim/hash/SDK只读历史/真实终止，audit单次消费recheck_count1，dispatcher复核原行/权限/窗口/caps再标dispatched，automatic attempts保持3，无迁移/通用重试。当前正例未通过，不能放行。详见[RO合同本批节](contracts/p4-sender-readonly-recovery.md)。
+
+新owned项目固定20分钟（11:25:58→11:45:58Z）只Fake/PG，首启动flag拒绝0pytest；实际5pass2fail、1pass2fail、最后3pass2fail分记。撤权恢复不复活旧auth版本，正例夹具已拆分；prior DTO UTC序列化比较已修复，末两个人工RO正例仍未成功准入，具体原因未完全确定。两针对性修复用完即HOLD，不继续PG。最终11:41:13Z down不-v0/容器0/网络0/保卷，原库/Secret/SDK/provider0；完整业务/CP不变及人工RO并发/spent正例尚未验证，不用旧pass代签。
+
+offline首1847pass4fail/482deselected，required负例修正后1851pass/483deselected/104.87s；private56pass/1probe排除/2.26s只Fake/AST，新增safe四页observer保留原值在内存。实际import源码hash与失败/closure/旧private字节已保留，最终完整检查/扫描/候选SHA在外置freeze分列；新独审/精确CI/实际RO均pending。F02“持久澄清请求编号，完整参数并明确确认后经原T1正式Task”已批准，仅queued，本批不改0015/55表或实施F02。
+
+不push/触CI/合main/关Issue；业务规则/审批/Graph/前端/B/锁/CI不扩写。P4/M1未结案，原D1/D30/300h/P450h/人工H-L not_reported/18页与历史失败保留。
+
+最终当前源码完整1851offline/483deselected/103.94s，Ruff/format419/type312/Markdown103通过；七项实际import源码hash与host相等。private两文件strict type通过，例外后两处I001未修，按Root停止令保留。Root已确认budget spent，仅当前HOLD冻结/原Core只读独审，无新PG/诊断/测试批；positive admission及目标SDK真实完整读回仍未通过。
+
+## 54. F02 编号与原 T1 首包：offline / 新 PG 候选
+
+用户决定持久澄清请求编号，完整参数并明确确认后才正式Task；Root原A同会话实施首包，Base a1864 P1/HOLD不修不解除。已完成默认关闭的F02入口、当前actor/initial auth/scope与可信inbox/hash来源重核、partial参数逐轮冻结完整audit、server UUID稳定T1 key及确认/consumed/receipt同commit。前期无Task/source task/job/审批/项，确认成功原T1一个formal workflow+source task/两jobs，重复同原Task，consumed不改轮。Fixed DB15min/无max3产品限制、仅explicit UUID+round，不称native-thread。详见[合同](contracts/p4-f02-clarification.md)。
+
+唯一0016新增request表及原reply nullable v2/窄grant；只新自有库0016/56表，原known70/0015/55表0访问/升级。PG首21pass2权限夹具fail；app元数据/expiry拒绝保留，owner核新库并独立证实触发器拒expiry，后两轮23/23（43.95s/最新43.78s），14新+9v1。真实跨进程/确认并发/原T1事务故障无半消费/完整scope与旧auth失效/selected v2/unknown不重发等均Fake+实际PG；自然15min等待、正式SDK/真人未验。最终12:51:44Z down不-v0/容器0网络0保卷，旧资源不清。
+
+作者相关87pure，完整1879offline/497deselected/105.16s，Ruff/format424/type316/MD104通过；首0test、历史d97集合1fail及随后33定向通过、1878完整与末1879分层保留。真实六产品+一测试import hash匹配host，0016末PG实际hash捕获；generic-api-key SQL误报仅等价换行，全部SQL去空白token相等，末PG后未重跑，前后hash在freeze分列。不冒末PG加载换行后字节，不修改扫描规则。
+
+仅Fake sender/ledger接线，正式Gateway/SDK child尚未装配，默认关；模型/Factory/Secret/平台IM/Base0。源码局部candidate commit与私有hash/closure交原Core，新独审/精确CI/真人Gate pending，不push/main/关Issue。原Base字节及private freeze、日期/300h/P450h/人工H-L/18页保持；不称F02/M1完整通过。
+
+## 55. Base 人工批准一次续段：新 PG 候选
+
+用户批准60min/PG总20min，Root原A从已冻结F021137649接续；T0 UTC13:05:49.310813→14:05:49.310813，一次定位+一次针对性修正验证。wire拒全部float，仅原int/规范数字串，无Decoder/Decimal层。reader13既有拒绝段固定安全stage、不含行值/ID，原全部校验保留。
+
+唯一新owned定位在真实PG捕获两个PermissionError/P4_RO_READER_SDK_CALL，当前window SDK0；原RecordedRecords Fake返回ApiReply，而ledger按SDK `.raw.status_code`读取，所以历史HTTP None。唯一修正只新reader产生正确SDK-shaped Fake，再交ApiReply；不重标旧receipt/owner/attempt/时间，不松生产scope/hash/roles/term/C1/anchor/caps。唯一18/18（341.91s）=3manual+10sameGateway+2sender+3C0，新manual各1准入/1重复拒绝，dispatcher单次/失败spent/并发零额外请求及原核心/CP/无重复execution/key通过。
+
+新项目p4baserenew-c4a015eedb，注册13:10:19.080500→作者13:25:19.080500（作者≤15min，Root独审另5min）；实际0016/56表/三高权限false，原known70/0015/55表0读写。两轮down不-v0/容器网络0/保卷，最终13:22:11.697524，注册窗口累计712.617024s；首次1fail保留，无第三轮。五实际source/import/migration hash匹配host，F02113全部13文件在Base导航追加前逐byte相同。
+
+完整1883offline/497deselected/4warnings/107.08s、相关107pure/3.39s，Ruff/format424/type316/MD104及三敏感扫描另分列，精确source/tree/阶段安全码/两轮计时和closure以外置freeze交原Core新复审/新CI。私有bridge/迁移/字段/锁/CI/审批/Graph不改，无SDK/Secret/provider/平台/push/main/Issue；目标真实完整RO/P4/M1仍pending，不拿旧45778CI或本Fake签真人。
+
+## 56. 当前 schema 验收预期：测试修复候选
+
+2026-10-14，Root报告2f精确CI38573265163的quality已失败，其余作业继续自然执行、不取消或重跑。Root读取pg-existing artifact：combined-existing actual236/passed235/exit1，唯一actual-not-passed为`tests/test_postgres.py::test_revision_and_schema`，cleanup0/stopping true、G1未过/G2六保留。Root日志hash为8967f0f047762b64e699c36a1ce53ec48298dbe5fd06b224ea8afab6304810e4。原始CI未保assertion trace；本批只确认精确失败节点和源码仍assert0015/缺F02新表的事实，不称捕获实际revision行值或完整失败栈。
+
+本批仅三份必要tests及AGENTS/本事实文档。基础schema验收改为`0016_p4_clarification_requests`，原business全量精确集合只新增`p4_clarification_requests`，public为空/server/checkpoint migration检查保留。C0 forward测试仍从固定d97源码及0012构造旧数据，0013历史revision和旧表/CP全byte比较不变；其随后无revision参数的`migrate(owner)`验收当前head，精确新增三表均为空，并验证F02表SELECT/INSERT允许、整表UPDATE/DELETE/TRUNCATE拒绝、全部列中仅批准七列允许UPDATE。当前head和safe marker对应0016/三新表；旧真实0015专用场景未修改。既有诊断Fake只同步当前head/新空表/窄列授权，不扩诊断框架或跳过用例。
+
+实际本地33pure通过/2warnings/6.24s；两PG模块仅collect20节点/2.65s，未执行PG。三修改Python文件Ruff/format与mypy通过。新精确增量独审及完整PG/CI待Root，不将作者旧18PG或本Fake算作本修复PG成功。产品源码/0016/权限实现/状态机/Base恢复/CI/锁/前端均0修改，无PG/SDK/Secret/provider/业务数据读取，不push/触CI/main/关Issue；原14:05:49Z硬截止保留。
+
+私有运行pin刷新先于本测试修复完成，仍精确绑定2f3b04b/tree59eaac：四文件最小delta、六前版文件完整归档，17模块pin与2f源码及新sealed archive相等，ENTRY/CLI/manifest链相等；一次现有Fake/AST为56pass/1probe排除/2.97s。业务/身份/窗口/授权字段、96KiB guard和旧006007/freeze/程序归档25项hash保持，live_release=false；最小delta SHA391b7e21080b524fd43b40faf828d7f3509d102532f1b2730f4af80690a74eb0，13:48:32Z停止。本次测试新head不再次刷新private source标签；2f封存镜像仍是相同产品字节证据，最终GitSource标签和实际007绑定待Root后续准备。P4/M1仍未验收，日期/300h/P450h/H-L not_reported/18页和全部旧失败保留。
+
+## 57. F02 Gateway 选择与原单 Worker 正式运行接线候选
+
+Root已核5b普通push及合成b288（parents main9d97+5b、tree892b一致）；38577179420自然FAIL。quality整个分区300/300通过，其中combined-existing236与另64业务分组；G1三/G2六/cleanup0。frontend/N01成功。phase3选197、实155全pass，gateway_window模块actual0/exit137、后42not_run，cleanup0/stopping true；合455/497且pg-pair正确拒绝，未知具体耗时原因保持，与2f旧schema失败分列。未取消、重跑或改Gate。Base/真实007仍HOLD。
+
+原A按已授权F02接续业务源码/offline，正式配置开关默认false；Gateway将实际F02业务结果与原inbox/receipt/reply同事务写不可变选择audit，原受控parent进入明确F02 child模式。Root窗口不需手拼request/reply业务ID；原单Worker只维护当前Gateway选择的同一request，默认禁止job调度，不构造Base/Graph。首次完整来源/当前权限/轮次/hash核验通过才构造Factory，复用原ledger/UUID；发送前再次核Gateway终止和当前来源，stale/dead/unknown无盲重发。原T1两Task/两jobs及审批规则不改，确认后jobs不会被本通知Worker执行。详见[合同装配段](contracts/p4-f02-clarification.md)。
+
+已跑runtime31 pure/Fake/2warnings/4.47s，早一批155相关pure/7.52s；首回归命令错误文件名0test与静态中间失败保留。Gateway来源重核最后调整后的完整offline1914pass/499deselected/4warnings/115.09s；319文件mypy及仓库Ruff通过。两项新必要PG代码只collect，原F02 PG模块16节点/2.90s，不跑PG；总PG497+2=499，原节点不删。不能拿旧14/18作者PG、已有56 private Fake或本Fake代签最新SDK/SQL/真人。必要文档/最终format/敏感扫描与本地source候选另由冻结回执交原Core，不push/改PRbody/main/关Issue。
+
+本批未读旧库/实际业务输入/Secret/env，SDK/Factory真实初始化/provider/PG/新环境0。Base投影/RO/private bridge、迁移/grant/共享锁/CI/Graph/Web均0改；原parent与SDK child的新增F02分支保留原默认业务分支和其门槛。私有final-source af2eb/5b disabled字节保持，不随本产品新head更新。独审、499完整精确PG/CI和真人接线Gate待Root；M1/P4不据源码完成。原预算/日期/人工H-L not_reported/18页不重置。
+
+用户另批一次独立CI收口，必须在本F02源码/offline冻结后再登记T0→T0+45min；最多一新owned PG累计10min含清理，仅定位Gateway/sender及整分区耗时，明确证据才一次最小修正，原deadline/全节点/union/G1/G2/cleanup不减。此前尚未登记或使用该授权；不追溯计时，不续Base或真实SDK诊断。
+
+## 58. CI 独立有界收口：同分区完整小模块合批候选
+
+F02a14/tree87e功能冻结后Root原Core独审无P1/P2、独立59pure通过；原A随后才登记本窗口UTC15:28:49.557310→16:13:49.557310。旧5b精确Hosted失败证据完整保留：phase3在Gateway-window模块actual0、exit137且timed_out=true，14:25:39.342549→14:25:49.741126仅10.399s。前20个phase3 pytest启动至collection前累计215.688s，模块累计1214.322s，前155节点全pass；只证实共享绝对预算在这里耗尽，不冒称捕获了Gateway业务死锁/断言或给old unknown补成功。quality同源300节点通过，原G1三/G2六/cleanup保留。
+
+唯一新owned项目p4ci-close-25c6e2f8bb登记PG15:41:51.618240→15:51:51.618240，测试止15:50:36.618240/reserve75；同source只读backend/tests挂载+固定PYTHONPATH，复用5b已核镜像运行当前a14源码，不读取.env/旧凭据/原库。唯一5节点实际全pass，CLI84.685s、JUnit81.946s：Gateway1.867s，sender34.370/34.594s，F02完整链3.799s/unknown1.632s。新F02两个真实PG/ledger+Fake节点通过，仍不签真实SDK；本轮未单独捕获容器内每模块import路径/hash，挂载/调用新接口及host冻结hash证据按实际边界分列，不补开PG核hash。准备脚本首语法错误0资源/0test保留。最终15:44:27.954919 down不-v0/容器0/网络0/卷1保留，累计注册PG156.337s<600；Root已独立读closure SHA2ce1d259fabd00fae6d3865807e77dab2d4c900853c69b96dbd765adf9bbd7f0和JUnit。
+
+唯一代码修正仅scripts.pg_diagnostic：保原完整collection/自然大模块、quality六业务模块和approval14分片，将同phase3分区的完整小模块按每批最多20节点串行共用一次pytest进程；不拆模块挑node、不混分区，不增框架/job/Worker，也不更改预算、fixture TTL或任何业务断言。首pure7fail/55pass是既有按模块数量/label预期需同步，新边界测试首OLD排序1fail/63pass分别保留，修正测试预期后159相关pure/9.26s通过；新增保护验证20节点边界、大模块/quality不拆、完整一次覆盖、跨批仍用同绝对截止。新分组运行仍单命令300s、总23min/75reserve/60cleanup及失败即停；safe-report按新精确planned group核每node actual/pass、source/tree/tools/locks/union/G1/G2/cleanup全部保留。
+
+完整collect499/原497集合全部保留，仅F022新node，quality300/phase3199/交集0。最新Ruff与319文件type通过，最终文档/format/敏感扫描与精确source以本轮冻结回执交原CoreCI增量审核。PG额度已关闭，不以本5节点替完整499或宣称新合批实际执行通过；未经Root不push/触CI/取消/改PRbody/main/关Issue。F02产品a14/Base/RO/private bridge、迁移/grant/锁/Graph/Web0追加改；旧SDK/007/全M1/P4仍HOLD或pending，原日期/300h/P450h/H-L not_reported/18页不重置。
+
+## 59. 最小容量测量配置：用户批准的机器上限候选
+
+2026-10-15，北京。用户批准新的容量测量包，Root登记UTC10-14 16:48:25→17:18:25（北京00:48:25→01:18:25），不续旧诊断、不自动续期。原A从2d139669/tree d51e接续，只调整quality/phase3两条PG job的timeout-minutes 25→35及各自登记的绝对诊断timedelta 23→33；frontend/N01/pg-pair及所有其他YAML字段保持。35/33只表示本次允许机器测量的上限，未测出最低所需容量，也不保证CI成功；无账单/资源购买/权限变更。
+
+Root转述原Core只读核算：旧2d quality firstdiag→timeout1264.599s，G1 restart-healthy4.181s触command_timeout（该命令原上限75）；phase3 batch7 36.823s触command_timeout（原上限300），两者命中expires-75全局截止。此为截止事实，不归因为OOM或具体业务断言；499selected/497collected/483callpass保留，Web三批/N01six不能抵缺失G1和16节点。本批不重跑旧CI，不补写旧未执行结果。
+
+Root随后澄清“测试集合不改”是不增删node或放宽保护，允许现有tests/test_pg_diag_shutdown.py两条quality配置断言精确同步到35/33；只改两个常量，不动frontend/N01等25、300/75/60、exit/shutdown/collection/G1/G2断言。同步前实际157pass/2fail（9.06s），均为旧25/23常量不一致，保留失败事实。初始系统Python无yaml导致静态脚本0检查，改用原venv后配置结构核验通过：归一化四值后整个工作流与2d完全相等，两段登记Python AST/bash语法均有效。同步后同一相关pure159/159（8.98s）通过，原测试格式/Ruff及104文档/差异检查通过；敏感扫描、局部commit和冻结回执按实际结果交原Core，不重复全offline或加镜像测试。
+
+原两分区300+199=499/交集0、完整小模块合批、大模块/approval分片、每命令300、G1三/G2六、75秒预留和60秒cleanup/failclosed、source/tree/tools/locks/fullunion配对全部保持。helper/per-test业务实现/产品/迁移/权限/Graph/Worker/Base/private bridge/锁/测试集合均不改。本批无本地PG/Docker测试/SDK/Secret/旧库/provider/browser/真实平台，不push/触CI/改PRbody/main；原Core精确增量独审后由Root释放唯一完整精确CI，机器等待另计，再失败或清理异常立即停止。Base/007与旧卷/密钥/P1资产保留，P4/M1未结案，原日期/300h/P450h/人工H-L not_reported/18页保持。
+
+
+## 60. 完整验收工具准备：统一入口候选，正式平台仍 HOLD
+
+本节记账截至2026-10-15 06:45:27Z；后续精确freeze/回执独立记录，未执行项不预写通过。
+[Root新包](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6184152897)
+固定04:01:35Z→14:01:35Z，12 Agent有效h初分A5/C4/Review2/Root1；A到约4h先报Root。
+墙钟、机器等待和有效Agent工时分列，人工H/L not_reported；原300h/P4 50h、D1/D30及18页保持。
+
+A新私有run_once为唯一业务验收入口，helper绑定解释器/CWD/本库模块及包内JSON的同一校验字节。
+全新PG内真实schema/角色/SQL/原Factory、原SDK ledger、原审批/T1/Graph、once和恢复协调器保持；
+Fake仅最低HTTP transport。0015/55与0016/56在新DB验角色和实际query，app读alembic的42501仍拒绝。
+legacy grant开关只供新0015 bootstrap；默认head行为及权限策略不改，不接触原known70数据库。
+
+Root保留first-create的单item execution准入，明确分列recover_single_item（1项/Q70）与
+batch_twenty_items（20项/Q2000）。前者是原C0/sender/reader/explicit once主链，后者只签
+ordinary原键RO及20项一致性。T6由原生UI生成key，一次原POST与原键GET；v2 outbox只来自原事务。
+API/单Worker正常process restart保留同PG卷，不冒称PG/Web或整个Compose已重建。
+
+| 实际DEV批 | 已核结果 | 保留失败/限制 |
+| --- | --- | --- |
+| run1 | 新schema修后局部通过，已停保卷 | 曾publish loopback PG，标nonconforming/partial，不签整包 |
+| run2 | 0015/0016查询局部通过，已停保卷 | 20项不能借single first-create；原失败及单item充分阻断保留 |
+| run3 | 两schema通过，已停保卷 | sender CheckViolation/缺stopped，未捕获原具体SQL位置；不伪造停止回执 |
+| run4 | 五实际PG节点全通过/205.903s，05:57:30Z资源0/0保卷 | DEV；不代签Web/T6/v2/全包 |
+| run5 | 原single RO再次通过，06:08:35Z资源0/0保卷 | native API-v2恢复及非空C collector在原生资源reader PREPARE失败 |
+| run6 | 334文件校验前拒绝，down0/0保卷 | harness1，bound outer未启动；内部校验1/PermissionError，复制的p4_performance.py为root/0600 |
+| run7 | SOURCE/RESOURCE/SCHEMA/PREPARE通过；两case真实非空C collector、原生once/冷重放通过 | bound outer1，T6 BROWSER_SOURCE_MISMATCH；v2/restart/page未运行；API缺结果保持失败，Web实际143单列 |
+| run8 | 2dc矩阵入口0/214.263s，两规范正例、13预期拒绝实际负例CLI全1；06:45:27Z PG/runner0、容器网络0、卷保留 | stage only，不签整包；新竞争once与最终C组合尚待同候选实跑 |
+
+每run先登记owner/project/labels、不可变images/资源ID、UTC与各context monotonic固定截止，
+reserve≥180s，PG无任何host publish；只启本轮PG/runner/必要Web，旧m1整profile不启动。
+实际失败输出固定stage/code/queryID/SQLSTATE或DTO loc/type，不输出原异常、SQL参数、URL/token。
+collector失败独立于生命周期/OS/归属/清理；未started的负例仅在实际0 started且OS wait后记no-start，
+不补stopped/termination。最终PASS必须全部required阶段及实际reap/退出码/清理/归属一致。
+正常由本工具向本轮immutable Web容器发送SIGTERM并wait/reap/端口关闭时可分类
+expected_owned_SIGTERM，保留actual143；意外143、未知停止或API缺结果均不能放行。
+
+原平台/旧资产/真实AppSecret/manualRO/provider未消费；原Base/007 HOLD不解除。
+没有push/CI触发/PRbody/main/Issue结案，没有迁移/业务规则/审批/权限策略/产品UI/B/锁/CI改动。
+最终完整组合、源码freeze、独立审核、精确CI和Root裁决仍以各自新回执为准，M1/Phase4仍in_progress。
+详见[接口和证据合同](contracts/p4-acceptance-tooling.md)。
+
+
+本节后续补记（07:11，run9/461af8a）：同候选13矩阵、两正向fixture与实际双进程once/冷重放完成；
+页面T6在进入原键GET前已跨过严格200/typed检查，但response bytes未保留、T6后PG关联未采集，
+不得签完整T6。原键GET具体status/body未保留，记unknown；源码证实consumer漏必需operation参数，
+由原C修，不改产品API。bound outer实际1，STOP/CLEANUP均通过，API真实结果/exit0；
+Web143有本工具向immutable ID发送SIGTERM的exit0/wait/reap/端口关闭证据，分类expected_owned_SIGTERM。
+最终容器网络0、卷保留，未续旧窗口。统一失败索引由Root持有，SHA256
+fd41a6be92992e7b911f711e3614be93d3378bcf6e0467f73aa30299b98c1e99。
+
+Core对461的两P2为actualstage与保留DB inventory闭合；工具v2 caps亦需缩到原single SDK额度。
+同包补第一实际阶段传递、四个新UUID库预登记用途/fixture/replay关联、owner只读库集合/owner/连接核对，
+排除并关闭检查自身连接；不DROP证据/replay库、不down-v。六类同入口诊断负例及异常闭合拒绝
+与C的GET/readonly repeatable快照/有界close修正合批，必须新统一源码从SOURCE重跑，不拼旧局部。
+截至此补记，新修后的完整预演/精确freeze/增量独审与CI尚待；原预算/日期/正式HOLD不变。
+
+Root随后核C432精确交付及新12字段索引，普通内部合入后统一重跑；C的MVCC机制证据只签
+0016 collector机制，不代签全链或0015。预算在原12h内调整为A5.75/C3/Review2.25/Root1，
+硬截止14:01:35Z不变。A此时自估约3.8h，人工H/L与实际计量仍not_reported。
+
+run10/fadb259按08:00:52Z→08:20:52Z登记，最外实际1：SOURCE/RESOURCE/SCHEMA/MATRIX/PREPARE/
+T6/V2通过，RESTART在consumer入口PRIVATE_HASH_MISMATCH拒绝，PAGE/COLLECT未运行；
+STOP/CLEANUP通过，API/Worker实际0、Web实际143有owned SIGTERM证据，容器网络0/端口关闭/保卷。
+四新UUID库的owner元数据与连接inventory闭合。故意残留连接被拒后释放复核0；capture真实
+CLARIFICATIONS/42P01与timeout57014、call/load/SQL/DTO非零负例分层保留，不代签新候选。
+该次仅external_records的hash在native v2后变化：handoff误pin实际可变传输存储，其他三私配匹配。
+改为独立不可变v1证据快照，原continuation仍使用原运行存储，原v2业务链不改。
+Core另发现fadb诊断直接透传child字段P2；父边界按既有loc/type有界合同和一层cleanup固定字段
+重建，恶意额外字段回归及新冻结全链另核，不用本次T6/V2局部通过拼签新源码。
+run10完整失败索引SHA256为35e0552d570ca75d2ed91af8f876ed8546a757f18e4f1a417a48dce7204eba4c。
+
+## 61. 真人T6与原记录v2新批：今晚未验收WIP交接
+
+用户批准立即接续，Root T0为2026-10-15 13:34:15Z，今晚15:00Z安全停止；必要时明日
+01:00–09:00Z仍属同批。5.5 Agent有效h/A3.5/C0.5/独审1/Root0.5为原批准上限，
+机器等待另记、不重置300h/P4 50h、日期、人工H/L not_reported及18页冻结。
+
+原049/tree8855真实RO分项已核，manual SPENT/Create1/automatic attempts3不变。
+新terminal DTO/profile、native当前权限及来源准入、确定性v2授权/单项enrollment/单次dispatch，
+以及human-only API/只读capture/认证GET/stop/probe和terminal_v2有界父分支为未提交WIP。
+C四consumer、迁移/grant/CI/锁/前端不改；今晚原库/身份历史/AppSecret/真实SDK/平台0访问。
+
+三新owned项目共六轮，每轮实际运行0015/0016两节点；前五轮各2fail，依次保留：授权JSON
+state读取错位、低权FOR SHARE锁表42501、子例复用Gateway/撤权夹具、Fake可变状态被误pin、
+撤权未递增auth_version。修正未放宽生产权限/生命周期谓词。末轮两节点通过337.05s、
+tests CLI0，native正向同锚v2/一次update/并发唯一胜者/冷重放/新Gateway重复拒绝/撤权通过；
+这是开发节点，不代签最终同源最外human链。最后14:46:34Z down0/控制器0，独立核三项目
+容器（含已停）/网络0、三卷保留、开发控制进程0，固定22:53:16窗口未续期。
+
+末full check日志走完：dir/index/git敏感扫描0、Markdown106错误0、format438/type328通过，
+2069offline通过/506PG排除/121.90s、Node/typecheck及依赖审计0。原CLI会话exit未恢复，
+明确分列unknown。前两次5个公开dummy字面量扫描命中、随后PATH缺mypy、Ruff长行中断
+均保留，未加扫描豁免、未上传。最后文档补记仅做文档/差异检查，不重跑已结束整套测试。
+
+完整human预演、从已核RO与原生T6自动派生disabled模板、同600s绝对截止父协调及private
+bootstrap、同最终源码/parent/image双schema完整链和失败/unknown/timeout/清理、原独审与
+新精确CI、真人与实际update≤1均pending；当前不作完整准备PASS或最终freeze。
+真实HTTP字节not_captured、网络恰好一次未观测；原人工报告与原key GET/PG语义证据分列。
+受保护交接索引保存每轮结果/log/源码hash与测试前后关系，供Root明早同批接续；
+没有push/CI触发/PRbody/main/Issue结案，M1/Phase4仍in_progress。
+
+Root要求明早先处理现有测试分组容量：新两个节点合计337.05s，而当前验收模块7节点仍
+独占同一300s命令。仅最小分批/必要独立测试模块，保完整506集合/两分区/G1G2/35与33总限额/
+300命令/75 reserve及原清理保护；不启动已知超时CI，不借旧40min通知重新授权。
+本轮无durations/JUnit，各节点/fixture独立时长unknown，须保留337.05s原实测和失败历史。
+
+## 62. 统一整改接续：两阶段实际入口候选
+
+用户取消原23:00硬停并继续托管。Root集中批准本批8 Agent有效h，A5.5/C0.5/Review1/Root1，
+此前全部用量及126秒诊断累计，从原P4/300h内调配。0fc82f0启动快照与夜间17文件hash一致，
+原branch普通ff-only保留；不改写历史。原RO已SPENT，原库/Secret/SDK仍须最终同源隔离全链、
+原独审、新精确CI与Root具体UTC及真人就绪后统一释放；本批原则授权不等于现在开真实。
+
+同一run_once新增human_terminal两阶段模式：预先固定不重叠绝对UTC，各PG≤600、合计≤1200、
+各reserve180，human等待≤300、SDK≤300。图片/源码/配置先准备；真人前余量不足完整等待与
+60秒采集则不发READY，后段不足480秒则不arm。先完整停前段，再从native RO claim/真实终止/
+稳定v1锚与T6持久事实自动派生disabled模板；不代真人业务提交，技术认证只供actual GET，
+不重投已提交T6、不重跑原RO、不增加C/IM/provider或原业务/权限/迁移规则。
+
+CI保留旧5验收节点独立一组，两个terminal schema节点各自独立，防止再次被小模块合批；
+原完整集合、两分区、G1/G2、35/33总限额、300命令/75 reserve/60 cleanup均保持。
+337.05秒旧合计不删，各节点实测另补。相关37pure及6文件type已过；此前完整离线check日志
+完成但wrapper exit未知保持。整改后一次完整check实际CLI0/166.90s，随后host tools固定及
+来源检查有增量，最终源码同源完整预演/检查另核，不能借旧结果代签。
+
+短owned前置p4terminal-preflight-cf3b012812：两schema真实低权执行新增派生及native准入的
+18条SELECT（含行锁权限），两节点2pass/2.94s；16:05:02Z down0/容器网络0/保卷，SDK0。
+Root已审C单文档地图按原diff集成，文件SHA256为
+2a21bccf7038b17ef840fd910b42fb6e8767642995e0443d99612fd194eed8bf，C四consumer不改。
+当前是源码候选，不是完整human准备PASS；下一步同一源码/privateparent/image执行双schema
+实际外层、必要失败清理及冷重放。没有push/触CI/main/Issue结案，M1/Phase4仍in_progress。
+
+本节接线核对补记：原生产恢复要求同host/PID namespace，重建runner不兼容原native终止证明；
+未运行该部署草稿、不改写历史回执，已收敛至Root同意的049同host子进程/受控loopback PG模式。
+新owned历史、human和v2必须同host产生；PG/API/Web只绑定127.0.0.1自有登记端口，
+沿用现有PG/source/tool/control，不保留第二部署框架。完整同源LAB仍待实际结果。
+
+
+## 63. 原已受理 queued task 的一次恢复候选
+
+Root于2026-10-16 08:58:43Z登记用户新批8 Agent有效h，建议A5.5/Core1.25/Root1.25，
+从原P4/300h内调配；旧9.5h及追加3h全部实际用量、失败、SPENT继续累计，机器等待分列。
+原A/WTfd38/codex/phase4-feishu/PR43接续，不新建会话/分支，C源码及未提交文档仍C独占。
+原实际fresh链已经有一个queued inventory task及原source、两个ready/attempt0 job，
+原Gateway已原生停止，Worker未启动；旧唯一RO已SPENT。具体原对象仅在私有证据绑定，
+本批准备没有重开实际PG、读原AppSecret/Token或启动真实Gateway/SDK。
+
+独审过的窄合同为docs/contracts/p4-queued-start-recovery.md，新增approved_queued_start，
+固定原task/source/job/inbox/receipt/旧Gateway hash、真实OS终止、原参数/config及当前A身份；
+queued v1初次无审批，后续原生审批仍绑定原新阶段plan/version/hash/nonce/TTL及当前权限。
+父permit文件fsync先独立消费，parent attempt独立commit，原单Worker锁内admission attempt
+再独立commit，完整验证及authorized commit先于Factory/Secret。失败/并发/跨窗/冷重放不能
+删除、回滚或重领这些事实。新Gateway max_workflows0，旧profile、迁移/权限/业务规则不改。
+
+原Gateway child仅本profile显式选择锁定SDK的最小运行就绪适配：原_connect完成、WS OPEN、
+原两handler装配及原receive task调度后持久ready；丢连接持久lost，无自动重连。
+这不是subscription/raw-wire/ACK正式Gate，不新增observer或修改SDK库。
+实际父入口沿用私有local_services_cli和共享handoff，同进程消费permit、持有PG/API/Web、
+等待Root绑定ready、本机arm并连续准入/观察/原native Gateway与Worker启动、停止和独立probe。
+后续真实父窗口最多1500s/末reserve180，页面ready后留600s登录机会、业务300、启动余量180；
+真实具体UTC/对象/ledger仍待Root统一释放。原SDK14上限及所有旧消耗不重置。
+
+WIP作者证据：10新增owned PG节点实际通过/CLI0，覆盖父attempt独立提交、6类失败保留、
+并发once、Worker admission撤权/transport_lost失败保留及冷重放，资源down0/容器网络0/保卷；
+97相关纯测及336文件type通过，实际完整collect516PG（原506+10），不改CI分区/预算/G1G2。
+新私有外层首两次分别在代码文件0600和较大manifest读取边界准备失败，均未进业务流程；
+新WS传输Fake缺protobuf必填SeqID/LogID导致连接lost，随后只修传输编码，原SDK解析/handler/
+SQL/权限/DTO/Worker/Graph不替身。后来新增离线实际Frame→原SDK card handler→ACK回归通过。
+
+同实际外层曾完整完成原任务原生SDK事件审批、v1 verified、同登录浏览器一次原生Web close、
+same item/record v2 verified；业务SDK12，冷Worker/冷父入口拒绝且SDK增量0，CLI/cleanup0。
+原receipt hash篡改、当前A撤权与WS endpoint失败的外层均SDK0、attempt保留、资源清理0；
+unknown update ACK外端已保存时仍unknown/停止、不补发，资源清理0。全部仍是开发候选回执，
+最终冻结源码、私有父入口和完整必要正负矩阵之间的精确对应由新的私有索引另核。
+
+一次P3_REVALIDATION_COLLECTION_STALE发生于原生审批已记录后的T4重新采集，
+原任务进入needs_attention，随后本profile原保护拒绝继续；仅5次SDK（metadata4+IM1），
+无Base写。旧失败未保存当时collection_started/collected/PG stamp，三个时间谓词中具体哪项
+触发仍unknown。随后一次owned只读时间探针仅证实该次PG clock落在host请求前后之间，
+不证明旧失败原因；另一次附安全时间诊断的重跑通过也不证明原因解决。未改P3源码、采集时钟、
+TTL/断言或审批规则；与WS Frame修正分列交原Core判断，不把通过重跑解释成业务根因已修复。
+首敏感扫描在新测试两处monkeypatch类型注解误报，随后只调整签名换行/逗号；不加规则豁免。
+
+本节不宣称最终freeze、独审/精确CI通过或真实M1/Phase4完成。源码先本地普通commit，
+Root另行释放唯一push/精确CI；PR synchronize及edited会触CI，目前不push、不改PR正文，
+不合main/关Issue。旧实际资源、凭据、失败与原SPENT保持；人工H/L仍not_reported。
+
+
+本批完整scripts.check实际CLI0/155.319947s：2102offline通过/516PG排除/117.42s、
+Markdown107错误0、format447/type336通过、Node漏洞0/Python95依赖漏洞0，三层敏感扫描0。
+此后仅补本事实，不重跑整套离线检查；本地冻结SHA及最终同源owned矩阵由私有索引另核。
+原SPENT RO快照自动派生了新disabled模板，实际配置正文/引用密钥/实际PG/SDK读取均0；
+Root仍须独审/新精确CI后另给绝对UTC和绑定配置引用/新permit，不复用或改写旧入口。
+
+## 64. queued-start 私有执行来源 P1 修复接续
+
+Core审核9454产品SQL暂未见额外P1/P2，但发现私有父入口在校验前已import可变WT项目代码，
+后续native子进程仍从可变WT执行；事后hash/git clean及LAB-only来源检查不能闭合该P1。
+旧9454及321引用索引223093f0全部保留历史，不代签实际准入。Root明确在原8h批内最小修复，
+无新预算/框架/真实许可；原合同0b3c5562不变，C源码/SQL/迁移/角色权限/业务规则不改。
+
+修复采用唯一封存副本：私有准备阶段把已提交源码/必要运行时/原私有入口复制到本批自有目录，
+封存为只读；唯一命令先用-I -S标准库引导验证入口、源码及运行时，复用原SourceBinding
+执行已校验内存字节并核加载来源。queued profile原Gateway/Worker子进程argv要求继承同一
+封存根/解释器/CWD/引导命令，缺绑定或来源污染先拒绝；旧profile原argv不改。
+当前仅argv增量81相关纯测/type2通过；同封存副本的拒绝测试、完整正负链、独审/CI另核，
+不预写通过。所有实际PG/AppSecret/Gateway/SDK仍HOLD，未push/编辑PR正文/触CI/main。
+
+## 65. 原item T6/v2完整分段收口包
+
+用户批准新cap6 Agent有效h，Root T0=2026-10-16 12:16:00.960321Z，建议A4/Core1/Root1，
+原负责人/WT/PR43接续。原8h用量、SDK9/Create1及全部once SPENT累计，不重置日期/P4/300h。
+bc0d/treef262与精确CI38891565819五绿/516PG仍只签旧源码；实际319索引记录原v1 verified、
+原审批一次、update0，T6最终commit unknown。原真实资源全停保卷，不重做DM/审批/create。
+
+当前新增显式VerifiedQueuedV1来源，原terminal的legacy RO守卫保持；新来源复核原queued
+三份独立授权、task/source/job不可变hash、原SDK精确caps/成功method主体、v1锚及真实终止。
+同A/当前角色、原生T6 key/semantic hash/receipt/audit/唯一v2 outbox与原record绑定，
+沿原terminal durable once/enrollment/单dispatch，不造旧RO claim。新来源原生Worker子进程
+明确继承同sealed解释器/CWD/bootstrap；旧terminal/RO来源的历史argv保持。
+
+新增停写后采集helper：要求绑定writers实际退出，等待同app数据库连接消退，再用RR READ ONLY
+读取带DB UTC的最终原item/web_requests/audit/v2 outbox，先保存后分类。API停止前的快照
+不能授权重投；COMMITTED跳过真人写，UNCOMMITTED仍需新Root具体准入，其他UNKNOWN即停。
+真实资源范围以合同新批段为准：PG-only600、必要真人Web1800、v2 PG600/SDK300，各清理180；
+真人登录机会至少600，操作/结果读取最多600，不随SDK300而关闭页面。新方法<=11，C/IM/provider0。
+
+首轮66相关pure通过；初次有UTC Z/+00:00比较失败，修正测试比较而非准入。开发双schema
+保留全部失败：owned传输数据库前缀拒绝；writer存活拒绝的测试异常类写错；双重reserve导致
+容量不足；拒绝案例共用Gateway违反“旧进程终止早于新claim”。分别修夹具/登记，生产保护不放宽。
+旧项目固定截止内曾2pass/37.68s，后续更严格矩阵另用全新owned项目；最终两schema2pass/67.90s，
+包括真实queued流水线/v1、T6拒绝与在途晚到、阻止提前采集、已提交只读、4类来源/锚/hash拒绝、
+唯一same-record v2、冷重放和当前撤权。两项目均down不-v0/容器网络0/保卷，真实资产/平台0访问。
+七相关源码type通过；完整检查、私有分段父入口同候选全链、冻结独审和一次新精确CI仍待，
+本节不签完整准备或真实Gate，不push/改PR正文/dispatch/main。C产品及四consumer不改。
+
+本功能批完整scripts.check随后实际CLI0/156.03s：2125offline通过/518PG排除，343文件type、
+454文件format、Markdown107错误0，Node及95依赖Python审计0，三层敏感扫描0。此前完整检查
+分别在新测试公共字段名赋值误报、测试局部dict推断类型处停止，均保留；只改未提交测试变量名/
+类型注解，不加扫描豁免。当前可冻结原生功能批交独审；私有分段父入口完整同源Gate仍pending。
+
+跨进程接线再补原生快照JSON往返：持久快照统一用既有json_native处理UUID/UTC/Decimal，
+两个状态读取前后分类一致，拒绝float/bool数量；新增同双schema两节点2pass/69.00s，
+原67.90s与37.68s分别保留，不代签本次。该owned项目仍固定20min/reserve180，结束down0/
+容器网络0/保卷，完整私有最外入口仍pending；源码增量后的完整检查另记。
+
+JSON往返增量后的完整scripts.check实际CLI0/149.09s，仍2125offline通过/518PG排除、
+343文件type/454format/Markdown107错误0、Node与Python95依赖审计0、三层敏感扫描0。
+仅补本事实后普通本地提交交原Core，精确SHA与私有证据路径/hash由本次功能交接给出。
+
+## 66. 原v2 unknown完整恢复包：新owned候选
+
+Root统一合同Issue39#6219180668 / PR43#6219181443，总cap8 Agent有效h（A5.5/Core1.5/Root1），
+旧6h及所有既有用量累计，机器等待单列；原300h/P4/日期/人工H-L/18页不重置。
+原046/ea实际T6 COMMITTED与原key GET成功保持，后续SDK5全部returned/200/0但Update0，
+delivery unknown/attempt1/INCOMPLETE_READBACK与旧once/SPENT原样保留，不重复真人操作。
+
+候选在原terminal profile/store/adapter/父入口内增加窄recovery_of，绑定完整v1 PG锚、原失败
+window/完整ledger/update0、停止历史与当前身份权限。独立授权/dispatch once持久化，不SQL
+重置pending。对账先读完整v2可零写结算；仅完整可信v1可同record Update一次并严格读回v2。
+三nullable仅按已核完整v1中的None补省，数字仍拒绝float；发前角色/意图锁、lease/Gateway/
+stop/deadline重核。固定无值诊断与停写后完整SDK行导出见[完整合同](contracts/p4-terminal-recovery.md)。
+
+新owned首四节点4pass/223.82s；扩展首轮10pass2fail/684.53s，两个测试变量覆盖使Gateway
+停止器收到Worker引用，失败与cleanup0/容器网络0/保卷均保留。修正及按实际选中节点先构造
+独立DB失败历史后，原30秒backoff自然经过，12节点三完整组实际CLI119.071/103.384/108.805s，
+全部通过，cleanup0/容器网络0/保卷；包括0015/0016、同记录更新/已v2零写、错误hash、
+并发、认证/写前/写后停止、发前撤权和冷重放SDK delta0。仅Fake底层HTTP，SQL/角色/once/
+原生进程与退出真实。首三处敏感扫描新字面量误报改为固定名称/SQL参数，规则无豁免。
+
+完整scripts.check实际CLI0/162.711s：2153offline通过/530integration排除，346文件type、
+458format、Markdown108错误0、Node与Python95依赖审计0、dir/index/git敏感扫描0。
+最后本事实文档另作Markdown检查，不冒称未运行的完整业务Gate。完整collect530=原518+12，
+原helper最小分组候选372+158、交集0；旧Hosted命令实际时长与新增三组原始证据保留，
+两个quality合组新owned实际20/20及12/12通过，CLI151.623/128.303s，cleanup0/资源0/保卷；
+不放宽35/33/300/75reserve/60cleanup或原G1/G2/Web，Hosted容量由Root结合分层实测核定。
+
+同冻结私有最外层整链矩阵、原Core整包结论、精确新CI与真实原记录同步仍pending；Root允许
+Core源码/入口阅读与同候选owned outer并行，最后一次整包结论，不新增中间Gate。
+当前原库/Secret/真实SDK0访问，C产品/四consumer、迁移/grant/锁及main不改，A不push/触CI/
+改PR正文。未来真实PG<=600/SDK<=300/reserve>=180/arm余量>=480，必须另有Root具体UTC。
+
+## 67. 原记录v2已核收；M1父入口接续批
+
+2026-10-17，Asia/Shanghai。Root及独立只读Reviewer已正式核收同原记录v2：source0c908807/
+tree6cf9bdd2、私有e303，实际12:49:00–12:49:46。SDK7均returned/HTTP200/code0，auth1/
+bot1/table1/field1/list2/Update1，Create/IM/provider0；同record完整唯一v2 verified、attempts2、
+observed_version2。CLI/op/cleanup均0，原授权/dispatch once各1，旧SDK5失败账本及SPENT保持；
+原T6未重做。writers退出后、PG down前保存完整快照，独立17个PID均不存在，容器网络/挂载0、
+端口关闭、原卷保留。实际索引7c152952…f278、独审receipt5b52d786…22c，
+[Issue39核收](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6229884679) /
+[PR43回执](https://github.com/aning0922/commerceops-agent/pull/43#issuecomment-6229884891)。
+不变性仅原对象七类行，不称全库execution计数已采；raw wire未采。该链SDK9+5+7=21，
+不计其他独立探针，未用额度不转新业务。原恢复包A2.6–3.9h粗估/4.5h cap与全部历史独立保留。
+
+用户要求成功后继续M1，Root释放新功能批总cap7 Agent有效h：A5/Review1.25/Root0.5/Cdoc0.25，
+从原P4/300h内安排，不重置日期、原计划50h、H/L或18页；完整历史余量unknown，机器等待单列。
+原A/WTfd38/PR43接续，原库/凭据/AppSecret/真实SDK/IM/Base/provider重新HOLD，仅offline和
+全新owned环境。主体在原feishu_business父入口增加read_reply模式、复用ReadReplyWindow及
+子进程，并要求原sent/OS reap/真实termination后成功；旧workflow/F02 argv及业务行为保持。
+并在原验收helper增加READ ONLY精确selection：按预绑定Gateway/任务/kind/identity/chat/
+应用规范文本hash选唯一新入站，旧pending/0条/多条不选，生成已有disabled Window而不消费once。
+不改DTO/API、迁移/grant、Graph/审批/业务状态机、依赖锁或C产品/四consumer。
+
+C交付文档61d95f9已按Root授权普通cherry-pick；旧10月15日基线与C已核10月17日稿冲突经事实
+核对后接入，内容sha80fec08d…4ca1完全保持C原稿，本地接入5f56a8d，不合整个旧C分支。
+原main9d97与M1/P4 in_progress保持，新批最终source以冻结交接为准，不以旧530精确CI代签。
+
+新测试从实际生成的disabled window启用同一输入进入原最外CLI。原Factory/低权PG/lease/当前
+身份/asof/source/hash/once/SDKledger及stop/reap不替换，Fake只在新owned底层HTTP；F02的
+Gateway claim/process_started沿原helper和实际子进程，不手写替代审计。查询/解释各自carrier，
+ready与NOT_READY分开，不补旧cache、不调用模型。group20复用原Gate，最短顺序与当前矩阵见
+[PHASE4_ACCEPTANCE当前节](PHASE4_ACCEPTANCE.md#2026-10-17-当前矩阵)。
+
+开发首外置脚本import路径错误发生在0资源/0测试；首owned在collection唯一数仍残留旧12时停止，
+0测试，down0/资源0/保卷。修正后首read父链实际7pass1fail，NOT_READY首例child1/summary缺失/
+terminationfalse，旧进程在pytest父PID内初始化后仍活；精确child异常未采。该失败与清理0保留，
+未放宽准入。夹具改为独立P3进程真实落unavailable、stop/reap退出，再读取与发送，不伪造终止。
+修正后的开发组合10个新PG节点全通过：F02成功/unknown两例、0015/0016两种读取、0016
+NOT_READY/unknown/撤权/错task共八例。三组CLI54.015/52.550/27.296s，05:14:34Z
+down0/容器网络0/保卷；包含真实SIGTERM/stop/reap/termination、同carrier冷重放SDK增量0，
+完整实际命令、生成disabled输入及启用映射、原生CLI结果均在受保护索引。此为HTTP Fake技术
+证据，不签平台/真人；最终冻结源码的整链与受影响回归另核，不拼接旧7pass1fail。
+59项受影响既有PG全部通过，包括group20的11项、跨任务/CP隔离、双schema DDL/低权SQL、
+原parent真实终止、F02与read/template；05:21:00Z down0/资源0/保卷。首次完整检查在一个
+dummy文件名触发generic-api-key时停止，改为固定变量比较而不改规则/豁免，旧失败保留；
+随后完整scripts.check退出0/159.179s、2163offline/540integration排除，最后新增的只读
+selection数据流另作整链和最终检查，不以这次旧540代签新增节点。
+Root补充要求后，已将新Gateway原生入站→只读selection→disabled模板→同parent发送合为
+实测；新增多条候选时零window/SDK拒绝，原旧pending保持不变。11个新owned节点全pass，
+三组CLI56.209/59.263/33.241s，05:31:17Z down0/资源0/保卷；SDK/window/once/lifecycle
+完整PG事实在writers退出后导出。接收仍是simulated_feishu/no_WS，不签真实消息入站。
+最终本批检查、冻结独审及新精确CI以新的回执记录，不预填未来结果；
+真实F02/查询/群/负向、完整干净Compose与演示仍pending。
+
+最终源码完整scripts.check实际退出0/154.120s，含只读selection和PG证据导出；
+2163offline通过/541integration排除，lint/type/format/Markdown、Node/Python95依赖审计及
+dir/index/git敏感扫描均0。完整collect541=原530+新11，原530节点模块字节保持，
+372+169并集541/交集0，原25个合批计划完整覆盖一次；CI35/33/300、75reserve/60cleanup、
+G1/G2/Web/N01、锁/Compose/C四consumer未改。只追加本事实再作Markdown核，不冒称未来
+冻结复验/独审或新Hosted已通过；冻结后新11整链与精确SHA/命令/输入/结果/清理索引另交Root。
+
+
+## 68. group20与只读Web同批接续：完整候选仍待验证
+
+2026-10-18，Asia/Shanghai。用户确认额度恢复，Root接续原A/Reviewer；A仍唯一WTfd38/
+codex/phase4-feishu/PR43，不改历史提交，不重做已通过真人。公共be1b7938/tree842a9406为
+72bc597与af73176普通合并，工作区开始时干净；后续仅本批必要测试/type、精确历史扫描判定
+及事实导航。原Reviewer公共39pure与C静态结论保持，当前源码完整技术Gate不由此签发。
+
+真实F02、原私聊任务/审批、T6与同原record Base v1/v2已核收，复用原回执；当前原库/真实
+身份/Secret/SDK重新HOLD。原两查询精确本地inbox/carrier零行、平台近时失败事件与文本关联
+UNKNOWN分列；用户不重发，真实恢复HOLD，过期04:04–04:24提案NOT_EXECUTED，不复活。
+最新交付事实见[交付地图](PHASE4_M1_DELIVERY.md#当前交付工作稿2026-10-17待合批审核)。
+
+四个owned候选失败独立保留：前三次分别为工具symlink、合成TTL配置与W2原生preflight拒绝。
+第三次保存SQL可证JSON时间精度与datetime导致提交审批hash不等；原PermissionError具体
+谓词trace未知，不倒填唯一根因。第四次私有772a490e在be1b上实际通过G1原生ready/20行卡/
+停机reap/G2 preflight；原拒绝落rejected、0执行/0项，13决定ACK（11info/2warning）；SQL实际auth/bot/table/
+field/IM各2，总10次，outer先前只计phase1的5次不能替代完整SQL。W2在expiry−15s原生
+TimeoutExpired收尾时再次收到SIGTERM，KeyboardInterrupt/native−2、生命周期未确认；
+CLI1，success/cold未跑，非完整PASS。最后RO rollback/IUD0、旧保护行未变；独立核容器/
+网络/挂载0、PGID不存在、端口关闭、保卷。独立停止诊断索引48e1bdc5…514ad4。
+
+当前只修私有类型还原、原截止内避开parent自身收尾的停止安排和失败SDK账本采集。先完整
+低成本check，再以同一最终候选做reject0+success20/Q2000、必要拒绝/漏确认/10重放/冲突、
+ready-lost/HTTP故障、同原键15字段严格读回、冷重放与清理；Fake仅owned底层HTTP/WS和明确
+合成人。随后串行复用原生closed-v2合成历史，实际跑已审C page/replay，当前同源API/Web、
+认证POST与业务POST0分记，不新增T6/SDK/平台写。完整准备及真实group/Web/M1仍pending。
+
+be1b独立离线2185passed/541deselected、116.72s/native0；Ruff/format通过，原full check先
+在generic-api-key测试跨行声明误报阻断，后发现mypy5项。Root/原Reviewer准许当前声明改名与
+测试type修正；历史仅对实际72bc与be1b两个git finding按rule/path/commit/fingerprint/
+scanner446、declaration445及Match/原行SHA严格分类，原native1和两条命中保留。不增加规则/
+目录豁免，dir/index不分类，.gitleaksignore拒绝和--all --full-history -m保持。最终完整检查、
+同候选owned索引、整包独审与新精确CI以实际后续回执另记，不预填成功。
+
+本批A总cap5/Review1.25/Root0.75 Agent有效h不重置，先前A≤1.17h保守墙钟上界继续累计，
+机器等待单列，C资源串行。原300h/P4 50h/日期/H-L/18页不重置；main9d97、M1/P4仍
+in_progress。未push/PRbody/CI/main，最终Root独审后另释放一次精确五job CI；旧c460 CI不代签。
+
+
+本批必要修正的完整scripts.check已实际退出0/158.84s，staged tree8c30a78f：2194offline
+通过/541integration排除、type350、format462、Markdown108、Node/Python95依赖审计0。
+dir/index当前0；git原始2条/native1保留为已审公开误报，blocking0，不称历史从未命中。
+停止后有效决定ACK复核为13（11info/2warning），空载荷控制帧另列；本段只追加检查和
+计数事实，再核Markdown/扫描，不将其写成未运行的group/Web成功或新CI。
+
+
+## 69. M1九小时收口批：离线准备候选
+
+用户批准[540分钟完整方案](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286638856)，Root于08:21:55.423330Z[登记接续](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6286688465)，计划A330/C60/Review90/Root60分钟，总额内调配，旧用量与失败不重置。A上一90分钟批约31–38分钟保留，本批有效用量按估计另报，非精确计量；机器和真人等待单列，原300h/P4余额UNKNOWN。
+
+基线877/treef2f精确CI39386976160五SUCCESS，563=395+168完整/disjoint/actual=passed，G1三/G2六/Web/N01/cleanup0已由Root核收。C文档9ccd经原Reviewer无P1/P2并由Root释放，已ff普通合入，C7文件独占边界保留。main及本次新独审/精确CI/合后CI/Issues39–42结案仍pending。
+
+旧两条私聊查询停止专项恢复，旧SDK3（auth1/bot1/list1）HTTP200/code0及messages/source/reply0分列；旧第二项差1字符的离线hash对比是分类证据，不授权改写/新carrier或回复。原未知异常与Secret读取数UNKNOWN，不追填SPENT或根因。当前新群两查询可用同一个新的成功群任务及ready报告，均为新消息一次；不额外建两业务任务，不重做已核原私聊/F02/审批/T6/v2/只读Web。
+
+A候选仅现有group-ready接收器的同群准入、固定只读subject/ready模板核验、未消费disabled发送模板派生及必要契约。私有现有group/R8/B-C父入口保持默认disabled/同SourceBinding，旧历史行只用PG服务端整行hash保护；实际WS-ready触发Root工具通知，完整可复制纯文本、规范hash、通知实际返回后≥240s，迟到/缺失HOLD。现有父入口中旧DM fixture分支不作为新群来源；发送及失败采集仍沿原read_reply/原once，不续已注册窗口、不SQL重置pending。
+
+离线相关90项和私有15边界检查已通过，原群入口47函数级纯测另列；一次私有复制脚本引号SyntaxError在AST阶段拒绝，未创建资源；旧模块路径/静态pin失败保留，随后函数级检查不冒完整CLI通过。必要2PG尚仅收集候选，原563不减；完整read-parent11固定6+5、history7+7，原CI read-parent9耗254.819s只余45.181s，quality40m17/phase341m44旧事实保留。新分组实际owned耗时与45/43总容量还未测得。
+
+资源上限：新owned至多2窗各≤1800s/cleanup≥180s，原B/C配置PG一次≤600s/cleanup≥180s；真实群两窗各≤1200s，各内部Gateway/SDK≤300s，回调总≤30、业务SDK≤90；新群读接收一次PG≤600s/Gateway≤300s，回复一次PG≤600s/SDK≤300s、两sender合≤6，全业务SDK≤96、BaseCreate≤20/Update0/paid0。PG/Compose生命周期复用须在精确计划证明不超2窗；总控允许事前固定的同owner/资源窗口内restart及多个子进程，不允许事后重命名独立窗口或复用失败窗口，未核定不启动。Root独占最多2次新合前完整CI+1次合后CI及正常main；A不自行push/改PR正文/触CI。当前本批PG/原库/Secret/真实SDK/服务/push/CI均0，所有实际Gate pending。
+
+本次实际collect-only退出0：565=397existing+168phase3，交集0，原563加必要2节点；read-parent完整11按6+5，history14按7+7。首完整scripts.check退出0/157.660s，2300offline通过/565integration排除，type361、Markdown109、Python95包及npm审计0；原CI五绿与本地离线结果分层。随后仅增强pinned Lark DTO→原BusinessGateway handler→mention全文hash的既有两参数断言，3/3通过并mypy2文件通过；最终组合检查以新日志为准。私有现有read-parent的15边界检查再次通过，实际PG及通知工具演练尚未执行。
+
+最终组合scripts.check实际退出0/149.493s，运行期间全部受检文件hash无变化：2300offline通过/565integration排除，Ruff474文件、mypy361文件、Markdown109文件、Python95包和npm审计0。检查后仅将本节首检查type数量笔误346更正为361，并以check_docs退出0复核；原3个pinned-SDK规范化pure及完整90相关pure亦通过。以上不签当前PG/平台/独审/CI。
+
+## 70. Phase4/M1业务门槛已核收与最后文档合批
+
+2026-10-23（Asia/Taipei，D14），Root及原Reviewer已核收所有必要业务/真人平台Gate，
+当前`business_gates_passed / ready_for_final_review`。唯一[最终权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)
+承接实际最终文档独审、CI8、main合并SHA、合后CI及Issues结案；本快照均不预填未来结果。
+当前已核业务source为`160d66acf5f21887abdfd5bada2232118755268e`，
+tree为`90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；Root已核[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939)
+attempt1五作业SUCCESS、完整567PG、G1三/G2六、Web/N01、精确配对及清理。
+
+| 对象 | 最终业务事实与证据边界 |
+| --- | --- |
+| 已核原链 | 真实私聊、F02、原T6/同record Base v2及原key GET、只读Web均复用原对象和原独审回执，不重做登录、消息、审批、Create或Update |
+| 两真实群 | 两轮群卡5/4、完整20SKU与全部假设联合批准、独立拒绝零项、重复/冲突/角色拒绝、20项Base读回已核收；旧过期卡/失败/once仍保留 |
+| 两新群查询 | 固定T=07:06:00Z，native WS实际ready；Root实际ready工具返回07:08:29.068Z，通知实际返回07:08:54.591Z，至07:16:00Z保留425.409秒；唯一选择两条，两个sender分别07:22:06.127231Z及07:24:05.771283Z原生0，两carrier各sent/attempt1 |
+| 来源与回复身份 | 原入站message、reply、SDK window、IM call及外部sent message_id关联；`source_kind=p2_original`指报告来源，不能写成WS来源。客户端已读、原始wire ACK未捕获，不称网络exactly-once |
+| SDK合同口径 | 原23+已审reject10+success70=103次/9窗，callID去重103；新auth2/bot2/IM2共6次/2窗，均returned/HTTP200/code0，与旧ID集合无交集；scoped累计109次/11窗，calls≤114 |
+| SDK全库口径 | 旧protected全集136次/15窗在四快照count/hash完全相同，加本轮新6/2后全库142/17；差33/6为开窗前存量与合同范围差，历史用途不作猜测，不计作本次新增 |
+| 业务不变性与停止 | 四快照17保护组全同，新Create/Update/Base/Graph/model为0；writers退出后采集，父07:24:07.842294Z实际native0/reaped，PG stop原生0；独立核18登记PID均不存在、端口关闭、容器/网络0、原卷保留；query PG累计3/3，不再启动 |
+| 只读采集类型 | IUD值为规范字符串`"0"`；Root汇总初次以int假设比对失败及后续纠正保留在核收回执，不属于运行/数据失败，不改写原始JSON |
+| 原件与独审 | 完整真实query冻结索引SHA256 `8799fe105cfc6d6147f101a14935e00e01e7eecf265d5439097ad6456c7779c6`、Root SDK对齐回执SHA256 `527715ce9ec7dd5b8634207e3681c320a54f4af5f1ada93f9d7403c70d61bd31`均已由原Reviewer接受；不再扩大历史归属调查 |
+| 交付材料 | 干净Compose、恢复/轨迹说明及录屏按既有离线Mock/自动化材料的有限边界记录，详见[交付地图](PHASE4_M1_DELIVERY.md)；不冒真实平台录屏、不称Woo已接入 |
+
+旧两条查询停止专项恢复，继续HOLD；不重发旧文本、不重取历史、不重置once/attempt或复活过期卡。
+owned15/16失败、owned17旧source432的合成通过、controller外层OS退出NOT_CAPTURED、CI6前端漏洞审计失败与
+CI7修复后成功分别保留，不用新成功覆盖旧失败。完整分层证据见[PHASE4_ACCEPTANCE](PHASE4_ACCEPTANCE.md)。
+Issue23及历史未知根因/未定位风险保持原值；真实资源已停止保卷，Phase5/Woo/生产/扩权均未授权。
+
+用户已批准最后40 Agent有效分钟：本包1940→1980，当前有效池460→500；
+规划A226/Review101/C10/Root160及统筹3，由Root总额内调配，旧用量与历史净余UNKNOWN保留，
+机器/真人/中断等待另记。A在本次文档批前累计169–215分钟，余文档估7–11分钟；
+实际文档用量与冻结由A回交Root账本，其他角色不代填。
+D1=2026-10-10、D30=2026-11-08、原300h/P4计划50h、人工H/L UNKNOWN与18页冻结不重置。
+
+本批A只提交四份阶段文档，C只提交其三份交付文档；Root转交C精确commit后由A普通merge本地冻结，
+不读未提交WIP，不改业务/前端/测试/锁/workflow，不push/改PR正文/触CI或再开PG/SDK/真人。
+原Reviewer对最终docs/source增量一次审查后，Root才释放预留CI8；按实际成功结果正常main及唯一合后CI1，
+失败不自动重试。正式complete和Issues关闭均以固定权威回执后续实际更新为准，不再为未来SHA补写而开docsCI循环。

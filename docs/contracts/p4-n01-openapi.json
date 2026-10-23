@@ -1,0 +1,720 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CommerceOps P4 N01 Web preflight",
+    "version": "p4-n01-web-v1"
+  },
+  "paths": {
+    "/api/v1/tasks/preflight": {
+      "post": {
+        "operationId": "preflightNewCycle",
+        "summary": "当前Web operator/shop自然语言参数草稿；明确确认前零业务写入",
+        "responses": {
+          "200": {
+            "description": "只读业务preflight结果；ready仍需本地明确确认和独立显式提交",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01PreflightResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求无法解码或cursor/filter无效，无原输入",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "会话失效/缺失/撤权或统一登录失败，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无能力/CSRF/Origin拒绝，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在/不可见对象/非法对象ID一致",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "仅支持JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "严格输入验证，无输入回显",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "数据库/配置不可用，提交事实须按原键核实",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{43}$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "description": "精确配置scheme/host/port；missing/null/非允许Origin拒绝"
+            }
+          }
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-implementation-status": "not_implemented",
+        "x-authority-contract":
+          "p4-n01-web-v1.md",
+        "x-cache-control": "no-store",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/N01PreflightInput"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "N01PreflightInput": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "fixture_case": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Fixture Case",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "shop_id",
+          "fixture_case",
+          "text"
+        ],
+        "title": "PreflightInput",
+        "type": "object"
+      },
+      "N01Candidate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "L",
+              "R",
+              "S"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "value": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "Value",
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "explicit_text",
+              "demo_assumption"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End"
+          }
+        },
+        "required": [
+          "name",
+          "value",
+          "source"
+        ],
+        "title": "Candidate",
+        "type": "object"
+      },
+      "N01Parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "mock",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "dataset_version": {
+            "const": "inventory-v1",
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "fixture_case": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Fixture Case",
+            "type": "string"
+          },
+          "L": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_mode",
+          "dataset_version",
+          "fixture_case",
+          "L",
+          "R",
+          "S"
+        ],
+        "title": "Parameters",
+        "type": "object"
+      },
+      "N01Scope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "all_fixture_products",
+            "default": "all_fixture_products",
+            "title": "Kind",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "const": "selected_shop",
+            "default": "selected_shop",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "Scope",
+        "type": "object"
+      },
+      "N01Source": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "mock",
+            "default": "mock",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "dataset_version": {
+            "const": "inventory-v1",
+            "default": "inventory-v1",
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "fixture_case": {
+            "title": "Fixture Case",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Evidence Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fixture_case"
+        ],
+        "title": "Source",
+        "type": "object"
+      },
+      "N01Window": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "last_seven_complete_days",
+            "default": "last_seven_complete_days",
+            "title": "Kind",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "source": {
+            "const": "mock_fixture",
+            "default": "mock_fixture",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "timezone",
+          "as_of"
+        ],
+        "title": "Window",
+        "type": "object"
+      },
+      "N01PreflightResult": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p4-n01-web-v1",
+            "default": "p4-n01-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "clarify",
+              "unsupported"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "EXPLICIT_PARAMETERS",
+              "MISSING_PARAMETERS",
+              "INVALID_PARAMETERS",
+              "UNSUPPORTED_TEXT"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/N01Source"
+          },
+          "window": {
+            "$ref": "#/components/schemas/N01Window"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/N01Scope"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/N01Candidate"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "missing": {
+            "items": {
+              "enum": [
+                "L",
+                "R",
+                "S"
+              ],
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/N01Parameters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requires_confirmation": {
+            "const": true,
+            "default": true,
+            "title": "Requires Confirmation",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "shop_id",
+          "source",
+          "window",
+          "scope",
+          "candidates",
+          "missing",
+          "draft"
+        ],
+        "title": "PreflightResult",
+        "type": "object"
+      },
+      "N01PreflightResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "preflight"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "type": "string"
+          },
+          "identity_mode": {
+            "const": "session",
+            "type": "string"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "preflight": {
+            "$ref": "#/components/schemas/N01PreflightResult"
+          }
+        }
+      },
+      "N01Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "server_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error": {
+            "$ref": "#/components/schemas/N01ErrorDetail"
+          }
+        },
+        "required": [
+          "schema_version",
+          "server_time",
+          "trace_id",
+          "error"
+        ]
+      },
+      "N01ErrorDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_JSON",
+              "SESSION_INVALID",
+              "ACCESS_DENIED",
+              "CSRF_INVALID",
+              "ORIGIN_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "INVALID_REQUEST",
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "safe_message": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "receipt"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "commerceops_session",
+        "description": "PG服务端opaque会话；login使用匿名bootstrap；HttpOnly/SameSite=Lax/Secure依显式transport配置。"
+      }
+    }
+  }
+}
