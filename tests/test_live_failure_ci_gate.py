@@ -78,7 +78,7 @@ def test_original_success_gate_and_upload_bytes_preserved_with_separate_failure_
         paths = failure_upload["with"]["path"].splitlines()
         assert len(paths) == 2 and paths[0].endswith(".outputs.sidecar_path }}")
         assert paths[1] == ".audit/live-failure-binding.safe.json"
-        assert current["jobs"][name]["timeout-minutes"] == 25
+        assert current["jobs"][name]["timeout-minutes"] == (35 if name == "frontend" else 25)
         for entry in new_steps:
             if "run" not in entry:
                 continue
