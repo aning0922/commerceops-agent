@@ -17,6 +17,15 @@ B_PUBLIC_ROW = '    "' + "sec" + 'rets": "dir/index/fullreachablegit 0 before fi
 B_PUBLIC_PATH = r"(?:^|/)frontend/evidence/b02-read/validation\.json$"
 B_ROW_DIGEST = "2fd5c5a9ece651f39320ee19c19b067b6f388064fd47cc64bdd2c6dc78f53437"
 
+RO_PUBLIC_ROW = (
+    '                ["explicit_ro_'
+    + 'recheck_authorized", "explicit_ro_'
+    + 'recheck_dispatched"],'
+)
+RO_PUBLIC_PATH = r"(?:^|/)scripts/p4_acceptance\.py$"
+RO_ROW_DIGEST = "07e3542d6dbdbc59bbd099207f38277800daec3217315d0f5dde8549e6df32d5"
+RO_SOURCE_COMMIT = "348a9f4ca0c4159d9b3a2cbdf0921623e5bb5600"
+
 
 def main() -> None:
     # CI在安装依赖前运行敏感扫描；导入公开行常量不能要求生成器的开发依赖。
@@ -37,7 +46,7 @@ def main() -> None:
         rule_removed += int("allowlist" in rule) + len(rule.get("allowlists", []))
         rule.pop("allowlist", None)
         rule.pop("allowlists", None)
-    # 四处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
+    # 五处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
     schema_row = next(
         line
         for line in (ROOT / "docs/DATA_MODEL.md").read_text().splitlines()
@@ -52,6 +61,8 @@ def main() -> None:
         raise SystemExit("P3历史公开摘要行变化，须重新审查精确豁免")
     if hashlib.sha256(B_PUBLIC_ROW.encode()).hexdigest() != B_ROW_DIGEST:
         raise SystemExit("B历史公开metadata行变化，须重新审查精确豁免")
+    if hashlib.sha256(RO_PUBLIC_ROW.encode()).hexdigest() != RO_ROW_DIGEST:
+        raise SystemExit("RO历史公开action行变化，须重新审查精确豁免")
     for rule in config["rules"]:
         if rule["id"] == "generic-api-key":
             path = r"(?:^|/)docs/DATA_MODEL\.md$"
@@ -121,10 +132,30 @@ def main() -> None:
                     "source_line": 27,
                 }
             )
+            reason = "348a9f4历史只读SQL audit action公开名称，Root核实整行无私有值，仅此旧整行"
+            rule["allowlists"].append(
+                {
+                    "description": reason,
+                    "condition": "AND",
+                    "regexTarget": "line",
+                    "paths": [RO_PUBLIC_PATH],
+                    "regexes": [r"^(?:\r?\n)?" + re.escape(RO_PUBLIC_ROW) + "$"],
+                }
+            )
+            exceptions.append(
+                {
+                    "rule": rule["id"],
+                    "path": RO_PUBLIC_PATH,
+                    "reason": reason,
+                    "exact_line_sha256": RO_ROW_DIGEST,
+                    "source_commit": RO_SOURCE_COMMIT,
+                    "source_line": 3936,
+                }
+            )
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 4 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 5 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
@@ -146,7 +177,7 @@ def main() -> None:
     (ROOT / "scripts/gitleaks_rules.json").write_text(
         json.dumps(provenance, indent=2, ensure_ascii=False) + "\n"
     )
-    print(f"固定规则生成完成：{len(config['rules'])} rules, 4 exact-line exceptions")
+    print(f"固定规则生成完成：{len(config['rules'])} rules, 5 exact-line exceptions")
 
 
 if __name__ == "__main__":

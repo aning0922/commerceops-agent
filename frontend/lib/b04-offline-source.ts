@@ -27,6 +27,15 @@ export const offlineScenarios = [
   "auth_changed",
 ] as const;
 export type OfflineScenario = (typeof offlineScenarios)[number];
+export const offlineSenderGates = (): DTO["SenderGate"][] =>
+  ["IM", "Base"].map((destination_alias) => ({
+    destination_alias: destination_alias as "IM" | "Base",
+    sender_enabled: false,
+    reason_code: "NOT_CONFIGURED",
+    verification_mode: null,
+    as_of: offlineEnvelope.server_time,
+    worker_ready: null,
+  }));
 export function offlineSync(
   state: DTO["SyncRead"]["state"],
   number = 1,
@@ -34,9 +43,18 @@ export function offlineSync(
   return {
     state,
     sender_enabled: false,
+    sender_gates: offlineSenderGates(),
     projections: [
       {
         aggregate_id: offlineId(number),
+        outbox_id: offlineId(number + 1000),
+        destination_alias: "Base",
+        target_version: 1,
+        observed_version: state === "synced" ? 1 : null,
+        complete_unique_verified: state === "synced",
+        is_current_version: true,
+        attempts: 1,
+        verification_mode: "offline_fake",
         projection_version: 1,
         outbox_status:
           state === "failed"
@@ -85,6 +103,15 @@ export function offlineReceipt(
       ...read.item,
       state: input.action === "complete" ? "completed" : "closed",
       version: input.expected_version + 1,
+      sync: {
+        ...read.item.sync,
+        projections: read.item.sync.projections.map((projection) => ({
+          ...projection,
+          target_version: input.expected_version + 1,
+          is_current_version:
+            projection.projection_version === input.expected_version + 1,
+        })),
+      },
     },
     resolution: {
       resolution_id: offlineId(104),
@@ -166,6 +193,7 @@ export function offlineSession(): DTO["SessionRead"] {
       organization_id: offlineId(109),
       display_name: "离线DTO示例",
       auth_version: 1,
+      linked_channels: ["web"],
       role_shop_grants: [{ role: "approver", shop_id: offlineId(101) }],
       capabilities: {
         can_create_task: false,
@@ -191,6 +219,7 @@ export function offlineSession(): DTO["SessionRead"] {
       source_mode: "mock",
       model_requests_enabled: false,
       external_sender_enabled: false,
+      sender_gates: offlineSenderGates(),
     },
   };
 }

@@ -1,6 +1,6 @@
 # Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。
 # 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。
-# 不使用 extend/useDefault；仅有 4 个指定规则/路径/精确整行 AND 豁免。
+# 不使用 extend/useDefault；仅有 5 个指定规则/路径/精确整行 AND 豁免。
 title = "gitleaks config"
 minVersion = "v8.25.0"
 
@@ -738,6 +738,17 @@ paths = [
 ]
 regexes = [
     "^(?:\\r?\\n)?\\ \\ \\ \\ \"secrets\":\\ \"dir/index/fullreachablegit\\ 0\\ before\\ final\\ stage\"$",
+]
+
+[[rules.allowlists]]
+description = "348a9f4历史只读SQL audit action公开名称，Root核实整行无私有值，仅此旧整行"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)scripts/p4_acceptance\\.py$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\[\"explicit_ro_recheck_authorized\",\\ \"explicit_ro_recheck_dispatched\"\\],$",
 ]
 
 [[rules]]

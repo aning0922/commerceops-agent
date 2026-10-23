@@ -3,6 +3,7 @@ import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import schemas from "./p3-read-schema.generated.json";
 import type { DTO } from "./p3-present";
+import { p4ReadFactsValid } from "./p4-read-facts";
 const ajv = new Ajv2020({
   strict: false,
   coerceTypes: false,
@@ -44,7 +45,22 @@ const safeNumbers = (value: unknown): boolean =>
         ? Object.values(value).every(safeNumbers)
         : true;
 export function validItemDTO(name: Name, value: unknown): boolean {
-  return safeNumbers(value) && validators.get(name)?.(value) === true;
+  if (!safeNumbers(value) || validators.get(name)?.(value) !== true)
+    return false;
+  if (name === "Error") return true;
+  const paths = {
+    ItemRead: "/api/v1/replenishment-items/{item_id}",
+    ItemList: "/api/v1/replenishment-items",
+    ExecutionRead: "/api/v1/tasks/{task_id}/execution",
+    ResolveReceipt: "/api/v1/replenishment-items/{item_id}/resolve",
+    RequestRead: "/api/v1/requests/{request_key}",
+    SessionRead: "/api/v1/auth/session",
+  } as const;
+  return p4ReadFactsValid(
+    name === "ResolveReceipt" ? "POST" : "GET",
+    paths[name],
+    value,
+  );
 }
 export function normalizedReason(raw: string): string | null {
   // Python 3.12 str.strip whitespace, fixed for T6; FEFF is preserved.

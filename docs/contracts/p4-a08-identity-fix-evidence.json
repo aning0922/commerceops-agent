@@ -1,0 +1,82 @@
+{
+  "schema_version": "p4-a08-identity-fix-v1",
+  "client_date": "2026-10-12",
+  "parent_source": "cdbc159295eb9d33ddc0b2db47184934aea5bfdf",
+  "status": "author_fix_ready_for_freeze_independent_review_pending",
+  "Core_P1": "common trusted T1 missing current App/Tenant allowlist and identity requester binding",
+  "production_changed": [
+    "entrypoints/feishu_worker_child.py"
+  ],
+  "unchanged": [
+    "IM checks",
+    "B/C products",
+    "migration",
+    "locks",
+    "rootCI/Compose",
+    "grammar"
+  ],
+  "pure_targeted": {
+    "passed": 64,
+    "seconds": 4.96,
+    "new": 7
+  },
+  "owned_PG": {
+    "actual": 15,
+    "passed": 15,
+    "new_identity_role": 12,
+    "old_controlled_worker": 2,
+    "old_scope_boundary": 1,
+    "testcase_sum_seconds": 88.023,
+    "testsuite_seconds": 93.266,
+    "source_files": 252,
+    "source_mismatch": 0,
+    "actual_import_receipts": 2,
+    "four_imports_all_match": true,
+    "business_queue_all_four_CP_rows_unchanged": true,
+    "preassembly_session": "FakeSession; actual PG selector reads; SDK and Graph never constructed",
+    "released_at": "2026-10-11T18:25:11.253496+00:00",
+    "stop_exit": 0,
+    "down_exit": 0,
+    "containers_zero": true,
+    "networks_zero": true,
+    "low_role_three_false": true,
+    "tempDB": 0,
+    "no_v": true
+  },
+  "full_check": {
+    "exit": 0,
+    "offline_passed": 1471,
+    "integration_deselected": 422,
+    "seconds": 92.42,
+    "ruff_files": 375,
+    "mypy_files": 275,
+    "markdown_files": 96,
+    "node_npm_audit_vulns": 0,
+    "python_audit_packages": 95,
+    "python_audit_vulns": 0,
+    "dir_index_reachable_history_scan_findings": [
+      0,
+      0,
+      0
+    ]
+  },
+  "prior_CI": {
+    "run": 38163010570,
+    "head_sha": "cdbc159295eb9d33ddc0b2db47184934aea5bfdf",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "cancelled",
+    "main_jobs": "quality/frontend/phase3 cancelled",
+    "pg_pair": "download-artifact failure; union verifier skipped; no new PG assertion failure"
+  },
+  "platform_SDK": 0,
+  "AppSecret_read": 0,
+  "provider": 0,
+  "human_H_L": "not_reported",
+  "cross_gateway_workflow": "pending",
+  "N01_UX4": "authorized dependency not released",
+  "original_hard_stop": "2026-10-11T20:37:16+00:00",
+  "token_usage": "unknown",
+  "token_cap": 80000,
+  "new_push_or_CI": "Root review and exact new CI pending; author does not push"
+}

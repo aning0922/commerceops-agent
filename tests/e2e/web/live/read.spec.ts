@@ -9,6 +9,9 @@ import { readFileSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import type { Page } from "../../../../frontend/tooling/web-test";
+import { verifyReadResponse } from "../../../../frontend/lib/p3-live-client";
+import { explanationBound } from "../../../../frontend/lib/p3-present";
+import type { DTO } from "../../../../frontend/lib/p3-present";
 const directory = process.env.COMMERCEOPS_B02_PRIVATE_DIR!;
 const privateRead = (name: string) => {
   const path = resolve(directory, name);
@@ -46,7 +49,7 @@ test.beforeAll(async () => {
       [resolve(root, "tests/e2e/web/live_ready.py"), directory],
       {
         cwd: root,
-        env: { ...process.env, PYTHONPATH: root },
+        env: { ...process.env, PYTHONPATH: `${resolve(root, "backend/src")}:${root}` },
         stdio: ["ignore", "pipe", "ignore"],
       },
     ).toString(),
@@ -126,6 +129,50 @@ async function readStatus(page: Page, path: string) {
     { api: API, path },
   );
 }
+async function originalTemplate(page: Page) {
+  const path = `/api/v1/tasks/${facts.task}/explanation`;
+  const response = page.waitForResponse((r) =>
+    r.url() === `${API}${path}?report_id=${facts.report}` && r.request().method() === "GET",
+  );
+  const trigger = page.locator('[data-control="B19"]');
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  const actual = await response;
+  expect(actual.status()).toBe(200);
+  const value = await actual.json() as DTO["ExplanationRead"];
+  expect(verifyReadResponse("GET", path, 200, value)).toBe(true);
+  expect(value).toMatchObject({
+    task_id: facts.task, report_id: facts.report,
+    explanation: {
+      schema_version: "p4-p3-template-read-v1", task_id: facts.task,
+      source_task_id: facts.source_task, source_kind: "p2_original",
+      observation_id: null, report_id: facts.report, snapshot_id: facts.snapshot,
+      facts_hash: facts.facts_hash, analysis_only: true, execution_available: false,
+      result: { narrative_mode: "template", metadata: { evidence_mode: "not_used" } },
+    },
+  });
+  expect(value.explanation).not.toHaveProperty("child_task_id");
+  const metadata = value.explanation.result.metadata;
+  for (const key of ["provider", "requested_model", "returned_model", "request_id", "usage",
+    "latency_ms", "pricing_version", "cost_estimate"] as const) expect(metadata[key]).toBeNull();
+  const reportResponse = await page.request.get(`${API}/api/v1/tasks/${facts.task}/report?report_id=${facts.report}`);
+  expect(reportResponse.status()).toBe(200);
+  const report = await reportResponse.json() as DTO["ReportRead"];
+  expect(explanationBound(report, value)).toBe(true);
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("P3 模板");
+  await expect(dialog).toContainText("P2 原始报告");
+  await expect(dialog).toContainText("observation：无重观测");
+  await expect(dialog).toContainText("input_tokens：未报告");
+  await expect(dialog).not.toContainText("子 task：");
+  await expect(dialog.locator("article.list-row")).toHaveCount(20);
+  for (const ref of [facts.task, facts.source_task, facts.report, facts.snapshot, facts.facts_hash])
+    await expect(dialog).toContainText(ref);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+}
 
 test("operator真实登录、22记录分页、报告刷新/20SKU/null与实际配置", async ({
   page,
@@ -175,6 +222,7 @@ test("operator真实登录、22记录分页、报告刷新/20SKU/null与实际�
     page.getByRole("table", { name: "SKU 分析" }).getByRole("row"),
   ).toHaveCount(20);
   await safeScreenshot(page, "report-390");
+  await originalTemplate(page);
   expect(writes).toEqual(["/api/v1/auth/login"]);
 });
 
@@ -202,12 +250,7 @@ test("approver完整计划无默认确认、指定版本只读、缺缓存解释
     page.getByRole("table", { name: "完整审批清单" }).getByRole("row"),
   ).toHaveCount(21);
   await page.goto(`/tasks/${facts.task}/report?report_id=${facts.report}`);
-  await page.getByRole("button", { name: "读取本报告已有解释" }).click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "已有解释不可用或尚未就绪",
-  );
-  await expect(page.getByRole("dialog")).toContainText("未调用模型");
-  await page.keyboard.press("Escape");
+  await originalTemplate(page);
   await page.goto(`/tasks/${facts.task}/events`);
   await expect(page.locator(".timeline li")).not.toHaveCount(0);
   await expect(page.locator('[data-control="B32"]')).toBeDisabled();
@@ -324,7 +367,7 @@ test("当前scope撤销真实401，刷新后清业务缓存/身份且无Mock回�
     [resolve(root, "tests/e2e/web/live_revoke.py"), directory, facts.operator],
     {
       cwd: root,
-      env: { ...process.env, PYTHONPATH: root },
+      env: { ...process.env, PYTHONPATH: `${resolve(root, "backend/src")}:${root}` },
       stdio: ["ignore", "pipe", "ignore"],
     },
   );

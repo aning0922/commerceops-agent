@@ -1,0 +1,403 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "stage",
+    "status",
+    "expected_count",
+    "reported_count",
+    "actual_body_count",
+    "unreported_count",
+    "counts",
+    "duration_ms",
+    "captured_at_utc",
+    "rejected_result_count",
+    "global_error_count",
+    "global_errors",
+    "tests",
+    "source_sha256",
+    "raw_error_material",
+    "body_count_meaning"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "live-failure-v1"
+    },
+    "stage": {
+      "enum": [
+        "read",
+        "write",
+        "items",
+        "n01"
+      ]
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "timedout",
+        "interrupted"
+      ]
+    },
+    "expected_count": {
+      "enum": [
+        6,
+        7,
+        10
+      ]
+    },
+    "reported_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "actual_body_count": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "unreported_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "failed",
+        "timedOut",
+        "skipped",
+        "interrupted"
+      ],
+      "properties": {
+        "passed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "timedOut": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "interrupted": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "duration_ms": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "captured_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_result_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "global_error_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "global_errors": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "category",
+          "matcher",
+          "location"
+        ],
+        "properties": {
+          "category": {
+            "enum": [
+              "TEST_TIMEOUT",
+              "ASSERTION_FAILURE",
+              "PREPARATION_ERROR",
+              "UNKNOWN"
+            ]
+          },
+          "matcher": {
+            "anyOf": [
+              {
+                "enum": [
+                  "toBe",
+                  "toEqual",
+                  "toMatchObject",
+                  "toHaveText",
+                  "toContainText",
+                  "toBeVisible",
+                  "toBeHidden",
+                  "toBeEnabled",
+                  "toBeDisabled",
+                  "toHaveValue",
+                  "toHaveCount",
+                  "toBeFocused",
+                  "toHaveAttribute",
+                  "toHaveURL",
+                  "toHaveLength",
+                  "toHaveProperty",
+                  "toContain",
+                  "toBeTruthy",
+                  "toBeFalsy",
+                  "toBeGreaterThan",
+                  "toBeLessThanOrEqual"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "file",
+                  "line"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "pattern": "^(frontend/|tests/e2e/web/)[A-Za-z0-9_./-]+\\.(ts|tsx|py)$"
+                  },
+                  "line": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "test",
+          "status",
+          "duration_ms",
+          "location",
+          "phase",
+          "body_observed",
+          "error"
+        ],
+        "properties": {
+          "test": {
+            "enum": [
+              "operator真实登录、22记录分页、报告刷新/20SKU/null与实际配置",
+              "approver完整计划无默认确认、指定版本只读、缺缓存解释、events无虚构恢复",
+              "admin-only安全落点，无业务导航/编号/计数与强制深链",
+              "另一operator同店非本人404与不存在一致，URL actor/role无授权",
+              "跨店兼任范围逐角色绑定，不拼operator-A/approver-B",
+              "原request_key只读回执、缺CSRF拒绝、真实logout清Cookie",
+              "当前scope撤销真实401，刷新后清业务缓存/身份且无Mock回退",
+              "普通批准/十次原字节回放，只有一决定/不显示执行成功",
+              "普通拒绝与完整两项假设拒绝，状态/同步独立",
+              "20SKU联合一次完整确认，无默认勾选/普通批准禁用、键盘Escape及1280/390",
+              "真实API漏/多/重复假设及错误版本拒绝，不以UI替身当业务",
+              "真实决定冲突不产生相反意见，原键仍可回读",
+              "实际T3提交后丢ACK：unknown不自动POST，GET原键恢复，同键十次不换键",
+              "operator可信P2报告创建新P3，不复活源completed；new_cycle明确参数新键",
+              "指定版本只读/真实expiry禁用，admin/跨店兼任不隐含决定权",
+              "受控PG superseded状态禁止旧版本决定；不宣称A03重观察",
+              "预备决定后真实撤权：原提交401清业务缓存/确认，不换键",
+              "真实永久执行与item状态/sync独立，20项分页与末项详情",
+              "真实T6 Unicode原因/原键回放：一次版本推进与原receipt，终态无重开",
+              "真实迟来同店approver可处理而来源隐藏；operator/admin不借审批/业务权",
+              "实际T6 commit后受控丢ACK：原GET/同字节恢复，focus不丢原操作",
+              "两当前approver同时complete/close只有一赢家，不产生第二版本或相反动作",
+              "指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型，newcycle独立请求",
+              "预备后真实撤权401清缓存/原操作，无新增item决定",
+              "N01 actual ready来源/冻结window/390键盘；解析取消零业务增量",
+              "N01 两原PRD句/MISSING人工缺项非demo，编辑撤确认，准备取消仍零增量",
+              "N01 invalid/unsupported不静默ready；修原句或明确取消，CSRF/异店实际拒绝",
+              "N01 actual迟到解析不复活旧原句/店铺/fixture；参数编辑清候选及确认",
+              "N01 显式唯一创建实际一pair，受控ACKunknown原键读取/同字节去重及真实409",
+              "N01 actual无operator403；迟到响应遇真实撤权401清身份/草稿/业务缓存"
+            ]
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "timedOut",
+              "skipped",
+              "interrupted"
+            ]
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "location": {
+            "type": "string",
+            "pattern": "^e2e/web/live/(read|write|items|n01)\\.spec\\.ts:[1-9][0-9]*$"
+          },
+          "phase": {
+            "enum": [
+              "before_hooks",
+              "after_hooks",
+              "test_body",
+              "unknown"
+            ]
+          },
+          "body_observed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "category",
+                  "matcher",
+                  "location"
+                ],
+                "properties": {
+                  "category": {
+                    "enum": [
+                      "TEST_TIMEOUT",
+                      "ASSERTION_FAILURE",
+                      "PREPARATION_ERROR",
+                      "UNKNOWN"
+                    ]
+                  },
+                  "matcher": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "toBe",
+                          "toEqual",
+                          "toMatchObject",
+                          "toHaveText",
+                          "toContainText",
+                          "toBeVisible",
+                          "toBeHidden",
+                          "toBeEnabled",
+                          "toBeDisabled",
+                          "toHaveValue",
+                          "toHaveCount",
+                          "toBeFocused",
+                          "toHaveAttribute",
+                          "toHaveURL",
+                          "toHaveLength",
+                          "toHaveProperty",
+                          "toContain",
+                          "toBeTruthy",
+                          "toBeFalsy",
+                          "toBeGreaterThan",
+                          "toBeLessThanOrEqual"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "location": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "file",
+                          "line"
+                        ],
+                        "properties": {
+                          "file": {
+                            "type": "string",
+                            "pattern": "^(frontend/|tests/e2e/web/)[A-Za-z0-9_./-]+\\.(ts|tsx|py)$"
+                          },
+                          "line": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100000
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "source_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "raw_error_material": {
+      "const": "omitted"
+    },
+    "body_count_meaning": {
+      "const": "observed framework body steps or pass; otherwise null"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Closed failure-only sidecar. Runtime fixed-source case/file/line and count checks are mandatory in addition to this structural schema."
+}

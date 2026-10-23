@@ -1,0 +1,217 @@
+{
+  "schema_version": "p4-a01-author-v1",
+  "base": "9d97c19009d932036809ac3e2638bb68f4b7f765",
+  "contract_source": "d039aa1e1ffc28120afdf546c29a4e910c44a528",
+  "worktree_suffix": "fd38",
+  "branch": "codex/phase4-feishu",
+  "source_binding": "frozen Python/driver hashes and image logs retained privately; source commit bound by PR43 receipt",
+  "source_mode": "mock",
+  "model_mode": "not_used",
+  "approval_mode": "simulated_feishu",
+  "platform_calls": 0,
+  "provider_calls": 0,
+  "pg": {
+    "full_collection": 356,
+    "old": 337,
+    "new": 19,
+    "modules": [
+      {
+        "label": "existing",
+        "count": 236,
+        "passed": 236,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p4_gateway_pg",
+        "count": 19,
+        "passed": 19,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_approval_pg",
+        "count": 28,
+        "passed": 28,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_evidence_pg",
+        "count": 2,
+        "passed": 2,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_execution_authority_pg",
+        "count": 9,
+        "passed": 9,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_execution_pg",
+        "count": 5,
+        "passed": 5,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_execution_recovery_pg",
+        "count": 8,
+        "passed": 8,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_items_authority_pg",
+        "count": 5,
+        "passed": 5,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_migration_pg",
+        "count": 1,
+        "passed": 1,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_pg",
+        "count": 34,
+        "passed": 34,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_pool_pg",
+        "count": 1,
+        "passed": 1,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_projection_pg",
+        "count": 3,
+        "passed": 3,
+        "exact_collection": true
+      },
+      {
+        "label": "test_p3_revalidation_pg",
+        "count": 5,
+        "passed": 5,
+        "exact_collection": true
+      }
+    ],
+    "additional_web_cross": {
+      "passed": 2,
+      "pytest_seconds": 11.7,
+      "command_seconds": 15.001
+    }
+  },
+  "offline": {
+    "passed": 1120,
+    "deselected": 358,
+    "pytest_seconds": 89.9,
+    "warnings": 2,
+    "mypy_files": 204,
+    "format_files": 285,
+    "markdown_files": 77,
+    "python_audit_packages": 95,
+    "known_vulnerabilities": 0
+  },
+  "performance_candidate": {
+    "analysis": {
+      "fixture": "inventory-v1/baseline",
+      "max_seconds": 0.7804437079757918,
+      "n": 20,
+      "p95_seconds": 0.7708812500059139,
+      "provider_calls": 0,
+      "queue_depth": 1,
+      "worker_start_and_stop_included": true
+    },
+    "approval_mode": "simulated_feishu",
+    "inbound": {
+      "commit_and_sdk_ack_verified": true,
+      "max_seconds": 0.1461032920051366,
+      "n": 100,
+      "p95_seconds": 0.0245047920034267,
+      "platform_network_included": false
+    },
+    "machine": "aarch64",
+    "model_mode": "not_used",
+    "provider_calls": 0,
+    "python": "3.12.13",
+    "real_platform_calls": 0,
+    "recovery": {
+      "busy_hold_seconds": 1.2021423330006655,
+      "busy_next_point_delay_seconds": 0.007012458023382351,
+      "idle_bound_seconds": 30,
+      "idle_observed_gap_seconds": 1.0023181670112535,
+      "idle_scan_config_seconds": 1,
+      "scan_during_busy": false
+    },
+    "source_mode": "mock",
+    "system": "Linux"
+  },
+  "performance_limitations": [
+    "Twenty completed report counts verified; explicit predefined sample IDs and golden fact comparison require supplemental evidence",
+    "Recovery measured scheduling callback; actual pending interrupt idle/busy supplement is pending"
+  ],
+  "failures_retained": [
+    {
+      "scope": "initial CLI wrapper",
+      "result": "ModuleNotFoundError scripts",
+      "docker_calls": 0
+    },
+    {
+      "scope": "first P4 PG",
+      "failed": 18,
+      "pytest_seconds": 41.71,
+      "cause": "IndeterminateDatatype parameter $4"
+    },
+    {
+      "scope": "first existing PG",
+      "passed": 235,
+      "failed": 1,
+      "pytest_seconds": 189.47,
+      "cause": "new two table names absent in exact schema expectation",
+      "p3_not_run": 101,
+      "p4_not_run": 19
+    },
+    {
+      "scope": "new remap negative",
+      "passed": 18,
+      "failed": 1,
+      "pytest_seconds": 60.53,
+      "cause": "principal snapshot comparison missing in duplicate guard"
+    },
+    {
+      "scope": "OpenAPI export first candidate",
+      "passed": 62,
+      "failed": 1,
+      "cause": "asset/document byte mismatch corrected before final full check"
+    },
+    {
+      "scope": "performance first driver",
+      "result": "TerminationRequired",
+      "cause": "repeated Worker start while same OS process still alive; backend safety retained"
+    },
+    {
+      "scope": "optional post-stop metadata",
+      "result": "startup margin refused",
+      "docker_calls": 0
+    }
+  ],
+  "resource": {
+    "project": "p4a-core-61e8f8f962ea",
+    "owner": "P4-A-WTfd38",
+    "started_at": "2026-10-11T03:19:10.740082+00:00",
+    "expires_at": "2026-10-11T03:54:10.740082+00:00",
+    "stopped_at": "2026-10-11T03:51:14.468721+00:00",
+    "stop_exit": 0,
+    "stopping_confirmed": true,
+    "host_ports": 0,
+    "volume_retained": true,
+    "no_old_credentials_or_db_read": true,
+    "role_bit_flags_post_stop": "not_verified"
+  },
+  "remaining": [
+    "formal renderer/card/outbox/IM unknown/Base integration",
+    "stable full four Web read groups",
+    "deterministic clarification and safe new_cycle link",
+    "actual pending interrupt performance supplement",
+    "real platform/human/clean Compose/independent core review/exact new CI/main"
+  ]
+}

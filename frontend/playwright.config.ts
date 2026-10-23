@@ -10,20 +10,21 @@ const cases = [
 export default defineConfig({
   testDir: "../tests/e2e/web",
   timeout: 30000,
+  globalTimeout: 30 * 60 * 1000,
   fullyParallel: false,
   workers: 2,
   retries: 0,
-  outputDir: "test-results",
+  outputDir: process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "test-results/p4-c09-b01" : "test-results",
   reporter: [
     ["list"],
-    ["json", { outputFile: "evidence/b01/playwright-results.json" }],
+    ["json", { outputFile: process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "evidence/p4-c09/b01/playwright-results.json" : "evidence/b01/playwright-results.json" }],
   ],
   use: {
     browserName: "chromium",
     headless: true,
     viewport: { width: 1440, height: 1000 },
-    trace: "retain-on-failure",
-    screenshot: "only-on-failure",
+    trace: process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "off" : "retain-on-failure",
+    screenshot: process.env.COMMERCEOPS_WEB_BATCH === "p4-c09" ? "off" : "only-on-failure",
   },
   projects: cases.map((x) => ({
     name: x.name,

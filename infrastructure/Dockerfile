@@ -11,3 +11,5 @@ FROM runtime AS test
 RUN uv sync --frozen --no-editable
 COPY tests ./tests
 COPY scripts ./scripts
+# 验收runner按登记的非root UID读取冻结源码；COPY保留的0600不能阻断来源校验。
+RUN chmod -R a+rX /app/tests /app/scripts

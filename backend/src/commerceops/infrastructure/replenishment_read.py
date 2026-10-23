@@ -3,13 +3,25 @@
 import base64
 import hmac
 import json
+from collections.abc import Coroutine
 from typing import Any
 from uuid import UUID
 
-from commerceops.application.replenishment.contracts import TASK_KIND, WebActor, WebFailure
+from commerceops.application.replenishment.contracts import (
+    TASK_KIND,
+    Actor,
+    FeishuActor,
+    WebActor,
+    WebFailure,
+)
 from commerceops.domain.commerce_values import canonical_bytes, utc_time
 from commerceops.infrastructure.approval_decisions import decision_fields, may_decide, nonce_for
 from commerceops.infrastructure.database import connect
+from commerceops.infrastructure.feishu_delivery_read import (
+    external_enabled,
+    safe_code,
+    sender_gates,
+)
 from commerceops.infrastructure.inventory_repository import _stored
 from commerceops.infrastructure.replenishment_repository import (
     SOURCE_SQL,
@@ -26,6 +38,43 @@ from commerceops.infrastructure.web_sessions import (
     now,
     role_scope,
 )
+
+
+def complete_pure[T](operation: Coroutine[Any, Any, T]) -> T:
+    """仅复用既有 provider=None 的 P204 验证：禁止挂起/外部 await，不建 loop。"""
+    try:
+        operation.send(None)
+    except StopIteration as result:
+        return result.value  # type: ignore[no-any-return]
+    finally:
+        operation.close()
+    raise WebFailure("SERVICE_UNAVAILABLE", 503)
+
+
+def read_visible_task(db: DB, actor: Actor, task_id: UUID) -> dict[str, Any]:
+    task = visible_task(db, actor, task_id)
+    if isinstance(actor, FeishuActor):
+        trusted = db.execute(
+            """SELECT 1 FROM business.conversations c
+            WHERE c.id=%s AND c.organization_id=%s AND c.channel='feishu' AND c.chat_id=%s
+            UNION ALL SELECT 1 FROM business.p4_card_bindings b
+            JOIN business.outbox o ON o.id=b.outbox_id
+            WHERE o.task_id=%s AND o.organization_id=%s AND o.shop_id=%s
+            AND b.source_mode='feishu' AND b.chat_id=%s LIMIT 1""",
+            (
+                task["conversation_id"],
+                actor.organization_id,
+                actor.chat_id,
+                task_id,
+                actor.organization_id,
+                task["shop_id"],
+                actor.chat_id,
+            ),
+        ).fetchone()
+        if trusted is None:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+    return task
+
 
 STATES = (
     "queued",
@@ -45,7 +94,14 @@ class ReplenishmentReadStore:
     def __init__(self, store: ReplenishmentStore):
         self.store, self.config, self.settings = store, store.config, store.settings
 
-    async def explanation(self, actor: WebActor, task_id: UUID, report_id: UUID) -> dict[str, Any]:
+    async def explanation(self, actor: Actor, task_id: UUID, report_id: UUID) -> dict[str, Any]:
+        with connect(self.settings) as db:
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+            return self.explanation_in_transaction(db, actor, task_id, report_id)
+
+    def explanation_in_transaction(
+        self, db: DB, actor: Actor, task_id: UUID, report_id: UUID
+    ) -> dict[str, Any]:
         from commerceops.application.commerce.explanation_task import (
             ExplanationTaskRequest,
             logical_key,
@@ -56,81 +112,117 @@ class ReplenishmentReadStore:
             validated_row,
         )
 
-        with connect(self.settings) as db:
-            self._business(db, actor)
-            task = visible_task(db, actor, task_id)
-            source = self._source(db, task)
-            if source and source["id"] != report_id and task["kind"] == TASK_KIND:
-                observation = db.execute(
-                    """SELECT * FROM business.p3_observations WHERE task_id=%s
-                    AND organization_id=%s AND shop_id=%s AND report_id=%s""",
-                    (task_id, actor.organization_id, task["shop_id"], report_id),
-                ).fetchone()
-                if observation:
-                    binding = db.execute(
-                        "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task_id,)
-                    ).fetchone()
-                    if not binding:
-                        raise WebFailure("NOT_READY")
-                    from commerceops.infrastructure.replenishment_execution import ExecutionStore
-
-                    ExecutionStore.verify_row(observation, binding)
-                    # P3重观测没有P2 explanation link；GET不沿用旧事实说明，也不创建模型任务。
-                    raise WebFailure("NOT_READY")
-            if not source or source["id"] != report_id:
-                raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            row = db.execute(
-                """SELECT e.*,t.normalized_request FROM business.model_explanations e
-            JOIN business.explanation_links l ON l.child_task_id=e.child_task_id
-            JOIN business.business_tasks t ON t.id=e.child_task_id
-            JOIN business.explanation_task_results x ON x.child_task_id=t.id AND
- x.result_id=e.id
-            WHERE e.organization_id=%s AND e.shop_id=%s AND e.parent_task_id=%s
-            AND l.requester_id=%s AND e.report_id=%s AND e.facts_hash=%s
-            ORDER BY e.created_at DESC,e.id DESC LIMIT 1""",
-                (
-                    actor.organization_id,
-                    task["shop_id"],
-                    source["task_id"],
-                    source["requester_id"],
-                    report_id,
-                    source["facts_hash"],
-                ),
+        self._business(db, actor)
+        task = read_visible_task(db, actor, task_id)
+        source = self._source(db, task)
+        if source and source["id"] != report_id and task["kind"] == TASK_KIND:
+            observation = db.execute(
+                """SELECT * FROM business.p3_observations WHERE task_id=%s
+                AND organization_id=%s AND shop_id=%s AND report_id=%s""",
+                (task_id, actor.organization_id, task["shop_id"], report_id),
             ).fetchone()
-            if not row:
-                raise WebFailure("NOT_READY")
-            req = ExplanationTaskRequest.model_validate_json(json.dumps(row["normalized_request"]))
-            expected = logical_key(
+            if observation:
+                binding = db.execute(
+                    "SELECT * FROM business.p3_task_sources WHERE task_id=%s", (task_id,)
+                ).fetchone()
+                if not binding:
+                    raise WebFailure("NOT_READY")
+                from commerceops.infrastructure.replenishment_execution import ExecutionStore
+
+                _, report = ExecutionStore.verify_row(observation, binding)
+                return self.template_explanation(db, task, report_id, observation, report)
+
+        if not source or source["id"] != report_id:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        row = db.execute(
+            """SELECT e.*,t.normalized_request FROM business.model_explanations e
+        JOIN business.explanation_links l ON l.child_task_id=e.child_task_id
+        JOIN business.business_tasks t ON t.id=e.child_task_id
+        JOIN business.explanation_task_results x ON x.child_task_id=t.id AND
+ x.result_id=e.id
+        WHERE e.organization_id=%s AND e.shop_id=%s AND e.parent_task_id=%s
+        AND l.requester_id=%s AND e.report_id=%s AND e.facts_hash=%s
+        ORDER BY e.created_at DESC,e.id DESC LIMIT 1""",
+            (
                 actor.organization_id,
                 task["shop_id"],
-                source["requester_id"],
                 source["task_id"],
+                source["requester_id"],
                 report_id,
                 source["facts_hash"],
-                req.body_hash,
-                req.evidence_mode,
-            )
-            if req.logical_key != expected:
-                raise WebFailure("NOT_READY")
-            result = validated_row(row, req, actor.organization_id, task["shop_id"])
-            await ExplanationStore.verify(
+            ),
+        ).fetchone()
+        if not row:
+            if task["kind"] == TASK_KIND:
+                return self.template_explanation(
+                    db,
+                    task,
+                    report_id,
+                    source,
+                    _stored(source, source["normalized_request"]).report,
+                )
+            raise WebFailure("NOT_READY")
+        req = ExplanationTaskRequest.model_validate_json(json.dumps(row["normalized_request"]))
+        expected = logical_key(
+            actor.organization_id,
+            task["shop_id"],
+            source["requester_id"],
+            source["task_id"],
+            report_id,
+            source["facts_hash"],
+            req.body_hash,
+            req.evidence_mode,
+        )
+        if req.logical_key != expected:
+            raise WebFailure("NOT_READY")
+        result = validated_row(row, req, actor.organization_id, task["shop_id"])
+        complete_pure(
+            ExplanationStore.verify(
                 result, _stored(source, source["normalized_request"]).report, req
             )
-            return envelope(
-                db,
-                task_id=task_id,
-                report_id=report_id,
-                explanation={
-                    "schema_version": "p204-read-v1",
-                    "analysis_only": True,
-                    "execution_available": False,
-                    "identity_mode": "simulated",
-                    "task_id": str(source["task_id"]),
-                    "explanation_id": str(row["id"]),
-                    "child_task_id": str(row["child_task_id"]),
-                    "result": payload(result),
-                },
-            )
+        )
+        return envelope(
+            db,
+            task_id=task_id,
+            report_id=report_id,
+            explanation={
+                "schema_version": "p204-read-v1",
+                "analysis_only": True,
+                "execution_available": False,
+                "identity_mode": "simulated",
+                "task_id": str(source["task_id"]),
+                "explanation_id": str(row["id"]),
+                "child_task_id": str(row["child_task_id"]),
+                "result": payload(result),
+            },
+        )
+
+    @staticmethod
+    def template_explanation(
+        db: DB, task: dict[str, Any], report_id: UUID, evidence: dict[str, Any], report: Any
+    ) -> dict[str, Any]:
+        from commerceops.infrastructure.p3_template_results import TemplateBinding, read
+
+        observation = evidence.get("schema_version") == "p3-observation-v1"
+        content = read(
+            db,
+            TemplateBinding(
+                task["organization_id"],
+                task["shop_id"],
+                task["requester_id"],
+                task["id"],
+                "p3_observation" if observation else "p2_original",
+                evidence["source_task_id"] if observation else evidence["task_id"],
+                evidence["id"] if observation else None,
+                evidence["id"] if observation else evidence["snapshot_id"],
+                report_id,
+                evidence["facts_hash"],
+            ),
+            report,
+        )
+        if content is None:
+            raise WebFailure("NOT_READY")
+        return envelope(db, task_id=task["id"], report_id=report_id, explanation=content)
 
     def cursor(
         self,
@@ -193,22 +285,36 @@ class ReplenishmentReadStore:
             raise WebFailure("INVALID_CURSOR", 400) from None
 
     @staticmethod
-    def _business(db: DB, actor: WebActor) -> None:
+    def _business(db: DB, actor: Actor) -> None:
         if not has_capability(db, actor, "operator") and not has_capability(db, actor, "approver"):
             raise WebFailure("ACCESS_DENIED", 403)
 
     @staticmethod
     def _sync(db: DB, task: UUID, aggregate: UUID | None = None) -> dict[str, Any]:
         rows = db.execute(
-            """SELECT * FROM business.outbox WHERE task_id=%s
-            AND (%s::uuid IS NULL OR aggregate_id=%s) ORDER BY created_at,id""",
+            """SELECT o.*,i.version AS target_version,d.status AS delivery_status,
+            d.observed_version,d.complete_unique_verified,d.attempts AS delivery_attempts,
+            d.last_checked_at,d.last_error AS delivery_error,d.verification_mode
+            FROM business.outbox o LEFT JOIN business.replenishment_items i ON i.id=o.aggregate_id
+            AND i.task_id=o.task_id LEFT JOIN business.p4_base_deliveries d ON d.outbox_id=o.id
+            WHERE o.task_id=%s AND (%s::uuid IS NULL OR o.aggregate_id=%s)
+            ORDER BY o.created_at,o.id""",
             (task, aggregate, aggregate),
         ).fetchall()
+        gates = sender_gates(db, rows[0]["organization_id"], [rows[0]["shop_id"]]) if rows else []
         projections = []
-        states = []
         for row in rows:
+            status = row["delivery_status"]
             state = (
                 "synced"
+                if status == "verified" and row["complete_unique_verified"]
+                else "unknown"
+                if status == "unknown"
+                else "failed"
+                if status in ("fatal", "conflict", "stale")
+                else "pending"
+                if status is not None
+                else "synced"
                 if row["status"] == "sent" and row["external_id"]
                 else "unknown"
                 if row["status"] == "unknown"
@@ -216,16 +322,27 @@ class ReplenishmentReadStore:
                 if row["status"] == "dead"
                 else "pending"
             )
-            states.append(state)
+            alias = "Base" if row["destination"] == "bitable" else "IM"
+            target_version = row["target_version"] or row["aggregate_version"]
             projections.append(
                 {
+                    "outbox_id": row["id"],
                     "aggregate_id": row["aggregate_id"],
                     "projection_version": row["aggregate_version"],
                     "outbox_status": row["status"],
                     "state": state,
                     "source_mode": row["source_mode"],
-                    "as_of": row["created_at"],
-                    "error_code": row["last_error"],
+                    "destination_alias": alias,
+                    "target_version": target_version,
+                    "observed_version": row["observed_version"],
+                    "complete_unique_verified": bool(row["complete_unique_verified"]),
+                    "is_current_version": row["aggregate_version"] == target_version,
+                    "attempts": row["delivery_attempts"] if status is not None else row["attempts"],
+                    "verification_mode": row["verification_mode"],
+                    "as_of": row["last_checked_at"] or row["created_at"],
+                    "error_code": safe_code(
+                        row["delivery_error"] if status is not None else row["last_error"]
+                    ),
                 }
             )
         latest: dict[str, dict[str, Any]] = {}
@@ -241,7 +358,12 @@ class ReplenishmentReadStore:
             (state for state in ("unknown", "failed", "pending", "synced") if state in current),
             "not_requested",
         )
-        return {"state": summary, "sender_enabled": False, "projections": projections}
+        return {
+            "state": summary,
+            "sender_enabled": external_enabled(gates),
+            "sender_gates": gates,
+            "projections": projections,
+        }
 
     def _summary(self, db: DB, task: dict[str, Any]) -> dict[str, Any]:
         outcome = None
@@ -279,53 +401,59 @@ class ReplenishmentReadStore:
             SOURCE_SQL, (source_id, task["organization_id"], task["shop_id"])
         ).fetchone()
 
-    def read_task(self, actor: WebActor, task_id: UUID) -> dict[str, Any]:
+    def read_task(self, actor: Actor, task_id: UUID) -> dict[str, Any]:
         with connect(self.settings) as db:
-            self._business(db, actor)
-            task = visible_task(db, actor, task_id)
-            source = self._source(db, task)
-            approval = db.execute(
-                "SELECT * FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
+            db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+            return self.task_in_transaction(db, actor, task_id)
+
+    def task_in_transaction(self, db: DB, actor: Actor, task_id: UUID) -> dict[str, Any]:
+        self._business(db, actor)
+        task = read_visible_task(db, actor, task_id)
+        source = self._source(db, task)
+        approval = db.execute(
+            "SELECT * FROM business.approvals WHERE plan_id=%s", (task["active_plan_id"],)
+        ).fetchone()
+        plan = (
+            db.execute(
+                "SELECT * FROM business.replenishment_plans WHERE id=%s",
+                (task["active_plan_id"],),
             ).fetchone()
-            plan = (
-                db.execute(
-                    "SELECT * FROM business.replenishment_plans WHERE id=%s",
-                    (task["active_plan_id"],),
-                ).fetchone()
-                if approval
-                else None
-            )
-            can_decide = bool(
-                approval and plan and may_decide(db, self.config, actor, task, approval, plan)
-            )
-            execution = db.execute(
-                "SELECT id FROM business.executions WHERE task_id=%s", (task_id,)
-            ).fetchone()
-            item_rows = db.execute(
-                "SELECT id,status FROM business.replenishment_items WHERE task_id=%s ORDER BY id",
-                (task_id,),
-            ).fetchall()
-            can_resolve = any(x["status"] == "open" for x in item_rows) and role_scope(
-                db, actor, task["shop_id"], "approver"
-            )
-            return envelope(
-                db,
-                task=self._summary(db, task),
-                source=source_binding(source) if source else None,
-                current_plan_id=task["active_plan_id"],
-                approval_id=approval["id"] if approval else None,
-                execution_id=execution["id"] if execution else None,
-                visible_item_ids=[x["id"] for x in item_rows],
-                actions={
-                    "can_decide": can_decide,
-                    "can_resolve": can_resolve,
-                    "can_start_new_cycle": task["state"] == "completed"
-                    and has_capability(db, actor, "operator"),
-                    "can_recompute": False,
-                    "disabled_reasons": ["RECOMPUTE_DISABLED"],
-                },
-                failure_code=task["failure_code"],
-            )
+            if approval
+            else None
+        )
+        can_decide = bool(
+            approval and plan and may_decide(db, self.config, actor, task, approval, plan)
+        )
+        execution = db.execute(
+            "SELECT id FROM business.executions WHERE task_id=%s", (task_id,)
+        ).fetchone()
+        item_rows = db.execute(
+            "SELECT id,status FROM business.replenishment_items WHERE task_id=%s ORDER BY id",
+            (task_id,),
+        ).fetchall()
+        can_resolve = any(x["status"] == "open" for x in item_rows) and role_scope(
+            db, actor, task["shop_id"], "approver"
+        )
+        return envelope(
+            db,
+            task=self._summary(db, task),
+            source=source_binding(source) if source else None,
+            current_plan_id=task["active_plan_id"],
+            approval_id=approval["id"] if approval else None,
+            execution_id=execution["id"] if execution else None,
+            visible_item_ids=[x["id"] for x in item_rows],
+            actions={
+                "can_decide": can_decide,
+                "can_resolve": can_resolve,
+                "can_start_new_cycle": task["state"] == "completed"
+                and source is not None
+                and source["shop_id"] == task["shop_id"]
+                and role_scope(db, actor, task["shop_id"], "operator"),
+                "can_recompute": False,
+                "disabled_reasons": ["RECOMPUTE_DISABLED"],
+            },
+            failure_code=task["failure_code"],
+        )
 
     def report(
         self, actor: WebActor, task_id: UUID, report_id: UUID | None = None
@@ -623,19 +751,35 @@ class ReplenishmentReadStore:
             ).fetchone()
             if not row:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            return envelope(db, shop_id=shop, config=deployment(self.config, row["timezone"]))
+            return envelope(
+                db,
+                shop_id=shop,
+                config=deployment(
+                    self.config,
+                    row["timezone"],
+                    db=db,
+                    organization=actor.organization_id,
+                    shops=[shop],
+                ),
+            )
 
     def operations(self, actor: WebActor) -> dict[str, Any]:
         with connect(self.settings) as db:
             if not has_capability(db, actor, "admin"):
                 raise WebFailure("ACCESS_DENIED", 403)
+            gates = sender_gates(db, actor.organization_id, None)
             return envelope(
                 db,
                 config_version=self.config.config_version,
                 transport_mode=self.config.transport_mode,
-                worker_state="unknown",
+                worker_state="running"
+                if any(g["worker_ready"] is True for g in gates)
+                else "stopped"
+                if any(g["worker_ready"] is False for g in gates)
+                else "unknown",
                 graph_concurrency_limit=1,
-                external_sender_enabled=False,
+                external_sender_enabled=external_enabled(gates),
+                sender_gates=gates,
                 recovery_scan_seconds=self.config.recovery_scan_seconds,
                 approval_ttl_seconds=self.config.approval_ttl_seconds,
                 revalidation_max_age_seconds=self.config.revalidation_max_age_seconds,
@@ -700,15 +844,23 @@ class ReplenishmentReadStore:
             raise WebFailure("INVALID_REQUEST", 422)
         with connect(self.settings) as db:
             self._business(db, actor)
-            visible_task(db, actor, task_id)
+            task = visible_task(db, actor, task_id)
+            source = self._source(db, task)
+            related = [task_id] + (
+                [source["task_id"]] if source and source["task_id"] != task_id else []
+            )
             order = "occurred_at-asc/event_id-asc"
             after, after_id = self.page_after(actor, "events", str(task_id), cursor, order)
             rows = db.execute(
-                """SELECT * FROM business.audit_events WHERE task_id=%s
-            AND organization_id=%s AND source IN ('replenishment','inventory_analysis')
-            AND (%s::timestamptz IS NULL OR (occurred_at,id)>(%s,%s))
-            ORDER BY occurred_at,id LIMIT %s""",
-                (task_id, actor.organization_id, after, after, after_id, limit + 1),
+                """SELECT e.*,c.channel,a.decision_source FROM business.audit_events e
+            JOIN business.business_tasks t ON t.id=e.task_id
+            JOIN business.conversations c ON c.id=t.conversation_id
+            LEFT JOIN business.approvals a ON a.id::text=e.entity_id AND e.entity_type='approval'
+            WHERE e.task_id=ANY(%s) AND e.organization_id=%s
+            AND e.source IN ('replenishment','inventory_analysis','feishu_delivery')
+            AND (%s::timestamptz IS NULL OR (e.occurred_at,e.id)>(%s,%s))
+            ORDER BY e.occurred_at,e.id LIMIT %s""",
+                (related, actor.organization_id, after, after, after_id, limit + 1),
             ).fetchall()
             labels = {
                 "workflow_created": "正式工作流已创建",
@@ -718,19 +870,75 @@ class ReplenishmentReadStore:
                 "analysis_failed": "来源分析失败",
             }
             page = rows[:limit]
-            items = [
-                {
-                    "event_id": r["id"],
-                    "occurred_at": r["occurred_at"],
-                    "action": r["action"],
-                    "step": None,
-                    "duration_ms": None,
-                    "result_ref": None,
-                    "safe_summary": labels.get(r["action"], "业务记录已保存"),
-                    "recovery": None,
-                }
-                for r in page
-            ]
+            tools = {
+                "workflow_created": ("T1", "replenishment.create_workflow"),
+                "approval_prepared": ("T2", "replenishment.freeze_plan"),
+                "approval_decided": ("T3", "replenishment.record_decision"),
+                "execution_committed": ("T4", "replenishment.create_internal_items"),
+                "item_completed": ("T6", "replenishment.complete_internal_item"),
+                "item_closed": ("T6", "replenishment.close_internal_item"),
+                "analysis_started": ("analysis", "inventory.analyze"),
+                "analysis_report_saved": ("analysis", "inventory.persist_report"),
+                "base_projection_checked": ("projection", "feishu.base.project"),
+            }
+            items = []
+            for r in page:
+                operation = tools.get(r["action"])
+                reference = None
+                kind = {
+                    "analysis_report": "report",
+                    "replenishment_item": "item",
+                    "outbox": "projection",
+                }.get(r["entity_type"], r["entity_type"])
+                if kind in (
+                    "task",
+                    "report",
+                    "plan",
+                    "approval",
+                    "execution",
+                    "item",
+                    "projection",
+                ):
+                    try:
+                        reference = {"kind": kind, "id": UUID(r["entity_id"])}
+                    except (ValueError, TypeError):
+                        pass
+                sdk = r["source"] == "feishu_delivery"
+                facts = r["after_state"] if sdk and isinstance(r["after_state"], dict) else {}
+                origin = r["decision_source"] or r["channel"]
+                channel = origin if origin in ("web", "feishu") else "unknown"
+                items.append(
+                    {
+                        "event_id": r["id"],
+                        "occurred_at": r["occurred_at"],
+                        "action": r["action"],
+                        "step": operation[0] if operation else None,
+                        "duration_ms": None,
+                        "result_ref": reference["id"] if reference else None,
+                        "safe_summary": labels.get(r["action"], "业务记录已保存"),
+                        "recovery": None,
+                        "record_trace_id": r["trace_id"],
+                        "task_id": r["task_id"],
+                        "relation": "task" if r["task_id"] == task_id else "source",
+                        "channel": channel
+                        if r["action"] in ("workflow_created", "approval_decided")
+                        else "worker",
+                        "tool": {
+                            "category": "sdk_adapter" if sdk else "deterministic",
+                            "name": operation[1],
+                            "selected_by_model": False,
+                            "sdk_method": None,
+                            "verification_mode": facts.get("verification_mode")
+                            if facts.get("verification_mode") in ("offline_fake", "controlled_sdk")
+                            else None,
+                        }
+                        if operation
+                        else None,
+                        "references": [{"kind": "task", "id": r["task_id"]}]
+                        + ([reference] if reference else []),
+                        "safe_code": safe_code(facts.get("safe_code")),
+                    }
+                )
             last = {"created_at": page[-1]["occurred_at"], "id": page[-1]["id"]} if page else None
             return envelope(
                 db,

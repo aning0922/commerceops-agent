@@ -1,6 +1,8 @@
 // Offline-tested transport for the reviewed p3-web-v1 contract. Not imported by B01 UI.
 // The API enforces identity, role-bound scopes, eligibility, versions and idempotency.
 import type { components } from "./p3-types.generated";
+import type { N01Input, N01Response } from "./p4-n01";
+import { validN01Input, validN01Response, n01MatchesInput } from "./p4-n01";
 type DTO = components["schemas"];
 export type P3FailureCode =
   | DTO["ErrorDetail"]["code"]
@@ -21,6 +23,18 @@ const messages: Partial<Record<P3FailureCode, string>> = {
   CSRF_NOT_READY: "请先建立当前服务端会话。",
   INVALID_RESPONSE: "暂时无法安全读取服务响应。",
   SERVICE_UNAVAILABLE: "服务暂时不可用，请核实已有请求结果。",
+  NOT_READY: "当前记录尚未就绪，请读取当前状态；不会自动提交业务请求。",
+  PLAN_CHANGED: "复核后计划已改变，请读取并核对当前版本；旧意见不授权新版本。",
+  APPROVAL_SUPERSEDED: "此审批已被新版本替代，请查看当前冻结版本。",
+  ITEM_VERSION_CONFLICT:
+    "工作项版本已改变，请读取当前项及原回执；不会自动换键。",
+  ITEM_STATE_CONFLICT: "工作项已进入终态或当前不可处理，请核实当前项及原回执。",
+  ASSUMPTION_ACK_REQUIRED: "本版本需要明确确认完整未知假设，普通批准不能替代。",
+  ASSUMPTION_SET_MISMATCH: "确认集合与当前版本不一致，请重新核对完整假设。",
+  DATA_INCOMPLETE: "当前数据不完整，不能据此准备执行。",
+  SCOPE_REQUIRED: "请明确受支持的范围；系统不会截断清单或代选。",
+  RATE_LIMITED: "当前请求受限，请稍后核实已有记录，不重复创建任务。",
+  INVALID_REQUEST: "请求未通过校验，请核对输入或当前记录。",
 };
 const knownErrorCodes = new Set<string>([
   "INVALID_CURSOR",
@@ -296,6 +310,18 @@ export class P3Client {
     return this.#acceptSession(
       await this.#request("GET", "/api/v1/auth/session"),
     );
+  }
+  async preflight(input: N01Input): Promise<N01Response> {
+    if (!this.#principal || !this.#csrf) throw new P3Failure("CSRF_NOT_READY");
+    if (!validN01Input(input)) throw new P3Failure("INVALID_REQUEST");
+    const principal = this.#principal;
+    const read = await this.#request<N01Response>(
+      "POST", "/api/v1/tasks/preflight", {},
+      JSON.stringify(fields(input, ["schema_version", "shop_id", "fixture_case", "text"])),
+    );
+    if (this.#principal !== principal || !validN01Response(200, read) || !n01MatchesInput(read, input))
+      throw new P3Failure("INVALID_RESPONSE");
+    return read;
   }
   async logout(): Promise<DTO["LogoutReceipt"]> {
     try {
