@@ -220,12 +220,18 @@ class WooCommerce:
                 products.error.code,
                 products.warnings[0] if products.warnings else Quality.PARTIAL_FAILURE,
             )
+        # WordPress truncates date strings to whole SQL seconds. Round a
+        # fractional exclusive end outward; the precise client window below
+        # still removes every row at or beyond the original end.
+        before = window.end
+        if before.microsecond:
+            before = before.replace(microsecond=0) + timedelta(seconds=1)
         query: dict[str, str | int] = {
             # dates_are_gmt selects the GMT column, but WP_Date_Query converts
             # offset-bearing strings to shop-local time before SQL comparison.
             # Send UTC wall-clock values without an offset for that GMT column.
             "after": (window.start - timedelta(seconds=1)).replace(tzinfo=None).isoformat(),
-            "before": window.end.replace(tzinfo=None).isoformat(),
+            "before": before.replace(tzinfo=None).isoformat(),
             "dates_are_gmt": "true",
             "status": "any",
             "dp": 6,
