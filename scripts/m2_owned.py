@@ -756,6 +756,30 @@ def apps_environment(parent: Scenario, phase: str) -> dict[str, str]:
     )
 
 
+def web_argv(parent: Scenario) -> list[str]:
+    return [
+        "node",
+        str(ROOT / "frontend/node_modules/next/dist/bin/next"),
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        parent.request["web_origin"].rsplit(":", 1)[1],
+    ]
+
+
+def expected_service_term(
+    parent: Scenario, kind: str, argv: Any, code: int | None, requested: bool
+) -> bool:
+    if not requested:
+        return False
+    if code == -signal.SIGTERM:
+        return True
+    # Locked Next 16.4.2 performs cleanup and exits 128+SIGTERM itself.
+    # Only the exact owned Next command may use that convention, never API/Worker or early exit.
+    return kind == "web" and code == 128 + signal.SIGTERM and argv == web_argv(parent)
+
+
 def start_apps(parent: Scenario, phase: str) -> dict[str, int]:
     import httpx
 
@@ -764,15 +788,7 @@ def start_apps(parent: Scenario, phase: str) -> dict[str, int]:
     api = parent.spawn(phase + "-api", [sys.executable, "-m", "commerceops.entrypoints.api"], env)
     web = parent.spawn(
         phase + "-web",
-        [
-            "node",
-            str(ROOT / "frontend/node_modules/next/dist/bin/next"),
-            "start",
-            "--hostname",
-            "127.0.0.1",
-            "--port",
-            parent.request["web_origin"].rsplit(":", 1)[1],
-        ],
+        web_argv(parent),
         env,
         cwd=ROOT / "frontend",
     )
@@ -836,7 +852,9 @@ def stop_apps(parent: Scenario, phase: str, *, require_clean_worker: bool = True
             reaped = parent.stop_child(child, cleanup=True, signal_sent=requested[kind])
         except BaseException as error:
             errors.append(dict(process=kind, category=type(error).__name__))
-        expected_term = requested[kind] and child.returncode == -signal.SIGTERM
+        expected_term = expected_service_term(
+            parent, kind, child.args, child.returncode, requested[kind]
+        )
         normal = (
             child.returncode == 0
             if kind == "worker"
@@ -1458,6 +1476,19 @@ def full_action(parent: Scenario) -> None:
     negative_restores(parent, dump)
 
 
+def lab_stop_classification(code: int | None, requested: bool, log: Path) -> str:
+    if code == 0:
+        return "normal_zero"
+    if code == 1 and requested:
+        try:
+            footer = json.loads(private_bytes(log).splitlines()[-1])
+        except (OSError, ValueError, IndexError):
+            return "unexpected_exit"
+        if footer == {"status": "failed", "category": "KeyboardInterrupt"}:
+            return "expected_parent_requested_keyboard_interrupt"
+    return "unexpected_exit"
+
+
 def cleanup(parent: Scenario) -> dict[str, Any]:
     parent.cleanup_expires = min(parent.expires, time.monotonic() + 180)
     errors = []
@@ -1489,6 +1520,7 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
     if parent.lab_directory is not None:
         child = parent.children.get("lab-serve")
         requested = False
+        exit_classification = "not_started"
         try:
             if child is not None:
                 requested = child.poll() is None
@@ -1502,8 +1534,10 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
                 if not reaped:
                     raise BackupFailure("M2_LAB_REAP_UNCONFIRMED")
                 del parent.children["lab-serve"]
-                # Preserve the lab's actual controlled KeyboardInterrupt exit1 separately.
-                if child.returncode not in ((0, 1) if requested else (0,)):
+                exit_classification = lab_stop_classification(
+                    child.returncode, requested, parent.directory / "lab-serve.private.log"
+                )
+                if exit_classification == "unexpected_exit":
                     errors.append(dict(stage="lab-exit", category="UNEXPECTED_NATIVE_EXIT"))
             # Successful serve cleanup is immutable evidence; verify it independently.
             # Only a missing receipt permits a bounded stop of the same owned project.
@@ -1569,6 +1603,7 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
             lab_receipt = dict(
                 parent_requested_stop=requested,
                 native_exit=None if child is None else child.returncode,
+                exit_classification=exit_classification,
                 actual_cleanup=actual,
             )
         except BaseException as error:

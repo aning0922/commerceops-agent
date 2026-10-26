@@ -581,3 +581,90 @@ def test_parent_uses_public_lab_cli_argv_for_prepare_build_serve_and_stop(
     assert target.cleanup(parent)["stopping_confirmed"] is True
     assert [argv[3] for argv in actual] == ["prepare", "build", "serve", "stop"]
     assert all(argv[:3] == [sys.executable, "-m", "scripts.woo_lab"] for argv in actual)
+
+
+@pytest.mark.parametrize(
+    "kind,requested,code,matching,expected",
+    [
+        ("web", True, 143, True, True),
+        ("web", False, 143, True, False),
+        ("web", True, 143, False, False),
+        ("api", True, 143, True, False),
+        ("worker", True, 143, True, False),
+        ("web", True, 7, True, False),
+        ("web", True, 9, True, False),
+        ("web", True, 137, True, False),
+    ],
+)
+def test_next_143_requires_web_exact_owned_argv_and_parent_term(
+    tmp_path: Path,
+    kind: str,
+    requested: bool,
+    code: int,
+    matching: bool,
+    expected: bool,
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    parent = target.Scenario(directory, request, time.monotonic() + 240)
+    argv = target.web_argv(parent)
+    if not matching:
+        argv = [sys.executable, "-c", "unrelated process"]
+    assert target.expected_service_term(parent, kind, argv, code, requested) is expected
+
+
+@pytest.mark.parametrize("early", [True, False])
+def test_native_143_without_owned_next_argv_is_rejected_and_reaped(
+    tmp_path: Path,
+    early: bool,
+) -> None:
+    parent = target.Scenario(
+        tmp_path, {"web_origin": "http://127.0.0.1:49002"}, time.monotonic() + 240
+    )
+    script = (
+        "raise SystemExit(143)"
+        if early
+        else (
+            "import signal,time,sys;signal.signal(signal.SIGTERM,lambda *a:sys.exit(143));"
+            "print('ready',flush=True);time.sleep(30)"
+        )
+    )
+    child = parent.spawn("source-web", [sys.executable, "-c", script], target.environment())
+    if early:
+        assert child.wait(timeout=3) == 143
+    else:
+        until = time.monotonic() + 3
+        while (
+            time.monotonic() < until
+            and b"ready" not in (tmp_path / "source-web.private.log").read_bytes()
+        ):
+            time.sleep(0.01)
+    with pytest.raises(BackupFailure, match="M2_APP_UNEXPECTED_EXIT"):
+        target.stop_apps(parent, "source", require_clean_worker=False)
+    assert parent.children == {} and child.returncode == 143
+    receipt = target.load(tmp_path / "source-apps-stopped.safe.json")["processes"]["web"]
+    assert receipt["accepted_exit"] is False and receipt["expected_owned_term"] is False
+
+
+@pytest.mark.parametrize(
+    "requested,footer,expected",
+    [
+        (
+            True,
+            {"status": "failed", "category": "KeyboardInterrupt"},
+            "expected_parent_requested_keyboard_interrupt",
+        ),
+        (False, {"status": "failed", "category": "KeyboardInterrupt"}, "unexpected_exit"),
+        (True, {"status": "failed", "category": "LAB_COMMAND_FAILED"}, "unexpected_exit"),
+        (True, {"status": "failed", "category": "ValueError"}, "unexpected_exit"),
+        (True, {}, "unexpected_exit"),
+    ],
+)
+def test_lab_exit_one_needs_owned_stop_and_exact_controlled_footer(
+    tmp_path: Path,
+    requested: bool,
+    footer: dict[str, str],
+    expected: str,
+) -> None:
+    path = tmp_path / "lab.private.log"
+    save(path, (json.dumps({"ready": True}) + "\n" + json.dumps(footer) + "\n").encode())
+    assert target.lab_stop_classification(1, requested, path) == expected
