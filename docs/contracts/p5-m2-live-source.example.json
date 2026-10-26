@@ -155,7 +155,7 @@
         "--config",
         "playwright.live.config.ts",
         "--grep",
-        "^M2 source$"
+        "M2 source$"
       ],
       "retries": 0,
       "cap_seconds": 240,

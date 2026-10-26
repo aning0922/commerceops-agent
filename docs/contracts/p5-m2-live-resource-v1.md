@@ -14,8 +14,10 @@ B不seed、不建PG、不改DB、checkpoint、权限或生命周期，不新建�
 - `COMMERCEOPS_WEB_BATCH=p5-m2-live`。
 - 沿用 `COMMERCEOPS_B02_PRIVATE_DIR`（本次phase目录）和 `COMMERCEOPS_LIVE_WEB_URL`。
 - cwd固定为最终A checkout的 `frontend`。
-- source argv：`["npm","exec","--","playwright","test","--config","playwright.live.config.ts","--grep","^M2 source$"]`。
-- restored argv仅将末项换为 `^M2 restored$`。retries=0，每段cap=240秒。
+- source argv：`["npm","exec","--","playwright","test","--config","playwright.live.config.ts","--grep","M2 source$"]`。
+- restored argv仅将末项换为 `M2 restored$`。retries=0，每段cap=240秒。
+- M2配置只收集m2.spec.ts；开资源前两段各加`--list`验证exact1，固定标题与phase guard均保持。
+  grep匹配含文件名的完整title，不能加前导`^`；旧锚定表达式实测0测试/native1，不作消费通过。
 - window.owner固定 `phase5-M2-live`；window.phase仅 `source_ready` 或 `restored_pending_verified`。
 
 模板：[source](p5-m2-live-source.example.json)、[restored](p5-m2-live-restored.example.json)。
@@ -127,7 +129,7 @@ B关闭trace/video/HAR与密码截图；账号只在消费者内存，沿原DOM�
 source consumer启动须总stop剩余>=240+180秒。
 restored启动还须原真实expires_at剩余>=**300秒=240消费+20业务重观测+40取证/退出**。
 其consumer_stop取 `min(启动+240秒,总stop-180秒,原expires_at-60秒)`；source不含expires项。
-source首次创建前只核consumer_stop及总stop-cleanup预留，尚无original_expires_at；
+source首次创建前也须在consumer_stop前保留60秒，并核总stop-cleanup预留，尚无original_expires_at；
 restored每次decision/同键重放前须在consumer_stop及当前API原expires_at之前各留至少60秒（20+40）；
 余量不足HOLD/非0，不继续发送。父按同一绝对deadline终止/wait/reap，不能把外窗60分钟当900秒业务期。
 首次创建前新部署TTL固定900秒，dump/restore全程保持，过期用真实时钟，不改expires_at或冻结DB时间。
