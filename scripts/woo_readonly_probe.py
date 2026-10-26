@@ -178,7 +178,11 @@ def expected_input(config: WooReadOnlyConfig, expected: dict[str, Any]) -> None:
                 if model is Inventory
                 else {}
             )
-            item = model.model_validate({**row, "source": provenance, **extra})
+            # Expectations are JSON DTOs: strict tuple fields accept JSON arrays
+            # through JSON validation while Python-mode validation rejects them.
+            item = model.model_validate_json(
+                canonical_bytes({**row, "source": provenance.model_dump(mode="json"), **extra})
+            )
             if canonical_bytes(project(item)) != canonical_bytes(row):
                 raise ValueError("EXPECTED_NOT_CANONICAL_FULL_DTO")
     compare_groups(expected["expected"], expected["expected"])

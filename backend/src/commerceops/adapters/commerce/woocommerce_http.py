@@ -132,12 +132,18 @@ class WooHTTP:
                         for link in response.links.values():
                             destination = urlsplit(urljoin(str(response.url), link.get("url", "")))
                             origin = urlsplit(self.config.base_url)
+                            discovery = (
+                                link.get("rel") == "https://api.w.org/"
+                                and destination.path == "/wp-json/"
+                                and not destination.query
+                                and not destination.fragment
+                            )
                             if (
                                 (destination.scheme, destination.hostname, destination.port)
                                 != (origin.scheme, origin.hostname, origin.port)
                                 or destination.username is not None
                                 or destination.password is not None
-                                or destination.path != "/wp-json/wc/v3/" + path
+                                or (destination.path != "/wp-json/wc/v3/" + path and not discovery)
                                 or {k.lower() for k in parse_qs(destination.query)}
                                 & {"consumer_key", "consumer_secret", "authorization"}
                             ):
