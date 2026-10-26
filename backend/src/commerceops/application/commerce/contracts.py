@@ -175,6 +175,11 @@ class Inventory(DTO):
 
 
 class ErrorCode(StrEnum):
+    AUTH_FAILED = "AUTH_FAILED"
+    PERMISSION_DENIED = "PERMISSION_DENIED"
+    TLS_FAILURE = "TLS_FAILURE"
+    CONNECTION_FAILED = "CONNECTION_FAILED"
+    REDIRECT_REJECTED = "REDIRECT_REJECTED"
     TIMEOUT = "TIMEOUT"
     RATE_LIMITED = "RATE_LIMITED"
     PROVIDER_UNAVAILABLE = "PROVIDER_UNAVAILABLE"
@@ -184,6 +189,11 @@ class ErrorCode(StrEnum):
 
 
 SAFE_MESSAGES = {
+    ErrorCode.AUTH_FAILED: "来源认证失败",
+    ErrorCode.PERMISSION_DENIED: "来源权限不足",
+    ErrorCode.TLS_FAILURE: "来源TLS验证失败",
+    ErrorCode.CONNECTION_FAILED: "来源连接失败",
+    ErrorCode.REDIRECT_REJECTED: "来源重定向已拒绝",
     ErrorCode.TIMEOUT: "读取超时",
     ErrorCode.RATE_LIMITED: "来源限流",
     ErrorCode.PROVIDER_UNAVAILABLE: "来源暂时不可用",
