@@ -52,6 +52,43 @@ WOO_PUBLIC_EXCEPTIONS = (
     ),
 )
 
+M2_SOURCE_COMMIT = "85f477c46d5348a9e3667f606d273eff3cbaaa32"
+M2_PUBLIC_EXCEPTIONS = (
+    (
+        "frontend/tooling/sync-p5-schema.mjs",
+        r"(?:^|/)frontend/tooling/sync-p5-schema\.mjs$",
+        "a3bcd562c3b2193866f90fe3efe03523c2f2ce303370fb1fe9f51cdcb1d57408",
+        5,
+    ),
+    (
+        "tests/e2e/web/phase5/creation-ui.spec.ts",
+        r"(?:^|/)tests/e2e/web/phase5/creation-ui\.spec\.ts$",
+        "d5e9e9954765601d77bfdf3e42286cabfdf39c8f7501c3c3c57142277accf0b6",
+        153,
+    ),
+)
+
+
+def m2_public_rows(root: Path) -> tuple[tuple[str, str, str, str, int], ...]:
+    """Read only the two independently reviewed immutable public source lines."""
+    result = []
+    for path, pattern, digest, line in M2_PUBLIC_EXCEPTIONS:
+        source = subprocess.run(
+            ["git", "show", M2_SOURCE_COMMIT + ":" + path],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        rows = source.stdout.splitlines()
+        if (
+            source.returncode
+            or len(rows) < line
+            or hashlib.sha256(rows[line - 1]).hexdigest() != digest
+        ):
+            raise ValueError("invalid M2 public source")
+        result.append((path, pattern, rows[line - 1].decode(), digest, line))
+    return tuple(result)
+
 
 def validate_woo_public_sources(root: Path) -> None:
     """仅核Root已转交B提交的两条公开行，不读取其他WIP或运行数据。"""
@@ -94,7 +131,7 @@ def main() -> None:
         rule_removed += int("allowlist" in rule) + len(rule.get("allowlists", []))
         rule.pop("allowlist", None)
         rule.pop("allowlists", None)
-    # 七处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
+    # 九处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
     schema_row = next(
         line
         for line in (ROOT / "docs/DATA_MODEL.md").read_text().splitlines()
@@ -223,10 +260,32 @@ def main() -> None:
                         "source_line": line,
                     }
                 )
+            for source_path, path, row, digest, line in m2_public_rows(ROOT):
+                reason = "85f477c双审公开合同名/字段名，仅指定path与完整行及固定来源hash"
+                rule["allowlists"].append(
+                    {
+                        "description": reason,
+                        "condition": "AND",
+                        "regexTarget": "line",
+                        "paths": [path],
+                        "regexes": [r"^(?:\r?\n)?" + re.escape(row) + "$"],
+                    }
+                )
+                exceptions.append(
+                    {
+                        "rule": rule["id"],
+                        "path": path,
+                        "reason": reason,
+                        "exact_line_sha256": digest,
+                        "source_commit": M2_SOURCE_COMMIT,
+                        "source_path": source_path,
+                        "source_line": line,
+                    }
+                )
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 7 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 9 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
@@ -249,7 +308,7 @@ def main() -> None:
     (ROOT / "scripts/gitleaks_rules.json").write_text(
         json.dumps(provenance, indent=2, ensure_ascii=False) + "\n"
     )
-    print(f"固定规则生成完成：{len(config['rules'])} rules, 7 exact-line exceptions")
+    print(f"固定规则生成完成：{len(config['rules'])} rules, 9 exact-line exceptions")
 
 
 if __name__ == "__main__":

@@ -16,6 +16,8 @@ from scripts.vendor_gitleaks_rules import (
     B_PUBLIC_PATH,
     B_PUBLIC_ROW,
     B_ROW_DIGEST,
+    M2_PUBLIC_EXCEPTIONS,
+    M2_SOURCE_COMMIT,
     P3_PUBLIC_PATH,
     P3_PUBLIC_ROW,
     P3_ROW_DIGEST,
@@ -25,6 +27,7 @@ from scripts.vendor_gitleaks_rules import (
     RO_SOURCE_COMMIT,
     WOO_PUBLIC_EXCEPTIONS,
     WOO_SOURCE_COMMIT,
+    m2_public_rows,
     validate_woo_public_sources,
 )
 
@@ -89,7 +92,7 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
 
 
 def validate_rules() -> None:
-    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及七处精确行豁免。"""
+    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及九处精确行豁免。"""
     content = (ROOT / ".gitleaks.toml").read_bytes()
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     config = tomllib.loads(content.decode())
@@ -101,22 +104,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 7
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 9
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 7
+        or len(provenance["exceptions"]) != 9
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 6:
+    if len(generic.get("allowlists", [])) != 8:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 6
+        len(generic["allowlists"]) != 8
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -179,6 +182,24 @@ def validate_rules() -> None:
 
     if provenance.get("historical_findings") != list(APPROVED_TEST_HISTORY):
         raise ValueError("invalid historical scanner finding")
+
+    for offset, (source_path, path, row, digest, line) in enumerate(m2_public_rows(ROOT)):
+        allowance = generic["allowlists"][6 + offset]
+        evidence = provenance["exceptions"][7 + offset]
+        if (
+            allowance.get("condition") != "AND"
+            or allowance.get("regexTarget") != "line"
+            or allowance.get("paths") != [path]
+            or allowance.get("regexes") != [r"^(?:\r?\n)?" + re.escape(row) + "$"]
+            or evidence.get("rule") != "generic-api-key"
+            or evidence.get("path") != path
+            or evidence.get("exact_line_sha256") != digest
+            or evidence.get("source_commit") != M2_SOURCE_COMMIT
+            or evidence.get("source_path") != source_path
+            or evidence.get("source_line") != line
+        ):
+            raise ValueError("invalid scanner rules")
+
     validate_woo_public_sources(ROOT)
 
 
@@ -225,11 +246,14 @@ def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
 
 
 def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[str]:
-    """只对新两条例外核固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
+    """核Woo和M2公开例外的固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
     violations = []
     for candidate in paths:
         relative = candidate.as_posix()
-        for source_path, pattern, _, digest, line in WOO_PUBLIC_EXCEPTIONS:
+        for source_path, pattern, _, digest, line in (
+            *WOO_PUBLIC_EXCEPTIONS,
+            *((p, pattern, "", digest, line) for p, pattern, digest, line in M2_PUBLIC_EXCEPTIONS),
+        ):
             if re.search(pattern, relative) is None:
                 continue
             if relative != source_path:

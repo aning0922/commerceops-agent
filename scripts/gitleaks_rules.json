@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "2fca4d8773f2180e0b3de1da641e291681844c8ae9e7f8d5e4120b2dd9f400a5",
+  "config_sha256": "9a40d32ecd53a08ce1e1140cd09231e3b962a94261a9ecfb5033b6dfdab97903",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -61,6 +61,24 @@
       "source_commit": "bbb507b08f1a937f3466369044db27054dee2879",
       "source_path": "tests/fixtures/woocommerce-local/seed.json",
       "source_line": 169
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "(?:^|/)frontend/tooling/sync-p5-schema\\.mjs$",
+      "reason": "85f477c双审公开合同名/字段名，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "a3bcd562c3b2193866f90fe3efe03523c2f2ce303370fb1fe9f51cdcb1d57408",
+      "source_commit": "85f477c46d5348a9e3667f606d273eff3cbaaa32",
+      "source_path": "frontend/tooling/sync-p5-schema.mjs",
+      "source_line": 5
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "(?:^|/)tests/e2e/web/phase5/creation-ui\\.spec\\.ts$",
+      "reason": "85f477c双审公开合同名/字段名，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "d5e9e9954765601d77bfdf3e42286cabfdf39c8f7501c3c3c57142277accf0b6",
+      "source_commit": "85f477c46d5348a9e3667f606d273eff3cbaaa32",
+      "source_path": "tests/e2e/web/phase5/creation-ui.spec.ts",
+      "source_line": 153
     }
   ],
   "historical_findings": [
