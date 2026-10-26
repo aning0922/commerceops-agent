@@ -70,7 +70,16 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
     existing = [node for node in nodes if node not in phase3_set]
-    groups = {"combined-existing": existing} if existing else {}
+    # 40373408272: all 246 calls passed, but their shared command hit 300s.
+    # Move complete P5 natural modules only; every command keeps the same 300s cap.
+    p5_paths = sorted(
+        {node.split("::", 1)[0] for node in existing if node.startswith("tests/test_p5_")}
+    )
+    ordinary = [node for node in existing if node.split("::", 1)[0] not in p5_paths]
+    groups = {"combined-existing": ordinary} if ordinary else {}
+    for path in p5_paths:
+        label = "combined-existing-" + path.removeprefix("tests/").removesuffix(".py")
+        groups[label] = [node for node in existing if node.split("::", 1)[0] == path]
     # 从实际collection按现有P3模块派生；不硬编码阶段cardinality或挑选test node。
     for path in sorted({node.split("::", 1)[0] for node in phase3}):
         label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
