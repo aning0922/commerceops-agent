@@ -61,9 +61,11 @@ export function classifyM2Post(operation: "create_task" | "decision", input: Rec
     return { outcome: bound ? "confirmed" as const : "unknown" as const, value, result: bound ? result : null };
 }
 export function sameDecision(replay: DTO["DecisionReceipt"], original: DTO["DecisionReceipt"]) {
-    const { trace_id: _a, server_time: _b, duplicate: _c, ...business } = replay;
-    const { trace_id: _d, server_time: _e, duplicate: _f, ...expected } = original;
-    return same(business, expected);
+    const { trace_id: _a, server_time: _b, duplicate: _c, resume_state: resume, ...business } = replay;
+    const { trace_id: _d, server_time: _e, duplicate: _f, resume_state: previous, ...expected } = original;
+    const states = ["waiting_checkpoint", "queued", "consumed"];
+    return replay.duplicate === true && states.indexOf(previous) >= 0 &&
+        states.indexOf(resume) >= states.indexOf(previous) && same(business, expected);
 }
 const keysFor = (gold: Golden) => gold.facts.flatMap((f) => f.required_assumptions).sort();
 function bindPlan(plan: DTO["Plan"], report: DTO["ReportRead"], gold: Golden, version: string) {
@@ -386,6 +388,7 @@ export async function runM2(browser: Browser, info: TestInfo, phase: Phase) {
             mutationAdmission(r.window, Date.now(), approval.approval.expires_at);
             const path = `/api/v1/approvals/${canonical.approval_id}/decision`, decision = await actualWrite(approver, "decision", path, () => approver.getByRole("button", { name: "明确提交本次请求", exact: true }).click(), approval.approval.expires_at);
             const accepted = decision.result as DTO["DecisionReceipt"];
+            let previousReplay = accepted;
             requireM2(accepted.decided_by === r.accounts.approver.expected_principal_id && accepted.task_id === canonical.task_id && accepted.approval_id === canonical.approval_id && accepted.plan_id === canonical.plan_id && accepted.plan_version === canonical.plan_version && accepted.plan_hash === canonical.plan_hash && accepted.action === "approve_with_assumptions" && sameSet(accepted.acknowledged_assumption_keys, keysFor(gold)), "M2_BINDING");
             check("explicit_decision");
             const replays: FileRef[] = [];
@@ -410,13 +413,14 @@ export async function runM2(browser: Browser, info: TestInfo, phase: Phase) {
                 }
                 const classified = classifyM2Post("decision", decision.input, path, response?.status() ?? null, body);
                 const replay = classified.result as DTO["DecisionReceipt"] | null;
-                const ok = classified.outcome === "confirmed" && replay !== null && replay.duplicate === true && sameDecision(replay, accepted);
+                const ok = classified.outcome === "confirmed" && replay !== null && replay.duplicate === true && sameDecision(replay, previousReplay);
                 const rejected = classified.outcome === "rejected";
                 replays.push(write(file, { schema_version: "p5-m2-receipt-v1", run_id: r.window.run_id, phase, operation: "decision", request_key: accepted.request_key, via: "post", http_status: response?.status() ?? null, outcome: ok ? "confirmed" : rejected ? "rejected" : "unknown", response: classified.value, error_code: ok ? null : rejected ? "M2_WRITE_REJECTED" : "M2_WRITE_UNKNOWN" }));
                 if (rejected)
                     fail("M2_WRITE_REJECTED");
                 if (!ok)
                     await unknownLookup(approver, "decision", accepted.request_key);
+                previousReplay = replay!;
             }
             check("ten_original_byte_replays");
             let after = await read<DTO["TaskRead"]>(approver, `/api/v1/tasks/${canonical.task_id}`);

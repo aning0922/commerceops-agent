@@ -1,18 +1,20 @@
 # M1 离线 Compose 装配与运行
 
-## 新 clone 的 Mock 核心启动说明（2026-10-23，最终交接候选）
+## 当前 M2 候选：新 clone 的 Mock 核心装配（2026-10-27，待实际复现）
 
-本节保留已核历史 `0661797b7b0c4bac78dcbb6f18abd6552875493a` / tree `da112ae63cb2de73206a143fd5d8ee3db4c4e4de` 为准备来源；[CI39417453535](https://github.com/aning0922/commerceops-agent/actions/runs/39417453535)五 job SUCCESS、565 PG（397+168，交集0），Web读/写/items及N01六项已由Root核收，最新owned准备范围见[Root安全回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6307662383)。本批只更新已知来源事实，没有执行clone、安装、build或服务启动。既有只读影响核对确认c460→066的Compose两文件、m1_offline_demo、前端/镜像及冻结18页映射无差异；四consumer在877→066无差异。当前数据库head仍为0017，运行时按最终冻结源码执行migrate/grant。W2 owned两回复/冷重放零新增、负向/低权及清理已核，不代表真实群、查询或新冷clone验收；main仍P3，最终组合来源及实际Gate待Root核收。
+本节说明当前源码的公开启动入口与待采证据。Root 将另行登记最终候选 source/tree、镜像和新的 `m1off-*` 自有窗口；本文尚未收到该窗口的构建、初始化或业务结果，**当前候选 clean Compose Gate 为待验**。此前 M1 的 0017/旧锁文件及私有四场景通过，只签后文各自的历史范围。
 
-当前已核功能source为 `160d66acf5f21887abdfd5bada2232118755268e` / tree `90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939)五作业SUCCESS、567 PG及Web/N01通过。Next精确16.4.2有限安全升级已保留，原C双文件修复8b08573的本地audit0漏洞、contract67/B04 Mock8/Phase4 Mock22及build仅签其原范围，不代签后续源码。
+本入口仍使用 `compose.yml` + `compose.m1-offline.yml`、`scripts.m1_offline_demo`、原 API/单 Worker/Next Web，以及 `MockCommerce / simulated_web / offline_fake / provider disabled`。它不验证 Woo 真实数据链、新卷备份还原、旧 checkpoint 与新依赖兼容或真人平台操作；这些证据分别核收，不由本节的技术 ready 或历史成功代签。
 
-原真实DM/F02、两轮群5+4动作、20 SKU/20 Base、原T6/v2/只读Web及最后两条新群查询所需真人平台Gate已收齐；新查询原独审PASS，各sent/attempt1、SDK6成功、17保护组不变、资源stop。raw wire/ACK及客户端已读均NOT_CAPTURED，不补写。旧两条群查询与旧原DM查询保持HOLD，原库/history恢复停止；新样本通过不回填旧消息成功。
+| 当前候选要核对的事实 | 当前状态 / 验收依据 |
+| --- | --- |
+| 完整源码、锁文件与镜像来源 | 待 Root 登记最终 source/tree、当前 `uv.lock` / `package-lock.json` 和实际 build/image 绑定；不借用他人的本地环境或旧镜像结果 |
+| 前端构建输入 | 当前 schema 检查读取 P3、P4 N01、P5 M2 三份公开合同；前端专用 `.dockerignore` 必须放行三份，Dockerfile 必须在检查前 COPY 三份。A 正在处理 P5 的最小装配修正，本文不预写修正已合入或 build 通过 |
+| 新库迁移与低权运行 | `database migrate` 使用动态 `head`；当前源码预期为 `0018_p5_commerce_sources`，须由最终候选的实际 `revision` 输出核对。`setup-checkpointer`、`grant-runtime`、低权 flags 和 seed 均待本次实证 |
+| Mock 业务闭环 | 新合成账号、明确 L3/R7/S2、完整 20 SKU 计划与假设、显式批准、原执行/items、T6/v2 与原请求键读回待验；health/login 200 不能替代 |
+| 原卷恢复与停止证明 | 如本次 Gate 包含恢复，须在同一未过期窗口/原卷执行原 Worker child 的 stop/join/reap 和 API/Web restart，再读回原键；最终容器/网络/监听消失、卷保留均待验 |
 
-本三文档为最终文档候选，docs/source Review、CI8、main、post1及Issues结案当前仍PENDING；main仍为原P3基线9d97，不预填未来SHA或完成。Root将后续实际结果统一登记在[固定权威结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)，以该回执收口，不为合后结果循环改文档。
-
-干净Compose四场景仍仅证明c460的offline Mock核心生命周期及恢复，不升级为真人渠道或本轮冷clone实跑；新真实群/查询证据单独核收。原视频和字幕只作私有自动化/静态演示，不是连续真人录屏，本批不重录、不重做Compose。
-
-此前PR43 head36e的CI39644522303整体失败565/566及旧npm503保持；当时“下一候选待产生”的安排已由上述2f138技术核收接续。
+以下公开分步不依赖旧私有 `compose-commands.py`、`ui-commands.cjs` 或原机器绝对路径。它们是人工装配说明，自动验收仍需当前 owner 的有界调用者、输入绑定和原始证据。收到 A 的新运行结果后，只在本节补实际 source/tree、命令退出、业务读回、恢复和清理结论；未触发或未完成的项继续分列。
 
 ### 三种入口不要混用
 
@@ -22,9 +24,9 @@
 | `frontend/app/[[...path]]/page.tsx` 的 Mock/B04 预览分支 | 静态或 memory DTO 的界面预览；不要求业务数据库 | 不能证明真实 session/PG、持久化、执行或外部投递 |
 | `tests/e2e/web/m1_acceptance_driver.py`、`m1_acceptance_capture.py`、`m1_acceptance_ui.cjs` 及同一当前源码的 `scripts/p4_acceptance.py` | 已有消费、采集、浏览器及清理能力；共享入口按 manifest/request 与 hash 绑定来源 | Python consumer 库不是冷启动 CLI；CJS 也需要输入文件及 hash。不能不生成新 manifest/handoff 就消费旧窗口，不能把模块导入退出 0 当业务通过 |
 
-容器化人工路径需要完整 Git 源码、Docker daemon/Compose、POSIX shell、Python 3.12.13 和 uv 0.11.25；从当前 checkout `uv sync --frozen` 建立自己的环境。源码依据是 `.python-version`、`pyproject.toml`、`uv.lock`、`infrastructure/Dockerfile`。前端镜像还需仓库两份公开 schema，不能只复制 frontend 目录；Node/npm 在 `infrastructure/Dockerfile.m1-frontend` 中固定，使用容器化 Web 不要求主机安装 Playwright。主机 Node/Chromium 是自动浏览器验收的额外依赖。当前采集器已准确注册0015/0016/0017；这只保持相应历史快照兼容，不授权对旧库执行迁移或沿用旧schema输入。冷缓存仍需获取锁定依赖和基础镜像；这里的“离线”指业务平台/模型关闭，不是断网安装包。此批未新增跨操作系统实跑，非 POSIX 的原生运行没有保证。
+容器化人工路径需要完整 Git 源码、Docker daemon/Compose、POSIX shell、Python 3.12.13 和 uv 0.11.25；从当前 checkout `uv sync --frozen` 建立自己的环境。源码依据是 `.python-version`、`pyproject.toml`、`uv.lock`、`infrastructure/Dockerfile`。前端镜像还需仓库三份公开 schema（`p3-openapi.json`、`p4-n01-openapi.json`、`p5-m2-openapi.json`），构建上下文放行与镜像 COPY 缺一不可，不能只复制 frontend 目录；Node/npm 在 `infrastructure/Dockerfile.m1-frontend` 中固定，使用容器化 Web 不要求主机安装 Playwright。主机 Node/Chromium 是自动浏览器验收的额外依赖。旧 P4 采集器的 0015/0016 schema 清单与 0017 forensic 查询只保持相应历史快照兼容；当前 0018 须使用经审的对应采集路径，不能通过放宽旧 profile 验收。这里不授权对旧库执行迁移或沿用旧 schema 输入。冷缓存仍需获取锁定依赖和基础镜像；这里的“离线”指业务平台/模型关闭，不是断网安装包。此批未新增跨操作系统实跑，非 POSIX 的原生运行没有保证。
 
-README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其早期“没有 Next.js/正式业务 API”等阶段描述不能作为当前 P4 产品说明。外部导航随最终集成由原 owner 同步，本批只在原三文档内说明这一差别，不修改那些文件或据此新增工程任务。
+README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其早期“没有 Next.js/正式业务 API”等阶段描述不能作为当前 P4 产品说明。外部导航随最终集成由原 owner 同步，本节只维护 Compose 说明，其他文件由各自 owner 同步。
 
 ### 人工路径：复用现有公开命令
 
@@ -73,23 +75,39 @@ README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其�
    ```
 
 3. 组合 `docker compose --env-file /dev/null -p "$COMPOSE_PROJECT_NAME" -f compose.yml -f compose.m1-offline.yml --profile init --profile m1-offline-demo`，只操作本项目的明确服务名。先 `build db-init m1-seed m1-api m1-worker m1-web`，再 `up -d --wait --wait-timeout 90 postgres`。
-4. 对同一 Compose 调用依次执行 `run --rm --no-deps db-init python -m commerceops.entrypoints.database` 的 `migrate`、`setup-checkpointer`、`grant-runtime`、`revision` 四个动作；066当前head为 `0017_p4_verified_history`，以本次实际revision输出核对最终冻结源码后，再 `run --rm --no-deps m1-seed` 一次。seed 会拒绝已有标记；重启不再 seed。它依赖仓库的 `tests` fixture 与 factory，使用的是 Docker `test` target，不能拿只含 `commerceops` 包的 wheel 代替整个源码装配。
+4. 对同一 Compose 调用依次执行 `run --rm --no-deps db-init python -m commerceops.entrypoints.database` 的 `migrate`、`setup-checkpointer`、`grant-runtime`、`revision` 四个动作；本次应核最终冻结源码的实际 revision（当前源码预期 `0018_p5_commerce_sources`），确认一致后，再 `run --rm --no-deps m1-seed` 一次。seed 会拒绝已有标记；重启不再 seed。它依赖仓库的 `tests` fixture 与 factory，使用的是 Docker `test` target，不能拿只含 `commerceops` 包的 wheel 代替整个源码装配。
 5. 同一 Compose 调用 `up -d --wait --wait-timeout 90 m1-api m1-worker m1-web`。overlay 已令 Web 使用 `COMMERCEOPS_UI_MODE=live`、`local_http` 和本次 API loopback origin；数据仍为 Mock。单独的 `commerceops-api` 默认只提供基础入口，只有显式业务配置才装配业务路由，不是本 Mock 装配的替代命令。
 6. 仅从本次受保护的 `demo-account.json` 本地取得合成登录信息，不复制进说明或控制台。用本次 Web 端口进入 `/login`，再从任务页明确新建请求。seed 的 `technical_fixture` 不是新业务任务；baseline 配合 L=3/R=7/S=2 的 20 项及完整假设确认、known_inbound 的 70 件都由现有 factory 提供。先读计划/版本，再显式提交本版本意见；内部项完成/关闭仍需原因和原请求回执。此处的合成授权不代表真人体验。
 7. 任何命令失败或到截止即停止业务；先对同一 Compose 调用 `stop --timeout 30 m1-worker m1-api m1-web`，再 `stop --timeout 30 postgres`、`ps -a`，最后 `down --timeout 30`，不带 `-v`。Worker 父监督器负责同容器 child 的正常 stop/join/reap 和持久 audit；若停止非零，记录未知，不把它当成功，也不因此省略剩余清理。用本次 project label 单独查容器/网络、核两个监听关闭及本卷保留，正式验收再由原工具采低权停止证明。API/Web 不随 Worker expiry 自动退出，必须由操作者在 `m1_hard_stop` 前停止全部服务；不要用无作用域的清理命令处理其他项目。
 
 ### 私有自动采集器的限制，不新增一键验收 Gate
 
-上述公开分步可作为可重现命令交付；不以“一条命令完整验收”作为新的必要 Gate。静态核对尚未发现人工 Mock 产品启动缺少不可替代的配置/装配，因此本批没有新增 A 工程任务。已通过的四场景整批调用者仍是私有验收资料，不能冒充 clone 自带能力；它的不便携也不使已有公开服务失效。
+上述公开分步可作为可重现命令交付；不以“一条命令完整验收”作为新的必要 Gate。当前 P5 合同的构建上下文放行与 COPY 修正由 A 处理；其合入和实际构建结果仍待核收。已通过的四场景整批调用者仍是私有验收资料，不能冒充 clone 自带能力；它的不便携也不使已有公开服务失效。
 
 | 私有验收限制 | 对新使用者的准确说明 |
 | --- | --- |
 | 固定来源、工具链与 handoff | 自动验收输入需要当前 checkout 的环境、schema、工具版本/hash 和新窗口绑定；旧 `run-input` 不能复用。人工路径可直接使用本节分步，不必先构造旧验收 DTO |
 | 具体四场景私有调用者 | 私有 `compose-commands.py`/`ui-commands.cjs` 及绝对路径不在公开 clone 中；现有 consumer/helper 不应伪装成自包含场景 CLI，也不要求为此新增通用 launcher |
 | 停写后低权采集和自动清理报告 | 已审整批入口有 `CleanupPlan/cleanup_owned` 及诊断最多 20 秒/清理至少 180 秒的约束；人工启动与停止按前述公开命令执行，不把自动报告缺失当成公共产品启动缺配置 |
-| 本次未做新机器运行 | 本批仅回填066已知来源并复用既有影响核对；c460既有541 PG/私有四场景、066的565 PG及旧录像均按原范围引用，不称本次冷clone通过。最终只补源码影响所必需的链，不新增通用launcher或整批重跑Gate |
+| 当前候选尚无新运行结论 | c460 的私有四场景、066 的 PG 及旧录像均只签历史范围；新 0018/当前锁文件的构建、业务、恢复与清理须按本次实际证据登记，不称已通过，也不新增通用 launcher |
 
-本批不改权限、状态机、Next.js、迁移或平台功能，不为文档移植工作启动服务。投影、真实查询、群与负向恢复的 Gate 不因人工 Mock 启动说明而减少；29 outbox pending/attempts 0 的既有边界保持。
+本批不改权限、状态机、Next.js、迁移或平台功能，不为文档移植工作启动服务。投影、真实查询、群与负向恢复的 Gate 不因人工 Mock 启动说明而减少；历史 29 outbox pending/attempts 0 仅按原快照保留，不作为本次新卷状态。
+
+## 历史基线：2026-10-23 的最终交接候选记录
+
+以下保留原日期的来源与待验叙述；其中“当前/main/待验”等词仅指当时快照，不是当前 M2 状态。
+
+本节保留已核历史 `0661797b7b0c4bac78dcbb6f18abd6552875493a` / tree `da112ae63cb2de73206a143fd5d8ee3db4c4e4de` 为准备来源；[CI39417453535](https://github.com/aning0922/commerceops-agent/actions/runs/39417453535)五 job SUCCESS、565 PG（397+168，交集0），Web读/写/items及N01六项已由Root核收，最新owned准备范围见[Root安全回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6307662383)。本批只更新已知来源事实，没有执行clone、安装、build或服务启动。既有只读影响核对确认c460→066的Compose两文件、m1_offline_demo、前端/镜像及冻结18页映射无差异；四consumer在877→066无差异。当前数据库head仍为0017，运行时按最终冻结源码执行migrate/grant。W2 owned两回复/冷重放零新增、负向/低权及清理已核，不代表真实群、查询或新冷clone验收；main仍P3，最终组合来源及实际Gate待Root核收。
+
+当前已核功能source为 `160d66acf5f21887abdfd5bada2232118755268e` / tree `90fc8ccce1421ea96a7fbbe0e450fe1b4ecca4cc`；[CI39909049939](https://github.com/aning0922/commerceops-agent/actions/runs/39909049939)五作业SUCCESS、567 PG及Web/N01通过。Next精确16.4.2有限安全升级已保留，原C双文件修复8b08573的本地audit0漏洞、contract67/B04 Mock8/Phase4 Mock22及build仅签其原范围，不代签后续源码。
+
+原真实DM/F02、两轮群5+4动作、20 SKU/20 Base、原T6/v2/只读Web及最后两条新群查询所需真人平台Gate已收齐；新查询原独审PASS，各sent/attempt1、SDK6成功、17保护组不变、资源stop。raw wire/ACK及客户端已读均NOT_CAPTURED，不补写。旧两条群查询与旧原DM查询保持HOLD，原库/history恢复停止；新样本通过不回填旧消息成功。
+
+本三文档为最终文档候选，docs/source Review、CI8、main、post1及Issues结案当前仍PENDING；main仍为原P3基线9d97，不预填未来SHA或完成。Root将后续实际结果统一登记在[固定权威结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)，以该回执收口，不为合后结果循环改文档。
+
+干净Compose四场景仍仅证明c460的offline Mock核心生命周期及恢复，不升级为真人渠道或本轮冷clone实跑；新真实群/查询证据单独核收。原视频和字幕只作私有自动化/静态演示，不是连续真人录屏，本批不重录、不重做Compose。
+
+此前PR43 head36e的CI39644522303整体失败565/566及旧npm503保持；当时“下一候选待产生”的安排已由上述2f138技术核收接续。
 
 ## 已核历史交付：c460 有限离线复现（原范围保持）
 
