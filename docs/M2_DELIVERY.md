@@ -15,7 +15,7 @@
 | 项目 | 本批范围 / 状态 | 后续验收依据 |
 | --- | --- | --- |
 | 来源与质量展示 | 本批最小展示接线；测试结果见冻结提交交接，不把作者自检当独审 | 严格 DTO、页面回归及精确源码独审 |
-| 创建与 N01 | Woo/Mock 按当前所选店铺 capability 分支；B 离线契约与组件已接，真实业务联测仍 pending | 精确源码独审、稳定后端及同源 API/PG/Woo 业务链 |
+| 创建与 N01 | B `85f477c`：75 契约、9 创建组件、3 来源展示、22 共享页面回归通过；Root 已回执原 Reviewer 无 P1/P2。两处 scanner 命中仍待 A 精确处理；集成与真实联测 pending | 稳定后端、精确集成源码及同源 API/PG/Woo 业务链 |
 | Woo 对账 | 沿用独立 [实验环境](WOO_LOCAL_LAB.md) 与 [A/B 输入合同](contracts/p5-woo-readonly-v1.md)；实际 adapter probe 由 A/Root 单独核收 | 同源真实只读 API、独立 EXPECTED、完整性与质量结果 |
 | 备份还原后待审批续跑 | pending，本批未执行，核心入口由 A 负责 | [恢复交付合同](M2_BACKUP_RESTORE.md)、新自有源库和新目标库的实际证据 |
 | AC01–11 汇总 | pending Root 按影响复用已验 M1 并补 M2 缺项 | 不用页面 Mock 或旧 CI 抵扣新业务/恢复证据 |
@@ -62,3 +62,71 @@ npm --prefix frontend run build
 ```
 
 新增创建组件用 `about:blank` 和内存 transport，测试夹具显式注入合成 UUID；它没有实际会话、API、PG、Woo 或模型。390px/键盘结果仅代表自动化组件证据，不能替代真人验收。开发失败、修正及最终原生退出分别保留在 ignored 私有运行目录，最终交接按精确冻结提交登记。当前后端截止类修复及独审仍由 A/Root 处理，B 本批没有启动正式业务联测。
+
+## 当前证据分层与缺项
+
+下表记录证据能支持的结论；测试数不跨层累加为“完整 M2 通过”。B 本地源码为 `85f477c46d5348a9e3667f606d273eff3cbaaa32`，tree `97189ab748e316fb48e82fe5f8e1e2e11a70873f`。后续 A 集成和最终验收以 Root 新交接的精确 SHA/tree 为准。
+
+| 层次 | 当前事实 | 不能代替的证据 |
+| --- | --- | --- |
+| 公开合同与消费 | 已审 A `3af5308` 的 22 paths / 94 schemas / 23 operations；B 严格生成和消费，原 P3/P4 文件保留 | 已修后端的真实来源绑定、截止与权限行为 |
+| B 离线契约/组件 | 75/9/3/22 全部通过，类型/生产构建/再生成逐字节比较/115 份文档检查通过；Root 回执 B 原独审无 P1/P2 | 真实身份、API、PG、Woo、Worker 执行或真人验收 |
+| 独立 Woo lab | positive 新店原生对象与两轮 verify 已记录；EXPECTED 为 4/4/0/4，独立规则金标 Q219 | adapter 完整对账、真实业务报告、四项确认或内部项落库 |
+| 后端实际 PG、Fake HTTP | A/Root 单独核收来源、审批、幂等及兼容证据；Fake HTTP 必须显式标明 | 实际 Woo HTTP 与 positive 业务金标 |
+| 正式 Woo/API/PG/Web | pending 稳定后端冻结、独审及 Root 资源窗口 | 不从前三层推定通过 |
+| 新卷还原/待审批续跑 | pending，见 [还原合同](M2_BACKUP_RESTORE.md) | 保卷重启、旧 G2、当前版本新写新读 |
+| 精确集成 CI/main/合后 CI | pending Root 正式回执 | 旧提交五绿、作者自检或已 push |
+
+B 冻结时敏感扫描仍 exit 1：新增两处公开代码命中均为 `generic-api-key`，位于 `frontend/tooling/sync-p5-schema.mjs:5` 和 `tests/e2e/web/phase5/creation-ui.spec.ts:153`。原件、行/文件摘要已交 Root/Reviewer；A 为唯一必要精确例外 owner。该状态不因前端独审通过而自动变绿。7 份早期 lab 日志非敏感字节不可恢复的历史限制按 [lab 原记录](WOO_LOCAL_LAB.md) 保留。
+
+## 命令使用顺序
+
+从目标 checkout 根目录执行，并先按 [开发说明](DEVELOPMENT.md) 使用仓库固定 Python/uv/Node/npm。依赖准备命令会安装工具或依赖；以下前端检查不启动业务服务：
+
+```sh
+export PATH="$PWD/.tools/node/bin:$PATH"
+npm --prefix frontend run check:toolchain
+npm --prefix frontend run check:read-schema
+npm --prefix frontend run typecheck
+frontend/node_modules/.bin/playwright test --config frontend/playwright.contract.config.ts --reporter=list
+frontend/node_modules/.bin/playwright test --config tests/e2e/web/phase5/creation-playwright.config.ts
+frontend/node_modules/.bin/playwright test --config tests/e2e/web/phase5/playwright.config.ts
+npm --prefix frontend run build
+uv run --frozen python -m scripts.check_docs
+uv run --frozen python -m scripts.scan_secrets
+```
+
+不要用 `npm audit fix`、改 lock 或扩大 scanner 例外来替代失败处理。组件输出位于 ignored `runtime/m2-web-creation` 与 `runtime/m2-web-source`；重复开发尝试先保留原结果，再写新一次结果。检查命令的成功不表示真实验收窗口已获准。
+
+[Woo lab 命令](WOO_LOCAL_LAB.md) 已存在，`prepare/build/verify/serve/stop` 均只作用于明确登记的新自有目录。正式业务前必须由 A 交接 canonical organization/shop、不可变 binding/版本与私有 pin；旧 `synthetic-woo-positive` 实例不能改绑成业务 UUID。Root 登记资源和截止之后，adapter 对账可使用既有入口；下列三个绝对路径变量由该次私有交接提供，内容不写入命令参数：
+
+```sh
+uv run --frozen python -m scripts.woo_readonly_probe \
+  --config "$M2_WOO_CONFIG_PATH" \
+  --expected "$M2_WOO_EXPECTED_PATH" \
+  --output "$M2_WOO_OUTPUT_PATH"
+```
+
+这条命令实际读取 Woo，当前尚未运行；输出必须是新路径，不能覆盖已有对账原件。只在同一新 owned 窗口内执行，不因为路径变量存在就启动服务或访问旧资产。
+
+现有 `run_live_batches.py`、`run_c09_n01.py` 和 `frontend/playwright.live.config.ts` 仍绑定旧 Mock 种子、原 owner/事实输入和固定输出位置，**不能直接用作 M2 Woo 启动命令**。复用其安全登录、原键恢复、严格 DTO、端点/build/PID 校验和 finally 清理模式即可；不改旧场景结果、不复制旧私有配置、不另建父编排。正式 M2 consumer argv、专属私有输入与输出位置等待 A 稳定入口和 Root 冻结后登记，不在本页伪造一个尚不存在的“一键验收”命令。
+
+## 真实 Web 最小验证顺序（全部待执行）
+
+开始前，Root 交接精确 checkout/SHA/tree/build、owner/新资源、UTC 起止及清理预留、API/Web origins 与监听 PID、canonical org/shop/来源版本、私有账号路径、正向 EXPECTED/金标摘要、允许的业务写入数、现有 PG 只读采集入口和最终清理责任。B 只操作已交接的 headless 页面与公开 API；A 按既有入口采集 PG/Worker 证据。密码、cookie、CSRF、nonce、原请求正文和原始 DB/平台标识只留受保护原件，公开索引只留脱敏绑定与摘要。不要以截图或浏览器 POST 计数替代 PG 提交事实。
+
+| 顺序 | 最小操作与复用依据 | 必须取得的结果 | 当前状态 |
+| --- | --- | --- | --- |
+| 0 准入与只读基线 | 复用 `owned-listeners.ts` 和 live read 的 build/PID/origin、当前角色/店铺校验；A 提供业务计数/摘要基线 | 来源为服务端 Woo 配置，operator/approver 分工明确；无自动业务 POST | pending |
+| 1 来源、N01 与原创建 | Woo p5 schema 的来源/窗口/范围、缺参到明确确认；只在 A 矩阵分配 B 创建额度时，固定 L3/R7/S2 后准备并显式发送一次 | N01 不传 fixture、不访问 Woo、不产生 task/job/plan/approval/outbox/model；创建才产生原键唯一受理结果及对应分析/补货任务，不预设“一个 task 行” | pending |
+| 2 报告与四 SKU | 读取 A 交接原样本或上一步明确创建的报告/计划，复用 read/report 和来源展示断言 | 4 SKU/4 order lines/0 refunds/4 inventories；gross147/CNY994/tax0、Q100/40/60/19 总219；来源完整与库存/在途质量独立披露 | pending |
+| 3 还原后原待审批 | A 按 [还原合同](M2_BACKUP_RESTORE.md) 停 writers、dump/restore；B 恢复后重新登录读取原 tuple/全部披露，按 A 矩阵执行唯一批准或只读已有回执 | 原来源/报告/待审批 tuple 与 PG/checkpoint 对齐；四项在途仍 raw null，四个当前版本确认键完整且无默认勾选。只有分配 B 的当前有效批准操作才由 B 明确提交一次；同一 execution/每 SKU 唯一内部项及原键零新增由 A 采集 | pending |
+| 4 收尾与封包 | 复用既有 finally 清理与原生退出采集；A/Root 核各自进程与资源 | 浏览器上下文关闭、API/Web/Worker 停止/reap/OS absent、容器/网络/监听核实，源/目标卷保留；失败/UNKNOWN 单列 | pending |
+
+A 的样本矩阵必须在开始前列明每个原任务当前状态、创建/批准是否已发生，以及 B 可以执行的唯一动作。若 A 已创建或已批准，B 只读该对象和原回执，不再创建替代任务或重复批准；“已有批准回执可读”不能写成“本次浏览器实际批准”。正常报告与待审批恢复可使用同一正向样本，先保留 awaiting_approval 再备份；B 不先批准该样本再把它称为待审批还原。
+
+UNKNOWN、受控 ACK 丢失、同字节重放、不同内容冲突、权限和窄屏优先复用原有定向契约/组件及同冻结 A 的实际验证，明确其各自证据层级。本次最小 UI 顺序不自动新增这些写入或故障注入；如集成出现新风险，Root 再在原矩阵和预算内安排必要增量。受控 ACK 丢失必须标明故障注入，实际 PG 提交与只读恢复不能仅从浏览器行为推定。
+
+B 后续只适配现有 Playwright consumer 的显式资源输入和 M2 来源断言，不 seed、不管理 PG、不另建测试框架或父编排。正式 consumer argv 和专属输出在稳定资源交接后冻结；本次文档准备没有执行任何上述真实操作。
+
+每一项分别记录源码/样本、实际开始结束、选中节点/预期分母、原生退出、必要业务计数/摘要及清理事实。只运行某个尾段时保留前段失败并标明分段结果；没有执行的操作保持 pending。真实 Web 结果只代表自动浏览器验收，真人体验另记。
