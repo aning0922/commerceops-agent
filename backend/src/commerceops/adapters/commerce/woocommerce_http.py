@@ -143,10 +143,7 @@ class WooHTTP:
                                 != (origin.scheme, origin.hostname, origin.port)
                                 or destination.username is not None
                                 or destination.password is not None
-                                or (
-                                    destination.path != "/wp-json/wc/v3/" + path
-                                    and not discovery
-                                )
+                                or (destination.path != "/wp-json/wc/v3/" + path and not discovery)
                                 or {k.lower() for k in parse_qs(destination.query)}
                                 & {"consumer_key", "consumer_secret", "authorization"}
                             ):
