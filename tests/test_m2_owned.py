@@ -441,3 +441,59 @@ def test_lab_probe_cannot_redirect_to_another_owned_or_existing_source(
     with pytest.raises(BackupFailure, match="M2_LAB_PROBE_REFERENCE_CHANGED"):
         target.child_command(parent, "bind-source")
     assert calls == []
+
+
+@pytest.mark.parametrize("drift", ["origin", "secret", "lab_reference", "lab_config"])
+def test_full_action_rejects_drift_before_first_probe_command(
+    tmp_path: Path,
+    monkeypatch: Any,
+    drift: str,
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    lab = tmp_path / "new-lab"
+    lab.mkdir(mode=0o700)
+    save(lab / "lab.json", {"url": "https://localhost:19443"})
+    save(lab / "compose.env", b"REGISTERED=new\n")
+    save(directory / "lab-reference.private.json", {"directory": str(lab)})
+    probe = dict(
+        base_url="https://localhost:19443",
+        consumer_key_file=str(lab / "consumer_key"),
+        consumer_secret_file=str(lab / "consumer_secret"),
+        ca_file=str(lab / "ca.crt"),
+    )
+    parent = target.Scenario(directory, request, time.monotonic() + 600, lab_directory=lab)
+    parent.lab_inputs = {name: target.reference(lab / name) for name in ("lab.json", "compose.env")}
+    if drift == "origin":
+        probe["base_url"] = "https://localhost:19444"
+    elif drift == "secret":
+        probe["consumer_secret_file"] = str(tmp_path / "old-secret")
+    elif drift == "lab_reference":
+        (directory / "lab-reference.private.json").write_text(
+            json.dumps({"directory": str(tmp_path / "old-lab")})
+        )
+    else:
+        (lab / "lab.json").write_text(json.dumps({"url": "https://localhost:19444"}))
+    save(lab / "probe-config.private.json", probe)
+    calls = []
+
+    def command(self: Any, tag: str, *args: Any, **kwargs: Any) -> bytes:
+        calls.append(tag)
+        if tag.startswith("list-"):
+            phase = tag.removeprefix("list-")
+            return f"m2.spec.ts:1:1 › M2 {phase}\nTotal: 1 test in 1 file\n".encode()
+        assert tag == "frontend-build", "probe or any later command must not be dispatched"
+        return b""
+
+    monkeypatch.setattr(target.Scenario, "command", command)
+    monkeypatch.setattr(target.Scenario, "start_pg", lambda *_: "synthetic-not-started")
+    monkeypatch.setattr(
+        target,
+        "child_command",
+        lambda _parent, action: (
+            None if action == "source-init" else pytest.fail("late child reached")
+        ),
+    )
+    monkeypatch.setattr(target, "start_lab", lambda _: lab)
+    with pytest.raises(BackupFailure):
+        target.full_action(parent)
+    assert calls == ["list-source", "list-restored", "frontend-build"]

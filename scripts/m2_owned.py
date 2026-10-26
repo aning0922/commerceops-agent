@@ -1341,6 +1341,8 @@ def full_action(parent: Scenario) -> None:
     source_id = parent.start_pg("source")
     child_command(parent, "source-init")
     lab = start_lab(parent)
+    verify_lab_inputs(parent)
+    verify_lab_probe(lab)
     parent.command(
         "woo-probe",
         [
