@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import { resolve } from "node:path";
 const require = createRequire(import.meta.url);
 const root = resolve(import.meta.dirname, "../../../..");
+const creation = process.argv.includes("--creation");
 await require(
   resolve(root, "frontend/node_modules/next/dist/build/swc"),
 ).loadBindings();
@@ -20,8 +21,8 @@ await new Promise((accept, reject) => {
         "process.env": JSON.stringify({ NODE_ENV: "production" }),
       }),
     ],
-    entry: resolve(import.meta.dirname, "preview.tsx"),
-    output: { path: resolve(root, ".audit/p5-source-preview"), filename: "bundle.js" },
+    entry: resolve(import.meta.dirname, creation ? "creation-preview.tsx" : "preview.tsx"),
+    output: { path: resolve(root, creation ? ".audit/p5-creation-preview" : ".audit/p5-source-preview"), filename: "bundle.js" },
     resolve: {
       extensions: [".tsx", ".ts", ".js", ".json"],
       modules: [resolve(root, "frontend/node_modules"), "node_modules"],
