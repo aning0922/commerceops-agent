@@ -8,12 +8,30 @@ import {
   localTime,
   planComplete,
   explanationBound,
+  commerceSourceLabel,
+  commerceQualitySummary,
 } from "../lib/p3-present";
 import { P3Failure } from "../lib/p3-transport";
 import { Card, Disabled, Modal, Notice, Status } from "./ui";
 import { projectionMeaning, syncMeaning } from "../lib/p4-read-facts";
 export const writePending =
   "审批意见不代表执行成功；内部项跟进与同步分别记账，不表示采购入库。";
+export function BusinessSourceNotice({
+  fixtureMode,
+  kind,
+}: {
+  fixtureMode: boolean;
+  kind: unknown;
+}) {
+  return (
+    <>
+      {fixtureMode
+        ? "明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。"
+        : `当前会话已认证 · 当前报告来源：${commerceSourceLabel(kind)}；业务数据以各冻结报告为准。`}{" "}
+      {writePending}
+    </>
+  );
+}
 const verificationLabel = (mode: DTO["SenderGate"]["verification_mode"]) =>
   mode === "offline_fake"
     ? "离线 Fake"
@@ -188,11 +206,17 @@ export function LiveFacts({
           <div role="cell" className="number">
             <span className="mobile-label">库存</span>
             {x.A ?? "未知"}
+            {x.quality_flags.includes("SHARED_POOL_UNRESOLVED") && (
+              <small>共享库存池待核对 · 不按变体重复分配</small>
+            )}
           </div>
           <div role="cell" className="number">
             <span className="mobile-label">原始在途</span>
             {x.inbound_units ?? "null（未知）"}
-            <small>估算有效值 {x.effective_inbound_units}</small>
+            <small>
+              估算有效值 {x.effective_inbound_units}
+              {x.inbound_units === null && "；原始在途仍未知，估算不代表已知在途"}
+            </small>
           </div>
           <div role="cell" className="number">
             <span className="mobile-label">建议</span>
@@ -215,7 +239,7 @@ export function LiveFacts({
               </p>
               <p>
                 硬阻断：{x.hard_blocks.join("、") || "无"}；质量：
-                {x.quality_flags.join("、") || "无"}；假设：
+                {commerceQualitySummary(x.quality_flags)}；假设：
                 {x.required_assumptions.join("、") || "无"}。
               </p>
               <p>
@@ -453,9 +477,10 @@ export function LiveReport({
   return (
     <>
       <Notice title="分析报告 · 冻结事实">
-        完整：{f.complete ? "是" : "否"}；source_complete：
+        报告完整：{f.complete ? "是" : "否"}；来源采集完整：
         {f.source_complete ? "是" : "否"}；候选 {f.candidate_count}
-        ；scope_required：{f.scope_required ? "是" : "否"}。分析事实不授执行权。
+        ；scope_required：{f.scope_required ? "是" : "否"}。
+        采集完整不代表库存或在途已知；分析事实不授执行权。
       </Notice>
       <Card title="SKU 分析">
         <p>
@@ -473,8 +498,11 @@ export function LiveReport({
           实际source timezone：{f.source.timezone} · L/R/S：{f.L}/{f.R}/{f.S}
         </p>
         <p>
-          source_mode：{f.source.provenance.source_kind} · 风险：
-          {f.warnings.join("、") || "无已知警告"}
+          数据来源：{commerceSourceLabel(f.source.provenance.source_kind)} ·
+          质量：{commerceQualitySummary([
+            ...f.warnings,
+            ...f.source.provenance.quality_flags,
+          ])}
         </p>
         <p>
           服务端时间：{localTime(read.server_time, zone)}；配置新鲜度上限：
@@ -503,6 +531,7 @@ export function LiveReport({
       </div>
       {panel === "provenance" && (
         <Modal title="数据口径" close={closePanel}>
+          <p>数据来源：{commerceSourceLabel(f.source.provenance.source_kind)}</p>
           <Source source={read.source} />
           <p>公式、建议与精确比值来自冻结报告；UI不计算权威建议数量。</p>
           <p>

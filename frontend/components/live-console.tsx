@@ -23,8 +23,8 @@ import {
   Source,
   Sync,
   VersionList,
-  writePending,
   SenderFacts,
+  BusinessSourceNotice,
 } from "./live-readviews";
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
@@ -560,7 +560,7 @@ export function LiveConsole({
             <Notice
               title={`真实服务端会话 · ${localHttp ? "local_http" : "https"}`}
             >
-              业务来源为本阶段自有Mock数据；权限以真实会话为准，无身份选择器。
+              业务数据来源以各冻结报告为准；权限以真实会话为准，无身份选择器。
             </Notice>
             {checking ? (
               <p role="status">正在核实会话</p>
@@ -646,7 +646,10 @@ export function LiveConsole({
         <p className="sidebar-note">仅内部工作项 · 无采购入库</p>
         <footer>
           <strong>{fixtureMode ? "注入会话示例" : "当前真实会话"}</strong>
-          <p>自有Mock业务来源 · 内部协作</p>
+          <p>
+            {fixtureMode ? "离线 Mock · 注入合同响应" : "业务来源以冻结报告为准"}
+            {" · 内部协作"}
+          </p>
         </footer>
       </aside>
       <div className="workspace">
@@ -654,7 +657,7 @@ export function LiveConsole({
           <span>工作区 / {title}</span>
           <div className="account">
             <span className="environment">
-              {session.config.transport_mode} · 业务Mock
+              {fixtureMode ? "传输示例：" : "传输："}{session.config.transport_mode}
             </span>
             <button data-control="B44" onClick={() => setPanel("account")}>
               <span className="avatar">
@@ -673,10 +676,14 @@ export function LiveConsole({
         </header>
         <main id="main">
           <div className="mock-banner">
-            {fixtureMode
-              ? "明确离线 Mock · 注入合同响应；没有登录会话、API连接或数据库写入，示例不是真实Gate。"
-              : "当前会话已认证 · 本阶段业务来源为Mock · 创建、审批与内部跟进已接入。"}{" "}
-            {writePending}
+            <BusinessSourceNotice
+              fixtureMode={fixtureMode}
+              kind={
+                page?.kind === "report"
+                  ? page.read.facts.source.provenance.source_kind
+                  : null
+              }
+            />
           </div>
           <div className="page-heading">
             <div>
