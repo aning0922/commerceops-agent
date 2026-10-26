@@ -69,7 +69,7 @@ M2_PUBLIC_EXCEPTIONS = (
 )
 
 
-M2_CONSUMER_SOURCE_COMMIT = "d42d09416584d24e29867ec7e0aafe7907b51d54"
+M2_CONSUMER_SOURCE_COMMIT = "27af9c359c35b1f48f2530681a2d400910914d28"
 M2_CONSUMER_EXCEPTIONS = (
     (
         "tests/e2e/web/contracts/m2-consumer.spec.ts",
@@ -93,37 +93,37 @@ M2_CONSUMER_EXCEPTIONS = (
         "tests/e2e/web/live/m2-consumer.ts",
         "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
         "015f7c967bfa67d3dcf5171a1be76083ee509fa7a280e41ca52200b33a31e580",
-        73,
+        75,
     ),
     (
         "tests/e2e/web/live/m2-consumer.ts",
         "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
         "34cf7ac263107a4d2be2015a0f264a6d1e4c315d8f58d2fbe345d74c1795a0e7",
-        255,
+        257,
     ),
     (
         "tests/e2e/web/live/m2-consumer.ts",
         "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
         "f0c3acd784b36b1f3472875fc9c765e587424d9237562f34b7b937da5b8bfda0",
-        275,
+        277,
     ),
     (
         "tests/e2e/web/live/m2-consumer.ts",
         "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
         "d503b52d88c272a7c9b8f26edb249f4e34adf47f08b3bf17c7ae8faa288246a5",
-        289,
+        291,
     ),
     (
         "tests/e2e/web/live/m2-consumer.ts",
         "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
         "dbbec2bf789237600d1426e7c9968c147cd1ef753e0fc753b689e199667937d7",
-        435,
+        439,
     ),
 )
 
 
 def m2_consumer_rows(root: Path) -> tuple[tuple[str, str, str, str, int], ...]:
-    """Only the eight final independently reviewed d42 consumer public lines."""
+    """Only the eight unchanged reviewed public literals at the pinned consumer revision."""
     result = []
     for path, pattern, digest, line in M2_CONSUMER_EXCEPTIONS:
         source = subprocess.run(
@@ -357,7 +357,7 @@ def main() -> None:
                     }
                 )
             for source_path, path, row, digest, line in m2_consumer_rows(ROOT):
-                reason = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+                reason = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
                 rule["allowlists"].append(
                     {
                         "description": reason,

@@ -796,7 +796,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -807,7 +807,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -818,7 +818,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -829,7 +829,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -840,7 +840,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -851,7 +851,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -862,7 +862,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [
@@ -873,7 +873,7 @@ regexes = [
 ]
 
 [[rules.allowlists]]
-description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
 condition = "AND"
 regexTarget = "line"
 paths = [

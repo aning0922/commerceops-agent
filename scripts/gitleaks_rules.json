@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "0f191d4453ba129fff44051a915562eea15e488a8ea07fb20ae3692ddaaf6828",
+  "config_sha256": "1c36dac120e6c858f06def98b1c851b11681fa37ae824df81ab1ac2875bce1c3",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -83,74 +83,74 @@
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "708e007826382db1ba2e2d2890c189bf0a8b071096ecf13049b517152c52f22e",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/contracts/m2-consumer.spec.ts",
       "source_line": 39
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "503a15a10a4d484e96b74719fad06cf375a7a48a1a2b54c827dcbdc9acdb85c5",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/contracts/m2-consumer.spec.ts",
       "source_line": 40
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "7eba5a3c9dd2d0c4203ab7e5470ef45a8c35d46e1af70e79836278617c849e01",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
       "source_line": 58
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "015f7c967bfa67d3dcf5171a1be76083ee509fa7a280e41ca52200b33a31e580",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
-      "source_line": 73
+      "source_line": 75
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "34cf7ac263107a4d2be2015a0f264a6d1e4c315d8f58d2fbe345d74c1795a0e7",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
-      "source_line": 255
+      "source_line": 257
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "f0c3acd784b36b1f3472875fc9c765e587424d9237562f34b7b937da5b8bfda0",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
-      "source_line": 275
+      "source_line": 277
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "d503b52d88c272a7c9b8f26edb249f4e34adf47f08b3bf17c7ae8faa288246a5",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
-      "source_line": 289
+      "source_line": 291
     },
     {
       "rule": "generic-api-key",
       "path": "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
-      "reason": "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash",
+      "reason": "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash",
       "exact_line_sha256": "dbbec2bf789237600d1426e7c9968c147cd1ef753e0fc753b689e199667937d7",
-      "source_commit": "d42d09416584d24e29867ec7e0aafe7907b51d54",
+      "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
-      "source_line": 435
+      "source_line": 439
     }
   ],
   "historical_findings": [
