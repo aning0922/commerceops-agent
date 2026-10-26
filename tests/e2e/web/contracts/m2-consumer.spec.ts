@@ -165,11 +165,39 @@ test("M2 report binding retains unknown inbound and checks every mapped fact, no
     }).suggested_units -= 1;
     expect(() => bindReport(altered, gold, { source })).toThrow();
 });
-test("M2 replay preserves all business receipt fields, allows only response envelope time/trace and duplicate difference", () => {
-    const original = { schema_version: "p3-web-v1", request_key: "synthetic", plan_hash: "a", decided_by: "operator", decided_at: "time", decision_payload_hash: "digest", server_time: "old", trace_id: "old", duplicate: false } as unknown as DTO["DecisionReceipt"];
-    expect(sameDecision({ ...original, server_time: "new", trace_id: "new", duplicate: true }, original)).toBe(true);
-    for (const field of ["plan_hash", "decided_by", "decided_at", "decision_payload_hash"] as const)
-        expect(sameDecision({ ...original, [field]: "changed" }, original)).toBe(false);
+function decisionReceipt(): DTO["DecisionReceipt"] {
+    const id = "00000000-0000-4000-8000-000000000001";
+    return { schema_version: "p3-web-v1", identity_mode: "session", request_key: id, decision_id: id,
+        task_id: id, approval_id: id, plan_id: id, plan_version: 1, plan_hash: "a".repeat(64),
+        action: "approve_with_assumptions", acknowledged_assumption_keys: ["inbound_unknown_zero:synthetic"],
+        approval_status: "approved", decided_by: id, decided_at: date(-1), decision_source: "web", reason_code: null,
+        decision_payload_hash: "b".repeat(64), server_time: date(0), trace_id: id, resume_state: "queued", duplicate: false };
+}
+test("M2 original-byte replay allows queued to consumed without claiming execution completed", () => {
+    const original = decisionReceipt();
+    expect(sameDecision({ ...original, server_time: date(1), trace_id: "00000000-0000-4000-8000-000000000002", duplicate: true, resume_state: "consumed" }, original)).toBe(true);
+    for (const before of ["waiting_checkpoint", "queued", "consumed"] as const)
+        for (const after of ["waiting_checkpoint", "queued", "consumed"] as const) {
+            const rank = { waiting_checkpoint: 0, queued: 1, consumed: 2 };
+            expect(sameDecision({ ...original, duplicate: true, resume_state: after }, { ...original, resume_state: before })).toBe(rank[after] >= rank[before]);
+        }
+});
+test("M2 replay rejects invalid resume states, regressions and nonduplicate receipts", () => {
+    const original = decisionReceipt(), replay = { ...original, duplicate: true };
+    for (const state of ["completed", "unknown", "", null]) {
+        expect(sameDecision({ ...replay, resume_state: state } as unknown as DTO["DecisionReceipt"], original)).toBe(false);
+        expect(sameDecision(replay, { ...original, resume_state: state } as unknown as DTO["DecisionReceipt"])).toBe(false);
+    }
+    expect(sameDecision({ ...replay, duplicate: false, resume_state: "consumed" }, original)).toBe(false);
+    // Every replay is compared with the previous confirmed receipt, so a later
+    // queued response after observed consumed cannot regress to the first receipt.
+    expect(sameDecision(replay, { ...replay, resume_state: "consumed" })).toBe(false);
+});
+test("M2 replay preserves every stable identity, plan, action, acknowledgement and receipt field", () => {
+    const original = decisionReceipt(), replay = { ...original, duplicate: true, resume_state: "consumed" as const };
+    const dynamic = new Set(["server_time", "trace_id", "duplicate", "resume_state"]);
+    for (const field of Object.keys(original).filter((field) => !dynamic.has(field)))
+        expect(sameDecision({ ...replay, [field]: "changed" } as unknown as DTO["DecisionReceipt"], original), field).toBe(false);
 });
 test("M2 reporter never copies error/title/stdout/steps or private values into its safe console", () => {
     const reporter = new M2Reporter(), lines: string[] = [], old = console.log;
