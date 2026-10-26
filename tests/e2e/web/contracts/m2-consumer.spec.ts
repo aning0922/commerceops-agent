@@ -8,9 +8,11 @@ import sourceTemplate from "../../../../docs/contracts/p5-m2-live-source.example
 import restoredTemplate from "../../../../docs/contracts/p5-m2-live-restored.example.json";
 import { admission, mutationAdmission, privateJson, exactShape, validateInputs, M2Files, digest, loadGolden, utf8 } from "../live/m2-resource";
 import type { M2Window, Phase } from "../live/m2-resource";
-import { bindReport, sameDecision, M2BrowserScope, classifyM2Post } from "../live/m2-consumer";
+import { bindReport, sameDecision, M2BrowserScope, classifyM2Post, validM2Session, sourceApprovalReadiness } from "../live/m2-consumer";
 import { sourceReport } from "../phase5/source-fixtures";
 import type { DTO } from "../../../../frontend/lib/p3-present";
+import { offlineSession } from "../../../../frontend/lib/b04-offline-source";
+import { verifyReadResponse } from "../../../../frontend/lib/p3-live-client";
 import M2Reporter from "../../../../frontend/tooling/m2-live-reporter";
 import type { TestCase, TestResult } from "../../../../frontend/node_modules/@playwright/test/reporter";
 const now = Date.parse("2026-10-26T12:00:00Z"), date = (offset: number) => new Date(now + offset * 1000).toISOString();
@@ -213,4 +215,50 @@ test("M2 post classification separates definitive rejection from UNKNOWN; malfor
     const error = { schema_version: "p3-web-v1", server_time: null, trace_id: key, error: { code: "IDEMPOTENCY_CONFLICT", safe_message: "offline", retryable: false, receipt: null } };
     expect(classifyM2Post("create_task", input, "/api/v1/tasks", 409, error).outcome).toBe("rejected");
     expect(classifyM2Post("create_task", input, "/api/v1/tasks", null, null).outcome).toBe("unknown");
+});
+test("M2 frozen server business-read shape accepts both roles; creation, scope and expiry remain constrained", () => {
+    // Direct projection of committed web_sessions._read: both business roles can
+    // read tasks/approvals. No PG execution or can_decide claim is made here.
+    for (const role of ["operator", "approver"] as const) {
+        const account = sourceTemplate.files["web-accounts.json"][role];
+        const base = offlineSession();
+        const session: DTO["SessionRead"] = { ...base, principal: { ...base.principal,
+                principal_id: account.expected_principal_id,
+                organization_id: account.expected_organization_id,
+                role_shop_grants: [{ role, shop_id: account.expected_shop_id }],
+                capabilities: { can_create_task: role === "operator", can_read_tasks: true,
+                    can_read_approvals: true, can_resolve_items: false, can_read_operations: false, home_path: "/tasks" },
+            } };
+        expect(verifyReadResponse("GET", "/api/v1/auth/session", 200, session)).toBe(true);
+        expect(validM2Session(session, account, role)).toBe(true);
+        expect(validM2Session({ ...session, principal: { ...session.principal, capabilities: { ...session.principal.capabilities, can_read_approvals: false } } }, account, role)).toBe(false);
+        expect(validM2Session({ ...session, principal: { ...session.principal, capabilities: { ...session.principal.capabilities, can_create_task: role !== "operator" } } }, account, role)).toBe(false);
+        expect(validM2Session({ ...session, principal: { ...session.principal, role_shop_grants: [{ role, shop_id: "00000000-0000-4000-8000-000000000099" }] } }, account, role)).toBe(false);
+        expect(validM2Session({ ...session, principal: { ...session.principal, principal_id: "00000000-0000-4000-8000-000000000099" } }, account, role)).toBe(false);
+        expect(validM2Session({ ...session, idle_expires_at: session.server_time }, account, role)).toBe(false);
+    }
+});
+test("M2 source pending readiness waits only on current bound nonexpired objects, then exits on ready or rejection", () => {
+    // Minimal typed domain fixture for readiness only; complete remote DTO shape
+    // remains enforced by the production read() before this predicate is called.
+    const expiry = date(600), plan = { plan_id: "plan", task_id: "task", plan_version: 1,
+        plan_hash: "hash", status: "current", expires_at: expiry, disclosure_complete: true,
+        items: [], item_count: 0, total_units: 0, hard_blocks: [], required_assumptions: [] } as unknown as DTO["Plan"];
+    const task = { task: { state: "awaiting_approval", task_id: "task" }, current_plan_id: "plan", approval_id: "approval" } as unknown as DTO["TaskRead"];
+    const pending = { server_time: date(0), plan, decision: null, nonce: null, disabled_reasons: ["NOT_DECIDABLE"],
+        approval: { approval_id: "approval", task_id: "task", plan_id: "plan", plan_version: 1,
+            plan_hash: "hash", status: "pending", expires_at: expiry, ready_at: null, can_decide: false } } as unknown as DTO["ApprovalRead"];
+    const ready = { ...pending, nonce: "n".repeat(43), disabled_reasons: [], approval: { ...pending.approval, can_decide: true, ready_at: date(-1) } };
+    expect([pending, ready].map((read) => sourceApprovalReadiness(read, task, plan, now + 240000, now))).toEqual(["wait", "ready"]);
+    expect(sourceApprovalReadiness({ ...ready, approval: { ...ready.approval, ready_at: null } }, task, plan, now + 240000, now)).toBe("wait");
+    for (const bad of [
+        { ...pending, approval: { ...pending.approval, status: "expired" as const } },
+        { ...pending, approval: { ...pending.approval, plan_hash: "different" } },
+        { ...ready, approval: { ...ready.approval, can_decide: false } },
+        { ...pending, disabled_reasons: ["ACCESS_DENIED"] },
+        { ...pending, approval: { ...pending.approval, expires_at: date(-1) } },
+    ])
+        expect(() => sourceApprovalReadiness(bad, task, plan, now + 240000, now)).toThrow();
+    expect(() => sourceApprovalReadiness(pending, task, plan, now + 59999, now)).toThrow("M2_DEADLINE");
+    expect(() => sourceApprovalReadiness(pending, { ...task, task: { ...task.task, state: "rejected" } }, plan, now + 240000, now)).toThrow();
 });

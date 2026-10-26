@@ -6,7 +6,7 @@ import type { WooN01Response } from "../../../../frontend/lib/p4-n01";
 import type { DTO } from "../../../../frontend/lib/p3-present";
 import { planComplete } from "../../../../frontend/lib/p3-present";
 import { admission, digest, fail, loadGolden, loadM2, mutationAdmission, privateJson, requireM2, utc, utf8 } from "./m2-resource";
-import type { FileRef, Phase, Golden } from "./m2-resource";
+import type { FileRef, Phase, Golden, M2Account } from "./m2-resource";
 type Runtime = ReturnType<typeof loadM2>;
 import { isDeepStrictEqual } from "node:util";
 type Receipt = DTO["CreateTaskReceipt"] | DTO["DecisionReceipt"];
@@ -17,6 +17,39 @@ type Check = {
 const same = isDeepStrictEqual;
 const safeErrorCodes = new Set(["M2_AUTH_INVALID", "M2_BINDING", "M2_CONSUMER_FAILED", "M2_CONTEXT_CLOSE_FAILED", "M2_DEADLINE", "M2_EXECUTION_REJECTED", "M2_EXTRA_WRITE", "M2_GOLD_MISMATCH", "M2_INPUT_CHANGED", "M2_INPUT_REJECTED", "M2_OUTPUT_EXISTS", "M2_OUTPUT_REJECTED", "M2_REQUEST_REJECTED", "M2_RESPONSE_REJECTED", "M2_WRITE_REJECTED", "M2_WRITE_UNKNOWN"]);
 const sameSet = (a: readonly string[], b: readonly string[]) => a.length === b.length && new Set(a).size === a.length && [...a].sort().join("\0") === [...b].sort().join("\0");
+// web_sessions._read grants business read capability to both roles. This does
+// not grant decision authority, which is checked on the current ApprovalRead.
+export function validM2Session(session: DTO["SessionRead"], account: M2Account, role: "operator" | "approver"): boolean {
+    const principal = session.principal;
+    return principal.principal_id === account.expected_principal_id &&
+        principal.organization_id === account.expected_organization_id &&
+        principal.linked_channels.includes("web") && principal.role_shop_grants.length === 1 &&
+        principal.capabilities.can_create_task === (role === "operator") &&
+        principal.capabilities.can_read_tasks === true && principal.capabilities.can_read_approvals === true &&
+        principal.role_shop_grants.some((g) => g.role === account.expected_role && g.shop_id === account.expected_shop_id) &&
+        utc(session.absolute_expires_at) > utc(session.server_time) && utc(session.idle_expires_at) > utc(session.server_time);
+}
+export function sourceApprovalReadiness(read: DTO["ApprovalRead"], task: DTO["TaskRead"], originalPlan: DTO["Plan"], consumerStop: number, now: number): "wait" | "ready" {
+    const a = read.approval, p = read.plan;
+    requireM2(consumerStop - now >= 60000, "M2_DEADLINE");
+    requireM2(task.task.state === "awaiting_approval" && task.task.task_id === originalPlan.task_id &&
+        task.current_plan_id === originalPlan.plan_id && task.approval_id === a.approval_id &&
+        a.status === "pending" && read.decision === null && p.status === "current" &&
+        a.task_id === originalPlan.task_id && a.plan_id === originalPlan.plan_id && p.plan_id === originalPlan.plan_id &&
+        a.plan_version === originalPlan.plan_version && p.plan_version === originalPlan.plan_version &&
+        a.plan_hash === originalPlan.plan_hash && p.plan_hash === originalPlan.plan_hash &&
+        utc(a.expires_at) === utc(originalPlan.expires_at) && utc(p.expires_at) === utc(a.expires_at) &&
+        utc(a.expires_at) - Math.max(now, utc(read.server_time)) >= 60000 &&
+        planComplete(p) && p.hard_blocks.length === 0, "M2_BINDING");
+    if (a.can_decide)
+        requireM2(read.nonce !== null && /^[A-Za-z0-9_-]{43}$/.test(read.nonce) && read.disabled_reasons.length === 0, "M2_AUTH_INVALID");
+    else
+        requireM2(a.ready_at === null && read.nonce === null && read.disabled_reasons.length === 1 && read.disabled_reasons[0] === "NOT_DECIDABLE", "M2_AUTH_INVALID");
+    if (a.ready_at === null)
+        return "wait";
+    requireM2(a.can_decide && utc(a.ready_at) <= utc(read.server_time), "M2_AUTH_INVALID");
+    return "ready";
+}
 export function classifyM2Post(operation: "create_task" | "decision", input: Record<string, unknown>, path: string, status: number | null, value: unknown) {
     if (status === null || !verifyReadResponse("POST", path, status, value))
         return { outcome: "unknown" as const, value: null, result: null };
@@ -138,7 +171,7 @@ export async function runM2(browser: Browser, info: TestInfo, phase: Phase) {
         }
         await page.locator('[data-source-mode="live-session"]').waitFor();
         const session = await read<DTO["SessionRead"]>(page, "/api/v1/auth/session");
-        requireM2(session.principal.principal_id === account.expected_principal_id && session.principal.organization_id === account.expected_organization_id && session.principal.linked_channels.includes("web") && session.principal.role_shop_grants.length === 1 && session.principal.capabilities.can_create_task === (role === "operator") && session.principal.capabilities.can_read_approvals === (role === "approver") && session.principal.role_shop_grants.some((g) => g.role === account.expected_role && g.shop_id === account.expected_shop_id) && utc(session.absolute_expires_at) > utc(session.server_time) && utc(session.idle_expires_at) > utc(session.server_time), "M2_AUTH_INVALID");
+        requireM2(validM2Session(session, account, role), "M2_AUTH_INVALID");
         return page;
     };
     const receipt = async (response: PWResponse | null, operation: "create_task" | "decision", input: Record<string, unknown>, path: string, file: string) => {
@@ -303,9 +336,22 @@ export async function runM2(browser: Browser, info: TestInfo, phase: Phase) {
             await operator.goto(`/tasks/${original.task_id}/report`);
             await operator.locator(".fact-row").nth(3).waitFor();
             requireM2(await operator.locator(".fact-row").count() === 4 && (await operator.locator("main").innerText()).includes("Woo 测试店（只读）"));
-            const approver = await contextFor("approver"), approval = await read<DTO["ApprovalRead"]>(approver, `/api/v1/approvals/${task.approval_id}`);
-            requireM2(approval.approval.status === "pending" && approval.approval.can_decide && approval.approval.plan_id === plan.plan.plan_id && approval.approval.plan_hash === plan.plan.plan_hash && approval.approval.plan_version === plan.plan.plan_version && approval.approval.task_id === original.task_id && approval.nonce !== null && utc(approval.approval.expires_at) > utc(approval.server_time));
-            bindPlan(approval.plan, report, gold, r.source.source_config_version);
+            const approver = await contextFor("approver");
+            let approval: DTO["ApprovalRead"];
+            for (;;) {
+                guard();
+                requireM2(utc(r.window.consumer_stop_at_utc) - Date.now() >= 60000, "M2_DEADLINE");
+                const session = await read<DTO["SessionRead"]>(approver, "/api/v1/auth/session");
+                requireM2(validM2Session(session, r.accounts.approver, "approver"), "M2_AUTH_INVALID");
+                const currentTask = await read<DTO["TaskRead"]>(approver, `/api/v1/tasks/${original.task_id}`);
+                requireM2(currentTask.task.shop_id === r.window.shop_id, "M2_BINDING");
+                approval = await read<DTO["ApprovalRead"]>(approver, `/api/v1/approvals/${task.approval_id}`);
+                bindPlan(approval.plan, report, gold, r.source.source_config_version);
+                if (sourceApprovalReadiness(approval, currentTask, plan.plan, utc(r.window.consumer_stop_at_utc), Date.now()) === "ready")
+                    break;
+                requireM2(utc(r.window.consumer_stop_at_utc) - Date.now() >= 60500, "M2_DEADLINE");
+                await approver.waitForTimeout(500);
+            }
             check("pending_approval_readonly");
             const taskRef = write("source-task-read.private.json", task), reportRef = write("source-report-read.private.json", report), planRef = write("source-plan-read.private.json", plan), approvalRef = write("source-approval-read.private.json", approval);
             write("source-observed.private.json", { schema_version: "p5-m2-source-observed-v1", run_id: r.window.run_id, source_sha: r.window.source_sha, source_tree: r.window.source_tree, observed_at_utc: new Date().toISOString(), organization_id: r.window.organization_id, shop_id: r.window.shop_id, operator_principal_id: r.accounts.operator.expected_principal_id, approver_principal_id: r.accounts.approver.expected_principal_id, create_request_key: original.request_key, task_id: original.task_id, source_task_id: original.source_task_id, report_id: report.source.report_id, snapshot_id: report.source.snapshot_id, facts_hash: report.source.facts_hash, plan_id: plan.plan.plan_id, plan_version: plan.plan.plan_version, plan_hash: plan.plan.plan_hash, approval_id: task.approval_id, expires_at: approval.approval.expires_at, required_assumption_keys: keysFor(gold), create_request_ref: artifact("source-create-request.private.json"), create_receipt_ref: artifact("source-create-receipt.private.json"), task_read_ref: taskRef, report_read_ref: reportRef, plan_read_ref: planRef, approval_read_ref: approvalRef });

@@ -144,7 +144,7 @@ npm exec -- playwright test --config playwright.live.config.ts --grep 'M2 restor
 
 每段上限240秒，并核总stop减180秒清理预留。source首次Create前原approval尚不存在，`original_expires_at=null`合法，但仍须在consumer_stop前留60秒。restored启动须原expiry至少余300秒，批准及每次重放前再次核真实API原expiry和60秒写入余量。输入、FileRef字节、当前源码/tree/build与独占listener/PID不符则停止，不能以模板或端口探测代签。
 
-source通过真实Web完成N01、参数明确确认、原请求准备和唯一Create；在原POST发送前用wx保存并fsync实际UTF-8 JSON字节。随后从实际receipt读同一task/report/plan，按logical_key与原seed/EXPECTED/金标逐项核四SKU、Q219、未知在途与完整四假设；当前approver只读原审批，source不批准。source-observed供A在子进程退出后核PG并生成canonical facts，consumer不等待运行中补写输入。
+source通过真实Web完成N01、参数明确确认、原请求准备和唯一Create；在原POST发送前用wx保存并fsync实际UTF-8 JSON字节。随后从实际receipt读同一task/report/plan，按logical_key与原seed/EXPECTED/金标逐项核四SKU、Q219、未知在途与完整四假设；当前approver只读原审批，source不批准。source-observed供A在子进程退出后核PG并生成canonical facts，consumer不等待运行中补写输入。合法pending审批尚未发布ready_at时，只在原consumer_stop内以当前approver会话和同一task/plan绑定做只读轮询，始终保留60秒；401/403、权限或绑定失效、终态、冲突立即退出。operator与approver均可读审批，创建能力按角色区分，读能力不代替当前can_decide授权。
 
 restored用新context分别按当前operator/approver身份登录，读回同一原tuple/期限与复制原件。四个假设无默认勾选，明确确认后只准备和批准一次；成功后从同一原始decision文件读相同字节做合同指定的十次技术重放。每次必须返回同一业务决定，任一不明立即停止POST。然后只读核同一execution及四个唯一SKU内部项的数量，总219；这不代替A的PG唯一性/checkpoint核账。报告DTO不含金额/退款汇总，consumer不填写对应通过项。
 
