@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import json
 import ssl
-import urllib.error
-import urllib.request
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -185,22 +183,17 @@ def verify_shop(
         or [p["id"] for p in after] != before_ids
     ):
         raise LabFailure("LAB_PERMISSION_PROBE_MUTATED")
-    untrusted = urllib.request.build_opener(
-        urllib.request.ProxyHandler({}),
-        urllib.request.HTTPSHandler(context=ssl.create_default_context()),
-    )
     try:
-        with untrusted.open(config["url"], timeout=10):
-            pass
-    except urllib.error.URLError as error:
-        if not isinstance(error.reason, ssl.SSLCertVerificationError):
-            raise LabFailure("LAB_TLS_FAILURE_WRONG_REASON") from error
+        client.read_response("/", context=ssl.create_default_context())
+    except LabFailure as error:
+        if str(error) != "LAB_TLS_UNTRUSTED":
+            raise LabFailure("LAB_TLS_FAILURE_WRONG_REASON") from None
     else:
         raise LabFailure("LAB_TLS_UNTRUSTED_ACCEPTED")
-    with client.opener.open(client.url + "/wp-login.php", timeout=10) as response:
-        login_page = response.read(524288)
-        if response.status != 200 or b'id="loginform"' not in login_page:
-            raise LabFailure("LAB_LOGIN_PAGE")
+    status, login_page, _ = client.read_response("/wp-login.php", max_bytes=524288)
+    if status != 200 or b'id="loginform"' not in login_page:
+        raise LabFailure("LAB_LOGIN_PAGE")
+    client.remaining()
     result = {
         "login_page_https": True,
         "status": "PASS_REAL_WOO_SYNTHETIC_ONLY",

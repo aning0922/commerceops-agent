@@ -18,15 +18,17 @@ import stat
 import subprocess
 import sys
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 from collections.abc import Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
+
+import httpx
+from commerceops.adapters.commerce.woocommerce_deadline import WooDeadlineTransport
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = ROOT / "compose.woo-lab.yml"
@@ -35,6 +37,17 @@ PROJECT = re.compile(r"woolab-[a-f0-9]{12}\Z")
 PRIVATE_POOLS = tuple(
     ipaddress.IPv4Network(v) for v in ("10.247.0.0/16", "172.16.0.0/12", "192.168.0.0/16")
 )
+
+
+_operation_deadline: ContextVar[float | None] = ContextVar("woo_lab_deadline", default=None)
+
+
+def bounded_timeout(limit: float) -> float:
+    deadline = _operation_deadline.get()
+    left = limit if deadline is None else min(limit, deadline - time.monotonic())
+    if left <= 0:
+        raise LabFailure("LAB_DEADLINE")
+    return left
 
 
 class LabFailure(RuntimeError):
@@ -76,8 +89,7 @@ def load(directory: Path) -> dict[str, Any]:
 def command(
     args: list[str], directory: Path, name: str, timeout: float, *, sensitive_output: bool = False
 ) -> bytes:
-    if timeout <= 0:
-        raise LabFailure("LAB_DEADLINE")
+    timeout = bounded_timeout(timeout)
     started = time.monotonic()
     name = name + "-" + uuid4().hex[:8]
     try:
@@ -123,6 +135,7 @@ def command(
     )
     if result.returncode:
         raise LabFailure("LAB_COMMAND_FAILED_" + name.upper().replace("-", "_"))
+    bounded_timeout(1)  # A native late exit must not advance the owner workflow.
     return result.stdout
 
 
@@ -173,12 +186,12 @@ def host_route_inventory() -> tuple[list[ipaddress.IPv4Network], dict[str, Any]]
     probes = []
     if sys.platform == "darwin":
         raw = subprocess.check_output(
-            ["netstat", "-rn", "-f", "inet"], cwd=ROOT, timeout=10
+            ["netstat", "-rn", "-f", "inet"], cwd=ROOT, timeout=bounded_timeout(10)
         ).decode()
         parsed = [line.split() for line in raw.splitlines() if line.split()]
         for target in ("1.1.1.1", "8.8.8.8", "203.0.113.1"):
             text = subprocess.check_output(
-                ["route", "-n", "get", target], cwd=ROOT, timeout=10
+                ["route", "-n", "get", target], cwd=ROOT, timeout=bounded_timeout(10)
             ).decode()
             data = dict(re.findall(r"^\s*(gateway|interface):\s*(\S+)", text, re.MULTILINE))
             probes.append({"target": target, **data})
@@ -195,7 +208,9 @@ def host_route_inventory() -> tuple[list[ipaddress.IPv4Network], dict[str, Any]]
                 capture_group = gateway, interface
     elif sys.platform == "linux":
         raw = subprocess.check_output(
-            ["ip", "-j", "-4", "route", "show", "table", "all"], cwd=ROOT, timeout=10
+            ["ip", "-j", "-4", "route", "show", "table", "all"],
+            cwd=ROOT,
+            timeout=bounded_timeout(10),
         ).decode()
         parsed = [
             [r.get("dst", "default"), r.get("gateway", ""), "", r.get("dev", "")]
@@ -248,13 +263,17 @@ def host_networks() -> list[ipaddress.IPv4Network]:
 
 def occupied_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
     ids = (
-        subprocess.check_output(["docker", "network", "ls", "-q"], cwd=ROOT, timeout=20)
+        subprocess.check_output(
+            ["docker", "network", "ls", "-q"], cwd=ROOT, timeout=bounded_timeout(20)
+        )
         .decode()
         .split()
     )
     rows = (
         json.loads(
-            subprocess.check_output(["docker", "network", "inspect", *ids], cwd=ROOT, timeout=30)
+            subprocess.check_output(
+                ["docker", "network", "inspect", *ids], cwd=ROOT, timeout=bounded_timeout(30)
+            )
         )
         if ids
         else []
@@ -510,9 +529,11 @@ def stop(config: dict[str, Any], directory: Path) -> None:
         .split()
     )
     with socket.socket() as sock:
+        sock.settimeout(bounded_timeout(2))
         listener_absent = sock.connect_ex(("127.0.0.1", config["port"])) != 0
     if not listener_absent:
         raise LabFailure("LAB_CLEANUP_LISTENER")
+    bounded_timeout(1)
     write_private(
         directory / "cleanup.safe.json",
         {
@@ -531,12 +552,6 @@ class Client:
         self.deadline = deadline
         self.requests = 0
         self.context = ssl.create_default_context(cafile=str(directory / "ca.crt"))
-        # Explicitly ignore global proxy configuration; do not change the system proxy.
-        self.opener = urllib.request.build_opener(
-            urllib.request.ProxyHandler({}),
-            urllib.request.HTTPSHandler(context=self.context),
-            NoRedirect(),
-        )
         auth = json.loads((directory / "runtime-auth.json").read_text())
         self.authorization = (
             "Basic "
@@ -545,32 +560,84 @@ class Client:
             ).decode()
         )
 
-    def request(self, path: str, method: str = "GET", payload: Any = None) -> tuple[int, Any, Any]:
-        if not path.startswith("/wp-json/wc/v3/") or ".." in path or "#" in path:
+    def remaining(self) -> float:
+        left = self.deadline - time.monotonic()
+        if left <= 0:
+            raise LabFailure("LAB_DEADLINE")
+        return bounded_timeout(left)
+
+    def read_response(
+        self,
+        path: str,
+        method: str = "GET",
+        payload: Any = None,
+        *,
+        context: ssl.SSLContext | None = None,
+        authenticated: bool = False,
+        max_bytes: int = 2097152,
+    ) -> tuple[int, bytes, httpx.Headers]:
+        if not path.startswith("/") or path.startswith("//") or ".." in path or "#" in path:
             raise LabFailure("LAB_REQUEST_SCOPE")
         self.requests += 1
-        remaining = self.deadline - time.monotonic()
-        if remaining <= 0 or self.requests > 128:
+        if self.requests > 128:
             raise LabFailure("LAB_READ_BUDGET")
+        self.remaining()
+        headers = {"Accept-Encoding": "identity", "Content-Type": "application/json"}
+        if authenticated:
+            headers["Authorization"] = self.authorization
         body = None if payload is None else json.dumps(payload).encode()
-        request = urllib.request.Request(  # noqa: S310 - validated HTTPS localhost only
-            self.url + path,
-            data=body,
-            method=method,
-            headers={"Authorization": self.authorization, "Content-Type": "application/json"},
-        )
         try:
-            with self.opener.open(request, timeout=min(15, remaining)) as response:  # noqa: S310 - fixed HTTPS origin
-                return response.status, json.load(response), response.headers
-        except urllib.error.HTTPError as error:
-            return error.code, json.loads(error.read()), error.headers
-        except urllib.error.URLError as error:
-            code = (
-                "LAB_TLS_FAILED"
-                if isinstance(error.reason, ssl.SSLError)
+            # Reuse the reviewed A transport: every recv/write/TLS/connect takes the
+            # current remaining time. This also bounds headers and error bodies.
+            with (
+                httpx.Client(
+                    transport=WooDeadlineTransport(context or self.context, self.remaining),
+                    trust_env=False,
+                    follow_redirects=False,
+                ) as client,
+                client.stream(
+                    method,
+                    self.url + path,
+                    content=body,
+                    headers=headers,
+                    timeout=min(15, self.remaining()),
+                ) as response,
+            ):
+                data = bytearray()
+                for chunk in response.iter_raw():
+                    self.remaining()
+                    if len(data) + len(chunk) > max_bytes:
+                        raise LabFailure("LAB_RESPONSE_LIMIT")
+                    data.extend(chunk)
+                self.remaining()
+                return response.status_code, bytes(data), response.headers
+        except httpx.TimeoutException:
+            raise LabFailure("LAB_DEADLINE") from None
+        except httpx.TransportError as error:
+            cause: BaseException | None = error
+            tls = False
+            untrusted = False
+            for _ in range(10):
+                if cause is None:
+                    break
+                tls |= isinstance(cause, ssl.SSLError)
+                untrusted |= isinstance(cause, ssl.SSLCertVerificationError)
+                cause = cause.__cause__ or cause.__context__
+            raise LabFailure(
+                "LAB_TLS_UNTRUSTED"
+                if untrusted
+                else "LAB_TLS_FAILED"
+                if tls
                 else "LAB_CONNECTION_FAILED"
-            )
-            raise LabFailure(code) from None
+            ) from None
+
+    def request(self, path: str, method: str = "GET", payload: Any = None) -> tuple[int, Any, Any]:
+        if not path.startswith("/wp-json/wc/v3/"):
+            raise LabFailure("LAB_REQUEST_SCOPE")
+        code, raw, headers = self.read_response(path, method, payload, authenticated=True)
+        result = json.loads(raw)
+        self.remaining()  # Parsing/late injected responses cannot publish success either.
+        return code, result, headers
 
     def pages(self, path: str, per_page: int = 2) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
@@ -592,13 +659,6 @@ class Client:
                     raise LabFailure("LAB_PAGINATION_INCOMPLETE")
                 return items
         raise LabFailure("LAB_PAGE_LIMIT")
-
-
-class NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(
-        self, req: Any, fp: Any, code: Any, msg: Any, headers: Any, newurl: Any
-    ) -> None:
-        raise LabFailure("LAB_REDIRECT_REFUSED")
 
 
 def runtime_boundary(config: dict[str, Any], directory: Path) -> None:
@@ -814,6 +874,7 @@ def run(config: dict[str, Any], directory: Path, seconds: int, serving: bool) ->
     deadline = time.monotonic() + seconds
     primary: str | None = None
     started_here = False
+    token = _operation_deadline.set(deadline - 90)
     try:
         if owned_inventory(config, directory):
             raise LabFailure("LAB_RESOURCES_ALREADY_EXIST")
@@ -822,6 +883,7 @@ def run(config: dict[str, Any], directory: Path, seconds: int, serving: bool) ->
         compose(config, directory, "up", "-d", "--wait", "--wait-timeout", "120", timeout=150)
         runtime_boundary(config, directory)
         first = initialize(config, directory, deadline)
+        bounded_timeout(1)
         if serving:
             print(
                 json.dumps(
@@ -838,20 +900,22 @@ def run(config: dict[str, Any], directory: Path, seconds: int, serving: bool) ->
             while time.monotonic() < deadline - 90:
                 time.sleep(min(1, max(0, deadline - 90 - time.monotonic())))
         else:
-            write_private(
-                directory / "verification.safe.json", verify(config, directory, first, deadline)
-            )
+            verified = verify(config, directory, first, deadline)
+            bounded_timeout(1)
+            write_private(directory / "verification.safe.json", verified)
             if time.monotonic() >= deadline - 90:
                 raise LabFailure("LAB_CLEANUP_RESERVE")
             again = initialize(config, directory, deadline)
             if first != again:
                 raise LabFailure("LAB_RESEED_MAPPING_CHANGED")
+            verified_again = verify(config, directory, again, deadline)
+            bounded_timeout(1)
             write_private(
                 directory / "reseed.safe.json",
                 {
                     "same_mapping": True,
                     "no_extra_objects": True,
-                    "verification": verify(config, directory, again, deadline),
+                    "verification": verified_again,
                 },
             )
     except BaseException as error:
@@ -862,6 +926,7 @@ def run(config: dict[str, Any], directory: Path, seconds: int, serving: bool) ->
         )
         raise
     finally:
+        _operation_deadline.set(deadline)  # The original total includes cleanup.
         try:
             if started_here:
                 try:
@@ -875,6 +940,8 @@ def run(config: dict[str, Any], directory: Path, seconds: int, serving: bool) ->
                 {"primary": primary, "category": "LAB_CLEANUP_FAILED"},
             )
             raise
+        finally:
+            _operation_deadline.reset(token)
 
 
 def main() -> None:

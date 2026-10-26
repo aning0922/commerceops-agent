@@ -69,3 +69,12 @@ runtime-boundary.safe.json记录实际容器网络、loopback端口、默认路�
 开发期原失败包括tmpfs内联列表、Nginx只读目录/非root stderr、WP-CLI登记表作用域、仅internal网络无host映射、Docker默认地址池耗尽、nullable IPAM、BusyBox路由过滤、降权前chmod顺序、严格VPN路由阻断、共享库存原验证器误解及related_ids随机变化；原失败和自有清理证据保留。历史Docker info运行数7与ps/stats实际0的差异保留，未停止任何未知实例。
 
 冻结前敏感扫描仍有两项公开合成标记误报待共享scanner owner精确审核：seed.php中的Woo meta_key标记及seed.json中的partial_refund逻辑ID；本批没有修改或放宽共享扫描规则，不将已知值零泄漏扫描等同完整gitleaks通过。
+
+
+## bbb候选独审后的绝对截止修复
+
+bbb独审确认凭据日志P1可关闭；7份原日志非敏感字节不可恢复的限制继续保留。独审另发现P2：原urllib的idle timeout不能限制持续慢流，总截止后仍可能返回成功并延迟清理。后续局部修复复用已审A提交58e76a2的WooDeadlineTransport，不修改该传输实现或生产adapter的方法名单。API成功/错误响应、HTTPS登录页和不受信任CA检查均使用每次connect/TLS/write/read重新计算剩余时间的传输；原始响应限制2MiB，登录页512KiB，无自动重试或重定向。
+
+run以原声明时长为绝对终点，工作阶段提前90秒停止；子命令及主机路由检查夹取当前阶段剩余时间，清理仍使用原总截止，不因进入finally延长窗口。收到完整响应、JSON解析结束、verifier返回及原生命令退出后再次核截止，晚到结果不能记录PASS。子命令未能在截止内完成或清理失败会保留失败记录，不签资源已回收。
+
+本次lab测试共21项通过，Ruff/mypy及112份Markdown检查通过。定向证据使用native socketpair与Fake TLS握手：200/401各覆盖慢流、末尾阻塞、慢响应头，均在截止中止且finally清理入口执行；另核晚到完整响应、晚到verifier PASS及清理原生退出拒绝。未为该项重开Woo服务；bbb的真实平台/种子/权限/网络实证按未变代码复用，本次传输的故障注入不冒充新真实Woo/TLS成功。
