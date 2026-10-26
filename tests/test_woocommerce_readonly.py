@@ -474,6 +474,51 @@ def test_order_boundaries_and_refund_original_line_cohort(
         adapter.close()
 
 
+@pytest.mark.parametrize("shop_timezone", ["Asia/Shanghai", "America/New_York"])
+def test_gmt_order_filter_survives_wordpress_local_date_string_conversion(
+    config: WooReadOnlyConfig, shop_timezone: str
+) -> None:
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    rows = [order(101), order(102, created="2026-10-18T17:00:00")]
+
+    def wp_date(value: str) -> datetime:
+        parsed = datetime.fromisoformat(value)
+        # WP_Date_Query::build_mysql_datetime converts explicit offsets to the
+        # shop zone even when Woo selected post_date_gmt for the SQL column.
+        return (
+            parsed.astimezone(ZoneInfo(shop_timezone)).replace(tzinfo=None)
+            if parsed.tzinfo is not None
+            else parsed
+        )
+
+    def serve(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/products"):
+            return response([product()])
+        params = request.url.params
+        assert params["dates_are_gmt"] == "true"
+        selected = [
+            row
+            for row in rows
+            if wp_date(params["after"])
+            < datetime.fromisoformat(row["date_created_gmt"])
+            < wp_date(params["before"])
+        ]
+        page = int(params["page"])
+        return response(selected[page - 1 : page], total=len(selected), pages=len(selected))
+
+    adapter = adapter_with(config, serve)
+    try:
+        first = adapter.list_order_lines(config.window)
+        assert first.error is None and [row.order_id for row in first.items] == ["101"]
+        second = adapter.list_order_lines(config.window, cursor=first.next_cursor)
+        assert second.error is None and second.complete
+        assert [row.order_id for row in second.items] == ["102"]
+    finally:
+        adapter.close()
+
+
 @pytest.mark.parametrize(
     "updates",
     [
