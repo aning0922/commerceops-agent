@@ -10,7 +10,11 @@ from uuid import UUID, uuid4
 from psycopg.types.json import Jsonb
 
 from commerceops.adapters.commerce.mock import Fixture
-from commerceops.application.commerce.analysis_task import InventoryTaskRequest
+from commerceops.application.commerce.analysis_task import (
+    WooInventoryTaskRequest,
+    parse_analysis_request,
+)
+from commerceops.application.commerce.source_binding import SourceBindingError
 from commerceops.application.replenishment.contracts import (
     TASK_KIND,
     WORKFLOW_VERSION,
@@ -20,11 +24,14 @@ from commerceops.application.replenishment.contracts import (
     CreateNewCycle,
     FeishuActor,
     WebFailure,
+    WooCreateParameters,
+    analysis_request_from_parameters,
 )
 from commerceops.application.replenishment.planning import PlanRejected, freeze_plan
 from commerceops.application.replenishment.security import approval_nonce, digest
 from commerceops.application.runner import RunRequest
 from commerceops.domain.commerce_values import facts_hash
+from commerceops.infrastructure.commerce_sources import resolve_woo_source
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.inventory_repository import AnalysisUnsafe, _stored
 from commerceops.infrastructure.repository import TaskRepository, TaskScope
@@ -57,7 +64,7 @@ def source_binding(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def parameters_of(row: dict[str, Any]) -> dict[str, Any]:
-    request = InventoryTaskRequest.model_validate(row["normalized_request"])
+    request = parse_analysis_request(row["normalized_request"])
     return request.model_dump(mode="json", exclude={"schema_version"})
 
 
@@ -182,18 +189,57 @@ class ReplenishmentStore:
             shop, source_id = request.shop_id, uuid4()
             if not role_scope(db, actor, shop, "operator"):
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
-            params = request.parameters.model_dump(mode="json")
-            try:
-                Fixture.load(self.fixture_directory, request.parameters.fixture_case)
-            except (ValueError, KeyError, OSError):
-                raise WebFailure("INVALID_REQUEST", 422) from None
+            if isinstance(request.parameters, WooCreateParameters):
+                try:
+                    registered, _ = resolve_woo_source(
+                        db,
+                        self.config.commerce_sources,
+                        actor.organization_id,
+                        shop,
+                        expected_version=request.parameters.source_config_version,
+                    )
+                    params = request.parameters.bind(registered).model_dump(
+                        mode="json", exclude={"schema_version"}
+                    )
+                except SourceBindingError:
+                    raise WebFailure("SERVICE_UNAVAILABLE", 503) from None
+            else:
+                params = request.parameters.model_dump(mode="json")
+                try:
+                    Fixture.load(self.fixture_directory, request.parameters.fixture_case)
+                except (ValueError, KeyError, OSError):
+                    raise WebFailure("INVALID_REQUEST", 422) from None
             source = None
         target = db.execute(
-            """SELECT * FROM business.shops WHERE id=%s AND organization_id=%s
-        AND adapter_kind='mock' AND environment IN ('mock','test')""",
+            "SELECT * FROM business.shops WHERE id=%s AND organization_id=%s",
             (shop, actor.organization_id),
         ).fetchone()
         if not target:
+            raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        analysis_request = analysis_request_from_parameters(params)
+        source_fields: dict[str, str] = {}
+        if isinstance(analysis_request, WooInventoryTaskRequest):
+            if (analysis_request.organization_id, analysis_request.shop_id) != (
+                actor.organization_id,
+                shop,
+            ):
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            try:
+                resolve_woo_source(
+                    db,
+                    self.config.commerce_sources,
+                    actor.organization_id,
+                    shop,
+                    expected_version=analysis_request.source_config_version,
+                    expected_binding=analysis_request.source_binding_id,
+                )
+            except SourceBindingError:
+                raise WebFailure("SERVICE_UNAVAILABLE", 503) from None
+            source_fields = {
+                "source_binding_id": str(analysis_request.source_binding_id),
+                "source_config_version": analysis_request.source_config_version,
+            }
+        elif target["adapter_kind"] != "mock" or target["environment"] not in ("mock", "test"):
             raise WebFailure("RESOURCE_NOT_FOUND", 404)
         conversation = self._conversation(db, actor)
         if source is None:
@@ -207,7 +253,7 @@ class ReplenishmentStore:
                 source_id,
                 "inventory_analysis_only",
                 "p203-inventory-analysis-v1",
-                request.parameters.analysis_request().model_dump(mode="json"),
+                analysis_request.model_dump(mode="json"),
             )
             TaskRepository(db, TaskScope(actor.organization_id, shop)).enqueue(
                 source_id, "analyze", f"analysis:{source_id}", f"task:{source_id}"
@@ -226,6 +272,7 @@ class ReplenishmentStore:
                 "mode": request.mode,
                 "identity_id": str(actor.identity_id),
                 "request": payload,
+                **source_fields,
             },
         )
         db.execute(

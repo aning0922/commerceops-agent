@@ -13,6 +13,8 @@ from commerceops.adapters.commerce.mock import Fixture, MockCommerce
 from commerceops.application.commerce.analysis_task import (
     WORKFLOW_VERSION,
     InventoryTaskRequest,
+    WooInventoryTaskRequest,
+    parse_analysis_request,
 )
 from commerceops.application.commerce.collection import InventoryCollector
 from commerceops.application.commerce.inventory_analysis import (
@@ -29,6 +31,7 @@ from commerceops.infrastructure.repository import PersistenceConflict
 
 Hook = Callable[[str], Awaitable[None]]
 CollectorFactory = Callable[[InventoryTaskRequest], InventoryCollector]
+WooCollectorFactory = Callable[[WooInventoryTaskRequest], InventoryCollector]
 
 
 async def no_hook(point: str) -> None:
@@ -46,9 +49,15 @@ class InventoryRunner:
     workflow_versions = frozenset({WORKFLOW_VERSION})
 
     def __init__(
-        self, store: InventoryStore, collector_factory: CollectorFactory, *, hook: Hook = no_hook
+        self,
+        store: InventoryStore,
+        collector_factory: CollectorFactory,
+        *,
+        hook: Hook = no_hook,
+        woo_collector_factory: WooCollectorFactory | None = None,
     ):
         self.store, self.collector_factory, self.hook = store, collector_factory, hook
+        self.woo_collector_factory = woo_collector_factory
         self.active = 0
 
     async def run(self, r: RunRequest) -> RunResult:
@@ -101,7 +110,7 @@ class InventoryRunner:
         task = await self.store.load(r)
         if r.kind not in ("analyze", "recover") or task["state"] not in ("queued", "analyzing"):
             raise AnalysisUnsafe("ANALYSIS_STATE_INVALID")
-        request = InventoryTaskRequest.model_validate(task["normalized_request"])
+        request = parse_analysis_request(task["normalized_request"])
         digest = facts_hash(task["normalized_request"])
         expected = {
             "workflow_version": WORKFLOW_VERSION,
@@ -117,7 +126,12 @@ class InventoryRunner:
             if saved is not None:
                 return {"report_ref": str(saved.report_id)}
             await self.hook("before_collection")
-            collected = await self.collector_factory(request).collect()
+            if isinstance(request, WooInventoryTaskRequest):
+                if self.woo_collector_factory is None:
+                    raise ValueError("COMMERCE_SOURCE_UNAVAILABLE")
+                collected = await self.woo_collector_factory(request).collect()
+            else:
+                collected = await self.collector_factory(request).collect()
             report = analyze_inventory(
                 collected.data, RuleParameters(request.L, request.R, request.S)
             )

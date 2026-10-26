@@ -9,6 +9,7 @@ from commerceops.application.commerce.analysis_task import CollectedInventory
 from commerceops.application.commerce.contracts import (
     DTO,
     Inventory,
+    OrderLine,
     Page,
     Quality,
     Refund,
@@ -89,6 +90,12 @@ class InventoryCollector:
     def _refund_page(self, ids: tuple[str, ...], cursor: str | None) -> Page[Refund]:
         return self.port.list_refunds(ids, cursor=cursor)
 
+    def _order_ids(self, orders: tuple[OrderLine, ...]) -> tuple[str, ...]:
+        return tuple(sorted({row.order_id for row in orders}))
+
+    def _finish_collection(self) -> tuple[set[Quality], bool]:
+        return set(), True
+
     async def collect(self) -> CollectedInventory:
         started = utc_time(self.clock())
         start, end = complete_days(self.now, self.source.timezone)
@@ -104,12 +111,15 @@ class InventoryCollector:
                 10000,
                 lambda row: (row.order_id, row.line_id),
             )
-            order_ids = tuple(sorted({row.order_id for row in orders}))
-            refunds, rf, rc = await self._read(
-                partial(self._refund_page, order_ids),
-                10000,
-                lambda r: r.refund_id,
-            )
+            if oc:
+                order_ids = self._order_ids(orders)
+                refunds, rf, rc = await self._read(
+                    partial(self._refund_page, order_ids),
+                    10000,
+                    lambda r: r.refund_id,
+                )
+            else:
+                refunds, rf, rc = (), {Quality.PARTIAL_FAILURE}, False
             stocks: list[Inventory] = []
             flags = pf | of | rf
             stock_complete = True
@@ -139,6 +149,10 @@ class InventoryCollector:
                 ):
                     stock_complete = False
                     flags.add(Quality.PARTIAL_FAILURE)
+            final_flags, finalized = (
+                self._finish_collection() if pc and oc and rc and stock_complete else (set(), False)
+            )
+            flags.update(final_flags)
             # 属性UNKNOWN_STOCK/shared是已收齐的质量问题，由规则明确阻断，非缺页。
             result = InventoryInput(
                 source=self.source,
@@ -152,6 +166,7 @@ class InventoryCollector:
                 and oc
                 and rc
                 and stock_complete
+                and finalized
                 and Quality.SOURCE_CHANGED not in flags,
                 warnings=tuple(sorted(flags)),
                 open_items=self.open_items,

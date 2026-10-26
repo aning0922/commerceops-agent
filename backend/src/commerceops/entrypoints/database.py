@@ -72,6 +72,20 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
  business.jobs TO commerceops_app
 """)
         connection.execute("GRANT SELECT ON business.principal_shop_scopes TO commerceops_app")
+        source_table = connection.execute(
+            "SELECT to_regclass('business.p5_commerce_source_bindings') AS name"
+        ).fetchone()
+        if source_table and source_table["name"] is not None:
+            connection.execute(
+                "REVOKE ALL ON business.p5_commerce_source_bindings FROM commerceops_app"
+            )
+            connection.execute(
+                "GRANT SELECT ON business.p5_commerce_source_bindings TO commerceops_app"
+            )
+            connection.execute(
+                "GRANT EXECUTE ON FUNCTION business.p5_source_matches(text,uuid,uuid,jsonb,jsonb) "
+                "TO commerceops_app"
+            )
         connection.execute("""GRANT SELECT, INSERT ON business.explanation_links,
             business.model_calls,business.model_call_observations,business.model_explanations,
             business.explanation_task_results,business.inventory_intent_requests,

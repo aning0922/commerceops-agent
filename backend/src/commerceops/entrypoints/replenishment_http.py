@@ -23,7 +23,7 @@ from commerceops.application.replenishment.contracts import (
     WebActor,
     WebFailure,
 )
-from commerceops.application.replenishment.nl_preflight import PreflightInput
+from commerceops.application.replenishment.nl_preflight import PreflightRequest
 from commerceops.domain.commerce_values import utc_time
 from commerceops.infrastructure.approval_decisions import DecisionStore
 from commerceops.infrastructure.database import connect
@@ -267,7 +267,7 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
     @router.post("/tasks/preflight")
     async def preflight(request: Request) -> JSONResponse:
         await run_in_threadpool(preflights.authorize, actor(request))
-        payload = PreflightInput.model_validate_json(await body(request))
+        payload: PreflightRequest = TypeAdapter(PreflightRequest).validate_json(await body(request))
         return response(await run_in_threadpool(preflights.parse, actor(request), payload))
 
     @router.post("/tasks")

@@ -7,6 +7,10 @@ from collections.abc import Coroutine
 from typing import Any
 from uuid import UUID
 
+from commerceops.application.commerce.source_binding import (
+    CommerceSourceCapability,
+    SourceBindingError,
+)
 from commerceops.application.replenishment.contracts import (
     TASK_KIND,
     Actor,
@@ -16,6 +20,7 @@ from commerceops.application.replenishment.contracts import (
 )
 from commerceops.domain.commerce_values import canonical_bytes, utc_time
 from commerceops.infrastructure.approval_decisions import decision_fields, may_decide, nonce_for
+from commerceops.infrastructure.commerce_sources import resolve_woo_source
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_delivery_read import (
     external_enabled,
@@ -589,8 +594,15 @@ class ReplenishmentReadStore:
             "quality_flags",
             "disclosure_complete",
         )
+        parameters = content["parameters"]
+        if parameters.get("source_mode") == "woocommerce_test":
+            parameters = {
+                key: parameters[key]
+                for key in ("source_mode", "source_config_version", "L", "R", "S")
+            }
         return {
             **{k: content[k] for k in fields},
+            "parameters": parameters,
             "plan_hash": row["plan_hash"],
             "status": row["status"],
             "created_at": row["created_at"],
@@ -746,21 +758,48 @@ class ReplenishmentReadStore:
             if not any(role_scope(db, actor, shop, role) for role in ("operator", "approver")):
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
             row = db.execute(
-                "SELECT timezone FROM business.shops WHERE id=%s AND organization_id=%s",
+                "SELECT timezone,adapter_kind,environment FROM business.shops "
+                "WHERE id=%s AND organization_id=%s",
                 (shop, actor.organization_id),
             ).fetchone()
             if not row:
                 raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            capability = None
+            if row["adapter_kind"] == "woocommerce_test":
+                version = None
+                enabled = False
+                try:
+                    registered, _ = resolve_woo_source(
+                        db,
+                        self.config.commerce_sources,
+                        actor.organization_id,
+                        shop,
+                    )
+                    version = registered.source_config_version
+                    enabled = role_scope(db, actor, shop, "operator")
+                except SourceBindingError:
+                    pass
+                capability = CommerceSourceCapability(
+                    source_kind="woocommerce_test",
+                    source_config_version=version,
+                    creation_enabled=enabled,
+                )
+            elif row["adapter_kind"] != "mock" or row["environment"] not in ("mock", "test"):
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            config = deployment(
+                self.config,
+                row["timezone"],
+                db=db,
+                organization=actor.organization_id,
+                shops=[shop],
+            )
+            if capability is not None:
+                config["source_mode"] = "woocommerce_test"
+                config["commerce_source"] = capability.model_dump(mode="json")
             return envelope(
                 db,
                 shop_id=shop,
-                config=deployment(
-                    self.config,
-                    row["timezone"],
-                    db=db,
-                    organization=actor.organization_id,
-                    shops=[shop],
-                ),
+                config=config,
             )
 
     def operations(self, actor: WebActor) -> dict[str, Any]:

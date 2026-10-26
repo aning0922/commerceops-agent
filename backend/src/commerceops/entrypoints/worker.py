@@ -8,6 +8,9 @@ from pathlib import Path
 from uuid import UUID
 
 from commerceops.adapters.feishu.contracts import ProbePolicy
+from commerceops.application.commerce.analysis_task import InventoryTaskRequest
+from commerceops.application.commerce.collection import InventoryCollector
+from commerceops.application.commerce.source_binding import SourceBindingError
 from commerceops.application.feishu_business.clarification import ClarificationSender
 from commerceops.application.feishu_business.contracts import BaseProjectionAdapter
 from commerceops.application.feishu_business.delivery import DeliveryGate
@@ -22,6 +25,7 @@ from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore
 from commerceops.infrastructure.web_config import WebConfig
+from commerceops.infrastructure.woo_collection import BoundWooCollectorFactory
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, confirm_termination
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
@@ -40,6 +44,10 @@ class TechnicalRunner:
     async def run(self, request: RunRequest) -> RunResult:
         # 无库存/模型/审批/checkpoint，只证明串行调度；不写业务 completed。
         return RunResult()
+
+
+def unavailable_mock(request: InventoryTaskRequest) -> InventoryCollector:
+    raise SourceBindingError()
 
 
 async def serve(
@@ -85,18 +93,26 @@ async def serve(
     print(f"technical test worker started: owner={session.owner}", flush=True)
     try:
         runner: RunnerPort
+        sources = web_config.commerce_sources if web_config is not None else None
+        woo_factory = BoundWooCollectorFactory(settings, sources) if sources is not None else None
+        mock_factory = MockCollectorFactory(fixture) if fixture is not None else unavailable_mock
         approval = (
             ApprovalRunner(
                 ApprovalStore(web_config, session),
                 collector_factory=MockCollectorFactory(fixture) if fixture is not None else None,
+                woo_collector_factory=woo_factory,
             )
             if web_config is not None
             else None
         )
-        if fixture is not None:
+        if fixture is not None or woo_factory is not None:
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
-                InventoryRunner(InventoryStore(settings, session), MockCollectorFactory(fixture)),
+                InventoryRunner(
+                    InventoryStore(settings, session, commerce_sources=sources),
+                    mock_factory,
+                    woo_collector_factory=woo_factory,
+                ),
                 ExplanationRunner(ExplanationStore(settings, session), factory),
                 IntentRunner(IntentStore(settings, session), factory),
                 approval,

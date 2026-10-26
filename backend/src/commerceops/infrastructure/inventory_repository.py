@@ -18,6 +18,8 @@ from commerceops.application.commerce.analysis_task import (
     InventoryTaskRequest,
     StoredAnalysis,
     TrustedReadIdentity,
+    WooInventoryTaskRequest,
+    parse_analysis_request,
 )
 from commerceops.application.commerce.inventory_analysis import (
     _native_input_value,
@@ -27,6 +29,10 @@ from commerceops.application.commerce.inventory_facts import InventoryInput, Inv
 from commerceops.application.runner import RunRequest
 from commerceops.domain.commerce_values import canonical_bytes, facts_hash, money, utc_time
 from commerceops.domain.inventory_rules import RuleParameters
+from commerceops.infrastructure.commerce_sources import (
+    CommerceSourceFiles,
+    resolve_woo_source_async,
+)
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.queue import OwnershipLost
 from commerceops.infrastructure.repository import PersistenceConflict, TaskRepository, TaskScope
@@ -52,11 +58,17 @@ class AnalysisUnsafe(ValueError):
 
 class InventoryStore:
     def __init__(
-        self, settings: DatabaseSettings, session: WorkerSession, *, hook: SafeHook = no_store_hook
+        self,
+        settings: DatabaseSettings,
+        session: WorkerSession,
+        *,
+        hook: SafeHook = no_store_hook,
+        commerce_sources: CommerceSourceFiles | None = None,
     ):
         if settings != session.settings:
             raise ValueError("WORKER_SETTINGS_MISMATCH")
         self.settings, self.session, self.hook = settings, session, hook
+        self.commerce_sources = commerce_sources
 
     async def guard(
         self, db: AsyncConnection[dict[str, Any]], r: RunRequest, *, authorize: bool = True
@@ -100,7 +112,7 @@ class InventoryStore:
             or "operator" not in row["roles"]
             or not row["scope_enabled"]
             or row["environment"] not in ("test", "mock")
-            or row["adapter_kind"] != "mock"
+            or row["adapter_kind"] not in ("mock", "woocommerce_test")
         ):
             raise AnalysisUnsafe("ANALYSIS_PERMISSION_INVALID")
         if authorize:
@@ -112,7 +124,22 @@ class InventoryStore:
             if not decision or not decision["allowed"]:
                 raise AnalysisUnsafe("ANALYSIS_PERMISSION_INVALID")
         if authorize:
-            InventoryTaskRequest.model_validate(row["normalized_request"])
+            request = parse_analysis_request(row["normalized_request"])
+            if isinstance(request, WooInventoryTaskRequest):
+                if request.organization_id != r.organization_id or request.shop_id != r.shop_id:
+                    raise AnalysisUnsafe("ANALYSIS_SOURCE_SCOPE_MISMATCH")
+                _, metadata = await resolve_woo_source_async(
+                    db,
+                    self.commerce_sources,
+                    r.organization_id,
+                    r.shop_id,
+                    expected_version=request.source_config_version,
+                    expected_binding=request.source_binding_id,
+                )
+                row["_woo_business_now"] = metadata.business_now
+                row["_woo_window"] = metadata.window
+            elif row["adapter_kind"] != "mock":
+                raise AnalysisUnsafe("ANALYSIS_SOURCE_SCOPE_MISMATCH")
         return row
 
     async def load(self, r: RunRequest, *, authorize: bool = True) -> dict[str, Any]:
@@ -201,7 +228,7 @@ class InventoryStore:
         )
         async with await open_async(self.settings) as db, db.transaction():
             task = await self.guard(db, r)
-            request = InventoryTaskRequest.model_validate(task["normalized_request"])
+            request = parse_analysis_request(task["normalized_request"])
             expected = analyze_inventory(data, RuleParameters(request.L, request.R, request.S))
             if report != expected:
                 raise AnalysisUnsafe("ANALYSIS_REPORT_BINDING_MISMATCH")
@@ -209,6 +236,9 @@ class InventoryStore:
                 data.source.shop_id != task["external_shop_key"]
                 or data.source.currency != task["currency"]
                 or data.source.timezone != task["timezone"]
+                or data.source.provenance.source_kind != request.source_mode
+                or isinstance(request, WooInventoryTaskRequest)
+                and (data.now != task["_woo_business_now"] or data.window != task["_woo_window"])
             ):
                 raise AnalysisUnsafe("ANALYSIS_SOURCE_SCOPE_MISMATCH")
             cur = await db.execute(
@@ -377,7 +407,7 @@ class InventoryStore:
 def _stored(row: dict[str, Any], normalized_request: dict[str, Any]) -> StoredAnalysis:
     report = InventoryReport.model_validate_json(json.dumps(row["report"]))
     data = InventoryInput.model_validate_json(json.dumps(row["snapshot_content"]))
-    request = InventoryTaskRequest.model_validate(normalized_request)
+    request = parse_analysis_request(normalized_request)
     expected = analyze_inventory(data, RuleParameters(request.L, request.R, request.S))
     if (
         report != expected
@@ -400,6 +430,8 @@ def create_analysis_task(
     conversation: UUID,
     request: InventoryTaskRequest,
 ) -> tuple[UUID, UUID]:
+    if not isinstance(request, InventoryTaskRequest):
+        raise ValueError("SIMULATED_INTAKE_IS_MOCK_ONLY")
     with connect(settings) as db:
         _authorize(db, identity)
         task_id = uuid4()

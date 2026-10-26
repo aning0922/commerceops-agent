@@ -13,6 +13,9 @@ def export_web(schema: dict[str, Any]) -> dict[str, Any]:
     n01 = json.loads(files("commerceops.assets").joinpath("p4-n01-web-v1.openapi.json").read_text())
     contract["paths"].update(n01["paths"])
     contract["components"]["schemas"].update(n01["components"]["schemas"])
+    m2 = json.loads(files("commerceops.assets").joinpath("p5-m2-v1.openapi.json").read_text())
+    contract["paths"].update(m2["paths"])
+    contract["components"]["schemas"].update(m2["components"]["schemas"])
     for path, operations in schema["paths"].items():
         if not path.startswith("/api/v1/"):
             continue

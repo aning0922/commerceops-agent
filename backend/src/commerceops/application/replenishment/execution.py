@@ -9,7 +9,10 @@ from commerceops.application.commerce.inventory_analysis import (
     analyze_inventory,
 )
 from commerceops.application.commerce.inventory_facts import InventoryInput, InventoryReport
-from commerceops.application.replenishment.contracts import Parameters, ResolveInput
+from commerceops.application.replenishment.contracts import (
+    ResolveInput,
+    analysis_request_from_parameters,
+)
 from commerceops.domain.commerce_values import canonical_bytes, complete_days, facts_hash
 from commerceops.domain.inventory_rules import RuleParameters
 
@@ -18,7 +21,7 @@ def verified_observation(
     collected: CollectedInventory, parameters: dict[str, Any]
 ) -> tuple[InventoryInput, InventoryReport, dict[str, Any]]:
     """重新严格验证原生输入并计算；不接受caller填充报告/数量/质量。"""
-    request = Parameters.model_validate(parameters).analysis_request()
+    request = analysis_request_from_parameters(parameters)
     data = InventoryInput.model_validate(_native_input_value(collected.data))
     report = analyze_inventory(data, RuleParameters(request.L, request.R, request.S))
     normalized = data.model_dump(mode="json")
