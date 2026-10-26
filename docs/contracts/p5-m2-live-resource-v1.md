@@ -127,7 +127,8 @@ B关闭trace/video/HAR与密码截图；账号只在消费者内存，沿原DOM�
 source consumer启动须总stop剩余>=240+180秒。
 restored启动还须原真实expires_at剩余>=**300秒=240消费+20业务重观测+40取证/退出**。
 其consumer_stop取 `min(启动+240秒,总stop-180秒,原expires_at-60秒)`；source不含expires项。
-consumer每次真实写入前须在该consumer_stop及当前API原expires_at之前各留至少60秒（20+40）；
+source首次创建前只核consumer_stop及总stop-cleanup预留，尚无original_expires_at；
+restored每次decision/同键重放前须在consumer_stop及当前API原expires_at之前各留至少60秒（20+40）；
 余量不足HOLD/非0，不继续发送。父按同一绝对deadline终止/wait/reap，不能把外窗60分钟当900秒业务期。
 首次创建前新部署TTL固定900秒，dump/restore全程保持，过期用真实时钟，不改expires_at或冻结DB时间。
 源码build/consumer准备先完成；当前这些是固定预算而非测得容量，实际运行/备份/完整M2仍pending。

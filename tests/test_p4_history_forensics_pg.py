@@ -19,6 +19,32 @@ from tests.test_p4_history_pg import protected, setup_history
 pytestmark = pytest.mark.integration
 
 
+def test_fixed_0017_collector_rejects_0018_without_materializing_history(
+    database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path
+) -> None:
+    owner, app = database
+    initialize_schema(owner, "0018")
+    f = initialize_p3(owner, app, tmp_path)
+    try:
+        _, request, _ = setup_history(f)
+        baseline = protected(f)
+        result = history_forensics(app, request)
+        assert not result["complete"] and result["rollback_completed"]
+        assert result["failures"] == [
+            {
+                "query_id": "HF_CATALOG",
+                "category": "AcceptanceFailure",
+                "code": "P4A_SCHEMA_TABLES",
+                "sqlstate": None,
+            }
+        ]
+        assert len(result["queries"]["HF_CATALOG"]) == 60
+        assert "HF_BATCH" not in result["queries"]
+        assert protected(f) == baseline
+    finally:
+        f.client.close()
+
+
 def test_saved_hold_page_classification_is_read_only_and_never_materializes_similar_text(
     database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path
 ) -> None:

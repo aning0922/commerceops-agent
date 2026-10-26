@@ -23,7 +23,6 @@ from commerceops.infrastructure.commerce_sources import (
     resolve_woo_source_async,
 )
 from commerceops.infrastructure.database import DatabaseSettings
-from commerceops.infrastructure.web_config import private_bytes
 
 
 class WooInventoryCollector(InventoryCollector):
@@ -76,10 +75,8 @@ class BoundWooCollectorFactory:
 
         async def binding() -> tuple[RegisteredWooSource, WooSourceMetadata]:
             nonlocal db
-            # Explicit private FD reading also rejects FIFO/symlink DB password inputs.
-            password = private_bytes(self.settings.password_file).decode().strip()
-            if not password:
-                raise ValueError("COMMERCE_SOURCE_UNAVAILABLE")
+            # PG bind secrets retain their host UID; Woo/Web ownership rules are separate.
+            password = self.settings.bounded_password().get_secret_value()
             remaining_ms = max(1, int((deadline - time.monotonic()) * 1000))
             db = await AsyncConnection.connect(
                 host=self.settings.host,
