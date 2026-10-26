@@ -62,7 +62,7 @@ def write_private(path: Path, value: Any) -> None:
     path.chmod(0o600)
 
 
-def load(directory: Path) -> dict[str, Any]:
+def load(directory: Path, *, validate_profile: bool = True) -> dict[str, Any]:
     directory = directory.absolute()
     if directory.is_symlink() or directory.resolve() != directory:
         raise LabFailure("LAB_PRIVATE_PATH")
@@ -75,6 +75,8 @@ def load(directory: Path) -> dict[str, Any]:
         if file.is_symlink() or (file.is_file() and stat.S_IMODE(file.stat().st_mode) != 0o600):
             raise LabFailure("LAB_PRIVATE_FILE_MODE")
     config: dict[str, Any] = json.loads((directory / "lab.json").read_text())
+    if config.get("schema") != "woo-local-lab-v1":
+        raise LabFailure("LAB_SCHEMA_BINDING")
     if (
         type(config["port"]) is not int
         or not 1024 <= config["port"] <= 65535
@@ -83,7 +85,18 @@ def load(directory: Path) -> dict[str, Any]:
         raise LabFailure("LAB_ORIGIN_BINDING")
     if config["project"] != directory.name or config["checkout"] != str(ROOT):
         raise LabFailure("LAB_CHECKOUT_BINDING")
+    if validate_profile:
+        fixture_spec(config, directory)
     return config
+
+
+def fixture_spec(config: dict[str, Any], directory: Path) -> dict[str, Any]:
+    from scripts.woo_lab.profiles import ProfileFailure, read_bound_spec
+
+    try:
+        return read_bound_spec(ROOT, config, directory)
+    except ProfileFailure as error:
+        raise LabFailure(str(error)) from None
 
 
 def command(
@@ -183,7 +196,7 @@ def classify_route(
 
 def host_route_inventory() -> tuple[list[ipaddress.IPv4Network], dict[str, Any]]:
     capture_group = None
-    probes = []
+    probes: list[dict[str, str]] = []
     if sys.platform == "darwin":
         raw = subprocess.check_output(
             ["netstat", "-rn", "-f", "inet"], cwd=ROOT, timeout=bounded_timeout(10)
@@ -328,7 +341,13 @@ def check_network_allocation(config: dict[str, Any], directory: Path) -> None:
     )
 
 
-def prepare() -> Path:
+def prepare(profile: str = "mixed-v1", anchor: str | None = None, shop: str | None = None) -> Path:
+    from scripts.woo_lab.profiles import ProfileFailure, bind_profile
+
+    try:
+        binding, spec_raw = bind_profile(ROOT, profile, anchor, shop)
+    except ProfileFailure as error:
+        raise LabFailure(str(error)) from None
     os.umask(0o077)
     subnets = available_subnets()
     project = "woolab-" + uuid4().hex[:12]
@@ -348,6 +367,12 @@ def prepare() -> Path:
         "internal_subnet": subnets[0],
         "ingress_subnet": subnets[1],
     }
+    if binding:
+        config.update(binding)
+        config.update(
+            seed_file=str(directory / "seed-spec.private.json"), external_shop_key=project
+        )
+        write_private(directory / "seed-spec.private.json", spec_raw)
     write_private(directory / "lab.json", config)
     write_private(
         directory / "initial.json",
@@ -366,6 +391,7 @@ def prepare() -> Path:
         (
             f"WOO_LAB_PROJECT={project}\nWOO_LAB_PRIVATE_DIR={directory}\nWOO_LAB_PORT={port}\n"
             f"WOO_LAB_INTERNAL_SUBNET={subnets[0]}\nWOO_LAB_INGRESS_SUBNET={subnets[1]}\n"
+            + (f"WOO_LAB_SEED_FILE={config['seed_file']}\n" if binding else "")
         ).encode(),
     )
     extension = (
@@ -769,6 +795,7 @@ def runtime_boundary(config: dict[str, Any], directory: Path) -> None:
         'echo json_encode(["bootstrap.php"=>hash_file("sha256","/opt/woo-lab/bootstrap.php"),'
         '"seed.php"=>hash_file("sha256","/opt/woo-lab/seed.php"),'
         '"safety.php"=>hash_file("sha256","/opt/woo-lab/safety.php"),'
+        '"seed.json"=>hash_file("sha256","/opt/woo-lab/seed.json"),'
         '"lockdown.php"=>hash_file("sha256","/var/www/html/wp-content/mu-plugins/commerceops-lab.php")]);',
         timeout=10,
     )
@@ -777,6 +804,9 @@ def runtime_boundary(config: dict[str, Any], directory: Path) -> None:
         name: hashlib.sha256((ROOT / "infrastructure/woo-lab" / name).read_bytes()).hexdigest()
         for name in ("bootstrap.php", "seed.php", "safety.php", "lockdown.php")
     }
+    expected_files["seed.json"] = (
+        config.get("spec_sha256") or hashlib.sha256(FIXTURE.read_bytes()).hexdigest()
+    )
     if installed != expected_files:
         raise LabFailure("LAB_INSTALLED_SOURCE_MISMATCH")
     write_private(
@@ -876,6 +906,7 @@ def run(config: dict[str, Any], directory: Path, seconds: int, serving: bool) ->
     started_here = False
     token = _operation_deadline.set(deadline - 90)
     try:
+        fixture_spec(config, directory)
         if owned_inventory(config, directory):
             raise LabFailure("LAB_RESOURCES_ALREADY_EXIST")
         check_network_allocation(config, directory)
@@ -949,17 +980,22 @@ def main() -> None:
     parser.add_argument("action", choices=["prepare", "build", "verify", "serve", "stop"])
     parser.add_argument("--directory", type=Path)
     parser.add_argument("--seconds", type=int, default=600)
+    parser.add_argument("--profile", choices=["mixed-v1", "positive-v1"], default="mixed-v1")
+    parser.add_argument("--anchor-day")
+    parser.add_argument("--shop-id")
     args = parser.parse_args()
     os.umask(0o077)
     signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         if args.action == "prepare":
-            print(prepare())
+            print(prepare(args.profile, args.anchor_day, args.shop_id))
             return
+        if args.profile != "mixed-v1" or args.anchor_day is not None or args.shop_id is not None:
+            raise LabFailure("LAB_PROFILE_PREPARE_ONLY")
         if args.directory is None:
             raise LabFailure("LAB_DIRECTORY_REQUIRED")
         directory = args.directory.absolute()
-        config = load(directory)
+        config = load(directory, validate_profile=args.action != "stop")
         with exclusive(directory):
             if args.action == "build":
                 compose(config, directory, "build", "--pull", "wordpress", timeout=600)

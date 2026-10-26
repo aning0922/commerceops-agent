@@ -32,16 +32,21 @@ def test_mac_abbreviated_vpn_route_is_not_missed(monkeypatch: MP) -> None:
 
 
 def private_config(tmp_path: Path, monkeypatch: MP) -> Path:
+    fixtures = tmp_path / "tests/fixtures/woocommerce-local"
+    fixtures.mkdir(parents=True)
+    (fixtures / "seed.json").write_bytes(lab.FIXTURE.read_bytes())
     monkeypatch.setattr(lab, "ROOT", tmp_path)
     directory = tmp_path / "runtime" / "woolab-123456789abc"
     directory.mkdir(parents=True, mode=0o700)
     config = {
+        "schema": "woo-local-lab-v1",
         "project": directory.name,
         "checkout": str(tmp_path),
         "port": 18443,
         "url": "https://localhost:18443",
     }
     lab.write_private(directory / "lab.json", config)
+    lab.write_private(directory / "compose.env", b"")
     return directory
 
 
@@ -57,6 +62,11 @@ def test_private_files_and_origin_fail_closed(tmp_path: Path, monkeypatch: MP) -
     data["url"] = "https://outside.example:18443"
     lab.write_private(file, data)
     with pytest.raises(lab.LabFailure, match="ORIGIN_BINDING"):
+        lab.load(directory)
+    data["url"] = "https://localhost:18443"
+    data["schema"] = "unknown-lab-version"
+    lab.write_private(file, data)
+    with pytest.raises(lab.LabFailure, match="SCHEMA_BINDING"):
         lab.load(directory)
 
 

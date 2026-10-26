@@ -68,7 +68,7 @@ runtime-boundary.safe.json记录实际容器网络、loopback端口、默认路�
 
 开发期原失败包括tmpfs内联列表、Nginx只读目录/非root stderr、WP-CLI登记表作用域、仅internal网络无host映射、Docker默认地址池耗尽、nullable IPAM、BusyBox路由过滤、降权前chmod顺序、严格VPN路由阻断、共享库存原验证器误解及related_ids随机变化；原失败和自有清理证据保留。历史Docker info运行数7与ps/stats实际0的差异保留，未停止任何未知实例。
 
-冻结前敏感扫描仍有两项公开合成标记误报待共享scanner owner精确审核：seed.php中的Woo meta_key标记及seed.json中的partial_refund逻辑ID；本批没有修改或放宽共享扫描规则，不将已知值零泄漏扫描等同完整gitleaks通过。
+bbb冻结时敏感扫描有两项公开合成标记误报：seed.php的Woo meta_key标记与seed.json的partial_refund逻辑ID。后由A/shared scanner owner以已审b20e7d6精确核收；B没有修改扫描规则。当前扫描按精确源码重新执行，不把旧扫描结果或已知值扫描代替全量检查。
 
 
 ## bbb候选独审后的绝对截止修复
@@ -78,3 +78,37 @@ bbb独审确认凭据日志P1可关闭；7份原日志非敏感字节不可恢�
 run以原声明时长为绝对终点，工作阶段提前90秒停止；子命令及主机路由检查夹取当前阶段剩余时间，清理仍使用原总截止，不因进入finally延长窗口。收到完整响应、JSON解析结束、verifier返回及原生命令退出后再次核截止，晚到结果不能记录PASS。子命令未能在截止内完成或清理失败会保留失败记录，不签资源已回收。
 
 本次lab测试共21项通过，Ruff/mypy及112份Markdown检查通过。定向证据使用native socketpair与Fake TLS握手：200/401各覆盖慢流、末尾阻塞、慢响应头，均在截止中止且finally清理入口执行；另核晚到完整响应、晚到verifier PASS及清理原生退出拒绝。未为该项重开Woo服务；bbb的真实平台/种子/权限/网络实证按未变代码复用，本次传输的故障注入不冒充新真实Woo/TLS成功。
+
+
+## 独立 positive-v1 场景
+
+[positive manifest](../tests/fixtures/woocommerce-local/positive.json) 属于已审 [M2合同](contracts/p5-m2-v1.md) 的独立新实例。原 mixed 文件字节、9/8/3/9 EXPECTED与unknown/shared/退款负例完整保留；不从原店删除或过滤坏SKU求正向结果。新场景原生Woo为2 simple、1 variable父、2独立库存变体；父仅作标准容器，归一为4 SKU/4独立pool、4订单行、0退款，EXPECTED为4/4/0/4。
+
+```sh
+python -m scripts.woo_lab prepare --profile positive-v1 --anchor-day 2026-10-26 --shop-id synthetic-woo-positive
+# 下面目录替换为新prepare返回值。profile/日期/shop不能在serve或verify时改绑。
+python -m scripts.woo_lab build --directory /absolute/checkout/runtime/woolab-xxxxxxxxxxxx
+python -m scripts.woo_lab verify --directory /absolute/checkout/runtime/woolab-xxxxxxxxxxxx --seconds 600
+```
+
+日期示例不是默认当前日期。positive必须显式提供不晚于准备时Asia/Shanghai当天的D；业务now固定D当地00:00，七个完整自然日为[D−7当地00:00,D当地00:00)，订单在D−1日。日期仅在prepare展开一次并保存，serve/reseed及冷新进程不会滚动。真实采集时间、DB UTC、新鲜度、审批期限和传输截止保持真实时间，不能用D续期。
+
+默认shop为明确的`synthetic-woo-positive`，只证明lab。A登记新业务组织/shop UUID后可将明确交接的canonical UUID作为新实例prepare的`--shop-id`；B不写PG、不自行声称UUID已授权登记。一个准备完成的实例不能改shop、D或manifest；业务绑定依A的不可变配置版本/digest/私有pin及实际schema，不能凭这个参数开放创建/N01。
+
+positive的lab.json绑定profile、D、shop身份标记、template/spec SHA256及project作为external_shop_key；私有resolved manifest0600，Compose仅允许挂载这个精确路径。未知profile、未来D、身份/摘要/内容/挂载改变均失败关闭，不回退mixed。stop仍按原owner/project/checkout核收资源，可以在manifest内容摘要不符但owner/mode仍合规时进入自有清理，不用损坏来源启动服务。
+
+独立生成器只读取版本化manifest和Woo生成ID映射，输出expected.private.json、probe-config.private.json、fixture-binding.safe.json及analysis-golden.private.json；最后一项明确为expected，不是PG执行回执。它不读取A OUTPUT，不导入adapter生成预期。
+
+| 逻辑SKU | 七日gross | A | D | T | trigger | Q | 未税行金额CNY |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| simple_a | 70 | 20 | 10 | 120 | 50 | 100 | 717.50 |
+| simple_b | 28 | 8 | 4 | 48 | 20 | 40 | 56.00 |
+| independent_red | 35 | 0 | 5 | 60 | 25 | 60 | 157.50 |
+| independent_blue | 14 | 5 | 2 | 24 | 10 | 19 | 63.00 |
+
+L3/R7/S2下gross147、未税994、税0、Q219。4项库存已知、pool exact、无硬阻断；4项原始在途仍null/unknown，估算有效值0。报告预计complete/source_complete=true但requires_review=true，四个`inbound_unknown_zero:{sku_key}`必须当前版本完整联合确认。纯规则契约不等于实际业务批准或备份续跑。
+
+本批正向实际lab结果单独交接；业务shop登记、API/Web/PG批准与[备份恢复](M2_BACKUP_RESTORE.md)仍须A稳定入口和实际证据。没有凭本段预填M2通过、CI或main。
+
+
+positive本批实际记录（2026-10-26，D=2026-10-26，synthetic-woo-positive）：新项目原生顶层商品3、变体2、订单4，逐一读取4个订单退款端点均为空；订单未税合计CNY994.00。两轮独立verify进程均在各自600秒总截止内通过，每轮两次seed调用且原ID映射不变；最终容器0/网络0/监听关闭、两个新卷保留。EXPECTED为4/4/0/4，独立分析金标Q219/四个在途确认键；该金标不是PG execution证明。专用CA/不信任CA拒绝、只读key写拒绝、运行态降权/出口限制按本轮实际记录核收；未发现新秘密在非凭据文件中的副本。40项离线契约、Ruff/mypy及文档检查通过；实际adapter对账、独审、业务UUID/权限、API/Web批准与备份恢复仍分别待核，不签完整M2。

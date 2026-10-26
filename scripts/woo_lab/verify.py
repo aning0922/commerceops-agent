@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import ssl
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -13,9 +12,9 @@ from typing import Any
 def verify_shop(
     client: Any, config: dict[str, Any], directory: Path, seed: dict[str, Any]
 ) -> dict[str, Any]:
-    from scripts.woo_lab.lab import FIXTURE, LabFailure, write_private
+    from scripts.woo_lab.lab import LabFailure, fixture_spec, write_private
 
-    spec = json.loads(FIXTURE.read_text())
+    spec = fixture_spec(config, directory)
     mapping = seed["mapping"]
     products = client.pages("/wp-json/wc/v3/products", spec["per_page"])
     expected_products = [p for p in spec["products"] if p["type"] != "variation"]
@@ -158,6 +157,10 @@ def verify_shop(
                 "restock_requested": False,
             }
         )
+    if spec.get("profile") == "positive-v1":
+        for order in orders:
+            if client.pages(f"/wp-json/wc/v3/orders/{order['id']}/refunds", 1):
+                raise LabFailure("LAB_POSITIVE_UNEXPECTED_REFUND")
     before_ids = [p["id"] for p in products]
     denied = []
     for method, path, body in [
@@ -225,5 +228,7 @@ def verify_shop(
         ],
         "observed_at": datetime.now(UTC).isoformat(),
     }
+    if spec.get("profile") == "positive-v1":
+        result.update(refund_order_cohort_count=len(orders), refund_empty_cohort_verified=True)
     write_private(directory / "actual-manifest.private.json", result)
     return result
