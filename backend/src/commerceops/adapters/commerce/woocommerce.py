@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import httpx
 
-from commerceops.adapters.commerce.woocommerce_config import WooReadOnlyConfig
+from commerceops.adapters.commerce.woocommerce_config import WooFilePins, WooReadOnlyConfig
 from commerceops.adapters.commerce.woocommerce_http import WooHTTP, WooReadFailure, platform_id
 from commerceops.application.commerce.contracts import (
     DTO,
@@ -59,9 +59,21 @@ def object_rows(value: Any) -> list[dict[str, Any]]:
 
 
 class WooCommerce:
-    def __init__(self, config: WooReadOnlyConfig, *, transport: httpx.BaseTransport | None = None):
+    def __init__(
+        self,
+        config: WooReadOnlyConfig,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        pins: WooFilePins | None = None,
+        absolute_deadline: float | None = None,
+    ):
         self.config = config
-        self.http = WooHTTP(config, transport=transport)
+        self.http = WooHTTP(
+            config,
+            transport=transport,
+            pins=pins,
+            absolute_deadline=absolute_deadline,
+        )
         self.captured_at = datetime.now(UTC)
         self.source = Source(
             shop_id=config.shop_id,

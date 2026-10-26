@@ -17,7 +17,9 @@ from urllib.parse import parse_qs, urljoin, urlsplit
 import httpx
 
 from commerceops.adapters.commerce.woocommerce_config import (
+    WooFilePins,
     WooReadOnlyConfig,
+    credential_value,
     read_credential,
     read_private_file,
 )
@@ -52,9 +54,20 @@ def platform_id(value: object, *, zero: bool = False) -> str:
 
 
 class WooHTTP:
-    def __init__(self, config: WooReadOnlyConfig, *, transport: httpx.BaseTransport | None = None):
+    def __init__(
+        self,
+        config: WooReadOnlyConfig,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        pins: WooFilePins | None = None,
+        absolute_deadline: float | None = None,
+    ):
         self.config = config
         self.started = time.monotonic()
+        self.deadline = min(
+            self.started + config.max_elapsed_seconds,
+            absolute_deadline if absolute_deadline is not None else float("inf"),
+        )
         self.counts: Counter[str] = Counter()
         self.response_bytes = 0
         self.status_counts: Counter[int] = Counter()
@@ -62,11 +75,21 @@ class WooHTTP:
         self._not_before = 0.0
         self._observations: dict[str, tuple[str, dict[str, str | int], str]] = {}
         # Explicit CA is still required with injected Fake HTTP; injection is tests-only.
-        context = ssl.create_default_context(
-            cadata=read_private_file(config.ca_file, 131072).decode("ascii")
-        )
-        key = read_credential(config.consumer_key_file, "ck")
-        secret = read_credential(config.consumer_secret_file, "cs")
+        if pins is None:
+            ca = read_private_file(config.ca_file, 131072)
+            key = read_credential(config.consumer_key_file, "ck")
+            secret = read_credential(config.consumer_secret_file, "cs")
+        else:
+            ca = pins.read(config.ca_file, 131072, pins.ca)
+            key = credential_value(
+                pins.read(config.consumer_key_file, 128, pins.consumer_key),
+                "ck",
+            )
+            secret = credential_value(
+                pins.read(config.consumer_secret_file, 128, pins.consumer_secret),
+                "cs",
+            )
+        context = ssl.create_default_context(cadata=ca.decode("ascii"))
         self._private_literals = (
             key,
             secret,
@@ -94,7 +117,7 @@ class WooHTTP:
         self.client.close()
 
     def remaining(self) -> float:
-        left = self.config.max_elapsed_seconds - (time.monotonic() - self.started)
+        left = min(self.deadline, self.started + self.config.max_elapsed_seconds) - time.monotonic()
         if left <= 0:
             raise WooReadFailure(ErrorCode.TIMEOUT)
         return left

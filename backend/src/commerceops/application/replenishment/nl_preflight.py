@@ -8,7 +8,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from commerceops.application.commerce.inventory_routing import _explicit_lrs_spans
-from commerceops.application.replenishment.contracts import Input, Parameters
+from commerceops.application.replenishment.contracts import Input, Parameters, WooCreateParameters
 
 Name = Literal["L", "R", "S"]
 DEFAULT_PARAMETERS: tuple[tuple[Name, int], ...] = (("L", 3), ("R", 7), ("S", 2))
@@ -22,6 +22,16 @@ class PreflightInput(Input):
     shop_id: UUID
     fixture_case: str = Field(min_length=1, max_length=100)
     text: str = Field(min_length=1, max_length=2000)
+
+
+class WooPreflightInput(Input):
+    source_mode: Literal["woocommerce_test"]
+    shop_id: UUID
+    source_config_version: str = Field(min_length=1, max_length=256)
+    text: str = Field(min_length=1, max_length=2000)
+
+
+PreflightRequest = PreflightInput | WooPreflightInput
 
 
 class Candidate(Closed):
@@ -90,6 +100,54 @@ class PreflightResult(Closed):
         return self
 
 
+class WooSource(Closed):
+    source_mode: Literal["woocommerce_test"] = "woocommerce_test"
+    source_config_version: str = Field(min_length=1, max_length=256)
+    evidence_mode: Literal["not_used"] = "not_used"
+
+
+class WooWindow(Closed):
+    kind: Literal["last_seven_complete_days"] = "last_seven_complete_days"
+    start: datetime
+    end: datetime
+    timezone: str
+    as_of: datetime
+    source: Literal["commerce_configuration"] = "commerce_configuration"
+
+
+class WooScope(Closed):
+    kind: Literal["all_shop_products"] = "all_shop_products"
+    shop_id: UUID
+    source: Literal["selected_shop"] = "selected_shop"
+
+
+class WooPreflightResult(Closed):
+    schema_version: Literal["p5-n01-web-v1"] = "p5-n01-web-v1"
+    status: Literal["ready", "clarify", "unsupported"]
+    reason: Literal[
+        "EXPLICIT_PARAMETERS", "MISSING_PARAMETERS", "INVALID_PARAMETERS", "UNSUPPORTED_TEXT"
+    ]
+    shop_id: UUID
+    source: WooSource
+    window: WooWindow
+    scope: WooScope
+    candidates: tuple[Candidate, ...] = Field(min_length=3, max_length=3)
+    missing: tuple[Name, ...]
+    draft: WooCreateParameters | None
+    requires_confirmation: Literal[True] = True
+    execution_available: Literal[False] = False
+
+    @model_validator(mode="after")
+    def closed_draft(self) -> "WooPreflightResult":
+        if tuple(c.name for c in self.candidates) != ("L", "R", "S"):
+            raise ValueError("INVALID_PREFLIGHT_CANDIDATES")
+        if (self.status == "ready") != (self.draft is not None) or (
+            self.status == "ready" and (self.missing or self.reason != "EXPLICIT_PARAMETERS")
+        ):
+            raise ValueError("INVALID_PREFLIGHT_DRAFT")
+        return self
+
+
 SUPPORTED_INTENTS = (
     "分析最近七天的商品销量和库存情况，找出可能缺货的商品，生成补货建议",
     "分析最近七天的销量和库存，找出缺货风险并生成补货建议",
@@ -131,10 +189,17 @@ def supported_header(header: str) -> bool:
     return True
 
 
-def parse_preflight(request: PreflightInput, window: Window) -> PreflightResult:
+def _parse_text(
+    text: str,
+) -> tuple[
+    Literal["ready", "clarify", "unsupported"],
+    Literal["EXPLICIT_PARAMETERS", "MISSING_PARAMETERS", "INVALID_PARAMETERS", "UNSUPPORTED_TEXT"],
+    tuple[Candidate, ...],
+    tuple[Name, ...],
+]:
     """复用原 P2 全消费 LRS 文法，结果只能供本地结构化确认。"""
-    first = re.search(r"(?<![A-Za-z0-9_])([LRS])(?:=|:)", request.text)
-    header = request.text if first is None else request.text[: first.start()]
+    first = re.search(r"(?<![A-Za-z0-9_])([LRS])(?:=|:)", text)
+    header = text if first is None else text[: first.start()]
     status: Literal["ready", "clarify", "unsupported"] = "clarify"
     reason: Literal[
         "EXPLICIT_PARAMETERS", "MISSING_PARAMETERS", "INVALID_PARAMETERS", "UNSUPPORTED_TEXT"
@@ -147,7 +212,7 @@ def parse_preflight(request: PreflightInput, window: Window) -> PreflightResult:
         status, reason = "unsupported", "UNSUPPORTED_TEXT"
     else:
         try:
-            spans = _explicit_lrs_spans(request.text)
+            spans = _explicit_lrs_spans(text)
             for name, start, end, scalar in spans:
                 if str(int(scalar)) != scalar:
                     raise ValueError("INVALID_PARAMETERS")
@@ -168,6 +233,11 @@ def parse_preflight(request: PreflightInput, window: Window) -> PreflightResult:
             }
     ordered = tuple(candidates[name] for name in ("L", "R", "S"))
     missing = tuple(c.name for c in ordered if c.source == "demo_assumption")
+    return status, reason, ordered, missing
+
+
+def parse_preflight(request: PreflightInput, window: Window) -> PreflightResult:
+    status, reason, ordered, missing = _parse_text(request.text)
     return PreflightResult(
         status=status,
         reason=reason,
@@ -181,6 +251,27 @@ def parse_preflight(request: PreflightInput, window: Window) -> PreflightResult:
             source_mode="mock",
             dataset_version="inventory-v1",
             fixture_case=request.fixture_case,
+            **{c.name: c.value for c in ordered},
+        )
+        if status == "ready"
+        else None,
+    )
+
+
+def parse_woo_preflight(request: WooPreflightInput, window: WooWindow) -> WooPreflightResult:
+    status, reason, ordered, missing = _parse_text(request.text)
+    return WooPreflightResult(
+        status=status,
+        reason=reason,
+        shop_id=request.shop_id,
+        source=WooSource(source_config_version=request.source_config_version),
+        window=window,
+        scope=WooScope(shop_id=request.shop_id),
+        candidates=ordered,
+        missing=missing,
+        draft=WooCreateParameters(
+            source_mode="woocommerce_test",
+            source_config_version=request.source_config_version,
             **{c.name: c.value for c in ordered},
         )
         if status == "ready"

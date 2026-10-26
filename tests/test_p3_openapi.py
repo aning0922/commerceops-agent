@@ -31,6 +31,11 @@ def test_registered_runtime_openapi_matches_approved_subset_without_pending_rout
     assert set(n01["paths"]["/api/v1/tasks/preflight"]) == {"post"}
     contract["paths"].update(n01["paths"])
     contract["components"]["schemas"].update(n01["components"]["schemas"])
+    m2_source = (ROOT / "docs/contracts/p5-m2-openapi.json").read_bytes()
+    assert files("commerceops.assets").joinpath("p5-m2-v1.openapi.json").read_bytes() == m2_source
+    m2 = json.loads(m2_source)
+    contract["paths"].update(m2["paths"])
+    contract["components"]["schemas"].update(m2["components"]["schemas"])
     config = WebConfig(
         database=DatabaseSettings(
             host="127.0.0.1", name="offline", user="offline", password_file=Path("unused-offline")

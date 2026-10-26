@@ -37,7 +37,7 @@ class OpenWorkItemInput(AnalysisDTO):
     stock_pool_key: Identifier
     status: Literal["open"]
     quantity: PositiveUnits
-    source_kind: Literal["mock"]
+    source_kind: Literal["mock", "internal"]
 
 
 class InventoryInput(AnalysisDTO):

@@ -1,8 +1,11 @@
 """首批本地 Woo HTTPS 只读配置；秘密只从本次显式私有文件读取。"""
 
+import hashlib
+import hmac
 import os
 import re
 import stat
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Self
 from urllib.parse import urlsplit
@@ -86,7 +89,35 @@ def read_private_file(filename: str, maximum: int) -> bytes:
 
 
 def read_credential(filename: str, prefix: str) -> str:
-    raw = read_private_file(filename, 128).decode("ascii").removesuffix("\n")
+    return credential_value(read_private_file(filename, 128), prefix)
+
+
+def credential_value(encoded: bytes, prefix: str) -> str:
+    raw = encoded.decode("ascii").removesuffix("\n")
     if re.fullmatch(prefix + r"_[0-9a-f]{40}", raw) is None:
         raise ValueError("CREDENTIAL_FORMAT_INVALID")
     return raw
+
+
+@dataclass(frozen=True)
+class WooFilePins:
+    """只存在可信私有配置/内存；不进入来源 DTO、DB 或诊断输出。"""
+
+    consumer_key: str = field(repr=False)
+    consumer_secret: str = field(repr=False)
+    ca: str = field(repr=False)
+
+    def __post_init__(self) -> None:
+        if any(
+            re.fullmatch(r"[0-9a-f]{64}", value) is None
+            for value in (self.consumer_key, self.consumer_secret, self.ca)
+        ):
+            raise ValueError("INVALID_PRIVATE_CREDENTIAL_PIN")
+
+    @staticmethod
+    def read(filename: str, maximum: int, expected: str) -> bytes:
+        # Compare the same FD-read bytes later used for TLS/auth, without reopening.
+        data = read_private_file(filename, maximum)
+        if not hmac.compare_digest(hashlib.sha256(data).hexdigest(), expected):
+            raise ValueError("PRIVATE_CREDENTIAL_PIN_MISMATCH")
+        return data
