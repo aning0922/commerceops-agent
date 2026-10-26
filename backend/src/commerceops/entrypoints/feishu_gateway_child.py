@@ -18,7 +18,7 @@ from commerceops.adapters.feishu.queued_gateway_ready import (
 )
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
-from commerceops.application.replenishment.contracts import WebFailure
+from commerceops.application.replenishment.contracts import Parameters, WebFailure
 from commerceops.entrypoints.feishu_business import group_ready_binding, require_group_ready_scope
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_business import FeishuBusinessStore
@@ -106,6 +106,7 @@ def serve(
     if queued_ready:
         if (
             window.max_workflows != 0
+            or not isinstance(window.parameters, Parameters)
             or window.parameters.fixture_case != "known_inbound"
             or len(settings.allowed_open_ids) != 1
             or settings.allowed_group_chat_ids
@@ -115,7 +116,7 @@ def serve(
         require_transport_shape()  # Before AppSecret; old Gateway branch is unchanged.
     # lease仅本child的同步连接，不借用WorkerSession/跨loop AsyncConnection。
     with connect(web.database) as lease:
-        claim_gateway(lease, settings, window)
+        claim_gateway(lease, settings, window, commerce_sources=web.commerce_sources)
         gateway_process_started(lease, window)
         store = FeishuBusinessStore(
             ReplenishmentStore(web, Path("tests/fixtures/commerce/inventory-v1")),

@@ -16,6 +16,7 @@ from commerceops.application.feishu_business.clarification import (
 )
 from commerceops.application.feishu_business.f02_window import F02Window
 from commerceops.application.feishu_business.sdk_window import SDKScope
+from commerceops.infrastructure.commerce_sources import CommerceSourceFiles
 from commerceops.infrastructure.feishu_f02_runtime import trusted_f02_source
 from commerceops.infrastructure.feishu_sdk_ledger import PersistentSDKLedger
 from commerceops.infrastructure.worker_lock import WorkerSession, open_async
@@ -33,8 +34,10 @@ class ClarificationDeliveryStore:
         request_ids: frozenset[UUID] | None = None,
         f02_sender: F02Sender | None = None,
         f02_window: F02Window | None = None,
+        commerce_sources: CommerceSourceFiles | None = None,
     ):
         self.session, self.policy, self.sender = session, policy, sender
+        self.commerce_sources = commerce_sources
         self.controlled_sender = controlled_sender
         self.ledger = ledger
         if request_ids is not None and (
@@ -261,7 +264,13 @@ class ClarificationDeliveryStore:
                         and clock is not None
                         and self.f02_window.enabled
                         and clock["t"] < self.f02_window.expires_at
-                        and await trusted_f02_source(db, row, current, self.f02_window)
+                        and await trusted_f02_source(
+                            db,
+                            row,
+                            current,
+                            self.f02_window,
+                            commerce_sources=self.commerce_sources,
+                        )
                     )
                 except (ValueError, TypeError, KeyError, PermissionError):
                     allowed = False

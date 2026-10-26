@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from commerceops.adapters.feishu.business_config import BusinessSettings
-from commerceops.application.replenishment.contracts import Parameters
+from commerceops.application.replenishment.contracts import Parameters, WooCreateParameters
 
 
 def require_group_operation_scope(settings: BusinessSettings, chat_id: str) -> None:
@@ -31,7 +31,7 @@ class GatewayWindow(BaseModel):
     expires_at: datetime
     max_callbacks: int = Field(default=100, ge=1, le=100)
     max_workflows: int = Field(default=5, ge=0, le=5)
-    parameters: Parameters
+    parameters: Parameters | WooCreateParameters = Field(discriminator="source_mode")
     enabled: bool = False
     group_operation_chat_id: str | None = Field(
         default=None, min_length=1, max_length=512, exclude_if=lambda value: value is None
@@ -39,7 +39,7 @@ class GatewayWindow(BaseModel):
 
     @model_validator(mode="after")
     def bounded(self) -> "GatewayWindow":
-        if self.expires_at.utcoffset() is None or self.parameters.source_mode != "mock":
+        if self.expires_at.utcoffset() is None:
             raise ValueError("P4_GATEWAY_WINDOW_INVALID")
         if self.group_operation_chat_id is not None and (
             self.max_workflows != 0

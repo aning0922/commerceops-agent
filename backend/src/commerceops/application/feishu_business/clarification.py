@@ -8,7 +8,15 @@ from pydantic import Field, field_validator, model_validator
 
 from commerceops.application.commerce.inventory_routing import _explicit_lrs_spans
 from commerceops.application.feishu_business.contracts import Contract
-from commerceops.application.replenishment.nl_preflight import Name, Scope, Source, Window
+from commerceops.application.replenishment.nl_preflight import (
+    Name,
+    Scope,
+    Source,
+    Window,
+    WooScope,
+    WooSource,
+    WooWindow,
+)
 from commerceops.domain.commerce_values import facts_hash
 
 F02_WORKFLOW: Literal["p3-inventory-replenishment-v1"] = "p3-inventory-replenishment-v1"
@@ -53,9 +61,9 @@ class F02Candidate(Contract):
     round: int = Field(ge=1)
     kind: Literal["question", "ready", "created"]
     workflow_version: Literal["p3-inventory-replenishment-v1"] = F02_WORKFLOW
-    source: Source
-    window: Window
-    scope: Scope
+    source: Source | WooSource = Field(discriminator="source_mode")
+    window: Window | WooWindow = Field(discriminator="source")
+    scope: Scope | WooScope = Field(discriminator="kind")
     parameters: dict[Name, int]
     parameter_sources: dict[Name, F02Source]
     task_id: UUID | None = None
@@ -69,6 +77,15 @@ class F02Candidate(Contract):
 
     @model_validator(mode="after")
     def closed_candidate(self) -> "F02Candidate":
+        if not (
+            isinstance(self.source, Source)
+            and isinstance(self.window, Window)
+            and isinstance(self.scope, Scope)
+            or isinstance(self.source, WooSource)
+            and isinstance(self.window, WooWindow)
+            and isinstance(self.scope, WooScope)
+        ):
+            raise ValueError("INVALID_F02_SOURCE_SCOPE")
         if (
             set(self.parameters) != set(self.parameter_sources)
             or (self.kind == "question") != (len(self.parameters) < 3)
@@ -90,7 +107,11 @@ class F02Candidate(Contract):
                 f"{title}已确认，正式任务 {self.task_id} 的创建回执已记录。"
                 "请查询正式任务查看当前审批和执行状态。"
             )
-        scope = "最近七个完整自然日、当前授权店铺全部Mock商品；" + values
+        scope = (
+            "最近七个完整自然日、当前授权本地Woo测试店全部商品；"
+            if isinstance(self.source, WooSource)
+            else "最近七个完整自然日、当前授权店铺全部Mock商品；"
+        ) + values
         if self.kind == "ready":
             return (
                 f"{title}：{scope}。请明确发送“确认澄清 {self.request_id} 第{self.round}轮”。"

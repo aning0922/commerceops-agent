@@ -186,7 +186,7 @@ async def resolve_woo_source_async(
     shop: UUID,
     *,
     expected_version: str,
-    expected_binding: UUID,
+    expected_binding: UUID | None = None,
 ) -> tuple[RegisteredWooSource, WooSourceMetadata]:
     identifier = _pointer(files, organization, shop, expected_binding)
     cursor = await db.execute(SOURCE_SQL, (identifier, organization, shop))

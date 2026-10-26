@@ -12,6 +12,7 @@ from commerceops.application.feishu_business.worker_window import (
     KNOWN70_CAPS,
     ControlledWorkerWindow,
 )
+from commerceops.application.replenishment.contracts import Parameters
 from commerceops.entrypoints import feishu_worker_child as entry
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.feishu_gateway_window import claim_gateway, guard_gateway
@@ -76,6 +77,7 @@ def test_current_platform_identity_denied_before_sdk_graph_queue_with_pg_and_cp_
     profile = "known70" if kind == "p2p" else "group20"
     original = gateway(f, case="known_inbound" if kind == "p2p" else "baseline", max_workflows=2)
     config = settings(f)
+    assert isinstance(original.parameters, Parameters)
     with connect(f.config.database) as lease:
         claim_gateway(lease, config, original)
         store = service(

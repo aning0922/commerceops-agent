@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import date
 from pathlib import Path
@@ -235,7 +236,9 @@ def _actual_pg_woo_factory_two_graphs_t4_and_original_key_replay(
     fixture: P3Fixture,
     config: WooReadOnlyConfig,
     monkeypatch: pytest.MonkeyPatch,
-) -> None:
+    *,
+    create_task: Callable[[P3Fixture], UUID] | None = None,
+) -> UUID:
     import asyncio
     import time
     from typing import Any
@@ -275,7 +278,7 @@ def _actual_pg_woo_factory_two_graphs_t4_and_original_key_replay(
         return WooCommerce(cfg, transport=httpx.MockTransport(http), **kwargs)
 
     monkeypatch.setattr("commerceops.infrastructure.woo_collection.WooCommerce", transport)
-    task = UUID(f.create(woo_request(f))["task_id"])
+    task = create_task(f) if create_task is not None else UUID(f.create(woo_request(f))["task_id"])
 
     async def run() -> None:
         session = WorkerSession(f.config.database, f.inventory.data.organization)
@@ -371,6 +374,7 @@ def _actual_pg_woo_factory_two_graphs_t4_and_original_key_replay(
         "R",
         "S",
     }
+    return task
 
 
 def test_actual_pg_woo_factory_two_graphs_t4_and_original_key_replay(
@@ -411,3 +415,67 @@ def test_woo_capability_n01_zero_write_and_atomic_t1_replays(fixture: P3Fixture)
             flush=True,
         )
         raise
+
+
+def test_actual_pg_factory_deadline_closes_blocked_read_before_http(
+    fixture: P3Fixture,
+    config: WooReadOnlyConfig,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asyncio
+    import time
+
+    from commerceops.application.replenishment.contracts import WooCreateParameters
+    from commerceops.infrastructure import commerce_sources
+    from commerceops.infrastructure.woo_collection import BoundWooCollectorFactory
+
+    f = fixture
+    metadata, _ = configure(f, config)
+    assert f.config.commerce_sources is not None
+    with connect(f.inventory.app) as db:
+        registered, _ = commerce_sources.resolve_woo_source(
+            db,
+            f.config.commerce_sources,
+            metadata.organization_id,
+            metadata.shop_id,
+        )
+    request = WooCreateParameters(
+        source_mode="woocommerce_test",
+        source_config_version=metadata.source_config_version,
+        L=3,
+        R=7,
+        S=2,
+    ).bind(registered)
+    before = counts(f)
+    # Actual PostgreSQL wait, no fake result/connection and no business-row mutation.
+    monkeypatch.setattr(
+        commerce_sources,
+        "SOURCE_SQL",
+        "SELECT pg_sleep(1) FROM business.p5_commerce_source_bindings "
+        "WHERE id=%s AND organization_id=%s AND shop_id=%s",
+    )
+    monkeypatch.setattr(
+        "commerceops.infrastructure.woo_collection.WooCommerce",
+        lambda *a, **k: pytest.fail("no HTTP after DB expiry"),
+    )
+
+    async def run() -> None:
+        tasks = asyncio.all_tasks()
+        assert f.config.commerce_sources is not None
+        factory = BoundWooCollectorFactory(f.config.database, f.config.commerce_sources)
+        start = time.monotonic()
+        with pytest.raises((TimeoutError, psycopg.errors.QueryCanceled)):
+            await factory(request, absolute_deadline=start + 0.1)
+        assert time.monotonic() - start < 0.5
+        assert asyncio.all_tasks() == tasks
+        # Let the server's matching statement timeout release its read connection.
+        await asyncio.sleep(0.15)
+        with connect(f.inventory.owner) as db:
+            row = db.execute(
+                "SELECT count(*) AS n FROM pg_stat_activity WHERE datname=current_database() "
+                "AND usename='commerceops_app' AND state='active'"
+            ).fetchone()
+            assert row == {"n": 0}
+
+    asyncio.run(run())
+    assert counts(f) == before

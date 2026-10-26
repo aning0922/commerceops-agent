@@ -13,7 +13,8 @@ from commerceops.application.feishu_business.gateway_window import (
     require_group_operation_scope,
 )
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
-from commerceops.application.replenishment.contracts import WebFailure
+from commerceops.application.replenishment.contracts import WebFailure, WooCreateParameters
+from commerceops.infrastructure.commerce_sources import CommerceSourceFiles, resolve_woo_source
 from commerceops.infrastructure.web_sessions import DB
 from commerceops.infrastructure.worker_lock import process_namespace
 
@@ -28,7 +29,13 @@ def claimed_state(window: GatewayWindow) -> dict[str, Any]:
     }
 
 
-def claim_gateway(db: DB, settings: BusinessSettings, window: GatewayWindow) -> None:
+def claim_gateway(
+    db: DB,
+    settings: BusinessSettings,
+    window: GatewayWindow,
+    *,
+    commerce_sources: CommerceSourceFiles | None = None,
+) -> None:
     window = GatewayWindow.model_validate(window.model_dump())
     if window.group_operation_chat_id is not None:
         require_group_operation_scope(settings, window.group_operation_chat_id)
@@ -48,16 +55,27 @@ def claim_gateway(db: DB, settings: BusinessSettings, window: GatewayWindow) -> 
     if not row or not row["held"]:
         raise PermissionError("P4_GATEWAY_ALREADY_RUNNING")
     org = db.execute(
-        """SELECT s.external_shop_key,s.currency,s.timezone
+        """SELECT s.external_shop_key,s.currency,s.timezone,s.adapter_kind,s.environment
         FROM business.organizations o JOIN business.shops s
         ON s.organization_id=o.id WHERE o.id=%s AND s.id=%s
         AND o.feishu_app_id=%s AND o.feishu_tenant_key=%s
-        AND s.adapter_kind='mock' AND s.environment IN ('mock','test')""",
+        AND s.environment IN ('mock','test')""",
         (settings.organization_id, settings.shop_id, settings.app_id, settings.tenant_key),
     ).fetchone()
     if not org:
         raise PermissionError("P4_GATEWAY_TRUSTED_SCOPE_MISMATCH")
-    require_fixture_shop(org, window.parameters.fixture_case)
+    if isinstance(window.parameters, WooCreateParameters):
+        resolve_woo_source(
+            db,
+            commerce_sources,
+            settings.organization_id,
+            settings.shop_id,
+            expected_version=window.parameters.source_config_version,
+        )
+    else:
+        if org["adapter_kind"] != "mock":
+            raise PermissionError("P4_GATEWAY_TRUSTED_SCOPE_MISMATCH")
+        require_fixture_shop(org, window.parameters.fixture_case)
     # audit.id固定window原UUID，一次claim后同ID不能再次启动/重开预算；row不可变。
     db.execute(
         """INSERT INTO business.audit_events(id,organization_id,source,

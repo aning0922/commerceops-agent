@@ -430,7 +430,8 @@ class ExecutionStore:
                     request.organization_id != r.organization_id or request.shop_id != r.shop_id
                 ):
                     raise AnalysisUnsafe("P3_REVALIDATION_SOURCE_UNAVAILABLE")
-                collected = await self.woo_factory(request).collect()
+                collector = await self.woo_factory(request)
+                collected = await collector.collect()
             else:
                 if self.factory is None:
                     raise AnalysisUnsafe("P3_REVALIDATION_SOURCE_UNAVAILABLE")

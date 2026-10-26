@@ -63,7 +63,7 @@ def read_private_file(filename: str, maximum: int) -> bytes:
         parent = os.fstat(parent_fd)
         if parent.st_uid != os.getuid() or stat.S_IMODE(parent.st_mode) != 0o700:
             raise ValueError("CREDENTIAL_DIRECTORY_UNSAFE")
-        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent_fd)
     finally:
         os.close(parent_fd)
     try:

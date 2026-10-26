@@ -31,7 +31,7 @@ from commerceops.infrastructure.repository import PersistenceConflict
 
 Hook = Callable[[str], Awaitable[None]]
 CollectorFactory = Callable[[InventoryTaskRequest], InventoryCollector]
-WooCollectorFactory = Callable[[WooInventoryTaskRequest], InventoryCollector]
+WooCollectorFactory = Callable[[WooInventoryTaskRequest], Awaitable[InventoryCollector]]
 
 
 async def no_hook(point: str) -> None:
@@ -129,7 +129,8 @@ class InventoryRunner:
             if isinstance(request, WooInventoryTaskRequest):
                 if self.woo_collector_factory is None:
                     raise ValueError("COMMERCE_SOURCE_UNAVAILABLE")
-                collected = await self.woo_collector_factory(request).collect()
+                collector = await self.woo_collector_factory(request)
+                collected = await collector.collect()
             else:
                 collected = await self.collector_factory(request).collect()
             report = analyze_inventory(

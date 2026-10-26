@@ -15,6 +15,7 @@ from commerceops.application.replenishment.contracts import (
     FeishuActor,
     Parameters,
     WebFailure,
+    WooCreateParameters,
 )
 from commerceops.domain.commerce_values import facts_hash
 from commerceops.infrastructure.approval_decisions import DecisionStore
@@ -28,7 +29,7 @@ class FeishuBusinessStore:
         self,
         store: ReplenishmentStore,
         shop_id: UUID,
-        parameters: Parameters,
+        parameters: Parameters | WooCreateParameters,
         *,
         hook: Callable[[str], None] | None = None,
         allow_live_bindings: bool = False,
@@ -278,7 +279,7 @@ class FeishuBusinessStore:
                         "event_type": "p4.explicit_read",
                         "chat_id": message.chat_id,
                         "chat_type": message.chat_type,
-                        "source_mode": "mock",
+                        "source_mode": self.parameters.source_mode,
                         "model_mode": "not_used",
                         "text_sha256": facts_hash(message.text),
                     },
@@ -314,7 +315,7 @@ class FeishuBusinessStore:
                     receipt,
                     {
                         "schema_version": "p4-v1",
-                        "source_mode": "mock",
+                        "source_mode": self.parameters.source_mode,
                         "model_mode": "not_used",
                         "event_type": "im.message.receive_v1",
                         "text_sha256": facts_hash(message.text),
@@ -402,7 +403,7 @@ class FeishuBusinessStore:
             receipt,
             {
                 "schema_version": "p4-v1",
-                "source_mode": "mock",
+                "source_mode": self.parameters.source_mode,
                 "model_mode": "not_used",
                 "event_type": "im.message.receive_v1",
                 "chat_type": message.chat_type,
@@ -474,7 +475,7 @@ class FeishuBusinessStore:
                 receipt,
                 {
                     "schema_version": "p4-v1",
-                    "source_mode": "mock",
+                    "source_mode": self.parameters.source_mode,
                     "model_mode": "not_used",
                     "event_type": "card.action.trigger",
                     "approval_id": str(request.approval_id),
