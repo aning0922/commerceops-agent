@@ -205,6 +205,9 @@ def test_incomplete_or_mutating_pagination_rejected(
         '<https://example.invalid/products?page=2>; rel="next"',
         '<https://u:p@127.0.0.1:18443/wp-json/wc/v3/products?page=2>; rel="next"',
         '<https://127.0.0.1:18443/wp-json/wc/v3/products?consumer_key=bad>; rel="next"',
+        '<https://example.invalid/wp-json/>; rel="https://api.w.org/"',
+        '<https://127.0.0.1:18443/wp-json/>; rel="next"',
+        '<https://127.0.0.1:18443/wp-json/?consumer_key=bad>; rel="https://api.w.org/"',
     ],
 )
 def test_cross_origin_or_credential_link_fails_without_following(
@@ -221,6 +224,28 @@ def test_cross_origin_or_credential_link_fails_without_following(
         page = adapter.list_products()
         assert page.error is not None and page.error.code == ErrorCode.REDIRECT_REJECTED
         assert len(calls) == 1 and calls[0].url.host == "127.0.0.1"
+    finally:
+        adapter.close()
+
+
+def test_same_origin_wordpress_discovery_link_is_not_a_pagination_target(
+    config: WooReadOnlyConfig,
+) -> None:
+    calls = []
+
+    def serve(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        return response(
+            [product()],
+            extra={"Link": '<https://127.0.0.1:18443/wp-json/>; rel="https://api.w.org/"'},
+        )
+
+    adapter = adapter_with(config, serve)
+    try:
+        page = adapter.list_products()
+        assert page.error is None and page.complete and len(page.items) == 1
+        assert len(calls) == 2
+        assert all(request.url.path == "/wp-json/wc/v3/products" for request in calls)
     finally:
         adapter.close()
 
