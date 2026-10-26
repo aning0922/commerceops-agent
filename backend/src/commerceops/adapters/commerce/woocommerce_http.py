@@ -213,16 +213,26 @@ class WooHTTP:
                 ) from None
         raise WooReadFailure(ErrorCode.PROVIDER_UNAVAILABLE)
 
+    @staticmethod
+    def _observation_digest(path: str, rows: tuple[dict[str, Any], ...]) -> str:
+        # Woo11.2.1的产品推荐列表会随机变化；它不参与任何commerce-v1字段。
+        # 只排除products资源这一顶层字段，保留其他全部原始字段/metadata的变化检测。
+        compared = (
+            tuple(
+                {key: value for key, value in row.items() if key != "related_ids"} for row in rows
+            )
+            if path == "products"
+            else rows
+        )
+        return hashlib.sha256(canonical_bytes(compared)).hexdigest()
+
     def scan(self, path: str, query: dict[str, str | int]) -> tuple[dict[str, Any], ...]:
         """两次有界完整分页比较，检测可观察变化；并非平台原子快照。"""
         first = self._scan_once(path, query)
         second = self._scan_once(path, query)
-        if (
-            hashlib.sha256(canonical_bytes(first)).digest()
-            != hashlib.sha256(canonical_bytes(second)).digest()
-        ):
+        if self._observation_digest(path, first) != self._observation_digest(path, second):
             raise WooReadFailure(ErrorCode.INVALID_DATA, Quality.SOURCE_CHANGED)
-        digest = hashlib.sha256(canonical_bytes(first)).hexdigest()
+        digest = self._observation_digest(path, first)
         self._observations[hashlib.sha256(canonical_bytes([path, query])).hexdigest()] = (
             path,
             dict(query),
@@ -234,7 +244,7 @@ class WooHTTP:
         """结束前重读同一固定查询，检测跨端点读取期间的可观察变化。"""
         for path, query, digest in tuple(self._observations.values()):
             current = self._scan_once(path, query)
-            if hashlib.sha256(canonical_bytes(current)).hexdigest() != digest:
+            if self._observation_digest(path, current) != digest:
                 raise WooReadFailure(ErrorCode.INVALID_DATA, Quality.SOURCE_CHANGED)
 
     def _scan_once(self, path: str, query: dict[str, str | int]) -> tuple[dict[str, Any], ...]:

@@ -835,3 +835,88 @@ def test_empty_line_order_still_belongs_to_refund_cohort(
         assert paths.count("orders/101/refunds") == 1
     finally:
         adapter.close()
+
+
+def test_product_related_ids_only_may_change_between_reads(config: WooReadOnlyConfig) -> None:
+    calls = 0
+
+    def serve(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return response([product(related_ids=[100 + calls])])
+
+    adapter = adapter_with(config, serve)
+    try:
+        page = adapter.list_products()
+        assert page.error is None and page.complete
+        adapter.http.revalidate()
+        assert calls == 3
+        # The observed original resource remains intact; only its comparison digest projects.
+        assert adapter._catalog["sku/woo-local/1/p"][1]["related_ids"] == [101]
+    finally:
+        adapter.close()
+
+
+@pytest.mark.parametrize("stage", ["initial_pair", "final_revalidation"])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("stock_quantity", 99),
+        ("price", "11.25"),
+        ("status", "draft"),
+        ("id", 2),
+        ("backorders", "yes"),
+        ("name", "Changed consumed title"),
+        ("meta_data", [{"id": 1, "key": "test", "value": "changed"}]),
+    ],
+)
+def test_business_fields_still_change_observation(
+    config: WooReadOnlyConfig, stage: str, field: str, value: Any
+) -> None:
+    from commerceops.adapters.commerce.woocommerce_http import WooReadFailure
+
+    calls = 0
+
+    def serve(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        row = product(price="10.50", meta_data=[], related_ids=[100 + calls])
+        if calls >= (2 if stage == "initial_pair" else 3):
+            row[field] = value
+        return response([row])
+
+    adapter = adapter_with(config, serve)
+    try:
+        page = adapter.list_products()
+        if stage == "initial_pair":
+            assert page.error is not None and Quality.SOURCE_CHANGED in page.warnings
+            assert not page.complete
+        else:
+            assert page.error is None
+            with pytest.raises(WooReadFailure) as failure:
+                adapter.http.revalidate()
+            assert failure.value.quality == Quality.SOURCE_CHANGED
+    finally:
+        adapter.close()
+
+
+@pytest.mark.parametrize("path", ["orders", "products/1/variations", "orders/101/refunds"])
+def test_related_ids_exception_is_not_applied_to_other_resources(
+    config: WooReadOnlyConfig, path: str
+) -> None:
+    from commerceops.adapters.commerce.woocommerce_http import WooReadFailure
+
+    calls = 0
+
+    def serve(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return response([product(related_ids=[calls])])
+
+    adapter = adapter_with(config, serve)
+    try:
+        with pytest.raises(WooReadFailure) as failure:
+            adapter.http.scan(path, {})
+        assert failure.value.quality == Quality.SOURCE_CHANGED
+    finally:
+        adapter.close()
