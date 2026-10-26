@@ -16,7 +16,12 @@ from scripts.m2_backup import (
     quiescent_snapshot,
     same_snapshot,
 )
-from scripts.m2_state import pending_checkpoint, seed, validate_waiting_checkpoint
+from scripts.m2_state import (
+    pending_checkpoint,
+    seed,
+    stopped_business_facts,
+    validate_waiting_checkpoint,
+)
 from tests.p3_support import P3Fixture, P3Process
 from tests.test_p3_approval_pg import checkpoint_state, payload
 from tests.test_p3_pg import fixture as fixture
@@ -117,12 +122,21 @@ def test_official_stopped_pending_checkpoint_binding_and_initial_wrong_thread_pl
     assert task and approval
     observed = {
         **original,
+        "organization_id": str(task["organization_id"]),
+        "shop_id": str(task["shop_id"]),
         "task_id": str(task_id),
         "expires_at": approval["expires_at"].isoformat(),
     }
     with connect(f.inventory.owner) as db:
         before = quiescent_snapshot(db)
     receipt = asyncio.run(pending_checkpoint(f.config, observed))
+    with connect(f.inventory.app) as db:
+        facts = stopped_business_facts(db, observed)
+        with pytest.raises(psycopg.errors.ReadOnlySqlTransaction):
+            db.execute("UPDATE business.business_tasks SET state=state")
+    assert facts["tasks"] == [{"state": "awaiting_approval", "original_scope": True}]
+    assert facts["resumes"] == [] and facts["executions"] == [] and facts["items"] == []
+    assert facts["decision_receipts"] == {"count": 0}
     assert receipt["official_wait_approval"] is True
     state = asyncio.run(checkpoint_state(f, task_id))
     assert validate_waiting_checkpoint(state, task, approval, observed) == receipt

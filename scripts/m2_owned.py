@@ -155,6 +155,9 @@ class Scenario:
     lab_inputs: dict[str, dict[str, str]] = field(default_factory=dict)
     cleanup_expires: float | None = None
     pg_stopped: dict[str, dict[str, Any]] = field(default_factory=dict)
+    pg_initialized: set[str] = field(default_factory=set)
+    canonical_sha256: str | None = None
+    business_facts: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def remaining(self, cap: float, *, cleanup: bool = False) -> float:
         deadline = (
@@ -543,6 +546,7 @@ def run_child(directory: Path, action: str) -> None:
         pending_checkpoint,
         pending_receipt,
         seed,
+        stopped_business_facts,
         web_configuration,
     )
 
@@ -558,7 +562,17 @@ def run_child(directory: Path, action: str) -> None:
     if source_identity() != (request["source_sha"], request["source_tree"]):
         raise BackupFailure("M2_SOURCE_CHANGED")
     source = database(directory, request, "source")
-    if action == "source-init":
+    if action in tuple(phase + "-facts" for phase in DATABASE_PHASES):
+        phase = action.removesuffix("-facts")
+        path = directory / "canonical/m2-facts.private.json"
+        if reference(path)["sha256"] != os.environ.get("M2_CANONICAL_SHA256"):
+            raise BackupFailure("M2_CANONICAL_CHANGED")
+        with connect(database(directory, request, phase, app=True)) as db:
+            facts = stopped_business_facts(db, load(path)["canonical_source"])
+        facts.update({k: request[k] for k in ("run_id", "source_sha", "source_tree")})
+        facts["canonical_sha256"] = reference(path)["sha256"]
+        save(directory / (phase + "-business-facts.safe.json"), facts)
+    elif action == "source-init":
         migrate(source)
         asyncio.run(setup_checkpointer(source))
         grant_runtime(source)
@@ -1359,6 +1373,7 @@ def full_action(parent: Scenario) -> None:
     )
     source_id = parent.start_pg("source")
     child_command(parent, "source-init")
+    parent.pg_initialized.add("source")
     lab = start_lab(parent)
     verify_lab_inputs(parent)
     verify_lab_probe(lab)
@@ -1386,6 +1401,8 @@ def full_action(parent: Scenario) -> None:
     writers = stop_apps(parent, "source")
     child_command(parent, "source-pending")
     canonical = canonical_source(parent)
+    parent.canonical_sha256 = reference(directory / "canonical/m2-facts.private.json")["sha256"]
+    collect_stopped_facts(parent, "source")
     child_command(parent, "source-before")
     dump = directory / "source-dump.private.bin"
     fd = os.open(dump, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
@@ -1436,6 +1453,7 @@ def full_action(parent: Scenario) -> None:
             stdin=stream,
             cap=90,
         )
+    parent.pg_initialized.add("restored")
     child_command(parent, "restored-before")
     receipt = dict(
         schema_version="p5-m2-restore-receipt-v1",
@@ -1471,6 +1489,7 @@ def full_action(parent: Scenario) -> None:
         parent, "restored", handoff(parent, "restored", pids, canonical=canonical, restore=restore)
     )
     stop_apps(parent, "restored")
+    collect_stopped_facts(parent, "restored")
     child_command(parent, "restored-completed")
     parent.stop_pg("restored")
     negative_restores(parent, dump)
@@ -1487,6 +1506,57 @@ def lab_stop_classification(code: int | None, requested: bool, log: Path) -> str
         if footer == {"status": "failed", "category": "KeyboardInterrupt"}:
             return "expected_parent_requested_keyboard_interrupt"
     return "unexpected_exit"
+
+
+def collect_stopped_facts(parent: Scenario, phase: str, *, cleanup: bool = False) -> None:
+    """Bounded observation in the existing child, independent of resource cleanup."""
+    if phase in parent.business_facts:
+        return
+    reason = None
+    if phase not in parent.pg_initialized:
+        reason = "not_initialized"
+    elif parent.canonical_sha256 is None:
+        reason = "no_trusted_canonical"
+    elif phase not in parent.pg_started:
+        reason = "database_already_stopped"
+    elif any(name.startswith((phase + "-", "command-")) for name in parent.children):
+        reason = "writers_not_confirmed_stopped"
+    elif cleanup and parent.remaining(180, cleanup=True) < 75:
+        reason = "cleanup_reserve"
+    if reason is not None:
+        parent.business_facts[phase] = dict(observation="not_run", reason=reason)
+        if not cleanup:
+            raise BackupFailure("M2_FACTS_NOT_CAPTURED")
+        return
+    parent.business_facts[phase] = dict(observation="unknown", reason="collection_failed")
+    try:
+        if (
+            reference(parent.directory / "canonical/m2-facts.private.json")["sha256"]
+            != parent.canonical_sha256
+        ):
+            raise BackupFailure("M2_CANONICAL_CHANGED")
+        parent.command(
+            phase + "-facts",
+            [
+                sys.executable,
+                "-m",
+                "scripts.m2_owned",
+                "_child",
+                "--directory",
+                str(parent.directory),
+                "--child-action",
+                phase + "-facts",
+            ],
+            cap=15,
+            cleanup=cleanup,
+            env=environment({"M2_CANONICAL_SHA256": parent.canonical_sha256}),
+        )
+        path = parent.directory / (phase + "-business-facts.safe.json")
+        parent.business_facts[phase] = dict(observation="captured", receipt=reference(path))
+    except BaseException as error:
+        parent.business_facts[phase]["category"] = type(error).__name__
+        if not cleanup:
+            raise
 
 
 def cleanup(parent: Scenario) -> dict[str, Any]:
@@ -1512,6 +1582,13 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
             del parent.children[name]
         except BaseException as error:
             errors.append(dict(stage="command-reap", category=type(error).__name__))
+    for phase in DATABASE_PHASES:
+        try:
+            collect_stopped_facts(parent, phase, cleanup=True)
+        except BaseException as error:
+            parent.business_facts[phase] = dict(
+                observation="unknown", category=type(error).__name__
+            )
     for phase in tuple(parent.pg_started):
         try:
             parent.stop_pg(phase)
@@ -1625,6 +1702,7 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
         errors=errors,
         apps=apps,
         postgres=parent.pg_stopped,
+        business_facts=parent.business_facts,
         lab=lab_receipt,
         listeners=listeners,
         stopping_confirmed=not errors,
@@ -1914,6 +1992,7 @@ def negative_restores(parent: Scenario, dump: Path) -> None:
                 stdin=stream,
                 cap=90,
             )
+        parent.pg_initialized.add(phase)
         child_command(parent, phase + "-before")
         if phase == "revoked":
             child_command(parent, "revoked-fixture")
@@ -1945,6 +2024,7 @@ def negative_restores(parent: Scenario, dump: Path) -> None:
             raise BackupFailure("M2_NEGATIVE_API_READY")
         child_command(parent, phase + "-decision")
         stop_apps(parent, phase, require_clean_worker=False)
+        collect_stopped_facts(parent, phase)
         child_command(parent, phase + "-collect")
         parent.stop_pg(phase)
 

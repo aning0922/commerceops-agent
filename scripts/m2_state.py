@@ -338,6 +338,64 @@ def pending_receipt(
     )
 
 
+def stopped_business_facts(
+    db: Connection[dict[str, Any]], canonical: dict[str, Any]
+) -> dict[str, Any]:
+    """Observe the original tuple without success assertions or mutable writes."""
+    from scripts.m2_backup import no_other_clients
+
+    db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+    db.execute("SET LOCAL statement_timeout=2000")
+    no_other_clients(db)
+    task, plan, approval = (UUID(canonical[k]) for k in ("task_id", "plan_id", "approval_id"))
+    clock = db.execute("SELECT clock_timestamp()::text AS observed_at_utc").fetchone()
+    tasks = db.execute(
+        "SELECT state,organization_id=%s AND shop_id=%s AS original_scope "
+        "FROM business.business_tasks WHERE id=%s",
+        (UUID(canonical["organization_id"]), UUID(canonical["shop_id"]), task),
+    ).fetchall()
+    approvals = db.execute(
+        "SELECT status,decision_id IS NOT NULL AS has_decision,expires_at::text,"
+        "id=%s AND plan_id=%s AND plan_version=%s AND plan_hash=%s AS original_binding "
+        "FROM business.approvals WHERE task_id=%s ORDER BY id",
+        (approval, plan, canonical["plan_version"], canonical["plan_hash"], task),
+    ).fetchall()
+    resumes = db.execute(
+        "SELECT r.delivery_state,r.approval_id=%s AND r.decision_id=a.decision_id "
+        "AS original_binding FROM business.approval_resumes r "
+        "LEFT JOIN business.approvals a ON a.id=r.approval_id "
+        "WHERE r.task_id=%s ORDER BY r.decision_id",
+        (approval, task),
+    ).fetchall()
+    executions = db.execute(
+        "SELECT status,plan_id=%s AND approval_id=%s AND plan_version=%s AND plan_hash=%s "
+        "AS original_binding FROM business.executions WHERE task_id=%s ORDER BY id",
+        (plan, approval, canonical["plan_version"], canonical["plan_hash"], task),
+    ).fetchall()
+    items = db.execute(
+        "SELECT status,count(*) AS count,sum(quantity)::text AS total_quantity "
+        "FROM business.replenishment_items WHERE task_id=%s GROUP BY status ORDER BY status",
+        (task,),
+    ).fetchall()
+    decisions = db.execute(
+        "SELECT count(*) AS count FROM business.web_requests "
+        "WHERE task_id=%s AND operation='decision'",
+        (task,),
+    ).fetchone()
+    return dict(
+        schema_version="p5-m2-stopped-business-facts-v1",
+        observation="captured",
+        observed_at_utc=None if clock is None else clock["observed_at_utc"],
+        tasks=tasks,
+        approvals=approvals,
+        resumes=resumes,
+        executions=executions,
+        items=items,
+        decision_receipts=decisions,
+        success_asserted=False,
+    )
+
+
 def completed_receipt(
     db: Connection[dict[str, Any]],
     observed: dict[str, Any],

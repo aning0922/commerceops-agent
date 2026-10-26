@@ -31,6 +31,7 @@ from scripts.m2_state import (
     pending_receipt,
     save,
     seed,
+    stopped_business_facts,
     web_configuration,
 )
 from scripts.woo_lab.expectations import expected_document, positive_golden
@@ -442,5 +443,17 @@ def test_owned_m2_seed_source_pending_and_completed_receipts(
             finally:
                 stop.set()
                 await child
+            # Consumer completion is not needed to observe the stopped database.
+            # Even an intentionally wrong success expectation must leave actual facts intact.
+            with connect(app) as db:
+                facts = stopped_business_facts(db, observed)
+            assert facts["tasks"] == [{"state": "completed", "original_scope": True}]
+            assert facts["resumes"] == [{"delivery_state": "consumed", "original_binding": True}]
+            assert facts["executions"] == [{"status": "completed", "original_binding": True}]
+            assert facts["items"] == [{"status": "open", "count": 4, "total_quantity": "219"}]
+            save(tmp_path / "failure-facts.safe.json", facts)
+            with connect(app) as db, pytest.raises(ValueError, match="M2_EXECUTION_BINDING"):
+                completed_receipt(db, {**observed, "execution_id": str(uuid4())}, gold, seeded)
+            assert (tmp_path / "failure-facts.safe.json").exists()
 
         asyncio.run(run())

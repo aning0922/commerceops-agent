@@ -668,3 +668,103 @@ def test_lab_exit_one_needs_owned_stop_and_exact_controlled_footer(
     path = tmp_path / "lab.private.log"
     save(path, (json.dumps({"ready": True}) + "\n" + json.dumps(footer) + "\n").encode())
     assert target.lab_stop_classification(1, requested, path) == expected
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_failed_consumer_collects_after_reap_before_down_without_cleanup_dependency(
+    tmp_path: Path, monkeypatch: Any, failure: bool
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    parent = target.Scenario(directory, request, time.monotonic() + 600)
+    parent.pg_started.add("restored")
+    parent.pg_initialized.add("restored")
+    save(directory / "canonical/m2-facts.private.json", {"canonical_source": {}})
+    parent.canonical_sha256 = target.reference(directory / "canonical/m2-facts.private.json")[
+        "sha256"
+    ]
+    parent.children["restored-worker"] = object()  # type: ignore[assignment]
+    events = []
+
+    def stop(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        events.append("reaped")
+        parent.children.clear()
+        return {"stopped_at_utc": "synthetic", "processes": {}}
+
+    def command(self: Any, tag: str, argv: Any, **kwargs: Any) -> bytes:
+        assert not parent.children
+        assert tag == "restored-facts" and kwargs["cleanup"] is True
+        assert kwargs["cap"] == 15
+        events.append("facts")
+        if failure:
+            raise RuntimeError("private-query-detail-must-not-escape")
+        save(directory / "restored-business-facts.safe.json", {"observation": "captured"})
+        return b""
+
+    def down(self: Any, phase: str) -> dict[str, Any]:
+        events.append("down")
+        parent.pg_started.remove(phase)
+        return {}
+
+    monkeypatch.setattr(target, "stop_apps", stop)
+    monkeypatch.setattr(target.Scenario, "command", command)
+    monkeypatch.setattr(target.Scenario, "stop_pg", down)
+    result = target.cleanup(parent)
+    assert events == ["reaped", "facts", "down"]
+    assert result["stopping_confirmed"] is True
+    assert result["business_facts"]["restored"]["observation"] == (
+        "unknown" if failure else "captured"
+    )
+    assert result["business_facts"]["revoked"] == {
+        "observation": "not_run",
+        "reason": "not_initialized",
+    }
+    assert "private-query-detail" not in (directory / "cleanup.safe.json").read_text()
+    target.collect_stopped_facts(parent, "restored", cleanup=True)
+    assert events == ["reaped", "facts", "down"]
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "not_initialized",
+        "no_trusted_canonical",
+        "writers_not_confirmed_stopped",
+        "cleanup_reserve",
+        "changed",
+    ],
+)
+def test_observation_never_reads_untrusted_or_live_database(
+    tmp_path: Path, monkeypatch: Any, reason: str
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    parent = target.Scenario(
+        directory, request, time.monotonic() + (60 if reason == "cleanup_reserve" else 600)
+    )
+    parent.pg_started.add("restored")
+    if reason != "not_initialized":
+        parent.pg_initialized.add("restored")
+    if reason not in ("not_initialized", "no_trusted_canonical"):
+        save(directory / "canonical/m2-facts.private.json", {})
+        parent.canonical_sha256 = target.reference(directory / "canonical/m2-facts.private.json")[
+            "sha256"
+        ]
+    if reason == "writers_not_confirmed_stopped":
+        parent.children["restored-api"] = object()  # type: ignore[assignment]
+    if reason == "changed":
+        parent.canonical_sha256 = "0" * 64
+    monkeypatch.setattr(target.Scenario, "command", lambda *a, **k: pytest.fail("must not query"))
+    target.collect_stopped_facts(parent, "restored", cleanup=True)
+    assert parent.business_facts["restored"]["observation"] == (
+        "unknown" if reason == "changed" else "not_run"
+    )
+
+
+def test_normal_gate_cannot_skip_required_facts(tmp_path: Path) -> None:
+    directory, request = fixture_request(tmp_path)
+    parent = target.Scenario(directory, request, time.monotonic() + 600)
+    with pytest.raises(BackupFailure, match="M2_FACTS_NOT_CAPTURED"):
+        target.collect_stopped_facts(parent, "restored")
+    assert parent.business_facts["restored"] == {
+        "observation": "not_run",
+        "reason": "not_initialized",
+    }
