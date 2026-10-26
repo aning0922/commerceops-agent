@@ -1,5 +1,7 @@
 # 阶段状态与主控交接
 
+Phase5/M2当前导航（2026-10-26，台北D17）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已扩为完整阶段授权；30 Agent有效小时含原首批全部用量，A12/B8/Review5/Root5可总内调配，300h/原日期/人工H-L UNKNOWN不重置。原A/B及Reviewer继续，Root集中发布/CI/正常main与合后CI；不自动M3。当前[业务与备份短合同](contracts/p5-m2-v1.md)为待审冻结候选，主体接线未实施；首批与安全依赖的精确证据边界见[第71节](#71-phase5m2统一授权首批证据与后续合同)。下方首批8h/不自动完整M2等只保留其历史时点。
+
 Phase5首批当前入口（2026-10-26，台北）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已获用户开始授权；base e7cf790及同SHA CI39952681678五绿、M1结案沿用，不重开旧Gate。仅新隔离Woo测试店、五只读端口与最小合成对账；8 Agent有效h（A3.5/B2.5/独审1/Root1），旧用量和原日期/300h不重置，历史净余UNKNOWN。A/B[输入合同](contracts/p5-woo-readonly-v1.md)已提交，当前适配与lab实现/实际对账/独审/精确CI均按各自结果核收，不预写首批完成或完整M2通过。Root集中释放合批，A不自动main；P4工作区/原资产保留。下方第70节及旧导航是原日期快照，正式M1已由固定权威回执结案。
 
 Phase4/M1当前导航（2026-10-23，台北，D14）：所有必要业务/真人平台Gate已由Root及原Reviewer核收，状态为`business_gates_passed / ready_for_final_review`。source160d66a/tree90fc8cc及CI39909049939五绿/567PG已核；两新群查询各sent/attempt1、新SDK6/两窗、17保护组不变、父native0/清理保卷，合同scoped109/11与全库142/17分列。最后仅A/C文档合批、原Reviewer最终增量审查、Root预留CI8/main/合后CI与Issues实际结案，详见[第70节](#70-phase4m1业务门槛已核收与最后文档合批)及[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)。正式complete不预写；下方旧导航及第1–69节均按原日期保留，旧查询HOLD/失败/unknown不重开，Phase5未授权。
@@ -1391,3 +1393,33 @@ D1=2026-10-10、D30=2026-11-08、原300h/P4计划50h、人工H/L UNKNOWN与18页
 不读未提交WIP，不改业务/前端/测试/锁/workflow，不push/改PR正文/触CI或再开PG/SDK/真人。
 原Reviewer对最终docs/source增量一次审查后，Root才释放预留CI8；按实际成功结果正常main及唯一合后CI1，
 失败不自动重试。正式complete和Issues关闭均以固定权威回执后续实际更新为准，不再为未来SHA补写而开docsCI循环。
+
+## 71. Phase5/M2统一授权、首批证据与后续合同
+
+2026-10-26，Root已在[原Issue49](https://github.com/aning0922/commerceops-agent/issues/49)登记完整M2授权。
+cap30 Agent有效小时包含原首批全部用量与修复，A12/B8/Review5/Root5小时可总内调配；
+人工H/L、历史净余仍UNKNOWN，机器/CI等待另计，不改原300h或D1/D30/D18–20目标。
+M1 main e7cf790及CI39952681678五绿与正式结案沿用，不重开旧真人/模型Gate。
+
+首批新本地合成Woo在be45b6e实际54次HTTP200、CLI原生0，独立四组9商品/8订单行/3退款/9库存完整一致。
+业务来源为woocommerce_test、consistency=observational，UNKNOWN_STOCK/SHARED_POOL_UNRESOLVED仍保留，
+不能把complete当可执行。owner从5ac0c2f启动，B lab/Compose/seed字节未变，A probe使用be45；
+实际自然退出0及独立容器0/网络0/端口关闭/PID不存在、两个卷保留已核，精确owner原生耗时未捕获。
+此前JSON tuple输入exit2、discovery Link拒绝exit1、订单边界6/8不匹配exit1均保留。
+原Reviewer后核be45微秒上界P2，0ec4dd4修复；79de39b中整秒样本请求字节等价已核，
+不宣称79de精确平台重跑，小数秒分支为离线证据；原Reviewer已关闭该P2。
+
+fast-uri锁3.1.8→3.1.9最小更新、67Web契约/Next build/Node24.21.0/npm11.19.0及npm审计0已核。
+完整check的旧Node20引擎失败、79de本地固定Node路径缺失的49fail/2446pass，
+以及补齐路径后2495pass/567PG排除但Python审计4命中分别保留；检查期间源码hash无变化。
+安全补丁9bb98bd只将filelock4.0.12→4.2.1、checkpoint-postgres3.1.2→3.1.3、
+checkpoint4.2.0→4.3.0，严格审计0；10条官方迁移SQL完全相同，但pending writes/serde行为变化另审另验。
+经审B160b338来源/质量展示及交付骨架已普通合入1a129a15；新库当前依赖G2/P3恢复34PG原生0、
+原helper清理0、独立资源0，仅删除该新合成测试卷。它不签旧官方库写CP→新版业务续跑，
+该兼容Gate与组合完整check/精确CI仍pending，不预写最终SHA、首批complete或M2通过。
+
+下一包按[短合同](contracts/p5-m2-v1.md)先独审：服务端来源/能力/创建与N01、完整订单cohort、
+同步I/O截止、窄0018 lineage/ACL、PG内部open item及原20秒重观测；B创建入口等稳定DTO。
+原mixed质量负例保持，B另产4SKU/4独立pool/4订单4行/0退款正向profile与冻结D七日金标，
+总建议219/CNY994仅为待验独立期望，不写成业务实测。只有可审批正向来源才进入新卷备份还原。
+所有旧失败/日志原字节损失/Issue23未知风险保留；原资产、真实飞书/付费模型0新增，不自动M3/生产。
