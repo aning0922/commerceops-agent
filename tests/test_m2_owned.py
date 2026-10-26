@@ -1,6 +1,7 @@
 """Offline/native-process checks only; no Docker, PG, Woo or browser is started."""
 
 import json
+import subprocess
 import sys
 import time
 from datetime import UTC, datetime, timedelta
@@ -497,3 +498,86 @@ def test_full_action_rejects_drift_before_first_probe_command(
     with pytest.raises(BackupFailure):
         target.full_action(parent)
     assert calls == ["list-source", "list-restored", "frontend-build"]
+
+
+@pytest.mark.parametrize("action", ["prepare", "build", "serve", "stop"])
+def test_real_public_lab_module_enters_cli_without_starting_resources(action: str) -> None:
+    result = subprocess.run(
+        [sys.executable, "-m", target.LAB_MODULE, action, "--help"],
+        cwd=target.ROOT,
+        env=target.environment(),
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "{prepare,build,verify,serve,stop}" in result.stdout
+    assert "--directory" in result.stdout and "--profile" in result.stdout
+    assert "--anchor-day" in result.stdout and "--shop-id" in result.stdout
+
+
+def test_parent_uses_public_lab_cli_argv_for_prepare_build_serve_and_stop(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from types import SimpleNamespace
+
+    directory, request = fixture_request(tmp_path)
+    monkeypatch.setattr(target, "ROOT", tmp_path)
+    save(directory / "seed.private.json", {"shop_id": str(uuid4())})
+    lab = tmp_path / "runtime/woolab-123456789abc"
+    lab.mkdir(mode=0o700)
+    save(lab / "lab.json", {"url": "https://localhost:49009", "port": 49009})
+    save(lab / "compose.env", b"REGISTERED=new\n")
+    parent = target.Scenario(directory, request, time.monotonic() + 1200)
+    actual = []
+
+    def command(self: Any, tag: str, argv: list[str], **kwargs: Any) -> bytes:
+        if tag in ("lab-prepare", "lab-build", "lab-stop-fallback"):
+            actual.append(argv)
+        if tag == "lab-prepare":
+            return (str(lab) + "\n").encode()
+        if tag == "lab-stop-fallback":
+            save(
+                lab / "cleanup.safe.json",
+                dict(containers=0, networks=0, listener_absent=True, volumes_retained=[]),
+            )
+        return b""
+
+    def spawn(self: Any, name: str, argv: list[str], env: Any, **kwargs: Any) -> Any:
+        actual.append(argv)
+        save(
+            directory / "lab-serve.private.log",
+            (
+                json.dumps(
+                    dict(
+                        readonly_key_file=str(lab / "runtime-auth.json"),
+                        ca_file=str(lab / "ca.crt"),
+                    )
+                )
+                + "\n"
+            ).encode(),
+        )
+        return SimpleNamespace(poll=lambda: None)
+
+    class NoListeners:
+        def __enter__(self) -> Any:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            pass
+
+        def settimeout(self, _: float) -> None:
+            pass
+
+        def connect_ex(self, _: Any) -> int:
+            return 1
+
+    monkeypatch.setattr(target.Scenario, "command", command)
+    monkeypatch.setattr(target.Scenario, "spawn", spawn)
+    monkeypatch.setattr("scripts.m2_owned.socket.socket", NoListeners)
+    assert target.start_lab(parent) == lab
+    assert target.cleanup(parent)["stopping_confirmed"] is True
+    assert [argv[3] for argv in actual] == ["prepare", "build", "serve", "stop"]
+    assert all(argv[:3] == [sys.executable, "-m", "scripts.woo_lab"] for argv in actual)

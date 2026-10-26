@@ -40,6 +40,7 @@ CONSUMER = [
     "--grep",
 ]
 DATABASE_PHASES = ("source", "restored", "revoked", "expired")
+LAB_MODULE = "scripts.woo_lab"
 PG_IMAGE = (
     "postgres:17.11-bookworm@sha256:"
     "3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826"
@@ -1246,7 +1247,7 @@ def start_lab(parent: Scenario) -> Path:
         [
             sys.executable,
             "-m",
-            "scripts.woo_lab.lab",
+            LAB_MODULE,
             "prepare",
             "--profile",
             "positive-v1",
@@ -1273,7 +1274,7 @@ def start_lab(parent: Scenario) -> Path:
     # Reuse B's existing image build and lifecycle; no second lab driver or reseed.
     parent.command(
         "lab-build",
-        [sys.executable, "-m", "scripts.woo_lab.lab", "build", "--directory", str(directory)],
+        [sys.executable, "-m", LAB_MODULE, "build", "--directory", str(directory)],
         cap=600,
     )
     seconds = int(parent.remaining(3600, cleanup=True))
@@ -1285,7 +1286,7 @@ def start_lab(parent: Scenario) -> Path:
         [
             sys.executable,
             "-m",
-            "scripts.woo_lab.lab",
+            LAB_MODULE,
             "serve",
             "--directory",
             str(directory),
@@ -1513,7 +1514,7 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
                     [
                         sys.executable,
                         "-m",
-                        "scripts.woo_lab.lab",
+                        LAB_MODULE,
                         "stop",
                         "--directory",
                         str(parent.lab_directory),
