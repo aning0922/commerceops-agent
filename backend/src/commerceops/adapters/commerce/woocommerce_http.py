@@ -21,6 +21,7 @@ from commerceops.adapters.commerce.woocommerce_config import (
     read_credential,
     read_private_file,
 )
+from commerceops.adapters.commerce.woocommerce_deadline import WooDeadlineTransport
 from commerceops.application.commerce.contracts import ErrorCode, Quality
 from commerceops.domain.commerce_values import canonical_bytes
 
@@ -79,7 +80,9 @@ class WooHTTP:
             trust_env=False,
             follow_redirects=False,
             timeout=config.timeout_seconds,
-            transport=transport,
+            transport=transport
+            if transport is not None
+            else WooDeadlineTransport(context, self.remaining),
         )
 
     def redact(self, text: str) -> str:
@@ -140,7 +143,7 @@ class WooHTTP:
                             ):
                                 raise WooReadFailure(ErrorCode.REDIRECT_REJECTED)
                         data = bytearray()
-                        for chunk in response.iter_raw(chunk_size=65536):
+                        for chunk in response.iter_raw():
                             self.response_bytes += len(chunk)
                             self.remaining()
                             if len(data) + len(chunk) > self.config.max_response_bytes:

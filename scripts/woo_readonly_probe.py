@@ -113,7 +113,7 @@ def collect(adapter: WooCommerce) -> tuple[dict[str, list[Any]], list[str]]:
         adapter.source,
         config.max_pages,
     )
-    cohort = tuple(sorted({r.order_id for r in orders}))
+    cohort = adapter.observed_order_ids
     refunds = drain(
         lambda c: adapter.list_refunds(cohort, cursor=c), adapter.source, config.max_pages
     )

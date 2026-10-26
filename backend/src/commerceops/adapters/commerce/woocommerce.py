@@ -280,6 +280,14 @@ class WooCommerce:
             )
         return page
 
+    @property
+    def observed_order_ids(self) -> tuple[str, ...]:
+        """成功读取本窗口后供本批采集器取完整cohort；不从可能为空的订单行推断。"""
+        query = "orders:" + facts_hash(self.config.window.model_dump(mode="json"))
+        if query not in self._cache:
+            raise CommerceFailure(error(ErrorCode.INVALID_DATA))
+        return tuple(sorted(self._orders))
+
     def _refunds(self, ids: tuple[str, ...]) -> tuple[Refund, ...]:
         if any(re.fullmatch(r"[1-9][0-9]*", oid) is None or oid not in self._orders for oid in ids):
             raise ValueError("UNKNOWN_ORDER_COHORT")

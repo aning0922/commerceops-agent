@@ -651,3 +651,187 @@ def test_end_revalidation_detects_changes_between_resources(config: WooReadOnlyC
         assert failure.value.quality == Quality.SOURCE_CHANGED and calls == 3
     finally:
         adapter.close()
+
+
+@pytest.mark.parametrize("mode", ["dribble", "tail_block"])
+def test_total_deadline_bounds_native_blocking_stream(
+    config: WooReadOnlyConfig, monkeypatch: Patch, mode: str
+) -> None:
+    """仅故障注入：socketpair真实阻塞I/O；TLS握手Fake，不签真实Woo或TLS成功。"""
+    import socket
+    import threading
+    import time
+
+    import httpcore
+    from commerceops.adapters.commerce.woocommerce_deadline import (
+        WooDeadlineBackend,
+        WooDeadlineStream,
+        WooDeadlineTransport,
+    )
+    from httpcore._backends.sync import SyncStream
+
+    reader, peer = socket.socketpair()
+    stop = threading.Event()
+    sent = []
+
+    class NoHandshakeStream(SyncStream):
+        def start_tls(
+            self,
+            ssl_context: ssl.SSLContext,
+            server_hostname: str | None = None,
+            timeout: float | None = None,
+        ) -> httpcore.NetworkStream:
+            return self
+
+    def connect(
+        backend: WooDeadlineBackend,
+        host: str,
+        port: int,
+        timeout: float | None = None,
+        local_address: str | None = None,
+        socket_options: Any = None,
+    ) -> httpcore.NetworkStream:
+        return WooDeadlineStream(NoHandshakeStream(reader), backend._remaining)
+
+    monkeypatch.setattr(WooDeadlineBackend, "connect_tcp", connect)
+
+    def server() -> None:
+        try:
+            peer.settimeout(2)
+            request = b""
+            while b"\r\n\r\n" not in request:
+                part = peer.recv(4096)
+                if not part:
+                    return
+                request += part
+            length = 40 if mode == "dribble" else 3
+            peer.sendall(
+                (
+                    "HTTP/1.1 200 OK\r\nContent-Length: "
+                    + str(length)
+                    + "\r\nX-WP-Total: 0\r\nX-WP-TotalPages: 0\r\n\r\n"
+                ).encode()
+            )
+            if mode == "dribble":
+                for value in b"[" + b" " * 38 + b"]":
+                    if stop.wait(0.06):
+                        return
+                    peer.sendall(bytes([value]))
+                    sent.append(value)
+            else:
+                peer.sendall(b"[")
+                if stop.wait(0.7):
+                    return
+                peer.sendall(b" ")
+                sent.append(1)
+                if not stop.wait(3):
+                    peer.sendall(b"]")
+        except OSError:
+            pass  # expected peer closure after the tested hard deadline
+        finally:
+            peer.close()
+
+    worker = threading.Thread(target=server)
+    worker.start()
+    adapter = WooCommerce(config.model_copy(update={"max_elapsed_seconds": 1}))
+    try:
+        assert isinstance(adapter.http.client._transport, WooDeadlineTransport)
+        started = time.monotonic()
+        page = adapter.list_products()
+        elapsed = time.monotonic() - started
+        assert page.error is not None and page.error.code == ErrorCode.TIMEOUT
+        assert not page.complete and page.items == ()
+        assert 0.75 <= elapsed < 1.35
+        assert len(sent) < 40 and (mode != "tail_block" or sent == [1])
+        assert sum(adapter.http.counts.values()) == 1
+    finally:
+        adapter.close()
+        stop.set()
+        reader.close()
+        worker.join(timeout=2)
+        assert not worker.is_alive()
+
+
+def test_total_deadline_checks_each_unaggregated_mock_chunk(config: WooReadOnlyConfig) -> None:
+    """重现原40×60ms单字节反例，不将Fake读成功作为平台证据。"""
+    import time
+    from collections.abc import Iterator
+
+    class SlowStream(httpx.SyncByteStream):
+        def __init__(self) -> None:
+            self.sent = 0
+            self.closed = False
+
+        def __iter__(self) -> Iterator[bytes]:
+            for _ in range(40):
+                time.sleep(0.06)
+                self.sent += 1
+                yield b" "
+
+        def close(self) -> None:
+            self.closed = True
+
+    stream = SlowStream()
+    adapter = adapter_with(
+        config.model_copy(update={"max_elapsed_seconds": 1}),
+        lambda _: httpx.Response(200, stream=stream),
+    )
+    try:
+        started = time.monotonic()
+        page = adapter.list_products()
+        elapsed = time.monotonic() - started
+        assert page.error is not None and page.error.code == ErrorCode.TIMEOUT
+        assert not page.complete and elapsed < 1.35
+        assert stream.sent < 40 and stream.closed
+    finally:
+        adapter.close()
+
+
+@pytest.mark.parametrize("refund_failure", [False, True])
+def test_empty_line_order_still_belongs_to_refund_cohort(
+    config: WooReadOnlyConfig, monkeypatch: Patch, refund_failure: bool
+) -> None:
+    """完整窗口订单cohort不因没有商品行丢失；仅合成DTO反例，未访问Woo。"""
+    from commerceops.adapters.commerce.woocommerce_http import WooReadFailure
+
+    from scripts.woo_readonly_probe import collect
+
+    adapter = adapter_with(config, lambda _: pytest.fail("No HTTP in semantic unit"))
+    paths = []
+
+    def scan(path: str, _: Any) -> tuple[dict[str, Any], ...]:
+        paths.append(path)
+        if path == "products":
+            return ()
+        if path == "orders":
+            return ({**order(), "line_items": [], "refunds": [{"id": 301}]},)
+        assert path == "orders/101/refunds"
+        if refund_failure:
+            raise WooReadFailure(ErrorCode.TIMEOUT)
+        return (
+            {
+                "id": 301,
+                "amount": "5.50",
+                "date_created_gmt": "2026-10-26T01:00:00",
+                "line_items": [],
+            },
+        )
+
+    monkeypatch.setattr(adapter.http, "scan", scan)
+    try:
+        with pytest.raises(CommerceFailure):
+            _ = adapter.observed_order_ids
+        if refund_failure:
+            with pytest.raises(CommerceFailure, match="TIMEOUT"):
+                collect(adapter)
+        else:
+            actual, _ = collect(adapter)
+            assert actual["order_lines"] == []
+            assert len(actual["refunds"]) == 1
+            assert actual["refunds"][0]["order_id"] == "101"
+            assert actual["refunds"][0]["refund_amount"] == "5.5"
+            assert actual["refunds"][0]["quantity_reason"] == "AMOUNT_ONLY_REFUND"
+        assert adapter.observed_order_ids == ("101",)
+        assert paths.count("orders/101/refunds") == 1
+    finally:
+        adapter.close()
