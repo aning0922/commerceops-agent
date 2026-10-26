@@ -63,6 +63,8 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
         not in {
             "tests/test_p5_sources_pg.py",
             "tests/test_p5_feishu_pg.py",
+            "tests/test_p5_m2_pending_pg.py",
+            "tests/test_p5_m2_backup_pg.py",
         }
         or call.excinfo is None
     ):
@@ -72,6 +74,9 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
     kind = type(error).__name__
     if kind not in {
         "ValueError",
+        "KeyError",
+        "TypeError",
+        "AttributeError",
         "AssertionError",
         "TimeoutError",
         "RuntimeError",
@@ -103,6 +108,10 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
             "commerce_sources.py",
             "database.py",
             "web_config.py",
+            "m2_state.py",
+            "m2_backup.py",
+            "test_p5_m2_pending_pg.py",
+            "test_p5_m2_backup_pg.py",
         }:
             frames.append({"file": name, "line": trace.tb_lineno})
         trace = trace.tb_next
