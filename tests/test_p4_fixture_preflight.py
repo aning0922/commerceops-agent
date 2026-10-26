@@ -68,6 +68,8 @@ def test_gateway_source_mismatch_never_reads_secret_or_constructs_socket(
                         "external_shop_key": "p4-ro-only",
                         "currency": "CNY",
                         "timezone": "Asia/Shanghai",
+                        "adapter_kind": "mock",
+                        "environment": "test",
                     },
                 ]
             )
