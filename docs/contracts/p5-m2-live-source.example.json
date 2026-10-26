@@ -1,0 +1,192 @@
+{
+  "template_only": true,
+  "warning": "Structural example only. Synthetic identifiers, zero hashes, redacted accounts and expired times are placeholders, not runtime evidence. Never pass this bundle to a consumer.",
+  "files": {
+    "window.json": {
+      "schema_version": "p5-m2-live-resource-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "source_tree": "0000000000000000000000000000000000000000",
+      "owner": "phase5-M2-live",
+      "batch": "p5-m2-live",
+      "phase": "source_ready",
+      "build_id": "<actual-build-id>",
+      "api_origin": "http://127.0.0.1:48001",
+      "web_origin": "http://127.0.0.1:48002",
+      "api_pid": 90001,
+      "web_pid": 90002,
+      "worker_pid": 90003,
+      "organization_id": "00000000-0000-4000-8000-000000000002",
+      "shop_id": "00000000-0000-4000-8000-000000000003",
+      "started_at_utc": "2000-01-01T00:00:00Z",
+      "stop_at_utc": "2000-01-01T01:00:00Z",
+      "cleanup_reserve_seconds": 180,
+      "consumer_started_at_utc": "2000-01-01T00:01:00Z",
+      "consumer_stop_at_utc": "2000-01-01T00:05:00Z",
+      "consumer_cap_seconds": 240,
+      "original_expires_at": null,
+      "active_database": "source",
+      "source_database": {
+        "project": "example-source-only",
+        "database": "example_source",
+        "volume": "example-source-only_pg_data"
+      },
+      "target_database": null,
+      "resource_registration_ref": {
+        "file": "parent-resources.safe.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "stop_owner": "A"
+    },
+    "web-accounts.json": {
+      "schema_version": "p5-m2-live-accounts-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "source_tree": "0000000000000000000000000000000000000000",
+      "operator": {
+        "login": "redacted-operator",
+        "password": "<redacted>",
+        "expected_principal_id": "00000000-0000-4000-8000-000000000011",
+        "expected_organization_id": "00000000-0000-4000-8000-000000000002",
+        "expected_shop_id": "00000000-0000-4000-8000-000000000003",
+        "expected_role": "operator"
+      },
+      "approver": {
+        "login": "redacted-approver",
+        "password": "<redacted>",
+        "expected_principal_id": "00000000-0000-4000-8000-000000000012",
+        "expected_organization_id": "00000000-0000-4000-8000-000000000002",
+        "expected_shop_id": "00000000-0000-4000-8000-000000000003",
+        "expected_role": "approver"
+      }
+    },
+    "m2-source.private.json": {
+      "schema_version": "p5-m2-live-source-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "source_tree": "0000000000000000000000000000000000000000",
+      "organization_id": "00000000-0000-4000-8000-000000000002",
+      "shop_id": "00000000-0000-4000-8000-000000000003",
+      "binding_id": "00000000-0000-4000-8000-000000000004",
+      "config_ref": "example-only",
+      "source_kind": "woocommerce_test",
+      "source_config_version": "example-only-v1",
+      "registration_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "profile": "positive-v1",
+      "anchor_day": "2000-01-01",
+      "business_now": "1999-12-31T16:00:00Z",
+      "window": {
+        "start": "1999-12-24T16:00:00Z",
+        "end": "1999-12-31T16:00:00Z"
+      },
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY",
+      "parameters": {
+        "L": 3,
+        "R": 7,
+        "S": 2
+      },
+      "expected_ref": {
+        "file": "expected.private.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected_schema_version": "woo-local-expectations-v1",
+      "golden_ref": {
+        "file": "analysis-golden.private.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "golden_schema_version": "woo-positive-golden-v1",
+      "seed_result_ref": {
+        "file": "seed-result.private.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "sku_map": [
+        {
+          "logical_key": "simple_a",
+          "product_id": "101",
+          "variant_id": null,
+          "sku_key": "sku/00000000-0000-4000-8000-000000000003/101/p",
+          "stock_pool_key": "pool/00000000-0000-4000-8000-000000000003/101"
+        },
+        {
+          "logical_key": "simple_b",
+          "product_id": "102",
+          "variant_id": null,
+          "sku_key": "sku/00000000-0000-4000-8000-000000000003/102/p",
+          "stock_pool_key": "pool/00000000-0000-4000-8000-000000000003/102"
+        },
+        {
+          "logical_key": "independent_red",
+          "product_id": "103",
+          "variant_id": "104",
+          "sku_key": "sku/00000000-0000-4000-8000-000000000003/103/v/104",
+          "stock_pool_key": "pool/00000000-0000-4000-8000-000000000003/104"
+        },
+        {
+          "logical_key": "independent_blue",
+          "product_id": "103",
+          "variant_id": "105",
+          "sku_key": "sku/00000000-0000-4000-8000-000000000003/103/v/105",
+          "stock_pool_key": "pool/00000000-0000-4000-8000-000000000003/105"
+        }
+      ]
+    },
+    "m2-facts.private.json": {
+      "schema_version": "p5-m2-live-facts-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "source_tree": "0000000000000000000000000000000000000000",
+      "canonical_source": null,
+      "restore_binding": null
+    },
+    "consumer.private.json": {
+      "schema_version": "p5-m2-live-consumer-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "source_tree": "0000000000000000000000000000000000000000",
+      "phase": "source_ready",
+      "cwd": "frontend",
+      "argv": [
+        "npm",
+        "exec",
+        "--",
+        "playwright",
+        "test",
+        "--config",
+        "playwright.live.config.ts",
+        "--grep",
+        "^M2 source$"
+      ],
+      "retries": 0,
+      "cap_seconds": 240,
+      "business_revalidation_seconds": 20,
+      "exit_and_evidence_reserve_seconds": 40,
+      "mutation_reserve_seconds": 60,
+      "restored_min_ttl_at_start_seconds": 300,
+      "allowed_output_files": [
+        "source-create-request.private.json",
+        "source-create-receipt.private.json",
+        "source-create-lookup.private.json",
+        "source-task-read.private.json",
+        "source-report-read.private.json",
+        "source-plan-read.private.json",
+        "source-approval-read.private.json",
+        "source-observed.private.json",
+        "source-results.safe.json"
+      ]
+    },
+    "source-results.safe.json": {
+      "schema_version": "p5-m2-consumer-result-v1",
+      "run_id": "00000000-0000-4000-8000-000000000001",
+      "source_sha": "0000000000000000000000000000000000000000",
+      "source_tree": "0000000000000000000000000000000000000000",
+      "phase": "source_ready",
+      "logical_outcome": "not_run",
+      "started_at_utc": null,
+      "finished_at_utc": null,
+      "checks": [],
+      "artifact_refs": [],
+      "error_code": null
+    }
+  }
+}
