@@ -27,7 +27,7 @@ def money(value: str) -> str:
 
 
 def expected_document(spec: dict[str, Any], mapping: dict[str, Any]) -> dict[str, Any]:
-    shop = "woo-local"
+    shop = spec.get("shop_id", "woo-local")
     by_key = {p["key"]: p for p in spec["products"]}
     ids = mapping["products"]
 
@@ -155,9 +155,9 @@ def expected_document(spec: dict[str, Any], mapping: dict[str, Any]) -> dict[str
 
 
 def write_handoff(config: dict[str, Any], directory: Path, seed: dict[str, Any]) -> None:
-    from scripts.woo_lab.lab import FIXTURE, write_private
+    from scripts.woo_lab.lab import fixture_spec, write_private
 
-    spec = json.loads(FIXTURE.read_text())
+    spec = fixture_spec(config, directory)
     expected = expected_document(spec, seed["mapping"])
     auth = json.loads((directory / "runtime-auth.json").read_text())
     write_private(directory / "consumer_key", (auth["consumer_key"] + "\n").encode())
@@ -168,9 +168,9 @@ def write_handoff(config: dict[str, Any], directory: Path, seed: dict[str, Any])
         "consumer_key_file": str(directory / "consumer_key"),
         "consumer_secret_file": str(directory / "consumer_secret"),
         "ca_file": str(directory / "ca.crt"),
-        "shop_id": "woo-local",
-        "timezone": "Asia/Shanghai",
-        "currency": "CNY",
+        "shop_id": expected["shop_id"],
+        "timezone": spec["timezone"],
+        "currency": spec["currency"],
         "window": expected["window"],
         "per_page": 2,
         "max_pages": 32,
@@ -181,3 +181,116 @@ def write_handoff(config: dict[str, Any], directory: Path, seed: dict[str, Any])
         "max_retries": 0,
     }
     write_private(directory / "probe-config.private.json", probe_config)
+    if spec.get("profile") == "positive-v1":
+        write_private(
+            directory / "analysis-golden.private.json", positive_golden(spec, seed["mapping"])
+        )
+        write_private(
+            directory / "fixture-binding.safe.json",
+            {
+                k: config[k]
+                for k in (
+                    "profile",
+                    "anchor_day",
+                    "shop_id",
+                    "shop_identity",
+                    "external_shop_key",
+                    "template_sha256",
+                    "spec_sha256",
+                )
+            },
+        )
+
+
+def positive_golden(spec: dict[str, Any], mapping: dict[str, Any]) -> dict[str, Any]:
+    """Independent arithmetic oracle, not adapter output or a PG execution receipt."""
+    from fractions import Fraction
+
+    if spec.get("profile") != "positive-v1":
+        raise ValueError("POSITIVE_PROFILE_REQUIRED")
+    declared = spec["analysis_gold"]
+    parameters = declared["parameters"]
+    normalized = expected_document(spec, mapping)
+    products = [p for p in spec["products"] if p["type"] != "variable"]
+    if len(products) != 4 or spec["refunds"]:
+        raise ValueError("POSITIVE_GOLD_SHAPE")
+    gross = {p["key"]: 0 for p in products}
+    amount = Decimal(0)
+    for order in spec["orders"]:
+        if order["status"] not in {"processing", "completed"}:
+            raise ValueError("POSITIVE_ORDER_STATUS")
+        for line in order["lines"]:
+            gross[line["product"]] += line["quantity"]
+            amount += Decimal(line["total"])
+    facts = []
+    for row, product in zip(products, normalized["expected"]["products"], strict=True):
+        units, available = gross[row["key"]], row["stock_quantity"]
+        if not row["manage_stock"] or type(available) is not int:
+            raise ValueError("POSITIVE_STOCK_UNKNOWN")
+        daily = Fraction(units, 7)
+        exact_target = daily * sum(parameters.values())
+        target = -(-exact_target.numerator // exact_target.denominator)
+        trigger = daily * (parameters["L"] + parameters["S"])
+        quantity = max(0, target - available)
+        if quantity != declared["expected_quantities"][row["key"]] or quantity <= 0:
+            raise ValueError("POSITIVE_QUANTITY_GOLD")
+        facts.append(
+            {
+                "logical_key": row["key"],
+                "sku_key": product["sku_key"],
+                "stock_pool_key": product["stock_pool_key"],
+                "gross_units": units,
+                "net_units": units,
+                "known_refunded_units": 0,
+                "D": {"numerator": str(daily.numerator), "denominator": str(daily.denominator)},
+                "A": available,
+                "T": target,
+                "trigger": {
+                    "numerator": str(trigger.numerator),
+                    "denominator": str(trigger.denominator),
+                },
+                "suggested_units": quantity,
+                "risk": "stockout" if available <= 0 else "risk",
+                "pool_allocation": "exact",
+                "inbound_units": None,
+                "effective_inbound_units": 0,
+                "inbound_reason": "WOOCOMMERCE_INBOUND_UNAVAILABLE",
+                "required_assumptions": ["inbound_unknown_zero:" + product["sku_key"]],
+                "hard_blocks": [],
+                "suggestion_mode": "assumption_draft",
+            }
+        )
+    if len({row["stock_pool_key"] for row in facts}) != 4:
+        raise ValueError("POSITIVE_POOL_GOLD")
+    total = sum(row["suggested_units"] for row in facts)
+    if (total, sum(gross.values()), money(str(amount))) != (
+        declared["total_quantity"],
+        declared["gross_units"],
+        declared["net_amount"],
+    ):
+        raise ValueError("POSITIVE_TOTAL_GOLD")
+    return {
+        "schema_version": "woo-positive-golden-v1",
+        "evidence": "independent_expected_only",
+        "profile": spec["profile"],
+        "anchor_day": spec["anchor_day"],
+        "fixture_version": spec["schema_version"],
+        "shop_id": normalized["shop_id"],
+        "business_now": normalized["business_now"],
+        "window": normalized["window"],
+        "rule_version": declared["rule_version"],
+        "parameters": parameters,
+        "facts": facts,
+        "candidate_count": 4,
+        "assumption_count": 4,
+        "complete": True,
+        "source_complete": True,
+        "requires_review": True,
+        "scope_required": False,
+        "total_quantity": total,
+        "gross_units": sum(gross.values()),
+        "net_amount": money(str(amount)),
+        "tax_amount": "0",
+        "currency": spec["currency"],
+        "execution_or_pg_acceptance": "not_proven_by_this_document",
+    }

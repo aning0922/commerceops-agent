@@ -43,7 +43,7 @@ services:
     volumes:
       - wordpress:/var/www/html
       - ${WOO_LAB_PRIVATE_DIR:?}:/run/woo-lab:ro
-      - ./tests/fixtures/woocommerce-local/seed.json:/opt/woo-lab/seed.json:ro
+      - ${WOO_LAB_SEED_FILE:-./tests/fixtures/woocommerce-local/seed.json}:/opt/woo-lab/seed.json:ro
     networks: [isolated]
     depends_on:
       database: {condition: service_healthy}
