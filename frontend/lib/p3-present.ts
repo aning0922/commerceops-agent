@@ -1,4 +1,4 @@
-import type { components } from "./p3-types.generated";
+import type { components } from "./p5-types.generated";
 export type DTO = components["schemas"];
 export const stateText: Record<string, string> = {
   queued: "排队中",
