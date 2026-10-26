@@ -1799,12 +1799,28 @@ def main() -> None:
 def negative_child(directory: Path, request: dict[str, Any], action: str) -> None:
     """Only predeclared fresh clones. Revoke a grant as a negative fixture, never repair data."""
     import httpx
+    from commerceops.application.replenishment.contracts import DecisionInput
     from commerceops.application.replenishment.security import digest as nonce_digest
     from commerceops.infrastructure.database import connect
 
     phase = action.split("-", 1)[0]
     if phase not in ("revoked", "expired"):
         raise BackupFailure("M2_NEGATIVE_PHASE")
+    if action.endswith("-decision"):
+        save(
+            directory / (phase + "-http-preflight.safe.json"),
+            dict(
+                schema_version="p5-m2-negative-http-observation-v1",
+                phase=phase,
+                step="preflight",
+                http_status=None,
+                transport="not_run",
+                structure="not_received",
+                known_error_code=None,
+                not_run_steps=["csrf", "login", "session", "decision", "stopped_collection"],
+                success_asserted=False,
+            ),
+        )
     owner = database(directory, request, phase)
     canonical = load(directory / "canonical/m2-facts.private.json")["canonical_source"]
     seed_data = load(directory / "seed.private.json")
@@ -1852,10 +1868,14 @@ def negative_child(directory: Path, request: dict[str, Any], action: str) -> Non
         if phase == "expired" and row["now"] <= row["expires_at"]:
             raise BackupFailure("M2_NOT_ACTUALLY_EXPIRED")
         raw = private_bytes(directory / "restored/restored-decision-request.private.json")
+        DecisionInput.model_validate_json(raw)
         body = json.loads(raw)
         observed = load(directory / "restored/restored-observed.private.json")
         if (
-            body["request_key"] != observed["decision_request_key"]
+            body["action"] != "approve_with_assumptions"
+            or set(body["acknowledged_assumption_keys"])
+            != set(canonical["required_assumption_keys"])
+            or body["request_key"] != observed["decision_request_key"]
             or body["approval_id"] != canonical["approval_id"]
             or body["plan_id"] != canonical["plan_id"]
             or body["plan_hash"] != canonical["plan_hash"]
@@ -1863,45 +1883,162 @@ def negative_child(directory: Path, request: dict[str, Any], action: str) -> Non
             or nonce_digest(body["nonce"]) != row["nonce_hash"]
         ):
             raise BackupFailure("M2_NEGATIVE_ORIGINAL_REQUEST")
+    if phase == "revoked" and row["now"] >= row["expires_at"]:
+        raise BackupFailure("M2_REVOCATION_EXPIRY_CONFOUNDED")
     expected_status, expected_code = (
-        (404, "RESOURCE_NOT_FOUND") if phase == "revoked" else (410, "APPROVAL_EXPIRED")
+        (403, "ACCESS_DENIED") if phase == "revoked" else (410, "APPROVAL_EXPIRED")
     )
     if action.endswith("-decision"):
+        steps = ("csrf", "login", "session", "decision", "stopped_collection")
+        known_codes = {
+            "ACCESS_DENIED",
+            "APPROVAL_EXPIRED",
+            "CSRF_INVALID",
+            "SESSION_INVALID",
+            "IDENTITY_DENIED",
+            "LOGIN_FAILED",
+            "ORIGIN_DENIED",
+            "RESOURCE_NOT_FOUND",
+            "INVALID_REQUEST",
+            "INVALID_JSON",
+            "SERVICE_UNAVAILABLE",
+            "RATE_LIMITED",
+            "APPROVAL_SUPERSEDED",
+            "UNSUPPORTED_MEDIA_TYPE",
+        }
+
+        def observed_http(step: str, send: Any) -> tuple[int | None, Any, dict[str, Any]]:
+            status = None
+            value = None
+            shape = "not_received"
+            transport = "received"
+            code = None
+            try:
+                response = send()
+                status = response.status_code
+                if (
+                    not response.headers.get("content-type", "")
+                    .lower()
+                    .startswith("application/json")
+                ):
+                    shape = "non_json"
+                elif len(response.content) > 65536:
+                    shape = "oversized"
+                else:
+                    try:
+                        value = response.json()
+                        shape = "json_object" if isinstance(value, dict) else "json_other"
+                    except (ValueError, RecursionError):
+                        shape = "invalid_json"
+            except httpx.TimeoutException:
+                transport = "timeout"
+            except httpx.HTTPError:
+                transport = "transport_error"
+            if isinstance(value, dict) and isinstance(value.get("error"), dict):
+                error = value["error"]
+                candidate = error.get("code")
+                code = (
+                    candidate if isinstance(candidate, str) and candidate in known_codes else None
+                )
+                shape = "error_invalid_shape"
+                if (
+                    set(value) == {"schema_version", "server_time", "trace_id", "error"}
+                    and value["schema_version"] == "p3-web-v1"
+                    and isinstance(value["trace_id"], str)
+                    and (value["server_time"] is None or isinstance(value["server_time"], str))
+                    and set(error) == {"code", "safe_message", "retryable", "receipt"}
+                    and isinstance(error["safe_message"], str)
+                    and error["retryable"] is False
+                    and error["receipt"] is None
+                    and code is not None
+                ):
+                    shape = "known_error_envelope"
+            principal = value.get("principal") if isinstance(value, dict) else None
+            identity_matches = (
+                isinstance(value, dict)
+                and isinstance(principal, dict)
+                and value.get("schema_version") == "p3-web-v1"
+                and value.get("identity_mode") == "session"
+                and principal.get("principal_id") == account["expected_principal_id"]
+                and principal.get("organization_id") == canonical["organization_id"]
+            )
+            token = value.get("csrf_token") if isinstance(value, dict) else None
+            csrf_valid = (
+                isinstance(token, str) and re.fullmatch(r"[A-Za-z0-9_-]{43}", token) is not None
+            )
+            receipt = dict(
+                schema_version="p5-m2-negative-http-observation-v1",
+                phase=phase,
+                step=step,
+                http_status=status,
+                transport=transport,
+                structure=shape,
+                known_error_code=code,
+                identity_matches=identity_matches,
+                csrf_shape_valid=csrf_valid,
+                not_run_steps=list(steps[steps.index(step) + 1 :]),
+                success_asserted=False,
+            )
+            # Immutable safe facts before every status/body/identity assertion; no raw data.
+            save(directory / (phase + "-http-" + step + ".safe.json"), receipt)
+            return status, value, receipt
+
         origin = request["api_origin"]
         with httpx.Client(
             base_url=origin, timeout=5, trust_env=False, follow_redirects=False
         ) as client:
-            csrf = client.get("/api/v1/auth/csrf")
-            if csrf.status_code != 200:
+            status, csrf, evidence = observed_http("csrf", lambda: client.get("/api/v1/auth/csrf"))
+            if (
+                status != 200
+                or not evidence["csrf_shape_valid"]
+                or csrf.get("schema_version") != "p3-web-v1"
+                or csrf.get("identity_mode") != "anonymous_bootstrap"
+            ):
                 raise BackupFailure("M2_NEGATIVE_AUTH")
-            login = client.post(
-                "/api/v1/auth/login",
-                headers={
-                    "Origin": request["web_origin"],
-                    "X-CSRF-Token": csrf.json()["csrf_token"],
-                },
-                json=dict(
-                    schema_version="p3-web-v1", login=account["login"], password=account["password"]
+            status, _, evidence = observed_http(
+                "login",
+                lambda: client.post(
+                    "/api/v1/auth/login",
+                    headers={"Origin": request["web_origin"], "X-CSRF-Token": csrf["csrf_token"]},
+                    json=dict(
+                        schema_version="p3-web-v1",
+                        login=account["login"],
+                        password=account["password"],
+                    ),
                 ),
             )
-            if login.status_code != 200:
+            if (
+                status != 200
+                or not evidence["identity_matches"]
+                or not evidence["csrf_shape_valid"]
+            ):
                 raise BackupFailure("M2_NEGATIVE_AUTH")
-            session = client.get("/api/v1/auth/session")
-            if session.status_code != 200:
-                raise BackupFailure("M2_NEGATIVE_AUTH")
-            # One known original body, one POST. No retry/new key, including on a lost response.
-            result = client.post(
-                f"/api/v1/approvals/{canonical['approval_id']}/decision",
-                content=raw,
-                headers={
-                    "Origin": request["web_origin"],
-                    "X-CSRF-Token": session.json()["csrf_token"],
-                    "Content-Type": "application/json",
-                },
+            status, session, evidence = observed_http(
+                "session", lambda: client.get("/api/v1/auth/session")
             )
             if (
-                result.status_code != expected_status
-                or result.json().get("error", {}).get("code") != expected_code
+                status != 200
+                or not evidence["identity_matches"]
+                or not evidence["csrf_shape_valid"]
+            ):
+                raise BackupFailure("M2_NEGATIVE_AUTH")
+            # Exactly one original POST; timeout/unknown remains spent, without retry or lookup.
+            status, _, evidence = observed_http(
+                "decision",
+                lambda: client.post(
+                    f"/api/v1/approvals/{canonical['approval_id']}/decision",
+                    content=raw,
+                    headers={
+                        "Origin": request["web_origin"],
+                        "X-CSRF-Token": session["csrf_token"],
+                        "Content-Type": "application/json",
+                    },
+                ),
+            )
+            if (
+                status != expected_status
+                or evidence["known_error_code"] != expected_code
+                or evidence["structure"] != "known_error_envelope"
             ):
                 raise BackupFailure("M2_NEGATIVE_DECISION_NOT_REJECTED")
     with connect(database(directory, request, phase, app=True)) as db:
