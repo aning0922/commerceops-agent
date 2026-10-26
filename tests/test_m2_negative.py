@@ -119,6 +119,7 @@ def test_real_negative_child_and_native_routes_fail_closed(
             text = query if isinstance(query, str) else query.as_string()
             sql_queries.append(text)
             assert text.startswith("SELECT "), "negative contract must have zero SQL writes"
+            answer: dict[str, Any] | None
             if "count(*)" in text:
                 answer = {"n": int(mode == "side_effect" and "executions" in text)}
             elif "FROM business.business_tasks" in text:
@@ -223,8 +224,8 @@ def test_real_negative_child_and_native_routes_fail_closed(
                         if mode == "unknown_code"
                         else "ACCESS_DENIED"
                     )
-                    response = routes.error_response(code, 403)
-                    value = json.loads(response.body)
+                    error_reply = routes.error_response(code, 403)
+                    value = json.loads(bytes(error_reply.body))
                     if mode == "bad_envelope":
                         value["error"]["extra"] = "private-extra-must-not-escape"
                     return httpx.Response(403, json=value)
