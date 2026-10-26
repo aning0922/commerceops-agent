@@ -544,6 +544,19 @@ def test_expected_projection_and_private_exclusive_output(
     }
     expected_input(config, expected)
     assert all(compare_groups(expected["expected"], expected["expected"]).values())
+    expected["expected"]["refunds"] = [
+        {
+            "refund_id": "301",
+            "order_id": "101",
+            "created_at": "2026-10-26T00:00:00Z",
+            "refund_amount": "1.25",
+            "currency": config.currency,
+            "lines": [{"line_id": "11", "refunded_quantity": 1, "quantity_reason": None}],
+            "restocked": None,
+            "quantity_reason": None,
+        }
+    ]
+    expected_input(config, expected)
     assert project(
         {
             "source": {"secret": "excluded"},
