@@ -1,6 +1,9 @@
 """New-owned PG checks of M2 read/empty-target guards, not the actual Woo restore gate."""
 
+import asyncio
+from copy import deepcopy
 from pathlib import Path
+from uuid import UUID, uuid4
 
 import psycopg
 import pytest
@@ -13,7 +16,10 @@ from scripts.m2_backup import (
     quiescent_snapshot,
     same_snapshot,
 )
-from scripts.m2_state import seed
+from scripts.m2_state import pending_checkpoint, seed, validate_waiting_checkpoint
+from tests.p3_support import P3Fixture, P3Process
+from tests.test_p3_approval_pg import checkpoint_state, payload
+from tests.test_p3_pg import fixture as fixture
 from tests.test_p4_acceptance_pg import database as database
 from tests.test_p4_acceptance_pg import initialize_schema
 
@@ -87,3 +93,61 @@ def test_source_active_client_is_not_treated_as_stopped(
             no_other_clients(db)
     with connect(owner) as db:
         no_other_clients(db)
+
+
+def test_official_stopped_pending_checkpoint_binding_and_initial_wrong_thread_plan_rejected(
+    fixture: P3Fixture,
+) -> None:
+    f = fixture
+    task_id = UUID(f.create(f.new_cycle())["task_id"])
+    child = P3Process(f, "worker", {"task_id": str(task_id)}, "never")
+    try:
+        child.until("after_ready")
+        original = payload(f, task_id)
+    finally:
+        if child.process.poll() is None:
+            child.stop_clean()
+    with connect(f.inventory.owner) as db:
+        task = db.execute(
+            "SELECT * FROM business.business_tasks WHERE id=%s", (task_id,)
+        ).fetchone()
+        approval = db.execute(
+            "SELECT * FROM business.approvals WHERE id=%s", (UUID(original["approval_id"]),)
+        ).fetchone()
+    assert task and approval
+    observed = {
+        **original,
+        "task_id": str(task_id),
+        "expires_at": approval["expires_at"].isoformat(),
+    }
+    with connect(f.inventory.owner) as db:
+        before = quiescent_snapshot(db)
+    receipt = asyncio.run(pending_checkpoint(f.config, observed))
+    assert receipt["official_wait_approval"] is True
+    state = asyncio.run(checkpoint_state(f, task_id))
+    assert validate_waiting_checkpoint(state, task, approval, observed) == receipt
+    initial = state._replace(
+        next=("prepare_approval",),
+        interrupts=(),
+        values={k: state.values[k] for k in ("workflow_version", "task_id", "request_hash")},
+    )
+    config = deepcopy(state.config)
+    config["configurable"]["thread_id"] = str(uuid4())
+    changed_plan = state._replace(values={**state.values, "plan_id": str(uuid4())})
+    for invalid in (
+        initial,
+        state._replace(config=config),
+        changed_plan,
+        state._replace(interrupts=()),
+    ):
+        with pytest.raises(BackupFailure, match="M2_PENDING_CHECKPOINT_SEMANTICS"):
+            validate_waiting_checkpoint(invalid, task, approval, observed)
+    with pytest.raises(BackupFailure, match="M2_PENDING_CHECKPOINT_BUSINESS_BINDING"):
+        asyncio.run(pending_checkpoint(f.config, {**observed, "task_id": str(uuid4())}))
+    with pytest.raises(BackupFailure, match="M2_PENDING_CHECKPOINT_BUSINESS_BINDING"):
+        validate_waiting_checkpoint(
+            state, task, approval, {**observed, "expires_at": "2000-01-01T00:00:00+00:00"}
+        )
+    with connect(f.inventory.owner) as db:
+        after = quiescent_snapshot(db)
+    same_snapshot(before, after)

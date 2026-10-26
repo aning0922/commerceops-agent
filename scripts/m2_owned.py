@@ -119,6 +119,28 @@ def source_identity() -> tuple[str, str]:
     return git("rev-parse", "HEAD"), git("rev-parse", "HEAD^{tree}")
 
 
+def pg_overlay(pg: dict[str, Any]) -> dict[str, Any]:
+    return dict(
+        services=dict(
+            postgres=dict(
+                image=PG_IMAGE,
+                environment={"POSTGRES_DB": pg["database"]},
+                ports=[f"127.0.0.1:{pg['port']}:5432"],
+                healthcheck=dict(
+                    test=["CMD", "pg_isready", "-U", "commerceops_owner", "-d", pg["database"]]
+                ),
+            )
+        )
+    )
+
+
+def verify_pg_overlay(directory: Path, request: dict[str, Any], phase: str) -> None:
+    if load(directory / ("pg-" + phase) / "overlay.json") != pg_overlay(
+        request["databases"][phase]
+    ):
+        raise BackupFailure("M2_PG_OVERLAY_CHANGED")
+
+
 @dataclass
 class Scenario:
     directory: Path
@@ -129,6 +151,7 @@ class Scenario:
     pg_started: set[str] = field(default_factory=set)
     pg_ready: set[str] = field(default_factory=set)
     lab_directory: Path | None = None
+    lab_inputs: dict[str, dict[str, str]] = field(default_factory=dict)
     cleanup_expires: float | None = None
     pg_stopped: dict[str, dict[str, Any]] = field(default_factory=dict)
 
@@ -196,40 +219,47 @@ class Scenario:
             raise BackupFailure("M2_COMMAND_FAILED")
         return log.read_bytes() if stdout is None else b""
 
-    def stop_child(self, child: subprocess.Popen[bytes], *, cleanup: bool = False) -> bool:
-        # Every group was created here with start_new_session; no caller-supplied PID.
-        try:
-            os.killpg(child.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-        try:
-            child.wait(timeout=self.remaining(20, cleanup=cleanup))
-        except subprocess.TimeoutExpired:
+    def stop_child(
+        self, child: subprocess.Popen[bytes], *, cleanup: bool = False, signal_sent: bool = False
+    ) -> bool:
+        # Never signal a reaped leader: its numeric PID may already have been reused.
+        if child.poll() is None:
+            if not signal_sent:
+                try:
+                    os.killpg(child.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
             try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            try:
-                child.wait(timeout=self.remaining(5, cleanup=True))
+                child.wait(timeout=self.remaining(20, cleanup=cleanup))
             except subprocess.TimeoutExpired:
+                if child.poll() is None:
+                    try:
+                        os.killpg(child.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                try:
+                    child.wait(timeout=self.remaining(5, cleanup=True))
+                except subprocess.TimeoutExpired:
+                    return False
+        # Query only the group allocated by this parent. Never kill an already-waited group.
+        # A surviving descendant fails closed; wait/reap alone is not group-exit proof.
+        until = time.monotonic() + self.remaining(3, cleanup=True)
+        while time.monotonic() < until:
+            try:
+                probe = subprocess.run(
+                    ["pgrep", "-g", str(child.pid)],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    env=environment(),
+                    timeout=self.remaining(1, cleanup=True),
+                    check=False,
+                )
+            except (OSError, subprocess.TimeoutExpired):
                 return False
-        until = time.monotonic() + self.remaining(3, cleanup=True)
-        while time.monotonic() < until:
-            try:
-                os.killpg(child.pid, 0)
-            except ProcessLookupError:
-                return child.poll() is not None
-            time.sleep(0.05)
-        try:
-            os.killpg(child.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            return child.poll() is not None
-        until = time.monotonic() + self.remaining(3, cleanup=True)
-        while time.monotonic() < until:
-            try:
-                os.killpg(child.pid, 0)
-            except ProcessLookupError:
-                return child.poll() is not None
+            if probe.returncode == 1:
+                return child.returncode is not None
+            if probe.returncode != 0:
+                return False
             time.sleep(0.05)
         return False
 
@@ -252,10 +282,13 @@ class Scenario:
         return child
 
     def compose(self, phase: str) -> list[str]:
+        verify_pg_overlay(self.directory, self.request, phase)
         pg = self.request["databases"][phase]
         return [
             "docker",
             "compose",
+            "--env-file",
+            os.devnull,
             "-p",
             pg["project"],
             "-f",
@@ -300,6 +333,7 @@ class Scenario:
         return found
 
     def start_pg(self, phase: str) -> str:
+        verify_pg_overlay(self.directory, self.request, phase)
         pg = self.request["databases"][phase]
         for args in (["ps", "-aq"], ["network", "ls", "-q"], ["volume", "ls", "-q"]):
             if self.command(
@@ -428,25 +462,7 @@ def prepare_run(deadline: str, anchor: str) -> Path:
         prepare_pg(directory / ("pg-" + phase))
         save(
             directory / ("pg-" + phase) / "overlay.json",
-            dict(
-                services=dict(
-                    postgres=dict(
-                        image=PG_IMAGE,
-                        environment={"POSTGRES_DB": pg["database"]},
-                        ports=[f"127.0.0.1:{pg['port']}:5432"],
-                        healthcheck=dict(
-                            test=[
-                                "CMD",
-                                "pg_isready",
-                                "-U",
-                                "commerceops_owner",
-                                "-d",
-                                pg["database"],
-                            ]
-                        ),
-                    )
-                )
-            ),
+            pg_overlay(pg),
         )
     save(directory / "request.private.json", request)
     return directory
@@ -463,6 +479,8 @@ def open_run(directory: Path) -> Scenario:
         raise BackupFailure("M2_PRIVATE_DIRECTORY")
     request = load(directory / "request.private.json")
     validate_request(request, directory)
+    for phase in DATABASE_PHASES:
+        verify_pg_overlay(directory, request, phase)
     sha, tree = source_identity()
     if (request["source_sha"], request["source_tree"]) != (sha, tree):
         raise BackupFailure("M2_SOURCE_CHANGED")
@@ -485,6 +503,14 @@ def open_run(directory: Path) -> Scenario:
 
 
 def child_command(parent: Scenario, action: str) -> None:
+    extra = {}
+    if action == "bind-source":
+        verify_lab_inputs(parent)
+        extra["M2_OWNED_LAB_DIRECTORY"] = str(parent.lab_directory)
+        extra["M2_OWNED_LAB_CONFIG_SHA"] = parent.lab_inputs["lab.json"]["sha256"]
+        if parent.lab_directory is None:
+            raise BackupFailure("M2_LAB_REGISTRATION_MISSING")
+        verify_lab_probe(parent.lab_directory)
     parent.command(
         action,
         [
@@ -498,6 +524,7 @@ def child_command(parent: Scenario, action: str) -> None:
             action,
         ],
         cap=120,
+        env=environment(extra),
     )
 
 
@@ -512,6 +539,7 @@ def run_child(directory: Path, action: str) -> None:
     from scripts.m2_state import (
         bind_source,
         completed_receipt,
+        pending_checkpoint,
         pending_receipt,
         seed,
         web_configuration,
@@ -535,7 +563,14 @@ def run_child(directory: Path, action: str) -> None:
         grant_runtime(source)
         seed(source, directory, request["run_id"])
     elif action == "bind-source":
-        lab = Path(load(directory / "lab-reference.private.json")["directory"])
+        reference_data = load(directory / "lab-reference.private.json")
+        expected_lab = os.environ.get("M2_OWNED_LAB_DIRECTORY")
+        if expected_lab is None or reference_data != dict(directory=expected_lab):
+            raise BackupFailure("M2_LAB_REFERENCE_CHANGED")
+        lab = Path(expected_lab)
+        if reference(lab / "lab.json")["sha256"] != os.environ.get("M2_OWNED_LAB_CONFIG_SHA"):
+            raise BackupFailure("M2_LAB_INPUT_CHANGED")
+        verify_lab_probe(lab)
         bind_source(source, directory, lab, request["anchor_day"])
         for phase in DATABASE_PHASES:
             save(
@@ -555,6 +590,14 @@ def run_child(directory: Path, action: str) -> None:
                 load(directory / "seed.private.json"),
                 load(directory / "binding.private.json"),
             )
+        from commerceops.infrastructure.web_config import WebConfig
+
+        checkpoint = asyncio.run(
+            pending_checkpoint(
+                WebConfig.from_file(directory / "configuration-source.json"), observed
+            )
+        )
+        receipt["checkpoint"] = checkpoint
         receipt.update({k: request[k] for k in ("run_id", "source_sha", "source_tree")})
         save(directory / "canonical/parent-source-pg.safe.json", receipt)
     elif action in (
@@ -574,6 +617,19 @@ def run_child(directory: Path, action: str) -> None:
         save(directory / (action + ".private.json"), snapshot)
         if action != "source-before":
             same_snapshot(load(directory / "source-before.private.json"), snapshot)
+        from commerceops.infrastructure.web_config import WebConfig
+
+        phase = action.split("-")[0]
+        observed = load(directory / "canonical/m2-facts.private.json")["canonical_source"]
+        checkpoint = asyncio.run(
+            pending_checkpoint(
+                WebConfig.from_file(directory / ("configuration-" + phase + ".json")), observed
+            )
+        )
+        original = load(directory / "canonical/parent-source-pg.safe.json")["checkpoint"]
+        if checkpoint != original:
+            raise BackupFailure("M2_RESTORE_CHECKPOINT_MISMATCH")
+        save(directory / (action + "-checkpoint.safe.json"), checkpoint)
     elif action in ("target-empty", "revoked-empty", "expired-empty"):
         phase = "restored" if action == "target-empty" else action.split("-")[0]
         selected = database(directory, request, phase)
@@ -755,12 +811,18 @@ def start_apps(parent: Scenario, phase: str) -> dict[str, int]:
 
 def stop_apps(parent: Scenario, phase: str, *, require_clean_worker: bool = True) -> dict[str, Any]:
     receipts = {}
-    # Signal every owned writer before waiting; no per-child extension of the total deadline.
+    requested = {}
+    errors = []
+    # Signal every still-running owned writer before waiting for any of them.
     for kind in ("worker", "api", "web"):
         child = parent.children.get(phase + "-" + kind)
-        if child is not None:
+        if child is None:
+            continue
+        requested[kind] = False
+        if child.poll() is None:
             try:
                 os.killpg(child.pid, signal.SIGTERM)
+                requested[kind] = True
             except ProcessLookupError:
                 pass
     for kind in ("worker", "api", "web"):
@@ -768,20 +830,40 @@ def stop_apps(parent: Scenario, phase: str, *, require_clean_worker: bool = True
         child = parent.children.get(key)
         if child is None:
             continue
-        reaped = parent.stop_child(child, cleanup=True)
+        reaped = False
+        try:
+            reaped = parent.stop_child(child, cleanup=True, signal_sent=requested[kind])
+        except BaseException as error:
+            errors.append(dict(process=kind, category=type(error).__name__))
+        expected_term = requested[kind] and child.returncode == -signal.SIGTERM
+        normal = (
+            child.returncode == 0
+            if kind == "worker"
+            else (requested[kind] and (child.returncode == 0 or expected_term))
+        )
         receipts[kind] = dict(
             pid=child.pid,
             native_exit=child.returncode,
+            parent_requested_stop=requested[kind],
             reaped=reaped,
-            expected_owned_term=child.returncode == -signal.SIGTERM,
+            expected_owned_term=expected_term,
+            accepted_exit=normal and reaped,
         )
-        if not reaped:
-            raise BackupFailure("M2_APP_REAP_UNCONFIRMED")
-        del parent.children[key]
-    result = dict(stopped_at_utc=utc(), processes=receipts)
-    save(parent.directory / (phase + "-apps-stopped.safe.json"), result)
-    if require_clean_worker and receipts.get("worker", {}).get("native_exit") != 0:
-        raise BackupFailure("M2_WORKER_UNCLEAN_STOP")
+        if reaped:
+            del parent.children[key]
+        if not normal or not reaped:
+            errors.append(dict(process=kind, category="UNEXPECTED_EXIT_OR_REAP"))
+    if require_clean_worker and receipts.get("worker", {}).get("accepted_exit") is not True:
+        errors.append(dict(process="worker", category="WORKER_STOP_UNCONFIRMED"))
+    result = dict(stopped_at_utc=utc(), processes=receipts, errors=errors)
+    path = parent.directory / (phase + "-apps-stopped.safe.json")
+    attempt = 1
+    while path.exists():
+        attempt += 1
+        path = parent.directory / (phase + f"-apps-stopped-{attempt}.safe.json")
+    save(path, result)
+    if errors:
+        raise BackupFailure("M2_APP_UNEXPECTED_EXIT")
     return result
 
 
@@ -1131,6 +1213,32 @@ def canonical_source(parent: Scenario) -> dict[str, Any]:
     return value
 
 
+def verify_lab_probe(directory: Path) -> None:
+    config = load(directory / "lab.json")
+    probe = load(directory / "probe-config.private.json")
+    expected = dict(
+        base_url=config["url"],
+        consumer_key_file=str(directory / "consumer_key"),
+        consumer_secret_file=str(directory / "consumer_secret"),
+        ca_file=str(directory / "ca.crt"),
+    )
+    if any(probe.get(field) != value for field, value in expected.items()):
+        raise BackupFailure("M2_LAB_PROBE_REFERENCE_CHANGED")
+
+
+def verify_lab_inputs(parent: Scenario) -> None:
+    directory = parent.lab_directory
+    if directory is None or load(parent.directory / "lab-reference.private.json") != dict(
+        directory=str(directory)
+    ):
+        raise BackupFailure("M2_LAB_REFERENCE_CHANGED")
+    if set(parent.lab_inputs) != {"lab.json", "compose.env"}:
+        raise BackupFailure("M2_LAB_REGISTRATION_MISSING")
+    for name, expected in parent.lab_inputs.items():
+        if reference(directory / name) != expected:
+            raise BackupFailure("M2_LAB_INPUT_CHANGED")
+
+
 def start_lab(parent: Scenario) -> Path:
     seed_data = load(parent.directory / "seed.private.json")
     raw = parent.command(
@@ -1158,7 +1266,10 @@ def start_lab(parent: Scenario) -> Path:
         raise BackupFailure("M2_LAB_DIRECTORY")
     directory = candidates[0]
     parent.lab_directory = directory
+    parent.lab_inputs = {name: reference(directory / name) for name in ("lab.json", "compose.env")}
     save(parent.directory / "lab-reference.private.json", dict(directory=str(directory)))
+    save(parent.directory / "lab-inputs.safe.json", parent.lab_inputs)
+    verify_lab_inputs(parent)
     # Reuse B's existing image build and lifecycle; no second lab driver or reseed.
     parent.command(
         "lab-build",
@@ -1168,6 +1279,7 @@ def start_lab(parent: Scenario) -> Path:
     seconds = int(parent.remaining(3600, cleanup=True))
     if seconds < 600:
         raise BackupFailure("M2_LAB_CAPACITY")
+    verify_lab_inputs(parent)
     child = parent.spawn(
         "lab-serve",
         [
@@ -1250,9 +1362,9 @@ def full_action(parent: Scenario) -> None:
     child_command(parent, "bind-source")
     pids = start_apps(parent, "source")
     consume(parent, "source", handoff(parent, "source", pids))
+    writers = stop_apps(parent, "source")
     child_command(parent, "source-pending")
     canonical = canonical_source(parent)
-    writers = stop_apps(parent, "source")
     child_command(parent, "source-before")
     dump = directory / "source-dump.private.bin"
     fd = os.open(dump, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
@@ -1393,6 +1505,7 @@ def cleanup(parent: Scenario) -> dict[str, Any]:
             # Successful serve cleanup is immutable evidence; verify it independently.
             # Only a missing receipt permits a bounded stop of the same owned project.
             if not (parent.lab_directory / "cleanup.safe.json").exists():
+                verify_lab_inputs(parent)
                 parent.command(
                     "lab-stop-fallback",
                     [

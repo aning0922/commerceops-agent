@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import replace
 from datetime import date
 from pathlib import Path
+from typing import Literal
 from uuid import UUID, uuid4
 
 import psycopg
@@ -30,7 +31,11 @@ pytestmark = pytest.mark.integration
 
 
 def configure(
-    f: P3Fixture, transport_config: WooReadOnlyConfig | None = None
+    f: P3Fixture,
+    transport_config: WooReadOnlyConfig | None = None,
+    *,
+    profile: Literal["mixed-v1", "positive-v1"] = "positive-v1",
+    anchor_day: date | None = None,
 ) -> tuple[WooSourceMetadata, Path]:
     data = f.inventory.data
     metadata = WooSourceMetadata(
@@ -42,7 +47,7 @@ def configure(
         external_shop_key=str(data.shop),
         timezone="Asia/Shanghai",
         currency="CNY",
-        profile="positive-v1",
+        profile=profile,
         anchor_day=date(2026, 10, 1),
         consumer_key_file=str(f.private / "nonexistent-key"),
         consumer_secret_file=str(f.private / "nonexistent-secret"),
@@ -56,7 +61,7 @@ def configure(
                 "consumer_secret_file": transport_config.consumer_secret_file,
                 "ca_file": transport_config.ca_file,
                 "origin": transport_config.base_url,
-                "anchor_day": date(2026, 10, 26),
+                "anchor_day": anchor_day or date(2026, 10, 26),
             }
         )
     with connect(f.inventory.owner) as db:

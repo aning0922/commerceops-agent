@@ -16,7 +16,7 @@ from commerceops.application.commerce.source_binding import WooSourceMetadata
 from commerceops.application.replenishment.security import digest, password_hash
 from commerceops.entrypoints.commerce_source import register_owned_source
 from commerceops.infrastructure.database import DatabaseSettings, connect
-from commerceops.infrastructure.web_config import private_bytes
+from commerceops.infrastructure.web_config import WebConfig, private_bytes
 from psycopg import Connection
 
 from scripts.m2_backup import REVISION, BackupFailure
@@ -329,7 +329,7 @@ def pending_receipt(
         schema_version="p5-m2-source-pg-v1",
         original_binding=True,
         pending=True,
-        checkpoint_present=True,
+        checkpoint_rows_present=True,
         item_count=4,
         total_quantity=219,
         assumption_count=4,
@@ -393,6 +393,14 @@ def completed_receipt(
     ).fetchone()
     if counts != {"n": 1}:
         raise BackupFailure("M2_DUPLICATE_DECISION")
+    resumes = db.execute(
+        "SELECT r.approval_id,r.delivery_state FROM business.approval_resumes r "
+        "JOIN business.approvals a ON a.id=r.approval_id AND a.decision_id=r.decision_id "
+        "WHERE r.task_id=%s",
+        (task,),
+    ).fetchall()
+    if resumes != [{"approval_id": execution["approval_id"], "delivery_state": "consumed"}]:
+        raise BackupFailure("M2_RESUME_CARDINALITY")
     return dict(
         schema_version="p5-m2-completed-pg-v1",
         original_binding=True,
@@ -401,5 +409,115 @@ def completed_receipt(
         item_count=4,
         total_quantity=219,
         decision_receipt_count=1,
+        approval_resume_count=1,
         private_request_key_preserved=True,
     )
+
+
+def validate_waiting_checkpoint(
+    snapshot: Any, task: dict[str, Any], approval: dict[str, Any], observed: dict[str, Any]
+) -> dict[str, Any]:
+    """Validate the existing official graph contract without running a node or changing state."""
+    from datetime import datetime
+
+    from commerceops.infrastructure.approval_recovery import snapshot_binding
+    from commerceops.infrastructure.inventory_repository import AnalysisUnsafe
+
+    if (
+        str(task["id"]) != observed["task_id"]
+        or task["thread_id"] != observed["task_id"]
+        or task["state"] != "awaiting_approval"
+        or task["active_plan_id"] != approval["plan_id"]
+        or str(approval["id"]) != observed["approval_id"]
+        or str(approval["plan_id"]) != observed["plan_id"]
+        or approval["task_id"] != task["id"]
+        or approval["plan_version"] != observed["plan_version"]
+        or approval["plan_hash"] != observed["plan_hash"]
+        or approval["expires_at"] != datetime.fromisoformat(observed["expires_at"])
+        or approval["status"] != "pending"
+        or approval["decision_id"] is not None
+        or approval["ready_at"] is None
+    ):
+        raise BackupFailure("M2_PENDING_CHECKPOINT_BUSINESS_BINDING")
+    try:
+        mode = snapshot_binding(snapshot, task, approval)
+    except AnalysisUnsafe:
+        raise BackupFailure("M2_PENDING_CHECKPOINT_SEMANTICS") from None
+    if mode != "waiting" or snapshot.next != ("wait_approval",):
+        raise BackupFailure("M2_PENDING_CHECKPOINT_SEMANTICS")
+    from scripts.m2_backup import digest as safe_digest
+
+    return dict(
+        schema_version="p5-m2-pending-checkpoint-v1",
+        checkpoint_present=True,
+        official_wait_approval=True,
+        original_business_binding=True,
+        original_expiry_preserved=True,
+        binding_sha256=safe_digest(
+            dict(
+                values=snapshot.values,
+                next=list(snapshot.next),
+                interrupt=snapshot.interrupts[0].value,
+                expires_at=approval["expires_at"].isoformat(),
+                checkpoint_id=snapshot.config["configurable"].get("checkpoint_id"),
+            )
+        ),
+    )
+
+
+async def pending_checkpoint(config: WebConfig, observed: dict[str, Any]) -> dict[str, Any]:
+    """Read official latest state only after writers stopped; no Worker start, setup or invoke."""
+    from typing import cast
+
+    from commerceops.application.replenishment.contracts import WORKFLOW_VERSION
+    from commerceops.application.runner import RunRequest
+    from commerceops.domain.commerce_values import facts_hash
+    from commerceops.infrastructure.checkpoint import checkpointer
+    from commerceops.infrastructure.replenishment_repository import ApprovalStore
+    from commerceops.infrastructure.worker_lock import WorkerSession
+    from commerceops.workflows.replenishment import ApprovalRunner
+    from psycopg import AsyncConnection
+
+    from scripts.m2_backup import no_other_clients
+
+    with connect(config.database) as db:
+        db.execute("SET TRANSACTION READ ONLY")
+        no_other_clients(db)
+        task = db.execute(
+            "SELECT * FROM business.business_tasks WHERE id=%s", (UUID(observed["task_id"]),)
+        ).fetchone()
+        approval = db.execute(
+            "SELECT * FROM business.approvals WHERE id=%s", (UUID(observed["approval_id"]),)
+        ).fetchone()
+        job = db.execute(
+            "SELECT id FROM business.jobs WHERE task_id=%s AND dedupe_key=%s",
+            (UUID(observed["task_id"]), "p3:" + observed["task_id"]),
+        ).fetchone()
+    if task is None or approval is None or job is None:
+        raise BackupFailure("M2_PENDING_CHECKPOINT_BUSINESS_BINDING")
+    session = WorkerSession(config.database, task["organization_id"])
+    runner = ApprovalRunner(ApprovalStore(config, session))
+    request = RunRequest(
+        job["id"],
+        task["id"],
+        task["organization_id"],
+        task["shop_id"],
+        str(task["id"]),
+        WORKFLOW_VERSION,
+        "analyze",
+        "task:" + str(task["id"]),
+        "m2-read-only-checkpoint",
+        0,
+    )
+    expected = dict(
+        workflow_version=WORKFLOW_VERSION,
+        task_id=str(task["id"]),
+        request_hash=facts_hash(task["normalized_request"]),
+    )
+    async with checkpointer(config.database) as saver:
+        connection = cast(AsyncConnection[dict[str, Any]], saver.conn)
+        await connection.execute("SET default_transaction_read_only=on")
+        await connection.execute("SET statement_timeout=5000")
+        compiled = runner.build_graph(request, expected).compile(checkpointer=saver)
+        snapshot = await compiled.aget_state({"configurable": {"thread_id": str(task["id"])}})
+    return validate_waiting_checkpoint(snapshot, task, approval, observed)

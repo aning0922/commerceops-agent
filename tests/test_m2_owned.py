@@ -284,3 +284,160 @@ def test_source_handoff_matches_closed_shape_without_precreating_outputs(
     with pytest.raises(FileExistsError):
         target.handoff(scenario, "source", dict(api_pid=101, web_pid=102, worker_pid=103))
     assert (directory / "source/window.json").read_bytes() == original
+
+
+@pytest.mark.parametrize("mutation", ["old_volume", "extra_service", "command", "symlink"])
+def test_overlay_drift_is_rejected_before_any_docker_call(
+    tmp_path: Path, monkeypatch: Any, mutation: str
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    pgdir = directory / "pg-source"
+    pgdir.mkdir(mode=0o700)
+    overlay = target.pg_overlay(request["databases"]["source"])
+    if mutation == "old_volume":
+        overlay["services"]["postgres"]["volumes"] = ["old-data:/var/lib/postgresql/data"]
+    elif mutation == "extra_service":
+        overlay["services"]["unregistered"] = {"image": "unknown"}
+    elif mutation == "command":
+        overlay["services"]["postgres"]["command"] = ["unknown"]
+    save(pgdir / "overlay.json", overlay)
+    if mutation == "symlink":
+        (pgdir / "overlay.json").rename(pgdir / "other.json")
+        (pgdir / "overlay.json").symlink_to(pgdir / "other.json")
+    scenario = target.Scenario(directory, request, time.monotonic() + 600)
+    calls = []
+
+    def command(*args: Any, **kwargs: Any) -> bytes:
+        calls.append(args)
+        raise AssertionError("Docker must not be reached")
+
+    monkeypatch.setattr(target.Scenario, "command", command)
+    with pytest.raises((BackupFailure, OSError, ValueError)):
+        scenario.start_pg("source")
+    assert calls == [] and scenario.pg_started == set()
+
+
+@pytest.mark.parametrize("mutation", ["reference", "config", "compose_env"])
+def test_lab_reference_or_resource_input_drift_blocks_child_before_command(
+    tmp_path: Path, monkeypatch: Any, mutation: str
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    lab = tmp_path / "registered-lab"
+    lab.mkdir(mode=0o700)
+    save(lab / "lab.json", {"project": "owned"})
+    save(lab / "compose.env", b"REGISTERED=owned\n")
+    save(directory / "lab-reference.private.json", {"directory": str(lab)})
+    parent = target.Scenario(directory, request, time.monotonic() + 600, lab_directory=lab)
+    parent.lab_inputs = {name: target.reference(lab / name) for name in ("lab.json", "compose.env")}
+    target.verify_lab_inputs(parent)
+    if mutation == "reference":
+        (directory / "lab-reference.private.json").write_text(
+            json.dumps({"directory": str(tmp_path / "old-lab")})
+        )
+    else:
+        (lab / ("lab.json" if mutation == "config" else "compose.env")).write_text("changed")
+    calls = []
+    monkeypatch.setattr(target.Scenario, "command", lambda *a, **k: calls.append(a))
+    with pytest.raises(BackupFailure):
+        target.child_command(parent, "bind-source")
+    assert calls == []
+
+
+def ready_child(parent: target.Scenario, name: str, *, graceful: bool) -> Any:
+    script = "import signal,time,sys;"
+    if graceful:
+        script += "signal.signal(signal.SIGTERM,lambda *args:sys.exit(0));"
+    script += "print('ready',flush=True);time.sleep(30)"
+    child = parent.spawn(name, [sys.executable, "-c", script], target.environment())
+    until = time.monotonic() + 3
+    while time.monotonic() < until:
+        if b"ready" in (parent.directory / (name + ".private.log")).read_bytes():
+            return child
+        time.sleep(0.01)
+    raise AssertionError("native child did not become ready")
+
+
+@pytest.mark.parametrize("graceful", [False, True])
+def test_owned_service_stop_accepts_only_parent_requested_normal_or_term(
+    tmp_path: Path, graceful: bool
+) -> None:
+    parent = target.Scenario(tmp_path, {}, time.monotonic() + 240)
+    ready_child(parent, "source-worker", graceful=True)
+    ready_child(parent, "source-api", graceful=graceful)
+    ready_child(parent, "source-web", graceful=graceful)
+    receipt = target.stop_apps(parent, "source")
+    assert parent.children == {} and receipt["errors"] == []
+    assert all(
+        r["parent_requested_stop"] and r["accepted_exit"] for r in receipt["processes"].values()
+    )
+    assert receipt["processes"]["api"]["native_exit"] == (0 if graceful else -15)
+
+
+@pytest.mark.parametrize("api_exit,web_exit", [(7, 9), (0, 0)])
+def test_early_exit_fails_and_reaped_children_are_never_signalled(
+    tmp_path: Path, monkeypatch: Any, api_exit: int, web_exit: int
+) -> None:
+    parent = target.Scenario(tmp_path, {}, time.monotonic() + 240)
+    ended = []
+    for kind, code in (("worker", 0), ("api", api_exit), ("web", web_exit)):
+        child = parent.spawn(
+            "source-" + kind,
+            [sys.executable, "-c", f"raise SystemExit({code})"],
+            target.environment(),
+        )
+        assert child.wait(timeout=3) == code
+        ended.append(child.pid)
+    calls = []
+    monkeypatch.setattr("scripts.m2_owned.os.killpg", lambda pid, sig: calls.append((pid, sig)))
+    with pytest.raises(BackupFailure, match="M2_APP_UNEXPECTED_EXIT"):
+        target.stop_apps(parent, "source")
+    assert calls == [] and parent.children == {}
+    receipt = target.load(tmp_path / "source-apps-stopped.safe.json")
+    assert receipt["processes"]["api"]["native_exit"] == api_exit
+    assert receipt["processes"]["web"]["native_exit"] == web_exit
+    assert receipt["processes"]["api"]["parent_requested_stop"] is False
+
+
+def test_one_early_crash_still_stops_and_reaps_other_live_services(tmp_path: Path) -> None:
+    parent = target.Scenario(tmp_path, {}, time.monotonic() + 240)
+    worker = ready_child(parent, "source-worker", graceful=True)
+    web = ready_child(parent, "source-web", graceful=False)
+    api = parent.spawn(
+        "source-api", [sys.executable, "-c", "raise SystemExit(7)"], target.environment()
+    )
+    assert api.wait(timeout=3) == 7
+    with pytest.raises(BackupFailure, match="M2_APP_UNEXPECTED_EXIT"):
+        target.stop_apps(parent, "source")
+    assert parent.children == {} and worker.returncode == 0 and web.returncode == -15
+    receipt = target.load(tmp_path / "source-apps-stopped.safe.json")
+    assert receipt["processes"]["api"]["accepted_exit"] is False
+    assert receipt["processes"]["web"]["accepted_exit"] is True
+
+
+@pytest.mark.parametrize("field", ["base_url", "consumer_key_file", "ca_file"])
+def test_lab_probe_cannot_redirect_to_another_owned_or_existing_source(
+    tmp_path: Path, monkeypatch: Any, field: str
+) -> None:
+    directory, request = fixture_request(tmp_path)
+    lab = tmp_path / "new-lab"
+    lab.mkdir(mode=0o700)
+    save(lab / "lab.json", {"url": "https://localhost:19443"})
+    save(lab / "compose.env", b"REGISTERED=new\n")
+    save(directory / "lab-reference.private.json", {"directory": str(lab)})
+    probe = dict(
+        base_url="https://localhost:19443",
+        consumer_key_file=str(lab / "consumer_key"),
+        consumer_secret_file=str(lab / "consumer_secret"),
+        ca_file=str(lab / "ca.crt"),
+    )
+    probe[field] = (
+        "https://localhost:19444" if field == "base_url" else str(tmp_path / "old-private-file")
+    )
+    save(lab / "probe-config.private.json", probe)
+    parent = target.Scenario(directory, request, time.monotonic() + 600, lab_directory=lab)
+    parent.lab_inputs = {name: target.reference(lab / name) for name in ("lab.json", "compose.env")}
+    calls = []
+    monkeypatch.setattr(target.Scenario, "command", lambda *a, **k: calls.append(a))
+    with pytest.raises(BackupFailure, match="M2_LAB_PROBE_REFERENCE_CHANGED"):
+        target.child_command(parent, "bind-source")
+    assert calls == []

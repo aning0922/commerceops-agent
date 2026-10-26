@@ -528,3 +528,46 @@ def test_failed_p5_module_keeps_later_modules_unrun() -> None:
     with pytest.raises(RuntimeError, match="combined integration group failed"):
         pg_diagnostic.run_combined(records, {}, command, "existing")
     assert labels == ["combined-existing", "combined-existing-test_p5_first_pg"]
+
+
+def test_local_history_read_regression_uses_original_seven_seven_five_caps_only() -> None:
+    history = [f"tests/test_p4_history_pg.py::case_{n:02d}" for n in range(14)]
+    parent = [f"tests/test_p4_read_reply_parent_pg.py::case_{n:02d}" for n in range(11)]
+    records = [collection(OLD + P3 + history + parent)]
+    calls = []
+    report: dict[str, object] = {}
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        calls.append((label, paths, cap))
+        records.append(collection(paths))
+        return True
+
+    pg_diagnostic.run_combined(records, report, command, history_read_regression=True)
+    assert [len(paths) for _, paths, _ in calls] == [7, 7, 5]
+    assert all(cap == 300 for _, _, cap in calls)
+    assert [n for _, paths, _ in calls for n in paths] == history + parent[6:]
+    assert report["full_gate"] is False
+    assert report["validation_scope"] == "local_history_read_regression_only"
+
+
+@pytest.mark.parametrize("extra", [["--session", "ci"], ["--full-smoke"], ["--node", "arbitrary"]])
+def test_local_regression_cannot_replace_ci_or_full_smoke(
+    monkeypatch: pytest.MonkeyPatch, extra: list[str]
+) -> None:
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "pg_diagnostic",
+            "--deadline",
+            "2099-01-01T00:00:00+00:00",
+            "--round",
+            "1",
+            "--combined",
+            "--history-read-regression",
+            *extra,
+        ],
+    )
+    monkeypatch.setattr(pg_diagnostic, "prepare", lambda *_: pytest.fail("no resource preparation"))
+    with pytest.raises(SystemExit) as error:
+        pg_diagnostic.main()
+    assert error.value.code == 2
