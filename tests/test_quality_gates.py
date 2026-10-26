@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 import tomli_w
+from pytest import MonkeyPatch as Patch
 
 from scripts import scan_secrets as secret_scan
 from scripts.check_docs import document_errors
@@ -21,6 +22,7 @@ from scripts.vendor_gitleaks_rules import (
     P3_DOCUMENT_DIGEST,
     P3_PUBLIC_ROW,
     RO_PUBLIC_ROW,
+    WOO_PUBLIC_EXCEPTIONS,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -594,3 +596,119 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->
                 else changed[field] + "changed"
             )
             assert not secret_scan.approved_history_finding("git", changed)
+
+
+@pytest.mark.parametrize("which", [0, 1])
+@pytest.mark.parametrize(
+    "scenario",
+    [
+        "exact",
+        "changed_low_entropy",
+        "changed_field",
+        "moved_line",
+        "other_path",
+        "nested_same_suffix",
+        "adjacent_generic",
+        "same_line_generic",
+        "index_only",
+        "history",
+    ],
+)
+def test_woo_public_exceptions_are_exact_and_scoped(
+    repository: Path, which: int, scenario: str
+) -> None:
+    filename, _, original, _, line = WOO_PUBLIC_EXCEPTIONS[which]
+    relative = filename + ".other" if scenario == "other_path" else filename
+    if scenario == "nested_same_suffix":
+        relative = "nested/" + filename
+    path = repository / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = original
+    value = ""
+    if scenario in {"changed_low_entropy", "index_only"}:
+        mark = "_commerceops_lab_"
+        row = row.replace("partial_refund", "partial_refune").replace(mark + "key", mark + "kez")
+    if scenario == "changed_field":
+        row = row.replace("meta_key", "meta_token").replace('"key"', '"token"')
+    if scenario in {"adjacent_generic", "same_line_generic", "history"}:
+        value = secrets.token_urlsafe(32)
+        row += (" " if scenario == "same_line_generic" else "\n") + f'api_key = "{value}"'
+    prefix = "\n" * (line - 1 + (scenario == "moved_line"))
+    path.write_text(prefix + row + "\n")
+    git(repository, "add", ".")
+    if scenario == "index_only":
+        path.write_text("\n" * (line - 1) + original + "\n")
+    else:
+        git(repository, "commit", "-m", "synthetic Woo marker boundary")
+    if scenario == "history":
+        path.write_text("\n" * (line - 1) + original + "\n")
+        git(repository, "add", ".")
+        git(repository, "commit", "-m", "retain historical synthetic credential")
+    result = run_scan(repository)
+    output = result.stdout + result.stderr
+    if value:
+        assert value not in output
+    assert original not in output and row not in output
+    if scenario == "exact":
+        assert result.returncode == 0, output
+        assert "git: findings=0, exit=0" in output
+    else:
+        assert result.returncode == 1, output
+        if scenario in {
+            "changed_low_entropy",
+            "changed_field",
+            "moved_line",
+            "nested_same_suffix",
+            "same_line_generic",
+            "index_only",
+        }:
+            assert "BLOCK reviewed-public-row-changed" in output
+        if scenario in {"adjacent_generic", "same_line_generic", "history", "other_path"}:
+            assert '"rule": "generic-api-key"' in output
+        if scenario == "index_only":
+            assert '"scope": "index"' in output
+
+
+@pytest.mark.parametrize("which", [0, 1])
+@pytest.mark.parametrize(
+    "mutation", ["path", "regex", "condition", "target", "commit", "line", "digest", "source_path"]
+)
+def test_woo_exception_provenance_cannot_be_broadened(
+    tmp_path: Path, monkeypatch: Patch, which: int, mutation: str
+) -> None:
+    (tmp_path / "scripts").mkdir()
+    config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
+    generic = next(rule for rule in config["rules"] if rule["id"] == "generic-api-key")
+    allowance = generic["allowlists"][4 + which]
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    evidence = provenance["exceptions"][5 + which]
+    if mutation == "path":
+        allowance["paths"] = [".*"]
+    elif mutation == "regex":
+        allowance["regexes"] = [".*"]
+    elif mutation == "condition":
+        allowance["condition"] = "OR"
+    elif mutation == "target":
+        allowance["regexTarget"] = "secret"
+    elif mutation == "commit":
+        evidence["source_commit"] = "0" * 40
+    elif mutation == "line":
+        evidence["source_line"] += 1
+    elif mutation == "source_path":
+        evidence["source_path"] += ".other"
+    else:
+        evidence["exact_line_sha256"] = "0" * 64
+    content = tomli_w.dumps(config).encode()
+    provenance["config_sha256"] = hashlib.sha256(content).hexdigest()
+    (tmp_path / ".gitleaks.toml").write_bytes(content)
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    monkeypatch.setattr(secret_scan, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="invalid scanner rules"):
+        secret_scan.validate_rules()
+
+
+def test_woo_public_source_requires_actual_committed_row(tmp_path: Path) -> None:
+    from scripts.vendor_gitleaks_rules import validate_woo_public_sources
+
+    with pytest.raises(ValueError, match="invalid Woo public source"):
+        validate_woo_public_sources(tmp_path)
