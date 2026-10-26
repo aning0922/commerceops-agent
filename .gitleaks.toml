@@ -1,6 +1,6 @@
 # Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。
 # 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。
-# 不使用 extend/useDefault；仅有 9 个指定规则/路径/精确整行 AND 豁免。
+# 不使用 extend/useDefault；仅有 17 个指定规则/路径/精确整行 AND 豁免。
 title = "gitleaks config"
 minVersion = "v8.25.0"
 
@@ -793,6 +793,94 @@ paths = [
 ]
 regexes = [
     "^(?:\\r?\\n)?\\ \\ expect\\(Object\\.keys\\(body\\)\\.sort\\(\\)\\)\\.toEqual\\(\\[\"schema_version\",\\ \"mode\",\\ \"request_key\",\\ \"source_task_id\",\\ \"source_report_id\",\\ \"snapshot_id\",\\ \"facts_hash\"\\]\\.sort\\(\\)\\);$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ accounts\\.operator\\.password\\ =\\ \"offline\\-only\\-placeholder\";$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ accounts\\.approver\\.password\\ =\\ \"offline\\-only\\-placeholder\";$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ let\\ bound\\ =\\ result\\.request_key\\ ===\\ input\\.request_key\\ \\&\\&\\ \\(operation\\ ===\\ \"decision\"\\ \\?\\ \"decision_id\"\\ in\\ result\\ :\\ !\\(\"decision_id\"\\ in\\ result\\)\\);$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(item\\ \\&\\&\\ item\\.stock_pool_key\\ ===\\ fact\\.stock_pool_key\\ \\&\\&\\ item\\.quantity\\ ===\\ fact\\.suggested_units\\ \\&\\&\\ item\\.raw_inbound_units\\ ===\\ null\\ \\&\\&\\ item\\.effective_inbound_units\\ ===\\ 0,\\ \"M2_GOLD_MISMATCH\"\\);$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ const\\ input\\ =\\ original\\ as\\ Record<string,\\ unknown>,\\ key\\ =\\ input\\.request_key\\ as\\ string;$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(validWooCreateInput\\(original\\)\\ \\&\\&\\ original\\.request_key\\ ===\\ canonical\\.create_request_key\\ \\&\\&\\ original\\.shop_id\\ ===\\ r\\.window\\.shop_id\\ \\&\\&\\ original\\.parameters\\.source_mode\\ ===\\ \"woocommerce_test\"\\ \\&\\&\\ original\\.parameters\\.source_config_version\\ ===\\ r\\.source\\.source_config_version\\ \\&\\&\\ original\\.parameters\\.L\\ ===\\ 3\\ \\&\\&\\ original\\.parameters\\.R\\ ===\\ 7\\ \\&\\&\\ original\\.parameters\\.S\\ ===\\ 2,\\ \"M2_BINDING\"\\);$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(saved\\.schema_version\\ ===\\ \"p5\\-m2\\-receipt\\-v1\"\\ \\&\\&\\ saved\\.run_id\\ ===\\ r\\.window\\.run_id\\ \\&\\&\\ saved\\.phase\\ ===\\ \"source_ready\"\\ \\&\\&\\ saved\\.via\\ ===\\ \"post\"\\ \\&\\&\\ saved\\.outcome\\ ===\\ \"confirmed\"\\ \\&\\&\\ saved\\.operation\\ ===\\ \"create_task\"\\ \\&\\&\\ saved\\.request_key\\ ===\\ canonical\\.create_request_key\\ \\&\\&\\ verifyReadResponse\\(\"POST\",\\ \"/api/v1/tasks\",\\ saved\\.http_status,\\ saved\\.response\\)\\ \\&\\&\\ saved\\.response\\.task_id\\ ===\\ canonical\\.task_id\\ \\&\\&\\ saved\\.response\\.source_task_id\\ ===\\ canonical\\.source_task_id\\ \\&\\&\\ saved\\.response\\.request_key\\ ===\\ canonical\\.create_request_key,\\ \"M2_BINDING\"\\);$",
+]
+
+[[rules.allowlists]]
+description = "d42d094双审consumer公开字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(expected\\ \\&\\&\\ item\\.item\\.item_id\\ ===\\ id\\ \\&\\&\\ item\\.item\\.shop_id\\ ===\\ r\\.window\\.shop_id\\ \\&\\&\\ item\\.item\\.stock_pool_key\\ ===\\ expected\\.stock_pool_key\\ \\&\\&\\ item\\.item\\.quantity\\ ===\\ expected\\.suggested_units\\ \\&\\&\\ item\\.item\\.state\\ ===\\ \"open\",\\ \"M2_EXECUTION_REJECTED\"\\);$",
 ]
 
 [[rules]]
