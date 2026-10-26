@@ -130,3 +130,26 @@ UNKNOWN、受控 ACK 丢失、同字节重放、不同内容冲突、权限和�
 B 后续只适配现有 Playwright consumer 的显式资源输入和 M2 来源断言，不 seed、不管理 PG、不另建测试框架或父编排。正式 consumer argv 和专属输出在稳定资源交接后冻结；本次文档准备没有执行任何上述真实操作。
 
 每一项分别记录源码/样本、实际开始结束、选中节点/预期分母、原生退出、必要业务计数/摘要及清理事实。只运行某个尾段时保留前段失败并标明分段结果；没有执行的操作保持 pending。真实 Web 结果只代表自动浏览器验收，真人体验另记。
+
+## 已冻结接口下的 M2 consumer
+
+B consumer 使用 [机器接口](contracts/p5-m2-live-resource-v1.md) 的五个不可变私有输入，两个阶段各自目录0700、文件0600。以下 argv 由 A 的原受限入口以同一最终 checkout 的 `frontend` 为 cwd 直接调用；三个现有环境变量为 `COMMERCEOPS_WEB_BATCH=p5-m2-live`、本阶段 `COMMERCEOPS_B02_PRIVATE_DIR` 和 `COMMERCEOPS_LIVE_WEB_URL`。当前这些是消费实现与离线选择检查，不是已运行的真实资源命令。
+
+```sh
+npm exec -- playwright test --config playwright.live.config.ts --grep 'M2 source$'
+npm exec -- playwright test --config playwright.live.config.ts --grep 'M2 restored$'
+```
+
+原带前导 `^` 的 grep 在实际 `--list` 中选中零测试，开发失败保留。Root 已裁决只去该前导符；M2 config 只选择 `m2.spec.ts`，两个修正命令分别实际选中一例、retries=0，不扩大阶段范围。source 只接受 `source_ready`，restored 只接受 `restored_pending_verified`；选错阶段在登录和业务请求前失败。原 Mock live 配置及其四类 reporter/结果保持原分支。
+
+每段上限240秒，并核总stop减180秒清理预留。source首次Create前原approval尚不存在，`original_expires_at=null`合法，但仍须在consumer_stop前留60秒。restored启动须原expiry至少余300秒，批准及每次重放前再次核真实API原expiry和60秒写入余量。输入、FileRef字节、当前源码/tree/build与独占listener/PID不符则停止，不能以模板或端口探测代签。
+
+source通过真实Web完成N01、参数明确确认、原请求准备和唯一Create；在原POST发送前用wx保存并fsync实际UTF-8 JSON字节。随后从实际receipt读同一task/report/plan，按logical_key与原seed/EXPECTED/金标逐项核四SKU、Q219、未知在途与完整四假设；当前approver只读原审批，source不批准。source-observed供A在子进程退出后核PG并生成canonical facts，consumer不等待运行中补写输入。
+
+restored用新context分别按当前operator/approver身份登录，读回同一原tuple/期限与复制原件。四个假设无默认勾选，明确确认后只准备和批准一次；成功后从同一原始decision文件读相同字节做合同指定的十次技术重放。每次必须返回同一业务决定，任一不明立即停止POST。然后只读核同一execution及四个唯一SKU内部项的数量，总219；这不代替A的PG唯一性/checkpoint核账。报告DTO不含金额/退款汇总，consumer不填写对应通过项。
+
+明确拒绝记录rejected；UNKNOWN保留原POST原件，最多GET原key一次并另存lookup，即使查到回执，本段逻辑仍unknown且非0退出，不换键/重发。各阶段只wx写机器合同允许的9/21个输出basename。`source-results.safe.json`、`restored-results.safe.json`只含逻辑结果、固定检查项、原件引用及安全码；实际native exit/reap与资源关闭由A父进程独立记录。
+
+source固定检查项为admission、operator_identity、woo_n01、explicit_create、source_gold、pending_approval_readonly；restored为admission、operator_identity、restored_binding、explicit_decision、ten_original_byte_replays、execution_readback。每项分别标passed/failed/not_run；缺项不能计通过。关闭trace/video/HAR/自动截图；M2 reporter不复制原错误、stdout、步骤或DOM。Playwright仅技术性last-run目录放ignored `.audit/m2-live-pw`，不写进phase目录的业务原件集合；用例自行关闭context后才返回，A负责整个子树有界停止。
+
+本批没有真实PG/API/Woo consumer运行；离线合同检查、类型/构建、精确源码独审、最终实际资源验收与CI分别记录。原No tests found及其他开发失败保留，不能将后续通过改写成首轮全绿。
