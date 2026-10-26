@@ -245,16 +245,19 @@ test("M2 source pending readiness waits only on current bound nonexpired objects
         plan_hash: "hash", status: "current", expires_at: expiry, disclosure_complete: true,
         items: [], item_count: 0, total_units: 0, hard_blocks: [], required_assumptions: [] } as unknown as DTO["Plan"];
     const task = { task: { state: "awaiting_approval", task_id: "task" }, current_plan_id: "plan", approval_id: "approval" } as unknown as DTO["TaskRead"];
-    const pending = { server_time: date(0), plan, decision: null, nonce: null, disabled_reasons: ["NOT_DECIDABLE"],
+    const pending = { server_time: date(0), plan, decision: null, nonce: "n".repeat(43), disabled_reasons: [],
         approval: { approval_id: "approval", task_id: "task", plan_id: "plan", plan_version: 1,
-            plan_hash: "hash", status: "pending", expires_at: expiry, ready_at: null, can_decide: false } } as unknown as DTO["ApprovalRead"];
-    const ready = { ...pending, nonce: "n".repeat(43), disabled_reasons: [], approval: { ...pending.approval, can_decide: true, ready_at: date(-1) } };
+            plan_hash: "hash", status: "pending", expires_at: expiry, ready_at: null, can_decide: true } } as unknown as DTO["ApprovalRead"];
+    const ready = { ...pending, approval: { ...pending.approval, ready_at: date(-1) } };
     expect([pending, ready].map((read) => sourceApprovalReadiness(read, task, plan, now + 240000, now))).toEqual(["wait", "ready"]);
-    expect(sourceApprovalReadiness({ ...ready, approval: { ...ready.approval, ready_at: null } }, task, plan, now + 240000, now)).toBe("wait");
+    expect(() => sourceApprovalReadiness({ ...pending, nonce: null, disabled_reasons: ["NOT_DECIDABLE"],
+        approval: { ...pending.approval, can_decide: false } }, task, plan, now + 240000, now)).toThrow("M2_AUTH_INVALID");
     for (const bad of [
         { ...pending, approval: { ...pending.approval, status: "expired" as const } },
         { ...pending, approval: { ...pending.approval, plan_hash: "different" } },
         { ...ready, approval: { ...ready.approval, can_decide: false } },
+        { ...pending, approval: { ...pending.approval, can_decide: false } },
+        { ...pending, nonce: null },
         { ...pending, disabled_reasons: ["ACCESS_DENIED"] },
         { ...pending, approval: { ...pending.approval, expires_at: date(-1) } },
     ])

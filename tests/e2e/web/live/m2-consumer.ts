@@ -41,13 +41,10 @@ export function sourceApprovalReadiness(read: DTO["ApprovalRead"], task: DTO["Ta
         utc(a.expires_at) === utc(originalPlan.expires_at) && utc(p.expires_at) === utc(a.expires_at) &&
         utc(a.expires_at) - Math.max(now, utc(read.server_time)) >= 60000 &&
         planComplete(p) && p.hard_blocks.length === 0, "M2_BINDING");
-    if (a.can_decide)
-        requireM2(read.nonce !== null && /^[A-Za-z0-9_-]{43}$/.test(read.nonce) && read.disabled_reasons.length === 0, "M2_AUTH_INVALID");
-    else
-        requireM2(a.ready_at === null && read.nonce === null && read.disabled_reasons.length === 1 && read.disabled_reasons[0] === "NOT_DECIDABLE", "M2_AUTH_INVALID");
+    requireM2(a.can_decide && read.nonce !== null && /^[A-Za-z0-9_-]{43}$/.test(read.nonce) && read.disabled_reasons.length === 0, "M2_AUTH_INVALID");
     if (a.ready_at === null)
         return "wait";
-    requireM2(a.can_decide && utc(a.ready_at) <= utc(read.server_time), "M2_AUTH_INVALID");
+    requireM2(utc(a.ready_at) <= utc(read.server_time), "M2_AUTH_INVALID");
     return "ready";
 }
 export function classifyM2Post(operation: "create_task" | "decision", input: Record<string, unknown>, path: string, status: number | null, value: unknown) {
