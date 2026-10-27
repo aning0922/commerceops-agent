@@ -11,7 +11,10 @@ from uuid import UUID, uuid4
 from psycopg import AsyncConnection
 from psycopg.types.json import Jsonb
 
-from commerceops.application.commerce.analysis_task import CollectedInventory, InventoryTaskRequest
+from commerceops.application.commerce.analysis_task import (
+    CollectedInventory,
+    WooInventoryTaskRequest,
+)
 from commerceops.application.commerce.inventory_facts import (
     InventoryInput,
     InventoryReport,
@@ -20,8 +23,8 @@ from commerceops.application.commerce.inventory_facts import (
 from commerceops.application.replenishment.contracts import (
     WORKFLOW_VERSION,
     DecisionInput,
-    Parameters,
     WebFailure,
+    analysis_request_from_parameters,
 )
 from commerceops.application.replenishment.decisions import confirm_set, decision_hash
 from commerceops.application.replenishment.execution import (
@@ -35,6 +38,7 @@ from commerceops.application.replenishment.security import approval_nonce, diges
 from commerceops.application.runner import RunRequest
 from commerceops.domain.commerce_values import canonical_bytes, facts_hash, utc_time
 from commerceops.infrastructure.approval_decisions import nonce_for
+from commerceops.infrastructure.commerce_sources import resolve_woo_source_async
 from commerceops.infrastructure.inventory_repository import AnalysisUnsafe, _stored
 from commerceops.infrastructure.replenishment_repository import (
     SOURCE_SQL,
@@ -43,7 +47,7 @@ from commerceops.infrastructure.replenishment_repository import (
     source_binding,
 )
 from commerceops.infrastructure.worker_lock import open_async
-from commerceops.workflows.inventory_analysis import CollectorFactory
+from commerceops.workflows.inventory_analysis import CollectorFactory, WooCollectorFactory
 
 DB = AsyncConnection[dict[str, Any]]
 
@@ -82,9 +86,15 @@ async def clock(db: DB) -> Any:
 
 
 class ExecutionStore:
-    def __init__(self, store: ApprovalStore, collector_factory: CollectorFactory | None):
+    def __init__(
+        self,
+        store: ApprovalStore,
+        collector_factory: CollectorFactory | None,
+        woo_collector_factory: WooCollectorFactory | None = None,
+    ):
         self.store, self.config, self.settings = store, store.config, store.settings
         self.session, self.factory = store.session, collector_factory
+        self.woo_factory = woo_collector_factory
 
     async def hook(self, point: str) -> None:
         if self.store.hook:
@@ -196,6 +206,18 @@ class ExecutionStore:
             binding = await cur.fetchone()
             if not binding:
                 raise AnalysisUnsafe("P3_EXECUTION_SOURCE_MISSING")
+            request = analysis_request_from_parameters(binding["parameters"])
+            if isinstance(request, WooInventoryTaskRequest):
+                if (request.organization_id, request.shop_id) != (r.organization_id, r.shop_id):
+                    raise AnalysisUnsafe("P3_REVALIDATION_SOURCE_UNAVAILABLE")
+                await resolve_woo_source_async(
+                    db,
+                    self.config.commerce_sources,
+                    r.organization_id,
+                    r.shop_id,
+                    expected_version=request.source_config_version,
+                    expected_binding=request.source_binding_id,
+                )
             yield db, task, plan, approval, binding
             await self.session.check()
 
@@ -292,7 +314,7 @@ class ExecutionStore:
         ):
             raise AnalysisUnsafe("P3_ORIGINAL_SOURCE_UNSAFE")
         original = _stored(source, source["normalized_request"])
-        Parameters.model_validate(binding["parameters"])
+        analysis_request_from_parameters(binding["parameters"])
         if binding["parameters"] != parameters_of(source) or (
             original.report.L,
             original.report.R,
@@ -400,13 +422,20 @@ class ExecutionStore:
         return data, saved
 
     async def collect(self, parameters: dict[str, Any], r: RunRequest) -> CollectedInventory:
-        if self.factory is None:
-            raise AnalysisUnsafe("P3_REVALIDATION_SOURCE_UNAVAILABLE")
+        request = analysis_request_from_parameters(parameters)
         await self.hook("before_revalidation_collection")
         async with asyncio.timeout(20):
-            collected = await self.factory(
-                InventoryTaskRequest.model_validate(parameters)
-            ).collect()
+            if isinstance(request, WooInventoryTaskRequest):
+                if self.woo_factory is None or (
+                    request.organization_id != r.organization_id or request.shop_id != r.shop_id
+                ):
+                    raise AnalysisUnsafe("P3_REVALIDATION_SOURCE_UNAVAILABLE")
+                collector = await self.woo_factory(request)
+                collected = await collector.collect()
+            else:
+                if self.factory is None:
+                    raise AnalysisUnsafe("P3_REVALIDATION_SOURCE_UNAVAILABLE")
+                collected = await self.factory(request).collect()
         async with await open_async(self.settings) as db:
             stamp = await clock(db)
             if (
@@ -429,7 +458,9 @@ class ExecutionStore:
                     stock_pool_key=x["stock_pool_key"],
                     quantity=int(x["quantity"]),
                     status="open",
-                    source_kind="mock",
+                    source_kind="internal"
+                    if isinstance(request, WooInventoryTaskRequest)
+                    else "mock",
                 )
                 for x in rows
             )

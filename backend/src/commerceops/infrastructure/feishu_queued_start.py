@@ -13,6 +13,7 @@ from psycopg.types.json import Jsonb
 from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+from commerceops.application.replenishment.contracts import Parameters
 from commerceops.domain.commerce_values import facts_hash
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 from commerceops.infrastructure.feishu_outbox_recovery import full_process_receipt, receipt_hash
@@ -243,7 +244,11 @@ async def validate(
         or (original.organization_id, original.shop_id) != (window.organization_id, window.shop_id)
     ):
         denied()
-    if original.max_workflows != 1 or original.parameters.fixture_case != "known_inbound":
+    if (
+        original.max_workflows != 1
+        or not isinstance(original.parameters, Parameters)
+        or original.parameters.fixture_case != "known_inbound"
+    ):
         denied()
     if (original.parameters.L, original.parameters.R, original.parameters.S) != (3, 7, 2):
         denied()

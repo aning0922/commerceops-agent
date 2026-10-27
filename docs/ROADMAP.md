@@ -1,5 +1,9 @@
 # 分阶段路线图与外部配置
 
+Phase5/M2最终事实快照（2026-10-27，台北D18）：必要业务及部署技术Gate已核收，状态为`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。本地实际合成Woo只读/原待审批新卷恢复/权限与到期负例、当前Mock20 Compose/原key与T6v2/恢复/隐藏只读Web均通过；证据层级及AC01–11有限复用见[Phase5验收](PHASE5_ACCEPTANCE.md)和[STATUS72](STATUS.md#72-phase5m2业务与部署已核收的最终事实合批)。原M1真人/模型证据不升级为新Woo真人或生产证据。
+
+剩余仅最后事实文档合批、原Reviewer增量审核、Root精确完整CI/正常main/同main合后CI。正式阶段状态以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际登记为准，本快照不预填未来SHA/通过/complete。M2总1800 Agent有效分钟含全部旧用量，现A823/B307/Review370/Root300；Root历史精确净用量与人工H/L UNKNOWN、机器等待另计。D1=2026-10-10/D30=2026-11-08、D18–20目标/原300h及18页设计冻结不重置，不自动进入Phase6/M3。以下旧导航、未授权和工期均保留其历史时点。
+
 Phase4/M1当前收口（2026-10-23，台北，D14）：Root与原Reviewer已核收必要业务及真人平台Gate，当前`business_gates_passed / ready_for_final_review`。source160d66a/tree90fc8cc的CI39909049939五绿，567PG、G1三/G2六、Web/N01、精确配对和清理通过；两新群查询及原私聊/F02/群20/T6/v2已按原件核收，不重复平台或真人操作。完整分层事实见[验收表](PHASE4_ACCEPTANCE.md)及[STATUS70](STATUS.md#70-phase4m1业务门槛已核收与最后文档合批)。
 
 用户批准的最后40 Agent有效分钟只用于文档合批、最终独审、预留CI8、正常main与合后CI1；本包总规划1980、当前有效池500，旧用量不清零。正式main/合后CI/Issues结案以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)实际更新为准，不预填未来SHA或complete。D1=2026-10-10、D30=2026-11-08、原300h/P4计划50h、人工H/L UNKNOWN和18页冻结保持。Phase5/Woo、生产与扩权未授权；离线Mock Compose/媒体、旧查询HOLD、历史失败及未定位风险保持各自边界。下方旧阶段导航、状态词和工期均为原日期的历史规划/快照。

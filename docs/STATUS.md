@@ -1,5 +1,11 @@
 # 阶段状态与主控交接
 
+Phase5/M2最终事实入口（2026-10-27，台北D18）：必要业务及部署技术Gate已由Root与原Reviewer核收，当前`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。实际运行source8ad/treeea86，2778offline/590PG排除、实际本地合成Woo/备份恢复/两负例及当前Mock20 Compose均通过；最终完整CI、main与合后CI尚待。详见[第72节](#72-phase5m2业务与部署已核收的最终事实合批)及[Phase5验收](PHASE5_ACCEPTANCE.md)。本文件为文档合批时点快照，后续正式结案统一以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)实际更新为准，不预填未来SHA或complete。第71节及下方旧导航按原日期保留。
+
+Phase5/M2当前导航（2026-10-26，台北D17）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已扩为完整阶段授权；30 Agent有效小时含原首批全部用量，A12/B8/Review5/Root5可总内调配，300h/原日期/人工H-L UNKNOWN不重置。原A/B及Reviewer继续，Root集中发布/CI/正常main与合后CI；不自动M3。当前[业务与备份短合同](contracts/p5-m2-v1.md)为待审冻结候选，主体接线未实施；首批与安全依赖的精确证据边界见[第71节](#71-phase5m2统一授权首批证据与后续合同)。下方首批8h/不自动完整M2等只保留其历史时点。
+
+Phase5首批当前入口（2026-10-26，台北）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已获用户开始授权；base e7cf790及同SHA CI39952681678五绿、M1结案沿用，不重开旧Gate。仅新隔离Woo测试店、五只读端口与最小合成对账；8 Agent有效h（A3.5/B2.5/独审1/Root1），旧用量和原日期/300h不重置，历史净余UNKNOWN。A/B[输入合同](contracts/p5-woo-readonly-v1.md)已提交，当前适配与lab实现/实际对账/独审/精确CI均按各自结果核收，不预写首批完成或完整M2通过。Root集中释放合批，A不自动main；P4工作区/原资产保留。下方第70节及旧导航是原日期快照，正式M1已由固定权威回执结案。
+
 Phase4/M1当前导航（2026-10-23，台北，D14）：所有必要业务/真人平台Gate已由Root及原Reviewer核收，状态为`business_gates_passed / ready_for_final_review`。source160d66a/tree90fc8cc及CI39909049939五绿/567PG已核；两新群查询各sent/attempt1、新SDK6/两窗、17保护组不变、父native0/清理保卷，合同scoped109/11与全库142/17分列。最后仅A/C文档合批、原Reviewer最终增量审查、Root预留CI8/main/合后CI与Issues实际结案，详见[第70节](#70-phase4m1业务门槛已核收与最后文档合批)及[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)。正式complete不预写；下方旧导航及第1–69节均按原日期保留，旧查询HOLD/失败/unknown不重开，Phase5未授权。
 
 最新Hosted/P4导航（2026-10-13，D4）：人类已明确授权仓库Public/保护/fork、恢复GitHub Hosted Actions并继续P4，随后结束本地CI；以[Root阶段回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6138181766)为准。原fd38/codex/phase4-feishu/PR43继续，已核main9d97，P4/M1仍in_progress、Issues39–42未结案；localCI未完成，1341及两未提交180预算文件/旧失败私有资产保留，不带入P4。40dc的Hosted38210480544 attempt2实际checkout7add/tree245933：quality/phase3/pg-pair SUCCESS，frontend/n01 FAILURE；原helper核281+160=441完整PG、交集0/G1三/G2六/cleanup0/stopping confirmed，Hosted临时PG down --volumes不记保卷，旧私有卷另保留。Root释放普通合入[已审C6ed9](https://github.com/aning0922/commerceops-agent/issues/42#issuecomment-6138319062)两spec：作者62+48相关pure，独立Web noP1/P2/type/13 closed契约719ms/69pure1.22s；同身份合法内存session生命周期、角色隔离/fresh context/page/逐body真实严格DTO核验，401/403不刷新重登，第六例真实revoke保留。组合独审与新精确五项Hosted尚待，actual read7/write10/items7/N01six、SDK/真人/全M1仍pending，不以源码或旧441代签。仅两已审spec与必要三事实文档；backend/scripts/CI/锁/Compose/B/产品UI不改，无新PG/浏览器/SDK/provider/push/main。D1=10-10/D30=11-08/原300h/P4 50h估计与18页冻结不重置，人工H/L not_reported；下方旧Private/暂停/候选导航按当时历史保留，不覆盖本次直接授权。
@@ -1389,3 +1395,69 @@ D1=2026-10-10、D30=2026-11-08、原300h/P4计划50h、人工H/L UNKNOWN与18页
 不读未提交WIP，不改业务/前端/测试/锁/workflow，不push/改PR正文/触CI或再开PG/SDK/真人。
 原Reviewer对最终docs/source增量一次审查后，Root才释放预留CI8；按实际成功结果正常main及唯一合后CI1，
 失败不自动重试。正式complete和Issues关闭均以固定权威回执后续实际更新为准，不再为未来SHA补写而开docsCI循环。
+
+## 71. Phase5/M2统一授权、首批证据与后续合同
+
+2026-10-26，Root已在[原Issue49](https://github.com/aning0922/commerceops-agent/issues/49)登记完整M2授权。
+cap30 Agent有效小时包含原首批全部用量与修复，A12/B8/Review5/Root5小时可总内调配；
+人工H/L、历史净余仍UNKNOWN，机器/CI等待另计，不改原300h或D1/D30/D18–20目标。
+M1 main e7cf790及CI39952681678五绿与正式结案沿用，不重开旧真人/模型Gate。
+
+首批新本地合成Woo在be45b6e实际54次HTTP200、CLI原生0，独立四组9商品/8订单行/3退款/9库存完整一致。
+业务来源为woocommerce_test、consistency=observational，UNKNOWN_STOCK/SHARED_POOL_UNRESOLVED仍保留，
+不能把complete当可执行。owner从5ac0c2f启动，B lab/Compose/seed字节未变，A probe使用be45；
+实际自然退出0及独立容器0/网络0/端口关闭/PID不存在、两个卷保留已核，精确owner原生耗时未捕获。
+此前JSON tuple输入exit2、discovery Link拒绝exit1、订单边界6/8不匹配exit1均保留。
+原Reviewer后核be45微秒上界P2，0ec4dd4修复；79de39b中整秒样本请求字节等价已核，
+不宣称79de精确平台重跑，小数秒分支为离线证据；原Reviewer已关闭该P2。
+
+fast-uri锁3.1.8→3.1.9最小更新、67Web契约/Next build/Node24.21.0/npm11.19.0及npm审计0已核。
+完整check的旧Node20引擎失败、79de本地固定Node路径缺失的49fail/2446pass，
+以及补齐路径后2495pass/567PG排除但Python审计4命中分别保留；检查期间源码hash无变化。
+安全补丁9bb98bd只将filelock4.0.12→4.2.1、checkpoint-postgres3.1.2→3.1.3、
+checkpoint4.2.0→4.3.0，严格审计0；10条官方迁移SQL完全相同，但pending writes/serde行为变化另审另验。
+经审B160b338来源/质量展示及交付骨架已普通合入1a129a15；新库当前依赖G2/P3恢复34PG原生0、
+原helper清理0、独立资源0，仅删除该新合成测试卷。它不签旧官方库写CP→新版业务续跑，
+该兼容Gate与组合完整check/精确CI仍pending，不预写最终SHA、首批complete或M2通过。
+
+下一包按[短合同](contracts/p5-m2-v1.md)先独审：服务端来源/能力/创建与N01、完整订单cohort、
+同步I/O截止、窄0018 lineage/ACL、PG内部open item及原20秒重观测；B创建入口等稳定DTO。
+原mixed质量负例保持，B另产4SKU/4独立pool/4订单4行/0退款正向profile与冻结D七日金标，
+总建议219/CNY994仅为待验独立期望，不写成业务实测。只有可审批正向来源才进入新卷备份还原。
+所有旧失败/日志原字节损失/Issue23未知风险保留；原资产、真实飞书/付费模型0新增，不自动M3/生产。
+
+## 72. Phase5/M2业务与部署已核收的最终事实合批
+
+事实截止2026-10-27（台北D18）。[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)
+初始状态为`business_and_deployment_gates_passed / awaiting_final_review_and_CI`，必要业务与部署Gate
+均已Root/原Reviewer核收；正式M2须由Root在最终main及同SHA合后CI通过后签。本文件保留该冻结时点，
+后续动态结果统一读固定回执，不预造未来SHA或complete。
+
+已验source `8ad436595794ef83f3a99bc80bd9ad4948b7117e` / tree `ea86b637190ec0ec42da771638a6c72b2853e82b`：
+
+- 完整本地check native0/226.945s，3368 collected、2778offline通过、590integration排除、4既有warning，
+  398type/518format/依赖审计0；起止源码hash相同。882首次全量type失败保留，8ad仅三处测试类型修正。
+- 本地实际合成Woo、真实PG/API/自动化Web，positive4/4/0/4、Q219/CNY994、四未知确认；官方CP/原tuple
+  同源新卷dump/restore、10次原字节重放，唯一决定/resume/execution及4items。撤权实际403/ACCESS_DENIED、
+  原期限后410/APPROVAL_EXPIRED，两clone零决定/resume/execution/items；父native0及独立资源清理通过。
+- 当前新自有Compose实际0018/60表/低权、Mock20每项100共2000，其中19已知在途0/1未知；全计划确认、
+  唯一execution/decision/resume、一次原T6关闭v2/reason/key/Fake同锚，三个业务POST各1、前后6次原key GET。
+  同父容器SIGUSR1两个owner均完整终止审计；API/Web恢复、隐藏只读Web通过。父/UI/86命令0，资源0/保卷。
+  108.492s是启动/结果文件差，browser实际退出探针通过但具体PID未单独归档。
+
+核心安全索引：完整check `ca2217e583a8ff6b29d53a345bd8c3d7fb176cf144bc4257733d972f987885a9`；
+Woo/恢复/负例129引用 `c128a20e86d45f4eacf826bf95e8e42fb686d52c2e1fa8bab0ee66dfec1a9c8a`；
+Compose111引用 `8605407495b98c06b742d323c0a719b68c59b07819d53c83f28e411340a7c24c`。
+详细AC01–11映射、专项PG、全部保留边界及索引名见[Phase5验收](PHASE5_ACCEPTANCE.md)。
+
+原mixed一日实际Woo9/8/3/9与七日PG/ASGI/Fake HTTP9/9/3/9分列，AST等价不写成字节等价；
+旧M1真人/模型只按未变合同有限复用。所有旧失败/HOLD、f7 execution UNKNOWN、c6 error code
+NOT_CAPTURED、七份旧日志非敏感原字节不可恢复、Issue23未知风险保持。Docker全协议egress未知，
+新机器全冷缓存未测，不以本机Mock/自动化材料宣称真人、商业实店或生产验收。
+
+本批A仅最终事实文档与必要README状态；B独占三交付文档，Root转精确commit后普通合入。
+非文档运行源码须与8ad字节相同。当前最终完整Hosted五作业/全590PG/G1三G2六/Web/N01/配对/清理、
+正常main及合后CI仍待Root统一释放，A不自行push/改PR正文/触CI或启动新资源。
+总1800 Agent有效分钟不增，A823/B307/Review370/Root300；本批开始前A累计估595–778，旧用量保留，
+Root历史精确净用量/人工H-L/历史净余UNKNOWN，机器等待另记。D1/D30/300h/D18–20及18页冻结不重置，
+不自动进入M3/Phase6。

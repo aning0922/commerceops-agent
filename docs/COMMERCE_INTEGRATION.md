@@ -1,6 +1,6 @@
 # 电商数据契约与平台适配
 
-状态：Phase 0 设计。Woo 官方文档与 API 版本已核实，未访问任何真实店铺。P0 不请求店铺写权限。
+状态（2026-10-26）：[Phase5首批Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已授权，仅新本地合成Woo测试店/五只读端口/最小对账；适配候选与实际API核收分列，尚不代表首批或完整M2通过。A/B精确输入与CLI见[短合同](contracts/p5-woo-readonly-v1.md)。下面设计口径继续有效，测试店本批实际证据另记；运行key只读，不接生产。
 
 ## 1. 端口与数据权威
 

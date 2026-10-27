@@ -1,0 +1,6424 @@
+{
+  "components": {
+    "schemas": {
+      "P2Display": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "inventory-analysis-v1",
+            "default": "inventory-analysis-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "display_version": {
+            "const": "inventory-display-v1",
+            "default": "inventory-display-v1",
+            "title": "Display Version",
+            "type": "string"
+          },
+          "D": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "D"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          }
+        },
+        "required": [
+          "D",
+          "trigger",
+          "coverage"
+        ],
+        "title": "Display",
+        "type": "object"
+      },
+      "P2ExactRatio": {
+        "additionalProperties": false,
+        "properties": {
+          "numerator": {
+            "title": "Numerator",
+            "type": "string"
+          },
+          "denominator": {
+            "title": "Denominator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numerator",
+          "denominator"
+        ],
+        "title": "ExactRatio",
+        "type": "object"
+      },
+      "P2InventoryFact": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "inventory-analysis-v1",
+            "default": "inventory-analysis-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "sku_key": {
+            "title": "Sku Key",
+            "type": "string"
+          },
+          "stock_pool_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Pool Key"
+          },
+          "sku_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku Label"
+          },
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "gross_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Units"
+          },
+          "known_gross_units": {
+            "ge": 0,
+            "title": "Known Gross Units",
+            "type": "integer"
+          },
+          "demand_complete": {
+            "title": "Demand Complete",
+            "type": "boolean"
+          },
+          "known_refunded_units": {
+            "ge": 0,
+            "title": "Known Refunded Units",
+            "type": "integer"
+          },
+          "quantity_complete": {
+            "title": "Quantity Complete",
+            "type": "boolean"
+          },
+          "refunded_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refunded Units"
+          },
+          "net_units": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Units"
+          },
+          "quantity_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity Reason"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "D": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/P2ExactRatio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "A": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "A"
+          },
+          "stock_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Reason"
+          },
+          "inventory_observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inventory Observed At"
+          },
+          "source_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Version"
+          },
+          "inbound_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Units"
+          },
+          "inbound_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Reason"
+          },
+          "effective_inbound_units": {
+            "ge": 0,
+            "title": "Effective Inbound Units",
+            "type": "integer"
+          },
+          "L": {
+            "ge": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "ge": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "ge": 0,
+            "title": "S",
+            "type": "integer"
+          },
+          "T": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "T"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/P2ExactRatio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk": {
+            "enum": [
+              "risk",
+              "stockout",
+              "normal",
+              "no_recent_demand",
+              "manual_check",
+              "quality_blocked"
+            ],
+            "title": "Risk",
+            "type": "string"
+          },
+          "suggested_units": {
+            "anyOf": [
+              {
+                "ge": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Units"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/P2ExactRatio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coverage_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Reason"
+          },
+          "required_assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Assumptions",
+            "type": "array"
+          },
+          "hard_blocks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hard Blocks",
+            "type": "array"
+          },
+          "quality_flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Quality Flags",
+            "type": "array"
+          },
+          "included_order_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Included Order Ids",
+            "type": "array"
+          },
+          "excluded_order_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Excluded Order Ids",
+            "type": "array"
+          },
+          "review_order_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Review Order Ids",
+            "type": "array"
+          },
+          "open_item_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Open Item Ids",
+            "type": "array"
+          },
+          "can_form_suggestion": {
+            "title": "Can Form Suggestion",
+            "type": "boolean"
+          },
+          "suggestion_mode": {
+            "enum": [
+              "estimate",
+              "assumption_draft",
+              "blocked",
+              "not_needed"
+            ],
+            "title": "Suggestion Mode",
+            "type": "string"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "eligible_for_execution": {
+            "const": false,
+            "default": false,
+            "title": "Eligible For Execution",
+            "type": "boolean"
+          },
+          "display": {
+            "$ref": "#/components/schemas/P2Display"
+          }
+        },
+        "required": [
+          "sku_key",
+          "stock_pool_key",
+          "sku_label",
+          "active",
+          "gross_units",
+          "known_gross_units",
+          "demand_complete",
+          "known_refunded_units",
+          "quantity_complete",
+          "refunded_units",
+          "net_units",
+          "quantity_reason",
+          "currency",
+          "D",
+          "A",
+          "stock_reason",
+          "inventory_observed_at",
+          "source_version",
+          "inbound_units",
+          "inbound_reason",
+          "effective_inbound_units",
+          "L",
+          "R",
+          "S",
+          "T",
+          "trigger",
+          "risk",
+          "suggested_units",
+          "coverage",
+          "coverage_reason",
+          "required_assumptions",
+          "hard_blocks",
+          "quality_flags",
+          "included_order_ids",
+          "excluded_order_ids",
+          "review_order_ids",
+          "open_item_ids",
+          "can_form_suggestion",
+          "suggestion_mode",
+          "display"
+        ],
+        "title": "InventoryFact",
+        "type": "object"
+      },
+      "P2Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "commerce-v1",
+            "default": "commerce-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "mock",
+              "woocommerce_test"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "fixture_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixture Version"
+          },
+          "captured_at": {
+            "format": "date-time",
+            "title": "Captured At",
+            "type": "string"
+          },
+          "raw_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Raw Hash",
+            "type": "string"
+          },
+          "quality_flags": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/P2Quality"
+            },
+            "title": "Quality Flags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_kind",
+          "fixture_version",
+          "captured_at",
+          "raw_hash"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "P2Quality": {
+        "enum": [
+          "DUPLICATE_ID",
+          "MISSING_PAGE",
+          "SOURCE_CHANGED",
+          "CAPACITY_LIMIT",
+          "PARTIAL_FAILURE",
+          "UNKNOWN_STOCK",
+          "SHARED_POOL_UNRESOLVED",
+          "DELETED_PRODUCT"
+        ],
+        "title": "Quality",
+        "type": "string"
+      },
+      "P2Source": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "commerce-v1",
+            "default": "commerce-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "shop_id": {
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/P2Provenance"
+          }
+        },
+        "required": [
+          "shop_id",
+          "timezone",
+          "currency",
+          "provenance"
+        ],
+        "title": "Source",
+        "type": "object"
+      },
+      "P2Window": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "commerce-v1",
+            "default": "commerce-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "Window",
+        "type": "object"
+      },
+      "P2InventoryReport": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "inventory-analysis-v1",
+            "default": "inventory-analysis-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "rule_version": {
+            "const": "inventory-rule-v1",
+            "default": "inventory-rule-v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "parameter_mode": {
+            "const": "demo_assumption",
+            "default": "demo_assumption",
+            "title": "Parameter Mode",
+            "type": "string"
+          },
+          "canonical_version": {
+            "const": "canonical-facts-v1",
+            "default": "canonical-facts-v1",
+            "title": "Canonical Version",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/P2Source"
+          },
+          "now": {
+            "format": "date-time",
+            "title": "Now",
+            "type": "string"
+          },
+          "window": {
+            "$ref": "#/components/schemas/P2Window"
+          },
+          "source_complete": {
+            "title": "Source Complete",
+            "type": "boolean"
+          },
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "requires_review": {
+            "title": "Requires Review",
+            "type": "boolean"
+          },
+          "L": {
+            "ge": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "ge": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "ge": 0,
+            "title": "S",
+            "type": "integer"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/P2InventoryFact"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "candidate_count": {
+            "ge": 0,
+            "title": "Candidate Count",
+            "type": "integer"
+          },
+          "scope_required": {
+            "title": "Scope Required",
+            "type": "boolean"
+          },
+          "input_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Input Hash",
+            "type": "string"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "now",
+          "window",
+          "source_complete",
+          "complete",
+          "requires_review",
+          "L",
+          "R",
+          "S",
+          "warnings",
+          "items",
+          "candidate_count",
+          "scope_required",
+          "input_hash",
+          "facts_hash"
+        ],
+        "title": "InventoryReport",
+        "type": "object"
+      },
+      "P2ExplanationExplanationContent": {
+        "additionalProperties": false,
+        "properties": {
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "narrative_mode": {
+            "enum": [
+              "template",
+              "model_selected"
+            ],
+            "title": "Narrative Mode",
+            "type": "string"
+          },
+          "binding_mode": {
+            "const": "caller_references",
+            "title": "Binding Mode",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/P2ExplanationExplanationItem"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "reference_ids": {
+            "$ref": "#/components/schemas/P2ExplanationExplanationRefs"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/P2ExplanationExplanationMetadata"
+          }
+        },
+        "required": [
+          "facts_hash",
+          "narrative_mode",
+          "binding_mode",
+          "summary",
+          "lines",
+          "reference_ids",
+          "metadata"
+        ],
+        "title": "ExplanationContent",
+        "type": "object"
+      },
+      "P2ExplanationExplanationItem": {
+        "additionalProperties": false,
+        "properties": {
+          "sku_key": {
+            "title": "Sku Key",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "risk",
+              "stockout",
+              "normal",
+              "no_recent_demand",
+              "manual_check",
+              "quality_blocked"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "reference_ids": {
+            "$ref": "#/components/schemas/P2ExplanationExplanationRefs"
+          }
+        },
+        "required": [
+          "sku_key",
+          "reason",
+          "text",
+          "facts_hash",
+          "reference_ids"
+        ],
+        "title": "ExplanationItem",
+        "type": "object"
+      },
+      "P2ExplanationExplanationMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "null"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "NO_PROVIDER",
+                  "INVALID_REPORT",
+                  "INVALID_REFERENCES",
+                  "TEMPLATE_REQUIRED",
+                  "INPUT_BUDGET",
+                  "TOKEN_COUNT_UNVERIFIED",
+                  "ADMISSION_REQUIRED",
+                  "BUDGET_DENIED",
+                  "ADMISSION_FAILED",
+                  "TIMEOUT",
+                  "RATE_LIMIT",
+                  "PROVIDER_UNAVAILABLE",
+                  "AUTH_FAILED",
+                  "BALANCE_EXHAUSTED",
+                  "HTTP_ERROR",
+                  "TRANSPORT_ERROR",
+                  "INVALID_JSON",
+                  "INVALID_SCHEMA",
+                  "TRUNCATED",
+                  "UNSAFE_EXPLANATION",
+                  "OUTPUT_BUDGET",
+                  "UNKNOWN_USAGE",
+                  "UNKNOWN_COST",
+                  "MODEL_MISMATCH",
+                  "RESPONSE_TOO_LARGE"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "evidence_mode": {
+            "enum": [
+              "not_used",
+              "offline_stub",
+              "actual_provider"
+            ],
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "const": "deepseek",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "requested_model": {
+            "anyOf": [
+              {
+                "const": "deepseek-flash",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Model"
+          },
+          "returned_model": {
+            "anyOf": [
+              {
+                "const": "deepseek-flash",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Returned Model"
+          },
+          "prompt_version": {
+            "enum": [
+              "inventory-explanation-v1",
+              "inventory-routing-v1"
+            ],
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/P2ExplanationExplanationUsage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "pricing_version": {
+            "anyOf": [
+              {
+                "const": "ds-v41-peak-20261010",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pricing Version"
+          },
+          "cost_estimate": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]+(\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Estimate"
+          },
+          "stop_required": {
+            "title": "Stop Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "content",
+          "error_code",
+          "evidence_mode",
+          "provider",
+          "requested_model",
+          "returned_model",
+          "prompt_version",
+          "request_id",
+          "usage",
+          "latency_ms",
+          "pricing_version",
+          "cost_estimate",
+          "stop_required"
+        ],
+        "title": "ExplanationMetadata",
+        "type": "object"
+      },
+      "P2ExplanationExplanationRefs": {
+        "additionalProperties": false,
+        "properties": {
+          "snapshot_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "report_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Report Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "report_id"
+        ],
+        "title": "ExplanationRefs",
+        "type": "object"
+      },
+      "P2ExplanationExplanationUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "input_tokens": {
+            "maximum": 8000,
+            "minimum": 0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "output_tokens": {
+            "maximum": 800,
+            "minimum": 0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "total_tokens": {
+            "maximum": 8800,
+            "minimum": 0,
+            "title": "Total Tokens",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens"
+        ],
+        "title": "ExplanationUsage",
+        "type": "object"
+      },
+      "P2ExplanationExplanationRead": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p204-read-v1",
+            "default": "p204-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "identity_mode": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "task_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "explanation_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Explanation Id",
+            "type": "string"
+          },
+          "child_task_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Child Task Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/P2ExplanationExplanationContent"
+          }
+        },
+        "required": [
+          "task_id",
+          "explanation_id",
+          "child_task_id",
+          "result"
+        ],
+        "title": "ExplanationRead",
+        "type": "object"
+      },
+      "RoleShopGrant": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "operator",
+              "approver",
+              "admin"
+            ]
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "role",
+          "shop_id"
+        ]
+      },
+      "Capabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "can_create_task": {
+            "type": "boolean"
+          },
+          "can_read_tasks": {
+            "type": "boolean"
+          },
+          "can_read_approvals": {
+            "type": "boolean"
+          },
+          "can_resolve_items": {
+            "type": "boolean"
+          },
+          "can_read_operations": {
+            "type": "boolean"
+          },
+          "home_path": {
+            "type": "string",
+            "enum": [
+              "/tasks",
+              "/admin/operations",
+              "/access"
+            ]
+          }
+        },
+        "required": [
+          "can_create_task",
+          "can_read_tasks",
+          "can_read_approvals",
+          "can_resolve_items",
+          "can_read_operations",
+          "home_path"
+        ]
+      },
+      "Principal": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "principal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "auth_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "role_shop_grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleShopGrant"
+            },
+            "uniqueItems": true
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/Capabilities"
+          },
+          "linked_channels": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "enum": [
+                "web",
+                "feishu"
+              ]
+            }
+          }
+        },
+        "required": [
+          "principal_id",
+          "organization_id",
+          "display_name",
+          "auth_version",
+          "role_shop_grants",
+          "capabilities",
+          "linked_channels"
+        ]
+      },
+      "DeploymentConfig": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "config_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "shop_timezone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval_ttl_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 604800
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revalidation_max_age_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3600
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_plan_items": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recovery_scan_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_absolute_seconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 86400
+          },
+          "session_idle_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 86400,
+            "description": "还须<=本次实际session_absolute_seconds"
+          },
+          "transport_mode": {
+            "type": "string",
+            "enum": [
+              "https",
+              "local_http"
+            ]
+          },
+          "source_mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "woocommerce_test"
+            ]
+          },
+          "model_requests_enabled": {
+            "type": "boolean",
+            "const": false
+          },
+          "external_sender_enabled": {
+            "type": "boolean"
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
+          },
+          "commerce_source": {
+            "$ref": "#/components/schemas/P5CommerceSourceCapability"
+          }
+        },
+        "required": [
+          "config_version",
+          "shop_timezone",
+          "approval_ttl_seconds",
+          "revalidation_max_age_seconds",
+          "max_plan_items",
+          "recovery_scan_seconds",
+          "session_absolute_seconds",
+          "session_idle_seconds",
+          "transport_mode",
+          "source_mode",
+          "model_requests_enabled",
+          "external_sender_enabled",
+          "sender_gates"
+        ]
+      },
+      "CsrfBootstrap": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "enum": [
+              "anonymous_bootstrap",
+              "session"
+            ]
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "csrf_token": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          },
+          "bootstrap_expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "csrf_token",
+          "bootstrap_expires_at"
+        ]
+      },
+      "LoginInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "login": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "外层trim和ASCII lower后仅[a-z0-9._-]1–100；不改密码正文"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "schema_version",
+          "login",
+          "password"
+        ]
+      },
+      "SessionRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/Principal"
+          },
+          "csrf_token": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          },
+          "absolute_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "idle_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "config": {
+            "$ref": "#/components/schemas/DeploymentConfig"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "principal",
+          "csrf_token",
+          "absolute_expires_at",
+          "idle_expires_at",
+          "config"
+        ]
+      },
+      "LogoutReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "logged_out": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "logged_out"
+        ]
+      },
+      "MockParameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "type": "string",
+            "const": "mock"
+          },
+          "dataset_version": {
+            "type": "string",
+            "const": "inventory-v1"
+          },
+          "fixture_case": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "只允许 inventory-v1 固定案例名单，不接受路径或URL"
+          },
+          "L": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365
+          },
+          "R": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365
+          },
+          "S": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365
+          }
+        },
+        "required": [
+          "source_mode",
+          "dataset_version",
+          "fixture_case",
+          "L",
+          "R",
+          "S"
+        ]
+      },
+      "CreateFromReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "mode": {
+            "type": "string",
+            "const": "from_report"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "facts_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "schema_version",
+          "mode",
+          "request_key",
+          "source_task_id",
+          "source_report_id",
+          "snapshot_id",
+          "facts_hash"
+        ]
+      },
+      "CreateNewCycle": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "mode": {
+            "type": "string",
+            "const": "new_cycle"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parameters": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MockParameters"
+              },
+              {
+                "$ref": "#/components/schemas/P5WooCreateParameters"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "mode",
+          "request_key",
+          "shop_id",
+          "parameters"
+        ]
+      },
+      "CreateTaskInput": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CreateFromReport"
+          },
+          {
+            "$ref": "#/components/schemas/CreateNewCycle"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "mode",
+          "mapping": {
+            "from_report": "#/components/schemas/CreateFromReport",
+            "new_cycle": "#/components/schemas/CreateNewCycle"
+          }
+        }
+      },
+      "SourceBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "facts_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "collected_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "collection_started_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "source_complete": {
+            "type": "boolean"
+          },
+          "consistency": {
+            "type": "string",
+            "const": "observational"
+          }
+        },
+        "required": [
+          "source_task_id",
+          "report_id",
+          "snapshot_id",
+          "facts_hash",
+          "collected_at",
+          "collection_started_at",
+          "source_complete",
+          "consistency"
+        ]
+      },
+      "Projection": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "aggregate_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projection_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "outbox_status": {
+            "type": "string",
+            "enum": [
+              "blocked",
+              "pending",
+              "sending",
+              "sent",
+              "retry_wait",
+              "unknown",
+              "dead"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_requested",
+              "pending",
+              "synced",
+              "failed",
+              "unknown"
+            ]
+          },
+          "source_mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "controlled_stub"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outbox_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_alias": {
+            "type": "string",
+            "enum": [
+              "IM",
+              "Base"
+            ]
+          },
+          "target_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "observed_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "complete_unique_verified": {
+            "type": "boolean"
+          },
+          "is_current_version": {
+            "type": "boolean"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "aggregate_id",
+          "projection_version",
+          "outbox_status",
+          "state",
+          "source_mode",
+          "as_of",
+          "error_code",
+          "outbox_id",
+          "destination_alias",
+          "target_version",
+          "observed_version",
+          "complete_unique_verified",
+          "is_current_version",
+          "attempts",
+          "verification_mode"
+        ]
+      },
+      "SyncRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_requested",
+              "pending",
+              "synced",
+              "failed",
+              "unknown"
+            ]
+          },
+          "sender_enabled": {
+            "type": "boolean"
+          },
+          "projections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Projection"
+            }
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
+          }
+        },
+        "required": [
+          "state",
+          "sender_enabled",
+          "projections",
+          "sender_gates"
+        ]
+      },
+      "AllowedActions": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "can_decide": {
+            "type": "boolean"
+          },
+          "can_resolve": {
+            "type": "boolean"
+          },
+          "can_start_new_cycle": {
+            "type": "boolean"
+          },
+          "can_recompute": {
+            "type": "boolean",
+            "const": false
+          },
+          "disabled_reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "can_decide",
+          "can_resolve",
+          "can_start_new_cycle",
+          "can_recompute",
+          "disabled_reasons"
+        ]
+      },
+      "TaskSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "inventory_analysis_only",
+              "inventory_replenishment"
+            ]
+          },
+          "workflow_version": {
+            "type": "string",
+            "enum": [
+              "p203-inventory-analysis-v1",
+              "p3-inventory-replenishment-v1"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "analyzing",
+              "awaiting_approval",
+              "executing",
+              "completed",
+              "rejected",
+              "expired",
+              "needs_reapproval",
+              "failed",
+              "needs_attention"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "report_ready",
+                  "no_action",
+                  "items_created"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sync": {
+            "$ref": "#/components/schemas/SyncRead"
+          }
+        },
+        "required": [
+          "task_id",
+          "shop_id",
+          "kind",
+          "workflow_version",
+          "state",
+          "created_at",
+          "updated_at",
+          "outcome",
+          "sync"
+        ]
+      },
+      "TaskRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task": {
+            "$ref": "#/components/schemas/TaskSummary"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceBinding"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_plan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visible_item_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "actions": {
+            "$ref": "#/components/schemas/AllowedActions"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "task",
+          "source",
+          "current_plan_id",
+          "approval_id",
+          "execution_id",
+          "visible_item_ids",
+          "actions",
+          "failure_code"
+        ]
+      },
+      "CreateTaskReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "analyzing",
+              "awaiting_approval",
+              "executing",
+              "completed",
+              "rejected",
+              "expired",
+              "needs_reapproval",
+              "failed",
+              "needs_attention"
+            ]
+          },
+          "duplicate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "task_id",
+          "source_task_id",
+          "state",
+          "duplicate"
+        ]
+      },
+      "ReportRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceBinding"
+          },
+          "facts": {
+            "$ref": "#/components/schemas/P2InventoryReport"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "task_id",
+          "source",
+          "facts"
+        ]
+      },
+      "ExplanationRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "explanation": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/P2ExplanationExplanationRead"
+              },
+              {
+                "$ref": "#/components/schemas/P3TemplateRead"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "schema_version",
+              "mapping": {
+                "p204-read-v1": "#/components/schemas/P2ExplanationExplanationRead",
+                "p4-p3-template-read-v1": "#/components/schemas/P3TemplateRead"
+              }
+            }
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "task_id",
+          "report_id",
+          "explanation"
+        ]
+      },
+      "Assumption": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^inbound_unknown_zero:.+$",
+            "maxLength": 300
+          },
+          "type": {
+            "type": "string",
+            "const": "inbound_unknown_zero"
+          },
+          "sku_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "estimated_units": {
+            "type": "integer",
+            "const": 0
+          },
+          "disclosure_version": {
+            "type": "string",
+            "const": "inbound-unknown-zero-v1"
+          }
+        },
+        "required": [
+          "key",
+          "type",
+          "sku_key",
+          "estimated_units",
+          "disclosure_version"
+        ]
+      },
+      "PlanItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sku_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "sku_label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stock_pool_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "raw_inbound_units": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effective_inbound_units": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fact": {
+            "$ref": "#/components/schemas/P2InventoryFact"
+          }
+        },
+        "required": [
+          "sku_key",
+          "sku_label",
+          "stock_pool_key",
+          "quantity",
+          "raw_inbound_units",
+          "effective_inbound_units",
+          "fact"
+        ]
+      },
+      "Plan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "hash_version": {
+            "type": "string",
+            "const": "p3-plan-hash-v1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "current",
+              "superseded",
+              "invalidated",
+              "executed"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceBinding"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "rule_version": {
+            "type": "string",
+            "const": "inventory-rule-v1"
+          },
+          "parameters": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MockParameters"
+              },
+              {
+                "$ref": "#/components/schemas/P5WooCreateParameters"
+              }
+            ]
+          },
+          "config_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanItem"
+            },
+            "minItems": 1,
+            "maxItems": 20
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "total_units": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "required_assumptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Assumption"
+            },
+            "uniqueItems": true,
+            "maxItems": 20
+          },
+          "hard_blocks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          },
+          "quality_flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          },
+          "disclosure_complete": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          }
+        },
+        "required": [
+          "plan_id",
+          "task_id",
+          "plan_version",
+          "plan_hash",
+          "hash_version",
+          "status",
+          "source",
+          "currency",
+          "rule_version",
+          "parameters",
+          "config_version",
+          "expires_at",
+          "items",
+          "item_count",
+          "total_units",
+          "required_assumptions",
+          "hard_blocks",
+          "quality_flags",
+          "disclosure_complete",
+          "created_at"
+        ]
+      },
+      "PlanRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "can_decide": {
+            "type": "boolean"
+          },
+          "nonce": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{43}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "disabled_reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "plan",
+          "can_decide",
+          "nonce",
+          "disabled_reasons"
+        ]
+      },
+      "DecisionInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject",
+              "approve_with_assumptions",
+              "reject_assumptions"
+            ]
+          },
+          "acknowledged_assumption_keys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^inbound_unknown_zero:.+$",
+              "maxLength": 300
+            },
+            "uniqueItems": true,
+            "maxItems": 20
+          },
+          "nonce": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required": [
+          "schema_version",
+          "request_key",
+          "approval_id",
+          "plan_id",
+          "plan_version",
+          "plan_hash",
+          "action",
+          "acknowledged_assumption_keys",
+          "nonce"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "action": {
+                  "enum": [
+                    "approve",
+                    "reject",
+                    "reject_assumptions"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "acknowledged_assumption_keys": {
+                  "maxItems": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "action": {
+                  "const": "approve_with_assumptions"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "acknowledged_assumption_keys": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DecisionReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decision_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "decision_payload_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject",
+              "approve_with_assumptions",
+              "reject_assumptions"
+            ]
+          },
+          "acknowledged_assumption_keys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "uniqueItems": true
+          },
+          "approval_status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected"
+            ]
+          },
+          "decided_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "decision_source": {
+            "type": "string",
+            "enum": [
+              "web",
+              "feishu"
+            ]
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "INBOUND_ASSUMPTION_DECLINED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resume_state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "waiting_checkpoint",
+              "consumed"
+            ]
+          },
+          "duplicate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "decision_id",
+          "task_id",
+          "approval_id",
+          "plan_id",
+          "plan_version",
+          "plan_hash",
+          "decision_payload_hash",
+          "action",
+          "acknowledged_assumption_keys",
+          "approval_status",
+          "decided_by",
+          "decided_at",
+          "decision_source",
+          "reason_code",
+          "resume_state",
+          "duplicate"
+        ]
+      },
+      "ApprovalSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "approval_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "expired",
+              "superseded"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "ready_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_decide": {
+            "type": "boolean"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "total_units": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "approval_id",
+          "task_id",
+          "plan_id",
+          "plan_version",
+          "plan_hash",
+          "status",
+          "created_at",
+          "expires_at",
+          "ready_at",
+          "can_decide",
+          "item_count",
+          "total_units"
+        ]
+      },
+      "ApprovalRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approval": {
+            "$ref": "#/components/schemas/ApprovalSummary"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "nonce": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{43}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "disabled_reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "approval",
+          "plan",
+          "nonce",
+          "decision",
+          "disabled_reasons"
+        ]
+      },
+      "Resolution": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resolution_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "close"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "resolved_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "before_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "after_version": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "resolution_payload_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "resolution_id",
+          "request_key",
+          "action",
+          "reason",
+          "resolved_by",
+          "resolved_at",
+          "before_version",
+          "after_version",
+          "resolution_payload_hash"
+        ]
+      },
+      "ItemSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sku_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "stock_pool_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "completed",
+              "closed"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "sync": {
+            "$ref": "#/components/schemas/SyncRead"
+          }
+        },
+        "required": [
+          "item_id",
+          "shop_id",
+          "sku_key",
+          "stock_pool_key",
+          "quantity",
+          "state",
+          "version",
+          "created_at",
+          "updated_at",
+          "sync"
+        ]
+      },
+      "ItemRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemSummary"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Resolution"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visible_source_task_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visible_plan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_resolve": {
+            "type": "boolean"
+          },
+          "disabled_reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "item",
+          "resolution",
+          "visible_source_task_id",
+          "visible_plan_id",
+          "can_resolve",
+          "disabled_reasons"
+        ]
+      },
+      "ResolveInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "close"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "pattern": "\\S",
+            "description": "外层trim后1–1000字符；规范化后hash绑定"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "schema_version",
+          "request_key",
+          "action",
+          "reason",
+          "expected_version"
+        ]
+      },
+      "ResolveReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemSummary"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/Resolution"
+          },
+          "duplicate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "item",
+          "resolution",
+          "duplicate"
+        ]
+      },
+      "ExecutionRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "execution_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "revalidation_snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "rejected",
+              "needs_attention"
+            ]
+          },
+          "item_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sync": {
+            "$ref": "#/components/schemas/SyncRead"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "execution_id",
+          "task_id",
+          "plan_id",
+          "approval_id",
+          "operation_key",
+          "request_hash",
+          "revalidation_snapshot_id",
+          "status",
+          "item_ids",
+          "completed_at",
+          "error_code",
+          "sync"
+        ]
+      },
+      "RecoveryFact": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "workflow_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "checkpoint_state": {
+            "type": "string",
+            "enum": [
+              "absent",
+              "interrupted",
+              "running",
+              "finished",
+              "unknown"
+            ]
+          },
+          "matched_approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "old_process_termination": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "unconfirmed",
+              "not_applicable"
+            ]
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "attempt",
+          "workflow_version",
+          "checkpoint_state",
+          "matched_approval_id",
+          "decision_id",
+          "execution_id",
+          "old_process_termination",
+          "occurred_at",
+          "code"
+        ]
+      },
+      "Event": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "step": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "safe_summary": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "recovery": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecoveryFact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "record_trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relation": {
+            "type": "string",
+            "enum": [
+              "task",
+              "source"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "web",
+              "feishu",
+              "worker",
+              "unknown"
+            ]
+          },
+          "tool": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolFact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventReference"
+            }
+          },
+          "safe_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{0,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "occurred_at",
+          "action",
+          "step",
+          "duration_ms",
+          "result_ref",
+          "safe_summary",
+          "recovery",
+          "record_trace_id",
+          "task_id",
+          "relation",
+          "channel",
+          "tool",
+          "references",
+          "safe_code"
+        ]
+      },
+      "TaskListCounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "analyzing": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "awaiting_approval": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "executing": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "completed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rejected": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expired": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "needs_reapproval": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "needs_attention": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "queued",
+          "analyzing",
+          "awaiting_approval",
+          "executing",
+          "completed",
+          "rejected",
+          "expired",
+          "needs_reapproval",
+          "failed",
+          "needs_attention"
+        ]
+      },
+      "TaskList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskSummary"
+            },
+            "maxItems": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "counts": {
+            "$ref": "#/components/schemas/TaskListCounts"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "items",
+          "total",
+          "counts",
+          "as_of",
+          "next_cursor"
+        ]
+      },
+      "ApprovalListCounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pending": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "approved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rejected": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expired": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "superseded": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "pending",
+          "approved",
+          "rejected",
+          "expired",
+          "superseded"
+        ]
+      },
+      "ApprovalList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApprovalSummary"
+            },
+            "maxItems": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "counts": {
+            "$ref": "#/components/schemas/ApprovalListCounts"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "items",
+          "total",
+          "counts",
+          "as_of",
+          "next_cursor"
+        ]
+      },
+      "ItemListCounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "open": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "completed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "closed": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "open",
+          "completed",
+          "closed"
+        ]
+      },
+      "ItemList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemSummary"
+            },
+            "maxItems": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "counts": {
+            "$ref": "#/components/schemas/ItemListCounts"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "items",
+          "total",
+          "counts",
+          "as_of",
+          "next_cursor"
+        ]
+      },
+      "PlanList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanVersionSummary"
+            }
+          },
+          "current_plan_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "items",
+          "current_plan_version",
+          "total",
+          "as_of",
+          "next_cursor"
+        ]
+      },
+      "EventsRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "maxItems": 100
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "items",
+          "next_cursor",
+          "as_of"
+        ]
+      },
+      "ConfigRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "config": {
+            "$ref": "#/components/schemas/DeploymentConfig"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "shop_id",
+          "config"
+        ]
+      },
+      "OperationsRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "config_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "transport_mode": {
+            "type": "string",
+            "enum": [
+              "https",
+              "local_http"
+            ]
+          },
+          "worker_state": {
+            "type": "string",
+            "enum": [
+              "running",
+              "stopped",
+              "needs_attention",
+              "unknown"
+            ]
+          },
+          "graph_concurrency_limit": {
+            "type": "integer",
+            "const": 1
+          },
+          "external_sender_enabled": {
+            "type": "boolean"
+          },
+          "recovery_scan_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval_ttl_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revalidation_max_age_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "config_version",
+          "transport_mode",
+          "worker_state",
+          "graph_concurrency_limit",
+          "external_sender_enabled",
+          "recovery_scan_seconds",
+          "approval_ttl_seconds",
+          "revalidation_max_age_seconds",
+          "sender_gates"
+        ]
+      },
+      "RequestResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "create_task"
+              },
+              "result": {
+                "$ref": "#/components/schemas/CreateTaskReceipt"
+              }
+            },
+            "required": [
+              "operation",
+              "result"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "decision"
+              },
+              "result": {
+                "$ref": "#/components/schemas/DecisionReceipt"
+              }
+            },
+            "required": [
+              "operation",
+              "result"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "resolve"
+              },
+              "result": {
+                "$ref": "#/components/schemas/ResolveReceipt"
+              }
+            },
+            "required": [
+              "operation",
+              "result"
+            ]
+          }
+        ]
+      },
+      "RequestRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "const": "succeeded"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/RequestResult"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "status",
+          "receipt"
+        ]
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_CURSOR",
+              "INVALID_FILTER",
+              "INVALID_JSON",
+              "SESSION_INVALID",
+              "LOGIN_FAILED",
+              "ACCESS_DENIED",
+              "CSRF_INVALID",
+              "ORIGIN_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "PLAN_CHANGED",
+              "APPROVAL_SUPERSEDED",
+              "DECISION_CONFLICT",
+              "IDEMPOTENCY_CONFLICT",
+              "ITEM_STATE_CONFLICT",
+              "ITEM_VERSION_CONFLICT",
+              "ASSUMPTION_ACK_REQUIRED",
+              "ASSUMPTION_SET_MISMATCH",
+              "DATA_INCOMPLETE",
+              "SCOPE_REQUIRED",
+              "NOT_READY",
+              "APPROVAL_EXPIRED",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "INVALID_REQUEST",
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "safe_message": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DecisionReceipt"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveReceipt"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateTaskReceipt"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "receipt"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "server_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "schema_version",
+          "server_time",
+          "trace_id",
+          "error"
+        ]
+      },
+      "PlanVersionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "current",
+              "superseded",
+              "invalidated",
+              "executed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "total_units": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "plan_id",
+          "task_id",
+          "plan_version",
+          "plan_hash",
+          "status",
+          "created_at",
+          "expires_at",
+          "item_count",
+          "total_units"
+        ]
+      },
+      "LogoutInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          }
+        },
+        "required": [
+          "schema_version"
+        ]
+      },
+      "SenderGate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "destination_alias": {
+            "type": "string",
+            "enum": [
+              "IM",
+              "Base"
+            ]
+          },
+          "sender_enabled": {
+            "type": "boolean"
+          },
+          "reason_code": {
+            "type": "string",
+            "enum": [
+              "NOT_CONFIGURED",
+              "DISABLED_BY_CONFIGURATION",
+              "WINDOW_EXPIRED",
+              "WORKER_NOT_READY",
+              "CONTROLLED_WINDOW_ACTIVE"
+            ]
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "worker_ready": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "destination_alias",
+          "sender_enabled",
+          "reason_code",
+          "verification_mode",
+          "as_of",
+          "worker_ready"
+        ]
+      },
+      "EventReference": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "task",
+              "report",
+              "plan",
+              "approval",
+              "execution",
+              "item",
+              "projection"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ]
+      },
+      "ToolFact": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "deterministic",
+              "sdk_adapter",
+              "commerce_query",
+              "sdk_method",
+              "model"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "selected_by_model": {
+            "type": "boolean"
+          },
+          "sdk_method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "im.v1.message.create",
+                  "bitable.v1.app_table_record.create",
+                  "bitable.v1.app_table_record.list",
+                  "bitable.v1.app_table_record.update"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "category",
+          "name",
+          "selected_by_model",
+          "sdk_method",
+          "verification_mode"
+        ]
+      },
+      "P3TemplateExplanationItem": {
+        "additionalProperties": false,
+        "properties": {
+          "sku_key": {
+            "title": "Sku Key",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "risk",
+              "stockout",
+              "normal",
+              "no_recent_demand",
+              "manual_check",
+              "quality_blocked"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "reference_ids": {
+            "$ref": "#/components/schemas/P3TemplateExplanationRefs"
+          }
+        },
+        "required": [
+          "sku_key",
+          "reason",
+          "text",
+          "facts_hash",
+          "reference_ids"
+        ],
+        "title": "ExplanationItem",
+        "type": "object"
+      },
+      "P3TemplateExplanationRefs": {
+        "additionalProperties": false,
+        "properties": {
+          "snapshot_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "report_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Report Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "report_id"
+        ],
+        "title": "ExplanationRefs",
+        "type": "object"
+      },
+      "P3TemplateTemplateContent": {
+        "additionalProperties": false,
+        "properties": {
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "narrative_mode": {
+            "const": "template",
+            "title": "Narrative Mode",
+            "type": "string"
+          },
+          "binding_mode": {
+            "const": "caller_references",
+            "title": "Binding Mode",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/P3TemplateExplanationItem"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "reference_ids": {
+            "$ref": "#/components/schemas/P3TemplateExplanationRefs"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/P3TemplateTemplateMetadata"
+          }
+        },
+        "required": [
+          "facts_hash",
+          "narrative_mode",
+          "binding_mode",
+          "summary",
+          "lines",
+          "reference_ids",
+          "metadata"
+        ],
+        "title": "TemplateContent",
+        "type": "object"
+      },
+      "P3TemplateTemplateMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "title": "Content",
+            "type": "null"
+          },
+          "error_code": {
+            "enum": [
+              "NO_PROVIDER",
+              "TEMPLATE_REQUIRED"
+            ],
+            "title": "Error Code",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "not_used",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "null"
+          },
+          "requested_model": {
+            "title": "Requested Model",
+            "type": "null"
+          },
+          "returned_model": {
+            "title": "Returned Model",
+            "type": "null"
+          },
+          "prompt_version": {
+            "const": "inventory-explanation-v1",
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "null"
+          },
+          "usage": {
+            "title": "Usage",
+            "type": "null"
+          },
+          "latency_ms": {
+            "title": "Latency Ms",
+            "type": "null"
+          },
+          "pricing_version": {
+            "title": "Pricing Version",
+            "type": "null"
+          },
+          "cost_estimate": {
+            "title": "Cost Estimate",
+            "type": "null"
+          },
+          "stop_required": {
+            "const": false,
+            "title": "Stop Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "content",
+          "error_code",
+          "evidence_mode",
+          "provider",
+          "requested_model",
+          "returned_model",
+          "prompt_version",
+          "request_id",
+          "usage",
+          "latency_ms",
+          "pricing_version",
+          "cost_estimate",
+          "stop_required"
+        ],
+        "title": "TemplateMetadata",
+        "type": "object"
+      },
+      "P3TemplateRead": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p4-p3-template-read-v1",
+            "default": "p4-p3-template-read-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "analysis_only": {
+            "const": true,
+            "default": true,
+            "title": "Analysis Only",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          },
+          "identity_mode": {
+            "const": "simulated",
+            "default": "simulated",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "task_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "source_task_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Source Task Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "p2_original",
+              "p3_observation"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "observation_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observation Id"
+          },
+          "explanation_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Explanation Id",
+            "type": "string"
+          },
+          "report_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "pattern": "^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          },
+          "template_version": {
+            "const": "p3-report-template-v1",
+            "title": "Template Version",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "result": {
+            "$ref": "#/components/schemas/P3TemplateTemplateContent"
+          }
+        },
+        "required": [
+          "task_id",
+          "source_task_id",
+          "source_kind",
+          "observation_id",
+          "explanation_id",
+          "report_id",
+          "snapshot_id",
+          "facts_hash",
+          "template_version",
+          "created_at",
+          "result"
+        ],
+        "title": "P3TemplateRead",
+        "type": "object"
+      },
+      "N01PreflightInput": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "fixture_case": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Fixture Case",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "shop_id",
+          "fixture_case",
+          "text"
+        ],
+        "title": "PreflightInput",
+        "type": "object"
+      },
+      "N01Candidate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "L",
+              "R",
+              "S"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "value": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "Value",
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "explicit_text",
+              "demo_assumption"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End"
+          }
+        },
+        "required": [
+          "name",
+          "value",
+          "source"
+        ],
+        "title": "Candidate",
+        "type": "object"
+      },
+      "N01Parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "mock",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "dataset_version": {
+            "const": "inventory-v1",
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "fixture_case": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Fixture Case",
+            "type": "string"
+          },
+          "L": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_mode",
+          "dataset_version",
+          "fixture_case",
+          "L",
+          "R",
+          "S"
+        ],
+        "title": "Parameters",
+        "type": "object"
+      },
+      "N01Scope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "all_fixture_products",
+            "default": "all_fixture_products",
+            "title": "Kind",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "const": "selected_shop",
+            "default": "selected_shop",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "Scope",
+        "type": "object"
+      },
+      "N01Source": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "mock",
+            "default": "mock",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "dataset_version": {
+            "const": "inventory-v1",
+            "default": "inventory-v1",
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "fixture_case": {
+            "title": "Fixture Case",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Evidence Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fixture_case"
+        ],
+        "title": "Source",
+        "type": "object"
+      },
+      "N01Window": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "last_seven_complete_days",
+            "default": "last_seven_complete_days",
+            "title": "Kind",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "source": {
+            "const": "mock_fixture",
+            "default": "mock_fixture",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "timezone",
+          "as_of"
+        ],
+        "title": "Window",
+        "type": "object"
+      },
+      "N01PreflightResult": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p4-n01-web-v1",
+            "default": "p4-n01-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "clarify",
+              "unsupported"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "EXPLICIT_PARAMETERS",
+              "MISSING_PARAMETERS",
+              "INVALID_PARAMETERS",
+              "UNSUPPORTED_TEXT"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/N01Source"
+          },
+          "window": {
+            "$ref": "#/components/schemas/N01Window"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/N01Scope"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/N01Candidate"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "missing": {
+            "items": {
+              "enum": [
+                "L",
+                "R",
+                "S"
+              ],
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/N01Parameters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requires_confirmation": {
+            "const": true,
+            "default": true,
+            "title": "Requires Confirmation",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "shop_id",
+          "source",
+          "window",
+          "scope",
+          "candidates",
+          "missing",
+          "draft"
+        ],
+        "title": "PreflightResult",
+        "type": "object"
+      },
+      "N01PreflightResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "preflight"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "type": "string"
+          },
+          "identity_mode": {
+            "const": "session",
+            "type": "string"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "preflight": {
+            "$ref": "#/components/schemas/N01PreflightResult"
+          }
+        }
+      },
+      "N01Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "server_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error": {
+            "$ref": "#/components/schemas/N01ErrorDetail"
+          }
+        },
+        "required": [
+          "schema_version",
+          "server_time",
+          "trace_id",
+          "error"
+        ]
+      },
+      "N01ErrorDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_JSON",
+              "SESSION_INVALID",
+              "ACCESS_DENIED",
+              "CSRF_INVALID",
+              "ORIGIN_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "INVALID_REQUEST",
+              "SERVICE_UNAVAILABLE",
+              "COMMERCE_SOURCE_UNAVAILABLE"
+            ]
+          },
+          "safe_message": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "receipt"
+        ]
+      },
+      "P5WooCreateParameters": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "woocommerce_test",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "source_config_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version",
+            "type": "string"
+          },
+          "L": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_mode",
+          "source_config_version",
+          "L",
+          "R",
+          "S"
+        ],
+        "title": "WooCreateParameters",
+        "type": "object"
+      },
+      "P5WooPreflightInput": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_mode": {
+            "const": "woocommerce_test",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source_config_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "source_mode",
+          "shop_id",
+          "source_config_version",
+          "text"
+        ],
+        "title": "WooPreflightInput",
+        "type": "object"
+      },
+      "P5Candidate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "L",
+              "R",
+              "S"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "value": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "Value",
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "explicit_text",
+              "demo_assumption"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End"
+          }
+        },
+        "required": [
+          "name",
+          "value",
+          "source"
+        ],
+        "title": "Candidate",
+        "type": "object"
+      },
+      "P5WooScope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "all_shop_products",
+            "default": "all_shop_products",
+            "title": "Kind",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "const": "selected_shop",
+            "default": "selected_shop",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "WooScope",
+        "type": "object"
+      },
+      "P5WooSource": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "woocommerce_test",
+            "default": "woocommerce_test",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "source_config_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Evidence Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_config_version"
+        ],
+        "title": "WooSource",
+        "type": "object"
+      },
+      "P5WooWindow": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "last_seven_complete_days",
+            "default": "last_seven_complete_days",
+            "title": "Kind",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "source": {
+            "const": "commerce_configuration",
+            "default": "commerce_configuration",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "timezone",
+          "as_of"
+        ],
+        "title": "WooWindow",
+        "type": "object"
+      },
+      "P5WooPreflightResult": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p5-n01-web-v1",
+            "default": "p5-n01-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "clarify",
+              "unsupported"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "EXPLICIT_PARAMETERS",
+              "MISSING_PARAMETERS",
+              "INVALID_PARAMETERS",
+              "UNSUPPORTED_TEXT"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/P5WooSource"
+          },
+          "window": {
+            "$ref": "#/components/schemas/P5WooWindow"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/P5WooScope"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/P5Candidate"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "missing": {
+            "items": {
+              "enum": [
+                "L",
+                "R",
+                "S"
+              ],
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/P5WooCreateParameters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requires_confirmation": {
+            "const": true,
+            "default": true,
+            "title": "Requires Confirmation",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "shop_id",
+          "source",
+          "window",
+          "scope",
+          "candidates",
+          "missing",
+          "draft"
+        ],
+        "title": "WooPreflightResult",
+        "type": "object"
+      },
+      "P5CommerceSourceCapability": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p5-commerce-source-v1",
+            "default": "p5-commerce-source-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "mock",
+              "woocommerce_test"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_config_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Config Version"
+          },
+          "creation_enabled": {
+            "title": "Creation Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "source_kind",
+          "source_config_version",
+          "creation_enabled"
+        ],
+        "title": "CommerceSourceCapability",
+        "type": "object"
+      },
+      "P5PreflightResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "preflight"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "type": "string"
+          },
+          "identity_mode": {
+            "const": "session",
+            "type": "string"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "preflight": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/N01PreflightResult"
+              },
+              {
+                "$ref": "#/components/schemas/P5WooPreflightResult"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "commerceops_session",
+        "description": "PG服务端opaque会话；login使用匿名bootstrap；HttpOnly/SameSite=Lax/Secure依显式transport配置。"
+      }
+    }
+  },
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/csrf",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/CsrfBootstrap"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "input": {
+        "$ref": "#/components/schemas/LoginInput"
+      },
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/SessionRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "429": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/session",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/SessionRead"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "input": {
+        "$ref": "#/components/schemas/LogoutInput"
+      },
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/LogoutReceipt"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/config",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ConfigRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/operations",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/OperationsRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/tasks",
+      "input": {
+        "$ref": "#/components/schemas/CreateTaskInput"
+      },
+      "responses": {
+        "202": {
+          "$ref": "#/components/schemas/CreateTaskReceipt"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/TaskList"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/TaskRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/report",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ReportRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/explanation",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ExplanationRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/plans",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/PlanList"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/plans/{plan_version}",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/PlanRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/events",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/EventsRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tasks/{task_id}/execution",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ExecutionRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/approvals",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ApprovalList"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/approvals/{approval_id}",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ApprovalRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/approvals/{approval_id}/decision",
+      "input": {
+        "$ref": "#/components/schemas/DecisionInput"
+      },
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/DecisionReceipt"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "410": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/replenishment-items",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ItemList"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/replenishment-items/{item_id}",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ItemRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/replenishment-items/{item_id}/resolve",
+      "input": {
+        "$ref": "#/components/schemas/ResolveInput"
+      },
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/ResolveReceipt"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "422": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/requests/{request_key}",
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/RequestRead"
+        },
+        "400": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/tasks/preflight",
+      "input": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/N01PreflightInput"
+          },
+          {
+            "$ref": "#/components/schemas/P5WooPreflightInput"
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "$ref": "#/components/schemas/P5PreflightResponse"
+        },
+        "400": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "401": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "403": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "404": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "409": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "415": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "422": {
+          "$ref": "#/components/schemas/N01Error"
+        },
+        "503": {
+          "$ref": "#/components/schemas/N01Error"
+        }
+      }
+    }
+  ]
+}

@@ -171,6 +171,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         {"schemaname": "business", "tablename": "p4_history_recoveries"},
                         {"schemaname": "business", "tablename": "p4_history_messages"},
                         {"schemaname": "business", "tablename": "p4_read_message_sources"},
+                        {"schemaname": "business", "tablename": "p5_commerce_source_bindings"},
                     ]
                 return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
@@ -183,6 +184,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         "p4_history_recoveries",
                         "p4_history_messages",
                         "p4_read_message_sources",
+                        "p5_commerce_source_bindings",
                     )
                 ):
                     return SimpleNamespace(fetchall=lambda: [])
@@ -215,7 +217,11 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                 if "has_column_privilege" in text:
                     allowed = "payload" not in text
                 else:
-                    allowed = self.params[1] in ("SELECT", "INSERT")
+                    allowed = self.params[1] in (
+                        ("SELECT",)
+                        if self.params[0] == "business.p5_commerce_source_bindings"
+                        else ("SELECT", "INSERT")
+                    )
                 return SimpleNamespace(fetchone=lambda: {"allowed": allowed})
             if "rolsuper" in text:
                 return SimpleNamespace(
@@ -229,7 +235,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             return SimpleNamespace(
                 fetchone=lambda: {
                     "version_num": (
-                        "0013_p4_first_create" if snapshots == 2 else "0017_p4_verified_history"
+                        "0013_p4_first_create" if snapshots == 2 else "0018_p5_commerce_sources"
                     )
                 }
             )
@@ -372,5 +378,5 @@ def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Pat
     assert {p.name for p in (source / "backend/migrations/versions").glob("*.py")} == {
         p.name
         for p in Path("backend/migrations/versions").glob("*.py")
-        if not p.name.startswith(("0014_", "0015_", "0016_", "0017_"))
+        if not p.name.startswith(("0014_", "0015_", "0016_", "0017_", "0018_"))
     }

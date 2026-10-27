@@ -7,7 +7,8 @@ import { parameterClarification, label } from "../lib/p3-present";
 import { P3Failure, PreparedWrite } from "../lib/p3-transport";
 import { Card, Modal, Notice } from "./ui";
 import { InventoryRequestText, InventoryCandidateReview } from "./inventory-request-text";
-import type { N01Response, ParameterName } from "../lib/p4-n01";
+import type { AnyN01Response, AnyN01Input, ParameterName } from "../lib/p4-n01";
+import { commerceCreationGate } from "../lib/p5-commerce-source";
 type Receipt = DTO["CreateTaskReceipt"] | DTO["DecisionReceipt"];
 const safeError = (error: unknown) =>
   error instanceof P3Failure ? error.message : "提交结果待核实，请保留原请求。";
@@ -25,6 +26,7 @@ function Submission({
   validate?: (result: Receipt) => boolean;
 }) {
   const [busy, setBusy] = useState(false),
+    [reading, setReading] = useState(false),
     [message, setMessage] = useState(""),
     [result, setResult] = useState<Receipt | null>(null);
   const [uncertain, setUncertain] = useState(false);
@@ -73,6 +75,7 @@ function Submission({
     if (sending.current || failed || (uncertain && !readAttempted)) return;
     sending.current = true;
     setAttempted(true);
+    setReading(false);
     onState?.("pending");
     setBusy(true);
     setMessage("");
@@ -104,6 +107,7 @@ function Submission({
     sending.current = true;
     setBusy(true);
     setReadAttempted(true);
+    setReading(true);
     try {
       const receipt = await client.requestReceipt(
         prepared.requestKey,
@@ -219,7 +223,7 @@ function Submission({
             disabled={busy}
             onClick={() => void read()}
           >
-            {busy ? "正在读取" : "读取原请求回执"}
+            {busy ? (reading ? "正在读取" : "正在提交") : "读取原请求回执"}
           </button>
         )}
       </div>
@@ -501,13 +505,37 @@ export function CreateTaskDialog({
     [discard, setDiscard] = useState(false);
   const [entry, setEntry] = useState<"structured" | "text">("structured");
   const [text, setText] = useState("");
-  const [preflight, setPreflight] = useState<N01Response | null>(null);
+  const [preflight, setPreflight] = useState<AnyN01Response | null>(null);
   const [checking, setChecking] = useState(false);
   const [manualClarification, setManualClarification] = useState(false);
+  const [sourceRead, setSourceRead] = useState<DTO["ConfigRead"] | null>(null);
+  const [sourceLoading, setSourceLoading] = useState(true);
+  const [sourceEpoch, setSourceEpoch] = useState(0);
+  const shopAllowed = shops.includes(shop);
+  const sourceGate = commerceCreationGate(sourceRead, shop, shops);
+  const sourceAllowed = !sourceLoading && sourceGate.allowed;
   const revision = useRef(0), alive = useRef(true);
-  useEffect(() => () => {
-    alive.current = false;
-    revision.current++;
+  useEffect(() => {
+    // PreparedWrite owns the original bytes and key, including before the first send.
+    // A source refresh must never replace it or remount Submission.
+    if (prepared || mode !== "new_cycle") return;
+    let current = true;
+    invalidateNatural();
+    setSourceRead(null);
+    setSourceLoading(true);
+    if (!shopAllowed) { setSourceLoading(false); return; }
+    void client.config(shop).then((read) => {
+      if (current && alive.current) setSourceRead(read);
+    }).catch((error: unknown) => {
+      if (current && alive.current) setProblem(safeError(error));
+    }).finally(() => {
+      if (current && alive.current) setSourceLoading(false);
+    });
+    return () => { current = false; };
+  }, [client, shop, mode, sourceEpoch, prepared, shopAllowed]);
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; revision.current++; };
   }, []);
   function invalidateNatural() {
     revision.current++;
@@ -522,14 +550,16 @@ export function CreateTaskDialog({
       (preflight.preflight.status === "clarify" && preflight.preflight.reason === "MISSING_PARAMETERS"))
   );
   async function interpret() {
-    if (checking || !shops.includes(shop)) return;
+    if (checking || prepared || !sourceAllowed || !sourceGate.allowed) return;
     const current = ++revision.current;
     setChecking(true);
     setConfirmed(false);
     setPreflight(null);
     setManualClarification(false);
     setProblem("");
-    const input = { schema_version: "p3-web-v1" as const, shop_id: shop, fixture_case: caseName, text };
+    const input: AnyN01Input = sourceGate.kind === "woocommerce_test"
+      ? { schema_version: "p3-web-v1", source_mode: "woocommerce_test", shop_id: shop, source_config_version: sourceGate.version, text }
+      : { schema_version: "p3-web-v1", shop_id: shop, fixture_case: caseName, text };
     try {
       const result = await client.preflight(input);
       if (!alive.current || current !== revision.current) return;
@@ -582,20 +612,20 @@ export function CreateTaskDialog({
           }),
         );
       else {
-        if (!valid || !confirmed || !naturalAllowed) throw new P3Failure("INVALID_REQUEST");
+        if (prepared || !valid || !confirmed || !naturalAllowed || !sourceAllowed || !sourceGate.allowed) throw new P3Failure("INVALID_REQUEST");
         setPrepared(
           client.prepareTask({
             schema_version: "p3-web-v1",
             mode: "new_cycle",
             request_key: key,
             shop_id: shop,
-            parameters: {
-              source_mode: "mock",
-              dataset_version: "inventory-v1",
-              fixture_case: caseName,
-              L: Number(L),
-              R: Number(R),
-              S: Number(S),
+            parameters: sourceGate.kind === "woocommerce_test" ? {
+              source_mode: "woocommerce_test",
+              source_config_version: sourceGate.version,
+              L: Number(L), R: Number(R), S: Number(S),
+            } : {
+              source_mode: "mock", dataset_version: "inventory-v1", fixture_case: caseName,
+              L: Number(L), R: Number(R), S: Number(S),
             },
           }),
         );
@@ -624,7 +654,7 @@ export function CreateTaskDialog({
   return (
     <Modal title="创建正式补货任务" drawer close={requestClose}>
       <p>
-        仅本阶段Mock业务；显式创建新任务，不恢复源completed，不继承旧approval/hash/nonce/请求键/确认集合。
+        按当前店铺的已核实来源显式创建新任务，不恢复源completed，不继承旧approval/hash/nonce/请求键/确认集合。
       </p>
       {!prepared && (
         <>
@@ -671,7 +701,16 @@ export function CreateTaskDialog({
                   ))}
                 </select>
               </label>
-              <label>
+              <Notice title="所选店铺的创建来源">
+                {sourceLoading ? <p role="status">正在核实店铺来源与创建资格。</p> : sourceGate.allowed ? (
+                  <p>{sourceGate.kind === "woocommerce_test" ? `Woo 测试店 · 来源版本 ${sourceGate.version}` : "已核实 Mock 来源"}</p>
+                ) : <p role="status">{sourceGate.reason}</p>}
+                <button type="button" disabled={sourceLoading} onClick={() => {
+                  invalidateNatural(); setSourceRead(null); setSourceLoading(true);
+                  setSourceEpoch((value) => value + 1);
+                }}>重新核实店铺来源</button>
+              </Notice>
+              {sourceGate.allowed && sourceGate.kind === "mock" && <label>
                 Mock案例
                 <select
                   value={caseName}
@@ -691,17 +730,17 @@ export function CreateTaskDialog({
                     <option key={value}>{value}</option>
                   ))}
                 </select>
-              </label>
+              </label>}
               {entry === "structured" ? (
                 <button type="button" onClick={() => {
                   invalidateNatural(); setEntry("text"); setL(""); setR(""); setS("");
                 }}>使用自然语言请求草稿</button>
               ) : (
                 <>
-                  <InventoryRequestText text={text} busy={checking} interpret={() => void interpret()} onChange={(value) => {
+                  <InventoryRequestText text={text} busy={checking} disabled={!sourceAllowed} interpret={() => void interpret()} onChange={(value) => {
                     setText(value); invalidateNatural(); setL(""); setR(""); setS("");
                   }} />
-                  <p>当前仅支持所选 Mock 的全店商品、最近七个完整自然日及明确 L/R/S；指定 SKU、自定义日期等需要修正原句。</p>
+                  <p>仅支持所选店铺的全店商品、最近七个完整自然日及明确 L/R/S；Woo 窗口由服务端来源配置确定。指定 SKU、自定义日期等需要修正原句。</p>
                   <button type="button" onClick={() => {
                     invalidateNatural(); setText(""); setEntry("structured"); setL(""); setR(""); setS("");
                   }}>取消原句并改用结构化草稿</button>
@@ -732,7 +771,7 @@ export function CreateTaskDialog({
               ))}
               <button
                 data-control="B35"
-                disabled={!valid || !naturalAllowed}
+                disabled={!valid || !naturalAllowed || !sourceAllowed}
                 onClick={() => setConfirmed(true)}
               >
                 确认结构化参数
@@ -743,7 +782,7 @@ export function CreateTaskDialog({
                 >
                   <p role="status">
                     {clarification ??
-                      "请核对 Mock 案例和 L/R/S，明确确认结构化参数。"}
+                      "请核对所选店铺来源和 L/R/S，明确确认结构化参数。"}
                   </p>
                   <p>
                     此时未创建任务或报告。完整参数的明确提交是新请求，不自动续答或恢复旧任务。
@@ -752,9 +791,11 @@ export function CreateTaskDialog({
               )}
               {confirmed && (
                 <Notice title="参数已明确确认">
-                  {caseName} · L/R/S={L}/{R}/{S}；
+                  {sourceGate.allowed && sourceGate.kind === "woocommerce_test"
+                    ? `Woo 测试店 · 来源版本 ${sourceGate.version}` : `Mock · ${caseName}`} · L/R/S={L}/{R}/{S}；
+                  <p>范围：所选店铺全部商品；窗口：最近七个完整自然日，由{sourceGate.allowed && sourceGate.kind === "woocommerce_test" ? "服务端来源配置" : "冻结 Mock 案例"}确定。</p>
                   {entry === "text"
-                    ? "已明确核对原句/手工补充参数、冻结 Mock 窗口与全店范围；无模型调用，尚未创建任务。"
+                    ? "已明确核对原句/手工补充参数、来源窗口与全店范围；无模型调用，尚未创建任务。"
                     : "无自然语言猜参或模型预解析。"}
                 </Notice>
               )}
@@ -763,7 +804,7 @@ export function CreateTaskDialog({
           <button
             className="primary"
             data-control="B01"
-            disabled={mode === "new_cycle" && (!valid || !confirmed || !naturalAllowed)}
+            disabled={mode === "new_cycle" && (!valid || !confirmed || !naturalAllowed || !sourceAllowed)}
             onClick={prepare}
           >
             准备本次正式任务请求

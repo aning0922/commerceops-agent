@@ -481,3 +481,93 @@ def test_measured_fixed_groups_move_whole_and_terminal_commands_stay_five_one_on
         assert sorted(actual) == sorted(P3 + acceptance)
         terminal = [nodes for name, nodes in commands if "test_p4_acceptance_pg" in name]
         assert terminal == [acceptance[:5], acceptance[5:6], acceptance[6:]]
+
+
+@pytest.mark.parametrize("scope", ["all", "existing", "phase3"])
+def test_p5_complete_modules_keep_partition_and_original_caps(scope: str) -> None:
+    p5 = [
+        "tests/test_p5_sources_pg.py::source_one",
+        "tests/test_p5_sources_pg.py::source_two",
+        "tests/test_p5_feishu_pg.py::feishu",
+        "tests/test_p5_future_pg.py::future_failure",
+    ]
+    full = OLD + P3 + p5
+    records = [collection(full)]
+    commands: list[tuple[str, list[str], float]] = []
+    actual: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        commands.append((label, paths, cap))
+        selected = [node for node in full if node.split("::", 1)[0] in paths]
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, scope)
+    expected = full if scope == "all" else OLD + p5 if scope == "existing" else P3
+    assert sorted(actual) == sorted(expected) and len(actual) == len(set(actual))
+    assert all(cap == 300 for _, _, cap in commands)
+    if scope != "phase3":
+        assert commands[0][1] == sorted({n.split("::", 1)[0] for n in OLD})
+        p5_commands = [(label, paths) for label, paths, _ in commands if "test_p5_" in label]
+        assert len(p5_commands) == 3
+        assert {tuple(paths) for _, paths in p5_commands} == {(n.split("::", 1)[0],) for n in p5}
+
+
+def test_failed_p5_module_keeps_later_modules_unrun() -> None:
+    p5 = ["tests/test_p5_first_pg.py::case", "tests/test_p5_second_pg.py::case"]
+    full = OLD + P3 + p5
+    records = [collection(full)]
+    labels = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        labels.append(label)
+        records.append(collection([n for n in full if n.split("::", 1)[0] in paths]))
+        return "test_p5_first" not in label
+
+    with pytest.raises(RuntimeError, match="combined integration group failed"):
+        pg_diagnostic.run_combined(records, {}, command, "existing")
+    assert labels == ["combined-existing", "combined-existing-test_p5_first_pg"]
+
+
+def test_local_history_read_regression_uses_original_seven_seven_five_caps_only() -> None:
+    history = [f"tests/test_p4_history_pg.py::case_{n:02d}" for n in range(14)]
+    parent = [f"tests/test_p4_read_reply_parent_pg.py::case_{n:02d}" for n in range(11)]
+    records = [collection(OLD + P3 + history + parent)]
+    calls = []
+    report: dict[str, object] = {}
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        calls.append((label, paths, cap))
+        records.append(collection(paths))
+        return True
+
+    pg_diagnostic.run_combined(records, report, command, history_read_regression=True)
+    assert [len(paths) for _, paths, _ in calls] == [7, 7, 5]
+    assert all(cap == 300 for _, _, cap in calls)
+    assert [n for _, paths, _ in calls for n in paths] == history + parent[6:]
+    assert report["full_gate"] is False
+    assert report["validation_scope"] == "local_history_read_regression_only"
+
+
+@pytest.mark.parametrize("extra", [["--session", "ci"], ["--full-smoke"], ["--node", "arbitrary"]])
+def test_local_regression_cannot_replace_ci_or_full_smoke(
+    monkeypatch: pytest.MonkeyPatch, extra: list[str]
+) -> None:
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "pg_diagnostic",
+            "--deadline",
+            "2099-01-01T00:00:00+00:00",
+            "--round",
+            "1",
+            "--combined",
+            "--history-read-regression",
+            *extra,
+        ],
+    )
+    monkeypatch.setattr(pg_diagnostic, "prepare", lambda *_: pytest.fail("no resource preparation"))
+    with pytest.raises(SystemExit) as error:
+        pg_diagnostic.main()
+    assert error.value.code == 2

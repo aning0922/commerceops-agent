@@ -70,7 +70,16 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
     existing = [node for node in nodes if node not in phase3_set]
-    groups = {"combined-existing": existing} if existing else {}
+    # 40373408272: all 246 calls passed, but their shared command hit 300s.
+    # Move complete P5 natural modules only; every command keeps the same 300s cap.
+    p5_paths = sorted(
+        {node.split("::", 1)[0] for node in existing if node.startswith("tests/test_p5_")}
+    )
+    ordinary = [node for node in existing if node.split("::", 1)[0] not in p5_paths]
+    groups = {"combined-existing": ordinary} if ordinary else {}
+    for path in p5_paths:
+        label = "combined-existing-" + path.removeprefix("tests/").removesuffix(".py")
+        groups[label] = [node for node in existing if node.split("::", 1)[0] == path]
     # 从实际collection按现有P3模块派生；不硬编码阶段cardinality或挑选test node。
     for path in sorted({node.split("::", 1)[0] for node in phase3}):
         label = "combined-phase3-" + path.removeprefix("tests/").removesuffix(".py").replace(
@@ -180,6 +189,8 @@ def run_combined(
     report: dict[str, object],
     test_command: Callable[[str, list[str], float], bool],
     scope: str = "all",
+    *,
+    history_read_regression: bool = False,
 ) -> None:
     expected = collected_nodes(records)
     groups = combined_groups(expected)
@@ -194,6 +205,20 @@ def run_combined(
     selected = partition(expected, scope)
     if scope != "all":
         groups = {label: group for label, group in groups.items() if set(group) <= set(selected)}
+    if history_read_regression:
+        required = {
+            "combined-existing-p4-verified-history-part-1": 7,
+            "combined-existing-p4-verified-history-part-2": 7,
+            "combined-existing-p4-read-reply-parent-part-2": 5,
+        }
+        if scope != "all" or any(
+            len(groups.get(label, [])) != count for label, count in required.items()
+        ):
+            raise RuntimeError("history/read regression requires exact existing 7+7+5 groups")
+        groups = {label: groups[label] for label in required}
+        selected = [node for group in groups.values() for node in group]
+        report["validation_scope"] = "local_history_read_regression_only"
+        report["full_gate"] = False
     chosen = [node for group in groups.values() for node in group]
     if not groups or len(chosen) != len(set(chosen)) or set(chosen) != set(selected):
         raise RuntimeError("selected scope coverage mismatch")
@@ -332,12 +357,22 @@ def main() -> None:
     parser.add_argument("--round", type=int, choices=(1, 2, 3), required=True)
     parser.add_argument("--node", action="append", default=[])
     parser.add_argument("--combined", action="store_true")
+    parser.add_argument("--history-read-regression", action="store_true")
     parser.add_argument("--no-child-trace", action="store_true")
     parser.add_argument("--session", choices=("initial", "followup", "ci"), default="initial")
     parser.add_argument("--fault-probe", action="store_true")
     parser.add_argument("--full-smoke", action="store_true")
     parser.add_argument("--ci-scope", choices=("all", "existing", "phase3"), default="all")
     args = parser.parse_args()
+    if args.history_read_regression and (
+        args.session != "initial"
+        or not args.combined
+        or args.ci_scope != "all"
+        or args.node
+        or args.full_smoke
+        or args.fault_probe
+    ):
+        parser.error("history/read regression is local combined 7+7+5 only, never a CI/full gate")
     if args.ci_scope != "all" and (
         args.session != "ci"
         or not args.combined
@@ -719,7 +754,13 @@ def main() -> None:
         if not tests("collection", paths, 30, collect=True):
             raise RuntimeError("collection failed")
         if args.combined:
-            run_combined(records, report, tests, args.ci_scope)
+            run_combined(
+                records,
+                report,
+                tests,
+                args.ci_scope,
+                history_read_regression=args.history_read_regression,
+            )
         elif args.node:
             for index, node in enumerate(args.node):
                 if not tests("node-" + str(index), [node], 90):

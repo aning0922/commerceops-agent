@@ -1,0 +1,167 @@
+{
+  "schema_version": "woocommerce-local-positive-v1",
+  "timezone": "Asia/Shanghai",
+  "currency": "CNY",
+  "per_page": 2,
+  "clock": {
+    "day_offset": 0,
+    "time": "00:00:00"
+  },
+  "created_at": {
+    "day_offset": -8,
+    "time": "12:00:00"
+  },
+  "window_start": {
+    "day_offset": -7,
+    "time": "00:00:00"
+  },
+  "window_end": {
+    "day_offset": 0,
+    "time": "00:00:00"
+  },
+  "products": [
+    {
+      "key": "simple_a",
+      "name": "Positive synthetic A",
+      "sku": "POS-SIMPLE-A",
+      "type": "simple",
+      "price": "10.25",
+      "manage_stock": true,
+      "stock_quantity": 20,
+      "stock_status": "instock"
+    },
+    {
+      "key": "simple_b",
+      "name": "Positive synthetic B",
+      "sku": "POS-SIMPLE-B",
+      "type": "simple",
+      "price": "2.00",
+      "manage_stock": true,
+      "stock_quantity": 8,
+      "stock_status": "instock"
+    },
+    {
+      "key": "independent_parent",
+      "name": "Positive synthetic independent parent",
+      "sku": "POS-PARENT",
+      "type": "variable",
+      "price": "0.00",
+      "manage_stock": false,
+      "stock_quantity": null,
+      "stock_status": "instock"
+    },
+    {
+      "key": "independent_red",
+      "name": "Positive synthetic independent red",
+      "sku": "POS-RED",
+      "type": "variation",
+      "price": "4.50",
+      "manage_stock": true,
+      "stock_quantity": 0,
+      "stock_status": "outofstock",
+      "parent": "independent_parent",
+      "color": "red"
+    },
+    {
+      "key": "independent_blue",
+      "name": "Positive synthetic independent blue",
+      "sku": "POS-BLUE",
+      "type": "variation",
+      "price": "4.50",
+      "manage_stock": true,
+      "stock_quantity": 5,
+      "stock_status": "instock",
+      "parent": "independent_parent",
+      "color": "blue"
+    }
+  ],
+  "orders": [
+    {
+      "key": "sale_simple_a",
+      "status": "processing",
+      "created_at": {
+        "day_offset": -1,
+        "time": "08:00:00"
+      },
+      "lines": [
+        {
+          "product": "simple_a",
+          "quantity": 70,
+          "total": "717.50"
+        }
+      ]
+    },
+    {
+      "key": "sale_simple_b",
+      "status": "completed",
+      "created_at": {
+        "day_offset": -1,
+        "time": "10:00:00"
+      },
+      "lines": [
+        {
+          "product": "simple_b",
+          "quantity": 28,
+          "total": "56.00"
+        }
+      ]
+    },
+    {
+      "key": "sale_independent_red",
+      "status": "processing",
+      "created_at": {
+        "day_offset": -1,
+        "time": "12:00:00"
+      },
+      "lines": [
+        {
+          "product": "independent_red",
+          "quantity": 35,
+          "total": "157.50"
+        }
+      ]
+    },
+    {
+      "key": "sale_independent_blue",
+      "status": "completed",
+      "created_at": {
+        "day_offset": -1,
+        "time": "14:00:00"
+      },
+      "lines": [
+        {
+          "product": "independent_blue",
+          "quantity": 14,
+          "total": "63.00"
+        }
+      ]
+    }
+  ],
+  "refunds": [],
+  "analysis_gold": {
+    "rule_version": "inventory-rule-v1",
+    "parameters": {
+      "L": 3,
+      "R": 7,
+      "S": 2
+    },
+    "expected_quantities": {
+      "simple_a": 100,
+      "simple_b": 40,
+      "independent_red": 60,
+      "independent_blue": 19
+    },
+    "candidate_count": 4,
+    "assumption_count": 4,
+    "total_quantity": 219,
+    "gross_units": 147,
+    "net_amount": "994",
+    "tax_amount": "0"
+  },
+  "notes": [
+    "Independent new synthetic store; never filter the mixed quality-negative store.",
+    "Each normalized SKU owns one exact stock pool; variable parent is only a container.",
+    "All inbound remains unknown/null; effective zero requires four bound confirmations.",
+    "No refund, payment, email or webhook operation. Dates resolve once at prepare."
+  ]
+}

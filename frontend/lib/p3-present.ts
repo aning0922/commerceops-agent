@@ -1,4 +1,4 @@
-import type { components } from "./p3-types.generated";
+import type { components } from "./p5-types.generated";
 export type DTO = components["schemas"];
 export const stateText: Record<string, string> = {
   queued: "排队中",
@@ -237,4 +237,27 @@ export function newCycleEligibility(
     allowed: true,
     reason: "可打开新周期草稿；原任务、报告、批准和执行保持原记录。",
   };
+}
+
+// Labels describe only frozen report facts, never the session/transport or active adapter.
+export function commerceSourceLabel(kind: unknown): string {
+  if (kind === "mock") return "Mock 样本";
+  if (kind === "woocommerce_test") return "Woo 测试店（只读）";
+  return "未报告";
+}
+export function commerceQualityLabel(flag: string): string {
+  const labels: Record<string, string> = {
+    UNKNOWN_STOCK: "库存未知，需人工核对",
+    SHARED_POOL_UNRESOLVED: "共享库存池待核对，不按变体重复分配",
+    DUPLICATE_ID: "来源存在重复标识",
+    MISSING_PAGE: "来源分页缺失",
+    SOURCE_CHANGED: "采集期间来源发生变化",
+    CAPACITY_LIMIT: "达到采集容量上限",
+    PARTIAL_FAILURE: "来源采集部分失败",
+    DELETED_PRODUCT: "关联商品已删除",
+  };
+  return Object.hasOwn(labels, flag) ? `${labels[flag]}（${flag}）` : "未识别质量标志";
+}
+export function commerceQualitySummary(flags: readonly string[]): string {
+  return [...new Set(flags)].map(commerceQualityLabel).join("；") || "无已报告质量标志";
 }

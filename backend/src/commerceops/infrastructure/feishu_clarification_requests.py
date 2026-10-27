@@ -10,6 +10,7 @@ from psycopg.types.json import Jsonb
 
 from commerceops.adapters.commerce.mock import Fixture
 from commerceops.adapters.feishu.contracts import MessageProbe
+from commerceops.application.commerce.source_binding import SourceBindingError
 from commerceops.application.feishu_business.clarification import (
     F02_TTL_SECONDS,
     F02_WORKFLOW,
@@ -23,13 +24,19 @@ from commerceops.application.replenishment.contracts import (
     FeishuActor,
     Parameters,
     WebFailure,
+    WooCreateParameters,
 )
 from commerceops.application.replenishment.nl_preflight import (
     PreflightInput,
     Window,
+    WooPreflightInput,
+    WooSource,
+    WooWindow,
     parse_preflight,
+    parse_woo_preflight,
 )
 from commerceops.domain.commerce_values import complete_days, facts_hash
+from commerceops.infrastructure.commerce_sources import resolve_woo_source
 from commerceops.infrastructure.web_sessions import DB, now, role_scope
 
 if TYPE_CHECKING:
@@ -140,6 +147,32 @@ class F02Requests:
         if len(text) > 2000:
             raise WebFailure("INVALID_REQUEST", 422)
         params = self.business.parameters
+        if isinstance(params, WooCreateParameters):
+            try:
+                _, actual = resolve_woo_source(
+                    db,
+                    self.business.store.config.commerce_sources,
+                    actor.organization_id,
+                    self.business.shop,
+                    expected_version=params.source_config_version,
+                )
+            except SourceBindingError:
+                raise WebFailure("COMMERCE_SOURCE_UNAVAILABLE", 409) from None
+            return parse_woo_preflight(
+                WooPreflightInput(
+                    schema_version="p3-web-v1",
+                    source_mode="woocommerce_test",
+                    shop_id=self.business.shop,
+                    source_config_version=params.source_config_version,
+                    text=text,
+                ),
+                WooWindow(
+                    start=actual.window.start,
+                    end=actual.window.end,
+                    timezone=actual.timezone,
+                    as_of=actual.business_now,
+                ),
+            )
         row = db.execute(
             """SELECT external_shop_key,currency,timezone FROM business.shops
             WHERE id=%s AND organization_id=%s AND adapter_kind='mock'
@@ -208,7 +241,7 @@ class F02Requests:
                 "chat_id": message.chat_id,
                 "chat_type": message.chat_type,
                 "text_sha256": facts_hash(message.text),
-                "source_mode": "mock",
+                "source_mode": self.business.parameters.source_mode,
                 "model_mode": "not_used",
                 "clarification_id": receipt["clarification_id"],
                 "round": receipt["round"],
@@ -444,14 +477,24 @@ class F02Requests:
             return receipt
         if candidate.kind != "ready":
             raise WebFailure("CLARIFICATION_INCOMPLETE")
-        confirmed_parameters = Parameters(
-            source_mode=candidate.source.source_mode,
-            dataset_version=candidate.source.dataset_version,
-            fixture_case=candidate.source.fixture_case,
-            L=candidate.parameters["L"],
-            R=candidate.parameters["R"],
-            S=candidate.parameters["S"],
-        )
+        confirmed_parameters: Parameters | WooCreateParameters
+        if isinstance(candidate.source, WooSource):
+            confirmed_parameters = WooCreateParameters(
+                source_mode="woocommerce_test",
+                source_config_version=candidate.source.source_config_version,
+                L=candidate.parameters["L"],
+                R=candidate.parameters["R"],
+                S=candidate.parameters["S"],
+            )
+        else:
+            confirmed_parameters = Parameters(
+                source_mode=candidate.source.source_mode,
+                dataset_version=candidate.source.dataset_version,
+                fixture_case=candidate.source.fixture_case,
+                L=candidate.parameters["L"],
+                R=candidate.parameters["R"],
+                S=candidate.parameters["S"],
+            )
         if (
             confirmed_parameters != self.business.parameters
             or candidate.scope.shop_id != self.business.shop

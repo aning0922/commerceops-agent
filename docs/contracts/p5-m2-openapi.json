@@ -1,0 +1,1062 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "P5 M2 additions to P3 and P4 N01 contracts",
+    "version": "p5-m2-v1"
+  },
+  "paths": {
+    "/api/v1/tasks/preflight": {
+      "post": {
+        "operationId": "preflightNewCycle",
+        "summary": "当前Web operator/shop自然语言参数草稿；明确确认前零业务写入",
+        "responses": {
+          "200": {
+            "description": "只读业务preflight结果；ready仍需本地明确确认和独立显式提交",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/P5PreflightResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求无法解码或cursor/filter无效，无原输入",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "会话失效/缺失/撤权或统一登录失败，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无能力/CSRF/Origin拒绝，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在/不可见对象/非法对象ID一致",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "仅支持JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "严格输入验证，无输入回显",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "数据库/配置不可用，提交事实须按原键核实",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "当前Woo来源配置不可用；不降级Mock，不读取秘密或创建任务",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/N01Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{43}$"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "description": "精确配置scheme/host/port；missing/null/非允许Origin拒绝"
+            }
+          }
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-implementation-status": "not_implemented",
+        "x-authority-contract": "p5-m2-v1.md",
+        "x-cache-control": "no-store",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/N01PreflightInput"
+                  },
+                  {
+                    "$ref": "#/components/schemas/P5WooPreflightInput"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "P5WooCreateParameters": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "woocommerce_test",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "source_config_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version",
+            "type": "string"
+          },
+          "L": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "L",
+            "type": "integer"
+          },
+          "R": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "R",
+            "type": "integer"
+          },
+          "S": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_mode",
+          "source_config_version",
+          "L",
+          "R",
+          "S"
+        ],
+        "title": "WooCreateParameters",
+        "type": "object"
+      },
+      "P5WooPreflightInput": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_mode": {
+            "const": "woocommerce_test",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source_config_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "source_mode",
+          "shop_id",
+          "source_config_version",
+          "text"
+        ],
+        "title": "WooPreflightInput",
+        "type": "object"
+      },
+      "P5Candidate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "L",
+              "R",
+              "S"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "value": {
+            "maximum": 365,
+            "minimum": 0,
+            "title": "Value",
+            "type": "integer"
+          },
+          "source": {
+            "enum": [
+              "explicit_text",
+              "demo_assumption"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End"
+          }
+        },
+        "required": [
+          "name",
+          "value",
+          "source"
+        ],
+        "title": "Candidate",
+        "type": "object"
+      },
+      "P5WooScope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "all_shop_products",
+            "default": "all_shop_products",
+            "title": "Kind",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "const": "selected_shop",
+            "default": "selected_shop",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "WooScope",
+        "type": "object"
+      },
+      "P5WooSource": {
+        "additionalProperties": false,
+        "properties": {
+          "source_mode": {
+            "const": "woocommerce_test",
+            "default": "woocommerce_test",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "source_config_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Evidence Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_config_version"
+        ],
+        "title": "WooSource",
+        "type": "object"
+      },
+      "P5WooWindow": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "last_seven_complete_days",
+            "default": "last_seven_complete_days",
+            "title": "Kind",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "source": {
+            "const": "commerce_configuration",
+            "default": "commerce_configuration",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "timezone",
+          "as_of"
+        ],
+        "title": "WooWindow",
+        "type": "object"
+      },
+      "P5WooPreflightResult": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p5-n01-web-v1",
+            "default": "p5-n01-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "clarify",
+              "unsupported"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "EXPLICIT_PARAMETERS",
+              "MISSING_PARAMETERS",
+              "INVALID_PARAMETERS",
+              "UNSUPPORTED_TEXT"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/P5WooSource"
+          },
+          "window": {
+            "$ref": "#/components/schemas/P5WooWindow"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/P5WooScope"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/P5Candidate"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "missing": {
+            "items": {
+              "enum": [
+                "L",
+                "R",
+                "S"
+              ],
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/P5WooCreateParameters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requires_confirmation": {
+            "const": true,
+            "default": true,
+            "title": "Requires Confirmation",
+            "type": "boolean"
+          },
+          "execution_available": {
+            "const": false,
+            "default": false,
+            "title": "Execution Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "shop_id",
+          "source",
+          "window",
+          "scope",
+          "candidates",
+          "missing",
+          "draft"
+        ],
+        "title": "WooPreflightResult",
+        "type": "object"
+      },
+      "P5CommerceSourceCapability": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p5-commerce-source-v1",
+            "default": "p5-commerce-source-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "mock",
+              "woocommerce_test"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_config_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Config Version"
+          },
+          "creation_enabled": {
+            "title": "Creation Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "source_kind",
+          "source_config_version",
+          "creation_enabled"
+        ],
+        "title": "CommerceSourceCapability",
+        "type": "object"
+      },
+      "DeploymentConfig": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "config_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "shop_timezone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval_ttl_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 604800
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revalidation_max_age_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3600
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_plan_items": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recovery_scan_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_absolute_seconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 86400
+          },
+          "session_idle_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 86400,
+            "description": "还须<=本次实际session_absolute_seconds"
+          },
+          "transport_mode": {
+            "type": "string",
+            "enum": [
+              "https",
+              "local_http"
+            ]
+          },
+          "source_mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "woocommerce_test"
+            ]
+          },
+          "model_requests_enabled": {
+            "type": "boolean",
+            "const": false
+          },
+          "external_sender_enabled": {
+            "type": "boolean"
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
+          },
+          "commerce_source": {
+            "$ref": "#/components/schemas/P5CommerceSourceCapability"
+          }
+        },
+        "required": [
+          "config_version",
+          "shop_timezone",
+          "approval_ttl_seconds",
+          "revalidation_max_age_seconds",
+          "max_plan_items",
+          "recovery_scan_seconds",
+          "session_absolute_seconds",
+          "session_idle_seconds",
+          "transport_mode",
+          "source_mode",
+          "model_requests_enabled",
+          "external_sender_enabled",
+          "sender_gates"
+        ]
+      },
+      "CreateNewCycle": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "mode": {
+            "type": "string",
+            "const": "new_cycle"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parameters": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MockParameters"
+              },
+              {
+                "$ref": "#/components/schemas/P5WooCreateParameters"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "mode",
+          "request_key",
+          "shop_id",
+          "parameters"
+        ]
+      },
+      "Plan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "hash_version": {
+            "type": "string",
+            "const": "p3-plan-hash-v1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "current",
+              "superseded",
+              "invalidated",
+              "executed"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceBinding"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "rule_version": {
+            "type": "string",
+            "const": "inventory-rule-v1"
+          },
+          "parameters": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MockParameters"
+              },
+              {
+                "$ref": "#/components/schemas/P5WooCreateParameters"
+              }
+            ]
+          },
+          "config_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanItem"
+            },
+            "minItems": 1,
+            "maxItems": 20
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "total_units": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "required_assumptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Assumption"
+            },
+            "uniqueItems": true,
+            "maxItems": 20
+          },
+          "hard_blocks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          },
+          "quality_flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "uniqueItems": true
+          },
+          "disclosure_complete": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          }
+        },
+        "required": [
+          "plan_id",
+          "task_id",
+          "plan_version",
+          "plan_hash",
+          "hash_version",
+          "status",
+          "source",
+          "currency",
+          "rule_version",
+          "parameters",
+          "config_version",
+          "expires_at",
+          "items",
+          "item_count",
+          "total_units",
+          "required_assumptions",
+          "hard_blocks",
+          "quality_flags",
+          "disclosure_complete",
+          "created_at"
+        ]
+      },
+      "P5PreflightResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "preflight"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": "p3-web-v1",
+            "type": "string"
+          },
+          "identity_mode": {
+            "const": "session",
+            "type": "string"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "preflight": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/N01PreflightResult"
+              },
+              {
+                "$ref": "#/components/schemas/P5WooPreflightResult"
+              }
+            ]
+          }
+        }
+      },
+      "N01ErrorDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_JSON",
+              "SESSION_INVALID",
+              "ACCESS_DENIED",
+              "CSRF_INVALID",
+              "ORIGIN_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "INVALID_REQUEST",
+              "SERVICE_UNAVAILABLE",
+              "COMMERCE_SOURCE_UNAVAILABLE"
+            ]
+          },
+          "safe_message": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "receipt"
+        ]
+      }
+    }
+  },
+  "x-base-contracts": [
+    "p3-openapi.json",
+    "p4-n01-openapi.json"
+  ]
+}

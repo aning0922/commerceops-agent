@@ -281,7 +281,10 @@ def test_carrier_identity_no_mutation_delete_truncate_and_scope_no_forgery(
                 db.execute(query)
         revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
         related = db.execute("SELECT to_regclass('business.p4_history_messages') AS t").fetchone()
-        if revision == {"version_num": "0017_p4_verified_history"}:
+        if revision in (
+            {"version_num": "0017_p4_verified_history"},
+            {"version_num": "0018_p5_commerce_sources"},
+        ):
             assert related and related["t"] is not None
             before = db.execute(
                 """SELECT row_to_json(r)::text AS body

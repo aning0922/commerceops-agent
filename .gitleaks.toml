@@ -1,6 +1,6 @@
 # Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。
 # 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。
-# 不使用 extend/useDefault；仅有 5 个指定规则/路径/精确整行 AND 豁免。
+# 不使用 extend/useDefault；仅有 17 个指定规则/路径/精确整行 AND 豁免。
 title = "gitleaks config"
 minVersion = "v8.25.0"
 
@@ -749,6 +749,138 @@ paths = [
 ]
 regexes = [
     "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\[\"explicit_ro_recheck_authorized\",\\ \"explicit_ro_recheck_dispatched\"\\],$",
+]
+
+[[rules.allowlists]]
+description = "bbb507b已核Woo公开合成marker，仅指定path及完整行，当前/index另核源行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)infrastructure/woo-lab/seed\\.php$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ 'meta_key'\\ =>\\ '_commerceops_lab_key',\\ 'meta_value'\\ =>\\ \\$key,\\ 'fields'\\ =>\\ 'ids'\\]\\);$",
+]
+
+[[rules.allowlists]]
+description = "bbb507b已核Woo公开合成marker，仅指定path及完整行，当前/index另核源行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/fixtures/woocommerce-local/seed\\.json$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \"key\":\\ \"partial_refund\",$",
+]
+
+[[rules.allowlists]]
+description = "85f477c双审公开合同名/字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)frontend/tooling/sync-p5-schema\\.mjs$",
+]
+regexes = [
+    "^(?:\\r?\\n)?for\\ \\(const\\ name\\ of\\ \\[\"p3\\-openapi\\.json\",\\ \"p4\\-n01\\-openapi\\.json\",\\ \"p5\\-m2\\-openapi\\.json\"\\]\\)\\ \\{$",
+]
+
+[[rules.allowlists]]
+description = "85f477c双审公开合同名/字段名，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/phase5/creation-ui\\.spec\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ expect\\(Object\\.keys\\(body\\)\\.sort\\(\\)\\)\\.toEqual\\(\\[\"schema_version\",\\ \"mode\",\\ \"request_key\",\\ \"source_task_id\",\\ \"source_report_id\",\\ \"snapshot_id\",\\ \"facts_hash\"\\]\\.sort\\(\\)\\);$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ accounts\\.operator\\.password\\ =\\ \"offline\\-only\\-placeholder\";$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ accounts\\.approver\\.password\\ =\\ \"offline\\-only\\-placeholder\";$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ let\\ bound\\ =\\ result\\.request_key\\ ===\\ input\\.request_key\\ \\&\\&\\ \\(operation\\ ===\\ \"decision\"\\ \\?\\ \"decision_id\"\\ in\\ result\\ :\\ !\\(\"decision_id\"\\ in\\ result\\)\\);$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(item\\ \\&\\&\\ item\\.stock_pool_key\\ ===\\ fact\\.stock_pool_key\\ \\&\\&\\ item\\.quantity\\ ===\\ fact\\.suggested_units\\ \\&\\&\\ item\\.raw_inbound_units\\ ===\\ null\\ \\&\\&\\ item\\.effective_inbound_units\\ ===\\ 0,\\ \"M2_GOLD_MISMATCH\"\\);$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ const\\ input\\ =\\ original\\ as\\ Record<string,\\ unknown>,\\ key\\ =\\ input\\.request_key\\ as\\ string;$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(validWooCreateInput\\(original\\)\\ \\&\\&\\ original\\.request_key\\ ===\\ canonical\\.create_request_key\\ \\&\\&\\ original\\.shop_id\\ ===\\ r\\.window\\.shop_id\\ \\&\\&\\ original\\.parameters\\.source_mode\\ ===\\ \"woocommerce_test\"\\ \\&\\&\\ original\\.parameters\\.source_config_version\\ ===\\ r\\.source\\.source_config_version\\ \\&\\&\\ original\\.parameters\\.L\\ ===\\ 3\\ \\&\\&\\ original\\.parameters\\.R\\ ===\\ 7\\ \\&\\&\\ original\\.parameters\\.S\\ ===\\ 2,\\ \"M2_BINDING\"\\);$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(saved\\.schema_version\\ ===\\ \"p5\\-m2\\-receipt\\-v1\"\\ \\&\\&\\ saved\\.run_id\\ ===\\ r\\.window\\.run_id\\ \\&\\&\\ saved\\.phase\\ ===\\ \"source_ready\"\\ \\&\\&\\ saved\\.via\\ ===\\ \"post\"\\ \\&\\&\\ saved\\.outcome\\ ===\\ \"confirmed\"\\ \\&\\&\\ saved\\.operation\\ ===\\ \"create_task\"\\ \\&\\&\\ saved\\.request_key\\ ===\\ canonical\\.create_request_key\\ \\&\\&\\ verifyReadResponse\\(\"POST\",\\ \"/api/v1/tasks\",\\ saved\\.http_status,\\ saved\\.response\\)\\ \\&\\&\\ saved\\.response\\.task_id\\ ===\\ canonical\\.task_id\\ \\&\\&\\ saved\\.response\\.source_task_id\\ ===\\ canonical\\.source_task_id\\ \\&\\&\\ saved\\.response\\.request_key\\ ===\\ canonical\\.create_request_key,\\ \"M2_BINDING\"\\);$",
+]
+
+[[rules.allowlists]]
+description = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ requireM2\\(expected\\ \\&\\&\\ item\\.item\\.item_id\\ ===\\ id\\ \\&\\&\\ item\\.item\\.shop_id\\ ===\\ r\\.window\\.shop_id\\ \\&\\&\\ item\\.item\\.stock_pool_key\\ ===\\ expected\\.stock_pool_key\\ \\&\\&\\ item\\.item\\.quantity\\ ===\\ expected\\.suggested_units\\ \\&\\&\\ item\\.item\\.state\\ ===\\ \"open\",\\ \"M2_EXECUTION_REJECTED\"\\);$",
 ]
 
 [[rules]]

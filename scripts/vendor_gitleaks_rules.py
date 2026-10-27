@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -27,9 +28,167 @@ RO_ROW_DIGEST = "07e3542d6dbdbc59bbd099207f38277800daec3217315d0f5dde8549e6df32d
 RO_SOURCE_COMMIT = "348a9f4ca0c4159d9b3a2cbdf0921623e5bb5600"
 
 
+WOO_SOURCE_COMMIT = "bbb507b08f1a937f3466369044db27054dee2879"
+WOO_SEED_ROW = (
+    "            'meta_"
+    + "key' => '_commerceops_lab_"
+    + "key', 'meta_value' => $key, 'fields' => 'ids']);"
+)
+WOO_FIXTURE_ROW = '      "' + "key" + '": "' + "partial_" + 'refund",'
+WOO_PUBLIC_EXCEPTIONS = (
+    (
+        "infrastructure/woo-lab/seed.php",
+        r"(?:^|/)infrastructure/woo-lab/seed\.php$",
+        WOO_SEED_ROW,
+        "66b247190dfa6c8e39e40251c2166858090553e24c393565b3c3807d10119527",
+        25,
+    ),
+    (
+        "tests/fixtures/woocommerce-local/seed.json",
+        r"(?:^|/)tests/fixtures/woocommerce-local/seed\.json$",
+        WOO_FIXTURE_ROW,
+        "4eccbfac014eeaff0495d26b0ce2073de68aab89987717bb70b6004647b686f4",
+        169,
+    ),
+)
+
+M2_SOURCE_COMMIT = "85f477c46d5348a9e3667f606d273eff3cbaaa32"
+M2_PUBLIC_EXCEPTIONS = (
+    (
+        "frontend/tooling/sync-p5-schema.mjs",
+        r"(?:^|/)frontend/tooling/sync-p5-schema\.mjs$",
+        "a3bcd562c3b2193866f90fe3efe03523c2f2ce303370fb1fe9f51cdcb1d57408",
+        5,
+    ),
+    (
+        "tests/e2e/web/phase5/creation-ui.spec.ts",
+        r"(?:^|/)tests/e2e/web/phase5/creation-ui\.spec\.ts$",
+        "d5e9e9954765601d77bfdf3e42286cabfdf39c8f7501c3c3c57142277accf0b6",
+        153,
+    ),
+)
+
+
+M2_CONSUMER_SOURCE_COMMIT = "27af9c359c35b1f48f2530681a2d400910914d28"
+M2_CONSUMER_EXCEPTIONS = (
+    (
+        "tests/e2e/web/contracts/m2-consumer.spec.ts",
+        "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
+        "708e007826382db1ba2e2d2890c189bf0a8b071096ecf13049b517152c52f22e",
+        39,
+    ),
+    (
+        "tests/e2e/web/contracts/m2-consumer.spec.ts",
+        "(?:^|/)tests/e2e/web/contracts/m2-consumer\\.spec\\.ts$",
+        "503a15a10a4d484e96b74719fad06cf375a7a48a1a2b54c827dcbdc9acdb85c5",
+        40,
+    ),
+    (
+        "tests/e2e/web/live/m2-consumer.ts",
+        "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+        "7eba5a3c9dd2d0c4203ab7e5470ef45a8c35d46e1af70e79836278617c849e01",
+        58,
+    ),
+    (
+        "tests/e2e/web/live/m2-consumer.ts",
+        "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+        "015f7c967bfa67d3dcf5171a1be76083ee509fa7a280e41ca52200b33a31e580",
+        75,
+    ),
+    (
+        "tests/e2e/web/live/m2-consumer.ts",
+        "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+        "34cf7ac263107a4d2be2015a0f264a6d1e4c315d8f58d2fbe345d74c1795a0e7",
+        257,
+    ),
+    (
+        "tests/e2e/web/live/m2-consumer.ts",
+        "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+        "f0c3acd784b36b1f3472875fc9c765e587424d9237562f34b7b937da5b8bfda0",
+        277,
+    ),
+    (
+        "tests/e2e/web/live/m2-consumer.ts",
+        "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+        "d503b52d88c272a7c9b8f26edb249f4e34adf47f08b3bf17c7ae8faa288246a5",
+        291,
+    ),
+    (
+        "tests/e2e/web/live/m2-consumer.ts",
+        "(?:^|/)tests/e2e/web/live/m2-consumer\\.ts$",
+        "dbbec2bf789237600d1426e7c9968c147cd1ef753e0fc753b689e199667937d7",
+        439,
+    ),
+)
+
+
+def m2_consumer_rows(root: Path) -> tuple[tuple[str, str, str, str, int], ...]:
+    """Only the eight unchanged reviewed public literals at the pinned consumer revision."""
+    result = []
+    for path, pattern, digest, line in M2_CONSUMER_EXCEPTIONS:
+        source = subprocess.run(
+            ["git", "show", M2_CONSUMER_SOURCE_COMMIT + ":" + path],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        rows = source.stdout.splitlines()
+        if (
+            source.returncode
+            or len(rows) < line
+            or hashlib.sha256(rows[line - 1]).hexdigest() != digest
+        ):
+            raise ValueError("invalid M2 consumer public source")
+        result.append((path, pattern, rows[line - 1].decode(), digest, line))
+    return tuple(result)
+
+
+def m2_public_rows(root: Path) -> tuple[tuple[str, str, str, str, int], ...]:
+    """Read only the two independently reviewed immutable public source lines."""
+    result = []
+    for path, pattern, digest, line in M2_PUBLIC_EXCEPTIONS:
+        source = subprocess.run(
+            ["git", "show", M2_SOURCE_COMMIT + ":" + path],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        rows = source.stdout.splitlines()
+        if (
+            source.returncode
+            or len(rows) < line
+            or hashlib.sha256(rows[line - 1]).hexdigest() != digest
+        ):
+            raise ValueError("invalid M2 public source")
+        result.append((path, pattern, rows[line - 1].decode(), digest, line))
+    return tuple(result)
+
+
+def validate_woo_public_sources(root: Path) -> None:
+    """仅核Root已转交B提交的两条公开行，不读取其他WIP或运行数据。"""
+    for path, _, row, digest, line in WOO_PUBLIC_EXCEPTIONS:
+        if hashlib.sha256(row.encode()).hexdigest() != digest:
+            raise ValueError("invalid Woo public source")
+        source = subprocess.run(
+            ["git", "show", WOO_SOURCE_COMMIT + ":" + path],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        rows = source.stdout.splitlines()
+        if (
+            source.returncode
+            or len(rows) < line
+            or hashlib.sha256(rows[line - 1]).hexdigest() != digest
+        ):
+            raise ValueError("invalid Woo public source")
+
+
 def main() -> None:
     # CI在安装依赖前运行敏感扫描；导入公开行常量不能要求生成器的开发依赖。
     import tomli_w
+
+    from scripts.scan_secrets import APPROVED_TEST_HISTORY
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
@@ -46,7 +205,7 @@ def main() -> None:
         rule_removed += int("allowlist" in rule) + len(rule.get("allowlists", []))
         rule.pop("allowlist", None)
         rule.pop("allowlists", None)
-    # 五处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
+    # 十七处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
     schema_row = next(
         line
         for line in (ROOT / "docs/DATA_MODEL.md").read_text().splitlines()
@@ -57,6 +216,7 @@ def main() -> None:
     ):
         raise SystemExit("公开 schema 行变化，须重新审查精确豁免")
     exceptions = []
+    validate_woo_public_sources(ROOT)
     if hashlib.sha256(P3_PUBLIC_ROW.encode()).hexdigest() != P3_ROW_DIGEST:
         raise SystemExit("P3历史公开摘要行变化，须重新审查精确豁免")
     if hashlib.sha256(B_PUBLIC_ROW.encode()).hexdigest() != B_ROW_DIGEST:
@@ -152,10 +312,76 @@ def main() -> None:
                     "source_line": 3936,
                 }
             )
+            for source_path, path, row, digest, line in WOO_PUBLIC_EXCEPTIONS:
+                reason = "bbb507b已核Woo公开合成marker，仅指定path及完整行，当前/index另核源行hash"
+                rule["allowlists"].append(
+                    {
+                        "description": reason,
+                        "condition": "AND",
+                        "regexTarget": "line",
+                        "paths": [path],
+                        "regexes": [r"^(?:\r?\n)?" + re.escape(row) + "$"],
+                    }
+                )
+                exceptions.append(
+                    {
+                        "rule": rule["id"],
+                        "path": path,
+                        "reason": reason,
+                        "exact_line_sha256": digest,
+                        "source_commit": WOO_SOURCE_COMMIT,
+                        "source_path": source_path,
+                        "source_line": line,
+                    }
+                )
+            for source_path, path, row, digest, line in m2_public_rows(ROOT):
+                reason = "85f477c双审公开合同名/字段名，仅指定path与完整行及固定来源hash"
+                rule["allowlists"].append(
+                    {
+                        "description": reason,
+                        "condition": "AND",
+                        "regexTarget": "line",
+                        "paths": [path],
+                        "regexes": [r"^(?:\r?\n)?" + re.escape(row) + "$"],
+                    }
+                )
+                exceptions.append(
+                    {
+                        "rule": rule["id"],
+                        "path": path,
+                        "reason": reason,
+                        "exact_line_sha256": digest,
+                        "source_commit": M2_SOURCE_COMMIT,
+                        "source_path": source_path,
+                        "source_line": line,
+                    }
+                )
+            for source_path, path, row, digest, line in m2_consumer_rows(ROOT):
+                reason = "原d42已审八行公开字段名，27af9c来源重绑定候选，仅指定path与完整行hash"
+                rule["allowlists"].append(
+                    {
+                        "description": reason,
+                        "condition": "AND",
+                        "regexTarget": "line",
+                        "paths": [path],
+                        "regexes": [r"^(?:\r?\n)?" + re.escape(row) + "$"],
+                    }
+                )
+                exceptions.append(
+                    {
+                        "rule": rule["id"],
+                        "path": path,
+                        "reason": reason,
+                        "exact_line_sha256": digest,
+                        "source_commit": M2_CONSUMER_SOURCE_COMMIT,
+                        "source_path": source_path,
+                        "source_line": line,
+                    }
+                )
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 5 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 17 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
@@ -173,11 +399,14 @@ def main() -> None:
         "removed_global_allowlists": global_removed,
         "removed_rule_allowlists": rule_removed,
         "exceptions": exceptions,
+        "historical_findings": list(APPROVED_TEST_HISTORY),
     }
     (ROOT / "scripts/gitleaks_rules.json").write_text(
         json.dumps(provenance, indent=2, ensure_ascii=False) + "\n"
     )
-    print(f"固定规则生成完成：{len(config['rules'])} rules, 5 exact-line exceptions")
+    print(
+        f"固定规则生成完成：{len(config['rules'])} rules, {len(exceptions)} exact-line exceptions"
+    )
 
 
 if __name__ == "__main__":

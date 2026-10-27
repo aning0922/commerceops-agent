@@ -22,6 +22,8 @@ CommerceOps Agent 把电商运营中分散的分析、审批和跟进连接起�
 
 **确定性代码计算事实，模型辅助解释，人决定是否执行。** 每次状态变化都能关联到数据快照、计划版本、真实操作者和执行回执。当前 M1 已完成真实飞书测试环境中的业务闭环验收；业务数据来自 MockCommerce，执行范围是内部工作项的创建、完成与关闭。
 
+M2 的本地合成 Woo 只读接入、备份还原和当前 Mock 部署技术门槛已核收；文档冻结时最终审核/CI与发布收口仍待。完整分层证据见 [Phase5 验收](docs/PHASE5_ACCEPTANCE.md)，正式阶段状态以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际登记为准。
+
 ## 产品体验
 
 ### 一条请求，贯穿分析、决策与跟进
@@ -119,7 +121,7 @@ PATH="$PWD/.tools/node/bin:$PATH" \
 
 打开 [http://127.0.0.1:3000](http://127.0.0.1:3000)。将 `COMMERCEOPS_MOCK_ROLE` 改为 `approver` 或 `admin` 并重启，可查看对应角色样例。
 
-此模式使用演示数据，无需数据库、模型密钥或飞书凭据，不产生业务写入。仓库当前为 Private，克隆需要访问权限；工具安装和冷缓存依赖下载需要网络。
+此模式使用演示数据，无需数据库、模型密钥或飞书凭据，不产生业务写入。仓库当前为 Public，可直接克隆；工具安装和冷缓存依赖下载需要网络。
 
 ### 方式二：运行完整离线业务闭环
 
@@ -155,10 +157,10 @@ PATH="$PWD/.tools/node/bin:$PATH" \
 | 里程碑 | 范围 | 状态 |
 | --- | --- | --- |
 | **M1 · 核心 Agent 应用** | 库存分析、审批、内部工作项、Web、真实飞书与 Base 闭环 | **已验收** · Phase0–4 |
-| M2 · 真实电商数据接入 | WooCommerce 测试店只读适配、数据对账、备份还原与完整 P0 交付 | 规划中 · Phase5 |
+| M2 · Woo 测试店只读接入 | 本地合成 Woo 对账、待审批备份恢复、当前 Mock Compose | 技术 Gate 已核收；[正式收口状态](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354) · Phase5 |
 | M3 · 完整求职版本 | 日报与调度、受限动态只读工具、SOP RAG、文案审核草稿 | 规划中 · Phase6 |
 
-当前不执行真实采购、支付、退款或库存修改。Woo 实店、生产部署及后续阶段尚未验收。路线与依赖见 [ROADMAP](docs/ROADMAP.md)及 [30 天交付计划](docs/plans/30_DAY_EXECUTION.md)；阶段文档中的历史快照由对应结案回执补齐。
+当前不执行真实采购、支付、退款或库存修改。商业实店数据、生产部署及后续阶段尚未验收。路线与依赖见 [ROADMAP](docs/ROADMAP.md)及 [30 天交付计划](docs/plans/30_DAY_EXECUTION.md)；阶段文档中的历史快照由对应结案回执补齐。
 
 ## 开发与检查
 
@@ -206,7 +208,7 @@ commerceops-agent/
 | 理解业务一致性 | [架构](docs/ARCHITECTURE.md) · [数据模型](docs/DATA_MODEL.md) · [Agent 设计](docs/AGENT_DESIGN.md) |
 | 阅读页面与接口合同 | [UX 索引](docs/ux/README.md) · [Web 合同](docs/contracts/p3-web-v1.md) · [P4 Web 交接](docs/ux/phase4-implementation.md) |
 | 理解外部集成 | [飞书](docs/FEISHU_INTEGRATION.md) · [电商适配](docs/COMMERCE_INTEGRATION.md) |
-| 核验完成情况 | [最终结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990) · [M1 验收](docs/PHASE4_ACCEPTANCE.md) · [项目状态](docs/STATUS.md) |
+| 核验完成情况 | [最终结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990) · [M1 验收](docs/PHASE4_ACCEPTANCE.md) · [M2 验收](docs/PHASE5_ACCEPTANCE.md) · [项目状态](docs/STATUS.md) |
 
 ---
 

@@ -23,7 +23,7 @@ from commerceops.infrastructure.replenishment_execution import (
 )
 from commerceops.infrastructure.replenishment_repository import ApprovalStore
 from commerceops.infrastructure.worker_lock import open_async
-from commerceops.workflows.inventory_analysis import CollectorFactory
+from commerceops.workflows.inventory_analysis import CollectorFactory, WooCollectorFactory
 
 Hook = Callable[[str], Awaitable[None]]
 
@@ -57,11 +57,12 @@ class ApprovalRunner:
         *,
         hook: Hook = no_hook,
         collector_factory: CollectorFactory | None = None,
+        woo_collector_factory: WooCollectorFactory | None = None,
     ):
         self.store, self.hook = store, hook
         self.recovery = ApprovalRecovery(store)
         self.active = 0
-        self.execution = ExecutionStore(store, collector_factory)
+        self.execution = ExecutionStore(store, collector_factory, woo_collector_factory)
         self.snapshot_getter: Callable[[], Awaitable[Any]] | None = None
 
     async def run(self, r: RunRequest) -> RunResult:

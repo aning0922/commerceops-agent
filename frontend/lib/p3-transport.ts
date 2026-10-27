@@ -1,16 +1,19 @@
 // Offline-tested transport for the reviewed p3-web-v1 contract. Not imported by B01 UI.
 // The API enforces identity, role-bound scopes, eligibility, versions and idempotency.
-import type { components } from "./p3-types.generated";
-import type { N01Input, N01Response } from "./p4-n01";
+import type { components } from "./p5-types.generated";
+import type { N01Input, N01Response, WooN01Input, WooN01Response, AnyN01Input, AnyN01Response } from "./p4-n01";
 import { validN01Input, validN01Response, n01MatchesInput } from "./p4-n01";
+import { validWooCreateInput } from "./p5-commerce-source";
 type DTO = components["schemas"];
 export type P3FailureCode =
   | DTO["ErrorDetail"]["code"]
   | "INVALID_RESPONSE"
   | "WRITE_RESULT_UNKNOWN"
-  | "CSRF_NOT_READY";
+  | "CSRF_NOT_READY"
+  | "COMMERCE_SOURCE_UNAVAILABLE";
 const messages: Partial<Record<P3FailureCode, string>> = {
   SESSION_INVALID: "会话已过期或授权已变更，请重新登录。",
+  COMMERCE_SOURCE_UNAVAILABLE: "当前店铺来源不可用，请核实来源配置；不会回退Mock或重发请求。",
   LOGIN_FAILED: "登录失败，请核对账号与密码。",
   ACCESS_DENIED: "当前身份无权访问。",
   RESOURCE_NOT_FOUND: "页面不可访问或当前身份没有权限。",
@@ -37,6 +40,7 @@ const messages: Partial<Record<P3FailureCode, string>> = {
   INVALID_REQUEST: "请求未通过校验，请核对输入或当前记录。",
 };
 const knownErrorCodes = new Set<string>([
+  "COMMERCE_SOURCE_UNAVAILABLE",
   "INVALID_CURSOR",
   "INVALID_FILTER",
   "INVALID_JSON",
@@ -252,7 +256,7 @@ export class P3Client {
         object(data.error) &&
         typeof data.error.code === "string" &&
         knownErrorCodes.has(data.error.code)
-          ? (data.error.code as DTO["ErrorDetail"]["code"])
+          ? (data.error.code as P3FailureCode)
           : "INVALID_RESPONSE";
       // Never surface server raw safe_message/input/body: local fixed messages only.
       throw new P3Failure(code, response.status, data.trace_id);
@@ -311,13 +315,18 @@ export class P3Client {
       await this.#request("GET", "/api/v1/auth/session"),
     );
   }
-  async preflight(input: N01Input): Promise<N01Response> {
+  async preflight(input: N01Input): Promise<N01Response>;
+  async preflight(input: WooN01Input): Promise<WooN01Response>;
+  async preflight(input: AnyN01Input): Promise<AnyN01Response>;
+  async preflight(input: AnyN01Input): Promise<AnyN01Response> {
     if (!this.#principal || !this.#csrf) throw new P3Failure("CSRF_NOT_READY");
     if (!validN01Input(input)) throw new P3Failure("INVALID_REQUEST");
     const principal = this.#principal;
-    const read = await this.#request<N01Response>(
+    const read = await this.#request<AnyN01Response>(
       "POST", "/api/v1/tasks/preflight", {},
-      JSON.stringify(fields(input, ["schema_version", "shop_id", "fixture_case", "text"])),
+      JSON.stringify(fields(input, "source_mode" in input
+        ? ["schema_version", "source_mode", "shop_id", "source_config_version", "text"]
+        : ["schema_version", "shop_id", "fixture_case", "text"])),
     );
     if (this.#principal !== principal || !validN01Response(200, read) || !n01MatchesInput(read, input))
       throw new P3Failure("INVALID_RESPONSE");
@@ -352,6 +361,9 @@ export class P3Client {
   prepareTask(
     input: DTO["CreateTaskInput"],
   ): PreparedWrite<DTO["CreateTaskReceipt"]> {
+    if (input.mode === "new_cycle" && input.parameters.source_mode !== "mock" &&
+        (input.parameters.source_mode !== "woocommerce_test" || !validWooCreateInput(input)))
+      throw new P3Failure("INVALID_REQUEST");
     const body =
       input.mode === "from_report"
         ? fields(input, [
@@ -370,14 +382,10 @@ export class P3Client {
               "request_key",
               "shop_id",
             ]),
-            parameters: fields(input.parameters, [
-              "source_mode",
-              "dataset_version",
-              "fixture_case",
-              "L",
-              "R",
-              "S",
-            ]),
+            parameters: fields(input.parameters,
+              input.parameters.source_mode === "woocommerce_test"
+                ? ["source_mode", "source_config_version", "L", "R", "S"]
+                : ["source_mode", "dataset_version", "fixture_case", "L", "R", "S"]),
           };
     return this.#prepare("create_task", "/api/v1/tasks", input, body);
   }

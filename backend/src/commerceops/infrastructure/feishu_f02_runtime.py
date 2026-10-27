@@ -8,11 +8,22 @@ from commerceops.adapters.feishu.business_config import BusinessSettings
 from commerceops.application.feishu_business.clarification import F02Candidate, F02Message
 from commerceops.application.feishu_business.f02_window import F02Window, F02WorkerWindow
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
+from commerceops.application.replenishment.contracts import WooCreateParameters
+from commerceops.application.replenishment.nl_preflight import WooSource
+from commerceops.infrastructure.commerce_sources import (
+    CommerceSourceFiles,
+    resolve_woo_source_async,
+)
 from commerceops.infrastructure.feishu_gateway_window import claimed_state
 
 
 async def trusted_f02_gateway(
-    db: Any, window: F02WorkerWindow, app_id: str, tenant_key: str
+    db: Any,
+    window: F02WorkerWindow,
+    app_id: str,
+    tenant_key: str,
+    *,
+    commerce_sources: CommerceSourceFiles | None = None,
 ) -> dict[str, Any]:
     cursor = await db.execute(
         """SELECT a.after_state,a.occurred_at FROM business.audit_events a
@@ -21,7 +32,10 @@ async def trusted_f02_gateway(
         WHERE a.id=%s AND a.organization_id=%s AND a.source='feishu_gateway'
         AND a.action='gateway_start_claimed' AND a.entity_type='gateway_window'
         AND o.feishu_app_id=%s AND o.feishu_tenant_key=%s
-        AND s.adapter_kind='mock' AND s.environment IN ('test','mock')
+        AND ((s.adapter_kind='mock' AND s.environment IN ('test','mock')
+         AND a.after_state#>>'{parameters,source_mode}'='mock') OR
+         (s.adapter_kind='woocommerce_test' AND s.environment='test'
+         AND a.after_state#>>'{parameters,source_mode}'='woocommerce_test'))
         AND NOT EXISTS(SELECT 1 FROM business.audit_events e
         WHERE e.organization_id=a.organization_id AND e.source='feishu_gateway'
         AND e.action='termination_confirmed' AND e.entity_type='gateway_runtime'
@@ -48,15 +62,33 @@ async def trusted_f02_gateway(
         or window.expires_at > gateway.expires_at
     ):
         raise PermissionError("F02_GATEWAY_SCOPE_REQUIRED")
+    if isinstance(gateway.parameters, WooCreateParameters):
+        await resolve_woo_source_async(
+            db,
+            commerce_sources,
+            window.organization_id,
+            window.shop_id,
+            expected_version=gateway.parameters.source_config_version,
+        )
     return cast(dict[str, Any], claim)
 
 
 async def selected_f02_reply(
-    db: Any, settings: BusinessSettings, window: F02WorkerWindow
+    db: Any,
+    settings: BusinessSettings,
+    window: F02WorkerWindow,
+    *,
+    commerce_sources: CommerceSourceFiles | None = None,
 ) -> F02Window | None:
     """只读当前Gateway明确选择的首个request及其新回复；不是org pending扫描。"""
     window.window(settings)
-    claim = await trusted_f02_gateway(db, window, settings.app_id, settings.tenant_key)
+    claim = await trusted_f02_gateway(
+        db,
+        window,
+        settings.app_id,
+        settings.tenant_key,
+        commerce_sources=commerce_sources,
+    )
     cursor = await db.execute(
         """SELECT after_state FROM business.audit_events
         WHERE organization_id=%s AND source='feishu_clarification'
@@ -115,10 +147,21 @@ async def selected_f02_reply(
 
 
 async def trusted_f02_source(
-    db: Any, row: dict[str, Any], current: dict[str, Any], window: F02Window
+    db: Any,
+    row: dict[str, Any],
+    current: dict[str, Any],
+    window: F02Window,
+    *,
+    commerce_sources: CommerceSourceFiles | None = None,
 ) -> bool:
     """与原轮次/权限核验一起在发送事务中调用，preflight也调用相同核验。"""
-    await trusted_f02_gateway(db, window, current["app_id"], current["tenant_key"])
+    claim = await trusted_f02_gateway(
+        db,
+        window,
+        current["app_id"],
+        current["tenant_key"],
+        commerce_sources=commerce_sources,
+    )
     payload = F02Candidate.model_validate_json(json.dumps(row["frozen_payload"]))
     F02Message(
         reply_id=row["id"],
@@ -128,6 +171,26 @@ async def trusted_f02_source(
         payload_hash=row["frozen_payload_hash"],
     )
     candidate = F02Candidate.model_validate_json(json.dumps(current["candidate"]))
+    parameters = claim["after_state"]["parameters"]
+    if candidate.source.source_mode != parameters["source_mode"]:
+        return False
+    if isinstance(candidate.source, WooSource):
+        if candidate.source.source_config_version != parameters["source_config_version"]:
+            return False
+        _, actual = await resolve_woo_source_async(
+            db,
+            commerce_sources,
+            window.organization_id,
+            window.shop_id,
+            expected_version=candidate.source.source_config_version,
+        )
+        if (
+            candidate.window.start,
+            candidate.window.end,
+            candidate.window.timezone,
+            candidate.window.as_of,
+        ) != (actual.window.start, actual.window.end, actual.timezone, actual.business_now):
+            return False
     if (
         row["identity_provider"] != "feishu"
         or (row["organization_id"], row["shop_id"], row["request_id"], row["id"])

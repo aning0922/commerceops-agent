@@ -6,7 +6,13 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from commerceops.application.commerce.analysis_task import InventoryTaskRequest
+from commerceops.application.commerce.analysis_task import (
+    AnalysisRequest,
+    InventoryTaskRequest,
+    WooInventoryTaskRequest,
+    parse_analysis_request,
+)
+from commerceops.application.commerce.source_binding import RegisteredWooSource
 
 TASK_KIND = "inventory_replenishment"
 WORKFLOW_VERSION = "p3-inventory-replenishment-v1"
@@ -32,6 +38,31 @@ class Parameters(BaseModel):
         return InventoryTaskRequest(**self.model_dump())
 
 
+class WooCreateParameters(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid", frozen=True, hide_input_in_errors=True)
+    source_mode: Literal["woocommerce_test"]
+    source_config_version: str = Field(min_length=1, max_length=256)
+    L: int = Field(ge=0, le=365)
+    R: int = Field(ge=0, le=365)
+    S: int = Field(ge=0, le=365)
+
+    def bind(self, registered: RegisteredWooSource) -> WooInventoryTaskRequest:
+        if self.source_config_version != registered.source_config_version:
+            raise ValueError("COMMERCE_SOURCE_UNAVAILABLE")
+        return WooInventoryTaskRequest(
+            **self.model_dump(),
+            source_binding_id=registered.binding_id,
+            organization_id=registered.organization_id,
+            shop_id=registered.shop_id,
+        )
+
+
+def analysis_request_from_parameters(value: object) -> AnalysisRequest:
+    if isinstance(value, dict) and value.get("source_mode") == "woocommerce_test":
+        return parse_analysis_request(value)
+    return Parameters.model_validate(value).analysis_request()
+
+
 class CreateFromReport(Input):
     mode: Literal["from_report"]
     request_key: UUID
@@ -45,7 +76,7 @@ class CreateNewCycle(Input):
     mode: Literal["new_cycle"]
     request_key: UUID
     shop_id: UUID
-    parameters: Parameters
+    parameters: Parameters | WooCreateParameters = Field(discriminator="source_mode")
 
 
 CreateInput = CreateFromReport | CreateNewCycle

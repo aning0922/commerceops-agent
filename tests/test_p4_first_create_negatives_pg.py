@@ -394,6 +394,7 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                     "business.p4_history_recoveries",
                     "business.p4_history_messages",
                     "business.p4_read_message_sources",
+                    "business.p5_commerce_source_bindings",
                 }
                 assert {key: current[key] for key in before} == before
                 assert current["business.p3_template_results"][0] == 0
@@ -405,6 +406,7 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                         "p4_history_recoveries",
                         "p4_history_messages",
                         "p4_read_message_sources",
+                        "p5_commerce_source_bindings",
                     )
                 )
                 stage = "grant-current"
@@ -431,6 +433,11 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                                 "SELECT has_table_privilege('commerceops_app',%s,%s) AS allowed",
                                 ("business." + table, privilege),
                             ).fetchone() == {"allowed": False}
+                    for privilege in ("SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE"):
+                        assert db.execute(
+                            "SELECT has_table_privilege('commerceops_app',%s,%s) AS allowed",
+                            ("business.p5_commerce_source_bindings", privilege),
+                        ).fetchone() == {"allowed": privilege == "SELECT"}
                     for column in (
                         "status",
                         "attempts",
@@ -475,17 +482,17 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 with connect(owner) as db:
                     assert db.execute(
                         "SELECT version_num FROM business.alembic_version"
-                    ).fetchone() == {"version_num": "0017_p4_verified_history"}
+                    ).fetchone() == {"version_num": "0018_p5_commerce_sources"}
                 emit(
                     "c0_migration_preserved",
                     source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
                     original_tables=len(before),
                     original_rows=sum(v[0] for v in before.values()),
                     checkpoints=before["checkpoints.checkpoints"][0],
-                    new_tables_empty=6,
+                    new_tables_empty=7,
                     original_all_bytes_equal=True,
                     first_create_head="0013_p4_first_create",
-                    current_head="0017_p4_verified_history",
+                    current_head="0018_p5_commerce_sources",
                     current_grants_verified=True,
                 )
             except BaseException as error:

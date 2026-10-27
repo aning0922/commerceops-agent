@@ -673,9 +673,12 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
                 (original["id"],),
             )
         before = snapshot()
-        migrate(owner)
-        grant_runtime(owner)
+        initialize_schema(owner, "0017")
         after = snapshot()
+        with connect(owner) as db:
+            assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
+                "version_num": "0017_p4_verified_history"
+            }
         assert set(after) - set(before) == {
             "business.p4_history_recoveries",
             "business.p4_history_messages",
@@ -702,6 +705,30 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
                 original["canonical_payload"],
                 original["payload_hash"],
                 original["provider_uuid"],
+            )
+            assert required(
+                db.execute(
+                    "SELECT business.p4_read_reply_current(%s) AS ok", (original["id"],)
+                ).fetchone()
+            )["ok"]
+        # Current head is a separate additive step; keep the exact historical contract above.
+        migrate(owner)
+        grant_runtime(owner)
+        current = snapshot()
+        assert set(current) - set(after) == {"business.p5_commerce_source_bindings"}
+        assert set(after) <= set(current)
+        assert not current["business.p5_commerce_source_bindings"]
+        assert all(current[key] == value for key, value in after.items())
+        with connect(owner) as db:
+            assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
+                "version_num": "0018_p5_commerce_sources"
+            }
+        with connect(app) as db:
+            assert (
+                db.execute(
+                    "SELECT * FROM business.p4_read_replies WHERE id=%s", (original["id"],)
+                ).fetchone()
+                == row
             )
             assert required(
                 db.execute(

@@ -1,6 +1,6 @@
 "use client";
 import { useId } from "react";
-import type { N01Response } from "../lib/p4-n01";
+import type { AnyN01Response } from "../lib/p4-n01";
 import { n01CandidateText } from "../lib/p4-n01";
 import { Card, Notice } from "./ui";
 
@@ -10,11 +10,13 @@ export function InventoryRequestText({
   onChange,
   interpret,
   busy = false,
+  disabled = false,
 }: {
   text: string;
   onChange: (text: string) => void;
   interpret?: () => void;
   busy?: boolean;
+  disabled?: boolean;
 }) {
   const input = useId(),
     hint = useId();
@@ -36,7 +38,7 @@ export function InventoryRequestText({
       </p>
       <button
         type="button"
-        disabled={!interpret || busy || !text.trim() || count > 2000}
+        disabled={!interpret || busy || disabled || !text.trim() || count > 2000}
         onClick={() => interpret?.()}
       >
         {busy ? "正在检查草稿" : "检查草稿与参数"}
@@ -50,7 +52,7 @@ export function InventoryCandidateReview({
   read,
   text,
 }: {
-  read: N01Response;
+  read: AnyN01Response;
   text: string;
 }) {
   const p = read.preflight;
@@ -69,13 +71,15 @@ export function InventoryCandidateReview({
             ? "不能用示例默认值忽略此原句。请修正后重新检查，或明确取消原句，另开结构化新周期。"
             : "预检查尚未创建任务、采集报告或批准计划。下一步核对来源、窗口、范围和完整参数。"}
       </Notice>
-      <p>来源：Mock / inventory-v1 / {p.source.fixture_case}；模型未使用。</p>
-      <p>范围：当前所选店铺的全部 fixture 商品，不支持选取部分 SKU。</p>
+      <p>来源：{p.schema_version === "p5-n01-web-v1"
+        ? `Woo 测试店 / 来源版本 ${p.source.source_config_version}`
+        : `Mock / inventory-v1 / ${p.source.fixture_case}`}；模型未使用。</p>
+      <p>范围：当前所选店铺的全部{p.schema_version === "p5-n01-web-v1" ? "商品" : " fixture 商品"}，不支持选取部分 SKU。</p>
       <p>
         观察窗口：最近七个完整自然日，{p.window.start} 至 {p.window.end}
         （结束不包含）；时区 {p.window.timezone}；冻结来源时间 {p.window.as_of}。
       </p>
-      <p>此窗口来自 Mock fixture，尚未采集。R 是复查周期，不是上述观察窗口。</p>
+      <p>此窗口来自{p.schema_version === "p5-n01-web-v1" ? "服务端可信来源配置" : " Mock fixture"}，尚未采集。R 是复查周期，不是上述观察窗口。</p>
       <div>
         <table className="n01-candidates">
           <thead><tr><th>参数</th><th>候选天数</th><th>来源</th></tr></thead>

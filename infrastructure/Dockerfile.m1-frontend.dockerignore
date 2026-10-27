@@ -11,3 +11,4 @@ frontend/evidence
 !docs/contracts
 !docs/contracts/p3-openapi.json
 !docs/contracts/p4-n01-openapi.json
+!docs/contracts/p5-m2-openapi.json

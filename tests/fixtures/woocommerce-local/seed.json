@@ -1,0 +1,282 @@
+{
+  "schema_version": "woocommerce-local-v1",
+  "clock": "2026-10-02T00:00:00+08:00",
+  "created_at": "2026-09-30T12:00:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "currency": "CNY",
+  "window_start": "2026-10-01T00:00:00+08:00",
+  "window_end": "2026-10-02T00:00:00+08:00",
+  "per_page": 2,
+  "products": [
+    {
+      "key": "simple_positive",
+      "name": "Synthetic simple_positive",
+      "sku": "LAB-SIMPLE-POS",
+      "type": "simple",
+      "price": "10.25",
+      "manage_stock": true,
+      "stock_quantity": 12,
+      "stock_status": "instock"
+    },
+    {
+      "key": "simple_zero",
+      "name": "Synthetic simple_zero",
+      "sku": "LAB-SIMPLE-ZERO",
+      "type": "simple",
+      "price": "2.00",
+      "manage_stock": true,
+      "stock_quantity": 0,
+      "stock_status": "outofstock"
+    },
+    {
+      "key": "simple_negative",
+      "name": "Synthetic simple_negative",
+      "sku": "LAB-SIMPLE-NEG",
+      "type": "simple",
+      "price": "3.75",
+      "manage_stock": true,
+      "stock_quantity": -3,
+      "stock_status": "onbackorder",
+      "backorders": "yes"
+    },
+    {
+      "key": "simple_unknown",
+      "name": "Synthetic simple_unknown",
+      "sku": "LAB-SIMPLE-UNKNOWN",
+      "type": "simple",
+      "price": "8.00",
+      "manage_stock": false,
+      "stock_quantity": null,
+      "stock_status": "instock"
+    },
+    {
+      "key": "simple_empty_sku",
+      "name": "Synthetic simple_empty_sku",
+      "sku": "",
+      "type": "simple",
+      "price": "1.10",
+      "manage_stock": true,
+      "stock_quantity": 5,
+      "stock_status": "instock"
+    },
+    {
+      "key": "independent_parent",
+      "name": "Synthetic independent_parent",
+      "sku": "LAB-INDEPENDENT",
+      "type": "variable",
+      "price": "0.00",
+      "manage_stock": false,
+      "stock_quantity": null,
+      "stock_status": "instock"
+    },
+    {
+      "key": "independent_red",
+      "name": "Synthetic independent_red",
+      "sku": "LAB-IND-RED",
+      "type": "variation",
+      "price": "4.50",
+      "manage_stock": true,
+      "stock_quantity": 7,
+      "stock_status": "instock",
+      "parent": "independent_parent",
+      "color": "red"
+    },
+    {
+      "key": "independent_blue",
+      "name": "Synthetic independent_blue",
+      "sku": "LAB-IND-BLUE",
+      "type": "variation",
+      "price": "4.50",
+      "manage_stock": true,
+      "stock_quantity": 0,
+      "stock_status": "outofstock",
+      "parent": "independent_parent",
+      "color": "blue"
+    },
+    {
+      "key": "shared_parent",
+      "name": "Synthetic shared_parent",
+      "sku": "LAB-SHARED",
+      "type": "variable",
+      "price": "0.00",
+      "manage_stock": true,
+      "stock_quantity": 15,
+      "stock_status": "instock"
+    },
+    {
+      "key": "shared_red",
+      "name": "Synthetic shared_red",
+      "sku": "LAB-SHARED-RED",
+      "type": "variation",
+      "price": "6.25",
+      "manage_stock": false,
+      "stock_quantity": null,
+      "stock_status": "instock",
+      "parent": "shared_parent",
+      "color": "red"
+    },
+    {
+      "key": "shared_blue",
+      "name": "Synthetic shared_blue",
+      "sku": "LAB-SHARED-BLUE",
+      "type": "variation",
+      "price": "6.25",
+      "manage_stock": false,
+      "stock_quantity": null,
+      "stock_status": "instock",
+      "parent": "shared_parent",
+      "color": "blue"
+    }
+  ],
+  "orders": [
+    {
+      "key": "before_start",
+      "status": "pending",
+      "created_at": "2026-09-30T23:59:59+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 2,
+          "total": "20.50"
+        }
+      ]
+    },
+    {
+      "key": "at_start",
+      "status": "pending",
+      "created_at": "2026-10-01T00:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 1,
+          "total": "10.25"
+        }
+      ]
+    },
+    {
+      "key": "processing",
+      "status": "processing",
+      "created_at": "2026-10-01T01:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 3,
+          "total": "30.75"
+        }
+      ]
+    },
+    {
+      "key": "partial_refund",
+      "status": "completed",
+      "created_at": "2026-10-01T12:00:00+08:00",
+      "lines": [
+        {
+          "product": "independent_red",
+          "quantity": 2,
+          "total": "9.00"
+        }
+      ]
+    },
+    {
+      "key": "on_hold",
+      "status": "on-hold",
+      "created_at": "2026-10-01T15:00:00+08:00",
+      "lines": [
+        {
+          "product": "shared_red",
+          "quantity": 4,
+          "total": "25.00"
+        }
+      ]
+    },
+    {
+      "key": "cancelled",
+      "status": "cancelled",
+      "created_at": "2026-10-01T16:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_zero",
+          "quantity": 1,
+          "total": "2.00"
+        }
+      ]
+    },
+    {
+      "key": "failed",
+      "status": "failed",
+      "created_at": "2026-10-01T17:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 1,
+          "total": "10.25"
+        }
+      ]
+    },
+    {
+      "key": "full_refund",
+      "status": "completed",
+      "created_at": "2026-10-01T18:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 2,
+          "total": "20.50"
+        }
+      ]
+    },
+    {
+      "key": "money_refund",
+      "status": "completed",
+      "created_at": "2026-10-01T19:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 2,
+          "total": "20.50"
+        }
+      ]
+    },
+    {
+      "key": "at_end",
+      "status": "pending",
+      "created_at": "2026-10-02T00:00:00+08:00",
+      "lines": [
+        {
+          "product": "simple_positive",
+          "quantity": 5,
+          "total": "51.25"
+        }
+      ]
+    }
+  ],
+  "refunds": [
+    {
+      "key": "partial_quantity",
+      "order": "partial_refund",
+      "quantity": 1,
+      "amount": "4.50",
+      "created_at": "2026-10-01T20:00:00+08:00"
+    },
+    {
+      "key": "full_quantity",
+      "order": "full_refund",
+      "quantity": 2,
+      "amount": "20.50",
+      "created_at": "2026-10-01T20:30:00+08:00"
+    },
+    {
+      "key": "amount_only",
+      "order": "money_refund",
+      "quantity": null,
+      "amount": "3.25",
+      "created_at": "2026-10-01T21:00:00+08:00"
+    }
+  ],
+  "notes": [
+    "All identities and business objects are synthetic.",
+    "Refunds never invoke a gateway or restock.",
+    "Seed inventory is explicitly set with Woo CRUD after order hooks on first seed only.",
+    "Unsupported duplicate SKU / invalid order state / HTTP faults belong to explicit Fake tests."
+  ]
+}

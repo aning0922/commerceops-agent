@@ -1,4 +1,5 @@
 // Semantic invariants of the frozen A03 read DTOs, after the generated schema has validated shape.
+import { validCommerceCapability } from "./p5-commerce-source";
 import type { DTO } from "./p3-present";
 
 export const gateFactsValid = (gates: readonly DTO["SenderGate"][]) =>
@@ -14,7 +15,7 @@ const externalEnabled = (gates: readonly DTO["SenderGate"][]) =>
       gate.sender_enabled && gate.verification_mode === "controlled_sdk",
   );
 const configValid = (config: DTO["ConfigRead"]["config"]) =>
-  gateFactsValid(config.sender_gates) &&
+  validCommerceCapability(config) && gateFactsValid(config.sender_gates) &&
   config.external_sender_enabled === externalEnabled(config.sender_gates);
 export const syncFactsValid = (sync: DTO["SyncRead"]) =>
   gateFactsValid(sync.sender_gates) &&

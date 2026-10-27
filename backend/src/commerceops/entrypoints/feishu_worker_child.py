@@ -19,6 +19,7 @@ from commerceops.adapters.feishu.business_im import BusinessIMSDK
 from commerceops.adapters.feishu.business_preflight import verified_target
 from commerceops.adapters.feishu.sdk import restrict_sdk_logs
 from commerceops.application.commerce.analysis_task import WORKFLOW_VERSION as ANALYSIS_VERSION
+from commerceops.application.commerce.analysis_task import WooInventoryTaskRequest
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.f02_window import F02WorkerWindow
 from commerceops.application.feishu_business.gateway_window import GatewayWindow
@@ -26,7 +27,16 @@ from commerceops.application.feishu_business.history import HistoryRecoveryReque
 from commerceops.application.feishu_business.mock_shop import require_fixture_shop
 from commerceops.application.feishu_business.read_reply import ReadReplyWindow
 from commerceops.application.feishu_business.worker_window import ControlledWorkerWindow
+from commerceops.application.replenishment.contracts import (
+    Parameters,
+    WooCreateParameters,
+    analysis_request_from_parameters,
+)
 from commerceops.application.runner import RunnerPort
+from commerceops.infrastructure.commerce_sources import (
+    CommerceSourceFiles,
+    resolve_woo_source_async,
+)
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
 from commerceops.infrastructure.feishu_clarification import ClarificationDeliveryStore
@@ -42,6 +52,7 @@ from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore, ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
+from commerceops.infrastructure.woo_collection import BoundWooCollectorFactory
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, open_async
 from commerceops.workflows.inventory_analysis import CollectorFactory, InventoryRunner
@@ -74,7 +85,10 @@ async def trusted_scope(
             AND e.entity_type='gateway_runtime' AND e.action='termination_confirmed'
             AND e.entity_id=g.entity_id)
             AND o.feishu_app_id=%s AND o.feishu_tenant_key=%s
-            AND s.adapter_kind='mock' AND s.environment IN ('mock','test')""",
+            AND ((s.adapter_kind='mock' AND s.environment IN ('mock','test')
+             AND g.after_state#>>'{parameters,source_mode}'='mock') OR
+             (s.adapter_kind='woocommerce_test' AND s.environment='test'
+             AND g.after_state#>>'{parameters,source_mode}'='woocommerce_test'))""",
             (
                 settings.shop_id,
                 window.gateway_window_id,
@@ -99,7 +113,18 @@ async def trusted_scope(
             or window.expires_at > gateway.expires_at
         ):
             raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
-        require_fixture_shop(row, gateway.parameters.fixture_case)
+        if isinstance(gateway.parameters, WooCreateParameters):
+            if window.profile not in ("known70", "group20"):
+                raise PermissionError("P4_CONTROLLED_GATEWAY_SCOPE_REQUIRED")
+            await resolve_woo_source_async(
+                db,
+                config.commerce_sources,
+                window.organization_id,
+                window.shop_id,
+                expected_version=gateway.parameters.source_config_version,
+            )
+        else:
+            require_fixture_shop(row, gateway.parameters.fixture_case)
         if window.profile == "approved_queued_start":
             if worker_owner is None:
                 raise PermissionError("P4_QUEUED_START_OWNER_REQUIRED")
@@ -117,13 +142,23 @@ async def trusted_scope(
             await trusted_workflow_scope(config, settings, window, gateway)
             return
         if window.profile == "group20" and (
-            gateway.parameters.fixture_case != "baseline"
+            (
+                isinstance(gateway.parameters, Parameters)
+                and gateway.parameters.fixture_case != "baseline"
+            )
             or (gateway.parameters.L, gateway.parameters.R, gateway.parameters.S) != (3, 7, 2)
             or not settings.allowed_group_chat_ids
             or gateway.max_workflows > 2
         ):
             raise PermissionError("P4_CONTROLLED_GROUP20_SCOPE_REQUIRED")
-        await trusted_tasks(db, settings, window, gateway, row["occurred_at"])
+        await trusted_tasks(
+            db,
+            settings,
+            window,
+            gateway,
+            row["occurred_at"],
+            commerce_sources=config.commerce_sources,
+        )
         cursor = await db.execute(
             """SELECT 1 FROM business.p4_base_deliveries WHERE task_id=ANY(%s)
             AND verification_mode<>'controlled_sdk'
@@ -165,6 +200,8 @@ async def trusted_tasks(
     window: ControlledWorkerWindow,
     gateway: GatewayWindow,
     claimed_at: datetime,
+    *,
+    commerce_sources: CommerceSourceFiles | None = None,
 ) -> None:
     """共同T1准入：当前App/tenant/白名单/身份原绑定/角色必须先于SDK与Graph。"""
     cursor = await db.execute(
@@ -201,8 +238,30 @@ async def trusted_tasks(
         ),
     )
     tasks = await cursor.fetchall()
+    for task in tasks:
+        if isinstance(gateway.parameters, WooCreateParameters):
+            parameters = analysis_request_from_parameters(task["parameters"])
+            if not isinstance(parameters, WooInventoryTaskRequest) or (
+                parameters.organization_id,
+                parameters.shop_id,
+            ) != (window.organization_id, window.shop_id):
+                raise PermissionError("P4_CONTROLLED_TASK_SCOPE_REQUIRED")
+            await resolve_woo_source_async(
+                db,
+                commerce_sources,
+                window.organization_id,
+                window.shop_id,
+                expected_version=parameters.source_config_version,
+                expected_binding=parameters.source_binding_id,
+            )
+            task["public_parameters"] = {
+                key: task["parameters"][key]
+                for key in ("source_mode", "source_config_version", "L", "R", "S")
+            }
+        else:
+            task["public_parameters"] = task["parameters"]
     if frozenset(task["id"] for task in tasks) != window.task_ids or any(
-        task["parameters"] != gateway.parameters.model_dump(mode="json")
+        task["public_parameters"] != gateway.parameters.model_dump(mode="json")
         or (task["app_id"], task["tenant_key"]) != (settings.app_id, settings.tenant_key)
         or task["external_subject"] not in settings.allowed_open_ids
         or task["principal_id"] != task["requester_id"]
@@ -306,10 +365,25 @@ async def controlled_work(
 
             runner = TechnicalRunner()
         else:
-            approval = ApprovalRunner(ApprovalStore(config, session), collector_factory=collector)
+            woo_factory = (
+                BoundWooCollectorFactory(config.database, config.commerce_sources)
+                if config.commerce_sources is not None
+                else None
+            )
+            approval = ApprovalRunner(
+                ApprovalStore(config, session),
+                collector_factory=collector,
+                woo_collector_factory=woo_factory,
+            )
             provider = ProviderFactory()
             runner = InventoryCompositeRunner(
-                InventoryRunner(InventoryStore(config.database, session), collector),
+                InventoryRunner(
+                    InventoryStore(
+                        config.database, session, commerce_sources=config.commerce_sources
+                    ),
+                    collector,
+                    woo_collector_factory=woo_factory,
+                ),
                 ExplanationRunner(ExplanationStore(config.database, session), provider),
                 IntentRunner(IntentStore(config.database, session), provider),
                 approval,
@@ -630,7 +704,12 @@ async def controlled_f02(
             nonlocal factory
             window.window(settings)
             async with await open_async(config.database) as db:
-                selected = await selected_f02_reply(db, settings, window)
+                selected = await selected_f02_reply(
+                    db,
+                    settings,
+                    window,
+                    commerce_sources=config.commerce_sources,
+                )
             if selected is None or stop.is_set():
                 return
             sender = BusinessIMSDK(None)
@@ -643,6 +722,7 @@ async def controlled_f02(
                 request_ids=frozenset({selected.request_id}),
                 f02_sender=sender,
                 f02_window=selected,
+                commerce_sources=config.commerce_sources,
             )
             await store.recover_unknown()
             if await store.prepare_selected() != "ready" or stop.is_set():

@@ -174,11 +174,11 @@ def test_persistent_partial_cross_process_round_history_and_zero_business_until_
         assert all(h["after_state"]["candidate_hash"] for h in history)
     with connect(f.inventory.owner) as db:
         revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-        assert revision == {"version_num": "0017_p4_verified_history"}
+        assert revision == {"version_num": "0018_p5_commerce_sources"}
         tables = db.execute(
             "SELECT count(*) AS n FROM pg_tables WHERE schemaname IN ('business','checkpoints')"
         ).fetchone()
-        assert tables == {"n": 59}
+        assert tables == {"n": 60}
     with connect(f.config.database) as db:
         bits = db.execute(
             "SELECT rolsuper,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user"
@@ -455,9 +455,12 @@ def test_fixed_15min_DB_expired_synthetic_request_and_immutable_expiry(fixture: 
 
 @pytest.mark.parametrize("outcome", ["sent", "unknown"])
 def test_runtime_gateway_selected_chain_original_worker_ledger_and_no_Base(
-    fixture: P3Fixture, monkeypatch: pytest.MonkeyPatch, outcome: str
+    fixture: P3Fixture,
+    monkeypatch: pytest.MonkeyPatch,
+    outcome: str,
+    window_seconds: int = 120,
 ) -> None:
-    """本源码批只collect；由后续精确CI在新库执行，Factory/transport始终Fake。"""
+    """实际PG与Fake Factory/transport；默认窗口仍120秒。"""
     from commerceops.adapters.feishu.business_config import BusinessSettings
     from commerceops.adapters.feishu.ledgered_sdk import ledgered_client
     from commerceops.application.feishu_business.f02_window import F02WorkerWindow
@@ -476,7 +479,7 @@ def test_runtime_gateway_selected_chain_original_worker_ledger_and_no_Base(
             "window_id": uuid4(),
             "organization_id": f.inventory.data.organization,
             "shop_id": f.inventory.data.shop,
-            "expires_at": datetime.now(UTC) + timedelta(seconds=120),
+            "expires_at": datetime.now(UTC) + timedelta(seconds=window_seconds),
             "enabled": True,
             "parameters": original.parameters,
         }

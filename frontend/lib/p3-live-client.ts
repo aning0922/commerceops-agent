@@ -1,6 +1,6 @@
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
-import schema from "./p3-read-schema.generated.json";
+import schema from "./p5-read-schema.generated.json";
 import { P3Client } from "./p3-transport";
 import type { FetchTransport } from "./p3-transport";
 import { p4ReadFactsValid } from "./p4-read-facts";

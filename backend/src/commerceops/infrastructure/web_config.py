@@ -7,9 +7,13 @@ import stat
 from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
 from commerceops.infrastructure.database import DatabaseSettings
+
+if TYPE_CHECKING:
+    from commerceops.infrastructure.commerce_sources import CommerceSourceFiles
 
 
 def private_bytes(path: Path) -> bytes:
@@ -54,6 +58,7 @@ class WebConfig:
     login_window_seconds: int = 300
     login_account_limit: int = 5
     login_peer_limit: int = 30
+    commerce_sources: "CommerceSourceFiles | None" = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         if len(self.csrf_secret) < 32 or len(self.nonce_secret) < 32:
@@ -111,6 +116,10 @@ class WebConfig:
             csrf = private_bytes(Path(body.pop("csrf_secret_file")))
             nonce = private_bytes(Path(body.pop("nonce_secret_file")))
             body["origins"] = tuple(body["origins"])
+            if body.get("commerce_sources") is not None:
+                from commerceops.infrastructure.commerce_sources import CommerceSourceFiles
+
+                body["commerce_sources"] = CommerceSourceFiles.from_config(body["commerce_sources"])
             return cls(database=database, csrf_secret=csrf, nonce_secret=nonce, **body)
         except Exception:
             raise ValueError("INVALID_WEB_CONFIGURATION") from None

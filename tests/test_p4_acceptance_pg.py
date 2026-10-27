@@ -11,7 +11,7 @@ import psycopg
 import pytest
 from alembic import command
 from alembic.config import Config
-from commerceops.entrypoints.database import grant_runtime, migrate, setup_checkpointer
+from commerceops.entrypoints.database import grant_runtime, setup_checkpointer
 from commerceops.infrastructure.database import DatabaseSettings, connect, migration_engine
 from psycopg import sql
 
@@ -27,18 +27,16 @@ pytestmark = pytest.mark.integration
 
 
 def initialize_schema(owner: DatabaseSettings, revision: str) -> None:
-    if revision == "0017":
-        migrate(owner)
-    else:
-        config = Config()
-        config.set_main_option("script_location", "backend/migrations")
-        engine = migration_engine(owner)
-        try:
-            with engine.begin() as db:
-                config.attributes["connection"] = db
-                command.upgrade(config, revision)
-        finally:
-            engine.dispose()
+    # Historical fixture revisions are exact, including 0017 after head advances.
+    config = Config()
+    config.set_main_option("script_location", "backend/migrations")
+    engine = migration_engine(owner)
+    try:
+        with engine.begin() as db:
+            config.attributes["connection"] = db
+            command.upgrade(config, revision)
+    finally:
+        engine.dispose()
     asyncio.run(setup_checkpointer(owner))
     grant_runtime(owner, **({"legacy_revision": revision} if revision in ("0015", "0016") else {}))  # type: ignore[arg-type]
 
