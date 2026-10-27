@@ -1,5 +1,7 @@
 # 阶段状态与主控交接
 
+Phase5/M2最终事实入口（2026-10-27，台北D18）：必要业务及部署技术Gate已由Root与原Reviewer核收，当前`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。实际运行source8ad/treeea86，2778offline/590PG排除、实际本地合成Woo/备份恢复/两负例及当前Mock20 Compose均通过；最终完整CI、main与合后CI尚待。详见[第72节](#72-phase5m2业务与部署已核收的最终事实合批)及[Phase5验收](PHASE5_ACCEPTANCE.md)。本文件为文档合批时点快照，后续正式结案统一以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)实际更新为准，不预填未来SHA或complete。第71节及下方旧导航按原日期保留。
+
 Phase5/M2当前导航（2026-10-26，台北D17）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已扩为完整阶段授权；30 Agent有效小时含原首批全部用量，A12/B8/Review5/Root5可总内调配，300h/原日期/人工H-L UNKNOWN不重置。原A/B及Reviewer继续，Root集中发布/CI/正常main与合后CI；不自动M3。当前[业务与备份短合同](contracts/p5-m2-v1.md)为待审冻结候选，主体接线未实施；首批与安全依赖的精确证据边界见[第71节](#71-phase5m2统一授权首批证据与后续合同)。下方首批8h/不自动完整M2等只保留其历史时点。
 
 Phase5首批当前入口（2026-10-26，台北）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已获用户开始授权；base e7cf790及同SHA CI39952681678五绿、M1结案沿用，不重开旧Gate。仅新隔离Woo测试店、五只读端口与最小合成对账；8 Agent有效h（A3.5/B2.5/独审1/Root1），旧用量和原日期/300h不重置，历史净余UNKNOWN。A/B[输入合同](contracts/p5-woo-readonly-v1.md)已提交，当前适配与lab实现/实际对账/独审/精确CI均按各自结果核收，不预写首批完成或完整M2通过。Root集中释放合批，A不自动main；P4工作区/原资产保留。下方第70节及旧导航是原日期快照，正式M1已由固定权威回执结案。
@@ -1423,3 +1425,39 @@ checkpoint4.2.0→4.3.0，严格审计0；10条官方迁移SQL完全相同，但
 原mixed质量负例保持，B另产4SKU/4独立pool/4订单4行/0退款正向profile与冻结D七日金标，
 总建议219/CNY994仅为待验独立期望，不写成业务实测。只有可审批正向来源才进入新卷备份还原。
 所有旧失败/日志原字节损失/Issue23未知风险保留；原资产、真实飞书/付费模型0新增，不自动M3/生产。
+
+## 72. Phase5/M2业务与部署已核收的最终事实合批
+
+事实截止2026-10-27（台北D18）。[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)
+初始状态为`business_and_deployment_gates_passed / awaiting_final_review_and_CI`，必要业务与部署Gate
+均已Root/原Reviewer核收；正式M2须由Root在最终main及同SHA合后CI通过后签。本文件保留该冻结时点，
+后续动态结果统一读固定回执，不预造未来SHA或complete。
+
+已验source `8ad436595794ef83f3a99bc80bd9ad4948b7117e` / tree `ea86b637190ec0ec42da771638a6c72b2853e82b`：
+
+- 完整本地check native0/226.945s，3368 collected、2778offline通过、590integration排除、4既有warning，
+  398type/518format/依赖审计0；起止源码hash相同。882首次全量type失败保留，8ad仅三处测试类型修正。
+- 本地实际合成Woo、真实PG/API/自动化Web，positive4/4/0/4、Q219/CNY994、四未知确认；官方CP/原tuple
+  同源新卷dump/restore、10次原字节重放，唯一决定/resume/execution及4items。撤权实际403/ACCESS_DENIED、
+  原期限后410/APPROVAL_EXPIRED，两clone零决定/resume/execution/items；父native0及独立资源清理通过。
+- 当前新自有Compose实际0018/60表/低权、Mock20每项100共2000，其中19已知在途0/1未知；全计划确认、
+  唯一execution/decision/resume、一次原T6关闭v2/reason/key/Fake同锚，三个业务POST各1、前后6次原key GET。
+  同父容器SIGUSR1两个owner均完整终止审计；API/Web恢复、隐藏只读Web通过。父/UI/86命令0，资源0/保卷。
+  108.492s是启动/结果文件差，browser实际退出探针通过但具体PID未单独归档。
+
+核心安全索引：完整check `ca2217e583a8ff6b29d53a345bd8c3d7fb176cf144bc4257733d972f987885a9`；
+Woo/恢复/负例129引用 `c128a20e86d45f4eacf826bf95e8e42fb686d52c2e1fa8bab0ee66dfec1a9c8a`；
+Compose111引用 `8605407495b98c06b742d323c0a719b68c59b07819d53c83f28e411340a7c24c`。
+详细AC01–11映射、专项PG、全部保留边界及索引名见[Phase5验收](PHASE5_ACCEPTANCE.md)。
+
+原mixed一日实际Woo9/8/3/9与七日PG/ASGI/Fake HTTP9/9/3/9分列，AST等价不写成字节等价；
+旧M1真人/模型只按未变合同有限复用。所有旧失败/HOLD、f7 execution UNKNOWN、c6 error code
+NOT_CAPTURED、七份旧日志非敏感原字节不可恢复、Issue23未知风险保持。Docker全协议egress未知，
+新机器全冷缓存未测，不以本机Mock/自动化材料宣称真人、商业实店或生产验收。
+
+本批A仅最终事实文档与必要README状态；B独占三交付文档，Root转精确commit后普通合入。
+非文档运行源码须与8ad字节相同。当前最终完整Hosted五作业/全590PG/G1三G2六/Web/N01/配对/清理、
+正常main及合后CI仍待Root统一释放，A不自行push/改PR正文/触CI或启动新资源。
+总1800 Agent有效分钟不增，A823/B307/Review370/Root300；本批开始前A累计估595–778，旧用量保留，
+Root历史精确净用量/人工H-L/历史净余UNKNOWN，机器等待另记。D1/D30/300h/D18–20及18页冻结不重置，
+不自动进入M3/Phase6。
