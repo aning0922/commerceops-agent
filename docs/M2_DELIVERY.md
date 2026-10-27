@@ -178,7 +178,7 @@ restored用新context分别按当前operator/approver身份登录，读回同一
 
 source固定检查项为admission、operator_identity、woo_n01、explicit_create、source_gold、pending_approval_readonly；restored为admission、operator_identity、restored_binding、explicit_decision、ten_original_byte_replays、execution_readback。每项分别标passed/failed/not_run；缺项不能计通过。关闭trace/video/HAR/自动截图；M2 reporter不复制原错误、stdout、步骤或DOM。Playwright仅技术性last-run目录放ignored `.audit/m2-live-pw`，不写进phase目录的业务原件集合；用例自行关闭context后才返回，A负责整个子树有界停止。
 
-本批没有真实PG/API/Woo consumer运行；离线合同检查、类型/构建、精确源码独审、最终实际资源验收与CI分别记录。原No tests found及其他开发失败保留，不能将后续通过改写成首轮全绿。
+早期 consumer 实现批当时没有真实 PG/API/Woo consumer 运行；当前 e890 的实际运行已核收，结果见前文。离线合同检查、类型/构建、精确源码独审、实际资源验收与 CI 分别记录。原 No tests found 及其他开发失败保留，不能将后续通过改写成首轮全绿。
 
 ## 历史失败与源码对应边界
 
