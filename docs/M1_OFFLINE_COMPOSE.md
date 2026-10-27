@@ -1,20 +1,24 @@
 # M1 离线 Compose 装配与运行
 
-## 当前 M2 候选：新 clone 的 Mock 核心装配（2026-10-27，待实际复现）
+## 当前 0018 Mock 装配与公开复现（2026-10-27）
 
-本节说明当前源码的公开启动入口与待采证据。Root 将另行登记最终候选 source/tree、镜像和新的 `m1off-*` 自有窗口；本文尚未收到该窗口的构建、初始化或业务结果，**当前候选 clean Compose Gate 为待验**。此前 M1 的 0017/旧锁文件及私有四场景通过，只签后文各自的历史范围。
+Root 与原 Reviewer 已核收当前 clean Compose 技术/业务范围，无 P1/P2。精确 source 为 `8ad436595794ef83f3a99bc80bd9ad4948b7117e`，tree 为 `ea86b637190ec0ec42da771638a6c72b2853e82b`；新自有项目 `m1off-1a7caa29aa654335bfa682a7d82ff207` 在本机以新数据完成复现，**不是新机器、全冷缓存或断网安装证明**。当前已验事实不等于正式 M2 结案；最终文档、精确 CI、main 与合后 CI 由 [固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)的后续实际记录收口，不预填未来 SHA 或成功。
 
-本入口仍使用 `compose.yml` + `compose.m1-offline.yml`、`scripts.m1_offline_demo`、原 API/单 Worker/Next Web，以及 `MockCommerce / simulated_web / offline_fake / provider disabled`。它不验证 Woo 真实数据链、新卷备份还原、旧 checkpoint 与新依赖兼容或真人平台操作；这些证据分别核收，不由本节的技术 ready 或历史成功代签。
+装配使用 `compose.yml` + `compose.m1-offline.yml`、`scripts.m1_offline_demo`、原 API/单 Worker/Next Web，业务模式为 `MockCommerce / simulated_web / offline_fake / provider disabled`。真实本地合成 Woo 与新库备份还原见 [M2 交付](M2_DELIVERY.md#已核实际窗口8ad--e890)；本 Mock 同卷恢复不代签 Woo、旧 checkpoint→新依赖兼容、真人或真实 Base 平台验收。
 
-| 当前候选要核对的事实 | 当前状态 / 验收依据 |
+| 当前实际范围 | 已核结果 |
 | --- | --- |
-| 完整源码、锁文件与镜像来源 | 待 Root 登记最终 source/tree、当前 `uv.lock` / `package-lock.json` 和实际 build/image 绑定；不借用他人的本地环境或旧镜像结果 |
-| 前端构建输入 | 当前 schema 检查读取 P3、P4 N01、P5 M2 三份公开合同；前端专用 `.dockerignore` 必须放行三份，Dockerfile 必须在检查前 COPY 三份。A 正在处理 P5 的最小装配修正，本文不预写修正已合入或 build 通过 |
-| 新库迁移与低权运行 | `database migrate` 使用动态 `head`；当前源码预期为 `0018_p5_commerce_sources`，须由最终候选的实际 `revision` 输出核对。`setup-checkpointer`、`grant-runtime`、低权 flags 和 seed 均待本次实证 |
-| Mock 业务闭环 | 新合成账号、明确 L3/R7/S2、完整 20 SKU 计划与假设、显式批准、原执行/items、T6/v2 与原请求键读回待验；health/login 200 不能替代 |
-| 原卷恢复与停止证明 | 如本次 Gate 包含恢复，须在同一未过期窗口/原卷执行原 Worker child 的 stop/join/reap 和 API/Web restart，再读回原键；最终容器/网络/监听消失、卷保留均待验 |
+| 构建来源与合同输入 | 当前源码/材料未变化；API/Web/Worker/PG 镜像 ID 留在安全索引。P3、P4 N01、P5 M2 三份公开 schema 均由前端专用 dockerignore 放行并在检查前 COPY |
+| 新库与低权运行 | 实际 `0018_p5_commerce_sources`、60 表；`commerceops_app` 的 superuser/createdb/createrole/replication/bypassrls 均 false，login=true |
+| Mock 生命周期 | 20 items / 2000 units，唯一 execution/decision/consumed resume；同一原 item 的 T6 closed/v2、原因与原键绑定，其他19项 open/v1；offline_fake 的 v1/v2 保持同一投影 anchor |
+| 原字节与原键 | Create、decision、resolve 三个业务 POST 各一次，登录另一次；原键读回6次，不换键补写 |
+| 同卷恢复 | 同父容器 `SIGUSR1`，两个先后 Worker owner 均有实际 started/stopped/termination-confirmed 审计；API/Web restart 后原 execution/item IDs 与请求键保持 |
+| 实际 Web | 隐藏浏览器读取已部署 Web 并执行非写交互，无额外业务写；UI 原生退出0、browser closed=true。自动化不等于真人观察或验收 |
+| 原生退出与停止 | 父/UI/86条命令均0，cleanup confirmed；本项目容器/网络0、两个端口关闭，精确原 PG 卷保留 |
 
-以下公开分步不依赖旧私有 `compose-commands.py`、`ui-commands.cjs` 或原机器绝对路径。它们是人工装配说明，自动验收仍需当前 owner 的有界调用者、输入绑定和原始证据。收到 A 的新运行结果后，只在本节补实际 source/tree、命令退出、业务读回、恢复和清理结论；未触发或未完成的项继续分列。
+安全总索引 `M2-CLEAN-1A7C-FULL-RUN-INDEX.safe.json`，SHA256 `8605407495b98c06b742d323c0a719b68c59b07819d53c83f28e411340a7c24c`，包含111个引用；B 校验并消费安全总索引，Root/Reviewer 核收原件。文件起止时间戳 UTC 2026-10-26 23:49:59.784771 → 23:51:48.276601 的差为 **108.49183 秒**，不将其称为精确父进程运行耗时。冻结 browser helper 在实际 PID 消失探针后返回 closed=true，但具体 browser PID 未单独归档，不声称已有可回查的 PID 数值清单。
+
+以下公开分步不依赖旧私有 `compose-commands.py`、`ui-commands.cjs` 或原机器绝对路径。它们是人工装配说明，不是 clone 自带的完整自动验收 CLI。本次验证沿 Compose/API 完成 Mock20、原键/T6v2/同卷恢复，隐藏 Web 只读与非写交互；没有新增 consumer 或修改前端/测试。此前 M1 的0017/旧锁文件、私有四场景和历史失败只签后文原范围，不由本次通过改写。
 
 ### 三种入口不要混用
 
@@ -82,14 +86,14 @@ README 已链接到本文件；DEVELOPMENT 的环境安装段可复用，但其�
 
 ### 私有自动采集器的限制，不新增一键验收 Gate
 
-上述公开分步可作为可重现命令交付；不以“一条命令完整验收”作为新的必要 Gate。当前 P5 合同的构建上下文放行与 COPY 修正由 A 处理；其合入和实际构建结果仍待核收。已通过的四场景整批调用者仍是私有验收资料，不能冒充 clone 自带能力；它的不便携也不使已有公开服务失效。
+上述公开分步可作为可重现命令交付；不以“一条命令完整验收”作为新的必要 Gate。当前 P5 合同的构建上下文放行与 COPY 已存在于本次 `8ad43659`，当前镜像与闭环结果按上节已核实际范围记录。已通过的四场景整批调用者仍是私有验收资料，不能冒充 clone 自带能力；它的不便携也不使已有公开服务失效。
 
 | 私有验收限制 | 对新使用者的准确说明 |
 | --- | --- |
 | 固定来源、工具链与 handoff | 自动验收输入需要当前 checkout 的环境、schema、工具版本/hash 和新窗口绑定；旧 `run-input` 不能复用。人工路径可直接使用本节分步，不必先构造旧验收 DTO |
 | 具体四场景私有调用者 | 私有 `compose-commands.py`/`ui-commands.cjs` 及绝对路径不在公开 clone 中；现有 consumer/helper 不应伪装成自包含场景 CLI，也不要求为此新增通用 launcher |
 | 停写后低权采集和自动清理报告 | 已审整批入口有 `CleanupPlan/cleanup_owned` 及诊断最多 20 秒/清理至少 180 秒的约束；人工启动与停止按前述公开命令执行，不把自动报告缺失当成公共产品启动缺配置 |
-| 当前候选尚无新运行结论 | c460 的私有四场景、066 的 PG 及旧录像均只签历史范围；新 0018/当前锁文件的构建、业务、恢复与清理须按本次实际证据登记，不称已通过，也不新增通用 launcher |
+| 当前与历史运行分别记账 | 当前8ad/0018/本机新数据结果见上节；c460私有四场景、066 PG及旧录像只签历史范围，不追认旧失败，也不扩大为新机器全冷缓存或真人验收 |
 
 本批不改权限、状态机、Next.js、迁移或平台功能，不为文档移植工作启动服务。投影、真实查询、群与负向恢复的 Gate 不因人工 Mock 启动说明而减少；历史 29 outbox pending/attempts 0 仅按原快照保留，不作为本次新卷状态。
 
