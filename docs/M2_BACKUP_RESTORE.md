@@ -67,9 +67,11 @@ B 可复用原 live read 的安全登录、指定报告/计划读取、全 SKU/n
 | 来源与报告 | canonical org/shop、binding/版本/digest、原 report/snapshot/facts_hash、全部 SKU/质量与窗口 | 读取同一冻结来源与业务事实；页面当前配置不覆盖历史 provenance；秘密引用不进公开材料 | e890 已核收 |
 | 原待审批 | 同一 task、plan/version/hash、原 approval 状态/期限和确认键集合；checkpoint/thread 绑定 | 原对象仍存在且绑定一致；不造新任务，不延长 TTL、不改变确认集合 | e890 已核收 |
 | 当前身份 | 独立 operator/approver 账号及 scope/auth_version 的安全摘要 | 新会话按恢复后服务端当前身份鉴权；旧 cookie/nonce 不是恢复授权 | e890 已核收 |
-| 原键回执 | 原创建/已有决定的 request key 及 receipt 摘要 | GET 同一原键返回原对象；明确同键重放返回同一结果，PG 零新增 | e890 已核收 |
-| 明确续跑 | 恢复前该样本未执行；原业务计数/审计基线 | 允许时显式批准一次，复核后仅一 execution/每 SKU 一内部项；过期/撤权/物质变化按原规则拒绝或重批 | e890 已核收 |
+| 原键 POST 回执 | 原创建/已有决定的 request key 及 POST receipt 摘要 | 原 POST 回执、十次同键同字节 POST 重放返回同一决定，PG 核唯一执行与内部项 | e890 已核收；不含原键 GET |
+| 明确续跑 | 恢复前该样本未执行；原业务计数/审计基线 | 正向显式批准一次，复核后仅一 execution/每 SKU 一内部项；独立撤权与真实到期 clone 按原规则拒绝 | e890 已核收，仅正向/撤权/真实到期 |
 | writers 与目标 | 源/目标身份、schema、角色、dump 摘要、PID/容器/端口和原生退出 | 旧源停止、目标唯一活跃；最后所有 owned 资源停止并独立核验，源/目标卷保留 | e890 已核收 |
+
+e890 的 source/restored API 日志中，`GET /api/v1/requests` 均为0；本次核收的是原 POST 回执、十次同键同字节 POST 重放与 PG 唯一性，不能写成 GET 已验。原键 GET 的六次实际读回另归 [当前 Mock Compose](M1_OFFLINE_COMPOSE.md)；UNKNOWN 先 GET 原键一次并停止是已有合同，不因 e890 成功而变成本次已触发的行为。物质变化拒绝/重新确认后重批归专项 PG 复用证据，不计入 e890 的正向/撤权/真实到期范围。
 
 nonce、会话、凭据、dump 与原始标识仅留受保护原件；公开结果记录是否同一绑定和摘要，不打印这些值。还原后批准前必须重新读取当前完整披露；不能重用备份前页面勾选或内存 PreparedWrite 作为新会话授权。若恢复前已有提交结果 UNKNOWN，则保留原键/字节并先读回，不能新建替代键或把暂无回执判断为失败。
 
