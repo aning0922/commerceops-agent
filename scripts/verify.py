@@ -178,6 +178,13 @@ def plan(
     python = [name for name in paths if name.endswith(".py") and (ROOT / name).is_file()]
     checks = [CheckResult("baseline diff whitespace", ["git", "diff", "--check", base, "--"])]
     checks.append(CheckResult("staged whitespace", ["git", "diff", "--cached", "--check"]))
+    if paths:
+        checks.append(
+            CheckResult(
+                "current/index secrets (history NOT_RUN)",
+                [sys.executable, "-m", "scripts.scan_secrets", "--current-only"],
+            )
+        )
     if python:
         checks.extend(
             [

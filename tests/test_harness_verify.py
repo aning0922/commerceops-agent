@@ -64,6 +64,9 @@ def test_risk_and_impacted_unknown_fail_closed() -> None:
     assert unmapped
     assert checks[-1].status == "NOT_RUN"
     assert checks[-1].command == []
+    assert any(
+        check.command[-3:] == ["-m", "scripts.scan_secrets", "--current-only"] for check in checks
+    )
 
 
 def test_real_child_pass_failure_and_timeout() -> None:

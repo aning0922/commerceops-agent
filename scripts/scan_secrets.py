@@ -361,7 +361,7 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s
     return violations
 
 
-def scan(root: Path) -> int:
+def scan(root: Path, *, include_history: bool = True) -> int:
     validate_rules()
     if not SCANNER.is_file():
         print("ERROR: 先执行 python -m scripts.bootstrap_tools")
@@ -446,6 +446,9 @@ def scan(root: Path) -> int:
             ("index", "dir", indexed),
             ("git", "git", history),
         ]:
+            if scope == "git" and not include_history:
+                print("git: NOT_RUN (local current-content feedback only)")
+                continue
             report = staging / f"{scope}.json"
             command = [
                 str(SCANNER),
@@ -510,9 +513,14 @@ def scan(root: Path) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=ROOT)
+    parser.add_argument(
+        "--current-only",
+        action="store_true",
+        help="local dir/index feedback only; history remains mandatory in default/Full mode",
+    )
     args = parser.parse_args()
     try:
-        code = scan(args.repo.resolve())
+        code = scan(args.repo.resolve(), include_history=not args.current_only)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # 工具错误也 fail closed，避免异常包含输入秘密。
         print("ERROR: 敏感检查未完成（异常内容已抑制）")

@@ -184,7 +184,8 @@ def test_pinned_state_archive_and_generation(tmp_path: Path) -> None:
     snapshot = trusted_snapshot()
     assert (ROOT / "CURRENT_STATE.md").read_text() == render(snapshot)
     assert snapshot["issues"][0]["state"] == "closed"
-    assert "H2-H5 NOT_RUN" in render(snapshot)
+    assert snapshot["harness_stage"] in render(snapshot)
+    assert snapshot["later_gates"] in render(snapshot)
     (tmp_path / "docs/harness").mkdir(parents=True)
     source = ROOT / "docs/harness/state_snapshot.json"
     edited = copy.deepcopy(snapshot)

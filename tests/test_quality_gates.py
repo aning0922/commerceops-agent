@@ -44,9 +44,10 @@ def repository(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def run_scan(repo: Path) -> subprocess.CompletedProcess[str]:
+def run_scan(repo: Path, *, current_only: bool = False) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, "-m", "scripts.scan_secrets", "--repo", str(repo)],
+        [sys.executable, "-m", "scripts.scan_secrets", "--repo", str(repo)]
+        + (["--current-only"] if current_only else []),
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -55,7 +56,10 @@ def run_scan(repo: Path) -> subprocess.CompletedProcess[str]:
 
 
 @pytest.mark.parametrize("scope", ["baseline", "current", "history", "other-ref", "index-only"])
-def test_synthetic_scanner_blocks_and_redacts(repository: Path, scope: str) -> None:
+@pytest.mark.parametrize("current_only", [False, True])
+def test_synthetic_scanner_blocks_and_redacts(
+    repository: Path, scope: str, current_only: bool
+) -> None:
     # 运行时才拼出无效合成 token；没有固定 credential-like 字符串入库。
     value = "".join(["gh", "p_"]) + secrets.token_hex(18)
     if scope != "baseline":
@@ -75,15 +79,23 @@ def test_synthetic_scanner_blocks_and_redacts(repository: Path, scope: str) -> N
                 path.unlink()
                 git(repository, "add", "-u")
                 git(repository, "commit", "-m", "remove synthetic current content")
-    result = run_scan(repository)
+    result = run_scan(repository, current_only=current_only)
     output = result.stdout + result.stderr
     assert value not in output
     assert "github_token=" not in output
+    if current_only:
+        assert "git: NOT_RUN" in output and "git: findings=" not in output
+        if scope in {"history", "other-ref"}:
+            assert result.returncode == 0, output
+            assert "dir: findings=0, exit=0" in output
+            assert "index: findings=0, exit=0" in output
+            return
     if scope == "baseline":
         assert result.returncode == 0, output
         assert "dir: findings=0, exit=0" in output
         assert "index: findings=0, exit=0" in output
-        assert "git: findings=0, exit=0" in output
+        if not current_only:
+            assert "git: findings=0, exit=0" in output
     else:
         assert result.returncode == 1, output
         assert '"rule": "github-pat"' in output
