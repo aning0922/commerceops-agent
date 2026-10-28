@@ -16,10 +16,15 @@ from uuid import uuid4
 from scripts.pg_ci_evidence import (
     EXISTING_MODULES,
     EXISTING_REBALANCED_GROUPS,
+    environment_identity,
+    execution_identity,
     identity,
     partition,
     read_reply_parent_parts,
     safe_report,
+    safe_shard_report,
+    shard_groups,
+    validate_plan,
 )
 from scripts.pg_diag_shutdown import container_stop, finish, remaining
 from scripts.prepare_pg import prepare
@@ -191,6 +196,8 @@ def run_combined(
     scope: str = "all",
     *,
     history_read_regression: bool = False,
+    shard_plan: dict[str, object] | None = None,
+    shard_id: int | None = None,
 ) -> None:
     expected = collected_nodes(records)
     groups = combined_groups(expected)
@@ -205,6 +212,13 @@ def run_combined(
     selected = partition(expected, scope)
     if scope != "all":
         groups = {label: group for label, group in groups.items() if set(group) <= set(selected)}
+    if shard_plan is not None:
+        if scope != "all" or history_read_regression or shard_id is None:
+            raise ValueError("shard selection cannot mix legacy scopes or history regression")
+        groups = shard_groups(shard_plan, shard_id, expected)
+        selected = sorted(node for group in groups.values() for node in group)
+    elif shard_id is not None:
+        raise ValueError("shard ID requires plan")
     if history_read_regression:
         required = {
             "combined-existing-p4-verified-history-part-1": 7,
@@ -363,7 +377,27 @@ def main() -> None:
     parser.add_argument("--fault-probe", action="store_true")
     parser.add_argument("--full-smoke", action="store_true")
     parser.add_argument("--ci-scope", choices=("all", "existing", "phase3"), default="all")
+    parser.add_argument("--shard-plan", type=Path)
+    parser.add_argument("--shard-id", type=int)
     args = parser.parse_args()
+    shard_plan = None
+    if args.shard_plan is not None or args.shard_id is not None:
+        if (
+            args.shard_plan is None
+            or args.shard_id is None
+            or args.session != "ci"
+            or not args.combined
+            or args.ci_scope != "all"
+            or args.node
+            or args.fault_probe
+            or args.history_read_regression
+        ):
+            parser.error("shard mode requires CI combined with only a plan and declared ID")
+        shard_plan = json.loads(args.shard_plan.read_text())
+        validate_plan(shard_plan)
+        shard_groups(shard_plan, args.shard_id, shard_plan["full_node_ids"])
+        if args.full_smoke != (args.shard_id == 0):
+            parser.error("only designated shard zero requires full smoke")
     if args.history_read_regression and (
         args.session != "initial"
         or not args.combined
@@ -382,7 +416,16 @@ def main() -> None:
         or (args.ci_scope == "phase3" and args.full_smoke)
     ):
         parser.error("scoped CI requires combined and correct full-smoke scope")
-    ci_identity = identity(ROOT) if args.ci_scope != "all" else None
+    ci_identity = identity(ROOT) if args.ci_scope != "all" or shard_plan is not None else None
+    shard_binding = None
+    if shard_plan is not None:
+        shard_binding = {
+            **(ci_identity or {}),
+            "execution": execution_identity(),
+            "environment": environment_identity(ROOT),
+        }
+        if shard_plan["binding"] != shard_binding:
+            raise ValueError("shard plan differs from exact checkout/tools/run/environment")
     if (args.session == "followup" and args.round > 2) or (
         args.session == "ci" and args.round != 1
     ):
@@ -692,6 +735,13 @@ def main() -> None:
             raise RuntimeError("bounded build failed")
         if not run("healthy", ["up", "-d", "--wait", "--wait-timeout", "60", "postgres"], 75):
             raise RuntimeError("bounded PG startup failed")
+        if shard_plan is not None:
+            image = capture(compose + ["images", "-q", "postgres"], 10)
+            if image.returncode != 0 or not re.fullmatch(
+                r"sha256:[0-9a-f]{64}", image.stdout.strip()
+            ):
+                raise RuntimeError("actual pinned PostgreSQL image ID required")
+            report["pg_image_id"] = image.stdout.strip()
         actions = ("migrate", "setup-checkpointer", "grant-runtime", "revision")
         for index, action in enumerate(actions * (2 if args.full_smoke else 1)):
             name = project + "-init-" + str(index)
@@ -760,6 +810,8 @@ def main() -> None:
                 tests,
                 args.ci_scope,
                 history_read_regression=args.history_read_regression,
+                shard_plan=shard_plan,
+                shard_id=args.shard_id,
             )
         elif args.node:
             for index, node in enumerate(args.node):
@@ -910,6 +962,24 @@ def main() -> None:
             if not stopping_confirmed:
                 report["cleanup_exit"] = "unconfirmed"
             if cleanup.returncode == 0 and stopping_confirmed:
+                if shard_plan is not None:
+                    inventory = {}
+                    for resource, command in (
+                        ("containers", ["docker", "ps", "-a", "-q"]),
+                        ("networks", ["docker", "network", "ls", "-q"]),
+                        ("volumes", ["docker", "volume", "ls", "-q"]),
+                    ):
+                        probe = capture(
+                            command + ["--filter", "label=com.docker.compose.project=" + project],
+                            10,
+                            cleanup=True,
+                        )
+                        if probe.returncode != 0:
+                            raise RuntimeError("owned resource inventory unconfirmed")
+                        inventory[resource] = len(probe.stdout.split())
+                    report["remaining_resources"] = inventory
+                    if any(inventory.values()):
+                        raise RuntimeError("owned resources remain after cleanup")
                 cleanup_note("credential-files", owned_verified, owned_removed)
                 for filename in ("owner_password", "app_password"):
                     (directory / filename).unlink()
@@ -936,7 +1006,12 @@ def main() -> None:
         report["cleanup_owned_removed"] = owned_removed
         report["finished_at"] = datetime.now(UTC).isoformat()
         save()
-        if ci_identity is not None:
+        if shard_plan is not None and shard_binding is not None and args.shard_id is not None:
+            # Failed collection can emit no v2 artifact; upload/aggregate must fail closed.
+            evidence = safe_shard_report(report, shard_binding, shard_plan, args.shard_id)
+            artifact = ROOT / ".audit" / f"ci-evidence-shard-{args.shard_id}.json"
+            artifact.write_text(json.dumps(evidence, indent=2) + "\n")
+        elif ci_identity is not None:
             evidence = safe_report(report, ci_identity, args.ci_scope)
             artifact = ROOT / ".audit" / f"ci-evidence-{args.ci_scope}.json"
             artifact.write_text(json.dumps(evidence, indent=2) + "\n")
