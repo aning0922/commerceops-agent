@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import time
+import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import FrameType
@@ -55,7 +56,9 @@ def changed_paths(base: str) -> list[str]:
     git("rev-parse", "--verify", f"{base}^{{commit}}")
     paths: set[str] = set()
     for arguments in (
-        ("diff", "--name-only", "--no-renames", "-z", base, "--"),
+        ("diff", "--name-only", "--no-renames", "-z", base, "HEAD", "--"),
+        ("diff", "--cached", "--name-only", "--no-renames", "-z", "--"),
+        ("diff", "--name-only", "--no-renames", "-z", "--"),
         ("ls-files", "--others", "--exclude-standard", "-z"),
     ):
         result = subprocess.run(["git", *arguments], cwd=ROOT, capture_output=True, check=True)
@@ -66,7 +69,8 @@ def changed_paths(base: str) -> list[str]:
 def known_h1(path: str) -> bool:
     return (
         path in H1_PYTHON | H1_TESTS
-        or path in {"AGENTS.md", "AGENTS.history-20261028.md", "CURRENT_STATE.md"}
+        or path
+        in {"AGENTS.md", "AGENTS.history-20261028.md", "CURRENT_STATE.md", ".codex/config.toml"}
         or path.startswith("docs/harness/")
     )
 
@@ -78,7 +82,7 @@ def full_reasons(paths: list[str], risk: str) -> list[str]:
     for path in paths:
         if not known_h1(path):
             reasons.append(f"unmapped/high-risk path: {path}")
-        elif path.startswith("scripts/") or path.startswith("tests/"):
+        elif path.startswith(("scripts/", "tests/", ".codex/")):
             reasons.append(f"verification/control code: {path}")
     return reasons
 
@@ -160,6 +164,11 @@ def syntax_checks(paths: list[str]) -> list[str]:
                 json.loads(path.read_text())
             except (ValueError, OSError):
                 errors.append(f"JSON syntax/read failure: {name}")
+        elif name == ".codex/config.toml":
+            try:
+                tomllib.loads(path.read_text())
+            except (ValueError, OSError):
+                errors.append(f"TOML syntax/read failure: {name}")
     return errors
 
 

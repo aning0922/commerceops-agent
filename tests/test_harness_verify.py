@@ -26,7 +26,7 @@ def test_changed_path_collection_includes_all_git_states(
     git("init", "-q")
     git("config", "user.name", "Offline Test")
     git("config", "user.email", "offline@example.invalid")
-    for name in ("committed.py", "staged.py", "unstaged.py", "deleted.py"):
+    for name in ("cancelled.py", "committed.py", "staged.py", "unstaged.py", "deleted.py"):
         (tmp_path / name).write_text("x = 1\n")
     git("add", ".")
     git("commit", "-qm", "synthetic base")
@@ -37,10 +37,15 @@ def test_changed_path_collection_includes_all_git_states(
     (tmp_path / "staged.py").write_text("x = 2\n")
     git("add", "staged.py")
     (tmp_path / "unstaged.py").write_text("x = 2\n")
+    # Staged and unstaged changes can cancel in base-to-worktree comparison.
+    (tmp_path / "cancelled.py").write_text("def invalid(:\n")
+    git("add", "cancelled.py")
+    (tmp_path / "cancelled.py").write_text("x = 1\n")
     (tmp_path / "deleted.py").unlink()
     (tmp_path / "untracked.py").write_text("x = 1\n")
     monkeypatch.setattr(verify, "ROOT", tmp_path)
     assert verify.changed_paths(base) == [
+        "cancelled.py",
         "committed.py",
         "deleted.py",
         "staged.py",

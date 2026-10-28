@@ -2,6 +2,8 @@
 
 This stage adds local feedback and typed task records. It does not run a scheduler, reserve quota, invoke a model, access business secrets or grant publication authority. The existing `scripts.check`, workflows, Full required PG/Web/N01/pair checks and business tests are unchanged.
 
+The project `.codex/config.toml` pins Sol/medium, ChatGPT authentication, workspace-write and no sandbox network access. The native read-only config probe attributes these values to this project's configuration layer and confirms the Sol catalog entry. This verifies loading, not real inference or the future H4 Worker boundary. Strict startup currently rejects a pre-existing global legacy field; its failure is retained without changing global configuration or trust.
+
 ## PF-1 task and Reviewer contract
 
 PF-1 applies incrementally from the H1 freeze handoff on 2026-10-28. Internal Harness tasks state the development cost they reduce and first identify existing scripts or mature tools to reuse. Add only the local implementation needed for the approved stage. Unjustified cross-layer abstractions, a second scheduler, extra services or tables, or repeated infrastructure built to test infrastructure trigger `SCOPE_REVIEW`; pause only the expansion and propose the smallest local repair. This adds no management system or UI work.
