@@ -31,7 +31,7 @@ FULL = [
     "tests/test_p4_terminal_recovery_pg.py::case[0015]",
     "tests/test_p4_terminal_recovery_pg.py::case[0016]",
 ]
-BINDING = {
+BINDING: dict[str, Any] = {
     **META,
     "execution": {"run_id": "123", "attempt": "1"},
     "environment": {
@@ -331,3 +331,219 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
         ["git", "show", "6d3a8f7:.github/workflows/quality.yml"], cwd=root
     )
     assert old == (root / ".github/workflows/quality.yml").read_bytes()
+
+
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        (("environment", "runner_version"), "20261012.334.1"),
+        (("environment", "compose"), "2.38.2"),
+        (("fingerprints", "binaries", "uv"), "1" * 64),
+        (("execution", "attempt"), "2"),
+        (("source_sha",), "2" * 40),
+    ],
+)
+def test_strict_binding_diagnoses_only_changed_field_digests(
+    path: tuple[str, ...], value: str
+) -> None:
+    from scripts.pg_ci_evidence import require_same_binding
+
+    actual = copy.deepcopy(BINDING)
+    target = actual
+    for key in path[:-1]:
+        target = target[key]
+    original = target[path[-1]]
+    target[path[-1]] = value
+    require_same_binding(BINDING, BINDING, "same")
+    with pytest.raises(ValueError) as error:
+        require_same_binding(BINDING, actual, "strict mismatch")
+    message = str(error.value)
+    differences = json.loads(message.split("binding_diff=", 1)[1])
+    assert differences == [
+        {
+            "field": ".".join(path),
+            "expected_sha256": document_hash(original),
+            "actual_sha256": document_hash(value),
+        }
+    ]
+    if len(value) > 8:
+        assert value not in message
+    if len(original) > 8:
+        assert original not in message
+
+
+@pytest.mark.parametrize("side", ["expected", "actual"])
+def test_unknown_binding_shape_rejected_before_diagnostic_output(side: str) -> None:
+    from scripts.pg_ci_evidence import require_same_binding
+
+    modified = copy.deepcopy(BINDING)
+    modified["environment"]["unexpected"] = "private-value"
+    pair = (modified, BINDING) if side == "expected" else (BINDING, modified)
+    with pytest.raises(ValueError) as error:
+        require_same_binding(*pair, "strict mismatch")
+    assert "binding_diff=" not in str(error.value)
+    assert "private-value" not in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "native_exit,report_present,finalize_exit,deadline_kind,expected_exit",
+    [
+        (23, False, 0, "registered", 23),
+        (0, False, 0, "registered", 1),
+        (0, True, 0, "registered", 0),
+        (0, True, 9, "registered", 9),
+        (23, True, 9, "registered", 23),
+        (0, False, 0, "missing", 1),
+        (0, False, 0, "invalid", 1),
+        (0, False, 0, "naive", 1),
+    ],
+)
+def test_actual_shadow_shell_preserves_registered_deadline_and_first_failure(
+    tmp_path: Path,
+    native_exit: int,
+    report_present: bool,
+    finalize_exit: int,
+    deadline_kind: str,
+    expected_exit: int,
+) -> None:
+    import os
+    import shutil
+    from datetime import UTC, datetime, timedelta
+
+    import yaml
+
+    root = Path(__file__).resolve().parents[1]
+    workflow = yaml.safe_load((root / ".github/workflows/harness-pg-shadow.yml").read_text())
+    steps = workflow["jobs"]["h2-shards"]["steps"]
+    assert steps[0]["name"].startswith("Register immutable")
+    assert steps[1]["uses"].startswith("actions/checkout@")
+    assert steps[1]["with"].get("clean", True) is True
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    environment_file = tmp_path / "github-env"
+    env = {**os.environ, "GITHUB_ENV": str(environment_file)}
+    before = datetime.now(UTC)
+    registered = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", steps[0]["run"]],
+        cwd=workspace,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert registered.returncode == 0, registered.stderr
+    name, stop = environment_file.read_text().strip().split("=", 1)
+    assert name == "COMMERCEOPS_H2_STOP_AT_UTC"
+    assert before + timedelta(minutes=43) <= datetime.fromisoformat(stop)
+    assert datetime.fromisoformat(stop) <= datetime.now(UTC) + timedelta(minutes=43)
+    # Reproduce the observed fresh-checkout removal, only in this disposable temp dir.
+    shutil.rmtree(workspace)
+    workspace.mkdir()
+    assert environment_file.exists() and not (workspace / ".audit/ci-deadline").exists()
+    env.pop(name, None)
+    if deadline_kind != "missing":
+        env[name] = {"registered": stop, "invalid": "invalid", "naive": "2026-10-28T00:00:00"}[
+            deadline_kind
+        ]
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    uv = bin_dir / "uv"
+    uv.write_text(
+        "#!/usr/bin/env python3\n"
+        "import json,os,sys\nfrom pathlib import Path\n"
+        "with Path(os.environ['CALL_LOG']).open('a') as f:\n"
+        " f.write(json.dumps(sys.argv[1:])+'\\n')\n"
+        "if 'scripts.pg_diagnostic' in sys.argv:\n"
+        " if os.environ['REPORT_PRESENT']=='1':\n"
+        "  p=Path('.audit/ci-evidence-shard-1.json'); p.parent.mkdir(); p.write_text('{}')\n"
+        " sys.exit(int(os.environ['NATIVE_EXIT']))\n"
+        "sys.exit(int(os.environ['FINALIZE_EXIT']))\n"
+    )
+    uv.chmod(0o700)
+    log = tmp_path / "calls.jsonl"
+    env.update(
+        PATH=str(bin_dir) + os.pathsep + env["PATH"],
+        SHARD_ID="1",
+        CALL_LOG=str(log),
+        REPORT_PRESENT=str(int(report_present)),
+        NATIVE_EXIT=str(native_exit),
+        FINALIZE_EXIT=str(finalize_exit),
+    )
+    native = next(s for s in steps if s.get("name", "").startswith("Native"))
+    result = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", native["run"]],
+        cwd=workspace,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == expected_exit, result.stdout + result.stderr
+    assert "Traceback" not in result.stderr
+    calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+    if deadline_kind != "registered":
+        assert calls == []  # Invalid registration fails before any diagnostic/finalize call.
+    else:
+        assert calls[0][calls[0].index("--deadline") + 1] == stop
+        assert len(calls) == (2 if report_present else 1)
+        if report_present:
+            assert calls[1][calls[1].index("--exit") + 1] == str(native_exit)
+        else:
+            assert "test evidence unavailable" in result.stdout
+
+
+@pytest.mark.parametrize("entry", ["diagnostic", "aggregate", "malformed-aggregate"])
+def test_entrypoints_reject_before_resources_or_report_reads(
+    tmp_path: Path, monkeypatch: Patch, entry: str
+) -> None:
+    from scripts import pg_ci_evidence as checker
+    from scripts import pg_diagnostic as diagnostic
+
+    p = copy.deepcopy(plan())
+    if entry == "malformed-aggregate":
+        p["unexpected"] = "private-value"
+    file = tmp_path / "plan.json"
+    file.write_text(json.dumps(p))
+    actual = copy.deepcopy(BINDING)
+    actual["environment"]["runner_version"] = "20261012.334.1"
+    module = diagnostic if entry == "diagnostic" else checker
+    monkeypatch.setattr(module, "identity", lambda _: META)
+    monkeypatch.setattr(module, "execution_identity", lambda: actual["execution"])
+    monkeypatch.setattr(module, "environment_identity", lambda _: actual["environment"])
+    monkeypatch.setattr(
+        diagnostic, "prepare", lambda *_: pytest.fail("resource preparation must not start")
+    )
+    if entry == "diagnostic":
+        argv = [
+            "pg_diagnostic",
+            "--session",
+            "ci",
+            "--round",
+            "1",
+            "--combined",
+            "--shard-plan",
+            str(file),
+            "--shard-id",
+            "0",
+            "--full-smoke",
+            "--deadline",
+            "2026-10-28T00:00:00+00:00",
+        ]
+        run = diagnostic.main
+    else:
+        argv = [
+            "pg_ci_evidence",
+            "aggregate",
+            "--plan",
+            str(file),
+            "--job-results",
+            str(tmp_path / "absent-jobs.json"),
+            str(tmp_path / "absent-report.json"),
+        ]
+        run = checker.shard_main
+    monkeypatch.setattr(sys, "argv", argv)
+    with pytest.raises(ValueError) as error:
+        run()
+    if entry == "malformed-aggregate":
+        assert "binding_diff=" not in str(error.value)
+    else:
+        assert '"field": "environment.runner_version"' in str(error.value)
+    assert "private-value" not in str(error.value)

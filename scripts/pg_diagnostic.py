@@ -21,6 +21,7 @@ from scripts.pg_ci_evidence import (
     identity,
     partition,
     read_reply_parent_parts,
+    require_same_binding,
     safe_report,
     safe_shard_report,
     shard_groups,
@@ -424,8 +425,11 @@ def main() -> None:
             "execution": execution_identity(),
             "environment": environment_identity(ROOT),
         }
-        if shard_plan["binding"] != shard_binding:
-            raise ValueError("shard plan differs from exact checkout/tools/run/environment")
+        require_same_binding(
+            shard_plan["binding"],
+            shard_binding,
+            "shard plan differs from exact checkout/tools/run/environment",
+        )
     if (args.session == "followup" and args.round > 2) or (
         args.session == "ci" and args.round != 1
     ):

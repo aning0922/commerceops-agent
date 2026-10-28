@@ -74,18 +74,18 @@ jobs:
       - name: Register immutable deadline before checkout or preparation
         run: |
           python3 - <<'PY'
+          import os
           from datetime import datetime, timedelta, timezone
           from pathlib import Path
-          Path(".audit").mkdir(exist_ok=True)
-          Path(".audit/ci-deadline").write_text(
-              (datetime.now(timezone.utc) + timedelta(minutes=43)).isoformat())
+          stop = (datetime.now(timezone.utc) + timedelta(minutes=43)).isoformat()
+          with Path(os.environ["GITHUB_ENV"]).open("a") as output:
+              output.write(f"COMMERCEOPS_H2_STOP_AT_UTC={stop}\n")
           PY
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-          clean: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.12.13'
@@ -105,18 +105,36 @@ jobs:
           SHARD_ID: ${{ matrix.shard }}
         shell: bash
         run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime
+          try:
+              stop = datetime.fromisoformat(os.environ.get("COMMERCEOPS_H2_STOP_AT_UTC", ""))
+          except ValueError:
+              raise SystemExit("registered H2 deadline missing or invalid") from None
+          if stop.tzinfo is None:
+              raise SystemExit("registered H2 deadline requires timezone")
+          PY
           smoke=()
           if [ "$SHARD_ID" = 0 ]; then smoke=(--full-smoke); fi
           set +e
           uv run --frozen python -m scripts.pg_diagnostic \
             --session ci --round 1 --combined --no-child-trace \
             --shard-plan .audit/plan/plan.json --shard-id "$SHARD_ID" \
-            "${smoke[@]}" --deadline "$(cat .audit/ci-deadline)"
+            "${smoke[@]}" --deadline "$COMMERCEOPS_H2_STOP_AT_UTC"
           native_exit=$?
+          report=".audit/ci-evidence-shard-$SHARD_ID.json"
+          if [ -f "$report" ]; then
+            uv run --frozen python -m scripts.pg_ci_evidence finalize \
+              --report "$report" --exit "$native_exit"
+            finalize_exit=$?
+          else
+            echo "H2 report not created; native_exit=$native_exit; test evidence unavailable"
+            finalize_exit=1
+          fi
           set -e
-          uv run --frozen python -m scripts.pg_ci_evidence finalize \
-            --report ".audit/ci-evidence-shard-$SHARD_ID.json" --exit "$native_exit"
-          exit "$native_exit"
+          if [ "$native_exit" -ne 0 ]; then exit "$native_exit"; fi
+          exit "$finalize_exit"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

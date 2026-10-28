@@ -499,6 +499,31 @@ def _validate_binding(binding: Any) -> None:
     _validate_environment(binding["environment"])
 
 
+def require_same_binding(expected: Any, actual: Any, context: str) -> None:
+    """Keep strict equality; diagnose only validated field paths and value digests."""
+    _validate_binding(expected)
+    _validate_binding(actual)
+    if expected == actual:
+        return
+    differences = []
+
+    def compare(left: Any, right: Any, path: str) -> None:
+        if isinstance(left, dict):
+            for key in sorted(left):
+                compare(left[key], right[key], f"{path}.{key}" if path else key)
+        elif left != right:
+            differences.append(
+                {
+                    "field": path,
+                    "expected_sha256": document_hash(left),
+                    "actual_sha256": document_hash(right),
+                }
+            )
+
+    compare(expected, actual, "")
+    raise ValueError(f"{context}; binding_diff=" + json.dumps(differences, sort_keys=True))
+
+
 def _assignment(
     groups: dict[str, list[str]], weights: dict[str, float], count: int
 ) -> list[dict[str, Any]]:
@@ -805,8 +830,12 @@ def shard_main() -> None:
         args.output.write_text(json.dumps(plan, indent=2) + "\n")
     else:
         plan = json.loads(args.plan.read_text())
-        if plan["binding"] != binding:
-            raise ValueError("aggregate differs from exact checker checkout/run/environment")
+        validate_plan(plan)
+        require_same_binding(
+            plan["binding"],
+            binding,
+            "aggregate differs from exact checker checkout/run/environment",
+        )
         verify_shards(
             plan,
             [json.loads(path.read_text()) for path in args.reports],
