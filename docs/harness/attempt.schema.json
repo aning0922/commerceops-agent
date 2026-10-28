@@ -1,0 +1,103 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "harness-attempt-v3.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "spec_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Spec Sha256",
+      "type": "string"
+    },
+    "attempt_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$",
+      "title": "Attempt Id",
+      "type": "string"
+    },
+    "attempt_number": {
+      "maximum": 2,
+      "minimum": 1,
+      "title": "Attempt Number",
+      "type": "integer"
+    },
+    "turns": {
+      "maximum": 6,
+      "minimum": 0,
+      "title": "Turns",
+      "type": "integer"
+    },
+    "wall_seconds": {
+      "maximum": 2700,
+      "minimum": 0,
+      "title": "Wall Seconds",
+      "type": "number"
+    },
+    "state": {
+      "enum": [
+        "NOT_RUN",
+        "RUNNING",
+        "LOCAL_PASS",
+        "FAILED",
+        "INTERRUPTED",
+        "NEEDS_RECONCILIATION"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "exit_code": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Exit Code"
+    },
+    "resolved_model": {
+      "enum": [
+        "gpt-6.1-sol",
+        "gpt-6-astra"
+      ],
+      "title": "Resolved Model",
+      "type": "string"
+    },
+    "effort": {
+      "enum": [
+        "medium",
+        "high"
+      ],
+      "title": "Effort",
+      "type": "string"
+    },
+    "usage_source": {
+      "const": "UNKNOWN",
+      "default": "UNKNOWN",
+      "title": "Usage Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "spec_sha256",
+    "attempt_id",
+    "attempt_number",
+    "turns",
+    "wall_seconds",
+    "state",
+    "exit_code",
+    "resolved_model",
+    "effort"
+  ],
+  "title": "RunAttempt",
+  "type": "object"
+}

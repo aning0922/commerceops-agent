@@ -1,0 +1,34 @@
+{
+  "schema_version": "harness-state-snapshot-v3.1",
+  "observed_at": "2026-10-28 07:41:01 UTC",
+  "issues": [
+    {
+      "number": 49,
+      "url": "https://github.com/aning0922/commerceops-agent/issues/49",
+      "title": "Phase5 / M2：Woo只读业务接线、备份恢复与完整交付",
+      "state": "closed",
+      "updated_at": "2026-10-27T02:19:43Z"
+    },
+    {
+      "number": 51,
+      "url": "https://github.com/aning0922/commerceops-agent/issues/51",
+      "title": "Harness V2｜长期 AI 托管开发、模型预算路由与全量 CI 提速（M2 后独立工程整改）",
+      "state": "open",
+      "updated_at": "2026-10-27T22:42:28Z"
+    }
+  ],
+  "authority_receipt": "https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354",
+  "accepted_base_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+  "accepted_tree": "ac92562c26d24eb183143e52de64e5a51282948c",
+  "last_full_ci": "40432280677",
+  "ci_evidence_source": "Issue #49 accepted receipt; H0 read-only CI sampling",
+  "h0_handoff": "b93da31ac290d3cd349807f81c3840e6b9447c76",
+  "h0_code": "b0d61e73f924f84d4afaf319131597b78aedda40",
+  "h0_path": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028",
+  "arm64_stop_ref": "https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477",
+  "harness_stage": "H1 LOCAL_CANDIDATE / independent review pending",
+  "later_gates": "H2-H5 NOT_RUN",
+  "model_default": "gpt-6.1-sol / medium",
+  "quota": "UNKNOWN; no reservation or token usage claim",
+  "authorization": "Local Harness H0-H5 only; remote publication/CI, global services, business secrets/resources and M3 require separate authorization"
+}

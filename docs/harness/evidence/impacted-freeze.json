@@ -1,0 +1,187 @@
+{
+  "command": [
+    "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+    "-m",
+    "scripts.verify",
+    "impacted",
+    "--spec",
+    "docs/harness/task.example.json"
+  ],
+  "process_exit": 0,
+  "outer_wall_seconds": 2.563281,
+  "report": {
+    "base_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+    "branch": "codex/harness-v3",
+    "changed_paths": [
+      "AGENTS.history-20261028.md",
+      "AGENTS.md",
+      "CURRENT_STATE.md",
+      "docs/harness/H1_RESULT.md",
+      "docs/harness/HANDOFF.md",
+      "docs/harness/README.md",
+      "docs/harness/archive.json",
+      "docs/harness/attempt.schema.json",
+      "docs/harness/state_snapshot.json",
+      "docs/harness/task.example.json",
+      "docs/harness/task.schema.json",
+      "scripts/current_state.py",
+      "scripts/harness_contract.py",
+      "scripts/verify.py",
+      "tests/test_harness_contract.py",
+      "tests/test_harness_verify.py"
+    ],
+    "checks": [
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "--"
+        ],
+        "exit_code": 0,
+        "name": "baseline diff whitespace",
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.0145
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--cached",
+          "--check"
+        ],
+        "exit_code": 0,
+        "name": "staged whitespace",
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.012635
+      },
+      {
+        "command": [
+          "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "scripts/current_state.py",
+          "scripts/harness_contract.py",
+          "scripts/verify.py",
+          "tests/test_harness_contract.py",
+          "tests/test_harness_verify.py"
+        ],
+        "exit_code": 0,
+        "name": "changed Python lint",
+        "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.024824
+      },
+      {
+        "command": [
+          "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "scripts/current_state.py",
+          "scripts/harness_contract.py",
+          "scripts/verify.py",
+          "tests/test_harness_contract.py",
+          "tests/test_harness_verify.py"
+        ],
+        "exit_code": 0,
+        "name": "changed Python format",
+        "output_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.024573
+      },
+      {
+        "command": [
+          "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+          "-m",
+          "mypy",
+          "scripts/current_state.py",
+          "scripts/harness_contract.py",
+          "scripts/verify.py",
+          "tests/test_harness_contract.py",
+          "tests/test_harness_verify.py"
+        ],
+        "exit_code": 0,
+        "name": "changed Python types",
+        "output_sha256": "e317872697c2cbfdefa321527a6efe73290dff3a390b0fa8723b87092eccba6a",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.101125
+      },
+      {
+        "command": [
+          "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+          "-m",
+          "scripts.current_state"
+        ],
+        "exit_code": 0,
+        "name": "trusted state/archive",
+        "output_sha256": "12dfd3bba67da1040f4a90401e5e30c4da814de4823a2aaaf15a4c061e86d7bf",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.041606
+      },
+      {
+        "command": [
+          "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+          "-m",
+          "scripts.check_docs"
+        ],
+        "exit_code": 0,
+        "name": "Markdown links/fences",
+        "output_sha256": "05d3daeea52c24dc90a021f7128eedda279189be45db05a37e04a9313de6572d",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 0.378388
+      },
+      {
+        "command": [
+          "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-m",
+          "offline",
+          "tests/test_harness_contract.py",
+          "tests/test_harness_verify.py"
+        ],
+        "exit_code": 0,
+        "name": "H1 offline contracts",
+        "output_sha256": "3bbf5e8fdfaf28b30645ab384ae2a4aa34cad59096da5d0f9a3b10bf3cd10760",
+        "reason": null,
+        "status": "PASSED",
+        "wall_seconds": 1.805012
+      }
+    ],
+    "exit_code": 0,
+    "full_gate": "NOT_RUN",
+    "full_required": true,
+    "full_required_reasons": [
+      "task risk: high",
+      "verification/control code: scripts/current_state.py",
+      "verification/control code: scripts/harness_contract.py",
+      "verification/control code: scripts/verify.py",
+      "verification/control code: tests/test_harness_contract.py",
+      "verification/control code: tests/test_harness_verify.py",
+      "TaskSpec requires Full"
+    ],
+    "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+    "merge_eligible": false,
+    "mode": "impacted",
+    "schema_version": "harness-verify-v3.1",
+    "spec_sha256": "c81bc239407bf4031f8d5b28b3ae92d4a4ecc3acb72d6ea745bb95cc68f2dfdc",
+    "status": "LOCAL_PASS",
+    "unmapped_paths": [],
+    "usage_source": "UNKNOWN",
+    "wall_seconds": 2.478158
+  }
+}
