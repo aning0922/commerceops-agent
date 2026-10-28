@@ -366,6 +366,41 @@ def cleanup_registered_containers(
     return len(ids)
 
 
+def owned_pg_image_id(
+    compose: list[str],
+    project: str,
+    capture: Callable[[list[str]], subprocess.CompletedProcess[str]],
+) -> str:
+    """Read the native image config ID from the single owned, running PG container."""
+    if not re.fullmatch(r"p123-[0-9a-f]{12}", project) or compose[:4] != [
+        "docker",
+        "compose",
+        "-p",
+        project,
+    ]:
+        raise RuntimeError("owned PostgreSQL project required")
+    selected = capture(compose + ["ps", "--quiet", "postgres"])
+    container = selected.stdout.strip()
+    if selected.returncode != 0 or not re.fullmatch(r"[0-9a-f]{64}", container):
+        raise RuntimeError("one owned PostgreSQL container required")
+    template = (
+        "{{.Id}}|{{.Image}}|{{.State.Running}}|"
+        '{{index .Config.Labels "com.docker.compose.project"}}|'
+        '{{index .Config.Labels "com.docker.compose.service"}}'
+    )
+    observed = capture(["docker", "container", "inspect", "--format", template, container])
+    fields = observed.stdout.strip().split("|")
+    if (
+        observed.returncode != 0
+        or len(fields) != 5
+        or fields[0] != container
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", fields[1])
+        or fields[2:] != ["true", project, "postgres"]
+    ):
+        raise RuntimeError("actual owned PostgreSQL image identity required")
+    return fields[1]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--deadline", required=True)
@@ -740,12 +775,9 @@ def main() -> None:
         if not run("healthy", ["up", "-d", "--wait", "--wait-timeout", "60", "postgres"], 75):
             raise RuntimeError("bounded PG startup failed")
         if shard_plan is not None:
-            image = capture(compose + ["images", "-q", "postgres"], 10)
-            if image.returncode != 0 or not re.fullmatch(
-                r"sha256:[0-9a-f]{64}", image.stdout.strip()
-            ):
-                raise RuntimeError("actual pinned PostgreSQL image ID required")
-            report["pg_image_id"] = image.stdout.strip()
+            report["failure_stage"] = "pg-image-identity"
+            report["pg_image_id"] = owned_pg_image_id(compose, project, capture)
+            report.pop("failure_stage")
         actions = ("migrate", "setup-checkpointer", "grant-runtime", "revision")
         for index, action in enumerate(actions * (2 if args.full_smoke else 1)):
             name = project + "-init-" + str(index)
@@ -928,7 +960,13 @@ def main() -> None:
     except Exception as error:
         report["result"] = "failed"
         report["error_class"] = type(error).__name__
-        emit({"event": "diagnostic_failed", "code": type(error).__name__})
+        failure_record: dict[str, object] = {
+            "event": "diagnostic_failed",
+            "code": type(error).__name__,
+        }
+        if "failure_stage" in report:
+            failure_record["stage"] = report["failure_stage"]
+        emit(failure_record)
     finally:
         cleanup_started = time.monotonic()
         cleanup_stage = "inspect-registered"
@@ -1012,9 +1050,12 @@ def main() -> None:
         save()
         if shard_plan is not None and shard_binding is not None and args.shard_id is not None:
             # Failed collection can emit no v2 artifact; upload/aggregate must fail closed.
-            evidence = safe_shard_report(report, shard_binding, shard_plan, args.shard_id)
-            artifact = ROOT / ".audit" / f"ci-evidence-shard-{args.shard_id}.json"
-            artifact.write_text(json.dumps(evidence, indent=2) + "\n")
+            if report.get("full_node_ids"):
+                evidence = safe_shard_report(report, shard_binding, shard_plan, args.shard_id)
+                artifact = ROOT / ".audit" / f"ci-evidence-shard-{args.shard_id}.json"
+                artifact.write_text(json.dumps(evidence, indent=2) + "\n")
+            else:
+                emit({"event": "shard_evidence_unavailable", "reason": "no_actual_collection"})
         elif ci_identity is not None:
             evidence = safe_report(report, ci_identity, args.ci_scope)
             artifact = ROOT / ".audit" / f"ci-evidence-{args.ci_scope}.json"

@@ -547,3 +547,149 @@ def test_entrypoints_reject_before_resources_or_report_reads(
     else:
         assert '"field": "environment.runner_version"' in str(error.value)
     assert "private-value" not in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "valid",
+        "missing",
+        "multiple",
+        "short-container",
+        "selection-error",
+        "inspect-error",
+        "wrong-container",
+        "wrong-project",
+        "wrong-service",
+        "stopped",
+        "short-image",
+        "no-prefix",
+        "extra-fields",
+    ],
+)
+def test_owned_pg_image_uses_native_full_id_and_checks_actual_container(case: str) -> None:
+    from scripts.pg_diagnostic import owned_pg_image_id
+
+    project = "p123-0123456789ab"
+    compose = ["docker", "compose", "-p", project, "-f", "compose.yml"]
+    container, image = "a" * 64, "sha256:" + "b" * 64
+    selected = {
+        "missing": "",
+        "multiple": container + "\n" + "c" * 64,
+        "short-container": container[:12],
+    }.get(case, container)
+    fields = [container, image, "true", project, "postgres"]
+    changes = {
+        "wrong-container": (0, "c" * 64),
+        "wrong-project": (3, "p123-other"),
+        "wrong-service": (4, "db-init"),
+        "stopped": (2, "false"),
+        "short-image": (1, "sha256:" + "b" * 12),
+        "no-prefix": (1, "b" * 64),
+    }
+    if case in changes:
+        index, value = changes[case]
+        fields[index] = value
+    if case == "extra-fields":
+        fields.append("private")
+    calls = []
+
+    def capture(command: list[str]) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        if len(calls) == 1:
+            assert command == compose + ["ps", "--quiet", "postgres"]
+            return subprocess.CompletedProcess(command, int(case == "selection-error"), selected)
+        assert command[:4] == ["docker", "container", "inspect", "--format"]
+        assert command[-1] == container and len(command) == 6
+        assert ".Image" in command[4] and ".State.Running" in command[4]
+        assert "com.docker.compose.project" in command[4]
+        assert "com.docker.compose.service" in command[4] and "Env" not in command[4]
+        return subprocess.CompletedProcess(command, int(case == "inspect-error"), "|".join(fields))
+
+    if case == "valid":
+        assert owned_pg_image_id(compose, project, capture) == image
+    else:
+        with pytest.raises(RuntimeError) as error:
+            owned_pg_image_id(compose, project, capture)
+        assert "private" not in str(error.value)
+
+
+def test_real_main_preserves_image_failure_and_cleanup_without_inventing_collection(
+    tmp_path: Path, monkeypatch: Patch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import os
+    from datetime import UTC, datetime, timedelta
+
+    from scripts import pg_diagnostic as diagnostic
+    from tests.test_pg_diag_shutdown import Process
+
+    p = plan()
+    file = tmp_path / "plan.json"
+    file.write_text(json.dumps(p))
+    monkeypatch.setattr(diagnostic, "ROOT", tmp_path)
+    monkeypatch.setattr(diagnostic, "identity", lambda _: META)
+    monkeypatch.setattr(diagnostic, "execution_identity", lambda: BINDING["execution"])
+    monkeypatch.setattr(diagnostic, "environment_identity", lambda _: BINDING["environment"])
+
+    def prepare(directory: Path) -> None:
+        directory.mkdir(parents=True)
+        for name in ["owner_password", "app_password"]:
+            (directory / name).write_text("dummy")
+
+    monkeypatch.setattr(diagnostic, "prepare", prepare)
+
+    def completed_process(*args: Any, **kwargs: Any) -> Process:
+        process = Process([])
+        process.returncode = 0
+        monkeypatch.setattr(process, "wait", lambda **kw: 0)
+        return process
+
+    monkeypatch.setattr(subprocess, "Popen", completed_process)
+    monkeypatch.setattr(os, "killpg", lambda *a: pytest.fail("no real PID signal"))
+    calls = []
+
+    def capture(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        if command[-3:] == ["ps", "--quiet", "postgres"]:
+            return subprocess.CompletedProcess(command, 0, "a" * 64)
+        if command[:3] == ["docker", "container", "inspect"]:
+            return subprocess.CompletedProcess(command, 0, "private")
+        assert "down" in command or "--filter" in command
+        return subprocess.CompletedProcess(command, 0, "")
+
+    monkeypatch.setattr(subprocess, "run", capture)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "pg_diagnostic",
+            "--session",
+            "ci",
+            "--round",
+            "1",
+            "--combined",
+            "--shard-plan",
+            str(file),
+            "--shard-id",
+            "1",
+            "--deadline",
+            (datetime.now(UTC) + timedelta(minutes=5)).isoformat(),
+        ],
+    )
+    with pytest.raises(SystemExit) as error:
+        diagnostic.main()
+    assert error.value.code == 1
+    output = capsys.readouterr().out
+    assert "private" not in output
+    events = [json.loads(line) for line in output.splitlines()]
+    primary = next(e for e in events if e.get("event") == "diagnostic_failed")
+    assert primary["stage"] == "pg-image-identity" and primary["code"] == "RuntimeError"
+    assert any(e.get("event") == "shard_evidence_unavailable" for e in events)
+    final = events[-1]
+    assert final["result"] == "failed" and final["cleanup_exit"] == 0
+    assert final["cleanup_stage"] == "complete"
+    report = json.loads((tmp_path / ".audit/issue23-ci/round-1.json").read_text())
+    assert "full_node_ids" not in report and "pg_image_id" not in report
+    assert report["remaining_resources"] == {"containers": 0, "networks": 0, "volumes": 0}
+    assert not list((tmp_path / ".audit").glob("ci-evidence-shard-*.json"))
+    assert any("down" in c for c in calls)
