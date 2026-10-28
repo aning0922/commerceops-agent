@@ -4,6 +4,8 @@ Status: **LOCAL_GATE_ACCEPTED** at frozen code `17e2e1af5e77b1c09b1de45d51c357a8
 
 PF-1 was received before H1 freeze and attached to the existing task/Reviewer contract and handoff. Only those short documentation additions apply now: internal development cost, reuse, proportionate development checks, dual-axis findings and `SCOPE_REVIEW`. No product UI, extra Agent, service or schema field was introduced for the addendum. Builder encountered a Sol capacity error after preserving the implementation and validation records; Root continues the same local closeout without model upgrade or duplicate task dispatch.
 
+The subsequent handoff text update `a97c7f4` exposed a Ruff E501 line-length failure; it is retained in history and corrected locally, without changing validation behavior or rerunning unrelated tests.
+
 Base: `6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265`. First freeze: `fc65bfbefc068f1c726dac37350dd6f901d7d785`. Machine reports below are explicitly pre-freeze Worktree evidence (HEAD still base), not invented exact-candidate CI. Independent review reuses valid unchanged-source evidence and checks only actual fixes and newly affected paths.
 
 ## Changes and invariants

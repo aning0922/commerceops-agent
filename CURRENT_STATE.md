@@ -18,7 +18,7 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
   reservation claimed, no paid API fallback.
 - Authorized scope: Local Harness H0-H5 only; remote publication/CI, global services, business secrets/resources and M3 require separate authorization.
 - [Old ARM64 CI stopped](https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477); preserve its Worktree and WIP.
-- Next Gate: follow the pending stage in [handoff](docs/harness/HANDOFF.md). Fast/Impacted provide local feedback; the
+- Next Gate: see [handoff](docs/harness/HANDOFF.md). Fast/Impacted give local feedback;
   existing Full required gates remain authoritative and are NOT_RUN for this candidate.
 
 Navigation: [H1 usage](docs/harness/README.md), [TaskSpec

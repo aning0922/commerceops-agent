@@ -61,7 +61,7 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
   reservation claimed, no paid API fallback.
 - Authorized scope: {snapshot["authorization"]}.
 - [Old ARM64 CI stopped]({snapshot["arm64_stop_ref"]}); preserve its Worktree and WIP.
-- Next Gate: follow the pending stage in [handoff](docs/harness/HANDOFF.md). Fast/Impacted provide local feedback; the
+- Next Gate: see [handoff](docs/harness/HANDOFF.md). Fast/Impacted give local feedback;
   existing Full required gates remain authoritative and are NOT_RUN for this candidate.
 
 Navigation: [H1 usage](docs/harness/README.md), [TaskSpec
