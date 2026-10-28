@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAPSHOT_SHA256 = "a83010dafab57c066f6a5ce593d403446c78d9a788ad944ecd4436a3cc7e5f74"
+SNAPSHOT_SHA256 = "20075034514daa4a8563892566053b6d6b232c3ec6102406722d5d321d967dcd"
 ARCHIVE_SHA256 = "121290e12d2e4349e3c90f685058c4c359bcb1251872d87d0de280f7bcde2837"
 BASE = "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265"
 
@@ -61,7 +61,7 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
   reservation claimed, no paid API fallback.
 - Authorized scope: {snapshot["authorization"]}.
 - [Old ARM64 CI stopped]({snapshot["arm64_stop_ref"]}); preserve its Worktree and WIP.
-- Next Gate: H1 exact-SHA independent review. Fast/Impacted provide local feedback; the
+- Next Gate: follow the pending stage in [handoff](docs/harness/HANDOFF.md). Fast/Impacted provide local feedback; the
   existing Full required gates remain authoritative and are NOT_RUN for this candidate.
 
 Navigation: [H1 usage](docs/harness/README.md), [TaskSpec
