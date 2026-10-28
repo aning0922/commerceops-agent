@@ -1,7 +1,8 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_CANDIDATE**, not H2 accepted. Hosted, real PG, old/new same-SHA Full,
-measured speed and job-minutes: **NOT_RUN**. Product UI: NOT_APPLICABLE.
+Status: **LOCAL_REPAIR_CANDIDATE**, not H2 accepted. First Hosted Full/shadow: **FAILURE**
+at the scan gate. Real PG, completed old/new Full comparison and measured speed: **NOT_RUN**.
+Product UI: NOT_APPLICABLE. The first-attempt job timings are preserved in its receipt.
 
 ## First approved Hosted attempt and local repair
 
