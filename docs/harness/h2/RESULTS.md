@@ -1,14 +1,91 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_PREFLIGHT_REPAIR_CANDIDATE**, not H2 accepted. Third original Full
-passed at headfe439080/merge04469068; third Shadow failed before PG execution.
-Current local source below is unpushed and its Full/Shadow are NOT_RUN. Measured six-shard
-speed and completed old/new comparison remain **NOT_RUN**.
+Status: **LOCAL_IMAGE_REPAIR_CANDIDATE / SCOPE_REVIEW**, not H2 accepted. Fourth original
+Full passed at head06e319b/merge8e95fb8a; Shadow failed with four runner_revision mismatches
+and two image-proof failures. Current local B repair is unpushed and its Full/Shadow are
+NOT_RUN. Six-shard measured speed remains NOT_RUN. Contract proposal A is not implemented.
 Product UI: NOT_APPLICABLE. The first-attempt job timings are preserved in its receipt.
 
 Earlier secret-gate corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
 
-## Current local preflight repair
+## Current local image-proof repair B and contract decision A
+
+Code freeze `040d7bcf4425133cf7ab3367680d42d3d9d0f3fe` is independently ACCEPTED by the
+existing Sol Reviewer, no BLOCKER; UI N/A and complexity reasonable. Root continued the
+standing authorized local H2 engineering scope while the original Full ran on immutable
+06e319b/8e95fb8a. No additional push/Hosted grant was used and no Gate was waived.
+
+B changes only the existing diagnostic and existing focused test file. Use the same bounded
+capture to select the unique complete container ID of the owned Compose PostgreSQL service,
+then inspect only its ID, full native `.Image`, running state and project/service labels.
+Wrong/ambiguous/stopped/cross-project containers and short/unprefixed image IDs reject;
+no prefix guessing or complete environment dump. The configured manifest digest and actual
+image config ID stay distinct. Capture calls still use the original remaining deadline.
+
+The exact installed [Compose2.38.2 quiet implementation](https://github.com/docker/compose/blob/v2.38.2/cmd/compose/images.go#L68-L82)
+removes the digest prefix. The old success-output format therefore conflicts with the
+required `sha256:` check. Native probe exit/stdout from this failed run were not saved;
+this source-level incompatibility does not fill in those missing original bytes. Container
+inspect uses the installed [CLI28.0.4 template path](https://github.com/docker/cli/blob/v28.0.4/cli/command/inspect/inspector.go),
+which supports the raw JSON property names used by the narrow template.
+
+Probe failure retains the closed `pg-image-identity` stage and exception class without probe
+values. When actual full collection is unavailable, do not call the success exporter or
+fabricate an empty report; emit the unavailable reason, retain cleanup summary and native
+failure. The wrapper still refuses missing evidence. Other strict bindings, actual image-ID
+agreement across shards, 300s/75s/60s budgets and original workflow remain unchanged.
+
+Actual local validation: **218passed/2.77s** across existing v2/v1, partition, shutdown and
+N01 contracts; Ruff lint/format and mypy on2affected Python files pass. Fourteen added cases
+exercise native full image ID/ownership failures and the actual main's image-stage failure,
+cleanup and absent collection/artifact with existing fake capture/Process only. No Docker/PG
+ran locally. First authoring type errors (a local variable reused an old bool name) and a
+new test using the existing Process fixture's terminating -9 default (1failed/217passed in
+2.99s) were corrected; the fake now models a completed0 build, with product assertions
+retained. Precommit current/index scan passed0/20.65817s, both findings0; history NOT_RUN in
+that explicit local mode. Full history scan follows the final ordinary metadata freeze.
+
+Actual current collection is **2895offline/590integration**, collect-only exit0, wall4.117467s
+and3.008514s. All14new nodes are offline, zero retired; collection is not a complete execution
+pass. [Manifest](current-collection.json) retains exact nodes/delta and code source. Current B
+candidate's real Docker inspect, Full and Shadow remain NOT_RUN; old Full does not sign it.
+
+A is the separate [one-field contract proposal](environment-contract-proposal.json),
+**PROPOSED_ONLY / SCOPE_REVIEW / NOT_IMPLEMENTED**. Original material05 line47 requires
+identical runner fingerprints. Reclassifying only `environment.runner_version` as mandatory
+per-job observation would permit mixed Hosted image revisions and changes that adopted
+contract; it requires explicit user approval. OS/arch/runner class, Docker/Compose, all fixed
+source/lock/tool/run fields, actual PG IDs, dynamic complete sets, native/G1/G2/cleanup and
+original Full remain hard requirements. Every job's revision must remain recorded, with
+mixed-host samples labelled and no complete-host-equivalence or controlled-performance claim.
+[GitHub's Hosted runner documentation](https://docs.github.com/en/actions/concepts/runners/github-hosted-runners)
+explains multi-day image rollouts. No custom runner/image platform or extra service is proposed.
+Until a user decision, strict runner revision equality remains active and H2 stays unaccepted;
+do not request another blind retry. H3 is not started.
+
+## Fourth approved Hosted terminal evidence
+
+[Fourth receipt](fourth-hosted-receipt.json): head06e319b, native merge
+`8e95fb8aa48e980240b5c524bf165b5d6865b6f9` / tree867b8ae3. Original Full40707885614
+**SUCCESS**, five jobs, wall39m54s/103.95observed job-minutes (not billing). Closed artifacts
+and1770native phase events prove413+177=590passed calls, no overlap, exact equality with the
+Shadow plan's dynamic set, G1three/G2six, both cleanup0 and stopping confirmed. Offline2881
+passed/334.62s; Web read7/write10/items7 and N01six passed with exact source and stopped
+owned resources; secret Gate passed. The unchanged original workflow's elapsed variation
+is not a six-shard optimization result.
+
+Shadow40707885615 **FAILURE**, wall3m58s/8.45job-minutes. Four shards0/2/3/4 rejected
+exactly `environment.runner_version`, with every other compared binding field equal.
+The expected revision value is20261026.354.1, digest68112dd5; actual digest6abe8bc0 is
+observed but raw value was not captured. Do not substitute the setup log's20261012.334.1;
+those sources remain distinct. Shards1/5 passed binding and deadline, build0 and healthy0,
+then failed the actual image-ID proof before collection. Both reached cleanup stagecomplete;
+no valid v2 artifact exists. Empty-collection export then produced a secondary ValueError.
+The revised wrapper retained native1 and skipped absent-report finalize. Deadline loss did
+not recur. No PG test execution, completed N-way comparison or speed conclusion exists.
+All four attempts and Draft PR52 remain preserved; no automatic rerun occurred.
+
+## Earlier local preflight repair
 
 The user approved only local implementation/targeted validation after choosing to retain
 strict Gates and first inspect the third failure read-only. Code freeze: `dc837623efdcc3324c86d7e73862549a9f892997`.

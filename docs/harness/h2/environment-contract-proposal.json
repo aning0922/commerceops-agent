@@ -1,0 +1,63 @@
+{
+  "status": "PROPOSED_ONLY / SCOPE_REVIEW / NOT_IMPLEMENTED",
+  "evidence_source_sha": "06e319b5989751a7c1301518eaeea8418ca75669",
+  "merge_checkout": "8e95fb8aa48e980240b5c524bf165b5d6865b6f9",
+  "observed_binding_mismatch_shards": [
+    0,
+    2,
+    3,
+    4
+  ],
+  "only_changed_field": "environment.runner_version",
+  "other_shards": [
+    1,
+    5
+  ],
+  "other_shards_observation": "binding/deadline passed; build and PG healthy exit0; image-ID probe failed before collection",
+  "contract_to_amend": {
+    "file": "05_CI_\u91cd\u6784\u4e0e\u53ef\u8861\u91cf\u63d0\u901f.md",
+    "line": 47,
+    "existing_requirement": "all shards lock/tool/runner/compose fingerprints completely identical",
+    "one_proposed_change": "environment.runner_version becomes mandatory per-job observation rather than cross-job equality"
+  },
+  "remain_exactly_equal": [
+    "source_sha",
+    "source_tree",
+    "fingerprints.files",
+    "fingerprints.runtime",
+    "fingerprints.binaries",
+    "execution.run_id",
+    "execution.attempt",
+    "environment.os",
+    "environment.arch",
+    "environment.runner_image",
+    "environment.docker",
+    "environment.compose",
+    "environment.pg_image",
+    "plan_sha256",
+    "actual PostgreSQL config image ID across shards"
+  ],
+  "remain_mandatory": [
+    "closed source/run/tool/environment shapes",
+    "Hosted Linux x64 Ubuntu24 class",
+    "actual dynamic full selected/collected/passed set equality; no overlap or omission",
+    "native parent and command exits zero",
+    "G1three and G2six real proof",
+    "unique owned projects/volumes and actual zero-resource cleanup",
+    "original Full/security/offline/Web/N01/permissions/recovery checks"
+  ],
+  "per_job_observation_requirements": [
+    "retain original ImageVersion value for plan/every shard/aggregate checker",
+    "unknown or missing value fails closed",
+    "report distinct revisions and mixed-host-revisions explicitly",
+    "do not claim complete host equivalence or controlled same-host performance comparison"
+  ],
+  "risk": "different revisions can include different kernels or unpinned host tools; unchanged pinned Docker/Compose/tools and real Gates do not prove full host equivalence",
+  "implementation_bounds": "existing evidence/diagnostic comparisons and existing tests only; no new scheduler/service/VM/image platform; original quality workflow and required checks unchanged",
+  "approval_needed": "explicit user approval of this one-field contract change; current strict comparator remains active",
+  "unrelated_local_fix": "read native full .Image from unique owned running PG; preserve failure stage/cleanup without exporting nonexistent collection; does not adopt environment-contract change",
+  "sources": {
+    "github_hosted_rollout": "https://docs.github.com/en/actions/concepts/runners/github-hosted-runners",
+    "compose_2_38_2_quiet_format": "https://github.com/docker/compose/blob/v2.38.2/cmd/compose/images.go#L68-L82"
+  }
+}

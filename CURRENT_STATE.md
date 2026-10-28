@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-Generated from a reviewed observation at 2026-10-28 14:30:21 UTC; this is a snapshot.
+Generated from a reviewed observation at 2026-10-28 15:22:10 UTC; this is a snapshot.
 Run `uv run --frozen python -m scripts.current_state --json` for live local Git facts.
 
 - Product: M2 / Phase5 accepted and [#49 closed](https://github.com/aning0922/commerceops-agent/issues/49); M3 is unapproved.
@@ -10,7 +10,7 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
 - Active engineering task: [#51 open](https://github.com/aning0922/commerceops-agent/issues/51); its title still says V2, while the
   authorized implementation material is Harness V3.
 - Harness: H0 local candidate B Gate accepted; H1 LOCAL_GATE_ACCEPTED at 17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4 under PF-1; candidate Full NOT_RUN;
-  H2 third headfe439080 original Full40695676202 PASS; Shadow40695676213 FAIL before PG (5 binding +1 deadline); user-approved local repair dc837623 independently ACCEPTED, targeted204pass, current/index scan passed, unpushed; current candidate Full/Shadow NOT_RUN; H3-H5 NOT_RUN.
+  H2 fourth head06e319b original Full40707885614 PASS; Shadow40707885615 FAIL (4 runner_revision +2 image proof, no PG tests); local B040d7bcf independently ACCEPTED/218targeted pass/unpushed, current candidate Full/Shadow NOT_RUN; contract A SCOPE_REVIEW/NOT_IMPLEMENTED; H3-H5 NOT_RUN.
 - H0 handoff: `c3dd84e2ce36e03a7658bcd266cf6f442da877b5`; code freeze `b0d61e73f924f84d4afaf319131597b78aedda40` in
   `/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028`.
 - Model policy: gpt-6.1-sol / medium by default; Astra requires scoped approval. Model

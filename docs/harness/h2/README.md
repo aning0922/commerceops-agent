@@ -1,9 +1,10 @@
 # H2 PG Full local candidate
 
-Status: **LOCAL_PREFLIGHT_REPAIR_CANDIDATE; H2 acceptance pending.** Third original Full
-passed for headfe439080/merge04469068; Shadow failed before PG. Current unpushed repair
-retains strict binding and budgets; its Full/Shadow are NOT_RUN. See [actual results](RESULTS.md)
-and [third receipt](third-hosted-receipt.json).
+Status: **LOCAL_IMAGE_REPAIR_CANDIDATE / SCOPE_REVIEW; H2 acceptance pending.** Fourth
+original Full passed for06e319b/8e95fb8a; Shadow failed four runner revision comparisons
+and two image-proof checks. Local B is independently accepted and unpushed; A is a
+proposed contract change only. See [actual results](RESULTS.md), [fourth receipt](fourth-hosted-receipt.json)
+and [one-field proposal](environment-contract-proposal.json).
 This stage reduces the existing PG critical path by assigning existing bounded execution
 commands to four or six isolated shards. It extends `scripts.pg_ci_evidence` and
 `scripts.pg_diagnostic`; it adds no scheduler, DB, service, fixture shortcut or model call.
