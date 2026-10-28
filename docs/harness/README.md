@@ -6,6 +6,12 @@ The project `.codex/config.toml` pins Sol/medium, ChatGPT authentication, worksp
 
 ## PF-1 task and Reviewer contract
 
+### PF-1.1 development freedom (effective at H2 review handoff)
+
+PF-1 remains effective. PF-1.1 replaces the unsent PF-2 draft: historical implementation and test counts are evidence, not permanent compatibility requirements. Retire or rewrite old code/tests when no current consumer, valuable retained data or explicit compatibility promise needs them; update current callers/docs, map still-valid invariants and recompute actual collection/Gates. Rebuild only task-owned, confirmed disposable resources within authorization; shared/production assets, credentials, Git history and retained evidence remain protected. Do not create extra systems or repeat valid checks to apply this policy. Source: the user's 2026-10-28 PF-1.1 attachment, `01_PF11_一次性综合增量协议.md`, ZIP SHA256 `6178ae40805aa2cd2b9a09a20e8716f79a3d47fe504fe96581aaa81bb3417463`.
+
+Current H2 has a concrete v1 consumer: existing `quality.yml` still invokes the two-partition diagnostic and v1 pair gate. Retain that path only through approved shadow evidence and the H3 Gate-switch task; then remove obsolete entry points/tests/docs together where no current consumer remains. This is a bounded migration obligation, not permanent dual-stack compatibility. The 590/2778 historical counts are not runtime ceilings or permanent targets. This addendum authorizes no immediate test deletion, resource cleanup, remote action or M3 work.
+
 PF-1 applies incrementally from the H1 freeze handoff on 2026-10-28. Internal Harness tasks state the development cost they reduce and first identify existing scripts or mature tools to reuse. Add only the local implementation needed for the approved stage. Unjustified cross-layer abstractions, a second scheduler, extra services or tables, or repeated infrastructure built to test infrastructure trigger `SCOPE_REVIEW`; pause only the expansion and propose the smallest local repair. This adds no management system or UI work.
 
 Use R0/R1 targeted visual or ordinary-interaction checks, R2 data/integration correctness, and R3 necessary real permission, transaction, idempotency, UNKNOWN and recovery checks. These are development feedback levels: existing Required Checks, Full CI and all V3/M2 safety evidence remain mandatory. Reuse valid evidence for the same frozen code and scope; rerun only when changes, failures or uncovered risks justify it.

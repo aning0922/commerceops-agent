@@ -27,7 +27,7 @@
   "h0_path": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028",
   "arm64_stop_ref": "https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477",
   "harness_stage": "H1 LOCAL_GATE_ACCEPTED at 17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4 under PF-1; candidate Full NOT_RUN",
-  "later_gates": "H2-H5 NOT_RUN",
+  "later_gates": "H2 local candidate 14c901437de6004875974e9a0fd49d8aa666e2a4 reviewed; Hosted Full/shadow NOT_RUN and awaiting authorization; H3-H5 NOT_RUN",
   "model_default": "gpt-6.1-sol / medium",
   "quota": "UNKNOWN; no reservation or token usage claim",
   "authorization": "Local Harness H0-H5 only; remote publication/CI, global services, business secrets/resources and M3 require separate authorization"
