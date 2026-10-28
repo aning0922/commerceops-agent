@@ -313,6 +313,10 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
     assert "github.repository == 'aning0922/commerceops-agent'" in guard
     assert jobs["h2-shards"]["needs"] == "h2-plan"
     assert jobs["h2-shards"]["strategy"]["fail-fast"] is False
+    collection_step = next(
+        s for s in jobs["h2-plan"]["steps"] if s.get("name", "").startswith("Discover")
+    )
+    assert collection_step["env"] == {"P123_DIAG": "1", "P123_TRACE_CHILD": "0"}
     for job in jobs.values():
         checkout = next(
             s for s in job["steps"] if s.get("uses", "").startswith("actions/checkout@")

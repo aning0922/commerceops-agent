@@ -29,6 +29,9 @@ jobs:
       - run: python -m scripts.scan_secrets
       - run: uv sync --frozen
       - name: Discover full current integration collection without running tests
+        env:
+          P123_DIAG: '1'
+          P123_TRACE_CHILD: '0'
         run: |
           uv run --frozen python - <<'PY'
           import json
