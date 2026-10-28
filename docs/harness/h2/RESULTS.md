@@ -1,10 +1,19 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_REPAIR_CANDIDATE**, not H2 accepted. First Hosted Full/shadow: **FAILURE**
-at the scan gate. Real PG, completed old/new Full comparison and measured speed: **NOT_RUN**.
+Status: **LOCAL_REPAIR_CANDIDATE**, not H2 accepted. First Hosted Full/shadow failed at
+the scan gate. Second Full failed incomplete G1 after all590PG nodes passed; second
+Shadow failed collection before shards. Completed old/new comparison and measured speed: **NOT_RUN**.
 Product UI: NOT_APPLICABLE. The first-attempt job timings are preserved in its receipt.
 
 Final corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
+
+## Second attempt terminal evidence
+
+[Second receipt](second-hosted-receipt.json): Full40669325735 **FAILURE**, wall42m14s from run creation to final update; summed job durations113.6333minutes (observed job-minutes, not billing). frontend/N01/phase3 succeeded; quality and pg-pair failed. Both PG artifacts bind merge3384ffd2/tree23946fe6, match current locked fingerprints, and contain exactly413+177=590actual/passed nodes, intersection0, equal to the local full collection. All module exits are0. However G1 is only1/3: after verify-restart succeeded at10:47:15.930492Z, recreate reached the existing bounded deadline and exited130/timed_out at10:47:19.125596Z. G2 has all six scenarios. Existing native parent exits1/resultfalse; both cleanups exit0 and stopping is confirmed. The actual pair gate and direct local validation correctly reject the incomplete result. This is not a business-test assertion failure, but it is a real Full Gate failure; no success or root cause beyond the observed deadline is claimed. No timeout, reserve or Gate was relaxed.
+
+Actual offline2863passes/322.03s, frontend read7/write10/items7 and N01six all passed. Their safe stopped-resource evidence is preserved externally under the existing H0 evidence directory. Shadow40669325870 **FAILURE**, wall60s, only55s plan-job duration; six shard executions NOT_RUN. Neither completed comparison nor speedup exists. The two authorized runs are final and remain preserved with the first attempt.
+
+Frozen local caller repair `f93dd204ea383f4a3363d2b6786e39eb80cc0f1a` is independently accepted and unpushed. Its actual [full scanner receipt](collection-fix-full-scan.json) exits0 in26.495223s: dir/index0, eight exact reviewed public-history records, blocking0. No safety bypass or original-workflow change was made to obtain a green result. A new same-SHA Full + Shadow trial requires fresh explicit approval; the unchanged original Full's measured deadline margin remains a risk, and H2/H3 qualification is not granted.
 
 ## Second approved Hosted attempt and narrow collection repair
 

@@ -1,6 +1,8 @@
 # H2 PG Full local candidate
 
-Status: **LOCAL_CANDIDATE; Hosted/real PG NOT_RUN; H2 acceptance pending.**
+Status: **LOCAL_REPAIR_CANDIDATE; H2 acceptance pending.** Two Hosted attempts failed;
+second Full passed all590PG nodes but G1 timed out at1/3, while Shadow failed before
+shards. See [actual results](RESULTS.md) and [second receipt](second-hosted-receipt.json).
 This stage reduces the existing PG critical path by assigning existing bounded execution
 commands to four or six isolated shards. It extends `scripts.pg_ci_evidence` and
 `scripts.pg_diagnostic`; it adds no scheduler, DB, service, fixture shortcut or model call.
