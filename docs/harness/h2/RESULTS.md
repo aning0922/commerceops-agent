@@ -1,11 +1,78 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_REPAIR_CANDIDATE**, not H2 accepted. First Hosted Full/shadow failed at
-the scan gate. Second Full failed incomplete G1 after all590PG nodes passed; second
-Shadow failed collection before shards. Completed old/new comparison and measured speed: **NOT_RUN**.
+Status: **LOCAL_PREFLIGHT_REPAIR_CANDIDATE**, not H2 accepted. Third original Full
+passed at headfe439080/merge04469068; third Shadow failed before PG execution.
+Current local source below is unpushed and its Full/Shadow are NOT_RUN. Measured six-shard
+speed and completed old/new comparison remain **NOT_RUN**.
 Product UI: NOT_APPLICABLE. The first-attempt job timings are preserved in its receipt.
 
-Final corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
+Earlier secret-gate corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
+
+## Current local preflight repair
+
+The user approved only local implementation/targeted validation after choosing to retain
+strict Gates and first inspect the third failure read-only. Code freeze: `dc837623efdcc3324c86d7e73862549a9f892997`.
+Root owns the four changed H2 source/test files in the existing Worktree; the existing independent Sol Reviewer
+ACCEPTED this exact frozen source: no BLOCKER, complexity reasonable, UI N/A. No publication/Hosted authority is implied.
+
+- Deadline: reuse existing Full frontend's GITHUB_ENV mechanism at the original first-step
+  timestamp, once, plus43minutes. Native invocation receives that same timezone-aware value
+  after checkout; missing/invalid/naive values reject before diagnostic startup. Remove the
+  workspace deadline file and obsolete clean:false. No recomputation or fallback, and no
+  change to300s commands/75s reserve/60s cleanup/45min job caps.
+- Binding: strict source/tree/files/tools/run/environment equality remains before resource
+  registration. Both structures pass existing closed validators before any diff. The existing
+  shared evidence helper reports only exact changed field paths and SHA256 value digests;
+  no arbitrary environment/configuration values are printed. Aggregate validates its closed
+  plan before the same diagnostic. No host/container contract split or exception was adopted.
+- First failure: finalize only an existing report; preserve nonzero diagnostic exit even if
+  finalization also fails. Zero native exit without evidence still fails; finalizer failure
+  cannot become success. Missing reports are never fabricated; upload/aggregation stay closed.
+
+Actual validation: Ruff lint/format and mypy on3affected Python files pass; existing v2/v1,
+partition, shutdown and N01 contract suites total **204passed in2.67s**. Eighteen added cases
+cover the observed deadline/exit/diagnostic defects: execute the actual YAML registration and
+native Bash scripts in an owned temp directory, remove that disposable workspace to reproduce
+checkout deletion, and use a fake uv child (no PG/Docker) for8exit/registration scenarios;
+closed diff/unknown-shape cases and both real Python entry functions verify rejection before
+resource preparation/report reads. These are local shell/filesystem/control tests, not Hosted
+or PG execution evidence. First authoring lint/type failures and a new test's erroneous raw
+single-character-vs-digest substring assertion (1failed/59passed in2.12s) were corrected;
+no product assertion or Gate was weakened. Do not repeat already valid same-scope checks.
+
+Current actual collection: **2881offline /590integration**, both collect-only exit0,
+11.521677s/2.970128s. All18new nodes are offline; no historical test retired. The [exact
+collection](current-collection.json) replaces the earlier2863collection while Git history
+retains it. Targeted204pass is not an execution pass for all2881. Current candidate Full,
+real PG/Web and six-shard execution remain NOT_RUN; original quality.yml is byte-identical
+to accepted main. Current/index precommit scan exited0 in20.562605s, both findings0; history explicitly NOT_RUN
+in that local mode. The default full scanner is required after the final ordinary freeze;
+its actual external receipt is attached at closeout, never prefilled as a pass.
+
+## Third approved Hosted terminal evidence
+
+[Third receipt](third-hosted-receipt.json) preserves headfe439080 and actual native merge
+`044690680776a1ab5f6dd5d48ee0cc5d7d917a3d` / tree1d4660a1. Full40695676202 **SUCCESS**,
+all five jobs; wall42m36s, observed108.9333job-minutes (not billing). Closed artifacts and
+native1770phase events prove413+177=590passed calls, zero overlap, exact full-set equality
+with Shadow's plan, G1three/G2six and cleanup0/stopping confirmed on both PG lines.
+Offline2863passed/222.50s, frontend read7/write10/items7 and N01six passed with stopped owned
+resources, as did the secret gate. This valid Full belongs only to fe439080/04469068;
+it cannot sign the new local source.
+
+Shadow40695676213 **FAILURE**, wall3m15s/7.35job-minutes. Plan590nodes/35whole commands
+passed. Five shards (0,2,3,4,5) rejected binding; shard1 passed binding then failed empty
+deadline after checkout deleted the workspace file. No PG test execution or speed proof.
+Specific binding fields remain UNKNOWN because actual bindings were not emitted. Preserve
+separate observations: plan artifact runner_version20261026.354.1; plan setup20261025.353.1;
+shard1 setup20261025.353.1; other shard setups20261012.334.1. Do not merge these sources
+or infer the sole mismatch. Missing report/finalize/upload/aggregate errors remain downstream
+failures. All prior attempts and Draft PR52 are retained; no automatic retry occurred.
+
+The independent architecture handoff is review input, not new authority. It supports this
+small H2 repair; H4's thin native Runner/contracts are deferred to H4, and host/container
+binding changes require a concrete separate contract review. No route restart or extra Agent,
+service, API fallback or M3 work is introduced.
 
 ## Second attempt terminal evidence
 

@@ -1,12 +1,12 @@
 {
-  "source_sha": "17fda8ccf12a319a54b241a23b9d12212aa43dc3",
+  "source_sha": "dc837623efdcc3324c86d7e73862549a9f892997",
   "scope": "collect-only, not test execution",
   "collections": [
     {
       "marker": "offline",
       "exit": 0,
-      "count": 2863,
-      "wall_seconds": 8.321469832910225,
+      "count": 2881,
+      "wall_seconds": 11.521677,
       "nodes": [
         "tests/e2e/web/test_c09_source_manifest.py::test_code_fixtures_and_other_evidence_remain_bound_and_changes_detected[frontend/components/inventory-request-text.tsx]",
         "tests/e2e/web/test_c09_source_manifest.py::test_code_fixtures_and_other_evidence_remain_bound_and_changes_detected[frontend/evidence/p4-c09/contract-results.json]",
@@ -2549,6 +2549,14 @@
         "tests/test_pg_diag_shutdown.py::test_workflow_preserves_gate_and_single_diagnostic_step",
         "tests/test_pg_diag_shutdown.py::test_workflow_registers_deadline_before_install_and_valid_python[phase3-48]",
         "tests/test_pg_diag_shutdown.py::test_workflow_registers_deadline_before_install_and_valid_python[quality-43]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-invalid-1]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-missing-1]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-naive-1]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-registered-1]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-True-0-registered-0]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-True-9-registered-9]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[23-False-0-registered-23]",
+        "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[23-True-9-registered-23]",
         "tests/test_pg_shard_evidence.py::test_aggregate_negative_evidence_fails_closed[actual]",
         "tests/test_pg_shard_evidence.py::test_aggregate_negative_evidence_fails_closed[attempt]",
         "tests/test_pg_shard_evidence.py::test_aggregate_negative_evidence_fails_closed[cleanup]",
@@ -2573,6 +2581,9 @@
         "tests/test_pg_shard_evidence.py::test_aggregate_negative_evidence_fails_closed[tool]",
         "tests/test_pg_shard_evidence.py::test_aggregate_negative_evidence_fails_closed[tree]",
         "tests/test_pg_shard_evidence.py::test_collection_drift_refused_before_any_command",
+        "tests/test_pg_shard_evidence.py::test_entrypoints_reject_before_resources_or_report_reads[aggregate]",
+        "tests/test_pg_shard_evidence.py::test_entrypoints_reject_before_resources_or_report_reads[diagnostic]",
+        "tests/test_pg_shard_evidence.py::test_entrypoints_reject_before_resources_or_report_reads[malformed-aggregate]",
         "tests/test_pg_shard_evidence.py::test_failed_native_job_cannot_be_saved_by_valid_artifacts[cancelled]",
         "tests/test_pg_shard_evidence.py::test_failed_native_job_cannot_be_saved_by_valid_artifacts[failure]",
         "tests/test_pg_shard_evidence.py::test_failed_native_job_cannot_be_saved_by_valid_artifacts[skipped]",
@@ -2590,10 +2601,17 @@
         "tests/test_pg_shard_evidence.py::test_real_helpers_plan_execute_export_and_aggregate_pure[4]",
         "tests/test_pg_shard_evidence.py::test_real_helpers_plan_execute_export_and_aggregate_pure[6]",
         "tests/test_pg_shard_evidence.py::test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg",
+        "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path0-20261012.334.1]",
+        "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path1-2.38.2]",
+        "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path2-1111111111111111111111111111111111111111111111111111111111111111]",
+        "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path3-2]",
+        "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path4-2222222222222222222222222222222222222222]",
         "tests/test_pg_shard_evidence.py::test_unconfirmed_or_failed_parent_exit_rejected[143]",
         "tests/test_pg_shard_evidence.py::test_unconfirmed_or_failed_parent_exit_rejected[1]",
         "tests/test_pg_shard_evidence.py::test_unconfirmed_or_failed_parent_exit_rejected[None]",
         "tests/test_pg_shard_evidence.py::test_unconfirmed_or_failed_parent_exit_rejected[True]",
+        "tests/test_pg_shard_evidence.py::test_unknown_binding_shape_rejected_before_diagnostic_output[actual]",
+        "tests/test_pg_shard_evidence.py::test_unknown_binding_shape_rejected_before_diagnostic_output[expected]",
         "tests/test_prepare_pg.py::test_ancestor_symlink_and_parent_hop_rejected",
         "tests/test_prepare_pg.py::test_cli_failure_withholds_contents_and_traceback",
         "tests/test_prepare_pg.py::test_create_race_never_follows_or_overwrites[link]",
@@ -2873,35 +2891,34 @@
         "tests/test_woocommerce_readonly.py::test_transport_classification[tls-TLS_FAILURE]"
       ],
       "delta_from_previous_collection": {
-        "source_sha": "7c1b49e9fdba0df21b66338d7282753c577659ef",
         "added": [
-          "tests/test_quality_gates.py::test_reviewed_history_findings_are_exact_and_git_only",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[False-baseline]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[False-current]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[False-history]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[False-index-only]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[False-other-ref]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[True-baseline]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[True-current]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[True-history]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[True-index-only]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[True-other-ref]"
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-invalid-1]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-missing-1]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-naive-1]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-False-0-registered-1]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-True-0-registered-0]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[0-True-9-registered-9]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[23-False-0-registered-23]",
+          "tests/test_pg_shard_evidence.py::test_actual_shadow_shell_preserves_registered_deadline_and_first_failure[23-True-9-registered-23]",
+          "tests/test_pg_shard_evidence.py::test_entrypoints_reject_before_resources_or_report_reads[aggregate]",
+          "tests/test_pg_shard_evidence.py::test_entrypoints_reject_before_resources_or_report_reads[diagnostic]",
+          "tests/test_pg_shard_evidence.py::test_entrypoints_reject_before_resources_or_report_reads[malformed-aggregate]",
+          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path0-20261012.334.1]",
+          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path1-2.38.2]",
+          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path2-1111111111111111111111111111111111111111111111111111111111111111]",
+          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path3-2]",
+          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path4-2222222222222222222222222222222222222222]",
+          "tests/test_pg_shard_evidence.py::test_unknown_binding_shape_rejected_before_diagnostic_output[actual]",
+          "tests/test_pg_shard_evidence.py::test_unknown_binding_shape_rejected_before_diagnostic_output[expected]"
         ],
-        "removed": [
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[baseline]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[current]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[history]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[index-only]",
-          "tests/test_quality_gates.py::test_synthetic_scanner_blocks_and_redacts[other-ref]",
-          "tests/test_quality_gates.py::test_three_actual_history_findings_are_exact_and_git_only"
-        ]
+        "removed": []
       }
     },
     {
       "marker": "integration",
       "exit": 0,
       "count": 590,
-      "wall_seconds": 7.951296207960695,
+      "wall_seconds": 2.970128,
       "nodes": [
         "tests/test_checkpoint_pg.py::test_checkpoint_write_db_failure_does_not_report_persisted_interrupt",
         "tests/test_checkpoint_pg.py::test_current_principal_revoked_before_resume_marks_attention",
@@ -3495,7 +3512,6 @@
         "tests/test_worker_pg.py::test_unsupported_workflow_never_runs_as_new_graph"
       ],
       "delta_from_previous_collection": {
-        "source_sha": "7c1b49e9fdba0df21b66338d7282753c577659ef",
         "added": [],
         "removed": []
       }
