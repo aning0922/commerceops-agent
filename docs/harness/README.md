@@ -2,7 +2,7 @@
 
 This stage adds local feedback and typed task records. It does not run a scheduler, reserve quota, invoke a model, access business secrets or grant publication authority. The existing `scripts.check`, workflows, Full required PG/Web/N01/pair checks and business tests are unchanged.
 
-The project `.codex/config.toml` pins Sol/medium, ChatGPT authentication, workspace-write and no sandbox network access. The native read-only config probe attributes these values to this project's configuration layer and confirms the Sol catalog entry. This verifies loading, not real inference or the future H4 Worker boundary. Strict startup currently rejects a pre-existing global legacy field; its failure is retained without changing global configuration or trust.
+The project `.codex/config.toml` selects Sol at medium effort and ChatGPT login. It requests writes confined to this workspace and disables sandbox networking. The saved read-only probe identifies the project layer and the Sol catalog entry. This confirms configuration loading only; real inference and the H4 execution boundary remain unverified. Strict startup's inherited legacy-field failure is retained; global configuration and trust were not changed.
 
 ## PF-1 task and Reviewer contract
 

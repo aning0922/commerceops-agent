@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 import pytest
+from pytest import MonkeyPatch as Patch
 
 from scripts import verify
 
@@ -16,7 +17,7 @@ pytestmark = pytest.mark.offline
 
 
 def test_changed_path_collection_includes_all_git_states(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: Patch
 ) -> None:
     def git(*args: str) -> str:
         return subprocess.run(
@@ -84,9 +85,7 @@ def test_real_child_pass_failure_and_timeout() -> None:
     assert 1 <= timeout.wall_seconds < 5
 
 
-def test_syntax_invalid_json_python_and_symlink(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_syntax_invalid_json_python_and_symlink(tmp_path: Path, monkeypatch: Patch) -> None:
     (tmp_path / "broken.py").write_text("def broken(:\n")
     (tmp_path / "docs/harness").mkdir(parents=True)
     (tmp_path / "docs/harness/broken.json").write_text("{")

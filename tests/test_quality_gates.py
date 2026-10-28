@@ -559,7 +559,7 @@ def test_public_test_declaration_in_another_commit_is_not_approved(repository: P
     assert '"rule": "generic-api-key"' in result.stdout
 
 
-def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
+def test_reviewed_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
     report = tmp_path / "native-report.json"
     result = subprocess.run(
         [
@@ -583,11 +583,26 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->
     )
     assert result.returncode == 1
     rows = json.loads(report.read_text())
-    assert len(rows) == 3
+    expected = {
+        ("72bc597a1978f5dd78853e678ca57e68f0586ab6", "tests/test_p4_queued_start.py", 446),
+        ("be1b79380be3eac042a04f5cd75bb980044cb770", "tests/test_p4_queued_start.py", 446),
+        ("7499f7cf08b4058951783a78a9e89ff076cd2ae5", "scripts/p4_acceptance.py", 932),
+        ("fc65bfbefc068f1c726dac37350dd6f901d7d785", "tests/test_harness_verify.py", 19),
+        ("fc65bfbefc068f1c726dac37350dd6f901d7d785", "tests/test_harness_verify.py", 83),
+        ("17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4", "docs/harness/README.md", 5),
+        ("14c901437de6004875974e9a0fd49d8aa666e2a4", "tests/test_pg_shard_evidence.py", 67),
+        ("14c901437de6004875974e9a0fd49d8aa666e2a4", "tests/test_pg_shard_evidence.py", 288),
+    }
+    assert len(rows) == 8
+    assert {(row["Commit"], row["File"], row["StartLine"]) for row in rows} == expected
     for row in rows:
         assert secret_scan.approved_history_finding("git", row)
         assert not secret_scan.approved_history_finding("dir", row)
         assert not secret_scan.approved_history_finding("index", row)
+        # Public source approval never grants blanket approval to another merge/commit.
+        merge = dict(row, Commit="feb88aeb380df379b96fa42620d696e22be16123")
+        merge["Fingerprint"] = f"{merge['Commit']}:{row['File']}:{row['RuleID']}:{row['StartLine']}"
+        assert not secret_scan.approved_history_finding("git", merge)
         for field in ("RuleID", "File", "StartLine", "Commit", "Fingerprint", "Match"):
             changed = dict(row)
             changed[field] = (

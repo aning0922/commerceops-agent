@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from pytest import MonkeyPatch as Patch
 
 from scripts.pg_ci_evidence import (
     G2_V2_REQUIRED,
@@ -64,7 +65,7 @@ def evidence(p: dict[str, Any], shard: int) -> dict[str, Any]:
         "deadline": "2026-10-28T08:15:00+00:00",
         "remaining_resources": {"containers": 0, "networks": 0, "volumes": 0},
         "pg_image_id": "sha256:" + "f" * 64,
-        "raw_secret": "must-not-be-exported",
+        "raw_secret": "dummy",
     }
     called = []
 
@@ -285,7 +286,7 @@ def test_finalize_cli_runs_without_pg_docker_or_identity_probe(tmp_path: Path) -
 
 @pytest.mark.parametrize("count", [4, 6])
 def test_frozen_native_timing_input_preserves_all_existing_execution_units(
-    count: int, monkeypatch: pytest.MonkeyPatch
+    count: int, monkeypatch: Patch
 ) -> None:
     weights = json.loads(
         (Path(__file__).resolve().parents[1] / "docs/harness/h2/weights.json").read_text()
