@@ -1,0 +1,12 @@
+{
+  "source_sha": "17fda8ccf12a319a54b241a23b9d12212aa43dc3",
+  "command": ".venv/bin/python -m scripts.scan_secrets",
+  "exit": 0,
+  "wall_seconds": 26.345006542047486,
+  "summaries": [
+    "dir: findings=0, exit=0",
+    "index: findings=0, exit=0",
+    "git: findings=8, exit=0",
+    "git: native_exit=1, reviewed_false_positives=8, blocking_findings=0"
+  ]
+}

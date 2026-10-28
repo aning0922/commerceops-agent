@@ -4,6 +4,8 @@ Status: **LOCAL_REPAIR_CANDIDATE**, not H2 accepted. First Hosted Full/shadow: *
 at the scan gate. Real PG, completed old/new Full comparison and measured speed: **NOT_RUN**.
 Product UI: NOT_APPLICABLE. The first-attempt job timings are preserved in its receipt.
 
+Final corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
+
 ## First approved Hosted attempt and local repair
 
 The user approved publishing head `8b9e5d41f372ef81d690631b787170a4eab7e4cf` as Draft [PR52](https://github.com/aning0922/commerceops-agent/pull/52) and exactly one original Full plus one shadow. Full40658357111 and shadow40658357225 both ended FAILURE, attempt1. Native checkout logs from both confirm merge `feb88aeb380df379b96fa42620d696e22be16123`. [Receipt](first-hosted-receipt.json) preserves actual jobs and timestamps. The failure was before dependencies/test execution at the unchanged sensitive scan; all six shard executions and PG/Web/N01/offline tests were NOT_RUN. No speed result exists. No retry, PR edit, merge, protection or business-resource action was taken.
@@ -24,7 +26,7 @@ Independent review accepted frozen local candidate `14c901437de6004875974e9a0fd4
 
 PF-1.1 received at this frozen review boundary; worktree was clean, builder frozen and Root owned handoff. Its short authoritative index is in [existing task/Reviewer rules](../README.md#pf-11-development-freedom-effective-at-h2-review-handoff). No stage restarted or acceptance repeated; no code/test/resource retirement was triggered merely by policy receipt. Existing v1 remains only because current required workflow still consumes it until the approved H3 switch.
 
-Current collection was recomputed after H1/H2 test additions, as required by PF-1.1, at source `7c1b49e9fdba0df21b66338d7282753c577659ef`: offline **2858**, integration **590**, both exit0, wall8.244890s/7.575363s. Compared with the historical base: 80 offline additions, zero removals; integration set unchanged. [Exact collection and delta](current-collection.json) are **collection only, not 2858/590 execution passes**. No valid same-SHA collection was repeated; the prior H0 inventory was for the older product source.
+Earlier collection at source `7c1b49e9fdba0df21b66338d7282753c577659ef` was2858offline/590integration (preserved in Git history). Current corrective-source collection at17fda8cc is **2863offline/590integration**, exit0, wall8.321470s/7.951296s. The delta is11 added/6 removed node IDs: five old scanner cases now carry explicit default-mode parameter IDs, five current-only variants were added, and the exact-history test was renamed for its reviewed current set. No business behavior or PG protection was retired. [Current exact collection](current-collection.json) is **collection only, not test execution passes**. No valid same-SHA collection was repeated.
 Base: `650249016cb4d782e843c1dc8686afa7c1e68aa7` on `codex/harness-v3`, following
 H1 independent local acceptance at `17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4`.
 Freeze is the ordinary local commit containing this handoff; obtain its exact SHA with
