@@ -1,9 +1,9 @@
 # H2 PG Full local candidate
 
-Status: **LOCAL_IMAGE_REPAIR_CANDIDATE / SCOPE_REVIEW; H2 acceptance pending.** Fourth
+Status: **LOCAL_A_ACCEPTED / UNPUSHED; H2 acceptance pending.** Fourth
 original Full passed for06e319b/8e95fb8a; Shadow failed four runner revision comparisons
-and two image-proof checks. Local B is independently accepted and unpushed; A is a
-proposed contract change only. See [actual results](RESULTS.md), [fourth receipt](fourth-hosted-receipt.json)
+and two image-proof checks. Local B and the explicitly approved local A are independently
+accepted and unpushed; current Full/Shadow/real PG remain NOT_RUN. See [actual results](RESULTS.md), [fourth receipt](fourth-hosted-receipt.json)
 and [one-field proposal](environment-contract-proposal.json).
 This stage reduces the existing PG critical path by assigning existing bounded execution
 commands to four or six isolated shards. It extends `scripts.pg_ci_evidence` and
@@ -30,7 +30,11 @@ terminal recovery keeps selected four-case commands and real independent DB prep
 actual full collection before any test command. `safe_shard_report()` exports closed metadata,
 not private raw records. `validate_shard()`/`verify_shards()` require exact selected, actual
 collection and passed node lists, complete group membership, no duplicates/missing shards,
-matching SHA/tree, locked tools/binary hashes, runner/Compose identity, run ID/attempt and plan.
+matching SHA/tree, locked tools/binary hashes, runner class/Compose identity, run ID/attempt
+and plan. Under user-approved contract A, only runner revision may differ: plan, each shard
+and aggregate must retain actual ImageVersion with fixed provenance; missing/unknown values
+reject. Aggregate lists every revision and marks mixed hosts, with no controlled same-host
+performance or complete host-equivalence claim.
 Every native command and diagnostic parent must exit zero; stopping, cleanup and zero owned
 container/network/volume inventory are mandatory. Random projects/volumes must be unique;
 actual PostgreSQL image IDs must agree. Smoke requires exactly G1 three and G2 six; v1's

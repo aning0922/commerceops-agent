@@ -1,10 +1,44 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_IMAGE_REPAIR_CANDIDATE / SCOPE_REVIEW**, not H2 accepted. Fourth original
-Full passed at head06e319b/merge8e95fb8a; Shadow failed with four runner_revision mismatches
-and two image-proof failures. Current local B repair is unpushed and its Full/Shadow are
-NOT_RUN. Six-shard measured speed remains NOT_RUN. Contract proposal A is not implemented.
-Product UI: NOT_APPLICABLE. The first-attempt job timings are preserved in its receipt.
+Status: **LOCAL_A_ACCEPTED / UNPUSHED**, not H2 accepted. Local A changes only
+runner revision equality under the user's explicit 2026-10-29 local authorization; all other
+Gates remain strict. Current Full/Shadow/real PG are NOT_RUN. Fourth original Full passed
+at head06e319b/merge8e95fb8a; Shadow failed. Six-shard measured speed remains NOT_RUN.
+Product UI: NOT_APPLICABLE.
+
+## Approved local contract A (2026-10-29)
+
+Code freeze `44d56553a49eb04fb939a54bdb65177e3a55f114` is based on clean B handoff `c28bef848422c243a013c9b92faa6d02b877600d`.
+Only the existing evidence helper and its focused test file change runtime behavior. The
+user explicitly authorized local implementation, targeted checks, independent review and
+normal SHA freeze, excluding push/new Hosted runs. No H3 or Required Check replacement.
+
+`environment.runner_version` is a mandatory per-job observation rather than an equality
+field. Each plan/shard/aggregate observation retains its actual numeric `ImageVersion` and
+fixed `runner_version_source`; empty, missing, UNKNOWN, malformed or wrong-source values
+fail closed. The existing pre-resource check, exporter, shard validator and aggregate checker
+share this one exception. Aggregate CLI prints every job's original revision/source, the
+sorted distinct revisions and `mixed_host_revisions`, after all real evidence verifies.
+Mixed samples do not prove complete host equivalence or controlled same-host performance.
+Source/tree, locks/tools/binaries, run/attempt, all other environment fields, exact plan hash,
+actual PG image IDs, full collections/groups, native exits, G1three/G2six and cleanup remain
+strict. Neither workflow nor v1 implementation changes. Old artifacts are retained evidence;
+they lack the new mandatory provenance field and cannot validate this new candidate.
+
+Actual targeted result: **243passed/2.77s**, using the existing five evidence/partition/
+shutdown/N01 suites with fake commands only. Ruff lint/format and mypy on2changed files pass.
+New cases cover mixed/same revisions through real export/aggregate CLI, missing/unknown
+observations for all three job roles, provenance and mixed-revision-plus-other-field failures.
+The first authoring run was235pass/1fail3.00s: the new fixture mutated a shared plan binding;
+fixed by passing an independent binding into the existing fixture. One initial line-length
+error was fixed. No runtime assertions, safety Gates or necessary checks were weakened.
+Actual collection: **2920offline /590integration**, exit0, wall4.103750s/2.749793s.
+Delta26added/1retired offline IDs includes replacement of the former runner-version equality
+negative with runner-class equality; no PG changes. Collection is not whole-suite execution.
+Existing independent Sol Reviewer ACCEPTED this exact source, no BLOCKER; review covered
+pre-resource/export/validation/aggregate, provenance, hard Gates and complexity. No test was
+repeated by Reviewer. Final-source full scanner runs after the ordinary metadata freeze; its
+receipt is retained outside Git so it can bind that final SHA without a self-reference.
 
 Earlier secret-gate corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
 
@@ -50,18 +84,10 @@ and3.008514s. All14new nodes are offline, zero retired; collection is not a comp
 pass. [Manifest](current-collection.json) retains exact nodes/delta and code source. Current B
 candidate's real Docker inspect, Full and Shadow remain NOT_RUN; old Full does not sign it.
 
-A is the separate [one-field contract proposal](environment-contract-proposal.json),
-**PROPOSED_ONLY / SCOPE_REVIEW / NOT_IMPLEMENTED**. Original material05 line47 requires
-identical runner fingerprints. Reclassifying only `environment.runner_version` as mandatory
-per-job observation would permit mixed Hosted image revisions and changes that adopted
-contract; it requires explicit user approval. OS/arch/runner class, Docker/Compose, all fixed
-source/lock/tool/run fields, actual PG IDs, dynamic complete sets, native/G1/G2/cleanup and
-original Full remain hard requirements. Every job's revision must remain recorded, with
-mixed-host samples labelled and no complete-host-equivalence or controlled-performance claim.
-[GitHub's Hosted runner documentation](https://docs.github.com/en/actions/concepts/runners/github-hosted-runners)
-explains multi-day image rollouts. No custom runner/image platform or extra service is proposed.
-Until a user decision, strict runner revision equality remains active and H2 stays unaccepted;
-do not request another blind retry. H3 is not started.
+At the B handoff, [contract A](environment-contract-proposal.json) was proposed only;
+strict revision equality remained active then. The user explicitly approved its bounded
+local implementation on2026-10-29; see the current section above. Historical B evidence
+remains intact and is not a new A/Hosted acceptance. H2 remains unaccepted, H3 not started.
 
 ## Fourth approved Hosted terminal evidence
 

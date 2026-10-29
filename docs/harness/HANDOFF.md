@@ -19,3 +19,23 @@ PF-1 first incorporated freeze: `fc65bfbefc068f1c726dac37350dd6f901d7d785`. Supp
 - Current boundary: fourth Full40707885614 PASS belongs only to06e319b/8e95fb8a (590PG/G1three/G2six/offline2881/Web/N01/cleanup). Shadow40707885615 FAIL: four runner_version-only comparisons plus two post-start image proof checks; no PG test/performance proof. [Fourth receipt](h2/fourth-hosted-receipt.json).
 - Local image/export repair B040d7bcf independently ACCEPTED, targeted218passed/2.77s, current collection2895offline/590integration only; full scanner follows metadata freeze. This code is unpushed, real Docker inspect/Full/Shadow NOT_RUN. [Contract proposal A](h2/environment-contract-proposal.json) is SCOPE_REVIEW/NOT_IMPLEMENTED and needs explicit user decision; strict equality remains active. Do not blindly retry CI or enter H3.
 - Future remote boundary: explicit publication/CI authorization is still required. Do not edit PR body (its edited event triggers Full), retry existing runs or push another commit under the spent one-attempt grant. H3 remains gated; merge/protection changes remain unapproved. H4 owns persistent attempts, atomic ownership, trusted approval verification, quota and isolated model execution.
+
+## Local A handoff — 2026-10-29
+
+User explicitly approved local A only: preserve all other strict Gates, targeted validation,
+independent review and normal SHA freeze; no push/new CI. Core source `44d56553a49eb04fb939a54bdb65177e3a55f114`
+is independently ACCEPTED by the existing Sol Reviewer, no BLOCKER, complexity reasonable,
+UI N/A. Scope is only the existing evidence helper/test file, with current documentation.
+Every job records its original ImageVersion and fixed source; aggregate reports distinct
+revisions/mixed hosts after all Gates verify. No other comparison is relaxed, no workflow
+changed. Targeted243pass/2.77s, Ruff/format/mypy2files pass; collection2920offline/590PG only
+(26added/1replaced offline ID, no PG delta). Real Docker/PG/Full/Shadow NOT_RUN for this
+candidate. Old artifacts remain historical; no source/provenance backfill. Final full scanner
+receipt binds the final metadata SHA outside Git. Local B remains preserved underneath.
+
+[Contract A](h2/environment-contract-proposal.json) is now locally implemented, superseding
+only the prior proposal status and its one-field equality requirement. [Results](h2/RESULTS.md)
+record authoring failures and exact scope. Phase托管 workflow practices are indexed in the
+existing README, with Sol default and separate Astra/remote authorization unchanged. H2 is
+still unaccepted; H3-H5 not run. Next remote action requires a new explicit one-pair grant;
+do not push, edit the PR body, dispatch/retry CI or change protections under this local grant.
