@@ -388,7 +388,17 @@ PLAN_FIELDS = {
     "plan_sha256",
 }
 BINDING_FIELDS = {"source_sha", "source_tree", "fingerprints", "execution", "environment"}
-ENV_FIELDS = {"os", "arch", "runner_image", "runner_version", "docker", "compose", "pg_image"}
+RUNNER_VERSION_SOURCE = "Hosted environment ImageVersion"
+ENV_FIELDS = {
+    "os",
+    "arch",
+    "runner_image",
+    "runner_version",
+    "runner_version_source",
+    "docker",
+    "compose",
+    "pg_image",
+}
 SHARD_FIELDS = {
     "schema_version",
     "binding",
@@ -444,6 +454,7 @@ def environment_identity(root: Path) -> dict[str, str]:
         "arch": platform.machine(),
         "runner_image": os.environ.get("ImageOS", ""),
         "runner_version": os.environ.get("ImageVersion", ""),
+        "runner_version_source": RUNNER_VERSION_SOURCE,
         "docker": version(["docker", "--version"]),
         "compose": version(["docker", "compose", "version", "--short"]),
         "pg_image": image[1],
@@ -460,6 +471,11 @@ def _validate_environment(value: Any) -> None:
         for v in value.values()
     ):
         raise ValueError("safe nonempty environment values required")
+    if (
+        not re.fullmatch(r"[0-9]{8}(?:\.[0-9]+){1,3}", value["runner_version"])
+        or value["runner_version_source"] != RUNNER_VERSION_SOURCE
+    ):
+        raise ValueError("actual Hosted ImageVersion and its fixed source required")
     if value["os"] != "Linux" or value["arch"] not in {"x86_64", "AMD64"}:
         raise ValueError("Hosted Linux x64 required")
     if not re.fullmatch(r"postgres:[^\s]+@sha256:[0-9a-f]{64}", value["pg_image"]):
@@ -500,7 +516,7 @@ def _validate_binding(binding: Any) -> None:
 
 
 def require_same_binding(expected: Any, actual: Any, context: str) -> None:
-    """Keep strict equality; diagnose only validated field paths and value digests."""
+    """Strict equality except the approved, mandatory per-job ImageVersion observation."""
     _validate_binding(expected)
     _validate_binding(actual)
     if expected == actual:
@@ -511,7 +527,7 @@ def require_same_binding(expected: Any, actual: Any, context: str) -> None:
         if isinstance(left, dict):
             for key in sorted(left):
                 compare(left[key], right[key], f"{path}.{key}" if path else key)
-        elif left != right:
+        elif left != right and path != "environment.runner_version":
             differences.append(
                 {
                     "field": path,
@@ -521,7 +537,8 @@ def require_same_binding(expected: Any, actual: Any, context: str) -> None:
             )
 
     compare(expected, actual, "")
-    raise ValueError(f"{context}; binding_diff=" + json.dumps(differences, sort_keys=True))
+    if differences:
+        raise ValueError(f"{context}; binding_diff=" + json.dumps(differences, sort_keys=True))
 
 
 def _assignment(
@@ -610,8 +627,7 @@ def safe_shard_report(
 ) -> dict[str, Any]:
     groups = shard_groups(plan, shard_id, raw.get("full_node_ids", []))
     _validate_binding(binding)
-    if binding != plan["binding"]:
-        raise ValueError("shard exporter binding differs from plan")
+    require_same_binding(plan["binding"], binding, "shard exporter binding differs from plan")
     execution = binding["execution"]
     # Reuse the v1 closed module projection; never copy raw report or resource records.
     v1 = safe_report(raw, binding, "all")
@@ -659,8 +675,9 @@ def validate_shard(report: dict[str, Any], plan: dict[str, Any]) -> list[str]:
         or report["schema_version"] != "pg-shard-evidence-v2"
     ):
         raise ValueError("closed v2 shard evidence required")
-    if report["binding"] != plan["binding"] or report["plan_sha256"] != plan["plan_sha256"]:
-        raise ValueError("source/tool/run/runner/plan mismatch")
+    require_same_binding(plan["binding"], report["binding"], "source/tool/run/runner mismatch")
+    if report["plan_sha256"] != plan["plan_sha256"]:
+        raise ValueError("exact plan mismatch")
     groups = shard_groups(plan, report["shard_id"], plan["full_node_ids"])
     selected = sorted(n for group in groups.values() for n in group)
     if (
@@ -779,6 +796,40 @@ def verify_shards(
         raise ValueError("disjoint actual passed union must equal full collection")
 
 
+def runner_revision_observations(
+    plan: dict[str, Any], reports: list[dict[str, Any]], checker: dict[str, Any]
+) -> dict[str, Any]:
+    """Called after aggregate verification; preserve each job's native observation."""
+    jobs = [
+        ("plan", plan["binding"]),
+        *[
+            (f"shard-{r['shard_id']}", r["binding"])
+            for r in sorted(reports, key=lambda r: r["shard_id"])
+        ],
+        ("aggregate", checker),
+    ]
+    observations = []
+    for job, binding in jobs:
+        require_same_binding(plan["binding"], binding, "observation binding mismatch")
+        env = binding["environment"]
+        observations.append(
+            {
+                "job": job,
+                "runner_version": env["runner_version"],
+                "source": env["runner_version_source"],
+            }
+        )
+    revisions = sorted({entry["runner_version"] for entry in observations})
+    return {
+        "runner_revision_observations": observations,
+        "distinct_runner_revisions": revisions,
+        "mixed_host_revisions": len(revisions) > 1,
+        "performance_scope": (
+            "observed samples; no complete host equivalence or controlled same-host comparison"
+        ),
+    }
+
+
 def finalize_shard(report: dict[str, Any], native_exit: int) -> dict[str, Any]:
     """Called by the shell wrapper after wait; this is not a job-success declaration."""
     if (
@@ -836,11 +887,9 @@ def shard_main() -> None:
             binding,
             "aggregate differs from exact checker checkout/run/environment",
         )
-        verify_shards(
-            plan,
-            [json.loads(path.read_text()) for path in args.reports],
-            json.loads(args.job_results.read_text()),
-        )
+        reports = [json.loads(path.read_text()) for path in args.reports]
+        verify_shards(plan, reports, json.loads(args.job_results.read_text()))
+        print(json.dumps(runner_revision_observations(plan, reports, binding), sort_keys=True))
         print("N-way exact source/run/tools/collection/groups/G1/G2/native cleanup verified")
     sys.exit(0)
 

@@ -39,6 +39,7 @@ BINDING: dict[str, Any] = {
         "arch": "x86_64",
         "runner_image": "ubuntu24",
         "runner_version": "20261025.1",
+        "runner_version_source": "Hosted environment ImageVersion",
         "docker": "Docker version 28.0.0, build abc",
         "compose": "2.40.0",
         "pg_image": "postgres:17.11-bookworm@sha256:" + "e" * 64,
@@ -50,7 +51,9 @@ def plan(count: int = 4) -> dict[str, Any]:
     return plan_shards(FULL, {n: float(i + 1) for i, n in enumerate(FULL)}, count, BINDING)
 
 
-def evidence(p: dict[str, Any], shard: int) -> dict[str, Any]:
+def evidence(
+    p: dict[str, Any], shard: int, binding: dict[str, Any] | None = None
+) -> dict[str, Any]:
     records = [collection(FULL)]
     raw: dict[str, Any] = {
         "records": records,
@@ -97,7 +100,7 @@ def evidence(p: dict[str, Any], shard: int) -> dict[str, Any]:
             {"event": "g1_persistence", "kind": "verified", "count_one": True} for _ in range(3)
         )
         records.extend({"event": "g2_evidence", "data": {"scenario": s}} for s in G2_V2_REQUIRED)
-    exported = safe_shard_report(raw, BINDING, p, shard)
+    exported = safe_shard_report(raw, BINDING if binding is None else binding, p, shard)
     assert exported["native_exit"] is None
     return finalize_shard(exported, 0)
 
@@ -336,7 +339,7 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
 @pytest.mark.parametrize(
     "path,value",
     [
-        (("environment", "runner_version"), "20261012.334.1"),
+        (("environment", "runner_image"), "ubuntu22"),
         (("environment", "compose"), "2.38.2"),
         (("fingerprints", "binaries", "uv"), "1" * 64),
         (("execution", "attempt"), "2"),
@@ -503,7 +506,7 @@ def test_entrypoints_reject_before_resources_or_report_reads(
     file = tmp_path / "plan.json"
     file.write_text(json.dumps(p))
     actual = copy.deepcopy(BINDING)
-    actual["environment"]["runner_version"] = "20261012.334.1"
+    actual["environment"]["docker"] = "different Docker version"
     module = diagnostic if entry == "diagnostic" else checker
     monkeypatch.setattr(module, "identity", lambda _: META)
     monkeypatch.setattr(module, "execution_identity", lambda: actual["execution"])
@@ -545,7 +548,7 @@ def test_entrypoints_reject_before_resources_or_report_reads(
     if entry == "malformed-aggregate":
         assert "binding_diff=" not in str(error.value)
     else:
-        assert '"field": "environment.runner_version"' in str(error.value)
+        assert '"field": "environment.docker"' in str(error.value)
     assert "private-value" not in str(error.value)
 
 
@@ -693,3 +696,142 @@ def test_real_main_preserves_image_failure_and_cleanup_without_inventing_collect
     assert report["remaining_resources"] == {"containers": 0, "networks": 0, "volumes": 0}
     assert not list((tmp_path / ".audit").glob("ci-evidence-shard-*.json"))
     assert any("down" in c for c in calls)
+
+
+@pytest.mark.parametrize("mixed", [False, True])
+def test_revision_only_difference_survives_export_and_aggregate(mixed: bool) -> None:
+    from scripts.pg_ci_evidence import runner_revision_observations
+
+    p = plan()
+    rs = reports(p)
+    if mixed:
+        binding = copy.deepcopy(BINDING)
+        binding["environment"]["runner_version"] = "20261026.354.1"
+        rs[0] = evidence(p, 0, binding)
+    checker = copy.deepcopy(BINDING)
+    checker["environment"]["runner_version"] = "20261027.355.1" if mixed else "20261025.1"
+    verify_shards(p, rs, outcomes(p))
+    result = runner_revision_observations(p, rs, checker)
+    assert result["mixed_host_revisions"] is mixed
+    assert len(result["runner_revision_observations"]) == len(rs) + 2
+    assert (
+        result["runner_revision_observations"][-1]["runner_version"]
+        == checker["environment"]["runner_version"]
+    )
+    assert (
+        result["runner_revision_observations"][1]["runner_version"]
+        == rs[0]["binding"]["environment"]["runner_version"]
+    )
+    assert len(result["distinct_runner_revisions"]) == (3 if mixed else 1)
+
+
+@pytest.mark.parametrize("bad", [None, "", "UNKNOWN", "unknown", "20261026.354.1\n"])
+@pytest.mark.parametrize("role", ["plan", "shard", "aggregate"])
+def test_revision_observation_missing_or_unknown_fails_closed(bad: Any, role: str) -> None:
+    from scripts.pg_ci_evidence import require_same_binding
+
+    actual = copy.deepcopy(BINDING)
+    if bad is None:
+        del actual["environment"]["runner_version"]
+    else:
+        actual["environment"]["runner_version"] = bad
+    with pytest.raises(ValueError):
+        if role == "plan":
+            plan_shards(FULL, {}, 4, actual)
+        elif role == "shard":
+            p = plan()
+            rs = copy.deepcopy(reports(p))
+            rs[0]["binding"] = actual
+            verify_shards(p, rs, outcomes(p))
+        else:
+            require_same_binding(BINDING, actual, "checker")
+
+
+def test_revision_source_is_fixed_and_required() -> None:
+    from scripts.pg_ci_evidence import require_same_binding
+
+    for source in (None, "setup-log", ""):
+        actual = copy.deepcopy(BINDING)
+        if source is None:
+            del actual["environment"]["runner_version_source"]
+        else:
+            actual["environment"]["runner_version_source"] = source
+        with pytest.raises(ValueError):
+            require_same_binding(BINDING, actual, "source")
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("os", "Darwin"),
+        ("arch", "aarch64"),
+        ("runner_image", "ubuntu22"),
+        ("docker", "Docker version different"),
+        ("compose", "2.38.2"),
+        ("pg_image", "postgres:17.11-bookworm@sha256:" + "a" * 64),
+    ],
+)
+def test_mixed_revision_does_not_hide_other_environment_changes(field: str, value: str) -> None:
+    from scripts.pg_ci_evidence import require_same_binding
+
+    actual = copy.deepcopy(BINDING)
+    actual["environment"].update(runner_version="20261026.354.1", **{field: value})
+    with pytest.raises(ValueError):
+        require_same_binding(BINDING, actual, "other fields remain strict")
+
+
+def test_aggregate_cli_reports_every_job_revision(
+    tmp_path: Path, monkeypatch: Patch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from scripts import pg_ci_evidence as checker
+
+    p = plan()
+    rs = copy.deepcopy(reports(p))
+    rs[0]["binding"]["environment"]["runner_version"] = "20261026.354.1"
+    actual = copy.deepcopy(BINDING)
+    actual["environment"]["runner_version"] = "20261027.355.1"
+    files = []
+    for i, report in enumerate(rs):
+        path = tmp_path / f"shard-{i}.json"
+        path.write_text(json.dumps(report))
+        files.append(str(path))
+    plan_file, jobs_file = tmp_path / "plan.json", tmp_path / "jobs.json"
+    plan_file.write_text(json.dumps(p))
+    jobs_file.write_text(json.dumps(outcomes(p)))
+    monkeypatch.setattr(checker, "identity", lambda _: META)
+    monkeypatch.setattr(checker, "execution_identity", lambda: actual["execution"])
+    monkeypatch.setattr(checker, "environment_identity", lambda _: actual["environment"])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "pg_ci_evidence",
+            "aggregate",
+            "--plan",
+            str(plan_file),
+            "--job-results",
+            str(jobs_file),
+            *files,
+        ],
+    )
+    with pytest.raises(SystemExit) as exit_result:
+        checker.shard_main()
+    assert exit_result.value.code == 0
+    output = capsys.readouterr().out.splitlines()
+    summary = json.loads(output[0])
+    assert summary["mixed_host_revisions"] is True
+    assert summary["distinct_runner_revisions"] == [
+        "20261025.1",
+        "20261026.354.1",
+        "20261027.355.1",
+    ]
+    entries = summary["runner_revision_observations"]
+    assert [e["job"] for e in entries] == [
+        "plan",
+        "shard-0",
+        "shard-1",
+        "shard-2",
+        "shard-3",
+        "aggregate",
+    ]
+    assert all(e["source"] == "Hosted environment ImageVersion" for e in entries)
