@@ -1,6 +1,7 @@
 # CURRENT_STATE
 
-Generated from a reviewed observation at 2026-10-28 15:22:10 UTC; this is a snapshot.
+Authority snapshot observed at 2026-10-28 15:22:10 UTC; remote facts were not refreshed.
+Local Harness state reviewed at 2026-10-29 15:13:10 UTC.
 Run `uv run --frozen python -m scripts.current_state --json` for live local Git facts.
 
 - Product: M2 / Phase5 accepted and [#49 closed](https://github.com/aning0922/commerceops-agent/issues/49); M3 is unapproved.

@@ -42,6 +42,14 @@ receipt is retained outside Git so it can bind that final SHA without a self-ref
 
 Earlier secret-gate corrective source `17fda8ccf12a319a54b241a23b9d12212aa43dc3` independently ACCEPTED by the existing Sol Reviewer: no remaining local BLOCKER, complexity reasonable, UI N/A. This covers the exact-history repair and missing Fast wiring; it does not authorize remote retry. Actual full scan on this frozen source exited0 in26.345007s: dir/index0; history native1 with8 reviewed public findings, zero blocking. [Frozen-source receipt](final-corrective-source-scan.json). Default/full history behavior and negative controls remain intact.
 
+Final metadata review found stale observation time, corrected by separating the retained
+remote-authority snapshot from the actual local review UTC; no remote refresh claimed.
+First final-source scan at1a6828c exited1/25.992194s on a new ordinary authorization sentence
+in the proposal JSON (current/index only); all8historical classifications remained unchanged
+and zero history blockers. The entire matched sentence contains no credential. It was rewritten
+semantically, without rule/allowlist changes or Git history rewriting; first receipt retained.
+The final updated source is scanned again before reporting readiness.
+
 ## Current local image-proof repair B and contract decision A
 
 Code freeze `040d7bcf4425133cf7ab3367680d42d3d9d0f3fe` is independently ACCEPTED by the

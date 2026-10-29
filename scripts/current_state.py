@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAPSHOT_SHA256 = "380cd6978c3973d6ec776bafe155cf1ad30d46486a844c79f59d8afcb4e41219"
+SNAPSHOT_SHA256 = "ebf302b74ee39963eac7468293fabc4dd68be7166e857f1189f2300c7181a17f"
 ARCHIVE_SHA256 = "121290e12d2e4349e3c90f685058c4c359bcb1251872d87d0de280f7bcde2837"
 BASE = "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265"
 
@@ -43,7 +43,8 @@ def render(snapshot: dict[str, Any]) -> str:
     )
     return f"""# CURRENT_STATE
 
-Generated from a reviewed observation at {snapshot["observed_at"]}; this is a snapshot.
+Authority snapshot observed at {snapshot["observed_at"]}; remote facts were not refreshed.
+Local Harness state reviewed at {snapshot["local_reviewed_at"]}.
 Run `uv run --frozen python -m scripts.current_state --json` for live local Git facts.
 
 - Product: M2 / Phase5 accepted and [#49 closed]({issues[49]["url"]}); M3 is unapproved.

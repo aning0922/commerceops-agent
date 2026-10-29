@@ -55,7 +55,7 @@
   ],
   "risk": "different revisions can include different kernels or unpinned host tools; unchanged pinned Docker/Compose/tools and real Gates do not prove full host equivalence",
   "implementation_bounds": "existing evidence/diagnostic comparisons and existing tests only; no new scheduler/service/VM/image platform; original quality workflow and required checks unchanged",
-  "approval_needed": "Local contract change explicitly approved; remote publication/CI still requires separate authorization",
+  "approval_needed": "Remote actions await a separate explicit user grant",
   "unrelated_local_fix": "read native full .Image from unique owned running PG; preserve failure stage/cleanup without exporting nonexistent collection; does not adopt environment-contract change",
   "sources": {
     "github_hosted_rollout": "https://docs.github.com/en/actions/concepts/runners/github-hosted-runners",

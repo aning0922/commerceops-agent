@@ -30,5 +30,6 @@
   "later_gates": "H2 fourth head06e319b original Full40707885614 PASS; Shadow40707885615 FAIL (4 runner_revision +2 image proof, no PG tests); local B040d7bcf preserved; user-approved local A44d5655 independently ACCEPTED/243targeted pass/unpushed, current candidate real PG/Full/Shadow NOT_RUN; H3-H5 NOT_RUN",
   "model_default": "gpt-6.1-sol / medium",
   "quota": "UNKNOWN; no reservation or token usage claim",
-  "authorization": "Local Harness H0-H5 only; remote publication/CI, global services, business secrets/resources and M3 require separate authorization"
+  "authorization": "Local Harness H0-H5 only; remote publication/CI, global services, business secrets/resources and M3 require separate authorization",
+  "local_reviewed_at": "2026-10-29 15:13:10 UTC"
 }
