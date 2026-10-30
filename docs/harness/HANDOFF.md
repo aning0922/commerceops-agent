@@ -121,3 +121,20 @@ proof. Existing independent Sol Reviewer ACCEPTS exact published H2 functional/e
 no BLOCKER; performance limitations nonblocking, no extra runs needed. UI N/A.
 Grant SPENT; local metadata closeout only, unpushed. No retry/PR edit/main/protection/H3;
 H3-H5 NOT_STARTED. Final full scanner binds final metadata SHA externally, not a new Hosted run.
+
+## H3-A local continuation — 2026-10-30
+
+User “开始下一步” supersedes the prior no-H3 boundary for local H3 work only. H2 acceptance
+remains exact published a5c80203 and its same-merge pair; no new Hosted evidence for H3.
+Code992f6f77823e1b4e83d6fb580627ae3a219d9249/base6b4ab4a, Root sole writer, same WT/branch.
+[Active package](h3/README.md): additive always-run merge-gate requires all original5jobs
+actually success plus current source-bound N01/foundation output. Original5job bodies,
+check/security/PG/Web/deadline/cleanup contracts retained; no check extraction, cache or
+protection switch. New command uses stdlib/no service. Targeted233pass/12.01s, Ruff/mypy/docs
+pass. Initial environment/test-assertion failures and discarded extraction result are retained
+in package record, not counted as final acceptance. Current H3 Hosted/performance/cold-warm
+checks NOT_RUN; H3 overall IN_PROGRESS, H4-H5 NOT_STARTED. Next local work is safe Web build/
+cache reuse, preserving old authoritative gates pending an explicitly approved transition.
+No remote push/CI/PR-body/protection/main action, business resources, M3 or paid API.
+Review/final default scanner receipts follow in the external H3 evidence directory; do not
+pre-sign them. Local metadata SHA is distinct from code and Hosted source.

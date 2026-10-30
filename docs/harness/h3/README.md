@@ -49,6 +49,8 @@ and [job outputs](https://docs.github.com/en/actions/how-tos/write-workflows/cho
   after removing only N01's new outputs and terminal source-binding step. No business test
   is retired; two workflow assertions are updated for the additive job/source output.
 - Ruff, mypy for the new command/tests, and diff whitespace checks pass.
+- Actual current collection:2960offline/590integration, no deleted business tests; collection
+  command exit0/wall4.599212s. Collection is not execution of the whole suite.
 - First development command:199pass/39fail, consisting of one new test incorrectly forbidding
   the original pg-pair `always()` and38 existing sidecar cases missing project-local Node.
   The assertion was corrected; the existing Node24.21.0 installation was linked read-only
