@@ -138,3 +138,22 @@ cache reuse, preserving old authoritative gates pending an explicitly approved t
 No remote push/CI/PR-body/protection/main action, business resources, M3 or paid API.
 Review/final default scanner receipts follow in the external H3 evidence directory; do not
 pre-sign them. Local metadata SHA is distinct from code and Hosted source.
+
+## H3-A metadata accepted / H3-B local candidate — 2026-10-30
+
+Original Sol Reviewer recovered and ACCEPTED metadata6602e7615014a86ac445d79527a3576631b86a15,
+no BLOCKER/no repeated checks; earlier capacity failures retained. User explicitly continues
+local Web build/cache work, no push/Hosted/protection/main; no model/API fallback.
+H3-B codeed1739912cf3de08b2670a6ed53fdc822d48f47a/base6602e76: same Root/WT/branch; N01
+retires only three duplicate npm preparation commands still executed by complete scripts.check.
+Both Web jobs add pinned public npm _cacache only, exact OS/arch/ImageVersion/tool/lock key,
+no restore prefix/no cache-hit skip; untrusted identity/package origin disables cache only.
+All original Required Gates/security/audit/PG/Web/deadlines/cleanup remain. [Details](h3/README.md),
+[actual local receipt](h3/npm-local-experiment.json).239focused pass12.47s, final affected7pass/.29s,
+Ruff/mypy2/docs pass; collect2966offline/590integration only, no business test deletion. Newowned
+nativeARM cache cold3.235/warm2.996/offline2.960s; required React corruption rejected1/ENOTCACHED,
+restored offline0/2.734s, tool0/.178/type0/.913/build0/4.726s. Source/lock unchanged; no service.
+No Hosted net-benefit claim: local difference.239s and no transport/compression proof. No new
+shared build job or Next/uv/PW cache without evidence. H3 remains IN_PROGRESS, H4-H5 NOT_STARTED;
+H2 acceptance is exact oldpublished pair only. Independent H3-B review/final scanner receipts
+are external and must be actual, not inferred. Remote grant remains SPENT; no new run authorized.
