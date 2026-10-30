@@ -39,3 +39,19 @@ record authoring failures and exact scope. Phase托管 workflow practices are in
 existing README, with Sol default and separate Astra/remote authorization unchanged. H2 is
 still unaccepted; H3-H5 not run. Next remote action requires a new explicit one-pair grant;
 do not push, edit the PR body, dispatch/retry CI or change protections under this local grant.
+
+## Fifth Hosted terminal handoff — 2026-10-30
+
+Fixed head1be2c0fae7984064987ee8d11b4a94136b1b175d / merge4f82de969113a8d8c7f221fc2325957ab6127aa5
+/ tree403de8502d0aa7aea0175876966ffa7cea958f5a. One-use push/Full+Shadow grant SPENT,
+exactly2runs attempt1, no automatic retry. [Terminal receipt](h2/fifth-hosted-receipt.json).
+Shadow40984497438 SUCCESS/all8jobs/590actual passes/1770phases/G1three/G2six/cleanup0,
+18m54s and97.5667observed job-minutes; independent pre-review finds no Shadow BLOCKER.
+Original Full40984497286 FAILURE/39m32s/101.9167job-minutes: quality413pass, phase3native139
+in terminal-recovery-part1 (selected177/collected169/passed165), cleanup0. Four group nodes
+have no passed call,8later nodes uncollected; root cause UNKNOWN. Full582collected/578pass,
+pg-pair rejects; offline2920/Web24/N01six pass. Source/tree/tools/fullsets exact across both.
+This receipt does not sign Full performance improvement or H2 acceptance. Keep tests/Gates,
+original failure and unknowns; next bounded diagnosis remains H2. H3-H5 NOT_STARTED, DraftPR52
+preserved, no merge/protection/M3 authority. No extra model/API/service/framework or new run.
+Local metadata-only handoff remains unpushed and is distinct from the Hosted source above.

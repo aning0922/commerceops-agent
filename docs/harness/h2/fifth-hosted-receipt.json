@@ -1,0 +1,295 @@
+{
+  "approved_head": "1be2c0fae7984064987ee8d11b4a94136b1b175d",
+  "merge_checkout": "4f82de969113a8d8c7f221fc2325957ab6127aa5",
+  "source_tree": "403de8502d0aa7aea0175876966ffa7cea958f5a",
+  "runs": [
+    {
+      "id": 40984497286,
+      "name": "Foundation quality",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "1be2c0fae7984064987ee8d11b4a94136b1b175d",
+      "run_attempt": 1,
+      "created_at": "2026-10-30T01:13:04Z",
+      "updated_at": "2026-10-30T01:52:36Z",
+      "wall_seconds": 2372.0,
+      "job_minutes": 101.91666666666667,
+      "jobs": [
+        {
+          "id": 123832220368,
+          "name": "quality",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:13:08Z",
+          "completed_at": "2026-10-30T01:52:23Z",
+          "seconds": 2355.0
+        },
+        {
+          "id": 123832220593,
+          "name": "frontend",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:13:08Z",
+          "completed_at": "2026-10-30T01:33:01Z",
+          "seconds": 1193.0
+        },
+        {
+          "id": 123832220702,
+          "name": "phase3",
+          "conclusion": "failure",
+          "started_at": "2026-10-30T01:13:08Z",
+          "completed_at": "2026-10-30T01:45:39Z",
+          "seconds": 1951.0
+        },
+        {
+          "id": 123832220823,
+          "name": "n01-web",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:13:08Z",
+          "completed_at": "2026-10-30T01:23:14Z",
+          "seconds": 606.0
+        },
+        {
+          "id": 123844614647,
+          "name": "pg-pair",
+          "conclusion": "failure",
+          "started_at": "2026-10-30T01:52:26Z",
+          "completed_at": "2026-10-30T01:52:36Z",
+          "seconds": 10.0
+        }
+      ]
+    },
+    {
+      "id": 40984497438,
+      "name": "H2 PG shadow",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1be2c0fae7984064987ee8d11b4a94136b1b175d",
+      "run_attempt": 1,
+      "created_at": "2026-10-30T01:13:05Z",
+      "updated_at": "2026-10-30T01:31:59Z",
+      "wall_seconds": 1134.0,
+      "job_minutes": 97.56666666666666,
+      "jobs": [
+        {
+          "id": 123832220486,
+          "name": "h2-plan",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:13:08Z",
+          "completed_at": "2026-10-30T01:14:24Z",
+          "seconds": 76.0
+        },
+        {
+          "id": 123832652880,
+          "name": "h2-shards (5)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:14:27Z",
+          "completed_at": "2026-10-30T01:30:49Z",
+          "seconds": 982.0
+        },
+        {
+          "id": 123832652933,
+          "name": "h2-shards (1)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:14:27Z",
+          "completed_at": "2026-10-30T01:28:28Z",
+          "seconds": 841.0
+        },
+        {
+          "id": 123832652957,
+          "name": "h2-shards (2)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:14:27Z",
+          "completed_at": "2026-10-30T01:30:13Z",
+          "seconds": 946.0
+        },
+        {
+          "id": 123832652966,
+          "name": "h2-shards (4)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:14:27Z",
+          "completed_at": "2026-10-30T01:30:49Z",
+          "seconds": 982.0
+        },
+        {
+          "id": 123832653016,
+          "name": "h2-shards (3)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:14:27Z",
+          "completed_at": "2026-10-30T01:30:46Z",
+          "seconds": 979.0
+        },
+        {
+          "id": 123832653018,
+          "name": "h2-shards (0)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:14:27Z",
+          "completed_at": "2026-10-30T01:30:55Z",
+          "seconds": 988.0
+        },
+        {
+          "id": 123838018785,
+          "name": "h2-aggregate",
+          "conclusion": "success",
+          "started_at": "2026-10-30T01:30:58Z",
+          "completed_at": "2026-10-30T01:31:58Z",
+          "seconds": 60.0
+        }
+      ]
+    }
+  ],
+  "full_verification": {
+    "source_sha": "4f82de969113a8d8c7f221fc2325957ab6127aa5",
+    "source_tree": "403de8502d0aa7aea0175876966ffa7cea958f5a",
+    "actual_full_set": 590,
+    "selected": 590,
+    "actual_collected": 582,
+    "actual_passed_calls": 578,
+    "call_outcomes": {
+      "passed": 578
+    },
+    "actual_overlap": 0,
+    "not_passed": [
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[before-update-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[before-update-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[revoked-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[revoked-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[nullable_digits-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[nullable_digits-0016]"
+    ],
+    "cleanup": [
+      0,
+      0
+    ],
+    "g1_verified_count": 3,
+    "g2_scenarios": [
+      "checkpoint_db_failure_recovered",
+      "cross_process_resume",
+      "graph_lock_loss_cancel",
+      "graph_noncooperative_exit",
+      "receipt_commit_checkpoint_gap",
+      "retired_probe_version_refused"
+    ],
+    "formal_pair": "REJECT expected: incomplete phase3, native139"
+  },
+  "shadow_verification": {
+    "status": "SUCCESS; 8 jobs",
+    "full_nodes": 590,
+    "natural_modules": 53,
+    "execution_groups": 35,
+    "native_phase_events": 1770,
+    "passed_unique_calls": 590,
+    "overlap": 0,
+    "six_native_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "six_cleanup_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "six_resource_inventories": "containers/networks/volumes all0",
+    "g1_verified_count": 3,
+    "g2_count": 6,
+    "actual_pg_image_id": "sha256:589f742565e4f6d22149176b032974f55f8201a8a37b71ed587ec5c6902e689f",
+    "distinct_runner_revisions": [
+      "20261026.354.1"
+    ],
+    "mixed_host_revisions": false,
+    "provenance": "Hosted environment ImageVersion"
+  },
+  "full_failure": {
+    "native_exit": 139,
+    "timed_out": false,
+    "native_markers": {
+      "Fatal Python error: Segmentation fault": 0,
+      "Segmentation fault": 0,
+      "core dumped": 0,
+      "Out of memory": 0,
+      "OOMKilled": 0
+    },
+    "last_progress": [
+      {
+        "event": "phase_start",
+        "nodeid": "tests/test_p4_sender_recovery_pg.py::test_sender_lineage_rejects_rebound_permission_and_unterminated_evidence",
+        "phase": "setup",
+        "outcome": null
+      },
+      {
+        "event": "phase_end",
+        "nodeid": "tests/test_p4_sender_recovery_pg.py::test_sender_lineage_rejects_rebound_permission_and_unterminated_evidence",
+        "phase": "setup",
+        "outcome": "passed"
+      },
+      {
+        "event": "phase_start",
+        "nodeid": "tests/test_p4_sender_recovery_pg.py::test_sender_lineage_rejects_rebound_permission_and_unterminated_evidence",
+        "phase": "call",
+        "outcome": null
+      },
+      {
+        "event": "phase_end",
+        "nodeid": "tests/test_p4_sender_recovery_pg.py::test_sender_lineage_rejects_rebound_permission_and_unterminated_evidence",
+        "phase": "call",
+        "outcome": "passed"
+      },
+      {
+        "event": "phase_start",
+        "nodeid": "tests/test_p4_sender_recovery_pg.py::test_sender_lineage_rejects_rebound_permission_and_unterminated_evidence",
+        "phase": "teardown",
+        "outcome": null
+      },
+      {
+        "event": "phase_end",
+        "nodeid": "tests/test_p4_sender_recovery_pg.py::test_sender_lineage_rejects_rebound_permission_and_unterminated_evidence",
+        "phase": "teardown",
+        "outcome": "passed"
+      },
+      {
+        "event": "node_start",
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "phase": null,
+        "outcome": null
+      },
+      {
+        "event": "phase_start",
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "phase": "setup",
+        "outcome": null
+      }
+    ],
+    "root_cause": "UNKNOWN; native139 alone is not a captured Python/C-extension cause",
+    "cleanup_exit": 0,
+    "stopping_confirmed": true
+  },
+  "other_gates": {
+    "offline_passed": 2920,
+    "offline_seconds": 331.82,
+    "frontend": "read7/write10/items7 passed; source verified; provider/model0; stopped",
+    "n01": "six passed; PG invariants/complete stop verified",
+    "secrets": "required scan steps succeeded",
+    "source_tools": "Full and Shadow source SHA/tree/fingerprints/full set exactly equal"
+  },
+  "performance_limits": [
+    "one observed successful PG Shadow sample",
+    "Full failed: no valid successful Full speedup comparison",
+    "Job-minutes are observed sum, not billing",
+    "no p95/repeatability or complete host-equivalence claim",
+    "one same-revision run does not prove a real mixed-revision run"
+  ],
+  "authority": "one user-approved push and original Full plus Shadow; both attempt1 terminal; no retries/extra runs/PR edits/merge/protection/M3",
+  "h2": "NOT_ACCEPTED; original Full failure blocks; H3-H5 NOT_STARTED",
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-fifth-20261030"
+}

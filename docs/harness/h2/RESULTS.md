@@ -1,10 +1,52 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_A_ACCEPTED / UNPUSHED**, not H2 accepted. Local A changes only
-runner revision equality under the user's explicit 2026-10-29 local authorization; all other
-Gates remain strict. Current Full/Shadow/real PG are NOT_RUN. Fourth original Full passed
-at head06e319b/merge8e95fb8a; Shadow failed. Six-shard measured speed remains NOT_RUN.
-Product UI: NOT_APPLICABLE.
+Status: **H2_NOT_ACCEPTED / FIFTH_HOSTED_TERMINAL**. Published fixed head
+`1be2c0fae7984064987ee8d11b4a94136b1b175d`, actual merge
+`4f82de969113a8d8c7f221fc2325957ab6127aa5`, tree403de8502d0aa7aea0175876966ffa7cea958f5a.
+Fifth Shadow SUCCESS; original Full FAILURE. No retry, H3-H5 not started. UI N/A.
+
+## Fifth authorized Hosted pair — 2026-10-30
+
+[Terminal receipt](fifth-hosted-receipt.json) records the one-use grant and actual source,
+all jobs, native failure and metrics. Remote branch/main remain1be2c0f/6d3a8f7; DraftPR52
+stays OPEN. Exactly two new runs, both attempt1; no manual dispatch, PR edit, retry or merge.
+The fixed A/B runtime source has not changed while these jobs ran.
+
+| Scope | Native outcome | Observed walltime | Observed job-minutes |
+|---|---|---:|---:|
+| Original Full40984497286 | FAILURE | 39m32s | 101.9167 |
+| PG Shadow40984497438 | SUCCESS, all8jobs | 18m54s | 97.5667 |
+
+Shadow proves590unique passed calls /53natural modules /35execution groups, exact plan,
+report and native collection union, zero overlap,1770phase events. All6parents and35business
+execution groups exit0, cleanup0/stopping confirmed, independent projects/volumes and zero
+container/network/volume inventory. Designated shard0 provesG1three/G2six; all actual PG
+image config IDs agree. Existing G1 unavailable negative probe intentionally exits1; do not
+claim every diagnostic command exits0. Plan/six shards/aggregate all record actual revision
+20261026.354.1 and its fixed source: mixed_host_revisions=false. This run does not prove a
+real mixed-revision execution or full host equivalence. Reviewer pre-review found no Shadow
+BLOCKER. This is one successful PG sample, not complete Full speedup, billing savings or p95.
+
+Original Full quality413passes with G1three/G2six/cleanup0. Phase3 selects177/collects169/
+passes165, then combined-phase3-test_p4_terminal_recovery_pg-part-1 exits139 with
+`timed_out=false`, cleanup0/stopping confirmed. All4nodes of that group have no passed call;
+last visible progress is first node after-update-0015 setup, and8later nodes are not collected.
+Full total: selected590/actual582/passed578, intersection0. pg-pair rejects incomplete evidence,
+as required. There are no captured failed-phase assertion events. Existing45sfaulthandler
+Timeout/Thread records precede exit139; fatal header and exact underlying cause are UNKNOWN,
+and no PG wait sample was captured for that command. No OOM, lib, business or deadlock root
+cause is inferred. These tests and safety assertions are retained.
+
+The same merge/tree/tool fingerprints/full590set match Shadow exactly. Full offline2920
+passed/331.82s, frontendread7/write10/items7 and N01six pass; current-source Mock-provider
+boundaries, PG invariants and actual stop verify. Actual provider/modelcalls0; no real business
+resources. Original required security steps pass. First four failed attempts remain recorded.
+
+H2 stays unaccepted because original Full failed. No successful same-SHA Full performance
+comparison or H3 switch is signed. Next work remains bounded H2 native139 diagnosis using
+existing test/diagnostic paths; preserve original evidence, avoid speculative business edits,
+new infrastructure or mechanical Hosted retry. The remote grant is spent. Current local
+receipt-only handoff has no new runtime behavior and is not a new Hosted-tested source.
 
 ## Approved local contract A (2026-10-29)
 

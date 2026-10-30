@@ -1,10 +1,10 @@
 # H2 PG Full local candidate
 
-Status: **LOCAL_A_ACCEPTED / UNPUSHED; H2 acceptance pending.** Fourth
-original Full passed for06e319b/8e95fb8a; Shadow failed four runner revision comparisons
-and two image-proof checks. Local B and the explicitly approved local A are independently
-accepted and unpushed; current Full/Shadow/real PG remain NOT_RUN. See [actual results](RESULTS.md), [fourth receipt](fourth-hosted-receipt.json)
-and [one-field proposal](environment-contract-proposal.json).
+Status: **H2_NOT_ACCEPTED / FIFTH_HOSTED_TERMINAL**. Fixed head1be2c0f, actual merge4f82de96:
+PG Shadow40984497438 SUCCESS (590unique actual passes,18m54s), original Full40984497286
+FAILURE (phase3 native139; no retry). Full had578/590passed calls; pg-pair correctly rejects.
+Local A/B remain independently accepted, but H3-H5 are not started. See [actual results](RESULTS.md)
+and [fifth receipt](fifth-hosted-receipt.json). Required Checks and original workflow remain intact.
 This stage reduces the existing PG critical path by assigning existing bounded execution
 commands to four or six isolated shards. It extends `scripts.pg_ci_evidence` and
 `scripts.pg_diagnostic`; it adds no scheduler, DB, service, fixture shortcut or model call.
@@ -110,7 +110,7 @@ registers the existing 43-minute absolute budget before checkout/preparation and
 uv run --frozen python -m scripts.pg_diagnostic \
   --session ci --round 1 --combined --no-child-trace \
   --shard-plan .audit/plan/plan.json --shard-id 0 --full-smoke \
-  --deadline "$(cat .audit/ci-deadline)"
+  --deadline "$COMMERCEOPS_H2_STOP_AT_UTC"
 ```
 
 Other shards omit `--full-smoke`. The workflow captures actual native exit before finalizing
