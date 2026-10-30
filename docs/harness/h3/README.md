@@ -16,8 +16,8 @@ treebcc213a14162feb4c52103628c14b3aff23fa539 unchanged. [Receipt](warm-hosted-re
 Full all6jobs and Shadow all8 pass. Both PG sets contain590unique passed calls and1770passed
 phases with original strict source, tool, collection, G1three, G2six, native and cleanup gates.
 Shadow six fresh projects are distinct from attempt1 and finish with resource counts0. Full
-2969offline/334.74s, Web24/N01six and actual merge-gate pass. Each PG pipeline has14real
-PythonTimer dumps. Prior failed source and successful attempt1 evidence remain retained.
+2969offline/334.74s, Web24/N01six and actual merge-gate pass. Full has14real PythonTimer
+dumps; Shadow has13. Prior failed source and successful attempt1 evidence remain retained.
 
 | Observed scope | Cold attempt1 | Warm attempt2 |
 |---|---:|---:|
@@ -66,8 +66,8 @@ Full all6 jobs pass, including original pg-pair and the new actual merge-gate. F
 and Shadow both cover exactly590unique passed calls and1770passed phases; tools and full sets
 match. G1three and G2six, native termination, original cleanup gates and Web stop proofs pass.
 Offline2969pass/226.17s, Web read7/write10/items7 and N01six actual cases pass. Shadow all8jobs
-pass; six distinct owned projects end with containers0/networks0/volumes0. Each pipeline has
-14real PythonTimer dumps. All8Shadow ImageVersions are20261026.354.1, not mixed-revision proof.
+pass; six distinct owned projects end with containers0/networks0/volumes0. Full has14real
+PythonTimer dumps; Shadow has12. All8Shadow ImageVersions are20261026.354.1, not mixed-revision proof.
 
 | Native observed scope | Wall | Sum of job minutes |
 |---|---:|---:|

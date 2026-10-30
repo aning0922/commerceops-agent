@@ -261,3 +261,12 @@ H3stillNOT_ACCEPTED: only2corrected successfulFullcohorts, third comparable evid
 acceptance incomplete, Full20to25min target unmet. GrantSPENT, no extraCI/push/PRedit/main/
 protection/H4/M3 or implementation expansion. No new cache infrastructure. Result-only local
 handoff receives actual independent review and full scanner receipt externally.
+
+## Diagnostic count correction — 2026-10-30
+
+Same saved native evidence, no rerun: corrected cold attempt1 Shadow dump total is12
+(shards1/2/2/2/3/2); warm attempt2 is13 (1/2/2/4/2/2). Full is14 in both.
+The earlier README statement14for each pipeline was inaccurate; earlier e33 Shadow14
+remains valid. These are observed diagnostic counts, not fixed acceptance targets; exact
+590calls/1770phases and all Gates remain unchanged. Original local handoff commits and
+external receipts are retained, with this correction recorded separately.

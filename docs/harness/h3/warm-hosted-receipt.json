@@ -594,5 +594,18 @@
   "h4_h5": "NOT_STARTED",
   "authorization": "Exactly one entire Full rerun and one entire Shadow rerun to attempt2. No push, failed retry, extra run, PR edit, main merge, protection change or H4. Grant SPENT.",
   "independent_result_review": "Recorded by external actual closeout receipt, not inferred from CI success.",
-  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-tenth-warm-20261030"
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-tenth-warm-20261030",
+  "observed_python_timer_dumps": {
+    "full": 14,
+    "shadow_by_shard": [
+      1,
+      2,
+      2,
+      4,
+      2,
+      2
+    ],
+    "shadow_total": 13,
+    "scope": "Observed diagnostic output count, not a required fixed Gate count."
+  }
 }

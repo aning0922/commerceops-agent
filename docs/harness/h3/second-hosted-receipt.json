@@ -290,5 +290,18 @@
   "permission": "Single fixed candidate push and two attempt1 runs SPENT. No retry, further push, PR edit, main merge, protection mutation or H4.",
   "h3": "IN_PROGRESS_NOT_ACCEPTED",
   "h4_h5": "NOT_STARTED",
-  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-ninth-20261030"
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-ninth-20261030",
+  "observed_python_timer_dumps": {
+    "full": 14,
+    "shadow_by_shard": [
+      1,
+      2,
+      2,
+      2,
+      3,
+      2
+    ],
+    "shadow_total": 12,
+    "scope": "Observed diagnostic output count, not a required fixed Gate count."
+  }
 }
