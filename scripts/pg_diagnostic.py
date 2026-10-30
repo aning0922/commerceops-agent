@@ -762,7 +762,7 @@ def main() -> None:
             "-s",
             "--tb=no",
             "-o",
-            "faulthandler_timeout=45",
+            "faulthandler_timeout=0",  # Existing plugin supplies the real 45s GIL-held dump.
             *paths,
         ]
         if collect:

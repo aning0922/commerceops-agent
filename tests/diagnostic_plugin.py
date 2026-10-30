@@ -4,6 +4,8 @@ import json
 import os
 import re
 import stat
+import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -17,6 +19,45 @@ def emit(event: str, **fields: Any) -> None:
         + json.dumps({"event": event, "pid": os.getpid(), "monotonic": time.monotonic(), **fields}),
         flush=True,
     )
+
+
+# A diagnostic observation, never the command/authorization deadline. CPython 3.12's
+# C watchdog can crash while traversing concurrently retiring thread states. A Python
+# callback holds the GIL; a GIL-stuck process still relies on the external supervisor.
+STACK_DUMP_SECONDS = 45.0
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_protocol(item: Any) -> Any:
+    import faulthandler
+
+    output = sys.__stderr__ if sys.__stderr__ is not None else sys.stderr
+    descriptor = os.dup(output.fileno())
+    errors: list[str] = []
+
+    def dump() -> None:
+        try:
+            emit("stack_dump", nodeid=item.nodeid, mechanism="python_timer")
+            faulthandler.dump_traceback(file=descriptor, all_threads=True)
+        except Exception as error:
+            errors.append(type(error).__name__)
+
+    timer = threading.Timer(STACK_DUMP_SECONDS, dump)
+    timer.daemon = True
+    timer.start()
+    try:
+        result = yield
+    finally:
+        timer.cancel()
+        timer.join(timeout=5)
+        if timer.is_alive():
+            # Keep this FD owned until process exit: a late writer must not hit a
+            # recycled descriptor. An incomplete diagnostic cannot silently pass.
+            raise RuntimeError("diagnostic stack timer did not stop")
+        os.close(descriptor)
+    if errors:
+        raise RuntimeError("diagnostic stack dump failed: " + errors[0])
+    return result
 
 
 def pytest_collection_finish(session: Any) -> None:
@@ -173,6 +214,8 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
 def pytest_configure(config: Any) -> None:
     if os.environ.get("P123_DIAG") != "1":
         raise ValueError("explicit diagnostic mode required")
+    if float(config.getini("faulthandler_timeout")) != 0:
+        raise ValueError("PG diagnostic requires its GIL-held timer, not the C watchdog")
     if os.environ.get("P123_TRACE_CHILD", "1") == "0":
         return
     # 同一测试进程内复用原事件 Queue；只在已批准的测试 harness 加观察点。
