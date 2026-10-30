@@ -143,3 +143,29 @@ necessary source correction. The approximately107MB task-owned cache and local0.
 remain a nonblocking FOLLOW_UP: use actual authorized Hosted transport/post-save measurements
 to decide retention; do not assume a net benefit. Final full scanner binds the later metadata
 SHA externally; H3 overall/Hosted acceptance is not implied.
+
+## Complete local preparation verification — 2026-10-30
+
+Exact source `8645634d4aca734344be68640d186692bbef1207`, which already has independent code/
+metadata ACCEPT. No implementation change was needed. One actual complete `uv run --frozen
+python -m scripts.check` exits0 in318.437312s:2966offline pass/590integration deselected/
+4warnings/271.92s, full secret scan, lock/docs/lint/format/full typecheck, npm installation/
+fixed toolchain/typecheck/audit and95locked Python runtime/dev/build packages audited with
+known vulnerabilities0. Immediately afterward, `npm run build` exits0 in3.238832s. Both
+complete inside one23minute local window with85sreserve, no timeout, using the previously
+owned public npm cache and empty isolated npm user/global configuration. Tracked tree remains
+unchanged. [Native receipt](full-local-preparation.json).
+
+This is complete local engineering preparation, not Hosted Full or PG/Web/N01 acceptance.
+There is no cold/warm comparison for this complete check, and build-cache/network effects
+are uncontrolled; do not call318seconds a Full CI speedup. No Docker/PG/browser service,
+provider call, remote push/CI/protection mutation, H4 or M3 was requested. Existing independent
+implementation review applies to unchanged code; this later documentation only records the
+new actual results. The exact8645634 secret scan remains valid for that unchanged source;
+any later metadata SHA receives its own final full scan without repeating2966tests.
+
+Retained historical Full41010032206/a5c80203 frontend preparation232s, actual PG/Web829s;
+N01 preparation489s and six actual cases109s. Preparation bundles tools/checks/build/browser
+installation, not build alone. This old sample is not a new candidate benchmark or evidence
+that artifact sharing would improve the current critical path. The remaining H3 acceptance
+requires separately authorized real Hosted measurements; no new local framework is needed.

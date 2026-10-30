@@ -1,0 +1,69 @@
+{
+  "sha": "8645634d4aca734344be68640d186692bbef1207",
+  "scope": "native macOS ARM complete scripts.check then production build; not Hosted Full/PG/Web/N01 acceptance",
+  "started_at": "2026-10-30T08:23:59.715882+00:00",
+  "stop_at": "2026-10-30T08:46:59.715882+00:00",
+  "reserve_seconds": 85,
+  "commands": [
+    {
+      "label": "complete_scripts_check",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "python",
+        "-m",
+        "scripts.check"
+      ],
+      "native_exit": 0,
+      "timed_out": false,
+      "wall_seconds": 318.43731166701764,
+      "completed_check_labels": [
+        "CHECK: 当前内容与完整可达历史敏感扫描",
+        "CHECK: 锁文件一致性",
+        "CHECK: 文档检查",
+        "CHECK: Python lint",
+        "CHECK: Python format",
+        "CHECK: Python typecheck",
+        "CHECK: Node 锁文件安装",
+        "CHECK: Node 工具链校验",
+        "CHECK: 离线技术 smoke 与合成阻断",
+        "CHECK: Frontend tooling typecheck",
+        "CHECK: Frontend tooling 漏洞查询",
+        "CHECK: Python runtime/dev/build 锁依赖漏洞查询",
+        "Python audit: 95 packages, known vulnerabilities=0"
+      ],
+      "pytest_summaries": [
+        "2966 passed, 590 deselected, 4 warnings in 271.92s (0:04:31) ========="
+      ],
+      "known_findings_zero": true,
+      "ruff_errors": false,
+      "safe_build_summary": []
+    },
+    {
+      "label": "production_build_after_complete_check",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "native_exit": 0,
+      "timed_out": false,
+      "wall_seconds": 3.2388321249745786,
+      "completed_check_labels": [],
+      "pytest_summaries": [],
+      "known_findings_zero": false,
+      "ruff_errors": false,
+      "safe_build_summary": [
+        "✓ Compiled successfully in 303ms",
+        "Generating static pages using 4 workers (0/2) ...",
+        "✓ Generating static pages using 4 workers (2/2) in 198ms"
+      ]
+    }
+  ],
+  "owned_cache": "/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/commerceops-h3-npm-y_ycctwp/cache",
+  "npm_user_config": "owned empty file",
+  "provider_calls": "none requested; no providers/services started",
+  "status": "PASS",
+  "tracked_diff_after": ""
+}
