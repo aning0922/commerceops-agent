@@ -20,7 +20,8 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
 - Authorized scope: Current scope: local H2 result/handoff closeout only. Single push plus Full/Shadow grant for a5c80203 SPENT; no additional push/Hosted retry, main merge, protection change or H3. No M3, paid API, old ARM64 CI restoration or real business resources.
 - [Old ARM64 CI stopped](https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477); preserve its Worktree and WIP.
 - Next Gate: see [handoff](docs/harness/HANDOFF.md). Fast/Impacted give local feedback;
-  existing Full required gates remain authoritative and are NOT_RUN for this candidate.
+  existing Full required gates remain authoritative. Published a5c80203 passed its exact
+  Hosted Full/Shadow pair; this later metadata-only handoff has no new Hosted run.
 
 Navigation: [H1 usage](docs/harness/README.md), [TaskSpec
 example](docs/harness/task.example.json), [handoff](docs/harness/HANDOFF.md),

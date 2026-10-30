@@ -63,7 +63,8 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
 - Authorized scope: {snapshot["authorization"]}.
 - [Old ARM64 CI stopped]({snapshot["arm64_stop_ref"]}); preserve its Worktree and WIP.
 - Next Gate: see [handoff](docs/harness/HANDOFF.md). Fast/Impacted give local feedback;
-  existing Full required gates remain authoritative and are NOT_RUN for this candidate.
+  existing Full required gates remain authoritative. Published a5c80203 passed its exact
+  Hosted Full/Shadow pair; this later metadata-only handoff has no new Hosted run.
 
 Navigation: [H1 usage](docs/harness/README.md), [TaskSpec
 example](docs/harness/task.example.json), [handoff](docs/harness/HANDOFF.md),
