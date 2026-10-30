@@ -1,9 +1,41 @@
 # H3 — Web, caching and final Full gate
 
-Status: **TWO_CORRECTED_COHORTS_PASSED / WARM_HITS_CONFIRMED / H3_NOT_ACCEPTED**. H2 acceptance remains scoped to published
+Status: **LOCAL_FULL_SIX_CANDIDATE / HOSTED_NOT_RUN / H3_NOT_ACCEPTED**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
+
+## Local Full topology candidate — 2026-10-30
+
+Explicit local topology authorization supersedes only the earlier requirement to keep the
+old Full job bodies active. Required Check names and all safety/business/recovery/evidence
+invariants remain. Hosted publication and protection changes are not authorized.
+
+The existing Shadow implementation is reused in Full, with current-run artifact names:
+`quality` performs security and complete integration discovery/plan; `pg-shards` executes
+six native isolated jobs; `phase3` validates all six actual reports; `pg-pair` independently
+rechecks that same complete set and actual quality/matrix/phase3 results. The second evidence
+validation preserves the existing required context without repeating PG. A quality success
+means collection/plan success, never the former413 PG calls. Full PG success requires both
+real aggregate checks. `frontend`, `n01-web`, `merge-gate`, triggers, permissions and concurrency
+are unchanged. No new scheduler, service, fixture shortcut or assignment algorithm.
+
+The native wrappers, immutable43minute preparation-inclusive shard deadline,300second commands,
+75second reserve/60second cleanup, designated shard-zero G1/G2, strict source/tool/environment
+and actual PG-image binding, dynamic full collection and fail-closed native results are reused.
+Both aggregate jobs use always() and require actual upstream success; missing/stale artifacts,
+cancelled/skipped matrix or valid JSON with failed native jobs cannot pass.
+
+Rollback source is the complete runnable workflow at published226917d4dba57bdb2eef54180df97e57510e4169;
+it is byte-identical to base48fbc7a5a5a68a1e3cc6c9df007272608951f5d0. Ordinary revert of this
+candidate's implementation commit restores workflow and matching topology tests; preserve later
+result/failure records and resolve any future conflict against that fixed old blob. Do not
+maintain a second active workflow. Legacy diagnostic CLI and pair validator remain unchanged.
+
+Local checks and independent review are recorded against the frozen candidate in the handoff.
+Native Hosted execution/performance of this topology is NOT_RUN. Previous Shadow17to18minute
+results are feasibility evidence, not a new Full result or cost saving. H3 remains NOT_ACCEPTED;
+no push, Hosted, protection changes, main merge or H4.
 
 ## Warm validation, same source attempt2 — 2026-10-30
 

@@ -1,6 +1,6 @@
 # LOCAL CANDIDATE. Publication triggers Hosted work; explicit push/PR/CI approval
 # is required before publishing this workflow on the narrowly allowed branch.
-# Existing quality.yml stays byte-for-byte; both use the same PR github.sha merge commit.
+# Full reuses this native contract; artifact names stay workflow-local on the same merge SHA.
 name: H2 PG shadow
 on:
   pull_request:

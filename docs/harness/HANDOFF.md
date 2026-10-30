@@ -270,3 +270,24 @@ The earlier README statement14for each pipeline was inaccurate; earlier e33 Shad
 remains valid. These are observed diagnostic counts, not fixed acceptance targets; exact
 590calls/1770phases and all Gates remain unchanged. Original local handoff commits and
 external receipts are retained, with this correction recorded separately.
+
+## Local Full six-shard topology candidate — 2026-10-30
+
+User explicitly authorizes local topology adjustment only; base48fbc7a5a5a68a1e3cc6c9df007272608951f5d0.
+Same Root/Worktree/branch. quality now performs actual security/complete collection/plan;
+six pg-shards reuse existing native executor; phase3 and pg-pair independently aggregate
+current-run six reports with actual upstream success required. Existing Required Check
+names quality/phase3/frontend/pg-pair retained, n01-web and final merge-gate unchanged.
+No test/fixture/PG execution algorithm, source/environment policy or business change.
+All300second command limits,43minute immutable shard budget,75reserve/60cleanup and G1/G2
+remain; pg-pair retains its original5minute cap. Old226workflow equals base48 byte-for-byte;
+ordinary revert of the implementation commit restores old topology and its matching tests.
+
+Actual local final targeted282pass/6.77s, actionlint0, Ruff/format/mypy4/docs125/diff pass.
+Initial focused280pass/7.10s and import-order lint failure retained; import fixed and one
+upstream aggregate failure case added. Collection590integration/2989offline, no old tests
+removed;20new necessary workflow failure/identity checks. Integration collection only,
+no local PG/Docker or native Hosted rerun; existing executor/validator logic is unchanged.
+Independent frozen-SHA review and final scanner are separate actual receipts, not pre-signed.
+Performance of this new Full topology NOT_RUN; prior Shadow data does not sign a Full result.
+H3NOT_ACCEPTED/H4-H5NOT_STARTED, no push/Hosted/protection/main/M3/paidAPI/business resources.

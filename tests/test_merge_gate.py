@@ -85,8 +85,11 @@ def test_full_workflow_cannot_skip_foundation_or_final_dependency() -> None:
     for name in merge_gate.REQUIRED_JOBS:
         job = jobs[name]
         assert "continue-on-error" not in job
-        assert job.get("if") == ("always()" if name == "pg-pair" else None)
-        assert not job.get("needs") or name == "pg-pair"
+        assert job.get("if") == ("always()" if name in {"phase3", "pg-pair"} else None)
+        assert job.get("needs", []) == {
+            "phase3": ["quality", "pg-shards"],
+            "pg-pair": ["quality", "pg-shards", "phase3"],
+        }.get(name, [])
         checkout = next(s for s in job["steps"] if "actions/checkout@" in s.get("uses", ""))
         assert checkout["with"]["ref"] == "${{ github.sha }}"
         assert checkout["with"]["persist-credentials"] is False

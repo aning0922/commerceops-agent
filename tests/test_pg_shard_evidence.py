@@ -334,7 +334,16 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
         ["git", "show", "6d3a8f7:.github/workflows/quality.yml"], cwd=root
     )
     original = yaml.safe_load(old)["jobs"]
-    current = yaml.safe_load((root / ".github/workflows/quality.yml").read_text())["jobs"]
+    current = yaml.safe_load(
+        subprocess.check_output(
+            [
+                "git",
+                "show",
+                "226917d4dba57bdb2eef54180df97e57510e4169:.github/workflows/quality.yml",
+            ],
+            cwd=root,
+        )
+    )["jobs"]
     for name in original:
         candidate = dict(current[name])
         if name in {"n01-web", "frontend"}:
@@ -443,6 +452,7 @@ def test_unknown_binding_shape_rejected_before_diagnostic_output(side: str) -> N
         (0, False, 0, "naive", 1),
     ],
 )
+@pytest.mark.parametrize("full", [False, True])
 def test_actual_shadow_shell_preserves_registered_deadline_and_first_failure(
     tmp_path: Path,
     native_exit: int,
@@ -450,6 +460,7 @@ def test_actual_shadow_shell_preserves_registered_deadline_and_first_failure(
     finalize_exit: int,
     deadline_kind: str,
     expected_exit: int,
+    full: bool,
 ) -> None:
     import os
     import shutil
@@ -459,7 +470,9 @@ def test_actual_shadow_shell_preserves_registered_deadline_and_first_failure(
 
     root = Path(__file__).resolve().parents[1]
     workflow = yaml.safe_load((root / ".github/workflows/harness-pg-shadow.yml").read_text())
-    steps = workflow["jobs"]["h2-shards"]["steps"]
+    if full:
+        workflow = yaml.safe_load((root / ".github/workflows/quality.yml").read_text())
+    steps = workflow["jobs"]["pg-shards" if full else "h2-shards"]["steps"]
     assert steps[0]["name"].startswith("Register immutable")
     assert steps[1]["uses"].startswith("actions/checkout@")
     assert steps[1]["with"].get("clean", True) is True
@@ -477,7 +490,7 @@ def test_actual_shadow_shell_preserves_registered_deadline_and_first_failure(
     )
     assert registered.returncode == 0, registered.stderr
     name, stop = environment_file.read_text().strip().split("=", 1)
-    assert name == "COMMERCEOPS_H2_STOP_AT_UTC"
+    assert name == ("COMMERCEOPS_FULL_PG_STOP_AT_UTC" if full else "COMMERCEOPS_H2_STOP_AT_UTC")
     assert before + timedelta(minutes=43) <= datetime.fromisoformat(stop)
     assert datetime.fromisoformat(stop) <= datetime.now(UTC) + timedelta(minutes=43)
     # Reproduce the observed fresh-checkout removal, only in this disposable temp dir.
@@ -877,3 +890,119 @@ def test_aggregate_cli_reports_every_job_revision(
         "aggregate",
     ]
     assert all(e["source"] == "Hosted environment ImageVersion" for e in entries)
+
+
+def test_full_reuses_shadow_native_jobs_and_keeps_exact_rollback() -> None:
+    import yaml
+
+    root = Path(__file__).resolve().parents[1]
+    full = yaml.safe_load((root / ".github/workflows/quality.yml").read_text())["jobs"]
+    shadow = yaml.safe_load((root / ".github/workflows/harness-pg-shadow.yml").read_text())["jobs"]
+    for original, candidate in (("h2-plan", "quality"), ("h2-shards", "pg-shards")):
+        expected = copy.deepcopy(shadow[original])
+        expected.pop("if", None)
+        if original == "h2-shards":
+            expected["needs"] = "quality"
+        encoded = json.dumps(expected)
+        for before, after in (
+            ("h2-plan-", "full-pg-plan-"),
+            ("h2-shard-", "full-pg-shard-"),
+            ("COMMERCEOPS_H2_STOP_AT_UTC", "COMMERCEOPS_FULL_PG_STOP_AT_UTC"),
+            ("registered H2", "registered Full PG"),
+            ("H2 report", "Full PG report"),
+        ):
+            encoded = encoded.replace(before, after)
+        assert full[candidate] == json.loads(encoded)
+    rollback = subprocess.check_output(
+        ["git", "show", "226917d4dba57bdb2eef54180df97e57510e4169:.github/workflows/quality.yml"],
+        cwd=root,
+    )
+    base = subprocess.check_output(
+        ["git", "show", "48fbc7a5a5a68a1e3cc6c9df007272608951f5d0:.github/workflows/quality.yml"],
+        cwd=root,
+    )
+    assert rollback == base
+    old = yaml.safe_load(rollback)["jobs"]
+    for job in ("frontend", "n01-web", "merge-gate"):
+        assert full[job] == old[job]
+    for name in ("phase3", "pg-pair"):
+        job = full[name]
+        assert job["if"] == "always()"
+        assert {"quality", "pg-shards"} <= set(job["needs"])
+        assert "continue-on-error" not in job
+        downloads = [s["with"] for s in job["steps"] if "download-artifact@" in s.get("uses", "")]
+        assert downloads == [
+            {
+                "name": "full-pg-plan-${{ github.run_id }}-${{ github.run_attempt }}",
+                "path": ".audit/plan",
+            },
+            {
+                "pattern": "full-pg-shard-*-${{ github.run_id }}-${{ github.run_attempt }}",
+                "path": ".audit/shards",
+                "merge-multiple": True,
+            },
+        ]
+        assert "scripts.pg_ci_evidence aggregate" in job["steps"][-1]["run"]
+
+
+@pytest.mark.parametrize(
+    "job,field,result",
+    [
+        (job, field, result)
+        for job in ("phase3", "pg-pair")
+        for field, result in (
+            ("PLAN_RESULT", "failure"),
+            ("MATRIX_RESULT", "failure"),
+            ("MATRIX_RESULT", "cancelled"),
+            ("MATRIX_RESULT", "skipped"),
+            ("MATRIX_RESULT", "success"),
+        )
+    ]
+    + [("pg-pair", "AGGREGATE_RESULT", "failure")],
+)
+def test_full_aggregate_shell_uses_native_results_and_propagates_failure(
+    tmp_path: Path,
+    job: str,
+    field: str,
+    result: str,
+) -> None:
+    import os
+
+    import yaml
+
+    root = Path(__file__).resolve().parents[1]
+    jobs = yaml.safe_load((root / ".github/workflows/quality.yml").read_text())["jobs"]
+    step = jobs[job]["steps"][-1]
+    assert step["env"]["MATRIX_RESULT"] == "${{ needs.pg-shards.result }}"
+    assert step["env"]["PLAN_RESULT"] == "${{ needs.quality.result }}"
+    if job == "pg-pair":
+        assert step["env"]["AGGREGATE_RESULT"] == "${{ needs.phase3.result }}"
+    (tmp_path / ".audit").mkdir()
+    binary = tmp_path / "uv"
+    binary.write_text(
+        "#!/usr/bin/env python3\nimport os,sys\n"
+        "if sys.argv[-1]=='-': os.execv(sys.executable,[sys.executable,'-'])\n"
+        "sys.exit(7)\n"
+    )
+    binary.chmod(0o700)
+    env = {
+        **os.environ,
+        "PATH": str(tmp_path) + os.pathsep + os.environ["PATH"],
+        "PLAN_RESULT": "success",
+        "MATRIX_RESULT": "success",
+        "AGGREGATE_RESULT": "success",
+    }
+    env[field] = result
+    native = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", step["run"]],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    output = tmp_path / ".audit/jobs.json"
+    if result == "success":
+        assert native.returncode == 7
+        assert json.loads(output.read_text()) == {str(i): "success" for i in range(6)}
+    else:
+        assert native.returncode != 0 and not output.exists()

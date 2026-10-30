@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAPSHOT_SHA256 = "34487c8ad708b01d8ed1b9ab1e6f4d97229652f213b639ac146218c3672edcb8"
+SNAPSHOT_SHA256 = "ddabb809ca3fd4106071012406924de973a5ac025611105365d4a7bd6529eed7"
 ARCHIVE_SHA256 = "121290e12d2e4349e3c90f685058c4c359bcb1251872d87d0de280f7bcde2837"
 BASE = "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265"
 
@@ -64,7 +64,7 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
 - [Old ARM64 CI stopped]({snapshot["arm64_stop_ref"]}); preserve its Worktree and WIP.
 - Next Gate: see [handoff](docs/harness/HANDOFF.md). Fast/Impacted give local feedback;
   existing Full required gates remain authoritative. Published a5c80203 passed its exact
-  Hosted Full/Shadow pair; this later metadata-only handoff has no new Hosted run.
+  Hosted Full/Shadow pair; this local Harness candidate has no new Hosted run.
 
 Navigation: [H1 usage](docs/harness/README.md), [TaskSpec
 example](docs/harness/task.example.json), [handoff](docs/harness/HANDOFF.md),

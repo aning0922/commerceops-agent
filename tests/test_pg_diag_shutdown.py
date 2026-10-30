@@ -19,8 +19,17 @@ from scripts.pg_diag_shutdown import container_stop, finish, remaining
 pytestmark = pytest.mark.offline
 
 
-def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
-    data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
+def test_rollback_workflow_preserves_gate_and_single_diagnostic_step() -> None:
+    data = yaml.safe_load(
+        subprocess.check_output(
+            [
+                "git",
+                "show",
+                "226917d4dba57bdb2eef54180df97e57510e4169:.github/workflows/quality.yml",
+            ],
+            cwd=pg_diagnostic.ROOT,
+        )
+    )
     job = data["jobs"]["quality"]
     assert job["timeout-minutes"] == 45
     assert data["jobs"]["phase3"]["timeout-minutes"] == 50
@@ -63,11 +72,20 @@ def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
 
 
 @pytest.mark.parametrize("job_name,minutes", [("quality", 43), ("phase3", 48)])
-def test_workflow_registers_deadline_before_install_and_valid_python(
+def test_rollback_workflow_registers_deadline_before_install_and_valid_python(
     job_name: str,
     minutes: int,
 ) -> None:
-    data = yaml.safe_load((pg_diagnostic.ROOT / ".github/workflows/quality.yml").read_text())
+    data = yaml.safe_load(
+        subprocess.check_output(
+            [
+                "git",
+                "show",
+                "226917d4dba57bdb2eef54180df97e57510e4169:.github/workflows/quality.yml",
+            ],
+            cwd=pg_diagnostic.ROOT,
+        )
+    )
     steps = data["jobs"][job_name]["steps"]
     deadline_index = next(
         i for i, s in enumerate(steps) if s.get("name") == "Register absolute diagnostic deadline"
