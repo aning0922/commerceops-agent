@@ -329,11 +329,18 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
         assert job["timeout-minutes"] <= 45
     native = next(s for s in jobs["h2-shards"]["steps"] if s.get("name", "").startswith("Native"))
     assert native["run"].index("native_exit=$?") < native["run"].index("pg_ci_evidence finalize")
-    # Existing required workflow remains byte-for-byte at the accepted product base.
+    # H3 adds a final gate and N01 source output; all five original consumers stay intact.
     old = subprocess.check_output(
         ["git", "show", "6d3a8f7:.github/workflows/quality.yml"], cwd=root
     )
-    assert old == (root / ".github/workflows/quality.yml").read_bytes()
+    original = yaml.safe_load(old)["jobs"]
+    current = yaml.safe_load((root / ".github/workflows/quality.yml").read_text())["jobs"]
+    for name in original:
+        candidate = dict(current[name])
+        if name == "n01-web":
+            del candidate["outputs"]
+            candidate["steps"] = candidate["steps"][:-1]
+        assert original[name] == candidate
 
 
 @pytest.mark.parametrize(

@@ -29,7 +29,14 @@ def test_workflow_preserves_gate_and_single_diagnostic_step() -> None:
     triggers = data.get("on", data.get(True))
     assert triggers["pull_request"]["types"] == ["opened", "synchronize", "reopened", "edited"]
     steps = job["steps"]
-    assert set(data["jobs"]) == {"quality", "phase3", "pg-pair", "frontend", "n01-web"}
+    assert set(data["jobs"]) == {
+        "quality",
+        "phase3",
+        "pg-pair",
+        "frontend",
+        "n01-web",
+        "merge-gate",
+    }
     foundation = [
         (name, step)
         for name, value in data["jobs"].items()

@@ -59,6 +59,9 @@ jobs:
           if-no-files-found: error
           retention-days: 1
   n01-web:
+    outputs:
+      source_sha: ${{ steps.n01_source.outputs.source_sha }}
+      source_tree: ${{ steps.n01_source.outputs.source_tree }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
@@ -414,6 +417,13 @@ jobs:
             frontend/evidence/p4-c09/n01/resource-stop.safe.json
           if-no-files-found: error
           retention-days: 1
+      - name: Bind successful complete foundation and N01 gates to current checkout
+        id: n01_source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          printf 'source_sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          printf 'source_tree=%s\n' "$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
   phase3:
     runs-on: ubuntu-24.04
     timeout-minutes: 50
@@ -799,3 +809,18 @@ jobs:
             ${{ steps.live.outputs.private_directory }}/result.json
           if-no-files-found: error
           retention-days: 1
+  merge-gate:
+    # Additive candidate only: existing Required Check names/protection stay authoritative.
+    if: ${{ always() }}
+    needs: [quality, phase3, pg-pair, frontend, n01-web]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Require all actual current-run gates and exact foundation/N01 source
+        env:
+          MERGE_GATE_NEEDS: ${{ toJSON(needs) }}
+        run: python3 -m scripts.merge_gate
