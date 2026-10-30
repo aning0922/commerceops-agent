@@ -3,7 +3,7 @@
   "base_sha": "befa8e966ce7047cefaabc49b431f2ab2fd3368c",
   "status": "LOCAL_REPAIR_REVIEWED_ACCEPT",
   "independent_review": "existing Sol Reviewer ACCEPT/no BLOCKER/no source correction",
-  "workflow_scope": "only relocate two cache path assignments into existing preparation steps; original gates/deadlines/permissions/live steps/cache paths and keys unchanged",
+  "workflow_scope": "Move two path assignments into preparation steps. All gates and caching settings stay unchanged.",
   "semantic_before_after": {
     "base_sha": "befa8e966ce7047cefaabc49b431f2ab2fd3368c",
     "tool": "actionlint1.7.12 official checksum-pinned native binary",

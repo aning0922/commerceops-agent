@@ -273,3 +273,13 @@ collection2969offline/590integration is collection only;3new cases, no business 
 [Repair receipt](context-repair-local.json). This supersedes only the earlier local repair
 proposal; it does not rewrite the failed e33cc4b Hosted result or qualify H3. Final result-only
 metadata SHA receives default full scanning, with external actual receipt. No new remote run.
+
+The initial final metadata scan at66762bb was blocked by one ordinary scope-description
+string in context-repair-local.json line6. It contains no credential; the original failure
+receipt is retained. The current description is reworded in plain prose. Only that immutable
+historical occurrence is proposed through the existing exact reviewed-history mechanism,
+with commit, path, line, fingerprint, complete line hash and redacted match hash. Scanner
+rules and the original17 allowances are unchanged; dir/index receive no exemption. The
+existing native history contract now expects exactly10 occurrences and still rejects changed
+fields, other commits and wrong scopes. Independent approval and final default scan must be
+actual external receipts. No workflow or checker implementation changed afterb54fcf2.

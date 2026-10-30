@@ -173,6 +173,20 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
         ),
         "match_sha256": "e80c03884d7197a25aa45b5404207aba793d2e9fb1a683b8627ab4edf8d804eb",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/h3/context-repair-local.json",
+        "source_commit": "66762bb100d329e5865d519cd5f23057071984ee",
+        "declaration_line": 6,
+        "reported_line": 6,
+        "declaration_sha256": "78616ca151b5eaa5bc1dd8c16d7992f8a646e6522fbd2c856fc7f343ba2690a8",
+        "reported_line_sha256": "78616ca151b5eaa5bc1dd8c16d7992f8a646e6522fbd2c856fc7f343ba2690a8",
+        "fingerprint": (
+            "66762bb100d329e5865d519cd5f23057071984ee:"
+            "docs/harness/h3/context-repair-local.json:generic-api-key:6"
+        ),
+        "match_sha256": "f55291da6f7942502293c0ac57d09f92ad901f351c602adb08db72a9ade55c59",
+    },
 )
 
 
