@@ -157,3 +157,11 @@ No Hosted net-benefit claim: local difference.239s and no transport/compression 
 shared build job or Next/uv/PW cache without evidence. H3 remains IN_PROGRESS, H4-H5 NOT_STARTED;
 H2 acceptance is exact oldpublished pair only. Independent H3-B review/final scanner receipts
 are external and must be actual, not inferred. Remote grant remains SPENT; no new run authorized.
+
+H3-B closeout: existing independent Sol Reviewer ACCEPTED codeed17399 and metadatad735fc3,
+no BLOCKER/no source fix required. Cache107MB versus local.239s difference is FOLLOW_UP,
+not Hosted net benefit; no extra local matrix is required. Next H3 boundary requires actual
+separately authorized comparable Hosted cold/warm/transport/post-save evidence before claiming
+benefit or changing protected gates. No new run is currently authorized; retain local reviewed
+candidate and stop at this remote boundary. Final full dir/index/history scan and clean-tree
+receipt bind the final metadata SHA externally; H3 overall remains IN_PROGRESS.

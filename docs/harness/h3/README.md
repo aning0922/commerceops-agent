@@ -1,6 +1,6 @@
 # H3 — Web, caching and final Full gate
 
-Status: **IN_PROGRESS / H3-A LOCALLY_ACCEPTED / H3-B LOCAL_CANDIDATE**. H2 acceptance remains scoped to published
+Status: **IN_PROGRESS / H3-A LOCALLY_ACCEPTED / H3-B LOCALLY_REVIEWED**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
@@ -138,4 +138,8 @@ and original-consumer-equivalence7pass/0.29s, Ruff/mypy2files/diff pass. First R
 long test literals, and mypy rejected direct access to the check module's imported subprocess;
 both were fixed without runtime workflow changes. Six necessary new offline cases cover
 cache identity/origin/integrity and mandatory surviving preparation. No business test deleted.
-Independent review/final SHA scanner follow separately; no pre-signed Hosted or H3 acceptance.
+Existing independent Sol Reviewer ACCEPTS codeed17399 and metadatad735fc3, no BLOCKER or
+necessary source correction. The approximately107MB task-owned cache and local0.239s delta
+remain a nonblocking FOLLOW_UP: use actual authorized Hosted transport/post-save measurements
+to decide retention; do not assume a net benefit. Final full scanner binds the later metadata
+SHA externally; H3 overall/Hosted acceptance is not implied.
