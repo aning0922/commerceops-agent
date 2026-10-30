@@ -244,3 +244,20 @@ restore and cache net benefit NOT_MEASURED. No extra coordination or automatic r
 H3stillIN_PROGRESS_NOT_ACCEPTED: three comparableFull and warm evidence incomplete. Old e33
 failure retained. This local result-only handoff is unpushed; final scan and independent review
 are actual external receipts. No furtherpush/CI/PRedit/main/protection/H4/M3 authority.
+
+## Same fixed source warm rerun closeout — 2026-10-30
+
+No push; Full41033883585 and Shadow41033883537 each rerun once toattempt2, bothSUCCESS/all6
+andall8. Published226917d4dba57bdb2eef54180df97e57510e4169 / merge848cf380bc7199245fd7ec65df5b73ca8ce4ef0b /
+treebcc213a14162feb4c52103628c14b3aff23fa539 unchanged. Both590PG/1770passedphases/G1three/G2six/
+native0/cleanup0, Shadow projects fresh/distinct/resource0;2969offline/Web24/N01six/security/
+actualmergegate pass. [Receipt](h3/warm-hosted-receipt.json). Both Web restoreHIT110877300bytes,
+skip save. Native restore1s/3s. N01 install+cache7.464365to7.6622s effectivelyflat at this
+resolution; frontend npm self-report8to5s offset by3srestore. No material net-gain established.
+Fullwall44m03s unchanged, jobmins103.45to112.6667; not causal cache blame, billing or stablep95.
+Shadow17m51s/89.95jobmins. Attempt2 actualstart11:09:35Full/11:09:39Shadow; exclude original
+created_at09:30:08 and inter-attempt idle. Old attempt1 and parser failure retained.
+H3stillNOT_ACCEPTED: only2corrected successfulFullcohorts, third comparable evidence and other
+acceptance incomplete, Full20to25min target unmet. GrantSPENT, no extraCI/push/PRedit/main/
+protection/H4/M3 or implementation expansion. No new cache infrastructure. Result-only local
+handoff receives actual independent review and full scanner receipt externally.

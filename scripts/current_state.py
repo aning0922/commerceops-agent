@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAPSHOT_SHA256 = "e2b426eaa7a7b2579b3194b387fef8a13ceeba2caf02116915740ecedefcd48c"
+SNAPSHOT_SHA256 = "34487c8ad708b01d8ed1b9ab1e6f4d97229652f213b639ac146218c3672edcb8"
 ARCHIVE_SHA256 = "121290e12d2e4349e3c90f685058c4c359bcb1251872d87d0de280f7bcde2837"
 BASE = "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265"
 

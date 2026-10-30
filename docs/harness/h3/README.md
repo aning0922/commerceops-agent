@@ -1,9 +1,58 @@
 # H3 — Web, caching and final Full gate
 
-Status: **ONE_CORRECTED_HOSTED_COHORT_PASSED / H3_NOT_ACCEPTED**. H2 acceptance remains scoped to published
+Status: **TWO_CORRECTED_COHORTS_PASSED / WARM_HITS_CONFIRMED / H3_NOT_ACCEPTED**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
+
+## Warm validation, same source attempt2 — 2026-10-30
+
+No push. Exactly one complete rerun each of
+[Full41033883585 attempt2](https://github.com/aning0922/commerceops-agent/actions/runs/41033883585/attempts/2)
+and [Shadow41033883537 attempt2](https://github.com/aning0922/commerceops-agent/actions/runs/41033883537/attempts/2),
+both SUCCESS. Published226917d4dba57bdb2eef54180df97e57510e4169 and actual merge848cf380bc7199245fd7ec65df5b73ca8ce4ef0b,
+treebcc213a14162feb4c52103628c14b3aff23fa539 unchanged. [Receipt](warm-hosted-receipt.json).
+
+Full all6jobs and Shadow all8 pass. Both PG sets contain590unique passed calls and1770passed
+phases with original strict source, tool, collection, G1three, G2six, native and cleanup gates.
+Shadow six fresh projects are distinct from attempt1 and finish with resource counts0. Full
+2969offline/334.74s, Web24/N01six and actual merge-gate pass. Each PG pipeline has14real
+PythonTimer dumps. Prior failed source and successful attempt1 evidence remain retained.
+
+| Observed scope | Cold attempt1 | Warm attempt2 |
+|---|---:|---:|
+| Complete required Full wall |44m03s|44m03s|
+| Full cumulative job minutes |103.45|112.6667|
+| Shadow PG wall |17m32s|17m51s|
+| Shadow cumulative job minutes |82.4167|89.95|
+| N01 installation markers, seconds |4.464365|6.662200|
+| N01 installation plus cache steps, seconds |7.464365|7.662200|
+| N01 complete preparation step, seconds |313|467|
+| Frontend complete preparation step, seconds |296|249|
+
+Both jobs actually restore the same110877300byte entry and skip saving because the primary
+entry hit. Restore steps report1s N01 and3s frontend; warm post steps report0s, all with
+whole-second API timestamps. Cold N01 saved with3s post; cold frontend's reservation warning
+is still retained. No manual warm-up or key modification was performed. The before-run
+metadata already showed the exact entry in the same PR merge ref.
+
+N01 measured installation plus cache overhead is essentially flat, observed difference
++0.197835s below cache-step timestamp resolution. Frontend npm self-report changes8s to5s,
+with3s restore; its installation is not separately timed by explicit markers. These data do
+not demonstrate material positive net cache saving. Full wall is unchanged, observed job
+sum increases8.91%; host and non-cache workload variation prevent causal attribution. For
+example offline time changes226.17s to334.74s. No stable p95, billing or bandwidth-cost claim.
+
+Reruns retain original created_at09:30:08Z. Attempt2 Full actually starts11:09:35Z and finishes
+11:53:38Z; Shadow starts11:09:39Z and finishes11:27:30Z. Durations above use the respective
+attempt run_started_at, excluding the idle time between attempts.
+
+Two corrected successful Full cohorts and cold/warm operation are now observed. Required
+three comparable Full evidence and complete H3 acceptance remain incomplete; the20to25min
+Full target is not met. Do not add a run just to fill a count under this SPENT grant. No
+new cache framework or coordination facility is warranted. No code/cache-policy change is
+made in this validation. No push, main, protection change or H4. This result-only local
+metadata is not a new Hosted-tested source. Final review and scanner bind actual receipts.
 
 ## Corrected Hosted cohort — 2026-10-30
 
