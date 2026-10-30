@@ -205,3 +205,20 @@ and uses a mature semantic checker; NOT_IMPLEMENTED. H3NOT_ACCEPTED, H4-H5NOT_ST
 No retry/push/PRedit/main/protection. Prior H2 exact acceptance/historical failures retained;
 this later result-only handoff is unpushed and is not a new Hosted source. Final scan/review
 are recorded externally against its actual SHA; do not pre-sign them.
+
+## Local cache-context repair reviewed — 2026-10-30
+
+Explicit local-only authorization; basebefa8e9/codeb54fcf2129b1c1b43568cd8020152748c45e2c10,
+same Root/WT/branch. Exactly2illegal job.env cache assignments move to existing prep shells,
+native RUNNER_TEMP guarded/nonempty, actual path-with-spaces matches cache restore/save.
+Original Gate/live/deadline/permission/cache identity and key unchanged. Pinned official
+actionlint1.7.12 in ignored local.tools, no global/auto install, stdlib hash-checked wrapper
+now invoked by Fast/Impacted on workflow/checker changes; missing/wrong binary fails.
+Actual olde33 source native1/exact2context errors, current bothworkflow native0;247focusedpass/
+14.44s, final affected2pass/.24s, Ruff/mypy5/format/docs/diff pass; frozenFastb54LOCAL_PASS/
+27.746037s with semantic0/.045684s/full_gateNOT_RUN/full_requiredtrue/merge_eligiblefalse.
+Collection2969offline/590integration only,3new necessary cases/no business deletion.
+Existing independent Sol Reviewer ACCEPT/no BLOCKER/no source fix. [Receipt](h3/context-repair-local.json).
+Original Full41028393476FAIL/0jobs and Shadow41028403294SUCCESS retained; repairHostedNOT_RUN,
+H3NOT_ACCEPTED/H4-H5NOT_STARTED. No push/newCI/protection/main or business resources.
+Final result-only metadata scanner/review bind its actual SHA externally, not pre-signed.
