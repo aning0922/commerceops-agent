@@ -8,7 +8,7 @@ ENV PATH="/app/.venv/bin:$PATH" LANGSMITH_TRACING=false
 CMD ["python", "-m", "commerceops.entrypoints.database", "revision"]
 
 FROM runtime AS test
-RUN uv sync --frozen --no-editable
+RUN uv sync --frozen --no-editable --compile-bytecode
 COPY tests ./tests
 COPY scripts ./scripts
 # 验收runner按登记的非root UID读取冻结源码；COPY保留的0600不能阻断来源校验。
