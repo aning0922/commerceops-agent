@@ -1,9 +1,46 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_BYTECODE_CANDIDATE_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED**.
-Local core7b27a43 reduces measured repeated startup cost with one test-stage build option.
-Current candidate Hosted Full/Shadow NOT_RUN; last remote9a3cea6 Full remains failed at its
-global cutoff. All Gates retained; H3-H5 not started. UI NOT_APPLICABLE.
+Status: **H2_FUNCTIONAL_AND_EVIDENCE_GATE_ACCEPTED_FOR_PUBLISHED_CANDIDATE**.
+
+## Seventh Hosted pair — 2026-10-30
+
+Published head `a5c80203df9de89e0d22a87d565533b38b23899a`, actual merge
+`d6d88c2468d4b1e66823153dface05a6cbba8294`, tree
+`8910865f0bfc577236bdbbe57a7adedd7f55ca36`.
+[Full41010032206](https://github.com/aning0922/commerceops-agent/actions/runs/41010032206)
+and [Shadow41010032199](https://github.com/aning0922/commerceops-agent/actions/runs/41010032199)
+both SUCCESS/attempt1. [Exact receipt](seventh-hosted-receipt.json).
+
+Full all5 jobs pass: quality413 + phase3 177 =590 unique PG calls/1770 passed phases,
+original pair verification, G1three/G2six, native0/cleanup0; offline2925, Web read7/write10/
+items7 and N01six, security and resource-stop evidence pass. Shadow all8 jobs pass:
+590 unique PG calls/1770 phases, six native parents0, all business groups0, G1three/G2six,
+cleanup0 and final container/network/volume0. Expected G1 unavailable negative exits1;
+not every internal diagnostic command exits0. Both pipelines have14 real PythonTimer dumps.
+Source/tree/tool/lock/image/full-set bindings match; prior139 and cutoff groups now pass.
+Historical failures and unknown C-level cause remain retained below.
+
+| Observed scope | Wall | Sum of job minutes |
+|---|---:|---:|
+| Original required Full, all5 jobs |40m34s|107.95|
+| Original PG subgraph, quality + phase3 + pg-pair |40m30s|79.7333|
+| Shadow PG pipeline, plan + six shards + aggregate |17m41s|86.5333|
+
+For this one same-merge/same-test-set PG sample, wait decreases56.34% and cumulative job
+minutes increase8.53%. These are observed durations, not billing, p95 or stable capacity.
+Required Full remains40m34s and is not replaced by Shadow. All8 observed Hosted revisions
+are20261026.354.1 with fixed ImageVersion provenance; this is not mixed-revision execution
+proof or complete-host equivalence. Across17 matching completed command labels, prior cohort
+start→collection219.893579s versus current80.572234s; uncontrolled hosts and different phase
+work prevent assigning the whole Full delta to bytecode compilation.
+
+Existing independent Sol Reviewer ACCEPTS exact published candidate H2 functional/evidence
+Gate, no BLOCKER. Single-cohort/performance limitations are nonblocking FOLLOW_UP; no extra
+runs required. UI NOT_APPLICABLE. Single-pair authorization SPENT, no retry/PR edit/merge/
+protection change; H3-H5 NOT_STARTED, H3 explicitly outside grant. This later local metadata
+handoff is unpushed and has no new Hosted-source claim.
+
+Historical local and failed-cohort records follow unchanged.
 
 ## Local phase3 startup optimization — 2026-10-30
 

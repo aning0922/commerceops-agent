@@ -106,3 +106,18 @@ source/image/native/permissions/Full/security Gates unchanged, no framework/shar
 Current Full/Shadow/whole suites NOT_RUN; H2NOT_ACCEPTED, H3-H5NOT_STARTED. Local-only
 continuation, no push/newHosted/merge/protection. Final metadata handoff unpushed; full
 scanner will bind exact final SHA in external receipt. Do not extrapolate local medians.
+
+## H2 accepted Hosted handoff — 2026-10-30
+
+Published a5c80203df9de89e0d22a87d565533b38b23899a / merge d6d88c2468d4b1e66823153dface05a6cbba8294 /
+tree8910865f0bfc577236bdbbe57a7adedd7f55ca36. Full41010032206 and Shadow41010032199 SUCCESS,
+attempt1/exactly2 runs; [receipt](h2/seventh-hosted-receipt.json), [results](h2/RESULTS.md).
+Both590PG/1770passed phases/G1three/G2six/native0/cleanup0; Full2925offline/Web24/N01six/security
+pass, Shadow six owners cleaned to resource0. Prior139 and cutoff groups pass; historical
+failures/unknowns retained. Original required Full40m34s/107.95observed job-minutes unchanged.
+Same-scope PG original40m30s/79.7333 versus Shadow17m41s/86.5333: wait−56.34%, job-minutes+8.53%,
+one observed cohort, not billing/stable capacity. All revisions same20261026.354.1, no mixed-host
+proof. Existing independent Sol Reviewer ACCEPTS exact published H2 functional/evidence Gate,
+no BLOCKER; performance limitations nonblocking, no extra runs needed. UI N/A.
+Grant SPENT; local metadata closeout only, unpushed. No retry/PR edit/main/protection/H3;
+H3-H5 NOT_STARTED. Final full scanner binds final metadata SHA externally, not a new Hosted run.

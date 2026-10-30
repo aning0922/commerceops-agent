@@ -1,10 +1,11 @@
 # H2 PG Full local candidate
 
-Status: **LOCAL_BYTECODE_CANDIDATE_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED**.
-Core7b27a43 changes one existing test-stage uv sync option; same-source startup A/B and
-actual candidate original-part3 PG pass locally. Current Full/Shadow NOT_RUN. Last remote9a3cea6
-ShadowPASS, original FullFAIL at global cutoff; no retry/H3. See [results](RESULTS.md),
-[local optimization](bytecode-local-optimization.json) and [sixth receipt](sixth-hosted-receipt.json).
+Status: **H2 ACCEPTED for published a5c80203 / merge d6d88c24**.
+Full41010032206 and Shadow41010032199 both SUCCESS/attempt1 with590PG, G1/G2,
+security/native/cleanup Gates. Independent Sol review ACCEPT/no BLOCKER. Original required
+Full remains unchanged; H3-H5 NOT_STARTED and H3 outside current grant. Single-pair grant
+SPENT, no additional remote operations. See [results](RESULTS.md) and
+[seventh receipt](seventh-hosted-receipt.json). Prior failures remain preserved.
 This stage reduces the existing PG critical path by assigning existing bounded execution
 commands to four or six isolated shards. It extends `scripts.pg_ci_evidence` and
 `scripts.pg_diagnostic`; it adds no scheduler, DB, service, fixture shortcut or model call.
