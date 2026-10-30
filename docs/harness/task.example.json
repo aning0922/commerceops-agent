@@ -1,0 +1,52 @@
+{
+  "schema_version": "harness-task-v3.1",
+  "task_id": "h1-example-draft",
+  "issue_ref": "GH-51",
+  "spec_sha256": "8bacfb1d59256612515c32323c22b17602f81bab448a8c27dea850d7bf71b1ce",
+  "base_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+  "summary": "Illustrative H1 local-only task, not authorization",
+  "state": "DRAFT",
+  "risk": "high",
+  "owner": {
+    "owner_id": "h1-builder",
+    "worktree": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent",
+    "branch": "codex/harness-v3"
+  },
+  "allowed_files": [
+    "AGENTS.md",
+    "AGENTS.history-20261028.md",
+    "CURRENT_STATE.md",
+    "docs/harness/**",
+    "scripts/current_state.py",
+    "scripts/harness_contract.py",
+    "scripts/verify.py",
+    "tests/test_harness_contract.py",
+    "tests/test_harness_verify.py",
+    ".codex/config.toml"
+  ],
+  "forbidden_files": [
+    "backend/**",
+    "frontend/**",
+    ".github/**",
+    ".env",
+    "uv.lock",
+    "pyproject.toml"
+  ],
+  "model_policy": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "astra_approval_ref": null,
+    "allow_api_key_billing": false
+  },
+  "bounds": {
+    "max_attempts": 2,
+    "max_turns_per_attempt": 6,
+    "max_wall_minutes": 45
+  },
+  "required_checks": [
+    "fast",
+    "impacted",
+    "full"
+  ],
+  "approval": null
+}

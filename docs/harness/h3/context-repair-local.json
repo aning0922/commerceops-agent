@@ -1,0 +1,86 @@
+{
+  "code_sha": "b54fcf2129b1c1b43568cd8020152748c45e2c10",
+  "base_sha": "befa8e966ce7047cefaabc49b431f2ab2fd3368c",
+  "status": "LOCAL_REPAIR_REVIEWED_ACCEPT",
+  "independent_review": "existing Sol Reviewer ACCEPT/no BLOCKER/no source correction",
+  "workflow_scope": "Move two path assignments into preparation steps. All gates and caching settings stay unchanged.",
+  "semantic_before_after": {
+    "base_sha": "befa8e966ce7047cefaabc49b431f2ab2fd3368c",
+    "tool": "actionlint1.7.12 official checksum-pinned native binary",
+    "negative_source": "e33cc4b04bac1d806aa390cfb7c515c126067be3:.github/workflows/quality.yml",
+    "negative_native_exit": 1,
+    "negative_errors": [
+      {
+        "line": 69,
+        "kind": "expression",
+        "message": "context \"runner\" is not allowed here. available contexts are \"github\", \"inputs\", \"matrix\", \"needs\", \"secrets\", \"strategy\", \"vars\". see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability for more details"
+      },
+      {
+        "line": 531,
+        "kind": "expression",
+        "message": "context \"runner\" is not allowed here. available contexts are \"github\", \"inputs\", \"matrix\", \"needs\", \"secrets\", \"strategy\", \"vars\". see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability for more details"
+      }
+    ],
+    "negative_wall_seconds": 0.020030833082273602,
+    "current_both_workflows_native_exit": 0,
+    "current_both_workflows_wall_seconds": 0.166035832837224,
+    "scope": "actual workflow syntax/expression semantics, not Hosted execution; shellcheck/pyflakes integrations explicitly off; existing lint/type/Bash gates remain",
+    "extra_ci_or_business_resources": "none"
+  },
+  "tool_provenance": {
+    "version": "1.7.12",
+    "source": "https://github.com/rhysd/actionlint/releases/download/v1.7.12",
+    "pins": {
+      "darwin_arm64": {
+        "archive_sha256": "aba9ced2dee8d27fecca3dc7feb1a7f9a52caefa1eb46f3271ea66b6e0e6953f",
+        "binary_sha256": "8db11704dc296f096216db4db65d86cd7f0ebfdf4c38453a1da276b137b88388"
+      },
+      "linux_amd64": {
+        "archive_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+        "binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+      }
+    }
+  },
+  "frozen_fast": {
+    "head_sha": "b54fcf2129b1c1b43568cd8020152748c45e2c10",
+    "status": "LOCAL_PASS",
+    "exit_code": 0,
+    "wall_seconds": 27.746037,
+    "full_gate": "NOT_RUN",
+    "full_required": true,
+    "merge_eligible": false
+  },
+  "semantic_fast_check": {
+    "command": [
+      "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python3",
+      "-m",
+      "scripts.check_workflows"
+    ],
+    "exit_code": 0,
+    "name": "GitHub workflow semantics (actionlint)",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reason": null,
+    "status": "PASSED",
+    "wall_seconds": 0.045684
+  },
+  "focused_checks": "247pass/14.44s; final affected2pass/.24s; Ruff/mypy5/format/docs125/diff0",
+  "collection": {
+    "sha": "b54fcf2129b1c1b43568cd8020152748c45e2c10",
+    "exit_code": 0,
+    "wall_seconds": 4.280035542091355,
+    "unique_offline_nodes": 2969,
+    "summary": "2969/3559 tests collected (590 deselected) in 3.36s",
+    "scope": "collection only; no full execution/PG"
+  },
+  "original_hosted_evidence": {
+    "failed_published_head": "e33cc4b04bac1d806aa390cfb7c515c126067be3",
+    "Full": 41028393476,
+    "Shadow": 41028403294,
+    "preserved": true
+  },
+  "repair_Hosted": "NOT_RUN; prior Shadow not transferred to repair",
+  "final_default_scan": "performed after final metadata freeze; result bound externally, not prefilled",
+  "h3": "NOT_ACCEPTED pending actual Hosted gates",
+  "h4_h5": "NOT_STARTED",
+  "authorization": "local repair only; no push/newCI/protection/main/H4/paidAPI/business resources"
+}

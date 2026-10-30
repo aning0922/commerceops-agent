@@ -1,0 +1,132 @@
+{
+  "config": {
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "medium",
+    "forced_login_method": "chatgpt",
+    "approval_policy": "never",
+    "sandbox_mode": "workspace-write",
+    "sandbox_workspace_write": {
+      "writable_roots": [],
+      "network_access": false,
+      "exclude_tmpdir_env_var": false,
+      "exclude_slash_tmp": false
+    }
+  },
+  "config_error": null,
+  "config_result_keys": [
+    "config",
+    "origins",
+    "layers"
+  ],
+  "origins": {
+    "model": {
+      "name": {
+        "type": "project",
+        "dotCodexFolder": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.codex"
+      },
+      "version": "sha256:a7a646a156505cc04463c989da9f02a1470a5998035d98da1b005264ead4a485"
+    },
+    "forced_login_method": {
+      "name": {
+        "type": "project",
+        "dotCodexFolder": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.codex"
+      },
+      "version": "sha256:a7a646a156505cc04463c989da9f02a1470a5998035d98da1b005264ead4a485"
+    },
+    "model_reasoning_effort": {
+      "name": {
+        "type": "project",
+        "dotCodexFolder": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.codex"
+      },
+      "version": "sha256:a7a646a156505cc04463c989da9f02a1470a5998035d98da1b005264ead4a485"
+    },
+    "approval_policy": {
+      "name": {
+        "type": "project",
+        "dotCodexFolder": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.codex"
+      },
+      "version": "sha256:a7a646a156505cc04463c989da9f02a1470a5998035d98da1b005264ead4a485"
+    },
+    "sandbox_mode": {
+      "name": {
+        "type": "project",
+        "dotCodexFolder": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.codex"
+      },
+      "version": "sha256:a7a646a156505cc04463c989da9f02a1470a5998035d98da1b005264ead4a485"
+    }
+  },
+  "layers": [
+    {
+      "source": null,
+      "disabledReason": null,
+      "selected_config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "forced_login_method": "chatgpt",
+        "approval_policy": "never",
+        "sandbox_mode": "workspace-write",
+        "sandbox_workspace_write": {
+          "network_access": false
+        }
+      }
+    },
+    {
+      "source": null,
+      "disabledReason": null,
+      "selected_config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "approval_policy": "never",
+        "sandbox_mode": "danger-full-access"
+      }
+    },
+    {
+      "source": null,
+      "disabledReason": null,
+      "selected_config": {}
+    }
+  ],
+  "sol_catalog": [
+    {
+      "id": "gpt-6.1-sol",
+      "default": true,
+      "efforts": [
+        {
+          "reasoningEffort": "low",
+          "description": "Fast responses with lighter reasoning"
+        },
+        {
+          "reasoningEffort": "medium",
+          "description": "Balances speed and reasoning depth for everyday tasks"
+        },
+        {
+          "reasoningEffort": "high",
+          "description": "Greater reasoning depth for complex problems"
+        },
+        {
+          "reasoningEffort": "xhigh",
+          "description": "Extra high reasoning depth for complex problems"
+        },
+        {
+          "reasoningEffort": "max",
+          "description": "Maximum reasoning depth for the hardest problems"
+        },
+        {
+          "reasoningEffort": "ultra",
+          "description": "Maximum reasoning with automatic task delegation"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "chatgpt",
+    "planType": "pro"
+  },
+  "process": {
+    "pid": 85002,
+    "exit": 0,
+    "reaped": true,
+    "wall_seconds": 1.3385224579833448,
+    "thread_or_turn_requests": 0
+  }
+}

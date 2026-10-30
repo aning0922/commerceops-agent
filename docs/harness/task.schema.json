@@ -1,0 +1,263 @@
+{
+  "$defs": {
+    "Bounds": {
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": {
+          "default": 2,
+          "maximum": 2,
+          "minimum": 1,
+          "title": "Max Attempts",
+          "type": "integer"
+        },
+        "max_turns_per_attempt": {
+          "default": 6,
+          "maximum": 6,
+          "minimum": 1,
+          "title": "Max Turns Per Attempt",
+          "type": "integer"
+        },
+        "max_wall_minutes": {
+          "default": 45,
+          "maximum": 45,
+          "minimum": 1,
+          "title": "Max Wall Minutes",
+          "type": "integer"
+        }
+      },
+      "title": "Bounds",
+      "type": "object"
+    },
+    "LocalApproval": {
+      "additionalProperties": false,
+      "description": "A reference to trusted approval; not a cryptographic authorization receipt.",
+      "properties": {
+        "approval_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$",
+          "title": "Approval Id",
+          "type": "string"
+        },
+        "approval_ref": {
+          "maxLength": 500,
+          "minLength": 1,
+          "pattern": "^\\S(?:[^\\r\\n\\x00]*\\S)?$",
+          "title": "Approval Ref",
+          "type": "string"
+        },
+        "scope": {
+          "const": "local_only",
+          "default": "local_only",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approval_id",
+        "approval_ref"
+      ],
+      "title": "LocalApproval",
+      "type": "object"
+    },
+    "ModelPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "default": "gpt-6.1-sol",
+          "enum": [
+            "gpt-6.1-sol",
+            "gpt-6-astra"
+          ],
+          "title": "Model",
+          "type": "string"
+        },
+        "effort": {
+          "default": "medium",
+          "enum": [
+            "medium",
+            "high"
+          ],
+          "title": "Effort",
+          "type": "string"
+        },
+        "astra_approval_ref": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "pattern": "^\\S(?:[^\\r\\n\\x00]*\\S)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Astra Approval Ref"
+        },
+        "allow_api_key_billing": {
+          "const": false,
+          "default": false,
+          "title": "Allow Api Key Billing",
+          "type": "boolean"
+        }
+      },
+      "title": "ModelPolicy",
+      "type": "object"
+    },
+    "Owner": {
+      "additionalProperties": false,
+      "properties": {
+        "owner_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$",
+          "title": "Owner Id",
+          "type": "string"
+        },
+        "worktree": {
+          "title": "Worktree",
+          "type": "string"
+        },
+        "branch": {
+          "pattern": "^codex/[a-zA-Z0-9._/-]+$",
+          "title": "Branch",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_id",
+        "worktree",
+        "branch"
+      ],
+      "title": "Owner",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "harness-task-v3.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "issue_ref": {
+      "pattern": "^GH-[1-9][0-9]*$",
+      "title": "Issue Ref",
+      "type": "string"
+    },
+    "spec_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Spec Sha256",
+      "type": "string"
+    },
+    "base_sha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Base Sha",
+      "type": "string"
+    },
+    "summary": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Summary",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "DRAFT",
+        "APPROVED",
+        "READY"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "risk": {
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical",
+        "unknown"
+      ],
+      "title": "Risk",
+      "type": "string"
+    },
+    "owner": {
+      "$ref": "#/$defs/Owner"
+    },
+    "allowed_files": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Allowed Files",
+      "type": "array"
+    },
+    "forbidden_files": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Files",
+      "type": "array"
+    },
+    "model_policy": {
+      "$ref": "#/$defs/ModelPolicy",
+      "default": {
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "astra_approval_ref": null,
+        "allow_api_key_billing": false
+      }
+    },
+    "bounds": {
+      "$ref": "#/$defs/Bounds",
+      "default": {
+        "max_attempts": 2,
+        "max_turns_per_attempt": 6,
+        "max_wall_minutes": 45
+      }
+    },
+    "required_checks": {
+      "items": {
+        "enum": [
+          "fast",
+          "impacted",
+          "full"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Checks",
+      "type": "array"
+    },
+    "approval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LocalApproval"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "issue_ref",
+    "spec_sha256",
+    "base_sha",
+    "summary",
+    "state",
+    "risk",
+    "owner",
+    "allowed_files",
+    "forbidden_files",
+    "required_checks"
+  ],
+  "title": "TaskSpec",
+  "type": "object"
+}

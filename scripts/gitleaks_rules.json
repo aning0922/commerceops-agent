@@ -186,6 +186,83 @@
       "reported_line_sha256": "ac094857ba462db6538609bdbce945d7c3a5d7bb7556c3355345e90c5230f6a8",
       "rule": "generic-api-key",
       "source_commit": "7499f7cf08b4058951783a78a9e89ff076cd2ae5"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/harness/README.md",
+      "source_commit": "17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4",
+      "declaration_line": 5,
+      "reported_line": 5,
+      "declaration_sha256": "7fb7b089bf7a186b1d899d98ce077c5ceea8046e61945cdfbcf07c60ce9e61d1",
+      "reported_line_sha256": "7fb7b089bf7a186b1d899d98ce077c5ceea8046e61945cdfbcf07c60ce9e61d1",
+      "fingerprint": "17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4:docs/harness/README.md:generic-api-key:5",
+      "match_sha256": "b66fffddb3d01e37a69baf244f796eb534d67eb5156c6c23aca6ded2974e5f9a"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_pg_shard_evidence.py",
+      "source_commit": "14c901437de6004875974e9a0fd49d8aa666e2a4",
+      "declaration_line": 67,
+      "reported_line": 67,
+      "declaration_sha256": "fc894ab938ba1295dd896a960a696ec9ca1b9eecb5fd0a5ec6749774de5689e6",
+      "reported_line_sha256": "fc894ab938ba1295dd896a960a696ec9ca1b9eecb5fd0a5ec6749774de5689e6",
+      "fingerprint": "14c901437de6004875974e9a0fd49d8aa666e2a4:tests/test_pg_shard_evidence.py:generic-api-key:67",
+      "match_sha256": "f8507c677b67b012ebf2fcd7b3f369680952f3d3a81120b9b6c0c3a7f7138f9e"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_pg_shard_evidence.py",
+      "source_commit": "14c901437de6004875974e9a0fd49d8aa666e2a4",
+      "declaration_line": 288,
+      "reported_line": 288,
+      "declaration_sha256": "b6b33496a27937046b987ef1e4f2859727b42d30f4fce6b00024c817f852dedb",
+      "reported_line_sha256": "b6b33496a27937046b987ef1e4f2859727b42d30f4fce6b00024c817f852dedb",
+      "fingerprint": "14c901437de6004875974e9a0fd49d8aa666e2a4:tests/test_pg_shard_evidence.py:generic-api-key:288",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_harness_verify.py",
+      "source_commit": "fc65bfbefc068f1c726dac37350dd6f901d7d785",
+      "declaration_line": 19,
+      "reported_line": 19,
+      "declaration_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "reported_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "fingerprint": "fc65bfbefc068f1c726dac37350dd6f901d7d785:tests/test_harness_verify.py:generic-api-key:19",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_harness_verify.py",
+      "source_commit": "fc65bfbefc068f1c726dac37350dd6f901d7d785",
+      "declaration_line": 83,
+      "reported_line": 83,
+      "declaration_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "reported_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "fingerprint": "fc65bfbefc068f1c726dac37350dd6f901d7d785:tests/test_harness_verify.py:generic-api-key:83",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/harness/h3/README.md",
+      "source_commit": "893de472f670cad4fe56735c66db8e70083accc5",
+      "declaration_line": 152,
+      "reported_line": 152,
+      "declaration_sha256": "acf6c3ead7d1fb55d77d52d3cb7bad159faf1685b29bcf2c327e247d32f4d7dd",
+      "reported_line_sha256": "acf6c3ead7d1fb55d77d52d3cb7bad159faf1685b29bcf2c327e247d32f4d7dd",
+      "fingerprint": "893de472f670cad4fe56735c66db8e70083accc5:docs/harness/h3/README.md:generic-api-key:152",
+      "match_sha256": "e80c03884d7197a25aa45b5404207aba793d2e9fb1a683b8627ab4edf8d804eb"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/harness/h3/context-repair-local.json",
+      "source_commit": "66762bb100d329e5865d519cd5f23057071984ee",
+      "declaration_line": 6,
+      "reported_line": 6,
+      "declaration_sha256": "78616ca151b5eaa5bc1dd8c16d7992f8a646e6522fbd2c856fc7f343ba2690a8",
+      "reported_line_sha256": "78616ca151b5eaa5bc1dd8c16d7992f8a646e6522fbd2c856fc7f343ba2690a8",
+      "fingerprint": "66762bb100d329e5865d519cd5f23057071984ee:docs/harness/h3/context-repair-local.json:generic-api-key:6",
+      "match_sha256": "f55291da6f7942502293c0ac57d09f92ad901f351c602adb08db72a9ade55c59"
     }
   ]
 }

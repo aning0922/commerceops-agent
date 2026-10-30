@@ -374,7 +374,532 @@ def verify_pair(existing: dict[str, Any], phase3: dict[str, Any]) -> None:
         raise ValueError("paired actual union must equal full collection without overlap")
 
 
+# V2 is opt-in. V1 scopes, fields, invocation and validation above remain unchanged.
+G2_V2_REQUIRED = G2_REQUIRED | {"retired_probe_version_refused"}
+PLAN_FIELDS = {
+    "schema_version",
+    "binding",
+    "full_node_ids",
+    "groups",
+    "shards",
+    "weights",
+    "weights_sha256",
+    "algorithm",
+    "plan_sha256",
+}
+BINDING_FIELDS = {"source_sha", "source_tree", "fingerprints", "execution", "environment"}
+RUNNER_VERSION_SOURCE = "Hosted environment ImageVersion"
+ENV_FIELDS = {
+    "os",
+    "arch",
+    "runner_image",
+    "runner_version",
+    "runner_version_source",
+    "docker",
+    "compose",
+    "pg_image",
+}
+SHARD_FIELDS = {
+    "schema_version",
+    "binding",
+    "plan_sha256",
+    "shard_id",
+    "full_node_ids_sha256",
+    "selected_node_ids",
+    "actual_node_ids",
+    "modules",
+    "result",
+    "cleanup_exit",
+    "stopping_confirmed",
+    "g1_complete",
+    "g1_verified_count",
+    "g2_scenarios",
+    "resources",
+    "native_exit",
+}
+
+
+def document_hash(value: object) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def execution_identity() -> dict[str, Any]:
+    """Hosted run context only; no credentials or user-controlled free text exported."""
+    import os
+
+    value = {
+        "run_id": os.environ.get("GITHUB_RUN_ID"),
+        "attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+    }
+    if any(not isinstance(v, str) or not re.fullmatch(r"[1-9][0-9]*", v) for v in value.values()):
+        raise ValueError("Hosted run and attempt required")
+    return value
+
+
+def environment_identity(root: Path) -> dict[str, str]:
+    import os
+
+    def version(command: list[str]) -> str:
+        return subprocess.check_output(command, cwd=root, text=True, timeout=10).strip()
+
+    image = re.search(
+        r"image: (postgres:[^\s]+@sha256:[0-9a-f]{64})", (root / "compose.yml").read_text()
+    )
+    if image is None:
+        raise ValueError("pinned PostgreSQL image required")
+    value = {
+        "os": platform.system(),
+        "arch": platform.machine(),
+        "runner_image": os.environ.get("ImageOS", ""),
+        "runner_version": os.environ.get("ImageVersion", ""),
+        "runner_version_source": RUNNER_VERSION_SOURCE,
+        "docker": version(["docker", "--version"]),
+        "compose": version(["docker", "compose", "version", "--short"]),
+        "pg_image": image[1],
+    }
+    _validate_environment(value)
+    return value
+
+
+def _validate_environment(value: Any) -> None:
+    if not isinstance(value, dict) or set(value) != ENV_FIELDS:
+        raise ValueError("closed runner/Compose/image identity required")
+    if any(
+        not isinstance(v, str) or not re.fullmatch(r"[A-Za-z0-9:.,@+_ /=-]{1,180}", v)
+        for v in value.values()
+    ):
+        raise ValueError("safe nonempty environment values required")
+    if (
+        not re.fullmatch(r"[0-9]{8}(?:\.[0-9]+){1,3}", value["runner_version"])
+        or value["runner_version_source"] != RUNNER_VERSION_SOURCE
+    ):
+        raise ValueError("actual Hosted ImageVersion and its fixed source required")
+    if value["os"] != "Linux" or value["arch"] not in {"x86_64", "AMD64"}:
+        raise ValueError("Hosted Linux x64 required")
+    if not re.fullmatch(r"postgres:[^\s]+@sha256:[0-9a-f]{64}", value["pg_image"]):
+        raise ValueError("immutable PostgreSQL image required")
+
+
+def _validate_binding(binding: Any) -> None:
+    if not isinstance(binding, dict) or set(binding) != BINDING_FIELDS:
+        raise ValueError("closed source/tool/run binding required")
+    for key in ("source_sha", "source_tree"):
+        if not isinstance(binding[key], str) or not re.fullmatch(r"[0-9a-f]{40}", binding[key]):
+            raise ValueError("exact source identity required")
+    fp = binding["fingerprints"]
+    if not isinstance(fp, dict) or set(fp) != {"files", "runtime", "binaries"}:
+        raise ValueError("closed fingerprints required")
+    if (
+        not isinstance(fp["files"], dict)
+        or set(fp["files"]) != set(LOCK_FILES)
+        or not isinstance(fp["binaries"], dict)
+        or set(fp["binaries"]) != {"uv", "node", "gitleaks"}
+        or fp["runtime"]
+        != {"python": "3.12.13", "uv": "uv 0.11.25", "node": "v24.21.0", "gitleaks": "8.30.1"}
+    ):
+        raise ValueError("pinned tool/lock identities required")
+    if any(
+        not isinstance(v, str) or not re.fullmatch(r"[0-9a-f]{64}", v)
+        for v in [*fp["files"].values(), *fp["binaries"].values()]
+    ):
+        raise ValueError("fingerprint digests required")
+    ex = binding["execution"]
+    if (
+        not isinstance(ex, dict)
+        or set(ex) != {"run_id", "attempt"}
+        or any(not isinstance(v, str) or not re.fullmatch(r"[1-9][0-9]*", v) for v in ex.values())
+    ):
+        raise ValueError("exact run/attempt required")
+    _validate_environment(binding["environment"])
+
+
+def require_same_binding(expected: Any, actual: Any, context: str) -> None:
+    """Strict equality except the approved, mandatory per-job ImageVersion observation."""
+    _validate_binding(expected)
+    _validate_binding(actual)
+    if expected == actual:
+        return
+    differences = []
+
+    def compare(left: Any, right: Any, path: str) -> None:
+        if isinstance(left, dict):
+            for key in sorted(left):
+                compare(left[key], right[key], f"{path}.{key}" if path else key)
+        elif left != right and path != "environment.runner_version":
+            differences.append(
+                {
+                    "field": path,
+                    "expected_sha256": document_hash(left),
+                    "actual_sha256": document_hash(right),
+                }
+            )
+
+    compare(expected, actual, "")
+    if differences:
+        raise ValueError(f"{context}; binding_diff=" + json.dumps(differences, sort_keys=True))
+
+
+def _assignment(
+    groups: dict[str, list[str]], weights: dict[str, float], count: int
+) -> list[dict[str, Any]]:
+    smoke = [
+        label
+        for label, nodes in groups.items()
+        if any(n.startswith("tests/test_checkpoint_pg.py::") for n in nodes)
+    ]
+    if len(smoke) != 1:
+        raise ValueError("one complete checkpoint execution group required")
+    loads = [0.0] * count
+    assigned: list[list[str]] = [[] for _ in range(count)]
+    costs = {
+        label: sum(weights.get(node, 1.0) for node in nodes) for label, nodes in groups.items()
+    }
+    for label in [
+        smoke[0],
+        *sorted((k for k in groups if k != smoke[0]), key=lambda k: (-costs[k], k)),
+    ]:
+        shard = 0 if label == smoke[0] else min(range(count), key=lambda i: (loads[i], i))
+        assigned[shard].append(label)
+        loads[shard] += costs[label]
+    if any(not group for group in assigned):
+        raise ValueError("every declared shard must have execution groups")
+    return [
+        {"shard_id": i, "smoke": i == 0, "groups": sorted(labels)}
+        for i, labels in enumerate(assigned)
+    ]
+
+
+def plan_shards(
+    full: list[str], weights: dict[str, float], shard_count: int, binding: dict[str, Any]
+) -> dict[str, Any]:
+    from scripts.pg_diagnostic import combined_groups
+
+    _validate_binding(binding)
+    if type(shard_count) is not int or shard_count not in (4, 6):
+        raise ValueError("four or six shards required")
+    nodes = canonical_nodes(full)
+    # Stale timing rows cannot select tests. Missing weights use a conservative positive hint.
+    normalized = {n: weights[n] for n in nodes if n in weights}
+    if any(type(v) not in (int, float) or not 0 < v < 86400 for v in normalized.values()):
+        raise ValueError("finite positive timing hints required")
+    groups = {k: sorted(v) for k, v in combined_groups(nodes).items()}
+    plan: dict[str, Any] = {
+        "schema_version": "pg-shard-plan-v2",
+        "binding": binding,
+        "full_node_ids": nodes,
+        "groups": groups,
+        "shards": _assignment(groups, normalized, shard_count),
+        "weights": normalized,
+        "weights_sha256": document_hash(normalized),
+        "algorithm": "whole-combined-groups-lpt-v1",
+    }
+    plan["plan_sha256"] = document_hash(plan)
+    return plan
+
+
+def validate_plan(plan: dict[str, Any]) -> None:
+    if (
+        not isinstance(plan, dict)
+        or set(plan) != PLAN_FIELDS
+        or plan["schema_version"] != "pg-shard-plan-v2"
+    ):
+        raise ValueError("closed v2 plan required")
+    rebuilt = plan_shards(
+        plan["full_node_ids"], plan["weights"], len(plan["shards"]), plan["binding"]
+    )
+    if plan != rebuilt:
+        raise ValueError("canonical exact deterministic plan required")
+
+
+def shard_groups(plan: dict[str, Any], shard_id: int, full: list[str]) -> dict[str, list[str]]:
+    validate_plan(plan)
+    if canonical_nodes(full) != plan["full_node_ids"]:
+        raise ValueError("shard collection differs from authoritative full set")
+    if type(shard_id) is not int or shard_id not in range(len(plan["shards"])):
+        raise ValueError("declared shard ID required")
+    return {label: plan["groups"][label] for label in plan["shards"][shard_id]["groups"]}
+
+
+def safe_shard_report(
+    raw: dict[str, Any], binding: dict[str, Any], plan: dict[str, Any], shard_id: int
+) -> dict[str, Any]:
+    groups = shard_groups(plan, shard_id, raw.get("full_node_ids", []))
+    _validate_binding(binding)
+    require_same_binding(plan["binding"], binding, "shard exporter binding differs from plan")
+    execution = binding["execution"]
+    # Reuse the v1 closed module projection; never copy raw report or resource records.
+    v1 = safe_report(raw, binding, "all")
+    return {
+        "schema_version": "pg-shard-evidence-v2",
+        "native_exit": None,  # Wrapper fills only after diagnostic process exits.
+        "binding": binding,
+        "plan_sha256": plan["plan_sha256"],
+        "shard_id": shard_id,
+        "full_node_ids_sha256": nodes_hash(plan["full_node_ids"]),
+        "selected_node_ids": sorted(n for group in groups.values() for n in group),
+        **{
+            key: v1[key]
+            for key in (
+                "actual_node_ids",
+                "modules",
+                "result",
+                "cleanup_exit",
+                "stopping_confirmed",
+                "g1_complete",
+                "g1_verified_count",
+                "g2_scenarios",
+            )
+        },
+        "resources": {
+            "project": raw.get("project"),
+            "volume": raw.get("volume"),
+            "owner": f"{execution['run_id']}/{execution['attempt']}/{shard_id}",
+            "started_at": raw.get("started_at"),
+            "deadline": raw.get("deadline"),
+            "finished_at": raw.get("finished_at"),
+            "remaining_resources": raw.get("remaining_resources"),
+            "pg_image_id": raw.get("pg_image_id"),
+        },
+    }
+
+
+def validate_shard(report: dict[str, Any], plan: dict[str, Any]) -> list[str]:
+    from datetime import datetime
+
+    validate_plan(plan)
+    if (
+        not isinstance(report, dict)
+        or set(report) != SHARD_FIELDS
+        or report["schema_version"] != "pg-shard-evidence-v2"
+    ):
+        raise ValueError("closed v2 shard evidence required")
+    require_same_binding(plan["binding"], report["binding"], "source/tool/run/runner mismatch")
+    if report["plan_sha256"] != plan["plan_sha256"]:
+        raise ValueError("exact plan mismatch")
+    groups = shard_groups(plan, report["shard_id"], plan["full_node_ids"])
+    selected = sorted(n for group in groups.values() for n in group)
+    if (
+        report["full_node_ids_sha256"] != nodes_hash(plan["full_node_ids"])
+        or report["selected_node_ids"] != selected
+    ):
+        raise ValueError("exact planned selection required")
+    if (
+        canonical_nodes(report["actual_node_ids"]) != selected
+        or report["actual_node_ids"] != selected
+    ):
+        raise ValueError("actual collection must equal selection")
+    modules = report["modules"]
+    if not isinstance(modules, list) or len(modules) != len(groups):
+        raise ValueError("all execution groups required")
+    labels = []
+    for module in modules:
+        if not isinstance(module, dict) or set(module) != {
+            "label",
+            "expected_node_ids",
+            "actual_node_ids",
+            "passed_node_ids",
+            "exit_code",
+            "result",
+        }:
+            raise ValueError("closed execution proof required")
+        label = module["label"]
+        if (
+            not isinstance(label, str)
+            or label not in groups
+            or any(
+                module[k] != groups[label]
+                for k in ("expected_node_ids", "actual_node_ids", "passed_node_ids")
+            )
+        ):
+            raise ValueError("exact group selected/collected/passed equality required")
+        if (
+            type(module["exit_code"]) is not int
+            or module["exit_code"] != 0
+            or module["result"] is not True
+        ):
+            raise ValueError("native successful group termination required")
+        labels.append(label)
+    if len(set(labels)) != len(labels) or set(labels) != set(groups):
+        raise ValueError("unique exact execution groups required")
+    if (
+        report["result"] is not True
+        or type(report["cleanup_exit"]) is not int
+        or report["cleanup_exit"] != 0
+        or report["stopping_confirmed"] is not True
+    ):
+        raise ValueError("native successful run/stopping/cleanup required")
+    if type(report["native_exit"]) is not int or report["native_exit"] != 0:
+        raise ValueError("actual diagnostic parent exit zero required")
+    smoke = report["shard_id"] == 0
+    if (
+        report["g1_complete"] is not smoke
+        or type(report["g1_verified_count"]) is not int
+        or report["g1_verified_count"] != (3 if smoke else 0)
+        or report["g2_scenarios"] != (sorted(G2_V2_REQUIRED) if smoke else [])
+    ):
+        raise ValueError("designated real G1 three/G2 six proof required")
+    resource = report["resources"]
+    if not isinstance(resource, dict) or set(resource) != {
+        "project",
+        "volume",
+        "owner",
+        "started_at",
+        "deadline",
+        "finished_at",
+        "remaining_resources",
+        "pg_image_id",
+    }:
+        raise ValueError("closed owned resource record required")
+    if (
+        not isinstance(resource["project"], str)
+        or not re.fullmatch(r"p123-[0-9a-f]{12}", resource["project"])
+        or resource["volume"] != resource["project"] + "_pg_data"
+    ):
+        raise ValueError("owned unique project/volume required")
+    if (
+        not isinstance(resource["pg_image_id"], str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", resource["pg_image_id"])
+        or resource["remaining_resources"] != {"containers": 0, "networks": 0, "volumes": 0}
+        or any(type(v) is not int for v in resource["remaining_resources"].values())
+    ):
+        raise ValueError("actual immutable image and clean owned resource inventory required")
+    ex = plan["binding"]["execution"]
+    if resource["owner"] != f"{ex['run_id']}/{ex['attempt']}/{report['shard_id']}":
+        raise ValueError("exact resource owner required")
+    times = [datetime.fromisoformat(resource[k]) for k in ("started_at", "finished_at", "deadline")]
+    if any(t.utcoffset() is None for t in times) or not times[0] < times[1] <= times[2]:
+        raise ValueError("actual cleanup within immutable deadline required")
+    return selected
+
+
+def verify_shards(
+    plan: dict[str, Any], reports: list[dict[str, Any]], job_results: dict[str, str]
+) -> None:
+    validate_plan(plan)
+    if len(reports) != len(plan["shards"]):
+        raise ValueError("all expected shard artifacts required")
+    if job_results != {str(i): "success" for i in range(len(plan["shards"]))}:
+        raise ValueError("all declared native jobs must succeed; cancelled/skipped is not proof")
+    nodes, ids, projects, images = [], [], [], []
+    for report in reports:
+        nodes.extend(validate_shard(report, plan))
+        ids.append(report["shard_id"])
+        projects.append(report["resources"]["project"])
+        images.append(report["resources"]["pg_image_id"])
+    if sorted(ids) != list(range(len(plan["shards"]))) or len(set(projects)) != len(projects):
+        raise ValueError("distinct shards and isolated resources required")
+    if len(set(images)) != 1:
+        raise ValueError("all shards must execute the same actual PostgreSQL image")
+    if canonical_nodes(nodes) != plan["full_node_ids"]:
+        raise ValueError("disjoint actual passed union must equal full collection")
+
+
+def runner_revision_observations(
+    plan: dict[str, Any], reports: list[dict[str, Any]], checker: dict[str, Any]
+) -> dict[str, Any]:
+    """Called after aggregate verification; preserve each job's native observation."""
+    jobs = [
+        ("plan", plan["binding"]),
+        *[
+            (f"shard-{r['shard_id']}", r["binding"])
+            for r in sorted(reports, key=lambda r: r["shard_id"])
+        ],
+        ("aggregate", checker),
+    ]
+    observations = []
+    for job, binding in jobs:
+        require_same_binding(plan["binding"], binding, "observation binding mismatch")
+        env = binding["environment"]
+        observations.append(
+            {
+                "job": job,
+                "runner_version": env["runner_version"],
+                "source": env["runner_version_source"],
+            }
+        )
+    revisions = sorted({entry["runner_version"] for entry in observations})
+    return {
+        "runner_revision_observations": observations,
+        "distinct_runner_revisions": revisions,
+        "mixed_host_revisions": len(revisions) > 1,
+        "performance_scope": (
+            "observed samples; no complete host equivalence or controlled same-host comparison"
+        ),
+    }
+
+
+def finalize_shard(report: dict[str, Any], native_exit: int) -> dict[str, Any]:
+    """Called by the shell wrapper after wait; this is not a job-success declaration."""
+    if (
+        set(report) != SHARD_FIELDS
+        or report["schema_version"] != "pg-shard-evidence-v2"
+        or report["native_exit"] is not None
+        or type(native_exit) is not int
+        or not 0 <= native_exit <= 255
+    ):
+        raise ValueError("one actual native exit finalization required")
+    return {**report, "native_exit": native_exit}
+
+
+def shard_main() -> None:
+    import sys
+
+    parser = argparse.ArgumentParser()
+    sub = parser.add_subparsers(dest="command", required=True)
+    create = sub.add_parser("plan")
+    create.add_argument("--full", type=Path, required=True)
+    create.add_argument("--weights", type=Path, required=True)
+    create.add_argument("--shards", type=int, choices=(4, 6), required=True)
+    create.add_argument("--output", type=Path, required=True)
+    finalize = sub.add_parser("finalize")
+    finalize.add_argument("--report", type=Path, required=True)
+    finalize.add_argument("--exit", dest="native_exit", type=int, required=True)
+    aggregate = sub.add_parser("aggregate")
+    aggregate.add_argument("--plan", type=Path, required=True)
+    aggregate.add_argument("reports", type=Path, nargs="+")
+    aggregate.add_argument("--job-results", type=Path, required=True)
+    args = parser.parse_args()
+    if args.command == "finalize":
+        report = finalize_shard(json.loads(args.report.read_text()), args.native_exit)
+        args.report.write_text(json.dumps(report, indent=2) + "\n")
+        return
+    root = Path.cwd()
+    binding = {
+        **identity(root),
+        "execution": execution_identity(),
+        "environment": environment_identity(root),
+    }
+    if args.command == "plan":
+        plan = plan_shards(
+            json.loads(args.full.read_text()),
+            json.loads(args.weights.read_text()),
+            args.shards,
+            binding,
+        )
+        args.output.write_text(json.dumps(plan, indent=2) + "\n")
+    else:
+        plan = json.loads(args.plan.read_text())
+        validate_plan(plan)
+        require_same_binding(
+            plan["binding"],
+            binding,
+            "aggregate differs from exact checker checkout/run/environment",
+        )
+        reports = [json.loads(path.read_text()) for path in args.reports]
+        verify_shards(plan, reports, json.loads(args.job_results.read_text()))
+        print(json.dumps(runner_revision_observations(plan, reports, binding), sort_keys=True))
+        print("N-way exact source/run/tools/collection/groups/G1/G2/native cleanup verified")
+    sys.exit(0)
+
+
 def main() -> None:
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] in {"plan", "aggregate", "finalize"}:
+        shard_main()
+        return
     p = argparse.ArgumentParser()
     p.add_argument("existing", type=Path)
     p.add_argument("phase3", type=Path)

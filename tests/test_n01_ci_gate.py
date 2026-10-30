@@ -50,6 +50,9 @@ def test_n01_deadline_fixed_before_checkout_and_only_verified_public_outputs() -
     assert preparation.index("run_before_cleanup uv sync --frozen") < preparation.index(foundation)
     assert preparation.index(foundation) < preparation.index('cd "$GITHUB_WORKSPACE/frontend"')
     assert preparation.index(foundation) < preparation.index("run_before_cleanup npm run build")
+    assert "run_before_cleanup npm ci" not in preparation
+    assert "run_before_cleanup npm run typecheck" not in preparation
+    assert "run_before_cleanup npm run check:toolchain" not in preparation
     assert "fetch-depth" in steps[1]["with"] and steps[1]["with"]["fetch-depth"] == 0
     assert "continue-on-error" not in value and "if" not in value
     runner = next(s["run"] for s in steps if s.get("id") == "n01")
@@ -362,3 +365,131 @@ def test_n01_cleanup_only_registered_project_with_private_compose_inputs_and_pre
             exec(compile(source, "<N01 CI cleanup fake>", "exec"), {})  # noqa: S102 同一固定源码负例。
         if damage in ("wrong_uid", "foreign_label", "running_pg"):
             assert not any("down" in command for command in commands)
+
+
+def test_npm_cache_is_public_content_only_and_never_skips_install_or_gates(tmp_path: Path) -> None:
+    jobs = yaml.safe_load(WORKFLOW.read_text())["jobs"]
+    identities = []
+    caches = []
+    for name in ("n01-web", "frontend"):
+        value = jobs[name]
+        assert "npm_config_cache" not in value["env"]
+        preparation = next(
+            step["run"]
+            for step in value["steps"]
+            if step.get("name", "").startswith(("Prepare locked", "Locked tools"))
+        )
+        assert preparation.count('export npm_config_cache="${RUNNER_TEMP:?}/commerceops-npm"') == 1
+        assignment = next(
+            line for line in preparation.splitlines() if line.startswith("export npm_config_cache=")
+        )
+        runner_temp = str(tmp_path / "runner temp with spaces")
+        observed = subprocess.run(
+            ["bash", "-eu", "-c", assignment + '; printf "%s" "$npm_config_cache"'],
+            env={"RUNNER_TEMP": runner_temp},
+            capture_output=True,
+            text=True,
+        )
+        assert observed.returncode == 0
+        assert observed.stdout == runner_temp + "/commerceops-npm"
+        cache_path = next(
+            step["with"]["path"]
+            for step in value["steps"]
+            if "actions/cache@" in step.get("uses", "")
+        ).replace("${{ runner.temp }}", runner_temp)
+        # The installed cache contents are the exact child of the directory npm uses.
+        assert str(Path(observed.stdout) / "_cacache") == cache_path
+        missing = subprocess.run(
+            ["bash", "-eu", "-c", assignment],
+            env={},
+            capture_output=True,
+            text=True,
+        )
+        assert missing.returncode != 0
+        assert preparation.index("export npm_config_cache=") < preparation.index(
+            "python -m scripts.bootstrap_tools"
+        )
+        identity = next(s for s in value["steps"] if s.get("id") == "npm_cache_identity")
+        cache = next(s for s in value["steps"] if "actions/cache@" in s.get("uses", ""))
+        identities.append(identity)
+        caches.append(cache)
+        assert cache["uses"] == "actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830"
+        assert cache["if"] == "${{ steps.npm_cache_identity.outputs.runner_image != '' }}"
+        assert set(cache["with"]) == {"path", "key"}  # no broad restore prefix
+        assert cache["with"]["path"] == "${{ runner.temp }}/commerceops-npm/_cacache"
+        key = cache["with"]["key"]
+        for required in (
+            "runner.os",
+            "runner.arch",
+            "ubuntu24",
+            "npm_cache_identity.outputs.runner_image",
+            "py3.12.13",
+            "node24.21.0",
+            "npm11.19.0",
+            "uv0.11.25",
+            "pw1.64.0",
+            "cache4.3.0",
+            "frontend/package-lock.json",
+            "frontend/package.json",
+            "frontend/.npmrc",
+            "uv.lock",
+            "scripts/tool_versions.json",
+        ):
+            assert required in key
+        for step in value["steps"]:
+            assert "cache-hit" not in step.get("if", "")
+        assert value["steps"].index(identity) < value["steps"].index(cache)
+    assert identities[0] == identities[1] and caches[0] == caches[1]
+    # The surviving complete foundation command still performs all three retired duplicates.
+    from scripts import check
+
+    captured: list[list[str]] = []
+
+    def stop_before_audit(command: list[str], **kwargs: Any) -> Any:
+        captured.append(command)
+        if command[-2:] == ["audit", "--audit-level=low"]:
+            raise RuntimeError("stop before audit")
+        return subprocess.CompletedProcess(command, 0)
+
+    from unittest.mock import patch
+
+    with patch("scripts.check.subprocess.run", side_effect=stop_before_audit):
+        with pytest.raises(RuntimeError, match="stop before audit"):
+            check.main()
+    assert ["npm", "--prefix", "frontend", "ci", "--ignore-scripts"] in captured
+    assert ["npm", "--prefix", "frontend", "run", "check:toolchain"] in captured
+    assert ["npm", "--prefix", "frontend", "run", "typecheck"] in captured
+
+
+@pytest.mark.parametrize(
+    "damage", [None, "missing_image", "bad_image", "private_package", "missing_integrity"]
+)
+def test_cache_identity_disables_untrusted_cache_without_disabling_checks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    damage: str | None,
+) -> None:
+    steps = job()["steps"]
+    identity = next(s for s in steps if s.get("id") == "npm_cache_identity")
+    package = {
+        "resolved": "https://registry.npmjs.org/example/-/example-1.tgz",
+        "integrity": "sha512-test",
+    }
+    if damage == "private_package":
+        package["resolved"] = "https://private.example/package.tgz"
+    if damage == "missing_integrity":
+        del package["integrity"]
+    (tmp_path / "frontend").mkdir()
+    (tmp_path / "frontend/package-lock.json").write_text(
+        json.dumps({"packages": {"": {}, "node_modules/example": package}})
+    )
+    output = tmp_path / "output"
+    output.touch()
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+    if damage == "missing_image":
+        monkeypatch.delenv("ImageVersion", raising=False)
+    else:
+        monkeypatch.setenv("ImageVersion", "unknown" if damage == "bad_image" else "20261026.354.1")
+    exec(compile(inline(identity), "<public cache identity>", "exec"), {})  # noqa: S102 fixed source only
+    assert output.read_text() == ("runner_image=20261026.354.1\n" if damage is None else "")

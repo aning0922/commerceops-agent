@@ -1,0 +1,274 @@
+{
+  "pr": 52,
+  "approved_head": "4014ca09c01d375c6860832d30661656694c8988",
+  "merge_checkout": "3384ffd26676c0db0efc7fb2d1230b4a09538855",
+  "source_tree": "23946fe6bdcbf739358caed9bbedf66f13affbd0",
+  "runs": [
+    {
+      "id": 40669325735,
+      "name": "Foundation quality",
+      "head_sha": "4014ca09c01d375c6860832d30661656694c8988",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T10:05:23Z",
+      "updated_at": "2026-10-28T10:47:37Z",
+      "jobs": [
+        {
+          "id": 122751802100,
+          "name": "frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T10:05:27Z",
+          "completed_at": "2026-10-28T10:25:09Z",
+          "seconds": 1182.0
+        },
+        {
+          "id": 122751802516,
+          "name": "n01-web",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T10:05:27Z",
+          "completed_at": "2026-10-28T10:15:37Z",
+          "seconds": 610.0
+        },
+        {
+          "id": 122751802573,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T10:05:27Z",
+          "completed_at": "2026-10-28T10:47:27Z",
+          "seconds": 2520.0
+        },
+        {
+          "id": 122751802603,
+          "name": "phase3",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T10:05:27Z",
+          "completed_at": "2026-10-28T10:47:07Z",
+          "seconds": 2500.0
+        },
+        {
+          "id": 122770651266,
+          "name": "pg-pair",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T10:47:30Z",
+          "completed_at": "2026-10-28T10:47:36Z",
+          "seconds": 6.0
+        }
+      ],
+      "summed_job_minutes": 113.63333333333334,
+      "elapsed_seconds": 2534.0
+    },
+    {
+      "id": 40669325870,
+      "name": "H2 PG shadow",
+      "head_sha": "4014ca09c01d375c6860832d30661656694c8988",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T10:05:24Z",
+      "updated_at": "2026-10-28T10:06:24Z",
+      "jobs": [
+        {
+          "id": 122751802658,
+          "name": "h2-plan",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T10:05:28Z",
+          "completed_at": "2026-10-28T10:06:23Z",
+          "seconds": 55.0
+        },
+        {
+          "id": 122752243559,
+          "name": "h2-shards",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-28T10:06:24Z",
+          "completed_at": "2026-10-28T10:06:23Z",
+          "seconds": 0
+        },
+        {
+          "id": 122752244655,
+          "name": "h2-aggregate",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-28T10:06:24Z",
+          "completed_at": "2026-10-28T10:06:23Z",
+          "seconds": 0
+        }
+      ],
+      "summed_job_minutes": 0.9166666666666666,
+      "elapsed_seconds": 60.0
+    }
+  ],
+  "secret_gate": {
+    "dir": 0,
+    "index": 0,
+    "git_reviewed_public_findings": 8,
+    "blocking": 0
+  },
+  "full_pg": {
+    "existing_passed": 413,
+    "phase3_passed": 177,
+    "full_count": 590,
+    "intersection": 0,
+    "exact_full_set_matches_local_collection": true,
+    "all_module_exits": 0,
+    "g1_verified": 1,
+    "g1_required": 3,
+    "g1_complete": false,
+    "g2_count": 6,
+    "failed_command": "recreate",
+    "failed_command_exit": 130,
+    "timed_out": true,
+    "failed_command_at": "2026-10-28T10:47:19.125596+00:00",
+    "native_parent_exit": 1,
+    "existing_cleanup_exit": 0,
+    "phase3_cleanup_exit": 0,
+    "stopping_confirmed": true,
+    "pair_result": "REJECTED: existing result false and G1 incomplete"
+  },
+  "offline": {
+    "passed": 2863,
+    "deselected_integration": 590,
+    "pytest_seconds": 322.03
+  },
+  "web": {
+    "frontend_result": "success",
+    "read": 7,
+    "write": 10,
+    "items": 7,
+    "n01": 6,
+    "n01_pg_invariants": true,
+    "resources_stopped": true,
+    "real_third_party_calls": 0
+  },
+  "shadow": {
+    "result": "failure",
+    "failed_step": "Discover full current integration collection without running tests",
+    "collector_exit": 3,
+    "cause": "caller omitted P123_DIAG=1; plugin explicit mode protection rejected collection",
+    "shards": "NOT_RUN",
+    "aggregate": "SKIPPED",
+    "performance_result": "NOT_MEASURED"
+  },
+  "local_repair": {
+    "source_sha": "f93dd204ea383f4a3363d2b6786e39eb80cc0f1a",
+    "pushed": false,
+    "independent_review": "ACCEPT exact two-file diff over 4014ca09",
+    "targeted_regression_passed": 1,
+    "targeted_pytest_seconds": 0.06,
+    "collect_only_exit": 0,
+    "collected_integration": 590,
+    "collect_only_seconds": 8.524552958086133,
+    "tests_executed_by_collect_only": false,
+    "full_secret_scan_exit": 0,
+    "full_secret_scan_seconds": 26.495223
+  },
+  "authority": "one approved Full + Shadow spent; no retry, no additional push, no H3",
+  "h2_status": "NOT_ACCEPTED",
+  "native_metrics": {
+    "run_id": 40669325735,
+    "module_count": 53,
+    "unique_node_count": 590,
+    "call_outcomes": {
+      "passed": 590
+    },
+    "test_activity_minutes": 71.92284431878336,
+    "module_p50_seconds": 40.11417675899952,
+    "module_p95_seconds": 287.8126264169987,
+    "slow_modules": [
+      {
+        "module": "tests/test_p4_acceptance_pg.py",
+        "count": 7,
+        "seconds": 640.1230506699999,
+        "setup": 0.33450833900013777,
+        "call": 639.4065602149999,
+        "teardown": 0.3819821159999037
+      },
+      {
+        "module": "tests/test_p4_terminal_recovery_pg.py",
+        "count": 12,
+        "seconds": 509.26314575299966,
+        "setup": 272.5581569870001,
+        "call": 234.795321909,
+        "teardown": 1.9096668569995927
+      },
+      {
+        "module": "tests/test_p4_history_pg.py",
+        "count": 14,
+        "seconds": 287.8126264169987,
+        "setup": 30.032599155999378,
+        "call": 257.48642586999904,
+        "teardown": 0.2936013910002657
+      },
+      {
+        "module": "tests/test_p3_approval_pg.py",
+        "count": 28,
+        "seconds": 271.1674129700001,
+        "setup": 63.84146993799993,
+        "call": 206.7552127229999,
+        "teardown": 0.5707303090002824
+      },
+      {
+        "module": "tests/test_p4_first_create_negatives_pg.py",
+        "count": 7,
+        "seconds": 257.6990913400002,
+        "setup": 16.05400497300002,
+        "call": 241.355370473,
+        "teardown": 0.28971589400021003
+      },
+      {
+        "module": "tests/test_p4_read_reply_parent_pg.py",
+        "count": 11,
+        "seconds": 235.2322490089996,
+        "setup": 0.5597781310004848,
+        "call": 234.4612957749996,
+        "teardown": 0.21117510299950482
+      },
+      {
+        "module": "tests/test_p4_explicit_ro_pg.py",
+        "count": 3,
+        "seconds": 134.3938051250002,
+        "setup": 7.144352669999989,
+        "call": 127.0967702779999,
+        "teardown": 0.15268217700031528
+      },
+      {
+        "module": "tests/test_p3_execution_authority_pg.py",
+        "count": 9,
+        "seconds": 118.53901640500021,
+        "setup": 20.329493448000107,
+        "call": 98.00895961800006,
+        "teardown": 0.2005633390000412
+      },
+      {
+        "module": "tests/test_p4_a08_recovery_pg.py",
+        "count": 10,
+        "seconds": 117.11967140899992,
+        "setup": 22.96926329000007,
+        "call": 93.95742642300002,
+        "teardown": 0.1929816959998334
+      },
+      {
+        "module": "tests/test_p4_queued_terminal_pg.py",
+        "count": 2,
+        "seconds": 114.76509798000029,
+        "setup": 0.097104667999929,
+        "call": 114.50015659100018,
+        "teardown": 0.1678367210001852
+      }
+    ],
+    "histogram_seconds": {
+      "0-30": 23,
+      "30-120": 23,
+      "120-300": 5,
+      "300+": 2
+    },
+    "proves_new_ci_speedup": false
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "head_sha": "fe439080a866cf31332810854b1491a51a303ebb",
+  "merge_checkout": "044690680776a1ab5f6dd5d48ee0cc5d7d917a3d",
+  "source_tree": "1d4660a171f9fc5076ae5d0c056ccdbab1702abd",
+  "runs": [
+    {
+      "id": 40695676202,
+      "name": "Foundation quality",
+      "head_sha": "fe439080a866cf31332810854b1491a51a303ebb",
+      "status": "completed",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T13:21:27Z",
+      "updated_at": "2026-10-28T14:04:03Z",
+      "jobs": [
+        {
+          "id": 122841670227,
+          "name": "frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T13:21:30Z",
+          "completed_at": "2026-10-28T13:39:40Z",
+          "seconds": 1090.0
+        },
+        {
+          "id": 122841670468,
+          "name": "phase3",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T13:21:31Z",
+          "completed_at": "2026-10-28T14:03:49Z",
+          "seconds": 2538.0
+        },
+        {
+          "id": 122841670493,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T13:21:30Z",
+          "completed_at": "2026-10-28T14:02:56Z",
+          "seconds": 2486.0
+        },
+        {
+          "id": 122841670556,
+          "name": "n01-web",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T13:21:31Z",
+          "completed_at": "2026-10-28T13:28:23Z",
+          "seconds": 412.0
+        },
+        {
+          "id": 122864908220,
+          "name": "pg-pair",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T14:03:53Z",
+          "completed_at": "2026-10-28T14:04:03Z",
+          "seconds": 10.0
+        }
+      ],
+      "summed_job_minutes": 108.93333333333334,
+      "elapsed_seconds": 2556.0
+    },
+    {
+      "id": 40695676213,
+      "name": "H2 PG shadow",
+      "head_sha": "fe439080a866cf31332810854b1491a51a303ebb",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T13:21:27Z",
+      "updated_at": "2026-10-28T13:24:42Z",
+      "jobs": [
+        {
+          "id": 122841670086,
+          "name": "h2-plan",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T13:21:30Z",
+          "completed_at": "2026-10-28T13:22:43Z",
+          "seconds": 73.0
+        },
+        {
+          "id": 122842336957,
+          "name": "h2-shards (4)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:22:46Z",
+          "completed_at": "2026-10-28T13:23:42Z",
+          "seconds": 56.0
+        },
+        {
+          "id": 122842336970,
+          "name": "h2-shards (1)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:22:51Z",
+          "completed_at": "2026-10-28T13:23:41Z",
+          "seconds": 50.0
+        },
+        {
+          "id": 122842337039,
+          "name": "h2-shards (0)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:22:46Z",
+          "completed_at": "2026-10-28T13:23:25Z",
+          "seconds": 39.0
+        },
+        {
+          "id": 122842337071,
+          "name": "h2-shards (2)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:22:47Z",
+          "completed_at": "2026-10-28T13:23:43Z",
+          "seconds": 56.0
+        },
+        {
+          "id": 122842337134,
+          "name": "h2-shards (3)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:22:46Z",
+          "completed_at": "2026-10-28T13:23:42Z",
+          "seconds": 56.0
+        },
+        {
+          "id": 122842337510,
+          "name": "h2-shards (5)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:22:47Z",
+          "completed_at": "2026-10-28T13:23:43Z",
+          "seconds": 56.0
+        },
+        {
+          "id": 122842871947,
+          "name": "h2-aggregate",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T13:23:47Z",
+          "completed_at": "2026-10-28T13:24:42Z",
+          "seconds": 55.0
+        }
+      ],
+      "summed_job_minutes": 7.35,
+      "elapsed_seconds": 195.0
+    }
+  ],
+  "full_verification": {
+    "result": "PASS: all five jobs",
+    "pg_counts": [
+      413,
+      177
+    ],
+    "full_count": 590,
+    "overlap": 0,
+    "exact_full_set_matches_shadow_plan": true,
+    "source_tree_locks_validated": true,
+    "native_call_passed": 590,
+    "g1_verified": 3,
+    "g1_complete": true,
+    "g2_count": 6,
+    "cleanup_exits": [
+      0,
+      0
+    ],
+    "stopping_confirmed": [
+      true,
+      true
+    ],
+    "offline_passed": 2863,
+    "offline_pytest_seconds": 222.5,
+    "frontend_counts": {
+      "read": 7,
+      "write": 10,
+      "items": 7
+    },
+    "n01_count": 6,
+    "safe_web_resource_stop_verified": true,
+    "secret_gate": "PASS"
+  },
+  "native_metrics": {
+    "run_id": 40695676202,
+    "module_count": 53,
+    "unique_node_count": 590,
+    "call_outcomes": {
+      "passed": 590
+    },
+    "test_activity_minutes": 71.03807345965005,
+    "module_p50_seconds": 39.02139112199893,
+    "module_p95_seconds": 288.59037694999915,
+    "slow_modules": [
+      {
+        "module": "tests/test_p4_acceptance_pg.py",
+        "count": 7,
+        "seconds": 644.9529278230001,
+        "setup": 2.017755088000058,
+        "call": 642.0590771849999,
+        "teardown": 0.8760955500001728
+      },
+      {
+        "module": "tests/test_p4_terminal_recovery_pg.py",
+        "count": 12,
+        "seconds": 505.4801049880002,
+        "setup": 266.2490017099999,
+        "call": 237.26024964700082,
+        "teardown": 1.9708536309994997
+      },
+      {
+        "module": "tests/test_p4_history_pg.py",
+        "count": 14,
+        "seconds": 288.59037694999915,
+        "setup": 26.78653961400005,
+        "call": 261.4711343209988,
+        "teardown": 0.33270301500033383
+      },
+      {
+        "module": "tests/test_p3_approval_pg.py",
+        "count": 28,
+        "seconds": 257.55831967099937,
+        "setup": 57.13049692099969,
+        "call": 199.75319726499959,
+        "teardown": 0.6746254850000923
+      },
+      {
+        "module": "tests/test_p4_first_create_negatives_pg.py",
+        "count": 7,
+        "seconds": 255.69073387300068,
+        "setup": 14.28693835199988,
+        "call": 241.1139824200004,
+        "teardown": 0.2898131010003908
+      },
+      {
+        "module": "tests/test_p4_read_reply_parent_pg.py",
+        "count": 11,
+        "seconds": 239.51086712700067,
+        "setup": 0.6501710379995984,
+        "call": 238.551292517001,
+        "teardown": 0.30940357200006474
+      },
+      {
+        "module": "tests/test_p4_explicit_ro_pg.py",
+        "count": 3,
+        "seconds": 133.01855572199952,
+        "setup": 6.269448243999932,
+        "call": 126.59755346199995,
+        "teardown": 0.15155401599963625
+      },
+      {
+        "module": "tests/test_p4_queued_terminal_pg.py",
+        "count": 2,
+        "seconds": 118.90313918099969,
+        "setup": 0.16047412099987923,
+        "call": 118.11652816899982,
+        "teardown": 0.6261368909999874
+      },
+      {
+        "module": "tests/test_p3_execution_authority_pg.py",
+        "count": 9,
+        "seconds": 116.44502075600008,
+        "setup": 18.295235711999794,
+        "call": 97.93604261200039,
+        "teardown": 0.21374243199988996
+      },
+      {
+        "module": "tests/test_p4_a08_recovery_pg.py",
+        "count": 10,
+        "seconds": 112.245298899001,
+        "setup": 20.32336420600018,
+        "call": 91.7369997330004,
+        "teardown": 0.18493496000041887
+      }
+    ],
+    "histogram_seconds": {
+      "0-30": 23,
+      "30-120": 23,
+      "120-300": 5,
+      "300+": 2
+    },
+    "proves_new_ci_speedup": false
+  },
+  "shadow_verification": {
+    "result": "FAIL",
+    "plan_result": "PASS",
+    "plan_nodes": 590,
+    "whole_command_groups": 35,
+    "declared_shards": 6,
+    "binding_rejected_shards": [
+      0,
+      2,
+      3,
+      4,
+      5
+    ],
+    "binding_passed_but_deadline_empty_shards": [
+      1
+    ],
+    "pg_test_execution": "NOT_STARTED: rejected before resource registration",
+    "deadline_cause": "checkout deleted workspace -> cat .audit/ci-deadline missing -> empty --deadline -> ValueError",
+    "binding_mismatch_fields": "UNKNOWN: actual shard binding not emitted",
+    "environment_observations": {
+      "plan_artifact_runner_version": "20261026.354.1",
+      "plan_setup_version": "20261025.353.1",
+      "shard1_setup_version": "20261025.353.1",
+      "other_shard_setup_version": "20261012.334.1"
+    },
+    "missing_report_finalize_upload_aggregate": "downstream failure; no report reconstructed",
+    "performance_result": "NOT_MEASURED"
+  },
+  "current_authority": {
+    "used": "one push plus one Full and one Shadow",
+    "retry_authorized": false,
+    "user_followup": "retain strict Gate; read-only diagnosis and minimal proposal only",
+    "code_modified": false,
+    "worktree_dirty": false,
+    "h2": "NOT_ACCEPTED",
+    "h3": "NOT_STARTED",
+    "draft_pr": 52
+  },
+  "minimal_proposal_not_implemented": {
+    "deadline": "same before-checkout timestamp and43min cap; reuse existing GITHUB_ENV absolute value pattern; remove workspace deadline and unnecessary clean:false; no fallback/recompute",
+    "binding": "keep strict equality before resource registration; only closed field names/public values or digests; validate closed shapes before printing; apply same diagnosis at aggregate rejection",
+    "missing_report": "finalize only when report exists; preserve first native exit; missing evidence still fails closed",
+    "scope": "existing workflow, existing two helpers and focused existing tests; no new service/framework",
+    "environment_contract_change": "not adopted; any host/container split requires separate concrete contract review"
+  },
+  "architecture_handoff": "received as review input only; no new authorization or H0-H5 restart; H4 suggestions deferred to its stage"
+}

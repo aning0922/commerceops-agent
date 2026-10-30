@@ -1,0 +1,335 @@
+{
+  "approved_head": "06e319b5989751a7c1301518eaeea8418ca75669",
+  "merge_checkout": "8e95fb8aa48e980240b5c524bf165b5d6865b6f9",
+  "source_tree": "867b8ae3b3c5060ffd7a65899a323d2f129296f6",
+  "runs": [
+    {
+      "id": 40707885614,
+      "name": "Foundation quality",
+      "head_sha": "06e319b5989751a7c1301518eaeea8418ca75669",
+      "status": "completed",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T14:38:07Z",
+      "updated_at": "2026-10-28T15:18:01Z",
+      "jobs": [
+        {
+          "id": 122884825916,
+          "name": "phase3",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T14:38:11Z",
+          "completed_at": "2026-10-28T15:17:50Z",
+          "seconds": 2379.0
+        },
+        {
+          "id": 122884826607,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T14:38:11Z",
+          "completed_at": "2026-10-28T15:11:41Z",
+          "seconds": 2010.0
+        },
+        {
+          "id": 122884826614,
+          "name": "n01-web",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T14:38:11Z",
+          "completed_at": "2026-10-28T14:48:22Z",
+          "seconds": 611.0
+        },
+        {
+          "id": 122884826669,
+          "name": "frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T14:38:11Z",
+          "completed_at": "2026-10-28T14:58:41Z",
+          "seconds": 1230.0
+        },
+        {
+          "id": 122908356254,
+          "name": "pg-pair",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T15:17:53Z",
+          "completed_at": "2026-10-28T15:18:00Z",
+          "seconds": 7.0
+        }
+      ],
+      "summed_job_minutes": 103.95,
+      "elapsed_seconds": 2394.0
+    },
+    {
+      "id": 40707885615,
+      "name": "H2 PG shadow",
+      "head_sha": "06e319b5989751a7c1301518eaeea8418ca75669",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T14:38:07Z",
+      "updated_at": "2026-10-28T14:42:05Z",
+      "jobs": [
+        {
+          "id": 122884824683,
+          "name": "h2-plan",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-28T14:38:11Z",
+          "completed_at": "2026-10-28T14:39:32Z",
+          "seconds": 81.0
+        },
+        {
+          "id": 122885657397,
+          "name": "h2-shards (3)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:39:35Z",
+          "completed_at": "2026-10-28T14:40:27Z",
+          "seconds": 52.0
+        },
+        {
+          "id": 122885657458,
+          "name": "h2-shards (0)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:39:36Z",
+          "completed_at": "2026-10-28T14:40:25Z",
+          "seconds": 49.0
+        },
+        {
+          "id": 122885657481,
+          "name": "h2-shards (5)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:39:35Z",
+          "completed_at": "2026-10-28T14:41:02Z",
+          "seconds": 87.0
+        },
+        {
+          "id": 122885657620,
+          "name": "h2-shards (2)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:39:41Z",
+          "completed_at": "2026-10-28T14:40:41Z",
+          "seconds": 60.0
+        },
+        {
+          "id": 122885657901,
+          "name": "h2-shards (4)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:39:36Z",
+          "completed_at": "2026-10-28T14:40:14Z",
+          "seconds": 38.0
+        },
+        {
+          "id": 122885658030,
+          "name": "h2-shards (1)",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:39:36Z",
+          "completed_at": "2026-10-28T14:40:57Z",
+          "seconds": 81.0
+        },
+        {
+          "id": 122886530479,
+          "name": "h2-aggregate",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T14:41:05Z",
+          "completed_at": "2026-10-28T14:42:04Z",
+          "seconds": 59.0
+        }
+      ],
+      "summed_job_minutes": 8.45,
+      "elapsed_seconds": 238.0
+    }
+  ],
+  "full_verification": {
+    "result": "PASS all five jobs",
+    "pg_partitions": [
+      413,
+      177
+    ],
+    "passed_pg_calls": 590,
+    "overlap": 0,
+    "exact_full_set_matches_shadow_plan": true,
+    "g1": 3,
+    "g2": 6,
+    "cleanup_exits": [
+      0,
+      0
+    ],
+    "stopping_confirmed": [
+      true,
+      true
+    ],
+    "offline_passed": 2881,
+    "offline_pytest_seconds": 334.62,
+    "frontend_read_write_items": [
+      7,
+      10,
+      7
+    ],
+    "n01": 6,
+    "safe_source_and_stopped_web_resources_verified": true,
+    "secret_gate": "PASS"
+  },
+  "native_metrics": {
+    "run_id": 40707885614,
+    "module_count": 53,
+    "unique_node_count": 590,
+    "call_outcomes": {
+      "passed": 590
+    },
+    "test_activity_minutes": 62.851076287916655,
+    "module_p50_seconds": 34.525235146,
+    "module_p95_seconds": 250.37216770900022,
+    "slow_modules": [
+      {
+        "module": "tests/test_p4_acceptance_pg.py",
+        "count": 7,
+        "seconds": 633.9923892689999,
+        "setup": 0.4438069599999608,
+        "call": 633.135621395,
+        "teardown": 0.41296091399982515
+      },
+      {
+        "module": "tests/test_p4_terminal_recovery_pg.py",
+        "count": 12,
+        "seconds": 487.15692891699837,
+        "setup": 261.3129448939992,
+        "call": 223.76012448699976,
+        "teardown": 2.0838595359994088
+      },
+      {
+        "module": "tests/test_p4_first_create_negatives_pg.py",
+        "count": 7,
+        "seconds": 250.37216770900022,
+        "setup": 12.571544686999687,
+        "call": 237.5289474250003,
+        "teardown": 0.2716755970002396
+      },
+      {
+        "module": "tests/test_p3_approval_pg.py",
+        "count": 28,
+        "seconds": 219.33795823699955,
+        "setup": 50.13793843199977,
+        "call": 168.78038634900003,
+        "teardown": 0.4196334559997581
+      },
+      {
+        "module": "tests/test_p4_history_pg.py",
+        "count": 14,
+        "seconds": 183.0998127139992,
+        "setup": 23.291851725999322,
+        "call": 159.56797028699998,
+        "teardown": 0.23999070099989694
+      },
+      {
+        "module": "tests/test_p4_read_reply_parent_pg.py",
+        "count": 11,
+        "seconds": 178.38706578799997,
+        "setup": 0.508797730999504,
+        "call": 177.73734428000012,
+        "teardown": 0.14092377700035286
+      },
+      {
+        "module": "tests/test_p4_explicit_ro_pg.py",
+        "count": 3,
+        "seconds": 119.2339345800001,
+        "setup": 5.570644915999765,
+        "call": 113.44912856300016,
+        "teardown": 0.2141611010001725
+      },
+      {
+        "module": "tests/test_p3_execution_authority_pg.py",
+        "count": 9,
+        "seconds": 107.74928764700007,
+        "setup": 15.97440726900004,
+        "call": 91.5826873960001,
+        "teardown": 0.19219298199993773
+      },
+      {
+        "module": "tests/test_p4_first_create_pg.py",
+        "count": 3,
+        "seconds": 97.8003288350003,
+        "setup": 5.223568572000204,
+        "call": 92.49226422099991,
+        "teardown": 0.08449604200018257
+      },
+      {
+        "module": "tests/test_p4_queued_terminal_pg.py",
+        "count": 2,
+        "seconds": 97.09835523799961,
+        "setup": 0.08986487399988619,
+        "call": 96.83685136899976,
+        "teardown": 0.1716389949999666
+      }
+    ],
+    "histogram_seconds": {
+      "0-30": 24,
+      "30-120": 23,
+      "120-300": 4,
+      "300+": 2
+    },
+    "proves_new_ci_speedup": false
+  },
+  "shadow_verification": {
+    "result": "FAIL",
+    "plan_nodes": 590,
+    "whole_groups": 35,
+    "binding_refused_shards": [
+      0,
+      2,
+      3,
+      4
+    ],
+    "only_binding_difference": "environment.runner_version",
+    "expected_revision_value": "20261026.354.1",
+    "expected_revision_digest": "68112dd56d6791f97ffa88ccc4e334f2905a9558a83bf9a5d254285e6e521ff7",
+    "actual_revision_digest": "6abe8bc0e841f4f741a420421cc6448b9475606e7b98c78bf72239e5544c5c40",
+    "actual_revision_value": "NOT_CAPTURED; do not substitute setup log value",
+    "passed_binding_and_deadline_shards": [
+      1,
+      5
+    ],
+    "build_and_pg_healthy_exits": [
+      0,
+      0
+    ],
+    "primary_failure_stage": "actual PG image ID check; source-path inference after healthy0",
+    "image_probe_native_exit_stdout": "NOT_CAPTURED",
+    "cleanup_stage_observed": "complete on both started PG shards; no valid v2 run artifact",
+    "secondary_export_error": "empty actual full collection; no PG test collection or execution",
+    "deadline_failure_reproduced": false,
+    "missing_report_native_exit": 1,
+    "missing_report_finalizer_called": false,
+    "performance_result": "NOT_MEASURED"
+  },
+  "local_followup_B": {
+    "code_sha": "040d7bcf4425133cf7ab3367680d42d3d9d0f3fe",
+    "pushed": false,
+    "review": "ACCEPT",
+    "targeted_passed": 218,
+    "targeted_pytest_seconds": 2.77,
+    "ruff_mypy": "PASS two Python files",
+    "precommit_current_index_scan_exit": 0,
+    "precommit_scan_seconds": 20.65817,
+    "offline_collection": 2895,
+    "integration_collection": 590,
+    "collection_is_execution": false,
+    "real_pg_inspect": "NOT_RUN; local control path uses fake capture/process"
+  },
+  "contract_proposal_A": "SCOPE_REVIEW, NOT_IMPLEMENTED; only runner_version equality reclassification needs explicit user approval",
+  "authority": "one approved push/Full/Shadow spent; no automatic retry, no H3/protection changes",
+  "sources": {
+    "compose_quiet_semantics": "https://github.com/docker/compose/blob/v2.38.2/cmd/compose/images.go#L68-L82",
+    "github_rollout": "https://docs.github.com/en/actions/concepts/runners/github-hosted-runners"
+  },
+  "h2": "NOT_ACCEPTED"
+}

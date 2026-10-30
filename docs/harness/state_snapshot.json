@@ -1,0 +1,35 @@
+{
+  "schema_version": "harness-state-snapshot-v3.1",
+  "observed_at": "2026-10-28 15:22:10 UTC",
+  "issues": [
+    {
+      "number": 49,
+      "url": "https://github.com/aning0922/commerceops-agent/issues/49",
+      "title": "Phase5 / M2：Woo只读业务接线、备份恢复与完整交付",
+      "state": "closed",
+      "updated_at": "2026-10-27T02:19:43Z"
+    },
+    {
+      "number": 51,
+      "url": "https://github.com/aning0922/commerceops-agent/issues/51",
+      "title": "Harness V2｜长期 AI 托管开发、模型预算路由与全量 CI 提速（M2 后独立工程整改）",
+      "state": "open",
+      "updated_at": "2026-10-27T22:42:28Z"
+    }
+  ],
+  "authority_receipt": "https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354",
+  "accepted_base_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+  "accepted_tree": "ac92562c26d24eb183143e52de64e5a51282948c",
+  "last_full_ci": "40432280677",
+  "ci_evidence_source": "Issue #49 accepted receipt; H0 read-only CI sampling",
+  "h0_handoff": "c3dd84e2ce36e03a7658bcd266cf6f442da877b5",
+  "h0_code": "b0d61e73f924f84d4afaf319131597b78aedda40",
+  "h0_path": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028",
+  "arm64_stop_ref": "https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477",
+  "harness_stage": "H1 LOCAL_GATE_ACCEPTED at 17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4; integrated Hosted evidence belongs to H2 published head a5c80203",
+  "later_gates": "Published226917d4dba57bdb2eef54180df97e57510e4169 Full/Shadow attempt2 evidence retained, both PASS; warm hits confirmed, material cache net saving not established, Full44m03s. Local Full candidate now reuses existing six-shard plan/native/aggregate with unchanged required contexts and Web/N01/final gate; legacy path remains in exact Git history. New topology Hosted and performance NOT_RUN; no prior result transferred. H3IN_PROGRESS_NOT_ACCEPTED; H4-H5NOT_STARTED",
+  "model_default": "gpt-6.1-sol / medium",
+  "quota": "UNKNOWN; no reservation or token usage claim",
+  "authorization": "User approved local Full topology candidate reusing existing six shards, all business/security/recovery/evidence gates and exact old-path rollback retained. No push/Hosted/protection/main/H4/M3/paidAPI/business resources",
+  "local_reviewed_at": "2026-10-30 12:22:49 UTC"
+}

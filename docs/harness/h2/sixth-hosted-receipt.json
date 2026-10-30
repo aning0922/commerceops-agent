@@ -1,0 +1,355 @@
+{
+  "approved_head": "9a3cea6936586222526515c63b5133afd2e997c9",
+  "merge_checkout": "4dc94ae42bedd6274df71f230b124037ced0cb12",
+  "source_tree": "c2d8e71614651b248d43f5d38001874ddaa86d23",
+  "runs": [
+    {
+      "id": 41001709565,
+      "name": "Foundation quality",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "9a3cea6936586222526515c63b5133afd2e997c9",
+      "run_attempt": 1,
+      "created_at": "2026-10-30T04:13:39Z",
+      "updated_at": "2026-10-30T05:00:54Z",
+      "wall_seconds": 2835.0,
+      "job_minutes": 117.83333333333333,
+      "jobs": [
+        {
+          "id": 123887383896,
+          "name": "frontend",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:13:43Z",
+          "completed_at": "2026-10-30T04:33:24Z",
+          "seconds": 1181.0
+        },
+        {
+          "id": 123887384227,
+          "name": "quality",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:13:43Z",
+          "completed_at": "2026-10-30T04:54:34Z",
+          "seconds": 2451.0
+        },
+        {
+          "id": 123887384251,
+          "name": "phase3",
+          "conclusion": "failure",
+          "started_at": "2026-10-30T04:13:43Z",
+          "completed_at": "2026-10-30T05:00:44Z",
+          "seconds": 2821.0
+        },
+        {
+          "id": 123887384402,
+          "name": "n01-web",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:13:43Z",
+          "completed_at": "2026-10-30T04:23:53Z",
+          "seconds": 610.0
+        },
+        {
+          "id": 123900980594,
+          "name": "pg-pair",
+          "conclusion": "failure",
+          "started_at": "2026-10-30T05:00:47Z",
+          "completed_at": "2026-10-30T05:00:54Z",
+          "seconds": 7.0
+        }
+      ]
+    },
+    {
+      "id": 41001709563,
+      "name": "H2 PG shadow",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "9a3cea6936586222526515c63b5133afd2e997c9",
+      "run_attempt": 1,
+      "created_at": "2026-10-30T04:13:39Z",
+      "updated_at": "2026-10-30T04:31:55Z",
+      "wall_seconds": 1096.0,
+      "job_minutes": 94.75,
+      "jobs": [
+        {
+          "id": 123887383615,
+          "name": "h2-plan",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:13:43Z",
+          "completed_at": "2026-10-30T04:14:47Z",
+          "seconds": 64.0
+        },
+        {
+          "id": 123887716033,
+          "name": "h2-shards (1)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:14:49Z",
+          "completed_at": "2026-10-30T04:30:50Z",
+          "seconds": 961.0
+        },
+        {
+          "id": 123887716051,
+          "name": "h2-shards (3)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:14:49Z",
+          "completed_at": "2026-10-30T04:30:02Z",
+          "seconds": 913.0
+        },
+        {
+          "id": 123887716054,
+          "name": "h2-shards (4)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:14:49Z",
+          "completed_at": "2026-10-30T04:30:51Z",
+          "seconds": 962.0
+        },
+        {
+          "id": 123887716059,
+          "name": "h2-shards (0)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:14:50Z",
+          "completed_at": "2026-10-30T04:29:35Z",
+          "seconds": 885.0
+        },
+        {
+          "id": 123887716074,
+          "name": "h2-shards (5)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:14:50Z",
+          "completed_at": "2026-10-30T04:29:36Z",
+          "seconds": 886.0
+        },
+        {
+          "id": 123887716102,
+          "name": "h2-shards (2)",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:14:50Z",
+          "completed_at": "2026-10-30T04:30:43Z",
+          "seconds": 953.0
+        },
+        {
+          "id": 123892457662,
+          "name": "h2-aggregate",
+          "conclusion": "success",
+          "started_at": "2026-10-30T04:30:54Z",
+          "completed_at": "2026-10-30T04:31:55Z",
+          "seconds": 61.0
+        }
+      ]
+    }
+  ],
+  "full_verification": {
+    "source_sha": "4dc94ae42bedd6274df71f230b124037ced0cb12",
+    "tree": "c2d8e71614651b248d43f5d38001874ddaa86d23",
+    "selected": 590,
+    "actual_collected": 590,
+    "actual_passed_calls": 586,
+    "actual_overlap": 0,
+    "call_outcomes": {
+      "passed": 586
+    },
+    "not_passed": [
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[nullable_digits-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[nullable_digits-0016]"
+    ],
+    "cleanup": [
+      0,
+      0
+    ],
+    "g1_verified_count": 3,
+    "g2_scenarios": [
+      "checkpoint_db_failure_recovered",
+      "cross_process_resume",
+      "graph_lock_loss_cancel",
+      "graph_noncooperative_exit",
+      "receipt_commit_checkpoint_gap",
+      "retired_probe_version_refused"
+    ],
+    "pair": "REJECT ValueError",
+    "prior_native139_group": {
+      "now_exit": 0,
+      "passed": [
+        "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0016]",
+        "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0015]",
+        "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0016]"
+      ]
+    },
+    "current_native139_observed": false
+  },
+  "full_timeout": {
+    "events": [
+      {
+        "event": "command_start",
+        "label": "combined-phase3-test_p4_terminal_recovery_pg-part-3",
+        "limit_seconds": 300,
+        "at": "2026-10-30T04:59:12.468300+00:00"
+      },
+      {
+        "event": "command_timeout",
+        "label": "combined-phase3-test_p4_terminal_recovery_pg-part-3",
+        "at": "2026-10-30T05:00:32.250539+00:00"
+      },
+      {
+        "event": "container_wait",
+        "exit": 0,
+        "at": "2026-10-30T05:00:35.863889+00:00"
+      },
+      {
+        "event": "cli_os_wait",
+        "exit": 137,
+        "at": "2026-10-30T05:00:35.900947+00:00"
+      },
+      {
+        "event": "reader_end",
+        "at": "2026-10-30T05:00:35.916879+00:00"
+      },
+      {
+        "event": "command_end",
+        "label": "combined-phase3-test_p4_terminal_recovery_pg-part-3",
+        "exit": 137,
+        "timed_out": true,
+        "at": "2026-10-30T05:00:35.932598+00:00",
+        "stopping_confirmed": true
+      }
+    ],
+    "last_progress": [
+      {
+        "event": "node_start",
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0015]",
+        "phase": null,
+        "outcome": null
+      },
+      {
+        "event": "phase_start",
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0015]",
+        "phase": "setup",
+        "outcome": null
+      },
+      {
+        "event": "stack_dump",
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_unknown_terminal_read_first_native_once_and_cold_replay[already_v2-0015]",
+        "phase": null,
+        "outcome": null
+      }
+    ],
+    "deadlines": [],
+    "note": "137 is observed supervisor timeout exit, not proof of OOM or business assertion failure"
+  },
+  "deadline_interpretation": {
+    "register_step_started_at_utc": "2026-10-30T04:13:47Z",
+    "workflow_window_minutes": 48,
+    "reserve_seconds": 75,
+    "group_start_utc": "2026-10-30T04:59:12.468300+00:00",
+    "observed_timeout_utc": "2026-10-30T05:00:32.250539+00:00",
+    "observed_seconds_to_timeout": 79.782239,
+    "declared_command_cap_seconds": 300,
+    "conclusion": "global work budget truncated command below300; native timeout aligns with register+48min-75s",
+    "precision_limit": "original microsecond deadline value was not captured; register step is native second resolution; alignment is not reconstructed exact original bytes"
+  },
+  "shadow_verification": {
+    "status": "SUCCESS/all8jobs",
+    "expected_actual_unique_passed": 590,
+    "natural_modules": 53,
+    "execution_groups": 35,
+    "native_phase_events": 1770,
+    "overlap": 0,
+    "six_parent_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "six_cleanup_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "resource_inventory": "6independent projects/volumes, final container/network/volume all0",
+    "g1_verified_count": 3,
+    "g2_count": 6,
+    "actual_pg_image_id": "sha256:589f742565e4f6d22149176b032974f55f8201a8a37b71ed587ec5c6902e689f",
+    "real_python_timer_dumps": 14,
+    "run": 41001709563,
+    "conclusion": "success",
+    "wall_seconds_created_to_updated": 1096.0,
+    "job_minutes": 94.75,
+    "distinct_runner_revisions": [
+      "20261026.354.1"
+    ],
+    "mixed_host_revisions": false,
+    "performance_scope": "observed samples; no complete host equivalence or controlled same-host comparison",
+    "runner_revision_observations": [
+      {
+        "job": "plan",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "shard-0",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "shard-1",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "shard-2",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "shard-3",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "shard-4",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "shard-5",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      },
+      {
+        "job": "aggregate",
+        "runner_version": "20261026.354.1",
+        "source": "Hosted environment ImageVersion"
+      }
+    ],
+    "checkout_verified": true
+  },
+  "other_gates": {
+    "offline_passed": 2925,
+    "offline_seconds": 341.01,
+    "frontend": "read7/write10/items7 source/test0/stop verified, actual provider/model0",
+    "n01": "six source/invariants/complete stop verified",
+    "required_security": "scan steps passed",
+    "source_tools": "Full and Shadow source SHA/tree/tool fingerprints/full set identical"
+  },
+  "native139_observation": {
+    "prior_failed_four_nodes_now_passed_in_original_full": true,
+    "observed_again": false,
+    "full_real_python_timer_dumps": 15,
+    "historical_unique_root_cause": "not retroactively proven; original fatal/C backtrace remains absent"
+  },
+  "performance_limits": [
+    "successful PG Shadow sample only",
+    "Full failed: no successful Full speedup comparison",
+    "Job-minutes are observed sum, not billing",
+    "no p95/repeatability or full host-equivalence claim",
+    "all8Shadow revisions same; not actual mixed-revision evidence"
+  ],
+  "permission_scope": "one fixed push/two attempt1 runs SPENT; no retry/extra run/PR edit/merge/protection/H3",
+  "h2": "NOT_ACCEPTED; incomplete Full blocks; H3-H5 NOT_STARTED",
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-sixth-20261030"
+}

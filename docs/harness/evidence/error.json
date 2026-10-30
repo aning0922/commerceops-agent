@@ -1,0 +1,60 @@
+{
+  "command": [
+    "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent/.venv/bin/python",
+    "-m",
+    "scripts.verify",
+    "fast",
+    "--spec",
+    "docs/harness/task.example.json"
+  ],
+  "process_exit": 1,
+  "outer_wall_seconds": 0.151488,
+  "report": {
+    "base_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+    "branch": "codex/harness-v3",
+    "changed_paths": [
+      "AGENTS.history-20261028.md",
+      "AGENTS.md",
+      "CURRENT_STATE.md",
+      "docs/harness/H1_RESULT.md",
+      "docs/harness/HANDOFF.md",
+      "docs/harness/README.md",
+      "docs/harness/archive.json",
+      "docs/harness/attempt.schema.json",
+      "docs/harness/invalid-error-fixture.json",
+      "docs/harness/state_snapshot.json",
+      "docs/harness/task.example.json",
+      "docs/harness/task.schema.json",
+      "scripts/current_state.py",
+      "scripts/harness_contract.py",
+      "scripts/verify.py",
+      "tests/test_harness_contract.py",
+      "tests/test_harness_verify.py"
+    ],
+    "checks": [],
+    "errors": [
+      "JSON syntax/read failure: docs/harness/invalid-error-fixture.json"
+    ],
+    "exit_code": 1,
+    "full_gate": "NOT_RUN",
+    "full_required": true,
+    "full_required_reasons": [
+      "task risk: high",
+      "verification/control code: scripts/current_state.py",
+      "verification/control code: scripts/harness_contract.py",
+      "verification/control code: scripts/verify.py",
+      "verification/control code: tests/test_harness_contract.py",
+      "verification/control code: tests/test_harness_verify.py",
+      "TaskSpec requires Full"
+    ],
+    "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+    "merge_eligible": false,
+    "mode": "fast",
+    "reason": "invalid input, contract, Git state, or changed-path syntax",
+    "schema_version": "harness-verify-v3.1",
+    "spec_sha256": "c81bc239407bf4031f8d5b28b3ae92d4a4ecc3acb72d6ea745bb95cc68f2dfdc",
+    "status": "FAILED",
+    "usage_source": "UNKNOWN",
+    "wall_seconds": 0.071123
+  }
+}

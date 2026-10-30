@@ -1,0 +1,149 @@
+{
+  "base_sha": "6602e7615014a86ac445d79527a3576631b86a15",
+  "scope": "current unchanged frontend lock/source; native macOS ARM; local cache mechanism, not Hosted/full H3 acceptance",
+  "owned_directory": "/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/commerceops-h3-npm-y_ycctwp",
+  "commands": [
+    {
+      "label": "cold_public_cache",
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 3.235277749830857,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": [
+        "added 41 packages in 3s"
+      ]
+    },
+    {
+      "label": "warm_public_cache",
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.996168249985203,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": [
+        "added 41 packages in 3s"
+      ]
+    },
+    {
+      "label": "warm_offline",
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.960152082843706,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": [
+        "added 41 packages in 3s"
+      ]
+    },
+    {
+      "label": "corrupt_required_react_offline",
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--offline"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 3.4618894590530545,
+      "integrity_error": false,
+      "cache_miss_error": true,
+      "build_summary": [],
+      "error_lines": [
+        "npm error code ENOTCACHED"
+      ]
+    },
+    {
+      "label": "restored_offline",
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.7340019170660526,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": [
+        "added 41 packages in 3s"
+      ]
+    },
+    {
+      "label": "fixed_toolchain",
+      "argv": [
+        "npm",
+        "run",
+        "check:toolchain"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.1779863340780139,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": []
+    },
+    {
+      "label": "typecheck",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.9134468340780586,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": []
+    },
+    {
+      "label": "production_build",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.726062332978472,
+      "integrity_error": false,
+      "cache_miss_error": false,
+      "build_summary": [
+        "\u2713 Compiled successfully in 1184ms",
+        "Generating static pages using 4 workers (0/2) ...",
+        "\u2713 Generating static pages using 4 workers (2/2) in 209ms",
+        "Route (app)"
+      ]
+    }
+  ],
+  "started_at": "2026-10-30T07:52:16.779097+00:00",
+  "lock_sha256": "0958459e1d54335162c55996d1ea63e66179054974907f9b6e125cdd9029706f",
+  "corruption_rejected": true,
+  "status": "PASS",
+  "lock_unchanged": true,
+  "frontend_git_tree": "c15632c9ca147148ef82bd8a3088994f438fa4ca",
+  "frontend_tracked_diff_empty": true,
+  "limits": [
+    "one native macOS ARM sample; uncontrolled machine/network caches",
+    "no-audit is experiment only; all CI audit/security checks unchanged",
+    "no GitHub cache service transport/compression or Hosted timing proof",
+    "no PG/browser service, provider, paid API or production resource",
+    "intentional corruption native1 preserved, then restored offline reinstall and build native0"
+  ]
+}

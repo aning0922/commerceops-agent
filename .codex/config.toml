@@ -1,0 +1,9 @@
+# H1 project defaults; H4 still must validate its isolated execution boundary.
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
+forced_login_method = "chatgpt"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = false

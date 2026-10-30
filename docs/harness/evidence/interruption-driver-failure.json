@@ -1,0 +1,4 @@
+{
+  "status": "FAILED_DRIVER",
+  "reason": "macOS ps -P did not provide child selection; no signal sent; CLI result uncollected. Retained separately from verification success."
+}

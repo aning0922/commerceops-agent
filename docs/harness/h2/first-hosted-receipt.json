@@ -1,0 +1,122 @@
+{
+  "pr": 52,
+  "pr_url": "https://github.com/aning0922/commerceops-agent/pull/52",
+  "approved_head": "8b9e5d41f372ef81d690631b787170a4eab7e4cf",
+  "merge_checkout": "feb88aeb380df379b96fa42620d696e22be16123",
+  "authorization_used": "one original Full + one six-shard Shadow; no automatic retry",
+  "runs": [
+    {
+      "id": 40658357111,
+      "name": "Foundation quality",
+      "head_sha": "8b9e5d41f372ef81d690631b787170a4eab7e4cf",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T08:39:23Z",
+      "updated_at": "2026-10-28T08:40:29Z",
+      "jobs": [
+        {
+          "id": 122714857176,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T08:39:27Z",
+          "completed_at": "2026-10-28T08:40:19Z",
+          "seconds": 52.0
+        },
+        {
+          "id": 122714857520,
+          "name": "n01-web",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T08:39:27Z",
+          "completed_at": "2026-10-28T08:40:19Z",
+          "seconds": 52.0
+        },
+        {
+          "id": 122714857603,
+          "name": "phase3",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T08:39:27Z",
+          "completed_at": "2026-10-28T08:40:14Z",
+          "seconds": 47.0
+        },
+        {
+          "id": 122714857729,
+          "name": "frontend",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T08:39:27Z",
+          "completed_at": "2026-10-28T08:40:17Z",
+          "seconds": 50.0
+        },
+        {
+          "id": 122715225207,
+          "name": "pg-pair",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T08:40:22Z",
+          "completed_at": "2026-10-28T08:40:29Z",
+          "seconds": 7.0
+        }
+      ],
+      "actual_checkouts": [
+        "feb88aeb380df379b96fa42620d696e22be16123"
+      ]
+    },
+    {
+      "id": 40658357225,
+      "name": "H2 PG shadow",
+      "head_sha": "8b9e5d41f372ef81d690631b787170a4eab7e4cf",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "created_at": "2026-10-28T08:39:23Z",
+      "updated_at": "2026-10-28T08:40:02Z",
+      "jobs": [
+        {
+          "id": 122714857016,
+          "name": "h2-plan",
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-28T08:39:27Z",
+          "completed_at": "2026-10-28T08:40:01Z",
+          "seconds": 34.0
+        },
+        {
+          "id": 122715107641,
+          "name": "h2-shards",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-28T08:40:02Z",
+          "completed_at": "2026-10-28T08:40:01Z",
+          "seconds": -1.0
+        },
+        {
+          "id": 122715108104,
+          "name": "h2-aggregate",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-28T08:40:02Z",
+          "completed_at": "2026-10-28T08:40:01Z",
+          "seconds": -1.0
+        }
+      ],
+      "actual_checkouts": [
+        "feb88aeb380df379b96fa42620d696e22be16123"
+      ]
+    }
+  ],
+  "shadow_scan": {
+    "dir": 5,
+    "index": 5,
+    "git_native_findings": 13,
+    "previously_reviewed": 3,
+    "blocking_history": 10
+  },
+  "actual_pg": "NOT_RUN",
+  "actual_web_n01": "NOT_RUN",
+  "actual_offline": "NOT_RUN",
+  "real_speed_comparison": "NOT_RUN"
+}

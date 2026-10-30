@@ -1,0 +1,189 @@
+# LOCAL CANDIDATE. Publication triggers Hosted work; explicit push/PR/CI approval
+# is required before publishing this workflow on the narrowly allowed branch.
+# Full reuses this native contract; artifact names stay workflow-local on the same merge SHA.
+name: H2 PG shadow
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  h2-plan:
+    if: github.repository == 'aning0922/commerceops-agent' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'codex/harness-v3'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.13'
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+        with:
+          version: '0.11.25'
+          enable-cache: false
+      - run: python -m scripts.bootstrap_tools
+      - run: python -m scripts.scan_secrets
+      - run: uv sync --frozen
+      - name: Discover full current integration collection without running tests
+        env:
+          P123_DIAG: '1'
+          P123_TRACE_CHILD: '0'
+        run: |
+          uv run --frozen python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+          result = subprocess.run(
+              ["uv", "run", "--frozen", "python", "-m", "pytest", "-p", "tests.diagnostic_plugin",
+               "-m", "integration", "--collect-only", "-q", "-s"],
+              capture_output=True, text=True, timeout=120, check=True,
+          )
+          rows = [json.loads(line.removeprefix("PG_DIAG ")) for line in result.stdout.splitlines()
+                  if line.startswith("PG_DIAG ")]
+          collections = [row for row in rows if row.get("event") == "collection"]
+          assert len(collections) == 1
+          collection = collections[0]
+          assert collection["count"] == len(collection["nodes"])
+          Path(".audit").mkdir(exist_ok=True)
+          Path(".audit/full.json").write_text(json.dumps(collection["nodes"]))
+          PY
+      - name: Make deterministic six-shard whole-command plan
+        run: |
+          uv run --frozen python -m scripts.pg_ci_evidence plan \
+            --full .audit/full.json --weights docs/harness/h2/weights.json \
+            --shards 6 --output .audit/plan.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: h2-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/plan.json
+          if-no-files-found: error
+          retention-days: 1
+  h2-shards:
+    needs: h2-plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    steps:
+      - name: Register immutable deadline before checkout or preparation
+        run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          stop = (datetime.now(timezone.utc) + timedelta(minutes=43)).isoformat()
+          with Path(os.environ["GITHUB_ENV"]).open("a") as output:
+              output.write(f"COMMERCEOPS_H2_STOP_AT_UTC={stop}\n")
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.13'
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+        with:
+          version: '0.11.25'
+          enable-cache: false
+      - run: python -m scripts.bootstrap_tools
+      - run: python -m scripts.scan_secrets
+      - run: uv sync --frozen
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: h2-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/plan
+      - name: Native isolated PG diagnostic and post-wait exit receipt
+        env:
+          SHARD_ID: ${{ matrix.shard }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime
+          try:
+              stop = datetime.fromisoformat(os.environ.get("COMMERCEOPS_H2_STOP_AT_UTC", ""))
+          except ValueError:
+              raise SystemExit("registered H2 deadline missing or invalid") from None
+          if stop.tzinfo is None:
+              raise SystemExit("registered H2 deadline requires timezone")
+          PY
+          smoke=()
+          if [ "$SHARD_ID" = 0 ]; then smoke=(--full-smoke); fi
+          set +e
+          uv run --frozen python -m scripts.pg_diagnostic \
+            --session ci --round 1 --combined --no-child-trace \
+            --shard-plan .audit/plan/plan.json --shard-id "$SHARD_ID" \
+            "${smoke[@]}" --deadline "$COMMERCEOPS_H2_STOP_AT_UTC"
+          native_exit=$?
+          report=".audit/ci-evidence-shard-$SHARD_ID.json"
+          if [ -f "$report" ]; then
+            uv run --frozen python -m scripts.pg_ci_evidence finalize \
+              --report "$report" --exit "$native_exit"
+            finalize_exit=$?
+          else
+            echo "H2 report not created; native_exit=$native_exit; test evidence unavailable"
+            finalize_exit=1
+          fi
+          set -e
+          if [ "$native_exit" -ne 0 ]; then exit "$native_exit"; fi
+          exit "$finalize_exit"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: h2-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/ci-evidence-shard-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 1
+  h2-aggregate:
+    if: always() && needs.h2-plan.result == 'success'
+    needs: [h2-plan, h2-shards]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12.13'
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+        with:
+          version: '0.11.25'
+          enable-cache: false
+      - run: python -m scripts.bootstrap_tools
+      - run: python -m scripts.scan_secrets
+      - run: uv sync --frozen
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: h2-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/plan
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: h2-shard-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .audit/shards
+          merge-multiple: true
+      - name: Check real matrix result and all exact evidence
+        env:
+          MATRIX_RESULT: ${{ needs.h2-shards.result }}
+        run: |
+          uv run --frozen python - <<'PY'
+          import json, os
+          from pathlib import Path
+          # Matrix success means every native shard job succeeded. Any other matrix
+          # outcome fails all entries closed; a valid artifact cannot save a failed job.
+          Path(".audit/jobs.json").write_text(json.dumps(
+              {str(i): os.environ["MATRIX_RESULT"] for i in range(6)}))
+          PY
+          uv run --frozen python -m scripts.pg_ci_evidence aggregate \
+            --plan .audit/plan/plan.json --job-results .audit/jobs.json \
+            .audit/shards/ci-evidence-shard-*.json

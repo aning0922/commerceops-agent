@@ -1,0 +1,6 @@
+{
+  "exit": 1,
+  "scope": "read-only strict startup; no thread/turn",
+  "reason": "pre-existing global features.rmcp_client unknown to this CLI; global config unchanged",
+  "source": "native startup JSON configLoad /Users/aipuli/.codex/config.toml:26"
+}

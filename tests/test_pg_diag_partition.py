@@ -1,5 +1,8 @@
 """P3 combined预算分组：完整覆盖、真实collection相等、失败/截止停止后续组。"""
 
+from collections.abc import Callable
+from pathlib import Path
+
 import pytest
 
 from scripts import pg_diag_shutdown, pg_diagnostic
@@ -571,3 +574,137 @@ def test_local_regression_cannot_replace_ci_or_full_smoke(
     with pytest.raises(SystemExit) as error:
         pg_diagnostic.main()
     assert error.value.code == 2
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_native_diagnostic_timer_covers_setup_stops_and_preserves_failure(
+    tmp_path: Path, fail: bool
+) -> None:
+    import os
+    import subprocess
+    import sys
+
+    (tmp_path / "conftest.py").write_text(
+        "import threading\n"
+        "from tests import diagnostic_plugin\n"
+        "def pytest_configure(config):\n"
+        "    diagnostic_plugin.STACK_DUMP_SECONDS = 0.01\n"
+        "def pytest_unconfigure(config):\n"
+        "    assert not any(isinstance(t, threading.Timer) for t in threading.enumerate())\n"
+    )
+    (tmp_path / "test_timer.py").write_text(
+        "import pytest, threading, time\n"
+        "@pytest.fixture\n"
+        "def prepared():\n"
+        "    end = time.monotonic() + 0.1\n"
+        "    while time.monotonic() < end:\n"
+        "        worker = threading.Thread(target=lambda: None)\n"
+        "        worker.start()\n"
+        "        worker.join()\n"
+        "def test_setup(prepared):\n"
+        f"    assert {not fail!r}\n"
+        "def test_short():\n"
+        "    pass\n"
+    )
+    command = [
+        sys.executable,
+        "-m",
+        "pytest",
+        "-p",
+        "tests.diagnostic_plugin",
+        "-o",
+        "faulthandler_timeout=0",
+        "-s",
+        "-q",
+        str(tmp_path / "test_timer.py"),
+    ]
+    result = subprocess.run(
+        command,
+        cwd=pg_diagnostic.ROOT,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        env={**os.environ, "P123_DIAG": "1", "P123_TRACE_CHILD": "0"},
+    )
+    assert result.returncode == (1 if fail else 0), result.stdout + result.stderr
+    assert '"event": "stack_dump"' in result.stdout
+    assert "test_timer.py" in result.stderr and "prepared" in result.stderr
+    assert "diagnostic stack timer did not stop" not in result.stdout
+
+
+def test_diagnostic_rejects_unsafe_c_watchdog(tmp_path: Path) -> None:
+    import os
+    import subprocess
+    import sys
+
+    file = tmp_path / "test_short.py"
+    file.write_text("def test_short(): pass\n")
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-p",
+            "tests.diagnostic_plugin",
+            "-o",
+            "faulthandler_timeout=45",
+            "-q",
+            str(file),
+        ],
+        cwd=pg_diagnostic.ROOT,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        env={**os.environ, "P123_DIAG": "1", "P123_TRACE_CHILD": "0"},
+    )
+    assert result.returncode != 0
+    assert "PG diagnostic requires its GIL-held timer" in result.stderr
+
+
+@pytest.mark.parametrize("fault", ["callback", "unjoined"])
+def test_diagnostic_timer_failures_cannot_be_reported_as_success(
+    monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    import os
+    import threading
+    from types import SimpleNamespace
+
+    from tests import diagnostic_plugin as plugin
+
+    descriptor = os.open(os.devnull, os.O_WRONLY)
+    monkeypatch.setattr(os, "dup", lambda _: descriptor)
+
+    class Timer:
+        daemon = False
+
+        def __init__(self, seconds: float, callback: Callable[[], None]) -> None:
+            assert seconds == 45.0
+            self.callback = callback
+
+        def start(self) -> None:
+            if fault == "callback":
+                self.callback()
+
+        def cancel(self) -> None:
+            pass
+
+        def join(self, timeout: float) -> None:
+            assert timeout == 5
+
+        def is_alive(self) -> bool:
+            return fault == "unjoined"
+
+    def fail_dump(**kwargs: object) -> None:
+        raise OSError("private value must not enter diagnostic error")
+
+    monkeypatch.setattr(threading, "Timer", Timer)
+    monkeypatch.setattr("faulthandler.dump_traceback", fail_dump)
+    run = plugin.pytest_runtest_protocol(SimpleNamespace(nodeid="synthetic"))
+    next(run)
+    try:
+        with pytest.raises(RuntimeError) as error:
+            run.send(True)
+        assert "private value" not in str(error.value)
+    finally:
+        if fault == "unjoined":
+            os.close(descriptor)  # Real code retains ownership until the failing process exits.
