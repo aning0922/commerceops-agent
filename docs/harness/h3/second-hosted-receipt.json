@@ -1,0 +1,294 @@
+{
+  "status": "ONE_CORRECTED_FULL_SHADOW_COHORT_PASSED_STAGE_PENDING",
+  "published_head": "226917d4dba57bdb2eef54180df97e57510e4169",
+  "actual_merge": "848cf380bc7199245fd7ec65df5b73ca8ce4ef0b",
+  "actual_tree": "bcc213a14162feb4c52103628c14b3aff23fa539",
+  "runs": [
+    {
+      "id": 41033883585,
+      "name": "Foundation quality",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "226917d4dba57bdb2eef54180df97e57510e4169",
+      "run_attempt": 1,
+      "created_at": "2026-10-30T09:30:08Z",
+      "updated_at": "2026-10-30T10:14:11Z",
+      "wall_seconds": 2643.0,
+      "job_minutes": 103.45,
+      "jobs": [
+        {
+          "id": 123989885144,
+          "name": "phase3",
+          "conclusion": "success",
+          "seconds": 2620.0
+        },
+        {
+          "id": 123989885359,
+          "name": "n01-web",
+          "conclusion": "success",
+          "seconds": 414.0
+        },
+        {
+          "id": 123989885582,
+          "name": "quality",
+          "conclusion": "success",
+          "seconds": 1960.0
+        },
+        {
+          "id": 123989885646,
+          "name": "frontend",
+          "conclusion": "success",
+          "seconds": 1199.0
+        },
+        {
+          "id": 124007505872,
+          "name": "pg-pair",
+          "conclusion": "success",
+          "seconds": 8.0
+        },
+        {
+          "id": 124007582651,
+          "name": "merge-gate",
+          "conclusion": "success",
+          "seconds": 6.0
+        }
+      ]
+    },
+    {
+      "id": 41033883537,
+      "name": "H2 PG shadow",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "226917d4dba57bdb2eef54180df97e57510e4169",
+      "run_attempt": 1,
+      "created_at": "2026-10-30T09:30:08Z",
+      "updated_at": "2026-10-30T09:47:40Z",
+      "wall_seconds": 1052.0,
+      "job_minutes": 82.41666666666667,
+      "jobs": [
+        {
+          "id": 123989884225,
+          "name": "h2-plan",
+          "conclusion": "success",
+          "seconds": 71.0
+        },
+        {
+          "id": 123990389576,
+          "name": "h2-shards (3)",
+          "conclusion": "success",
+          "seconds": 724.0
+        },
+        {
+          "id": 123990389577,
+          "name": "h2-shards (5)",
+          "conclusion": "success",
+          "seconds": 895.0
+        },
+        {
+          "id": 123990389616,
+          "name": "h2-shards (4)",
+          "conclusion": "success",
+          "seconds": 927.0
+        },
+        {
+          "id": 123990389653,
+          "name": "h2-shards (1)",
+          "conclusion": "success",
+          "seconds": 747.0
+        },
+        {
+          "id": 123990389746,
+          "name": "h2-shards (0)",
+          "conclusion": "success",
+          "seconds": 717.0
+        },
+        {
+          "id": 123990389757,
+          "name": "h2-shards (2)",
+          "conclusion": "success",
+          "seconds": 819.0
+        },
+        {
+          "id": 123996572372,
+          "name": "h2-aggregate",
+          "conclusion": "success",
+          "seconds": 45.0
+        }
+      ]
+    }
+  ],
+  "full_pg": {
+    "Full": 41033883585,
+    "source_sha": "848cf380bc7199245fd7ec65df5b73ca8ce4ef0b",
+    "source_tree": "bcc213a14162feb4c52103628c14b3aff23fa539",
+    "verify_pair": "PASS existing original verifier",
+    "same_plan_full_nodes_and_fingerprints": true,
+    "unique_passed_calls": 590,
+    "passed_phases": 1770,
+    "partitions": [
+      413,
+      177
+    ],
+    "cleanup_exits": [
+      0,
+      0
+    ],
+    "stopping_confirmed": [
+      true,
+      true
+    ],
+    "g1_count": 3,
+    "g2_scenarios": [
+      "checkpoint_db_failure_recovered",
+      "cross_process_resume",
+      "graph_lock_loss_cancel",
+      "graph_noncooperative_exit",
+      "receipt_commit_checkpoint_gap",
+      "retired_probe_version_refused"
+    ],
+    "native_job_conclusions": {
+      "phase3": "success",
+      "n01-web": "success",
+      "quality": "success",
+      "frontend": "success",
+      "pg-pair": "success",
+      "merge-gate": "success"
+    },
+    "scope": "current Full PG proof, not a substitute for remaining Web/N01/merge-gate"
+  },
+  "shadow_pg": {
+    "run": 41033883537,
+    "status": "completed",
+    "conclusion": "success",
+    "aggregate_verification": "PASS existing verify_shards with native job statuses",
+    "unique_passed_calls": 590,
+    "passed_phases": 1770,
+    "source_sha": "848cf380bc7199245fd7ec65df5b73ca8ce4ef0b",
+    "source_tree": "bcc213a14162feb4c52103628c14b3aff23fa539",
+    "native_parents": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "g1_count": 3,
+    "g2_scenarios": [
+      "checkpoint_db_failure_recovered",
+      "cross_process_resume",
+      "graph_lock_loss_cancel",
+      "graph_noncooperative_exit",
+      "receipt_commit_checkpoint_gap",
+      "retired_probe_version_refused"
+    ],
+    "all_resources_zero": true,
+    "job_minutes": 82.41666666666667,
+    "scope": "Shadow PG only; not Full/H3 acceptance; job-minutes not billing",
+    "wall_seconds_created_to_updated": 1052.0,
+    "native_aggregate_observations": {
+      "distinct_runner_revisions": [
+        "20261026.354.1"
+      ],
+      "mixed_host_revisions": false,
+      "performance_scope": "observed samples; no complete host equivalence or controlled same-host comparison",
+      "runner_revision_observations": [
+        {
+          "job": "plan",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-0",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-1",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-2",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-3",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-4",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-5",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "aggregate",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        }
+      ]
+    }
+  },
+  "full_other_gates": {
+    "offline_passed": 2969,
+    "offline_seconds": 226.17,
+    "integration_excluded_from_offline": 590,
+    "n01_actual_cases": 6,
+    "frontend_actual_cases": {
+      "read": 7,
+      "write": 10,
+      "items": 7
+    },
+    "source_and_stop_proofs": "PASS for the current source and actual owned resources",
+    "worker_or_provider": "No real business provider started; synthetic test effects remain isolated",
+    "security": "All required native steps succeeded"
+  },
+  "merge_gate": {
+    "job_id": 124007582651,
+    "native_conclusion": "success",
+    "checkout_verified": true,
+    "marker": "Full merge gate passed: all five current-run dependencies succeeded; exact source bound",
+    "scope": "actual same-run all-five-needs success plus current SHA/tree proof; new additive gate actually executed"
+  },
+  "cache": {
+    "restore_observation": "Both Web jobs missed the same entry during their parallel startup. No warm restore occurred.",
+    "cache_entry_digest": "dc5ae11c5eb3e03b3a9b8ec5205f672ae19b5863cd5379f24161b49a329c28d7",
+    "n01_saved": true,
+    "n01_post_save_seconds": 3,
+    "frontend_saved": false,
+    "frontend_warning": "Reservation conflict on the immutable entry after N01 had saved it. Native job and post step still succeeded.",
+    "frontend_post_save_seconds": 1,
+    "net_benefit": "NOT_MEASURED. No claim from a cold successful cohort."
+  },
+  "same_scope_pg_observation": {
+    "scope": "current same-source same590-set PG subgraph only; original quality+phase3+pair vs plan+sixshards+aggregate; different uncontrolled hosts, one cohort",
+    "original_pg_wall_seconds": 2631.0,
+    "original_pg_job_minutes": 76.46666666666667,
+    "shadow_wall_seconds": 1052.0,
+    "shadow_job_minutes": 82.41666666666667,
+    "observed_wait_reduction_percent": 60.015203344735845,
+    "observed_job_minutes_increase_percent": 7.781168265039229,
+    "not_billing_or_stable_p95": true
+  },
+  "limits": [
+    "Only one successful corrected H3 cohort. Three comparable Full runs and warm cache evidence remain incomplete.",
+    "Full remains 44 minutes 03 seconds. The 20 to 25 minute engineering target is not reached.",
+    "Shadow PG is not the complete required Full. No billing or stable capacity claim.",
+    "All eight Shadow revisions match. This does not prove mixed revision execution.",
+    "Original e33 Full workflow rejection and historical failures remain retained."
+  ],
+  "review_scope": "Independent result review is recorded externally, never inferred from the CI status.",
+  "permission": "Single fixed candidate push and two attempt1 runs SPENT. No retry, further push, PR edit, main merge, protection mutation or H4.",
+  "h3": "IN_PROGRESS_NOT_ACCEPTED",
+  "h4_h5": "NOT_STARTED",
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-ninth-20261030"
+}

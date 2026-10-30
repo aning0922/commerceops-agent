@@ -1,7 +1,7 @@
 # CURRENT_STATE
 
 Product authority snapshot: 2026-10-28 15:22:10 UTC; product facts retained.
-Local Harness state reviewed at 2026-10-30 09:21:04 UTC.
+Local Harness state reviewed at 2026-10-30 10:58:13 UTC.
 Run `uv run --frozen python -m scripts.current_state --json` for live local Git facts.
 
 - Product: M2 / Phase5 accepted and [#49 closed](https://github.com/aning0922/commerceops-agent/issues/49); M3 is unapproved.
@@ -11,13 +11,13 @@ Run `uv run --frozen python -m scripts.current_state --json` for live local Git 
 - Active engineering task: [#51 open](https://github.com/aning0922/commerceops-agent/issues/51); its title still says V2, while the
   authorized implementation material is Harness V3.
 - Harness: H0 local candidate B Gate accepted; H1 LOCAL_GATE_ACCEPTED at 17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4; integrated Hosted evidence belongs to H2 published head a5c80203;
-  H2 prior exact a5c80203/Full41010032206/Shadow41010032199 acceptance retained. H3 NOT_ACCEPTED: published e33cc4b Full41028393476 workflow validationFAIL/0jobs, Shadow41028403294 SUCCESS590PG/1770phases/G1/G2/native0/cleanup0 preserved. Local context repair b54fcf2129b1c1b43568cd8020152748c45e2c10 independently ACCEPTED: two runtime cache assignments only; pinned actionlint1.7.12 exact old negative2errors/current2workflowsPASS, Fast27.746s/LOCAL_PASS/full_requiredtrue/full_gateNOT_RUN/merge_eligiblefalse.247focusedpass + final affected2pass; collection2969offline/590integration only. Repair Hosted/PG/Web/N01/cache-net-benefit NOT_RUN; final metadata is not new Hosted source. H4-H5 NOT_STARTED.
+  H2 exact prior a5 acceptance retained. Corrected published226917d4dba57bdb2eef54180df97e57510e4169 Full41033883585 SUCCESS all6 and Shadow41033883537 SUCCESS all8, both attempt1, actual merge848cf380bc7199245fd7ec65df5b73ca8ce4ef0b/tree bcc213a14162feb4c52103628c14b3aff23fa539. Both590PG/1770phases/G1three/G2six/native0/cleanup0, Full2969offline/Web24/N01six/security/actualmergegate PASS. Full44m03s/103.45observedjob-minutes, PGsubgraph43m51s/76.4667 vs Shadow17m32s/82.4167; not billing or Full speedup. Both Web cache restores MISS; N01 saved, frontend later same entry reservation warning, no warm/net-benefit proof. H3 IN_PROGRESS_NOT_ACCEPTED: only one corrected successful cohort, three comparable Full and warm evidence incomplete; old e33 Full failure retained. H4-H5 NOT_STARTED.
 - H0 handoff: `c3dd84e2ce36e03a7658bcd266cf6f442da877b5`; code freeze `b0d61e73f924f84d4afaf319131597b78aedda40` in
   `/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028`.
 - Model policy: gpt-6.1-sol / medium by default; Astra requires scoped approval. Model
   availability was catalog-only in H0; inference NOT_RUN. Quota/token usage UNKNOWN, no
   reservation claimed, no paid API fallback.
-- Authorized scope: User explicitly authorizes local repair of two cache path assignments plus mature semantic preflight/check/review/freeze only. No push/newHosted/protection/main/H4/M3/paidAPI/business resources; previous single-pair grant SPENT and failed published e33 source preserved.
+- Authorized scope: Fixed226 push plus one Full and Shadow grant SPENT, exactly2attempt1 native runs. Local result closeout only; no retry/newpush/PR edit/main/protection/H4/M3/paidAPI/business resources. Further Hosted observations need separate explicit authorization.
 - [Old ARM64 CI stopped](https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477); preserve its Worktree and WIP.
 - Next Gate: see [handoff](docs/harness/HANDOFF.md). Fast/Impacted give local feedback;
   existing Full required gates remain authoritative. Published a5c80203 passed its exact

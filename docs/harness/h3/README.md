@@ -1,9 +1,46 @@
 # H3 — Web, caching and final Full gate
 
-Status: **H3_NOT_ACCEPTED / LOCAL_CONTEXT_REPAIR_REVIEWED**. H2 acceptance remains scoped to published
+Status: **ONE_CORRECTED_HOSTED_COHORT_PASSED / H3_NOT_ACCEPTED**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
+
+## Corrected Hosted cohort — 2026-10-30
+
+Published226917d4dba57bdb2eef54180df97e57510e4169, one push, both attempt1:
+[Full41033883585](https://github.com/aning0922/commerceops-agent/actions/runs/41033883585)
+and [Shadow41033883537](https://github.com/aning0922/commerceops-agent/actions/runs/41033883537)
+SUCCESS. Actual merge848cf380bc7199245fd7ec65df5b73ca8ce4ef0b, treebcc213a14162feb4c52103628c14b3aff23fa539.
+[Exact receipt](second-hosted-receipt.json). Original e33 workflow rejection remains below.
+
+Full all6 jobs pass, including original pg-pair and the new actual merge-gate. Full PG413+177
+and Shadow both cover exactly590unique passed calls and1770passed phases; tools and full sets
+match. G1three and G2six, native termination, original cleanup gates and Web stop proofs pass.
+Offline2969pass/226.17s, Web read7/write10/items7 and N01six actual cases pass. Shadow all8jobs
+pass; six distinct owned projects end with containers0/networks0/volumes0. Each pipeline has
+14real PythonTimer dumps. All8Shadow ImageVersions are20261026.354.1, not mixed-revision proof.
+
+| Native observed scope | Wall | Sum of job minutes |
+|---|---:|---:|
+| Complete required Full, six jobs |44m03s|103.45|
+| Original PG subgraph, quality + phase3 + pg-pair |43m51s|76.4667|
+| Shadow PG pipeline, eight jobs |17m32s|82.4167|
+
+This single same-source PG comparison observes60.02% less wait and7.78% more cumulative job
+minutes. It is not billing, stable capacity, controlled host equivalence or a Full17minute
+result. Complete Full is still44m03s; the20to25minute target has not been reached.
+
+Both Web cache restore operations miss the same immutable entry. N01 saves it successfully
+with3s observed post-step duration. Frontend later reports a reservation conflict on that
+entry, native post-step success/1s; this is retained as a cache warning, not hidden or marked
+a failed business gate. There is no warm restore or demonstrated net benefit. No new cache
+coordination facility is justified by this nonblocking observation.
+
+Only one successful corrected H3 Full cohort is now available. The required three comparable
+Full observations, warm cache evidence and complete H3 acceptance remain incomplete. Do not
+run more CI under this SPENT authorization. No Required Check switch, protection mutation,
+main merge, H4 or M3. This later local result-only handoff is unpushed and has no new Hosted
+source claim. Independent review and final scanner are bound by actual external receipts.
 
 ## First Hosted terminal result — 2026-10-30
 

@@ -229,3 +229,18 @@ that committed occurrence is proposed through the existing exact reviewed-histor
 No scanner-rule,17allowance, classification-logic, workflow or checker change. History
 expected set becomes10, retaining all strict negative checks. Final independent approval
 and full scan bind the final SHA externally; no new Hosted action is authorized.
+
+## Corrected H3 Hosted cohort closeout — 2026-10-30
+
+Published226917d4dba57bdb2eef54180df97e57510e4169, actualmerge848cf380bc7199245fd7ec65df5b73ca8ce4ef0b,
+treebcc213a14162feb4c52103628c14b3aff23fa539. Full41033883585 SUCCESS/all6 with actual merge-gate;
+Shadow41033883537 SUCCESS/all8, both attempt1, grantSPENT. [Receipt](h3/second-hosted-receipt.json).
+Both PG sets590exact/1770passed phases/G1three/G2six/native0/cleanup0; Full2969offline,
+Web24/N01six/security and stopped-resource proofs pass. Shadow six distinct resources end0.
+Full44m03s/103.45observedjob-minutes, originalPG43m51s/76.4667 vs Shadow17m32s/82.4167;
+one uncontrolled cohort, not billing/Full17min or target achievement. Both Web restoresMISS,
+N01 saved/post3s, frontend later same entry reservation warning/post1s/native success; warm
+restore and cache net benefit NOT_MEASURED. No extra coordination or automatic retry.
+H3stillIN_PROGRESS_NOT_ACCEPTED: three comparableFull and warm evidence incomplete. Old e33
+failure retained. This local result-only handoff is unpushed; final scan and independent review
+are actual external receipts. No furtherpush/CI/PRedit/main/protection/H4/M3 authority.
