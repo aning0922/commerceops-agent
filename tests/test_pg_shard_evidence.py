@@ -329,7 +329,7 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
         assert job["timeout-minutes"] <= 45
     native = next(s for s in jobs["h2-shards"]["steps"] if s.get("name", "").startswith("Native"))
     assert native["run"].index("native_exit=$?") < native["run"].index("pg_ci_evidence finalize")
-    # H3 adds a final gate and N01 source output; all five original consumers stay intact.
+    # H3 may cache public packages and remove only checks still run by scripts.check.
     old = subprocess.check_output(
         ["git", "show", "6d3a8f7:.github/workflows/quality.yml"], cwd=root
     )
@@ -337,9 +337,40 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
     current = yaml.safe_load((root / ".github/workflows/quality.yml").read_text())["jobs"]
     for name in original:
         candidate = dict(current[name])
+        if name in {"n01-web", "frontend"}:
+            candidate["env"] = dict(candidate["env"])
+            del candidate["env"]["npm_config_cache"]
+            candidate["steps"] = [
+                dict(step)
+                for step in candidate["steps"]
+                if step.get("name")
+                not in {
+                    "Restore only public npm content cache",
+                    "Observe safe public-cache identity",
+                }
+            ]
         if name == "n01-web":
             del candidate["outputs"]
             candidate["steps"] = candidate["steps"][:-1]
+            preparation = next(
+                step
+                for step in candidate["steps"]
+                if step.get("name", "").startswith("Prepare locked")
+            )
+            preparation["run"] = (
+                preparation["run"]
+                .replace(
+                    'cd "$GITHUB_WORKSPACE/frontend"\n',
+                    'cd "$GITHUB_WORKSPACE/frontend"\n'
+                    "run_before_cleanup npm ci --ignore-scripts\n"
+                    "run_before_cleanup npm run check:toolchain\n"
+                    "run_before_cleanup npm run typecheck\n",
+                )
+                .replace(
+                    "# Complete scripts.check above covers this same source.\n",
+                    "",
+                )
+            )
         assert original[name] == candidate
 
 

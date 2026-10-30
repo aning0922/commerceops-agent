@@ -1,11 +1,11 @@
 # H3 — Web, caching and final Full gate
 
-Status: **IN_PROGRESS / H3-A LOCAL_CANDIDATE**. H2 acceptance remains scoped to published
+Status: **IN_PROGRESS / H3-A LOCALLY_ACCEPTED / H3-B LOCAL_CANDIDATE**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
 
-## Active package: H3-A additive final gate
+## Accepted package: H3-A additive final gate
 
 Base `6b4ab4a19bc47ca200f2821edc1d9e455194f2f5`; Root is sole writer in the existing
 `codex/harness-v3` Worktree. Default Sol/medium; quota UNKNOWN, no paid fallback. A single
@@ -67,10 +67,75 @@ and [job outputs](https://docs.github.com/en/actions/how-tos/write-workflows/cho
 Review Web preparation/build duplication and safe shared-build/cache candidates using the
 same source and pinned tool/lock identity. Reuse existing runners and validators; do not cache
 credentials, `.env`, PG state or sensitive logs. Preserve all original Required Checks until
-an explicitly approved transition. Cache/build implementation is not included in H3-A.
+an explicitly approved transition. Cache/build implementation is not included in H3-A; H3-B below is its bounded continuation.
 
 Full H3 acceptance still requires the original contract's three comparable Hosted Full runs,
 including clean and warm cache observations, complete PG/Web/N01/offline/security/resource
 proof and an executable rollback. No such remote run is authorized by this local instruction.
 H4-H5 remain NOT_STARTED. H3-A rollback is a normal revert of its additive gate and N01
 output changes; original job bodies and branch protection need no restoration.
+
+## Active package: H3-B local Web preparation and public npm cache
+
+Base `6602e7615014a86ac445d79527a3576631b86a15`. The existing Sol Reviewer has now ACCEPTED
+H3-A's five-file metadata delta without rerunning checks; earlier capacity failures remain
+recorded. Same Root writer/Worktree/branch, local-only grant, no model escalation/API fallback.
+
+N01 removes only its second `npm ci --ignore-scripts`, `check:toolchain` and `typecheck`.
+The unchanged complete `scripts.check` still performs all three on this same checkout,
+inside the same immutable deadline before production build. No new optional job substitutes
+for a protected check. Frontend's own checks and all PG/Web/N01/security/audit/cleanup gates
+remain. The same exact reconstruction test compares all original consumer bodies after
+accounting only for these explicit duplicates, H3-A source output and public-cache steps.
+
+Both Web jobs use pinned official actions/cache v4.3.0
+`0057852bfaa89a56745cba8c7296529d2fc39830` (read-only official tag API verified). The sole cache
+path is `${runner.temp}/commerceops-npm/_cacache`, with no restore-prefix fallback. No
+node_modules, .next, Playwright binaries, uv environment, .env, auth configuration, logs,
+evidence or PG state is saved. The key includes OS/arch/ubuntu24/actual ImageVersion,
+Python/Node/npm/uv/Playwright/action versions and package/package-lock/.npmrc/uv.lock/tool pin
+hashes. Native ImageVersion is read explicitly rather than assuming a runner variable is
+available in the GitHub expression env context. Missing/malformed image identity or a lock
+entry lacking integrity/public HTTPS npm registry origin disables caching; installation and
+all checks still run. Current lock has92 public integrity-pinned package entries.
+
+A cache hit never skips installation or any check. npm ci still uses the lock and integrity
+verification. PR caches remain subject to GitHub merge-ref isolation; no cache-mode override,
+privileged event, additional token or write permission is introduced. References:
+[npm cache integrity](https://docs.npmjs.com/cli/cache/),
+[GitHub cache scope](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching).
+
+Actual native macOS/ARM experiment, fixed Node24.21.0/npm11.19.0, unchanged frontend source
+and lock, task-owned fresh cache/HOME and empty npm user/global config, no provider credentials:
+
+| Command scope | Native exit | Wall seconds |
+|---|---:|---:|
+| Empty public cache npm ci |0|3.235278|
+| Same warm public cache npm ci |0|2.996168|
+| Warm cache offline npm ci |0|2.960152|
+| Intentionally corrupted required React cache, offline npm ci |1, ENOTCACHED|3.461889|
+| Restored required content, offline npm ci |0|2.734002|
+| Fixed toolchain check |0|0.177986|
+| Typecheck |0|0.913447|
+| Production build |0|4.726062|
+
+[Actual receipt](npm-local-experiment.json). Install experiments use --ignore-scripts and
+--no-audit to measure package rehydration; this flag is not added to CI and does not substitute
+for an audit. Corruption caused npm to reject/refetch the content and fail without a network
+fallback in offline mode; do not call it an EINTEGRITY exit (native error was ENOTCACHED).
+The original content was restored and the next offline installation and build passed. Cache
+and evidence belong only to this experiment, not existing/shared server data. No service ran.
+
+The observed local cold/warm difference is only0.239110s. Do not extrapolate it to Hosted or
+claim a net cache benefit: cache compression/transport and Hosted runner/network costs are
+NOT_RUN. The three duplicate preparation commands avoid work locally, but the original Full
+critical path remains governed by required PG jobs. No new build-sharing job or Next/uv/
+Playwright cache is justified by this small local build sample alone; remaining H3 work stays
+bounded by actual Hosted evidence and separately authorized runs.
+
+Validation: focused239pass/12.47s; after a type-annotation-only test correction, affected cache
+and original-consumer-equivalence7pass/0.29s, Ruff/mypy2files/diff pass. First Ruff failed two
+long test literals, and mypy rejected direct access to the check module's imported subprocess;
+both were fixed without runtime workflow changes. Six necessary new offline cases cover
+cache identity/origin/integrity and mandatory surviving preparation. No business test deleted.
+Independent review/final SHA scanner follow separately; no pre-signed Hosted or H3 acceptance.
