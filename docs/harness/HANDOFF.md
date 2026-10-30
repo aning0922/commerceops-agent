@@ -188,3 +188,20 @@ rejected unsynchronized provenance; after exact JSON synchronization dir0/index0
 code is limited to this data record and expected-test tuple, not N01/PG/business changes;
 2966offline full-pass source remains8645634, not backfilled to this later SHA. Independent
 approval and final default dir/index/git scan must be actual external receipts.
+
+## First H3 Hosted terminal handoff — 2026-10-30
+
+Published e33cc4b04bac1d806aa390cfb7c515c126067be3, one push/grantSPENT/exactly2attempt1 records.
+Full41028393476 FAILS workflow validation onpush,0jobs; job.env runner.temp is invalid at
+quality.yml69and531. No Full merge checkout/PG/offline/Web/N01/merge-gate/cache/build ran.
+Shadow41028403294 SUCCESS/all8, actualmerge63f06f10d8f82f431b419f051beee255524df6de /
+treedf7778bf6ec56eca7536c60548390af911d46e8a,590unique calls/1770passed phases/G1three/G2six/
+6native0/cleanup0/resource0,14real PythonTimer dumps. Exact N-way artifacts/native jobs/logs
+verify.18m05s/89.2observedjob-minutes, not billing/Full replacement/cache benefit. All8revisions
+20261026.354.1, no mixed-host proof. [Receipt](h3/first-hosted-receipt.json).
+Independent review confirms BLOCKER; local syntax/custom assertions missed GH context legality.
+Next proposed local fix moves only2cache-directory assignments into existing preparation steps
+and uses a mature semantic checker; NOT_IMPLEMENTED. H3NOT_ACCEPTED, H4-H5NOT_STARTED.
+No retry/push/PRedit/main/protection. Prior H2 exact acceptance/historical failures retained;
+this later result-only handoff is unpushed and is not a new Hosted source. Final scan/review
+are recorded externally against its actual SHA; do not pre-sign them.

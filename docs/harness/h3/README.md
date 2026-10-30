@@ -1,9 +1,42 @@
 # H3 — Web, caching and final Full gate
 
-Status: **IN_PROGRESS / H3-A LOCALLY_ACCEPTED / H3-B LOCALLY_REVIEWED**. H2 acceptance remains scoped to published
+Status: **H3_BLOCKED / FIRST_HOSTED_FULL_WORKFLOW_REJECTED**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
+
+## First Hosted terminal result — 2026-10-30
+
+Published `e33cc4b04bac1d806aa390cfb7c515c126067be3`, one push, authorization SPENT.
+[Full41028393476](https://github.com/aning0922/commerceops-agent/actions/runs/41028393476)
+FAILS workflow validation before any job exists. Its native event is push and job count0;
+no Full PR merge checkout, offline/PG/Web/N01/cache/build/merge-gate ran. GitHub reports
+job-level env references to runner.temp at lines69and531 are invalid. This is a configuration
+error, not a PG test failure or an H2 performance result. Artifacts/cache timing are NOT_RUN.
+
+[Shadow41028403294](https://github.com/aning0922/commerceops-agent/actions/runs/41028403294)
+SUCCESS/all8jobs/attempt1, actual merge63f06f10d8f82f431b419f051beee255524df6de,
+treedf7778bf6ec56eca7536c60548390af911d46e8a. All six closed artifacts validate against the
+canonical590node/35execution-group plan; existing verify_shards and actual native job results
+pass. Logs independently contain590unique passed calls/1770passed phases; all six native
+parents0/cleanup0, G1three/G2six, distinct owned resources with final containers/networks/
+volumes0,14real PythonTimer dumps. Plan/shards/aggregate all observe ImageVersion20261026.354.1,
+not actual mixed-revision proof. Wall18m05s,89.2observed job-minutes, not billing. It does not
+replace the rejected Full or qualify H3. [Exact receipt](first-hosted-receipt.json).
+
+Independent failure review confirms a BLOCKER and the prior local review blind spot:
+YAML/Bash parsing and custom wiring assertions did not check allowed expression contexts;
+one assertion mirrored the invalid job-env placement. GitHub's
+[context table](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability)
+excludes runner from job-level env and allows it in step env/run/with. The smallest subsequent
+local repair is relocating both assignments to the existing preparation steps using native
+RUNNER_TEMP, preserving restore/save and npm's same owned directory. Reuse a mature semantic
+checker such as actionlint for the actual workflows; do not create a custom expression parser,
+new framework or expanded test matrix. This repair is proposed, NOT_IMPLEMENTED in this run.
+
+H3 remains NOT_ACCEPTED; original H2 exact a5c80203 acceptance is retained, H4-H5 NOT_STARTED.
+No retry, second push, PR-body edit, main merge, protection change or new remote run. Local
+results below are historical local evidence and cannot prove Hosted workflow validity.
 
 ## Accepted package: H3-A additive final gate
 

@@ -1,0 +1,124 @@
+{
+  "status": "H3_BLOCKED_FULL_WORKFLOW_VALIDATION_FAILED",
+  "published_head": "e33cc4b04bac1d806aa390cfb7c515c126067be3",
+  "expected_pr_merge": "63f06f10d8f82f431b419f051beee255524df6de",
+  "expected_pr_merge_tree": "df7778bf6ec56eca7536c60548390af911d46e8a",
+  "full": {
+    "run_id": 41028393476,
+    "native_status": "completed",
+    "conclusion": "failure",
+    "event": "push",
+    "job_count": 0,
+    "workflow": ".github/workflows/quality.yml",
+    "native_annotation_source": "https://github.com/aning0922/commerceops-agent/actions/runs/41028393476",
+    "errors": [
+      {
+        "line": 69,
+        "column": 25,
+        "message": "Unrecognized named-value: 'runner'. Located at position 1 within expression: runner.temp"
+      },
+      {
+        "line": 531,
+        "column": 25,
+        "message": "Unrecognized named-value: 'runner'. Located at position 1 within expression: runner.temp"
+      }
+    ],
+    "classification": "GitHub workflow expression-context validation rejected job-level env; no Full jobs/tests/cache restore/build ran",
+    "no_ci_retry": true,
+    "local_checks_gap": "YAML syntax and custom contracts did not validate allowed GitHub expression contexts"
+  },
+  "shadow": {
+    "run": 41028403294,
+    "status": "completed",
+    "conclusion": "success",
+    "aggregate_verification": "PASS existing verify_shards with native job statuses",
+    "unique_passed_calls": 590,
+    "passed_phases": 1770,
+    "source_sha": "63f06f10d8f82f431b419f051beee255524df6de",
+    "source_tree": "df7778bf6ec56eca7536c60548390af911d46e8a",
+    "native_parents": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "g1_count": 3,
+    "g2_scenarios": [
+      "checkpoint_db_failure_recovered",
+      "cross_process_resume",
+      "graph_lock_loss_cancel",
+      "graph_noncooperative_exit",
+      "receipt_commit_checkpoint_gap",
+      "retired_probe_version_refused"
+    ],
+    "all_resources_zero": true,
+    "job_minutes": 89.2,
+    "scope": "Shadow PG only; not Full/H3 acceptance; job-minutes not billing",
+    "wall_seconds_created_to_updated": 1085.0,
+    "native_aggregate_observations": {
+      "distinct_runner_revisions": [
+        "20261026.354.1"
+      ],
+      "mixed_host_revisions": false,
+      "performance_scope": "observed samples; no complete host equivalence or controlled same-host comparison",
+      "runner_revision_observations": [
+        {
+          "job": "plan",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-0",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-1",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-2",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-3",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-4",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "shard-5",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        },
+        {
+          "job": "aggregate",
+          "runner_version": "20261026.354.1",
+          "source": "Hosted environment ImageVersion"
+        }
+      ]
+    }
+  },
+  "run_attempts": {
+    "41028393476": 1,
+    "41028403294": 1
+  },
+  "full_measurements": "NOT_RUN: offline,PG,Web,N01,merge-gate,cache restore/save/build and full resource gates never started",
+  "performance": "Shadow18m05s/89.2observed job-minutes; no same-source Full comparison or H3 cache benefit; not billing",
+  "observed_shadow_python_timer_dumps": 14,
+  "independent_failure_review": "BLOCKER confirmed; previous local acceptance did not prove workflow expression contexts valid; semantic checker recommended",
+  "next_local_proposal": "move invalid job-level cache directory assignment into each existing preparation step with native RUNNER_TEMP; reuse mature workflow semantic checker; NOT_IMPLEMENTED",
+  "authorization": "one push and exactly these two attempt1 records SPENT; no retry/newpush/PR-body/main/protection/H4/M3/paidAPI",
+  "h2": "prior exact published a5c80203 acceptance retained; not transferred to current Full",
+  "h3": "IN_PROGRESS_NOT_ACCEPTED",
+  "h4_h5": "NOT_STARTED",
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/hosted-eighth-20261030"
+}
