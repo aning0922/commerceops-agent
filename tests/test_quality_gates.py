@@ -604,8 +604,9 @@ def test_reviewed_history_findings_are_exact_and_git_only(tmp_path: Path) -> Non
         ("17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4", "docs/harness/README.md", 5),
         ("14c901437de6004875974e9a0fd49d8aa666e2a4", "tests/test_pg_shard_evidence.py", 67),
         ("14c901437de6004875974e9a0fd49d8aa666e2a4", "tests/test_pg_shard_evidence.py", 288),
+        ("893de472f670cad4fe56735c66db8e70083accc5", "docs/harness/h3/README.md", 152),
     }
-    assert len(rows) == 8
+    assert len(rows) == 9
     assert {(row["Commit"], row["File"], row["StartLine"]) for row in rows} == expected
     for row in rows:
         assert secret_scan.approved_history_finding("git", row)

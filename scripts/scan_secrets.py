@@ -160,6 +160,19 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
         ),
         "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/h3/README.md",
+        "source_commit": "893de472f670cad4fe56735c66db8e70083accc5",
+        "declaration_line": 152,
+        "reported_line": 152,
+        "declaration_sha256": "acf6c3ead7d1fb55d77d52d3cb7bad159faf1685b29bcf2c327e247d32f4d7dd",
+        "reported_line_sha256": "acf6c3ead7d1fb55d77d52d3cb7bad159faf1685b29bcf2c327e247d32f4d7dd",
+        "fingerprint": (
+            "893de472f670cad4fe56735c66db8e70083accc5:docs/harness/h3/README.md:generic-api-key:152"
+        ),
+        "match_sha256": "e80c03884d7197a25aa45b5404207aba793d2e9fb1a683b8627ab4edf8d804eb",
+    },
 )
 
 

@@ -176,3 +176,15 @@ reserve/no timeout, owned cache/config only, tracked diffempty. [Receipt](h3/ful
 No runtime implementation changes; reuse valid same-source checks. Later metadata-only
 handoff needs its own scanner, not another whole offline run. H3 remainsIN_PROGRESS; no
 Hosted/realPG/Web/N01 acceptance or Full speedup claim. Remote ban and H4/M3 ban persist.
+
+Final metadata scan893de47 initiallyFAIL: dir1/index1/git9 with one new blocking ordinary
+prose occurrence at h3/README152, no credential. Failure retained externally. Current prose
+is reworded and the immutable old occurrence alone is bound to existing exact historical
+review data (commit/path/line/fingerprint/whole-line/redacted-match hashes). No .gitleaks rule
+or17existing path/line allowances change, no history rewrite. Native existing test now expects
+exactly9historical occurrences and retains all changed-field/wrong-scope/other-commit rejection
+checks:8focusedpass/7.72s, Ruff/mypy2/docs/diff pass. An initial current-only attempt correctly
+rejected unsynchronized provenance; after exact JSON synchronization dir0/index0. Final new
+code is limited to this data record and expected-test tuple, not N01/PG/business changes;
+2966offline full-pass source remains8645634, not backfilled to this later SHA. Independent
+approval and final default dir/index/git scan must be actual external receipts.

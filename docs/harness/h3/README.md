@@ -149,7 +149,7 @@ SHA externally; H3 overall/Hosted acceptance is not implied.
 Exact source `8645634d4aca734344be68640d186692bbef1207`, which already has independent code/
 metadata ACCEPT. No implementation change was needed. One actual complete `uv run --frozen
 python -m scripts.check` exits0 in318.437312s:2966offline pass/590integration deselected/
-4warnings/271.92s, full secret scan, lock/docs/lint/format/full typecheck, npm installation/
+4warnings/271.92s. Security, lockfile, documentation, lint, formatting, typing and npm/
 fixed toolchain/typecheck/audit and95locked Python runtime/dev/build packages audited with
 known vulnerabilities0. Immediately afterward, `npm run build` exits0 in3.238832s. Both
 complete inside one23minute local window with85sreserve, no timeout, using the previously
@@ -169,3 +169,13 @@ N01 preparation489s and six actual cases109s. Preparation bundles tools/checks/b
 installation, not build alone. This old sample is not a new candidate benchmark or evidence
 that artifact sharing would improve the current critical path. The remaining H3 acceptance
 requires separately authorized real Hosted measurements; no new local framework is needed.
+
+The first later metadata freeze893de47 was blocked by one generic-api-key finding in an
+ordinary prose line152 describing checks. It contains no credential; the failure receipt is
+retained. Current prose is reworded without changing meaning. Its already committed public
+historical occurrence is proposed for the existing exact history review mechanism, bound to
+commit/path/line/fingerprint/whole-line hashes/redacted-match hash. This grants no dir/index
+exemption, path allowlist or scanner-rule change, and does not rewrite Git history. The
+existing history test adds that one expected occurrence and retains all wrong-scope, changed-
+commit, changed-match and other field rejection checks. Actual independent approval and the
+final full scanner result are recorded separately, not inferred from this proposal.
