@@ -1,9 +1,57 @@
 # H2 local results and independent-review handoff
 
-Status: **LOCAL_DIAGNOSTIC_REPAIR_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED**.
-Frozen runtime repair0e571359 has local independent code/PG acceptance, not Hosted approval.
-Last remote head1be2c0f: Shadow passed, original Full failed139; no retry, H3-H5 not started.
-Product UI: NOT_APPLICABLE.
+Status: **H2_NOT_ACCEPTED / SIXTH_HOSTED_TERMINAL**. Published head9a3cea6,
+actual merge4dc94ae42bedd6274df71f230b124037ced0cb12/treec2d8e716. Shadow passed; original
+Full failed a different terminal-recovery group at its global work cutoff. Prior139 group
+now passes in Full, but this is not complete Full acceptance. No retry/H3-H5; UI N/A.
+
+## Sixth authorized Hosted pair — 2026-10-30
+
+[Terminal receipt](sixth-hosted-receipt.json) preserves the fixed candidate
+`9a3cea6936586222526515c63b5133afd2e997c9`, actual merge/tree, all jobs and raw-free native
+facts. One push, exactly2runs/attempt1; no extra dispatch/retry/PR edit/merge/protection/H3.
+Remote branch/main stay9a3cea6/6d3a8f7 and DraftPR52 remains OPEN. Runtime source did not change.
+
+| Scope | Native outcome | Observed walltime | Observed job-minutes |
+|---|---|---:|---:|
+| Original Full41001709565 | FAILURE | 47m15s | 117.8333 |
+| PG Shadow41001709563 | SUCCESS, all8jobs | 18m16s | 94.7500 |
+
+Shadow:590unique passed calls,53natural modules,35execution groups,1770native phases,
+no missing/overlap; all6parents/cleanup0, isolated owned projects/volumes and zero final
+container/network/volume inventories. Actual PG image IDs agree, designated G1three/G2six.
+Fourteen real PythonTimer dumps occurred with the repair. All8job revisions are20261026.354.1,
+source recorded, mixed_host_revisions=false; not a real mixed-revision proof. These are one
+successful PG sample's timings, not whole Full speedup, p95, billing or repeatability claims.
+
+Full quality413pass/G1three/G2six/cleanup0 and5real PythonTimer dumps. Phase3 collects177,
+passes173, with10real PythonTimer dumps; the original native139 part1 four nodes now pass
+with group native0. No139 observed this run; the historical unique cause is not backfilled.
+New blocker: combined-phase3-test_p4_terminal_recovery_pg-part-3 exits137/timed_outtrue,
+cleanup0/stopping confirmed. Its4nodes are collected but no passed call; last progress is
+first already_v2-0015 setup plus a real PythonTimer dump. No failed assertion-phase event.
+Full total590collected/586passed/0overlap; original verify_pair rejects, native pg-pair fails.
+
+Global budget evidence: phase3 deadline registration native step begins04:13:47UTC, original
+workflow grants48min and the unchanged supervisor preserves75s reserve. Last group starts
+04:59:12.468300UTC and command_timeout occurs05:00:32.250539UTC:79.782239s, although declared
+cap remains300s. Its stop aligns with register+48min-75s and budget=min(cap,remaining work).
+Thus it did not receive a full300s; remaining global work time was insufficient. The original
+microsecond deadline string is absent, so this alignment is not a claim to reconstruct it.
+Exit137 here is an observed supervised timeout, not evidence of OOM or a failed business
+assertion. Do not extend deadlines, delete tests or treat unexecuted nodes as passed.
+
+Both workflows bind exact same source/tree/tool fingerprints/full590set. Offline2925pass/
+341.01s, frontendread7/write10/items7 and N01six pass, source/stopping/invariants verify;
+actual business provider/modelcalls0. Required security steps pass. Evidence reads had
+transient TLS timeouts; only identical artifact/log reads were repeated, never Hosted runs.
+
+H2 remains unaccepted because Full is incomplete. Next bounded local investigation should
+measure original phase3 cumulative test/startup/reporting costs before a minimal change;
+no causal hardware or diagnostic-overhead explanation is invented from these timings.
+A common-completed-phase comparison is retained externally as observation, not causal proof.
+All earlier failure receipts remain intact. This local result-only handoff is unpushed and
+has no new runtime behavior; final default scanner receipt will bind its exact SHA externally.
 
 ## Native139 local diagnostic repair — 2026-10-30
 

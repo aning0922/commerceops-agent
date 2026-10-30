@@ -72,3 +72,20 @@ Hosted exact attribution remains unproven, historical failure retained; current 
 Full/Shadow/whole local suites NOT_RUN, H2NOT_ACCEPTED/H3-H5NOT_STARTED. Full and Shadow both
 trace0: prior external trace1/0 inference retracted with original+correction preserved.
 Final metadata-only handoff is unpushed; final full scanner receipt binds that SHA externally.
+
+## Sixth Hosted terminal handoff — 2026-10-30
+
+Fixed published head9a3cea6936586222526515c63b5133afd2e997c9, merge4dc94ae42bedd6274df71f230b124037ced0cb12,
+treec2d8e71614651b248d43f5d38001874ddaa86d23. [Receipt](h2/sixth-hosted-receipt.json).
+One push/exactly2attempt1 runs, grant SPENT; no retry/PR edit/merge/protection/H3. Shadow41001709563
+SUCCESS/all8/590unique/1770phases/G1three/G2six/native0/cleanup0/14real PythonTimer dumps,
+18m16s and94.75observed job-minutes. Original Full41001709565 FAILURE/47m15s/117.8333job-minutes;
+quality413pass/G1three/G2six/cleanup0, phase3collect177/pass173. Prior139 four-node group now
+passes native0; no139 this run, no retroactive unique-root-cause claim. New part3 has4collected/
+0passed, native137/timed_outtrue/cleanup0:04:59:12.468300start to05:00:32.250539timeout79.782239s,
+aligned original48min global deadline minus75sreserve, not a full300s command window. Raw
+microsecond deadline absent;137 is not OOM proof. Full590collected/586passed/pairreject;
+offline2925/Web24/N01six/security pass. Both source/tree/tools/fullsets match exactly.
+H2NOT_ACCEPTED/H3-H5NOT_STARTED. Next local bounded analysis should measure phase3 cumulative
+costs, retaining all tests/time bounds/Gates; no blind CI retry or speculative platform.
+This metadata-only handoff stays unpushed and distinct from the fixed Hosted source.
