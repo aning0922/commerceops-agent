@@ -89,3 +89,20 @@ offline2925/Web24/N01six/security pass. Both source/tree/tools/fullsets match ex
 H2NOT_ACCEPTED/H3-H5NOT_STARTED. Next local bounded analysis should measure phase3 cumulative
 costs, retaining all tests/time bounds/Gates; no blind CI retry or speculative platform.
 This metadata-only handoff stays unpushed and distinct from the fixed Hosted source.
+
+## Local phase3 startup handoff — 2026-10-30
+
+Core7b27a43ee9acfc6af21f79281946ceed613737bf/base0dfebc2; only test-stage uv sync adds
+--compile-bytecode. [Receipt](h2/bytecode-local-optimization.json). Existing native17command
+costs show219.89s start→collection within257.04s nonphase, not proof of reporter cost.
+Same-source nativeARM prototype ABBAAB new-container exact4collection median7.283620→3.361610s,
+build6.943181s; not Hosted/cold-machine/net-cost proof. Actual frozen candidate build11.171895s,
+14928venv pyc/tests0/optimize0;248offline focused pass4.06s. Actual same-source part3 four-node
+PG:12phase passes, native0/110.680165s,45sTimer dump1, window135.170445s/720deadline/180reserve/
+300command, before inventory0/final cleanup0/resource0. Actual image590PG collect matches prior
+plan/6.520904s, not full execution. Empty post--rm image lookup and correction retained.
+Existing Sol Reviewer ACCEPT code and actual receipts/no BLOCKER/UI N/A; all tests/time/
+source/image/native/permissions/Full/security Gates unchanged, no framework/shared cache.
+Current Full/Shadow/whole suites NOT_RUN; H2NOT_ACCEPTED, H3-H5NOT_STARTED. Local-only
+continuation, no push/newHosted/merge/protection. Final metadata handoff unpushed; full
+scanner will bind exact final SHA in external receipt. Do not extrapolate local medians.

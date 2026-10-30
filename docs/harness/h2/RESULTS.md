@@ -1,9 +1,66 @@
 # H2 local results and independent-review handoff
 
-Status: **H2_NOT_ACCEPTED / SIXTH_HOSTED_TERMINAL**. Published head9a3cea6,
-actual merge4dc94ae42bedd6274df71f230b124037ced0cb12/treec2d8e716. Shadow passed; original
-Full failed a different terminal-recovery group at its global work cutoff. Prior139 group
-now passes in Full, but this is not complete Full acceptance. No retry/H3-H5; UI N/A.
+Status: **LOCAL_BYTECODE_CANDIDATE_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED**.
+Local core7b27a43 reduces measured repeated startup cost with one test-stage build option.
+Current candidate Hosted Full/Shadow NOT_RUN; last remote9a3cea6 Full remains failed at its
+global cutoff. All Gates retained; H3-H5 not started. UI NOT_APPLICABLE.
+
+## Local phase3 startup optimization — 2026-10-30
+
+[Optimization receipt](bytecode-local-optimization.json), code
+`7b27a43ee9acfc6af21f79281946ceed613737bf`, base0dfebc2. User continuation covers bounded local
+H2 analysis/implementation/review, not another push/Hosted run or H3. Root is sole writer.
+
+Existing run41001709565/job123887384251 timestamps show17completed test commands:
+2354.792600s in completed pytest phases,2611.834046s command wall, difference257.041446s.
+Start→collection totals219.893579s; the remaining37.147867s still mixes shutdown/reporting/
+container overhead. These are sums over completed commands, not whole workflow walltime;
+the cut-off part3 is excluded. This does not establish reporter I/O as the root cause.
+
+A controlled-source prototype compares the existing frozen local test image with a derived
+image that only runs the existing frozen uv sync plus bytecode compilation. Native Linux/ARM,
+Python3.12.13/pytest9.1.1/optimize0;15332Python source files hash identically. Six sequential
+new containers in ABBAAB order collect the exact original part3 four nodes, all exits0:
+
+| Variant | Sample wall seconds | Descriptive median |
+|---|---|---:|
+| Baseline | 7.418550 /7.224947 /7.283620 | 7.283620s |
+| Dependency bytecode | 3.361610 /3.352098 /3.407723 | 3.361610s |
+
+That is3.922010s lower median for this local command. Host/Docker caches are uncontrolled;
+new containers are not cold-machine measurements. The prototype uses the previous frozen
+image to isolate the mechanism; it is not substituted for new-candidate evidence. Its
+build6.943181s and the actual candidate build11.171895s are observations, not incremental
+compile cost, Hosted estimates, net savings or a promise to remove the Full budget deficit.
+
+The only runtime change is test-stage `uv sync --frozen --no-editable --compile-bytecode`.
+The runtime stage, locks, base-image digest, dependencies, pytest assertion rewriting,
+plugins/45sTimer, test collections,300s/absolute/cleanup and all security/Required Gates are
+unchanged. This uses [uv's existing Docker guidance](https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode),
+not a new cache service, shared writable volume, host-pyc injection or scheduler. uv can
+ignore compilation errors, so sync0 is not claimed as complete compilation proof. Actual
+new image inspection finds14928venv pyc/tests pyc0/optimize0. No assertion-cache fix is claimed.
+
+Actual candidate validation, source7b27a43:
+
+- 248 existing focused offline checks pass/4.06s; no tests added, retired, skipped or rewritten.
+- One new isolated local PG project runs the original part3 four exact nodes together, both
+ schema variants:12phase passes, native0/110.680165s, real default45sTimer dump1. Entire
+ window135.170445s within720/180reserve/300command. Creation-before inventory0 is recorded;
+ cleanup0 and final container/network/volume0. Only the new disposable volume is removed
+ after success. This is targeted ARM PG, not old ARM64 CI or Hostedx64 proof.
+- Actual new image590unique PG collection matches the old Hosted plan exactly, exit0/
+ 6.520904s; no execution claim for the remaining nodes. No source mounts override the image.
+- Metadata lookup initially used Compose images after the --rm test container had gone,
+ producing an empty ref; the actual image was then read from its owned build tag plus exact
+ project/service labels. Original receipt and correction are retained; no test was retried.
+- Existing independent Sol Reviewer ACCEPTED the one-line code and matching actual-image/PG
+ receipts, no BLOCKER; correctness/safety and complexity passed, UI N/A. Reviewer ran no checks.
+
+H2 stays unaccepted: this is a local build candidate, not proof that Hosted Full now fits its
+budget. No Full/Shadow or whole local PG/offline suite was rerun for this candidate. Next
+remote validation still needs a new explicit one-pair grant. Final local handoff scanner
+receipt binds the ordinary metadata freeze externally; no scan result is prefilled here.
 
 ## Sixth authorized Hosted pair — 2026-10-30
 
