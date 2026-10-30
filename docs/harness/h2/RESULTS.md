@@ -1,9 +1,67 @@
 # H2 local results and independent-review handoff
 
-Status: **H2_NOT_ACCEPTED / FIFTH_HOSTED_TERMINAL**. Published fixed head
-`1be2c0fae7984064987ee8d11b4a94136b1b175d`, actual merge
-`4f82de969113a8d8c7f221fc2325957ab6127aa5`, tree403de8502d0aa7aea0175876966ffa7cea958f5a.
-Fifth Shadow SUCCESS; original Full FAILURE. No retry, H3-H5 not started. UI N/A.
+Status: **LOCAL_DIAGNOSTIC_REPAIR_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED**.
+Frozen runtime repair0e571359 has local independent code/PG acceptance, not Hosted approval.
+Last remote head1be2c0f: Shadow passed, original Full failed139; no retry, H3-H5 not started.
+Product UI: NOT_APPLICABLE.
+
+## Native139 local diagnostic repair — 2026-10-30
+
+[Local repair receipt](native139-local-repair.json) binds code
+`0e57135974770ac02372a44922aa3cc0223476a1` to baseaed9f320. User authorized local diagnosis,
+minimal repair, targeted validation, independent review and normal freeze only; no push/new CI/H3.
+
+Confirmed locally: in the repository-pinned Python3.12.13 Linux/arm64 image, a pure thread
+creation/retirement loop exits0 twice with C watchdog off and139 twice with it on. A separate
+narrow stopped-container inspection records native139/OOMKilledfalse. This probe has no PG,
+business code, network or core dump. Earlier macOS code-churn attempts did not reproduce a
+crash and remain recorded. The successful reproducer accelerates the timer with repetition;
+it is not the original45s single-fire Hosted workload. Thus it confirms a local runtime defect,
+not the unique cause of the prior Hostedx64 event. Original fatal/C backtrace remains absent.
+
+[CPython3.12.13 source](https://github.com/python/cpython/blob/v3.12.13/Modules/faulthandler.c)
+separates its C watchdog from the Python-callable dump path requiring the GIL. Upstream
+[threaded faulthandler report](https://github.com/python/cpython/issues/116008) supports this
+failure family; [newer metadata-race report](https://github.com/python/cpython/issues/158200)
+was tested on main/3.16debug, and is not substituted for exact-runtime local evidence.
+
+Only the existing PG diagnostic caller/plugin change behavior. Replace the unsafe C timer
+with a45s PythonTimer around the whole test protocol, including module-fixture setup.
+Its Python-callable dump holds the GIL; fatal handling remains enabled. Cancel/join5 at
+completion; a remaining Timer fails closed and retains its FD until process exit, avoiding
+late writes to a recycled descriptor. Dump error reports only class and fails. Reject a
+nonzero C watchdog setting instead of running two timers. There is no new service/framework.
+**Limitation:** if the GIL is stuck the Python callback may be late; this is diagnostic output,
+not a hard timeout. Original300s command, absolute stop, cleanup reserve, native outcomes,
+all business tests, permissions/recovery semantics and every Required Gate remain intact.
+
+Actual validation:
+
+- Existing five focused suites:248passed/3.83s. After annotation-only fixes, five new cases
+  passed again/1.29s; Ruff lint/format and mypy3files pass. New native pytest cases exercise
+  setup/thread activity, preserved assertion failure, timer cleanup, callback failure and
+  nonzero C-watchdog refusal. First authoring246pass/2fail4.08s used an incorrect hook
+  __wrapped__ assumption; import style and11test type errors were corrected, not assertions.
+- Same pinned Linux/arm64 Python3.12.13/pytest9.1.1 with the actual plugin:3pure stress cases
+  pass,3real accelerated dumps, fatal handler enabled, Timer cleanup asserted; wall2.585575s.
+- One new isolated local PG project executes the **same original four nodes together**, both
+  schema variants. Twelve phases pass; group native0/126.739315s and one actual default45s
+  dump. Whole window142.323050s within720, reserve180, original command cap300. Cleanup0;
+  container/network/volume all0. Only the new confirmed-disposable volume was removed after
+  success. This is targeted local PG, not revival of old ARM64 CI or Hostedx64 proof.
+- Actual collection2925offline/590integration, exits0, wall4.656529s/3.044340s. Five additions,
+  zero retired nodes; original PG set unchanged. Collection is not whole-suite execution.
+- Existing independent Sol Reviewer ACCEPTED fixed code and exact four-node evidence, no
+  BLOCKER; UI N/A/complexity reasonable. No checks were repeated by Reviewer.
+
+Context correction: exact original workflow also had --no-child-trace. Both Full and Shadow
+used P123_TRACE_CHILD=0; an earlier external comparison's trace1/0 inference was wrong. That
+record is preserved with a companion correction; it is removed from causal reasoning.
+
+Frozen repair, real local test result and historical Hosted failure remain separate claims.
+Current candidate Hosted Full/Shadow, complete local PG/offline and unique Hosted attribution
+are NOT_RUN/unproven. H2 stays unaccepted and no remote retry is signed. Final handoff scanner
+runs on the ordinary metadata freeze; its exact-SHA receipt is external to avoid self-reference.
 
 ## Fifth authorized Hosted pair — 2026-10-30
 

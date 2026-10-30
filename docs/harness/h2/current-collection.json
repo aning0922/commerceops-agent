@@ -1,12 +1,12 @@
 {
-  "source_sha": "44d56553a49eb04fb939a54bdb65177e3a55f114",
+  "source_sha": "0e57135974770ac02372a44922aa3cc0223476a1",
   "scope": "collect-only, not test execution",
   "collections": [
     {
       "marker": "offline",
       "exit": 0,
-      "wall_seconds": 4.10375,
-      "count": 2920,
+      "wall_seconds": 4.656529,
+      "count": 2925,
       "nodes": [
         "tests/e2e/web/test_c09_source_manifest.py::test_code_fixtures_and_other_evidence_remain_bound_and_changes_detected[frontend/components/inventory-request-text.tsx]",
         "tests/e2e/web/test_c09_source_manifest.py::test_code_fixtures_and_other_evidence_remain_bound_and_changes_detected[frontend/evidence/p4-c09/contract-results.json]",
@@ -2473,6 +2473,9 @@
         "tests/test_pg_diag_partition.py::test_acceptance_five_nodes_keep_complete_independent_300s_command",
         "tests/test_pg_diag_partition.py::test_all_collected_nodes_run_once_in_serial_bounded_module_commands",
         "tests/test_pg_diag_partition.py::test_approval_and_future_execution_modules_follow_actual_collection_without_skips",
+        "tests/test_pg_diag_partition.py::test_diagnostic_rejects_unsafe_c_watchdog",
+        "tests/test_pg_diag_partition.py::test_diagnostic_timer_failures_cannot_be_reported_as_success[callback]",
+        "tests/test_pg_diag_partition.py::test_diagnostic_timer_failures_cannot_be_reported_as_success[unjoined]",
         "tests/test_pg_diag_partition.py::test_failed_group_stops_without_running_phase3",
         "tests/test_pg_diag_partition.py::test_failed_p5_module_keeps_later_modules_unrun",
         "tests/test_pg_diag_partition.py::test_historical_no_phase3_keeps_one_original_command_and_empty_paths",
@@ -2494,6 +2497,8 @@
         "tests/test_pg_diag_partition.py::test_missing_overlapping_or_extra_partition_fails_before_commands[groups0]",
         "tests/test_pg_diag_partition.py::test_missing_overlapping_or_extra_partition_fails_before_commands[groups1]",
         "tests/test_pg_diag_partition.py::test_missing_overlapping_or_extra_partition_fails_before_commands[groups2]",
+        "tests/test_pg_diag_partition.py::test_native_diagnostic_timer_covers_setup_stops_and_preserves_failure[False]",
+        "tests/test_pg_diag_partition.py::test_native_diagnostic_timer_covers_setup_stops_and_preserves_failure[True]",
         "tests/test_pg_diag_partition.py::test_p4_gateway_base_and_future_pg_modules_use_business_partition_with_original_caps",
         "tests/test_pg_diag_partition.py::test_p5_complete_modules_keep_partition_and_original_caps[all]",
         "tests/test_pg_diag_partition.py::test_p5_complete_modules_keep_partition_and_original_caps[existing]",
@@ -2931,42 +2936,19 @@
       ],
       "delta_from_previous_collection": {
         "added": [
-          "tests/test_pg_shard_evidence.py::test_aggregate_cli_reports_every_job_revision",
-          "tests/test_pg_shard_evidence.py::test_mixed_revision_does_not_hide_other_environment_changes[arch-aarch64]",
-          "tests/test_pg_shard_evidence.py::test_mixed_revision_does_not_hide_other_environment_changes[compose-2.38.2]",
-          "tests/test_pg_shard_evidence.py::test_mixed_revision_does_not_hide_other_environment_changes[docker-Docker version different]",
-          "tests/test_pg_shard_evidence.py::test_mixed_revision_does_not_hide_other_environment_changes[os-Darwin]",
-          "tests/test_pg_shard_evidence.py::test_mixed_revision_does_not_hide_other_environment_changes[pg_image-postgres:17.11-bookworm@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]",
-          "tests/test_pg_shard_evidence.py::test_mixed_revision_does_not_hide_other_environment_changes[runner_image-ubuntu22]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[aggregate-20261026.354.1\\n]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[aggregate-None]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[aggregate-UNKNOWN]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[aggregate-]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[aggregate-unknown]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[plan-20261026.354.1\\n]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[plan-None]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[plan-UNKNOWN]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[plan-]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[plan-unknown]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[shard-20261026.354.1\\n]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[shard-None]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[shard-UNKNOWN]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[shard-]",
-          "tests/test_pg_shard_evidence.py::test_revision_observation_missing_or_unknown_fails_closed[shard-unknown]",
-          "tests/test_pg_shard_evidence.py::test_revision_only_difference_survives_export_and_aggregate[False]",
-          "tests/test_pg_shard_evidence.py::test_revision_only_difference_survives_export_and_aggregate[True]",
-          "tests/test_pg_shard_evidence.py::test_revision_source_is_fixed_and_required",
-          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path0-ubuntu22]"
+          "tests/test_pg_diag_partition.py::test_diagnostic_rejects_unsafe_c_watchdog",
+          "tests/test_pg_diag_partition.py::test_diagnostic_timer_failures_cannot_be_reported_as_success[callback]",
+          "tests/test_pg_diag_partition.py::test_diagnostic_timer_failures_cannot_be_reported_as_success[unjoined]",
+          "tests/test_pg_diag_partition.py::test_native_diagnostic_timer_covers_setup_stops_and_preserves_failure[False]",
+          "tests/test_pg_diag_partition.py::test_native_diagnostic_timer_covers_setup_stops_and_preserves_failure[True]"
         ],
-        "removed": [
-          "tests/test_pg_shard_evidence.py::test_strict_binding_diagnoses_only_changed_field_digests[path0-20261012.334.1]"
-        ]
+        "removed": []
       }
     },
     {
       "marker": "integration",
       "exit": 0,
-      "wall_seconds": 2.749793,
+      "wall_seconds": 3.04434,
       "count": 590,
       "nodes": [
         "tests/test_checkpoint_pg.py::test_checkpoint_write_db_failure_does_not_report_persisted_interrupt",

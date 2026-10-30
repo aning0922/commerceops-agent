@@ -1,10 +1,11 @@
 # H2 PG Full local candidate
 
-Status: **H2_NOT_ACCEPTED / FIFTH_HOSTED_TERMINAL**. Fixed head1be2c0f, actual merge4f82de96:
-PG Shadow40984497438 SUCCESS (590unique actual passes,18m54s), original Full40984497286
-FAILURE (phase3 native139; no retry). Full had578/590passed calls; pg-pair correctly rejects.
-Local A/B remain independently accepted, but H3-H5 are not started. See [actual results](RESULTS.md)
-and [fifth receipt](fifth-hosted-receipt.json). Required Checks and original workflow remain intact.
+Status: **LOCAL_DIAGNOSTIC_REPAIR_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED**.
+Local native139 repair0e571359 has independent code review and actual original-four-node PG
+pass; it does not prove the unique Hostedx64 cause or Full recovery. Last remote1be2c0f:
+Shadow40984497438 PASS, original Full40984497286 FAIL. Current candidate Full/Shadow NOT_RUN,
+H3-H5 not started. See [results](RESULTS.md), [local repair](native139-local-repair.json)
+and preserved [fifth receipt](fifth-hosted-receipt.json). Required Checks remain intact.
 This stage reduces the existing PG critical path by assigning existing bounded execution
 commands to four or six isolated shards. It extends `scripts.pg_ci_evidence` and
 `scripts.pg_diagnostic`; it adds no scheduler, DB, service, fixture shortcut or model call.

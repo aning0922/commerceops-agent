@@ -1,0 +1,264 @@
+{
+  "status": "LOCAL_DIAGNOSTIC_REPAIR_ACCEPTED / UNPUSHED; H2_NOT_ACCEPTED",
+  "base_sha": "aed9f3207dfc949feb689d3332c446d31179da15",
+  "code_sha": "0e57135974770ac02372a44922aa3cc0223476a1",
+  "confirmed_local_mechanism": "Pinned Linux/arm64 Python3.12.13 pure-thread lifecycle probe: C watchdog on139/on139, off0/off0; separate stopped-container exit139/OOMKilledfalse; no PG/business code",
+  "hosted_cause": "consistent with the known asynchronous stack-walk failure path, not uniquely proven; original C/fatal backtrace absent; do not claim Hosted root cause fully confirmed",
+  "context_correction": "Full and Shadow both --no-child-trace; former external trace1/0 inference retracted, original record preserved with companion correction",
+  "runtime_change": [
+    "only existing PG diagnostic entry sets C watchdog timeout0",
+    "existing plugin wraps entire test protocol, including module setup, with45s GIL-held PythonTimer",
+    "fatal handler unchanged; dump failure or unjoined Timer fails closed",
+    "cancel/join5; do not recycle retained FD while a late writer lives"
+  ],
+  "unchanged": [
+    "all business tests/invariants",
+    "590 current PG nodes",
+    "300-second command limit",
+    "absolute deadlines and cleanup reserve",
+    "native exits/Full/Required Checks/security/permissions/recovery",
+    "workflows/locks/DB schema"
+  ],
+  "limitation": "Python Timer needs GIL and may fire late if GIL is stuck; external supervisor remains hard stop",
+  "pure_probe": {
+    "architecture": "Linux/arm64; native local, not Hosted x64",
+    "image": "python:3.12.13-slim-bookworm@sha256:4766d8b510c428e595d74b9cc5bbb2fae8e26316fffb4adc89908d79aacd58a2",
+    "no_pg_no_business_no_network_no_core": true,
+    "results": [
+      {
+        "mode": "off",
+        "exit": 0,
+        "seconds": 2.427794,
+        "completed": true,
+        "stderr_bytes": 0
+      },
+      {
+        "mode": "on",
+        "exit": 139,
+        "seconds": 0.276186,
+        "completed": false,
+        "stderr_bytes": 0
+      },
+      {
+        "mode": "on",
+        "exit": 139,
+        "seconds": 0.270099,
+        "completed": false,
+        "stderr_bytes": 0
+      },
+      {
+        "mode": "off",
+        "exit": 0,
+        "seconds": 2.25273,
+        "completed": true,
+        "stderr_bytes": 0
+      }
+    ]
+  },
+  "narrow_container_state": {
+    "probe": "same pure-thread C watchdog; narrow stopped-container facts",
+    "cli_exit": 139,
+    "container_exit": 139,
+    "oom_killed": false,
+    "running": false,
+    "seconds": 0.245237,
+    "architecture": "Linux/arm64 local; no Hosted causal proof"
+  },
+  "actual_plugin_probe": {
+    "image": "p5compat-07142988cb58-pg-test:latest",
+    "runtime": "Linux/arm64 Python3.12.13 pytest9.1.1",
+    "plugin_sha256": "9aa74c153669032fc840b47ac24f365b852c986fdfe6f38c03f4cb5c0ec4e251",
+    "exit": 0,
+    "wall_seconds": 2.585575,
+    "passed_three": true,
+    "actual_stack_dumps": 3,
+    "native_stack_frames": true,
+    "fatal_handler_enabled_assertion": true,
+    "timer_reaped_assertion": true,
+    "scope": "pure local process stress, no PG/business/network/core; not Hosted x64"
+  },
+  "offline_feedback": {
+    "targeted_passed": 248,
+    "pytest_seconds": 3.83,
+    "after_annotation_only_changes_new_cases_passed": 5,
+    "new_case_seconds": 1.29,
+    "ruff_lint_format": "PASS3files",
+    "mypy": "PASS3files",
+    "authoring_failures": "first246pass/2new-testfixture failures4.08s (__wrapped__ assumption); import style and11test annotation errors corrected; runtime assertions retained"
+  },
+  "owned_four_node": {
+    "source_sha": "0e57135974770ac02372a44922aa3cc0223476a1",
+    "project": "p123-87141a96afaa",
+    "start_utc": "2026-10-30T02:34:42.200486+00:00",
+    "deadline_utc": "2026-10-30T02:46:42.185235+00:00",
+    "total_limit_seconds": 720,
+    "cleanup_reserve_seconds": 180,
+    "architecture": "Linux/arm64 local targeted PG; not old ARM64 CI or Hosted x64",
+    "steps": [
+      {
+        "label": "build",
+        "exit": 0,
+        "wall_seconds": 2.14847,
+        "cap_seconds": 120
+      },
+      {
+        "label": "healthy",
+        "exit": 0,
+        "wall_seconds": 6.002642,
+        "cap_seconds": 75
+      },
+      {
+        "label": "migrate",
+        "exit": 0,
+        "wall_seconds": 1.883431,
+        "cap_seconds": 30
+      },
+      {
+        "label": "setup-checkpointer",
+        "exit": 0,
+        "wall_seconds": 1.649993,
+        "cap_seconds": 30
+      },
+      {
+        "label": "grant-runtime",
+        "exit": 0,
+        "wall_seconds": 1.626956,
+        "cap_seconds": 30
+      },
+      {
+        "label": "revision",
+        "exit": 0,
+        "wall_seconds": 1.607021,
+        "cap_seconds": 30
+      },
+      {
+        "label": "original-four-node-group",
+        "exit": 0,
+        "wall_seconds": 126.739315,
+        "cap_seconds": 300
+      }
+    ],
+    "phase_events": [
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "phase": "setup",
+        "outcome": "passed",
+        "duration": 56.28594544297084
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "phase": "call",
+        "outcome": "passed",
+        "duration": 15.25146379810758
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "phase": "teardown",
+        "outcome": "passed",
+        "duration": 0.00012462493032217026
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0016]",
+        "phase": "setup",
+        "outcome": "passed",
+        "duration": 0.0003427499905228615
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0016]",
+        "phase": "call",
+        "outcome": "passed",
+        "duration": 15.433314715977758
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0016]",
+        "phase": "teardown",
+        "outcome": "passed",
+        "duration": 0.0005058338865637779
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0015]",
+        "phase": "setup",
+        "outcome": "passed",
+        "duration": 0.0006293340120464563
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0015]",
+        "phase": "call",
+        "outcome": "passed",
+        "duration": 15.233656257158145
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0015]",
+        "phase": "teardown",
+        "outcome": "passed",
+        "duration": 0.0001672909129410982
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0016]",
+        "phase": "setup",
+        "outcome": "passed",
+        "duration": 0.0004003331996500492
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0016]",
+        "phase": "call",
+        "outcome": "passed",
+        "duration": 15.22012188192457
+      },
+      {
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0016]",
+        "phase": "teardown",
+        "outcome": "passed",
+        "duration": 0.18492991686798632
+      }
+    ],
+    "stack_dumps": [
+      {
+        "event": "stack_dump",
+        "nodeid": "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+        "mechanism": "python_timer"
+      }
+    ],
+    "status": "FOUR_NODE_PASS",
+    "exact_node_ids": [
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[after-update-0016]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0015]",
+      "tests/test_p4_terminal_recovery_pg.py::test_terminal_recovery_stop_or_revoke_does_not_rearm_once[auth-0016]"
+    ],
+    "cleanup": {
+      "exit": 0,
+      "seconds": 0.468742,
+      "remaining": {
+        "container": 0,
+        "network": 0,
+        "volume": 0
+      },
+      "volume_removed_only_after_success": true
+    },
+    "total_seconds": 142.32305,
+    "finished_utc": "2026-10-30T02:37:04.508775+00:00"
+  },
+  "actual_collection": {
+    "offline": 2925,
+    "integration": 590,
+    "offline_collect_seconds": 4.656529,
+    "integration_collect_seconds": 3.04434,
+    "offline_added": 5,
+    "removed": 0,
+    "scope": "collect-only, not all tests executed"
+  },
+  "independent_review": "Existing Sol Reviewer ACCEPT code0e571359 and exact owned-four-node receipt; no BLOCKER; UI N/A; not Hosted/H2 approval",
+  "not_run": [
+    "current candidate Hosted Full",
+    "current candidate Shadow",
+    "Hosted x64 reproduction",
+    "complete local PG/offline suite"
+  ],
+  "evidence_directory": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028/evidence/local-native139-20261030",
+  "sources": {
+    "cpython_3_12_13": "https://github.com/python/cpython/blob/v3.12.13/Modules/faulthandler.c",
+    "upstream_family_report": "https://github.com/python/cpython/issues/116008",
+    "upstream_newer_report_not_same_runtime": "https://github.com/python/cpython/issues/158200"
+  }
+}

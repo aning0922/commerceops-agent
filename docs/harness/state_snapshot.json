@@ -27,9 +27,9 @@
   "h0_path": "/Users/aipuli/Documents/Projects/commerceops-harness-v3-h0-20261028",
   "arm64_stop_ref": "https://github.com/aning0922/commerceops-agent/issues/46#issuecomment-6138014477",
   "harness_stage": "H1 LOCAL_GATE_ACCEPTED at 17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4 under PF-1; candidate Full NOT_RUN",
-  "later_gates": "H2 fifth head1be2c0f/merge4f82de96: Shadow40984497438 SUCCESS590actual passes/18m54s; original Full40984497286 FAIL phase3native139 (578/590passed), root causeUNKNOWN, cleanup0/pairreject; H2 NOT_ACCEPTED; no retry, H3-H5 NOT_STARTED; local A/B accepted, remote grantSPENT",
+  "later_gates": "H2 local native139 diagnostic repair0e571359 independently ACCEPTED; pinned Linux/arm C-watchdog pure probe on139/off0, same4PGnodes pass126.74s/cleanup0; current candidate Hosted Full/Shadow NOT_RUN, Hosted exact cause unproven. Last remote1be2c0f: Shadow40984497438PASS590/18m54s, original Full40984497286FAIL578of590/native139; H2NOT_ACCEPTED/H3-H5NOT_STARTED; local-only grant, no push/retry",
   "model_default": "gpt-6.1-sol / medium",
   "quota": "UNKNOWN; no reservation or token usage claim",
   "authorization": "Local Harness H0-H5 only; remote publication/CI, global services, business secrets/resources and M3 require separate authorization",
-  "local_reviewed_at": "2026-10-30 01:54:27 UTC"
+  "local_reviewed_at": "2026-10-30 02:39:05 UTC"
 }

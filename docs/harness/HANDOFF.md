@@ -55,3 +55,20 @@ This receipt does not sign Full performance improvement or H2 acceptance. Keep t
 original failure and unknowns; next bounded diagnosis remains H2. H3-H5 NOT_STARTED, DraftPR52
 preserved, no merge/protection/M3 authority. No extra model/API/service/framework or new run.
 Local metadata-only handoff remains unpushed and is distinct from the Hosted source above.
+
+## Local native139 diagnostic handoff — 2026-10-30
+
+User authorized local diagnosis/minimal repair/targeted checks/review/freeze, no push/Hosted/H3.
+Code `0e57135974770ac02372a44922aa3cc0223476a1`, baseaed9f320; existing Sol Reviewer ACCEPTED
+code and same-source original-four-node local PG proof. [Receipt](h2/native139-local-repair.json).
+Pinned Linux/arm64 pure-thread C-watchdog on139 twice/off0 twice, narrow state139/OOMfalse;
+actual plugin replacement3pure passes/3dumps/2.585575s. Existing plugin now supplies45s
+GIL-held Timer, retains fatal handler, cancels/joins5/fails closed; original300/deadline/cleanup
+and all business tests/Gates remain. GIL-stuck callbacks may be late; parent is hard stop.
+Targeted248pass/3.83s plus5after-type-fix1.29s; Ruff/mypy3files pass. Same4nodes/bothschemas
+native0/126.739315s, actual45sdump1, cleanup0/containers0/networks0/volumes0, window142.32305s.
+Collection2925offline590PG only, +5/-0; original PG nodes unchanged. No old ARM64 CI restored.
+Hosted exact attribution remains unproven, historical failure retained; current candidate
+Full/Shadow/whole local suites NOT_RUN, H2NOT_ACCEPTED/H3-H5NOT_STARTED. Full and Shadow both
+trace0: prior external trace1/0 inference retracted with original+correction preserved.
+Final metadata-only handoff is unpushed; final full scanner receipt binds that SHA externally.
