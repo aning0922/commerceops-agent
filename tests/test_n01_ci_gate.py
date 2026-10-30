@@ -367,13 +367,48 @@ def test_n01_cleanup_only_registered_project_with_private_compose_inputs_and_pre
             assert not any("down" in command for command in commands)
 
 
-def test_npm_cache_is_public_content_only_and_never_skips_install_or_gates() -> None:
+def test_npm_cache_is_public_content_only_and_never_skips_install_or_gates(tmp_path: Path) -> None:
     jobs = yaml.safe_load(WORKFLOW.read_text())["jobs"]
     identities = []
     caches = []
     for name in ("n01-web", "frontend"):
         value = jobs[name]
-        assert value["env"]["npm_config_cache"] == "${{ runner.temp }}/commerceops-npm"
+        assert "npm_config_cache" not in value["env"]
+        preparation = next(
+            step["run"]
+            for step in value["steps"]
+            if step.get("name", "").startswith(("Prepare locked", "Locked tools"))
+        )
+        assert preparation.count('export npm_config_cache="${RUNNER_TEMP:?}/commerceops-npm"') == 1
+        assignment = next(
+            line for line in preparation.splitlines() if line.startswith("export npm_config_cache=")
+        )
+        runner_temp = str(tmp_path / "runner temp with spaces")
+        observed = subprocess.run(
+            ["bash", "-eu", "-c", assignment + '; printf "%s" "$npm_config_cache"'],
+            env={"RUNNER_TEMP": runner_temp},
+            capture_output=True,
+            text=True,
+        )
+        assert observed.returncode == 0
+        assert observed.stdout == runner_temp + "/commerceops-npm"
+        cache_path = next(
+            step["with"]["path"]
+            for step in value["steps"]
+            if "actions/cache@" in step.get("uses", "")
+        ).replace("${{ runner.temp }}", runner_temp)
+        # The installed cache contents are the exact child of the directory npm uses.
+        assert str(Path(observed.stdout) / "_cacache") == cache_path
+        missing = subprocess.run(
+            ["bash", "-eu", "-c", assignment],
+            env={},
+            capture_output=True,
+            text=True,
+        )
+        assert missing.returncode != 0
+        assert preparation.index("export npm_config_cache=") < preparation.index(
+            "python -m scripts.bootstrap_tools"
+        )
         identity = next(s for s in value["steps"] if s.get("id") == "npm_cache_identity")
         cache = next(s for s in value["steps"] if "actions/cache@" in s.get("uses", ""))
         identities.append(identity)

@@ -66,7 +66,6 @@ jobs:
     timeout-minutes: 25
     env:
       NEXT_TELEMETRY_DISABLED: '1'
-      npm_config_cache: ${{ runner.temp }}/commerceops-npm
     steps:
       - name: Register immutable N01 deadline before checkout
         shell: bash
@@ -136,6 +135,7 @@ jobs:
             timeout --signal=TERM --kill-after=10 "${remaining}s" "$@"
           }
           export PATH="$GITHUB_WORKSPACE/.tools/node/bin:$PATH"
+          export npm_config_cache="${RUNNER_TEMP:?}/commerceops-npm"
           run_before_cleanup python -m scripts.bootstrap_tools
           run_before_cleanup python -m scripts.scan_secrets
           run_before_cleanup uv sync --frozen
@@ -528,7 +528,6 @@ jobs:
     timeout-minutes: 35
     env:
       NEXT_TELEMETRY_DISABLED: '1'
-      npm_config_cache: ${{ runner.temp }}/commerceops-npm
     steps:
       - name: Register immutable frontend deadline before checkout
         shell: bash
@@ -600,6 +599,7 @@ jobs:
             timeout --signal=TERM --kill-after=10 "${remaining}s" "$@"
           }
           export PATH="$GITHUB_WORKSPACE/.tools/node/bin:$PATH"
+          export npm_config_cache="${RUNNER_TEMP:?}/commerceops-npm"
           run_before_cleanup python -m scripts.bootstrap_tools
           run_before_cleanup python -m scripts.scan_secrets
           run_before_cleanup uv sync --frozen

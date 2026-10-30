@@ -140,3 +140,27 @@ def test_real_signal_reaps_owned_child(tmp_path: Path) -> None:
         if process.poll() is None:
             process.kill()
             process.wait()
+
+
+def test_workflow_changes_require_real_semantic_checker() -> None:
+    for mode in ("fast", "impacted"):
+        checks, _ = verify.plan(mode, [".github/workflows/quality.yml"])
+        semantic = [c for c in checks if c.name == "GitHub workflow semantics (actionlint)"]
+        assert len(semantic) == 1
+        assert semantic[0].command == [sys.executable, "-m", "scripts.check_workflows"]
+        assert verify.full_reasons([".github/workflows/quality.yml"], "low")
+
+
+@pytest.mark.parametrize("corrupt", [False, True])
+def test_workflow_checker_missing_or_wrong_binary_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, corrupt: bool
+) -> None:
+    from scripts import check_workflows
+
+    monkeypatch.setattr(check_workflows, "ROOT", tmp_path)
+    if corrupt:
+        binary = tmp_path / ".tools/actionlint"
+        binary.parent.mkdir()
+        binary.write_bytes(b"not-the-pinned-executable")
+    with pytest.raises(SystemExit, match="Workflow semantics NOT_VERIFIED"):
+        check_workflows.main()

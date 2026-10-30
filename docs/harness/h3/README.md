@@ -1,6 +1,6 @@
 # H3 — Web, caching and final Full gate
 
-Status: **H3_BLOCKED / FIRST_HOSTED_FULL_WORKFLOW_REJECTED**. H2 acceptance remains scoped to published
+Status: **H3_NOT_ACCEPTED / LOCAL_CONTEXT_REPAIR_CANDIDATE**. H2 acceptance remains scoped to published
 `a5c80203df9de89e0d22a87d565533b38b23899a` and its exact Full/Shadow pair. The user instruction
 “开始下一步” authorizes the next local H3 work; it does not grant push, Hosted runs, Required
 Check/protection mutation, main merge, H4, paid API, M3 or real business resources.
@@ -212,3 +212,56 @@ exemption, path allowlist or scanner-rule change, and does not rewrite Git histo
 existing history test adds that one expected occurrence and retains all wrong-scope, changed-
 commit, changed-match and other field rejection checks. Actual independent approval and the
 final full scanner result are recorded separately, not inferred from this proposal.
+
+## Local expression-context repair — 2026-10-30
+
+User authorizes only local repair/check/review/freeze, no push/new Hosted/protection/H4.
+Base `befa8e966ce7047cefaabc49b431f2ab2fd3368c`, same Root/Worktree/branch. The two invalid
+job-level npm_config_cache assignments are removed. Each existing preparation shell exports
+`npm_config_cache="${RUNNER_TEMP:?}/commerceops-npm"` before the original commands. No extra
+assignment is added to live verification steps. Restore/save path, cache identity/key, all
+original checks/deadlines/permissions/cleanup and the final gate remain unchanged. Real Bash
+checks prove the npm directory matches the cache action's parent even with spaces in the
+runner path; absent RUNNER_TEMP rejects rather than choosing another directory.
+
+Mature [actionlint](https://github.com/rhysd/actionlint/blob/v1.7.12/docs/usage.md)1.7.12 is
+pinned by executable SHA-256 for this native Darwin/ARM host and Linux/x86_64. Official release
+archive checksums were verified before extracting the executable into ignored .tools only.
+No global installation, Go dependency, new service or Hosted job. The small stdlib wrapper
+`python -m scripts.check_workflows` verifies the local executable hash then checks all actual
+workflow files. Missing, altered or unsupported binaries fail, never silently skip. It does
+not install/download a tool at runtime. ShellCheck/pyflakes integrations are explicitly off:
+this invocation validates workflow/expression semantics; existing Python and Bash gates stay.
+No actionlint error-ignore rules or custom expression parser are introduced.
+
+Fast/Impacted now invoke this check for workflow changes or checker changes. Existing
+high-risk/unknown mappings still require Full. Pre-publish must run Fast for the exact
+candidate and default full scripts.scan_secrets; local semantic success is not Hosted proof.
+
+Actual checks: old published e33cc4b workflow is rejected native1 with exactly the two runner
+context expression errors at69and531. Current two complete workflows pass native0/0.166036s
+(wrapper wall). Focused247pass/14.44s, followed by final affected2pass/.24s after restricting
+runtime exports to the two preparation steps. Ruff/mypy5files/format/diff pass. Three new
+necessary offline cases assert Fast/Impacted wiring and missing/incorrect checker fail-closed;
+no business test deleted. Fast actually LOCAL_PASS/24.982684s, semantic check0/.046714s;
+full_gateNOT_RUN/full_requiredtrue/merge_eligiblefalse. Its recorded working-tree revision
+preceded this result-only documentation and one equivalent out-of-root path guard.
+
+For a fresh Darwin/ARM Worktree, install the pinned local release explicitly, then run:
+
+```sh
+mkdir -p .tools/actionlint-download
+curl --fail --location --output .tools/actionlint-download/actionlint.tar.gz \
+  https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_darwin_arm64.tar.gz
+printf '%s  %s\n' aba9ced2dee8d27fecca3dc7feb1a7f9a52caefa1eb46f3271ea66b6e0e6953f \
+  .tools/actionlint-download/actionlint.tar.gz | shasum -a 256 -c -
+tar -xzf .tools/actionlint-download/actionlint.tar.gz -C .tools actionlint
+uv run --frozen python -m scripts.check_workflows
+```
+
+Linux/x86_64 uses official actionlint_1.7.12_linux_amd64.tar.gz, archive checksum
+`8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8`; the wrapper separately
+verifies its pinned binary digest. Other platforms fail until a scoped pin is approved.
+The original Full41028393476 failure and Shadow41028403294 success remain immutable. Repair
+Hosted/PG/Web/N01/cache-net-benefit acceptance NOT_RUN; H3 remains NOT_ACCEPTED and H4 not
+started. Independent repair review/final full scanner bind the final freeze separately.

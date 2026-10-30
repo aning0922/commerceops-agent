@@ -339,7 +339,6 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
         candidate = dict(current[name])
         if name in {"n01-web", "frontend"}:
             candidate["env"] = dict(candidate["env"])
-            del candidate["env"]["npm_config_cache"]
             candidate["steps"] = [
                 dict(step)
                 for step in candidate["steps"]
@@ -349,6 +348,11 @@ def test_shadow_is_pr_merge_sha_bound_and_unrelated_branches_cannot_start_pg() -
                     "Observe safe public-cache identity",
                 }
             ]
+            for step in candidate["steps"]:
+                if step.get("name", "").startswith(("Prepare locked", "Locked tools")):
+                    step["run"] = step["run"].replace(
+                        'export npm_config_cache="${RUNNER_TEMP:?}/commerceops-npm"\n', ""
+                    )
         if name == "n01-web":
             del candidate["outputs"]
             candidate["steps"] = candidate["steps"][:-1]

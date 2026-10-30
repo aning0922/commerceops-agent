@@ -185,6 +185,16 @@ def plan(
                 [sys.executable, "-m", "scripts.scan_secrets", "--current-only"],
             )
         )
+    if any(
+        path.startswith(".github/workflows/") or path == "scripts/check_workflows.py"
+        for path in paths
+    ):
+        checks.append(
+            CheckResult(
+                "GitHub workflow semantics (actionlint)",
+                [sys.executable, "-m", "scripts.check_workflows"],
+            )
+        )
     if python:
         checks.extend(
             [
