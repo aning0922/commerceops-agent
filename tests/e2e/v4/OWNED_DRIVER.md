@@ -227,3 +227,18 @@ liveness200、固定listener参数（uvicorn被拦截未监听）、不合法DB/
 host override/端口不一致拒绝，以及旧Settings仍拒绝0.0.0.0。前两轮各12pass/1fail分别是
 不适用的顶层route计数、无PG下误要求401；修正测试假设，原401保留实际PG case待验，
 没有把503改成鉴权成功。无Docker/PG/API/Web服务启动，Full/Hosted仍NOT_RUN。
+
+## 已核收WEB363的机械绑定更新（与owned API拓扑修复分提交）
+
+Root交付WEB `36319b458a304311d01e3f05afc356568424a59a`，独审回执
+`7d6720a31e7fabce35ee4eced4e638c69ca5fb0a`，替代旧a2a待修候选。
+固定spec改为frontend/v4-tests/lifecycle.live.ts（不再*.spec.ts），标题不变；
+config仍frontend/playwright.v4-live.config.ts，环境仍V4_WEB_ORIGIN/V4_API_ORIGIN/
+V4_EVIDENCE_DIR。新PINS同时钉住config/spec/context waiter lifecycle.waiter.mjs/
+v4-schema.json四个准确Git blob，工作bytes与HEAD必须一致；任何依赖改动仍阻断。
+WEB_HANDOFF_READY仅代表Root已交接这份已审来源，不代替Root的资源窗口批准。
+本QA树未普通合入WEB文件，故仍不能直接执行；须Root统一集成新API entry、backend、WEB
+并构建新test镜像，绑定完整source/tree/image/project/端口/UTC，不复用lifecycle_b。
+本轮12项定向纯source/report/command检查0.09s/native0；取样仅从363已交Git对象，
+未读WEB WIP、未启动Node或浏览器。真实GUI 200%独立profile、实际浏览器、Full与Hosted
+仍未核收，不将Root进行中的UI_FIXTURE重跑预填为通过。

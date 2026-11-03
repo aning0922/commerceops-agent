@@ -86,13 +86,13 @@ def test_duplicate_test_or_failed_result_rejected() -> None:
 
 def test_command_fixed_to_handed_off_file_and_exact_title() -> None:
     command = browser.command()
-    assert "v4-tests/lifecycle.live.spec.ts" in command
+    assert "v4-tests/lifecycle.live.ts" in command
     assert command[command.index("--grep") + 1] == "(?:^| )" + re.escape(browser.TITLE) + "$"
     assert command[command.index("--workers") + 1] == "1"
     assert command[command.index("--retries") + 1] == "0"
     # Pinned Playwright matches a full project/file/title string, not title alone.
     assert re.search(
-        command[command.index("--grep") + 1], "chromium lifecycle.live.spec.ts " + browser.TITLE
+        command[command.index("--grep") + 1], "chromium lifecycle.live.ts " + browser.TITLE
     )
 
 
@@ -117,7 +117,8 @@ def test_missing_or_mutated_source_rejected_before_browser(
         browser.verify_source()
 
 
-def test_superseded_web_candidate_cannot_be_admitted_by_file_presence() -> None:
-    assert browser.WEB_HANDOFF_READY is False
-    with pytest.raises(ValueError, match="handoff pending"):
-        browser.verify_source()
+def test_superseded_spec_path_is_no_longer_an_accepted_command() -> None:
+    assert browser.WEB_HANDOFF_READY is True
+    assert "frontend/v4-tests/lifecycle.live.spec.ts" not in browser.PINS
+    assert "frontend/v4-tests/lifecycle.waiter.mjs" in browser.PINS
+    assert "v4-tests/lifecycle.live.spec.ts" not in browser.command()

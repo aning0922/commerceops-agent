@@ -11,12 +11,15 @@ from typing import Any
 from .preflight import ROOT, git
 
 TITLE = "LIVE: isolated demo lifecycle and browser layout"
-# a2a is retained only as historical handoff metadata. Root reported two WEB P2s;
-# no CLI/env override may admit it while the renamed/reviewed spec is pending.
-WEB_HANDOFF_READY = False
+# Root handed off reviewed WEB 36319b458a304311d01e3f05afc356568424a59a.
+# Presence, raw Git blobs and current HEAD must all agree before any resource launch.
+WEB_HANDOFF_READY = True
+WEB_SOURCE = "36319b458a304311d01e3f05afc356568424a59a"
 PINS = {
-    "frontend/playwright.v4-live.config.ts": "45e1cca1f3de9aefdf42eac5403703ad91ddec57",
-    "frontend/v4-tests/lifecycle.live.spec.ts": "0eafd5ccd665f6e90e41432a545cf07cd66d97d2",
+    "frontend/playwright.v4-live.config.ts": "ca9bb704f27220de9930f7e03e56492c79b0faa4",
+    "frontend/v4-tests/lifecycle.live.ts": "3d04deb2ea43a925596951514cf7a67ef039189d",
+    "frontend/v4-tests/lifecycle.waiter.mjs": "ec74f8c560ad293821dcd4545c275395c243d3d0",
+    "frontend/lib/v4-schema.json": "e625120e42a28b8f777d7e2e02b0da0aa9d2b5be",
 }
 
 
@@ -42,7 +45,7 @@ def command() -> tuple[str, ...]:
         "test",
         "--config",
         str(ROOT / "frontend/playwright.v4-live.config.ts"),
-        "v4-tests/lifecycle.live.spec.ts",
+        "v4-tests/lifecycle.live.ts",
         "--grep",
         "(?:^| )" + re.escape(TITLE) + "$",
         "--workers",
