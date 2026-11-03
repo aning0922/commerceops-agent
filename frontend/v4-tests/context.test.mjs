@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createContextGate, sameIdentityContext, matchesControlBoundary } from '../lib/v4-context.mjs';
+import { createContextGate, sameIdentityContext, matchesControlBoundary, matchesCreateBoundary } from '../lib/v4-context.mjs';
 const id='11111111-1111-4111-8111-111111111111', other='22222222-2222-4222-8222-222222222222';
 const context = {tenant_id:id, organization_id:id, principal_id:id, shop_id:null, reset_epoch:0, auth_generation:0, authorized_at:'2026-11-03T00:00:00Z'};
 test('only matching latest authorized context may render', () => {
@@ -48,4 +48,15 @@ test('control receipt stays bound to its tenant, counters and operation',()=>{
  const logout={status:'COMMITTED',context,data:{receipt:{...receipt,operation:'logout',auth_generation:0},next_step:'LOGGED_OUT'}};
  assert.equal(matchesControlBoundary(context,logout,'logout',id),true);
  assert.equal(matchesControlBoundary(context,{...logout,context:{...context,principal_id:other}},'logout',id),false);
+});
+
+test('created session must match the original receipt and the re-read identity',()=>{
+ const receipt={operation:'session_create',request_key:id,status:'COMMITTED',reset_epoch:0,auth_generation:0};
+ const created={status:'COMMITTED',context,data:{receipt,session:{creation_request_key:id}}};
+ const current={context,data:{creation_request_key:id}};
+ assert.equal(matchesCreateBoundary(created,current,id),true);
+ assert.equal(matchesCreateBoundary(created,{...current,context:{...context,tenant_id:other}},id),false);
+ assert.equal(matchesCreateBoundary(created,{...current,data:{creation_request_key:other}},id),false);
+ assert.equal(matchesCreateBoundary({...created,data:{...created.data,receipt:{...receipt,auth_generation:1}}},current,id),false);
+ assert.equal(matchesCreateBoundary({...created,status:'UNKNOWN'},current,id),false);
 });

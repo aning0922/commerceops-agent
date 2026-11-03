@@ -72,3 +72,16 @@ export function matchesControlBoundary(before, result, operation, requestKey) {
   }
   return ['persona', 'reset'].includes(operation) && result.data.next_step === 'READ_CURRENT_SESSION';
 }
+
+export function matchesCreateBoundary(result, current, requestKey) {
+  if (!result || !current || !['OK', 'COMMITTED'].includes(result.status) ||
+      !validContext(result.context) || result.context.shop_id !== null ||
+      !validContext(current.context) || current.context.shop_id !== null ||
+      !sameIdentityContext(result.context, current.context)) return false;
+  const receipt = result.data?.receipt;
+  return receipt?.status === 'COMMITTED' && receipt.operation === 'session_create' &&
+    receipt.request_key === requestKey && receipt.reset_epoch === result.context.reset_epoch &&
+    receipt.auth_generation === result.context.auth_generation &&
+    result.data?.session?.creation_request_key === requestKey &&
+    current.data?.creation_request_key === requestKey;
+}
