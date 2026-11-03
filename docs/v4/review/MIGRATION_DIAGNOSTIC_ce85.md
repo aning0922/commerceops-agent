@@ -54,3 +54,16 @@ original_migrate只在受抑制作用域内import并调用原`migrate(DatabaseSe
 ## 交接
 
 仅提交本审查文档，未改实现/测试/Dockerfile、未启动资源、未push/触CI。请QA局部修复两项后交精确普通commit复审。旧窗migration exit1/0tests、具体SQL根因UNKNOWN及cleanup事实不改；当前纯复现不能替代实际迁移/PG验证或ROOT窗口授权。
+
+
+## 0f34增量复审：MD-01/02关闭
+
+candidate `0f34f31c4a02469ce3f6caaec99a9a0dbafedd4d` / tree `5e003a5aaaf57ecf8b16db7c5ab73f9ed9c6e6b1`（parent166fb）。**结论：ACCEPT_PREPARED_DIAGNOSTIC，增量0 P1 / 0 P2。** 保留ce85首审反例，本结论只接受专用单进程CLI的准备代码，不签实际迁移、Linux镜像或资源窗口。
+
+MD-01 CLOSED：run捕获BaseException，属性读取也安全处理可捕获中断；diagnostic提取失败返回固定FAILED/DIAGNOSTIC_FAILED/NOT_RUN/空chain。render在抑制域内序列化，序列化失败使用无需再次序列化的固定JSON。main参数解析也抑制错误原文（独立--help正常），最终仅os.write安全ASCII并SystemExit(code) from None。未捕捉SIGKILL、未改变外层清理；中断不记成功。
+
+MD-02 CLOSED：进入抑制前保存外层Python/libc输出；操作结束时在devnull fd仍生效的域内flush Python sink及libc.fflush(NULL)，然后才恢复外层fd。若原生flush或恢复失败，abort_isolated向保存的原stdout fd写固定安全失败JSON并os._exit(1)，避免解释器退出再次flush敏感缓冲；即便fallback输出本身失败仍强制非0退出。没有新增子服务、重试、授权或迁移旁路。此全局fd策略明确仅供专用单进程CLI，不能当多线程宿主通用日志隔离。
+
+独立复验从精确Git模块源码compile/exec装入隔离子进程，执行精确新增子进程测试正文（只将模块import替换为该精确内存模块）；public_sql/operation保持合成替身，未import实际backend。完整退出结果：SystemExit、带原异常上下文KeyboardInterrupt、diagnostic故障、serialization故障、native flush故障、fd恢复故障均native1/FAILED；无换行C printf正例native0/MIGRATED。7种全部stdout无哨兵、无traceback，stderr为空，可解析JSON且tests=NOT_RUN。这里MIGRATED只是合成operation成功标签，绝非实际迁移成功。
+
+公开hash/CLI入口/固定原migrate调用未放宽；文档已明确runtime/db-init不含tests，ROOT应使用test/pg-test载体及同窗口owner环境。作者21pure/0.51s和首20pass/1fail的fallback丢失记录保留，不用本轮7子进程复验覆盖。目标Linux pg-test的libc符号及实际退出仍须ROOT在冻结镜像核验，本机结果不代签。实际SQL根因仍UNKNOWN；PG、Docker、API/Web、Hosted本轮0操作。资源准入仍由ROOT另给对象/新UTC与cleanup，旧失败窗不可复用。
