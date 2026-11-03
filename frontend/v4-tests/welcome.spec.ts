@@ -112,3 +112,28 @@ test('UI_FIXTURE: corrupt pending storage fails closed without creating a space'
  await expect(page.getByRole('button',{name:'一键体验'})).toHaveCount(0);
  expect(calls).toBe(0);
 });
+
+test('UI_FIXTURE: reset confirms once and logout clears the visible session',async ({page})=>{
+ let key='', epoch=0, generation=0, active=false, resets=0, logouts=0;
+ const sessionData=()=>({creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source});
+ const currentContext=()=>({...context,reset_epoch:epoch,auth_generation:generation});
+ await page.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;active=true;return route.fulfill({json:{...base,status:'COMMITTED',context:currentContext(),data:{session:sessionData(),receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:epoch,auth_generation:generation}}}});}
+  if(path.endsWith('/session')&&active)return route.fulfill({json:{...base,context:currentContext(),data:sessionData()}});
+  if(path.endsWith('/reset')||path.endsWith('/logout')){
+   const body=route.request().postDataJSON();const operation=path.endsWith('/reset')?'reset':'logout';
+   expect(body.expected_epoch).toBe(epoch);expect(body.expected_generation).toBe(generation);
+   if(operation==='reset'){resets++;epoch++;generation++;}else{logouts++;active=false;}
+   return route.fulfill({json:{...base,status:'COMMITTED',context:currentContext(),data:{receipt:{receipt_id:id,operation,request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:epoch,auth_generation:generation},next_step:operation==='reset'?'READ_CURRENT_SESSION':'LOGGED_OUT'}}});
+  }
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
+ await expect(page.getByText('演示空间已建立。')).toBeVisible();
+ await page.getByRole('button',{name:'重置演示'}).click();await page.getByRole('button',{name:'确认重置'}).click();
+ await expect(page.getByText('当前演示空间已重置。')).toBeVisible();expect(resets).toBe(1);
+ await page.getByRole('button',{name:'退出'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
+ await expect(page.getByText(/当前视角：/)).toHaveCount(0);expect(logouts).toBe(1);
+});
