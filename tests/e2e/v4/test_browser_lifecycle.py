@@ -103,6 +103,7 @@ def test_missing_or_mutated_source_rejected_before_browser(
     monkeypatch.setattr(browser, "ROOT", tmp_path)
     with pytest.raises(ValueError):
         browser.verify_source()
+    monkeypatch.setattr(browser, "WEB_HANDOFF_READY", True)  # Pure file guard test only.
     for name, blob in browser.PINS.items():
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -113,4 +114,10 @@ def test_missing_or_mutated_source_rejected_before_browser(
     first = tmp_path / next(iter(browser.PINS))
     first.write_bytes(first.read_bytes() + b"\n// altered\n")
     with pytest.raises(ValueError):
+        browser.verify_source()
+
+
+def test_superseded_web_candidate_cannot_be_admitted_by_file_presence() -> None:
+    assert browser.WEB_HANDOFF_READY is False
+    with pytest.raises(ValueError, match="handoff pending"):
         browser.verify_source()

@@ -189,3 +189,11 @@ V4_EVIDENCE_DIR与本地工具环境，不传owner DB env。候选config trace/v
 SIGTERM与抛TimeoutError：实际native -15与1，均留initial UNKNOWN、无success标签；
 SIGTERM不执行finally仍保有initial。新增不可覆盖检查，本模块16pass/0.23s/native0。
 这些是纯/短命子进程证据，无真实30分钟等待、HTTP/PG或浏览器；本修正仍待独审。
+
+## WEB新交付等待阻断
+
+Root通知a2a原审两P2，WEB将live.spec.ts改名lifecycle.live.ts并修context waiter。
+在新精确SHA/path/blob交付并核收前，browser_lifecycle.WEB_HANDOFF_READY固定False，
+无CLI/env override；即便旧a2a文件存在也不能通过Case.validate启动资源。
+旧PINS仅为历史候选位置，不能视为新审通过。最终由Root精确交接后单独机械更新，
+不读取WEB WIP。此阻断与TTL01修复分普通提交，不改变HTTP/natural_ttl模式。

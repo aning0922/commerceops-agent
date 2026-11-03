@@ -11,6 +11,9 @@ from typing import Any
 from .preflight import ROOT, git
 
 TITLE = "LIVE: isolated demo lifecycle and browser layout"
+# a2a is retained only as historical handoff metadata. Root reported two WEB P2s;
+# no CLI/env override may admit it while the renamed/reviewed spec is pending.
+WEB_HANDOFF_READY = False
 PINS = {
     "frontend/playwright.v4-live.config.ts": "45e1cca1f3de9aefdf42eac5403703ad91ddec57",
     "frontend/v4-tests/lifecycle.live.spec.ts": "0eafd5ccd665f6e90e41432a545cf07cd66d97d2",
@@ -18,6 +21,8 @@ PINS = {
 
 
 def verify_source() -> None:
+    if not WEB_HANDOFF_READY:
+        raise ValueError("new reviewed WEB SHA/path/blob handoff pending")
     for name, blob in PINS.items():
         path = ROOT / name
         if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(ROOT):
