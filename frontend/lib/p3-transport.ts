@@ -4,6 +4,7 @@ import type { components } from "./p5-types.generated";
 import type { N01Input, N01Response, WooN01Input, WooN01Response, AnyN01Input, AnyN01Response } from "./p4-n01";
 import { validN01Input, validN01Response, n01MatchesInput } from "./p4-n01";
 import { validWooCreateInput } from "./p5-commerce-source";
+import { inquiryApi, InquiryFailure } from "./p6-inquiry-client";
 type DTO = components["schemas"];
 export type P3FailureCode =
   | DTO["ErrorDetail"]["code"]
@@ -131,6 +132,8 @@ export class P3Client {
   #transport: FetchTransport;
   #csrf: string | null = null;
   #principal: string | null = null;
+  #sessionGeneration = 0;
+  #inquiryTransport: FetchTransport | undefined;
   #invalidate: () => void;
   #verify:
     | ((method: string, path: string, status: number, data: unknown) => boolean)
@@ -138,6 +141,7 @@ export class P3Client {
   constructor(options: {
     origin: string;
     transport: FetchTransport;
+    inquiryTransport?: FetchTransport;
     localHttp?: boolean;
     onSessionInvalidated?: () => void;
     verifyResponse?: (
@@ -166,10 +170,12 @@ export class P3Client {
       throw new Error("Use HTTPS or explicit local_http loopback");
     this.#origin = base;
     this.#transport = options.transport;
+    this.#inquiryTransport = options.inquiryTransport;
     this.#invalidate = options.onSessionInvalidated ?? (() => {});
     this.#verify = options.verifyResponse;
   }
   clearSession(): void {
+    this.#sessionGeneration++;
     this.#csrf = null;
     this.#principal = null;
     this.#invalidate();
@@ -285,9 +291,17 @@ export class P3Client {
       this.clearSession();
       throw new P3Failure("INVALID_RESPONSE");
     }
+    this.#sessionGeneration++;
     this.#csrf = data.csrf_token;
     this.#principal = data.principal.principal_id;
     return data;
+  }
+  inquiryAccess(viewCurrent: () => boolean) {
+    if (!this.#inquiryTransport || !this.#principal || !this.#csrf) throw new InquiryFailure("SESSION_INVALID");
+    const generation = this.#sessionGeneration;
+    return inquiryApi({ origin: this.#origin, transport: this.#inquiryTransport,
+      csrf: () => this.#csrf, sessionCurrent: () => this.#sessionGeneration === generation && this.#principal !== null,
+      viewCurrent, invalidate: () => this.clearSession() });
   }
   async bootstrap(): Promise<DTO["CsrfBootstrap"]> {
     const data = await this.#request<DTO["CsrfBootstrap"]>(

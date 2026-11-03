@@ -194,3 +194,33 @@ Root 提供的冻结 S2 候选 `37e7e99` 仍使用 `GET /api/v1/daily-reports/{t
 入口仅作静态准备，未加载私有输入、启动浏览器/服务/PG或执行联调；完整状态、跨租户、撤权和数据质量还须由后续具体窗口分别安排。typecheck通过不签真实接口或后端验收。
 
 独审指出原入口仅拦登记 API 的 URL，错误配置的另一个 API origin 可能绕过拦截。修复后在填账号前为整个私有 browser context 注册网络白名单：仅登记的 Web 页面/静态资源、登记 API 的必要 GET 与登录 POST 可通行，其他 origin、路径及方法均拒绝；同时阻断 Service Worker 和 WebSocket。无网络的两个纯契约例覆盖错误 API origin 登录与其他越界请求，均通过；实际浏览器和服务联调仍待新窗口，不以纯函数反例代签真实浏览器拦截。
+
+## 15. 只读询单 Web 候选（2026-11-03）
+
+Root 放行基于已审设计 `832c7d1` 与冻结服务 DTO `1a78d5a23fd888265cc8e30dde6c492d8b6c94cc` 的前端候选；该服务的 SQL NULL 与终态回放修复仍由后端处理，路由注册、PG、整包独审和实际 API 均未核收。UI 快照来自该提交的 Pydantic 生成 OpenAPI，SHA256 `63c88046c97953a6865b8e445d3d2c6fb8be4e8bad61a48d5f076dde31c10697`；生成类型使用 `openapi-typescript@7.13.0` 和临时 TypeScript 5.9.3，不改锁。schema 检查固定该摘要；集成后如后端资产不同必须等精确已审提交并同步，不能静默沿用。
+
+`/inquiries` 在 live 会话壳内使用独立 P6 严格 schema 和响应校验。`COMMERCEOPS_INQUIRY_UI_ENABLED` 默认不设置或非 `true` 时没有提交/回执动作；此部署开关本身不是后端能力或授权证明，须 Root 在路由、服务开关及资源准备完成后明确配置。服务返回 `INQUIRY_DISABLED` 后当前页面隐藏写入口；所有对象权限仍由后端判断。演示只支持明确库存/销量语法，标注本地数据和离线模型替身；可选上下文仅为已有分析报告，日报不作为上下文。
+
+提交只发送一次固定原始 body 和 request key；网络中断、不可信成功响应或服务端结果未知时保留原键，只 GET 原请求回执，不自动重发或换键。页面可输入已有原键恢复只读回执；会话/页面世代变化后丢弃迟到结果，当前401/403清会话。完成结果核店铺、来源、工具轨迹、证据、claim 引用和比较边界，按已绑定事实展示值、来源窗口与观测时间；没有在前端交叉核验的自由文本不展示，无法安全绑定时不展示旧答案。当前仅合成 transport/服务端渲染测试，未调用假服务冒充实际、未启浏览器/PG/API或真实模型。
+
+开发中为检查原 P3 transport 运行旧 contract 配置时，其默认 JSON reporter 覆盖了 tracked 历史 `frontend/evidence/b04-wiring/contract-results.json`；已从运行前 HEAD 恢复并核 `git diff` 为零。本次9个 P3 transport 例仅作为本次回归，历史回执没有更新。
+
+当前候选本地验证：16个无服务器 M3 契约例通过（含8个询单、6个日报、2个窗口网络边界），原P3 transport 9例通过；`typecheck`、`check:read-schema`、Next `build`、123份 Markdown 检查及 `git diff --check` 均 exit0。询单页面使用服务端渲染例核默认关闭及显式启用分支，没有运行浏览器交互；服务路由/SQL/真实API和独立审查仍待后续精确回执。
+
+## 16. 询单安全失败结果兼容（2026-11-03）
+
+Root 指出 `18a2973973def9120ac4f50a7e8604a33b45c532` 的 `fail_safe` 会持久化 `failed` 与无事实的 `access_denied` 结果，而当前授权读取可返回该结果；原前端仅接受 `completed` 的非空结果。现仅在 `failed` 下接受已知非成功、非澄清状态，要求结果、事实引用、claim 与澄清选项均为空，继续校验来源和工具轨迹，不把非零模型替身调用、工具调用或扫描数当成无效。页面用固定安全文案呈现失败，并在折叠区显示服务返回的离线替身用量，不展示服务自由文本作为事实。
+
+`frontend/m3-tests/inquiry-failed.fixture.json` 由隔离导出的 `18a297` 源码中的实际 `InquiryRead`、`ResultPayload.from_outcome(Outcome("access_denied",0,0,0,()))` 和 renderer 生成，是 DTO 样本而非真实 PG 回执。定向9个询单无服务器契约例通过，涵盖该样本、带非零用量的安全变体及失败结果夹带成功事实/引用/claim/选项的拒绝；typecheck、schema同步检查与差异检查退出0。`18a297` 与 `1a78d5a` 的服务 DTO 与 OpenAPI 资产逐文件无差异；后端后续用量修复的精确冻结提交及独审仍待 Root 转交，不预签其 schema、PG、实际 API 或浏览器结果。
+
+## 17. 询单已知用量合同同步（2026-11-03）
+
+Root 转交精确冻结 `e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da`，其 OpenAPI 相对1a资产新增三处描述，均限定为本次执行尝试的已知用量、历史尝试 UNKNOWN。前端复制同源 OpenAPI、重新生成类型并将校验摘要更新为 `9e9a7e093d4cccfde5634226d7076003a9f124c54643d76bd1466aea1b017ed5`；第15节旧摘要保留其历史时点，不再作为当前同步目标。失败结果的折叠用量区明确标“仅本次执行尝试的已知用量；此前尝试用量未知”，不把零或非零当作历史总量。
+
+新增合成 `inquiry-failed-known-usage.fixture.json` 由隔离导出的 e2e 源码 `ResultPayload.safe_failure`、真实 DTO 和 renderer 生成，模拟本次已知 `model_calls=3/tool_calls=2/scanned_rows=3` 与两条轨迹，事实/claim/引用/选项均为空；不是实际 PG 或服务运行回执。定向10个询单无服务器契约例、typecheck、schema同步与差异检查均通过；未启浏览器、服务或 PG，实际 API 与整包独审仍待 Root。
+
+## 18. 询单内部店铺与 commerce 店铺键（2026-11-03）
+
+Root 指出冻结 `e2e50f` 的 `InquiryRead.shop_id` 是内部 PG 店铺 UUID，而 `Context.shop_id` 与 `ReadResult.shop_id` 来自外部 commerce fixture 的店铺键；原前端直接比较两者会拒绝合法完成结果。服务端 `InquiryStore.source` 在当前身份与店铺 scope 检查后，把内部店铺的 `external_shop_key` 与 fixture 来源匹配；wire DTO 没有给前端提供该可信映射。前端移除跨命名空间的相等断言，不从首个结果推定当前店铺；原请求内部店铺、receipt/来源摘要/来源窗口、轨迹、事实与 claim 引用仍逐项核验。来源摘要一致不等于前端独立验证了内部到外部店铺映射。
+
+`inquiry-completed-external-shop.fixture.json` 使用隔离导出的精确 e2e Mock fixture、`MockReadFacade`、`DemoChoice`、`execute`、真实 `ResultPayload/InquiryRead` 与 renderer 生成；内部测试 UUID 与执行器从 fixture 得到的 commerce key `demo` 不同，结果有实际合成事实。身份 port 是显式内存替身、未运行 PG/HTTP，不能代签服务端 SQL 映射或实际 API。前端定向11个询单契约例通过，包含此完整样本消费及内部店铺、来源摘要和证据引用错配拒绝；typecheck、schema同步与差异检查通过，真实资源与独审仍待 Root。

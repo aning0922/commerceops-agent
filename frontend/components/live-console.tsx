@@ -1,6 +1,7 @@
 "use client";
 import { CreateTaskDialog, DecisionActions } from "./live-actions";
 import { DailyReport } from "./daily-report";
+import { Inquiry } from "./inquiry";
 import { DailyFailure, readDaily } from "../lib/m3-read-client";
 import type { DailyRead } from "../lib/m3-types.generated";
 import { ExecutionFacts, ItemListFacts, ItemDetails } from "./item-views";
@@ -31,6 +32,7 @@ import {
 } from "./live-readviews";
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
+  | { kind: "inquiry" }
   | { kind: "daily"; read: DailyRead }
   | { kind: "tasks"; read: DTO["TaskList"] }
   | {
@@ -70,7 +72,9 @@ const itemRoute = new RegExp(`^/replenishment-items/(${uuid})$`, "i");
 const dailyRoute = new RegExp(`^/daily-reports/(${uuid})$`, "i");
 const uuidOnly = new RegExp(`^${uuid}$`, "i");
 const titleOf = (path: string) =>
-  dailyRoute.test(path)
+  path === "/inquiries"
+    ? "只读查询"
+    : dailyRoute.test(path)
     ? "经营日报"
     : path.endsWith("/report")
     ? "库存分析报告"
@@ -104,6 +108,7 @@ export function LiveConsole({
   localHttp,
   fixtureMode = false,
   fixtureClient,
+  inquiryEnabled = false,
 }: {
   path: string;
   query: Query;
@@ -112,6 +117,7 @@ export function LiveConsole({
   // Only the server-gated explicit Mock wrapper supplies this in-memory adapter.
   fixtureMode?: boolean;
   fixtureClient?: (invalidate: () => void) => A01ReadClient;
+  inquiryEnabled?: boolean;
 }) {
   const router = useRouter();
   const epoch = useRef(0);
@@ -157,9 +163,9 @@ export function LiveConsole({
       fixtureMode && fixtureClient
         ? fixtureClient(invalidate)
         : origin
-          ? createReadClient(origin, localHttp, invalidate)
+          ? createReadClient(origin, localHttp, invalidate, inquiryEnabled)
           : null,
-    [origin, localHttp, invalidate, fixtureMode, fixtureClient],
+    [origin, localHttp, invalidate, fixtureMode, fixtureClient, inquiryEnabled],
   );
   useEffect(() => {
     if (!client) {
@@ -218,7 +224,9 @@ export function LiveConsole({
       const cap = session!.principal.capabilities;
       let page: PageData;
       let shop: string | null = null;
-      if (dailyRoute.test(path)) {
+      if (path === "/inquiries" && !fixtureMode) {
+        page = { kind: "inquiry" };
+      } else if (dailyRoute.test(path)) {
         if (fixtureMode || !origin) throw new P3Failure("RESOURCE_NOT_FOUND");
         const id = path.match(dailyRoute)![1];
         page = { kind: "daily", read: await readDaily(origin, id, () => client!.clearSession(), undefined, accept) };
@@ -636,6 +644,7 @@ export function LiveConsole({
               任务中心
             </a>
           )}
+          {inquiryEnabled && !fixtureMode && operatorShops.length > 0 && <a href="/inquiries" aria-current={path === "/inquiries" ? "page" : undefined}>只读查询</a>}
           {capabilities!.can_read_approvals && (
             <a
               href="/approvals"
@@ -688,7 +697,7 @@ export function LiveConsole({
           </div>
         </header>
         <main id="main">
-          {page?.kind !== "daily" && <div className="mock-banner">
+          {page?.kind !== "daily" && page?.kind !== "inquiry" && <div className="mock-banner">
             <BusinessSourceNotice
               fixtureMode={fixtureMode}
               kind={
@@ -740,6 +749,7 @@ export function LiveConsole({
             </Card>
           ) : (
             <>
+              {page.kind === "inquiry" && <Inquiry client={client} enabled={inquiryEnabled} shops={operatorShops} holdWrite={holdWrite} />}
               {page.kind === "daily" && <DailyReport key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? page.read.daily.updated_at}`} read={page.read} />}
               {page.kind === "tasks" && (
                 <>
