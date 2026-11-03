@@ -1,0 +1,3247 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CommerceOps Internal Copy",
+    "version": "p6-copy-web-v1"
+  },
+  "paths": {
+    "/api/v1/copy/candidates": {
+      "post": {
+        "operationId": "p6CopyCreate",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Created candidate read after the create COMMIT.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CandidateResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UnknownCandidateResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "isolated-router; main integration pending",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCopy"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/copy/candidates/{identifier}": {
+      "get": {
+        "operationId": "p6CopyRead",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current authorized candidate state; saved draft stays internal.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "isolated-router; main integration pending"
+      }
+    },
+    "/api/v1/copy/candidate-requests/{key}": {
+      "get": {
+        "operationId": "p6CopyCreateReceipt",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current authorized candidate state; saved draft stays internal.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Original create key is UNKNOWN; GET only, never resend.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownCandidateResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "isolated-router; main integration pending"
+      }
+    },
+    "/api/v1/copy/candidates/{identifier}/review": {
+      "post": {
+        "operationId": "p6CopyReview",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Confirmed original decision COMMIT (approve or reject).",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Original decision key is UNKNOWN; read receipt without POST.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownDecisionResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "isolated-router; main integration pending",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCopy"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/copy/candidates/{identifier}/review-receipts/{key}": {
+      "get": {
+        "operationId": "p6CopyReviewReceipt",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "candidate_hash",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Fixed P3 error; no copy write retry or new key implied.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Confirmed original decision COMMIT (approve or reject).",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Original decision key is UNKNOWN; read receipt without POST.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownDecisionResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "isolated-router; main integration pending"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateCopy": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-web-v1",
+            "default": "p6-copy-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "registry_id": {
+            "format": "uuid",
+            "title": "Registry Id",
+            "type": "string"
+          },
+          "registry_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Registry Digest",
+            "type": "string"
+          },
+          "product_source_id": {
+            "format": "uuid",
+            "title": "Product Source Id",
+            "type": "string"
+          },
+          "query_ref": {
+            "title": "Query Ref",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "format": "uuid",
+            "title": "Reviewer Id",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id",
+          "registry_id",
+          "registry_digest",
+          "product_source_id",
+          "query_ref",
+          "reviewer_id",
+          "request_key"
+        ],
+        "title": "CreateCopy",
+        "type": "object"
+      },
+      "ReviewCopy": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-web-v1",
+            "default": "p6-copy-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "candidate_version": {
+            "const": "v1",
+            "title": "Candidate Version",
+            "type": "string"
+          },
+          "candidate_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Hash",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "action": {
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_version",
+          "candidate_hash",
+          "request_key",
+          "action",
+          "reason"
+        ],
+        "title": "ReviewCopy",
+        "type": "object"
+      },
+      "Chunk": {
+        "additionalProperties": false,
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "chunk_id": {
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "chunk_version": {
+            "title": "Chunk Version",
+            "type": "string"
+          },
+          "chunker_version": {
+            "title": "Chunker Version",
+            "type": "string"
+          },
+          "section": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Section",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "end": {
+            "minimum": 1,
+            "title": "End",
+            "type": "integer"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "text_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Text Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document",
+          "chunk_id",
+          "chunk_version",
+          "chunker_version",
+          "section",
+          "start",
+          "end",
+          "text",
+          "text_sha256"
+        ],
+        "title": "Chunk",
+        "type": "object"
+      },
+      "Claim": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "product_title",
+              "sop_excerpt"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductCitation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sop": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SopCitation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "text": {
+            "maxLength": 2100,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "claim_id": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Claim Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text",
+          "claim_id"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "CopyCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-candidate-v1",
+            "default": "p6-copy-candidate-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "candidate_id": {
+            "format": "uuid",
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "candidate_version": {
+            "const": "v1",
+            "default": "v1",
+            "title": "Candidate Version",
+            "type": "string"
+          },
+          "owner_id": {
+            "format": "uuid",
+            "title": "Owner Id",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "format": "uuid",
+            "title": "Reviewer Id",
+            "type": "string"
+          },
+          "product_source_id": {
+            "format": "uuid",
+            "title": "Product Source Id",
+            "type": "string"
+          },
+          "retrieval": {
+            "$ref": "#/components/schemas/PgRetrieval"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductCitation"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "maxItems": 6,
+            "minItems": 2,
+            "title": "Claims",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "candidate_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Hash",
+            "type": "string"
+          },
+          "narrative_mode": {
+            "const": "template",
+            "default": "template",
+            "title": "Narrative Mode",
+            "type": "string"
+          },
+          "model_evidence_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Model Evidence Mode",
+            "type": "string"
+          },
+          "publication_allowed": {
+            "const": false,
+            "default": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "owner_id",
+          "reviewer_id",
+          "product_source_id",
+          "retrieval",
+          "product",
+          "as_of",
+          "expires_at",
+          "claims",
+          "text",
+          "candidate_hash"
+        ],
+        "title": "CopyCandidate",
+        "type": "object"
+      },
+      "Document": {
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/Scope"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "document_version": {
+            "title": "Document Version",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "synthetic",
+            "default": "synthetic",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "license_ref": {
+            "title": "License Ref",
+            "type": "string"
+          },
+          "license_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "License Digest",
+            "type": "string"
+          },
+          "approved_by": {
+            "title": "Approved By",
+            "type": "string"
+          },
+          "approved_at": {
+            "format": "date-time",
+            "title": "Approved At",
+            "type": "string"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "approved": {
+            "default": true,
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "revoked": {
+            "default": false,
+            "title": "Revoked",
+            "type": "boolean"
+          },
+          "body": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "content_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "document_id",
+          "document_version",
+          "title",
+          "source_ref",
+          "license_ref",
+          "license_digest",
+          "approved_by",
+          "approved_at",
+          "valid_from",
+          "expires_at",
+          "body",
+          "content_sha256"
+        ],
+        "title": "Document",
+        "type": "object"
+      },
+      "Embedding": {
+        "additionalProperties": false,
+        "properties": {
+          "citation": {
+            "$ref": "#/components/schemas/SopCitation"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "vector": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2000,
+            "minItems": 1,
+            "title": "Vector",
+            "type": "array"
+          },
+          "vector_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Vector Sha256",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "synthetic_vector",
+            "default": "synthetic_vector",
+            "title": "Evidence Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation",
+          "profile",
+          "vector",
+          "vector_sha256"
+        ],
+        "title": "Embedding",
+        "type": "object"
+      },
+      "PendingCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate": {
+            "$ref": "#/components/schemas/CopyCandidate"
+          },
+          "state": {
+            "const": "awaiting_review",
+            "title": "State",
+            "type": "string"
+          },
+          "source_current": {
+            "const": true,
+            "title": "Source Current",
+            "type": "boolean"
+          },
+          "draft_id": {
+            "const": null,
+            "title": "Draft Id",
+            "type": "null"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidate",
+          "state",
+          "source_current",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "PendingCandidate",
+        "type": "object"
+      },
+      "PgEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/Embedding"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/PgProfile"
+          },
+          "stored_hex": {
+            "pattern": "^[0-9a-f]+$",
+            "title": "Stored Hex",
+            "type": "string"
+          },
+          "stored_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Stored Sha256",
+            "type": "string"
+          },
+          "distance": {
+            "maximum": 2,
+            "minimum": 0,
+            "title": "Distance",
+            "type": "number"
+          },
+          "query": {
+            "$ref": "#/components/schemas/Query"
+          },
+          "reference_distance": {
+            "maximum": 2,
+            "minimum": 0,
+            "title": "Reference Distance",
+            "type": "number"
+          }
+        },
+        "required": [
+          "origin",
+          "profile",
+          "stored_hex",
+          "stored_sha256",
+          "distance",
+          "query",
+          "reference_distance"
+        ],
+        "title": "PgEvidence",
+        "type": "object"
+      },
+      "PgProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "origin_profile_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Origin Profile Digest",
+            "type": "string"
+          },
+          "dimension": {
+            "maximum": 2000,
+            "minimum": 1,
+            "title": "Dimension",
+            "type": "integer"
+          },
+          "encoding_version": {
+            "const": "knowledge-vector-pg-f32-v1",
+            "default": "knowledge-vector-pg-f32-v1",
+            "title": "Encoding Version",
+            "type": "string"
+          },
+          "numeric_policy": {
+            "const": "bounded-components-1e-6-1e6-normsq-1e-12-1e12-v1",
+            "default": "bounded-components-1e-6-1e6-normsq-1e-12-1e12-v1",
+            "title": "Numeric Policy",
+            "type": "string"
+          },
+          "distance_version": {
+            "const": "cosine-pgvector-0.8.7-f32-v1",
+            "default": "cosine-pgvector-0.8.7-f32-v1",
+            "title": "Distance Version",
+            "type": "string"
+          },
+          "profile_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Profile Digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "origin_profile_digest",
+          "dimension",
+          "profile_digest"
+        ],
+        "title": "PgProfile",
+        "type": "object"
+      },
+      "PgRetrieval": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-pg-retrieval-v1",
+            "default": "p6-pg-retrieval-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "registry_id": {
+            "format": "uuid",
+            "title": "Registry Id",
+            "type": "string"
+          },
+          "registry_version": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Registry Version",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/Scope"
+          },
+          "registry_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Registry Digest",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/PgProfile"
+          },
+          "query": {
+            "$ref": "#/components/schemas/Query"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "synthetic_vector",
+            "default": "synthetic_vector",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "complete": {
+            "const": true,
+            "default": true,
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "exhaustive": {
+            "const": true,
+            "default": true,
+            "title": "Exhaustive",
+            "type": "boolean"
+          },
+          "eligible_count": {
+            "maximum": 20,
+            "minimum": 0,
+            "title": "Eligible Count",
+            "type": "integer"
+          },
+          "pool": {
+            "items": {
+              "$ref": "#/components/schemas/PgEvidence"
+            },
+            "maxItems": 20,
+            "title": "Pool",
+            "type": "array"
+          },
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/SopCitation"
+            },
+            "maxItems": 5,
+            "title": "Hits",
+            "type": "array"
+          },
+          "max_distance": {
+            "maximum": 2,
+            "minimum": 0,
+            "title": "Max Distance",
+            "type": "number"
+          },
+          "reason": {
+            "enum": [
+              "OK",
+              "INSUFFICIENT_EVIDENCE"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "result_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Result Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "registry_id",
+          "registry_version",
+          "scope",
+          "registry_digest",
+          "profile",
+          "query",
+          "as_of",
+          "eligible_count",
+          "pool",
+          "hits",
+          "max_distance",
+          "reason",
+          "result_hash"
+        ],
+        "title": "PgRetrieval",
+        "type": "object"
+      },
+      "ProductCitation": {
+        "additionalProperties": false,
+        "properties": {
+          "source_kind": {
+            "const": "product",
+            "default": "product",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/ProductFacts"
+          },
+          "field_path": {
+            "const": "title",
+            "default": "title",
+            "title": "Field Path",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "evidence_id": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot",
+          "text",
+          "evidence_id"
+        ],
+        "title": "ProductCitation",
+        "type": "object"
+      },
+      "ProductFacts": {
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/Scope"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "synthetic",
+            "default": "synthetic",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_binding_id": {
+            "title": "Source Binding Id",
+            "type": "string"
+          },
+          "source_version": {
+            "title": "Source Version",
+            "type": "string"
+          },
+          "source_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Digest",
+            "type": "string"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "captured_at": {
+            "format": "date-time",
+            "title": "Captured At",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "revoked": {
+            "default": false,
+            "title": "Revoked",
+            "type": "boolean"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "facts_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "snapshot_id",
+          "source_binding_id",
+          "source_version",
+          "source_digest",
+          "sku",
+          "captured_at",
+          "expires_at",
+          "title",
+          "facts_hash"
+        ],
+        "title": "ProductFacts",
+        "type": "object"
+      },
+      "Profile": {
+        "additionalProperties": false,
+        "properties": {
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "profile_version": {
+            "title": "Profile Version",
+            "type": "string"
+          },
+          "provider": {
+            "const": "synthetic",
+            "default": "synthetic",
+            "title": "Provider",
+            "type": "string"
+          },
+          "model": {
+            "const": "hand-authored-vector",
+            "default": "hand-authored-vector",
+            "title": "Model",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "dimension": {
+            "maximum": 2000,
+            "minimum": 1,
+            "title": "Dimension",
+            "type": "integer"
+          },
+          "preprocessing_version": {
+            "const": "unchanged-codepoints-v1",
+            "default": "unchanged-codepoints-v1",
+            "title": "Preprocessing Version",
+            "type": "string"
+          },
+          "distance_version": {
+            "const": "cosine-f64-v1",
+            "default": "cosine-f64-v1",
+            "title": "Distance Version",
+            "type": "string"
+          },
+          "profile_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Profile Digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profile_id",
+          "profile_version",
+          "model_version",
+          "dimension",
+          "profile_digest"
+        ],
+        "title": "Profile",
+        "type": "object"
+      },
+      "Query": {
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          },
+          "query_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Query Hash",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "vector": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2000,
+            "minItems": 1,
+            "title": "Vector",
+            "type": "array"
+          },
+          "vector_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Vector Sha256",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "synthetic_vector",
+            "default": "synthetic_vector",
+            "title": "Evidence Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "query_hash",
+          "profile",
+          "vector",
+          "vector_sha256"
+        ],
+        "title": "Query",
+        "type": "object"
+      },
+      "RejectedCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate": {
+            "$ref": "#/components/schemas/CopyCandidate"
+          },
+          "state": {
+            "const": "rejected",
+            "title": "State",
+            "type": "string"
+          },
+          "source_current": {
+            "title": "Source Current",
+            "type": "boolean"
+          },
+          "draft_id": {
+            "const": null,
+            "title": "Draft Id",
+            "type": "null"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidate",
+          "state",
+          "source_current",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "RejectedCandidate",
+        "type": "object"
+      },
+      "SavedCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate": {
+            "$ref": "#/components/schemas/CopyCandidate"
+          },
+          "state": {
+            "const": "saved",
+            "title": "State",
+            "type": "string"
+          },
+          "source_current": {
+            "title": "Source Current",
+            "type": "boolean"
+          },
+          "draft_id": {
+            "format": "uuid",
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidate",
+          "state",
+          "source_current",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "SavedCandidate",
+        "type": "object"
+      },
+      "Scope": {
+        "additionalProperties": false,
+        "properties": {
+          "organization_id": {
+            "title": "Organization Id",
+            "type": "string"
+          },
+          "shop_id": {
+            "title": "Shop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "organization_id",
+          "shop_id"
+        ],
+        "title": "Scope",
+        "type": "object"
+      },
+      "SopCitation": {
+        "additionalProperties": false,
+        "properties": {
+          "source_kind": {
+            "const": "sop",
+            "default": "sop",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "chunk": {
+            "$ref": "#/components/schemas/Chunk"
+          },
+          "evidence_id": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "chunk",
+          "evidence_id"
+        ],
+        "title": "SopCitation",
+        "type": "object"
+      },
+      "UnavailableCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate": {
+            "$ref": "#/components/schemas/CopyCandidate"
+          },
+          "state": {
+            "const": "source_unavailable",
+            "title": "State",
+            "type": "string"
+          },
+          "source_current": {
+            "const": false,
+            "title": "Source Current",
+            "type": "boolean"
+          },
+          "draft_id": {
+            "const": null,
+            "title": "Draft Id",
+            "type": "null"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidate",
+          "state",
+          "source_current",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "UnavailableCandidate",
+        "type": "object"
+      },
+      "CandidateResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SavedCandidate"
+              },
+              {
+                "$ref": "#/components/schemas/RejectedCandidate"
+              },
+              {
+                "$ref": "#/components/schemas/PendingCandidate"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableCandidate"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "required": [
+          "schema_version",
+          "data"
+        ],
+        "title": "CandidateResponse",
+        "type": "object"
+      },
+      "UnknownCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "const": "UNKNOWN",
+            "title": "State",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "state",
+          "request_key",
+          "publication_allowed"
+        ],
+        "title": "UnknownCandidate",
+        "type": "object"
+      },
+      "UnknownCandidateResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UnknownCandidate"
+          }
+        },
+        "required": [
+          "schema_version",
+          "data"
+        ],
+        "title": "UnknownCandidateResponse",
+        "type": "object"
+      },
+      "RejectedDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-receipt-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "state": {
+            "const": "rejected",
+            "title": "State",
+            "type": "string"
+          },
+          "candidate_id": {
+            "format": "uuid",
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "candidate_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Hash",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "draft_id": {
+            "const": null,
+            "title": "Draft Id",
+            "type": "null"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "request_key",
+          "state",
+          "candidate_id",
+          "candidate_hash",
+          "decision_id",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "RejectedDecision",
+        "type": "object"
+      },
+      "SavedDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-receipt-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "state": {
+            "const": "saved",
+            "title": "State",
+            "type": "string"
+          },
+          "candidate_id": {
+            "format": "uuid",
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "candidate_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Hash",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "draft_id": {
+            "format": "uuid",
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "request_key",
+          "state",
+          "candidate_id",
+          "candidate_hash",
+          "decision_id",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "SavedDecision",
+        "type": "object"
+      },
+      "DecisionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SavedDecision"
+              },
+              {
+                "$ref": "#/components/schemas/RejectedDecision"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "required": [
+          "schema_version",
+          "data"
+        ],
+        "title": "DecisionResponse",
+        "type": "object"
+      },
+      "UnknownDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-receipt-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "state": {
+            "const": "UNKNOWN",
+            "title": "State",
+            "type": "string"
+          },
+          "candidate_id": {
+            "format": "uuid",
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "candidate_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Hash",
+            "type": "string"
+          },
+          "decision_id": {
+            "const": null,
+            "title": "Decision Id",
+            "type": "null"
+          },
+          "draft_id": {
+            "const": null,
+            "title": "Draft Id",
+            "type": "null"
+          },
+          "publication_allowed": {
+            "const": false,
+            "title": "Publication Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "request_key",
+          "state",
+          "candidate_id",
+          "candidate_hash",
+          "decision_id",
+          "draft_id",
+          "publication_allowed"
+        ],
+        "title": "UnknownDecision",
+        "type": "object"
+      },
+      "UnknownDecisionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-copy-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UnknownDecision"
+          }
+        },
+        "required": [
+          "schema_version",
+          "data"
+        ],
+        "title": "UnknownDecisionResponse",
+        "type": "object"
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "server_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+]00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "schema_version",
+          "server_time",
+          "trace_id",
+          "error"
+        ]
+      },
+      "ErrorDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_CURSOR",
+              "INVALID_FILTER",
+              "INVALID_JSON",
+              "SESSION_INVALID",
+              "LOGIN_FAILED",
+              "ACCESS_DENIED",
+              "CSRF_INVALID",
+              "ORIGIN_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "PLAN_CHANGED",
+              "APPROVAL_SUPERSEDED",
+              "DECISION_CONFLICT",
+              "IDEMPOTENCY_CONFLICT",
+              "ITEM_STATE_CONFLICT",
+              "ITEM_VERSION_CONFLICT",
+              "ASSUMPTION_ACK_REQUIRED",
+              "ASSUMPTION_SET_MISMATCH",
+              "DATA_INCOMPLETE",
+              "SCOPE_REQUIRED",
+              "NOT_READY",
+              "APPROVAL_EXPIRED",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "INVALID_REQUEST",
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "safe_message": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DecisionReceipt"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ResolveReceipt"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateTaskReceipt"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "receipt"
+        ]
+      },
+      "ResolveReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemSummary"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/Resolution"
+          },
+          "duplicate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "item",
+          "resolution",
+          "duplicate"
+        ]
+      },
+      "Resolution": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resolution_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "close"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "resolved_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "before_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "after_version": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "resolution_payload_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "resolution_id",
+          "request_key",
+          "action",
+          "reason",
+          "resolved_by",
+          "resolved_at",
+          "before_version",
+          "after_version",
+          "resolution_payload_hash"
+        ]
+      },
+      "ItemSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sku_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "stock_pool_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "open",
+              "completed",
+              "closed"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "sync": {
+            "$ref": "#/components/schemas/SyncRead"
+          }
+        },
+        "required": [
+          "item_id",
+          "shop_id",
+          "sku_key",
+          "stock_pool_key",
+          "quantity",
+          "state",
+          "version",
+          "created_at",
+          "updated_at",
+          "sync"
+        ]
+      },
+      "SyncRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_requested",
+              "pending",
+              "synced",
+              "failed",
+              "unknown"
+            ]
+          },
+          "sender_enabled": {
+            "type": "boolean"
+          },
+          "projections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Projection"
+            }
+          },
+          "sender_gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SenderGate"
+            }
+          }
+        },
+        "required": [
+          "state",
+          "sender_enabled",
+          "projections",
+          "sender_gates"
+        ]
+      },
+      "SenderGate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "destination_alias": {
+            "type": "string",
+            "enum": [
+              "IM",
+              "Base"
+            ]
+          },
+          "sender_enabled": {
+            "type": "boolean"
+          },
+          "reason_code": {
+            "type": "string",
+            "enum": [
+              "NOT_CONFIGURED",
+              "DISABLED_BY_CONFIGURATION",
+              "WINDOW_EXPIRED",
+              "WORKER_NOT_READY",
+              "CONTROLLED_WINDOW_ACTIVE"
+            ]
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "worker_ready": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "destination_alias",
+          "sender_enabled",
+          "reason_code",
+          "verification_mode",
+          "as_of",
+          "worker_ready"
+        ]
+      },
+      "Projection": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "aggregate_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projection_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "outbox_status": {
+            "type": "string",
+            "enum": [
+              "blocked",
+              "pending",
+              "sending",
+              "sent",
+              "retry_wait",
+              "unknown",
+              "dead"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_requested",
+              "pending",
+              "synced",
+              "failed",
+              "unknown"
+            ]
+          },
+          "source_mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "controlled_stub"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outbox_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destination_alias": {
+            "type": "string",
+            "enum": [
+              "IM",
+              "Base"
+            ]
+          },
+          "target_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "observed_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "complete_unique_verified": {
+            "type": "boolean"
+          },
+          "is_current_version": {
+            "type": "boolean"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "verification_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline_fake",
+                  "controlled_sdk"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "aggregate_id",
+          "projection_version",
+          "outbox_status",
+          "state",
+          "source_mode",
+          "as_of",
+          "error_code",
+          "outbox_id",
+          "destination_alias",
+          "target_version",
+          "observed_version",
+          "complete_unique_verified",
+          "is_current_version",
+          "attempts",
+          "verification_mode"
+        ]
+      },
+      "DecisionReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decision_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "approval_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "plan_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "decision_payload_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject",
+              "approve_with_assumptions",
+              "reject_assumptions"
+            ]
+          },
+          "acknowledged_assumption_keys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "uniqueItems": true
+          },
+          "approval_status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected"
+            ]
+          },
+          "decided_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "decision_source": {
+            "type": "string",
+            "enum": [
+              "web",
+              "feishu"
+            ]
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "INBOUND_ASSUMPTION_DECLINED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resume_state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "waiting_checkpoint",
+              "consumed"
+            ]
+          },
+          "duplicate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "decision_id",
+          "task_id",
+          "approval_id",
+          "plan_id",
+          "plan_version",
+          "plan_hash",
+          "decision_payload_hash",
+          "action",
+          "acknowledged_assumption_keys",
+          "approval_status",
+          "decided_by",
+          "decided_at",
+          "decision_source",
+          "reason_code",
+          "resume_state",
+          "duplicate"
+        ]
+      },
+      "CreateTaskReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+]00:00)$"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "analyzing",
+              "awaiting_approval",
+              "executing",
+              "completed",
+              "rejected",
+              "expired",
+              "needs_reapproval",
+              "failed",
+              "needs_attention"
+            ]
+          },
+          "duplicate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "request_key",
+          "task_id",
+          "source_task_id",
+          "state",
+          "duplicate"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "commerceops_session",
+        "description": "PG服务端opaque会话；login使用匿名bootstrap；HttpOnly/SameSite=Lax/Secure依显式transport配置。"
+      }
+    }
+  }
+}

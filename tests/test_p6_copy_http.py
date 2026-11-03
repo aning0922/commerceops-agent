@@ -11,6 +11,7 @@ import pytest
 from commerceops.application.knowledge_copy.commands import CopyReceipt, CreateCopy, ReviewCopy
 from commerceops.application.replenishment.contracts import WebActor, WebFailure
 from commerceops.entrypoints.knowledge_copy_http import knowledge_copy_router
+from commerceops.entrypoints.knowledge_copy_openapi import copy_openapi
 from commerceops.infrastructure.database import DatabaseSettings
 from commerceops.infrastructure.knowledge_copy_drafts import CopyCandidate
 from commerceops.infrastructure.web_config import WebConfig
@@ -45,6 +46,8 @@ class PortStub:
         return dict(
             candidate=sample_copy().model_dump(mode="json"),
             state="awaiting_review",
+            source_current=True,
+            draft_id=None,
             publication_allowed=False,
         )
 
@@ -261,3 +264,106 @@ def test_exported_http_schema_requires_version_and_does_not_advertise_model_auth
     assert model["additionalProperties"] is False
     assert model["properties"]["action"]["enum"] == ["approve", "reject"]
     assert "approved" not in model["properties"] and port.writes == 0
+
+
+def test_all_actual_router_operations_match_independent_contract(
+    http: tuple[TestClient, PortStub],
+) -> None:
+    client, _ = http
+    actual = client.get("/openapi.json").json()["paths"]
+    contract = copy_openapi()["paths"]
+    assert {path: set(operations) for path, operations in actual.items()} == {
+        path: set(operations) for path, operations in contract.items()
+    }
+    for operations in contract.values():
+        for method, operation in operations.items():
+            assert operation["security"] == [{"SessionCookie": []}]
+            assert "422" in operation["responses"]
+            if method == "post":
+                assert {p["name"] for p in operation["parameters"] if p["in"] == "header"} == {
+                    "Origin",
+                    "X-CSRF-Token",
+                }
+
+
+def test_get_receipt_rechecks_current_session_after_simulated_lost_ack(
+    http: tuple[TestClient, PortStub],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client, port = http
+    port.lose_ack = True
+    command = review_command()
+    base = "/api/v1/copy/candidates/" + str(UUID(int=7))
+    result = client.post(base + "/review", json=command.model_dump(mode="json"), headers=headers())
+    assert result.status_code == 202 and port.writes == 1
+
+    def revoked(*_: object) -> WebActor:
+        raise WebFailure("SESSION_INVALID", 401)
+
+    monkeypatch.setattr(
+        "commerceops.entrypoints.knowledge_copy_http.SessionStore.authenticate", revoked
+    )
+    result = client.get(
+        base + "/review-receipts/" + str(command.request_key),
+        params={"candidate_hash": command.candidate_hash},
+    )
+    assert result.status_code == 401 and result.json()["error"]["code"] == "SESSION_INVALID"
+    assert port.writes == 1 and port.reads == 0
+
+
+def test_invalid_store_response_is_closed_503_not_serialized_success(
+    http: tuple[TestClient, PortStub],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client, port = http
+    original = port.read(ACTOR, UUID(int=7))
+    monkeypatch.setattr(port, "read", lambda *_: original | {"source_current": 1})
+    result = client.get("/api/v1/copy/candidates/" + str(UUID(int=7)))
+    assert result.status_code == 503
+    assert result.json()["error"]["code"] == "SERVICE_UNAVAILABLE"
+    assert port.writes == 0
+
+
+@pytest.mark.parametrize("digest", [None, "not-a-sha256"])
+def test_missing_or_invalid_receipt_hash_has_declared_error(
+    http: tuple[TestClient, PortStub],
+    digest: str | None,
+) -> None:
+    client, port = http
+    path = "/api/v1/copy/candidates/" + str(UUID(int=7)) + "/review-receipts/" + str(UUID(int=10))
+    result = client.get(path, params={"candidate_hash": digest} if digest is not None else {})
+    assert result.status_code == 422 and result.json()["error"]["code"] == "INVALID_REQUEST"
+    assert port.writes == port.reads == 0
+
+
+def test_actual_success_unknown_and_error_bodies_validate_as_web_dtos(
+    http: tuple[TestClient, PortStub],
+) -> None:
+    from tests.test_p6_copy_web_models import RESPONSE
+
+    client, port = http
+    command = review_command()
+    base = "/api/v1/copy/candidates/" + str(UUID(int=7))
+    responses = [
+        client.get(base),
+        client.get("/api/v1/copy/candidate-requests/" + str(create_command().request_key)),
+        client.get(
+            base + "/review-receipts/" + str(command.request_key),
+            params={"candidate_hash": command.candidate_hash},
+        ),
+        client.post(
+            "/api/v1/copy/candidates",
+            json=create_command().model_dump(mode="json"),
+            headers=headers(),
+        ),
+        client.post(base + "/review", json=command.model_dump(mode="json"), headers=headers()),
+        client.get(
+            base + "/review-receipts/" + str(command.request_key),
+            params={"candidate_hash": command.candidate_hash},
+        ),
+        client.post(base + "/review", json={"approved": True}, headers=headers()),
+    ]
+    assert [response.status_code for response in responses] == [200, 202, 202, 202, 200, 200, 422]
+    for response in responses:
+        assert RESPONSE.validate_json(response.text).model_dump(mode="json") == response.json()
+    assert port.writes == 2
