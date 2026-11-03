@@ -63,3 +63,11 @@ test('UI_FIXTURE: persona switch uses current epoch and re-reads server identity
  await page.getByLabel('体验视角').selectOption('approver');await page.getByRole('button',{name:'切换视角'}).click();
  await expect(page.getByText(/当前视角：approver/)).toBeVisible();expect(switched).toBe(1);
 });
+
+test('UI_FIXTURE: welcome remains usable on narrow viewport with keyboard focus',async ({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.route('**/api/v4/demo/**',route=>route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}}));
+ await page.goto('/v4');const button=page.getByRole('button',{name:'一键体验'});await expect(button).toBeVisible();
+ await button.focus();await expect(button).toBeFocused();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+});
