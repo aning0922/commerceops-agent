@@ -112,3 +112,42 @@ ROOT 后续明确释放本节 code proposal：只处理本批 `.audit/v4-0/diff-
 本增量实际验证：33 PASS / 16.84s，日志 `.audit/v4-0/preflight-compat-tests.log`。包括 21 项逐 span 改内容/移行/重复位置拒绝与真实原生 secret-mutation、两组限定历史原生 90/9 精确分类及来源/行列/Match/指纹篡改拒绝、altered-source 拒绝、provenance 变动拒绝、完整规则与前 58 例外/既有历史原件保持。开发首轮 Ruff 长行与测试类型检查失败已修；最终四文件 Ruff/type 结果另据实际记录，不覆盖失败。
 
 精确授权输入 SAFE_METADATA.json 的 SHA256：`858a31d5b0987091e0cd82a2fdfcd10a03097ca1c68ed3d1cb368445044f4d73`；89 指纹集合与生成器固定清单逐项相等。最终四文件 Ruff check/format 与 mypy 均 exit 0；rules/source/provenance 验证 exit 0；本提案七个变更文件组成的独立快照实际原生扫描 exit 0（不代表完整仓库）。
+
+## 47a 收敛性诊断与严格 merge-copy 候选
+
+Root 的非最终完整扫描 `.audit/v4-0/scan-after-api-47.log` 实际 dir/index 各 5 blocking，git 原生 381 = 132 既核 + 249 blocking。各 refs 当时继续推进，此日志用于发现，不签 Gate。独立按真实 Git parents 拆分：249 = 5 个单父 author finding + 244 个真实多父 merge finding。244 项全部属于下表 12 个精确 path/blob；未逐 merge 追加 244 个 source 指纹。
+
+5 个 author 来源分别是：`31d11cc76c13a7a56afc5fec541b1657dc747cab` 的 `tests/v4/test_demo_sessions_pg.py:151,170,197`（测试参数类型及固定 fixture_version 引用）、`b726949b670153d9b5393225f890f0c919ee6ea5` 的 `docs/v4/review/SCAN_a4f.md:28`（公开 SQL 字段集合说明）、`d57808f0627821ab202e054e7d464fa2d4b9798c` 的 `backend/src/commerceops/infrastructure/v4_demo_sessions.py:133`（capability 派生调用的固定用途标签；csrf_secret 是变量引用，没有读取实际值）。原生有限目录扫描确认 5 项，完整源码用途核为公开非秘密。它们仅作为本提案五个精确新增快照/author 历史条目；尚待 Root/Astra 独审，不自动批准其它 author。
+
+提案保持原 222 rules、79 原精确目录例外及旧全部精确回执，新增 5 后目录共 84。既有 preflight 历史89保留，新增5后该组94。历史临时配置仅移除39个V4目录 blocks，仍与旧222规则/45原生例外语义完全相同，完整 `--all --full-history -m` 不变。
+
+| 固定锚来源 | path | 完整 Git blob |
+|---|---|---|
+| `63a5a4f08bad6b98fe95942598291e0714bc09da` | `frontend/app/v4/[[...path]]/page.tsx` | `60e878cab70e13abc4e827af83eebdb3ad159ad7` |
+| `ea48a13943d269484a4ebe59ca75803bcafe429f` | `tests/e2e/v4/test_strict_response.py` | `1cf5844b8b0f46fc5d0b5e298a28a031b9ca139c` |
+| `b726949b670153d9b5393225f890f0c919ee6ea5` | `docs/v4/review/SCAN_a4f.md` | `2150dfeb4328fad138da3dd2636bae8cf81fbdf6` |
+| `ea48a13943d269484a4ebe59ca75803bcafe429f` | `tests/e2e/v4/test_supervisor.py` | `b7b18721733539fd615fbef891bac12dc710d27a` |
+| `534844a848b7e4412a6b4b2ff178f7d0aa56c82e` | `backend/src/commerceops/infrastructure/v4_demo_sessions.py` | `bf11ab994c683019b83bcf6510daa5ffd9be62a3` |
+| `63a5a4f08bad6b98fe95942598291e0714bc09da` | `frontend/lib/v4-context.mjs` | `c05c82b186f1e52f26657fd03ce817472074936c` |
+| `534844a848b7e4412a6b4b2ff178f7d0aa56c82e` | `tests/v4/test_demo_sessions_pg.py` | `44bc08da5e49b83563ed8c987ea7e6017ccef0df` |
+| `ea48a13943d269484a4ebe59ca75803bcafe429f` | `docs/v4/design/IDENTITY_SQL_PLAN.md` | `b23e358dd29b065ce2229be8a1870c702a5f6e71` |
+| `ea48a13943d269484a4ebe59ca75803bcafe429f` | `tests/e2e/v4/http_probe.py` | `d2f7dd62c119b0f1141f26e1786cfa47273a3743` |
+| `534844a848b7e4412a6b4b2ff178f7d0aa56c82e` | `docs/v4/design/IDENTITY_SQL_PLAN.md` | `831194f4e26a5ae554e89e1d0d297a64cc863f17` |
+| `534844a848b7e4412a6b4b2ff178f7d0aa56c82e` | `backend/migrations/versions/0024_v4_demo_foundation.py` | `018748c90bc4145e3147454052296ea4a8119071` |
+| `ea48a13943d269484a4ebe59ca75803bcafe429f` | `backend/migrations/versions/0024_v4_demo_foundation.py` | `2a833ba4021fd76f3ed08b235b802701a1765d4d` |
+
+`approved_v4_merge_copy` 是独立的 git-only 分类分支：先核原生 source SHA 与原生 fingerprint 自洽，再从 Git 对象验证至少两个真实 parent；对相同 path 核 merge blob、固定 anchor source 的真实 blob、清单 blob 三者完全相同。随后仅匹配已登记 rule/path/起止行列/完整 span hash/原生 redacted Match hash，并在 anchor 源文件同位置重核完整 span。未知路径/作者/文件变动/位置与内容变化拒绝，不按任意祖先、相同列名或相同局部值泛化。完整 blob 相同使后续普通 merge 复制相同文件时可收敛，author 或文件修改仍须另审。
+
+固定元数据同时保留先前真实捕获的历史和快照列位置；同一文件在原生 author diff 与 snapshot/merge diff 里的列值可能不同（page 行曾出现42与43），本实现只接受各已登记精确项，不使用±1容差或重新推算列号。首轮只匹配 author 历史列号时，该项被拒绝，保留失败后补用原已审 snapshot 精确列绑定；未改原生报告。
+
+每条 merge 原生 finding 继续完整输出其 merge source/fingerprint，classification 为 reviewed_public_merge_copy，附 merge_anchor.source_commit/blob、finding_source、binding_kind 与精确 finding 绑定。旧 exact finding 分类不减少。既有全历史测试改为保全原 exact 指纹集合、逐一要求所有额外原生 finding 满足新严格 merge-copy 分支，未知项仍使测试失败；不按总数判绿。
+
+候选的收敛性只针对固定锚的完整文件复制；未来 author、新 blob 或未覆盖源始终 blocking。完整freeze全扫 NOT_RUN。本次是兼容 code proposal，Root/Astra 精确核收前不构成批准。没有业务、旧 Harness、PG/API/Web/Docker/Hosted/push 操作；actual cost UNKNOWN。
+
+实际验证记录：首次有限收敛测试 1 FAIL / 4 PASS / 3.99s（author列与snapshot列差异）；下一次1 FAIL / 13.47s为测试误把全refs原日志的244期望用于仅0ca..47祖先范围（实际185），没有未知命中被放过。修正精确范围期望后，真实有限历史185个merge-copy与真实双父Git测试1 PASS / 16.51s；覆盖单父拒绝、错误位置/Match、不同blob、secret追加、锚source错误。另新5 literal及全部快照测试6 PASS / 2.33s。没有重命名或覆盖旧失败。
+
+为验证原日志剩余非47祖先merge，另外只枚举原244条的精确merge source，以每个source^!重取原生发现；244/244精确指纹全部被copy分类，原生输出与各锚绑定保留在 `.audit/v4-0/convergence/`；没有再跑全--all。完整freeze全扫仍NOT_RUN，未捕获的未来author或blob不获任何准入。
+
+补充锚source/path/blob三种篡改的真实Git测试后，单项1 PASS / 15.30s；原244记录对应12个merge来源的限定原生重捕获244/244，18.861s。旧79目录例外、132条既有exact历史记录、全部222规则均逐项与parent核为不变。七文件提案快照自检首遇新增测试参数类型声明误报（仅元数据，无秘密），通过等价的局部MonkeyPatch上下文替代fixture签名消除，没有新增第六个例外；该开发扫描exit1保留。
+
+最终等价测试签名下：收敛/真实Git正负例1 PASS / 16.06s；最终四文件Ruff check/format及mypy均exit0，rules/source/provenance验证0，七文件提案快照原生扫描exit0。以上不等于最终完整dir/index/allrefs扫描，后者仍NOT_RUN。

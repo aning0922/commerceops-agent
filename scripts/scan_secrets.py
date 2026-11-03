@@ -29,6 +29,7 @@ from scripts.vendor_gitleaks_rules import (
     RO_PUBLIC_ROW,
     RO_ROW_DIGEST,
     RO_SOURCE_COMMIT,
+    V4_MERGE_COPY_ANCHORS,
     V4_PREFLIGHT_SNAPSHOTS,
     V4_PUBLIC_EXCEPTIONS,
     V4_SOURCE_COMMIT,
@@ -353,22 +354,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 79
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 84
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 79
+        or len(provenance["exceptions"]) != 84
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 78:
+    if len(generic.get("allowlists", [])) != 83:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 78
+        len(generic["allowlists"]) != 83
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -540,6 +541,8 @@ def validate_rules() -> None:
         }:
             raise ValueError("invalid V4 preflight scanner rules")
 
+    if provenance.get("v4_merge_copy_anchors") != list(V4_MERGE_COPY_ANCHORS):
+        raise ValueError("invalid V4 merge anchors")
     validate_woo_public_sources(ROOT)
 
 
@@ -561,7 +564,7 @@ def history_config() -> bytes:
     expected = tomllib.loads(content)
     generic = next(rule for rule in expected["rules"] if rule["id"] == "generic-api-key")
     generic["allowlists"] = generic["allowlists"][:44]
-    if removed != 34 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
+    if removed != 39 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
         raise ValueError("invalid V4 history config derivation")
     return derived.encode()
 
@@ -609,6 +612,95 @@ def approved_v4_history_finding(scope: str, item: dict[str, Any]) -> bool:
             == row["exact_span_sha256"]
         )
     return False
+
+
+def approved_v4_merge_copy(scope: str, item: dict[str, Any]) -> dict[str, str] | None:
+    """Only real merges copying an explicitly frozen, whole-file reviewed blob."""
+    commit = item.get("Commit")
+    if scope != "git" or not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        return None
+    if (
+        item.get("Fingerprint")
+        != f"{commit}:{item.get('File')}:{item.get('RuleID')}:{item.get('StartLine')}"
+    ):
+        return None
+    parents = subprocess.run(
+        ["git", "rev-list", "--parents", "-n", "1", commit],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if parents.returncode or len(parents.stdout.split()) < 3 or parents.stdout.split()[0] != commit:
+        return None
+    for anchor in V4_MERGE_COPY_ANCHORS:
+        if item.get("File") != anchor["path"]:
+            continue
+        valid_blob = True
+        for source in (commit, anchor["source_commit"]):
+            blob = subprocess.run(
+                ["git", "rev-parse", source + ":" + anchor["path"]],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if blob.returncode or blob.stdout.strip() != anchor["blob"]:
+                valid_blob = False
+                break
+        if not valid_blob:
+            continue
+        for row in (
+            *v4_history_findings(),
+            *v4_additional_history_findings(),
+            *v4_preflight_history_findings(),
+            *V4_PREFLIGHT_SNAPSHOTS,
+        ):
+            if row["path"] != anchor["path"]:
+                continue
+            if any(
+                item.get(key) != row[field]
+                for key, field in (
+                    ("RuleID", "rule"),
+                    ("File", "path"),
+                    ("StartLine", "reported_line"),
+                    ("EndLine", "end_line"),
+                    ("StartColumn", "start_column"),
+                    ("EndColumn", "end_column"),
+                )
+            ):
+                continue
+            match = item.get("Match")
+            if (
+                not isinstance(match, str)
+                or hashlib.sha256(match.encode()).hexdigest() != row["match_sha256"]
+            ):
+                continue
+            anchored_source = subprocess.run(
+                ["git", "show", anchor["source_commit"] + ":" + anchor["path"]],
+                cwd=ROOT,
+                capture_output=True,
+                check=False,
+            )
+            lines = anchored_source.stdout.splitlines()
+            line, end = int(str(row["reported_line"])), int(str(row["end_line"]))
+            if (
+                anchored_source.returncode
+                or len(lines) < end
+                or hashlib.sha256(b"\n".join(lines[line - 1 : end])).hexdigest()
+                != row["exact_span_sha256"]
+            ):
+                continue
+            return {
+                "source_commit": anchor["source_commit"],
+                "blob": anchor["blob"],
+                "finding_source": str(row["source_commit"]),
+                "binding_kind": "history" if "fingerprint" in row else "snapshot",
+                "finding_fingerprint": (
+                    f"{row['source_commit']}:{row['path']}:{row['rule']}:{row['reported_line']}"
+                ),
+            }
+    return None
 
 
 def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
@@ -863,6 +955,8 @@ def scan(root: Path) -> int:
                 approved = approved_history_finding(scope, item) or approved_v4_history_finding(
                     scope, item
                 )
+                merge_anchor = None if approved else approved_v4_merge_copy(scope, item)
+                approved = approved or merge_anchor is not None
                 reviewed += int(approved)
                 # 永远不输出 Secret/Match/整条报告，也不输出原始 stdout/stderr。
                 print(
@@ -874,9 +968,14 @@ def scan(root: Path) -> int:
                             "line": item["StartLine"],
                             "commit": item.get("Commit", ""),
                             "fingerprint": item.get("Fingerprint", ""),
-                            "classification": "reviewed_public_false_positive"
-                            if approved
-                            else "blocking",
+                            "classification": (
+                                "reviewed_public_merge_copy"
+                                if merge_anchor
+                                else "reviewed_public_false_positive"
+                                if approved
+                                else "blocking"
+                            ),
+                            **({"merge_anchor": merge_anchor} if merge_anchor else {}),
                         },
                         ensure_ascii=False,
                     )

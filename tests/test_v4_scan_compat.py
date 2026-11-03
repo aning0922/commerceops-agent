@@ -75,7 +75,7 @@ def test_exact_dir_index_native_and_history_derivation(repository: Path) -> None
     assert derived == baseline
     assert len(derived["rules"]) == len(original["rules"]) == 222
     assert sum(len(x.get("allowlists", [])) for x in derived["rules"]) == 45
-    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 79
+    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 84
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
@@ -401,7 +401,7 @@ def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> N
         "v4_additional_historical_findings",
     ):
         assert current[key] == old[key]
-    assert len(v4_preflight_history_findings()) == 89
+    assert len(v4_preflight_history_findings()) == 94
     config = tomllib.loads(scanner.history_config().decode())
     baseline = tomllib.loads(
         subprocess.check_output(["git", "show", "7c262fb:.gitleaks.toml"], cwd=ROOT).decode()
@@ -528,3 +528,132 @@ def test_preflight_provenance_refuses_source_changes(
     monkeypatch.setattr(scanner, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid V4 preflight scanner rules"):
         scanner.validate_rules()
+
+
+def test_merge_copy_native_convergence_and_rejections(tmp_path: Path) -> None:
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            (
+                "--log-opts=0ca8a657a4eb985175e8642e881f3cf4942b8424.."
+                "47a445644d853498b45df33e7bc19d1acac80d94 "
+                "--full-history -m --text --no-textconv --no-ext-diff"
+            ),
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 1
+    findings = json.loads(report.read_text())
+    copies = []
+    for item in findings:
+        if scanner.approved_v4_history_finding("git", item):
+            continue
+        anchor = scanner.approved_v4_merge_copy("git", item)
+        assert anchor is not None, {k: item[k] for k in ("File", "Commit", "StartLine")}
+        copies.append(item)
+    assert len(copies) == 185
+    sample = copies[0]
+    assert scanner.approved_v4_merge_copy("dir", sample) is None
+    for key in ("File", "StartLine", "EndLine", "StartColumn", "EndColumn", "Match", "Fingerprint"):
+        changed = dict(sample)
+        changed[key] = (
+            changed[key] + 1 if isinstance(changed[key], int) else changed[key] + "changed"
+        )
+        assert scanner.approved_v4_merge_copy("git", changed) is None
+    # Every source author remains ineligible for the copy rule even if its blob is anchored.
+    from scripts.vendor_gitleaks_rules import V4_MERGE_COPY_ANCHORS
+
+    for anchor in V4_MERGE_COPY_ANCHORS:
+        parents = subprocess.check_output(
+            ["git", "show", "-s", "--format=%P", anchor["source_commit"]], cwd=ROOT, text=True
+        ).split()
+        if len(parents) == 1:
+            changed = {**sample, "Commit": anchor["source_commit"], "File": anchor["path"]}
+            changed["Fingerprint"] = (
+                f"{changed['Commit']}:{changed['File']}:{changed['RuleID']}:{changed['StartLine']}"
+            )
+            assert scanner.approved_v4_merge_copy("git", changed) is None
+    # Use real Git merges below; a whole-file mutation elsewhere also invalidates copying.
+    repo = tmp_path / "git"
+    repo.mkdir()
+    git(repo, "init", "-b", "main")
+    git(repo, "config", "user.name", "Synthetic merge")
+    git(repo, "config", "user.email", "synthetic@example.invalid")
+    source = scanner.approved_v4_merge_copy("git", sample)
+    assert source is not None
+    target = repo / sample["File"]
+    target.parent.mkdir(parents=True)
+    target.write_bytes(
+        subprocess.check_output(
+            ["git", "show", source["source_commit"] + ":" + sample["File"]], cwd=ROOT
+        )
+    )
+    git(repo, "add", ".")
+    git(repo, "commit", "-m", "public file")
+    git(repo, "switch", "-c", "side")
+    (repo / "side.txt").write_text("side\n")
+    git(repo, "add", ".")
+    git(repo, "commit", "-m", "side")
+    git(repo, "switch", "main")
+    (repo / "main.txt").write_text("main\n")
+    git(repo, "add", ".")
+    git(repo, "commit", "-m", "main")
+    for mutation in ("unchanged", "other_byte", "secret"):
+        if mutation != "unchanged":
+            with target.open("a") as stream:
+                stream.write(
+                    "\n"
+                    if mutation == "other_byte"
+                    else '\napi_key = "' + secrets.token_urlsafe(32) + '"\n'
+                )
+            git(repo, "add", ".")
+            git(repo, "commit", "-m", "different blob")
+        git(repo, "merge", "--no-ff", "side", "-m", "merge") if mutation == "unchanged" else None
+        # Keep the real two-parent merge and change its file in another true merge.
+        if mutation != "unchanged":
+            git(repo, "switch", "side")
+            (repo / (mutation + ".txt")).write_text("side\n")
+            git(repo, "add", ".")
+            git(repo, "commit", "-m", "new side")
+            git(repo, "switch", "main")
+            git(repo, "merge", "--no-ff", "side", "-m", "new merge")
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
+        item = {**sample, "Commit": commit}
+        item["Fingerprint"] = f"{commit}:{item['File']}:{item['RuleID']}:{item['StartLine']}"
+        # Preserve the immutable anchor Git objects in this synthetic repository.
+        git(repo, "fetch", str(ROOT), source["source_commit"])
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(scanner, "ROOT", repo)
+            assert bool(scanner.approved_v4_merge_copy("git", item)) == (mutation == "unchanged")
+    for field in ("source_commit", "path", "blob"):
+        changed_anchor = {
+            "source_commit": source["source_commit"],
+            "path": sample["File"],
+            "blob": source["blob"],
+        }
+        changed_anchor[field] = "0" * 40 if field != "path" else sample["File"] + ".changed"
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(scanner, "V4_MERGE_COPY_ANCHORS", (changed_anchor,))
+            assert scanner.approved_v4_merge_copy("git", sample) is None
+
+
+@pytest.mark.parametrize("which", range(21, 26))
+def test_convergence_new_five_literal_boundaries(tmp_path: Path, which: int) -> None:
+    test_preflight_each_span_change_duplicate_and_secret(tmp_path, which)
