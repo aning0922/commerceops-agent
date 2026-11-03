@@ -17,8 +17,8 @@ Root提供的既有脱敏报告原生42项，其中20项原历史审批不变，
 | `b63f9bc5efc9b360c872df4ef15481ba15420503` | `frontend/m3-tests/daily-read.fixture.json` | 137 | `9ba1d2eaf28dee54c74df8009dfe068f2205261d884e6eee9b5b816c0dfde3d8` | 日报fixture指标枚举 |
 | `b63f9bc5efc9b360c872df4ef15481ba15420503` | `frontend/lib/m3-read-client.ts` | 72 | `7cd875fcc4788e55e5bd0ecb98a6f6a096fa1d4539bad46c62633047ef543c41` | 日报客户端指标枚举 |
 | `b4b3c9ea8ab4b60c3406178c7a08e4ca6d3fb9e4` | `frontend/m3-tests/daily-empty.fixture.json` | 140 | `9ba1d2eaf28dee54c74df8009dfe068f2205261d884e6eee9b5b816c0dfde3d8` | 空日报fixture指标枚举 |
-| `8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d` | `backend/src/commerceops/infrastructure/knowledge_copy_repository.py` | 257 | `f88e20474894ad7b68ada1bb12c042aa419747488fdb40bcba47523e5503cd26` | registry JSON字段与SQL列引用 |
-| `8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d` | `backend/migrations/versions/0020_p6_knowledge_copy.py` | 142 | `2016dfbb0029ad7285c16c3169cb895854864410744d51bb89fc5d6592fd7948` | registry JSON字段与SQL列引用 |
+| `e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8` | `backend/src/commerceops/infrastructure/knowledge_copy_repository.py` | 271 | `f88e20474894ad7b68ada1bb12c042aa419747488fdb40bcba47523e5503cd26` | registry JSON字段与SQL列引用 |
+| `e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8` | `backend/migrations/versions/0020_p6_knowledge_copy.py` | 152 | `2016dfbb0029ad7285c16c3169cb895854864410744d51bb89fc5d6592fd7948` | registry JSON字段与SQL列引用 |
 | `8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d` | `backend/migrations/versions/0020_p6_knowledge_copy.py` | 54 | `1e860e56789ea17cf4df6d514d07d28135dd78010d9e9230cc6f1cc2f48464e0` | 知识chunk字段DDL |
 | `22b60150add80f59613445260e1e2851b5d0b86f` | `backend/src/commerceops/application/commerce/readonly_inquiry_tools.py` | 199 | `23006e136c68711f9ce3672034e86c0176d21387c04c9824468927b5be39d942` | 共享库存池字段比较 |
 | `1a78d5a23fd888265cc8e30dde6c492d8b6c94cc` | `backend/src/commerceops/entrypoints/inquiry_http.py` | 176 | `eaf8d3d2af552e3a55b0f9c3a45ba8dcaf93438deda500af53d3792fcae842cf` | 询单回执路由及OpenAPI操作名 |
@@ -47,3 +47,14 @@ Root提供的既有脱敏报告原生42项，其中20项原历史审批不变，
 日志保留于本工作树 `.audit/m3-targeted-tests.log`、`.audit/quality-regression.log`、`.audit/quality-final.log`、`.audit/m3-final-tests.log`、`.audit/quality-final-external-temp.log`。本轮没有运行原仓库全历史扫描；Root应在独审精确提交后统一扫描集成候选。
 
 公开行只是候选例外，须Root独审才可合入。业务作者后续若调整这些行或行位，当前/index会如实阻断，不能用本候选替变动后的行签字。保留Root已记录的3126pass/5fail与原native42事实，不改写成已通过。
+
+
+## K2稳定行位增量（2026-11-03）
+
+Root已转交bcf独审结论`ACCEPT_EXACT_ROW_EXCEPTIONS`（独立20项反例通过、9项源hash、222规则及原17/20保持均核）；完整集成扫描仍被后续业务源码行位变化阻断，不能写为scan通过。
+
+本增量只将两项来源重绑定到精确已提交的 `e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8`：knowledge_copy_repository原257→271、0020 registry JSON原142→152。分别直接读取旧 `8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d` 与e1的完整行并逐字节相等，完整行hash、path与regex完全不变；原始来源仍由本段及bcf提交保留。采用固定新commit/path/line/hash，不引入无行号搜索或第二套定位机制。0020的另一条54行仍按原准确来源保留。
+
+0021行位已被Root报告发生变化，但新fix尚未交精确提交，仍保留原72行pin并显式待最新源码稳定；不能据此增量声称当前全部集成scan畅通。本增量不重跑190项或主仓库全历史扫描，最终全source稳定后由Root统一scan。
+
+增量定向验证：11 passed / 13.06s / native0（两条新行位的exact/index/moved/history-byte、逐字节正则及固定来源缺失拒绝）；日志`.audit/k2-pin-targeted.log`。直接用完整e1源文件生成dir/index两快照均无违规，分别追加一个字节均被拒绝。校验`.gitleaks.toml`与bcf字节完全相同，provenance仅两项source_commit/source_line改变；Ruff、Markdown127files/errors0及Git差异空白检查通过。原190/122测试账仅绑定bcf原候选，不转签本次新pin提交。

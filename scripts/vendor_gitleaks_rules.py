@@ -146,18 +146,18 @@ M3_PUBLIC_EXCEPTIONS = (
         140,
     ),
     (
-        "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+        "e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8",
         "backend/src/commerceops/infrastructure/knowledge_copy_repository.py",
         "^backend/src/commerceops/infrastructure/knowledge_copy_repository\\.py$",
         "f88e20474894ad7b68ada1bb12c042aa419747488fdb40bcba47523e5503cd26",
-        257,
+        271,
     ),
     (
-        "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+        "e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8",
         "backend/migrations/versions/0020_p6_knowledge_copy.py",
         "^backend/migrations/versions/0020_p6_knowledge_copy\\.py$",
         "2016dfbb0029ad7285c16c3169cb895854864410744d51bb89fc5d6592fd7948",
-        142,
+        152,
     ),
     (
         "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",

@@ -184,18 +184,18 @@
       "path": "^backend/src/commerceops/infrastructure/knowledge_copy_repository\\.py$",
       "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
       "exact_line_sha256": "f88e20474894ad7b68ada1bb12c042aa419747488fdb40bcba47523e5503cd26",
-      "source_commit": "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+      "source_commit": "e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8",
       "source_path": "backend/src/commerceops/infrastructure/knowledge_copy_repository.py",
-      "source_line": 257
+      "source_line": 271
     },
     {
       "rule": "generic-api-key",
       "path": "^backend/migrations/versions/0020_p6_knowledge_copy\\.py$",
       "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
       "exact_line_sha256": "2016dfbb0029ad7285c16c3169cb895854864410744d51bb89fc5d6592fd7948",
-      "source_commit": "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+      "source_commit": "e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8",
       "source_path": "backend/migrations/versions/0020_p6_knowledge_copy.py",
-      "source_line": 142
+      "source_line": 152
     },
     {
       "rule": "generic-api-key",
