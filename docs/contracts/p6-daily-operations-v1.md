@@ -159,3 +159,29 @@ queued/completed各一节点，逐一尝试kind、kind+任意request、合法重
 
 作者仅Ruff/format/mypy三文件通过、模块实际collect12节点/native0（原10节点保留），
 新增实际PG、原HOLD解除与Root整包签收仍pending；本owner未启动PG或HTTP服务，也未读取Root wiring WIP。
+
+## 8. Core95实际失败后的独立必要修正
+
+Root组合8748e326f73a293674f26ed9445e362ca7ac2a81的Core95，
+窗口05:17:50Z→05:32:50Z/cleanup reserve180，最终实际55pass/11fail/29setup errors，
+113.77秒、outer1；05:20:41Z cleanup0/stopping=true，m3core-ed34987ac365容器0/网络0/新卷1保留。
+其中询单38callpass、日报16callpass；S3 12setup通过、call1pass/11fail；K3的29setup errors单独保留，
+不混入S3修复或用S3纯测试抵扣。S3七处worker start失败的安全记录类仍BaseException，实际异常类UNKNOWN；
+HTTP wire在capability断言失败；三处schedule/Fake在conversation is None断言失败。
+
+本片不改DDL、权限、原WorkerSession/termination保护或shared API/Worker/database接线：
+
+- 测试work helper改为受控OS child，timeout60/native wait，配置/DB/任务ID固定。
+  child在原同一WorkerSession内runner重复读取及mark_attention/ACK；父进程不假造旧PID已退出。
+  原S2 native helper默认行为保留，新增显式repeat/mark-attention参数；失败只补固定异常类，绝不输出SQL/参数。
+- schedule fixture用原ReplenishmentStore._conversation在owner事务创建正确org/actor/channel/chat/topic的自有row，
+  不再假设登录已创建Web conversation。暂停case同一个真实WorkerSession连续扫描、暂停、处理原job，
+  不在旧pytest PID仍活时新建第二session，也不重置审计或伪造termination_confirmed。
+- capability的earliest_business_day原为Python date，原envelope/canonical不支持；
+  作者无PG最小复现实际ValueError/INVALID_CANONICAL_VALUE。只在日报投影处先转ISO日期，
+  同步新receipt的business_day及schedule-read的三个日期字段，不扩大共享canonical类型。
+
+这些是静态定位和无PG复现支持的修正，未把七处UNKNOWN异常类预填为已测TerminationRequired。
+receipt/Read纯批实际51pass/1.89s/native0，含capability/receipt通过真实envelope的date边界回归；
+五变动代码/测试文件Ruff/format/mypy通过。S3 12+receipt2仍仅collect14节点/native0，
+新源码实际PG、原S3 HOLD解除与Core整包重核待Root另行窗口，不在旧卷或旧UTC内自动重跑。

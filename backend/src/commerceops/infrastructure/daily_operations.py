@@ -78,7 +78,7 @@ class DailyOperations:
                             "failure_code": task["failure_code"],
                             "request_hash": value.request_hash,
                             "source_config_version": value.daily_source.source_config_version,
-                            "business_day": value.business_day,
+                            "business_day": value.business_day.isoformat(),
                         },
                     )
                 )
@@ -195,7 +195,9 @@ class DailyOperations:
                             "shop_id": shop,
                             "enabled": source is not None,
                             "source": source,
-                            "earliest_business_day": earliest,
+                            "earliest_business_day": earliest.isoformat()
+                            if earliest is not None
+                            else None,
                             "metric_version": metric,
                             "question_kinds": QUESTION_KINDS,
                             "schedule_management_mode": "controlled_cli",

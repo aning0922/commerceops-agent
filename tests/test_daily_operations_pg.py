@@ -1,6 +1,9 @@
 """S3新owned PG候选；本owner仅collect，实际SQL/退出由Root窗口核收。"""
 
 import asyncio
+import os
+import subprocess
+import sys
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -25,7 +28,8 @@ from commerceops.infrastructure.daily_sources import DailyDeployment
 from commerceops.infrastructure.daily_store import DailyStore, create_daily_task
 from commerceops.infrastructure.database import connect
 from commerceops.infrastructure.queue import JobQueue
-from commerceops.infrastructure.worker_lock import WorkerSession, mark_attention
+from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
+from commerceops.infrastructure.worker_lock import WorkerSession
 from commerceops.workflows.daily_report import DailyRunner
 from fastapi.testclient import TestClient
 from psycopg.types.json import Jsonb
@@ -39,22 +43,50 @@ pytestmark = pytest.mark.integration
 
 
 async def work(f: P3Fixture, files: DailyDeployment) -> UUID:
-    session = WorkerSession(f.config.database, f.inventory.data.organization)
-    await session.start()
-    try:
-        jobs = JobQueue(session)
-        await jobs.recover_confirmed()
-        run = await jobs.claim()
-        assert run is not None
-        runner = DailyRunner(DailyStore(f.config.database, session, files))
-        await runner.run(run)
-        await runner.run(run)
-        assert session.connection is not None
-        await mark_attention(session.connection, session.owner)
-        await jobs.done(run)
-        return run.task_id
-    finally:
-        await session.close(clean=True)
+    # 每段拥有独立OS child并native wait；clean close不等于同pytest PID已退出。
+    with connect(f.config.database) as db:
+        row = db.execute(
+            """SELECT task_id FROM business.jobs WHERE organization_id=%s
+        AND shop_id=%s AND status IN ('ready','retry_wait') AND available_at<=clock_timestamp()
+        ORDER BY available_at,id LIMIT 1""",
+            (f.actor.organization_id, f.inventory.data.shop),
+        ).fetchone()
+        assert row is not None
+        task = UUID(str(row["task_id"]))
+    config = files.directory / f"worker-deployment-{uuid4().hex}.json"
+    config.write_text(files.model_dump_json())
+    config.chmod(0o600)
+    settings = f.config.database
+    env = os.environ.copy()
+    env.update(
+        COMMERCEOPS_DB_HOST=settings.host,
+        COMMERCEOPS_DB_PORT=str(settings.port),
+        COMMERCEOPS_DB_NAME=settings.name,
+        COMMERCEOPS_DB_USER=settings.user,
+        COMMERCEOPS_DB_PASSWORD_FILE=str(settings.password_file),
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tests.daily_worker_process",
+            "--deployment",
+            str(config),
+            "--organization",
+            str(f.actor.organization_id),
+            "--task",
+            str(task),
+            "--repeat",
+            "--mark-attention",
+            "--ack",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    return task
 
 
 def completed(
@@ -246,12 +278,7 @@ def schedule_row(
 ) -> tuple[UUID, ScheduleConfig]:
     """只有新owned测试owner可直登过去配置，以验证恢复；产品CLI仍拒绝过去first_due。"""
     with connect(f.inventory.owner) as db:
-        conversation = db.execute(
-            """SELECT id FROM business.conversations WHERE actor_id=%s AND channel='web'
-            ORDER BY id LIMIT 1""",
-            (f.actor.principal_id,),
-        ).fetchone()
-        assert conversation is not None
+        conversation = ReplenishmentStore._conversation(db, f.actor)
         destination_id = uuid4() if destination else None
         if destination:
             db.execute(
@@ -273,7 +300,7 @@ def schedule_row(
             shop_id=f.inventory.data.shop,
             owner_id=f.actor.principal_id,
             owner_auth_version=f.actor.auth_version,
-            conversation_id=conversation["id"],
+            conversation_id=conversation,
             daily_source=meta.source(files.bindings[0].binding_id),
             rules=DailyRuleConfig(currency=meta.currency),
             delay_minutes=0,
@@ -308,26 +335,34 @@ def test_schedule_latest_dedupe_pause_and_queued_task_retained(
     files, meta = prepare(f, tmp_path / "daily")
     row_id, config = schedule_row(f, files, meta)
 
-    async def scan() -> None:
+    async def scan_and_execute() -> UUID:
         session = WorkerSession(f.config.database, f.actor.organization_id)
         await session.start()
         try:
             scheduler = DailyScheduler(f.config.database, session, files)
             await scheduler.reconcile()
             await scheduler.reconcile()
+            with connect(f.inventory.owner) as db:
+                runs = db.execute(
+                    "SELECT * FROM business.p6_daily_schedule_runs WHERE schedule_id=%s",
+                    (config.schedule_id,),
+                ).fetchall()
+                assert len(runs) == 1 and runs[0]["missed_periods"] >= 5
+                task = UUID(str(runs[0]["task_id"]))
+                db.execute(
+                    "UPDATE business.p6_daily_schedules SET enabled=false WHERE id=%s", (row_id,)
+                )
+            jobs = JobQueue(session)
+            run = await jobs.claim()
+            assert run is not None and run.task_id == task
+            runner = DailyRunner(DailyStore(f.config.database, session, files))
+            await runner.run(run)
+            await jobs.done(run)
+            return task
         finally:
             await session.close(clean=True)
 
-    asyncio.run(scan())
-    with connect(f.inventory.owner) as db:
-        runs = db.execute(
-            "SELECT * FROM business.p6_daily_schedule_runs WHERE schedule_id=%s",
-            (config.schedule_id,),
-        ).fetchall()
-        assert len(runs) == 1 and runs[0]["missed_periods"] >= 5
-        task = runs[0]["task_id"]
-        db.execute("UPDATE business.p6_daily_schedules SET enabled=false WHERE id=%s", (row_id,))
-    assert asyncio.run(work(f, files)) == task
+    task = asyncio.run(scan_and_execute())
     with connect(f.config.database) as db:
         task_row = db.execute(
             "SELECT state,failure_code FROM business.business_tasks WHERE id=%s", (task,)

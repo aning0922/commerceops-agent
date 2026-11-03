@@ -2,6 +2,10 @@
 
 import copy
 import json
+from contextlib import nullcontext
+from datetime import UTC, datetime
+from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, cast
 from uuid import UUID
 
@@ -16,11 +20,70 @@ from commerceops.entrypoints.daily_http import (
 )
 from commerceops.infrastructure.daily_operations import DailyOperations
 from commerceops.infrastructure.daily_read import DailyReadStore
+from commerceops.infrastructure.daily_sources import DailyDeployment
+from commerceops.infrastructure.database import DatabaseSettings
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 pytestmark = pytest.mark.offline
+
+
+@pytest.mark.parametrize("operation", ["capability", "receipt"])
+def test_daily_date_projection_reaches_actual_envelope_as_iso(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str
+) -> None:
+    from commerceops.infrastructure import daily_operations
+
+    from tests.test_daily_source import metadata, request
+
+    meta = metadata(tmp_path)
+    value = request(meta)
+    task = {
+        "id": UUID(int=30),
+        "conversation_id": value.conversation_id,
+        "state": "queued",
+        "failure_code": None,
+        "normalized_request": value.model_dump(mode="json"),
+    }
+    queries: list[str] = []
+
+    class DB:
+        def execute(self, statement: str, params: Any = ()) -> Any:
+            queries.append(statement)
+            row: Any
+            if "clock_timestamp()" in statement:
+                row = {"time": datetime(2026, 11, 3, 5, tzinfo=UTC)}
+            elif "FROM business.business_tasks" in statement:
+                row = task
+            else:
+                row = None
+            return SimpleNamespace(fetchone=lambda: row)
+
+    monkeypatch.setattr(daily_operations, "connect", lambda settings: nullcontext(DB()))
+    monkeypatch.setattr(daily_operations, "actor_guard", lambda *args: None)
+    monkeypatch.setattr(daily_operations, "role_scope", lambda *args: True)
+    monkeypatch.setattr(daily_operations, "bound_metadata", lambda *args: meta)
+    files = SimpleNamespace(
+        active=lambda *args: SimpleNamespace(binding_id=value.daily_source.source_binding_id)
+    )
+    settings = DatabaseSettings(
+        host="127.0.0.1", name="unused", user="unused", password_file=tmp_path / "not-read"
+    )
+    operations = DailyOperations(
+        settings,
+        cast(DailyDeployment, files) if operation == "capability" else None,
+        b"unused-cursor-material",
+    )
+    actor = WebActor(UUID(int=7), UUID(int=8), UUID(int=9), meta.organization_id, 1)
+    if operation == "capability":
+        result = operations.capabilities(actor, meta.shop_id)
+        assert result.capabilities.earliest_business_day == meta.earliest_business_day
+    else:
+        receipt = operations.creation_receipt(actor, meta.shop_id, value.request_key)
+        assert receipt.receipt.operation == "daily_report.create"
+        assert receipt.receipt.business_day == value.business_day
+    assert queries and all(statement.lstrip().startswith("SELECT ") for statement in queries)
 
 
 def receipt_wire(question: bool = False) -> dict[str, Any]:

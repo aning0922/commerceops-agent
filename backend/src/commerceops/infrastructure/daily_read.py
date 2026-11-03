@@ -92,6 +92,10 @@ class DailyReadStore:
                     AND r.shop_id=%s""",
                         (task_id, actor.organization_id, task["shop_id"]),
                     ).fetchone()
+                    if scheduled is not None:
+                        for field in ("business_day", "skipped_first_day", "skipped_last_day"):
+                            if scheduled[field] is not None:
+                                scheduled[field] = scheduled[field].isoformat()
                     delivery = db.execute(
                         """SELECT id AS delivery_id,'fake'::text AS transport,status AS state,
                     attempts,external_id,failure_code FROM business.p6_daily_deliveries
