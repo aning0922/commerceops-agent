@@ -1,6 +1,6 @@
 {
   "stage": "V4-0",
-  "authorization": "B_LOCAL_IMPLEMENTATION",
+  "authorization": "B / local",
   "started_at_utc": "2026-11-03T14:04:33Z",
   "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
   "base_tree": "43e4e732824e23b991660a4f7882ba8f5a265df1",
@@ -13,10 +13,10 @@
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
-    "SCHEMA_API": "commerceops-v4-foundation",
     "WEB": "commerceops-v4-web",
     "QA": "commerceops-v4-qa",
-    "REVIEW": "commerceops-v4-review"
+    "REVIEW": "commerceops-v4-review",
+    "BACKEND": "commerceops-v4-foundation"
   },
   "protected_old_worktrees": "unchanged",
   "model_policy": {
