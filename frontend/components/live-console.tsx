@@ -2,6 +2,7 @@
 import { CreateTaskDialog, DecisionActions } from "./live-actions";
 import { DailyReport } from "./daily-report";
 import { DailyWrite } from "./daily-write";
+import { Copy } from "./copy";
 import { Inquiry } from "./inquiry";
 import { DailyFailure, readDaily } from "../lib/m3-read-client";
 import type { DailyRead } from "../lib/m3-types.generated";
@@ -35,6 +36,7 @@ type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
   | { kind: "inquiry" }
   | { kind: "daily-create" }
+  | { kind: "copy" }
   | { kind: "daily"; read: DailyRead }
   | { kind: "tasks"; read: DTO["TaskList"] }
   | {
@@ -74,7 +76,9 @@ const itemRoute = new RegExp(`^/replenishment-items/(${uuid})$`, "i");
 const dailyRoute = new RegExp(`^/daily-reports/(${uuid})$`, "i");
 const uuidOnly = new RegExp(`^${uuid}$`, "i");
 const titleOf = (path: string) =>
-  path === "/daily-reports"
+  path === "/copy"
+    ? "内部文案"
+    : path === "/daily-reports"
     ? "创建经营日报"
     : path === "/inquiries"
     ? "只读查询"
@@ -113,6 +117,7 @@ export function LiveConsole({
   fixtureMode = false,
   fixtureClient,
   inquiryEnabled = false,
+  copyEnabled = false,
 }: {
   path: string;
   query: Query;
@@ -122,6 +127,7 @@ export function LiveConsole({
   fixtureMode?: boolean;
   fixtureClient?: (invalidate: () => void) => A01ReadClient;
   inquiryEnabled?: boolean;
+  copyEnabled?: boolean;
 }) {
   const router = useRouter();
   const epoch = useRef(0);
@@ -230,7 +236,9 @@ export function LiveConsole({
       const cap = session!.principal.capabilities;
       let page: PageData;
       let shop: string | null = null;
-      if (path === "/daily-reports" && !fixtureMode) {
+      if (path === "/copy" && !fixtureMode && copyEnabled) {
+        page = { kind: "copy" };
+      } else if (path === "/daily-reports" && !fixtureMode) {
         page = { kind: "daily-create" };
       } else if (path === "/inquiries" && !fixtureMode) {
         page = { kind: "inquiry" };
@@ -653,6 +661,7 @@ export function LiveConsole({
               任务中心
             </a>
           )}
+          {copyEnabled && !fixtureMode && (operatorShops.length > 0 || session.principal.role_shop_grants.some(x => x.role === "approver")) && <a href="/copy" aria-current={path === "/copy" ? "page" : undefined}>内部文案</a>}
           {!fixtureMode && operatorShops.length > 0 && <a href="/daily-reports" aria-current={path === "/daily-reports" ? "page" : undefined}>经营日报</a>}
           {inquiryEnabled && !fixtureMode && operatorShops.length > 0 && <a href="/inquiries" aria-current={path === "/inquiries" ? "page" : undefined}>只读查询</a>}
           {capabilities!.can_read_approvals && (
@@ -759,6 +768,7 @@ export function LiveConsole({
             </Card>
           ) : (
             <>
+              {page.kind === "copy" && <Copy client={client!} principal={session.principal.principal_id} operators={operatorShops} approvers={session.principal.role_shop_grants.filter(x => x.role === "approver").map(x => x.shop_id)} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "daily-create" && origin && <DailyWrite client={client!} origin={origin} shops={operatorShops} principal={session.principal.principal_id} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "daily" && origin && !fixtureMode && <DailyWrite key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? ""}:${page.read.daily.report?.facts_hash ?? ""}:${page.read.daily.report?.content_hash ?? ""}`} read={page.read} client={client!} origin={origin} shops={operatorShops} principal={session.principal.principal_id} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "inquiry" && <Inquiry client={client} enabled={inquiryEnabled} shops={operatorShops} holdWrite={holdWrite} />}

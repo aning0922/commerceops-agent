@@ -124,7 +124,7 @@ export type A01ReadClient = Pick<
   | "items"
   | "item"
   | "prepareResolve"
-> & Partial<Pick<P3Client, "inquiryAccess" | "dailyWriteAccess">>;
+> & Partial<Pick<P3Client, "inquiryAccess" | "dailyWriteAccess" | "copyAccess">>;
 export function readTransport(transport: FetchTransport): FetchTransport {
   return (url, init) => {
     if (
