@@ -135,3 +135,27 @@ task workflow/thread及Worker organization/owner，避免在拒绝不合法RunRe
 同一补强继续绑定RunRequest workflow和规范payload_ref；新增owner/job/workflow/payload/thread五个实际PG负例，
 要求拒绝不合法run后原question仍queued、failure_code仍null，再由原run正常执行。
 后续模块实际collect为10节点（首候选5节点事实保留），新增SQL仍NOT_RUN；Ruff/mypy针对两文件通过。
+
+## 7. 32dd独审HOLD后的两项P2修正候选
+
+Root转交原Reviewer结论：32dd为HOLD，两项P2，262项独立pure不抵SQL。
+目的地runtime仅SELECT，原enqueue和发送前SELECT却直接FOR SHARE锁目的地，
+PG行锁要求UPDATE权限，会使带Fake目标的报告保存回滚；另一个P2是question guard只看NEW.kind，
+旧daily_question可改kind绕开原request及completed保护。
+
+修正仅0022 DDL、daily_delivery及必要PG候选，不修改共享API/Worker/database接线。
+新增 `p6_lock_daily_destination(uuid,uuid,uuid,uuid)` SECURITY DEFINER，固定search_path，
+PUBLIC无EXECUTE、runtime也不直接获EXECUTE；helper必须匹配原task/org/shop/owner、
+schedule/version、当前operator/auth/source和登记Fake目的地后才锁同一行。
+已获runtime EXECUTE的原p6_schedule_current改为固定search_path的definer，核原权限/版本后调用helper。
+enqueue显式调用该原函数，两个runtime SELECT不再直接锁destination；未宽授任何目的地UPDATE。
+目的地disabled仍可保存报告并生成disabled Fake意图，不把目标停用改为报告无法完成。
+
+question UPDATE在NEW.kind快速返回之前先检查OLD/NEW是否涉及daily_question；kind变化直接23514拒绝，
+kind不变继续原request不可变与completed不可变校验。
+queued/completed各一节点，逐一尝试kind、kind+任意request、合法重算hash的新request三种SQL攻击，
+要求每次23514且原kind/request/state/version保持；Fake两节点同时核runtime无任何destination UPDATE列权限、
+无helper直接EXECUTE、原bridge可锁正确目标、wrong owner/shop被helper拒绝，再执行报告保存→Fake接收→成功或reply丢失unknown。
+
+作者仅Ruff/format/mypy三文件通过、模块实际collect12节点/native0（原10节点保留），
+新增实际PG、原HOLD解除与Root整包签收仍pending；本owner未启动PG或HTTP服务，也未读取Root wiring WIP。

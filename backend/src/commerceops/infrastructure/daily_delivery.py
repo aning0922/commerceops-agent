@@ -69,6 +69,11 @@ async def enqueue_delivery(
 ) -> None:
     if not stored.report.complete:
         return
+    current = await (
+        await db.execute("SELECT business.p6_schedule_current(%s) AS allowed", (task_id,))
+    ).fetchone()
+    if not current or not current["allowed"]:
+        raise DailyUnsafe("DAILY_SCHEDULE_CHANGED")
     row = await (
         await db.execute(
             r"""SELECT r.id AS run_id,s.config,d.id AS destination_id,d.enabled
@@ -78,7 +83,7 @@ JOIN business.p6_daily_destinations d ON
 d.id=(s.config->>'destination_binding_id')::uuid
 AND d.organization_id=r.organization_id AND d.shop_id=r.shop_id AND
 d.owner_id=s.owner_id
-WHERE r.task_id=%s AND s.enabled AND d.transport='fake' FOR SHARE OF s,d""",
+WHERE r.task_id=%s AND s.enabled AND d.transport='fake' FOR SHARE OF s""",
             (task_id,),
         )
     ).fetchone()
@@ -175,7 +180,7 @@ JOIN business.p6_daily_schedules s ON s.id=r.schedule_row_id
 JOIN business.p6_daily_destinations dest ON dest.id=d.destination_binding_id
 AND dest.organization_id=d.organization_id AND dest.shop_id=d.shop_id
 WHERE d.id=%s AND d.organization_id=%s AND d.status=%s FOR UPDATE OF d FOR SHARE OF
-s,dest,t,o""",
+s,t,o""",
                 (delivery_id, self.session.organization, status),
             )
         ).fetchone()

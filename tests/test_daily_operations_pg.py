@@ -8,6 +8,7 @@ from typing import Any
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
+import psycopg
 import pytest
 from commerceops.application.daily.contracts import DailyRuleConfig
 from commerceops.application.daily.questions import QuestionInput, QuestionSpec
@@ -113,6 +114,55 @@ def test_question_transaction_replay_and_frozen_current_permission(
         )
     with pytest.raises(WebFailure):
         operations.question(f.actor, task, question, None)
+
+
+@pytest.mark.parametrize("completed_state", [False, True])
+def test_question_kind_and_request_cannot_change_in_queued_or_completed_state(
+    fixture: P3Fixture, tmp_path: Path, completed_state: bool
+) -> None:
+    f = fixture
+    files, _, parent, body, _ = completed(f, tmp_path / "daily")
+    question = create_question(f.config.database, f.actor, parent, body)
+    if completed_state:
+        assert asyncio.run(work(f, files)) == question
+    with connect(f.config.database) as db:
+        before = db.execute(
+            "SELECT kind,normalized_request,state,version FROM business.business_tasks WHERE id=%s",
+            (question,),
+        ).fetchone()
+        assert before is not None
+        changed = dict(before["normalized_request"])
+        value = body.model_copy(
+            update={"question": QuestionSpec(kind="data_quality", metric_key=None, finding_id=None)}
+        )
+        changed["input"] = value.model_dump(mode="json")
+        changed["request_hash"] = facts_hash(value.model_dump(mode="json"))
+        attacks = [
+            (
+                "UPDATE business.business_tasks SET kind='technical_fixture' WHERE id=%s",
+                (question,),
+            ),
+            (
+                """UPDATE business.business_tasks SET kind='technical_fixture',normalized_request=%s
+                WHERE id=%s""",
+                (Jsonb({"schema_version": 1, "source_mode": "postgres_technical"}), question),
+            ),
+            (
+                "UPDATE business.business_tasks SET normalized_request=%s WHERE id=%s",
+                (Jsonb(changed), question),
+            ),
+        ]
+        for statement, params in attacks:
+            with pytest.raises(psycopg.errors.CheckViolation), db.transaction():
+                db.execute(statement, params)
+            assert (
+                db.execute(
+                    """SELECT kind,normalized_request,state,version
+                    FROM business.business_tasks WHERE id=%s""",
+                    (question,),
+                ).fetchone()
+                == before
+            )
 
 
 @pytest.mark.parametrize(
@@ -318,6 +368,42 @@ def test_fake_delivery_durable_receiver_and_unknown_no_retry(
                 ).fetchone()
             assert request is not None
             assert request["normalized_request"]["business_day"] == day.isoformat()
+            with connect(f.config.database) as db:
+                privileges = db.execute(
+                    """SELECT
+                has_any_column_privilege(current_user,'business.p6_daily_destinations','UPDATE')
+                AS destination_update,
+                has_function_privilege(current_user,
+                'business.p6_lock_daily_destination(uuid,uuid,uuid,uuid)','EXECUTE') AS direct_lock,
+                business.p6_schedule_current(%s) AS schedule_current""",
+                    (run.task_id,),
+                ).fetchone()
+                assert privileges == {
+                    "destination_update": False,
+                    "direct_lock": False,
+                    "schedule_current": True,
+                }
+                with pytest.raises(psycopg.errors.InsufficientPrivilege), db.transaction():
+                    db.execute(
+                        "UPDATE business.p6_daily_destinations SET enabled=false WHERE id=%s",
+                        (config.destination_binding_id,),
+                    )
+            with connect(f.inventory.owner) as db:
+                denied = db.execute(
+                    """SELECT business.p6_lock_daily_destination(%s,%s,%s,%s)
+                AS wrong_owner,business.p6_lock_daily_destination(%s,%s,%s,%s) AS wrong_shop""",
+                    (
+                        run.task_id,
+                        config.organization_id,
+                        config.shop_id,
+                        uuid4(),
+                        run.task_id,
+                        config.organization_id,
+                        uuid4(),
+                        config.owner_id,
+                    ),
+                ).fetchone()
+                assert denied == {"wrong_owner": False, "wrong_shop": False}
             await DailyRunner(DailyStore(f.config.database, session, files)).run(run)
             await jobs.done(run)
             with connect(f.config.database) as db:
