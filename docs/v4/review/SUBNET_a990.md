@@ -27,3 +27,15 @@ verify_existing_subnets使用无project过滤的network ls --no-trunc --quiet，
 精确a990快照下test_owned_subnets+test_owned_driver+test_owned_networks：**48 PASS / 0.17s / native0**。随后上述额外绑定反例成立，现有48项没有覆盖Case与展开IPAM不同。实际只执行纯测试与Compose config解析，未运行network ls/inspect于真实daemon、未创建任何container/network/volume、未改daemon或prune。临时目录已清理。
 
 请QA局部补SUBNET-01后交精确普通commit；原非重叠验证主体无需整体重写。Root的pilotD地址池耗尽/native1/0API/0tenant/cleanup/保卷记录及f56be31保持，不将本反例混为该次实际失败根因。该补丁复审通过前不能凭48pure给pilotE启动闭环签收；真实PG/HTTP/TTL/Full仍各按最终source和实际回执核定。
+
+## 2026-11-04：1684e04 最小修复复审，SUBNET-01 关闭
+
+**最新结论：ACCEPT_PREPARED_EXPLICIT_SUBNET_MODEL，0 P1 / 0 P2。** 上方 a990 的原 P2 和反例保留为修复前事实；此结论只覆盖下面精确增量，未重审无变动部分或签发真实资源运行结果。
+
+fix candidate `1684e0455978b46ddad607e09d85a1af5657ab1a` / tree `931e2ea516393156eeaf6e9a2fd1fac45deaaf22`，parent 恰为原 candidate `a990be0d5ac2fc9252adb77cb104d90face9c1ce`。变更为 actual expanded model guard、对应纯测试/夹具及说明，没有改原 inventory、业务或服务入口。
+
+no_build_model 首先调用 verify_expanded_model，在写 frozen JSON/hash、检查项目空资源和创建任何服务之前，对真实 Compose config JSON 校验：顶层网络恰好 default/host_facing；两个唯一 IPAM config 分别精确等于 Case 的 canonical CIDR；default internal=true、host_facing internal=false（接受正常规范输出省略 false），bridge/default IPAM、project 自动 name，拒绝 external/attachable/IPv6/custom options 和额外分配范围。PG/pg-test 仅 default 且不发布 ports；API 恰好两网络，不允许 network_mode、别名/static IP 附加项；唯一 TCP published/target 精确等于 Case.api_port，host_ip 恰好 127.0.0.1。失败直接拒绝，不覆盖错误值、重新分配或重试。旧 image 校验、移除 build、pull_policy=never 和三服务选择保持。
+
+独立精确快照执行 test_owned_model_guard.py、test_owned_networks.py、test_owned_review_fixes.py：**44 PASS / 0.17s / native0**。另用本次全新占位路径/env 和实际 Docker Compose CLI 对三原文件展开：正常模型 native0 且被精确 no_build_model 接受，网络原值保持、最终仅三服务。随后把 env 的 host subnet 从 Case 的 172.30.251.0/24 改为 172.30.252.0/24，真实展开模型在冻结前被拒绝，错误为 `expanded IPAM differs from registered Case CIDR`；原 SUBNET-01 反例不再成立。对正常实际展开模型派生的两范围对调、缺失 IPAM、额外范围三个独立反例也均拒绝。
+
+只运行纯测试和 Compose config，不执行真实 network ls/inspect、PG/HTTP/Web/TTL/browser，也未创建 container/network/volume。临时快照已清理。未用本次结果补签旧 pilotD 失败或 a990 源码；后续 ROOT 最终合批、具体资源/UTC 和运行回执仍单独记录。本项代码阻断已关闭，可作为 ROOT 冻结后续功能候选的准备证据。
