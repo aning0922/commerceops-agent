@@ -1,10 +1,13 @@
 # 受限 migration 诊断入口
 
-准备代码，不开放资源窗口。旧失败窗不可复用；Root在全新owned db-init容器中登记精确
+准备代码，不开放资源窗口。旧失败窗不可复用；Root在全新owned诊断容器中登记精确
 source/image、对象、新凭据、UTC截止/cleanup reserve并通过外层supervisor后才执行。
 该命令本身不创建容器、卷、数据库，不带重试或窗口延长；不是常驻诊断服务。
 
-在仓库根目录、使用原db-init新owned环境（原`COMMERCEOPS_DB_*`配置与新password file）执行：
+现有Dockerfile的runtime/db-init镜像不COPY tests/scripts，不能直接导入本模块；
+test/pg-test才包含它。Root将使用`pg-test` target，在仓库根目录、沿用该窗口同owner的
+新owned db-init环境（原`COMMERCEOPS_DB_*`配置与本批新password file）执行下列命令。
+无需修改旧Dockerfile，也不使用runtime/db-init镜像执行tests模块：
 
 ```sh
 python -m tests.e2e.v4.migration_diagnostic \
