@@ -75,7 +75,7 @@ def test_exact_dir_index_native_and_history_derivation(repository: Path) -> None
     assert derived == baseline
     assert len(derived["rules"]) == len(original["rules"]) == 222
     assert sum(len(x.get("allowlists", [])) for x in derived["rules"]) == 45
-    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 84
+    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 93
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
@@ -401,7 +401,7 @@ def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> N
         "v4_additional_historical_findings",
     ):
         assert current[key] == old[key]
-    assert len(v4_preflight_history_findings()) == 94
+    assert len(v4_preflight_history_findings()) == 103
     config = tomllib.loads(scanner.history_config().decode())
     baseline = tomllib.loads(
         subprocess.check_output(["git", "show", "7c262fb:.gitleaks.toml"], cwd=ROOT).decode()
@@ -657,3 +657,98 @@ def test_merge_copy_native_convergence_and_rejections(tmp_path: Path) -> None:
 @pytest.mark.parametrize("which", range(21, 26))
 def test_convergence_new_five_literal_boundaries(tmp_path: Path, which: int) -> None:
     test_preflight_each_span_change_duplicate_and_secret(tmp_path, which)
+
+
+@pytest.mark.parametrize("which", range(26, 35))
+def test_discovery_nine_literal_boundaries(tmp_path: Path, which: int) -> None:
+    test_preflight_each_span_change_duplicate_and_secret(tmp_path, which)
+
+
+def test_discovery_metadata_preserves_exact_history_and_only_moves_fixed_spans() -> None:
+    from scripts.vendor_gitleaks_rules import V4_MERGE_COPY_ANCHORS, V4_PREFLIGHT_SNAPSHOTS
+
+    before = json.loads(
+        subprocess.check_output(["git", "show", "47bfcba:scripts/gitleaks_rules.json"], cwd=ROOT)
+    )
+    current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    for key in (
+        "historical_findings",
+        "v4_historical_findings",
+        "v4_additional_historical_findings",
+    ):
+        assert current[key] == before[key]
+    assert (
+        current["v4_preflight_historical_findings"][:94]
+        == before["v4_preflight_historical_findings"]
+    )
+    assert current["v4_merge_copy_anchors"][:12] == before["v4_merge_copy_anchors"]
+    assert len(V4_MERGE_COPY_ANCHORS) >= 25
+    moved = []
+    for old, new in zip(before["exceptions"], current["exceptions"][:84], strict=True):
+        if old == new:
+            continue
+        assert old["source_path"] == new["source_path"] == "tests/v4/test_demo_sessions_pg.py"
+        assert old["exact_line_sha256"] == new["exact_line_sha256"]
+        assert new["source_line"] == old["source_line"] + 4
+        moved.append(old["source_line"])
+    assert sorted(moved) == [151, 170, 197]
+    assert len(V4_PREFLIGHT_SNAPSHOTS) == 35
+
+
+@pytest.mark.parametrize(
+    "commit,line",
+    [
+        ("3a135751011c78f78c80773a049565606371eff0", 540),
+        ("2330bca2e657a236ba5355b940e2f641763d026d", 557),
+    ],
+)
+def test_residual_driver_copy_only_bindings_are_exact(
+    tmp_path: Path, commit: str, line: int
+) -> None:
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=" + commit + "^! --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 1
+    item = next(
+        r
+        for r in json.loads(report.read_text())
+        if r["File"] == "tests/e2e/v4/owned_driver.py" and r["StartLine"] == line
+    )
+    anchor = scanner.approved_v4_merge_copy("git", item)
+    assert anchor is not None and anchor["binding_kind"] == "copy_only"
+    assert not scanner.approved_v4_history_finding("git", item)
+    for key in ("StartLine", "EndLine", "StartColumn", "EndColumn", "Match"):
+        changed = dict(item)
+        changed[key] = (
+            changed[key] + 1 if isinstance(changed[key], int) else changed[key] + "changed"
+        )
+        assert scanner.approved_v4_merge_copy("git", changed) is None
+    # The whole-blob rule still requires two actual parents.
+    for source in (
+        "8196e628213a9ec5f8ed8c6542f89c213bf60914",
+        "1684e0455978b46ddad607e09d85a1af5657ab1a",
+    ):
+        changed = {**item, "Commit": source}
+        changed["Fingerprint"] = f"{source}:{item['File']}:{item['RuleID']}:{item['StartLine']}"
+        assert scanner.approved_v4_merge_copy("git", changed) is None
