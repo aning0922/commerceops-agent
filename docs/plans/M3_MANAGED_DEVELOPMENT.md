@@ -57,3 +57,13 @@
 - Web 的 Terra 调用返回模型容量已满；原会话切 Sol/high 继续，未改用付费API、未新建替代任务。
 - 独审首轮范围意见：首批范围合理，但库存创建日cohort不能替代支付日/退款发生日完整采集；现OrderLine缺订单级运费。新日报合同应明确独立订单事实与完整性，不放宽旧inventory/P4约束。调度须绑定版本/时区/接收对象，最多补最近一期；报告唯一与外发唯一分开验证，UNKNOWN不自动重发。
 - 合同与主体实现尚待精确提交独审；本记录不签M3或任何功能完成。
+
+### S1 实施放行
+
+独立Reviewer只读核对 Backend cfd3ef2d38c3c84c8d2c3a0dcd79616f8680c5c7 与 Web 27a11f211f39f767ae2916b8a447d7b6f914f37c，结论 ACCEPT_S1；只放行严格日报DTO、纯聚合/异常/证据hash和独立金标，不代表完整M3合同或实现通过。Root普通合入两份文档，组合Markdown检查120files/errors0/exit0。
+
+Backend 已获S1实施指令，模型调整为Sol/xhigh；当前可见名为“CommerceOps M3｜日报聚合 · S1实现与金标”。Reviewer为“CommerceOps M3｜独立审查 · 等待S1与扫描候选”。Web方案依赖S4冻结接口，当前暂停UI接线，同一可见会话暂转“CommerceOps M3｜历史扫描 · 精确核收同步”，唯一写入新scan工作树，允许范围仅已有扫描器精确历史审批元数据/必要最小机制与针对性契约测试。
+
+旧Harness owner只读回执确认固定b9ceaf3的审批索引含20项，后增17项已分别独审；尚须逐项集合/摘要对齐，不凭数量判定相同。扫描候选不得改变222条规则、dir/index门禁、扫描范围、历史refs或广泛allowlist，后续精确独审及实际全扫描仍待。历史M2规则扫描20命中/3已审/17blocking保留，不回填。
+
+此时S1代码、scanner兼容、PG/Web/模型/实际推送、完整本地/Hosted/main核收均未验收。
