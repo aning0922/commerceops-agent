@@ -821,9 +821,12 @@ def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
     current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     for old, new in zip(previous["exceptions"], current["exceptions"][:93], strict=True):
         if old != new:
-            assert old["source_path"] == new["source_path"] == "tests/e2e/v4/http_probe.py"
+            assert old["source_path"] == new["source_path"]
             assert old["exact_line_sha256"] == new["exact_line_sha256"]
-            assert new["source_line"] == old["source_line"] + 7
+            offset = {"tests/e2e/v4/http_probe.py": 7, "tests/e2e/v4/owned_negatives.py": -3}[
+                old["source_path"]
+            ]
+            assert new["source_line"] == old["source_line"] + offset
     for field in (
         "historical_findings",
         "v4_historical_findings",
@@ -837,7 +840,7 @@ def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
     )
     assert current["v4_merge_copy_anchors"][:27] == previous["v4_merge_copy_anchors"]
     assert len(current["exceptions"]) == 96
-    assert len(current["v4_merge_copy_anchors"]) == 31
+    assert len(current["v4_merge_copy_anchors"]) == 32
 
 
 @pytest.mark.parametrize("which", [2, 3, 4, 5, 36, 37])
@@ -926,9 +929,100 @@ def test_r2_old_exact_metadata_and_copy_bindings_preserved() -> None:
     moved = []
     for previous, current in zip(old["exceptions"], new["exceptions"][:94], strict=True):
         if previous != current:
-            assert previous["source_path"] == current["source_path"] == "tests/e2e/v4/http_probe.py"
+            assert previous["source_path"] == current["source_path"]
             assert previous["exact_line_sha256"] == current["exact_line_sha256"]
-            assert current["source_line"] == previous["source_line"] + 7
+            offset = {"tests/e2e/v4/http_probe.py": 7, "tests/e2e/v4/owned_negatives.py": -3}[
+                previous["source_path"]
+            ]
+            assert current["source_line"] == previous["source_line"] + offset
             moved.append(previous["source_line"])
-    assert moved == [147, 259, 364, 394]
-    assert len(new["v4_merge_copy_bindings"]) == 6
+    assert moved == [147, 259, 364, 394, 44]
+    assert len(new["v4_merge_copy_bindings"]) == 7
+
+
+def test_9727_existing_literal_negative_boundaries(tmp_path: Path) -> None:
+    from scripts.vendor_gitleaks_rules import V4_PREFLIGHT_SNAPSHOTS
+
+    which = next(
+        i
+        for i, r in enumerate(V4_PREFLIGHT_SNAPSHOTS)
+        if r["path"] == "tests/e2e/v4/owned_negatives.py"
+    )
+    test_preflight_each_span_change_duplicate_and_secret(tmp_path, which)
+
+
+def test_9727_author_has_no_native_findings_and_no_new_approval(tmp_path: Path) -> None:
+    commit = "9727cf15aba3d2b2fa27bba6b82682c403903187"
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=" + commit + "^! --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 0
+    assert not json.loads(report.read_text())
+    from scripts.vendor_gitleaks_rules import V4_PREFLIGHT_SNAPSHOTS
+
+    row = next(r for r in V4_PREFLIGHT_SNAPSHOTS if r["path"] == "tests/e2e/v4/owned_negatives.py")
+    fake = {
+        "RuleID": row["rule"],
+        "File": row["path"],
+        "StartLine": 41,
+        "EndLine": 41,
+        "StartColumn": 43,
+        "EndColumn": 64,
+        "Commit": commit,
+        "Fingerprint": f"{commit}:{row['path']}:generic-api-key:41",
+        "Match": "unapproved",
+    }
+    assert not scanner.approved_v4_history_finding("git", fake)
+    assert scanner.approved_v4_merge_copy("git", fake) is None
+
+
+def test_9727_metadata_is_one_position_and_one_blob_only() -> None:
+    old = json.loads(
+        subprocess.check_output(["git", "show", "e096a59:scripts/gitleaks_rules.json"], cwd=ROOT)
+    )
+    new = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    for key in (
+        "historical_findings",
+        "v4_historical_findings",
+        "v4_additional_historical_findings",
+        "v4_preflight_historical_findings",
+    ):
+        assert new[key] == old[key]
+    changed = []
+    for previous, current in zip(old["exceptions"], new["exceptions"], strict=True):
+        if previous != current:
+            assert (
+                previous["source_path"]
+                == current["source_path"]
+                == "tests/e2e/v4/owned_negatives.py"
+            )
+            assert previous["exact_line_sha256"] == current["exact_line_sha256"]
+            assert previous["source_line"] == 44 and current["source_line"] == 41
+            assert current["source_commit"] == "9727cf15aba3d2b2fa27bba6b82682c403903187"
+            changed.append(current)
+    assert len(changed) == 1
+    assert new["v4_merge_copy_anchors"][:-1] == old["v4_merge_copy_anchors"]
+    assert new["v4_merge_copy_bindings"][:-1] == old["v4_merge_copy_bindings"]
+    assert new["v4_merge_copy_bindings"][-1]["reported_line"] == 44
+    assert len(new["exceptions"]) == len(old["exceptions"]) == 96

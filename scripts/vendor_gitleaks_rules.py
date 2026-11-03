@@ -878,9 +878,9 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
     {
         "rule": "generic-api-key",
         "path": "tests/e2e/v4/owned_negatives.py",
-        "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
-        "reported_line": 44,
-        "end_line": 44,
+        "source_commit": "9727cf15aba3d2b2fa27bba6b82682c403903187",
+        "reported_line": 41,
+        "end_line": 41,
         "start_column": 43,
         "end_column": 64,
         "exact_span_sha256": "9eae89315546427045520b575cb3ef7d7e6578ccdb9da58d34c78982841a8272",
@@ -2324,6 +2324,11 @@ V4_MERGE_COPY_ANCHORS: tuple[dict[str, str], ...] = (
         "path": "docs/v4/review/SCAN_f341.md",
         "blob": "e5208aeac80cc7ecb73b97463a58921b93726642",
     },
+    {
+        "source_commit": "9727cf15aba3d2b2fa27bba6b82682c403903187",
+        "path": "tests/e2e/v4/owned_negatives.py",
+        "blob": "f56afab50f937a6d6da724660e08d4e8c15fa2e2",
+    },
 )
 
 
@@ -2398,6 +2403,18 @@ V4_MERGE_COPY_BINDINGS: tuple[dict[str, Any], ...] = (
         "end_column": 72,
         "exact_span_sha256": "98343f326c7a7ac310fdaebc46b4d8e5bf4a16ce59378d93cef92ae78d737ae0",
         "match_sha256": "8ec82ed76f6ab9e030442adcb3473af2759efba1f1e202e59731d27e5e74620d",
+        "binding_kind": "copy_only",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/owned_negatives.py",
+        "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+        "reported_line": 44,
+        "end_line": 44,
+        "start_column": 43,
+        "end_column": 64,
+        "exact_span_sha256": "9eae89315546427045520b575cb3ef7d7e6578ccdb9da58d34c78982841a8272",
+        "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f",
         "binding_kind": "copy_only",
     },
 )
