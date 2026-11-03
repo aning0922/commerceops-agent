@@ -33,3 +33,16 @@ test('UI_FIXTURE: unknown creation never automatically repeats the POST',async (
  await expect(page.getByText(/无法恢复会话/)).toBeVisible();
  expect(posts).toBe(1);
 });
+
+test('UI_FIXTURE: a definite capacity rejection remains visible without retry',async ({page})=>{
+ let posts=0;
+ await page.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){posts++;return route.fulfill({status:429,headers:{'Retry-After':'60'},json:{...base,status:'REJECTED',error:{code:'CAPACITY_LIMIT',safe_message:'full',retryable:false,request_key:null}}});}
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4'); await page.getByRole('button',{name:'一键体验'}).click();
+ await expect(page.getByRole('status')).toContainText('60'); expect(posts).toBe(1);
+ await expect(page.getByRole('button',{name:'核对原操作'})).toHaveCount(0);
+});
