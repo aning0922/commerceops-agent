@@ -11,14 +11,15 @@ from typing import Any
 from .preflight import ROOT, git
 
 TITLE = "LIVE: isolated demo lifecycle and browser layout"
-# Root handed off candidate 6937a39; metadata only until Astra accepts it.
+# Root handed off f18; Astra aa91caf accepted its prepared native-zoom delta.
 # Presence, raw Git blobs and current HEAD must all agree before any resource launch.
-WEB_HANDOFF_READY = False
-WEB_SOURCE = "6937a39d4ebb6d77f653d489db9964083a179d68"
+WEB_HANDOFF_READY = True
+WEB_SOURCE = "f18ba5bf5c9de88d113eb5a5bff244cd66416c2b"
 PINS = {
     "frontend/playwright.v4-live.config.ts": "ca9bb704f27220de9930f7e03e56492c79b0faa4",
-    "frontend/v4-tests/lifecycle.live.ts": "fba785c22827c0378924fd0d10a646ee27e25805",
+    "frontend/v4-tests/lifecycle.live.ts": "d590a90c1507b8a2a9550840d09bee9cfbf7a3dc",
     "frontend/v4-tests/lifecycle.waiter.mjs": "ec74f8c560ad293821dcd4545c275395c243d3d0",
+    "frontend/v4-tests/lifecycle.profile.mjs": "343757319e0c3ed6d50f6777a3d7aadbc2a9d4ed",
     "frontend/lib/v4-schema.json": "e625120e42a28b8f777d7e2e02b0da0aa9d2b5be",
 }
 
