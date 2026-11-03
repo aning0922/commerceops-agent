@@ -52,6 +52,7 @@ export default async function Page({
         query={query}
         origin={origin!}
         localHttp={localHttp}
+        inquiryEnabled={process.env.COMMERCEOPS_INQUIRY_UI_ENABLED === "true"}
       />
     );
   }

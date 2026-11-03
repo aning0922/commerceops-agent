@@ -194,3 +194,15 @@ Root 提供的冻结 S2 候选 `37e7e99` 仍使用 `GET /api/v1/daily-reports/{t
 入口仅作静态准备，未加载私有输入、启动浏览器/服务/PG或执行联调；完整状态、跨租户、撤权和数据质量还须由后续具体窗口分别安排。typecheck通过不签真实接口或后端验收。
 
 独审指出原入口仅拦登记 API 的 URL，错误配置的另一个 API origin 可能绕过拦截。修复后在填账号前为整个私有 browser context 注册网络白名单：仅登记的 Web 页面/静态资源、登记 API 的必要 GET 与登录 POST 可通行，其他 origin、路径及方法均拒绝；同时阻断 Service Worker 和 WebSocket。无网络的两个纯契约例覆盖错误 API origin 登录与其他越界请求，均通过；实际浏览器和服务联调仍待新窗口，不以纯函数反例代签真实浏览器拦截。
+
+## 15. 只读询单 Web 候选（2026-11-03）
+
+Root 放行基于已审设计 `832c7d1` 与冻结服务 DTO `1a78d5a23fd888265cc8e30dde6c492d8b6c94cc` 的前端候选；该服务的 SQL NULL 与终态回放修复仍由后端处理，路由注册、PG、整包独审和实际 API 均未核收。UI 快照来自该提交的 Pydantic 生成 OpenAPI，SHA256 `63c88046c97953a6865b8e445d3d2c6fb8be4e8bad61a48d5f076dde31c10697`；生成类型使用 `openapi-typescript@7.13.0` 和临时 TypeScript 5.9.3，不改锁。schema 检查固定该摘要；集成后如后端资产不同必须等精确已审提交并同步，不能静默沿用。
+
+`/inquiries` 在 live 会话壳内使用独立 P6 严格 schema 和响应校验。`COMMERCEOPS_INQUIRY_UI_ENABLED` 默认不设置或非 `true` 时没有提交/回执动作；此部署开关本身不是后端能力或授权证明，须 Root 在路由、服务开关及资源准备完成后明确配置。服务返回 `INQUIRY_DISABLED` 后当前页面隐藏写入口；所有对象权限仍由后端判断。演示只支持明确库存/销量语法，标注本地数据和离线模型替身；可选上下文仅为已有分析报告，日报不作为上下文。
+
+提交只发送一次固定原始 body 和 request key；网络中断、不可信成功响应或服务端结果未知时保留原键，只 GET 原请求回执，不自动重发或换键。页面可输入已有原键恢复只读回执；会话/页面世代变化后丢弃迟到结果，当前401/403清会话。完成结果核店铺、来源、工具轨迹、证据、claim 引用和比较边界，按已绑定事实展示值、来源窗口与观测时间；没有在前端交叉核验的自由文本不展示，无法安全绑定时不展示旧答案。当前仅合成 transport/服务端渲染测试，未调用假服务冒充实际、未启浏览器/PG/API或真实模型。
+
+开发中为检查原 P3 transport 运行旧 contract 配置时，其默认 JSON reporter 覆盖了 tracked 历史 `frontend/evidence/b04-wiring/contract-results.json`；已从运行前 HEAD 恢复并核 `git diff` 为零。本次9个 P3 transport 例仅作为本次回归，历史回执没有更新。
+
+当前候选本地验证：16个无服务器 M3 契约例通过（含8个询单、6个日报、2个窗口网络边界），原P3 transport 9例通过；`typecheck`、`check:read-schema`、Next `build`、123份 Markdown 检查及 `git diff --check` 均 exit0。询单页面使用服务端渲染例核默认关闭及显式启用分支，没有运行浏览器交互；服务路由/SQL/真实API和独立审查仍待后续精确回执。

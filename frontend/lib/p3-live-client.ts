@@ -124,7 +124,7 @@ export type A01ReadClient = Pick<
   | "items"
   | "item"
   | "prepareResolve"
->;
+> & Partial<Pick<P3Client, "inquiryAccess">>;
 export function readTransport(transport: FetchTransport): FetchTransport {
   return (url, init) => {
     if (
@@ -144,11 +144,13 @@ export function createReadClient(
   origin: string,
   localHttp: boolean,
   invalidate: () => void,
+  inquiryEnabled = false,
 ): A01ReadClient {
   return new P3Client({
     origin,
     localHttp,
     transport: readTransport((url, init) => fetch(url, init)),
+    ...(inquiryEnabled ? { inquiryTransport: (url: URL, init: RequestInit) => fetch(url, init) } : {}),
     verifyResponse: verifyReadResponse,
     onSessionInvalidated: invalidate,
   });
