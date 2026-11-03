@@ -304,10 +304,20 @@ def test_candidate_expiry_is_checked_at_commit_and_rolls_back_all(copy_case: Cop
         c.command.model_copy(update={"request_key": uuid4(), "product_source_id": short_product}),
     )
     command = c.review().model_copy(update={"candidate_hash": value.candidate_hash})
+    reached_expiry_before_commit = False
     with pytest.raises(psycopg.errors.CheckViolation), connect(c.k.f.inventory.app) as db:
         c.store.review_in_transaction(db, c.k.f.actor, value.candidate_id, command)
-        # Controlled DB elapsed time, not a client clock override.
-        db.execute("SELECT pg_sleep(10.1)")
+        assert db.execute("SHOW statement_timeout").fetchone() == {"statement_timeout": "5s"}
+        # Keep the real ten-second TTL and production timeout. Each wait stays below 5s.
+        for _ in range(5):
+            db.execute("SELECT pg_sleep(2.1)")
+        clock = db.execute(
+            "SELECT clock_timestamp() >= %s AS expired", (value.expires_at,)
+        ).fetchone()
+        assert clock and clock["expired"]
+        reached_expiry_before_commit = True
+    # The expected failure must come from COMMIT, not admission.
+    assert reached_expiry_before_commit
     assert c.counts() == (2, 0, 0, 0)
 
 
