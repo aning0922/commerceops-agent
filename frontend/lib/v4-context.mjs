@@ -50,3 +50,25 @@ export function createContextGate() {
     },
   };
 }
+
+// The HTTP schema validates the complete receipt; this additionally binds it to the request's tenant and returned context.
+export function matchesControlBoundary(before, result, operation, requestKey) {
+  if (!validContext(before) || before.shop_id !== null || !result ||
+      !validContext(result.context) || result.context.shop_id !== null) return false;
+  const after = result.context;
+  const receipt = result.data?.receipt;
+  if (!receipt || !['OK', 'COMMITTED'].includes(result.status) ||
+      receipt.status !== 'COMMITTED' || receipt.operation !== operation ||
+      receipt.request_key !== requestKey || after.tenant_id !== before.tenant_id ||
+      after.organization_id !== before.organization_id ||
+      receipt.reset_epoch !== after.reset_epoch ||
+      receipt.auth_generation !== after.auth_generation ||
+      after.reset_epoch < before.reset_epoch || after.auth_generation < before.auth_generation) return false;
+  if (operation === 'logout') {
+    return result.data.next_step === 'LOGGED_OUT' &&
+      after.principal_id === before.principal_id &&
+      after.reset_epoch === before.reset_epoch &&
+      after.auth_generation === before.auth_generation;
+  }
+  return ['persona', 'reset'].includes(operation) && result.data.next_step === 'READ_CURRENT_SESSION';
+}
