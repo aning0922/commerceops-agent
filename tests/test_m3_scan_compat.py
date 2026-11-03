@@ -7,6 +7,7 @@ import secrets
 import subprocess
 import sys
 import tomllib
+from functools import cache
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,9 @@ import tomli_w
 
 from scripts import scan_secrets as scanner
 from scripts.vendor_gitleaks_rules import (
+    M3_HISTORY_PUBLIC_EXCEPTIONS,
     M3_PUBLIC_EXCEPTIONS,
+    M3_SPAN_PUBLIC_EXCEPTIONS,
     m2_consumer_rows,
     m2_public_rows,
     m3_public_line_regex,
@@ -22,7 +25,13 @@ from scripts.vendor_gitleaks_rules import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-ROWS = m3_public_rows(ROOT)
+
+
+@cache
+def pinned_rows() -> tuple[tuple[str, str, str, str, str, int], ...]:
+    return m3_public_rows(ROOT)
+
+
 pytestmark = pytest.mark.offline
 
 
@@ -57,7 +66,7 @@ def repository(tmp_path: Path) -> Path:
     ],
 )
 def test_m3_exact_rows_remain_scoped(repository: Path, which: int, scenario: str) -> None:
-    _, filename, _, original, _, line = ROWS[which]
+    _, filename, _, original, _, line = pinned_rows()[which]
     relative = filename
     if scenario == "other_path":
         relative += ".other"
@@ -66,8 +75,8 @@ def test_m3_exact_rows_remain_scoped(repository: Path, which: int, scenario: str
     path = repository / relative
     path.parent.mkdir(parents=True, exist_ok=True)
     # Include both independently pinned rows when they share a file.
-    rows = [""] * max(item[5] for item in ROWS if item[1] == filename)
-    for _, name, _, row, _, number in ROWS:
+    rows = [""] * max(item[5] for item in pinned_rows() if item[1] == filename)
+    for _, name, _, row, _, number in pinned_rows():
         if name == filename:
             rows[number - 1] = row
     if scenario in {"byte", "index_only", "history_byte"}:
@@ -173,16 +182,19 @@ def test_m3_provenance_cannot_be_broadened(
     consumer_rows = m2_consumer_rows(ROOT)
     monkeypatch.setattr(scanner, "m2_public_rows", lambda _: m2_rows)
     monkeypatch.setattr(scanner, "m2_consumer_rows", lambda _: consumer_rows)
-    monkeypatch.setattr(scanner, "m3_public_rows", lambda _: ROWS)
+    monkeypatch.setattr(scanner, "m3_public_rows", lambda _: pinned_rows())
     monkeypatch.setattr(scanner, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid scanner rules"):
         scanner.validate_rules()
 
 
 def test_m3_sources_are_pinned_and_missing_source_fails_closed(tmp_path: Path) -> None:
-    assert len(M3_PUBLIC_EXCEPTIONS) == len(ROWS) == 9
+    assert len(M3_PUBLIC_EXCEPTIONS) == 24
+    assert len(M3_HISTORY_PUBLIC_EXCEPTIONS) == 2
+    assert len(M3_SPAN_PUBLIC_EXCEPTIONS) == 1
+    assert len(pinned_rows()) == 27
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
-    for _, _, _, row, digest, _ in ROWS:
+    for _, _, _, row, digest, _ in pinned_rows():
         assert hashlib.sha256(row.encode()).hexdigest() == digest
     git(tmp_path, "init", "-b", "main")
     with pytest.raises(ValueError, match="invalid M3 public source"):
@@ -191,7 +203,7 @@ def test_m3_sources_are_pinned_and_missing_source_fails_closed(tmp_path: Path) -
 
 @pytest.mark.parametrize("which", range(9))
 def test_m3_encoded_regex_matches_only_unchanged_source_bytes(which: int) -> None:
-    row = ROWS[which][3]
+    row = pinned_rows()[which][3]
     pattern = m3_public_line_regex(row)
     assert re.fullmatch(pattern, row)
     assert re.fullmatch(pattern, "\n" + row)
