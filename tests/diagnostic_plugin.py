@@ -66,6 +66,10 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
             "tests/test_p5_m2_pending_pg.py",
             "tests/test_p5_m2_backup_pg.py",
             "tests/test_p5_m2_mixed_pg.py",
+            "tests/test_daily_pg.py",
+            "tests/test_p6_knowledge_copy_pg.py",
+            "tests/test_p6_inquiry_pg.py",
+            "tests/test_p6_copy_pg.py",
         }
         and item.nodeid
         != (
@@ -120,6 +124,17 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
             "test_p5_m2_backup_pg.py",
             "test_p5_m2_mixed_pg.py",
             "test_p4_history_pg.py",
+            "test_daily_pg.py",
+            "test_p6_knowledge_copy_pg.py",
+            "test_p6_inquiry_pg.py",
+            "test_p6_copy_pg.py",
+            "daily_http.py",
+            "daily_read.py",
+            "daily_store.py",
+            "knowledge_copy_repository.py",
+            "knowledge_copy_values.py",
+            "readonly_inquiry_store.py",
+            "copy_store.py",
         }:
             frames.append({"file": name, "line": trace.tb_lineno})
         if (

@@ -109,3 +109,15 @@ Root完整本地check绑定aaaa132263a219f49539347e4e6818f11283b258，322.614s/n
 K2 8a6c6eb（84offline、28PG仅collect）独审1P2：同registry同逻辑chunk多版本造成top5同距不稳定，Root要求与K1一致的逻辑identity单版本约束/应用+DB校验；作者保留K3WIP另独立fix，不用重排序掩盖引用身份。0019父仍待冻结，全部PG尚未启动。
 
 UI原a9bef16已独审ACCEPT_UI_FIX，旧401403清新会话问题已关闭；10UI_FIXTURE通过/服务停止/18649关闭，受测界面a64188f到a9仅文档不同。迟到403DOM例等待响应处理有非阻断加强项。随后按Root实际390截图复核改为首屏核心摘要、完整细节折叠，界面ddeb42d/最终7dfe8bd重新build+10UI_FIXTURE通过；新布局尚待静态审，不转签旧布局。真实API/PG、实际browser page zoom与Hosted未由这些结果证明。Root另登记独立小批验证真实浏览器page zoom200%（允许仅新profile内极小runtime extension/tabsAPI，禁止用户Chrome/系统键盘），不续旧已结束服务。
+
+### 模型偏好与真实 SQL 首轮事实（2026-11-03）
+
+用户要求优先使用 GPT-6.1 Sol、GPT-6 Astra、GPT-6.1 Terra。当前主要实现使用 Sol/high 或 xhigh，UI 使用 Terra/high，关键事务与权限独审使用 Astra/high；会话名继续跟随实际阶段调整。工具可切换时由 Root 设置，不把作者无法自行换模型当作已切换证据。
+
+动态工具修复22b6015已独审接受并普通合入，Root79targetpass；UI布局7dfe8bd与真实浏览器缩放证据71d18ff已独审接受并合入。缩放以独立 Chromium profile 的 tabs.setZoom(2) 实现，三宽度读回zoom2与DPR变化，属于明确UI_FIXTURE，不冒充真实API。旧90契约检查通过，但其默认输出曾改写旧tracked evidence；Root已保存本轮报告到独立.audit并恢复旧artifact原字节，不覆盖历史证据。
+
+S2精确候选37e7e99经过独审217purepass/no新增P1P2，结论仅ACCEPT_S2_PG_DIAGNOSTIC。Root独立validation树359933f0012adf9202c52f184c6ba46d08ab853f普通合入该候选与此前已审代码，启动全新owned PG；不访问原库、旧卷、旧Secret或实际模型/飞书。原有诊断器派生副本只修改资源namespace、绝对清理reserve180、单模块command300与down不删卷，全部精确差异/hash登记在.audit。总绝对截止04:38:03Z，不自动延长。
+
+首轮m3s2-dc4f56944928 build/healthy退出0，04:23:34Z migrate退出1，16测试未开始；原诊断器不保留原始stderr，具体根因当时UNKNOWN。04:23:35Z cleanup0、CLI/reader结束，独立查询容器网络0，新卷保留。为取得安全诊断，另开全新owned round2，不读取首轮卷；04:25:01Z同源码返回ProgrammingError/SQLSTATE42601/primary“syntax error at end of input”，16测试仍未开始，04:25:02Z cleanup0、容器网络独立查询0、新卷保留。只采集异常类别/SQLSTATE/primary，不输出DSN、参数或完整SQL。Root怀疑p6_binding_guard的IF中未括起CASE，但须后续实际SQL证实，不把假设写为已证实根因。已交Backend独立最小修复，S2尚未核收。
+
+K2修复e1a52d6已静态接受，但尚未SQL核收；其真实revision为0020_p6_knowledge_copy，parent占位0019须改为0019_p6_daily_reports。询单服务1a78d5a候选实际revision为0021，parent占位0020亦须绑定上述真实K2标识；独审与PG测试代码继续。后续0022/0023父链只按实际冻结值接线，不凭分配号宣称Alembic已通过。询单终态JSON NULL与原session/fixture先于完成回执重放的风险正在独审，未核收。
