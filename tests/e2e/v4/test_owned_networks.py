@@ -13,6 +13,7 @@ import pytest
 from . import owned_driver
 from .owned_driver import Case
 from .test_owned_driver import case as case
+from .test_owned_driver import expanded_model
 
 pytestmark = pytest.mark.offline
 
@@ -46,17 +47,17 @@ def test_api_alone_gets_dedicated_bridge_with_loopback_publish_and_runtime_only_
     assert not any(key.startswith("COMMERCEOPS_DB_") for key in api["environment"])
 
 
-@pytest.mark.parametrize("normalized", [False, True])
+@pytest.mark.parametrize("explicit_driver", [False, True])
 def test_frozen_model_preserves_exact_networks_without_build_or_pull_fallback(
     case: Case,
-    normalized: bool,
+    explicit_driver: bool,
 ) -> None:
-    model = overlay()
-    for name, service in model["services"].items():
-        service["image"] = case.pg_image if name == "postgres" else case.test_image
+    model = expanded_model(case)
+    for service in model["services"].values():
         service["build"] = {"context": "must-be-removed"}
-        if normalized:
-            service["networks"] = {network: None for network in service["networks"]}
+    if explicit_driver:
+        for network in model["networks"].values():
+            network["ipam"]["driver"] = "default"
     expected_networks = copy.deepcopy(model["networks"])
     expected_membership = {
         name: copy.deepcopy(service["networks"]) for name, service in model["services"].items()

@@ -9,6 +9,7 @@ import sys
 from dataclasses import asdict, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -71,6 +72,49 @@ def test_new_runtime_configuration_excludes_owner_and_separates_secrets(case: dr
     assert set(web["origins"]) == {case.api, case.web}
     assert json.loads((root / "api/demo.json").read_text())["api_origin"] == case.api
     assert (root / "owner/owner_password").read_text() not in (root / "compose.env").read_text()
+
+
+def expanded_model(case: driver.Case) -> dict[str, Any]:
+    """Observed compose config JSON shape, not a runtime/model acceptance result."""
+    return {
+        "networks": {
+            "default": {
+                "name": case.project + "_default",
+                "internal": True,
+                "ipam": {"config": [{"subnet": case.pg_subnet}]},
+            },
+            "host_facing": {
+                "name": case.project + "_host_facing",
+                "driver": "bridge",
+                "ipam": {"config": [{"subnet": case.host_subnet}]},
+            },
+        },
+        "services": {
+            name: {
+                "image": case.pg_image if name == "postgres" else case.test_image,
+                "networks": {
+                    key: None
+                    for key in (("default", "host_facing") if name == "v4-api" else ("default",))
+                },
+                **(
+                    {
+                        "ports": [
+                            {
+                                "mode": "ingress",
+                                "host_ip": "127.0.0.1",
+                                "target": case.api_port,
+                                "published": str(case.api_port),
+                                "protocol": "tcp",
+                            }
+                        ]
+                    }
+                    if name == "v4-api"
+                    else {}
+                ),
+            }
+            for name in ("postgres", "pg-test", "v4-api")
+        },
+    }
 
 
 def test_preparation_never_overwrites_or_reuses_a_case(case: driver.Case) -> None:

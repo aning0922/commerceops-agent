@@ -305,3 +305,21 @@ Root已提出HTTP10.242.10/11、TTL10.242.20/21、Full10.242.30/31、Web10.242.4
 方向；这些不是代码默认值，也不从消息自动开窗。最终每个新manifest须Root明确两个完整
 CIDR/source/image/project/绝对UTC，启动时仍检查实际inventory。旧manifest缺参数即拒绝，
 所有旧case/retained volume不复用。WEB单owner的legacy_subnet.py/test_legacy_subnet.py未改。
+
+## expanded Compose与Case网络/端口防漂移
+
+Root对a990补核发现：只盘点Case CIDR不代表实际env展开后的IPAM相同。此原审事实保留。
+新增verify_expanded_model，在no_build_model冻结前验证实际规范JSON：顶层网络恰default/
+host_facing、project自动name无跨project引用；default internal=true，host_facing允许规范
+输出省略internal=false；bridge/default IPAM driver等正常字段保留，但两个唯一config.subnet
+须分别精确等于Case canonical CIDR，不接受其它/额外range、gateway或外部网络。
+PG/pg-test仅default且不发布ports，API恰default+host_facing，无别名/static IP改写；
+API唯一port必须127.0.0.1、target和published均等于Case.api_port/tcp。
+因此篡改compose.env即使仍不碰实际旧网段，也不能绕过Root已登记的Case子网/端口。
+
+本机实际仅执行docker compose config --format json（/dev/null env-file+纯占位路径，无
+读取secret、无daemon资源操作），native0；得到services.networks为dict/null、published为
+string、host_facing默认省略internal字段、network带自动name的真实shape，并由新guard接受。
+纯回归44pass/0.10s/native0，覆盖env/Case两个CIDR不一致与网络/连接/ports漂移反例；
+首轮测试辅助函数漏Any import导致collection失败，修正后通过，不是运行case失败。
+未变更业务/权限/已审监听机制或旧网络，资源创建/实际HTTP/PG/Web/TTL/Full/Hosted仍NOT_RUN。

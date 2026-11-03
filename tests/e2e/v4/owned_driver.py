@@ -220,6 +220,7 @@ def compose(case: Case) -> tuple[str, ...]:
 
 
 def no_build_model(model: dict[str, Any], case: Case) -> dict[str, Any]:
+    verify_expanded_model(model, case)
     selected = {}
     for name in ("postgres", "pg-test", "v4-api"):
         service = dict(model["services"][name])
@@ -230,6 +231,74 @@ def no_build_model(model: dict[str, Any], case: Case) -> dict[str, Any]:
         service["pull_policy"] = "never"
         selected[name] = service
     return {**model, "services": selected}
+
+
+def verify_expanded_model(model: dict[str, Any], case: Case) -> None:
+    """Validate normalized compose-config output before freezing/creating resources."""
+    validate_subnets(case.pg_subnet, case.host_subnet)
+    networks = model.get("networks")
+    if not isinstance(networks, dict) or set(networks) != {"default", "host_facing"}:
+        raise ValueError("expanded network set differs from Case")
+    for name, subnet, internal in (
+        ("default", case.pg_subnet, True),
+        ("host_facing", case.host_subnet, False),
+    ):
+        net = networks[name]
+        if not isinstance(net, dict):
+            raise ValueError("expanded network shape invalid")
+        if (
+            net.get("internal", False) is not internal
+            or net.get("driver", "bridge") != "bridge"
+            or net.get("name", f"{case.project}_{name}") != f"{case.project}_{name}"
+            or net.get("external", False) is not False
+            or net.get("attachable", False) is not False
+            or net.get("enable_ipv6", False) is not False
+            or net.get("enable_ipv4", True) is not True
+            or net.get("driver_opts")
+        ):
+            raise ValueError("expanded network scope/driver differs from Case")
+        ipam = net.get("ipam")
+        if (
+            not isinstance(ipam, dict)
+            or set(ipam) - {"config", "driver", "options"}
+            or ipam.get("driver", "default") != "default"
+            or ipam.get("options")
+            or ipam.get("config") != [{"subnet": subnet}]
+        ):
+            raise ValueError("expanded IPAM differs from registered Case CIDR")
+    services = model.get("services")
+    if not isinstance(services, dict):
+        raise ValueError("expanded services invalid")
+    for role in ("postgres", "pg-test", "v4-api"):
+        service = services.get(role)
+        expected = {"default", "host_facing"} if role == "v4-api" else {"default"}
+        if not isinstance(service, dict) or service.get("network_mode"):
+            raise ValueError("expanded service network mode invalid")
+        attached = service.get("networks")
+        if (
+            not isinstance(attached, dict)
+            or set(attached) != expected
+            or any(
+                value is not None and (type(value) is not dict or value)
+                for value in attached.values()
+            )
+        ):
+            raise ValueError("expanded network membership differs from Case")
+        if role != "v4-api" and service.get("ports"):
+            raise ValueError("PG/owner must not publish host ports")
+    ports = services["v4-api"].get("ports")
+    if not isinstance(ports, list) or len(ports) != 1 or not isinstance(ports[0], dict):
+        raise ValueError("exact API loopback port required")
+    port = ports[0]
+    if (
+        port.get("host_ip") != "127.0.0.1"
+        or type(port.get("target")) is not int
+        or port["target"] != case.api_port
+        or port.get("published") != str(case.api_port)
+        or port.get("protocol", "tcp") != "tcp"
+        or port.get("mode", "ingress") != "ingress"
+    ):
+        raise ValueError("expanded API host/port differs from Case")
 
 
 def verify_images(case: Case, docker: str, budget: Budget, records: list[dict[str, Any]]) -> None:
