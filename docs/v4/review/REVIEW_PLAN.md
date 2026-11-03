@@ -79,3 +79,13 @@
 每轮报告最少包括：task/Gate、base/candidate/tree、精确路径与符号、P1/P2或ACCEPT、实际已读/已运行范围、失败/NOT_RUN、资源窗口来源、后续依赖。设计接受与代码接受、局部代码与最终同源集成、本地与Hosted必须分开。
 
 当前状态：文档导入与B scope只读核查完成；REVIEW_PLAN_READY。IDENTITY_SQL_PLAN/SEED_SPEC精确提交待ROOT转交，专项设计/代码/PG/Web/Full均NOT_REVIEWED或NOT_RUN。首批审查不替ROOT放行后续阶段。
+
+## 增量：CSV机械导入规范化静态核收
+
+受ROOT转交，于2026-11-03只读审查control精确commit `eb82c9d626c210e8e982ba3d8889a4ffdd088c99` / tree `e4a9a7d51907828121ef709549ff00e0afd0a230`，父为 `fa96764cf2b8e3ab9adbb579b764f600a7d17e60`。未checkout/合入该提交；Reviewer自己的实现基线未变。
+
+结论：**ACCEPT_MECHANICAL_IMPORT**，未发现P1/P2。两条变更路径仅 `docs/v4/baseline/v4-permission-matrix.csv` 与新增 `docs/v4/IMPORT_NORMALIZATION.json`，无业务/测试/whitespace检查或配置变更。
+
+静态Git对象对比确认：原CSV有7个CRLF；新CSV无CR，且 `old_bytes.replace(CRLF, LF) == new_bytes` 精确成立；标准库CSV解析的全部行/单元格完全相等。旧SHA-256为 `139e04d028aae19b6f476e0f2f16c93f15ab9e649801c5138b96a896c9ab6cdd`，新为 `8c88490d92a704378e268122d0e8c0786d3f4519a5f543e1a96f3a03b15f71a3`；与登记记录一致。其余七份冻结文件逐字节未变且仍匹配A哈希；A的FROZEN_MANIFEST和八文件哈希清单也未变。
+
+原始CSV字节已在fa96764 Git对象直接核实，外置原件路径只作为ROOT登记来源，本增量未重新读取外置文件。A归档清单继续描述原字节，不能冒称它匹配LF导入后的当前CSV或是一次B合同重签；B实际源manifest应使用新hash并引用本规范化登记。首次whitespace失败为ROOT报告的历史事实，本审查未执行locked docs检查或重现该失败，不将机械一致性当作工具链/业务Gate通过。
