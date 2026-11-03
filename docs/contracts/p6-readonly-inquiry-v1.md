@@ -92,3 +92,7 @@ Root 先协调独占目录；建议在 `backend/src/commerceops/application/comm
 当前输出只有来自已校验端口的数字事实与引用，没有自由模型叙述，不实现任意数值 claim。聚合/币种/零分母由后续确定性 ReadPort 包装提供；本首片只验证引用、精确数值字符串/null 的保留，不宣称已实现电商聚合。测试手工金标为两期 3+5=8 件与库存 12 件；Fake 给确定性事实，Choice Fake 读上一轮真实安全返回的 SKU 再构造下一轮参数，改变 A/B 解析结果确实改变下一调用。
 
 作者检查最终结果：`pytest -q tests/test_p6_readonly_inquiry.py` 30 passed；目标两生产文件及测试的 Ruff/format、mypy（三文件）通过。初轮21项通过；随后 Ruff 的断言/闭包/行长提示及 mypy TypeAdapter 注解错误已修正；新增绑定与边界覆盖后最终30项通过。测试包含 D01 单库存/商品解析后两期订单与库存、D02非法写/额外参数、D03累计限制与第三轮拒绝、D04多观测时间/null/错引及撤权、D05同一中立Fake轨迹模式；真实 provider D05 `NOT_RUN`。未启动服务/PG、未接 Router/Worker/API/迁移或真实 provider；全量 CI 和独立审查由 Root 另行核收。
+
+## f0 独审 P2 增量处理（2026-11-03，候选待复审）
+
+Root 转交原 `f0ceb20` 的两项 P2：最终只有 refs 无逐 claim 可读结论；商品多匹配时模型可自行择一。本次通过严格 `Claim(kind=fact|compare, refs)`、Fact 的 SKU/窗口/观测时间及确定性 renderer 生成逐期可复算文字；完整目录多匹配由执行器直接停为 `clarify` 并携带安全候选，模型不再参与单选。原失败与审查结论保留，本增量独审、真实来源和全量 CI 另核。细节及作者测试见 [Tool facade 与答案回执](p6-readonly-tools-v1.md#首片作者实现回执2026-11-03待独审)。

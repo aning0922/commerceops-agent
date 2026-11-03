@@ -12,11 +12,14 @@ from typing import TypeVar
 from commerceops.application.commerce.readonly_inquiry_contracts import (
     Calls,
     ChoicePort,
+    Claim,
     Context,
     Final,
     IdentityPort,
     InventoryCall,
     OrdersCall,
+    ProductMatch,
+    ProductsCall,
     ReadPort,
     ReadResult,
     ReportsCall,
@@ -53,6 +56,8 @@ class Outcome:
     traces: tuple[Trace, ...]
     results: tuple[ReadResult, ...] = ()
     evidence_refs: tuple[str, ...] = ()
+    claims: tuple[Claim, ...] = ()
+    clarification_options: tuple[ProductMatch, ...] = ()
     evidence_mode: str = "offline_stub"
     workflow_version: str = "p6-readonly-inquiry-v1"
 
@@ -104,7 +109,11 @@ async def execute(
         ):
             raise Stop("budget_exceeded")
 
-    def outcome(status: str, final: Final | None = None) -> Outcome:
+    def outcome(
+        status: str,
+        final: Final | None = None,
+        options: tuple[ProductMatch, ...] = (),
+    ) -> Outcome:
         return Outcome(
             status,
             models,
@@ -113,6 +122,8 @@ async def execute(
             tuple(traces),
             tuple(results) if final is not None else (),
             final.evidence_refs if final is not None else (),
+            final.claims if final is not None else (),
+            options,
         )
 
     try:
@@ -129,11 +140,30 @@ async def execute(
                 # Recheck every object whose evidence could be disclosed, not just login.
                 for old_call in executed:
                     await authorize(old_call)
-                known = {fact.evidence_id for result in results for fact in result.facts}
+                known = {fact.evidence_id: fact for result in results for fact in result.facts}
                 if len(set(choice.evidence_refs)) != len(choice.evidence_refs):
                     raise Stop("invalid_response")
-                if not set(choice.evidence_refs) <= known:
+                if not set(choice.evidence_refs) <= known.keys():
                     raise Stop("insufficient_evidence")
+                if {ref for claim in choice.claims for ref in claim.refs} != set(
+                    choice.evidence_refs
+                ):
+                    raise Stop("invalid_response")
+                for claim in choice.claims:
+                    if claim.kind == "compare":
+                        first, second = (known[ref] for ref in claim.refs)
+                        if (
+                            first.window is None
+                            or second.window is None
+                            or first.metric != second.metric
+                            or first.sku_key != second.sku_key
+                            or first.currency != second.currency
+                            or first.unit != second.unit
+                            or first.window == second.window
+                            or min(first.window.end, second.window.end)
+                            > max(first.window.start, second.window.start)
+                        ):
+                            raise Stop("invalid_response")
                 if choice.intent != "readonly_inquiry":
                     return outcome(choice.intent)
                 if not choice.evidence_refs:
@@ -192,6 +222,12 @@ async def execute(
                     raise Stop("budget_exceeded")
                 if not result.complete:
                     raise Stop("source_incomplete")
+                if isinstance(call, ProductsCall):
+                    if len(result.products) > 1:
+                        await authorize(call)
+                        return outcome("clarify", options=result.products)
+                    if not result.products:
+                        raise Stop("insufficient_evidence")
                 previous = {f.evidence_id for r in results for f in r.facts}
                 incoming = [f.evidence_id for f in result.facts]
                 if len(set(incoming)) != len(incoming) or previous.intersection(incoming):

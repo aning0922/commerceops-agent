@@ -79,10 +79,22 @@ class Calls(Strict):
     calls: tuple[ToolCall, ...] = Field(min_length=1, max_length=4)
 
 
+class Claim(Strict):
+    kind: Literal["fact", "compare"]
+    refs: tuple[Key, ...] = Field(min_length=1, max_length=2)
+
+    @model_validator(mode="after")
+    def arity(self) -> Self:
+        if len(self.refs) != (1 if self.kind == "fact" else 2):
+            raise ValueError("INVALID_CLAIM_ARITY")
+        return self
+
+
 class Final(Strict):
     kind: Literal["final"]
     intent: Literal["readonly_inquiry", "clarify", "unsupported"]
     evidence_refs: tuple[Key, ...] = Field(max_length=100)
+    claims: tuple[Claim, ...] = Field(max_length=100)
 
 
 CHOICE: TypeAdapter[Calls | Final] = TypeAdapter(
@@ -116,15 +128,26 @@ class Context(Strict):
     question: str = Field(min_length=1, max_length=2000)
 
 
+Metric = Literal[
+    "available_stock", "inbound_units", "sold_units", "order_net", "order_average", "refund_cohort"
+]
+
+
 class Fact(Strict):
     evidence_id: Key
-    metric: Key
+    metric: Metric
+    sku_key: Key | None = None
+    window: Window | None = None
+    as_of: datetime | None = None
+    quality_flags: tuple[Key, ...] = ()
     value: Annotated[str, Field(max_length=80)] | None
     unit: Key
     currency: Annotated[str, Field(pattern=r"^[A-Z]{3}$")] | None = None
 
     @model_validator(mode="after")
     def numeric(self) -> Self:
+        if self.as_of is not None and self.as_of.utcoffset() is None:
+            raise ValueError("INVALID_AS_OF")
         if self.value is not None and not Decimal(self.value).is_finite():
             raise ValueError("INVALID_NUMBER")
         return self
@@ -132,6 +155,7 @@ class Fact(Strict):
 
 class ProductMatch(Strict):
     sku_key: Key
+    label: Annotated[str, Field(min_length=1, max_length=80)] | None = None
 
 
 class ReadResult(Strict):
@@ -154,6 +178,10 @@ class ReadResult(Strict):
             raise ValueError("INVALID_AS_OF")
         if not {p.sku_key for p in self.products} <= set(self.sku_keys):
             raise ValueError("INVALID_PRODUCT_BINDING")
+        if any(f.sku_key is not None and f.sku_key not in self.sku_keys for f in self.facts):
+            raise ValueError("INVALID_FACT_SKU")
+        if any(f.window is not None and f.window not in self.windows for f in self.facts):
+            raise ValueError("INVALID_FACT_WINDOW")
         return self
 
 

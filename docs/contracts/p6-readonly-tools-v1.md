@@ -48,3 +48,13 @@ MockCommerce 可以先在新 owned Fake 上验证这些边界，源配置由服�
 建议独占的新文件为 `backend/src/commerceops/application/commerce/readonly_inquiry_tools.py`（只含四个 facade 分支及确定性聚合）、`readonly_inquiry_render.py` 和 `tests/test_p6_readonly_tools.py`；若 DTO 必须增量，仅触及既有同前缀 contracts/executor 与其测试，先由 Root 协调独占与独审。Facade 不建通用 registry DSL，也不增加任意 HTTP/SQL/shell 出口。实际 `reports.read` 对象授权、当前来源工厂、API/Worker、共享持久化及真实模型 admission 由 Backend/Root 统一接入；本合同不启动这些入口。
 
 Fake 金标采用同一执行器、固定 Choice 脚本和真实 MockCommerce fixture：已知 SKU 仅库存；商品名唯一时先穷尽商品再依据解析 SKU 查两期订单与库存；把产品解析 SKU 从 A 改为 B，下一轮参数及引用必须随之改变；两个同名商品必须澄清；分页中间页、末页失败、cursor 循环、11,000 扫描/10 筛后、跨时区与两个窗口总跨度、退款晚于订单窗口、未知库存/null、混币种、重复订单行、跨店/撤权、模型错引均逐例查金标。手工真值写成独立 fixture 明细和期望表，不由生产求和函数生成同一套 expected。替身通过只证明离线合同；真实 provider D05、真实来源和正式 Web/飞书完整 Gate 均 `NOT_RUN`。
+
+## 首片作者实现回执（2026-11-03，待独审）
+
+Root 转交原执行器 `f0ceb20` 审查 P2 后，本批同一分支增量修复并实现 Mock 消费：`readonly_inquiry_contracts.py` 增 Fact 的 `sku_key/window/as_of/quality_flags`、有限 metric、强类型 `Claim`、安全 `ProductMatch.label`；`readonly_inquiry_executor.py` 在 `complete` 前核 claim 引用与比较对象，并在完整商品结果有多个匹配时由代码直接返回当前身份授权的安全候选，零匹配则证据不足。候选标签只取简短 ASCII 字母数字 `sku_label`，否则回退 SKU；部分/失败分页不生成候选。旧 f0 的 P2 事实保留，本批新源码须精确独审，不以旧 30 项通过代签。
+
+新增 `readonly_inquiry_tools.py` 只消费已注入的 MockCommerce 或明确注入的当前授权 ReportReader，不构造 Woo/外部来源；每次翻页前按 Mock 固定 page_size 预留剩余实际扫描行数，追踪页面、库存与退款行并对不完整、跨源、循环游标、过期和容量拒绝。订单比较沿现有 `created_at` 窗口，退款按订单 cohort 取回并用退款页自己的 `as_of`；不同币种分别聚合，Decimal localcontext 保持精度，每行订单均额在分母零时为 null+固定质量标志。库存来源行已读但值未知时，Fact 保留 null/质量标志，`ReadResult.complete` 仅表示读取完整，不把未知改为 0。
+
+新增 `readonly_inquiry_render.py` 仅消费经过执行器绑定的 `Claim` 与 Fact；固定 metric 文案按每期证据显示原值、独立窗口/观测时间及差额/比率，零分母显示不可计算，退款明确标“对应订单 cohort，非本窗口现金流”。模型没有数字或自由文本插入位。renderer 为同步纯函数，调用方若延迟/缓存展示仍须重查当前权限；当前尚无 Web/API 接线。
+
+作者最终定向检查：`tests/test_p6_readonly_inquiry.py`、`tests/test_p6_readonly_tools.py` 与原 `tests/test_commerce_mock.py` 合计 68 passed；六个目标新/增量文件 Ruff、mypy 通过。手工可读金标包括两窗口 3/5 件、差额 2 件/66.67%，退款两 cohort 各 5.00 CNY、库存 20 件，另测零分母、混币种与低 Decimal 全局精度、未知库存、歧义/无匹配和部分分页。实际 Woo、当前报告数据库读、真实 provider、API/Worker、部署及全量 CI 均 `NOT_RUN`；旧 PG/平台资源未访问。

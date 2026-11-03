@@ -43,7 +43,14 @@ def calls(name: str, args: dict[str, object], key: str = "c1") -> str:
 
 
 def final(refs: tuple[str, ...] = ("f1",)) -> str:
-    return json.dumps({"kind": "final", "intent": "readonly_inquiry", "evidence_refs": refs})
+    return json.dumps(
+        {
+            "kind": "final",
+            "intent": "readonly_inquiry",
+            "evidence_refs": refs,
+            "claims": [{"kind": "fact", "refs": [ref]} for ref in refs],
+        }
+    )
 
 
 class Identity:
@@ -89,7 +96,7 @@ class Reader:
                     "facts": [
                         {
                             "evidence_id": f"f{len(self.calls)}",
-                            "metric": "stock",
+                            "metric": "available_stock",
                             "value": "12",
                             "unit": "件",
                             "currency": None,
