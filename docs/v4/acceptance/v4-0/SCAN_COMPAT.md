@@ -190,3 +190,15 @@ Root最终补批的当前目录记录：owned_driver标签735行10–44，完整
 功能受测源码 F1 为 `047a43dafef90edea2eb532c2a03b6f850da0b9a` / tree `5c0699edb2d30889ce770ca9b05b56dab957ce10`，由Root另开PG/HTTP/Web窗口。本元数据提交与后续delivery文档是不同source；这里的有限扫描/测试不宣称F1业务已运行，更不宣称F1+未来HEAD全部运行。未为legacy4e文件或未来unknown添加规则；最终freeze full dir/index/git仍由Root统一，NOT_RUN。
 
 ordinary冻结前最终有限验证：13 PASS / 5.53s；四文件Ruff check/format、mypy、规则/source/provenance验证均exit0；仅本提案七变更文件快照原生scan exit0。该结果不是full仓库/refs扫描，也不把原discovery exit1改写为绿。
+
+## F2 scripts.check 的唯一 legacy 测试声明残余
+
+Root实际工程Gate：source `6e98399fb485d7a852d0e4c92923af0ef005782c` / tree `4551b714c6f098a6d9edbf80f5c826239f7981ef`，UTC 2026-11-03 17:45:05.781598 → 17:46:45.997118（台北11-04），native1 / 100.164s，源码保持clean。证据为Root `.audit/v4-0/full-check-6e98399/output.log` 与 receipt.json。检查在secret scanner处失败：dir1/index1，git1191=1184已分类+7blocking；七项均为同一公开测试声明的1个author+6个merge。旧9/13元数据在这次实际扫描无阻断，不能据此把整个scripts.check记为通过。该失败保留，不改写为绿。
+
+Root亲读并只释放 `tests/e2e/v4/test_legacy_subnet.py:57` 的pytest参数类型声明。精确author source `4e267522c353074d583a29c89e9022d4f8d93f33` / tree `63462612d5045a3359a60b45c670ee1aaa9ce023`，path完整blob `ac3098476addaa63aed5311afd49ff102360c737`。有限single-file和原生author^!扫描各实际1finding/native1；均为57–57行、22–52列，完整span SHA256 `41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada`、redacted Match SHA256 `617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4`。不是凭相同类型字符串泛化到其它测试或未来author。
+
+本次仅追加1个dir/index精确例外、1个4e author精确历史记录、1个已核wholeblob锚。原222 rules、45历史原生例外及146 exact历史完整不变，现目录94/exact147/wholeblob锚28；原copy-only绑定和所有旧目录/历史前缀保持。未列六个未来merge SHA，仍由既有双父/完整blob/固定行列/span/Match规则分类，原生发现完整保留。
+
+新增负例覆盖该行byte/moved/duplicate/真实secret mutation，以及有限原生author与F2真实merge的字段/位置/Match/fingerprint变化、单父不进入copy分类；原全部metadata前缀逐项比较，不放宽既有Gate。仅运行有限原生与相关纯测试，未重跑fullscan或scripts.check，未运行PG/HTTP/Web/Hosted或远端操作。此提交待Astra极小独审后由Root统一重跑Gate，actual token/cost UNKNOWN。
+
+本单项实际有限结果：5 PASS / 2.49s；四文件Ruff check/format及mypy均exit0，rules/source/provenance验证0，七变更文件提案快照原生scan exit0。没有再次全扫，完整scripts.check重跑等待Root。

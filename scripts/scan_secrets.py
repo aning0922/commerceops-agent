@@ -355,22 +355,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 93
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 94
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 93
+        or len(provenance["exceptions"]) != 94
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 92:
+    if len(generic.get("allowlists", [])) != 93:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 92
+        len(generic["allowlists"]) != 93
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -567,7 +567,7 @@ def history_config() -> bytes:
     expected = tomllib.loads(content)
     generic = next(rule for rule in expected["rules"] if rule["id"] == "generic-api-key")
     generic["allowlists"] = generic["allowlists"][:44]
-    if removed != 48 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
+    if removed != 49 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
         raise ValueError("invalid V4 history config derivation")
     return derived.encode()
 
