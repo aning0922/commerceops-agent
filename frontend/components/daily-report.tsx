@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { DailyRead, MetricDisplay } from "../lib/m3-types.generated";
+import type { CompleteReport, DailyRead, MetricDisplay } from "../lib/m3-types.generated";
 import { Card, Modal, Notice } from "./ui";
 
 const metricNames: Record<MetricDisplay["metric_key"], string> = {
@@ -9,9 +9,9 @@ const metricNames: Record<MetricDisplay["metric_key"], string> = {
   paid_shipping_net: "付款运费净额", paid_shipping_tax: "付款运费税额",
   paid_fee_net: "付款费用净额", paid_fee_tax: "付款费用税额",
   paid_order_total: "付款订单总额", refund_count: "退款笔数",
-  refunded_order_count: "发生退款的订单数", refund_amount: "退款金额",
+  refunded_order_count: "发生退款的订单数", refund_amount: "当日退款额",
   average_paid_order_value: "平均付款订单金额",
-  orders_without_payment_timestamp: "缺少付款时间的订单数",
+  orders_without_payment_timestamp: "本日新建且未记录付款时间的订单数",
 };
 const money = new Set<MetricDisplay["metric_key"]>([
   "paid_product_net", "paid_product_tax", "paid_shipping_net", "paid_shipping_tax",
@@ -42,6 +42,15 @@ const local = (time: string, zone: string) =>
   new Intl.DateTimeFormat("zh-CN", { timeZone: zone, dateStyle: "medium", timeStyle: "short" }).format(new Date(time));
 const rawValue = (value: string | number | { numerator: string; denominator: string } | null) =>
   value === null ? "无（分母为零）" : typeof value === "object" ? `${value.numerator} / ${value.denominator}` : String(value);
+const coreKeys = new Set<MetricDisplay["metric_key"]>(["paid_order_total", "refund_amount", "paid_order_count"]);
+function MetricTiles({ report, items, showRaw }: { report: CompleteReport; items: MetricDisplay[]; showRaw: boolean }) {
+  return <dl className="daily-metrics">{items.map((item) => <div key={item.metric_key}>
+    <dt>{metricNames[item.metric_key]}</dt>
+    <dd>{item.value === null ? "不可计算（付款订单数为零）" :
+      `${item.value}${money.has(item.metric_key) ? ` ${report.source.currency}` : ""}`}</dd>
+    {showRaw && <small>原值：{rawValue(report.metrics[item.metric_key])}</small>}
+  </div>)}</dl>;
+}
 
 export function DailyReport({ read }: { read: DailyRead }) {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
@@ -63,29 +72,25 @@ export function DailyReport({ read }: { read: DailyRead }) {
         <Card title="日报事实"><p>当前没有可展示的封存日报。刷新只读取已有状态。</p></Card>
       ) : (
         <>
-          <Card title={`${report.business_day} 日报`}>
+          <Card title={`${report.business_day} 核心指标`}>
+            {report.complete ? (
+              <>
+                <MetricTiles report={report} items={report.display.filter(item => coreKeys.has(item.metric_key))} showRaw={false} />
+                <details><summary>金额明细与计算口径</summary>
+                  <MetricTiles report={report} items={report.display} showRaw={true} />
+                  <details><summary>按来源状态计数</summary><ul>
+                    {report.metrics.status_counts.map((row) => <li key={row.status}>{orderStatusNames[row.status]}：{row.count}</li>)}
+                  </ul></details>
+                </details>
+              </>
+            ) : <p>来源不完整，指标未提供；缺失值不按零展示。</p>}
+            <p>付款、退款分别按本日报的业务日期及平台订单记录中的时间字段统计，不代表已核对支付网关到账；精确口径以封存报告为准。</p>
+          </Card>
+          <Card title="日报来源与时间">
             <p>{report.complete ? "数据完整" : "数据不完整"} · {source} · {report.source.currency}</p>
             <p>统计窗口：{local(report.window.start, zone!)} 至 {local(report.window.end, zone!)}（结束不含） · {zone}</p>
             <p>观测截至：{local(report.collected_at, zone!)}；服务端读取：{local(read.server_time, zone!)}</p>
             <p>来源范围：受控测试数据集。质量标记：{report.quality_flags.length ? report.quality_flags.map(x => qualityNames[x]).join("、") : "无"}。</p>
-          </Card>
-          <Card title="指标与口径">
-            {report.complete ? (
-              <dl className="daily-metrics">
-                {report.display.map((item) => (
-                  <div key={item.metric_key}>
-                    <dt>{metricNames[item.metric_key]}</dt>
-                    <dd>{item.value === null ? "不可计算（付款订单数为零）" :
-                      `${item.value}${money.has(item.metric_key) ? ` ${report.source.currency}` : ""}`}</dd>
-                    <small>原值：{rawValue(report.metrics[item.metric_key])}</small>
-                  </div>
-                ))}
-              </dl>
-            ) : <p>来源不完整，指标未提供；缺失值不按零展示。</p>}
-            {report.complete && <details><summary>按来源状态计数</summary><ul>
-              {report.metrics.status_counts.map((row) => <li key={row.status}>{orderStatusNames[row.status]}：{row.count}</li>)}
-            </ul></details>}
-            <p>付款、退款分别按本日报的业务日期及平台订单记录中的时间字段统计，不代表已核对支付网关到账；精确口径以封存报告为准。</p>
           </Card>
           <Card title="异常与质量">
             {report.findings.length ? (

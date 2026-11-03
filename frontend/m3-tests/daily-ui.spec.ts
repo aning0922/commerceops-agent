@@ -38,8 +38,16 @@ test.describe("UI_FIXTURE daily detail", () => {
       await setup(page, completed);
       await page.goto(`/daily-reports/${id}`);
       await expect(page.getByRole("heading", { name: "经营日报" })).toBeVisible();
-      await expect(page.getByText("付款订单总额", { exact: true })).toBeVisible();
+      const core = page.locator(".card").filter({ has: page.getByRole("heading", { name: /核心指标/ }) });
+      await expect(core.getByText("付款订单总额", { exact: true }).first()).toBeVisible();
+      await expect(core.getByText("当日退款额", { exact: true }).first()).toBeVisible();
+      await expect(core.getByText("付款订单数", { exact: true }).first()).toBeVisible();
+      await expect(page.getByText("付款商品税额", { exact: true })).toBeHidden();
+      await page.getByText("金额明细与计算口径").click();
+      await expect(page.getByText("付款商品税额", { exact: true })).toBeVisible();
       await expect(page.getByText("原值：", { exact: false }).first()).toBeVisible();
+      await expect(page.getByText("金额明细与计算口径").locator("..").locator("dl > div")).toHaveCount(14);
+      await expect(page.getByText("本日新建且未记录付款时间的订单数")).toBeVisible();
       await expect(page.getByText("日报已生成。", { exact: false })).toBeVisible();
       await expect(page.getByRole("button", { name: /追问|推送|发送/ })).toHaveCount(0);
       const trigger = page.getByRole("button", { name: "查看来源与证据引用" });
@@ -79,7 +87,7 @@ test.describe("UI_FIXTURE daily detail", () => {
     await page.route("**/api/v1/auth/session", route => route.fulfill(json(session)));
     await page.route("**/api/v1/daily-reports/*", route => route.fulfill(json(body, status)));
     await page.goto(`/daily-reports/${id}`);
-    await expect(page.getByText("付款订单数", { exact: true })).toBeVisible();
+    await expect(page.getByText("付款订单数", { exact: true }).first()).toBeVisible();
     body = partial;
     await page.getByRole("button", { name: "刷新会话与当前页" }).click();
     await expect(page.getByText("指标未提供", { exact: false })).toBeVisible();
@@ -95,7 +103,7 @@ test.describe("UI_FIXTURE daily detail", () => {
   test("late 403 after a newer successful refresh keeps the current session", async ({ page }) => {
     await setup(page, completed);
     await page.goto(`/daily-reports/${id}`);
-    await expect(page.getByText("付款订单总额", { exact: true })).toBeVisible();
+    await expect(page.getByText("付款订单总额", { exact: true }).first()).toBeVisible();
     let count = 0;
     let release!: () => void;
     const held = new Promise<void>((resolve) => { release = resolve; });
@@ -107,7 +115,7 @@ test.describe("UI_FIXTURE daily detail", () => {
     await page.getByRole("button", { name: "刷新会话与当前页" }).click();
     await expect.poll(() => count).toBe(1);
     await page.getByRole("button", { name: "刷新会话与当前页" }).click();
-    await expect(page.getByText("付款订单总额", { exact: true })).toBeVisible();
+    await expect(page.getByText("付款订单总额", { exact: true }).first()).toBeVisible();
     release();
     await expect(page.getByRole("heading", { name: "经营日报" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "登录运营工作台" })).toHaveCount(0);
