@@ -33,6 +33,7 @@ def read_snapshot(
     with connection.transaction():
         with connection.cursor(row_factory=dict_row) as cursor:
             cursor.execute("SET TRANSACTION READ ONLY")
+            cursor.execute("SET LOCAL TIME ZONE 'UTC'")
             cursor.execute("SELECT set_config('statement_timeout', %s, true)", (str(milliseconds),))
             cursor.execute("SELECT set_config('lock_timeout', %s, true)", (str(milliseconds),))
             cursor.execute(sql, (tenant_id,), prepare=True)

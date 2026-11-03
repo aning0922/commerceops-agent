@@ -17,6 +17,22 @@ class Snapshot:
     db_utc: str
 
 
+@dataclass(frozen=True)
+class CapacityFacts:
+    active_tenants: int
+    active_sessions: int
+    creation_receipts: int
+
+
+@dataclass(frozen=True)
+class OperationFacts:
+    receipts: int
+    events: int
+    receipt_id: str | None
+    tenant_id: str | None
+    epoch: int | None
+
+
 class V4Adapter(Protocol):
     """Root wires one reviewed adapter after API/seed/WEB handoff.
 
@@ -33,3 +49,7 @@ class V4Adapter(Protocol):
     def launch_spec(self, role: Role) -> tuple[tuple[str, ...], dict[str, str]]: ...
 
     def persona_ids(self) -> tuple[str, str]: ...
+
+    def capacity_facts(self) -> CapacityFacts: ...
+
+    def operation_facts(self, operation: str, key: str) -> OperationFacts: ...

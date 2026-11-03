@@ -89,6 +89,7 @@ probe代码，具体能力与尚待接线见下节；仍未启动服务，不能
 | Q15 | A双tab延迟读后切persona/reset/logout；丢BC；hidden/offline→恢复 | 开始即清屏；旧context/request_seq不渲染；恢复先GET current，可见5秒核验失败清屏 |
 | Q16 | 真实Web 1440/1280/390、200%缩放、Tab/Esc/focus/reduced-motion | 页面不横溢，modal focus约束/Esc回归/文字aria反馈；缩放不能只用viewport替代 |
 | Q17 | cookie/响应/敏感context与缓存安全 | HttpOnly/SameSite/Path=/api/v4、TLS Secure及显式本地HTTP分记；no-store/Vary；token不入storage/log |
+| Q18 | 确定性REJECTED429后，用户显式再次进入→GET bootstrap→新key POST；对照UNKNOWN不重启 | 已绑定旧bootstrap行/原key不可清空或改写；明确重新进入才签发新匿名owner，新key不因复用旧绑定而404；无额外成功tenant；RATE与CAP分记；active仍拒绝bootstrap |
 
 Q03/Q11/Q12/Q13 的底层故障/旧actor需要 API owner 提供已审窄测试入口或真实 PG 操作。
 不新增公开调试路由；PG管理员只改本批 owned fixture，HTTP始终用低权 runtime。
@@ -170,3 +171,47 @@ Node缓存安装曾因复制的npm launcher找不到`../lib/cli.js`而exit1，�
 SIGKILL后同样核组状态；日志finally关闭；某角色失败仍尝试清理其他自有角色，绝不扩到
 其他进程组。此次并未证明平台EPERM根因已修复。定向修正验证1pass/0.80s/native0，随后
 完整本目录29pass/4.11s/native0；含两条显式EPERM有/无独立清理证明的单元契约。
+
+## Astra 05a 三项 P2 增量整改
+
+只读报告来源：`a4ed08ff45b1116931784b6a344dd5d38fb448d6:docs/v4/review/QA_05a.md`，
+结论0P1/3P2，尚未签ACCEPT_PREPARED_HARNESS。保留该审查与05a旧29项结果，不能用
+旧测试抵本次源码发现。本次只改QA独占路径；后端设计只读精确 `c4c4840`，未读作者WIP。
+
+- QA-01：串行capacity场景只接受429/CAPACITY_LIMIT和正整数秒Retry-After，RATE_LIMITED
+  及缺失/零/负数/非法等待值均失败。新PG接口先核空库，再核三活跃tenant/三session/三份
+  creation receipt；原三key逐一对应唯一receipt+两个create事件。后两容量拒绝无receipt，
+  原三session仍同tenant/key、PG cohort仍3/3/3。它只签未来**串行cap3**，五并发竞争仍是
+  独立NOT_RUN Gate，不将peer限流签为容量成功。
+- QA-02：两个旧CSRF并发reset接受两个200且回执相同，或200与精确403/CSRF_INVALID；
+  其他403/非成功组合不能通过，无成功观察保留UNKNOWN。GET current后原key GET回执，
+  再用新CSRF显式对抗同key同body取原receipt、异body409/IDEMPOTENCY_CONFLICT；
+  PG必须原key恰一receipt/一reset事件、tenant一致、当前epoch恰+1，重读current不再推进。
+  这是显式安全实验，不是UNKNOWN后的客户端自动POST重试。
+- QA-03：普通与bootstrap最小回执均核请求operation/key，最小分支只允许session_create。
+  ACK-body恢复还要求COMMITTED并与PG唯一原key receipt ID/tenant一致；header整体丢失
+  保持最小恢复分支，PG只在独立owned观察端核原key一receipt/两个create事件，不向API
+  bootstrap返回tenant/token。schema-valid错误key/operation同样拒绝。
+
+新增 `test_http_criteria.py` 20项离线判据验证，不发HTTP、不用mock transport、不连PG。
+定向结果20pass/0.36s/native0；未重跑无改动的supervisor/strict旧29项。类型检查覆盖11个
+源码文件。当前变更没有运行PG/API/Web、浏览器、Full或Hosted。
+
+新增 `design_pg_adapter.py` 仅为已审c4表名/字段准备参数化只读SQL：tenant快照、DB活动
+容量、operation/key回执与事件。它不连接、不加载DSN、不提供API配置/启动实现，不读取
+token/CSRF/password/credential列；事务固定UTC并有statement/lock timeout。snapshot的
+业务hash包含fixture/当前身份代际/shops/overlay digest/receipt/event，排除采集时间；
+保留control receipt在该设计中承担去重tombstone，因此两count同源，无新造tombstone表。
+该hash只覆盖明确选列，不宣称全组织ACL/credential所有表字节指纹；撤grant/旧actor专项
+仍须真实已审实现和独立观察。SQL尚未在实际0024执行，必须核后端精确提交一致后才用。
+
+单一V4Adapter现增加capacity_facts/operation_facts依赖，缺实现必须阻断，不能返回占位0。
+API实际配置字段、启动argv/env、新owned连接方式和容器cleanup仍PENDING_OWNER_HANDOFF。
+本次无新运行资源；先前工具copy/symlink原因已由Root确认并修复，原npm失败继续保留。
+
+Q18为Root新登记的8API内细化，原c4设计对该GET复用分支尚未证明实现。后端交精确已审
+细化commit后再接独立PG/API负例；WEB owner负责显式再次进入与UNKNOWN不自动调用的
+浏览器验证。需要分别观察：第一次429是确定性REJECTED且原owner已绑定但未consumed；
+用户显式GET得到新owner；旧行/旧key仍不可变且旧token仅保留原key最小回读；第二个新key
+按当前真实限流/容量结果处理，无隐性新tenant；UNKNOWN不自动GET bootstrap/POST。
+这里不将未来分支或未交SQL写为已实现，不用RATE_LIMITED代签CAPACITY_LIMIT。

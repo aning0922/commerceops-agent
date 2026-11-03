@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 
 import httpx
 
-from .adapter import V4Adapter
+from .adapter import CapacityFacts, V4Adapter
 from .supervisor import Budget
 
 PREFIX = "/api/v4/demo"
@@ -26,6 +26,44 @@ PATHS = {
     "resetCurrentDemoTenant": ("POST", "/reset"),
     "logoutDemoSession": ("POST", "/logout"),
 }
+
+
+def receipt_binding(reply: dict[str, Any], operation: str, key: str) -> dict[str, Any]:
+    data = reply["data"]
+    receipt = data.get("receipt", data)
+    if receipt.get("operation") != operation or receipt.get("request_key") != key:
+        raise AssertionError("receipt operation/key mismatch")
+    if "receipt" not in data and operation != "session_create":
+        raise AssertionError("bootstrap recovery is session_create only")
+    return dict(receipt)
+
+
+def capacity_rejection(reply: dict[str, Any], retry_after: str | None) -> None:
+    if (
+        reply["error"]["code"] != "CAPACITY_LIMIT"
+        or retry_after is None
+        or not retry_after.isascii()
+        or not retry_after.isdigit()
+        or int(retry_after) <= 0
+    ):
+        raise AssertionError("capacity requires CAPACITY_LIMIT and positive Retry-After seconds")
+
+
+def concurrent_reset_result(outcomes: list[tuple[int, dict[str, Any]]], key: str) -> dict[str, Any]:
+    committed: list[dict[str, Any]] = []
+    for status, reply in outcomes:
+        if status == 200:
+            receipt = receipt_binding(reply, "reset", key)
+            if receipt["status"] != "COMMITTED":
+                raise AssertionError("reset receipt not committed")
+            committed.append(receipt)
+        elif status != 403 or reply["error"]["code"] != "CSRF_INVALID":
+            raise AssertionError("unexpected concurrent reset denial")
+    if len(outcomes) != 2 or not committed:
+        raise AssertionError("no successful reset HTTP observation; retain UNKNOWN")
+    if any(receipt != committed[0] for receipt in committed):
+        raise AssertionError("same key returned different receipt")
+    return committed[0]
 
 
 def loopback_origin(value: str) -> str:
@@ -205,7 +243,9 @@ class Visitor:
             headers={"Origin": self.origin},
             timeout=self.budget.timeout(10),
         )
-        return self.check("readDemoControlReceipt", response, (200,))
+        reply = self.check("readDemoControlReceipt", response, (200,))
+        receipt_binding(reply, operation, key)
+        return reply
 
     def create_ack_loss(self, loss: Literal["body", "headers_and_body"]) -> dict[str, Any]:
         if loss not in {"body", "headers_and_body"}:
@@ -228,6 +268,18 @@ class Visitor:
             if current["data"]["creation_request_key"] != key:
                 raise AssertionError("ACK recovery owner mismatch")
         receipt = self.receipt("session_create", key)
+        observed = receipt_binding(receipt, "session_create", key)
+        if observed["status"] != "COMMITTED":
+            raise AssertionError("creation commit unverified; retain UNKNOWN")
+        facts = self.adapter.operation_facts("session_create", key)
+        # A creation receipt has one session_created and one seed_materialized event.
+        if facts.receipts != 1 or facts.events != 2 or facts.tenant_id is None:
+            raise AssertionError("creation not independently committed in PG")
+        if loss == "body" and (
+            facts.tenant_id != current["context"]["tenant_id"]
+            or facts.receipt_id != observed["receipt_id"]
+        ):
+            raise AssertionError("ACK recovery does not match original PG commit")
         if loss == "headers_and_body":
             data = receipt["data"]
             if data != {
@@ -288,8 +340,21 @@ def capacity(visitors: list[Visitor]) -> None:
     """Run in an initially empty owned DB, separately from lifecycle/ACK cases."""
     if len(visitors) != 5 or len({id(v.client.cookies.jar) for v in visitors}) != 5:
         raise ValueError("five independent visitors required")
+    adapter = visitors[0].adapter
+    if adapter.capacity_facts() != CapacityFacts(0, 0, 0):
+        raise AssertionError("capacity scenario requires empty owned DB")
+    originals: list[tuple[str, str]] = []
     for visitor in visitors[:3]:
-        visitor.create()
+        current = visitor.create()
+        originals.append((current["context"]["tenant_id"], current["data"]["creation_request_key"]))
+    if len({tenant for tenant, _ in originals}) != 3:
+        raise AssertionError("three distinct committed tenants required")
+    if adapter.capacity_facts() != CapacityFacts(3, 3, 3):
+        raise AssertionError("PG must observe three active tenants/sessions/creation receipts")
+    for tenant, key in originals:
+        facts = adapter.operation_facts("session_create", key)
+        if facts.receipts != 1 or facts.events != 2 or facts.tenant_id != tenant:
+            raise AssertionError("original capacity cohort creation not proven in PG")
     for visitor in visitors[3:]:
         csrf, key = visitor.bootstrap(), str(uuid4())
         response = visitor.client.post(
@@ -299,13 +364,15 @@ def capacity(visitors: list[Visitor]) -> None:
             timeout=visitor.budget.timeout(10),
         )
         reply = visitor.check("createDemoSession", response, (429,))
-        if not response.headers.get("retry-after") or reply["error"]["code"] not in {
-            "CAPACITY_LIMIT",
-            "RATE_LIMITED",
-        }:
-            raise AssertionError("capacity denial requires Retry-After and safe error")
-    for visitor in visitors[:3]:
-        visitor.read_current()
+        capacity_rejection(reply, response.headers.get("retry-after"))
+        if adapter.operation_facts("session_create", key).receipts != 0:
+            raise AssertionError("capacity-denied request committed a receipt")
+    for visitor, original in zip(visitors[:3], originals, strict=True):
+        current = visitor.read_current()
+        if (current["context"]["tenant_id"], current["data"]["creation_request_key"]) != original:
+            raise AssertionError("capacity denial displaced an original session")
+    if adapter.capacity_facts() != CapacityFacts(3, 3, 3):
+        raise AssertionError("capacity denial changed original active cohort")
 
 
 def security_negatives(visitor: Visitor) -> None:
@@ -376,18 +443,32 @@ def same_key_reset(visitor: Visitor) -> None:
     visitor.current = None
     visitor.pending = ("reset", key)
 
-    def post() -> dict[str, Any]:
-        return visitor.call("resetCurrentDemoTenant", body=body, headers=headers)
+    if visitor.adapter.operation_facts("reset", key).receipts != 0:
+        raise AssertionError("new reset key already exists")
+
+    def post() -> tuple[int, dict[str, Any]]:
+        response = visitor.client.post(
+            PREFIX + "/reset",
+            json=body,
+            headers={"Origin": visitor.origin, **headers},
+            timeout=visitor.budget.timeout(10),
+        )
+        return response.status_code, visitor.check("resetCurrentDemoTenant", response, (200, 403))
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         futures = [pool.submit(post), pool.submit(post)]
         replies = [future.result(timeout=visitor.budget.timeout(12)) for future in futures]
-    receipts = [reply["data"]["receipt"] for reply in replies]
-    if receipts[0] != receipts[1] or receipts[0]["request_key"] != key:
-        raise AssertionError("concurrent same key must return identical committed receipt")
+    original_receipt = concurrent_reset_result(replies, key)
     updated = visitor.read_current()
     if updated["context"]["reset_epoch"] != context["reset_epoch"] + 1:
         raise AssertionError("duplicate reset had more than one effect")
+    if receipt_binding(visitor.receipt("reset", key), "reset", key) != original_receipt:
+        raise AssertionError("GET original receipt mismatch")
+    new_headers = {"X-CSRF-Token": updated["data"]["csrf_token"]}
+    # Explicit adversarial replay with current CSRF, never automatic browser retry.
+    replay = visitor.call("resetCurrentDemoTenant", body=body, headers=new_headers)
+    if receipt_binding(replay, "reset", key) != original_receipt:
+        raise AssertionError("current-CSRF same-body replay changed receipt")
     conflict = visitor.call(
         "resetCurrentDemoTenant",
         body={**body, "expected_epoch": body["expected_epoch"] + 1},
@@ -396,6 +477,17 @@ def same_key_reset(visitor: Visitor) -> None:
     )
     if conflict["error"]["code"] != "IDEMPOTENCY_CONFLICT":
         raise AssertionError("same key/different digest must be an idempotency conflict")
+    facts = visitor.adapter.operation_facts("reset", key)
+    if (
+        facts.receipts != 1
+        or facts.events != 1
+        or facts.receipt_id != original_receipt["receipt_id"]
+        or facts.tenant_id != context["tenant_id"]
+        or facts.epoch != context["reset_epoch"] + 1
+    ):
+        raise AssertionError("PG must prove original key one receipt/event and epoch +1")
+    if visitor.read_current()["context"]["reset_epoch"] != facts.epoch:
+        raise AssertionError("replay advanced epoch again")
     visitor.pending = None
 
 
