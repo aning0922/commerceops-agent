@@ -474,3 +474,78 @@ GET operations：
 event新增receipt_id/owner_session_id/tenant_id/epoch/generation复合FK及operation→kind语义guard；create恰两种各一，其余恰一种一条。event独立INSERT也要核原receipt关系，不因旧receipt本轮未更新而漏验；额外错kind不得追加。
 
 新增固定v4_demo_request_valid(jsonb,text,uuid,bigint,bigint,text,text)检查wrapper与各operation body的object/exact keys/non-null types/constants/key/fixture/persona/expected CAS；missing/null/错类型均返回false。守卫以NOT coalesce(...,false)拒绝，不用NULL敏感的不等式。该无DB权限提升函数由owner helper单独授runtime EXECUTE，不新增通用schema解释器或免验GUC。实际SQL负例将在ROOT新owned窗口验证；当前不以结构纯检查关闭PG Gate。
+
+## 14. 已实现候选的最小实际启动合同（未启动，PG/API Gate待验证）
+
+以下argv/配置对应新提交的 `DemoConfig`、`v4_demo_http`、`scripts.v4_demo_seed`，只用于QA准备driver；不是资源窗口。ROOT必须先登记新的PG/image/source/卷/端口/绝对UTC/cleanup，才能执行。migrate首窗exit1/0 tests/cleanup0根因UNKNOWN保留；诊断优先沿用QA已提交ce85入口，不重复建工具或重跑。
+
+### 配置与默认关闭
+
+- 主API foreground：`uv run --frozen --offline python -m commerceops.entrypoints.api`。主机只允许loopback，环境变量准确为 `COMMERCEOPS_HOST=127.0.0.1`、`COMMERCEOPS_PORT=18440`（本启动模板的候选端口，实际须绑定ROOT资源回执，不占用既有服务）。
+- `COMMERCEOPS_V4_DEMO_CONFIG_FILE=<本批新绝对路径/demo.json>` 为唯一新增环境开关。未设置时不读V4文件/不注册八端点；配置enabled=false不装配。程序化参数是 `create_app(v4_demo_config=DemoConfig(...,enabled=True))`，默认None不装配。
+- V4 runtime拒绝非 `v4_demo_[a-z0-9_]{1,48}` 库名。demo.json和引用web.json及两个secret文件均由本批新owner创建，绝对路径、无symlink、0600、当前UID；secret至少32byte且两者不同。只在本批新owned loopback使用local_http。
+- 为验改名bearer对旧/api/v1确实401，foreground同时设置 `COMMERCEOPS_P3_CONFIG_FILE=<同一新web.json>`；这是新库配置，不是加载旧M3秘密。只装配原Web路由，不开日报/询单/copy/Worker。若只装V4而不装旧Web，旧/api/v1未注册会404，不能用它证明改名拒绝。
+
+新web.json形状（占位路径由QA新建；不在本文件填密钥）：
+
+```json
+{
+  "database": {
+    "host": "<ROOT登记的新PG地址>",
+    "port": 5432,
+    "name": "v4_demo_<本批唯一后缀>",
+    "user": "commerceops_app",
+    "password_file": "<新绝对路径/runtime-password>",
+    "runtime_password_file": null
+  },
+  "csrf_secret_file": "<新绝对路径/csrf-key>",
+  "nonce_secret_file": "<新绝对路径/nonce-key>",
+  "origins": ["http://127.0.0.1:13440", "http://127.0.0.1:18440"],
+  "transport_mode": "local_http"
+}
+```
+
+新demo.json准确形状：
+
+```json
+{
+  "schema_version": "v4-demo-deployment-v1",
+  "web_config_file": "<同一新绝对路径/web.json>",
+  "api_origin": "http://127.0.0.1:18440",
+  "enabled": true,
+  "allow_non_browser_get": false
+}
+```
+
+api_origin与实际loopback端口一致；13440只表示候选Web Origin，最终与WEB/QA实际端口同时替换。普通非浏览器GET需传明确允许Origin；不以缺Origin的测试便利放宽生产配置。浏览器跨origin需credentials/include。V4 cookie Path=/api/v4，与旧commerceops_session隔离。
+
+### Owner初始化准确argv（只新库，尚未执行）
+
+在ROOT登记资源窗口内，owner过程设置 `COMMERCEOPS_DB_HOST/PORT/NAME/USER/PASSWORD_FILE/RUNTIME_PASSWORD_FILE` 为该新owned库及新凭据文件；owner user必须为实际表owner，runtime角色commerceops_app保持NOSUPERUSER/NOCREATEDB/NOCREATEROLE。原database入口不改，执行顺序：
+
+```sh
+uv run --frozen --offline python -m commerceops.entrypoints.database migrate
+uv run --frozen --offline python -m commerceops.entrypoints.database setup-checkpointer
+uv run --frozen --offline python -m commerceops.entrypoints.database grant-runtime
+uv run --frozen --offline python -m scripts.v4_demo_seed init-fixture --directory "$TASK_V4_NEW_EXPORT_DIRECTORY"
+uv run --frozen --offline python -m scripts.v4_demo_seed grant-runtime
+uv run --frozen --offline python -m scripts.v4_demo_seed verify-fixture
+```
+
+`init-fixture`只接全新不存在的绝对目录，数据库先COMMIT后独占文件导出/索引发布；失败保留DB与目录，不重试或覆盖。`grant-runtime`是新CLI的子action，与原database grant-runtime分开；普通原grant不自动开V4。fixture实际纯digest仍59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8；不因此签PG已登记。
+
+API foreground进程只拿runtime web.json和新demo.json，不继承owner DB环境：
+
+```sh
+env -u COMMERCEOPS_DB_HOST -u COMMERCEOPS_DB_PORT -u COMMERCEOPS_DB_NAME -u COMMERCEOPS_DB_USER -u COMMERCEOPS_DB_PASSWORD_FILE -u COMMERCEOPS_DB_RUNTIME_PASSWORD_FILE COMMERCEOPS_HOST=127.0.0.1 COMMERCEOPS_PORT=18440 COMMERCEOPS_P3_CONFIG_FILE="$TASK_V4_NEW_WEB_CONFIG" COMMERCEOPS_V4_DEMO_CONFIG_FILE="$TASK_V4_NEW_DEMO_CONFIG" uv run --frozen --offline python -m commerceops.entrypoints.api
+```
+
+无Worker/第二Graph/自动cron/外部provider等伴随命令。标准PG临时卷和Web保卷依ROOT各资源合同；CLI不自行建服务、拉镜像、读旧runtime或触发CI。
+
+### 八端点与独立OpenAPI
+
+八路径及请求/响应保持baseline合同：GET bootstrap、POST sessions、GET session、POST persona、GET seed-summary、POST reset、POST logout、GET operations/{operation}/{request_key}。实际生成函数：`commerceops.entrypoints.v4_demo_http.demo_openapi()`，返回独立Python dict（纯生成，不启动服务）；安装后 `app.state.v4_demo_openapi` 保存同一合同。旧 `app.openapi()`继续只签原M3/P3路径，不新增公开/docs或/openapi URL。QA/WEB可在其自有路径导出该函数结果，不读取本作者WIP或私配。
+
+创建POST仅v4b_ owner+CSRF+原key，active拒绝；GET bootstrap只复用未绑定key的valid owner。已绑定owner无论consumed与否均保留旧key回读，显式新GET发fresh匿名cookie；UNKNOWN客户端不自动bootstrap/POST。有效active GET bootstrap拒绝；过期/撤销active只在用户明确新开始时可换匿名owner，不自动创建新tenant。reset/persona公开cookie不变，generation/CSRF/bound原子换；API响应不返回bearer或bound秘密。
+
+ASGI 19项目前使用显式StubStore，只证明路由/Origin/DTO/error/schema/cookie合同，不证明PG鉴权。真实PG作者测试另行提交并由ROOT新窗口执行。
