@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-2026-11-04 V4-0 本地托管：必要运行 Gate 已通过，当前收口最终文档独审与冻结提交扫描。服务器 DemoSession、双店合成种子、身份/店铺边界、重置回滚和三条欢迎辅助路由已实现；完整 PG745 严格配对、工程4316 offline、HTTP11、自然30分钟TTL、真实浏览器和旧Web/N01证据分别绑定实际源码。交付与未验范围见 [V4-0本地交付](v4/acceptance/v4-0/DELIVERY.md)。V4-1未启动，Hosted/外部真实业务调用/远端写/生产未运行；下方旧导航保留其历史时点。
+2026-11-04 V4-0 本地托管：状态 `LOCAL_IMPLEMENTATION_ACCEPTED`：本地实施、必要运行 Gate 与最终独审已核收；最终文档的冻结提交扫描另有 source-bound 回执。服务器 DemoSession、双店合成种子、身份/店铺边界、重置回滚和三条欢迎辅助路由已实现；完整 PG745 严格配对、工程4316 offline、HTTP11、自然30分钟TTL、真实浏览器和旧Web/N01证据分别绑定实际源码。交付与未验范围见 [V4-0本地交付](v4/acceptance/v4-0/DELIVERY.md)。V4-1未启动，Hosted/外部真实业务调用/远端写/生产未运行；下方旧导航保留其历史时点。
 
 2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
 

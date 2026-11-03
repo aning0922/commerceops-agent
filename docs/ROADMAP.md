@@ -1,6 +1,6 @@
 # 分阶段路线图与外部配置
 
-2026-11-04 V4 当前边界：V40-01—V40-05 的本地实现与必要运行 Gate 已完成，最后文档收口见 [V4-0交付](v4/acceptance/v4-0/DELIVERY.md)。下一阶段 V41-01导航/Shell、V41-02经营查询、V41-03首页/Copilot仅为待授权接单建议，V4-1 NOT_STARTED；不重置原阶段日期、预算或旧失败记录。
+2026-11-04 V4 当前边界：V40-01—V40-05 的本地实现与必要运行 Gate 已完成，本地交付与来源边界见 [V4-0交付](v4/acceptance/v4-0/DELIVERY.md)。下一阶段 V41-01导航/Shell、V41-02经营查询、V41-03首页/Copilot仅为待授权接单建议，V4-1 NOT_STARTED；不重置原阶段日期、预算或旧失败记录。
 
 2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
 

@@ -1,8 +1,8 @@
 {
   "base_source": "952e6246deb01ec763f2541d9f316753987744f3",
   "code_engineering_source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
-  "prepared_from_source": "cf9c739594af69a430ab94c58b32bb564cb43a97",
-  "scope": "Current V4 branch paths changed against accepted M3. Responsibility map, not sole commit authorship. Final metadata source and actual Gate receipts are separately bound.",
+  "prepared_from_source": "107630e4f28ea0fb2c9306fb3e6594989c130bdc",
+  "scope": "Exact paths changed against accepted M3 at final metadata preparation, including this file. Responsibility map, not sole commit authorship. Final frozen source is bound by separate document-Gate receipt.",
   "files": [
     {
       "path": ".gitleaks.toml",
@@ -469,6 +469,10 @@
       "responsible_owner": "ROOT_DOCS"
     },
     {
+      "path": "docs/v4/review/FINAL_LOCAL_STAGE_CF9.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
       "path": "docs/v4/review/FINAL_TUPLE_PIN_ROOT.md",
       "responsible_owner": "ROOT_DOCS"
     },
@@ -534,6 +538,10 @@
     },
     {
       "path": "docs/v4/review/QA_05a.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/R2_FULL_PG_745_EVIDENCE.md",
       "responsible_owner": "ROOT_DOCS"
     },
     {

@@ -1,6 +1,6 @@
 {
   "stage": "V4-0",
-  "status": "REQUIRED_LOCAL_RUNTIME_GATES_PASS_FINAL_REVIEW_DOC_SCAN_PENDING",
+  "status": "LOCAL_IMPLEMENTATION_AND_RUNTIME_GATES_ACCEPTED",
   "authorization": "USER_APPROVED_B_LOCAL_ONLY",
   "started_at_utc": "2026-11-03T14:04:33Z",
   "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
@@ -11,7 +11,7 @@
     "V40-02": "USER_ACCEPTED_FOUR_CONTRACTS_REUSED",
     "V40-03": "IMPLEMENTED_COMPONENT_HTTP_TTL_ACCEPTED",
     "V40-04": "IMPLEMENTED_SEED_RESET_ROLLBACK_NATIVE_ACCEPTED",
-    "V40-05": "IMPLEMENTED_BROWSER_LEGACY_ENGINEERING_ACCEPTED_FULL_PG_FINAL_REVIEW_PENDING"
+    "V40-05": "IMPLEMENTED_LOCAL_REQUIRED_RUNTIME_GATES_ACCEPTED"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
@@ -46,7 +46,7 @@
     "full_pg_existing": "568_PASS_R2_G1_THREE_G2_SIX_CLEANUP_0",
     "full_pg_phase3": "177_PASS_R2_CLEANUP_0",
     "strict_pair": "PASS_R2_568_PLUS_177_EQUALS_745_INTERSECTION_ZERO",
-    "final_independent_review": "PENDING"
+    "final_independent_review": "ACCEPTED_8ed368d268cf3ea1f09e02abc0671a4ab9c589ec"
   },
   "source_reuse": "Actual evidence sources remain F1/R2/R3/cbd. Unchanged product subtrees and 69 PG inputs checked. R2 strict fingerprints differ from candidate in two scanner files; pair is only signed at R2. See PG_REUSE_INPUTS.json and independent review.",
   "protected_worktree_heads": {
@@ -70,10 +70,6 @@
     "FULL_EXISTING_FIRST_F1.json",
     "ENGINEERING_CBD.json"
   ],
-  "remaining_gates": [
-    "Final exact delivery independent review",
-    "Final documentation/source scan"
-  ],
   "unverified": [
     "M3 daily/inquiry/copy separate live browser flows",
     "physical retention GC native flow",
@@ -83,5 +79,11 @@
   ],
   "V4-1": "NOT_AUTHORIZED_NOT_STARTED",
   "remote_writes": "NOT_AUTHORIZED_NOT_RUN",
-  "updated_at_utc": "2026-11-03T19:31:00.099794+00:00"
+  "updated_at_utc": "2026-11-03T19:42:15.271286+00:00",
+  "remaining_runtime_gates": [],
+  "final_document_gate": {
+    "scope": "Separate frozen-source release check, actual result is in its source-bound local receipt.",
+    "receipt_pattern": ".audit/v4-0/final-document-gate-<source7>/receipt.json"
+  },
+  "runtime_accepted_at_utc": "2026-11-03T19:42:15.271286+00:00"
 }

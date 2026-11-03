@@ -31,7 +31,7 @@
 
 工程检查含公开依赖漏洞查询的网络访问；没有真实业务 provider 调用。历史原生秘密扫描有 1555 条已审分类、blocking0，扫描包装器及完整工程退出0；不宣称原生没有命中。工程 Markdown204 是受测 cbd 时点，后增交付文档另跑检查与扫描。四项既有 deprecation warning 保留。
 
-独立核收包括 HTTP11、R3 视觉、legacy24/N01、四合同与源复用，以及完整工程实际原件。PG 完整配对实际通过；最终阶段独审与后增文档扫描是最后收口项。
+独立核收包括 HTTP11、R3 视觉、legacy24/N01、四合同与源复用，以及完整工程实际原件。PG 完整配对及最终阶段独审已核收；后增文档由冻结提交的独立文档 Gate 回执记录。
 
 不同来源的回执各自绑定 SHA/tree。代码复用依据后端与产品 UI 子树、PG 测试/工具链/锁文件的实际 byte identity；不把旧源码的结果改写成最终源码运行结果。先前失败与 UNKNOWN 原件保留，新 case、新窗口的后续通过单列。
 
@@ -52,10 +52,10 @@
 
 ## 交付来源与耗时
 
-完整 PG 实际执行来源 R2，existing 1947.5 秒、phase3 1684.853 秒，原配对 0.085 秒；与候选不同的两处扫描 fingerprint 如实分列。完整工程实际执行来源 cbd；之后只整合文档。全阶段墙钟以 ROOT_LEDGER 的起止 UTC 为准，Agent 有效工时及实际模型费用未计量，保持 UNKNOWN，不虚填预算净余。
+完整 PG 实际执行来源 R2，existing 1947.5 秒、phase3 1684.853 秒，原配对 0.085 秒；与候选不同的两处扫描 fingerprint 如实分列。完整工程实际执行来源 cbd；之后只整合文档。全阶段墙钟由 ROOT_LEDGER 的起始 UTC 与最终文档 Gate 的结束 UTC 分账，Agent 有效工时及实际模型费用未计量，保持 UNKNOWN，不虚填预算净余。
 
 ## 合同与文件清单
 
 四份核心合同、OpenAPI 与 seed manifest 保持已批准内容。权限 CSV 仅做 LF 导入：当前 649 字节，历史 CRLF 656 字节，七个换行；逐行内容相同，两种 SHA256 及原件位置见 `../../IMPORT_NORMALIZATION.json`。旧冻结清单的 CRLF hash 继续保留，不拿它充当当前 LF 文件的 bytes hash。
 
-文件责任清单见 `FILE_MAP.json`；源代码实际受测来源与后增事实文档分开，后增文档不触发重做已通过的业务 PG。最终文档 Gate 由冻结提交下 `.audit/v4-0/final-document-gate-<source7>/receipt.json` 独立记录，包含源码前后不变、完整扫描、文档和文件清单核对。
+文件责任清单见 `FILE_MAP.json`；源代码实际受测来源与后增事实文档分开，后增文档不触发重做已通过的业务 PG。最终阶段独审见 `../../review/FINAL_LOCAL_STAGE_CF9.md`；本阶段本地实施和必要运行 Gate 已接受。最终文档 Gate 由冻结提交下 `.audit/v4-0/final-document-gate-<source7>/receipt.json` 独立记录，包含源码前后不变、完整扫描、文档和文件清单核对。

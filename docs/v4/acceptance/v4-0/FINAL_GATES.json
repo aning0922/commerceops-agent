@@ -1,5 +1,5 @@
 {
-  "status": "REQUIRED_LOCAL_RUNTIME_GATES_PASS_FINAL_REVIEW_AND_DOC_SCAN_PENDING",
+  "status": "REQUIRED_LOCAL_RUNTIME_GATES_ACCEPTED",
   "prepared_from_source": "08afc157b9921a9264fd6b0c0f1aeaa7713d4399",
   "recorded_at_utc": "2026-11-03T19:31:00.097917+00:00",
   "engineering": {
@@ -173,5 +173,10 @@
       "sha256": "139e04d028aae19b6f476e0f2f16c93f15ab9e649801c5138b96a896c9ab6cdd"
     },
     "semantic_rows_unchanged": true
+  },
+  "final_independent_review": "8ed368d268cf3ea1f09e02abc0671a4ab9c589ec",
+  "final_document_gate": {
+    "receipt_pattern": ".audit/v4-0/final-document-gate-<source7>/receipt.json",
+    "scope": "Final source/JSON/file-map/Markdown/diff/dir/index/full-history verification; separate from the runtime evidence sources."
   }
 }
