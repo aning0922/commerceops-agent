@@ -202,6 +202,7 @@ def test_all_original_and_harness_files_remain_required(missing: str) -> None:
         "bounded-network.spec.ts",
         "owned-shop-scopes.spec.ts",
         "owned-copy-preview.spec.ts",
+        "operations-collection.spec.ts",
     }
     listed, executed = reports()
     for report in (listed, executed):

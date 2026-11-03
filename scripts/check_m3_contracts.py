@@ -18,6 +18,7 @@ FILES = frozenset(
         "bounded-network.spec.ts",
         "owned-shop-scopes.spec.ts",
         "owned-copy-preview.spec.ts",
+        "operations-collection.spec.ts",
     }
 )
 
