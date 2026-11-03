@@ -349,3 +349,19 @@ JSON Schema验证结构；精确引用/显示公式/hash/source/current auth仍�
 已仅在JSON表示层转不可变tuple且保留Python输入strict；首资产比对1failed/42passed为错误闭包set顺序不稳定，
 已排序再冻结字节。静态发现query_parameter漏profile参数等已修，不修改旧测试门槛。
 本批没有PG/Docker build/浏览器/实际服务、SDK、模型或外发；全链、主API/owner bootstrap、真实资料与人审仍未签收。
+
+### Root回交K3真实本地PG与dev-only seed候选
+
+Root回执Core8933f85ba2c121dd25892947d1dd19a02305ade6（含769 fixture与e371分段DB等待修正），
+新owned m3core-4154f023a3bf实际29passed/61.99s/native0/outer0；05:33:00.005130Z cleanup0，
+独立库存0容器/0网络、唯一新卷保留。原setup29错误、后28passed/1 QueryCanceled57014及旧窗零资源未运行事实保留；
+本次成功只绑定旧image4eb与该Core，不代签新标准image946、真实资料/provider或主API/UI。
+
+Root新放行本地可验证窄片：普通合eff02e3精确冻结后，提供仅新m3_daily_demo库的copy seed/export CLI，
+沿原Web账号/scope、原owner注册helper和纯合成fixture，不改业务/API/Worker/迁移/权限/锁实现。
+Root待审接线1e30c999不由本线合入；使用和边界见[接线清单第5节](p6-knowledge-wiring-v1.md#5-新owned本地演示来源登记与导出)。
+本线仅代码、纯构造/临时文件/CLI帮助与collect验证，seed SQL/服务/Web/浏览器均未运行；真实执行仍由Root登记。
+新dev-only CLI与原knowledge/copy纯测试组合193passed/1.42s/exit0；新增两Python文件strict mypy、
+Ruff/format通过，CLI --help native0，Markdown133文件/0错误。
+新8项离线案例只验证命名与低权拒绝先于连接、合成scope/有效期/配置pin往返、
+0600/0700独占文件、禁止覆盖/祖先symlink及help不读取配置，不签SQL筛选或登记通过。
