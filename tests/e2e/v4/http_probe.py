@@ -28,6 +28,13 @@ PATHS = {
 }
 
 
+def snapshot_cookies(cookies: httpx.Cookies) -> httpx.Cookies:
+    snapshot = httpx.Cookies()
+    for cookie in cookies.jar:
+        snapshot.jar.set_cookie(copy.deepcopy(cookie))
+    return snapshot
+
+
 def receipt_binding(reply: dict[str, Any], operation: str, key: str) -> dict[str, Any]:
     data = reply["data"]
     receipt = data.get("receipt", data)
@@ -251,7 +258,7 @@ class Visitor:
         if loss not in {"body", "headers_and_body"}:
             raise ValueError("explicit ACK-loss branch required")
         csrf, key = self.bootstrap(), str(uuid4())
-        bootstrap_cookies = copy.deepcopy(self.client.cookies.jar)
+        bootstrap_cookies = snapshot_cookies(self.client.cookies)
         self.pending = ("session_create", key)
         # Real POST reaches PG; discard the actual response, never fabricate one.
         response = self.client.post(
@@ -262,7 +269,7 @@ class Visitor:
         )
         response.close()
         if loss == "headers_and_body":
-            self.client.cookies = httpx.Cookies(bootstrap_cookies)
+            self.client.cookies = snapshot_cookies(bootstrap_cookies)
         else:
             current = self.read_current()
             if current["data"]["creation_request_key"] != key:
