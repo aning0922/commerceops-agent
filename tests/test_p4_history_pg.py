@@ -736,6 +736,16 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
             "business.p6_copy_candidates",
             "business.p6_copy_decisions",
             "business.p6_copy_drafts",
+            "business.v4_demo_fixture_versions",
+            "business.v4_demo_tenants",
+            "business.v4_demo_shops",
+            "business.v4_demo_personas",
+            "business.v4_demo_bootstraps",
+            "business.v4_demo_sessions",
+            "business.v4_demo_receipts",
+            "business.v4_demo_events",
+            "business.v4_demo_overlays",
+            "business.v4_demo_rate_attempts",
         }
         assert set(after) <= set(current)
         assert all(
@@ -761,6 +771,16 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
                 "p6_copy_candidates",
                 "p6_copy_decisions",
                 "p6_copy_drafts",
+                "v4_demo_fixture_versions",
+                "v4_demo_tenants",
+                "v4_demo_shops",
+                "v4_demo_personas",
+                "v4_demo_bootstraps",
+                "v4_demo_sessions",
+                "v4_demo_receipts",
+                "v4_demo_events",
+                "v4_demo_overlays",
+                "v4_demo_rate_attempts",
             )
         )
         assert all(current[key] == value for key, value in after.items())
