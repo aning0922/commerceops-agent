@@ -49,3 +49,28 @@ lambda问题也已修正；不是数据库错误定位结果。
 Root转交的旧窗build/healthy成功、migration exit1/0tests、cleanup0/无存活资源仅作为接单
 背景；原SQL根因仍UNKNOWN。本代码准备未启动Docker/PG/API/Web，实际migration/PG诊断、
 Full与Hosted均NOT_RUN；actual token/cost UNKNOWN。
+
+## MD-01 / MD-02 输出边界整改
+
+正式审查来源：`2f486f6603c73028f5425e61f299bfcf96bceee3` 的
+`docs/v4/review/MIGRATION_DIAGNOSTIC_ce85.md`，原0P1/2P2与独立哨兵复现保留。
+SystemExit/KeyboardInterrupt按失败分类并返回非0，不将中断记MIGRATED。提取器失败返回
+固定DIAGNOSTIC_FAILED/空chain；最终序列化同样在抑制域内，失败使用无需序列化的固定JSON。
+最终CLI以os.write输出安全ASCII结果，以from None退出，避免原异常上下文被解释器打印。
+非法参数也不能回显参数值；单独--help仍正常显示公开帮助。
+
+Python与libc的既存外层缓冲先正常flush；进入抑制后，libc.fflush(NULL)必须在fd仍指向
+devnull时完成，随后才恢复外层fd。若操作后的flush或fd恢复自身失败，向保留的原stdout
+descriptor写固定失败JSON并os._exit(1)，不执行可能再次flush敏感缓冲的解释器退出过程。
+这只终止当前诊断子进程；外层Root supervisor仍负责资源清理，没有捕获SIGKILL或续窗。
+该fd/stdio策略供专用CLI单进程使用，不作为并发宿主线程的通用输出隔离框架。
+
+新增带完整子进程退出观察的SystemExit、带原异常上下文的KeyboardInterrupt、提取器故障、
+序列化故障、无换行C printf，以及原生flush失败/fd恢复失败哨兵；还验证外层原生/Python
+缓冲正常保留。初次新增恢复失败用例20pass/1fail/native1：无哨兵/trace泄漏，但嵌套隔离的
+fallback写到内层devnull，未得到JSON；已去掉执行与序列化的嵌套隔离后21pass/0.51s/native0。
+早先7pass不抵两项P2；此次只跑诊断模块定向纯测试，未重跑其它QA测试。
+
+所有子进程使用合成operation/public allowlist，没有实际迁移/配置/密码/数据库连接。
+本机libc行为已纯验证；Linux pg-test目标的原生缓冲/符号行为仍待Root在冻结镜像核验，
+不得把本机结果写成Linux已通过。实际SQLSTATE/迁移根因仍UNKNOWN，本修正待Astra复审。

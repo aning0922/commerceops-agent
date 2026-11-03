@@ -8,10 +8,12 @@ The outer Root supervisor must enforce the absolute UTC/cleanup deadline.
 
 import argparse
 import ast
+import ctypes
 import hashlib
 import json
 import os
 import re
+import sys
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
@@ -62,6 +64,8 @@ TYPES = frozenset(
         "AssertionError",
         "TypeError",
         "KeyError",
+        "SystemExit",
+        "KeyboardInterrupt",
     }
 )
 
@@ -87,7 +91,7 @@ def public_sql(expected: str) -> tuple[Path, frozenset[str]]:
 def attribute(value: object, name: str) -> Any:
     try:
         return getattr(value, name, None)
-    except Exception:
+    except BaseException:
         return None
 
 
@@ -145,21 +149,43 @@ def diagnostic(
 @contextmanager
 def suppress_raw_output() -> Iterator[None]:
     """Suppress library/Python/native stdout+stderr, including exception messages."""
+    # Preserve caller output before touching descriptors. fflush(NULL) includes
+    # native FILE buffers that Python stream.flush() cannot reach.
+    libc = ctypes.CDLL(None)
+    flush = libc.fflush
+    flush.argtypes = [ctypes.c_void_p]
+    flush.restype = ctypes.c_int
+    sys.stdout.flush()
+    sys.stderr.flush()
+    if flush(None) != 0:
+        raise RuntimeError("native flush failed")
     saved = [os.dup(1), os.dup(2)]
     try:
         with open(os.devnull, "w", encoding="utf-8") as sink:
             os.dup2(sink.fileno(), 1)
             os.dup2(sink.fileno(), 2)
             with redirect_stdout(sink), redirect_stderr(sink):
-                yield
+                try:
+                    yield
+                finally:
+                    # Even BaseException leaves native data flushed to devnull,
+                    # never to the caller's restored descriptors.
+                    try:
+                        sink.flush()
+                        if flush(None) != 0:
+                            raise RuntimeError("native flush failed")
+                    except BaseException:
+                        abort_isolated(saved[0])
     finally:
         # Flush Python streams before restoring their underlying file descriptors.
-        import sys
-
-        sys.stdout.flush()
-        sys.stderr.flush()
-        for target, descriptor in zip((1, 2), saved, strict=True):
-            os.dup2(descriptor, target)
+        try:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            for target, descriptor in zip((1, 2), saved, strict=True):
+                os.dup2(descriptor, target)
+        except BaseException:
+            abort_isolated(saved[0])
+        for descriptor in saved:
             os.close(descriptor)
 
 
@@ -172,11 +198,42 @@ def run(expected: str, operation: Callable[[], None]) -> tuple[int, dict[str, An
             path, approved = public_sql(expected)
             stage = "ORIGINAL_MIGRATE"
             operation()
-    except Exception as error:
-        with suppress_raw_output():
-            chain = diagnostic(error, path, approved)
+    except BaseException as error:
+        try:
+            with suppress_raw_output():
+                chain = diagnostic(error, path, approved)
+        except BaseException:
+            return 1, {
+                "status": "FAILED",
+                "stage": "DIAGNOSTIC_FAILED",
+                "tests": "NOT_RUN",
+                "chain": [],
+            }
         return 1, {"status": "FAILED", "stage": stage, "tests": "NOT_RUN", "chain": chain}
     return 0, {"status": "MIGRATED", "stage": "ORIGINAL_MIGRATE", "tests": "NOT_RUN"}
+
+
+FALLBACK = '{"status":"FAILED","stage":"DIAGNOSTIC_FAILED","tests":"NOT_RUN","chain":[]}'
+
+
+def abort_isolated(saved_stdout: int) -> None:
+    # If flushing/restoring is unsafe, never run interpreter exit handlers that
+    # might flush untrusted native buffers onto restored outer descriptors.
+    try:
+        os.write(saved_stdout, (FALLBACK + "\n").encode("ascii"))
+    finally:
+        os._exit(1)
+
+
+def render(expected: str, operation: Callable[[], None]) -> tuple[int, str]:
+    try:
+        code, report = run(expected, operation)
+        with suppress_raw_output():
+            encoded = json.dumps(report, ensure_ascii=True)
+        return code, encoded
+    except BaseException:
+        # No serializer, error formatting, traceback, or chained exception here.
+        return 1, FALLBACK
 
 
 def original_migrate() -> None:
@@ -189,10 +246,20 @@ def original_migrate() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--public-migration-sha256", required=True)
-    args = parser.parse_args()
-    code, report = run(args.public_migration_sha256, original_migrate)
-    print(json.dumps(report, ensure_ascii=True))
-    raise SystemExit(code)
+    if sys.argv[1:] in (["--help"], ["-h"]):
+        parser.print_help()
+        return
+    try:
+        with suppress_raw_output():
+            args = parser.parse_args()
+        code, encoded = render(args.public_migration_sha256, original_migrate)
+    except BaseException:
+        code, encoded = 1, FALLBACK
+    try:
+        os.write(1, (encoded + "\n").encode("ascii"))
+    except BaseException:
+        os._exit(1)
+    raise SystemExit(code) from None
 
 
 if __name__ == "__main__":
