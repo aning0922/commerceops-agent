@@ -192,3 +192,5 @@ Root 提供的冻结 S2 候选 `37e7e99` 仍使用 `GET /api/v1/daily-reports/{t
 新增 `frontend/playwright.m3.live.config.ts` 和 `frontend/m3-live/daily-live.spec.ts` 作为仅自有窗口的最小联调入口，不启动服务。需 Root 登记两个独占loopback监听、精确source/build、截止时间和至少90秒清理余量；用 `COMMERCEOPS_M3_LIVE_WEB_URL` 与 `COMMERCEOPS_M3_PRIVATE_DIR` 指向已授权窗口。私有目录内 `window.json`（`web_origin/api_origin/web_pid/api_pid/build_id/source_sha/stop_at_utc`）、`web-account.json`（`login/password`）、`daily-facts.json`（`task_id/report_id/snapshot_id/facts_hash`）均须0600、由新owned合成数据和当前会话产生。入口核监听PID、build与当前HEAD、截止和清理余量，禁止除当前登录以外的POST，按实际GET响应严格核绑定和核心指标可见；失败后清空页面，关闭trace/video/自动截图，输出仅存私有目录。
 
 入口仅作静态准备，未加载私有输入、启动浏览器/服务/PG或执行联调；完整状态、跨租户、撤权和数据质量还须由后续具体窗口分别安排。typecheck通过不签真实接口或后端验收。
+
+独审指出原入口仅拦登记 API 的 URL，错误配置的另一个 API origin 可能绕过拦截。修复后在填账号前为整个私有 browser context 注册网络白名单：仅登记的 Web 页面/静态资源、登记 API 的必要 GET 与登录 POST 可通行，其他 origin、路径及方法均拒绝；同时阻断 Service Worker 和 WebSocket。无网络的两个纯契约例覆盖错误 API origin 登录与其他越界请求，均通过；实际浏览器和服务联调仍待新窗口，不以纯函数反例代签真实浏览器拦截。
