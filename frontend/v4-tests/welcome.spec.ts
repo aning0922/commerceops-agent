@@ -312,3 +312,22 @@ test('UI_FIXTURE: current persona is selected and cannot be switched to itself',
  await page.goto('/v4');await expect(page.getByLabel('体验视角')).toHaveValue('approver');
  await expect(page.getByRole('button',{name:'切换视角'})).toBeDisabled();expect(writes).toBe(0);
 });
+
+test('UI_FIXTURE: rejected capacity requires a new explicit entry and new key',async ({page})=>{
+ let bootstraps=0,posts=0,active=false;const keys:string[]=[];await page.clock.install();
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap')){bootstraps++;return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});}
+  if(path.endsWith('/sessions')){
+   posts++;const key=route.request().postDataJSON().request_key;keys.push(key);
+   if(posts===1)return route.fulfill({status:429,headers:{'Retry-After':'60'},json:{...base,status:'REJECTED',error:{code:'CAPACITY_LIMIT',safe_message:'full',retryable:false,request_key:key}}});
+   active=true;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source},receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});
+  }
+  if(path.endsWith('/session')&&active)return route.fulfill({json:{...base,context,data:{creation_request_key:keys[1],persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ }));
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByRole('status')).toContainText('60');
+ await page.clock.fastForward('00:15');expect(bootstraps).toBe(1);expect(posts).toBe(1);
+ await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();
+ expect(bootstraps).toBe(2);expect(posts).toBe(2);expect(keys[0]).not.toBe(keys[1]);
+});
