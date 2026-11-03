@@ -29,3 +29,18 @@ PG ttl observer使用固定参数化SELECT读取本tenant及DemoSession的create
 精确3dd快照下原driver13+修复15+TTL13：**41 passed / 0.23s / native0**。另上述合成子进程SIGTERM/Python异常对照完成；所有临时文件已清理。未启动浏览器、容器、PG或API，未等待自然30分钟，真实SQL/HTTP/TTL事实仍NOT_RUN。ROOT先前native delta2与pilot安排不转记到本模式。
 
 请QA仅补阶段证据持久化及中断测试后交普通精确commit；修复复审前不要用本模式消耗45分钟自然窗口。原11HTTP准备接受继续有效，browserMode/200%真实GUI与Full保持独立，不能由TTL纯测试代签。
+
+
+## 385最小修复复审：TTL-01关闭
+
+日期：2026-11-04（Asia/Taipei）。candidate `385c35599fc57a33ae2ebeeef881c6a4b8a1cbcc` / tree `8ecc9d42942865a343712cf49e9abc39261de3d4`，parent `f24ce12e4c8414978603f6b86c1ec633e8a10c19`。本次仅审4文件的TTL持久化增量，不将parent链中的browser模式或其他功能纳入本回执。**结论：TTL-01 CLOSED，增量0 P1 / 0 P2；ACCEPT_PREPARED_NATURAL_TTL_MODE。** 原3dd中断丢initial的反例保留。可以交ROOT为独立natural_ttl资源登记具体窗口，不自行启动资源或预签自然到期PASS。
+
+新persist使用固定stage路径、O_CREAT|O_EXCL|O_NOFOLLOW、0600，写完flush/fsync文件并fsync父目录；已有文件拒绝覆盖。initial在第一次PG事实取得后、verify及长等待之前写出，before/after也各在事实取得后立即写出。初始和各阶段均保持UNKNOWN，错误事实也只作为UNKNOWN原始观察保留，不能因文件存在就记通过。
+
+finally仍负责close和UNKNOWN摘要，但阶段取证已不依赖finally。只有全部TTL断言、预算检查、Python清理和摘要持久化都正常完成，函数才在finally之后追加独立natural_ttl.success.safe.json，标NATURAL_TTL_OBSERVED_PENDING_REVIEW；原UNKNOWN文件不改写。若中断/close/写盘错误传播，不能到达该成功写入。没有signal handler、延迟SIGTERM、重发POST或续窗；SIGKILL仍可能打断当前一次写入，ROOT应要求完整可解析阶段文件并结合native exit，而非凭success路径存在签PASS。
+
+父execute回执新增ttl_planned_evidence_paths，明确列initial/before/after/success固定路径且只对natural_ttl填写；这是计划定位，不宣称各文件已经生成。父退出/cleanup失败与子native -15仍必须按实际保存，不能由存在initial文件解除运行失败。业务30分钟、TTL≤2700秒、其他场景≤1800秒及reserve180均未改变；本补丁没有改变等待或到期判据。
+
+独立导出精确385源码快照，只运行test_ttl_probe.py，父测试进程psycopg.connect设为禁止调用：**16 PASS / 0.29s / native0**。其中完整合成子进程的SIGTERM实际-15、Python异常实际1，均验证initial UNKNOWN/原key仍在、0600、无success或任何成功标签；另验证stage不可覆盖。未等待真实30分钟、未访问HTTP/PG或启动浏览器/容器，临时文件已清理。未复跑无关driver/browser测试。
+
+本回执仅关闭阶段证据保留缺陷并接受原natural_ttl准备模式。ROOT仍须绑定已审集成source/image、独立project/DB/API与具体UTC，确认pilot及所需运行前置条件后执行；与其它资源的Full PG回归分账。实际到期前/后DB时间、401及最终cleanup须新回执，不能从纯测试或准备接受推断完成。
