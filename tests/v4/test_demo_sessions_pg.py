@@ -347,3 +347,48 @@ def test_reset_clears_only_current_overlay_and_preserves_other_tenant(demo: Demo
         == after_second["context"]["auth_generation"]
         == 0
     )
+
+
+def test_reset_same_key_payload_once_changed_payload_conflicts_and_other_tenant_stays(
+    demo: DemoPG,
+) -> None:
+    _, first_token = enter(demo)
+    _, second_token = enter(demo)
+    first = demo.store.sessions.current(first_token)
+    second = demo.store.sessions.current(second_token)
+    command = dto.ResetInput(
+        request_key=uuid4(),
+        expected_epoch=0,
+        expected_generation=0,
+        fixture_version="v4-demo-seed-1",
+    )
+    committed = demo.store.control(first_token, first["data"]["csrf_token"], "reset", command)
+    current = demo.store.sessions.current(first_token)
+    repeated = demo.store.control(first_token, current["data"]["csrf_token"], "reset", command)
+    assert repeated["data"]["receipt"] == committed["data"]["receipt"]
+    changed = dto.ResetInput(
+        request_key=command.request_key,
+        expected_epoch=1,
+        expected_generation=1,
+        fixture_version="v4-demo-seed-1",
+    )
+    with pytest.raises(WebFailure, match="IDEMPOTENCY_CONFLICT"):
+        demo.store.control(first_token, current["data"]["csrf_token"], "reset", changed)
+    after = demo.store.sessions.current(first_token)
+    assert after["context"]["reset_epoch"] == 1 and after["context"]["auth_generation"] == 1
+    other = demo.store.sessions.current(second_token)
+    assert other["data"] == second["data"]
+    for name in ("tenant_id", "organization_id", "principal_id", "reset_epoch", "auth_generation"):
+        assert other["context"][name] == second["context"][name]
+    with connect(demo.app) as db:
+        receipts = db.execute(
+            "SELECT count(*) AS n FROM business.v4_demo_receipts "
+            "WHERE tenant_id=%s AND operation='reset'",
+            (UUID(first["context"]["tenant_id"]),),
+        ).fetchone()
+        events = db.execute(
+            "SELECT count(*) AS n FROM business.v4_demo_events "
+            "WHERE tenant_id=%s AND event_kind='demo.reset_committed'",
+            (UUID(first["context"]["tenant_id"]),),
+        ).fetchone()
+        assert receipts == {"n": 1} and events == {"n": 1}
