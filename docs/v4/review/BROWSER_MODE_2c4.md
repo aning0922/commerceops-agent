@@ -27,3 +27,16 @@ driver先等待真实probe native退出，非0或watchdog错误不进入成功�
 精确2c4快照定向 **12 PASS / 0.21s / native0**，覆盖source缺失/bytes变化、固定command、单report/skip/failure/flaky/retry/标题/重复结果拒绝；另独立核四pin的真实363源对象。未执行实际browser、截图、HTTP/PG或监听服务，无真实GUI200%行为。临时测试目录已清理。
 
 ROOT应先处理owned API 6ca独立P2，再将相应已审组件与363产品普通集成、绑定新资源/UTC后运行。将来原生200%修复源码接受后，QA需另交新的准确spec/helper pin更新；本次不接受任意未来hash、不扩命令、不预签200%。当前已审HTTP/TTL/browser准备结论分别分账。
+
+
+## 63c最终f18 pin更新专项复审
+
+日期：2026-11-04（Asia/Taipei）。candidate `63c3a9b4d204f143a5c209ad8adeaf5c89fade1e` / tree `7b5c2ff5ba82cc6f54a766907fd9c65f65ba078b`，parent `3b3280844aa6d6bada70d16b2ce3889b13dbd69d`。**结论：ACCEPT_PREPARED_BROWSER_PIN_F18，0 P1 / 0 P2。** 原363限定来源的结论在本精确metadata增量下更新为已接受f18；不接纳任意未来spec，也不预签实际浏览器/native200通过。
+
+WEB_SOURCE改为`f18ba5bf5c9de88d113eb5a5bff244cd66416c2b`，与aa91caf清理闭环回执一致；WEB_HANDOFF_READY=True仅表达已审交接完整。独立从该精确Git source读取5个文件bytes并重算Git blob、再rev-parse交叉核对，全部匹配：config `ca9bb704f27220de9930f7e03e56492c79b0faa4`；spec `d590a90c1507b8a2a9550840d09bee9cfbf7a3dc`；waiter `ec74f8c560ad293821dcd4545c275395c243d3d0`；profile helper `343757319e0c3ed6d50f6777a3d7aadbc2a9d4ed`；schema `e625120e42a28b8f777d7e2e02b0da0aa9d2b5be`。新增运行依赖profile helper没有漏钉，纯测试文件不被当成live入口。
+
+独立AST比对verify_source/command/validate_report/main与原已审2c4函数完全相同：工作bytes+HEAD blob硬匹配、路径拒绝规则、固定spec/config/单标题、workers1/retries0/forbid-only/JSON reporter及native+单项零skip/flaky/retry判据未放宽。固定config从f18原件确认timeout120000，trace/video关闭保持。不同新文件或修改helper不能凭title相同获得准入；ROOT全树source/image绑定仍须覆盖产品和依赖，不以5pin取代完整冻结。
+
+在同一精确63c快照独立执行browser guards12+network contracts4+原overlay边界1：**17 PASS / 0.22s / native0**。该测试没有启动Node/browser/profile、Docker资源、HTTP或PG。临时目录已清理。父3b网络增量另有ea1c475回执（ACCEPT_PREPARED_OWNED_NETWORK_DELTA，0 P1/P2），本次组合纯验证不改写pilotC失败或把网络配置重解析当端口已通。
+
+OWNED-API-01已由7913/fe0033a闭环，ZOOM-01已由f18/aa91caf闭环；这里只据已审来源刷新pins，没有重做业务/原生缩放全审。ROOT可在普通集成后的新冻结source/tree/image及全新owned对象/UTC中安排全链与完整PG，实际HTTP、GUI200、自然TTL、Full各以自己的native/断言/清理证据核收。当前仍是准备接受，未启动资源、未放宽任何实际Gate。
