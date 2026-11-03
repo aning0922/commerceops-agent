@@ -36,7 +36,8 @@ def test_api_alone_gets_dedicated_bridge_with_loopback_publish_and_runtime_only_
     assert set(model["services"]) == {"postgres", "pg-test", "v4-api"}
     api = model["services"]["v4-api"]
     assert set(api["networks"]) == {"default", "host_facing"}
-    assert model["networks"]["host_facing"] == {"driver": "bridge", "internal": False}
+    assert model["networks"]["host_facing"]["driver"] == "bridge"
+    assert model["networks"]["host_facing"]["internal"] is False
     assert all("name" not in net and not net.get("external") for net in model["networks"].values())
     assert api["ports"] == ["127.0.0.1:${V4_API_PORT}:${V4_API_PORT}"]
     assert api["command"] == ["python", "-m", "tests.e2e.v4.owned_api"]

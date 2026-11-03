@@ -49,6 +49,8 @@ def case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> driver.Case:
         "lifecycle",
         digest,
         os.getuid(),
+        "172.30.250.0/24",
+        "172.30.251.0/24",
     )
 
 

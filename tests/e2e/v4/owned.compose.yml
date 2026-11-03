@@ -62,11 +62,25 @@
   },
   "networks": {
     "default": {
-      "internal": true
+      "internal": true,
+      "ipam": {
+        "config": [
+          {
+            "subnet": "${V4_PG_SUBNET:?Root explicit PG subnet required}"
+          }
+        ]
+      }
     },
     "host_facing": {
       "driver": "bridge",
-      "internal": false
+      "internal": false,
+      "ipam": {
+        "config": [
+          {
+            "subnet": "${V4_HOST_SUBNET:?Root explicit host subnet required}"
+          }
+        ]
+      }
     }
   }
 }
