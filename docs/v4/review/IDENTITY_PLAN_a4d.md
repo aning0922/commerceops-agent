@@ -69,3 +69,11 @@ I:448–463仅是七旧测试文件的释放申请，**本独审不替ROOT释放
 ## 6. 交接裁定
 
 请Backend仅先修IDPLAN-01，普通提交精确SHA交ROOT，避免把active POST分支与冻结boundary双轨落地。其余设计方向无需重做A审计；修订不扩大范围时可做小增量关闭，再由ROOT裁定专项准入。作者尚无业务代码/PG执行，本报告的审查接受或待修均不等于实现、资源授权或本地Gate完成。
+
+## IDPLAN-01关闭：c4c484增量
+
+最终设计candidate `c4c48401494b00308cc5a2022e4a8fcb0e3f8195` / tree `cd974e5cdd6085816cf2514c9f4d7b612809e542`，parent为上述a4d。仅两设计文件各一行段落替换，无业务/测试变化。
+
+I:355已明确POST sessions只接受原bootstrap+CSRF+原key，active cookie拒绝；active只走GET current/operations。consumed bootstrap并发/重复不发新cookie、不返回敏感CreateEnvelope，原事务未知保持UNKNOWN，300秒最小GET恢复保留。S:119同步bootstrap-only。与原冻结OpenAPI用途及I:329–335入口一致，未增加认证分支，原body/hash冲突与唯一effect守卫仍保留。
+
+结论：**IDPLAN-01 CLOSED_AT_DESIGN_LEVEL；ACCEPT_IMPLEMENTATION_DESIGN，当前该精确设计无未关闭P1/P2。** 保留上文首审P2；其余未变设计沿用前轮检查。此结论供ROOT释放受审范围内实现，不签代码/SQL已执行、旧七测试修改或实际资源窗口；后续精确实现及PG/API/Web Gate仍需独审/实测。本增量只读git diff，未运行工具链或服务。
