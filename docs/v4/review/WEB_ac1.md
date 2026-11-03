@@ -65,3 +65,38 @@ welcome.spec使用route.fulfill/abort+fixture CORS，属于UI_FIXTURE；冻结�
 ## 交接
 
 请作者修WEB-01/02/03后普通提交精确SHA；仅改WEB独占路径及对应验证，不为过fixture放宽后端或冻结schema。Reviewer只提交本报告，未改实现/测试、未运行服务。实际SQL86三项阻断与seed验证待修独立保持，UI准备接受不能代签这些Gate。
+
+
+## 63a增量复审：WEB-01/02/03关闭
+
+日期：2026-11-03（Asia/Taipei）。**结论：ACCEPT_PREPARED_UI（静态准备代码范围），本次增量0 P1 / 0 P2。** 首审三个P2逐项关闭；保留上文ac1时点的发现与运行缺口，不把本结论记成真实鉴权、API/PG或整阶段验收通过。
+
+精确链：`ac1d18e23d3235b23fad90ecfe1e4caf051f72bd` → `bb4d6e48b6413f3b3735efa6f05e2090d8d4323e` → candidate `63a5a4f08bad6b98fe95942598291e0714bc09da` / tree `97425fb41939d9dfe7d5df74cd6889ae14c8e094`。独立读取以上Git对象的7文件增量及最终helper/client/主组件，不读取作者WIP，不切作者分支。以下行号绑定63a；主组件长行同时以函数名定位。
+
+### WEB-01：CLOSED
+
+`demo.tsx:26`的select和当前persona集合统一为`restricted_admin`，`:24` control直接使用选择值构造persona_id；未增加后端admin别名。新增浏览器fixture明确断言发送restricted_admin，但该fixture随后主动abort，证明范围仅是请求值及UNKNOWN处理，不能记成管理员完整切换成功。实际成功路径另由精确转换与current目标核验约束；shops为空仍显示reset/logout，店铺选项为空。源码缺口关闭，完整管理员成功浏览器证据本轮未执行。
+
+### WEB-02：CLOSED
+
+`v4-context.mjs:60`起matchesControlBoundary要求原与返回Context完整、session级shop为空、tenant/org相同、原operation/key和COMMITTED回执匹配、回执代际与返回一致且计数为安全整数。reset严格同principal、epoch+1/generation+1；persona严格epoch不变/generation+1及不同principal；logout保持同principal/原代际和LOGGED_OUT。
+
+同目标persona在`demo.tsx:24`函数入口明确拒绝，`:26`按钮也禁用。故63a的不同principal要求适用于此UI允许的切换；不据此修改后端允许同目标控制的合同。新fixture的合法persona响应也改为不同principal，未以放宽helper来适配旧fixture。
+
+实际control先保存非秘密原上下文proof及原key，再清屏并POST；只有boundary通过且随后GET current通过matchesControlReadback才清pending/显示成功。读回同时要求同返回身份/代际、原creation_request_key、reset原persona或persona精确目标；错误/零推进/跳跃保留UNKNOWN和原key，不自动重POST。
+
+恢复路径也实际接入matchesRecoveredControl：原proof、原operation/key、精确变化、current及目标共同核验；缺proof的旧pending仍可读取但不能签reset/persona成功。logout恢复不以401或任意current签COMMITTED。session_create仍按原creation key及回执/current代际核验。这里的证明依赖服务端可信回执和current，客户端proof仅为比较快照，不是授权来源。
+
+`v4-pending.mjs`新记录增加严格4字段proof（context、creation_request_key、persona_id、target_persona）；不存CSRF/bearer/权限数组。因此上文“pending仅operation/key、不存身份”只描述ac1，63a已保存非秘密身份标识及代际到sessionStorage。旧两字段兼容，坏proof失败关闭，session_create拒绝proof。
+
+### WEB-03：CLOSED
+
+`demo.tsx:22` chooseShop在当前请求非OK、上下文不能匹配、schema错误或网络异常时调用clear，立即清current/session/shop/summary并关闭dialog；401/403还失效activeKnown并广播。后续重新展示依赖current只读核验，不自动登录或控制POST。当前404同样保守清屏而未声称已登出，属可用性取舍，不形成旧身份复用。
+
+迟到成功由seq拒绝；迟到非OK/异常仅在shouldClearSummaryFailure核得原tenant/org/principal/epoch/generation仍相同且仍选原店铺时清屏。故轮询推进seq但身份/店铺未变时不会吞掉失败，已切换新身份或其他店铺则不会被旧失败清除。helper刻意不以authorized_at变化判成新身份，与现有身份边界定义一致；这不是撤权即时送达或实际浏览器时序已验证的结论。
+
+### 静态验证和未运行项
+
+读取了新增/调整的纯测试与UI_FIXTURE定义：精确reset/persona转换、相同principal拒绝、安全整数、目标和creation key读回、proof恢复、迟到失败边界，以及summary 401/403/UNKNOWN/MALFORMED、restricted_admin请求值、零推进UNKNOWN、带/不带proof恢复。纯helper覆盖不冒充浏览器端到端：新增迟到失败的身份/店铺矩阵主要是helper测试，新增管理员用例是abort路径。测试定义本轮全部NOT_EXECUTED；未运行Node、Playwright、构建、API、PG或服务。
+
+本次仅提交审查文档。ROOT独立不可变UI_FIXTURE结果应另绑其实际SHA、命令、退出码及失败记录；真实cookie/CSRF/鉴权/数据库Gate与owned PG窗口独立，不能用此静态接受代签。不push、不触Hosted/PR、不访问真实外部服务，不进入V4-1。
