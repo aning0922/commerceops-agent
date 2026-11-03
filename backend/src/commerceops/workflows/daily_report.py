@@ -4,8 +4,10 @@ import time
 from collections.abc import Awaitable, Callable
 
 from commerceops.adapters.commerce.daily import collect
+from commerceops.application.daily.questions import QUESTION_WORKFLOW
 from commerceops.application.daily.source import WORKFLOW, DailyUnsafe, WooMetadata
 from commerceops.application.runner import RunRequest, RunResult
+from commerceops.infrastructure.daily_questions import DailyQuestionStore
 from commerceops.infrastructure.daily_sources import fixture_rows, manifest_for
 from commerceops.infrastructure.daily_store import DailyStore
 
@@ -15,7 +17,7 @@ async def no_hook(point: str) -> None:
 
 
 class DailyRunner:
-    workflow_versions = frozenset({WORKFLOW})
+    workflow_versions = frozenset({WORKFLOW, QUESTION_WORKFLOW})
 
     def __init__(self, store: DailyStore, *, hook: Callable[[str], Awaitable[None]] = no_hook):
         self.store, self.hook = store, hook
@@ -26,6 +28,8 @@ class DailyRunner:
             raise DailyUnsafe()
         self.active = True
         try:
+            if run.workflow_version == QUESTION_WORKFLOW:
+                return await DailyQuestionStore(self.store.settings, self.store.session).run(run)
             if run.kind not in ("analyze", "recover") or run.workflow_version != WORKFLOW:
                 raise DailyUnsafe()
             # 先持久回执，既不读当前秘密也不重采；report经store从原snapshot复算。
@@ -61,6 +65,8 @@ class DailyRunner:
             await self.store.fail(run, "DAILY_SOURCE_UNAVAILABLE")
             return RunResult()
         except Exception:
+            if run.workflow_version == QUESTION_WORKFLOW:
+                raise
             # 提交后故障不重采；存储故障沿用原Worker有限重试。
             if await self.store.existing(run) is not None:
                 return RunResult()

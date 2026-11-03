@@ -39,7 +39,6 @@
           "type": "string"
         },
         "question_creation_enabled": {
-          "const": false,
           "title": "Question Creation Enabled",
           "type": "boolean"
         },
@@ -68,7 +67,6 @@
           "type": "array"
         },
         "schedule_enabled": {
-          "const": false,
           "title": "Schedule Enabled",
           "type": "boolean"
         },
@@ -76,6 +74,28 @@
           "const": false,
           "title": "Delivery Enabled",
           "type": "boolean"
+        },
+        "schedule_run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScheduleRunStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "delivery": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DailyDeliveryStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "state": {
           "const": "needs_attention",
@@ -90,6 +110,7 @@
             "DAILY_SOURCE_BINDING_CHANGED",
             "DAILY_STORAGE_FAILURE",
             "DAILY_WORKFLOW_UNSAFE",
+            "DAILY_SCHEDULE_CHANGED",
             "WORKER_TERMINATION_UNCONFIRMED"
           ],
           "title": "Failure Code",
@@ -272,7 +293,6 @@
           "type": "string"
         },
         "question_creation_enabled": {
-          "const": false,
           "title": "Question Creation Enabled",
           "type": "boolean"
         },
@@ -301,7 +321,6 @@
           "type": "array"
         },
         "schedule_enabled": {
-          "const": false,
           "title": "Schedule Enabled",
           "type": "boolean"
         },
@@ -309,6 +328,28 @@
           "const": false,
           "title": "Delivery Enabled",
           "type": "boolean"
+        },
+        "schedule_run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScheduleRunStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "delivery": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DailyDeliveryStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "state": {
           "const": "completed",
@@ -340,6 +381,78 @@
         "report"
       ],
       "title": "CompletedDaily",
+      "type": "object"
+    },
+    "DailyDeliveryStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "delivery_id": {
+          "format": "uuid",
+          "title": "Delivery Id",
+          "type": "string"
+        },
+        "transport": {
+          "const": "fake",
+          "title": "Transport",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "pending",
+            "sending",
+            "sent",
+            "failed",
+            "unknown",
+            "disabled"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "attempts": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "external_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "External Id"
+        },
+        "failure_code": {
+          "anyOf": [
+            {
+              "enum": [
+                "FAKE_RESULT_UNKNOWN",
+                "DAILY_PERMISSION_INVALID",
+                "DAILY_SOURCE_BINDING_CHANGED",
+                "DAILY_STORAGE_FAILURE",
+                "DAILY_WORKFLOW_UNSAFE"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Failure Code"
+        }
+      },
+      "required": [
+        "delivery_id",
+        "transport",
+        "state",
+        "attempts",
+        "external_id",
+        "failure_code"
+      ],
+      "title": "DailyDeliveryStatus",
       "type": "object"
     },
     "DailyFinding": {
@@ -491,7 +604,6 @@
           "type": "string"
         },
         "question_creation_enabled": {
-          "const": false,
           "title": "Question Creation Enabled",
           "type": "boolean"
         },
@@ -520,7 +632,6 @@
           "type": "array"
         },
         "schedule_enabled": {
-          "const": false,
           "title": "Schedule Enabled",
           "type": "boolean"
         },
@@ -528,6 +639,28 @@
           "const": false,
           "title": "Delivery Enabled",
           "type": "boolean"
+        },
+        "schedule_run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScheduleRunStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "delivery": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DailyDeliveryStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "state": {
           "const": "failed",
@@ -542,6 +675,7 @@
             "DAILY_SOURCE_BINDING_CHANGED",
             "DAILY_STORAGE_FAILURE",
             "DAILY_WORKFLOW_UNSAFE",
+            "DAILY_SCHEDULE_CHANGED",
             "WORKER_TERMINATION_UNCONFIRMED"
           ],
           "title": "Failure Code",
@@ -760,7 +894,6 @@
           "type": "string"
         },
         "question_creation_enabled": {
-          "const": false,
           "title": "Question Creation Enabled",
           "type": "boolean"
         },
@@ -789,7 +922,6 @@
           "type": "array"
         },
         "schedule_enabled": {
-          "const": false,
           "title": "Schedule Enabled",
           "type": "boolean"
         },
@@ -797,6 +929,28 @@
           "const": false,
           "title": "Delivery Enabled",
           "type": "boolean"
+        },
+        "schedule_run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScheduleRunStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "delivery": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DailyDeliveryStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "state": {
           "enum": [
@@ -1071,6 +1225,96 @@
         "end"
       ],
       "title": "ReadWindow",
+      "type": "object"
+    },
+    "ScheduleRunStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "format": "uuid",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "schedule_id": {
+          "format": "uuid",
+          "title": "Schedule Id",
+          "type": "string"
+        },
+        "schedule_version": {
+          "minimum": 1,
+          "title": "Schedule Version",
+          "type": "integer"
+        },
+        "business_day": {
+          "format": "date",
+          "title": "Business Day",
+          "type": "string"
+        },
+        "due_at": {
+          "format": "date-time",
+          "title": "Due At",
+          "type": "string"
+        },
+        "queued_at": {
+          "format": "date-time",
+          "title": "Queued At",
+          "type": "string"
+        },
+        "actual_started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actual Started At"
+        },
+        "missed_periods": {
+          "minimum": 0,
+          "title": "Missed Periods",
+          "type": "integer"
+        },
+        "skipped_first_day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Skipped First Day"
+        },
+        "skipped_last_day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Skipped Last Day"
+        }
+      },
+      "required": [
+        "run_id",
+        "schedule_id",
+        "schedule_version",
+        "business_day",
+        "due_at",
+        "queued_at",
+        "actual_started_at",
+        "missed_periods",
+        "skipped_first_day",
+        "skipped_last_day"
+      ],
+      "title": "ScheduleRunStatus",
       "type": "object"
     }
   },

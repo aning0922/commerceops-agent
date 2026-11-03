@@ -180,6 +180,56 @@ def test_http_response_serializes_strict_wire_without_python_coercion() -> None:
     )
 
 
+def test_http_post_parses_uuid_date_as_json_and_serializes_strict_acceptance() -> None:
+    from datetime import date
+    from typing import cast
+
+    from commerceops.application.daily.http_models import AcceptanceRead, CreateDailyInput
+    from commerceops.application.replenishment.contracts import WebActor
+    from commerceops.entrypoints.daily_http import install_daily
+    from commerceops.infrastructure.daily_operations import DailyOperations
+    from commerceops.infrastructure.daily_read import DailyReadStore
+    from fastapi import FastAPI, Request
+    from fastapi.testclient import TestClient
+
+    captured: list[CreateDailyInput] = []
+
+    class Operations:
+        def create(self, actor: WebActor, body: CreateDailyInput) -> AcceptanceRead:
+            captured.append(body)
+            base = valid_read()
+            base.pop("daily")
+            base["accepted"] = {
+                "schema_version": "p6-m3-web-v1",
+                "task_id": str(UUID(int=12)),
+                "state": "queued",
+            }
+            return AcceptanceRead.model_validate_json(json.dumps(base))
+
+    app = FastAPI()
+
+    @app.middleware("http")
+    async def identity(request: Request, call_next: Any) -> Any:
+        request.state.web_actor = None
+        return await call_next(request)
+
+    install_daily(app, cast(DailyReadStore, None), cast(DailyOperations, Operations()))
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/daily-reports",
+            json={
+                "schema_version": "p6-m3-web-v1",
+                "shop_id": str(UUID(int=2)),
+                "request_key": str(UUID(int=3)),
+                "source_config_version": "daily-fixture-1",
+                "business_day": "2026-11-02",
+            },
+        )
+    assert response.status_code == 202
+    assert captured[0].shop_id == UUID(int=2) and captured[0].business_day == date(2026, 11, 2)
+    assert AcceptanceRead.model_validate_json(response.content).accepted.state == "queued"
+
+
 def test_public_projection_verifies_stored_hash_and_excludes_private_fields() -> None:
     stored = report(raw())
     with pytest.raises(ValidationError, match="DAILY_FACTS_HASH_MISMATCH"):
@@ -200,7 +250,8 @@ def test_daily_openapi_is_separate_and_legacy_surface_unchanged(tmp_path: Path) 
     import secrets
 
     from commerceops.entrypoints.api import create_app
-    from commerceops.entrypoints.daily_http import PATH, daily_openapi
+    from commerceops.entrypoints.daily_http import DAILY_PATHS, PATH, daily_openapi
+    from commerceops.infrastructure.daily_sources import DailyDeployment
     from commerceops.infrastructure.database import DatabaseSettings
     from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
     from commerceops.infrastructure.web_config import WebConfig
@@ -222,7 +273,20 @@ def test_daily_openapi_is_separate_and_legacy_surface_unchanged(tmp_path: Path) 
     app = create_app(web_config=config, replenishment_store=store, daily_enabled=True)
     assert app.openapi() == legacy
     document = daily_openapi()
-    assert app.state.daily_openapi == document and set(document["paths"]) == {PATH}
+    assert app.state.daily_openapi == document and set(document["paths"]) == DAILY_PATHS
+    enabled = create_app(
+        web_config=config,
+        replenishment_store=store,
+        daily_enabled=True,
+        daily_files=DailyDeployment(
+            schema_version="p6-daily-deployment-v1",
+            directory=tmp_path,
+            bindings=(),
+            model_requests_enabled=False,
+            external_sender_enabled=False,
+        ),
+    )
+    assert enabled.openapi() == legacy
     assert document["paths"][PATH]["get"]["security"] == [{"SessionCookie": []}]
     assert "SessionCookie" in document["components"]["securitySchemes"]
     root = Path(__file__).resolve().parents[1]

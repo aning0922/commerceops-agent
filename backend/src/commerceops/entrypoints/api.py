@@ -12,6 +12,7 @@ from pydantic import BaseModel, ValidationError
 from commerceops.entrypoints.explanation_http import ExplanationEndpoints, explanation_router
 from commerceops.entrypoints.inventory_http import IdentityResolver, inventory_router
 from commerceops.infrastructure.config import Settings
+from commerceops.infrastructure.daily_sources import DailyDeployment
 from commerceops.infrastructure.inventory_repository import InventoryReadStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
@@ -30,6 +31,7 @@ def create_app(
     web_config: WebConfig | None = None,
     replenishment_store: ReplenishmentStore | None = None,
     daily_enabled: bool = False,
+    daily_files: DailyDeployment | None = None,
 ) -> FastAPI:
     app = FastAPI(title="CommerceOps Agent", docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -64,9 +66,20 @@ def create_app(
         install_web(app, web_config, replenishment_store)
         if daily_enabled:
             from commerceops.entrypoints.daily_http import daily_openapi, install_daily
+            from commerceops.infrastructure.daily_operations import DailyOperations
             from commerceops.infrastructure.daily_read import DailyReadStore
 
-            install_daily(app, DailyReadStore(replenishment_store.settings))
+            install_daily(
+                app,
+                DailyReadStore(
+                    replenishment_store.settings,
+                    operations_enabled=daily_files is not None,
+                    schedules_enabled=daily_files.schedules_enabled if daily_files else False,
+                ),
+                DailyOperations(replenishment_store.settings, daily_files, web_config.csrf_secret)
+                if daily_files
+                else None,
+            )
             app.state.daily_openapi = daily_openapi()
     # 所有请求校验错误均由固定400处理，移除FastAPI默认422文档。
     schema = app.openapi()
@@ -103,6 +116,11 @@ def main() -> None:
                 web_config=config,
                 replenishment_store=store,
                 daily_enabled=os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE") is not None,
+                daily_files=DailyDeployment.load(
+                    Path(os.environ["COMMERCEOPS_M3_DAILY_CONFIG_FILE"])
+                )
+                if os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE")
+                else None,
             )
         except (ValueError, OSError):
             raise SystemExit("P3配置无效，请核对本阶段私有配置") from None

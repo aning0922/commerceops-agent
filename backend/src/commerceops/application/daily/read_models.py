@@ -49,6 +49,7 @@ FailureCode = Literal[
     "DAILY_SOURCE_BINDING_CHANGED",
     "DAILY_STORAGE_FAILURE",
     "DAILY_WORKFLOW_UNSAFE",
+    "DAILY_SCHEDULE_CHANGED",
     "WORKER_TERMINATION_UNCONFIRMED",
 ]
 
@@ -180,6 +181,37 @@ class IncompleteReport(ReportFields):
         return self
 
 
+class ScheduleRunStatus(DailyDTO):
+    run_id: UUID
+    schedule_id: UUID
+    schedule_version: Annotated[int, Field(ge=1)]
+    business_day: date
+    due_at: AwareDatetime
+    queued_at: AwareDatetime
+    actual_started_at: AwareDatetime | None
+    missed_periods: Count
+    skipped_first_day: date | None
+    skipped_last_day: date | None
+
+
+class DailyDeliveryStatus(DailyDTO):
+    delivery_id: UUID
+    transport: Literal["fake"]
+    state: Literal["pending", "sending", "sent", "failed", "unknown", "disabled"]
+    attempts: Annotated[int, Field(ge=0, le=1)]
+    external_id: str | None
+    failure_code: (
+        Literal[
+            "FAKE_RESULT_UNKNOWN",
+            "DAILY_PERMISSION_INVALID",
+            "DAILY_SOURCE_BINDING_CHANGED",
+            "DAILY_STORAGE_FAILURE",
+            "DAILY_WORKFLOW_UNSAFE",
+        ]
+        | None
+    )
+
+
 class DailyFields(DailyDTO):
     @field_validator(
         "question_creation_enabled", "schedule_enabled", "delivery_enabled", mode="before"
@@ -197,10 +229,12 @@ class DailyFields(DailyDTO):
     workflow_version: Literal["p6-daily-report-v1"]
     created_at: AwareDatetime
     updated_at: AwareDatetime
-    question_creation_enabled: Literal[False]
+    question_creation_enabled: bool
     question_kinds: QuestionKinds
-    schedule_enabled: Literal[False]
+    schedule_enabled: bool
     delivery_enabled: Literal[False]
+    schedule_run: ScheduleRunStatus | None = None
+    delivery: DailyDeliveryStatus | None = None
 
     @model_validator(mode="after")
     def times(self) -> Self:

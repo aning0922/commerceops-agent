@@ -31,7 +31,13 @@ class ActiveBinding(DailyDTO):
 
 
 class DailyDeployment(DailyDTO):
-    @field_validator("model_requests_enabled", "external_sender_enabled", mode="before")
+    @field_validator(
+        "model_requests_enabled",
+        "external_sender_enabled",
+        "schedules_enabled",
+        "fake_delivery_enabled",
+        mode="before",
+    )
     @classmethod
     def strict_off(cls, value: object) -> object:
         if type(value) is not bool:
@@ -43,6 +49,8 @@ class DailyDeployment(DailyDTO):
     bindings: tuple[ActiveBinding, ...]
     model_requests_enabled: Literal[False]
     external_sender_enabled: Literal[False]
+    schedules_enabled: bool = False
+    fake_delivery_enabled: bool = False
 
     @model_validator(mode="after")
     def unique(self) -> "DailyDeployment":

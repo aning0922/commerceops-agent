@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 from dataclasses import replace
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -12,7 +13,7 @@ import psycopg
 import pytest
 from commerceops.application.daily.source import MockMetadata
 from commerceops.application.replenishment.contracts import WebFailure
-from commerceops.domain.commerce_values import canonical_bytes
+from commerceops.domain.commerce_values import canonical_bytes, utc_time
 from commerceops.entrypoints.api import create_app
 from commerceops.entrypoints.daily_source import register_source
 from commerceops.infrastructure.daily_read import DailyReadStore
@@ -33,14 +34,27 @@ from tests.test_p3_pg import fixture as fixture
 pytestmark = pytest.mark.integration
 
 
-def prepare(f: P3Fixture, directory: Path) -> tuple[DailyDeployment, MockMetadata]:
+def prepare(
+    f: P3Fixture, directory: Path, business_day: date = DAY
+) -> tuple[DailyDeployment, MockMetadata]:
     directory.mkdir(mode=0o700)
     data = f.inventory.data
     meta = metadata(directory).model_copy(
-        update={"organization_id": data.organization, "shop_id": data.shop}
+        update={
+            "organization_id": data.organization,
+            "shop_id": data.shop,
+            "earliest_business_day": business_day,
+        }
     )
-    gold = manifest(meta)
+    gold = manifest(meta).model_copy(
+        update={"earliest_business_day": business_day, "latest_business_day": business_day}
+    )
     orders, refunds = source_data()
+    offset = timedelta(days=(business_day - DAY).days)
+    for row in [*orders, *(item for rows in refunds.values() for item in rows)]:
+        for field in ("date_created_gmt", "date_paid_gmt"):
+            if row.get(field) is not None:
+                row[field] = (utc_time(row[field]) + offset).isoformat()
     for filename, body in (
         (meta.manifest_ref, gold.model_dump(mode="json")),
         (meta.fixture_ref, {"orders": orders, "refunds": refunds}),
@@ -276,7 +290,9 @@ def test_daily_api_keeps_legacy_openapi_and_owner_only(fixture: P3Fixture, tmp_p
         web_config=fixture.config, replenishment_store=fixture.store, daily_enabled=True
     )
     assert app.openapi() == legacy
-    assert set(app.state.daily_openapi["paths"]) == {"/api/v1/daily-reports/{task_id}"}
+    from commerceops.entrypoints.daily_http import DAILY_PATHS
+
+    assert set(app.state.daily_openapi["paths"]) == DAILY_PATHS
     with TestClient(app, base_url=ORIGIN) as client:
         assert client.get(f"/api/v1/daily-reports/{task}").status_code == 401
         client.cookies.update(fixture.client.cookies)

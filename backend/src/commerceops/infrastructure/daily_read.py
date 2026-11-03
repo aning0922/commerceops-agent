@@ -16,8 +16,15 @@ from commerceops.infrastructure.web_sessions import actor_guard, envelope, role_
 
 
 class DailyReadStore:
-    def __init__(self, settings: DatabaseSettings):
+    def __init__(
+        self,
+        settings: DatabaseSettings,
+        *,
+        operations_enabled: bool = False,
+        schedules_enabled: bool = False,
+    ):
         self.settings = settings
+        self.operations_enabled, self.schedules_enabled = operations_enabled, schedules_enabled
 
     def read(self, actor: WebActor, task_id: UUID) -> dict[str, Any]:
         try:
@@ -68,6 +75,30 @@ class DailyReadStore:
                 if row is not None:
                     saved = verified_row(row, request)
                     projected = public_report(saved.report_id, saved.report).model_dump(mode="json")
+                scheduled, delivery = None, None
+                ops = db.execute(
+                    "SELECT to_regclass('business.p6_daily_schedule_runs') AS name"
+                ).fetchone()
+                if ops and ops["name"] is not None:
+                    scheduled = db.execute(
+                        """SELECT r.id AS run_id,r.schedule_id,r.schedule_version,r.business_day,
+                    r.due_at,r.created_at AS queued_at,r.missed_periods,
+                    r.skipped_first_day,r.skipped_last_day,
+                    (SELECT min(a.occurred_at) FROM business.audit_events a
+                    WHERE a.task_id=r.task_id
+                    AND a.source='daily' AND a.action='schedule_run_started') AS actual_started_at
+                    FROM business.p6_daily_schedule_runs r
+                    WHERE r.task_id=%s AND r.organization_id=%s
+                    AND r.shop_id=%s""",
+                        (task_id, actor.organization_id, task["shop_id"]),
+                    ).fetchone()
+                    delivery = db.execute(
+                        """SELECT id AS delivery_id,'fake'::text AS transport,status AS state,
+                    attempts,external_id,failure_code FROM business.p6_daily_deliveries
+                    WHERE task_id=%s
+                    AND organization_id=%s AND shop_id=%s""",
+                        (task_id, actor.organization_id, task["shop_id"]),
+                    ).fetchone()
                 payload = envelope(
                     db,
                     daily={
@@ -78,13 +109,16 @@ class DailyReadStore:
                         "workflow_version": WORKFLOW,
                         "created_at": task["created_at"],
                         "updated_at": task["updated_at"],
-                        "question_creation_enabled": False,
+                        "question_creation_enabled": self.operations_enabled
+                        and projected is not None,
                         "question_kinds": QUESTION_KINDS,
-                        "schedule_enabled": False,
+                        "schedule_enabled": self.schedules_enabled,
                         "delivery_enabled": False,
                         "state": task["state"],
                         "failure_code": task["failure_code"],
                         "report": projected,
+                        "schedule_run": scheduled,
+                        "delivery": delivery,
                     },
                 )
                 # 输出跨字段/显示/hash语义先由实际DTO验证；不向网络返回裸DB JSON。

@@ -16,6 +16,8 @@ from commerceops.application.feishu_business.contracts import BaseProjectionAdap
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.im_delivery import BusinessMessageSender
 from commerceops.application.runner import RunnerPort, RunRequest, RunResult
+from commerceops.infrastructure.daily_delivery import DailyFakeDelivery
+from commerceops.infrastructure.daily_schedules import DailyScheduler
 from commerceops.infrastructure.daily_sources import DailyDeployment
 from commerceops.infrastructure.daily_store import DailyStore
 from commerceops.infrastructure.database import DatabaseSettings
@@ -110,6 +112,16 @@ async def serve(
             else None
         )
         daily = DailyRunner(DailyStore(settings, session, daily_files)) if daily_files else None
+        scheduler = (
+            DailyScheduler(settings, session, daily_files)
+            if daily_files and daily_files.schedules_enabled
+            else None
+        )
+        daily_delivery = (
+            DailyFakeDelivery(session, daily_files)
+            if daily_files and daily_files.fake_delivery_enabled
+            else None
+        )
         if fixture is not None or woo_factory is not None or daily is not None:
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
@@ -155,12 +167,21 @@ async def serve(
                 await im_delivery.reconcile()
             if base_delivery is not None:
                 await base_delivery.reconcile()
+            if scheduler is not None:
+                await scheduler.reconcile()
+            if daily_delivery is not None:
+                await daily_delivery.reconcile()
 
         await Worker(
             session,
             runner,
             reconcile=maintenance
-            if approval or clarification or im_delivery or base_delivery
+            if approval
+            or clarification
+            or im_delivery
+            or base_delivery
+            or scheduler
+            or daily_delivery
             else None,
             recovery_scan_seconds=web_config.recovery_scan_seconds if web_config else 30,
         ).run(stop)
