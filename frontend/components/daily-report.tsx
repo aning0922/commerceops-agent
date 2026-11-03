@@ -42,7 +42,7 @@ export function DailyReport({ read }: { read: DailyRead }) {
   const source = report?.source.source_kind === "mock" ? "受控 Mock 数据" : "WooCommerce 测试店";
   return (
     <>
-      <Notice title="日报生成状态">
+      <Notice title="日报生成状态" tone={daily.state === "completed" ? "success" : daily.state === "failed" ? "danger" : daily.state === "needs_attention" ? "warning" : "info"}>
         {daily.state === "completed" ? "日报已生成。" :
          daily.state === "needs_attention" ? "日报需要关注，部分事实可能不可用。" :
          daily.state === "failed" ? "日报生成失败。" :
@@ -76,7 +76,7 @@ export function DailyReport({ read }: { read: DailyRead }) {
             {report.complete && <details><summary>按来源状态计数</summary><ul>
               {report.metrics.status_counts.map((row) => <li key={row.status}>{row.status}：{row.count}</li>)}
             </ul></details>}
-            <p>付款、退款分别按本日报的业务日期及来源时间字段统计；精确口径以封存报告为准。</p>
+            <p>付款、退款分别按本日报的业务日期及平台订单记录中的时间字段统计，不代表已核对支付网关到账；精确口径以封存报告为准。</p>
           </Card>
           <Card title="异常与质量">
             {report.findings.length ? (

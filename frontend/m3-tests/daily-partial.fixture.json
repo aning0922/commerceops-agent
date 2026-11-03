@@ -1,0 +1,65 @@
+{
+  "schema_version": "p3-web-v1",
+  "identity_mode": "session",
+  "server_time": "2026-11-02T17:00:00+00:00",
+  "trace_id": "00000000-0000-0000-0000-00000000000b",
+  "daily": {
+    "schema_version": "p6-m3-web-v1",
+    "task_id": "00000000-0000-0000-0000-00000000000c",
+    "shop_id": "00000000-0000-0000-0000-000000000002",
+    "kind": "daily_report",
+    "workflow_version": "p6-daily-report-v1",
+    "created_at": "2026-11-02T16:00:00+00:00",
+    "updated_at": "2026-11-02T16:00:00+00:00",
+    "question_creation_enabled": false,
+    "question_kinds": [
+      "metric_definition",
+      "metric_evidence",
+      "finding_reason",
+      "data_quality"
+    ],
+    "schedule_enabled": false,
+    "delivery_enabled": false,
+    "state": "needs_attention",
+    "failure_code": "DAILY_SOURCE_INCOMPLETE",
+    "report": {
+      "report_id": "00000000-0000-0000-0000-00000000000d",
+      "snapshot_id": "00000000-0000-0000-0000-000000000004",
+      "content_hash": "9f408914f9cae5ffe4ac472d7c7bd82f37d635c2bb8b8c64324e7dfbc378d029",
+      "facts_hash": "293c7592e821f100de1d80c1dbd5f6f1d084a957e72806b048ba82d0387f4081",
+      "business_day": "2026-11-02",
+      "window": {
+        "start": "2026-11-01T16:00:00Z",
+        "end": "2026-11-02T16:00:00Z"
+      },
+      "source": {
+        "source_kind": "mock",
+        "source_config_version": "daily-fixture-1",
+        "fixture_version": "daily-gold-1",
+        "currency": "CNY",
+        "timezone": "Asia/Taipei",
+        "coverage_scope": "controlled_test_dataset"
+      },
+      "collection_started_at": "2026-11-02T16:00:00Z",
+      "collected_at": "2026-11-02T16:01:00Z",
+      "quality_flags": [],
+      "findings": [
+        {
+          "finding_id": "0ba85eb4de297aea521f08b3fd9f1f335be594640979e7c53c094c35b159fec3",
+          "code": "SOURCE_INCOMPLETE",
+          "severity": "blocking",
+          "metric_key": null,
+          "evidence_ids": [
+            "18b6b548502f8e4b6eb15b5fe8119af12a671b9de91e0b06d404ee9e09bce4e1"
+          ],
+          "rule_version": "daily-rules-v1",
+          "rule_config_hash": "80b66cf87c9e4299b37622195b44db23024805e045a74055ac883dea3599a9f0"
+        }
+      ],
+      "evidence_count": 2,
+      "complete": false,
+      "metrics": null,
+      "display": []
+    }
+  }
+}

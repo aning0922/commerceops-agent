@@ -221,7 +221,7 @@ export function LiveConsole({
       if (dailyRoute.test(path)) {
         if (fixtureMode || !origin) throw new P3Failure("RESOURCE_NOT_FOUND");
         const id = path.match(dailyRoute)![1];
-        page = { kind: "daily", read: await readDaily(origin, id, () => client!.clearSession()) };
+        page = { kind: "daily", read: await readDaily(origin, id, () => client!.clearSession(), undefined, accept) };
       } else if (path === "/admin/operations") {
         if (!cap.can_read_operations) throw new P3Failure("ACCESS_DENIED");
         page = { kind: "operations", read: await client!.operations() };
@@ -688,7 +688,7 @@ export function LiveConsole({
           </div>
         </header>
         <main id="main">
-          <div className="mock-banner">
+          {page?.kind !== "daily" && <div className="mock-banner">
             <BusinessSourceNotice
               fixtureMode={fixtureMode}
               kind={
@@ -697,7 +697,7 @@ export function LiveConsole({
                   : null
               }
             />
-          </div>
+          </div>}
           <div className="page-heading">
             <div>
               <h1>{title}</h1>

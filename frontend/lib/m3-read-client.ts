@@ -83,6 +83,7 @@ export async function readDaily(
   taskId: string,
   invalidate: () => void,
   transport: FetchTransport = (url, init) => fetch(url, init),
+  isCurrent: () => boolean = () => true,
 ): Promise<DailyRead> {
   if (!uuid.test(taskId)) throw new DailyFailure("INVALID_REQUEST");
   const base = new URL(origin);
@@ -94,7 +95,7 @@ export async function readDaily(
     throw new DailyFailure("SERVICE_UNAVAILABLE");
   }
   if (response.status === 401 || response.status === 403) {
-    invalidate();
+    if (isCurrent()) invalidate();
     throw new DailyFailure(response.status === 401 ? "SESSION_INVALID" : "ACCESS_DENIED", response.status);
   }
   if (response.status === 404) throw new DailyFailure("RESOURCE_NOT_FOUND", 404);

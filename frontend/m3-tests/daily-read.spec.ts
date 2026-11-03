@@ -56,3 +56,20 @@ test("无权详情与错误形状使用固定安全错误", async () => {
   await expect(readDaily("http://127.0.0.1:8000", id, () => {}, async () => json({}, 503)))
     .rejects.toMatchObject({ code: "SERVICE_UNAVAILABLE" } satisfies Partial<DailyFailure>);
 });
+test("迟到401/403不清新会话；当前撤权仍清除", async () => {
+  for (const status of [401, 403]) {
+    let current = true;
+    let invalidated = 0;
+    let finish!: (response: Response) => void;
+    const transport = () => new Promise<Response>((resolve) => { finish = resolve; });
+    const old = readDaily("http://127.0.0.1:8000", id, () => invalidated++, transport, () => current);
+    current = false;
+    finish(json({}, status));
+    await expect(old).rejects.toMatchObject({ status });
+    expect(invalidated).toBe(0);
+    const active = readDaily("http://127.0.0.1:8000", id, () => invalidated++, transport, () => true);
+    finish(json({}, status));
+    await expect(active).rejects.toMatchObject({ status });
+    expect(invalidated).toBe(1);
+  }
+});
