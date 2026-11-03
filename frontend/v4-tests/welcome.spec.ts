@@ -274,3 +274,18 @@ test('UI_FIXTURE: a verified visible session is rechecked on its interval',async
  await page.goto('/v4');await expect(page.getByText(/当前视角：operator/)).toBeVisible();
  await page.clock.fastForward('00:05');await expect.poll(()=>reads).toBeGreaterThanOrEqual(2);
 });
+
+test('UI_FIXTURE: a control receipt from a different tenant is never shown as success',async ({page})=>{
+ let key='',calls=0;
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source},receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
+  if(path.endsWith('/session')&&key)return route.fulfill({json:{...base,context,data:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+  if(path.endsWith('/persona')){calls++;const body=route.request().postDataJSON();return route.fulfill({json:{...base,status:'COMMITTED',context:{...context,tenant_id:'22222222-2222-4222-8222-222222222222',auth_generation:1},data:{receipt:{receipt_id:id,operation:'persona',request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:1},next_step:'READ_CURRENT_SESSION'}}});}
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ }));
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
+ await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByRole('button',{name:'切换视角'}).click();
+ await expect(page.getByText('操作结果未知，请使用原操作核对。')).toBeVisible();await expect(page.getByText('身份视角已更新。')).toHaveCount(0);expect(calls).toBe(1);
+});
