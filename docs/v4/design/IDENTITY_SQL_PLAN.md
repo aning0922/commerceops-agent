@@ -532,7 +532,7 @@ uv run --frozen --offline python -m scripts.v4_demo_seed grant-runtime
 uv run --frozen --offline python -m scripts.v4_demo_seed verify-fixture
 ```
 
-`init-fixture`只接全新不存在的绝对目录，数据库先COMMIT后独占文件导出/索引发布；失败保留DB与目录，不重试或覆盖。`grant-runtime`是新CLI的子action，与原database grant-runtime分开；普通原grant不自动开V4。fixture实际纯digest仍59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8；不因此签PG已登记。
+`init-fixture`只接全新不存在的绝对目录，数据库先COMMIT后独占文件导出/索引发布；失败保留DB与目录，不重试或覆盖。本地物理入口为 `INDEX.json`（临时 `.INDEX.pending`），与 `content.json`、`manifest.json` 的名字不只大小写不同；同目录hardlink独占发布及fsync保持。content/manifest/canonical digest字节不变，仅替换旧有大小写冲突的导出入口；不改四冻结核心合同，不修改旧失败目录或重开保留卷。`grant-runtime`是新CLI的子action，与原database grant-runtime分开；普通原grant不自动开V4。fixture实际纯digest仍59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8；不因此签PG已登记。
 
 API foreground进程只拿runtime web.json和新demo.json，不继承owner DB环境：
 
