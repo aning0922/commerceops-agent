@@ -1,6 +1,7 @@
 "use client";
 import { CreateTaskDialog, DecisionActions } from "./live-actions";
 import { DailyReport } from "./daily-report";
+import { DailyWrite } from "./daily-write";
 import { Inquiry } from "./inquiry";
 import { DailyFailure, readDaily } from "../lib/m3-read-client";
 import type { DailyRead } from "../lib/m3-types.generated";
@@ -33,6 +34,7 @@ import {
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
   | { kind: "inquiry" }
+  | { kind: "daily-create" }
   | { kind: "daily"; read: DailyRead }
   | { kind: "tasks"; read: DTO["TaskList"] }
   | {
@@ -72,7 +74,9 @@ const itemRoute = new RegExp(`^/replenishment-items/(${uuid})$`, "i");
 const dailyRoute = new RegExp(`^/daily-reports/(${uuid})$`, "i");
 const uuidOnly = new RegExp(`^${uuid}$`, "i");
 const titleOf = (path: string) =>
-  path === "/inquiries"
+  path === "/daily-reports"
+    ? "创建经营日报"
+    : path === "/inquiries"
     ? "只读查询"
     : dailyRoute.test(path)
     ? "经营日报"
@@ -226,7 +230,9 @@ export function LiveConsole({
       const cap = session!.principal.capabilities;
       let page: PageData;
       let shop: string | null = null;
-      if (path === "/inquiries" && !fixtureMode) {
+      if (path === "/daily-reports" && !fixtureMode) {
+        page = { kind: "daily-create" };
+      } else if (path === "/inquiries" && !fixtureMode) {
         page = { kind: "inquiry" };
       } else if (dailyRoute.test(path)) {
         if (fixtureMode || !origin) throw new P3Failure("RESOURCE_NOT_FOUND");
@@ -647,6 +653,7 @@ export function LiveConsole({
               任务中心
             </a>
           )}
+          {!fixtureMode && operatorShops.length > 0 && <a href="/daily-reports" aria-current={path === "/daily-reports" ? "page" : undefined}>经营日报</a>}
           {inquiryEnabled && !fixtureMode && operatorShops.length > 0 && <a href="/inquiries" aria-current={path === "/inquiries" ? "page" : undefined}>只读查询</a>}
           {capabilities!.can_read_approvals && (
             <a
@@ -752,6 +759,8 @@ export function LiveConsole({
             </Card>
           ) : (
             <>
+              {page.kind === "daily-create" && origin && <DailyWrite client={client!} origin={origin} shops={operatorShops} principal={session.principal.principal_id} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
+              {page.kind === "daily" && origin && !fixtureMode && <DailyWrite key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? ""}:${page.read.daily.report?.facts_hash ?? ""}:${page.read.daily.report?.content_hash ?? ""}`} read={page.read} client={client!} origin={origin} shops={operatorShops} principal={session.principal.principal_id} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "inquiry" && <Inquiry client={client} enabled={inquiryEnabled} shops={operatorShops} holdWrite={holdWrite} />}
               {page.kind === "daily" && origin && <DailyReport key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? page.read.daily.updated_at}:${page.read.daily.report?.facts_hash ?? ""}:${page.read.daily.report?.content_hash ?? ""}`} read={page.read} origin={origin} invalidate={() => client.clearSession()} parentCurrent={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "tasks" && (

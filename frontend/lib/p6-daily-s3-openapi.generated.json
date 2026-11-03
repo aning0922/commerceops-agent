@@ -313,6 +313,350 @@
         ]
       }
     },
+    "/api/v1/daily-reports/requests/{request_key}": {
+      "get": {
+        "summary": "Report Receipt",
+        "operationId": "report_receipt_api_v1_daily_reports_requests__request_key__get",
+        "parameters": [
+          {
+            "name": "request_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Key"
+            }
+          },
+          {
+            "name": "shop_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shop Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreationReceiptRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "固定安全错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "会话失效/缺失/撤权或统一登录失败，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无能力/CSRF/Origin拒绝，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在/不可见对象/非法对象ID一致",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "数据库/配置不可用，提交事实须按原键核实",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "固定安全错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/daily-reports/{task_id}/questions/requests/{request_key}": {
+      "get": {
+        "summary": "Question Receipt",
+        "operationId": "question_receipt_api_v1_daily_reports__task_id__questions_requests__request_key__get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "request_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Key"
+            }
+          },
+          {
+            "name": "shop_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shop Id"
+            }
+          },
+          {
+            "name": "report_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreationReceiptRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "固定安全错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "会话失效/缺失/撤权或统一登录失败，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无能力/CSRF/Origin拒绝，无对象信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在/不可见对象/非法对象ID一致",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "数据库/配置不可用，提交事实须按原键核实",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "所有成功和错误均no-store",
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Vary": {
+                "description": "Cookie, Origin",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "固定安全错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ]
+      }
+    },
     "/api/v1/daily-reports": {
       "post": {
         "summary": "Create Report",
@@ -1500,6 +1844,51 @@
         ],
         "title": "CompletedDaily"
       },
+      "CreationReceiptRead": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p3-web-v1",
+            "title": "Schema Version"
+          },
+          "identity_mode": {
+            "type": "string",
+            "const": "session",
+            "title": "Identity Mode"
+          },
+          "server_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Server Time"
+          },
+          "trace_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Trace Id"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DailyCreationReceipt"
+              },
+              {
+                "$ref": "#/components/schemas/QuestionCreationReceipt"
+              }
+            ],
+            "title": "Receipt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "identity_mode",
+          "server_time",
+          "trace_id",
+          "receipt"
+        ],
+        "title": "CreationReceiptRead"
+      },
       "DailyAccepted": {
         "properties": {
           "schema_version": {
@@ -1633,6 +2022,104 @@
           "external_sender_enabled"
         ],
         "title": "DailyCapabilities"
+      },
+      "DailyCreationReceipt": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p6-m3-web-v1",
+            "title": "Schema Version"
+          },
+          "lookup_status": {
+            "type": "string",
+            "const": "accepted",
+            "title": "Lookup Status"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Key"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Shop Id"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Task Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "analyzing",
+              "completed",
+              "failed",
+              "needs_attention"
+            ],
+            "title": "State"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "DAILY_SOURCE_INCOMPLETE",
+                  "DAILY_SOURCE_UNAVAILABLE",
+                  "DAILY_PERMISSION_INVALID",
+                  "DAILY_SOURCE_BINDING_CHANGED",
+                  "DAILY_STORAGE_FAILURE",
+                  "DAILY_WORKFLOW_UNSAFE",
+                  "DAILY_SCHEDULE_CHANGED",
+                  "WORKER_TERMINATION_UNCONFIRMED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Request Hash"
+          },
+          "operation": {
+            "type": "string",
+            "const": "daily_report.create",
+            "title": "Operation"
+          },
+          "source_config_version": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Config Version"
+          },
+          "business_day": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Day"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "lookup_status",
+          "request_key",
+          "shop_id",
+          "task_id",
+          "state",
+          "failure_code",
+          "request_hash",
+          "operation",
+          "source_config_version",
+          "business_day"
+        ],
+        "title": "DailyCreationReceipt"
       },
       "DailyDeliveryStatus": {
         "properties": {
@@ -2464,6 +2951,125 @@
         ],
         "title": "PublicSource"
       },
+      "QuestionCreationReceipt": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "p6-m3-web-v1",
+            "title": "Schema Version"
+          },
+          "lookup_status": {
+            "type": "string",
+            "const": "accepted",
+            "title": "Lookup Status"
+          },
+          "request_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Key"
+          },
+          "shop_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Shop Id"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Task Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "analyzing",
+              "completed",
+              "failed",
+              "needs_attention"
+            ],
+            "title": "State"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "DAILY_SOURCE_INCOMPLETE",
+                  "DAILY_SOURCE_UNAVAILABLE",
+                  "DAILY_PERMISSION_INVALID",
+                  "DAILY_SOURCE_BINDING_CHANGED",
+                  "DAILY_STORAGE_FAILURE",
+                  "DAILY_WORKFLOW_UNSAFE",
+                  "DAILY_SCHEDULE_CHANGED",
+                  "WORKER_TERMINATION_UNCONFIRMED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Request Hash"
+          },
+          "operation": {
+            "type": "string",
+            "const": "daily_question.create",
+            "title": "Operation"
+          },
+          "parent_task_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Parent Task Id"
+          },
+          "report_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Report Id"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Snapshot Id"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Hash"
+          },
+          "facts_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Facts Hash"
+          },
+          "question": {
+            "$ref": "#/components/schemas/QuestionSpec"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "lookup_status",
+          "request_key",
+          "shop_id",
+          "task_id",
+          "state",
+          "failure_code",
+          "request_hash",
+          "operation",
+          "parent_task_id",
+          "report_id",
+          "snapshot_id",
+          "content_hash",
+          "facts_hash",
+          "question"
+        ],
+        "title": "QuestionCreationReceipt"
+      },
       "QuestionRead": {
         "properties": {
           "schema_version": {
@@ -2500,6 +3106,67 @@
           "question"
         ],
         "title": "QuestionRead"
+      },
+      "QuestionSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "metric_definition",
+              "metric_evidence",
+              "finding_reason",
+              "data_quality"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "metric_key": {
+            "anyOf": [
+              {
+                "enum": [
+                  "created_order_count",
+                  "paid_order_count",
+                  "paid_product_net",
+                  "paid_product_tax",
+                  "paid_shipping_net",
+                  "paid_shipping_tax",
+                  "paid_fee_net",
+                  "paid_fee_tax",
+                  "paid_order_total",
+                  "refund_count",
+                  "refunded_order_count",
+                  "refund_amount",
+                  "average_paid_order_value",
+                  "orders_without_payment_timestamp"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Key"
+          },
+          "finding_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finding Id"
+          }
+        },
+        "required": [
+          "kind",
+          "metric_key",
+          "finding_id"
+        ],
+        "title": "QuestionSpec",
+        "type": "object"
       },
       "QuestionView": {
         "properties": {
@@ -2999,67 +3666,6 @@
           "request_key"
         ],
         "title": "CreateDailyInput",
-        "type": "object"
-      },
-      "QuestionSpec": {
-        "additionalProperties": false,
-        "properties": {
-          "kind": {
-            "enum": [
-              "metric_definition",
-              "metric_evidence",
-              "finding_reason",
-              "data_quality"
-            ],
-            "title": "Kind",
-            "type": "string"
-          },
-          "metric_key": {
-            "anyOf": [
-              {
-                "enum": [
-                  "created_order_count",
-                  "paid_order_count",
-                  "paid_product_net",
-                  "paid_product_tax",
-                  "paid_shipping_net",
-                  "paid_shipping_tax",
-                  "paid_fee_net",
-                  "paid_fee_tax",
-                  "paid_order_total",
-                  "refund_count",
-                  "refunded_order_count",
-                  "refund_amount",
-                  "average_paid_order_value",
-                  "orders_without_payment_timestamp"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Metric Key"
-          },
-          "finding_id": {
-            "anyOf": [
-              {
-                "pattern": "^[a-f0-9]{64}$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Finding Id"
-          }
-        },
-        "required": [
-          "kind",
-          "metric_key",
-          "finding_id"
-        ],
-        "title": "QuestionSpec",
         "type": "object"
       },
       "QuestionInput": {

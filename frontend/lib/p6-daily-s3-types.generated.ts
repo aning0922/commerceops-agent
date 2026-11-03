@@ -38,6 +38,40 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/api/v1/daily-reports/requests/{request_key}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Report Receipt */
+        readonly get: operations["report_receipt_api_v1_daily_reports_requests__request_key__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/daily-reports/{task_id}/questions/requests/{request_key}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Question Receipt */
+        readonly get: operations["question_receipt_api_v1_daily_reports__task_id__questions_requests__request_key__get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/daily-reports": {
         readonly parameters: {
             readonly query?: never;
@@ -358,6 +392,31 @@ export interface components {
             readonly failure_code: null;
             readonly report: components["schemas"]["CompleteReport"];
         };
+        /** CreationReceiptRead */
+        readonly CreationReceiptRead: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "p3-web-v1";
+            /**
+             * Identity Mode
+             * @constant
+             */
+            readonly identity_mode: "session";
+            /**
+             * Server Time
+             * Format: date-time
+             */
+            readonly server_time: string;
+            /**
+             * Trace Id
+             * Format: uuid
+             */
+            readonly trace_id: string;
+            /** Receipt */
+            readonly receipt: components["schemas"]["DailyCreationReceipt"] | components["schemas"]["QuestionCreationReceipt"];
+        };
         /** DailyAccepted */
         readonly DailyAccepted: {
             /**
@@ -417,6 +476,55 @@ export interface components {
              * @constant
              */
             readonly external_sender_enabled: false;
+        };
+        /** DailyCreationReceipt */
+        readonly DailyCreationReceipt: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "p6-m3-web-v1";
+            /**
+             * Lookup Status
+             * @constant
+             */
+            readonly lookup_status: "accepted";
+            /**
+             * Request Key
+             * Format: uuid
+             */
+            readonly request_key: string;
+            /**
+             * Shop Id
+             * Format: uuid
+             */
+            readonly shop_id: string;
+            /**
+             * Task Id
+             * Format: uuid
+             */
+            readonly task_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            readonly state: "queued" | "analyzing" | "completed" | "failed" | "needs_attention";
+            /** Failure Code */
+            readonly failure_code: ("DAILY_SOURCE_INCOMPLETE" | "DAILY_SOURCE_UNAVAILABLE" | "DAILY_PERMISSION_INVALID" | "DAILY_SOURCE_BINDING_CHANGED" | "DAILY_STORAGE_FAILURE" | "DAILY_WORKFLOW_UNSAFE" | "DAILY_SCHEDULE_CHANGED" | "WORKER_TERMINATION_UNCONFIRMED") | null;
+            /** Request Hash */
+            readonly request_hash: string;
+            /**
+             * Operation
+             * @constant
+             */
+            readonly operation: "daily_report.create";
+            /** Source Config Version */
+            readonly source_config_version: string;
+            /**
+             * Business Day
+             * Format: date
+             */
+            readonly business_day: string;
         };
         /** DailyDeliveryStatus */
         readonly DailyDeliveryStatus: {
@@ -774,6 +882,68 @@ export interface components {
              */
             readonly coverage_scope: "controlled_test_dataset";
         };
+        /** QuestionCreationReceipt */
+        readonly QuestionCreationReceipt: {
+            /**
+             * Schema Version
+             * @constant
+             */
+            readonly schema_version: "p6-m3-web-v1";
+            /**
+             * Lookup Status
+             * @constant
+             */
+            readonly lookup_status: "accepted";
+            /**
+             * Request Key
+             * Format: uuid
+             */
+            readonly request_key: string;
+            /**
+             * Shop Id
+             * Format: uuid
+             */
+            readonly shop_id: string;
+            /**
+             * Task Id
+             * Format: uuid
+             */
+            readonly task_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            readonly state: "queued" | "analyzing" | "completed" | "failed" | "needs_attention";
+            /** Failure Code */
+            readonly failure_code: ("DAILY_SOURCE_INCOMPLETE" | "DAILY_SOURCE_UNAVAILABLE" | "DAILY_PERMISSION_INVALID" | "DAILY_SOURCE_BINDING_CHANGED" | "DAILY_STORAGE_FAILURE" | "DAILY_WORKFLOW_UNSAFE" | "DAILY_SCHEDULE_CHANGED" | "WORKER_TERMINATION_UNCONFIRMED") | null;
+            /** Request Hash */
+            readonly request_hash: string;
+            /**
+             * Operation
+             * @constant
+             */
+            readonly operation: "daily_question.create";
+            /**
+             * Parent Task Id
+             * Format: uuid
+             */
+            readonly parent_task_id: string;
+            /**
+             * Report Id
+             * Format: uuid
+             */
+            readonly report_id: string;
+            /**
+             * Snapshot Id
+             * Format: uuid
+             */
+            readonly snapshot_id: string;
+            /** Content Hash */
+            readonly content_hash: string;
+            /** Facts Hash */
+            readonly facts_hash: string;
+            readonly question: components["schemas"]["QuestionSpec"];
+        };
         /** QuestionRead */
         readonly QuestionRead: {
             /**
@@ -797,6 +967,18 @@ export interface components {
              */
             readonly trace_id: string;
             readonly question: components["schemas"]["QuestionView"];
+        };
+        /** QuestionSpec */
+        readonly QuestionSpec: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            readonly kind: "metric_definition" | "metric_evidence" | "finding_reason" | "data_quality";
+            /** Metric Key */
+            readonly metric_key: ("created_order_count" | "paid_order_count" | "paid_product_net" | "paid_product_tax" | "paid_shipping_net" | "paid_shipping_tax" | "paid_fee_net" | "paid_fee_tax" | "paid_order_total" | "refund_count" | "refunded_order_count" | "refund_amount" | "average_paid_order_value" | "orders_without_payment_timestamp") | null;
+            /** Finding Id */
+            readonly finding_id: string | null;
         };
         /** QuestionView */
         readonly QuestionView: {
@@ -1002,18 +1184,6 @@ export interface components {
              * @default null
              */
             readonly business_day: string | null;
-        };
-        /** QuestionSpec */
-        readonly QuestionSpec: {
-            /**
-             * Kind
-             * @enum {string}
-             */
-            readonly kind: "metric_definition" | "metric_evidence" | "finding_reason" | "data_quality";
-            /** Metric Key */
-            readonly metric_key: ("created_order_count" | "paid_order_count" | "paid_product_net" | "paid_product_tax" | "paid_shipping_net" | "paid_shipping_tax" | "paid_fee_net" | "paid_fee_tax" | "paid_order_total" | "refund_count" | "refunded_order_count" | "refund_amount" | "average_paid_order_value" | "orders_without_payment_timestamp") | null;
-            /** Finding Id */
-            readonly finding_id: string | null;
         };
         /** QuestionInput */
         readonly QuestionInput: {
@@ -1324,6 +1494,196 @@ export interface operations {
                 };
                 content: {
                     readonly "application/json": components["schemas"]["CapabilityRead"];
+                };
+            };
+            /** @description 会话失效/缺失/撤权或统一登录失败，无对象信息 */
+            readonly 401: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无能力/CSRF/Origin拒绝，无对象信息 */
+            readonly 403: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在/不可见对象/非法对象ID一致 */
+            readonly 404: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 固定安全错误 */
+            readonly 409: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 固定安全错误 */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 数据库/配置不可用，提交事实须按原键核实 */
+            readonly 503: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readonly report_receipt_api_v1_daily_reports_requests__request_key__get: {
+        readonly parameters: {
+            readonly query: {
+                readonly shop_id: string;
+            };
+            readonly header?: never;
+            readonly path: {
+                readonly request_key: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["CreationReceiptRead"];
+                };
+            };
+            /** @description 会话失效/缺失/撤权或统一登录失败，无对象信息 */
+            readonly 401: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无能力/CSRF/Origin拒绝，无对象信息 */
+            readonly 403: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在/不可见对象/非法对象ID一致 */
+            readonly 404: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 固定安全错误 */
+            readonly 409: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 固定安全错误 */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 数据库/配置不可用，提交事实须按原键核实 */
+            readonly 503: {
+                headers: {
+                    /** @description 所有成功和错误均no-store */
+                    readonly "Cache-Control"?: "no-store";
+                    /** @description Cookie, Origin */
+                    readonly Vary?: string;
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readonly question_receipt_api_v1_daily_reports__task_id__questions_requests__request_key__get: {
+        readonly parameters: {
+            readonly query: {
+                readonly shop_id: string;
+                readonly report_id: string;
+            };
+            readonly header?: never;
+            readonly path: {
+                readonly task_id: string;
+                readonly request_key: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["CreationReceiptRead"];
                 };
             };
             /** @description 会话失效/缺失/撤权或统一登录失败，无对象信息 */
