@@ -75,7 +75,7 @@ def test_exact_dir_index_native_and_history_derivation(repository: Path) -> None
     assert derived == baseline
     assert len(derived["rules"]) == len(original["rules"]) == 222
     assert sum(len(x.get("allowlists", [])) for x in derived["rules"]) == 45
-    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 94
+    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 96
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
@@ -401,7 +401,7 @@ def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> N
         "v4_additional_historical_findings",
     ):
         assert current[key] == old[key]
-    assert len(v4_preflight_history_findings()) == 104
+    assert len(v4_preflight_history_findings()) == 106
     config = tomllib.loads(scanner.history_config().decode())
     baseline = tomllib.loads(
         subprocess.check_output(["git", "show", "7c262fb:.gitleaks.toml"], cwd=ROOT).decode()
@@ -687,12 +687,15 @@ def test_discovery_metadata_preserves_exact_history_and_only_moves_fixed_spans()
     for old, new in zip(before["exceptions"], current["exceptions"][:84], strict=True):
         if old == new:
             continue
-        assert old["source_path"] == new["source_path"] == "tests/v4/test_demo_sessions_pg.py"
+        assert old["source_path"] == new["source_path"]
         assert old["exact_line_sha256"] == new["exact_line_sha256"]
-        assert new["source_line"] == old["source_line"] + 4
+        offset = {"tests/v4/test_demo_sessions_pg.py": 4, "tests/e2e/v4/http_probe.py": 7}[
+            old["source_path"]
+        ]
+        assert new["source_line"] == old["source_line"] + offset
         moved.append(old["source_line"])
-    assert sorted(moved) == [151, 170, 197]
-    assert len(V4_PREFLIGHT_SNAPSHOTS) == 36
+    assert sorted(moved) == [147, 151, 170, 197, 259, 364, 394]
+    assert len(V4_PREFLIGHT_SNAPSHOTS) == 38
 
 
 @pytest.mark.parametrize(
@@ -816,18 +819,116 @@ def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
         subprocess.check_output(["git", "show", "73e0a58:scripts/gitleaks_rules.json"], cwd=ROOT)
     )
     current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
-    assert current["exceptions"][:93] == previous["exceptions"]
+    for old, new in zip(previous["exceptions"], current["exceptions"][:93], strict=True):
+        if old != new:
+            assert old["source_path"] == new["source_path"] == "tests/e2e/v4/http_probe.py"
+            assert old["exact_line_sha256"] == new["exact_line_sha256"]
+            assert new["source_line"] == old["source_line"] + 7
     for field in (
         "historical_findings",
         "v4_historical_findings",
         "v4_additional_historical_findings",
-        "v4_merge_copy_bindings",
     ):
         assert current[field] == previous[field]
+    assert current["v4_merge_copy_bindings"][:2] == previous["v4_merge_copy_bindings"]
     assert (
         current["v4_preflight_historical_findings"][:103]
         == previous["v4_preflight_historical_findings"]
     )
     assert current["v4_merge_copy_anchors"][:27] == previous["v4_merge_copy_anchors"]
-    assert len(current["exceptions"]) == 94
-    assert len(current["v4_merge_copy_anchors"]) == 28
+    assert len(current["exceptions"]) == 96
+    assert len(current["v4_merge_copy_anchors"]) == 31
+
+
+@pytest.mark.parametrize("which", [2, 3, 4, 5, 36, 37])
+def test_r2_exact_span_negative_boundaries(tmp_path: Path, which: int) -> None:
+    test_preflight_each_span_change_duplicate_and_secret(tmp_path, which)
+
+
+@pytest.mark.parametrize(
+    "commit",
+    [
+        "ee1dab651b1b42b99f602a02205a3d8710bb6fd9",
+        "8dedb22016bcbd8d66c20c23adc899b6b0c43559",
+        "c6abe0528f05b458331f270d758317c1d7b38843",
+    ],
+)
+def test_r2_native_doc_authors_and_fixed_blob_copy(tmp_path: Path, commit: str) -> None:
+    paths = {
+        "docs/v4/acceptance/v4-0/TTL_F1.json",
+        "docs/v4/review/SCAN_f341.md",
+        "tests/e2e/v4/http_probe.py",
+    }
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=" + commit + "^! --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 1
+    items = [r for r in json.loads(report.read_text()) if r["File"] in paths]
+    assert len(items) == (5 if commit.startswith("c6abe") else 1)
+    for item in items:
+        if commit.startswith("c6abe"):
+            assert scanner.approved_v4_merge_copy("git", item)
+        else:
+            assert scanner.approved_v4_history_finding("git", item)
+            assert scanner.approved_v4_merge_copy("git", item) is None
+        for key in (
+            "File",
+            "StartLine",
+            "EndLine",
+            "StartColumn",
+            "EndColumn",
+            "Match",
+            "Fingerprint",
+        ):
+            changed = dict(item)
+            changed[key] = (
+                changed[key] + 1 if isinstance(changed[key], int) else changed[key] + "changed"
+            )
+            assert not scanner.approved_v4_history_finding("git", changed)
+            assert scanner.approved_v4_merge_copy("git", changed) is None
+
+
+def test_r2_old_exact_metadata_and_copy_bindings_preserved() -> None:
+    old = json.loads(
+        subprocess.check_output(["git", "show", "f341a89:scripts/gitleaks_rules.json"], cwd=ROOT)
+    )
+    new = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    for key in (
+        "historical_findings",
+        "v4_historical_findings",
+        "v4_additional_historical_findings",
+    ):
+        assert new[key] == old[key]
+    assert new["v4_preflight_historical_findings"][:104] == old["v4_preflight_historical_findings"]
+    assert new["v4_merge_copy_anchors"][:28] == old["v4_merge_copy_anchors"]
+    assert new["v4_merge_copy_bindings"][:2] == old["v4_merge_copy_bindings"]
+    moved = []
+    for previous, current in zip(old["exceptions"], new["exceptions"][:94], strict=True):
+        if previous != current:
+            assert previous["source_path"] == current["source_path"] == "tests/e2e/v4/http_probe.py"
+            assert previous["exact_line_sha256"] == current["exact_line_sha256"]
+            assert current["source_line"] == previous["source_line"] + 7
+            moved.append(previous["source_line"])
+    assert moved == [147, 259, 364, 394]
+    assert len(new["v4_merge_copy_bindings"]) == 6
