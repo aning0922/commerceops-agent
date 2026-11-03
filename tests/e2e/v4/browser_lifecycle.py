@@ -11,13 +11,13 @@ from typing import Any
 from .preflight import ROOT, git
 
 TITLE = "LIVE: isolated demo lifecycle and browser layout"
-# Root handed off reviewed WEB 36319b458a304311d01e3f05afc356568424a59a.
+# Root handed off candidate 6937a39; metadata only until Astra accepts it.
 # Presence, raw Git blobs and current HEAD must all agree before any resource launch.
-WEB_HANDOFF_READY = True
-WEB_SOURCE = "36319b458a304311d01e3f05afc356568424a59a"
+WEB_HANDOFF_READY = False
+WEB_SOURCE = "6937a39d4ebb6d77f653d489db9964083a179d68"
 PINS = {
     "frontend/playwright.v4-live.config.ts": "ca9bb704f27220de9930f7e03e56492c79b0faa4",
-    "frontend/v4-tests/lifecycle.live.ts": "3d04deb2ea43a925596951514cf7a67ef039189d",
+    "frontend/v4-tests/lifecycle.live.ts": "fba785c22827c0378924fd0d10a646ee27e25805",
     "frontend/v4-tests/lifecycle.waiter.mjs": "ec74f8c560ad293821dcd4545c275395c243d3d0",
     "frontend/lib/v4-schema.json": "e625120e42a28b8f777d7e2e02b0da0aa9d2b5be",
 }

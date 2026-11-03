@@ -242,3 +242,16 @@ WEB_HANDOFF_READY仅代表Root已交接这份已审来源，不代替Root的资�
 本轮12项定向纯source/report/command检查0.09s/native0；取样仅从363已交Git对象，
 未读WEB WIP、未启动Node或浏览器。真实GUI 200%独立profile、实际浏览器、Full与Hosted
 仍未核收，不将Root进行中的UI_FIXTURE重跑预填为通过。
+
+## WEB原生200候选6937的pin元数据准备（待独审）
+
+Root交付候选`6937a39d4ebb6d77f653d489db9964083a179d68`，tree
+`d72d15861696e157e00297a8cccab1e2446df22a`，parent363；本次仅按已提交Git对象读差异。
+只有lifecycle.live.ts的blob变为fba785c22827c0378924fd0d10a646ee27e25805；
+config、lifecycle.waiter.mjs、v4-schema.json三个依赖blob不变，均继续固定包含。
+新增headful/profile/Chrome原生设置段写在该spec内，没有遗漏的新自定义helper文件。
+标题、120秒config、固定命令、retries0/worker1和trace/HAR默认关闭边界均未改。
+WEB_SOURCE/PINS刷新为候选元数据，同时WEB_HANDOFF_READY=False；hash校验机制未改，
+不能凭候选提交或原363已核收状态启动。必须Astra接受该新候选、Root统一集成并给新source/
+image/project/端口/UTC后才能解除阻断与运行；不使用363旧测试签200%真实缩放。
+本轮仅定向纯metadata/source/report验证，无Node/browser/profile/GUI/PG服务启动。
