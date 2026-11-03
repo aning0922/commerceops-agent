@@ -18,7 +18,9 @@ PATH = "/api/v1/daily-reports/{task_id}"
 def install_daily(app: FastAPI, store: DailyReadStore) -> None:
     @app.get(PATH, response_model=DailyRead)
     def daily_report(request: Request, task_id: str) -> Any:
-        return store.read(cast(WebActor, request.state.web_actor), parsed_uuid(task_id))
+        payload = store.read(cast(WebActor, request.state.web_actor), parsed_uuid(task_id))
+        # strict DTO的JSON形式包含UUID/时间字符串及数组；不能将wire dict按Python再次校验。
+        return DailyRead.model_validate_json(json.dumps(payload))
 
 
 def daily_openapi() -> dict[str, Any]:
