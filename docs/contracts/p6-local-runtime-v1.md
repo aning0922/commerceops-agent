@@ -72,3 +72,16 @@ N01及三批Web默认旧模式的闭合字段保持；显式M3新增独立绑定
 保留开发检查：首轮相关契约141pass/39fail，其中38项缺本工作树固定Node工具、一项为旧workflow字节断言需精确登记获准的M3扩展；只读链接已有固定Node工具并逐段同步允许增量后，第二轮206pass/9.85s，再经预算传递修正和新增超时/符号链接反例，以上最终295项通过。开发期lint/type报错已修正，未把中间结果签给最终候选。
 
 未运行build/PG/API/browser/provider/模型/飞书或Hosted；当前base仍未包含完整后续M3迁移/S3注册，此实现不转签旧Root镜像或SQL证据。原生amd64、实际镜像、完整PG/Web与容量由Root后续同冻结集成源核收。
+
+
+## 可选本地owned subnet候选（2026-11-03）
+
+Root因默认Docker地址池容量明确放行此最小入口；仅`pg_diagnostic --m3-pgvector`可额外指定`--owned-subnet`。不传参数时保持原Compose选择，不改CI默认命令、五job、完整collection/G1/G2、单命令300s、db-init build120s、绝对截止及清理预留。
+
+参数必须是规范RFC1918 IPv4 `/24`，例如existing用`172.16.241.0/24`、phase3用`172.16.242.0/24`；缩写`172.16.241/24`、主机地址、其它prefix、公网/CGNAT/loopback/link-local及IPv6均拒绝。只在本轮随机runtime/project目录独占生成0600 `owned-subnet.json`，唯一内容为default网络的IPAM subnet，不接受任意文件、服务或端口。首次Docker工作前报告登记subnet、路径和SHA256。
+
+PG启动前，在原expires-75工作预算内只读`network ls`和仅IPAM Config的`network inspect`（各cap5s，网络数超1024拒绝），复核网络ID集合稳定并拒绝任意IPv4重叠。查询失败/不完整、解析错误或冲突均固定`OWNED_SUBNET_UNAVAILABLE`，不自动换网段、重试、prune或修改daemon。只读检查不是网络地址预留；检查之后若有并发冲突，实际Docker创建失败仍按原失败路径处理。
+
+所有命令使用同一有序base+M3+本轮overlay；容器校验传递精确overlay路径，registered cleanup另核全部已登记CLI的config_files。每次工作命令及清理前校验0600/UID/整文件SHA；篡改或身份不符保持拒绝/清理未确认，不force外部资源。正常原down成功后只移除本轮overlay与原凭据目录，原诊断测试卷清理语义不改。
+
+本增量只做纯验证：新参数、重叠/快照/篡改/清理文件顺序反例及原PG停止/分组/配对回归合计149pass；mypy两文件、Ruff/format及文档/差异检查按最终回执记录。未执行Docker网络查询、build、PG或服务；实际IPAM与并行容量待Root冻结集成源后实测。开发期import排序和IPv4类型检查失败已修正，不转写为运行失败。

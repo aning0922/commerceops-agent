@@ -1,9 +1,12 @@
 """Issue23 有界诊断 supervisor；只管理本轮创建的随机 Compose 项目。"""
 
 import argparse
+import hashlib
+import ipaddress
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import threading
@@ -15,6 +18,7 @@ from typing import Any
 from uuid import uuid4
 
 from scripts.m3_pgvector import (
+    compose_files,
     compose_flags,
     prepared_image,
     up_flags,
@@ -306,11 +310,99 @@ def run_combined(
     report.pop("failed_target", None)
 
 
+def owned_subnet(value: str) -> str:
+    """Only an explicit canonical RFC1918 IPv4 /24; no allocation or normalization."""
+    network = ipaddress.ip_network(value, strict=True)
+    private = ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")
+    if (
+        not isinstance(network, ipaddress.IPv4Network)
+        or network.prefixlen != 24
+        or str(network) != value
+        or not any(network.subnet_of(ipaddress.IPv4Network(block)) for block in private)
+    ):
+        raise ValueError("owned subnet must be canonical RFC1918 IPv4 /24")
+    return value
+
+
+def subnet_overlay(directory: Path, subnet: str) -> tuple[Path, str]:
+    subnet = owned_subnet(subnet)
+    path = directory / "owned-subnet.json"
+    content = (
+        json.dumps(
+            {"networks": {"default": {"ipam": {"config": [{"subnet": subnet}]}}}},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode()
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "wb") as stream:
+        os.fchmod(stream.fileno(), 0o600)
+        stream.write(content)
+    return path, hashlib.sha256(content).hexdigest()
+
+
+def verify_subnet_overlay(path: Path, digest: str) -> None:
+    info = path.lstat()
+    if (
+        not stat.S_ISREG(info.st_mode)
+        or stat.S_IMODE(info.st_mode) != 0o600
+        or info.st_uid != os.getuid()
+        or hashlib.sha256(path.read_bytes()).hexdigest() != digest
+    ):
+        raise ValueError("owned subnet overlay changed")
+
+
+def check_subnet_available(
+    subnet: str,
+    capture: Callable[[list[str], float], subprocess.CompletedProcess[str]],
+) -> None:
+    """Bounded read-only snapshot of all Docker IPAM ranges; no foreign network mutations."""
+    requested = ipaddress.ip_network(owned_subnet(subnet))
+
+    def inventory() -> list[str]:
+        result = capture(["docker", "network", "ls", "--no-trunc", "--quiet"], 5)
+        ids = result.stdout.split()
+        if (
+            result.returncode
+            or len(ids) > 1024
+            or len(ids) != len(set(ids))
+            or any(re.fullmatch(r"[0-9a-f]{64}", item) is None for item in ids)
+        ):
+            raise ValueError("owned subnet inventory unavailable")
+        return sorted(ids)
+
+    ids = inventory()
+    if ids:
+        result = capture(
+            ["docker", "network", "inspect", "--format", "{{json .IPAM.Config}}", *ids], 5
+        )
+        lines = result.stdout.splitlines()
+        if result.returncode or len(lines) != len(ids):
+            raise ValueError("owned subnet inventory unavailable")
+        for line in lines:
+            configs = json.loads(line)
+            if configs is None:
+                continue
+            if not isinstance(configs, list):
+                raise ValueError("owned subnet inventory unavailable")
+            for config in configs:
+                if not isinstance(config, dict) or not isinstance(config.get("Subnet"), str):
+                    raise ValueError("owned subnet inventory unavailable")
+                current = ipaddress.ip_network(config["Subnet"], strict=True)
+                if current.version == requested.version and current.overlaps(requested):
+                    raise ValueError("owned subnet overlaps existing Docker network")
+    if inventory() != ids:
+        raise ValueError("owned subnet inventory changed")
+
+
 def cleanup_registered_containers(
     names: list[str],
     project: str,
     capture: Callable[[list[str], float], subprocess.CompletedProcess[str]],
     stage: Callable[[str, int, int], None],
+    *,
+    config_files: list[str] | None = None,
 ) -> int:
     """只按已登记名称一次核全owner/停止状态，按不可变ID删除；不force。"""
     stage("inspect-registered", 0, 0)
@@ -342,6 +434,10 @@ def cleanup_registered_containers(
             or identifier in ids
             or not isinstance(labels, dict)
             or labels.get("com.docker.compose.project") != project
+            or (
+                config_files is not None
+                and labels.get("com.docker.compose.project.config_files") != ",".join(config_files)
+            )
             or not isinstance(state, dict)
             or state.get("Running") is not False
             or type(state.get("Pid")) is not int
@@ -371,6 +467,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--deadline", required=True)
     parser.add_argument("--m3-pgvector", action="store_true")
+    parser.add_argument("--owned-subnet")
     parser.add_argument("--round", type=int, choices=(1, 2, 3), required=True)
     parser.add_argument("--node", action="append", default=[])
     parser.add_argument("--combined", action="store_true")
@@ -381,6 +478,13 @@ def main() -> None:
     parser.add_argument("--full-smoke", action="store_true")
     parser.add_argument("--ci-scope", choices=("all", "existing", "phase3"), default="all")
     args = parser.parse_args()
+    if args.owned_subnet is not None:
+        try:
+            if not args.m3_pgvector:
+                raise ValueError("M3 required")
+            owned_subnet(args.owned_subnet)
+        except ValueError:
+            parser.error("--owned-subnet requires --m3-pgvector and canonical RFC1918 IPv4 /24")
     if args.history_read_regression and (
         args.session != "initial"
         or not args.combined
@@ -467,7 +571,23 @@ def main() -> None:
         }
     }
     environment["COMMERCEOPS_PG_RUNTIME_DIR"] = str(directory)
-    compose = ["docker", "compose", "-p", project, *compose_flags(ROOT, args.m3_pgvector)]
+    network_overlay: Path | None = None
+    network_digest = ""
+    if args.owned_subnet is not None:
+        network_overlay, network_digest = subnet_overlay(directory, args.owned_subnet)
+        report["owned_network"] = {
+            "subnet": args.owned_subnet,
+            "overlay": str(network_overlay),
+            "overlay_sha256": network_digest,
+        }
+        save()
+    compose = [
+        "docker",
+        "compose",
+        "-p",
+        project,
+        *compose_flags(ROOT, args.m3_pgvector, network_overlay),
+    ]
     m3_binding: dict[str, Any] | None = None
 
     def budget(seconds: float, *, cleanup: bool = False) -> float:
@@ -555,6 +675,8 @@ def main() -> None:
         nonlocal stopping_confirmed
         emit({"event": "command_start", "label": label, "limit_seconds": limit})
         duration = budget(limit)
+        if network_overlay is not None:
+            verify_subnet_overlay(network_overlay, network_digest)
         if m3_binding is not None:
             validate_binding(ROOT, m3_binding, budget(5))
         if arguments[0] == "up":
@@ -679,7 +801,12 @@ def main() -> None:
             if inspected.returncode:
                 raise ValueError("M3 PG inspect failed")
             validate_container(
-                ROOT, json.loads(inspected.stdout)[0], m3_binding, project, timeout=budget(5)
+                ROOT,
+                json.loads(inspected.stdout)[0],
+                m3_binding,
+                project,
+                network_overlay,
+                timeout=budget(5),
             )
         return (
             not timed_out
@@ -727,6 +854,13 @@ def main() -> None:
             save()
         if not run("build", ["build", "db-init", "pg-test"], 120):
             raise RuntimeError("bounded build failed")
+        if args.owned_subnet is not None:
+            try:
+                check_subnet_available(args.owned_subnet, capture)
+            except (ValueError, OSError, subprocess.SubprocessError):
+                emit({"event": "owned_subnet_refused", "code": "OWNED_SUBNET_UNAVAILABLE"})
+                raise RuntimeError("owned subnet unavailable") from None
+            emit({"event": "owned_subnet_available", "subnet": args.owned_subnet})
         if not run("healthy", ["up", "-d", "--wait", "--wait-timeout", "60", "postgres"], 75):
             raise RuntimeError("bounded PG startup failed")
         actions = ("migrate", "setup-checkpointer", "grant-runtime", "revision")
@@ -932,13 +1066,22 @@ def main() -> None:
             )
 
         try:
+            if network_overlay is not None:
+                verify_subnet_overlay(network_overlay, network_digest)
             cleanup_registered_containers(
                 containers,
                 project,
                 lambda command, seconds: capture(command, seconds, cleanup=True),
                 cleanup_note,
+                config_files=(
+                    compose_files(ROOT, args.m3_pgvector, network_overlay)
+                    if network_overlay is not None
+                    else None
+                ),
             )
             cleanup_note("compose-down", owned_verified, owned_removed)
+            if network_overlay is not None:
+                verify_subnet_overlay(network_overlay, network_digest)
             cleanup = capture(
                 compose + ["down", "--volumes", "--remove-orphans", "--rmi", "local"],
                 60,
@@ -950,6 +1093,8 @@ def main() -> None:
                 report["cleanup_exit"] = "unconfirmed"
             if cleanup.returncode == 0 and stopping_confirmed:
                 cleanup_note("credential-files", owned_verified, owned_removed)
+                if network_overlay is not None:
+                    network_overlay.unlink()
                 for filename in ("owner_password", "app_password"):
                     (directory / filename).unlink()
                 directory.rmdir()
