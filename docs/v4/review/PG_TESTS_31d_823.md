@@ -45,3 +45,28 @@ finally仅DROP本case随机新库WITH(FORCE)，未删除base库/卷或采纳别�
 ## 交接
 
 ROOT可以按其已登记新owned资源、owner/runtime分离、精确集成source和绝对截止运行这14节点并收setup/call/teardown/native/cleanup事实。测试退出、清理失败或超时按实际保留，不以collect14补签call14；不自动续窗或重试。Reviewer本轮仅普通提交本报告，无PG/Docker/API服务/外部provider/Hosted/push操作。后续已提交rollback/异文切片由ROOT另交精确SHA审查。
+
+
+## dc439增量：真实事务中段故障与reset原key不变量
+
+candidate `dc439e92ea561ea7d0c95e7ef255d0fc7237f26a` / tree `501a653ca1e23bc66187505cbe35b41b34d27dd0`，parent823b。**结论：ACCEPT_PREPARED_PG_COMPONENT_DELTA，新增2节点可进入ROOT新owned组件窗口，0 P1 / 0 P2。** 实际diff是两个原文件各新增一项：seed_pg的provision故障、sessions_pg的reset原key，不是seed_pg单文件两个case。旧14节点的运行结果和缺项不被改写。
+
+### provision中段故障：准备代码范围接受
+
+`test_demo_seed_pg.py::test_seed_native_mid_persona_failure_rolls_back_but_preserves_reserved_key`复用已审demo新库fixture。owner只在该新库安装有固定search_path的测试trigger/function，并撤去PUBLIC/runtime直接EXECUTE；实际调用仍是runtime DemoStore.create→原SECURITY DEFINER provision。trigger由该provision的有效owner执行，不是给runtime旁路授权。
+
+注入点是v4_demo_personas的approver BEFORE INSERT。已核原0024执行顺序：此前已插入新org/tenant、两店及映射、完整operator的principal/identity/scope/grant/credential/persona，并已插入approver的principal/identity等。trigger先核两店、operator persona存在及当前org恰两个principals，不符抛独立P0001；正确中段才抛固定23514。测试同时要求CheckViolation、SQLSTATE23514及精确固定message_primary，因此一般约束失败/错误阶段不能冒充目标故障命中。此处是待执行的真实PG触发器，不是Python monkeypatch或HTTP替身。
+
+失败后新连接核15个物化表行数与此前相同，覆盖org/shop/principal/identity/scopes/grants/credential/bound/V4 tenant与映射/session/receipt/event/overlay；再由runtime读bootstrap，要求原create_request_key仍在、consumed_at为空，并GET原key得到精确UNKNOWN/WAIT_READ_ONLY最小字段。bootstrap/rate刻意不在物化计数中，符合独立admission已提交而业务事务回滚的合同。固定fixture本身未重写。计数相等只支持此全新库case的无部分物化，不代签任意既有行字节保持。
+
+finally显式DROP测试trigger/function，随后再次只读核原key UNKNOWN；换新key的同owner create必须RESOURCE_NOT_FOUND且15表计数仍等于before。没有移除故障后自动重投原POST，不以清理trigger授予重试权限。测试对象全在新库，外层demo fixture仍负责最终DROP该随机库；任何安装、断言或清理失败仍真实失败，运行回执须记录。
+
+### reset原key：准备代码范围接受
+
+`test_demo_sessions_pg.py::test_reset_same_key_payload_once_changed_payload_conflicts_and_other_tenant_stays`串行建两个tenant；第一tenant reset后，用当前新CSRF重投相同原key/原body，要求完整receipt相同。再保持key而将expected epoch/generation改为当前1/1，要求IDEMPOTENCY_CONFLICT，故不是仅因旧CSRF或CAS不匹配拒绝。随后核current epoch/generation仍1/1、runtime计本tenant reset receipt=1及reset_committed event=1；第二tenant data及tenant/org/principal/epoch/generation均不变。该case补齐串行同文一次回执/异文拒绝及对另一tenant无影响的断言。
+
+### 独立收集与边界
+
+Reviewer从dc439精确对象导出，在禁用psycopg.connect的collect-only子进程中收集全部sessions模块15项+仅新增seed fault节点1项：**16 tests collected / 0.86s / native0**。未执行任何fixture/PG/trigger/服务，临时文件已清理。旧seed模块已有5项SQL反例未在此次16节点重复计数；若ROOT另选整个seed模块，节点集合须按实际命令另记，不能混称16。
+
+新增两项尚未实际PASS。它们只为一个provision中段回滚点和串行reset幂等补证，不补齐所有持久阶段故障、commit后ACK丢、实际HTTP recovery、并发create/reset、撤权竞争或旧M3 Full。owner/runtime实际角色核验、精确集成source、UTC/reserve与cleanup仍按前节ROOT运行合同；本次无新资源授权或自动重试。当前新增2节点无需先改源码即可运行，后续以实际setup/call/teardown/native/cleanup记录判定。
