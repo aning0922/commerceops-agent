@@ -1,6 +1,6 @@
 # Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。
 # 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。
-# 不使用 extend/useDefault；仅有 44 个指定规则/路径/精确整行 AND 豁免。
+# 不使用 extend/useDefault；仅有 45 个指定规则/路径/精确整行 AND 豁免。
 title = "gitleaks config"
 minVersion = "v8.25.0"
 
@@ -1145,6 +1145,17 @@ paths = [
 ]
 regexes = [
     "^(?:\\r?\\n)?\\x20\\x20\\x20\\x20\\x6b\\x6e\\x6f\\x77\\x6c\\x65\\x64\\x67\\x65\\x3a\\x20\\x4b\\x6e\\x6f\\x77\\x6c\\x65\\x64\\x67\\x65\\x46\\x69\\x78\\x74\\x75\\x72\\x65\\x2c\\x20\\x6d\\x6f\\x6e\\x6b\\x65\\x79\\x70\\x61\\x74\\x63\\x68\\x3a\\x20\\x70\\x79\\x74\\x65\\x73\\x74\\x2e\\x4d\\x6f\\x6e\\x6b\\x65\\x79\\x50\\x61\\x74\\x63\\x68$",
+]
+
+[[rules.allowlists]]
+description = "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash"
+condition = "AND"
+regexTarget = "line"
+paths = [
+    "^tests/test_pg_owned_subnet\\.py$",
+]
+regexes = [
+    "^(?:\\r?\\n)?\\x20\\x20\\x20\\x20\\x74\\x6d\\x70\\x5f\\x70\\x61\\x74\\x68\\x3a\\x20\\x50\\x61\\x74\\x68\\x2c\\x20\\x6d\\x6f\\x6e\\x6b\\x65\\x79\\x70\\x61\\x74\\x63\\x68\\x3a\\x20\\x70\\x79\\x74\\x65\\x73\\x74\\x2e\\x4d\\x6f\\x6e\\x6b\\x65\\x79\\x50\\x61\\x74\\x63\\x68$",
 ]
 
 [[rules.allowlists]]

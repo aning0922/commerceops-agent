@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "33e1b2bb20c9bfa5c9fe0404f2a56268d4265773217759b7259fdb27826529d5",
+  "config_sha256": "5f01937442eda0e20e863190be6d05181f856910537361ed4eec56a77cd65c24",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -367,6 +367,15 @@
       "source_commit": "f20dadf10511116e5d67ecc6f841d1e375009a1e",
       "source_path": "tests/test_m3_copy_app_pg.py",
       "source_line": 31
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_pg_owned_subnet\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "source_commit": "08d8b8c6e95fd1bd55bdee8574a554fb363b6f31",
+      "source_path": "tests/test_pg_owned_subnet.py",
+      "source_line": 113
     },
     {
       "rule": "generic-api-key",
