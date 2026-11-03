@@ -214,6 +214,8 @@ def test_lost_create_cookie_only_minimal_bootstrap_recovery_and_no_active_post(
         "principal_disabled",
         "bound_csrf",
         "bound_key",
+        "bound_auth_version",
+        "bound_tuple",
         "bound_revoked",
         "bound_expired",
     ],
@@ -248,6 +250,19 @@ def test_complete_credential_and_bound_checks(demo: DemoPG, mutation: str) -> No
             db.execute(
                 "UPDATE business.web_sessions SET key_version='wrong-key' WHERE id=%s",
                 (subject.actor.session_id,),
+            )
+        elif mutation == "bound_auth_version":
+            db.execute(
+                "UPDATE business.web_sessions SET auth_version=auth_version+1 WHERE id=%s",
+                (subject.actor.session_id,),
+            )
+        elif mutation == "bound_tuple":
+            db.execute(
+                """UPDATE business.web_sessions w SET principal_id=m.principal_id,
+                identity_id=m.identity_id,auth_version=p.auth_version
+                FROM business.v4_demo_personas m JOIN business.principals p ON p.id=m.principal_id
+                WHERE m.tenant_id=%s AND m.persona_id='approver' AND w.id=%s""",
+                (subject.tenant["id"], subject.actor.session_id),
             )
         elif mutation == "bound_revoked":
             db.execute(
@@ -392,3 +407,39 @@ def test_reset_same_key_payload_once_changed_payload_conflicts_and_other_tenant_
             (UUID(first["context"]["tenant_id"]),),
         ).fetchone()
         assert receipts == {"n": 1} and events == {"n": 1}
+
+
+def test_revoked_target_persona_is_denied_while_current_operator_remains_valid(
+    demo: DemoPG,
+) -> None:
+    _, token = enter(demo)
+    before = demo.store.sessions.current(token)
+    tenant_id = UUID(before["context"]["tenant_id"])
+    with connect(demo.owner) as db:
+        changed = db.execute(
+            """UPDATE business.web_credentials c SET enabled=false
+            FROM business.v4_demo_personas m
+            WHERE m.tenant_id=%s AND m.persona_id='approver' AND c.identity_id=m.identity_id
+            RETURNING c.principal_id""",
+            (tenant_id,),
+        ).fetchall()
+        assert len(changed) == 1
+        assert changed[0]["principal_id"] != UUID(before["context"]["principal_id"])
+    still_current = demo.store.sessions.current(token)
+    assert still_current["data"] == before["data"]
+    command = dto.PersonaInput(
+        request_key=uuid4(), expected_epoch=0, expected_generation=0, persona_id="approver"
+    )
+    with pytest.raises(WebFailure, match="SESSION_INVALID"):
+        demo.store.control(token, before["data"]["csrf_token"], "persona", command)
+    after = demo.store.sessions.current(token)
+    assert after["data"] == before["data"]
+    assert after["context"]["auth_generation"] == 0
+    assert after["context"]["reset_epoch"] == 0
+    with connect(demo.app) as db:
+        receipts = db.execute(
+            "SELECT count(*) AS n FROM business.v4_demo_receipts "
+            "WHERE tenant_id=%s AND operation='persona'",
+            (tenant_id,),
+        ).fetchone()
+        assert receipts == {"n": 0}
