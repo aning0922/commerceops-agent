@@ -71,7 +71,7 @@ export function DailyWrite({ client, origin, shops, principal, current, read }: 
   }
   function finish() { if (!receipt) return; sessionStorage.removeItem(storage); lock.current = false; setHeld(null); setReceipt(null); setCap(null); setMessage(""); }
   if (read && !held && (!report || !read.daily.question_creation_enabled || !shops.includes(read.daily.shop_id))) return null;
-  return <Card title={read ? "新建模板追问" : "创建经营日报"}>
+  return <div className="m3-operation"><Card title={read ? "新建模板追问" : "创建经营日报"}>
     <p>{read ? "模板基于本报告，未调用模型，也不会外发。" : "来源仅限当前授权店铺的受控数据；调度由管理员通过受控 CLI 配置。"}</p>
     {!held && lock.current ? <p>本会话保留的请求无法安全解析，写入已停用。</p> : held ? <><p>保留原请求键：<span className="daily-id">{held.input.request_key}</span>。未核实前只查询原键，不重发。</p><button disabled={busy} onClick={() => void lookup()}>读取原请求回执</button>
       {receipt && <><p>原任务：{receipt.task_id} · 状态：{receipt.state}</p>{receipt.operation === "daily_report.create" && <a href={`/daily-reports/${receipt.task_id}`}>打开原日报</a>}{receipt.operation === "daily_question.create" && <p>追问编号：{receipt.task_id}；可在本报告的“已有追问”中读取。</p>}<button onClick={finish}>完成本次回执核对</button></>}</> : <>
@@ -81,8 +81,8 @@ export function DailyWrite({ client, origin, shops, principal, current, read }: 
       {cap?.enabled && !preview && <form onSubmit={makePreview}>
         {!read ? <label>业务日期（留空由服务确定）<input name="day" type="date" min={cap.earliest_business_day ?? undefined} /></label> : <><label>模板<select name="kind">{cap.question_kinds.map(x => <option key={x} value={x}>{x}</option>)}</select></label><label>指标键或发现 ID（数据质量模板留空）<input name="target" /></label></>}
         <button disabled={busy}>预览固定请求</button></form>}
-      {preview && <><p>请核对本次固定请求，提交后不能修改或以新键自动重发。</p><pre className="daily-id">{JSON.stringify(preview.input, null, 2)}</pre><button disabled={busy} onClick={() => void send()}>确认提交一次</button><button disabled={busy} onClick={() => setPreview(null)}>返回修改</button></>}
+      {preview && <><p>请核对本次固定请求，提交后不能修改或以新键自动重发。</p><pre className="daily-id m3-request-preview">{JSON.stringify(preview.input, null, 2)}</pre><button disabled={busy} onClick={() => void send()}>确认提交一次</button><button disabled={busy} onClick={() => setPreview(null)}>返回修改</button></>}
     </>}
     {message && <Notice title="日报操作状态" tone="info">{message}</Notice>}
-  </Card>;
+  </Card></div>;
 }
