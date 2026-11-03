@@ -17,6 +17,48 @@ function response(page:Page,method:string,path:string){return page.waitForRespon
 async function read(r:Response,name:string){expect(r.ok(),`${name} HTTP ${r.status()}`).toBe(true);const body=await r.json();validate(name,body);expect(body.status).not.toBe('UNKNOWN');return body;}
 function sameTenant(a:any,b:any){expect(b.tenant_id).toBe(a.tenant_id);expect(b.organization_id).toBe(a.organization_id);}
 
+// Capture the native window surface; Playwright fullPage clips horizontally at browser zoom 200%.
+async function captureNative200(page:Page,stem:string,segments:boolean){
+ const cdp=await page.context().newCDPSession(page);
+ const measure=()=>page.evaluate(()=>({y:scrollY,width:innerWidth,height:innerHeight,documentHeight:document.documentElement.scrollHeight,dpr:devicePixelRatio}));
+ const paint=()=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ let original:number|undefined;
+ try {
+  const initial=await measure();original=initial.y;
+  if(initial.width<=0||initial.height<=0||initial.documentHeight<=0||initial.dpr<=0)throw new Error('invalid native capture dimensions');
+  const captures:{y:number;width:number;height:number;documentHeight:number;pngWidth:number;pngHeight:number}[]=[];
+  let target=segments?0:initial.y;
+  for(let index=0;index<32;index++){
+   if(segments){await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),target);await paint();}
+   const position=await measure();
+   if(position.width!==initial.width||position.height!==initial.height||position.documentHeight!==initial.documentHeight||position.dpr!==initial.dpr)throw new Error('native capture dimensions changed');
+   if(segments&&index===0&&position.y!==0)throw new Error('native capture did not start at top');
+   const previous=captures.at(-1);
+   if(previous&&(position.y<=previous.y||position.y>previous.y+previous.height))throw new Error('native capture repeated position or gap');
+   const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:false});
+   const png=Buffer.from(shot.data,'base64');
+   if(png.length<24||png.readUInt32BE(0)!==0x89504e47)throw new Error('invalid native capture PNG');
+   const pngWidth=png.readUInt32BE(16),pngHeight=png.readUInt32BE(20);
+   if(pngWidth!==Math.round(position.width*position.dpr)||pngHeight<position.height*position.dpr)throw new Error('native capture viewport dimensions do not match');
+   const after=await measure();
+   if(after.y!==position.y||after.width!==position.width||after.height!==position.height||after.documentHeight!==position.documentHeight||after.dpr!==position.dpr)throw new Error('native capture moved during screenshot');
+   const name=segments?`${stem}-segment-${String(index+1).padStart(2,'0')}.png`:`${stem}.png`;
+   await writeFile(join(evidence,name),png);
+   captures.push({y:position.y,width:position.width,height:position.height,documentHeight:position.documentHeight,pngWidth,pngHeight});
+   if(!segments||position.y+position.height>=position.documentHeight)break;
+   target=Math.min(position.y+Math.max(1,Math.floor(position.height*0.8)),position.documentHeight-position.height);
+  }
+  if(segments){
+   const last=captures.at(-1);
+   if(!last||last.y+last.height<last.documentHeight)throw new Error('native capture coverage limit reached');
+   await writeFile(join(evidence,`${stem}-coverage.json`),JSON.stringify({originalScrollY:original,segments:captures},null,2));
+  }
+ } finally {
+  try {if(original!==undefined&&segments){await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),original);await paint();if((await measure()).y!==original)throw new Error('native capture scroll restoration failed');}}
+  finally {await cdp.detach();}
+ }
+}
+
 test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>{
  expect(api).not.toBe(new URL('http://example.invalid').origin);
  await page.goto('/v4');
@@ -100,7 +142,7 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
   const dimensions=()=>zoomPage.evaluate(()=>({outerWidth,innerWidth,dpr:devicePixelRatio,visualScale:visualViewport?.scale,cssZoom:getComputedStyle(document.documentElement).zoom,scrollWidth:document.documentElement.scrollWidth}));
   await zoomPage.goto(process.env.V4_WEB_ORIGIN!+'/v4');await expect(zoomPage.getByRole('button',{name:'一键体验'})).toBeVisible();const zoomBefore=await dimensions();
   await zoomPage.goto('chrome://settings/appearance');const zoomControl=zoomPage.locator('select#zoomLevel');await expect(zoomControl).toHaveValue('1');await zoomControl.selectOption('2');await expect(zoomControl).toHaveValue('2');
-  await zoomPage.screenshot({path:join(evidence,'live-native-settings-200.png')});
+  await captureNative200(zoomPage,'live-native-settings-200',false);
   await zoomPage.goto(process.env.V4_WEB_ORIGIN!+'/v4');await expect(zoomPage.getByRole('button',{name:'一键体验'})).toBeVisible();const zoomAfter=await dimensions();
   expect(zoomBefore.outerWidth).toBe(1440);expect(zoomBefore.visualScale).toBe(1);expect(zoomBefore.cssZoom).toBe('1');expect(zoomAfter.outerWidth).toBe(zoomBefore.outerWidth);expect(zoomAfter.innerWidth*2).toBe(zoomBefore.innerWidth);expect(zoomAfter.dpr).toBe(zoomBefore.dpr*2);expect(zoomAfter.visualScale).toBe(1);expect(zoomAfter.cssZoom).toBe('1');expect(zoomAfter.scrollWidth).toBeLessThanOrEqual(zoomAfter.innerWidth);
   await writeFile(join(evidence,'live-native-zoom-metrics.json'),JSON.stringify({nativeZoomSelection:'2',before:zoomBefore,after:zoomAfter},null,2));
@@ -113,11 +155,11 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
   expect(zoomCreated.data.receipt.operation).toBe('session_create');expect(zoomCreated.data.receipt.request_key).toBe(zoomBody.request_key);expect(zoomBody.request_key).not.toBe(createBody.request_key);expect(zoomBody.request_key).not.toBe(mobileBody.request_key);expect(zoomCreated.context.tenant_id).not.toBe(current.context.tenant_id);expect(zoomCreated.context.tenant_id).not.toBe(mobile.context.tenant_id);
   const zoomSession=await read(await zoomCurrent,'SessionEnvelope');expect(zoomSession.data.creation_request_key).toBe(zoomBody.request_key);expect(zoomSession.data.persona_id).toBe('operator');expect(zoomSession.data.shops).toHaveLength(2);expect(zoomSession.context.reset_epoch).toBe(zoomCreated.data.receipt.reset_epoch);expect(zoomSession.context.auth_generation).toBe(zoomCreated.data.receipt.auth_generation);await expect(zoomPage.getByText('演示空间已建立。')).toBeVisible();
   const zoomShop=zoomSession.data.shops[0];const zoomSummaryResponse=response(zoomPage,'GET','/seed-summary');await zoomPage.getByLabel('店铺').selectOption(zoomShop.shop_id);const zoomSummaryRaw=await zoomSummaryResponse;const zoomSummary=await read(zoomSummaryRaw,'SeedSummaryEnvelope');sameTenant(zoomSession.context,zoomSummary.context);expect(zoomSummary.context.shop_id).toBe(zoomShop.shop_id);expect(zoomSummary.context.reset_epoch).toBe(zoomSession.context.reset_epoch);expect(zoomSummary.context.auth_generation).toBe(zoomSession.context.auth_generation);expect(new URL(zoomSummaryRaw.url()).searchParams.get('shop_id')).toBe(zoomShop.shop_id);expect(zoomSummaryRaw.request().headers()['x-demo-epoch']).toBe(String(zoomSession.context.reset_epoch));expect(zoomSummaryRaw.request().headers()['x-demo-generation']).toBe(String(zoomSession.context.auth_generation));await expect(zoomPage.getByText(new RegExp(`商品 ${zoomSummary.data.counts.products} · SKU ${zoomSummary.data.counts.skus}`))).toBeVisible();
-  expect((await dimensions()).scrollWidth).toBeLessThanOrEqual((await dimensions()).innerWidth);await zoomPage.screenshot({path:join(evidence,'live-session-native-200.png'),fullPage:true});
+  expect((await dimensions()).scrollWidth).toBeLessThanOrEqual((await dimensions()).innerWidth);await captureNative200(zoomPage,'live-session-native-200',true);
   const zoomSettingsCurrent=zoomPage.waitForResponse(r=>sessionResponseMatches(r,api,{creationKey:zoomBody.request_key,tenant:zoomSession.context.tenant_id,organization:zoomSession.context.organization_id,persona:'operator',epoch:zoomSession.context.reset_epoch,generation:zoomSession.context.auth_generation}));
   const zoomNav=zoomPage.getByRole('navigation',{name:'演示导航'});const zoomSettings=zoomNav.getByRole('link',{name:'演示设置'});await expect(zoomSettings).toBeVisible();await zoomSettings.focus();await expect(zoomSettings).toBeFocused();await zoomPage.keyboard.press('Enter');await expect(zoomPage).toHaveURL(/\/v4\/settings\/demo$/);await expect(zoomPage.getByRole('navigation',{name:'演示导航'}).getByRole('link',{name:'演示设置'})).toHaveAttribute('aria-current','page');const zoomRestored=await read(await zoomSettingsCurrent,'SessionEnvelope');expect(zoomRestored.context.principal_id).toBe(zoomSession.context.principal_id);
   const zoomReset=zoomPage.getByRole('button',{name:'重置演示'});await zoomReset.focus();await expect(zoomReset).toBeFocused();await zoomPage.keyboard.press('Enter');const zoomDialog=zoomPage.getByRole('dialog',{name:'重置当前演示空间？'});await expect(zoomDialog).toBeVisible();await expect(zoomDialog.getByRole('button',{name:'确认重置'})).toBeVisible();await expect(zoomDialog.getByRole('button',{name:'取消'})).toBeVisible();await zoomPage.keyboard.press('Tab');expect(await zoomDialog.evaluate(element=>element.contains(document.activeElement))).toBe(true);
-  expect((await dimensions()).scrollWidth).toBeLessThanOrEqual((await dimensions()).innerWidth);await zoomPage.screenshot({path:join(evidence,'live-dialog-native-200.png'),fullPage:true});await zoomPage.keyboard.press('Escape');await expect(zoomDialog).not.toBeVisible();await expect(zoomReset).toBeFocused();
+  expect((await dimensions()).scrollWidth).toBeLessThanOrEqual((await dimensions()).innerWidth);await captureNative200(zoomPage,'live-dialog-native-200',false);await zoomPage.keyboard.press('Escape');await expect(zoomDialog).not.toBeVisible();await expect(zoomReset).toBeFocused();
   const zoomLogoutResponse=response(zoomPage,'POST','/logout');await zoomPage.getByRole('button',{name:'退出'}).click();const zoomLogoutRaw=await zoomLogoutResponse;const zoomLogout=await read(zoomLogoutRaw,'ControlEnvelope');const zoomLogoutBody=zoomLogoutRaw.request().postDataJSON();expect(zoomLogout.data.receipt.operation).toBe('logout');expect(zoomLogout.data.receipt.request_key).toBe(zoomLogoutBody.request_key);expect(zoomLogoutBody.expected_epoch).toBe(zoomSession.context.reset_epoch);expect(zoomLogoutBody.expected_generation).toBe(zoomSession.context.auth_generation);sameTenant(zoomSession.context,zoomLogout.context);expect(zoomLogout.context.reset_epoch).toBe(zoomSession.context.reset_epoch);expect(zoomLogout.context.auth_generation).toBe(zoomSession.context.auth_generation);await expect(zoomPage.getByText('已退出演示。')).toBeVisible();await expect(zoomPage.getByText(/当前视角：/)).toHaveCount(0);expect((await zoomContext.cookies(`${api}/api/v4/demo/session`)).filter(c=>c.name==='commerceops_v4_demo').every(c=>!c.value)).toBe(true);
  } catch(error) {zoomFailed=true;zoomFailure=error;throw error;} finally {
   try {await closeAndCleanOwnedProfile(zoomContext,profile,rm);}
