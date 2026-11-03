@@ -162,7 +162,8 @@ export type FailureCode2 =
   | "DAILY_PERMISSION_INVALID"
   | "DAILY_SOURCE_BINDING_CHANGED"
   | "DAILY_STORAGE_FAILURE"
-  | "DAILY_WORKFLOW_UNSAFE";
+  | "DAILY_WORKFLOW_UNSAFE"
+  | "WORKER_TERMINATION_UNCONFIRMED";
 export type Report1 = null;
 export type SchemaVersion4 = "p6-m3-web-v1";
 export type TaskId3 = string;
@@ -186,7 +187,8 @@ export type FailureCode3 =
   | "DAILY_PERMISSION_INVALID"
   | "DAILY_SOURCE_BINDING_CHANGED"
   | "DAILY_STORAGE_FAILURE"
-  | "DAILY_WORKFLOW_UNSAFE";
+  | "DAILY_WORKFLOW_UNSAFE"
+  | "WORKER_TERMINATION_UNCONFIRMED";
 export type ReportId1 = string;
 export type SnapshotId1 = string;
 export type ContentHash1 = string;

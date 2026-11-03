@@ -37,6 +37,7 @@ const failureNames: Record<string, string> = {
   DAILY_SOURCE_INCOMPLETE: "来源数据不完整", DAILY_SOURCE_UNAVAILABLE: "来源暂不可用",
   DAILY_PERMISSION_INVALID: "当前权限不满足读取要求", DAILY_SOURCE_BINDING_CHANGED: "来源绑定已变化",
   DAILY_STORAGE_FAILURE: "报告保存未完成", DAILY_WORKFLOW_UNSAFE: "运行条件不满足",
+  WORKER_TERMINATION_UNCONFIRMED: "工作进程停止状态尚未确认，请稍后核实当前记录",
 };
 const local = (time: string, zone: string) =>
   new Intl.DateTimeFormat("zh-CN", { timeZone: zone, dateStyle: "medium", timeStyle: "short" }).format(new Date(time));
