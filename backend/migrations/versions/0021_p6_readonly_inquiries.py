@@ -253,10 +253,19 @@ RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT (
 }'::jsonb AS schema) frozen $$;
 CREATE FUNCTION business.inquiry_safe_failure(v jsonb) RETURNS boolean
 LANGUAGE sql IMMUTABLE AS $$ SELECT (v->>'status'='access_denied'
- AND v->'model_calls'='0'::jsonb AND v->'tool_calls'='0'::jsonb
- AND v->'scanned_rows'='0'::jsonb AND v->'traces'='[]'::jsonb
+ AND jsonb_typeof(v->'model_calls')='number'
+ AND (v->>'model_calls')::int BETWEEN 0 AND 3
+ AND jsonb_typeof(v->'tool_calls')='number'
+ AND (v->>'tool_calls')::int BETWEEN 0 AND 4
+ AND jsonb_typeof(v->'scanned_rows')='number'
+ AND (v->>'scanned_rows')::int BETWEEN 0 AND 10000
+ AND jsonb_typeof(v->'traces')='array'
+ AND jsonb_array_length(v->'traces')=(v->>'tool_calls')::int
  AND v->'results'='[]'::jsonb AND v->'claims'='[]'::jsonb
  AND v->'evidence_refs'='[]'::jsonb AND v->'clarification_options'='[]'::jsonb) IS TRUE $$;
+COMMENT ON FUNCTION business.inquiry_safe_failure(jsonb) IS
+ 'Counters and safe traces retain known current-attempt usage; prior attempts UNKNOWN.
+  Shared payload validation still applies. No facts, claims, refs or options are disclosed.';
 CREATE FUNCTION business.valid_inquiry_payload(v jsonb,c text,h text,state text,w text,source text)
 RETURNS boolean LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE r jsonb; claim jsonb; reference jsonb; fact jsonb; win jsonb;
@@ -621,18 +630,21 @@ DECLARE r jsonb; claim jsonb; reference jsonb; fact jsonb; win jsonb;
    "type": "string"
   },
   "model_calls": {
+   "description": "Known model calls in this executor attempt; prior attempts UNKNOWN.",
    "maximum": 3,
    "minimum": 0,
    "title": "Model Calls",
    "type": "integer"
   },
   "tool_calls": {
+   "description": "Known tool calls in this executor attempt; prior attempts UNKNOWN.",
    "maximum": 4,
    "minimum": 0,
    "title": "Tool Calls",
    "type": "integer"
   },
   "scanned_rows": {
+   "description": "Known scanned rows in this executor attempt; prior attempts UNKNOWN.",
    "minimum": 0,
    "title": "Scanned Rows",
    "type": "integer"
@@ -711,8 +723,8 @@ BEGIN
   AND w='p6-readonly-inquiry-v1' AND v->>'workflow_version'=w
   AND v->>'schema_version'='p6-inquiry-result-v1'
   AND v->>'evidence_mode'='offline_stub'
-  AND state=CASE WHEN v->>'status' IN ('complete','clarify','unsupported','insufficient_evidence')
-    THEN 'completed' ELSE 'failed' END
+  AND state=(CASE WHEN v->>'status' IN ('complete','clarify','unsupported','insufficient_evidence')
+    THEN 'completed' ELSE 'failed' END)
   AND jsonb_array_length(v->'traces')=(v->>'tool_calls')::int
   AND (v->>'scanned_rows')::int<=10000
   AND (v->>'status'='complete' OR (v->'results'='[]'::jsonb
@@ -732,7 +744,7 @@ BEGIN
  END LOOP;
  FOR claim IN SELECT value FROM jsonb_array_elements(v->'claims') LOOP
   IF jsonb_array_length(claim->'refs')<>
-   CASE WHEN claim->>'kind'='fact' THEN 1 ELSE 2 END THEN RETURN false; END IF;
+   (CASE WHEN claim->>'kind'='fact' THEN 1 ELSE 2 END) THEN RETURN false; END IF;
   FOR reference IN SELECT value FROM jsonb_array_elements(claim->'refs') LOOP
    IF NOT (v->'evidence_refs' @> jsonb_build_array(reference)) THEN RETURN false; END IF;
   END LOOP;

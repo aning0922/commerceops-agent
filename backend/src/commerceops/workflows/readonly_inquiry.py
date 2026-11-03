@@ -32,7 +32,7 @@ class RunnerStore(Protocol):
     def load(self, run: RunRequest) -> tuple[dict[str, Any], ResultPayload | None]: ...
     def mark(self, run: RunRequest) -> None: ...
     def finish(self, run: RunRequest, result: ResultPayload) -> None: ...
-    def fail_safe(self, run: RunRequest) -> None: ...
+    def fail_safe(self, run: RunRequest, known: ResultPayload | None = None) -> None: ...
 
 
 class RuntimeCheck(Protocol):
@@ -79,6 +79,7 @@ class ReadonlyInquiryRunner:
         if self.active or run.workflow_version != WORKFLOW or run.kind != "analyze":
             raise ValueError("INQUIRY_RUN_BINDING")
         self.active = True
+        payload: ResultPayload | None = None
         try:
             await self.session.check()
             row, previous = await db_call(self.store.load, run)
@@ -95,7 +96,7 @@ class ReadonlyInquiryRunner:
             return RunResult()
         except (WebFailure, OSError):
             await self.session.check()
-            await db_call(self.store.fail_safe, run)
+            await db_call(self.store.fail_safe, run, payload)
             return RunResult()
         finally:
             self.active = False

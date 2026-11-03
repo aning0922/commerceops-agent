@@ -56,9 +56,17 @@ class ResultPayload(Strict):
         "timeout",
         "tool_denied",
     ]
-    model_calls: int = Field(ge=0, le=3)
-    tool_calls: int = Field(ge=0, le=4)
-    scanned_rows: int = Field(ge=0)
+    model_calls: int = Field(
+        ge=0,
+        le=3,
+        description="Known model calls in this executor attempt; prior attempts UNKNOWN.",
+    )
+    tool_calls: int = Field(
+        ge=0, le=4, description="Known tool calls in this executor attempt; prior attempts UNKNOWN."
+    )
+    scanned_rows: int = Field(
+        ge=0, description="Known scanned rows in this executor attempt; prior attempts UNKNOWN."
+    )
     traces: tuple[TraceRead, ...] = Field(max_length=4)
     results: tuple[ReadResult, ...] = Field(max_length=4)
     evidence_refs: tuple[str, ...] = Field(max_length=100)
@@ -71,6 +79,29 @@ class ResultPayload(Strict):
     def from_outcome(cls, value: Outcome) -> "ResultPayload":
         raw = asdict(value)
         return cls.model_validate(raw)
+
+    @classmethod
+    def safe_failure(cls, known: "ResultPayload | None") -> "ResultPayload":
+        """Retain known current-attempt usage only; prior-attempt usage is UNKNOWN.
+
+        None is used before execute has returned an Outcome. In this runner all
+        ordinary executor errors return an Outcome; pre-executor failures consumed
+        zero calls in this attempt. This never asserts zero across prior attempts.
+        """
+        if known is None:
+            return cls.from_outcome(Outcome("access_denied", 0, 0, 0, ()))
+        known = cls.model_validate_json(known.model_dump_json())
+        return cls(
+            status="access_denied",
+            model_calls=known.model_calls,
+            tool_calls=known.tool_calls,
+            scanned_rows=known.scanned_rows,
+            traces=known.traces,
+            results=(),
+            evidence_refs=(),
+            claims=(),
+            clarification_options=(),
+        )
 
     def outcome(self) -> Outcome:
         return Outcome(

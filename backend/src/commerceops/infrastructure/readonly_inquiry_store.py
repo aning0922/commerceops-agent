@@ -12,7 +12,6 @@ from psycopg.types.json import Jsonb
 
 from commerceops.adapters.commerce.mock import Fixture
 from commerceops.application.commerce.readonly_inquiry_contracts import Window
-from commerceops.application.commerce.readonly_inquiry_executor import Outcome
 from commerceops.application.commerce.readonly_inquiry_render import render
 from commerceops.application.commerce.readonly_inquiry_service_contracts import (
     KIND,
@@ -371,9 +370,9 @@ class InquiryStore:
             raise ValueError("INQUIRY_TERMINAL_INTEGRITY")
         render(previous.outcome())
 
-    def fail_safe(self, run: RunRequest) -> None:
-        """Owned-job settlement only; no facts, source reads, or disclosure authority."""
-        result = ResultPayload.from_outcome(Outcome("access_denied", 0, 0, 0, ()))
+    def fail_safe(self, run: RunRequest, known: ResultPayload | None = None) -> None:
+        """Owned settlement; known current-attempt usage survives, facts do not."""
+        result = ResultPayload.safe_failure(known)
         canonical = result.model_dump_json()
         with connect(self.settings) as db:
             row = self.owned_row(db, run)

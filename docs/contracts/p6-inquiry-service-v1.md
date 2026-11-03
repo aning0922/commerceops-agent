@@ -73,3 +73,13 @@ Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config,
 四个独立进程恢复变体在实际结果 commit 与 job 结算之间屏障停止，父进程确认子进程 kill/wait 后才调用原 `confirm_termination`，新进程经原队列恢复并以禁止创建 runtime 的 factory 冷重放；比较同 task/request 的结果规范内容/hash/version 不变及 job 第二 attempt 结算。变体包括原会话过期、fixture 不存在、主体撤权；这些只允许内部结算，用户 GET 仍被拒绝。该用例直接调用原 `mark_attention` 并要求持久终态保留，当前树缺 Root 的窄排除时会失败，不能跳过或删掉断言。测试覆盖真实 runner/session/queue 协议，完整共享 Worker/API 壳注册与端到端进程测试仍由 Root 集成承担。
 
 本批最终静态检查涵盖 6 个 Python 文件 Ruff/format/mypy；原 3 个扫描命中继续保留，按 Root 指令未再扫描、未添加 allowlist。完整迁移父链/SQL 执行/真实 PG/服务/CI 仍未运行。
+
+## 18a297 复审新增两项 P2 的最小修复候选（待复审，PG_NOT_RUN）
+
+独审已确认原两项 P2 实质关闭，但新发现 CASE 解析与安全失败用量归零，继续 HOLD。原 104 pure 不抵独立探针：真实 execute 用 model3/tool2/scanned3 后，finish 撤权进入 fail_safe，18a297 会把三项错误写成 0。原提交及该失败事实保留。此前“固定零模型/工具/扫描”的描述仅属于该有缺陷候选，不能作为恢复后的准确用量。
+
+本次把 migration 全文件两个 CASE 表达式均加括号，claim 的 fact/compare arity 仍为 1/2；全文件静态检查为 CASE 2 个、未包裹 0 个。它不替代实际 PL/pgSQL 解析/执行。runner 在 execute 返回后保留 typed payload，finish 失败时交给实际 store 的 fail_safe；store 再严格验证并仅复制已知 model_calls/tool_calls/scanned_rows 和允许的 tool id/name/args_hash trace，清除所有结果、facts、claims、refs、候选。SQL 窄安全失败谓词允许原范围内计数和相应 trace，共享严格 payload 校验与零披露条件继续适用。
+
+计数明确只代表**本次 executor 尝试的已知用量**，不作为跨 job attempt 累计；历史尝试用量为 **UNKNOWN**。execute 尚未开始的本次尝试才可记录 0；普通 executor 失败仍返回带已知计数的 Outcome，不能回到默认 0。DTO 字段描述、同源 OpenAPI 与 migration 冻结 schema 同步标明这个边界。已有终态及 commit ACK unknown 的重读路径继续保留原结果，不由新安全失败覆盖。
+
+新增离线回归运行真实 runner/execute/DemoChoice/Mock facade/实际 store 的 load→mark→finish→fail_safe，只有数据库 transport 和鉴权边界为 double：确认 finish 前 complete 结果已有 3/2/3，撤权后 SQL 写入仍为 3/2/3、两条相同安全 trace、零 facts/claims/refs/options，原失败回执重放不再次调用或写入。相关离线总计 **105 pass**。这是服务路径回归，不是 PG 权限或 SQL 通过证据；独立 36 节点 PG 矩阵 `9d79388d9c45cc8e7bdbec3e771832e19c8c4483` 保持不变且 NOT_RUN。未启动 PG、未全扫或添加 allowlist，原 3 个扫描命中保留。

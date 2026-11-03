@@ -5,6 +5,7 @@ import json
 import threading
 from datetime import timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
@@ -34,7 +35,9 @@ from commerceops.application.commerce.readonly_inquiry_tools import MockReadFaca
 from commerceops.application.replenishment.contracts import WebActor
 from commerceops.application.runner import RunRequest
 from commerceops.infrastructure import readonly_inquiry_runtime
+from commerceops.infrastructure import readonly_inquiry_store as inquiry_storage
 from commerceops.infrastructure.readonly_inquiry_runtime import ServiceReadPort, db_call
+from commerceops.infrastructure.readonly_inquiry_store import InquiryConfig, InquiryStore
 from commerceops.workflows.readonly_inquiry import ReadonlyInquiryRunner, Runtime
 from pydantic import ValidationError
 
@@ -98,7 +101,7 @@ class MemoryRunnerStore:
         self.saved = result
         self.writes += 1
 
-    def fail_safe(self, run: RunRequest) -> None:
+    def fail_safe(self, run: RunRequest, known: ResultPayload | None = None) -> None:
         raise AssertionError("unexpected failure settlement")
 
 
@@ -374,8 +377,9 @@ def test_runner_denied_load_settles_only_safe_failure() -> None:
         def load(self, run: RunRequest) -> tuple[dict[str, Any], ResultPayload | None]:
             raise WebFailure("SESSION_INVALID", 401)
 
-        def fail_safe(self, run: RunRequest) -> None:
-            self.saved = ResultPayload.from_outcome(Outcome("access_denied", 0, 0, 0, ()))
+        def fail_safe(self, run: RunRequest, known: ResultPayload | None = None) -> None:
+            assert known is None
+            self.saved = ResultPayload.safe_failure(known)
 
     async def forbidden(*args: Any) -> Any:
         raise AssertionError("no model/source runtime after denied load")
@@ -387,3 +391,114 @@ def test_runner_denied_load_settles_only_safe_failure() -> None:
         and store.saved.results == ()
         and store.saved.status == "access_denied"
     )
+
+
+def test_real_executor_finish_revocation_preserves_usage_in_safe_sql_write(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Full runner/executor/store flow; transport/authorization doubles, no PG proof."""
+    from commerceops.application.replenishment.contracts import WebFailure
+
+    fixture = Fixture.load(DIRECTORY)
+    request = run_request()
+    row: dict[str, Any] = {
+        "task_id": request.task_id,
+        "organization_id": request.organization_id,
+        "principal_id": uuid4(),
+        "state": "queued",
+        "task_state": "queued",
+        "result": None,
+        "result_canonical": None,
+        "result_hash": None,
+    }
+    writes: list[dict[str, Any]] = []
+
+    class Transport:
+        def __enter__(self) -> "Transport":
+            return self
+
+        def __exit__(self, *_: Any) -> None:
+            pass
+
+        def execute(self, statement: str, args: Any = None) -> "Transport":
+            if "UPDATE business.readonly_inquiries SET state='analyzing'" in statement:
+                row["state"] = "analyzing"
+            elif "UPDATE business.readonly_inquiries SET state='failed'" in statement:
+                stored = json.loads(args[1])
+                assert stored == args[0].obj
+                row.update(
+                    state="failed",
+                    result=stored,
+                    result_canonical=args[1],
+                    result_hash=args[2],
+                )
+                writes.append(stored)
+            elif "UPDATE business.business_tasks SET state='analyzing'" in statement:
+                row["task_state"] = "analyzing"
+            elif "UPDATE business.business_tasks SET state='failed'" in statement:
+                row["task_state"] = "failed"
+            return self
+
+        def fetchone(self) -> dict[str, bool]:
+            return {"valid": True}
+
+    class Store(InquiryStore):
+        revoked = False
+        attempted: ResultPayload | None = None
+
+        def owned_row(self, db: Any, run: RunRequest) -> dict[str, Any]:
+            assert run == request
+            return dict(row)
+
+        def run_row(self, db: Any, run: RunRequest) -> dict[str, Any]:
+            if self.revoked:
+                raise WebFailure("ACCESS_DENIED", 403)
+            return self.owned_row(db, run)
+
+        def finish(self, run: RunRequest, result: ResultPayload) -> None:
+            self.attempted = result
+            self.revoked = True
+            super().finish(run, result)
+
+    monkeypatch.setattr(inquiry_storage, "connect", lambda _: Transport())
+    # All persistence calls still use the actual InquiryStore methods above.
+    config: Any = SimpleNamespace(database=None)
+    store = Store(config, InquiryConfig(request.shop_id, DIRECTORY, enabled=True))
+
+    async def factory(run: RunRequest, state: dict[str, Any]) -> Runtime:
+        context = Context(
+            request_id=str(run.task_id),
+            principal_id=str(row["principal_id"]),
+            organization_id=str(run.organization_id),
+            shop_id=fixture.source.shop_id,
+            identity_id="current-test-identity",
+            auth_version=1,
+            source_binding=fixture.source.provenance.raw_hash,
+            question="库存 合成演示商品 100",
+        )
+        domain = fixture_domain(fixture)
+        return (
+            context,
+            DemoChoice(domain),
+            Identity(),
+            DomainReadPort(MockReadFacade(MockCommerce(fixture)), domain),
+        )
+
+    runner = ReadonlyInquiryRunner(store, Session(), factory)
+    asyncio.run(runner.run(request))
+    attempted = store.attempted
+    assert attempted is not None and attempted.status == "complete" and attempted.results
+    assert (attempted.model_calls, attempted.tool_calls, attempted.scanned_rows) == (3, 2, 3)
+    assert len(writes) == 1 and row["state"] == row["task_state"] == "failed"
+    saved = ResultPayload.model_validate_json(row["result_canonical"])
+    assert (saved.model_calls, saved.tool_calls, saved.scanned_rows) == (3, 2, 3)
+    assert saved.traces == attempted.traces and len(saved.traces) == 2
+    assert saved.status == "access_denied"
+    assert saved.results == ()
+    assert saved.claims == ()
+    assert saved.evidence_refs == ()
+    assert saved.clarification_options == ()
+    assert "sku/demo" not in saved.model_dump_json()
+    # Same durable failed receipt is reused; no additional model, tool or result write.
+    asyncio.run(runner.run(request))
+    assert len(writes) == 1 and ResultPayload.model_validate_json(row["result_canonical"]) == saved
