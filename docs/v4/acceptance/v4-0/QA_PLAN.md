@@ -158,3 +158,15 @@ Mypy及 `python -m scripts.check_docs`。它仅签纯/进程/DTO契约，不计�
 Node缓存安装曾因复制的npm launcher找不到`../lib/cli.js`而exit1，改为固定Node执行同包
 `lib/node_modules/npm/bin/npm-cli.js --prefix frontend ci --ignore-scripts --offline`
 后exit0、41 packages安装，未改锁。这不是在线完整漏洞查询或scripts.check通过。
+
+第二切片首次冻结为 `34e895eb1e873027b2201d7bd159d464200e39ae`；冻结复核实际
+26pass/1fail、3.32s、native1（此前WIP同27项曾全通过）。失败为已退出leader的后代组清理，
+补安全errno诊断后单项再次native1/0.11s，实际捕获 `PermissionError errno=1`。
+具体平台根因仍UNKNOWN，不将先前27pass改写为冻结通过，也不忽略所有EPERM。
+
+修正加入对**该自建process group**的独立 `/bin/ps -g <owned-pgid> -o stat=` 观察，
+在清理截止内核无live writer；仅空组或全zombie可作为无活跃写入者事实，未知状态/观察失败/
+活跃成员仍FAIL。信号错误保存在OwnedProcess.signal_errors，不因最终清理成功而丢弃。
+SIGKILL后同样核组状态；日志finally关闭；某角色失败仍尝试清理其他自有角色，绝不扩到
+其他进程组。此次并未证明平台EPERM根因已修复。定向修正验证1pass/0.80s/native0，随后
+完整本目录29pass/4.11s/native0；含两条显式EPERM有/无独立清理证明的单元契约。

@@ -5,7 +5,7 @@ import signal
 import subprocess
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO, Literal
@@ -50,6 +50,7 @@ class OwnedProcess:
     log: BinaryIO
     native_exit: int | None = None
     stopped: bool = False
+    signal_errors: list[tuple[int, int | None]] = field(default_factory=list)
 
 
 class Supervisor:
@@ -73,7 +74,7 @@ class Supervisor:
                     continue
                 try:
                     self.stop(owned)
-                except (OSError, TimeoutError, subprocess.TimeoutExpired):
+                except (OSError, TimeoutError, subprocess.TimeoutExpired, RuntimeError):
                     self.watchdog_errors.append(owned.role)
 
     def _arm(self) -> None:
@@ -127,6 +128,35 @@ class Supervisor:
         with self._lock:
             return self._stop(owned)
 
+    def _no_live_group(self, owned: OwnedProcess) -> bool:
+        # Inspect only the group created here; no machine-wide process inventory.
+        observed = subprocess.run(
+            ["/bin/ps", "-g", str(owned.process.pid), "-o", "stat="],
+            capture_output=True,
+            text=True,
+            env={},
+            timeout=self.budget.timeout(1, cleanup=True),
+            check=False,
+        )
+        if observed.returncode == 1 and not observed.stdout.strip() and not observed.stderr.strip():
+            return True
+        if observed.returncode != 0 or observed.stderr.strip():
+            raise RuntimeError("owned process group inspection failed")
+        states = observed.stdout.split()
+        return bool(states) and all(state.startswith("Z") for state in states)
+
+    def _signal(self, owned: OwnedProcess, sig: signal.Signals) -> None:
+        try:
+            os.killpg(owned.process.pid, sig)
+        except ProcessLookupError:
+            pass
+        except PermissionError as exc:
+            owned.signal_errors.append((int(sig), exc.errno))
+            # Preserve the syscall failure. Accept cleanup only with independent
+            # evidence that this exact group has no live writer, never by errno alone.
+            if not self._no_live_group(owned):
+                raise
+
     def _stop(self, owned: OwnedProcess) -> int:
         if not any(owned is item for item in self.owned):
             raise ValueError("unowned process refused")
@@ -136,22 +166,23 @@ class Supervisor:
             return owned.native_exit
         # The session/process group was created here. Never signal an adopted PID.
         # Kill the group even if its leader exited: descendants may still be writers.
-        try:
-            os.killpg(owned.process.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
+        self._signal(owned, signal.SIGTERM)
         try:
             owned.native_exit = owned.process.wait(timeout=self.budget.timeout(2, cleanup=True))
         except subprocess.TimeoutExpired:
             owned.native_exit = None
         finally:
             try:
-                os.killpg(owned.process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            owned.log.close()
+                self._signal(owned, signal.SIGKILL)
+            finally:
+                owned.log.close()
         # Always reap the child, including after TERM is ignored.
         owned.native_exit = owned.process.wait(timeout=self.budget.timeout(2, cleanup=True))
+        until = time.monotonic() + self.budget.timeout(1, cleanup=True)
+        while not self._no_live_group(owned):
+            if time.monotonic() >= until:
+                raise RuntimeError("owned descendant group still has live writers")
+            time.sleep(0.01)
         owned.stopped = True
         return owned.native_exit
 
@@ -164,9 +195,11 @@ class Supervisor:
                 continue  # Keep PG alive for final read-only facts.
             try:
                 result[owned.role] = self.stop(owned)
-            except (OSError, TimeoutError, subprocess.TimeoutExpired):
+            except (OSError, TimeoutError, subprocess.TimeoutExpired, RuntimeError) as exc:
                 result[owned.role] = None
-                failures.append(owned.role)
+                failures.append(
+                    f"{owned.role}:{type(exc).__name__}:errno={getattr(exc, 'errno', None)}"
+                )
         if failures:
             raise RuntimeError("owned writer cleanup incomplete: " + ",".join(failures))
         return result

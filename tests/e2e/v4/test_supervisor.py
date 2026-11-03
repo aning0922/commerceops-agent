@@ -194,3 +194,32 @@ def test_exited_leader_does_not_leave_descendant_writer(tmp_path: Path) -> None:
     finally:
         owner.stop_writers()
         owner.close_pg()
+
+
+@pytest.mark.parametrize("no_live", [True, False])
+def test_permission_error_needs_independent_no_live_proof(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    no_live: bool,
+) -> None:
+    owner = Supervisor(budget(), tmp_path, tmp_path / "evidence")
+    child = owner.start("probe", (sys.executable, "-c", "pass"), {})
+    owner.wait(child, 3)
+
+    def denied(pid: int, sig: int) -> None:
+        raise PermissionError(1, "unit contract syscall refusal")
+
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(os, "killpg", denied)
+            patch.setattr(owner, "_no_live_group", lambda owned: no_live)
+            if no_live:
+                assert owner.stop(child) == 0
+                assert len(child.signal_errors) == 2
+            else:
+                with pytest.raises(PermissionError):
+                    owner.stop(child)
+                assert not child.stopped
+    finally:
+        owner.stop_writers()
+        owner.close_pg()
