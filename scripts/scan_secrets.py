@@ -30,6 +30,7 @@ from scripts.vendor_gitleaks_rules import (
     RO_ROW_DIGEST,
     RO_SOURCE_COMMIT,
     V4_MERGE_COPY_ANCHORS,
+    V4_MERGE_COPY_BINDINGS,
     V4_PREFLIGHT_SNAPSHOTS,
     V4_PUBLIC_EXCEPTIONS,
     V4_SOURCE_COMMIT,
@@ -354,22 +355,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 84
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 93
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 84
+        or len(provenance["exceptions"]) != 93
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 83:
+    if len(generic.get("allowlists", [])) != 92:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 83
+        len(generic["allowlists"]) != 92
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -543,6 +544,8 @@ def validate_rules() -> None:
 
     if provenance.get("v4_merge_copy_anchors") != list(V4_MERGE_COPY_ANCHORS):
         raise ValueError("invalid V4 merge anchors")
+    if provenance.get("v4_merge_copy_bindings") != list(V4_MERGE_COPY_BINDINGS):
+        raise ValueError("invalid V4 copy-only bindings")
     validate_woo_public_sources(ROOT)
 
 
@@ -564,7 +567,7 @@ def history_config() -> bytes:
     expected = tomllib.loads(content)
     generic = next(rule for rule in expected["rules"] if rule["id"] == "generic-api-key")
     generic["allowlists"] = generic["allowlists"][:44]
-    if removed != 39 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
+    if removed != 48 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
         raise ValueError("invalid V4 history config derivation")
     return derived.encode()
 
@@ -655,6 +658,7 @@ def approved_v4_merge_copy(scope: str, item: dict[str, Any]) -> dict[str, str] |
             *v4_additional_history_findings(),
             *v4_preflight_history_findings(),
             *V4_PREFLIGHT_SNAPSHOTS,
+            *V4_MERGE_COPY_BINDINGS,
         ):
             if row["path"] != anchor["path"]:
                 continue
@@ -695,7 +699,9 @@ def approved_v4_merge_copy(scope: str, item: dict[str, Any]) -> dict[str, str] |
                 "source_commit": anchor["source_commit"],
                 "blob": anchor["blob"],
                 "finding_source": str(row["source_commit"]),
-                "binding_kind": "history" if "fingerprint" in row else "snapshot",
+                "binding_kind": str(
+                    row.get("binding_kind", "history" if "fingerprint" in row else "snapshot")
+                ),
                 "finding_fingerprint": (
                     f"{row['source_commit']}:{row['path']}:{row['rule']}:{row['reported_line']}"
                 ),

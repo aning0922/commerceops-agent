@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "4602dd86583e26e2f7acba159d5ac57beb230df426b5baf124f664cf54ed8330",
+  "config_sha256": "dc1ec6dce08fa64284a32a0c1bff281f76cb794e2edf9fa866e90fd2d0c1abdf",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -839,10 +839,10 @@
       "path": "^tests/v4/test_demo_sessions_pg\\.py$",
       "reason": "V4预检候选；仅固定来源path与完整行/span",
       "exact_line_sha256": "5ae7df16f7216f67ea2645dcef5730b23e9cf1d886985b1f58ecbd1fceb07259",
-      "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
       "source_path": "tests/v4/test_demo_sessions_pg.py",
-      "source_line": 151,
-      "source_end_line": 151,
+      "source_line": 155,
+      "source_end_line": 155,
       "start_column": 20,
       "end_column": 50,
       "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
@@ -852,10 +852,10 @@
       "path": "^tests/v4/test_demo_sessions_pg\\.py$",
       "reason": "V4预检候选；仅固定来源path与完整行/span",
       "exact_line_sha256": "7293c9a4fd3f141f0a1aae4e56ff1e36c79a500a8541c0c7b65af6584d1ab0a1",
-      "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
       "source_path": "tests/v4/test_demo_sessions_pg.py",
-      "source_line": 170,
-      "source_end_line": 170,
+      "source_line": 174,
+      "source_end_line": 174,
       "start_column": 49,
       "end_column": 70,
       "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee"
@@ -865,13 +865,130 @@
       "path": "^tests/v4/test_demo_sessions_pg\\.py$",
       "reason": "V4预检候选；仅固定来源path与完整行/span",
       "exact_line_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
-      "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
       "source_path": "tests/v4/test_demo_sessions_pg.py",
-      "source_line": 197,
-      "source_end_line": 197,
+      "source_line": 201,
+      "source_end_line": 201,
       "start_column": 51,
       "end_column": 72,
       "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/v4\\-tests/lifecycle\\.waiter\\.mjs$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "c8b2b58b10acf12b247f59937a6fd4f4ee4170230d53b7dc806e0c41ce9f5cd6",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "source_path": "frontend/v4-tests/lifecycle.waiter.mjs",
+      "source_line": 9,
+      "source_end_line": 9,
+      "start_column": 10,
+      "end_column": 63,
+      "match_sha256": "0e979f26f5711d6c7674669d81cf34c804a8bc314f386508b229dc20989cd730"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/e2e/v4/owned_negatives\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "9eae89315546427045520b575cb3ef7d7e6578ccdb9da58d34c78982841a8272",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "source_path": "tests/e2e/v4/owned_negatives.py",
+      "source_line": 44,
+      "source_end_line": 44,
+      "start_column": 43,
+      "end_column": 64,
+      "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/e2e/v4/test_ttl_probe\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "d9750ce8385dbb070189901b02ded4ed09d2f868244afdca4c8e8ce7dabac003",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "source_path": "tests/e2e/v4/test_ttl_probe.py",
+      "source_line": 137,
+      "source_end_line": 137,
+      "start_column": 5,
+      "end_column": 50,
+      "match_sha256": "5e4ad6f415caa2abda096640ea1af5414dd9d0e6beb00eadb1bfc8da2b4811c0"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/e2e/v4/owned_driver\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "257d31b06b9ca99bcf1d666842c5dd8771b960a3aec485e029f620614fe3b267",
+      "source_commit": "1684e0455978b46ddad607e09d85a1af5657ab1a",
+      "source_path": "tests/e2e/v4/owned_driver.py",
+      "source_line": 735,
+      "source_end_line": 735,
+      "start_column": 10,
+      "end_column": 44,
+      "match_sha256": "f5d8f078e1d354c22377e9c092e9cdde6d794776f5a9fdcb32257cae559f277f"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/e2e/v4/test_owned_review_fixes\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "cfdb4732beb794c9d3e5092094e8f7c7123b45e0ad9ad04dc387ee54008008c8",
+      "source_commit": "1684e0455978b46ddad607e09d85a1af5657ab1a",
+      "source_path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "source_line": 19,
+      "source_end_line": 19,
+      "start_column": 2,
+      "end_column": 45,
+      "match_sha256": "eefb48d27a20ef5ccd633e9291b72ac3e56eefbc95276bb7db73015c53a26a8c"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/e2e/v4/test_owned_review_fixes\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "fe1f1dd755c5d96583753082c7fa4ae2be2dfd1a6bc371c240d5887bc3197945",
+      "source_commit": "1684e0455978b46ddad607e09d85a1af5657ab1a",
+      "source_path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "source_line": 105,
+      "source_end_line": 105,
+      "start_column": 18,
+      "end_column": 48,
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/v4/test_demo_seed_cli\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "source_path": "tests/v4/test_demo_seed_cli.py",
+      "source_line": 72,
+      "source_end_line": 72,
+      "start_column": 22,
+      "end_column": 52,
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/v4/test_demo_seed_pg\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "source_path": "tests/v4/test_demo_seed_pg.py",
+      "source_line": 380,
+      "source_end_line": 380,
+      "start_column": 51,
+      "end_column": 72,
+      "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/v4/test_demo_sessions_pg\\.py$",
+      "reason": "V4预检候选；仅固定来源path与完整行/span",
+      "exact_line_sha256": "dd7d51714550d1e9ae38863dfc91e83f7ecc1ff6a598762e2f06750db1b161e0",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "source_path": "tests/v4/test_demo_sessions_pg.py",
+      "source_line": 266,
+      "source_end_line": 266,
+      "start_column": 44,
+      "end_column": 70,
+      "match_sha256": "e7604b8b7a79c4930b78516ef572619404fa3858f7fa5099ccc7dfe4505b1f7d"
     }
   ],
   "historical_findings": [
@@ -2504,6 +2621,114 @@
       "exact_span_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
       "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
       "fingerprint": "31d11cc76c13a7a56afc5fec541b1657dc747cab:tests/v4/test_demo_sessions_pg.py:generic-api-key:197"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/test_ttl_probe.py",
+      "source_commit": "385c35599fc57a33ae2ebeeef881c6a4b8a1cbcc",
+      "reported_line": 137,
+      "end_line": 137,
+      "start_column": 5,
+      "end_column": 50,
+      "exact_span_sha256": "d9750ce8385dbb070189901b02ded4ed09d2f868244afdca4c8e8ce7dabac003",
+      "match_sha256": "5e4ad6f415caa2abda096640ea1af5414dd9d0e6beb00eadb1bfc8da2b4811c0",
+      "fingerprint": "385c35599fc57a33ae2ebeeef881c6a4b8a1cbcc:tests/e2e/v4/test_ttl_probe.py:generic-api-key:137"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/v4/test_demo_seed_cli.py",
+      "source_commit": "2332f738885ebd0608cbe1ce670ae434116588fb",
+      "reported_line": 72,
+      "end_line": 72,
+      "start_column": 22,
+      "end_column": 52,
+      "exact_span_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+      "fingerprint": "2332f738885ebd0608cbe1ce670ae434116588fb:tests/v4/test_demo_seed_cli.py:generic-api-key:72"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/v4-tests/lifecycle.waiter.mjs",
+      "source_commit": "0476f8203a9fe08eedf4c48c2bf3ddbc1d01bdcd",
+      "reported_line": 9,
+      "end_line": 9,
+      "start_column": 10,
+      "end_column": 63,
+      "exact_span_sha256": "c8b2b58b10acf12b247f59937a6fd4f4ee4170230d53b7dc806e0c41ce9f5cd6",
+      "match_sha256": "0e979f26f5711d6c7674669d81cf34c804a8bc314f386508b229dc20989cd730",
+      "fingerprint": "0476f8203a9fe08eedf4c48c2bf3ddbc1d01bdcd:frontend/v4-tests/lifecycle.waiter.mjs:generic-api-key:9"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "source_commit": "8196e628213a9ec5f8ed8c6542f89c213bf60914",
+      "reported_line": 19,
+      "end_line": 19,
+      "start_column": 2,
+      "end_column": 45,
+      "exact_span_sha256": "cfdb4732beb794c9d3e5092094e8f7c7123b45e0ad9ad04dc387ee54008008c8",
+      "match_sha256": "eefb48d27a20ef5ccd633e9291b72ac3e56eefbc95276bb7db73015c53a26a8c",
+      "fingerprint": "8196e628213a9ec5f8ed8c6542f89c213bf60914:tests/e2e/v4/test_owned_review_fixes.py:generic-api-key:19"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "source_commit": "8196e628213a9ec5f8ed8c6542f89c213bf60914",
+      "reported_line": 112,
+      "end_line": 112,
+      "start_column": 18,
+      "end_column": 48,
+      "exact_span_sha256": "fe1f1dd755c5d96583753082c7fa4ae2be2dfd1a6bc371c240d5887bc3197945",
+      "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+      "fingerprint": "8196e628213a9ec5f8ed8c6542f89c213bf60914:tests/e2e/v4/test_owned_review_fixes.py:generic-api-key:112"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/v4/test_demo_sessions_pg.py",
+      "source_commit": "1c192d434caf402c3edd6cf59fe70ba183a8ca89",
+      "reported_line": 262,
+      "end_line": 262,
+      "start_column": 44,
+      "end_column": 70,
+      "exact_span_sha256": "dd7d51714550d1e9ae38863dfc91e83f7ecc1ff6a598762e2f06750db1b161e0",
+      "match_sha256": "e7604b8b7a79c4930b78516ef572619404fa3858f7fa5099ccc7dfe4505b1f7d",
+      "fingerprint": "1c192d434caf402c3edd6cf59fe70ba183a8ca89:tests/v4/test_demo_sessions_pg.py:generic-api-key:262"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/owned_negatives.py",
+      "source_commit": "ce51c42d629da4db339f0100ad60879fd2a465fc",
+      "reported_line": 34,
+      "end_line": 34,
+      "start_column": 43,
+      "end_column": 64,
+      "exact_span_sha256": "9eae89315546427045520b575cb3ef7d7e6578ccdb9da58d34c78982841a8272",
+      "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f",
+      "fingerprint": "ce51c42d629da4db339f0100ad60879fd2a465fc:tests/e2e/v4/owned_negatives.py:generic-api-key:34"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/owned_driver.py",
+      "source_commit": "ce51c42d629da4db339f0100ad60879fd2a465fc",
+      "reported_line": 484,
+      "end_line": 484,
+      "start_column": 10,
+      "end_column": 44,
+      "exact_span_sha256": "257d31b06b9ca99bcf1d666842c5dd8771b960a3aec485e029f620614fe3b267",
+      "match_sha256": "f5d8f078e1d354c22377e9c092e9cdde6d794776f5a9fdcb32257cae559f277f",
+      "fingerprint": "ce51c42d629da4db339f0100ad60879fd2a465fc:tests/e2e/v4/owned_driver.py:generic-api-key:484"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/v4/test_demo_seed_pg.py",
+      "source_commit": "dc439e92ea561ea7d0c95e7ef255d0fc7237f26a",
+      "reported_line": 380,
+      "end_line": 380,
+      "start_column": 51,
+      "end_column": 72,
+      "exact_span_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
+      "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
+      "fingerprint": "dc439e92ea561ea7d0c95e7ef255d0fc7237f26a:tests/v4/test_demo_seed_pg.py:generic-api-key:380"
     }
   ],
   "v4_merge_copy_anchors": [
@@ -2566,6 +2791,107 @@
       "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
       "path": "backend/migrations/versions/0024_v4_demo_foundation.py",
       "blob": "2a833ba4021fd76f3ed08b235b802701a1765d4d"
+    },
+    {
+      "source_commit": "0476f8203a9fe08eedf4c48c2bf3ddbc1d01bdcd",
+      "path": "frontend/v4-tests/lifecycle.waiter.mjs",
+      "blob": "ec74f8c560ad293821dcd4545c275395c243d3d0"
+    },
+    {
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "path": "tests/e2e/v4/owned_negatives.py",
+      "blob": "7b161c41af7bc21bd52cbe28574adfdcefc967ce"
+    },
+    {
+      "source_commit": "2332f738885ebd0608cbe1ce670ae434116588fb",
+      "path": "tests/v4/test_demo_seed_cli.py",
+      "blob": "0506ca7ef27bbd4307bad5e0afb6f12a23cf3e95"
+    },
+    {
+      "source_commit": "385c35599fc57a33ae2ebeeef881c6a4b8a1cbcc",
+      "path": "tests/e2e/v4/test_ttl_probe.py",
+      "blob": "fb85ea2134f1881840a1563a1b9f2bcb0090f845"
+    },
+    {
+      "source_commit": "8196e628213a9ec5f8ed8c6542f89c213bf60914",
+      "path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "blob": "721126a713ac58eeb60a69757c32d78892839fdb"
+    },
+    {
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "path": "tests/v4/test_demo_seed_pg.py",
+      "blob": "99883cfedb7a3e45517848b5943763c530b8ce22"
+    },
+    {
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "path": "tests/e2e/v4/owned_driver.py",
+      "blob": "5ee68d13cd31186bdc0182aca637560343dd58a9"
+    },
+    {
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "path": "docs/v4/design/IDENTITY_SQL_PLAN.md",
+      "blob": "dee7485487d306ab56102a76bdbaf88a83cd52c2"
+    },
+    {
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "path": "tests/v4/test_demo_sessions_pg.py",
+      "blob": "97e976d67a8bf6ddcb91d8e0f77a26d60dcd4b2f"
+    },
+    {
+      "source_commit": "8196e628213a9ec5f8ed8c6542f89c213bf60914",
+      "path": "tests/e2e/v4/owned_driver.py",
+      "blob": "767731bd7b730e9bab486339c77ee11b30050370"
+    },
+    {
+      "source_commit": "dc439e92ea561ea7d0c95e7ef255d0fc7237f26a",
+      "path": "tests/v4/test_demo_seed_pg.py",
+      "blob": "da824e086a1f41d75e4084f7cba6daf750c882b4"
+    },
+    {
+      "source_commit": "dc439e92ea561ea7d0c95e7ef255d0fc7237f26a",
+      "path": "tests/v4/test_demo_sessions_pg.py",
+      "blob": "b7d3003f000201cbd84a22557328729991a07032"
+    },
+    {
+      "source_commit": "823b132766184b3f35b93d0e306f4182da23ce38",
+      "path": "tests/v4/test_demo_sessions_pg.py",
+      "blob": "a8af7c1b587a766f84e253948c8eecac6fed4cb2"
+    },
+    {
+      "source_commit": "1684e0455978b46ddad607e09d85a1af5657ab1a",
+      "path": "tests/e2e/v4/owned_driver.py",
+      "blob": "9f168bab0b31f627843d05d65e391b99bc4ca438"
+    },
+    {
+      "source_commit": "1684e0455978b46ddad607e09d85a1af5657ab1a",
+      "path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "blob": "0b51b2c3775c0052a9f009f857a1cf317d2aaebb"
+    }
+  ],
+  "v4_merge_copy_bindings": [
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/owned_driver.py",
+      "source_commit": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "reported_line": 557,
+      "end_line": 557,
+      "start_column": 10,
+      "end_column": 44,
+      "exact_span_sha256": "257d31b06b9ca99bcf1d666842c5dd8771b960a3aec485e029f620614fe3b267",
+      "match_sha256": "f5d8f078e1d354c22377e9c092e9cdde6d794776f5a9fdcb32257cae559f277f",
+      "binding_kind": "copy_only"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/e2e/v4/owned_driver.py",
+      "source_commit": "8196e628213a9ec5f8ed8c6542f89c213bf60914",
+      "reported_line": 540,
+      "end_line": 540,
+      "start_column": 10,
+      "end_column": 44,
+      "exact_span_sha256": "257d31b06b9ca99bcf1d666842c5dd8771b960a3aec485e029f620614fe3b267",
+      "match_sha256": "f5d8f078e1d354c22377e9c092e9cdde6d794776f5a9fdcb32257cae559f277f",
+      "binding_kind": "copy_only"
     }
   ]
 }

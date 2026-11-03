@@ -151,3 +151,42 @@ Root 的非最终完整扫描 `.audit/v4-0/scan-after-api-47.log` 实际 dir/ind
 补充锚source/path/blob三种篡改的真实Git测试后，单项1 PASS / 15.30s；原244记录对应12个merge来源的限定原生重捕获244/244，18.861s。旧79目录例外、132条既有exact历史记录、全部222规则均逐项与parent核为不变。七文件提案快照自检首遇新增测试参数类型声明误报（仅元数据，无秘密），通过等价的局部MonkeyPatch上下文替代fixture签名消除，没有新增第六个例外；该开发扫描exit1保留。
 
 最终等价测试签名下：收敛/真实Git正负例1 PASS / 16.06s；最终四文件Ruff check/format及mypy均exit0，rules/source/provenance验证0，七文件提案快照原生扫描exit0。以上不等于最终完整dir/index/allrefs扫描，后者仍NOT_RUN。
+
+## 2330 discovery 实际残余及后续 QA 元数据收敛
+
+Root 授权一次 discovery，实际入口源为 `2330bca2e657a236ba5355b940e2f641763d026d` / tree `ddc4d00cc92f4b878e03cd170f8067af7e3aaf88`（目录名保留最初72b标识，不表示扫描固定72b）。唯一实际全扫描 exit1 / 76.601s；dir/index各9原生命中并另有3个固定位置guard失败，git987=777已分类+210blocking。首次包装模块路径 invocation error 在原生扫描启动前失败、零native报告；原失败及本次exit1均保留，不改写为通过。
+
+原证据位于 Root `.audit/v4-0/discovery-72b5143-20261104/`，含native-dir/index/git完整redacted报告、classified.log、before/result、REF_CHANGES。扫描前后Root HEAD/index相同、tracked均干净；全局refs_stable=false，差异为三个Codex临时turn-diffs引用移动，未据此伪签最终Gate。实际manifest `RESIDUAL_METADATA.json` SHA256为 `e2ac056a3341b8015c5c577c89a33379f3d80f002ff425e0b62f4239c631d326`。
+
+Root逐项亲读后仅释放9个dir/index精确span、9个单父author精确history、13个wholeblob候选锚；201个merge残余不逐SHA枚举。全部不同内容核为公开代码/类型/fixture/状态标签/合成输入，未见实际秘密。9个author来源为：385c355 ttl137、2332f7 seedcli72、0476f82 waiter9、8196e62 fixes19/112、1c192d4 sessions262、ce51c42 negatives34/driver484、dc439e9 seedpg380；完整SHA/行列/hash均落固定清单。
+
+| 当前候选目录位置 | 用途 |
+|---|---|
+| frontend/v4-tests/lifecycle.waiter.mjs:9 | 规范creation request key与tenant比较 |
+| tests/e2e/v4/owned_negatives.py:44 | 请求key变量与固定fixture字段 |
+| tests/e2e/v4/test_ttl_probe.py:137 | interruption测试内Visitor stub合成key，不是实际身份 |
+| tests/e2e/v4/owned_driver.py:666 | 静态pg_api结果标签，原2330位置557 |
+| tests/e2e/v4/test_owned_review_fixes.py:19,112 | 固定UUID请求键与pytest类型声明 |
+| tests/v4/test_demo_seed_cli.py:72 | 大小写别名负例的pytest类型声明 |
+| tests/v4/test_demo_seed_pg.py:380 | 请求键变量与固定fixture_version |
+| tests/v4/test_demo_sessions_pg.py:266 | auth_version标识符相等比较 |
+
+原sessions目录绑定151/170/197已独立核完整span哈希不变，仅固定位置更新155/174/201；未删旧author/history记录。新九项后目录93、exact历史146（既有137+9），规则仍222、历史原生例外45，原所有history不可变。只更新三个目录来源/位置，其余旧目录例外不变。
+
+Root另精确补批 a990 owned_driver：source `a990be0d5ac2fc9252adb77cb104d90face9c1ce`，wholeblob `f6838353c14be59c1ae101faf3dda43dd4bb22ae`，file SHA256 `d72e7d3349bfae9256c8b54e0d650bad502ee7a53c6c6842a64a398fef257400`。原557静态span哈希 `257d31b06b9ca99bcf1d666842c5dd8771b960a3aec485e029f620614fe3b267` 不变，现666行10–44；有限单文件原生输出核位置，不做全扫。本锚必须等Astra接受a990代码后才可普通冻结，当前只实现为候选元数据，未声称网络代码已审。
+
+保留2330@557及原manifest中8196@540（blob `767731bd7b730e9bab486339c77ee11b30050370`）为两个明确copy-only绑定，行列10–44及同span/Match hash固定；不增加这两位置的dir或author豁免。其余copy机制不改，必须双父/固定完整blob/固定rule/path/行列/span/Match；新作者、不同blob或secret mutation继续拒绝。13原manifest锚追加a990后为14新增，总26锚。未自动吸纳legacy wrapper或其它未来文件。
+
+增量初步11PASS/3.50s；补540/557边界后13PASS/4.94s。复用原native-git.json作classifier回放210/210=9exact+201copy，无新allrefs扫描；中间191copy/10拒绝结果保留，10均为缺少old540离散绑定而安全拒绝，Root补批后才接入copy-only。最终freeze全扫仍NOT_RUN。当前未commit，等待a990接受条件；actual token/cost UNKNOWN。
+
+### 最终准入与 1684 精确元数据
+
+上段a990@666属于等待独审时的历史候选，已被替代，不在最终锚清单。Astra正式普通回执 `68a0cc3a83fe5a571c55da5620d46944e2e371ba:docs/v4/review/SUBNET_a990.md` 接受 `1684e0455978b46ddad607e09d85a1af5657ab1a`，结论 ACCEPT_PREPARED_EXPLICIT_SUBNET_MODEL / 0 P1 / 0 P2；原a990 P2和失败不改写。Root据此允许本元数据ordinary冻结。
+
+Root最终补批的当前目录记录：owned_driver标签735行10–44，完整span及Match hash与原557/666完全相同，wholeblob `9f168bab0b31f627843d05d65e391b99bc4ca438`；test_owned_review_fixes两个原span完整hash不变，UUID行19列2–45、类型行105列18–48，wholeblob `0b51b2c3775c0052a9f009f857a1cf317d2aaebb`；两者来源均精确1684，不增加其作者提交豁免或新guard测试例外。93个目录例外、146个exact历史、27个wholeblob锚（旧12+manifest13+latest2）及两个557/540 copy-only绑定；a990@666未发现需分类的actual历史，因此不登记copy-only或anchor。
+
+原生单文件/两文件有限定位只发现上述原3项，不据此替代全扫。当前候选有限测试13 PASS / 4.91s；再用原discovery native-git报告回放，210/210=9exact+201copy，UNKNOWN 0，无再次运行allrefs。原history及旧固定scope保持，三项sessions目录移行与两项QA最新位置均以原完整hash不变为前提，不采用模糊找行或未来自动跟随。
+
+功能受测源码 F1 为 `047a43dafef90edea2eb532c2a03b6f850da0b9a` / tree `5c0699edb2d30889ce770ca9b05b56dab957ce10`，由Root另开PG/HTTP/Web窗口。本元数据提交与后续delivery文档是不同source；这里的有限扫描/测试不宣称F1业务已运行，更不宣称F1+未来HEAD全部运行。未为legacy4e文件或未来unknown添加规则；最终freeze full dir/index/git仍由Root统一，NOT_RUN。
+
+ordinary冻结前最终有限验证：13 PASS / 5.53s；四文件Ruff check/format、mypy、规则/source/provenance验证均exit0；仅本提案七变更文件快照原生scan exit0。该结果不是full仓库/refs扫描，也不把原discovery exit1改写为绿。
