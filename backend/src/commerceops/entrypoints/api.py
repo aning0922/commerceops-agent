@@ -29,6 +29,7 @@ def create_app(
     explanation_service: ExplanationEndpoints | None = None,
     web_config: WebConfig | None = None,
     replenishment_store: ReplenishmentStore | None = None,
+    daily_enabled: bool = False,
 ) -> FastAPI:
     app = FastAPI(title="CommerceOps Agent", docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -61,8 +62,18 @@ def create_app(
         from commerceops.entrypoints.replenishment_http import install_web
 
         install_web(app, web_config, replenishment_store)
+        if daily_enabled:
+            from commerceops.entrypoints.daily_http import daily_openapi, install_daily
+            from commerceops.infrastructure.daily_read import DailyReadStore
+
+            install_daily(app, DailyReadStore(replenishment_store.settings))
+            app.state.daily_openapi = daily_openapi()
     # 所有请求校验错误均由固定400处理，移除FastAPI默认422文档。
     schema = app.openapi()
+    if daily_enabled:
+        from commerceops.entrypoints.daily_http import separate_legacy
+
+        schema = separate_legacy(schema)
     for path, operations in schema["paths"].items():
         if path.startswith("/tasks/"):
             operations["get"]["responses"].pop("422", None)
@@ -88,7 +99,11 @@ def main() -> None:
         try:
             config = WebConfig.from_file(Path(config_path))
             store = ReplenishmentStore(config, Path("tests/fixtures/commerce/inventory-v1"))
-            app = create_app(web_config=config, replenishment_store=store)
+            app = create_app(
+                web_config=config,
+                replenishment_store=store,
+                daily_enabled=os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE") is not None,
+            )
         except (ValueError, OSError):
             raise SystemExit("P3配置无效，请核对本阶段私有配置") from None
     uvicorn.run(
