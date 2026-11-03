@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createContextGate, sameIdentityContext, matchesControlBoundary, matchesCreateBoundary } from '../lib/v4-context.mjs';
+import { createContextGate, sameIdentityContext, matchesControlBoundary, matchesControlReadback, matchesRecoveredControl, matchesCreateBoundary, shouldClearSummaryFailure } from '../lib/v4-context.mjs';
 const id='11111111-1111-4111-8111-111111111111', other='22222222-2222-4222-8222-222222222222';
 const context = {tenant_id:id, organization_id:id, principal_id:id, shop_id:null, reset_epoch:0, auth_generation:0, authorized_at:'2026-11-03T00:00:00Z'};
 test('only matching latest authorized context may render', () => {
@@ -59,4 +59,53 @@ test('created session must match the original receipt and the re-read identity',
  assert.equal(matchesCreateBoundary(created,{...current,data:{creation_request_key:other}},id),false);
  assert.equal(matchesCreateBoundary({...created,data:{...created.data,receipt:{...receipt,auth_generation:1}}},current,id),false);
  assert.equal(matchesCreateBoundary({...created,status:'UNKNOWN'},current,id),false);
+});
+
+test('reset and persona require exact per-operation counter changes',()=>{
+ const receipt={operation:'reset',request_key:id,status:'COMMITTED',reset_epoch:1,auth_generation:1};
+ const reset={status:'COMMITTED',context:{...context,reset_epoch:1,auth_generation:1},data:{receipt,next_step:'READ_CURRENT_SESSION'}};
+ assert.equal(matchesControlBoundary(context,reset,'reset',id),true);
+ for(const [epoch,generation] of [[0,0],[1,0],[0,1],[2,1],[1,2]]) {
+  const bad={...reset,context:{...context,reset_epoch:epoch,auth_generation:generation},data:{...reset.data,receipt:{...receipt,reset_epoch:epoch,auth_generation:generation}}};
+  assert.equal(matchesControlBoundary(context,bad,'reset',id),false);
+ }
+ assert.equal(matchesControlBoundary(context,{...reset,context:{...reset.context,principal_id:other}},'reset',id),false);
+ const persona={...reset,context:{...context,auth_generation:1},data:{...reset.data,receipt:{...receipt,operation:'persona',reset_epoch:0}}};
+ assert.equal(matchesControlBoundary(context,persona,'persona',id),true);
+ assert.equal(matchesControlBoundary(context,{...persona,context:{...context},data:{...persona.data,receipt:{...persona.data.receipt,auth_generation:0}}},'persona',id),false);
+ assert.equal(matchesControlBoundary(context,{...persona,context:{...context,reset_epoch:1,auth_generation:1},data:{...persona.data,receipt:{...persona.data.receipt,reset_epoch:1}}},'persona',id),false);
+ const unsafe=Number.MAX_SAFE_INTEGER;
+ assert.equal(matchesControlBoundary({...context,auth_generation:unsafe},{...persona,context:{...context,auth_generation:unsafe+1},data:{...persona.data,receipt:{...persona.data.receipt,auth_generation:unsafe+1}}},'persona',id),false);
+});
+test('control readback preserves session key and correct target persona',()=>{
+ const next={...context,auth_generation:1};
+ const before={context,data:{creation_request_key:id,persona_id:'operator'}};
+ const result={context:next};
+ const current={context:next,data:{creation_request_key:id,persona_id:'restricted_admin'}};
+ assert.equal(matchesControlReadback(before,result,current,'persona','restricted_admin'),true);
+ assert.equal(matchesControlReadback(before,result,current,'persona','admin'),false);
+ assert.equal(matchesControlReadback(before,result,current,'reset',''),false);
+ assert.equal(matchesControlReadback(before,result,{...current,data:{...current.data,creation_request_key:other}},'persona','restricted_admin'),false);
+ assert.equal(matchesControlReadback({data:{}},result,{context:next,data:{}},'reset',''),false);
+ assert.equal(matchesControlReadback(before,result,{...current,context:{...next,auth_generation:2}},'persona','restricted_admin'),false);
+});
+
+test('UNKNOWN recovery needs original proof, exact effect and current persona',()=>{
+ const proof={context,creation_request_key:id,persona_id:'operator',target_persona:null};
+ const receipt={operation:'reset',request_key:id,status:'COMMITTED',reset_epoch:1,auth_generation:1};
+ const current={context:{...context,reset_epoch:1,auth_generation:1},data:{creation_request_key:id,persona_id:'operator'}};
+ assert.equal(matchesRecoveredControl(proof,receipt,current,'reset',id),true);
+ assert.equal(matchesRecoveredControl(undefined,receipt,current,'reset',id),false);
+ assert.equal(matchesRecoveredControl(proof,{...receipt,reset_epoch:0},current,'reset',id),false);
+ assert.equal(matchesRecoveredControl(proof,receipt,{...current,data:{...current.data,persona_id:'approver'}},'reset',id),false);
+ assert.equal(matchesRecoveredControl(proof,receipt,{...current,context:{...current.context,tenant_id:other}},'reset',id),false);
+ assert.equal(matchesRecoveredControl(proof,receipt,current,'logout',id),false);
+});
+
+test('late summary failure clears only the still-selected identity and shop',()=>{
+ assert.equal(shouldClearSummaryFailure(context,context,id,id),true);
+ assert.equal(shouldClearSummaryFailure(context,{...context,auth_generation:1},id,id),false);
+ assert.equal(shouldClearSummaryFailure(context,context,other,id),false);
+ assert.equal(shouldClearSummaryFailure(context,null,id,id),false);
+ assert.equal(shouldClearSummaryFailure(context,context,'',''),false);
 });

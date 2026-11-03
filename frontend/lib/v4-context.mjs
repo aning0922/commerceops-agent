@@ -18,6 +18,11 @@ const validContext = ajv.compile({
   required: ['tenant_id', 'organization_id', 'principal_id', 'shop_id', 'reset_epoch', 'auth_generation', 'authorized_at'],
 });
 const validShop = ajv.compile({anyOf: [{type: 'string', format: 'uuid'}, {type: 'null'}]});
+const validUuid = ajv.compile({type: 'string', format: 'uuid'});
+export function isSessionContext(value) {
+  return validContext(value) && value.shop_id === null &&
+    Number.isSafeInteger(value.reset_epoch) && Number.isSafeInteger(value.auth_generation);
+}
 // Session and shop responses have different shop_id values; compare the remaining identity boundary.
 export function sameIdentityContext(left, right) {
   if (!validContext(left) || !validContext(right)) return false;
@@ -63,14 +68,36 @@ export function matchesControlBoundary(before, result, operation, requestKey) {
       after.organization_id !== before.organization_id ||
       receipt.reset_epoch !== after.reset_epoch ||
       receipt.auth_generation !== after.auth_generation ||
-      after.reset_epoch < before.reset_epoch || after.auth_generation < before.auth_generation) return false;
+      !Number.isSafeInteger(before.reset_epoch) || !Number.isSafeInteger(before.auth_generation) ||
+      !Number.isSafeInteger(after.reset_epoch) || !Number.isSafeInteger(after.auth_generation)) return false;
   if (operation === 'logout') {
     return result.data.next_step === 'LOGGED_OUT' &&
       after.principal_id === before.principal_id &&
       after.reset_epoch === before.reset_epoch &&
       after.auth_generation === before.auth_generation;
   }
-  return ['persona', 'reset'].includes(operation) && result.data.next_step === 'READ_CURRENT_SESSION';
+  if (operation === 'reset') {
+    return result.data.next_step === 'READ_CURRENT_SESSION' &&
+      after.principal_id === before.principal_id &&
+      after.reset_epoch === before.reset_epoch + 1 &&
+      after.auth_generation === before.auth_generation + 1;
+  }
+  if (operation === 'persona') {
+    return result.data.next_step === 'READ_CURRENT_SESSION' &&
+      after.reset_epoch === before.reset_epoch &&
+      after.auth_generation === before.auth_generation + 1;
+  }
+  return false;
+}
+
+export function matchesControlReadback(beforeSession, result, current, operation, targetPersona) {
+  if (!beforeSession || !current || !validUuid(beforeSession.data?.creation_request_key) ||
+      typeof beforeSession.data?.persona_id !== 'string' || !beforeSession.data.persona_id ||
+      !sameIdentityContext(result?.context, current.context) || current.context.shop_id !== null ||
+      current.data?.creation_request_key !== beforeSession.data?.creation_request_key) return false;
+  if (operation === 'reset') return current.data?.persona_id === beforeSession.data?.persona_id;
+  if (operation === 'persona') return typeof targetPersona === 'string' && targetPersona.length > 0 && current.data?.persona_id === targetPersona;
+  return false;
 }
 
 export function matchesCreateBoundary(result, current, requestKey) {
@@ -84,4 +111,20 @@ export function matchesCreateBoundary(result, current, requestKey) {
     receipt.auth_generation === result.context.auth_generation &&
     result.data?.session?.creation_request_key === requestKey &&
     current.data?.creation_request_key === requestKey;
+}
+
+// Recovery can establish the effect only when the original non-secret pre-operation proof is available.
+export function matchesRecoveredControl(proof, receipt, current, operation, requestKey) {
+  if (!proof || !current || !receipt || !['reset','persona'].includes(operation)) return false;
+  const beforeSession = {context: proof.context, data: {creation_request_key: proof.creation_request_key, persona_id: proof.persona_id}};
+  const result = {status:'COMMITTED', context:current.context, data:{receipt,next_step:'READ_CURRENT_SESSION'}};
+  return matchesControlBoundary(proof.context,result,operation,requestKey) &&
+    matchesControlReadback(beforeSession,result,current,operation,proof.target_persona);
+}
+
+// Late read failures may invalidate the still-current identity, but must not erase a newer identity or shop selection.
+export function shouldClearSummaryFailure(base, current, selectedShop, requestShop) {
+  return !!current && selectedShop === requestShop &&
+    typeof requestShop === 'string' && requestShop.length > 0 &&
+    sameIdentityContext(base, current);
 }

@@ -364,3 +364,69 @@ test('UI_FIXTURE: rejected capacity requires a new explicit entry and new key',a
  await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();
  expect(bootstraps).toBe(2);expect(posts).toBe(2);expect(keys[0]).not.toBe(keys[1]);
 });
+
+for (const scenario of ['401','403','UNKNOWN','MALFORMED'] as const) {
+ test(`UI_FIXTURE: ${scenario} shop summary clears the current identity`,async ({page})=>{
+  const shop={shop_id:id,display_name:'示例店铺',timezone:'Asia/Taipei',currency:'TWD',grants:['read']};
+  await page.route('**/api/v4/demo/**',withCors(route=>{
+   const path=new URL(route.request().url()).pathname;
+   if(path.endsWith('/session'))return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[shop],source}}});
+   if(path.endsWith('/seed-summary')){
+    if(scenario==='401'||scenario==='403')return route.fulfill({status:Number(scenario),json:{...base,status:'REJECTED',error:{code:scenario==='401'?'SESSION_INVALID':'ACCESS_DENIED',safe_message:'denied',retryable:false,request_key:null}}});
+    if(scenario==='MALFORMED')return route.fulfill({json:{...base,data:{unexpected:true}}});
+    return route.fulfill({json:{...base,status:'UNKNOWN',context:{...context,shop_id:id},data:{source,counts:{products:1,skus:1,orders:1,order_lines:1},snapshot_at:now}}});
+   }
+   return route.abort();
+  }));
+  await page.goto('/v4');await page.getByLabel('店铺').selectOption(id);
+  await expect(page.getByText('当前身份或店铺无法验证，请重新核对会话。')).toBeVisible();
+  await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);
+  await expect(page.getByLabel('店铺')).toHaveCount(0);
+ });
+}
+
+test('UI_FIXTURE: restricted admin selection sends its persona ID',async ({page})=>{
+ let sent='';
+ await page.route('**/api/v4/demo/**',withCors(route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/session'))return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:sent||'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+  if(path.endsWith('/persona')){const body=route.request().postDataJSON();sent=body.persona_id;return route.abort('failed');}
+  return route.abort();
+ }));
+ await page.goto('/v4');await page.getByLabel('体验视角').selectOption('restricted_admin');
+ await page.getByRole('button',{name:'切换视角'}).click();await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();
+ expect(sent).toBe('restricted_admin');
+});
+
+for (const operation of ['reset','persona'] as const) {
+ test(`UI_FIXTURE: ${operation} receipt without the required counter changes remains unknown`,async ({page})=>{
+  await page.route('**/api/v4/demo/**',withCors(route=>{
+   const path=new URL(route.request().url()).pathname;
+   if(path.endsWith('/session'))return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+   if(path.endsWith(`/${operation}`)){const body=route.request().postDataJSON();return route.fulfill({json:{...base,status:'COMMITTED',context,data:{receipt:{receipt_id:id,operation,request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0},next_step:'READ_CURRENT_SESSION'}}});}
+   return route.abort();
+  }));
+  await page.goto('/v4');await expect(page.getByText(/当前视角：operator/)).toBeVisible();
+  if(operation==='reset'){await page.getByRole('button',{name:'重置演示'}).click();await page.getByRole('button',{name:'确认重置'}).click();}
+  else {await page.getByLabel('体验视角').selectOption('approver');await page.getByRole('button',{name:'切换视角'}).click();}
+  await expect(page.getByText('操作结果未知，请使用原操作核对。')).toBeVisible();
+  await expect(page.getByText(operation==='reset'?'当前演示空间已重置。':'身份视角已更新。')).toHaveCount(0);
+ });
+}
+
+for (const hasProof of [false,true]) {
+ test(`UI_FIXTURE: reset recovery ${hasProof?'with':'without'} original context`,async ({page})=>{
+  const proof={context,creation_request_key:id,persona_id:'operator',target_persona:null};
+  await page.addInitScript(({pending})=>sessionStorage.setItem('commerceops-v4-pending',JSON.stringify(pending)),{pending:hasProof?{operation:'reset',key:id,proof}:{operation:'reset',key:id}});
+  const after={...context,reset_epoch:1,auth_generation:1};
+  await page.route('**/api/v4/demo/**',withCors(route=>{
+   const path=new URL(route.request().url()).pathname;
+   if(path.endsWith('/session'))return route.fulfill({json:{...base,context:after,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+   if(path.endsWith(`/operations/reset/${id}`))return route.fulfill({json:{...base,data:{receipt:{receipt_id:id,operation:'reset',request_key:id,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:1,auth_generation:1}}}});
+   return route.abort();
+  }));
+  await page.goto('/v4');await page.getByRole('button',{name:'核对原操作'}).click();
+  if(hasProof)await expect(page.getByText('已核对原操作回执。')).toBeVisible();
+  else {await expect(page.getByText(/无法完整核验/)).toBeVisible();await expect(page.getByText('已核对原操作回执。')).toHaveCount(0);}
+ });
+}
