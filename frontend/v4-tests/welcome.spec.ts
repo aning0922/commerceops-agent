@@ -245,3 +245,13 @@ test('UI_FIXTURE: an invalidation closes the reset dialog before revalidation',a
  await page.context().setOffline(true);
  await expect(dialog).not.toBeVisible();await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);
 });
+
+test('UI_FIXTURE: an anonymous page does not poll or create sessions',async ({page})=>{
+ let reads=0,posts=0;await page.clock.install();
+ await page.route('**/api/v4/demo/**',withCors(route=>{
+  if(route.request().method()==='POST')posts++;else reads++;
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ }));
+ await page.goto('/v4');await expect.poll(()=>reads).toBe(1);
+ await page.clock.fastForward('00:15');expect(reads).toBe(1);expect(posts).toBe(0);
+});

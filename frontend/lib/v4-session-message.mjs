@@ -11,3 +11,8 @@ export function sessionFailureMessage(status, code, outcome, hadSession) {
   }
   return '当前身份暂时无法验证，请稍后重新核对会话。';
 }
+
+// Only a previously verified session is eligible for automatic revalidation.
+export function shouldRevalidate(knownSession, visible, online, pending) {
+  return knownSession === true && visible === true && online === true && pending === false;
+}
