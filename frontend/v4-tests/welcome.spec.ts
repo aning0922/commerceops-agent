@@ -46,3 +46,20 @@ test('UI_FIXTURE: a definite capacity rejection remains visible without retry',a
  await expect(page.getByRole('status')).toContainText('60'); expect(posts).toBe(1);
  await expect(page.getByRole('button',{name:'核对原操作'})).toHaveCount(0);
 });
+
+test('UI_FIXTURE: persona switch uses current epoch and re-reads server identity',async ({page})=>{
+ let key='', persona='operator', generation=0, switched=0;
+ const sessionData=()=>({creation_request_key:key,persona_id:persona,expires_at:now,csrf_token:'csrf',shops:[],source});
+ await page.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:sessionData(),receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
+  if(path.endsWith('/session')&&key)return route.fulfill({json:{...base,context:{...context,auth_generation:generation},data:sessionData()}});
+  if(path.endsWith('/persona')){const body=route.request().postDataJSON();expect(body.expected_generation).toBe(0);expect(body.expected_epoch).toBe(0);persona=body.persona_id;generation++;switched++;return route.fulfill({json:{...base,status:'COMMITTED',context:{...context,auth_generation:generation},data:{receipt:{receipt_id:id,operation:'persona',request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:generation},next_step:'READ_CURRENT_SESSION'}}});}
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
+ await expect(page.getByText('演示空间已建立。')).toBeVisible();
+ await page.getByLabel('体验视角').selectOption('approver');await page.getByRole('button',{name:'切换视角'}).click();
+ await expect(page.getByText(/当前视角：approver/)).toBeVisible();expect(switched).toBe(1);
+});
