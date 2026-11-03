@@ -57,10 +57,6 @@ class DemoRoute(APIRoute):
 
         async def guarded(request: Request) -> Response:
             try:
-                if request.method == "POST":
-                    await body(
-                        request
-                    )  # bounded, duplicate-key-safe JSON, not permissive JSON loads.
                 return await original(request)
             except WebFailure as error:
                 if error.code in ("INVALID_JSON", "UNSUPPORTED_MEDIA_TYPE"):
@@ -93,6 +89,21 @@ def reply(
     return JSONResponse(value.model_dump(mode="json"), status_code=status, headers=HEADERS)
 
 
+def request_body(model: type[dto.Contract]) -> dict[str, Any]:
+    return {
+        "requestBody": {
+            "required": True,
+            "content": {"application/json": {"schema": model.model_json_schema()}},
+        }
+    }
+
+
+async def read_command[T: dto.Contract](request: Request, model: type[T]) -> T:
+    # Keep UUID JSON strings valid while strict Python DTO validation stays unchanged.
+    # body() enforces byte limit, media type, duplicate keys and finite JSON constants.
+    return model.model_validate_json(await body(request))
+
+
 def _router(store: DemoStore, config: DemoConfig) -> APIRouter:
     router = APIRouter(prefix=PREFIX, route_class=DemoRoute)
 
@@ -115,8 +126,14 @@ def _router(store: DemoStore, config: DemoConfig) -> APIRouter:
         response = reply(dto.BootstrapEnvelope, data)
         return cookie(response, issued, 300) if issued else response
 
-    @router.post("/sessions", response_model=dto.CreateEnvelope, status_code=201)
-    async def create(request: Request, command: dto.CreateSessionInput) -> JSONResponse:
+    @router.post(
+        "/sessions",
+        response_model=dto.CreateEnvelope,
+        status_code=201,
+        openapi_extra=request_body(dto.CreateSessionInput),
+    )
+    async def create(request: Request) -> JSONResponse:
+        command = await read_command(request, dto.CreateSessionInput)
         peer = request.client.host if request.client else "unknown"
         data, issued = await run_in_threadpool(
             store.create,
@@ -150,8 +167,13 @@ def _router(store: DemoStore, config: DemoConfig) -> APIRouter:
         )
         return reply(dto.SeedSummaryEnvelope, data)
 
-    @router.post("/persona", response_model=dto.ControlEnvelope)
-    async def persona(request: Request, command: dto.PersonaInput) -> JSONResponse:
+    @router.post(
+        "/persona",
+        response_model=dto.ControlEnvelope,
+        openapi_extra=request_body(dto.PersonaInput),
+    )
+    async def persona(request: Request) -> JSONResponse:
+        command = await read_command(request, dto.PersonaInput)
         data = await run_in_threadpool(
             store.control,
             request.cookies.get(COOKIE),
@@ -161,8 +183,13 @@ def _router(store: DemoStore, config: DemoConfig) -> APIRouter:
         )
         return reply(dto.ControlEnvelope, data, committed=True)
 
-    @router.post("/reset", response_model=dto.ControlEnvelope)
-    async def reset(request: Request, command: dto.ResetInput) -> JSONResponse:
+    @router.post(
+        "/reset",
+        response_model=dto.ControlEnvelope,
+        openapi_extra=request_body(dto.ResetInput),
+    )
+    async def reset(request: Request) -> JSONResponse:
+        command = await read_command(request, dto.ResetInput)
         data = await run_in_threadpool(
             store.control,
             request.cookies.get(COOKIE),
@@ -172,8 +199,13 @@ def _router(store: DemoStore, config: DemoConfig) -> APIRouter:
         )
         return reply(dto.ControlEnvelope, data, committed=True)
 
-    @router.post("/logout", response_model=dto.ControlEnvelope)
-    async def logout(request: Request, command: dto.LogoutInput) -> JSONResponse:
+    @router.post(
+        "/logout",
+        response_model=dto.ControlEnvelope,
+        openapi_extra=request_body(dto.LogoutInput),
+    )
+    async def logout(request: Request) -> JSONResponse:
+        command = await read_command(request, dto.LogoutInput)
         data = await run_in_threadpool(
             store.control,
             request.cookies.get(COOKIE),

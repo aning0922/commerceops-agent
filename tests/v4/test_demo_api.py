@@ -62,6 +62,16 @@ class StubStore(DemoStore):
             403 if not supplied_csrf else 401,
         )
 
+    def control(
+        self,
+        token: str | None,
+        supplied_csrf: str | None,
+        operation: dto.Operation,
+        command: dto.PersonaInput | dto.ResetInput | dto.LogoutInput,
+    ) -> dict[str, Any]:
+        self.calls.append(operation)
+        raise WebFailure("SESSION_INVALID", 401)
+
     def summary(self, token: str | None, shop: UUID, epoch: int, generation: int) -> dict[str, Any]:
         self.calls.append("summary")
         raise WebFailure("EPOCH_CHANGED", 409)
@@ -227,9 +237,61 @@ def test_generated_openapi_has_all_eight_routes_and_security() -> None:
                 assert operation["security"] == [{"demoCookie": []}]
             if method == "post":
                 assert {p["name"] for p in operation["parameters"]} >= {"Origin", "X-CSRF-Token"}
+    for path, model in (
+        ("sessions", dto.CreateSessionInput),
+        ("persona", dto.PersonaInput),
+        ("reset", dto.ResetInput),
+        ("logout", dto.LogoutInput),
+    ):
+        request = schema["paths"]["/api/v4/demo/" + path]["post"]["requestBody"]
+        assert request["required"] is True
+        assert request["content"]["application/json"]["schema"] == model.model_json_schema()
     summary = schema["paths"]["/api/v4/demo/seed-summary"]["get"]
     assert {p["name"] for p in summary["parameters"]} >= {
         "shop_id",
         "X-Demo-Epoch",
         "X-Demo-Generation",
     }
+
+
+@pytest.mark.parametrize("operation", ["sessions", "persona", "reset", "logout"])
+def test_valid_json_uuid_reaches_each_post_store(
+    client: tuple[TestClient, StubStore], operation: str
+) -> None:
+    browser, stub = client
+    wire: dict[str, Any] = {"request_key": str(uuid4())}
+    if operation in ("sessions", "reset"):
+        wire["fixture_version"] = "v4-demo-seed-1"
+    if operation != "sessions":
+        wire.update(expected_epoch=0, expected_generation=0)
+    if operation == "persona":
+        wire["persona_id"] = "operator"
+    response = browser.post(
+        "/api/v4/demo/" + operation,
+        headers={"Origin": ORIGIN, "X-CSRF-Token": "offline"},
+        json=wire,
+    )
+    # Authentication still fails in this stub, after successful strict wire parsing.
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "SESSION_INVALID"
+    assert stub.calls == ["create" if operation == "sessions" else operation]
+
+
+@pytest.mark.parametrize("operation", ["persona", "reset", "logout"])
+@pytest.mark.parametrize("invalid", [True, "0", 0.0, -1, None])
+def test_json_aware_post_keeps_counters_strict(
+    client: tuple[TestClient, StubStore], operation: str, invalid: Any
+) -> None:
+    browser, stub = client
+    wire = dict(request_key=str(uuid4()), expected_epoch=invalid, expected_generation=0)
+    if operation == "reset":
+        wire["fixture_version"] = "v4-demo-seed-1"
+    if operation == "persona":
+        wire["persona_id"] = "operator"
+    response = browser.post(
+        "/api/v4/demo/" + operation,
+        headers={"Origin": ORIGIN, "X-CSRF-Token": "offline"},
+        json=wire,
+    )
+    assert response.status_code == 422 and stub.calls == []
+    assert response.json()["error"]["code"] == "INVALID_REQUEST"
