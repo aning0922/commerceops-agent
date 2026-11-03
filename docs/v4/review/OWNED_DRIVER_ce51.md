@@ -63,3 +63,20 @@ HTTP Visitor使用真实httpx/CookieJar、trust_env=false、无POST重试；stri
 当前源码父链只含d578，真实执行必须先由ROOT集成已审534解析、1208 SQL修正及准确WEB来源；不能直接拿ce51独占分支当最终运行源码。Root转交身份PG进行中的结果不写成QA执行。自然TTL45分钟只是NOTIMPLEMENTED计划，现driver30分钟上限与180秒reserve保持，不因该缺项要求本包扩窗。旧M3 Full/动态PG/Web/N01另行准入，不以此11场景替代。
 
 请QA局部修复上述5项并普通提交精确SHA。当前可继续代码/driver准备；实际execute待修复复审与ROOT具体source/image/project/端口/UTC回执后再准入。Reviewer仅提交本报告，未修改作者源码或启动资源。
+
+
+## 8196增量复审：DRV-01—05关闭
+
+日期：2026-11-04（Asia/Taipei）。candidate `8196e628213a9ec5f8ed8c6542f89c213bf60914` / tree `8f2401abea10c96ff692f3b9080bd17434020d4c`，parent ce51。**结论：ACCEPT_PREPARED_11_HTTP_DRIVER，增量0 P1 / 0 P2，五项均关闭。** 可以交ROOT为这11个既定HTTP场景登记精确集成source/image/project/端口/UTC并开新窗口；本结论不自行产生资源授权，也不签任何实际case成功。TTL/browserMode/200%真实GUI不在此代码接受范围。
+
+DRV-01 CLOSED：launch_spec实际API argv为up --no-deps --exit-code-from v4-api --no-build --pull never v4-api，PG仍先独立启动healthy；没有把postgres作为API foreground目标。--exit-code-from的终止语义只限该次无依赖API服务，不得以Compose正常SIGTERM退出冒签业务结果。原stop_writers→显式API容器stop→遗留pg-test停止→final PG facts→project down顺序保留。真实API已停/PG仍活及最终停止仍需窗口证据，本轮未启动容器。
+
+DRV-02 CLOSED：bootstrap_restart实际check改为HTTP200，再以精确dict相等核data的session_create、原request_key、UNKNOWN、WAIT_READ_ONLY；额外tenant等字段也拒绝，原strict validator仍先执行。正确原key最小200不再被误判404。DRV-03 CLOSED：实际Web启动使用web_environment，明确加入COMMERCEOPS_WEB_TRANSPORT=local_http且保留精确loopback API origin，不放宽WEB函数。
+
+DRV-04 CLOSED：prepare新增独占700 observers目录，所有运行/最终采集adapter均明确传该目录；_facts对每个具名observer在finally写独占600 JSON。记录case/action/container、实际native_exit（137不丢）、timeout时null/TIMEOUT_UNKNOWN、坏JSON时0/INVALID_FACT_JSON和有限safe_status，再向上传播失败；不写stderr/raw payload，父receipt引用observer_records路径。FACT_OBJECT_RECEIVED只表示收到JSON对象，后续各facts模型/数量断言仍负责验证，不能把记录标签当业务PASS。没有自动重试。
+
+DRV-05 CLOSED：任何服务前verify_images只读inspect两精确image并核.Id；缺失/不同即失败。展开test profile的原三文件模型，只保留postgres/pg-test/v4-api、删所有build并设pull_policy=never，独占保存内容hash；后续compose重新核hash并使用该冻结文件。所有owner及observer统一owner_run，明确--no-deps --pull never；up仍--no-build，无缺失镜像的build/pull fallback。未修改旧Dockerfile/共享compose。
+
+独立精确快照运行原13项+新增15项：**28 passed / 0.14s / native0**，涵盖新/旧准备边界、Q18错误key/operation/status/敏感extra拒绝、Web环境、APIargv、missing-image停止、137/timeout/坏JSON先落盘且无哨兵。另独立将实际三文件Compose展开后交精确no_build_model函数，再用Docker Compose config重解析其输出：native0、恰三个服务、build映射0、全部pull_policy=never。全部是纯测试/配置展开，无daemon资源启动。
+
+首次独立模型验证脚本受Reviewer当前tests包遮蔽，import精确快照模块失败（ModuleNotFoundError），未触及服务；随后改为从精确Git AST提取同一纯no_build_model函数完成上述重解析。原28测试结果没有重跑或覆盖。真实Linux UID600挂载、image/source一致性、driver完整异常清理仍须ROOT实际记录；本轮并未验证whole E2E、自然30minTTL或浏览器视觉。原ce51五项发现与失败边界完整保留。
