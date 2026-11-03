@@ -1,11 +1,8 @@
 """Additional real V4 HTTP/owned-fixture negatives. Never executed on import."""
 
-import copy
 from uuid import uuid4
 
-import httpx
-
-from .http_probe import FIXTURE, PREFIX, Visitor, capacity_rejection
+from .http_probe import FIXTURE, PREFIX, Visitor, capacity_rejection, snapshot_cookies
 from .owned_adapter import OwnedAdapter
 from .supervisor import Budget
 
@@ -35,7 +32,7 @@ def run_owned_negative(
                 visitor.create()
             visitor = visitors[3]
             csrf = visitor.bootstrap()
-            old_cookie = copy.deepcopy(visitor.client.cookies.jar)
+            old_cookie = snapshot_cookies(visitor.client.cookies)
             first_key = str(uuid4())
 
             def denied(key: str, supplied: str) -> None:
@@ -56,8 +53,10 @@ def run_owned_negative(
                 raise AssertionError("original bound/unconsumed owner required")
             # Represents an explicit user re-entry, never an UNKNOWN retry policy.
             fresh_csrf = visitor.bootstrap()
-            new_cookie = copy.deepcopy(visitor.client.cookies.jar)
-            if [(c.name, c.value) for c in old_cookie] == [(c.name, c.value) for c in new_cookie]:
+            new_cookie = snapshot_cookies(visitor.client.cookies)
+            if [(c.name, c.value) for c in old_cookie.jar] == [
+                (c.name, c.value) for c in new_cookie.jar
+            ]:
                 raise AssertionError("bound bootstrap owner was incorrectly reused")
             next_key = str(uuid4())
             denied(next_key, fresh_csrf)
@@ -65,7 +64,7 @@ def run_owned_negative(
                 raise AssertionError("original bootstrap binding changed")
             if adapter.bootstrap_facts(next_key)["id"] == before["id"]:
                 raise AssertionError("explicit re-entry did not get a new bootstrap owner")
-            visitor.client.cookies = httpx.Cookies(old_cookie)
+            visitor.client.cookies = snapshot_cookies(old_cookie)
             response = visitor.client.get(
                 f"{PREFIX}/operations/session_create/{first_key}",
                 headers={"Origin": origin},
