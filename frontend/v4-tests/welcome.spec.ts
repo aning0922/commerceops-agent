@@ -255,3 +255,13 @@ test('UI_FIXTURE: an anonymous page does not poll or create sessions',async ({pa
  await page.goto('/v4');await expect.poll(()=>reads).toBe(1);
  await page.clock.fastForward('00:15');expect(reads).toBe(1);expect(posts).toBe(0);
 });
+
+test('UI_FIXTURE: an explicit cross-tab invalidation permits one anonymous recheck',async ({page})=>{
+ let reads=0;
+ await page.route('**/api/v4/demo/**',withCors(route=>{
+  reads++;return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ }));
+ await page.goto('/v4');await expect.poll(()=>reads).toBe(1);
+ await page.evaluate(()=>{const channel=new BroadcastChannel('commerceops-v4-invalidate');channel.postMessage('invalidate');channel.close();});
+ await expect.poll(()=>reads).toBe(2);
+});
