@@ -265,3 +265,12 @@ test('UI_FIXTURE: an explicit cross-tab invalidation permits one anonymous reche
  await page.evaluate(()=>{const channel=new BroadcastChannel('commerceops-v4-invalidate');channel.postMessage('invalidate');channel.close();});
  await expect.poll(()=>reads).toBe(2);
 });
+
+test('UI_FIXTURE: a verified visible session is rechecked on its interval',async ({page})=>{
+ let reads=0;await page.clock.install();
+ await page.route('**/api/v4/demo/**',withCors(route=>{
+  reads++;return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+ }));
+ await page.goto('/v4');await expect(page.getByText(/当前视角：operator/)).toBeVisible();
+ await page.clock.fastForward('00:05');await expect.poll(()=>reads).toBeGreaterThanOrEqual(2);
+});
