@@ -68,13 +68,18 @@ def collected_nodes(records: list[dict[str, object]]) -> list[str]:
     return result
 
 
+def m3_pg_module(path: str) -> bool:
+    """Integration collection is authoritative; split complete M3 modules by naming family."""
+    return path.startswith(("tests/test_daily", "tests/test_p6_", "tests/test_m3_"))
+
+
 def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
     phase3 = [
         node
         for node in nodes
         if node.split("::", 1)[0].startswith(("tests/test_p3", "tests/test_p4"))
     ]
-    if not phase3:
+    if not phase3 and not any(m3_pg_module(node.split("::", 1)[0]) for node in nodes):
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
     existing = [node for node in nodes if node not in phase3_set]
@@ -83,9 +88,12 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
     p5_paths = sorted(
         {node.split("::", 1)[0] for node in existing if node.startswith("tests/test_p5_")}
     )
-    ordinary = [node for node in existing if node.split("::", 1)[0] not in p5_paths]
+    m3_paths = sorted(
+        {node.split("::", 1)[0] for node in existing if m3_pg_module(node.split("::", 1)[0])}
+    )
+    ordinary = [node for node in existing if node.split("::", 1)[0] not in {*p5_paths, *m3_paths}]
     groups = {"combined-existing": ordinary} if ordinary else {}
-    for path in p5_paths:
+    for path in [*p5_paths, *m3_paths]:
         label = "combined-existing-" + path.removeprefix("tests/").removesuffix(".py")
         groups[label] = [node for node in existing if node.split("::", 1)[0] == path]
     # 从实际collection按现有P3模块派生；不硬编码阶段cardinality或挑选test node。
