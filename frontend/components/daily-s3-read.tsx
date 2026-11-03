@@ -56,7 +56,7 @@ export function DailyS3Read({ read, origin, invalidate, parentCurrent }: { read:
     setQuestion(null); setQuestionItems([]); loadQuestion(id, null);
   }
   return <Card title="本报告的证据与已有追问">
-    <p>此页面可读取本报告的证据和已受理的模板追问；暂不支持在此创建日报或提交新追问。</p>
+    <p>此处可读取本报告的证据和已受理的模板追问。</p>
     <button disabled={busy} onClick={() => void run(api => api.capabilities(read.daily.shop_id), setCapability)}>读取当前店铺来源状态</button>
     {capability && <p>{capability.enabled ? "当前店铺的受控来源可用。" : "当前店铺的受控来源不可用。"}</p>}
     <div className="actions"><button disabled={busy} onClick={() => { setEvidence(null); setEvidenceItems([]); loadEvidence(null); }}>读取报告证据</button></div>
