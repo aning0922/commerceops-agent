@@ -27,9 +27,11 @@ export function validInquiryRead(value: unknown): value is InquiryRead {
     if (!validEnvelope(read) || read.data_label !== "本地演示数据 / 离线模型替身") return false;
     const result = read.result;
     if (!result) return read.answer === null && read.state !== "completed";
-    if (read.state !== "completed" || typeof read.answer !== "string" || result.evidence_mode !== "offline_stub" ||
+    if ((read.state !== "completed" && read.state !== "failed") || typeof read.answer !== "string" || result.evidence_mode !== "offline_stub" ||
         result.workflow_version !== "p6-readonly-inquiry-v1" || result.traces.length !== result.tool_calls ||
         new Set(result.traces.map(x => x.tool_call_id)).size !== result.traces.length) return false;
+    if (read.state === "failed" && (result.status === "complete" || result.status === "clarify" ||
+        result.results.length || result.evidence_refs.length || result.claims.length || result.clarification_options.length)) return false;
     const ids = new Set(result.traces.map(x => x.tool_call_id));
     const facts = result.results.flatMap(x => x.facts);
     const refs = new Set(facts.map(x => x.evidence_id));

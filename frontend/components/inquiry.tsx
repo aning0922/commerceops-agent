@@ -15,6 +15,25 @@ const statusText: Record<string, string> = {
 };
 const metricText: Record<string, string> = { available_stock: "可用库存", inbound_units: "在途数量",
   sold_units: "销量", order_net: "订单净额", order_average: "订单均值", refund_cohort: "退款" };
+export function InquiryResult({ read }: { read: InquiryRead }) {
+  const result = read.result;
+  const visibleFacts = result?.results.flatMap(item => item.facts).filter(fact => result.evidence_refs.includes(fact.evidence_id)) ?? [];
+  return <Card title="当前查询结果">
+    <p>{read.data_label} · 来源窗口：{read.source_domain.start} 至 {read.source_domain.end}（结束不含）</p>
+    {!result ? <p>{read.state === "queued" || read.state === "analyzing" ? "正在查询，尚无结果。" : "当前没有可展示的结果。"}</p> : <>
+      <p>{statusText[result.status]}</p>
+      {read.state === "failed" && <details><summary>查询用量</summary><p>离线模型替身调用 {result.model_calls} 次；工具调用 {result.tool_calls} 次；扫描记录 {result.scanned_rows} 条。</p></details>}
+      {result.status === "complete" && <ul className="inquiry-facts">{visibleFacts.map((fact, index) => <li key={`${fact.evidence_id}-answer-${index}`}>
+        商品 {fact.sku_key} · {metricText[fact.metric]}：{fact.value ?? "未报告"} {fact.unit}{fact.currency ? ` ${fact.currency}` : ""}
+      </li>)}</ul>}
+      {result.status === "clarify" && result.clarification_options.length > 0 && <ul className="inquiry-facts">{result.clarification_options.map(item => <li key={item.sku_key}>{item.label ?? item.sku_key}</li>)}</ul>}
+      {visibleFacts.length > 0 && <details><summary>查看依据与时间</summary><ul className="inquiry-facts">{visibleFacts.map((fact, index) => <li key={`${fact.evidence_id}-${index}`}>
+        商品 {fact.sku_key} · {metricText[fact.metric]}：{fact.value ?? "未报告"} {fact.unit}{fact.currency ? ` ${fact.currency}` : ""}；观测时间 {fact.as_of}
+        {fact.window && <>；窗口 {fact.window.start} 至 {fact.window.end}（结束不含）</>}
+      </li>)}</ul></details>}
+    </>}
+  </Card>;
+}
 export function Inquiry({ client, enabled, shops, holdWrite }: {
   client: A01ReadClient; enabled: boolean; shops: readonly string[]; holdWrite: (held: boolean) => void;
 }) {
@@ -82,8 +101,6 @@ export function Inquiry({ client, enabled, shops, holdWrite }: {
     finally { if (active.current && generation.current === stamp) setBusy(false); }
   }
   function newQuery() { generation.current++; locked.current = false; holdWrite(false); setHeld(null); setRead(null); setMessage(""); }
-  const result = read?.result;
-  const visibleFacts = result?.results.flatMap(item => item.facts).filter(fact => result.evidence_refs.includes(fact.evidence_id)) ?? [];
   return <>
     <Notice title="只读查询" tone="info">本地演示数据 / 离线模型替身；仅支持“库存 商品名或SKU”“销量 商品名或SKU”。查询不会修改订单或库存。</Notice>
     {!enabled || disabledByService ? <Card><p>查询当前未启用。</p></Card> : !shops.length ? <Card><p>当前没有可选的运营店铺，请联系管理员核实权限。</p></Card> :
@@ -105,19 +122,6 @@ export function Inquiry({ client, enabled, shops, holdWrite }: {
         </>}
       </Card>}
     {message && <Notice title="查询状态" tone="info">{message}</Notice>}
-    {read && <Card title="当前查询结果">
-      <p>{read.data_label} · 来源窗口：{read.source_domain.start} 至 {read.source_domain.end}（结束不含）</p>
-      {!result ? <p>{read.state === "queued" || read.state === "analyzing" ? "正在查询，尚无结果。" : "当前没有可展示的结果。"}</p> : <>
-        <p>{statusText[result.status]}</p>
-        {result.status === "complete" && <ul className="inquiry-facts">{visibleFacts.map((fact, index) => <li key={`${fact.evidence_id}-answer-${index}`}>
-          商品 {fact.sku_key} · {metricText[fact.metric]}：{fact.value ?? "未报告"} {fact.unit}{fact.currency ? ` ${fact.currency}` : ""}
-        </li>)}</ul>}
-        {result.status === "clarify" && result.clarification_options.length > 0 && <ul className="inquiry-facts">{result.clarification_options.map(item => <li key={item.sku_key}>{item.label ?? item.sku_key}</li>)}</ul>}
-        {visibleFacts.length > 0 && <details><summary>查看依据与时间</summary><ul className="inquiry-facts">{visibleFacts.map((fact, index) => <li key={`${fact.evidence_id}-${index}`}>
-          商品 {fact.sku_key} · {metricText[fact.metric]}：{fact.value ?? "未报告"} {fact.unit}{fact.currency ? ` ${fact.currency}` : ""}；观测时间 {fact.as_of}
-          {fact.window && <>；窗口 {fact.window.start} 至 {fact.window.end}（结束不含）</>}
-        </li>)}</ul></details>}
-      </>}
-    </Card>}
+    {read && <InquiryResult read={read} />}
   </>;
 }

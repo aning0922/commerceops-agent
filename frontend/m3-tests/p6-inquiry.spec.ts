@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Inquiry } from "../components/inquiry";
+import { Inquiry, InquiryResult } from "../components/inquiry";
 import { inquiryApi, inquiryBoundToRequest, validInquiryRead } from "../lib/p6-inquiry-client";
 import type { InquiryInput, InquiryRead } from "../lib/p6-inquiry-client";
 import type { A01ReadClient } from "../lib/p3-live-client";
+import failed from "./inquiry-failed.fixture.json" with { type: "json" };
 
 const id = "00000000-0000-4000-8000-000000000001", key = "00000000-0000-4000-8000-000000000002";
 const binding = "a".repeat(64), domain = { start: "2026-11-01T00:00:00Z", end: "2026-11-02T00:00:00Z" };
@@ -37,6 +38,24 @@ test("strict inquiry result binds task source trace claims and facts", () => {
     expect(validInquiryRead({ ...pending, state: "completed", answer: "请核实", result: { ...finished.result,
       status, tool_calls: 0, traces: [], results: [], evidence_refs: [], claims: [], clarification_options: [] } })).toBe(true);
   }
+});
+test("18a failed DTO accepts safe failure and known nonzero usage without disclosing facts", () => {
+  expect(validInquiryRead(failed)).toBe(true);
+  const used = { ...failed, result: { ...failed.result, model_calls: 2, tool_calls: 1, scanned_rows: 7,
+    traces: [{ tool_call_id: "call1", name: "commerce.read_inventory", args_hash: "b".repeat(64) }] } };
+  expect(validInquiryRead(used)).toBe(true);
+  if (!validInquiryRead(used)) throw new Error("Failed DTO fixture must validate");
+  const html = renderToStaticMarkup(createElement(InquiryResult, { read: used }));
+  expect(html).toContain("当前权限不足");
+  expect(html).toContain("离线模型替身调用");
+  expect(html).toContain("扫描记录");
+  expect(html).not.toContain("查看依据与时间");
+  expect(validInquiryRead({ ...failed, result: { ...failed.result, status: "complete" } })).toBe(false);
+  expect(validInquiryRead({ ...failed, result: { ...failed.result, status: "clarify" } })).toBe(false);
+  expect(validInquiryRead({ ...failed, result: { ...failed.result, results: finished.result.results } })).toBe(false);
+  expect(validInquiryRead({ ...failed, result: { ...failed.result, evidence_refs: ["ref1"] } })).toBe(false);
+  expect(validInquiryRead({ ...failed, result: { ...failed.result, claims: [{ kind: "fact", refs: ["ref1"] }] } })).toBe(false);
+  expect(validInquiryRead({ ...failed, result: { ...failed.result, clarification_options: [{ sku_key: "sku1", label: "商品" }] } })).toBe(false);
 });
 test("prepared request freezes key, shop and body against later mutation", async () => {
   const mutable = { ...input };

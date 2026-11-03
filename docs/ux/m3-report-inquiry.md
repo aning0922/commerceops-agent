@@ -206,3 +206,9 @@ Root 放行基于已审设计 `832c7d1` 与冻结服务 DTO `1a78d5a23fd888265cc
 开发中为检查原 P3 transport 运行旧 contract 配置时，其默认 JSON reporter 覆盖了 tracked 历史 `frontend/evidence/b04-wiring/contract-results.json`；已从运行前 HEAD 恢复并核 `git diff` 为零。本次9个 P3 transport 例仅作为本次回归，历史回执没有更新。
 
 当前候选本地验证：16个无服务器 M3 契约例通过（含8个询单、6个日报、2个窗口网络边界），原P3 transport 9例通过；`typecheck`、`check:read-schema`、Next `build`、123份 Markdown 检查及 `git diff --check` 均 exit0。询单页面使用服务端渲染例核默认关闭及显式启用分支，没有运行浏览器交互；服务路由/SQL/真实API和独立审查仍待后续精确回执。
+
+## 16. 询单安全失败结果兼容（2026-11-03）
+
+Root 指出 `18a2973973def9120ac4f50a7e8604a33b45c532` 的 `fail_safe` 会持久化 `failed` 与无事实的 `access_denied` 结果，而当前授权读取可返回该结果；原前端仅接受 `completed` 的非空结果。现仅在 `failed` 下接受已知非成功、非澄清状态，要求结果、事实引用、claim 与澄清选项均为空，继续校验来源和工具轨迹，不把非零模型替身调用、工具调用或扫描数当成无效。页面用固定安全文案呈现失败，并在折叠区显示服务返回的离线替身用量，不展示服务自由文本作为事实。
+
+`frontend/m3-tests/inquiry-failed.fixture.json` 由隔离导出的 `18a297` 源码中的实际 `InquiryRead`、`ResultPayload.from_outcome(Outcome("access_denied",0,0,0,()))` 和 renderer 生成，是 DTO 样本而非真实 PG 回执。定向9个询单无服务器契约例通过，涵盖该样本、带非零用量的安全变体及失败结果夹带成功事实/引用/claim/选项的拒绝；typecheck、schema同步检查与差异检查退出0。`18a297` 与 `1a78d5a` 的服务 DTO 与 OpenAPI 资产逐文件无差异；后端后续用量修复的精确冻结提交及独审仍待 Root 转交，不预签其 schema、PG、实际 API 或浏览器结果。
