@@ -164,3 +164,44 @@ def test_bad_configuration_has_fixed_safe_exit(
     with pytest.raises(SystemExit) as stopped:
         owned_api.main()
     assert str(stopped.value) == "OWNED_V4_API_CONFIGURATION_INVALID"
+
+
+@pytest.mark.parametrize("unsafe", ["symlink", "0644"])
+def test_runtime_password_file_guard_rejects_without_repair_or_listen(
+    config: tuple[Path, dict[str, Any]],
+    monkeypatch: pytest.MonkeyPatch,
+    unsafe: str,
+) -> None:
+    root, _ = config
+    path = root / "runtime-password"
+    if unsafe == "symlink":
+        outside = root.parent / "outside-synthetic-file"
+        outside.write_text(secrets.token_urlsafe(48))
+        outside.chmod(0o600)
+        path.unlink()
+        path.symlink_to(outside)
+    else:
+        path.chmod(0o644)
+    monkeypatch.setattr(uvicorn, "run", lambda *a, **k: pytest.fail("must not listen"))
+    with pytest.raises((ValueError, OSError)):
+        owned_api.load_owned_config()
+    with pytest.raises(SystemExit) as stopped:
+        owned_api.main()
+    assert str(stopped.value) == "OWNED_V4_API_CONFIGURATION_INVALID"
+    if unsafe == "symlink":
+        assert path.is_symlink()  # Entry never removes/replaces unknown mounts.
+    else:
+        assert path.stat().st_mode & 0o777 == 0o644  # Entry never chmods it.
+
+
+def test_legal_runtime_password_0600_current_uid_still_loads(
+    config: tuple[Path, dict[str, Any]],
+) -> None:
+    root, _ = config
+    path = root / "runtime-password"
+    assert path.stat().st_mode & 0o777 == 0o600
+    assert path.stat().st_uid == os.geteuid()
+    demo, web, port = owned_api.load_owned_config()
+    assert demo.enabled and port == 18440
+    assert web.database.password_file == path
+    assert web.database.password().get_secret_value() == path.read_text().strip()

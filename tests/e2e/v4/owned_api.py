@@ -55,6 +55,9 @@ def load_owned_config() -> tuple[DemoConfig, WebConfig, int]:
         or web_file.get("commerce_sources") is not None
     ):
         raise ValueError("FIXED_NEW_RUNTIME_DATABASE_REQUIRED")
+    # The legacy database loader only checks the path string. Enforce the same
+    # no-follow / regular-file / 0600 / current UID boundary as the other new keys.
+    private_bytes(RUNTIME / "runtime-password")
     web = WebConfig.from_file(web_path)
     demo = DemoConfig.load(demo_path)
     parsed = urlsplit(demo.api_origin)

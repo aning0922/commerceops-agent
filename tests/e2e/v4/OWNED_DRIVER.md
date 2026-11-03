@@ -255,3 +255,14 @@ WEB_SOURCE/PINS刷新为候选元数据，同时WEB_HANDOFF_READY=False；hash�
 不能凭候选提交或原363已核收状态启动。必须Astra接受该新候选、Root统一集成并给新source/
 image/project/端口/UTC后才能解除阻断与运行；不使用363旧测试签200%真实缩放。
 本轮仅定向纯metadata/source/report验证，无Node/browser/profile/GUI/PG服务启动。
+
+## OWNED-API01：启动前校验runtime-password实际文件
+
+已读正式审查`ef848d9bc0a5ba2cb75994a21c09d2db52f1ef97:docs/v4/review/OWNED_API_6ca.md`，
+0P1/1P2，原13pure通过不抵密码文件反例。仅在owned_api装配app前增加对固定
+/run/v4_api/runtime-password的既有private_bytes调用，逐级O_NOFOLLOW、普通文件、0600、
+当前UID校验与新配置/其他key一致。旧DatabaseSettings/WebConfig及连接逻辑均未改，
+不chmod/chown/替换未知挂载，失败仍OWNED_V4_API_CONFIGURATION_INVALID固定退出。
+新增symlink/0644拒绝（同时断言文件未被修复、uvicorn未调用）及合法600/current UID接受；
+本模块16项定向pure通过，未启动监听或连接PG。本修复单独提交，不含browser pin变更；
+待Astra增量复审后由Root新窗口核实际Linux挂载、鉴权和监听，旧case不重试。
