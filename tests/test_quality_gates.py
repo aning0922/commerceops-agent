@@ -635,7 +635,7 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
     assert len(secret_scan.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     assert len(v4_additional_history_findings()) == 10
-    assert len(v4_preflight_history_findings()) == 106
+    assert len(v4_preflight_history_findings()) == 109
     reachable = set(
         subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()
     )

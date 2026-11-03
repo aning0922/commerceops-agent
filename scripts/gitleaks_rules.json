@@ -2804,6 +2804,42 @@
       "exact_span_sha256": "53393d547dc8e044a97e4036e69d20147b037c6d0b5f3a7fcd8ceb1d086a852a",
       "match_sha256": "c19e9b295b94b965138099d32450b795e1ce73cf2542c9d3576419c5ea56f3a0",
       "fingerprint": "8dedb22016bcbd8d66c20c23adc899b6b0c43559:docs/v4/review/SCAN_f341.md:generic-api-key:7"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "42acf36571134ccb8ca277088098b05af395ba04",
+      "reported_line": 4,
+      "end_line": 4,
+      "start_column": 5,
+      "end_column": 48,
+      "exact_span_sha256": "acd26a0ef07569e7f142448bb97a86f3293eff69abb69e400f70d2be55257911",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "42acf36571134ccb8ca277088098b05af395ba04:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:4"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_v4_scan_compat.py",
+      "source_commit": "44633302af915358771c32875d27a1b8ac3e7860",
+      "reported_line": 1128,
+      "end_line": 1128,
+      "start_column": 13,
+      "end_column": 53,
+      "exact_span_sha256": "11ba67c032185fd580d6aac2788c22d36007598910f0ec5db9a5dbd56dcd986c",
+      "match_sha256": "410e0fc24ad03d7f93c52fc3e10177fc41674bc1056307351c1f0b6cccff120c",
+      "fingerprint": "44633302af915358771c32875d27a1b8ac3e7860:tests/test_v4_scan_compat.py:generic-api-key:1128"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "tests/test_v4_scan_compat.py",
+      "source_commit": "44633302af915358771c32875d27a1b8ac3e7860",
+      "reported_line": 1131,
+      "end_line": 1131,
+      "start_column": 15,
+      "end_column": 44,
+      "exact_span_sha256": "f7d28318c0db6ce5803ed3ef8d6b0710cd5fcf1879c424e53e1ac86e3c6d1b0d",
+      "match_sha256": "410e0fc24ad03d7f93c52fc3e10177fc41674bc1056307351c1f0b6cccff120c",
+      "fingerprint": "44633302af915358771c32875d27a1b8ac3e7860:tests/test_v4_scan_compat.py:generic-api-key:1131"
     }
   ],
   "v4_merge_copy_anchors": [
@@ -2966,6 +3002,16 @@
       "source_commit": "9727cf15aba3d2b2fa27bba6b82682c403903187",
       "path": "tests/e2e/v4/owned_negatives.py",
       "blob": "f56afab50f937a6d6da724660e08d4e8c15fa2e2"
+    },
+    {
+      "source_commit": "42acf36571134ccb8ca277088098b05af395ba04",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "blob": "c3c9cd69d382fdec2b7374e9cc50e81803a279f9"
+    },
+    {
+      "source_commit": "667cbbc5dde82c25c50ec4fa4f60e0c6f0e366c1",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "blob": "38d2c0fef2037f40a580951716e180542e8f570a"
     }
   ],
   "v4_merge_copy_bindings": [
