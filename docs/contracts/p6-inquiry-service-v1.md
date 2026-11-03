@@ -83,3 +83,33 @@ Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config,
 计数明确只代表**本次 executor 尝试的已知用量**，不作为跨 job attempt 累计；历史尝试用量为 **UNKNOWN**。execute 尚未开始的本次尝试才可记录 0；普通 executor 失败仍返回带已知计数的 Outcome，不能回到默认 0。DTO 字段描述、同源 OpenAPI 与 migration 冻结 schema 同步标明这个边界。已有终态及 commit ACK unknown 的重读路径继续保留原结果，不由新安全失败覆盖。
 
 新增离线回归运行真实 runner/execute/DemoChoice/Mock facade/实际 store 的 load→mark→finish→fail_safe，只有数据库 transport 和鉴权边界为 double：确认 finish 前 complete 结果已有 3/2/3，撤权后 SQL 写入仍为 3/2/3、两条相同安全 trace、零 facts/claims/refs/options，原失败回执重放不再次调用或写入。相关离线总计 **105 pass**。这是服务路径回归，不是 PG 权限或 SQL 通过证据；独立 36 节点 PG 矩阵 `9d79388d9c45cc8e7bdbec3e771832e19c8c4483` 保持不变且 NOT_RUN。未启动 PG、未全扫或添加 allowlist，原 3 个扫描命中保留。
+
+## 首轮真实 PG 结果与变量歧义修复候选（2026-11-03）
+
+Root 回交精确 validation source `24baad71f3501a88f2ec67949903e7dc2df859de` 的 round-1 安全结构记录：原 36 项实际 **25 pass / 11 fail / 60.73s**、module/outer 均 1；迁移及初始化四动作均 0。失败分为六项 finish 持久结果 UPDATE 的 CheckViolation/23514、一项撤权夹具 principal UPDATE 的 CheckViolation/23514，以及四项子进程事件 AssertionError/sqlstate null。四项子进程内部失败原因未捕获，不能补写成已证实的同一根因。Root 已核 cleanup0/stoppingtrue、容器/网络均 0、保留卷 1；本 owner 没有启动、复活或读取该 PG。
+
+只读发现 `valid_inquiry_payload` 同时声明局部 JSONB 变量 `r` 和同名 JSON 查询别名，首个 evidence_ref 的查询使用未限定 `r->'facts'`，异常又被函数转成 false。PostgreSQL 默认会拒绝变量与列的歧义引用，且条件 SQL 可能到实际执行分支时才解析，见[官方变量替换说明](https://www.postgresql.org/docs/current/plpgsql-implementation.html#PLPGSQL-VAR-SUBST)。这是与六项正常 complete 结果拒绝相符的强候选共因，实际 SQL 验证前不写成已证实根因。
+
+生产最小修复将局部变量改为 `v_read`，引用查询使用显式 `read_entry(value)` / `fact_entry(value)` 及限定列；不删除/放宽事实存在、来源、hash、schema 或当前授权约束。新增两个真实 PG 正例候选（库存/销量）：同原 WorkerSession/queue/当前权限跑真实 execute，分别检查 DTO shape 与终态函数都为 true，再走实际 store.finish 和 job 结算；同例还要求正确 hash 的不存在事实引用为 false。原 36 节点保留，新增后 **38 collected，新增两例 NOT_RUN**；原 25 pass 不代签新候选。
+
+如 Root 需要最窄语法/语义定位，可在后续明确的新 owned SQL 窗口中分别运行以下两个匿名块；仅固定合成 JSON，不访问业务表或旧卷。本 owner 未执行。第一块应暴露旧同名引用的歧义，第二块必须成功；结果仍需 Root 实际记录：
+
+```sql
+DO $probe$
+DECLARE r jsonb;
+BEGIN
+ PERFORM 1 FROM jsonb_array_elements('[{"facts":[{"evidence_id":"probe"}]}]'::jsonb) r,
+ jsonb_array_elements(r->'facts') f WHERE f->>'evidence_id'='probe';
+END $probe$;
+
+DO $probe$
+DECLARE v_read jsonb;
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM
+  jsonb_array_elements('[{"facts":[{"evidence_id":"probe"}]}]'::jsonb) AS read_entry(value),
+  jsonb_array_elements(read_entry.value->'facts') AS fact_entry(value)
+  WHERE fact_entry.value->>'evidence_id'='probe') THEN
+  RAISE EXCEPTION 'synthetic reference missing';
+ END IF;
+END $probe$;
+```
