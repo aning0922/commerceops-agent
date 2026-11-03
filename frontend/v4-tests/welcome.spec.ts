@@ -242,6 +242,6 @@ test('UI_FIXTURE: an invalidation closes the reset dialog before revalidation',a
  await page.route('**/api/v4/demo/**',withCors(route=>route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}})));
  await page.goto('/v4');await page.getByRole('button',{name:'重置演示'}).click();
  const dialog=page.getByRole('dialog',{name:'重置当前演示空间？'});await expect(dialog).toBeVisible();
- await page.evaluate(()=>window.dispatchEvent(new Event('offline')));
+ await page.context().setOffline(true);
  await expect(dialog).not.toBeVisible();await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);
 });
