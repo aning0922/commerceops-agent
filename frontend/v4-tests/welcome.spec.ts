@@ -71,3 +71,21 @@ test('UI_FIXTURE: welcome remains usable on narrow viewport with keyboard focus'
  await button.focus();await expect(button).toBeFocused();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
 });
+
+test('UI_FIXTURE: revalidation clears a shop whose grant was removed',async ({page})=>{
+ let key='',allowed=true;
+ const shop={shop_id:id,display_name:'示例店铺',timezone:'Asia/Taipei',currency:'TWD',grants:['read']};
+ await page.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[shop],source},receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
+  if(path.endsWith('/session')&&key)return route.fulfill({json:{...base,context,data:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:allowed?[shop]:[],source}}});
+  if(path.endsWith('/seed-summary'))return route.fulfill({json:{...base,context:{...context,shop_id:id},data:{source,counts:{products:2,skus:3,orders:4,order_lines:5},snapshot_at:now}}});
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
+ await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByLabel('店铺').selectOption(id);
+ await expect(page.getByText(/商品 2/)).toBeVisible();allowed=false;
+ await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+ await expect(page.getByText(/商品 2/)).toHaveCount(0);await expect(page.getByText('当前视角没有获授权店铺。')).toBeVisible();
+});
