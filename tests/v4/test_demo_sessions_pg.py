@@ -3,8 +3,10 @@
 import json
 import secrets
 from collections.abc import Iterator
-from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, wait
+from dataclasses import dataclass, field
 from pathlib import Path
+from threading import Barrier
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -443,3 +445,160 @@ def test_revoked_target_persona_is_denied_while_current_operator_remains_valid(
             (tenant_id,),
         ).fetchone()
         assert receipts == {"n": 0}
+
+
+def test_five_simultaneous_creates_commit_exactly_three_without_eviction(demo: DemoPG) -> None:
+    @dataclass(frozen=True)
+    class Visitor:
+        owner: str = field(repr=False)
+        csrf: str = field(repr=False)
+        command: dto.CreateSessionInput
+        peer: str
+
+    @dataclass(frozen=True)
+    class Outcome:
+        index: int
+        status: int
+        code: str
+        data: dict[str, Any] | None = field(default=None, repr=False)
+        active: str | None = field(default=None, repr=False)
+
+    visitors: list[Visitor] = []
+    for index in range(5):
+        peer = f"v4-race-{index}"
+        bootstrap, owner = demo.store.bootstrap(None, peer)
+        assert owner is not None
+        visitors.append(
+            Visitor(
+                owner,
+                bootstrap["data"]["csrf_token"],
+                dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1"),
+                peer,
+            )
+        )
+    assert len({visitor.command.request_key for visitor in visitors}) == 5
+    with connect(demo.app) as db:
+        prepared = db.execute("""SELECT
+        (SELECT count(*) FROM business.v4_demo_tenants) AS tenants,
+        (SELECT count(*) FROM business.v4_demo_sessions) AS sessions,
+        (SELECT count(*) FROM business.v4_demo_receipts) AS receipts,
+        (SELECT count(*) FROM business.v4_demo_bootstraps) AS owners,
+        (SELECT count(DISTINCT token_hash) FROM business.v4_demo_bootstraps) AS unique_owners
+        """).fetchone()
+        assert prepared == dict(tenants=0, sessions=0, receipts=0, owners=5, unique_owners=5)
+    barrier = Barrier(6)  # All five workers and the caller arrive before one release.
+
+    def create_visitor(index: int) -> Outcome:
+        visitor = visitors[index]
+        store = DemoStore(demo.config)
+        barrier.wait(timeout=10)
+        try:
+            # Each real Store transaction opens its own psycopg connection; no shared
+            # connection, replaced hash slot, fake lock, retry or prefilled tenant.
+            data, active = store.create(visitor.owner, visitor.csrf, visitor.command, visitor.peer)
+        except WebFailure as error:
+            return Outcome(index, error.status, error.code)
+        return Outcome(index, 201, "COMMITTED", data, active)
+
+    pool = ThreadPoolExecutor(max_workers=5)
+    futures = []
+    try:
+        futures = [pool.submit(create_visitor, index) for index in range(5)]
+        barrier.wait(timeout=10)
+        _, pending = wait(futures, timeout=45)
+        assert not pending, "five-create workers exceeded bounded completion window"
+        outcomes = [future.result(timeout=0) for future in futures]
+    finally:
+        barrier.abort()
+        for future in futures:
+            future.cancel()
+        # Never wait indefinitely during exception unwinding. Live work is a real
+        # failure; the existing owned fixture then FORCE-drops only this new DB.
+        # Store connect/SQL/lock waits retain their own production bounds.
+        pool.shutdown(wait=False, cancel_futures=True)
+
+    winners = [outcome for outcome in outcomes if outcome.status == 201]
+    losers = [outcome for outcome in outcomes if outcome.status != 201]
+    for outcome in winners:
+        assert outcome.data is not None and outcome.active is not None
+        expected = outcome.data["context"]
+        current = demo.store.sessions.current(outcome.active)
+        for name in (
+            "tenant_id",
+            "organization_id",
+            "principal_id",
+            "reset_epoch",
+            "auth_generation",
+        ):
+            assert current["context"][name] == expected[name]
+        assert current["data"]["creation_request_key"] == str(
+            visitors[outcome.index].command.request_key
+        )
+        assert current["data"]["expires_at"] == outcome.data["data"]["session"]["expires_at"]
+    for outcome in losers:
+        visitor = visitors[outcome.index]
+        recovered = demo.store.operation(
+            visitor.owner, "session_create", visitor.command.request_key
+        )
+        assert recovered["data"] == dict(
+            operation="session_create",
+            request_key=str(visitor.command.request_key),
+            status="UNKNOWN",
+            recovery="WAIT_READ_ONLY",
+        )
+        with connect(demo.app) as db:
+            row = demo.store.sessions.bootstrap_locked(db, visitor.owner)
+            assert row["create_request_key"] == visitor.command.request_key
+            assert row["consumed_at"] is None
+
+    with connect(demo.app) as db:
+        tenants = db.execute("""SELECT id,organization_id,revoked_at,
+        expires_at>clock_timestamp() AS live FROM business.v4_demo_tenants""").fetchall()
+        sessions = db.execute("""SELECT id,tenant_id,revoked_at,
+        expires_at>clock_timestamp() AS live FROM business.v4_demo_sessions""").fetchall()
+        receipts = db.execute("""SELECT owner_session_id,tenant_id,request_key
+        FROM business.v4_demo_receipts WHERE operation='session_create'""").fetchall()
+        shops = db.execute("SELECT tenant_id,shop_id FROM business.v4_demo_shops").fetchall()
+        personas = db.execute(
+            "SELECT tenant_id,principal_id,identity_id FROM business.v4_demo_personas"
+        ).fetchall()
+        active_tenants = sum(row["live"] and row["revoked_at"] is None for row in tenants)
+        active_sessions = sum(row["live"] and row["revoked_at"] is None for row in sessions)
+    # Report only safe classifications/counts on failure, never bearer/CSRF values.
+    observed = dict(
+        successes=len(winners),
+        failures=sorted((item.status, item.code) for item in losers),
+        tenants=len(tenants),
+        active_tenants=active_tenants,
+        sessions=len(sessions),
+        active_sessions=active_sessions,
+        create_receipts=len(receipts),
+        organizations=len({row["organization_id"] for row in tenants}),
+        shops=len({row["shop_id"] for row in shops}),
+        principals=len({row["principal_id"] for row in personas}),
+        identities=len({row["identity_id"] for row in personas}),
+    )
+    assert observed == dict(
+        successes=3,
+        failures=[(429, "CAPACITY_LIMIT"), (429, "CAPACITY_LIMIT")],
+        tenants=3,
+        active_tenants=3,
+        sessions=3,
+        active_sessions=3,
+        create_receipts=3,
+        organizations=3,
+        shops=6,
+        principals=9,
+        identities=9,
+    )
+    winning_tenants = {UUID(item.data["context"]["tenant_id"]) for item in winners if item.data}
+    assert {row["id"] for row in tenants} == winning_tenants
+    assert {row["tenant_id"] for row in sessions} == winning_tenants
+    assert {row["tenant_id"] for row in receipts} == winning_tenants
+    assert {row["request_key"] for row in receipts} == {
+        visitors[item.index].command.request_key for item in winners
+    }
+    assert {row["owner_session_id"] for row in receipts} == {row["id"] for row in sessions}
+    for tenant in winning_tenants:
+        assert sum(row["tenant_id"] == tenant for row in shops) == 2
+        assert sum(row["tenant_id"] == tenant for row in personas) == 3
