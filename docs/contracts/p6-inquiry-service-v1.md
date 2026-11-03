@@ -113,3 +113,5 @@ BEGIN
  END IF;
 END $probe$;
 ```
+
+撤权夹具另作独立修正：原 `test_revoke_after_mark_can_settle_fact_free_failure` 在执行生产 fail_safe 前，直接把 principal.enabled 改为 false 却没有递增 auth_version，明确违反 0001 的 `require_auth_version`，该 23514 属夹具错误。冷重放 revoked 变体中尚未到达的同类 UPDATE 一并补 `auth_version=auth_version+1`，用户 GET 撤权拒绝及安全失败断言均保留。此测试修正不代替生产 SQL 变量歧义的验证，也不据此推断四项子进程原始 AssertionError 的原因。38 节点只收集未重跑；后续实际通过/失败由 Root 新窗口记录。

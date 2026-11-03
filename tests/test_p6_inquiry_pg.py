@@ -406,7 +406,8 @@ def test_result_commit_gap_and_new_process_replay(inquiry: InquiryFixture, chang
                     )
                 else:
                     db.execute(
-                        "UPDATE business.principals SET enabled=false WHERE id=%s",
+                        "UPDATE business.principals SET enabled=false,"
+                        "auth_version=auth_version+1 WHERE id=%s",
                         (f.web.actor.principal_id,),
                     )
             with pytest.raises(WebFailure):
@@ -576,7 +577,8 @@ def test_revoke_after_mark_can_settle_fact_free_failure(inquiry: InquiryFixture)
             f.store.mark(job)
             with connect(f.web.inventory.owner) as db:
                 db.execute(
-                    "UPDATE business.principals SET enabled=false WHERE id=%s",
+                    "UPDATE business.principals SET enabled=false,"
+                    "auth_version=auth_version+1 WHERE id=%s",
                     (f.web.actor.principal_id,),
                 )
             with pytest.raises(WebFailure):
