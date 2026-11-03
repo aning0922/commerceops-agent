@@ -715,13 +715,26 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
         migrate(owner)
         grant_runtime(owner)
         current = snapshot()
-        assert set(current) - set(after) == {"business.p5_commerce_source_bindings"}
+        assert set(current) - set(after) == {
+            "business.p5_commerce_source_bindings",
+            "business.p6_daily_source_bindings",
+            "business.p6_daily_snapshots",
+            "business.p6_daily_reports",
+        }
         assert set(after) <= set(current)
-        assert not current["business.p5_commerce_source_bindings"]
+        assert all(
+            not current["business." + table]
+            for table in (
+                "p5_commerce_source_bindings",
+                "p6_daily_source_bindings",
+                "p6_daily_snapshots",
+                "p6_daily_reports",
+            )
+        )
         assert all(current[key] == value for key, value in after.items())
         with connect(owner) as db:
             assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
-                "version_num": "0018_p5_commerce_sources"
+                "version_num": "0019_p6_daily_reports"
             }
         with connect(app) as db:
             assert (
