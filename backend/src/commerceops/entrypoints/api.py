@@ -19,6 +19,7 @@ from commerceops.infrastructure.knowledge_copy_draft_store import CopyStore
 from commerceops.infrastructure.readonly_inquiry_config import InquiryDeployment
 from commerceops.infrastructure.readonly_inquiry_store import InquiryConfig, InquiryStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
+from commerceops.infrastructure.v4_demo_sessions import DemoConfig
 from commerceops.infrastructure.web_config import WebConfig
 
 
@@ -38,6 +39,7 @@ def create_app(
     daily_files: DailyDeployment | None = None,
     inquiry_config: InquiryConfig | None = None,
     copy_deployment: CopyDeployment | None = None,
+    v4_demo_config: DemoConfig | None = None,
 ) -> FastAPI:
     if inquiry_config is not None and (web_config is None or replenishment_store is None):
         raise ValueError("inquiry requires explicit Web session configuration")
@@ -146,6 +148,10 @@ def create_app(
         schema = export_web(schema)
     # Dedicated inquiry contract is exported separately; original contracts remain exact.
     app.openapi_schema = schema
+    if v4_demo_config is not None and v4_demo_config.enabled:
+        from commerceops.entrypoints.v4_demo_http import install_demo
+
+        install_demo(app, v4_demo_config)
     return app
 
 
@@ -190,6 +196,16 @@ def main() -> None:
             )
         except (ValueError, OSError):
             raise SystemExit("P3配置无效，请核对本阶段私有配置") from None
+    demo_path = os.environ.get("COMMERCEOPS_V4_DEMO_CONFIG_FILE")
+    if demo_path:
+        try:
+            demo_config = DemoConfig.load(Path(demo_path))
+            if demo_config.enabled:
+                from commerceops.entrypoints.v4_demo_http import install_demo
+
+                install_demo(app, demo_config)
+        except (ValueError, OSError):
+            raise SystemExit("V4 demo configuration invalid") from None
     uvicorn.run(
         app,
         host=settings.host,

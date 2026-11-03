@@ -766,7 +766,7 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
         assert all(current[key] == value for key, value in after.items())
         with connect(owner) as db:
             assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
-                "version_num": "0023_p6_copy_drafts"
+                "version_num": "0024_v4_demo_foundation"
             }
         with connect(app) as db:
             assert (
