@@ -548,4 +548,39 @@ env -u COMMERCEOPS_DB_HOST -u COMMERCEOPS_DB_PORT -u COMMERCEOPS_DB_NAME -u COMM
 
 创建POST仅v4b_ owner+CSRF+原key，active拒绝；GET bootstrap只复用未绑定key的valid owner。已绑定owner无论consumed与否均保留旧key回读，显式新GET发fresh匿名cookie；UNKNOWN客户端不自动bootstrap/POST。有效active GET bootstrap拒绝；过期/撤销active只在用户明确新开始时可换匿名owner，不自动创建新tenant。reset/persona公开cookie不变，generation/CSRF/bound原子换；API响应不返回bearer或bound秘密。
 
-ASGI 19项目前使用显式StubStore，只证明路由/Origin/DTO/error/schema/cookie合同，不证明PG鉴权。真实PG作者测试另行提交并由ROOT新窗口执行。
+d578交付时的19项ASGI使用显式StubStore，仅证明当时的拒绝路径/路由/schema等局部事实；四POST合法JSON解析P1及534修复后的38项证据见§15，旧19项不代签修后源码。真实PG作者测试由ROOT新窗口执行。
+
+
+## 15. 作者交付步骤与证据索引（2026-11-03增量）
+
+本节绑定作者代码/测试冻结 `7ff538cd58e8622ffd0a8dd20a4b739ae1030734` / tree `2a8a3b6637f2cb11a7a7807a68530b5626c6e6e2`，不变更baseline四合同。以下API步骤是交付后的验收脚本说明，作者尚未作监听API/PG/浏览器演示；只能在ROOT登记的新owned资源/Origin/绝对UTC内执行。配置与owner/runtime分离沿§14，不能仅凭此文启动服务。
+
+### V40-03 API演示步骤（待实跑）
+
+1. 显式进入：可信Origin下GET `/api/v4/demo/bootstrap`，浏览器仅得到匿名cookie/CSRF；显式POST `/api/v4/demo/sessions`，body仅新UUID request_key及固定fixture_version，用原bootstrap CSRF。期望201/COMMITTED后GET current核creation_request_key、服务器context和双店；不可把401/422或丢ACK当成功。
+2. 授权核对：按current返回的shop_id及当前epoch/generation GET seed-summary；同tenant实际scope决定可见店。跨tenant shop/原key应404。persona POST到approver或restricted_admin后先清屏，再GET current核新context/CSRF；admin无业务店，旧actor/旧CSRF须拒绝。复制公开cookie到旧cookie名须在已注册的旧路由得到401，404不算鉴权证据。
+3. 退出/恢复：logout POST带当前CSRF及CAS，成功后current/operation均无授权。控制响应丢失时只GET current和原operation/key，不重POST；整个create cookie丢失时原bootstrap只读最小恢复，不再签bearer。到期与撤权401不能冒充某个控制请求已COMMITTED。
+
+### V40-04 seed/reset演示步骤（待实跑）
+
+1. owner按§14只初始化固定fixture；普通migrate不自动seed/grant。verify及导出content/manifest应核同一digest，文件导出失败独立记录，不能声称DB/文件跨资源原子成功。
+2. 建两个visitor，核org/principal/shop隔离及各店8 products/10 SKUs/12 orders/18 lines；summary source保持synthetic_demo和固定digest。六异常refs只作关联验证，不触发旧业务任务或外部provider。
+3. 对A准备新域fixture_note overlay后用当前CSRF/CAS reset；核A overlay清空、epoch/generation各推进一次、原persona/期限/ID/fixture不变，B数据/代际/overlay不变。同key同payload必须原回执，异payload409。provision中段故障必须整笔物化回滚，但独立bootstrap原key预留及UNKNOWN保留。
+
+### 已提交证据与范围
+
+| 对象 | 精确证据 | 证明范围 |
+| --- | --- | --- |
+| SQL CASE语法修正 | 12081e4；独审7ac3b0b的SQL_SYNTAX_1208 | 两处机械括号增量接受，不代签完整DDL或实际迁移 |
+| 四POST JSON解析 | 534844a；独审76ba1e8的API_d578增量 | API-01已关闭；38项作者/独立stub ASGI及typed探针，不是实际PG POST |
+| 原身份组件 | 31d11cc/823b132；独审799c3cc的PG_TESTS_31d_823 | 14项prepared组件接受；第五访客为串行，非并发容量证明 |
+| provision故障/reset原key | dc439e9；独审b10eac6的同报告增量 | 新增2项prepared接受；独立collect16=旧身份14+reset1+seed fault1，非SQL全模块 |
+| bound/目标persona与ACL增量 | 1c192d4、7ff538c | 作者静态检查/收集完成；本节冻结时尚无该两增量独审或原生执行回执 |
+
+作者在上述冻结源码执行 `uv run --frozen --offline pytest -q -m 'not integration' tests/v4`：实际136 PASS / 25 deselected / pytest报告2.27s / exit0。25项为SQL/seed7+身份18，不把deselected当PASS；其中SQL原5项、seed故障1、ACL1，身份原14+reset幂等1+bound2+目标persona1。相关改动的Ruff/mypy逐切片通过；没有以此签完整scripts.check/当前全量PG/旧M3 Full/Web/N01。
+
+### 交付仍缺的运行事实
+
+ROOT须绑定实际集成source/tree，而非直接把本作者或其他worktree的旧回执搬来。作者本会话无PG/监听服务窗口；ROOT的独立迁移/组件运行、失败和cleanup以其原回执为准，本节不预填PASS。prepared独审也不等于实际运行准入。
+
+仍待实际证据：25节点各自setup/call/teardown、并发create/reset及撤权/读写竞争、完整身份与逐列ACL矩阵、每个持久阶段故障/commit后ACK、retention/GC、真实POST cookie/CSRF/CORS/Web、当前动态全量PG/G1G2及旧M3对应Full。五访客串行拒绝不能代签恰三并发成功，单个provision故障点不能代签所有阶段回滚。未完成项不能从离线绿灯推断完成；不进入V4-1、不触发Hosted、外部调用或生产发布。

@@ -134,3 +134,14 @@ POST session的org/两shop/三persona/credentials/scopes/tenant/source assignmen
 10. retention前owner GC拒绝、runtime任何时间GC拒绝、到期后只清指定新tenant域且旧base登记安全保留；无旧卷/历史数据操作。
 
 本次没有运行上述检查，也未启用实际资源。设计普通提交后交专项独审；ROOT下一次具体准入后再写代码与申请新owned PG窗口，完成V40-03→04，至V4-0本地Gate停止。
+
+
+## 10. 实现交付增量索引（2026-11-03）
+
+上述§9与末段“再写代码/NOT_RUN”保留设计冻结时点；后续SQL/API已获ROOT专项释放并普通提交，不将历史待授权文本解释为当前授权，也不删除历史失败。
+
+纯seed关系修正c6c9f43保持canonical content 60,412 bytes及digest `59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8`。0024/窄grant与显式owner CLI已交付准备源码，普通migrate仍不写fixture/不自动grant。实际PG登记/重复seed/导出/GC结果由ROOT新owned原回执核定，不能从纯digest相同补签。
+
+dc439e9新增provision真实PG中段fault测试及reset原key/跨tenant不变测试；b10eac6独审接受prepared增量，尚不证明实际回滚。fault只在独立新测试库的owner-only trigger，在第二persona前核已完成的org/双店/operator后固定23514；测试要求15表行数回到故障前，已提交匿名原key仍未consume，operations返回UNKNOWN/WAIT_READ_ONLY，移除fault后不自动重POST、不允许同owner换key。它只覆盖一个中段，不代签每步故障。
+
+作者当前冻结7ff538c，SQL/seed模块7项、身份模块18项均已collect-only；当前V4离线136 PASS/25 integration deselected。1c192d4与7ff538c新增反例仍待精确独审/实际PG。逐卡API演示步骤、各切片来源及未验项见IDENTITY_SQL_PLAN§15；所有计数只限该冻结作者源码，不代替ROOT集成Full或V4-0 Gate。
