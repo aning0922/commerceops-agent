@@ -6,7 +6,7 @@ import {readFileSync} from 'node:fs';
 const schema=JSON.parse(readFileSync(new URL('../lib/v4-schema.json',import.meta.url),'utf8'));
 
 const api=new URL(process.env.V4_API_ORIGIN!).origin;
-const evidence=process.env.V4_EVIDENCE_DIRECTORY!;
+const evidence=process.env.V4_EVIDENCE_DIR!;
 const ajv=new Ajv2020({strict:true,allowUnionTypes:true,validateFormats:true});addFormats(ajv);
 const validators=new Map<string,ReturnType<typeof ajv.compile>>();
 function validate(name:string,body:unknown){let v=validators.get(name);if(!v){v=ajv.compile({...schema,$ref:`#/$defs/${name}`});validators.set(name,v);}expect(v(body),`invalid ${name}`).toBe(true);}
