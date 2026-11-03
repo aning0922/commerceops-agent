@@ -189,6 +189,7 @@ def test_foundation_wires_strict_checks_after_locked_node_install_and_keeps_lega
         "bounded-network.spec.ts",
         "owned-shop-scopes.spec.ts",
         "owned-copy-preview.spec.ts",
+        "operations-collection.spec.ts",
     ],
 )
 def test_all_original_and_harness_files_remain_required(missing: str) -> None:
