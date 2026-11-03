@@ -220,3 +220,20 @@ test('UI_FIXTURE: server expiry clears session without creating another',async (
  await expect(page.getByRole('status')).toContainText('已到期');
  await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);expect(posts).toBe(0);
 });
+
+for (const width of [1280,1440]) {
+ test(`UI_FIXTURE: welcome fits ${width}px desktop viewport`,async ({page})=>{
+  await page.setViewportSize({width,height:900});
+  await page.route('**/api/v4/demo/**',withCors(route=>route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}})));
+  await page.goto('/v4');await expect(page.getByRole('button',{name:'一键体验'})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ });
+}
+
+test('UI_FIXTURE: reset dialog closes with Escape and returns focus',async ({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.route('**/api/v4/demo/**',withCors(route=>route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}})));
+ await page.goto('/v4');const opener=page.getByRole('button',{name:'重置演示'});await expect(opener).toBeVisible();
+ await opener.click();const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();
+ await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(opener).toBeFocused();
+});
