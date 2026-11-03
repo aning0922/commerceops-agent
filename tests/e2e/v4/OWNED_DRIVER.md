@@ -266,3 +266,16 @@ image/project/端口/UTC后才能解除阻断与运行；不使用363旧测试�
 新增symlink/0644拒绝（同时断言文件未被修复、uvicorn未调用）及合法600/current UID接受；
 本模块16项定向pure通过，未启动监听或连接PG。本修复单独提交，不含browser pin变更；
 待Astra增量复审后由Root新窗口核实际Linux挂载、鉴权和监听，旧case不重试。
+
+## WEB f18已审native zoom增量的最终pin更新
+
+Root转交Astra `aa91caf90140a59a1bcfa2a26c11a478b141c822`，明确对WEB
+`f18ba5bf5c9de88d113eb5a5bff244cd66416c2b`（tree
+`37503a2cd0c5bd3e8fb6ac08ff56e6ad50e5a6ac`）签准备接受，0P1/0P2。
+QA单独刷新WEB_SOURCE/spec blob并加入运行依赖lifecycle.profile.mjs的准确Git blob；
+config、context waiter、schema的blob不变，没有遗漏新profile helper。其纯测试文件不是
+live运行依赖，未加入执行命令。原source/hash/HEAD核验机制不改，固定标题、120秒配置、
+no mocks/retries0/worker1及trace/HAR关闭保持，WEB_HANDOFF_READY恢复True仅表示已审来源
+交付完整，不是实际浏览器通过或窗口开放。还须Root统一集成新owned_api/网络delta/WEB
+并给新冻结source/image/对象/端口/UTC；旧pilotC不续窗。此更新与API host-facing网络修复
+分提交。本轮仅12项定向纯source/report/command测试，无Node、profile、GUI、HTTP或PG启动。

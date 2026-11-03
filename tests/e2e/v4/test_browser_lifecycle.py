@@ -118,9 +118,8 @@ def test_missing_or_mutated_source_rejected_before_browser(
 
 
 def test_superseded_spec_path_is_no_longer_an_accepted_command() -> None:
-    assert browser.WEB_HANDOFF_READY is False
-    with pytest.raises(ValueError, match="handoff pending"):
-        browser.verify_source()
+    assert browser.WEB_HANDOFF_READY is True
     assert "frontend/v4-tests/lifecycle.live.spec.ts" not in browser.PINS
     assert "frontend/v4-tests/lifecycle.waiter.mjs" in browser.PINS
+    assert "frontend/v4-tests/lifecycle.profile.mjs" in browser.PINS
     assert "v4-tests/lifecycle.live.spec.ts" not in browser.command()
