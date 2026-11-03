@@ -128,3 +128,38 @@ K2 新 owned 本地真实 PG **仅提案，当前不启动**：Root 先批准同
 记录镜像/源码/tree、PG/extension 版本、fixture/SQL 金标、每命令原生 exit 与失败、低权/事务结果；
 停止父/children、down 不删卷并独立核容器/网络/进程为零，旧资源零访问；失败/未跑/UNKNOWN 均保留。
 根 Compose/Hosted CI 修改仍须 Backend+Root 具体放行；本线只普通 commit，不 push/PR/main/触 CI。
+
+## 7. K1 本地实现交付记录（2026-11-03）
+
+Reviewer 对合同 `3097d605b214555b182b76e78e9089e45fff961a` 给出 ACCEPT_K1，Root 随后明确放行本片。
+本次实现仅 `application/knowledge_copy/{contracts,citations,ranking,prompt}.py`、包入口及专属测试；
+不改变 K2–K4 闸门，不代表主体 RAG 或草稿保存完成。
+
+- 资料/profile/manifest/query/product、精确 codepoint chunk、逐来源 citation 均 strict/frozen，
+  函数边界重新校验嵌套实例，拒 model_copy/model_construct 绕过。manifest 同时绑定完整 citation ID，
+  不能通过修改 chunk_version/展示文字再重算局部 hash 放行。商品标题与 SOP 引文分别确定性重建。
+- `retrieve` 是纯 f64 排名金标：先 scope/当前有效期/批准撤销/精确 manifest/profile/citation，再容量与排序。
+  合成向量只接受有限、维度正确且可非零表示为 float32 的值；K1 摘要为明确命名的 f64 hex 编码，
+  不等于 PG 实际单精度摘要。JSON round-trip 保持这些校验，PG round-trip 仍 NOT_RUN。
+- 结果携带有效证据池与 `ManifestView`，其中只保留有效文档/证据绑定；原完整 manifest 仅留下摘要引用，
+  避免泄漏被排除的文档 ID/正文。结果 DTO 重算距离、顺序、命中集合、view/池对应关系及 reason，
+  候选 DTO 重建每条 claim/正文及最早到期时刻；构造 prompt/离线选择还要求显式当前 clock。
+- 摘要是完整性绑定，不是授权签名；`verify_retrieval` 通过可信原 manifest/query/完整 corpus/clock
+  重算结果，拒绝来源摘要或证据池被一起重哈希的伪结果。K2 必须从受控 DB 取得当前授权/撤销及完整语料，
+  不能把调用方自称的 manifest/complete/clock 当准入事实；纯 DTO 本身不提供真实身份认证或数据库完整性证明。
+- 仅生成模板候选或解析离线 claim-ID 选择；模型无 tools，所有输入文本保留为 JSON 数据，
+  schema 不接受批准/发布/任意文案/真实 provider 标签。approved/publication_allowed/provider_enabled 固定 false。
+  保存、事务、当前 session 鉴权、API、Worker、SQL 与真实模型均未接线。
+
+最终本地专项：`uv run --frozen python -m pytest tests/test_p6_knowledge_copy_contracts.py -q --tb=short`
+实际 **66 passed / 0.21s / exit0**；专属六文件 strict mypy、Ruff lint、format check 均 exit0。
+金标包括独立 3-4-5 向量、距离 0/0.04/0.4/1/2、0.35 等值与两侧、倒序输入/同距稳定键、
+中文/emoji/组合字符精确区间、错正文/错版本/错 hash/跨 scope/过期撤销/非有限或零向量、
+无命中/不完整、逐 claim 跨源/数字篡改、重复/未知 claim、JSON 注入/重复 key、过期 prompt/选择。
+
+开发失败原样保留为阶段事实：首轮 32failed/29passed（手算区间结束多一 codepoint）；修正后 9failed/52passed
+（JSON 向量数组入口及完整 manifest 结果泄漏 ID），修复后 61passed；加当前时钟校验后 2failed/59passed
+（无命中 min 空分支），修复后 65passed；新增权威回放测试首次漏 import 为 1failed/65passed，修复后上述 66passed。
+首轮 mypy 字典展开类型不匹配与开发 Ruff 格式问题均已修复；不删除负例或放松检查。
+全库 scripts.check、PG/扩展/SQL、外部资料/embedding/model、人审保存/并发及 Hosted CI 本片均 **NOT_RUN**，
+实现的精确提交独审由 Root 后续核定；不预写 ACCEPT_K1_IMPLEMENTATION。
