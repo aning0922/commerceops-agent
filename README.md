@@ -123,6 +123,19 @@ PATH="$PWD/.tools/node/bin:$PATH" \
 
 此模式使用演示数据，无需数据库、模型密钥或飞书凭据，不产生业务写入。仓库当前为 Public，可直接克隆；工具安装和冷缓存依赖下载需要网络。
 
+### 当前M3的本地PG诊断（应用接线仍待S3核收）
+
+M3迁移需要 **PG17.11 + pgvector0.8.7**。基础`compose.yml`继续保留stock镜像；显式使用`compose.m3.yml`只替换同一个postgres服务的image/build。默认M2镜像及其0018/60表备份合同不变。这里提供的是新自有PG诊断路径，完整M3来源、API和单Worker启动参数待S3精确配置合同，不复用旧Secret。
+
+在Root登记的新构建/PG对象与绝对UTC截止内，先设置`COMMERCEOPS_M3_STOP_AT_UTC`为该截止，再执行以下命令形状。第一条有界显式构建并绑定当前SHA/tree、构建输入、native架构和image ID；第二条复用原完整PG集合/G1/G2及清理门禁，禁止隐式build/pull。两条共用截止，不因第一条耗时自动延长：
+
+```sh
+uv run --frozen python -m scripts.m3_pgvector --stop-at-utc "$COMMERCEOPS_M3_STOP_AT_UTC"
+uv run --frozen python -m scripts.pg_diagnostic --session initial --round 1 --combined --full-smoke --m3-pgvector --deadline "$COMMERCEOPS_M3_STOP_AT_UTC"
+```
+
+已有镜像回执或round登记会拒绝覆盖，需按Root新登记处理；上述诊断按其原合同清理新测试卷。单独Compose使用时固定顺序为`-f compose.yml -f compose.m3.yml`，有私有port overlay则最后追加；启动前需同源镜像准备和owner迁移/checkpointer/runtime授权，不能仅凭容器健康声称应用就绪。当前实现与未测项见[本地runtime合同](docs/contracts/p6-local-runtime-v1.md)；amd64冷构建、当前完整PG/Web/Hosted容量仍待实测。
+
 ### 方式二：运行完整离线业务闭环
 
 使用 [M1 Compose 运行指引](docs/M1_OFFLINE_COMPOSE.md)，在新私有目录与独立 Compose 项目中启动 **PostgreSQL + API + 单 Worker + Next.js Web**：

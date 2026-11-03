@@ -11,8 +11,16 @@ import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
+from scripts.m3_pgvector import (
+    compose_flags,
+    prepared_image,
+    up_flags,
+    validate_binding,
+    validate_container,
+)
 from scripts.pg_ci_evidence import (
     EXISTING_MODULES,
     EXISTING_REBALANCED_GROUPS,
@@ -354,6 +362,7 @@ def cleanup_registered_containers(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--deadline", required=True)
+    parser.add_argument("--m3-pgvector", action="store_true")
     parser.add_argument("--round", type=int, choices=(1, 2, 3), required=True)
     parser.add_argument("--node", action="append", default=[])
     parser.add_argument("--combined", action="store_true")
@@ -450,7 +459,8 @@ def main() -> None:
         }
     }
     environment["COMMERCEOPS_PG_RUNTIME_DIR"] = str(directory)
-    compose = ["docker", "compose", "-p", project, "-f", str(ROOT / "compose.yml")]
+    compose = ["docker", "compose", "-p", project, *compose_flags(ROOT, args.m3_pgvector)]
+    m3_binding: dict[str, Any] | None = None
 
     def budget(seconds: float, *, cleanup: bool = False) -> float:
         if cleanup:
@@ -537,6 +547,10 @@ def main() -> None:
         nonlocal stopping_confirmed
         emit({"event": "command_start", "label": label, "limit_seconds": limit})
         duration = budget(limit)
+        if m3_binding is not None:
+            validate_binding(ROOT, m3_binding, budget(5))
+        if arguments[0] == "up":
+            arguments = ["up", *up_flags(args.m3_pgvector), *arguments[1:]]
         command = compose + arguments
         if fault:
             # 仅诊断注入：自有 CLI wrapper 故意忽略 TERM，即使容器退出也等待。
@@ -549,6 +563,7 @@ def main() -> None:
                 "subprocess.Popen(sys.argv[1:]).wait(); threading.Event().wait()",
                 *command,
             ]
+        duration = budget(limit)
         process = subprocess.Popen(
             command,
             cwd=ROOT,
@@ -648,6 +663,16 @@ def main() -> None:
                 "sample_error": observed_error,
             }
         )
+        if m3_binding is not None and arguments[0] == "up" and process.returncode == 0:
+            found = capture(compose + ["ps", "-q", "postgres"], 5)
+            if found.returncode or not re.fullmatch(r"[0-9a-f]{64}", found.stdout.strip()):
+                raise ValueError("M3 PG container missing")
+            inspected = capture(["docker", "inspect", found.stdout.strip()], 5)
+            if inspected.returncode:
+                raise ValueError("M3 PG inspect failed")
+            validate_container(
+                ROOT, json.loads(inspected.stdout)[0], m3_binding, project, timeout=budget(5)
+            )
         return (
             not timed_out
             and ended.confirmed
@@ -688,6 +713,10 @@ def main() -> None:
         return run(label, arguments, limit, name=name)
 
     try:
+        if args.m3_pgvector:
+            m3_binding = prepared_image(ROOT, budget(5))
+            report["m3_pgvector"] = m3_binding
+            save()
         if not run("build", ["build", "db-init", "pg-test"], 120):
             raise RuntimeError("bounded build failed")
         if not run("healthy", ["up", "-d", "--wait", "--wait-timeout", "60", "postgres"], 75):
@@ -868,6 +897,8 @@ def main() -> None:
                 if not run(label, command, 60, expect_failure=failure):
                     raise RuntimeError("G1 lifecycle failed")
             report["g1_complete"] = True
+        if m3_binding is not None:
+            validate_binding(ROOT, m3_binding, budget(5))
         report["result"] = "passed_no_hang_reproduced"
     except Exception as error:
         report["result"] = "failed"
