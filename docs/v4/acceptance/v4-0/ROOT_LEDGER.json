@@ -8,8 +8,8 @@
     "V40-01": "BASELINE_RECONFIRMED",
     "V40-02": "USER_ACCEPTED_CONTRACTS",
     "V40-03": "API准备代码已独审；原生身份14项通过；真实HTTP与自然TTL待验",
-    "V40-04": "纯种子与schema已独审；原生SQL5+旧schema1通过；中途rollback与reset原key增补独审中",
-    "V40-05": "前端候选33UI_FIXTURE通过并独审；真实HTTP/Web driver接线修复中"
+    "V40-04": "纯种子/schema已独审；原生SQL5+旧schema1、rollback/reset2与DB cap1实际通过；真实HTTP待验",
+    "V40-05": "35UI_FIXTURE实际通过；真实HTTP启动网络问题已定位，精确小修独审中"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
@@ -40,9 +40,12 @@
     "Native migrate SyntaxError42601 at static FUNCTIONS position565; two CASE parentheses fixed in12081e4, exact delta independently accepted; new native migration0 and schema6pass resolve this cause",
     "Owned diagnostic one-off cleanup originally false; exact stopped probe ownership verified and rm0; separate reconciliation inventories all empty, original false retained",
     "Post API ASGI found legitimate UUID JSON rejected422 before store;534844a fixed wire parsing, Astra38pass closes P1; no strictDTO relaxation",
-    "Nonfinal source47 scan discovery dir5/index5/git249 blocking;244 merge copies and5 authored public spans independently being handled with exact provenance proposal; final scan NOT_RUN"
+    "Nonfinal source47 scan discovery dir5/index5/git249 blocking;244 merge copies and5 authored public spans independently being handled with exact provenance proposal; final scan NOT_RUN",
+    "27f HTTP pilot: case-insensitive export manifest/index filename collision;2332 INDEX.json fix independently accepted; next pilot export native0. Original raw errno not captured.",
+    "d816 HTTP pilot: old host Settings rejects container0.0.0.0;new test-only owned_api entry+private password file guard independently accepted;next pilot container health200. Old entry unchanged.",
+    "4b3c HTTP pilot: internal-only network has no host publishing on currentDockerDesktop;container health200/native0,hostConnectError,0tenants;driver1/cleanupconfirmed all0 and volume preserved. Narrow API-only host-facing test-network fix pending."
   ],
-  "updated_at_utc": "2026-11-03T15:56:28.499934+00:00",
+  "updated_at_utc": "2026-11-03T17:09:00+00:00",
   "engineering_gate_scope_release": {
     "owner": "SECURITY_SCAN",
     "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
@@ -100,10 +103,21 @@
       "passed": 14,
       "native_exit": 0,
       "cleanup_exit": 0
+    },
+    "rollback_reset": {
+      "source": "1c35a0b044d3976c0b5b15d69bfb6dae44e71749",
+      "passed": 2,
+      "native_exit": 0,
+      "cleanup_exit": 0
+    },
+    "db_capacity": {
+      "source": "761b64bd62c2183de29989f8f24a450beb3ce800",
+      "passed": 1,
+      "native_exit": 0,
+      "cleanup_exit": 0
     }
   },
   "remaining_gates": [
-    "native rollback/reset extra tests",
     "independent actual HTTP eleven scenarios",
     "natural fixed30min TTL",
     "actual API/PG/Web browser and200percent zoom",
