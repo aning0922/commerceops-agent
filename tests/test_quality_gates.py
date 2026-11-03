@@ -635,20 +635,22 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
     assert len(secret_scan.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     assert len(v4_additional_history_findings()) == 10
-    assert len(v4_preflight_history_findings()) == 89
+    assert len(v4_preflight_history_findings()) == 94
     reachable = set(
         subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()
     )
     active_approvals = [row for row in approved if row["source_commit"] in reachable]
-    assert len(rows) == len(active_approvals)
-    assert {(row["Commit"], row["File"], row["StartLine"], row["Fingerprint"]) for row in rows} == {
+    assert len(rows) >= len(active_approvals)
+    assert {(row["Commit"], row["File"], row["StartLine"], row["Fingerprint"]) for row in rows} >= {
         (row["source_commit"], row["path"], row["reported_line"], row["fingerprint"])
         for row in active_approvals
     }
     for row in rows:
-        assert secret_scan.approved_history_finding(
-            "git", row
-        ) or secret_scan.approved_v4_history_finding("git", row)
+        assert (
+            secret_scan.approved_history_finding("git", row)
+            or secret_scan.approved_v4_history_finding("git", row)
+            or secret_scan.approved_v4_merge_copy("git", row)
+        )
         assert not secret_scan.approved_history_finding("dir", row)
         assert not secret_scan.approved_history_finding("index", row)
         for field in ("RuleID", "File", "StartLine", "Commit", "Fingerprint", "Match"):
@@ -660,6 +662,7 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
             )
             assert not secret_scan.approved_history_finding("git", changed)
             assert not secret_scan.approved_v4_history_finding("git", changed)
+            assert not secret_scan.approved_v4_merge_copy("git", changed)
 
 
 @pytest.mark.parametrize("which", [0, 1])

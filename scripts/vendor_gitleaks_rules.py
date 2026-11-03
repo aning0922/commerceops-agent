@@ -809,6 +809,61 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
         "exact_span_sha256": "a8b7d2dab131363a39ecd7bb344cb3be1b99800aff98441d94b6e669bb0ff97d",
         "match_sha256": "d71ece3ce74a7079b002e2b5941a7f883b1a1415e52237a96df11bf77ddfdd8e",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "backend/src/commerceops/infrastructure/v4_demo_sessions.py",
+        "source_commit": "d57808f0627821ab202e054e7d464fa2d4b9798c",
+        "reported_line": 133,
+        "end_line": 133,
+        "start_column": 28,
+        "end_column": 78,
+        "exact_span_sha256": "6010903555ef6d9dd8a07f2798439009762f93c2694e7171a02fc6af17310616",
+        "match_sha256": "847110db021532757d13f6e902f8a849f8ad9b4d188c633de6390f8b5e5b4fab",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/v4/review/SCAN_a4f.md",
+        "source_commit": "b726949b670153d9b5393225f890f0c919ee6ea5",
+        "reported_line": 28,
+        "end_line": 28,
+        "start_column": 216,
+        "end_column": 245,
+        "exact_span_sha256": "5189f504e28b860e65ff5157f7e13fdeac74a5f2941df3ddf045bcb03e902730",
+        "match_sha256": "4caa415fafdbaecfc7c282217da6c5d66ace85e42b572ec6c65fe1fe9eac5acd",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+        "reported_line": 151,
+        "end_line": 151,
+        "start_column": 20,
+        "end_column": 50,
+        "exact_span_sha256": "5ae7df16f7216f67ea2645dcef5730b23e9cf1d886985b1f58ecbd1fceb07259",
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+        "reported_line": 170,
+        "end_line": 170,
+        "start_column": 49,
+        "end_column": 70,
+        "exact_span_sha256": "7293c9a4fd3f141f0a1aae4e56ff1e36c79a500a8541c0c7b65af6584d1ab0a1",
+        "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+        "reported_line": 197,
+        "end_line": 197,
+        "start_column": 51,
+        "end_column": 72,
+        "exact_span_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
+        "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
+    },
 )
 
 V4_PREFLIGHT_HISTORY: tuple[dict[str, Any], ...] = (
@@ -1791,11 +1846,130 @@ V4_PREFLIGHT_HISTORY: tuple[dict[str, Any], ...] = (
         "exact_span_sha256": "87405b72cf4ecad5f2e883918142fa6809f7b0c973fc89881eb429f190a5b64b",
         "match_sha256": "896d3957535652b65e2eb532731f764c8b1d7f6eafe0bbc90df606658c4b367b",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "backend/src/commerceops/infrastructure/v4_demo_sessions.py",
+        "source_commit": "d57808f0627821ab202e054e7d464fa2d4b9798c",
+        "reported_line": 133,
+        "end_line": 133,
+        "start_column": 28,
+        "end_column": 78,
+        "exact_span_sha256": "6010903555ef6d9dd8a07f2798439009762f93c2694e7171a02fc6af17310616",
+        "match_sha256": "847110db021532757d13f6e902f8a849f8ad9b4d188c633de6390f8b5e5b4fab",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/v4/review/SCAN_a4f.md",
+        "source_commit": "b726949b670153d9b5393225f890f0c919ee6ea5",
+        "reported_line": 28,
+        "end_line": 28,
+        "start_column": 216,
+        "end_column": 245,
+        "exact_span_sha256": "5189f504e28b860e65ff5157f7e13fdeac74a5f2941df3ddf045bcb03e902730",
+        "match_sha256": "4caa415fafdbaecfc7c282217da6c5d66ace85e42b572ec6c65fe1fe9eac5acd",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+        "reported_line": 151,
+        "end_line": 151,
+        "start_column": 20,
+        "end_column": 50,
+        "exact_span_sha256": "5ae7df16f7216f67ea2645dcef5730b23e9cf1d886985b1f58ecbd1fceb07259",
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+        "reported_line": 170,
+        "end_line": 170,
+        "start_column": 49,
+        "end_column": 70,
+        "exact_span_sha256": "7293c9a4fd3f141f0a1aae4e56ff1e36c79a500a8541c0c7b65af6584d1ab0a1",
+        "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "source_commit": "31d11cc76c13a7a56afc5fec541b1657dc747cab",
+        "reported_line": 197,
+        "end_line": 197,
+        "start_column": 51,
+        "end_column": 72,
+        "exact_span_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
+        "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
+    },
+)
+
+
+V4_MERGE_COPY_ANCHORS: tuple[dict[str, str], ...] = (
+    {
+        "source_commit": "63a5a4f08bad6b98fe95942598291e0714bc09da",
+        "path": "frontend/app/v4/[[...path]]/page.tsx",
+        "blob": "60e878cab70e13abc4e827af83eebdb3ad159ad7",
+    },
+    {
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "path": "tests/e2e/v4/test_strict_response.py",
+        "blob": "1cf5844b8b0f46fc5d0b5e298a28a031b9ca139c",
+    },
+    {
+        "source_commit": "b726949b670153d9b5393225f890f0c919ee6ea5",
+        "path": "docs/v4/review/SCAN_a4f.md",
+        "blob": "2150dfeb4328fad138da3dd2636bae8cf81fbdf6",
+    },
+    {
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "path": "tests/e2e/v4/test_supervisor.py",
+        "blob": "b7b18721733539fd615fbef891bac12dc710d27a",
+    },
+    {
+        "source_commit": "534844a848b7e4412a6b4b2ff178f7d0aa56c82e",
+        "path": "backend/src/commerceops/infrastructure/v4_demo_sessions.py",
+        "blob": "bf11ab994c683019b83bcf6510daa5ffd9be62a3",
+    },
+    {
+        "source_commit": "63a5a4f08bad6b98fe95942598291e0714bc09da",
+        "path": "frontend/lib/v4-context.mjs",
+        "blob": "c05c82b186f1e52f26657fd03ce817472074936c",
+    },
+    {
+        "source_commit": "534844a848b7e4412a6b4b2ff178f7d0aa56c82e",
+        "path": "tests/v4/test_demo_sessions_pg.py",
+        "blob": "44bc08da5e49b83563ed8c987ea7e6017ccef0df",
+    },
+    {
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "path": "docs/v4/design/IDENTITY_SQL_PLAN.md",
+        "blob": "b23e358dd29b065ce2229be8a1870c702a5f6e71",
+    },
+    {
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "path": "tests/e2e/v4/http_probe.py",
+        "blob": "d2f7dd62c119b0f1141f26e1786cfa47273a3743",
+    },
+    {
+        "source_commit": "534844a848b7e4412a6b4b2ff178f7d0aa56c82e",
+        "path": "docs/v4/design/IDENTITY_SQL_PLAN.md",
+        "blob": "831194f4e26a5ae554e89e1d0d297a64cc863f17",
+    },
+    {
+        "source_commit": "534844a848b7e4412a6b4b2ff178f7d0aa56c82e",
+        "path": "backend/migrations/versions/0024_v4_demo_foundation.py",
+        "blob": "018748c90bc4145e3147454052296ea4a8119071",
+    },
+    {
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "path": "backend/migrations/versions/0024_v4_demo_foundation.py",
+        "blob": "2a833ba4021fd76f3ed08b235b802701a1765d4d",
+    },
 )
 
 
 def v4_preflight_history_findings() -> list[dict[str, Any]]:
-    """Only the 89 exact, captured historical proposal fingerprints."""
+    """Only the 94 exact, captured historical proposal fingerprints."""
     return [
         {
             **row,
@@ -2242,7 +2416,7 @@ def main() -> None:
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 79 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 84 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
@@ -2264,6 +2438,7 @@ def main() -> None:
         "v4_historical_findings": v4_history_findings(),
         "v4_additional_historical_findings": v4_additional_history_findings(),
         "v4_preflight_historical_findings": v4_preflight_history_findings(),
+        "v4_merge_copy_anchors": list(V4_MERGE_COPY_ANCHORS),
     }
     (ROOT / "scripts/gitleaks_rules.json").write_text(
         json.dumps(provenance, indent=2, ensure_ascii=False) + "\n"
