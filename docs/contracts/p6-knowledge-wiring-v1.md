@@ -1,9 +1,12 @@
 # M3 knowledge/copy 精确接线清单 v1
 
-2026-11-03（台北）；**INTEGRATION_CHECKLIST / DEFAULT_DISABLED / REVIEW_AND_PG_PENDING**。
-代码锚：K2唯一性fix e1a52d6、K3候选cf86b303、已合0019父37e7e99、精确0020父标识fix51065b19。
-本文件仅准备单点接线，不表示已安装主API/Worker/生产bootstrap或实际SQL通过；
-Root validation-k2 的新owned 30K2+16日报正在另行核验，本线不重复PG，也不预写其结果。
+2026-11-03（台北）；**INTEGRATION_CHECKLIST / DEFAULT_DISABLED / K3_SQL_PENDING**。
+代码锚：K2唯一性fix e1a52d6、角色夹具fix98cc39d、K3候选cf86b303与请求键fix e40ee5a、
+已合0019父37e7e99、精确0020父标识fix51065b19；S3只读精确对象32dd7c240b9d2d979bf684eeb1dc8bcba7e35d31。
+本文件仅准备单点接线，不表示已安装主API/Worker/生产bootstrap或组合SQL通过；
+Root已回执K2 fixturefix批b828c6f实际30passed/47.75s/module与outer0、清理0/容器网络0/保留新卷1；
+前批日报16实际通过，K2只核收本地synthetic SQL组件。Root另回执e40独审ACCEPT_K3_KEY_FIX/127独立纯测试；
+K3实际29PG仍待，S3询单SQL仍HOLD（Root整批25/36pass），以上均非本线执行，不互相代签。
 [实现与证据账](p6-knowledge-storage-v1.md)保留原失败、collect与NOT_RUN。
 
 ## 1. 当前已经存在与尚缺的出口
@@ -31,10 +34,17 @@ Root validation-k2 的新owned 30K2+16日报正在另行核验，本线不重复
    query_ref配置变更使用新版本并保留原pin；旧候选不能自动重绑定，原回执仍按原key查询。
 5. 使用 `app.include_router(knowledge_copy_router(config,copy_store))`，在生成最终OpenAPI前完成。
    Router与现有 `/api/v1` session、Origin/CSRF/CORS边界共同存在；不能装测试身份resolver绕过真实SessionStore。
+   精确S3的`create_app`先`install_web`，可选安装daily，然后调用`app.openapi()`；copy挂载须加入该调用之前。
+   `install_web`现对全部`/api/v1`使用真实session、operator/approver能力及POST CSRF边界，
+   copy router仍保留自身同配置核验，Store继续核当前owner/assigned reviewer；不因中间件检查而删Store校验。
 6. **OpenAPI必须同时接线**：现 [export_web](../../backend/src/commerceops/entrypoints/web_openapi.py) 拒绝没有已审合同的/api/v1路径，
    直接include后调用export_web会失败。copy需独立冻结的OpenAPI/错误依赖闭包和与旧合同分离的导出，
    可沿用 [daily的separate_legacy模式](../../backend/src/commerceops/entrypoints/daily_http.py)。
    不放宽“未知路径/operation拒绝”或偷偷修改旧P3/P4/P5 schema；当前仅router的POST request schemas已有，完整copy asset尚缺。
+   精确S3只在`daily_enabled`时运行daily的`separate_legacy`；copy的独立导出与分离须按copy启用状态单独运行，
+   在最终`export_web`前剥离copy已审路径和专属model，不得依赖日报开关或使用宽泛`/api/v1`过滤。
+   建议将独立copy合同保存至明确的`app.state.copy_openapi`并冻结asset；该state/asset/helper当前均未实现。
+   独立合同应列齐五条路由、path/query参数、严格request/成功DTO、UNKNOWN与错误状态、cookie/CSRF及错误依赖闭包。
 7. 五个实际路由：POST `/api/v1/copy/candidates`；GET `/api/v1/copy/candidates/{identifier}`；
    POST `.../{identifier}/review`；GET `.../{identifier}/review-receipts/{key}?candidate_hash=...`；
    GET `/api/v1/copy/candidate-requests/{key}`。成功envelope为p6-copy-web-v1，固定错误沿用p3-web-v1 error_response。
@@ -42,8 +52,11 @@ Root validation-k2 的新owned 30K2+16日报正在另行核验，本线不重复
 
 ## 3. owner初始化与最小runtime权限
 
-按实际已合父链先迁移，再由已授权owner执行既有grant_runtime（建立低权角色），最后在显式owner事务内执行
+按实际已合父链先迁移，再由已授权owner执行既有`grant_runtime(owner_settings)`（建立低权角色），最后在显式owner事务内执行
 本功能grant helper；不依赖“表存在即功能开启”。服务默认disabled时不因测试曾授权就推定部署已授权。
+`grant_runtime`接收DatabaseSettings并自行连接，两个新helper接收已连接的owner DB事务，不能混用签名；
+运行时CopyStore使用同一WebConfig里的低权DB配置，owner配置只留在显式初始化侧。
+精确S3的bootstrap自动处理daily表；其中没有knowledge/copy授权，不能由迁移存在推定两个helper已执行。
 
 | 阶段 | owner明确执行 | 新增runtime权限 |
 |---|---|---|
@@ -57,7 +70,10 @@ owner登记仅 `register_synthetic_corpus(db,registry_id,manifest,corpus)` 和
 旧资料、旧卷、旧secret和真实资料不从历史授权继承。公开服务没有登记路由。
 
 基础镜像沿用Root已build的固定imageID；扩展只能owner以knowledge_ext/0.8.7安装，runtime不能CREATE或UPDATE扩展。
-0020已精确绑定0019_p6_daily_reports；0023仍等待Root的实际0022及祖先提交，不能将缺父链视作已迁移。
+0020已精确绑定0019_p6_daily_reports；只读核对S3精确对象中的`0022_p6_daily_operations.py`后确认
+其`revision='0022'/down_revision='0021'`，本K3的`down_revision='0022'`无需修改。
+该S3树只有0019及0022新增迁移，没有0020/0021；Root仍须组合各owner精确提交并验证完整0019→0020→0021→0022→0023链。
+本线没有合入S3，完整Alembic graph/upgrade/K3 SQL均未在本线执行，不把父标识正确记为迁移通过。
 停用时先关闭路由生产入口，再由owner按受控事务撤本功能写入资格/来源enabled；在途已进入事务的结果按真实COMMIT回执记，
 不承诺撤销已保存草稿，不删历史、不把UNKNOWN改成未保存。
 
@@ -71,3 +87,15 @@ owner登记仅 `register_synthetic_corpus(db,registry_id,manifest,corpus)` 和
 current operator/assigned approver、撤权/TTL/Source replay、同key/异文/并发、原键UNKNOWN只读、低权CRUD/CREATE负例；
 重跑迁移前后ACL/旧Gate并核父链、actual source SHA和资源清理。审查/PG/完整CI/主入口部署回执以Root实际记录为准。
 本清单未改共享文件、未启服务或PG、未调用模型；真实SOP/商品许可、embedding/model质量和真人审核仍NOT_RUN。
+
+主API最小组合矩阵（待Root实现与实际验证）：
+
+| daily启用 | copy启用 | 必须核对 |
+|---|---|---|
+| 否 | 否 | 旧路由与旧schema保持原合同；无copy配置加载、授权或模型构造 |
+| 是 | 否 | daily独立schema与原功能可用；copy路径不安装 |
+| 否 | 是 | copy五路由、独立schema与旧export_web均闭合，不因daily关闭漏分离 |
+| 是 | 是 | daily/copy各自独立导出，旧schema无新增路径/model；同真实session与低权DB |
+
+copy显式启用却缺WebConfig、ReplenishmentStore或服务器Query/source配置时须安全失败；
+生产owner bootstrap、loader、独立OpenAPI资产和主API修改仍由Root单点实施，本线K3代码保持e40冻结。
