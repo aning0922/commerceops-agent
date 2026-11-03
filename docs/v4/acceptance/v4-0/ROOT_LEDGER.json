@@ -1,128 +1,98 @@
 {
   "stage": "V4-0",
-  "authorization": "B / local",
+  "status": "LOCAL_IMPLEMENTATION_COMPLETE_FULL_PG_GATE_PENDING",
+  "authorization": "USER_APPROVED_B_LOCAL_ONLY",
   "started_at_utc": "2026-11-03T14:04:33Z",
   "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
   "base_tree": "43e4e732824e23b991660a4f7882ba8f5a265df1",
+  "integration_branch": "codex/v4-control-20261103",
   "cards": {
-    "V40-01": "BASELINE_RECONFIRMED",
-    "V40-02": "USER_ACCEPTED_CONTRACTS",
-    "V40-03": "API准备代码已独审；原生身份14项通过；真实HTTP与自然TTL待验",
-    "V40-04": "纯种子/schema已独审；原生SQL5+旧schema1、rollback/reset2与DB cap1实际通过；真实HTTP待验",
-    "V40-05": "35UI_FIXTURE实际通过；真实HTTP启动网络问题已定位，精确小修独审中"
+    "V40-01": "BASELINE_RECONFIRMED_REUSED",
+    "V40-02": "USER_ACCEPTED_FOUR_CONTRACTS_REUSED",
+    "V40-03": "IMPLEMENTED_COMPONENT_HTTP_TTL_ACCEPTED",
+    "V40-04": "IMPLEMENTED_SEED_RESET_ROLLBACK_NATIVE_ACCEPTED",
+    "V40-05": "IMPLEMENTED_BROWSER_LEGACY_ENGINEERING_ACCEPTED_FULL_PG_FINAL_REVIEW_PENDING"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
     "WEB": "commerceops-v4-web",
     "QA": "commerceops-v4-qa",
     "REVIEW": "commerceops-v4-review",
-    "BACKEND": "commerceops-v4-foundation"
+    "BACKEND": "commerceops-v4-foundation",
+    "SECURITY_SCAN": "commerceops-v4-scan"
   },
-  "protected_old_worktrees": "unchanged",
   "model_policy": {
     "backend": "gpt-6.1-sol/high; temporarily xhigh for SQL transaction repair, returned high after component freeze",
     "web": "gpt-6.1-terra/high",
     "review": "gpt-6-astra/high for critical; bounded increments may reduce effort",
     "qa": "gpt-6.1-sol/high for safe migration diagnosis; medium for mechanical handoff"
   },
-  "actual_token_cost": "UNKNOWN",
-  "hosted": "NOT_AUTHORIZED_NOT_RUN",
-  "real_external_calls": "NOT_AUTHORIZED_NOT_RUN",
-  "V4-1": "NOT_AUTHORIZED_NOT_STARTED",
-  "current_runtime_resources": [],
-  "known_failures": [
-    "System Python docs check failed missing markdown_it; new frozen uv venv solved",
-    "Initial imported CSV CRLF whitespace failure; eb82c9d LF normalization independently accepted, old source bytes preserved",
-    "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed",
-    "First cf7 UI fixture:22 passed/2 failed initial anonymous read-count; ac1 trace attributes two reads to React development mount/reconnect; ac1 full24passed, no business code changed",
-    "QA prepared harness first59passed/5failed before locked frontend dependencies were installed; exact original stderr cause not captured; after frozen offline install64passed/4.25s/exit0",
-    "ea48 owned PG first initialization migrate exit1; original SQL error intentionally filtered by legacy helper; cause UNKNOWN;0tests executed; exact owned cleanup0 and independent container/network/volume inventories empty",
-    "Native migrate SyntaxError42601 at static FUNCTIONS position565; two CASE parentheses fixed in12081e4, exact delta independently accepted; new native migration0 and schema6pass resolve this cause",
-    "Owned diagnostic one-off cleanup originally false; exact stopped probe ownership verified and rm0; separate reconciliation inventories all empty, original false retained",
-    "Post API ASGI found legitimate UUID JSON rejected422 before store;534844a fixed wire parsing, Astra38pass closes P1; no strictDTO relaxation",
-    "Nonfinal source47 scan discovery dir5/index5/git249 blocking;244 merge copies and5 authored public spans independently being handled with exact provenance proposal; final scan NOT_RUN",
-    "27f HTTP pilot: case-insensitive export manifest/index filename collision;2332 INDEX.json fix independently accepted; next pilot export native0. Original raw errno not captured.",
-    "d816 HTTP pilot: old host Settings rejects container0.0.0.0;new test-only owned_api entry+private password file guard independently accepted;next pilot container health200. Old entry unchanged.",
-    "4b3c HTTP pilot: internal-only network has no host publishing on currentDockerDesktop;container health200/native0,hostConnectError,0tenants;driver1/cleanupconfirmed all0 and volume preserved. Narrow API-only host-facing test-network fix pending."
-  ],
-  "updated_at_utc": "2026-11-03T17:09:00+00:00",
-  "engineering_gate_scope_release": {
-    "owner": "SECURITY_SCAN",
-    "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
-    "paths": [
-      ".gitleaks.toml",
-      "scripts/scan_secrets.py",
-      "scripts/gitleaks_rules.json",
-      "tests/test_quality_gates.py",
-      "tests/test_v4_scan_compat.py",
-      "docs/v4/acceptance/v4-0/SCAN_COMPAT.md",
-      "scripts/vendor_gitleaks_rules.py"
-    ],
-    "status": "原13与新增10历史精确兼容已独审合入；最终全扫未运行"
+  "actual_model_token_cost": "UNKNOWN",
+  "agent_effective_time": "NOT_METERED_UNKNOWN",
+  "engineering": {
+    "source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
+    "native_exit": 0,
+    "seconds": 1389.861,
+    "receipt": "ENGINEERING_CBD.json"
   },
-  "design_review": {
-    "original": "ad402ecebe446bd823793b156f44e1031cea86a0",
-    "corrected_source": "c4c48401494b00308cc5a2022e4a8fcb0e3f8195",
-    "independent_delta_receipt": "0644f9044ef25a6aed7674e84403e4392183de83",
-    "result": "accepted design only; real code and PG not yet verified"
+  "gates": {
+    "native_components": "23_PASS_SOURCE_SPECIFIC",
+    "ui_fixture": "35_PASS_MOCK_RESPONSE",
+    "http": "11_PASS_F1_R2_R3_SOURCE_SPECIFIC",
+    "natural_ttl": "PASS_F1_NATURAL_FIXED_30_MINUTES",
+    "browser": "PASS_R3_ONE_FIXED_LIFECYCLE_AND_NATIVE_200",
+    "legacy_web": "24_PASS_F1",
+    "n01": "6_PASS_F1",
+    "full_pg_existing": "568_PASS_R2_G1_THREE_G2_SIX_CLEANUP_0",
+    "full_pg_phase3": "IN_PROGRESS_R2",
+    "strict_pair": "PENDING",
+    "final_independent_review": "PENDING"
   },
-  "qa_prepared": {
-    "source": "f946bb121b32582131ffe46619fbe97a0a2569da",
-    "review": "d97b4d0de7c0a89419f62d3430c754cd2856ab98",
-    "root_test_native_exit": 0,
-    "passed": 64,
-    "seconds": 4.25,
-    "real_api_pg": "NOT_RUN"
+  "source_reuse": "Actual evidence sources remain F1/R2/R3/cbd. Unchanged product subtrees and 69 PG inputs checked. R2 strict fingerprints differ from candidate in two scanner files; pair is only signed at R2. See PG_REUSE_INPUTS.json and independent review.",
+  "protected_worktree_heads": {
+    "M3": "952e6246deb01ec763f2541d9f316753987744f3",
+    "Harness": "b9ceaf3b7cf510a4eaae47f64eb982b5a172ea4b",
+    "original": "e06b66580d49866888c3ef11ccc8afb2df9a236b"
   },
-  "integrated_component_checks": {
-    "python_seed_and_qa": {
-      "passed": 162,
-      "seconds": 4.84,
-      "native_exit": 0
-    },
-    "new_frontend_pure": {
-      "passed": 21,
-      "seconds": 0.194,
-      "native_exit": 0
-    },
-    "frontend_full_typecheck": {
-      "native_exit": 0
-    },
-    "full_engineering_gate": "NOT_RUN",
-    "full_pg_gate": "NOT_RUN"
-  },
-  "native_components": {
-    "schema": {
-      "source": "46164111b7ae3760f4b274dfe951403400b04e68",
-      "passed": 6,
-      "native_exit": 0,
-      "cleanup_exit": 0
-    },
-    "identity": {
-      "source": "3606e5bd1eff972e946cd71c6313f1e25979ffdb",
-      "passed": 14,
-      "native_exit": 0,
-      "cleanup_exit": 0
-    },
-    "rollback_reset": {
-      "source": "1c35a0b044d3976c0b5b15d69bfb6dae44e71749",
-      "passed": 2,
-      "native_exit": 0,
-      "cleanup_exit": 0
-    },
-    "db_capacity": {
-      "source": "761b64bd62c2183de29989f8f24a450beb3ce800",
-      "passed": 1,
-      "native_exit": 0,
-      "cleanup_exit": 0
+  "current_runtime_resources": [
+    {
+      "owner": "BACKEND",
+      "project": "p123-54f804675b46",
+      "scope": "R2 full phase3",
+      "subnet": "10.242.34.0/24",
+      "helper_deadline_utc": "2026-11-03T19:48:00Z",
+      "parent_deadline_utc": "2026-11-03T19:50:00Z"
     }
-  },
+  ],
+  "failure_policy": "Historical failures and UNKNOWN remain in Git and original .audit receipts. New success cases do not overwrite or replay failed resources/operation identity.",
+  "failure_receipts": [
+    "SCHEMA_FIRST_PG.json",
+    "MIGRATION_DIAGNOSTIC_AE4.json",
+    "UI_FIXTURE_FIRST.json",
+    "HTTP_PILOT_27F.json",
+    "HTTP_PILOT_D816.json",
+    "HTTP_PILOT_4B3C.json",
+    "HTTP_PILOT_2330.json",
+    "TTL_FIRST_F1.json",
+    "HTTP_FINAL_MATRIX.json",
+    "BROWSER_R2.json",
+    "FULL_EXISTING_FIRST_F1.json",
+    "ENGINEERING_CBD.json"
+  ],
   "remaining_gates": [
-    "independent actual HTTP eleven scenarios",
-    "natural fixed30min TTL",
-    "actual API/PG/Web browser and200percent zoom",
-    "final full engineering and dynamic PG/G1G2 pairing",
-    "old M3 Web/N01 corresponding regression",
-    "exact candidate independent final review and cleanup"
-  ]
+    "R2 phase3 complete and cleanup",
+    "R2 original strict pair",
+    "Final exact delivery and independent review",
+    "Final documentation/source scan"
+  ],
+  "unverified": [
+    "M3 daily/inquiry/copy separate live browser flows",
+    "physical retention GC native flow",
+    "full accessibility and manual visual acceptance",
+    "Hosted/3865U/amd64",
+    "real models/embedding/Feishu/Woo/production"
+  ],
+  "V4-1": "NOT_AUTHORIZED_NOT_STARTED",
+  "remote_writes": "NOT_AUTHORIZED_NOT_RUN",
+  "updated_at_utc": "2026-11-03T19:20:18.828907+00:00"
 }
