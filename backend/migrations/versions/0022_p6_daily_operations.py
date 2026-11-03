@@ -119,18 +119,47 @@ kind='daily_question';"""
 
 FUNCTIONS = [
     """
+CREATE FUNCTION business.p6_lock_daily_destination(target uuid,org uuid,shop uuid,actor uuid)
+RETURNS boolean LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path=pg_catalog,business AS $$
+BEGIN
+ PERFORM 1 FROM business.p6_daily_schedule_runs r
+ JOIN business.p6_daily_schedules s ON s.id=r.schedule_row_id
+ AND s.organization_id=r.organization_id AND s.shop_id=r.shop_id
+ JOIN business.business_tasks t ON t.id=r.task_id AND t.organization_id=r.organization_id
+ AND t.shop_id=r.shop_id AND t.requester_id=s.owner_id
+ JOIN business.p6_daily_destinations d ON d.id=(s.config->>'destination_binding_id')::uuid
+ AND d.organization_id=s.organization_id AND d.shop_id=s.shop_id AND d.owner_id=s.owner_id
+ WHERE t.id=target AND t.organization_id=org AND t.shop_id=shop AND t.requester_id=actor
+ AND t.kind='daily_report' AND t.workflow_version='p6-daily-report-v1'
+ AND t.normalized_request->'daily_source'=s.config->'daily_source'
+ AND (t.normalized_request->>'requester_auth_version')::bigint=
+ (s.config->>'owner_auth_version')::bigint
+ AND s.enabled AND s.schedule_id=r.schedule_id AND s.schedule_version=r.schedule_version
+ AND d.transport='fake'
+ AND business.p6_current_permission(actor,org,shop,(s.config->>'owner_auth_version')::bigint)
+ AND business.p6_source_valid(org,shop,
+ (s.config#>>'{daily_source,source_binding_id}')::uuid,s.config->'daily_source')
+ FOR SHARE OF d;
+ RETURN FOUND;
+END $$
+""",
+    """
 CREATE FUNCTION business.p6_schedule_current(target uuid) RETURNS boolean
-LANGUAGE plpgsql VOLATILE SET search_path=pg_catalog,business AS $$
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path=pg_catalog,business AS $$
 DECLARE s business.p6_daily_schedules; r business.p6_daily_schedule_runs;
 BEGIN
  SELECT * INTO r FROM business.p6_daily_schedule_runs WHERE task_id=target;
  IF NOT FOUND THEN RETURN true; END IF;
  SELECT * INTO s FROM business.p6_daily_schedules WHERE id=r.schedule_row_id FOR SHARE;
- RETURN s.enabled AND s.schedule_id=r.schedule_id AND s.schedule_version=r.schedule_version
+ IF (s.enabled AND s.schedule_id=r.schedule_id AND s.schedule_version=r.schedule_version
  AND business.p6_current_permission(s.owner_id,s.organization_id,s.shop_id,
  (s.config->>'owner_auth_version')::bigint)
  AND business.p6_source_valid(s.organization_id,s.shop_id,
- (s.config#>>'{daily_source,source_binding_id}')::uuid,s.config->'daily_source');
+ (s.config#>>'{daily_source,source_binding_id}')::uuid,s.config->'daily_source')) IS NOT TRUE THEN
+ RETURN false; END IF;
+ IF s.config->'destination_binding_id'='null'::jsonb THEN RETURN true; END IF;
+ RETURN business.p6_lock_daily_destination(target,s.organization_id,s.shop_id,s.owner_id);
 END $$
 """,
     """
@@ -185,6 +214,9 @@ LANGUAGE plpgsql SET search_path=pg_catalog,business AS $$
 DECLARE r jsonb; t business.business_tasks; p business.p6_daily_reports;
 BEGIN
 IF TG_TABLE_NAME='business_tasks' THEN
+IF TG_OP='UPDATE' AND (OLD.kind='daily_question' OR NEW.kind='daily_question')
+AND OLD.kind IS DISTINCT FROM NEW.kind THEN
+RAISE EXCEPTION 'question kind immutable' USING ERRCODE='23514'; END IF;
 IF NEW.kind<>'daily_question' THEN RETURN NEW; END IF;
 r:=NEW.normalized_request;
 IF NEW.workflow_version<>'p6-daily-question-v1' OR NOT business.p6_keys(r,
@@ -321,6 +353,8 @@ def upgrade() -> None:
             op.execute(f"""CREATE TRIGGER p6_no_delete BEFORE DELETE ON business.{table}
             FOR EACH ROW EXECUTE FUNCTION business.p6_reject_mutation()""")
     op.execute("REVOKE ALL ON FUNCTION business.p6_schedule_current(uuid) FROM PUBLIC")
+    op.execute("""REVOKE ALL ON FUNCTION
+    business.p6_lock_daily_destination(uuid,uuid,uuid,uuid) FROM PUBLIC""")
     op.execute(r"""CREATE TRIGGER p6_schedule_update BEFORE UPDATE OR DELETE ON
 business.p6_daily_schedules
 FOR EACH ROW EXECUTE FUNCTION business.p6_schedule_guard()""")
