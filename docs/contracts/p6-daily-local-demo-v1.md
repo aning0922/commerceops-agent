@@ -1,5 +1,11 @@
 # M3 本地日报演示启动单 v1
 
+2026-11-03 后续窄修复候选：Root 授权对本 seed 增加真实连接 owner 前置核验。脚本在
+mkdir/initialize_p3 之前，同一连接核 current_database 等于显式目标、current_user 等于
+business.organizations 普通表的实际 owner；拒绝后不进入初始化器。原 namespace 与空库
+限制继续适用。两个 seed 入口合计新增 12 项连接数据 double 反例/边界检查通过，
+不作为实际 PG 或本启动单已执行证据；详见[询单准备单的 owner 修复记录](p6-inquiry-local-demo-v1.md)。
+
 绑定Backend源码 `32dd7c240b9d2d979bf684eeb1dc8bcba7e35d31`；
 Root组合树还须含实际0019/0020/0021父链。本文只给启动单，不表示命令已运行或SQL/UI已通过。
 共享API/Worker/database源码保持该冻结；Root统一整合询单/K3后的启动参数以该组合实际入口为准。
