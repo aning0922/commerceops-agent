@@ -1,0 +1,668 @@
+{
+  "observed_at_utc": "2026-11-03T13:37:35.985082+00:00",
+  "repo": "aning0922/commerceops-agent",
+  "branches": {
+    "main": {
+      "sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+      "commit": {
+        "sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+        "html_url": "https://github.com/aning0922/commerceops-agent/commit/6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+        "parents": [
+          {
+            "sha": "e7cf7900a728422b728d0d58650a77b7d77aabcd",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/e7cf7900a728422b728d0d58650a77b7d77aabcd",
+            "html_url": "https://github.com/aning0922/commerceops-agent/commit/e7cf7900a728422b728d0d58650a77b7d77aabcd"
+          },
+          {
+            "sha": "437dd81bd9ef35492e2496f177c680a1407ba459",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/437dd81bd9ef35492e2496f177c680a1407ba459",
+            "html_url": "https://github.com/aning0922/commerceops-agent/commit/437dd81bd9ef35492e2496f177c680a1407ba459"
+          }
+        ],
+        "commit": {
+          "message": "Merge pull request #50 from aning0922/codex/phase5-woo-readonly\n\nPhase5 / M2：Woo只读数据源、业务接线与恢复交付",
+          "tree": {
+            "sha": "ac92562c26d24eb183143e52de64e5a51282948c",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/git/trees/ac92562c26d24eb183143e52de64e5a51282948c"
+          },
+          "committer": {
+            "name": "GitHub",
+            "email": "noreply@github.com",
+            "date": "2026-10-27T01:23:26Z"
+          }
+        }
+      },
+      "checks": {
+        "total_count": 5,
+        "check_runs": [
+          {
+            "id": 121965971064,
+            "name": "pg-pair",
+            "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T02:05:34Z",
+            "completed_at": "2026-10-27T02:05:43Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/40432280677/job/121965971064"
+          },
+          {
+            "id": 121952592462,
+            "name": "quality",
+            "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T01:23:32Z",
+            "completed_at": "2026-10-27T02:04:24Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/40432280677/job/121952592462"
+          },
+          {
+            "id": 121952591776,
+            "name": "frontend",
+            "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T01:23:32Z",
+            "completed_at": "2026-10-27T01:48:41Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/40432280677/job/121952591776"
+          },
+          {
+            "id": 121952591594,
+            "name": "phase3",
+            "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T01:23:32Z",
+            "completed_at": "2026-10-27T02:05:31Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/40432280677/job/121952591594"
+          },
+          {
+            "id": 121952591294,
+            "name": "n01-web",
+            "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-27T01:23:32Z",
+            "completed_at": "2026-10-27T01:32:38Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/40432280677/job/121952591294"
+          }
+        ]
+      },
+      "status": {
+        "state": "pending",
+        "statuses": [],
+        "sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+        "total_count": 0,
+        "repository": {
+          "id": 1409882649,
+          "node_id": "R_kgDOVAkaGQ",
+          "name": "commerceops-agent",
+          "full_name": "aning0922/commerceops-agent",
+          "private": false,
+          "owner": {
+            "login": "aning0922",
+            "id": 27675922,
+            "node_id": "MDQ6VXNlcjI3Njc1OTIy",
+            "avatar_url": "https://avatars.githubusercontent.com/u/27675922?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/aning0922",
+            "html_url": "https://github.com/aning0922",
+            "followers_url": "https://api.github.com/users/aning0922/followers",
+            "following_url": "https://api.github.com/users/aning0922/following{/other_user}",
+            "gists_url": "https://api.github.com/users/aning0922/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/aning0922/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/aning0922/subscriptions",
+            "organizations_url": "https://api.github.com/users/aning0922/orgs",
+            "repos_url": "https://api.github.com/users/aning0922/repos",
+            "events_url": "https://api.github.com/users/aning0922/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/aning0922/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/aning0922/commerceops-agent",
+          "description": "CommerceOps Agent：电商运营智能体与企业自动化系统。当前为 Phase 0 架构评审。",
+          "fork": false,
+          "url": "https://api.github.com/repos/aning0922/commerceops-agent",
+          "forks_url": "https://api.github.com/repos/aning0922/commerceops-agent/forks",
+          "keys_url": "https://api.github.com/repos/aning0922/commerceops-agent/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/aning0922/commerceops-agent/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/aning0922/commerceops-agent/teams",
+          "hooks_url": "https://api.github.com/repos/aning0922/commerceops-agent/hooks",
+          "issue_events_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/aning0922/commerceops-agent/events",
+          "assignees_url": "https://api.github.com/repos/aning0922/commerceops-agent/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/aning0922/commerceops-agent/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/aning0922/commerceops-agent/tags",
+          "blobs_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/aning0922/commerceops-agent/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/aning0922/commerceops-agent/languages",
+          "stargazers_url": "https://api.github.com/repos/aning0922/commerceops-agent/stargazers",
+          "contributors_url": "https://api.github.com/repos/aning0922/commerceops-agent/contributors",
+          "subscribers_url": "https://api.github.com/repos/aning0922/commerceops-agent/subscribers",
+          "subscription_url": "https://api.github.com/repos/aning0922/commerceops-agent/subscription",
+          "commits_url": "https://api.github.com/repos/aning0922/commerceops-agent/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/aning0922/commerceops-agent/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/aning0922/commerceops-agent/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/aning0922/commerceops-agent/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/aning0922/commerceops-agent/merges",
+          "archive_url": "https://api.github.com/repos/aning0922/commerceops-agent/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/aning0922/commerceops-agent/downloads",
+          "issues_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/aning0922/commerceops-agent/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/aning0922/commerceops-agent/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/aning0922/commerceops-agent/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/aning0922/commerceops-agent/labels{/name}",
+          "releases_url": "https://api.github.com/repos/aning0922/commerceops-agent/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/aning0922/commerceops-agent/deployments"
+        },
+        "commit_url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+        "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265/status"
+      },
+      "runs": {
+        "total_count": 1,
+        "workflow_runs": [
+          {
+            "id": 40432280677,
+            "name": "Foundation quality",
+            "event": "push",
+            "status": "completed",
+            "conclusion": "success",
+            "head_sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+            "run_attempt": 1,
+            "created_at": "2026-10-27T01:23:29Z",
+            "updated_at": "2026-10-27T02:05:44Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/40432280677"
+          }
+        ]
+      },
+      "prs": [
+        {
+          "number": 50,
+          "title": "Phase5 / M2：Woo只读数据源、业务接线与恢复交付",
+          "state": "closed",
+          "draft": false,
+          "merged_at": "2026-10-27T01:23:26Z",
+          "html_url": "https://github.com/aning0922/commerceops-agent/pull/50",
+          "head": {
+            "ref": "codex/phase5-woo-readonly",
+            "sha": "437dd81bd9ef35492e2496f177c680a1407ba459"
+          },
+          "base": {
+            "ref": "main",
+            "sha": "e7cf7900a728422b728d0d58650a77b7d77aabcd"
+          }
+        }
+      ]
+    },
+    "m3": {
+      "sha": "952e6246deb01ec763f2541d9f316753987744f3",
+      "commit": {
+        "sha": "952e6246deb01ec763f2541d9f316753987744f3",
+        "html_url": "https://github.com/aning0922/commerceops-agent/commit/952e6246deb01ec763f2541d9f316753987744f3",
+        "parents": [
+          {
+            "sha": "c373c91c4c0a4560cee2d0d2d146b6025a4bb2bd",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/c373c91c4c0a4560cee2d0d2d146b6025a4bb2bd",
+            "html_url": "https://github.com/aning0922/commerceops-agent/commit/c373c91c4c0a4560cee2d0d2d146b6025a4bb2bd"
+          }
+        ],
+        "commit": {
+          "message": "docs: require timely commits for managed development slices",
+          "tree": {
+            "sha": "43e4e732824e23b991660a4f7882ba8f5a265df1",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/git/trees/43e4e732824e23b991660a4f7882ba8f5a265df1"
+          },
+          "committer": {
+            "name": "aning0922",
+            "email": "zhuynfox@gmail.com",
+            "date": "2026-11-03T10:27:06Z"
+          }
+        }
+      },
+      "checks": {
+        "total_count": 0,
+        "check_runs": []
+      },
+      "status": {
+        "state": "pending",
+        "statuses": [],
+        "sha": "952e6246deb01ec763f2541d9f316753987744f3",
+        "total_count": 0,
+        "repository": {
+          "id": 1409882649,
+          "node_id": "R_kgDOVAkaGQ",
+          "name": "commerceops-agent",
+          "full_name": "aning0922/commerceops-agent",
+          "private": false,
+          "owner": {
+            "login": "aning0922",
+            "id": 27675922,
+            "node_id": "MDQ6VXNlcjI3Njc1OTIy",
+            "avatar_url": "https://avatars.githubusercontent.com/u/27675922?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/aning0922",
+            "html_url": "https://github.com/aning0922",
+            "followers_url": "https://api.github.com/users/aning0922/followers",
+            "following_url": "https://api.github.com/users/aning0922/following{/other_user}",
+            "gists_url": "https://api.github.com/users/aning0922/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/aning0922/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/aning0922/subscriptions",
+            "organizations_url": "https://api.github.com/users/aning0922/orgs",
+            "repos_url": "https://api.github.com/users/aning0922/repos",
+            "events_url": "https://api.github.com/users/aning0922/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/aning0922/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/aning0922/commerceops-agent",
+          "description": "CommerceOps Agent：电商运营智能体与企业自动化系统。当前为 Phase 0 架构评审。",
+          "fork": false,
+          "url": "https://api.github.com/repos/aning0922/commerceops-agent",
+          "forks_url": "https://api.github.com/repos/aning0922/commerceops-agent/forks",
+          "keys_url": "https://api.github.com/repos/aning0922/commerceops-agent/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/aning0922/commerceops-agent/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/aning0922/commerceops-agent/teams",
+          "hooks_url": "https://api.github.com/repos/aning0922/commerceops-agent/hooks",
+          "issue_events_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/aning0922/commerceops-agent/events",
+          "assignees_url": "https://api.github.com/repos/aning0922/commerceops-agent/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/aning0922/commerceops-agent/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/aning0922/commerceops-agent/tags",
+          "blobs_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/aning0922/commerceops-agent/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/aning0922/commerceops-agent/languages",
+          "stargazers_url": "https://api.github.com/repos/aning0922/commerceops-agent/stargazers",
+          "contributors_url": "https://api.github.com/repos/aning0922/commerceops-agent/contributors",
+          "subscribers_url": "https://api.github.com/repos/aning0922/commerceops-agent/subscribers",
+          "subscription_url": "https://api.github.com/repos/aning0922/commerceops-agent/subscription",
+          "commits_url": "https://api.github.com/repos/aning0922/commerceops-agent/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/aning0922/commerceops-agent/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/aning0922/commerceops-agent/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/aning0922/commerceops-agent/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/aning0922/commerceops-agent/merges",
+          "archive_url": "https://api.github.com/repos/aning0922/commerceops-agent/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/aning0922/commerceops-agent/downloads",
+          "issues_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/aning0922/commerceops-agent/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/aning0922/commerceops-agent/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/aning0922/commerceops-agent/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/aning0922/commerceops-agent/labels{/name}",
+          "releases_url": "https://api.github.com/repos/aning0922/commerceops-agent/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/aning0922/commerceops-agent/deployments"
+        },
+        "commit_url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/952e6246deb01ec763f2541d9f316753987744f3",
+        "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/952e6246deb01ec763f2541d9f316753987744f3/status"
+      },
+      "runs": {
+        "total_count": 0,
+        "workflow_runs": []
+      },
+      "prs": []
+    },
+    "harness": {
+      "sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+      "commit": {
+        "sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+        "html_url": "https://github.com/aning0922/commerceops-agent/commit/684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+        "parents": [
+          {
+            "sha": "48fbc7a5a5a68a1e3cc6c9df007272608951f5d0",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/48fbc7a5a5a68a1e3cc6c9df007272608951f5d0",
+            "html_url": "https://github.com/aning0922/commerceops-agent/commit/48fbc7a5a5a68a1e3cc6c9df007272608951f5d0"
+          }
+        ],
+        "commit": {
+          "message": "ci(harness): wire existing six PG shards into Full gates",
+          "tree": {
+            "sha": "7d063bad82294de006f38a520ef84a435f1fd215",
+            "url": "https://api.github.com/repos/aning0922/commerceops-agent/git/trees/7d063bad82294de006f38a520ef84a435f1fd215"
+          },
+          "committer": {
+            "name": "aning0922",
+            "email": "zhuynfox@gmail.com",
+            "date": "2026-10-30T12:24:35Z"
+          }
+        }
+      },
+      "checks": {
+        "total_count": 20,
+        "check_runs": [
+          {
+            "id": 124406802703,
+            "name": "h2-aggregate",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:51:22Z",
+            "completed_at": "2026-10-31T01:52:16Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124406802703"
+          },
+          {
+            "id": 124402842709,
+            "name": "h2-shards (3)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:34:45Z",
+            "completed_at": "2026-10-31T01:49:19Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842709"
+          },
+          {
+            "id": 124402842691,
+            "name": "h2-shards (4)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:34:45Z",
+            "completed_at": "2026-10-31T01:49:53Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842691"
+          },
+          {
+            "id": 124402842688,
+            "name": "h2-shards (2)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:34:45Z",
+            "completed_at": "2026-10-31T01:49:33Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842688"
+          },
+          {
+            "id": 124402842675,
+            "name": "h2-shards (1)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:34:45Z",
+            "completed_at": "2026-10-31T01:49:20Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842675"
+          },
+          {
+            "id": 124402842672,
+            "name": "h2-shards (5)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:34:44Z",
+            "completed_at": "2026-10-31T01:46:57Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842672"
+          },
+          {
+            "id": 124402842637,
+            "name": "h2-shards (0)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:34:45Z",
+            "completed_at": "2026-10-31T01:51:18Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842637"
+          },
+          {
+            "id": 124402503783,
+            "name": "h2-plan",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-31T01:33:21Z",
+            "completed_at": "2026-10-31T01:34:41Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402503783"
+          },
+          {
+            "id": 124126160666,
+            "name": "merge-gate",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:44:21Z",
+            "completed_at": "2026-10-30T14:44:27Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124126160666"
+          },
+          {
+            "id": 124125639093,
+            "name": "pg-pair",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:43:21Z",
+            "completed_at": "2026-10-30T14:44:18Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124125639093"
+          },
+          {
+            "id": 124125090470,
+            "name": "phase3",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:42:20Z",
+            "completed_at": "2026-10-30T14:43:18Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124125090470"
+          },
+          {
+            "id": 124116796856,
+            "name": "pg-shards (2)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:26:49Z",
+            "completed_at": "2026-10-30T14:40:43Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116796856"
+          },
+          {
+            "id": 124116764979,
+            "name": "pg-shards (5)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:26:43Z",
+            "completed_at": "2026-10-30T14:40:12Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116764979"
+          },
+          {
+            "id": 124116745761,
+            "name": "pg-shards (4)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:27:11Z",
+            "completed_at": "2026-10-30T14:38:31Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116745761"
+          },
+          {
+            "id": 124116688416,
+            "name": "pg-shards (0)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:26:49Z",
+            "completed_at": "2026-10-30T14:42:16Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116688416"
+          },
+          {
+            "id": 124116629228,
+            "name": "pg-shards (1)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:26:19Z",
+            "completed_at": "2026-10-30T14:40:54Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116629228"
+          },
+          {
+            "id": 124116627071,
+            "name": "pg-shards (3)",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:26:18Z",
+            "completed_at": "2026-10-30T14:41:40Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116627071"
+          },
+          {
+            "id": 124116463497,
+            "name": "n01-web",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:25:47Z",
+            "completed_at": "2026-10-30T14:35:38Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116463497"
+          },
+          {
+            "id": 124116356701,
+            "name": "frontend",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:25:34Z",
+            "completed_at": "2026-10-30T14:42:24Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116356701"
+          },
+          {
+            "id": 124116336961,
+            "name": "quality",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "status": "completed",
+            "conclusion": "success",
+            "started_at": "2026-10-30T14:25:23Z",
+            "completed_at": "2026-10-30T14:26:14Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116336961"
+          }
+        ]
+      },
+      "status": {
+        "state": "pending",
+        "statuses": [],
+        "sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+        "total_count": 0,
+        "repository": {
+          "id": 1409882649,
+          "node_id": "R_kgDOVAkaGQ",
+          "name": "commerceops-agent",
+          "full_name": "aning0922/commerceops-agent",
+          "private": false,
+          "owner": {
+            "login": "aning0922",
+            "id": 27675922,
+            "node_id": "MDQ6VXNlcjI3Njc1OTIy",
+            "avatar_url": "https://avatars.githubusercontent.com/u/27675922?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/aning0922",
+            "html_url": "https://github.com/aning0922",
+            "followers_url": "https://api.github.com/users/aning0922/followers",
+            "following_url": "https://api.github.com/users/aning0922/following{/other_user}",
+            "gists_url": "https://api.github.com/users/aning0922/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/aning0922/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/aning0922/subscriptions",
+            "organizations_url": "https://api.github.com/users/aning0922/orgs",
+            "repos_url": "https://api.github.com/users/aning0922/repos",
+            "events_url": "https://api.github.com/users/aning0922/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/aning0922/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/aning0922/commerceops-agent",
+          "description": "CommerceOps Agent：电商运营智能体与企业自动化系统。当前为 Phase 0 架构评审。",
+          "fork": false,
+          "url": "https://api.github.com/repos/aning0922/commerceops-agent",
+          "forks_url": "https://api.github.com/repos/aning0922/commerceops-agent/forks",
+          "keys_url": "https://api.github.com/repos/aning0922/commerceops-agent/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/aning0922/commerceops-agent/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/aning0922/commerceops-agent/teams",
+          "hooks_url": "https://api.github.com/repos/aning0922/commerceops-agent/hooks",
+          "issue_events_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/aning0922/commerceops-agent/events",
+          "assignees_url": "https://api.github.com/repos/aning0922/commerceops-agent/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/aning0922/commerceops-agent/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/aning0922/commerceops-agent/tags",
+          "blobs_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/aning0922/commerceops-agent/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/aning0922/commerceops-agent/languages",
+          "stargazers_url": "https://api.github.com/repos/aning0922/commerceops-agent/stargazers",
+          "contributors_url": "https://api.github.com/repos/aning0922/commerceops-agent/contributors",
+          "subscribers_url": "https://api.github.com/repos/aning0922/commerceops-agent/subscribers",
+          "subscription_url": "https://api.github.com/repos/aning0922/commerceops-agent/subscription",
+          "commits_url": "https://api.github.com/repos/aning0922/commerceops-agent/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/aning0922/commerceops-agent/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/aning0922/commerceops-agent/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/aning0922/commerceops-agent/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/aning0922/commerceops-agent/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/aning0922/commerceops-agent/merges",
+          "archive_url": "https://api.github.com/repos/aning0922/commerceops-agent/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/aning0922/commerceops-agent/downloads",
+          "issues_url": "https://api.github.com/repos/aning0922/commerceops-agent/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/aning0922/commerceops-agent/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/aning0922/commerceops-agent/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/aning0922/commerceops-agent/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/aning0922/commerceops-agent/labels{/name}",
+          "releases_url": "https://api.github.com/repos/aning0922/commerceops-agent/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/aning0922/commerceops-agent/deployments"
+        },
+        "commit_url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+        "url": "https://api.github.com/repos/aning0922/commerceops-agent/commits/684e645feb1dbe0a27864ca2308fe1afd9fa948d/status"
+      },
+      "runs": {
+        "total_count": 2,
+        "workflow_runs": [
+          {
+            "id": 41063567853,
+            "name": "Foundation quality",
+            "event": "pull_request",
+            "status": "completed",
+            "conclusion": "success",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "run_attempt": 3,
+            "created_at": "2026-10-30T13:28:41Z",
+            "updated_at": "2026-10-30T14:44:28Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853"
+          },
+          {
+            "id": 41063567878,
+            "name": "H2 PG shadow",
+            "event": "pull_request",
+            "status": "completed",
+            "conclusion": "success",
+            "head_sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+            "run_attempt": 4,
+            "created_at": "2026-10-30T13:28:41Z",
+            "updated_at": "2026-10-31T01:52:17Z",
+            "html_url": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878"
+          }
+        ]
+      },
+      "prs": [
+        {
+          "number": 52,
+          "title": "Harness V3 H1–H2：本地快速反馈与全量 PG 六分片影子验证",
+          "state": "open",
+          "draft": true,
+          "merged_at": null,
+          "html_url": "https://github.com/aning0922/commerceops-agent/pull/52",
+          "head": {
+            "ref": "codex/harness-v3",
+            "sha": "684e645feb1dbe0a27864ca2308fe1afd9fa948d"
+          },
+          "base": {
+            "ref": "main",
+            "sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265"
+          }
+        }
+      ]
+    }
+  }
+}

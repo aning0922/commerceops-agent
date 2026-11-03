@@ -1,0 +1,7 @@
+operation,operator,approver,restricted_admin,status
+read_authorized_shop,shop grant required,shop grant required,explicit business grant required,PROPOSED
+create_demo_draft,allowed with grant,only if operator additionally granted,only explicit grant,PROPOSED
+approve_current_assigned_draft,denied,current assignee + shop grant + version required,no implicit approval,PROPOSED
+switch_predefined_demo_persona,own demo only; revalidate,own demo only; revalidate,own demo only; revalidate,PROPOSED
+reset_own_demo,own tenant + epoch + CSRF,own tenant + epoch + CSRF,own tenant + epoch + CSRF,PROPOSED
+external_write_or_send,denied,denied,denied,PROPOSED

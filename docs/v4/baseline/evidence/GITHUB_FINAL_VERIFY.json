@@ -1,0 +1,7 @@
+{
+  "observed_at_utc": "2026-11-03T13:54:03.354509+00:00",
+  "command": "git ls-remote origin refs/heads/main refs/heads/codex/m3-control-20261103 refs/heads/codex/harness-v3",
+  "exit": 0,
+  "stdout": "684e645feb1dbe0a27864ca2308fe1afd9fa948d\trefs/heads/codex/harness-v3\n952e6246deb01ec763f2541d9f316753987744f3\trefs/heads/codex/m3-control-20261103\n6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265\trefs/heads/main\n",
+  "stderr": ""
+}

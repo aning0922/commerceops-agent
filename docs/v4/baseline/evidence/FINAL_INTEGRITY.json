@@ -1,0 +1,41 @@
+{
+  "checked_at_utc": "2026-11-03T13:54:03.559622+00:00",
+  "worktrees": [
+    {
+      "current": {
+        "path": "/Users/aipuli/Documents/Projects/commerceops-agent",
+        "head": "e06b66580d49866888c3ef11ccc8afb2df9a236b",
+        "tree": "fedff565b3f7cd7d36d3772efbf0d7190b777e51",
+        "branch": "codex/readme-project-overview",
+        "status_porcelain": ""
+      },
+      "same_as_start": true
+    },
+    {
+      "current": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-m3-control/commerceops-agent",
+        "head": "952e6246deb01ec763f2541d9f316753987744f3",
+        "tree": "43e4e732824e23b991660a4f7882ba8f5a265df1",
+        "branch": "codex/m3-control-20261103",
+        "status_porcelain": ""
+      },
+      "same_as_start": true
+    },
+    {
+      "current": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-harness-v3/commerceops-agent",
+        "head": "b9ceaf3b7cf510a4eaae47f64eb982b5a172ea4b",
+        "tree": "b333164a4ae049bf93408dab37d11a035152bc65",
+        "branch": "codex/harness-v3",
+        "status_porcelain": ""
+      },
+      "same_as_start": true
+    }
+  ],
+  "all_worktrees_unchanged": true,
+  "reference_package_changes": [],
+  "business_code_changed": false,
+  "created_git_branches_or_worktrees": false,
+  "remote_writes": false,
+  "tests_or_services_started": false
+}

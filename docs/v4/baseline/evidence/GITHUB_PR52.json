@@ -1,0 +1,228 @@
+{
+  "observed_at_utc": "2026-11-03T13:38:34.848223+00:00",
+  "command": [
+    "gh",
+    "pr",
+    "view",
+    "52",
+    "--repo",
+    "aning0922/commerceops-agent",
+    "--json",
+    "number,title,state,isDraft,headRefName,headRefOid,baseRefName,mergeStateStatus,statusCheckRollup,url"
+  ],
+  "exit": 0,
+  "data": {
+    "baseRefName": "main",
+    "headRefName": "codex/harness-v3",
+    "headRefOid": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+    "isDraft": true,
+    "mergeStateStatus": "CLEAN",
+    "number": 52,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:26:14Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116336961",
+        "name": "quality",
+        "startedAt": "2026-10-30T14:25:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:34:41Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402503783",
+        "name": "h2-plan",
+        "startedAt": "2026-10-31T01:33:21Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:35:38Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116463497",
+        "name": "n01-web",
+        "startedAt": "2026-10-30T14:25:47Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:51:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842637",
+        "name": "h2-shards (0)",
+        "startedAt": "2026-10-31T01:34:45Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:49:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842675",
+        "name": "h2-shards (1)",
+        "startedAt": "2026-10-31T01:34:45Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:49:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842688",
+        "name": "h2-shards (2)",
+        "startedAt": "2026-10-31T01:34:45Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:49:19Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842709",
+        "name": "h2-shards (3)",
+        "startedAt": "2026-10-31T01:34:45Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:49:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842691",
+        "name": "h2-shards (4)",
+        "startedAt": "2026-10-31T01:34:45Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:46:57Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124402842672",
+        "name": "h2-shards (5)",
+        "startedAt": "2026-10-31T01:34:44Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:42:24Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116356701",
+        "name": "frontend",
+        "startedAt": "2026-10-30T14:25:34Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T01:52:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567878/job/124406802703",
+        "name": "h2-aggregate",
+        "startedAt": "2026-10-31T01:51:22Z",
+        "status": "COMPLETED",
+        "workflowName": "H2 PG shadow"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:42:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116688416",
+        "name": "pg-shards (0)",
+        "startedAt": "2026-10-30T14:26:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:40:54Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116629228",
+        "name": "pg-shards (1)",
+        "startedAt": "2026-10-30T14:26:19Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:40:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116796856",
+        "name": "pg-shards (2)",
+        "startedAt": "2026-10-30T14:26:49Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:41:40Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116627071",
+        "name": "pg-shards (3)",
+        "startedAt": "2026-10-30T14:26:18Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:38:31Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116745761",
+        "name": "pg-shards (4)",
+        "startedAt": "2026-10-30T14:27:11Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:40:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124116764979",
+        "name": "pg-shards (5)",
+        "startedAt": "2026-10-30T14:26:43Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:43:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124125090470",
+        "name": "phase3",
+        "startedAt": "2026-10-30T14:42:20Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:44:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124125639093",
+        "name": "pg-pair",
+        "startedAt": "2026-10-30T14:43:21Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-30T14:44:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/aning0922/commerceops-agent/actions/runs/41063567853/job/124126160666",
+        "name": "merge-gate",
+        "startedAt": "2026-10-30T14:44:21Z",
+        "status": "COMPLETED",
+        "workflowName": "Foundation quality"
+      }
+    ],
+    "title": "Harness V3 H1–H2：本地快速反馈与全量 PG 六分片影子验证",
+    "url": "https://github.com/aning0922/commerceops-agent/pull/52"
+  },
+  "error": null
+}
