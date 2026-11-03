@@ -1,6 +1,6 @@
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
-import spec from '../../docs/v4/baseline/v4-public-openapi.json';
+import spec from './v4-openapi.json';
 
 export type Context = {tenant_id:string; organization_id:string; principal_id:string; shop_id:string|null; reset_epoch:number; auth_generation:number; authorized_at:string};
 export type Shop = {shop_id:string; display_name:string; timezone:string; currency:string; grants:string[]};
