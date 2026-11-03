@@ -101,3 +101,11 @@ Root完整本地check绑定aaaa132263a219f49539347e4e6818f11283b258，322.614s/n
 为减少串行等待，Root明确更新共享DDL协调：唯一线性链0018→0019日报（Backend独占）→0020知识/copy（知识owner独占）→后续0021起（Root另分）。各owner只写自己的新迁移/专属模块，0020必须固定down_revision0019并普通合入已冻结父提交后才能真实升级验证；不并行创造head。根Compose/共享database入口/权限helper仍由Backend+Root单点协调。此为Root授权的独占范围更新，旧一人写全部DDL规则在本次分配范围内被替代。
 
 固定知识构建8ee1df0已独审放行；Root实际镜像build74.12s/native0，唯一tag commerceops-m3-vector:8ee1df0-arm64，image sha256:4ebf3de8870438618836dd1765632b7e90cb950632c929162441367087439d5a。只读无网络utility容器核PG17.11/control0.8.7/ldd无缺失后已退出，无PG服务启动；扩展CREATE/SQL/低权/向量float32与保存事务仍NOT_RUN。构建GO03:27:10Z→03:47:10Z，结果早于截止；未使用旧卷或秘密。知识owner已获K2专属0020/repository代码实施授权，PG仍待冻结后统一具体窗口。
+
+### 功能修复与界面验证继续
+
+动态3cab独审三组P2已接回：跨SKU/未知SKU范围、订单有效状态口径、未分配共享池SKU可用量；作者独立fix22b60150add80f59613445260e1e2851b5d0b86f/79targetpass已交复审，未提前签工具完成。服务设计832c7d1独审ACCEPT_SERVICE_IMPLEMENTATION，Root已分配0021（父0020）及专属store/runner/router实施，主API/Worker注册仍Backend单点。后续0022给日报调度/投递/追问，0023给知识审核草稿。
+
+K2 8a6c6eb（84offline、28PG仅collect）独审1P2：同registry同逻辑chunk多版本造成top5同距不稳定，Root要求与K1一致的逻辑identity单版本约束/应用+DB校验；作者保留K3WIP另独立fix，不用重排序掩盖引用身份。0019父仍待冻结，全部PG尚未启动。
+
+UI原a9bef16已独审ACCEPT_UI_FIX，旧401403清新会话问题已关闭；10UI_FIXTURE通过/服务停止/18649关闭，受测界面a64188f到a9仅文档不同。迟到403DOM例等待响应处理有非阻断加强项。随后按Root实际390截图复核改为首屏核心摘要、完整细节折叠，界面ddeb42d/最终7dfe8bd重新build+10UI_FIXTURE通过；新布局尚待静态审，不转签旧布局。真实API/PG、实际browser page zoom与Hosted未由这些结果证明。Root另登记独立小批验证真实浏览器page zoom200%（允许仅新profile内极小runtime extension/tabsAPI，禁止用户Chrome/系统键盘），不续旧已结束服务。
