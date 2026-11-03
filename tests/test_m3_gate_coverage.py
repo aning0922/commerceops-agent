@@ -181,3 +181,33 @@ def test_foundation_wires_strict_checks_after_locked_node_install_and_keeps_lega
         text = (ROOT / "frontend/m3-tests" / name).read_text()
         assert not re.search(r"test\.(?:skip|fixme|only)\s*\(", text)
         assert not re.search(r"async\s*\(\s*\{\s*(?:page|browser|context)\b", text)
+
+
+@pytest.mark.parametrize(
+    "missing",
+    [
+        "bounded-network.spec.ts",
+        "owned-shop-scopes.spec.ts",
+        "owned-copy-preview.spec.ts",
+    ],
+)
+def test_all_original_and_harness_files_remain_required(missing: str) -> None:
+    assert FILES == {
+        "daily-read.spec.ts",
+        "daily-s3-read.spec.ts",
+        "daily-write.spec.ts",
+        "live-network-guard.spec.ts",
+        "p6-inquiry.spec.ts",
+        "copy.spec.ts",
+        "bounded-network.spec.ts",
+        "owned-shop-scopes.spec.ts",
+        "owned-copy-preview.spec.ts",
+    }
+    listed, executed = reports()
+    for report in (listed, executed):
+        report["suites"][0]["specs"] = [
+            spec for spec in report["suites"][0]["specs"] if spec["file"] != missing
+        ]
+    executed["stats"]["expected"] -= 1
+    with pytest.raises(ValueError, match="incomplete contract file coverage"):
+        validate_reports(listed, executed)

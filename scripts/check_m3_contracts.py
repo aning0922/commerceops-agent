@@ -1,4 +1,4 @@
-"""Run only the six reviewed Node contracts; exact collected/executed sets and zero skips."""
+"""Run only the explicitly reviewed Node contracts; exact collected/executed sets and zero skips."""
 
 import json
 import os
@@ -15,6 +15,9 @@ FILES = frozenset(
         "live-network-guard.spec.ts",
         "p6-inquiry.spec.ts",
         "copy.spec.ts",
+        "bounded-network.spec.ts",
+        "owned-shop-scopes.spec.ts",
+        "owned-copy-preview.spec.ts",
     }
 )
 
@@ -113,7 +116,10 @@ def main() -> None:
             contract_cases(report, executed=False)  # Fail before execution on skipped/partial plan.
         reports.append(report)
     count = validate_reports(*reports)
-    print(f"M3 no-server contracts: files=6, collected=executed={count}, skipped=0, retries=0")
+    print(
+        f"M3 no-server contracts: files={len(FILES)}, collected=executed={count}, "
+        "skipped=0, retries=0"
+    )
 
 
 if __name__ == "__main__":
