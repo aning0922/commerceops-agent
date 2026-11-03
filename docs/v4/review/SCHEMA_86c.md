@@ -73,3 +73,33 @@ GC仅owner helper显式调用（S:114–172），锁指定tenant/session与排�
 ## 交接
 
 请作者按SQL-01/02/03修实际守卫并提交新SHA；不由Reviewer代改。Root可继续安排无依赖的纯组件工作，但此实际schema component目前HOLD，不签PG迁移/回归准入已接受。若Root另批专门诊断窗口，应明确仅取失败证据而非通过验收；本审查没有开窗或执行任何真实资源操作。原设计接受、旧失败及UNKNOWN均保留。
+
+## 8e9d87a增量关闭：SQL-01/02/03
+
+candidate `8e9d87ae500f5fab22131ab6b76d7f5bb1d505a6` / tree `ef242d0ffbc82d0553b0678b600ffbcfbdb285dd`，相对86ca逐项审查。结论：**ACCEPT_SCHEMA_COMPONENT，原SQL-01/02/03均CLOSED_AT_STATIC_CODE_REVIEW_LEVEL；本次所审范围无未关闭P1/P2。** 原首审HOLD与三反例保留；不是PG运行通过，是否开新owned窗口由ROOT决定。
+
+### SQL-01
+
+M:92新增内部last_receipt_id，:178–182以receipt/session/tenant/after epoch/generation复合deferred FK约束指针；receipt自身也以owner_session/tenant复合FK绑定。M:299要求每次session控制改变指针，旧bound撤销/新bound/nonce/digest与generation轮换仍强制；logout允许字段变化被单独限制。
+
+M:359–375将queued session NEW与最终row核对，并用NEW.last_receipt_id定位精确receipt，绑定OLD before/NEW after及操作类型；create也必须对应0/0的session_create。M:394–418反向要求新receipt就是当前session指针、after与真实session相等、retain与tenant相等、规范请求正确及精确事件数；reset还要求当前tenant overlay为空。因此原“只插receipt/event、不改session effect”会因指针/after不匹配拒绝；仅换指针不轮换身份或借旧receipt背书亦有对应限制。默认deferred路径明示同session一事务一控制，不依赖全表“存在某行”。
+
+新增PG测试源码:221–261覆盖无effect receipt、无receipt effect、错误before、旧指针和同事务双控制；:200–218正向创建/一次persona转换。这里只核已写断言，不宣称数据库已执行拒绝或正例通过。
+
+### SQL-02
+
+M:147–151新增event→receipt的id/owner/tenant/epoch/generation复合deferred FK；M:381–391对event独立INSERT核完整关系及operation→kind允许集合。receipt M:402–412核create恰2/其他恰1且要求对应主事件、create附seed_materialized；UNIQUE(receipt_id,event_kind)保留。历史receipt未重新INSERT时，event自身仍校验，不能通过跨tenant独立FK或错误kind绕过。
+
+新增PG测试:264–291特意使creation receipt成为历史后再尝试跨owner/tenant、错kind/代际append，测试预期包含CheckViolation或FKViolation；没有只靠当前receipt trigger证明历史事件安全。实际SQLSTATE与异常时机待新owned PG核。
+
+### SQL-03
+
+M:206–245的v4_demo_request_valid限定wrapper和每operation body为object、必需/精确keys、key/fixture/persona类型与值、expected整数语法和before值；method/path采用IS DISTINCT FROM。receipt/provision两调用均NOT coalesce(...,false)，不再由SQL NULL跳过拒绝。helper是无DB访问/无提权IMMUTABLE函数；S:107–108显式授runtime EXECUTE，迁移对PUBLIC revoke；provision原13参数签名没有改变。
+
+新增PG测试:294–334有正常reset请求及missing/null/错类型/多字段/错CAS；纯结构测试只核DDL/函数文本与SQLAlchemy参数边界，不代替该PG矩阵。runtime列权限仅按新增last_receipt_id及只读validator函数精确同步，没有追加旧凭据/旧org权限。
+
+### 其他增量与运行界限
+
+独立AST计数仍为十表；原七兼容测试及旧权限保护在本增量未放宽。bound.created_at与Demo有效窗新增检查。设计附录记录last_receipt双向绑定/事件/请求校验；另将已绑定bootstrap即使未consumed也不复用于新key，明确用户再次进入才签新匿名owner，保留旧300秒原key权利，符合ROOT登记Q18细化；不是已实现HTTP分支的证明。
+
+五个新增integration节点被作者报告已收集未执行，本审查没有运行collect或PG。特别deferred trigger实际执行权限、约束插入/删除顺序、canonical错误SQLSTATE、真实cap/撤权锁序、owner GC及旧M3全量回归仍须实际窗口验证。PG测试使用新owned夹具构造低权app及真实provision，随机测试密钥不持久到报告；测试正向路径不等于实际API CSRF/Origin/身份resolver已交付。本接受不包括未提交HTTP/会话源码，不复用历史719/33offline代签。
