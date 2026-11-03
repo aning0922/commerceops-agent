@@ -237,3 +237,11 @@ test('UI_FIXTURE: reset dialog closes with Escape and returns focus',async ({pag
  await opener.click();const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();
  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(opener).toBeFocused();
 });
+
+test('UI_FIXTURE: an invalidation closes the reset dialog before revalidation',async ({page})=>{
+ await page.route('**/api/v4/demo/**',withCors(route=>route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}})));
+ await page.goto('/v4');await page.getByRole('button',{name:'重置演示'}).click();
+ const dialog=page.getByRole('dialog',{name:'重置当前演示空间？'});await expect(dialog).toBeVisible();
+ await page.evaluate(()=>window.dispatchEvent(new Event('offline')));
+ await expect(dialog).not.toBeVisible();await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);
+});
