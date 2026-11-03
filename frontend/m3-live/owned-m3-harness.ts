@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page, Response } from "@playwright/test";
 import { BoundedNetwork } from "./bounded-network";
 import { dropActualResponse } from "./drop-response";
+import { waitForOwnedHome } from "./owned-home-ready";
 import type { Account, Window } from "./owned-m3-input";
 export type Session = { context: BrowserContext; page: Page; guard: BoundedNetwork; dropNext: (path: string) => Promise<number> };
 export async function session(browser: Browser, w: Window, stop: number, account: Account, organization: string, shops: readonly string[], record: (event: object) => void, verify: () => void): Promise<Session> {
@@ -53,7 +54,7 @@ export async function session(browser: Browser, w: Window, stop: number, account
     const roles = identity.principal.role_shop_grants.filter((g: { shop_id: string }) => g.shop_id === shop).map((g: { role: string }) => g.role).filter((x: string) => x === "operator" || x === "approver").sort();
     if (JSON.stringify(roles) !== JSON.stringify([...account.shop_roles[shop]].sort())) throw new Error("Owned shop roles mismatch");
   }
-  await expect(page.locator('[data-source-mode="live-session"]')).toBeVisible();
+  await waitForOwnedHome(page, w.web_origin, account.home_path);
   return { context, page, guard, dropNext };
 }
 export function get(s: Session, pathname: string, search = "", count = 1) { s.guard.allow({ method: "GET", pathname, search, remaining: count }); }
