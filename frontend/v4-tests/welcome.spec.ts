@@ -430,3 +430,19 @@ for (const hasProof of [false,true]) {
   else {await expect(page.getByText(/无法完整核验/)).toBeVisible();await expect(page.getByText('已核对原操作回执。')).toHaveCount(0);}
  });
 }
+
+for(const width of [360,390]) {
+ test(`UI_FIXTURE: mobile navigation links are keyboard reachable at ${width}px`,async ({page})=>{
+  let posts=0;await page.setViewportSize({width,height:844});
+  await page.route('**/api/v4/demo/**',withCors(route=>{if(route.request().method()==='POST')posts++;return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});}));
+  await page.goto('/v4');const nav=page.getByRole('navigation',{name:'演示导航'});await expect(nav).toBeVisible();
+  await expect(nav.getByRole('link',{name:'欢迎'})).toHaveAttribute('aria-current','page');
+  await expect(nav.getByRole('link',{name:'演示空间'})).toHaveAttribute('href','/v4/demo');
+  const target=nav.getByRole('link',{name:'演示设置'});await expect(target).toHaveAttribute('href','/v4/settings/demo');
+  await target.focus();await expect(target).toBeFocused();await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/v4\/settings\/demo$/);
+  await expect(page.getByRole('navigation',{name:'演示导航'}).getByRole('link',{name:'演示设置'})).toHaveAttribute('aria-current','page');
+  await expect(page.getByText(/当前视角：operator/)).toBeVisible();expect(posts).toBe(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ });
+}

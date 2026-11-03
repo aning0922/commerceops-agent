@@ -79,9 +79,9 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
  await expect(page.getByText(new RegExp(`商品 ${mobileSummary.data.counts.products} · SKU ${mobileSummary.data.counts.skus}`))).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:join(evidence,'live-mobile-session-390.png'),fullPage:true});
- // Directly exercise the supported settings deep link; this does not claim a separate navigation menu exists.
+ // Use the visible mobile navigation and verify the same authorized session is restored.
  const settingsCurrent=page.waitForResponse(r=>sessionResponseMatches(r,api,{creationKey:mobileBody.request_key,tenant:mobile.context.tenant_id,organization:mobile.context.organization_id,persona:'operator',epoch:mobile.context.reset_epoch,generation:mobile.context.auth_generation}));
- await page.goto('/v4/settings/demo');const settings=await read(await settingsCurrent,'SessionEnvelope');expect(settings.data.creation_request_key).toBe(mobileBody.request_key);
+ const mobileNavigation=page.getByRole('navigation',{name:'演示导航'});const settingsLink=mobileNavigation.getByRole('link',{name:'演示设置'});await expect(settingsLink).toBeVisible();await settingsLink.focus();await expect(settingsLink).toBeFocused();await page.keyboard.press('Enter');await expect(page).toHaveURL(/\/v4\/settings\/demo$/);await expect(page.getByRole('navigation',{name:'演示导航'}).getByRole('link',{name:'演示设置'})).toHaveAttribute('aria-current','page');const settings=await read(await settingsCurrent,'SessionEnvelope');expect(settings.data.creation_request_key).toBe(mobileBody.request_key);expect(settings.context.principal_id).toBe(mobile.context.principal_id);
  const mobileReset=page.getByRole('button',{name:'重置演示'});await expect(mobileReset).toBeVisible();await mobileReset.focus();await expect(mobileReset).toBeFocused();await page.keyboard.press('Enter');
  const mobileDialog=page.getByRole('dialog',{name:'重置当前演示空间？'});await expect(mobileDialog).toBeVisible();await expect(mobileDialog.getByRole('button',{name:'确认重置'})).toBeVisible();await expect(mobileDialog.getByRole('button',{name:'取消'})).toBeVisible();
  await page.keyboard.press('Tab');expect(await mobileDialog.evaluate(element=>element.contains(document.activeElement))).toBe(true);
