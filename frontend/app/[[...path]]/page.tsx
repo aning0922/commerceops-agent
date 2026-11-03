@@ -53,6 +53,7 @@ export default async function Page({
         origin={origin!}
         localHttp={localHttp}
         inquiryEnabled={process.env.COMMERCEOPS_INQUIRY_UI_ENABLED === "true"}
+        copyEnabled={process.env.COMMERCEOPS_COPY_UI_ENABLED === "true"}
       />
     );
   }

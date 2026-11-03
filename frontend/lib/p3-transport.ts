@@ -4,6 +4,7 @@ import type { components } from "./p5-types.generated";
 import type { N01Input, N01Response, WooN01Input, WooN01Response, AnyN01Input, AnyN01Response } from "./p4-n01";
 import { validN01Input, validN01Response, n01MatchesInput } from "./p4-n01";
 import { validWooCreateInput } from "./p5-commerce-source";
+import { copyApi, CopyFailure } from "./p6-copy-client";
 import { dailyWriteApi, DailyWriteFailure } from "./p6-daily-write";
 import { inquiryApi, InquiryFailure } from "./p6-inquiry-client";
 type DTO = components["schemas"];
@@ -296,6 +297,13 @@ export class P3Client {
     this.#csrf = data.csrf_token;
     this.#principal = data.principal.principal_id;
     return data;
+  }
+  copyAccess(viewCurrent: () => boolean) {
+    if (!this.#principal || !this.#csrf) throw new CopyFailure("DENIED");
+    const generation = this.#sessionGeneration;
+    return copyApi({ origin: this.#origin, transport: (url, init) => fetch(url, init), csrf: () => this.#csrf,
+      current: () => this.#sessionGeneration === generation && this.#principal !== null && viewCurrent(),
+      invalidate: () => this.clearSession() });
   }
   dailyWriteAccess(viewCurrent: () => boolean) {
     if (!this.#principal || !this.#csrf) throw new DailyWriteFailure("DENIED");
