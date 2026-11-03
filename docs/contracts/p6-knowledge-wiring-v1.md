@@ -119,3 +119,41 @@ current operator/assigned approver、撤权/TTL/Source replay、同key/异文/�
 
 copy显式启用却缺WebConfig、ReplenishmentStore或服务器Query/source配置时须安全失败；
 生产owner bootstrap与主API修改仍由Root单点实施；e40的Store、0023、锁和PG测试未由本交付修改。
+
+## 5. 新owned本地演示来源登记与导出
+
+本片普通快进合入Root冻结eff02e3b4c2ba023d09ddde9b4b131720a98fcf6；
+没有读取或合入Root待审1e30c999主API/config/owner grant接线。
+现有`m3_daily_demo`仅初始化日报及原Web账号，无copy来源登记命令，因此新增dev-only
+`scripts.m3_copy_demo`；复用其已生成的唯一operator+approver及shop scope，不再初始化账号、session或平行认证。
+
+Root须先在已登记的新owned窗口完成完整迁移、基础权限和日报demo seed；沿同一个新owner连接，
+显式按已审入口授予knowledge/copy runtime资格。本CLI不迁移、不grant、不创建库、不运行API/Worker/浏览器。
+目标库必须精确匹配显式`--database`与COMMERCEOPS_DB_NAME，且名为`m3_daily_demo_`加1–40位小写字符。
+查询再核真实current_database/table owner、唯一技术org、mock/test demo shop、org创建不足1小时，
+原Web credential/identity和当前双角色scope必须唯一，已有knowledge documents或copy products则拒绝。
+只读必要身份元数据，不SELECT密码hash/token，不读原login/config/Secret或实际商业资料；owner连接使用Root本窗凭据。
+登记前只在新知识表取本地事务锁防止重复seed并发，不改生产锁实现；失败保留新目录/资源，不自动重试或清库。
+
+```sh
+uv run --frozen --offline python -m scripts.m3_copy_demo \
+  --database "$COMMERCEOPS_DB_NAME" \
+  --organization "$TASK_M3_ORG" --shop "$TASK_M3_SHOP" \
+  --directory "$TASK_M3_COPY_DIR"
+```
+
+三个TASK变量由Root从本次新demo非秘密metadata填写。COPY_DIR须不存在、绝对、无..且祖先无symlink，
+父目录已存在；CLI逐级NoFollow后独占创建0700目录，再以O_EXCL/NoFollow写入0600并fsync。
+登记仅复用既有纯合成fixture的codepoint SOP/vector/product及owner注册helper；来源按DB UTC当前时刻有效1小时。
+owner事务确认COMMIT后才导出以下文件并打印安全metadata；导出失败不推定DB已回滚，不自动重跑。
+
+| 产物 | 用途 |
+|---|---|
+| copy-config.json | strict CopyDeployment；只有本org/shop与synthetic-name-check@v1固定Query，三项provider/model/publication为false |
+| copy-create.json | 原store CreateCopy请求：新registry/product引用、准确digest、原reviewer及新request_key；由真实登录后POST，CLI不代发 |
+| copy-demo.json | 非秘密UUID、摘要、有效期与两个产物路径；含copy_config_sha256供Root显式pin，不含DB密码/凭据/session |
+
+Root待审主入口接线约定为COMMERCEOPS_M3_COPY_ENABLED=true、CONFIG_FILE与SHA256三项显式参数；
+实际变量全名/调用方式以该接线独审后的源码为准，本CLI不写env或自动打开路由。
+真实Web随后复用原local-login.json的新demo账号，按旧Session/CSRF获取当前身份，创建候选、明确approve/reject、
+GET原key回执和owner内部草稿；无模型、embedding、发布或外发。seed SQL/实际导出/API/UI执行仍待Root新owned回执。
