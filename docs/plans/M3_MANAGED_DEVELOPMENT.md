@@ -83,3 +83,11 @@ Backend 已获S1实施指令，模型调整为Sol/xhigh；当前可见名为“C
 Root在扫描集成提交7db2b69be0bcab8d9a2b85f600858e0b63d702d3实际执行完整scan：dir0/index0/git20全部精确已审/阻断0，aggregate exit0；原生history scanner exit1保留。独立针对性quality gate 30pass/93deselected/8.78s/native0，包括原缺工具的合成扫描反例；不代替完整工程/PG。工具node24.21.0与gitleaks8.30.1均按固定官方归档SHA256 bootstrap到新control树。
 
 动态查询合同cd2caad已独审ACCEPT_IMPLEMENTATION，Root已释放application/commerce/readonly_inquiry_*纯模块与专用测试；查询级累计窗口/实际扫描行/SKU、每次鉴权、第三模型轮停止、迟到/partial与错引拒绝为明确约束。API/Worker/真实provider后续，当前真实预算关闭。知识合同3097d60已转独审，尚未放行K1。
+
+### S1 核收与后续实施
+
+S1修复e47a2e3已独审ACCEPT_S1_FIX，独立149pass及十币种/四HALF_EVEN边界40组低precision+traps验证通过；Root普通合入承载S1并复跑149pass0.18s/exit0。合同显示语义P2已关闭，来源status冲突映射由S2负责。
+
+Root测试修正063bb75已独审ACCEPT：完整可达历史的实际findings必须等于对应精确审批集合；production scanner不改。本机17provenance通过；新非浅单分支隔离clone仅3条审批源可达/17条源不在该历史，18针对性tests通过4.69s/exit0。首次17fail由Root误用返回None的git helper导致，pytest失败但外层末命令曾掩盖为0；已改check_output并使用set-e，该失败保留。
+
+S2设计836bf87获得storage/source/runner实施准入，Web schema6处ge非标准关键字为P2，修正/实际Pydantic生成验证前不开放Web消费。Backend已获新0019迁移、三表持久化/来源/runner/Read DTO/API及必要测试代码实施授权，新ownedPG需冻结候选后Root具体UTC登记；旧0018保护不改。动态执行器f0ceb20已提交/30purepass，正式独审中；K1纯知识模块实施中。
