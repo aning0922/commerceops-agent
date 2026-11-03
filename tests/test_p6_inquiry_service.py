@@ -98,6 +98,9 @@ class MemoryRunnerStore:
         self.saved = result
         self.writes += 1
 
+    def fail_safe(self, run: RunRequest) -> None:
+        raise AssertionError("unexpected failure settlement")
+
 
 def run_request() -> RunRequest:
     task = uuid4()
@@ -362,3 +365,25 @@ def test_database_call_propagates_inner_cancellation_without_spinning() -> None:
             await asyncio.wait_for(db_call(work), 1)
 
     asyncio.run(scenario())
+
+
+def test_runner_denied_load_settles_only_safe_failure() -> None:
+    from commerceops.application.replenishment.contracts import WebFailure
+
+    class Denied(MemoryRunnerStore):
+        def load(self, run: RunRequest) -> tuple[dict[str, Any], ResultPayload | None]:
+            raise WebFailure("SESSION_INVALID", 401)
+
+        def fail_safe(self, run: RunRequest) -> None:
+            self.saved = ResultPayload.from_outcome(Outcome("access_denied", 0, 0, 0, ()))
+
+    async def forbidden(*args: Any) -> Any:
+        raise AssertionError("no model/source runtime after denied load")
+
+    store = Denied()
+    asyncio.run(ReadonlyInquiryRunner(store, Session(), forbidden).run(run_request()))
+    assert (
+        store.saved is not None
+        and store.saved.results == ()
+        and store.saved.status == "access_denied"
+    )

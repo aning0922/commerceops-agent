@@ -12,6 +12,7 @@ from psycopg.types.json import Jsonb
 
 from commerceops.adapters.commerce.mock import Fixture
 from commerceops.application.commerce.readonly_inquiry_contracts import Window
+from commerceops.application.commerce.readonly_inquiry_executor import Outcome
 from commerceops.application.commerce.readonly_inquiry_render import render
 from commerceops.application.commerce.readonly_inquiry_service_contracts import (
     KIND,
@@ -115,6 +116,13 @@ class InquiryStore:
             or row["organization_id"] != actor.organization_id
         ):
             raise WebFailure("RESOURCE_NOT_FOUND", 404)
+        self.request_guard(row)
+        Window.model_validate_json(json.dumps(row["source_domain"]))
+        if row["context_report_id"] is not None:
+            self.report_task(db, actor, row["shop_id"], row["context_report_id"])
+
+    @staticmethod
+    def request_guard(row: dict[str, Any]) -> None:
         request = CreateInquiry.model_validate_json(json.dumps(row["request"]))
         expected = facts_hash(
             {"path": "/api/v1/readonly-inquiries", "body": request.model_dump(mode="json")}
@@ -125,8 +133,6 @@ class InquiryStore:
             or expected != row["request_hash"]
         ):
             raise ValueError("REQUEST_INTEGRITY")
-        if row["context_report_id"] is not None:
-            self.report_task(db, actor, row["shop_id"], row["context_report_id"])
 
     @staticmethod
     def receipt(db: DB, row: dict[str, Any], duplicate: bool) -> InquiryReceipt:
@@ -290,7 +296,7 @@ class InquiryStore:
             raise ValueError("RESULT_INTEGRITY")
         return ResultPayload.model_validate_json(canonical)
 
-    def run_row(self, db: DB, run: RunRequest) -> dict[str, Any]:
+    def owned_row(self, db: DB, run: RunRequest) -> dict[str, Any]:
         self.bound_transaction(db)
         if (
             run.thread_id != str(run.task_id)
@@ -300,9 +306,10 @@ class InquiryStore:
         ):
             raise ValueError("INQUIRY_JOB_BINDING")
         row = db.execute(
-            """SELECT i.*,t.state AS task_state FROM business.readonly_inquiries i
+            """SELECT i.*,t.state AS task_state,t.normalized_request AS task_request,
+            t.requester_id AS task_requester FROM business.readonly_inquiries i
             JOIN business.business_tasks t ON t.id=i.task_id
-                AND t.organization_id=i.organization_id
+                AND t.organization_id=i.organization_id AND t.shop_id=i.shop_id
             JOIN business.jobs j ON j.task_id=t.id AND j.organization_id=t.organization_id
             AND j.shop_id=t.shop_id
             WHERE i.task_id=%s AND i.organization_id=%s AND i.shop_id=%s
@@ -326,6 +333,14 @@ class InquiryStore:
             raise ValueError("INQUIRY_OWNER_OR_STATE")
         if row["state"] != row["task_state"]:
             raise ValueError("INQUIRY_STATE_DIVERGED")
+        self.request_guard(row)
+        Window.model_validate_json(json.dumps(row["source_domain"]))
+        if row["request"] != row["task_request"] or row["principal_id"] != row["task_requester"]:
+            raise ValueError("INQUIRY_TASK_BINDING")
+        return row
+
+    def run_row(self, db: DB, run: RunRequest) -> dict[str, Any]:
+        row = self.owned_row(db, run)
         self.row_guard(db, self.actor(row), row)
         fixture, domain = self.source(db, self.actor(row), row["shop_id"])
         if (
@@ -339,8 +354,52 @@ class InquiryStore:
 
     def load(self, run: RunRequest) -> tuple[dict[str, Any], ResultPayload | None]:
         with connect(self.settings) as db:
-            row = self.run_row(db, run)
-            return row, self.decode(row)
+            row = self.owned_row(db, run)
+            previous = self.decode(row)
+            if previous is not None:
+                self.check_terminal(db, run, previous)
+                return row, previous
+            return self.run_row(db, run), None
+
+    @staticmethod
+    def check_terminal(db: DB, run: RunRequest, previous: ResultPayload) -> None:
+        valid = db.execute(
+            "SELECT business.valid_readonly_inquiry_result(%s,%s,%s,%s) AS valid",
+            (run.task_id, run.organization_id, run.shop_id, WORKFLOW),
+        ).fetchone()
+        if not valid or not valid["valid"]:
+            raise ValueError("INQUIRY_TERMINAL_INTEGRITY")
+        render(previous.outcome())
+
+    def fail_safe(self, run: RunRequest) -> None:
+        """Owned-job settlement only; no facts, source reads, or disclosure authority."""
+        result = ResultPayload.from_outcome(Outcome("access_denied", 0, 0, 0, ()))
+        canonical = result.model_dump_json()
+        with connect(self.settings) as db:
+            row = self.owned_row(db, run)
+            if row["result"] is not None:
+                previous = self.decode(row)
+                if previous is None:
+                    raise ValueError("INQUIRY_TERMINAL_MISSING")
+                self.check_terminal(db, run, previous)
+                return
+            db.execute(
+                """UPDATE business.readonly_inquiries SET state='failed',result=%s,
+                result_canonical=%s,result_hash=%s,version=version+1,
+                updated_at=clock_timestamp() WHERE task_id=%s AND result IS NULL""",
+                (
+                    Jsonb(result.model_dump(mode="json")),
+                    canonical,
+                    hashlib.sha256(canonical.encode()).hexdigest(),
+                    run.task_id,
+                ),
+            )
+            db.execute(
+                """UPDATE business.business_tasks SET state='failed',version=version+1,
+                updated_at=clock_timestamp() WHERE id=%s AND state IN ('queued','analyzing')""",
+                (run.task_id,),
+            )
+            self.audit(db, row, "inquiry_safely_failed")
 
     def mark(self, run: RunRequest) -> None:
         with connect(self.settings) as db:

@@ -17,6 +17,7 @@ from commerceops.application.commerce.readonly_inquiry_service_contracts import 
     ResultPayload,
 )
 from commerceops.application.commerce.readonly_inquiry_service_demo import DemoChoice
+from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.application.runner import RunRequest, RunResult
 from commerceops.infrastructure.readonly_inquiry_runtime import (
     InquiryAuthority,
@@ -31,6 +32,7 @@ class RunnerStore(Protocol):
     def load(self, run: RunRequest) -> tuple[dict[str, Any], ResultPayload | None]: ...
     def mark(self, run: RunRequest) -> None: ...
     def finish(self, run: RunRequest, result: ResultPayload) -> None: ...
+    def fail_safe(self, run: RunRequest) -> None: ...
 
 
 class RuntimeCheck(Protocol):
@@ -90,6 +92,10 @@ class ReadonlyInquiryRunner:
             payload = ResultPayload.from_outcome(result)
             await self.session.check()
             await db_call(self.store.finish, run, payload)
+            return RunResult()
+        except (WebFailure, OSError):
+            await self.session.check()
+            await db_call(self.store.fail_safe, run)
             return RunResult()
         finally:
             self.active = False

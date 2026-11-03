@@ -57,3 +57,9 @@ Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config,
 ## 精确父 revision 更正（2026-11-03）
 
 直接从 K2 精确提交 `e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8` 读取 `backend/migrations/versions/0020_p6_knowledge_copy.py`，实际 `revision='0020_p6_knowledge_copy'`。原服务候选 1a78 的短 `down_revision='0020'` 是错误占位，本独立修复更正为 `0020_p6_knowledge_copy`；本片自身 revision 保持 `0021`。上文短父值仅记录原设计/首候选时点，后续运行以这个精确父值为准。K2 自身父链由知识 owner/Root 另修至 `0019_p6_daily_reports`，本树没有复制该迁移或读取其他工作树 WIP；未运行 Alembic/PG。
+
+## 1a78 两项 P2 修复候选（待复审与真实 PG）
+
+原独审 `HOLD/2P2` 保留，原 103 pure 不抵该阻断。0021 现嵌入冻结请求/结果 DTO JSON schema，专属 SQL 校验拒绝缺必需字段、错误类型/枚举、JSON null、额外字段及不合法嵌套结构；返回值和 CHECK 显式 `IS TRUE`。表与 `valid_readonly_inquiry_result` 复用同一请求及结果有效性函数，包含规范内容/hash、schema/mode/workflow、状态映射、调用轨迹、来源、事实 SKU/窗口和引用约束；正确 hash 不授予不合法 JSON 有效性。SQL 解析/实际约束仍未运行，不能仅据 Python 检查撤销 HOLD。
+
+`owned_row` 先验证当前 running job 的 owner/attempt/scope/payload、同任务不可变请求及原请求 hash。已有持久终态走严格 decode、共享 SQL 有效性及 renderer 后可结算 job，无需原会话仍有效或 fixture 仍存在，也不创建模型/来源 runtime。非终态继续原当前鉴权和来源验证；撤权/会话失效或来源文件不可用时，runner 仅通过当前 owned job 将固定 `access_denied`、零模型/工具/扫描、零事实/claims/options 的安全失败持久化并结算。触发器对此失败提供窄例外，成功保存/正常执行/用户 GET 仍要求当前授权。commit 回执未知时重新读已持久终态，不把成功结果覆盖为失败。纯测新增拒权后不创建 runtime 的控制流回归，合计 104 pass；这不证明真实 SQL、冷重启或截止退出。
