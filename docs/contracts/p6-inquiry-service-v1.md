@@ -63,3 +63,13 @@ Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config,
 原独审 `HOLD/2P2` 保留，原 103 pure 不抵该阻断。0021 现嵌入冻结请求/结果 DTO JSON schema，专属 SQL 校验拒绝缺必需字段、错误类型/枚举、JSON null、额外字段及不合法嵌套结构；返回值和 CHECK 显式 `IS TRUE`。表与 `valid_readonly_inquiry_result` 复用同一请求及结果有效性函数，包含规范内容/hash、schema/mode/workflow、状态映射、调用轨迹、来源、事实 SKU/窗口和引用约束；正确 hash 不授予不合法 JSON 有效性。SQL 解析/实际约束仍未运行，不能仅据 Python 检查撤销 HOLD。
 
 `owned_row` 先验证当前 running job 的 owner/attempt/scope/payload、同任务不可变请求及原请求 hash。已有持久终态走严格 decode、共享 SQL 有效性及 renderer 后可结算 job，无需原会话仍有效或 fixture 仍存在，也不创建模型/来源 runtime。非终态继续原当前鉴权和来源验证；撤权/会话失效或来源文件不可用时，runner 仅通过当前 owned job 将固定 `access_denied`、零模型/工具/扫描、零事实/claims/options 的安全失败持久化并结算。触发器对此失败提供窄例外，成功保存/正常执行/用户 GET 仍要求当前授权。commit 回执未知时重新读已持久终态，不把成功结果覆盖为失败。纯测新增拒权后不创建 runtime 的控制流回归，合计 104 pass；这不证明真实 SQL、冷重启或截止退出。
+
+## 独立 PG 测试矩阵候选（只收集，NOT_RUN）
+
+`tests/test_p6_inquiry_pg.py` 与私有路径输入的 `tests/p6_inquiry_process.py` 新增 36 个 integration 节点，`--collect-only` 已成功，模块导入/收集不读取数据库设置或连接 PG。实际执行将使用独立临时数据库、真实 `commerceops_app`、真实 Web 会话和本服务 store/runner/queue；不在 fixture 额外补授本表权限，Root 的实际最小授权遗漏会直接失败。数据库清理仅针对测试自身创建的库，所有测试和子进程运行目前均为 NOT_RUN。
+
+覆盖低权 ACL、SQL NULL/JSON null、提交前回滚、同 key 并发/异文、提交后失回执读原键、有效同店其他 operator 的原回执隔离及同 key 独立命名空间、跨身份/组织/店铺拒绝、角色/scope/凭据/会话撤销、正确 hash 的空对象/缺字段/null 结果反例和缺字段/null 请求 SQL 校验、撤权后无事实失败及幂等结算、结果 commit ACK unknown。SQL 阻塞两例保留真实行锁/原键 advisory 锁，取消调用后确认同步线程退出再返回；该测试断言短取消截止及最多 8 秒排空，不代签完整 execute 的 60 秒墙钟。
+
+四个独立进程恢复变体在实际结果 commit 与 job 结算之间屏障停止，父进程确认子进程 kill/wait 后才调用原 `confirm_termination`，新进程经原队列恢复并以禁止创建 runtime 的 factory 冷重放；比较同 task/request 的结果规范内容/hash/version 不变及 job 第二 attempt 结算。变体包括原会话过期、fixture 不存在、主体撤权；这些只允许内部结算，用户 GET 仍被拒绝。该用例直接调用原 `mark_attention` 并要求持久终态保留，当前树缺 Root 的窄排除时会失败，不能跳过或删掉断言。测试覆盖真实 runner/session/queue 协议，完整共享 Worker/API 壳注册与端到端进程测试仍由 Root 集成承担。
+
+本批最终静态检查涵盖 6 个 Python 文件 Ruff/format/mypy；原 3 个扫描命中继续保留，按 Root 指令未再扫描、未添加 allowlist。完整迁移父链/SQL 执行/真实 PG/服务/CI 仍未运行。
