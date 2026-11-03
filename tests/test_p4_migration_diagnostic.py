@@ -191,6 +191,16 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         {"schemaname": "business", "tablename": "p6_copy_candidates"},
                         {"schemaname": "business", "tablename": "p6_copy_decisions"},
                         {"schemaname": "business", "tablename": "p6_copy_drafts"},
+                        {"schemaname": "business", "tablename": "v4_demo_fixture_versions"},
+                        {"schemaname": "business", "tablename": "v4_demo_tenants"},
+                        {"schemaname": "business", "tablename": "v4_demo_shops"},
+                        {"schemaname": "business", "tablename": "v4_demo_personas"},
+                        {"schemaname": "business", "tablename": "v4_demo_bootstraps"},
+                        {"schemaname": "business", "tablename": "v4_demo_sessions"},
+                        {"schemaname": "business", "tablename": "v4_demo_receipts"},
+                        {"schemaname": "business", "tablename": "v4_demo_events"},
+                        {"schemaname": "business", "tablename": "v4_demo_overlays"},
+                        {"schemaname": "business", "tablename": "v4_demo_rate_attempts"},
                     ]
                 return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
@@ -223,6 +233,16 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         "p6_copy_candidates",
                         "p6_copy_decisions",
                         "p6_copy_drafts",
+                        "v4_demo_fixture_versions",
+                        "v4_demo_tenants",
+                        "v4_demo_shops",
+                        "v4_demo_personas",
+                        "v4_demo_bootstraps",
+                        "v4_demo_sessions",
+                        "v4_demo_receipts",
+                        "v4_demo_events",
+                        "v4_demo_overlays",
+                        "v4_demo_rate_attempts",
                     )
                 ):
                     return SimpleNamespace(fetchall=lambda: [])
@@ -273,7 +293,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             return SimpleNamespace(
                 fetchone=lambda: {
                     "version_num": (
-                        "0013_p4_first_create" if snapshots == 2 else "0023_p6_copy_drafts"
+                        "0013_p4_first_create" if snapshots == 2 else "0024_v4_demo_foundation"
                     )
                 }
             )
@@ -428,6 +448,7 @@ def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Pat
                 "0021_",
                 "0022_",
                 "0023_",
+                "0024_",
             )
         )
     }

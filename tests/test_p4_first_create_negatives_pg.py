@@ -414,6 +414,16 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                     "business.p6_copy_candidates",
                     "business.p6_copy_decisions",
                     "business.p6_copy_drafts",
+                    "business.v4_demo_fixture_versions",
+                    "business.v4_demo_tenants",
+                    "business.v4_demo_shops",
+                    "business.v4_demo_personas",
+                    "business.v4_demo_bootstraps",
+                    "business.v4_demo_sessions",
+                    "business.v4_demo_receipts",
+                    "business.v4_demo_events",
+                    "business.v4_demo_overlays",
+                    "business.v4_demo_rate_attempts",
                 }
                 assert {key: current[key] for key in before} == before
                 assert current["business.p3_template_results"][0] == 0
@@ -445,6 +455,16 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                         "p6_copy_candidates",
                         "p6_copy_decisions",
                         "p6_copy_drafts",
+                        "v4_demo_fixture_versions",
+                        "v4_demo_tenants",
+                        "v4_demo_shops",
+                        "v4_demo_personas",
+                        "v4_demo_bootstraps",
+                        "v4_demo_sessions",
+                        "v4_demo_receipts",
+                        "v4_demo_events",
+                        "v4_demo_overlays",
+                        "v4_demo_rate_attempts",
                     )
                 )
                 stage = "grant-current"
@@ -520,17 +540,17 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 with connect(owner) as db:
                     assert db.execute(
                         "SELECT version_num FROM business.alembic_version"
-                    ).fetchone() == {"version_num": "0023_p6_copy_drafts"}
+                    ).fetchone() == {"version_num": "0024_v4_demo_foundation"}
                 emit(
                     "c0_migration_preserved",
                     source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
                     original_tables=len(before),
                     original_rows=sum(v[0] for v in before.values()),
                     checkpoints=before["checkpoints.checkpoints"][0],
-                    new_tables_empty=26,
+                    new_tables_empty=36,
                     original_all_bytes_equal=True,
                     first_create_head="0013_p4_first_create",
-                    current_head="0023_p6_copy_drafts",
+                    current_head="0024_v4_demo_foundation",
                     current_grants_verified=True,
                 )
             except BaseException as error:

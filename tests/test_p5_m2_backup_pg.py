@@ -58,7 +58,7 @@ def test_current_m3_head_is_not_an_m2_backup_schema(
     initialize_schema(owner, "head")
     with connect(owner) as db:
         assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
-            "version_num": "0023_p6_copy_drafts"
+            "version_num": "0024_v4_demo_foundation"
         }
     # snapshot首句设置事务隔离/只读；此新连接之前不能已有SELECT。
     with connect(owner) as db:
@@ -68,7 +68,7 @@ def test_current_m3_head_is_not_an_m2_backup_schema(
             "transaction_read_only": "on"
         }
         assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
-            "version_num": "0023_p6_copy_drafts"
+            "version_num": "0024_v4_demo_foundation"
         }
 
 
