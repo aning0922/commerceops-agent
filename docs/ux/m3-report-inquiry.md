@@ -184,3 +184,11 @@ Root 另登记新窗口 UTC 04:01:57–04:26:57，末90秒清理；唯一产品�
 最终 UI_FIXTURE 回执在 ignored `frontend/runtime/m3-actual-browser-page-zoom-ui-fixture/receipt.json`，source 精确绑定 `7dfe8bd`、Chromium 156.0.8078.4；1440/1280/390 的 `getZoom` 均为2，CSS `innerWidth` 依次从1440→720、1280→640、390→195，`devicePixelRatio` 从1→2，`visualViewport.scale`仍1。三宽度均核页面及抽屉宽度不溢出，扫描可见元素边界无越界，抽屉 Shift-Tab/Tab/Esc 和关闭后焦点返回通过。每宽度留 `ui-fixture-tabs-api-zoom200-{width}-viewport.png` 及 fullPage 截图；其中 Playwright 的 zoomed fullPage PNG 以缩小后的 CSS 宽度输出，视觉审查以 CDP viewport PNG 和几何回执为准。390 viewport PNG 宽度为500是 Chromium headless 截图的最小画布，实际页面宽按 `innerWidth=195` 核。
 
 第一次脚本在1280因上一尺寸保留Zoom2、第二次在390因重置Zoom1后的布局异步更新而失败；最终显式重置并等待 DPR1→2 后三个宽度均通过，旧两次失败不抹。另将迟到403浏览器用例加强到等待旧响应实际送达后再检查新会话，单例1passed/2.0s。服务监听 PID 89549 已停，端口55754无监听；每次测试后临时扩展和私有profile已删除，只保留 ignored UI_FIXTURE 截图与回执。实际API/PG、真人系统浏览器、Hosted CI均未由本批核收。
+
+## 14. 实际 API 联调入口准备（2026-11-03）
+
+Root 提供的冻结 S2 候选 `37e7e99` 仍使用 `GET /api/v1/daily-reports/{task_id}`；存储读取要求当前任务 owner 且具备店铺 operator scope。只读比较发现其 schema 在失败状态新增 `WORKER_TERMINATION_UNCONFIRMED`，本工作树前端仍使用先前已审 schema，故该新状态目前会被严格拒绝；待 Root 转交已审精确候选后同步生成 schema/type 和安全文案，再由独审确认，不能提前当成兼容。
+
+新增 `frontend/playwright.m3.live.config.ts` 和 `frontend/m3-live/daily-live.spec.ts` 作为仅自有窗口的最小联调入口，不启动服务。需 Root 登记两个独占loopback监听、精确source/build、截止时间和至少90秒清理余量；用 `COMMERCEOPS_M3_LIVE_WEB_URL` 与 `COMMERCEOPS_M3_PRIVATE_DIR` 指向已授权窗口。私有目录内 `window.json`（`web_origin/api_origin/web_pid/api_pid/build_id/source_sha/stop_at_utc`）、`web-account.json`（`login/password`）、`daily-facts.json`（`task_id/report_id/snapshot_id/facts_hash`）均须0600、由新owned合成数据和当前会话产生。入口核监听PID、build与当前HEAD、截止和清理余量，禁止除当前登录以外的POST，按实际GET响应严格核绑定和核心指标可见；失败后清空页面，关闭trace/video/自动截图，输出仅存私有目录。
+
+入口仅作静态准备，未加载私有输入、启动浏览器/服务/PG或执行联调；完整状态、跨租户、撤权和数据质量还须由后续具体窗口分别安排。typecheck通过不签真实接口或后端验收。

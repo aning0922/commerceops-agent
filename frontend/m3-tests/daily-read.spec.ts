@@ -36,6 +36,14 @@ test("后端真实Read DTO样本保留原值、展示值及完整性绑定", () 
     completed.daily.report.display.map((item) => item.metric_key === "paid_order_total" ? { ...item, value: "999.99" } : item) } } }, taskId)).toBe(false);
   expect(validDailyRead(completed, id)).toBe(false);
 });
+test("S2新增工作进程停止未确认状态按冻结合同读取，不转换为成功", () => {
+  for (const state of ["failed", "needs_attention"]) {
+    expect(validDailyRead({ ...pending, daily: { ...pending.daily, state,
+      failure_code: "WORKER_TERMINATION_UNCONFIRMED", report: null } }, id)).toBe(true);
+  }
+  expect(validDailyRead({ ...pending, daily: { ...pending.daily,
+    failure_code: "WORKER_TERMINATION_UNCONFIRMED" } }, id)).toBe(false);
+});
 test("只读请求带会话且不缓存；撤权先清除身份，响应不回填", async () => {
   let invalidated = 0;
   await expect(readDaily("http://127.0.0.1:8000", id, () => invalidated++, async (url, init) => {
