@@ -15,9 +15,13 @@ function validate(name:string, data:unknown) {
   if (!validator(data)) throw new Error('INVALID_RESPONSE');
 }
 export class ApiError extends Error { constructor(public status:number, public code:string, public retryAfter:string|null = null, public outcome:string|null = null) {super(code);} }
+export function boundedSignal(parent?:AbortSignal|null, timeoutMs=15000):AbortSignal {
+  const deadline=AbortSignal.timeout(timeoutMs);
+  return parent ? AbortSignal.any([parent,deadline]) : deadline;
+}
 export async function request<T>(origin:string|null, path:string, schema:string, init:RequestInit = {}):Promise<T> {
   if (!origin) throw new Error('API_NOT_CONFIGURED');
-  const response = await fetch(`${origin}/api/v4/demo${path}`, {...init, credentials:'include', cache:'no-store', headers:{...(init.body ? {'Content-Type':'application/json'} : {}), ...init.headers}});
+  const response = await fetch(`${origin}/api/v4/demo${path}`, {...init, credentials:'include', cache:'no-store', signal:boundedSignal(init.signal), headers:{...(init.body ? {'Content-Type':'application/json'} : {}), ...init.headers}});
   let value:unknown; try {value = await response.json();} catch {throw new ApiError(response.status, 'INVALID_RESPONSE');}
   if (!response.ok) { validate('FailureEnvelope',value); const e=value as {status:string;error:{code:string}}; throw new ApiError(response.status,e.error.code,response.headers.get('Retry-After'),e.status); }
   validate(schema,value); return value as T;

@@ -10,7 +10,7 @@ let output=stripTypeScriptTypes(input,{mode:'transform'});
 output=output.replace("'ajv/dist/2020'",JSON.stringify(pathToFileURL(require.resolve('ajv/dist/2020')).href));
 output=output.replace("'ajv-formats'",JSON.stringify(pathToFileURL(require.resolve('ajv-formats')).href));
 output=output.replace("import schema from './v4-schema.json';",`const schema = ${schema};`);
-const {request,ApiError}=await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`);
+const {request,ApiError,boundedSignal}=await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`);
 const id='11111111-1111-4111-8111-111111111111';
 const envelope={schema_version:'v4-demo-v1',status:'OK',server_time:'2026-11-03T00:00:00Z',trace_id:id,data:{csrf_token:'csrf',expires_at:'2026-11-03T00:05:00Z',state:'anonymous_bootstrap'}};
 test('client refuses missing origin and validates response with credentialed fetch',async()=>{
@@ -29,4 +29,9 @@ test('client retains validated capacity error and server retry hint',async()=>{
   globalThis.fetch=async()=>Response.json({schema_version:'v4-demo-v1',status:'REJECTED',server_time:null,trace_id:id,error:{code:'CAPACITY_LIMIT',safe_message:'full',retryable:false,request_key:null}},{status:429,headers:{'Retry-After':'60'}});
   await assert.rejects(request('https://api.example','/bootstrap','BootstrapEnvelope'),error=>error instanceof ApiError&&error.status===429&&error.outcome==='REJECTED'&&error.retryAfter==='60');
  } finally {globalThis.fetch=original;}
+});
+
+test('bounded request signal respects both deadline and parent cancellation',async()=>{
+ const parent=new AbortController();const signal=boundedSignal(parent.signal,1000);parent.abort();assert.equal(signal.aborted,true);
+ const deadline=boundedSignal(null,10);await new Promise(resolve=>setTimeout(resolve,25));assert.equal(deadline.aborted,true);
 });
