@@ -13,6 +13,7 @@ export default defineConfig({
     "bounded-network.spec.ts",
     "owned-shop-scopes.spec.ts",
     "owned-copy-preview.spec.ts",
+    "operations-collection.spec.ts",
   ],
   forbidOnly: true,
   workers: 1,
