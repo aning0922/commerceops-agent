@@ -1,0 +1,168 @@
+{
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+  "project": "v4qa_naturalttl_20261104b",
+  "status": "PASSED_LOCAL_NATURAL_30_MINUTE_TTL_PENDING_INDEPENDENT_REVIEW",
+  "success_witness": {
+    "status": "NATURAL_TTL_OBSERVED_PENDING_REVIEW",
+    "mode": "NATURAL_30_MINUTES",
+    "tenant_id": "c3474340-fc04-430c-9974-c9acb68cdf30",
+    "request_key": "b2c66931-32d8-4d06-bca2-684ce3756adb",
+    "initial": {
+      "tenant_id": "c3474340-fc04-430c-9974-c9acb68cdf30",
+      "created_at": "2026-11-03T17:35:06.829447+00:00",
+      "expires_at": "2026-11-03T18:05:06.829447+00:00",
+      "session_created_at": "2026-11-03T17:35:06.829447+00:00",
+      "session_expires_at": "2026-11-03T18:05:06.829447+00:00",
+      "tenant_revoked": false,
+      "session_revoked": false,
+      "db_utc": "2026-11-03T17:35:07.941356+00:00"
+    },
+    "before": {
+      "tenant_id": "c3474340-fc04-430c-9974-c9acb68cdf30",
+      "created_at": "2026-11-03T17:35:06.829447+00:00",
+      "expires_at": "2026-11-03T18:05:06.829447+00:00",
+      "session_created_at": "2026-11-03T17:35:06.829447+00:00",
+      "session_expires_at": "2026-11-03T18:05:06.829447+00:00",
+      "tenant_revoked": false,
+      "session_revoked": false,
+      "db_utc": "2026-11-03T18:04:38.095653+00:00"
+    },
+    "after": {
+      "tenant_id": "c3474340-fc04-430c-9974-c9acb68cdf30",
+      "created_at": "2026-11-03T17:35:06.829447+00:00",
+      "expires_at": "2026-11-03T18:05:06.829447+00:00",
+      "session_created_at": "2026-11-03T17:35:06.829447+00:00",
+      "session_expires_at": "2026-11-03T18:05:06.829447+00:00",
+      "tenant_revoked": false,
+      "session_revoked": false,
+      "db_utc": "2026-11-03T18:05:09.901774+00:00"
+    },
+    "stage": "success"
+  },
+  "historical_stage_documents": "Immutable UNKNOWN preserved, separate success witness appended after all assertions and cleanup",
+  "real_http_assertions": [
+    "before original expiry: GET current authorized before expiry",
+    "after actual DB expiry: GET current 401",
+    "after expiry: both original shop summaries 401",
+    "after expiry: original creation-key receipt GET 401"
+  ],
+  "raw_per_response_wire": "NOT_CAPTURED; exact source assertions and native0/success witness prove checks executed",
+  "driver_native_exit": 0,
+  "cleanup_confirmed": true,
+  "forced": false,
+  "retained_volumes": "v4qa_naturalttl_20261104b_pg_data",
+  "stages": [
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "subnet_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "subnet_inspect",
+      "native_exit": 0
+    },
+    {
+      "stage": "subnet_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "freeze_compose",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_container",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_network",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "pg_start",
+      "native_exit": 0
+    },
+    {
+      "stage": "migrate",
+      "native_exit": 0
+    },
+    {
+      "stage": "setup-checkpointer",
+      "native_exit": 0
+    },
+    {
+      "stage": "grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_init-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_verify-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "scenario",
+      "native_exit": 0
+    },
+    {
+      "stage": "writers_stopped",
+      "native_exits": {
+        "probe": 0,
+        "api": 130
+      }
+    },
+    {
+      "stage": "api_container_stopped",
+      "native_exit": 0
+    },
+    {
+      "stage": "owner_oneoffs_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "final_pg_read_only",
+      "tenants": 1
+    },
+    {
+      "stage": "owned_down_keep_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "containers_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "networks_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volume_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volumes",
+      "names": [
+        "v4qa_naturalttl_20261104b_pg_data"
+      ]
+    }
+  ],
+  "hosted": "NOT_RUN",
+  "external_calls": 0
+}
