@@ -224,3 +224,22 @@ Root无网络检查PG17.11/control0.8.7/ldd无缺失、容器退出。该回执�
 `uv run --frozen python -m pytest tests/test_p6_knowledge_copy_pg.py -m integration -q --junitxml=<owned-log>/knowledge.xml`。
 该fixture每例仅在本窗PG中新建唯一数据库、按真实head迁移/初始化/低权授权并清理该自有DB；
 因此必须先绑定精确0019/0020和含扩展镜像，不能在原PG/旧环境运行。资源/绝对截止/清理仍由Root统一准入。
+
+### K2 P2：registry逻辑分块唯一性修复候选
+
+Root独审8a6发现：同document_version/chunk_id的多个chunk_version可同时进入registry，
+SQL与K2 DTO排序键不区分这些版本。Root原独立反例为六条同距：正序取v0..v4、反序取v5..v1，
+两结果均自称完整；该P2与原84offline/28collect未跑事实保留，不把旧源码追记为通过。
+
+本次采用与K1相同的逻辑身份 `(document_id,document_version,chunk_id)`，每registry只能出现一次，
+不通过扩排序键支持同registry多版本。全库保留历史chunk_version，不同registry可各自绑定准确的一版。
+注册入口在任何证据写入前拒重复；0020 registry绑定触发器将JSON evidence成员展开后按关系中的
+(document_id,chunk_key)分组拒重复（同scope内document行已唯一绑定文档版本），也拒JSON重复成员。
+检索Source在当前授权过滤/容量/score/top-k之前另查完整绑定registry，异常整体拒绝、不静默丢一版；
+结果DTO按同逻辑身份拒重复pool，即使外层hash重算也不能接纳歧义。K1已拒该组身份，本片未改其冻结源码。
+
+新纯回归覆盖正反序六同距版本、不同metadata/向量的同逻辑身份、不同registry准确引用版本、
+重算结果hash仍拒，以及离线Source故障注入证明未进入排名SQL；故障替身不签实际数据库Gate。
+新增PG两节点覆盖合法不同registry精确版本与应用/直接SQL重hash混版拒绝，仍须新owned窗口实际执行。
+开发新Source回归首次因漏导入canonical为1failed/87passed，修复后88passed；新SQL测试漏导入仅静态发现并修复，
+无PG执行。本修复独立提交，只含K2原文件与本事实记录；K3未提交文件保留且不混入该commit。

@@ -5,8 +5,10 @@ import struct
 from typing import Any
 
 import pytest
+from commerceops.application.knowledge_copy.citations import Embedding
 from commerceops.infrastructure.knowledge_copy_values import (
     PgEvidence,
+    canonical,
     f32_vector,
     pg_digest,
     pg_profile,
@@ -150,3 +152,155 @@ def test_pg_result_rebuilds_hits_scope_count_and_mode() -> None:
     ):
         with pytest.raises(ValueError):
             changed(value, "result_hash", **updates)
+
+
+def chunk_version_variant(
+    base: Embedding, version: str, vector: tuple[float, ...] = (1.0, 0.0)
+) -> Embedding:
+    from commerceops.application.knowledge_copy.citations import SopCitation
+    from commerceops.application.knowledge_copy.contracts import vector_digest
+
+    from tests.test_p6_knowledge_copy_contracts import seal
+
+    chunk = base.citation.chunk.model_copy(
+        update={"chunk_version": version, "section": "version " + version}
+    )
+    citation = seal(SopCitation, "evidence_id", chunk=chunk)
+    return Embedding(
+        citation=citation,
+        profile=base.profile,
+        vector=vector,
+        vector_sha256=vector_digest(base.profile, citation.evidence_id, vector),
+    )
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_k2_same_distance_six_versions_cannot_return_order_dependent_top_five(
+    reverse: bool,
+) -> None:
+    from uuid import UUID
+
+    from commerceops.application.knowledge_copy.ranking import retrieve
+    from commerceops.infrastructure.knowledge_copy_values import (
+        PgRetrieval,
+        validate_logical_corpus,
+    )
+
+    from tests.test_p6_knowledge_copy_contracts import NOW, SCOPE, manifest, seal
+
+    items = tuple(chunk_version_variant(embedding(), "v" + str(i)) for i in range(6))
+    items = tuple(reversed(items)) if reverse else items
+    prof = pg_profile(items[0].profile.profile_digest, 2)
+    raw = vector_bytes((1.0, 0.0))
+    pool = tuple(
+        PgEvidence(
+            origin=e,
+            profile=prof,
+            query=query(),
+            stored_hex=raw.hex(),
+            stored_sha256=pg_digest(prof.profile_digest, e.citation.evidence_id, raw),
+            distance=0.0,
+            reference_distance=0.0,
+        )
+        for e in items
+    )
+    # Root's old reproducer accepted v0..v4 or v5..v1 as two "complete" outputs. Both now reject.
+    with pytest.raises(ValueError, match="KNOWLEDGE_REGISTRY_AMBIGUOUS"):
+        validate_logical_corpus(items)
+    with pytest.raises(ValueError, match="KNOWLEDGE_POOL_INVALID"):
+        seal(
+            PgRetrieval,
+            "result_hash",
+            scope=SCOPE,
+            registry_id=UUID(int=1),
+            registry_version="ambiguous-fixture",
+            registry_digest="0" * 64,
+            profile=prof,
+            query=query(),
+            as_of=NOW,
+            eligible_count=6,
+            pool=pool,
+            hits=tuple(e.citation for e in items[:5]),
+            max_distance=0.35,
+            reason="OK",
+        )
+    with pytest.raises(ValueError, match="RETRIEVAL_POOL_INVALID"):
+        retrieve(manifest(items), query(), items, now=NOW, complete=True)
+
+
+def test_one_logical_version_per_registry_allows_other_registries_and_exact_references() -> None:
+    from commerceops.application.knowledge_copy.ranking import retrieve
+    from commerceops.infrastructure.knowledge_copy_values import validate_logical_corpus
+
+    from tests.test_p6_knowledge_copy_contracts import NOW, manifest
+
+    a, b = chunk_version_variant(embedding(), "v1"), chunk_version_variant(embedding(), "v2")
+    for item, expected in ((a, "v1"), (b, "v2")):
+        validate_logical_corpus((item,))
+        result = retrieve(manifest((item,)), query(), (item,), now=NOW, complete=True)
+        assert result.hits[0].embedding.citation.chunk.chunk_version == expected
+    with pytest.raises(ValueError, match="KNOWLEDGE_REGISTRY_AMBIGUOUS"):
+        validate_logical_corpus((a, chunk_version_variant(b, "v3", (4.0, 3.0))))
+
+
+def test_source_ambiguity_guard_executes_before_ranking_sql(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from typing import cast
+    from uuid import UUID
+
+    import commerceops.infrastructure.knowledge_copy_repository as repo
+    from commerceops.application.knowledge_copy.contracts import Scope
+    from commerceops.application.replenishment.contracts import WebActor
+
+    from tests.test_p6_knowledge_copy_contracts import document, manifest
+
+    actor = WebActor(UUID(int=1), UUID(int=2), UUID(int=3), UUID(int=4), 1)
+    scope = Scope(organization_id=str(actor.organization_id), shop_id=str(UUID(int=5)))
+    base = embedding(doc=document("same-document", scope=scope))
+    m = manifest(
+        (chunk_version_variant(base, "v1"), chunk_version_variant(base, "v2")), scope=scope
+    )
+    profile_pg = pg_profile(m.profile.profile_digest, 2)
+    calls: list[str] = []
+
+    class Cursor:
+        def __init__(self, row: dict[str, Any] | None):
+            self.row = row
+
+        def fetchone(self) -> dict[str, Any] | None:
+            return self.row
+
+    class SourceFault:
+        autocommit = False
+
+        def execute(self, statement: str, parameters: object = None) -> Cursor:
+            calls.append(statement)
+            if statement.startswith("SET LOCAL"):
+                return Cursor(None)
+            if "p6_lock_knowledge" in statement:
+                return Cursor({"allowed": True})
+            if "SELECT manifest,manifest_digest,profile,profile_digest" in statement:
+                return Cursor(
+                    dict(
+                        manifest=canonical(m.payload("manifest_digest")),
+                        manifest_digest=m.manifest_digest,
+                        profile=canonical(profile_pg.payload("profile_digest")),
+                        profile_digest=profile_pg.profile_digest,
+                    )
+                )
+            if statement == repo.REGISTRY_DUPLICATES_SQL:
+                return Cursor({"ambiguous": True})
+            raise AssertionError("ambiguous source reached a later query")
+
+    monkeypatch.setattr(repo, "actor_guard", lambda db, value: {})
+    with pytest.raises(ValueError, match="KNOWLEDGE_REGISTRY_AMBIGUOUS"):
+        repo.retrieve_in_transaction(
+            cast(repo.DB, SourceFault()),
+            actor,
+            UUID(int=5),
+            UUID(int=6),
+            m.manifest_digest,
+            query(),
+        )
+    assert repo.RETRIEVE_SQL not in calls

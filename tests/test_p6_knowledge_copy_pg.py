@@ -25,6 +25,7 @@ from commerceops.infrastructure.knowledge_copy_repository import (
 )
 from commerceops.infrastructure.knowledge_copy_values import (
     PgRetrieval,
+    canonical,
     vector_bytes,
 )
 from psycopg import sql
@@ -441,3 +442,47 @@ def test_database_rejects_wrong_source_slice_even_with_matching_new_digest(
           encode(sha256(convert_to(p,'UTF8')),'hex'),p FROM fake""",
             (uuid4(),),
         )
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_one_logical_chunk_version_per_registry_is_enforced_by_application_and_database(
+    knowledge: KnowledgeFixture,
+    reverse: bool,
+) -> None:
+    from tests.test_p6_knowledge_copy_values import chunk_version_variant
+
+    k = knowledge
+    first = k.corpus[0]
+    other = chunk_version_variant(first, "v2")
+    second = uuid4()
+    second_manifest = manifest((other,), scope=k.manifest.scope)
+    with connect(k.f.inventory.owner) as db:
+        register_synthetic_corpus(db, second, second_manifest, (other,))
+    assert k.read().hits[0].chunk.chunk_version == "v1"
+    assert (
+        k.read(registry_id=second, expected_registry_digest=second_manifest.manifest_digest)
+        .hits[0]
+        .chunk.chunk_version
+        == "v2"
+    )
+    ordered = (other, first) if reverse else (first, other)
+    bad = manifest(ordered, scope=k.manifest.scope)
+    with connect(k.f.inventory.owner) as db:
+        before = db.execute("SELECT count(*) AS n FROM business.p6_knowledge_registries").fetchone()
+        with pytest.raises(ValueError, match="KNOWLEDGE_REGISTRY_AMBIGUOUS"):
+            register_synthetic_corpus(db, uuid4(), bad, ordered)
+        assert (
+            db.execute("SELECT count(*) AS n FROM business.p6_knowledge_registries").fetchone()
+            == before
+        )
+    # Recomputed canonical/hash cannot bypass the relational guard over bound JSON members.
+    with pytest.raises(psycopg.errors.CheckViolation) as caught, connect(k.f.inventory.owner) as db:
+        db.execute(
+            """INSERT INTO business.p6_knowledge_registries
+         (id,organization_id,shop_id,manifest,manifest_digest,profile,profile_digest)
+         SELECT %s,organization_id,shop_id,%s,%s,profile,profile_digest
+         FROM business.p6_knowledge_registries WHERE id=%s""",
+            (uuid4(), canonical(bad.payload("manifest_digest")), bad.manifest_digest, k.registry),
+        )
+    assert caught.value.sqlstate == "23514"
+    assert "ambiguous logical chunk" in str(caught.value.diag.message_primary)

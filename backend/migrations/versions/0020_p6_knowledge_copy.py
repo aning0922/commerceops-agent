@@ -125,6 +125,16 @@ BEGIN
    RAISE EXCEPTION 'knowledge embedding binding' USING ERRCODE='23514';
   END IF;
  ELSE
+  IF EXISTS(SELECT 1 FROM business.p6_knowledge_embeddings e
+   JOIN business.p6_knowledge_chunks k ON k.id=e.chunk_id
+    AND k.organization_id=e.organization_id AND k.shop_id=e.shop_id
+   JOIN jsonb_array_elements_text(NEW.manifest::jsonb->'evidence_ids') refs(evidence_id)
+    ON refs.evidence_id=e.evidence_id
+   WHERE e.organization_id=NEW.organization_id AND e.shop_id=NEW.shop_id
+    AND e.profile_digest=NEW.profile_digest
+   GROUP BY k.document_id,k.chunk_key HAVING count(*)>1) THEN
+   RAISE EXCEPTION 'knowledge ambiguous logical chunk' USING ERRCODE='23514';
+  END IF;
   FOR item IN SELECT value FROM jsonb_array_elements(NEW.manifest::jsonb->'evidence_ids') LOOP
    IF NOT EXISTS(SELECT 1 FROM business.p6_knowledge_embeddings e
     JOIN business.p6_knowledge_chunks k ON k.id=e.chunk_id

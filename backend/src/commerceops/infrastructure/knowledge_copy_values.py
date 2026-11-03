@@ -57,6 +57,18 @@ def pg_digest(profile_digest: str, identity: str, stored: bytes) -> str:
     ).hexdigest()
 
 
+def logical_identity(item: Embedding) -> tuple[str, str, str]:
+    chunk = item.citation.chunk
+    return chunk.document.document_id, chunk.document.document_version, chunk.chunk_id
+
+
+def validate_logical_corpus(corpus: tuple[Embedding, ...]) -> None:
+    """One version per logical chunk in each registry, matching K1's identity policy."""
+    identities = [logical_identity(item) for item in corpus]
+    if len(identities) != len(set(identities)):
+        raise ValueError("KNOWLEDGE_REGISTRY_AMBIGUOUS")
+
+
 class PgProfile(Contract):
     origin_profile_digest: Digest
     dimension: int = Field(ge=1, le=2000)
@@ -147,7 +159,7 @@ class PgRetrieval(Contract):
         ):
             raise ValueError("KNOWLEDGE_PROFILE_INVALID")
         keys = [key(item) for item in self.pool]
-        identities = [item.origin.citation.evidence_id for item in self.pool]
+        identities = [logical_identity(item.origin) for item in self.pool]
         if (
             self.eligible_count != len(self.pool)
             or keys != sorted(keys)

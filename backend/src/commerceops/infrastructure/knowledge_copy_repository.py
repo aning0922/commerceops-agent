@@ -20,6 +20,7 @@ from commerceops.infrastructure.knowledge_copy_values import (
     pg_digest,
     pg_profile,
     query_parameter,
+    validate_logical_corpus,
     vector_bytes,
     vector_parameter,
 )
@@ -89,6 +90,7 @@ def _register_synthetic_corpus(
     _owner(db)
     manifest = checked(manifest)
     corpus = tuple(checked(item) for item in corpus)
+    validate_logical_corpus(corpus)
     if (
         tuple(sorted(item.citation.evidence_id for item in corpus)) != manifest.evidence_ids
         or len(corpus) > 1000
@@ -238,6 +240,18 @@ def register_synthetic_corpus(
         _register_synthetic_corpus(db, registry_id, manifest, corpus)
 
 
+REGISTRY_DUPLICATES_SQL = """SELECT EXISTS(
+ SELECT 1 FROM business.p6_knowledge_embeddings e
+ JOIN business.p6_knowledge_chunks c ON c.id=e.chunk_id
+  AND c.organization_id=e.organization_id AND c.shop_id=e.shop_id
+ JOIN business.p6_knowledge_registries r ON r.id=%s
+  AND r.organization_id=e.organization_id AND r.shop_id=e.shop_id
+ JOIN jsonb_array_elements_text(r.manifest::jsonb->'evidence_ids') refs(evidence_id)
+  ON refs.evidence_id=e.evidence_id
+ WHERE r.organization_id=%s AND r.shop_id=%s AND e.profile_digest=r.profile_digest
+ GROUP BY c.document_id,c.chunk_key HAVING count(*)>1) AS ambiguous"""
+
+
 RETRIEVE_SQL = """
 WITH eligible AS MATERIALIZED (
  SELECT e.*, d.document_key,d.version,c.chunk_key FROM business.p6_knowledge_embeddings e
@@ -315,6 +329,12 @@ def retrieve_in_transaction(
     )
     query = checked(query)
     parameter = query_parameter(query, profile)
+    # Check the full bound registry before authorization filtering, capacity, distance or top-k.
+    duplicate = db.execute(
+        REGISTRY_DUPLICATES_SQL, (registry_id, actor.organization_id, shop_id)
+    ).fetchone()
+    if duplicate is None or duplicate["ambiguous"]:
+        raise ValueError("KNOWLEDGE_REGISTRY_AMBIGUOUS")
     ext = db.execute("""SELECT extversion,n.nspname FROM pg_extension e
      JOIN pg_namespace n ON n.oid=e.extnamespace WHERE extname='vector'""").fetchone()
     if ext != {"extversion": "0.8.7", "nspname": "knowledge_ext"}:
