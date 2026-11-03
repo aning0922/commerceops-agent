@@ -267,3 +267,16 @@ namespace/owner/资源名/具体UTC由Root另定，绝不借旧授权开PG。停
 
 提交前changed-content扫描首报3项，逐文件定位均为新SQL列引用/凭据文件引用字段名及测试店铺标识，
 未含凭据字节；等价SQL比较/数组表达与低熵测试标识调整后复扫，不新增或放宽扫描豁免。
+
+### S2 首次实际迁移失败与独立语法修正
+
+Root在干净validation组合SHA `359933f0012adf9202c52f184c6ba46d08ab853f`
+执行新owned PG窗口：首轮04:23:34Z迁移native1，16测试均未开始；build0/PG healthy0，
+04:23:35Z清理0、容器/网络0，新卷保留。原stderr未留，首轮SQL根因UNKNOWN。
+独立安全诊断第二轮于04:25:01Z得到ProgrammingError、SQLSTATE `42601`、
+`message_primary='syntax error at end of input'`；测试仍0开始，不将两轮记成测试失败或通过。
+
+本次独立修正仅把 `p6_binding_guard` 的IF条件中CASE表达式加括号，
+使内部THEN与外层IF的THEN有明确表达式边界；数值上下限和其他SQL不变。
+静态定位与诊断一致，但修正后实际迁移尚未执行，根因归属及16项PG结果仍pending。
+S3追问未提交文件不包含在该修正中；本owner未启动PG或重试。

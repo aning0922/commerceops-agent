@@ -296,8 +296,8 @@ BEGIN
    WHEN 'max_response_bytes' THEN 2097152 WHEN 'max_orders' THEN 1000
    WHEN 'max_lines' THEN 10000 WHEN 'max_refunds' THEN 10000
    WHEN 'max_snapshot_bytes' THEN 8388608 WHEN 'max_retries' THEN 0 END;
-  IF value<>trunc(value) OR value>cap OR value<CASE WHEN name='max_retries' THEN 0
- WHEN name IN ('max_snapshot_bytes','max_response_bytes') THEN 128 ELSE 1 END THEN
+  IF value<>trunc(value) OR value>cap OR value<(CASE WHEN name='max_retries' THEN 0
+ WHEN name IN ('max_snapshot_bytes','max_response_bytes') THEN 128 ELSE 1 END) THEN
    RAISE EXCEPTION 'daily limit out of range' USING ERRCODE='23514'; END IF;
  END LOOP;
  IF (NEW.projection->>'manifest_digest' ~ '^[a-f0-9]{64}$'
