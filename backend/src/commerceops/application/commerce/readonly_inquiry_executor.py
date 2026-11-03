@@ -156,6 +156,8 @@ async def execute(
                             first.window is None
                             or second.window is None
                             or first.metric != second.metric
+                            or first.sku_key is None
+                            or second.sku_key is None
                             or first.sku_key != second.sku_key
                             or first.currency != second.currency
                             or first.unit != second.unit

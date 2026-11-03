@@ -58,3 +58,13 @@ Root 转交原执行器 `f0ceb20` 审查 P2 后，本批同一分支增量修复
 新增 `readonly_inquiry_render.py` 仅消费经过执行器绑定的 `Claim` 与 Fact；固定 metric 文案按每期证据显示原值、独立窗口/观测时间及差额/比率，零分母显示不可计算，退款明确标“对应订单 cohort，非本窗口现金流”。模型没有数字或自由文本插入位。renderer 为同步纯函数，调用方若延迟/缓存展示仍须重查当前权限；当前尚无 Web/API 接线。
 
 作者最终定向检查：`tests/test_p6_readonly_inquiry.py`、`tests/test_p6_readonly_tools.py` 与原 `tests/test_commerce_mock.py` 合计 68 passed；六个目标新/增量文件 Ruff、mypy 通过。手工可读金标包括两窗口 3/5 件、差额 2 件/66.67%，退款两 cohort 各 5.00 CNY、库存 20 件，另测零分母、混币种与低 Decimal 全局精度、未知库存、歧义/无匹配和部分分页。实际 Woo、当前报告数据库读、真实 provider、API/Worker、部署及全量 CI 均 `NOT_RUN`；旧 PG/平台资源未访问。
+
+## 3cab 独审三组 P2 的独立修复（2026-11-03，待精确复审）
+
+Root 转交的 3cab BLOCKER 与旧 68 项作者通过事实保留。原实现订单 Fact 无 SKU 绑定，跨 SKU 3/5 可被错误比较；未按 §4 过滤的 statuses 样本可误报 790；共享池 unresolved 的 20 也可被误报为单 SKU 库存。本批只修改 readonly 模块/目标测试与本回执，未混服务接线。
+
+现在每条 Fact 必须有 SKU、独立观测时间；订单相关 Fact 还必须有窗口及币种。Facade 完整核商品目录后，按每 SKU/窗口/币种分别给有效下单件数、金额、每行均额与可归属的退款金额。未知 SKU 在订单/库存读取前返回不完整 `SKU_NOT_FOUND`，不会把无目录对象视作零；目录读取实际行数纳入全局计数。renderer 和执行器均拒绝不同 SKU/币种/窗口口径的比较。多 SKU 订单的总退款金额无行级金额分配来源时为 `REFUND_SCOPE_REVIEW`，不分摊、不复制到每个 SKU。
+
+`order_eligibility` 冻结 COMMERCE_INTEGRATION §4 / 原 inventory_analysis 的判定，并复用其排除状态常量：processing/completed 纳入；refunded 仅当付款或完成时间位于创建至采集之间；pending/on-hold/cancelled/failed/trash 排除，其余或缺失/无效证据为 review。销量、金额、均额分母、退款订单 cohort 都来自这个同一有效行集合。原 statuses 全样本有待核对状态，返回 `ORDER_STATUS_REVIEW` 且不披露数字；只有去除未知样本、保留四条有效和五条明确排除状态的独立金标才完整得到 70 件、42.00 CNY，不将全样本强签成完整 70。
+
+库存先核当前目录的 stock_pool 与库存行绑定；不一致为 `STOCK_POOL_MISMATCH`。显式 unresolved 或目录显示多个 SKU 共池时，SKU 可用库存/在途都保留 null，并标 `SHARED_POOL_UNRESOLVED`，不重复显示池总量。原同 SKU 3/5/+2/66.67%、退款独立 as_of、动态参数、累计预算和撤权用例继续通过。作者最终定向 79 passed（含原 MockCommerce 26 项），六目标文件 Ruff/format/mypy 通过；服务/API/PG/真实 provider、全量 CI 与最终独审均另核。本地修复期间新增目录扫描导致旧行数断言变更、币种分列导致旧聚合断言变更的首轮失败保留，不删反例或放宽口径。

@@ -138,7 +138,7 @@ class Fact(Strict):
     metric: Metric
     sku_key: Key | None = None
     window: Window | None = None
-    as_of: datetime | None = None
+    as_of: datetime
     quality_flags: tuple[Key, ...] = ()
     value: Annotated[str, Field(max_length=80)] | None
     unit: Key
@@ -146,7 +146,12 @@ class Fact(Strict):
 
     @model_validator(mode="after")
     def numeric(self) -> Self:
-        if self.as_of is not None and self.as_of.utcoffset() is None:
+        if self.sku_key is None:
+            raise ValueError("FACT_SKU_REQUIRED")
+        if self.metric in {"sold_units", "order_net", "order_average", "refund_cohort"}:
+            if self.window is None or self.currency is None:
+                raise ValueError("FACT_WINDOW_CURRENCY_REQUIRED")
+        if self.as_of.utcoffset() is None:
             raise ValueError("INVALID_AS_OF")
         if self.value is not None and not Decimal(self.value).is_finite():
             raise ValueError("INVALID_NUMBER")
@@ -166,6 +171,7 @@ class ReadResult(Strict):
     report_id: Key | None = None
     as_of: datetime
     complete: bool
+    quality_flags: tuple[Key, ...] = ()
     scanned_rows: int = Field(ge=0)
     sku_keys: tuple[Key, ...] = Field(max_length=100)
     products: tuple[ProductMatch, ...] = Field(default=(), max_length=100)

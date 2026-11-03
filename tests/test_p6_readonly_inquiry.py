@@ -97,6 +97,8 @@ class Reader:
                         {
                             "evidence_id": f"f{len(self.calls)}",
                             "metric": "available_stock",
+                            "sku_key": self.sku,
+                            "as_of": "2026-11-03T01:00:00Z",
                             "value": "12",
                             "unit": "件",
                             "currency": None,
@@ -419,7 +421,20 @@ def test_named_product_two_period_sales_and_inventory_golden() -> None:
             if isinstance(call, OrdersCall):
                 data = json.loads(result.model_dump_json())
                 # Fixed external gold: selected periods have 3 + 5 units, not model arithmetic.
-                data["facts"][0].update(metric="sold_units", value="8")
+                base = data["facts"][0]
+                data["facts"] = [
+                    {
+                        **base,
+                        "evidence_id": f"f2-{index}",
+                        "metric": "sold_units",
+                        "window": json.loads(window.model_dump_json()),
+                        "currency": "CNY",
+                        "value": value,
+                    }
+                    for index, (window, value) in enumerate(
+                        zip(call.args.windows, ("3", "5"), strict=True)
+                    )
+                ]
                 data["scanned_rows"] = 2
                 return ReadResult.model_validate_json(json.dumps(data))
             return result
@@ -446,7 +461,7 @@ def test_named_product_two_period_sales_and_inventory_golden() -> None:
                 inventory = json.loads(calls("commerce.read_inventory", {"skus": [sku]}, "c3"))
                 order["calls"].extend(inventory["calls"])
                 return json.dumps(order)
-            return final(("f2", "f3"))
+            return final(("f2-0", "f2-1", "f3"))
 
     reader = Sales()
     result = run(SalesChoice([]), reader)
@@ -456,6 +471,6 @@ def test_named_product_two_period_sales_and_inventory_golden() -> None:
         "commerce.read_orders",
         "commerce.read_inventory",
     ]
-    assert result.results[1].facts[0].value == "8"
+    assert [fact.value for fact in result.results[1].facts] == ["3", "5"]
     assert result.results[2].facts[0].value == "12"
     assert result.scanned_rows == 4

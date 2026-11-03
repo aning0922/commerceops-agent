@@ -4,13 +4,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal, localcontext
 
-from commerceops.application.commerce.readonly_inquiry_contracts import Fact, Window
+from commerceops.application.commerce.readonly_inquiry_contracts import Fact, ReadResult, Window
 from commerceops.application.commerce.readonly_inquiry_executor import Outcome
 
 LABELS = {
     "available_stock": "可用库存",
     "inbound_units": "在途数量",
-    "sold_units": "订单售出件数（按订单创建时间）",
+    "sold_units": "有效下单件数（按订单创建时间）",
     "order_net": "订单原口径净额",
     "order_average": "每行订单均额",
     "refund_cohort": "对应订单 cohort 的退款额（非本窗口现金流）",
@@ -49,7 +49,7 @@ def number(value: str) -> str:
 def value_text(fact: Fact) -> str:
     if fact.value is None:
         return "不可计算（分母为 0）" if "ZERO_DENOMINATOR" in fact.quality_flags else "未知"
-    unit = fact.currency or fact.unit
+    unit = fact.unit if fact.metric == "sold_units" else fact.currency or fact.unit
     return f"{number(fact.value)} {unit}"
 
 
@@ -63,7 +63,8 @@ def render(outcome: Outcome) -> RenderedAnswer:
     if outcome.status != "complete":
         return RenderedAnswer(SAFE_STATUS.get(outcome.status, "此结果暂时无法安全展示。"), ())
     indexed: dict[str, tuple[Fact, str]] = {}
-    for result in outcome.results:
+    for raw_result in outcome.results:
+        result = ReadResult.model_validate_json(raw_result.model_dump_json())
         for fact in result.facts:
             if fact.evidence_id in indexed:
                 raise ValueError("DUPLICATE_EVIDENCE")
@@ -99,6 +100,8 @@ def render(outcome: Outcome) -> RenderedAnswer:
             or after.window is None
             or before.window.end > after.window.start
             or before.metric != after.metric
+            or before.sku_key is None
+            or after.sku_key is None
             or before.sku_key != after.sku_key
             or before.currency != after.currency
             or before.unit != after.unit
@@ -121,7 +124,10 @@ def render(outcome: Outcome) -> RenderedAnswer:
                         Decimal("0.01"), rounding=ROUND_HALF_UP
                     )
                     rate = f"变化率 {format(percent, 'f')}%"
-                detail = f"变化 {format(delta, 'f')} {before.currency or before.unit}；{rate}"
+                unit = (
+                    before.unit if before.metric == "sold_units" else before.currency or before.unit
+                )
+                detail = f"变化 {format(delta, 'f')} {unit}；{rate}"
         before_time = before.as_of.isoformat() if before.as_of else "未报告"
         after_time = after.as_of.isoformat() if after.as_of else "未报告"
         sentences.append(

@@ -7,11 +7,12 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, localcontext
 from time import monotonic
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from commerceops.adapters.commerce.mock import MockCommerce
-from commerceops.application.commerce.contracts import OrderLine, Page, Refund
+from commerceops.application.commerce.contracts import OrderLine, Page, Product, Refund
 from commerceops.application.commerce.contracts import Window as CommerceWindow
+from commerceops.application.commerce.inventory_analysis import EXCLUDED_STATUSES
 from commerceops.application.commerce.readonly_inquiry_contracts import (
     Context,
     Fact,
@@ -80,6 +81,28 @@ class Meter:
             seen.add(page.next_cursor)
             cursor = page.next_cursor
 
+    def catalog(self) -> dict[str, Product]:
+        products: dict[str, Product] = {}
+        for page in self.pages(lambda cursor: self.source.list_products(cursor=cursor)):
+            for product in page.items:
+                if product.shop_id != self.context.shop_id or product.sku_key in products:
+                    raise Incomplete("INVALID_CATALOG")
+                products[product.sku_key] = product
+        return products
+
+
+def order_eligibility(row: OrderLine) -> Literal["included", "excluded", "review"]:
+    """Frozen COMMERCE_INTEGRATION §4 / inventory_analysis effective-order rule."""
+    if row.status in {"processing", "completed"} or (
+        row.status == "refunded"
+        and any(
+            instant is not None and row.created_at <= instant <= row.source.captured_at
+            for instant in (row.paid_at, row.completed_at)
+        )
+    ):
+        return "included"
+    return "excluded" if row.status in EXCLUDED_STATUSES else "review"
+
 
 def key(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, default=str).encode()).hexdigest()
@@ -125,30 +148,28 @@ class MockReadFacade:
             if isinstance(call, ProductsCall):
                 matches: list[ProductMatch] = []
                 query = normalized(call.args.query)
-                for page in meter.pages(lambda cursor: self.source.list_products(cursor=cursor)):
-                    for product in page.items:
-                        if product.shop_id != context.shop_id:
-                            raise Incomplete("SOURCE_SCOPE")
-                        if query in {
-                            normalized(product.sku_key),
-                            normalized(product.title),
-                            normalized(product.sku_label or ""),
-                        }:
-                            candidate = product.sku_label or ""
-                            label = (
-                                candidate
-                                if candidate.isascii()
-                                and candidate.isalnum()
-                                and len(candidate) <= 40
-                                else product.sku_key[:80]
-                            )
-                            matches.append(ProductMatch(sku_key=product.sku_key, label=label))
+                for product in meter.catalog().values():
+                    if query in {
+                        normalized(product.sku_key),
+                        normalized(product.title),
+                        normalized(product.sku_label or ""),
+                    }:
+                        candidate = product.sku_label or ""
+                        label = (
+                            candidate
+                            if candidate.isascii() and candidate.isalnum() and len(candidate) <= 40
+                            else product.sku_key[:80]
+                        )
+                        matches.append(ProductMatch(sku_key=product.sku_key, label=label))
                 if len(matches) > 100 or len({item.sku_key for item in matches}) != len(matches):
                     raise Incomplete("PRODUCT_CAPACITY")
                 products = tuple(matches)
                 skus = tuple(item.sku_key for item in products)
             elif isinstance(call, InventoryCall):
-                skus = call.args.skus
+                skus = tuple(sorted(set(call.args.skus)))
+                catalog = meter.catalog()
+                if not set(skus) <= catalog.keys():
+                    raise Incomplete("SKU_NOT_FOUND")
                 for sku in skus:
                     meter.check()
                     if meter.remaining - meter.scanned < 1:
@@ -170,10 +191,25 @@ class MockReadFacade:
                         for flag in inventory_result.warnings
                     ):
                         raise Incomplete("SOURCE_INCOMPLETE")
-                    flags = tuple(flag.value for flag in inventory_result.warnings)
+                    if item.stock_pool_key != catalog[sku].stock_pool_key:
+                        raise Incomplete("STOCK_POOL_MISMATCH")
+                    unresolved = (
+                        item.pool_allocation == "unresolved"
+                        or sum(
+                            product.stock_pool_key == item.stock_pool_key
+                            for product in catalog.values()
+                        )
+                        > 1
+                    )
+                    flags = tuple(
+                        sorted(
+                            {flag.value for flag in inventory_result.warnings}
+                            | ({"SHARED_POOL_UNRESOLVED"} if unresolved else set())
+                        )
+                    )
                     inventory_facts: tuple[tuple[Metric, int | None], ...] = (
-                        ("available_stock", item.available_stock),
-                        ("inbound_units", item.inbound_units),
+                        ("available_stock", None if unresolved else item.available_stock),
+                        ("inbound_units", None if unresolved else item.inbound_units),
                     )
                     for metric, value in inventory_facts:
                         facts.append(
@@ -194,14 +230,15 @@ class MockReadFacade:
                 ordered = sorted(windows, key=lambda window: window.start)
                 if len(ordered) == 2 and ordered[0].end > ordered[1].start:
                     raise Incomplete("OVERLAPPING_WINDOWS")
-                skus = call.args.skus
+                skus = tuple(sorted(set(call.args.skus)))
+                catalog = meter.catalog()
+                if not set(skus) <= catalog.keys():
+                    raise Incomplete("SKU_NOT_FOUND")
                 for window in windows:
-                    order_ids: set[str] = set()
+                    valid: list[OrderLine] = []
                     line_ids: set[tuple[str, str]] = set()
-                    units = 0
-                    by_currency: dict[str, Decimal] = {}
-                    count_by_currency: dict[str, int] = {}
-                    observed = None
+                    order_skus: dict[str, set[str]] = {}
+                    observed = self.source.fixture.now
                     commerce_window = CommerceWindow(start=window.start, end=window.end)
 
                     def fetch_orders(
@@ -209,154 +246,135 @@ class MockReadFacade:
                     ) -> Page[OrderLine]:
                         return self.source.list_order_lines(selected_window, cursor=cursor)
 
+                    review = False
                     for page in meter.pages(fetch_orders):
                         observed = page.observed_at
                         for row in page.items:
                             line = (row.order_id, row.line_id)
-                            if line in line_ids:
-                                raise Incomplete("DUPLICATE_ORDER_LINE")
+                            if line in line_ids or not commerce_window.contains(row.created_at):
+                                raise Incomplete("INVALID_ORDER_LINE")
                             line_ids.add(line)
+                            order_skus.setdefault(row.order_id, set()).add(row.sku_key)
                             if row.sku_key in skus:
-                                order_ids.add(row.order_id)
-                                units += row.quantity
-                                count_by_currency[row.currency] = (
-                                    count_by_currency.get(row.currency, 0) + 1
-                                )
-                                with localcontext() as decimal_context:
-                                    decimal_context.prec = 50
-                                    by_currency[row.currency] = (
-                                        by_currency.get(row.currency, Decimal(0)) + row.net_amount
-                                    )
-                    at = observed or self.source.fixture.now
-                    facts.append(
-                        Fact(
-                            evidence_id=key(
-                                (
-                                    context.source_binding,
-                                    call.tool_call_id,
-                                    window.model_dump_json(),
-                                    "sold_units",
-                                )
-                            ),
-                            metric="sold_units",
-                            window=window,
-                            as_of=at,
-                            value=str(units),
-                            unit="件",
-                        )
-                    )
-                    for currency, amount in sorted(by_currency.items()):
-                        facts.append(
-                            Fact(
-                                evidence_id=key(
-                                    (
-                                        context.source_binding,
-                                        call.tool_call_id,
-                                        window.model_dump_json(),
-                                        "order_net",
-                                        currency,
-                                    )
-                                ),
-                                metric="order_net",
-                                window=window,
-                                as_of=at,
-                                value=format(amount, "f"),
-                                unit="金额",
-                                currency=currency,
-                            )
-                        )
-                    if not by_currency:
-                        facts.append(
-                            Fact(
-                                evidence_id=key(
-                                    (
-                                        context.source_binding,
-                                        call.tool_call_id,
-                                        window.model_dump_json(),
-                                        "order_average",
-                                        self.source.fixture.source.currency,
-                                    )
-                                ),
-                                metric="order_average",
-                                window=window,
-                                as_of=at,
-                                value=None,
-                                unit="金额",
-                                currency=self.source.fixture.source.currency,
-                                quality_flags=("ZERO_DENOMINATOR",),
-                            )
-                        )
-                    for currency, amount in sorted(by_currency.items()):
-                        with localcontext() as decimal_context:
-                            decimal_context.prec = 50
-                            average = (amount / count_by_currency[currency]).quantize(
-                                Decimal("0.000001"), rounding=ROUND_HALF_UP
-                            )
-                        facts.append(
-                            Fact(
-                                evidence_id=key(
-                                    (
-                                        context.source_binding,
-                                        call.tool_call_id,
-                                        window.model_dump_json(),
-                                        "order_average",
-                                        currency,
-                                    )
-                                ),
-                                metric="order_average",
-                                window=window,
-                                as_of=at,
-                                value=format(average, "f"),
-                                unit="金额",
-                                currency=currency,
-                            )
-                        )
-                    if order_ids:
-                        refund_total: dict[str, Decimal] = {}
-                        refund_observed = at
-                        refund_seen: set[str] = set()
-                        ids = tuple(sorted(order_ids))
+                                state = order_eligibility(row)
+                                if state == "included":
+                                    valid.append(row)
+                                elif state == "review":
+                                    review = True
+                    if review:
+                        raise Incomplete("ORDER_STATUS_REVIEW")
+                    eligible_ids = tuple(sorted({row.order_id for row in valid}))
+                    refunds: list[Refund] = []
+                    refund_observed = observed
+                    if eligible_ids:
+                        seen_refunds: set[str] = set()
 
                         def fetch_refunds(
-                            cursor: str | None, selected_ids: tuple[str, ...] = ids
+                            cursor: str | None, ids: tuple[str, ...] = eligible_ids
                         ) -> Page[Refund]:
-                            return self.source.list_refunds(selected_ids, cursor=cursor)
+                            return self.source.list_refunds(ids, cursor=cursor)
 
                         for page in meter.pages(fetch_refunds):
                             refund_observed = page.observed_at
-                            for row in page.items:
-                                if row.refund_id in refund_seen or row.order_id not in order_ids:
+                            for refund in page.items:
+                                if (
+                                    refund.refund_id in seen_refunds
+                                    or refund.order_id not in eligible_ids
+                                ):
                                     raise Incomplete("INVALID_REFUND_COHORT")
-                                refund_seen.add(row.refund_id)
-                                with localcontext() as decimal_context:
-                                    decimal_context.prec = 50
-                                    refund_total[row.currency] = (
-                                        refund_total.get(row.currency, Decimal(0))
-                                        + row.refund_amount
+                                seen_refunds.add(refund.refund_id)
+                                # Total refund amount has no per-line monetary allocation in v1.
+                                if len(order_skus[refund.order_id]) != 1:
+                                    raise Incomplete("REFUND_SCOPE_REVIEW")
+                                refunds.append(refund)
+                    for sku in skus:
+                        selected = [row for row in valid if row.sku_key == sku]
+                        currencies = sorted({row.currency for row in selected}) or [
+                            self.source.fixture.source.currency
+                        ]
+                        for currency in currencies:
+                            lines = [row for row in selected if row.currency == currency]
+                            units = sum(row.quantity for row in lines)
+                            with localcontext() as decimal_context:
+                                decimal_context.prec = 50
+                                amount = sum((row.net_amount for row in lines), Decimal(0))
+                                average = (
+                                    None
+                                    if not lines
+                                    else (amount / len(lines)).quantize(
+                                        Decimal("0.000001"), rounding=ROUND_HALF_UP
                                     )
-                        for currency, amount in sorted(refund_total.items()):
+                                )
+                            for metric, fact_value, unit, flags in (
+                                ("sold_units", str(units), "件", ()),
+                                ("order_net", format(amount, "f"), "金额", ()),
+                                (
+                                    "order_average",
+                                    None if average is None else format(average, "f"),
+                                    "金额",
+                                    ("ZERO_DENOMINATOR",) if average is None else (),
+                                ),
+                            ):
+                                facts.append(
+                                    Fact(
+                                        evidence_id=key(
+                                            (
+                                                context.source_binding,
+                                                call.tool_call_id,
+                                                sku,
+                                                window.model_dump_json(),
+                                                metric,
+                                                currency,
+                                            )
+                                        ),
+                                        metric=metric,
+                                        sku_key=sku,
+                                        window=window,
+                                        as_of=observed,
+                                        value=fact_value,
+                                        unit=unit,
+                                        currency=currency,
+                                        quality_flags=flags,
+                                    )
+                                )
+                        sku_refunds = [
+                            refund for refund in refunds if order_skus[refund.order_id] == {sku}
+                        ]
+                        for currency in sorted({refund.currency for refund in sku_refunds}):
+                            with localcontext() as decimal_context:
+                                decimal_context.prec = 50
+                                refunded = sum(
+                                    (
+                                        refund.refund_amount
+                                        for refund in sku_refunds
+                                        if refund.currency == currency
+                                    ),
+                                    Decimal(0),
+                                )
                             facts.append(
                                 Fact(
                                     evidence_id=key(
                                         (
                                             context.source_binding,
                                             call.tool_call_id,
+                                            sku,
                                             window.model_dump_json(),
                                             "refund_cohort",
                                             currency,
                                         )
                                     ),
                                     metric="refund_cohort",
+                                    sku_key=sku,
                                     window=window,
                                     as_of=refund_observed,
-                                    value=format(amount, "f"),
+                                    value=format(refunded, "f"),
                                     unit="金额",
                                     currency=currency,
                                 )
                             )
             else:
                 raise ValueError("UNSUPPORTED_TOOL")
-        except Incomplete:
+        except Incomplete as exc:
             return ReadResult(
                 tool_call_id=call.tool_call_id,
                 shop_id=context.shop_id,
@@ -364,6 +382,7 @@ class MockReadFacade:
                 snapshot_id=key((context.source_binding, call.tool_call_id)),
                 as_of=self.source.fixture.now,
                 complete=False,
+                quality_flags=(str(exc),),
                 scanned_rows=meter.scanned,
                 sku_keys=(),
                 windows=windows,
