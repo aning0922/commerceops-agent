@@ -23,6 +23,7 @@ from scripts.vendor_gitleaks_rules import (
     P3_PUBLIC_ROW,
     RO_PUBLIC_ROW,
     WOO_PUBLIC_EXCEPTIONS,
+    v4_history_findings,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -599,13 +600,15 @@ def test_harness_history_approval_is_bound_to_committed_lines(index: int) -> Non
 
 def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
     report = tmp_path / "native-report.json"
+    config = tmp_path / "history-config.toml"
+    config.write_bytes(secret_scan.history_config())
     result = subprocess.run(
         [
             str(ROOT / ".tools/gitleaks"),
             "git",
             str(ROOT),
             "--config",
-            str(ROOT / ".gitleaks.toml"),
+            str(config),
             "--redact=100",
             "--no-banner",
             "--log-level=error",
@@ -621,8 +624,9 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
     )
     assert result.returncode == 1
     rows = json.loads(report.read_text())
-    approved = secret_scan.APPROVED_TEST_HISTORY
-    assert len(approved) == 20
+    approved = (*secret_scan.APPROVED_TEST_HISTORY, *v4_history_findings())
+    assert len(secret_scan.APPROVED_TEST_HISTORY) == 20
+    assert len(v4_history_findings()) == 13
     reachable = set(
         subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()
     )
@@ -633,7 +637,9 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
         for row in active_approvals
     }
     for row in rows:
-        assert secret_scan.approved_history_finding("git", row)
+        assert secret_scan.approved_history_finding(
+            "git", row
+        ) or secret_scan.approved_v4_history_finding("git", row)
         assert not secret_scan.approved_history_finding("dir", row)
         assert not secret_scan.approved_history_finding("index", row)
         for field in ("RuleID", "File", "StartLine", "Commit", "Fingerprint", "Match"):
@@ -644,6 +650,7 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
                 else changed[field] + "changed"
             )
             assert not secret_scan.approved_history_finding("git", changed)
+            assert not secret_scan.approved_v4_history_finding("git", changed)
 
 
 @pytest.mark.parametrize("which", [0, 1])
