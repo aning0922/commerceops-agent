@@ -306,7 +306,7 @@ DB statement_timeout=5000ms、lock_timeout=1000ms、单事务客户端总预算1
 
 速率记录独立短事务，按`pg_advisory_xact_lock(1446261841,hashtext(peer_digest))`串行窗口后INSERT并COMMIT，包括拒绝前已接受的尝试，不能随着业务rollback清零。peer_digest用新部署secret HMAC过peer，不存原IP/UA/凭据；bootstrap每peer20/300s，session_create每peer10/300s；active cap3由create主事务容量锁内再次统计。密码散列新随机一次性secret，每次create只算一次供该tenant三persona复用（各login/identity不同）；原secret立即丢弃，不是可用演示口令。单进程非阻塞Semaphore(1)保护scrypt，不无限排队；忙返回429 RATE_LIMITED，peer限流及bootstrap key仍保留。编码沿旧scrypt，credential check不借此跳过。
 
-容量按未revoked且expires>DB now的tenant+session计数；丢Set-Cookie的已提交tenant仍占位；后台未清的expired不占位。credential被外部撤销但未显式revoke的tenant保守占位至期限，不擅自踢掉。五访客竞争恰≤3commit，其他429 CAPACITY_LIMIT/Retry-After；Retry-After取最早active expires的剩余秒向上取整，至少1，DB故障不补宿主时钟。bootstrap总活跃记录额外上限128，在专用bootstrap容量锁内检测，拒绝不删除他人。
+容量按未revoked且expires>DB now的tenant+session计数；丢Set-Cookie的已提交tenant仍占位；后台未清的expired不占位。credential被外部撤销但未显式revoke的tenant保守占位至期限，不擅自踢掉。DB provision五连接竞争应恰3commit/2固定capacity23514；完整create还受独立hash/rate限制，不能承诺恰3成功或把RATE_LIMITED记作CAPACITY_LIMIT。串行第四/第五访客为429 CAPACITY_LIMIT/Retry-After；Retry-After取最早active expires的剩余秒向上取整，至少1，DB故障不补宿主时钟。bootstrap总活跃记录额外上限128，在专用bootstrap容量锁内检测，拒绝不删除他人。
 
 ## 7. 八端点的事务伪码（本文件没有实现）
 
@@ -428,7 +428,7 @@ GET operations：
 | ID-02 | credential disabled、identity/principal/org映射任一错、principal disabled/auth版本变化、bound过期/撤销/元组错/keyversion错/CSRF digest错逐一拒绝；不是仅测试principal |
 | ID-03 | persona/reset旧actor_guard直接401，旧公开CSRF拒绝；新bound与原deadline相同；同persona切换仍轮换；reset admin保持admin/shops空 |
 | ID-04 | 两访客org/principals/shops不同；猜ID/跨店/去scope/admin无grant拒绝，无payload；直接错误租户FK/epoch写23514或FK拒绝 |
-| ID-05 | 五个并发create只有3成功；丢cookie已commit空间占位；429不踢旧session；过期释放count但不删receipt；peer limits和bootstrap cap128 |
+| ID-05 | DB provision五独立runtime连接并发恰3commit/2容量23514；完整create突发只承诺≤3commit，hash/rate拒绝独立分记；丢cookie已commit空间占位；429不踢旧session；过期释放count但不删receipt；peer limits和bootstrap cap128 |
 | ID-06 | 同key同payload一effect、异文409；并发reset只一次epoch推进；旧CSRF403后GET原key可确认；ACK body丢与整cookie/header丢分别测 |
 | ID-07 | reset与read/fixture-note夹具写/owner revoke并发线性化；current授权响应context时刻明确；迟到UI数据另由WEB/QA注入 |
 | ID-08 | 本批新窄grant前后逐表/列/function权限实测；普通runtime不能写fixture/mapping/credential/grants或删receipt/event，PUBLIC不能调用provision；provision不能指向既有org |
@@ -532,7 +532,7 @@ uv run --frozen --offline python -m scripts.v4_demo_seed grant-runtime
 uv run --frozen --offline python -m scripts.v4_demo_seed verify-fixture
 ```
 
-`init-fixture`只接全新不存在的绝对目录，数据库先COMMIT后独占文件导出/索引发布；失败保留DB与目录，不重试或覆盖。`grant-runtime`是新CLI的子action，与原database grant-runtime分开；普通原grant不自动开V4。fixture实际纯digest仍59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8；不因此签PG已登记。
+`init-fixture`只接全新不存在的绝对目录，数据库先COMMIT后独占文件导出/索引发布；失败保留DB与目录，不重试或覆盖。本地物理入口为 `INDEX.json`（临时 `.INDEX.pending`），与 `content.json`、`manifest.json` 的名字不只大小写不同；同目录hardlink独占发布及fsync保持。content/manifest/canonical digest字节不变，仅替换旧有大小写冲突的导出入口；不改四冻结核心合同，不修改旧失败目录或重开保留卷。`grant-runtime`是新CLI的子action，与原database grant-runtime分开；普通原grant不自动开V4。fixture实际纯digest仍59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8；不因此签PG已登记。
 
 API foreground进程只拿runtime web.json和新demo.json，不继承owner DB环境：
 
@@ -548,4 +548,50 @@ env -u COMMERCEOPS_DB_HOST -u COMMERCEOPS_DB_PORT -u COMMERCEOPS_DB_NAME -u COMM
 
 创建POST仅v4b_ owner+CSRF+原key，active拒绝；GET bootstrap只复用未绑定key的valid owner。已绑定owner无论consumed与否均保留旧key回读，显式新GET发fresh匿名cookie；UNKNOWN客户端不自动bootstrap/POST。有效active GET bootstrap拒绝；过期/撤销active只在用户明确新开始时可换匿名owner，不自动创建新tenant。reset/persona公开cookie不变，generation/CSRF/bound原子换；API响应不返回bearer或bound秘密。
 
-ASGI 19项目前使用显式StubStore，只证明路由/Origin/DTO/error/schema/cookie合同，不证明PG鉴权。真实PG作者测试另行提交并由ROOT新窗口执行。
+d578交付时的19项ASGI使用显式StubStore，仅证明当时的拒绝路径/路由/schema等局部事实；四POST合法JSON解析P1及534修复后的38项证据见§15，旧19项不代签修后源码。真实PG作者测试由ROOT新窗口执行。
+
+
+## 15. 作者交付步骤与证据索引（2026-11-03增量）
+
+本节绑定作者代码/测试冻结 `7ff538cd58e8622ffd0a8dd20a4b739ae1030734` / tree `2a8a3b6637f2cb11a7a7807a68530b5626c6e6e2`，不变更baseline四合同。以下API步骤是交付后的验收脚本说明，作者尚未作监听API/PG/浏览器演示；只能在ROOT登记的新owned资源/Origin/绝对UTC内执行。配置与owner/runtime分离沿§14，不能仅凭此文启动服务。
+
+### V40-03 API演示步骤（待实跑）
+
+1. 显式进入：可信Origin下GET `/api/v4/demo/bootstrap`，浏览器仅得到匿名cookie/CSRF；显式POST `/api/v4/demo/sessions`，body仅新UUID request_key及固定fixture_version，用原bootstrap CSRF。期望201/COMMITTED后GET current核creation_request_key、服务器context和双店；不可把401/422或丢ACK当成功。
+2. 授权核对：按current返回的shop_id及当前epoch/generation GET seed-summary；同tenant实际scope决定可见店。跨tenant shop/原key应404。persona POST到approver或restricted_admin后先清屏，再GET current核新context/CSRF；admin无业务店，旧actor/旧CSRF须拒绝。复制公开cookie到旧cookie名须在已注册的旧路由得到401，404不算鉴权证据。
+3. 退出/恢复：logout POST带当前CSRF及CAS，成功后current/operation均无授权。控制响应丢失时只GET current和原operation/key，不重POST；整个create cookie丢失时原bootstrap只读最小恢复，不再签bearer。到期与撤权401不能冒充某个控制请求已COMMITTED。
+
+### V40-04 seed/reset演示步骤（待实跑）
+
+1. owner按§14只初始化固定fixture；普通migrate不自动seed/grant。verify及导出content/manifest应核同一digest，文件导出失败独立记录，不能声称DB/文件跨资源原子成功。
+2. 建两个visitor，核org/principal/shop隔离及各店8 products/10 SKUs/12 orders/18 lines；summary source保持synthetic_demo和固定digest。六异常refs只作关联验证，不触发旧业务任务或外部provider。
+3. 对A准备新域fixture_note overlay后用当前CSRF/CAS reset；核A overlay清空、epoch/generation各推进一次、原persona/期限/ID/fixture不变，B数据/代际/overlay不变。同key同payload必须原回执，异payload409。provision中段故障必须整笔物化回滚，但独立bootstrap原key预留及UNKNOWN保留。
+
+### 已提交证据与范围
+
+| 对象 | 精确证据 | 证明范围 |
+| --- | --- | --- |
+| SQL CASE语法修正 | 12081e4；独审7ac3b0b的SQL_SYNTAX_1208 | 两处机械括号增量接受，不代签完整DDL或实际迁移 |
+| 四POST JSON解析 | 534844a；独审76ba1e8的API_d578增量 | API-01已关闭；38项作者/独立stub ASGI及typed探针，不是实际PG POST |
+| 原身份组件 | 31d11cc/823b132；独审799c3cc的PG_TESTS_31d_823 | 14项prepared组件接受；第五访客为串行，非并发容量证明 |
+| provision故障/reset原key | dc439e9；独审b10eac6的同报告增量 | 新增2项prepared接受；独立collect16=旧身份14+reset1+seed fault1，非SQL全模块 |
+| bound/目标persona与ACL增量 | 1c192d4、7ff538c | 作者静态检查/收集完成；本节冻结时尚无该两增量独审或原生执行回执 |
+
+作者在上述冻结源码执行 `uv run --frozen --offline pytest -q -m 'not integration' tests/v4`：实际136 PASS / 25 deselected / pytest报告2.27s / exit0。25项为SQL/seed7+身份18，不把deselected当PASS；其中SQL原5项、seed故障1、ACL1，身份原14+reset幂等1+bound2+目标persona1。相关改动的Ruff/mypy逐切片通过；没有以此签完整scripts.check/当前全量PG/旧M3 Full/Web/N01。
+
+### 交付仍缺的运行事实
+
+ROOT须绑定实际集成source/tree，而非直接把本作者或其他worktree的旧回执搬来。作者本会话无PG/监听服务窗口；ROOT的独立迁移/组件运行、失败和cleanup以其原回执为准，本节不预填PASS。prepared独审也不等于实际运行准入。
+
+仍待实际证据：25节点各自setup/call/teardown、并发create/reset及撤权/读写竞争、完整身份与逐列ACL矩阵、每个持久阶段故障/commit后ACK、retention/GC、真实POST cookie/CSRF/CORS/Web、当前动态全量PG/G1G2及旧M3对应Full。五访客串行拒绝不能代签恰三并发成功，单个provision故障点不能代签所有阶段回滚。未完成项不能从离线绿灯推断完成；不进入V4-1、不触发Hosted、外部调用或生产发布。
+
+
+## 16. 并发容量Gate口径澄清（2026-11-04）
+
+ROOT纠正了最初“五个完整create同时请求必须恰3成功/2CAPACITY_LIMIT”的测试要求：原create在DB事务前另有单进程非阻塞HASH_SLOT(1)及rate限制，真实突发可能先得到RATE_LIMITED。该要求会新增吞吐保证，当前不采用。准备提交bb601d0未执行PG，后续以普通新提交替换测试口径，保留历史而不amend/reset；业务limiter、数据库锁与旧串行五访客判据均不变。
+
+新增单项 `test_five_runtime_provisions_commit_three_and_reject_two_at_db_capacity` 只验证原DB provision容量Gate：真实scrypt预先算一次；五个不同bootstrap及原key各自独立COMMIT预约；五条实际commerceops_app连接在barrier前保持打开并记录不同backend PID；barrier后直接调用原SECURITY DEFINER provision，竞争其原advisory xact lock，无mock/重试/提权。成功须真实COMMIT后回报，拒绝须精确SQLSTATE23514/message=demo capacity limit，其他错误不能算容量通过。
+
+断言要求3commit/2容量拒绝、三活跃tenant/session/create receipt、15个物化表的精确基数、三独立org/六shop/九principal/identity、三成功bearer仍有效及各租户映射完整；两失败owner保留原key且未consume，真实operations仅UNKNOWN/WAIT_READ_ONLY。barrier10秒、worker等待45秒，沿现有runtime连接/SQL/锁超时，不改全局role timeout；异常不无限join，外层新库fixture保留其FORCE-drop失败清理路径。此为待实际执行的测试，不能据collect签并发PASS。
+
+该DB Gate不证明完整create HTTP突发吞吐；原Store串行五访客3成功/2精确CAPACITY_LIMIT用例保持，独立QA的HTTP串行3/2 Gate也不能由此case替代。完整burst若后续单列，只能分别核≤3成功及精确RATE_LIMITED/CAPACITY_LIMIT，无部分物化，不能将两种429混记。same-key reset真实HTTP并发由QA独立case承担，本增量不另造框架或扩展至V4-1。

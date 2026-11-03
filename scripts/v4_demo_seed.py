@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from uuid import UUID
 
-from commerceops.application.v4_demo.seed_contract import FixtureContent, generate_seed
+from commerceops.application.v4_demo.seed_contract import FixtureContent, SeedBundle, generate_seed
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.v4_demo_seed import gc_tenant, grant_v4_runtime, initialize_fixture
 
@@ -35,7 +35,7 @@ def new_directory(path: Path) -> Iterator[int]:
 
 
 def write(directory: int, name: str, data: bytes) -> None:
-    if name not in ("content.json", "manifest.json", ".MANIFEST.pending"):
+    if name not in ("content.json", "manifest.json", ".INDEX.pending"):
         raise ValueError("V4_EXPORT_FILE")
     fd = os.open(
         name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=directory
@@ -44,6 +44,34 @@ def write(directory: int, name: str, data: bytes) -> None:
         stream.write(data)
         stream.flush()
         os.fsync(stream.fileno())
+
+
+def export_fixture(directory: int, bundle: SeedBundle) -> None:
+    """Publish fixed seed files under exclusive, case-distinct physical names."""
+    write(directory, "content.json", bundle.canonical_content())
+    write(directory, "manifest.json", bundle.manifest.model_dump_json().encode())
+    write(
+        directory,
+        ".INDEX.pending",
+        json.dumps(
+            dict(
+                status="EXPORTED",
+                content="content.json",
+                manifest="manifest.json",
+                content_digest=bundle.manifest.content_digest,
+            ),
+            sort_keys=True,
+        ).encode(),
+    )
+    os.link(
+        ".INDEX.pending",
+        "INDEX.json",
+        src_dir_fd=directory,
+        dst_dir_fd=directory,
+        follow_symlinks=False,
+    )
+    os.unlink(".INDEX.pending", dir_fd=directory)
+    os.fsync(directory)
 
 
 def main() -> None:
@@ -63,30 +91,7 @@ def main() -> None:
                 with connect(settings) as db:
                     bundle = initialize_fixture(db)
                 # DB commit and file publish are separate; failure preserves original evidence.
-                write(directory, "content.json", bundle.canonical_content())
-                write(directory, "manifest.json", bundle.manifest.model_dump_json().encode())
-                write(
-                    directory,
-                    ".MANIFEST.pending",
-                    json.dumps(
-                        dict(
-                            status="EXPORTED",
-                            content="content.json",
-                            manifest="manifest.json",
-                            content_digest=bundle.manifest.content_digest,
-                        ),
-                        sort_keys=True,
-                    ).encode(),
-                )
-                os.link(
-                    ".MANIFEST.pending",
-                    "MANIFEST.json",
-                    src_dir_fd=directory,
-                    dst_dir_fd=directory,
-                    follow_symlinks=False,
-                )
-                os.unlink(".MANIFEST.pending", dir_fd=directory)
-                os.fsync(directory)
+                export_fixture(directory, bundle)
         elif args.action == "grant-runtime":
             with connect(settings) as db:
                 grant_v4_runtime(db)

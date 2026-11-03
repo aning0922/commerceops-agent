@@ -3,20 +3,24 @@
 import json
 import secrets
 from collections.abc import Iterator
-from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, wait
+from dataclasses import dataclass, field
 from pathlib import Path
+from threading import Barrier
 from typing import Any
 from uuid import UUID, uuid4
 
 import psycopg
 import pytest
 from commerceops.application.replenishment.contracts import WebFailure
+from commerceops.application.replenishment.security import csrf_token, digest, password_hash
 from commerceops.application.v4_demo import contracts as dto
+from commerceops.domain.commerce_values import canonical_bytes
 from commerceops.entrypoints.api import create_app
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.v4_demo_seed import grant_v4_runtime, initialize_fixture
-from commerceops.infrastructure.v4_demo_sessions import DemoConfig
+from commerceops.infrastructure.v4_demo_sessions import DemoConfig, bounded, demo_csrf
 from commerceops.infrastructure.v4_demo_store import DemoStore
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.web_sessions import actor_guard
@@ -214,6 +218,8 @@ def test_lost_create_cookie_only_minimal_bootstrap_recovery_and_no_active_post(
         "principal_disabled",
         "bound_csrf",
         "bound_key",
+        "bound_auth_version",
+        "bound_tuple",
         "bound_revoked",
         "bound_expired",
     ],
@@ -248,6 +254,19 @@ def test_complete_credential_and_bound_checks(demo: DemoPG, mutation: str) -> No
             db.execute(
                 "UPDATE business.web_sessions SET key_version='wrong-key' WHERE id=%s",
                 (subject.actor.session_id,),
+            )
+        elif mutation == "bound_auth_version":
+            db.execute(
+                "UPDATE business.web_sessions SET auth_version=auth_version+1 WHERE id=%s",
+                (subject.actor.session_id,),
+            )
+        elif mutation == "bound_tuple":
+            db.execute(
+                """UPDATE business.web_sessions w SET principal_id=m.principal_id,
+                identity_id=m.identity_id,auth_version=p.auth_version
+                FROM business.v4_demo_personas m JOIN business.principals p ON p.id=m.principal_id
+                WHERE m.tenant_id=%s AND m.persona_id='approver' AND w.id=%s""",
+                (subject.tenant["id"], subject.actor.session_id),
             )
         elif mutation == "bound_revoked":
             db.execute(
@@ -392,3 +411,269 @@ def test_reset_same_key_payload_once_changed_payload_conflicts_and_other_tenant_
             (UUID(first["context"]["tenant_id"]),),
         ).fetchone()
         assert receipts == {"n": 1} and events == {"n": 1}
+
+
+def test_revoked_target_persona_is_denied_while_current_operator_remains_valid(
+    demo: DemoPG,
+) -> None:
+    _, token = enter(demo)
+    before = demo.store.sessions.current(token)
+    tenant_id = UUID(before["context"]["tenant_id"])
+    with connect(demo.owner) as db:
+        changed = db.execute(
+            """UPDATE business.web_credentials c SET enabled=false
+            FROM business.v4_demo_personas m
+            WHERE m.tenant_id=%s AND m.persona_id='approver' AND c.identity_id=m.identity_id
+            RETURNING c.principal_id""",
+            (tenant_id,),
+        ).fetchall()
+        assert len(changed) == 1
+        assert changed[0]["principal_id"] != UUID(before["context"]["principal_id"])
+    still_current = demo.store.sessions.current(token)
+    assert still_current["data"] == before["data"]
+    command = dto.PersonaInput(
+        request_key=uuid4(), expected_epoch=0, expected_generation=0, persona_id="approver"
+    )
+    with pytest.raises(WebFailure, match="SESSION_INVALID"):
+        demo.store.control(token, before["data"]["csrf_token"], "persona", command)
+    after = demo.store.sessions.current(token)
+    assert after["data"] == before["data"]
+    assert after["context"]["auth_generation"] == 0
+    assert after["context"]["reset_epoch"] == 0
+    with connect(demo.app) as db:
+        receipts = db.execute(
+            "SELECT count(*) AS n FROM business.v4_demo_receipts "
+            "WHERE tenant_id=%s AND operation='persona'",
+            (tenant_id,),
+        ).fetchone()
+        assert receipts == {"n": 0}
+
+
+def test_five_runtime_provisions_commit_three_and_reject_two_at_db_capacity(demo: DemoPG) -> None:
+    """DB provision competition only; not a five-create HTTP throughput promise."""
+
+    @dataclass(frozen=True)
+    class Visitor:
+        owner: str = field(repr=False)
+        active: str = field(repr=False)
+        command: dto.CreateSessionInput
+        bootstrap: UUID
+        session: UUID
+        bound: UUID
+        nonce: UUID
+
+    @dataclass(frozen=True)
+    class Outcome:
+        index: int
+        backend_pid: int
+        committed: bool
+        tenant: UUID | None = None
+        sqlstate: str | None = None
+        message: str | None = None
+
+    expected_objects = dict(
+        organizations=3,
+        shops=6,
+        principals=9,
+        identities=9,
+        principal_shop_scopes=9,
+        principal_role_shop_grants=9,
+        web_credentials=9,
+        web_sessions=3,
+        v4_demo_tenants=3,
+        v4_demo_shops=6,
+        v4_demo_personas=9,
+        v4_demo_sessions=3,
+        v4_demo_receipts=3,
+        v4_demo_events=6,
+        v4_demo_overlays=0,
+    )
+
+    def object_counts() -> dict[str, int]:
+        with connect(demo.app) as db:
+            bounded(db)
+            result: dict[str, int] = {}
+            for table in expected_objects:
+                row = db.execute(
+                    sql.SQL("SELECT count(*) AS n FROM {}").format(
+                        sql.Identifier("business", table)
+                    )
+                ).fetchone()
+                assert row is not None
+                result[table] = row["n"]
+            return result
+
+    assert object_counts() == dict.fromkeys(expected_objects, 0)
+    # Real scrypt once before the DB race; never replace the application hash slot.
+    credential = password_hash(secrets.token_urlsafe(32))
+    visitors: list[Visitor] = []
+    for index in range(5):
+        bootstrap, owner = demo.store.bootstrap(None, f"v4-db-race-{index}")
+        assert owner is not None
+        command = dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1")
+        # Each original owner/key reservation commits independently before workers start.
+        with connect(demo.app) as db:
+            bounded(db)
+            row = demo.store.sessions.bootstrap_locked(db, owner)
+            demo.store.sessions.supplied_csrf(row, bootstrap["data"]["csrf_token"])
+            assert row["create_request_key"] is None and row["consumed_at"] is None
+            db.execute(
+                "UPDATE business.v4_demo_bootstraps SET create_request_key=%s WHERE id=%s",
+                (command.request_key, row["id"]),
+            )
+        visitors.append(
+            Visitor(
+                owner,
+                "v4d_" + secrets.token_urlsafe(32),
+                command,
+                row["id"],
+                uuid4(),
+                uuid4(),
+                uuid4(),
+            )
+        )
+    assert len({visitor.command.request_key for visitor in visitors}) == 5
+    assert len({visitor.bootstrap for visitor in visitors}) == 5
+    barrier = Barrier(6)
+
+    def provision(index: int) -> Outcome:
+        visitor = visitors[index]
+        pid = 0
+        try:
+            # Five actual runtime connections remain open at the barrier. The only
+            # capacity exclusion is the original advisory lock inside provision.
+            with connect(demo.app) as db:
+                bounded(db)
+                identity = db.execute(
+                    "SELECT pg_backend_pid() AS pid,current_user AS role"
+                ).fetchone()
+                assert identity is not None and identity["role"] == "commerceops_app"
+                pid = identity["pid"]
+                barrier.wait(timeout=10)
+                text = canonical_bytes(
+                    dict(
+                        method="POST",
+                        path="/api/v4/demo/sessions",
+                        body=visitor.command.model_dump(mode="json"),
+                    )
+                ).decode()
+                row = db.execute(
+                    "SELECT business.v4_demo_provision(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+                    "AS tenant_id",
+                    (
+                        visitor.bootstrap,
+                        visitor.command.request_key,
+                        text,
+                        digest(text),
+                        digest(visitor.active),
+                        visitor.session,
+                        visitor.bound,
+                        digest(demo_csrf(demo.config, visitor.session, visitor.nonce, 0, 0)),
+                        visitor.nonce,
+                        digest(secrets.token_urlsafe(32)),
+                        digest(csrf_token(demo.config.web.csrf_secret, visitor.bound)),
+                        demo.config.web.key_version,
+                        credential,
+                    ),
+                ).fetchone()
+                assert row is not None
+                tenant = row["tenant_id"]
+            # Return success only after the real transaction COMMIT completed.
+            return Outcome(index, pid, True, tenant)
+        except psycopg.errors.CheckViolation as error:
+            # Other CHECK failures retain their exact safe classification and fail
+            # the final comparison; no broad exception is counted as capacity.
+            return Outcome(
+                index, pid, False, sqlstate=error.sqlstate, message=error.diag.message_primary
+            )
+
+    pool = ThreadPoolExecutor(max_workers=5)
+    futures = []
+    try:
+        futures = [pool.submit(provision, index) for index in range(5)]
+        barrier.wait(timeout=10)
+        _, pending = wait(futures, timeout=45)
+        assert not pending, "five-provision workers exceeded bounded completion window"
+        outcomes = [future.result(timeout=0) for future in futures]
+    finally:
+        barrier.abort()
+        for future in futures:
+            future.cancel()
+        # No unbounded pool join during failure unwinding. The existing new-owned
+        # fixture FORCE-drops only this test DB; production connect/SQL/lock bounds stay.
+        pool.shutdown(wait=False, cancel_futures=True)
+    assert len({item.backend_pid for item in outcomes}) == 5
+    assert all(item.backend_pid > 0 for item in outcomes)
+    winners = [item for item in outcomes if item.committed]
+    losers = [item for item in outcomes if not item.committed]
+    for item in winners:
+        visitor = visitors[item.index]
+        current = demo.store.sessions.current(visitor.active)
+        assert UUID(current["context"]["tenant_id"]) == item.tenant
+        assert current["data"]["creation_request_key"] == str(visitor.command.request_key)
+        assert current["context"]["reset_epoch"] == 0
+        assert current["context"]["auth_generation"] == 0
+    for item in losers:
+        visitor = visitors[item.index]
+        recovered = demo.store.operation(
+            visitor.owner, "session_create", visitor.command.request_key
+        )
+        assert recovered["data"] == dict(
+            operation="session_create",
+            request_key=str(visitor.command.request_key),
+            status="UNKNOWN",
+            recovery="WAIT_READ_ONLY",
+        )
+        with connect(demo.app) as db:
+            bounded(db)
+            reservation = demo.store.sessions.bootstrap_locked(db, visitor.owner)
+            assert reservation["create_request_key"] == visitor.command.request_key
+            assert reservation["consumed_at"] is None
+
+    physical = object_counts()
+    with connect(demo.app) as db:
+        bounded(db)
+        tenants = db.execute("""SELECT id,organization_id,revoked_at,
+        expires_at>clock_timestamp() AS live FROM business.v4_demo_tenants""").fetchall()
+        sessions = db.execute("""SELECT id,tenant_id,revoked_at,
+        expires_at>clock_timestamp() AS live FROM business.v4_demo_sessions""").fetchall()
+        receipts = db.execute("""SELECT owner_session_id,tenant_id,request_key
+        FROM business.v4_demo_receipts WHERE operation='session_create'""").fetchall()
+        shops = db.execute("SELECT tenant_id,shop_id FROM business.v4_demo_shops").fetchall()
+        personas = db.execute(
+            "SELECT tenant_id,principal_id,identity_id FROM business.v4_demo_personas"
+        ).fetchall()
+    # Safe results/counts only; no bearer, bootstrap CSRF or password hash in repr.
+    observed = dict(
+        commits=len(winners),
+        failures=sorted((item.sqlstate, item.message) for item in losers),
+        active_tenants=sum(row["live"] and row["revoked_at"] is None for row in tenants),
+        active_sessions=sum(row["live"] and row["revoked_at"] is None for row in sessions),
+        organizations=len({row["organization_id"] for row in tenants}),
+        shops=len({row["shop_id"] for row in shops}),
+        principals=len({row["principal_id"] for row in personas}),
+        identities=len({row["identity_id"] for row in personas}),
+        objects=physical,
+    )
+    assert observed == dict(
+        commits=3,
+        failures=[("23514", "demo capacity limit"), ("23514", "demo capacity limit")],
+        active_tenants=3,
+        active_sessions=3,
+        organizations=3,
+        shops=6,
+        principals=9,
+        identities=9,
+        objects=expected_objects,
+    )
+    winning_tenants = {item.tenant for item in winners}
+    assert {row["id"] for row in tenants} == winning_tenants
+    assert {row["tenant_id"] for row in sessions} == winning_tenants
+    assert {row["tenant_id"] for row in receipts} == winning_tenants
+    assert {row["request_key"] for row in receipts} == {
+        visitors[item.index].command.request_key for item in winners
+    }
+    assert {row["owner_session_id"] for row in receipts} == {row["id"] for row in sessions}
+    for tenant in winning_tenants:
+        assert sum(row["tenant_id"] == tenant for row in shops) == 2
+        assert sum(row["tenant_id"] == tenant for row in personas) == 3
