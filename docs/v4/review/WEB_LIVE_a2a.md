@@ -37,3 +37,18 @@ helper对GET /session只筛origin/path/method/HTTP成功，等待器在点击控
 独立仅collect：新live config **1 test / native0**；原fixture无env **native1/Invalid URL**；原fixture有live env **34 tests/2files/native0且混收live**。使用精确源码与现有锁定node_modules读取依赖，临时目录/cache均在Reviewer .audit并已清理。未启动浏览器、访问URL、截图、操作真实cookie、连接PG或启动服务。本轮没有重新跑typecheck，作者pure/type/collect1仍按原准备事实分列。
 
 请作者在新增文件/config范围内优先修隔离及等待关联，普通提交精确SHA；原33fixture和新单live分开收集后再复审。当前driver8196已另签11HTTP准备组件，不等于此live spec已接受，也不等待不存在的TTL/browserMode来覆盖本次问题。
+
+
+## 0476 + 8ef增量复审：LIVE-01/02关闭，390登录态范围接受
+
+日期：2026-11-04（Asia/Taipei）。修复 `0476f8203a9fe08eedf4c48c2bf3ddbc1d01bdcd` / tree `c8526085c8512beb1f53bc5f2198661c34ac3352`，随后移动段candidate `8ef6664ac6a0b03e1df55fbcdae00789ff3246f5` / tree `d340d85072cf1eec4192c9e04ad9a1b1cdccb3bc`。**结论：ACCEPT_PREPARED_LIVE_SPEC_SCOPED，增量0 P1 / 0 P2，原两项关闭。** 当前只接受一个live标题的桌面生命周期与390登录态/弹窗/deep-link准备代码，不签实际browser或移动UI导航/200%验收。
+
+LIVE-01 CLOSED：新增文件改名lifecycle.live.ts，专用config精确匹配该名，原fixture配置未改。独立精确8ef快照Playwright --list：原fixture不设live env仍native0/33tests/1file；设置live env也仍33且不含LIVE标题；专用live配置native0/1test/1file。三个收集集合验证不依赖skip/默认API，不启动浏览器或访问URL。
+
+LIVE-02 CLOSED：persona/reset实际waitForResponse改接sessionResponseMatches，在点击前注册，先筛精确API origin/path/GET/成功HTTP，再用未改的冻结schema strict校验完整SessionEnvelope，要求status OK、session级shop为空、原creation key/tenant/org、目标persona及本次精确epoch/generation。旧poll不满足新generation不会消费等待器；后续live断言仍对照POST回执的principal及完整上下文，不用helper替代最终成功边界。纯EventEmitter序列用例证明旧200和schema extra均不能完成，随后正确fresh响应才完成；异origin拒绝。生产poll未禁用，未加sleep/mock/retry绕开。
+
+390增量在第一次成功logout后由显式点击新建第二tenant，核新key/tenant不同、operator双店，移动summary的shop/代际/请求header与UI数据一致，检查横向不溢出并保存登录态截图。mobile current等待器关联本次真实CreateEnvelope的key/tenant/代际，避免旧tenant在途响应被当作新会话。settings阶段当前仍用page.goto('/v4/settings/demo')，只证明既有deep link载入及当前身份恢复，**不证明菜单导航**。随后390弹窗两个按钮可见、Enter打开、Tab后activeElement仍在dialog、Escape关闭且焦点回reset，保存弹窗截图；最后实际logout并核cookie/敏感UI清除。该移动段没有实际点击确认reset，其真正reset仍在桌面段完成，不能扩大覆盖措辞。
+
+未改生产组件/路由/冻结schema；独立Git blob核v4-schema.json与63a相同。ROOT另释放的紧凑移动nav仍WIP，本轮没有读取或预签；待第三精确commit单独审。没有新增14模块、任意routes或用CSS/viewport假冒真实200%。trace/video/自动失败截图仍关闭，显式图像只限计划页面，运行需ROOT独占新evidence目录及同一新owned窗口。
+
+独立精确8ef快照Node纯测试 **22 PASS / 0 FAIL / 0 SKIP / 166.147ms / native0**，包括新增等待器事件序列。首次Reviewer临时快照漏导出OpenAPI测试读取的冻结baseline，导致该文件native1；补齐同SHA baseline后才得到上述完整22通过，未修改测试或将首次失败归为作者实现缺陷。三个Playwright collect结果如上；typecheck本轮未重跑，作者结果保持分列。所有临时目录/cache已清理，无真实服务/浏览器/PG执行，截图尚未产生。
