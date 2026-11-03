@@ -181,11 +181,11 @@ M3_PUBLIC_EXCEPTIONS = (
         176,
     ),
     (
-        "1a78d5a23fd888265cc8e30dde6c492d8b6c94cc",
+        "e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da",
         "backend/migrations/versions/0021_p6_readonly_inquiries.py",
         "^backend/migrations/versions/0021_p6_readonly_inquiries\\.py$",
         "47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a",
-        72,
+        80,
     ),
 )
 

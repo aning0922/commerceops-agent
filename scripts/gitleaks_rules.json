@@ -229,9 +229,9 @@
       "path": "^backend/migrations/versions/0021_p6_readonly_inquiries\\.py$",
       "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
       "exact_line_sha256": "47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a",
-      "source_commit": "1a78d5a23fd888265cc8e30dde6c492d8b6c94cc",
+      "source_commit": "e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da",
       "source_path": "backend/migrations/versions/0021_p6_readonly_inquiries.py",
-      "source_line": 72
+      "source_line": 80
     }
   ],
   "historical_findings": [
