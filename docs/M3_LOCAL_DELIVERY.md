@@ -100,7 +100,7 @@ UI 开关只控制展示，不替代后端显式配置、owner grant 或当前�
 | 来源 | 绑定要求 | 当前证据边界 |
 |---|---|---|
 | 日报原 shop | external key=`daily`，timezone=`Asia/Taipei`；日报 metadata、manifest、digest 与 `DailyDeployment` 绑定一致 | `m3_daily_demo` 复用 `tests/test_daily_pg.py::prepare`，将原技术 shop 改为日报来源 |
-| copy/询单另一个 Mock baseline shop | external key=`demo`，timezone=`Asia/Shanghai`，config_ref=`fixture:inventory-v1`；独立内部 shop UUID | copy exporter 要求 fresh synthetic `demo` shop；询单核 adapter/environment、external key、currency、timezone 与 baseline fixture 一致。第二 shop 的登记/seed 实跑尚未核收 |
+| copy/询单另一个 Mock baseline shop | external key=`demo`，timezone=`Asia/Shanghai`，原技术 baseline 的 config_ref=`technical_fixture`；独立内部 shop UUID | copy exporter 要求 fresh synthetic `demo` shop；询单核 adapter/environment、external key、currency、timezone 与 baseline fixture 一致。第二 shop 的登记/seed 实跑尚未核收 |
 
 两店铺属于同一新合成 organization，复用同一个原 Web 账号，并在两店铺显式登记相应 scope 与
 operator/approver role grant；已有 org 角色不能代替 shop scope。不能把日报 shop UUID 直接传入 copy
