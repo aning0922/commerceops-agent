@@ -1,0 +1,52 @@
+{
+  "stage": "V4-0",
+  "authorization": "B_LOCAL_IMPLEMENTATION",
+  "started_at_utc": "2026-11-03T14:04:33Z",
+  "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
+  "base_tree": "43e4e732824e23b991660a4f7882ba8f5a265df1",
+  "cards": {
+    "V40-01": "BASELINE_RECONFIRMED",
+    "V40-02": "USER_ACCEPTED_CONTRACTS",
+    "V40-03": "SQL_PLAN_IN_PROGRESS",
+    "V40-04": "SEED_SPEC_IN_PROGRESS",
+    "V40-05": "UI_IMPLEMENTATION_AND_QA_PREPARATION"
+  },
+  "owner_worktrees": {
+    "ROOT": "commerceops-v4-control",
+    "SCHEMA_API": "commerceops-v4-foundation",
+    "WEB": "commerceops-v4-web",
+    "QA": "commerceops-v4-qa",
+    "REVIEW": "commerceops-v4-review"
+  },
+  "protected_old_worktrees": "unchanged",
+  "model_policy": {
+    "backend": "gpt-6.1-sol/high for identity and transactions",
+    "web": "gpt-6.1-terra/high",
+    "review": "gpt-6-astra/high for critical; bounded increments may reduce effort",
+    "qa": "gpt-6.1-sol/medium; elevate on complex issues"
+  },
+  "actual_token_cost": "UNKNOWN",
+  "hosted": "NOT_AUTHORIZED_NOT_RUN",
+  "real_external_calls": "NOT_AUTHORIZED_NOT_RUN",
+  "V4-1": "NOT_AUTHORIZED_NOT_STARTED",
+  "current_runtime_resources": [],
+  "known_failures": [
+    "System Python docs check failed missing markdown_it; new frozen uv venv solved",
+    "Initial imported CSV CRLF whitespace failure; eb82c9d LF normalization independently accepted, old source bytes preserved",
+    "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed"
+  ],
+  "updated_at_utc": "2026-11-03T14:13:35.131263+00:00",
+  "engineering_gate_scope_release": {
+    "owner": "SECURITY_SCAN",
+    "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
+    "paths": [
+      ".gitleaks.toml",
+      "scripts/scan_secrets.py",
+      "scripts/gitleaks_rules.json",
+      "tests/test_quality_gates.py",
+      "tests/test_v4_scan_compat.py",
+      "docs/v4/acceptance/v4-0/SCAN_COMPAT.md"
+    ],
+    "status": "IN_PROGRESS_REQUIRES_INDEPENDENT_REVIEW"
+  }
+}
