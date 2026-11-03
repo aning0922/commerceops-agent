@@ -183,7 +183,8 @@ failed→report=null/固定failure_code；needs_attention→failure_code非null�
 DTO/S1模型负责额外跨字段公式/hash，不能单凭JSON Schema声称验证金额正确。
 GET无model/commerce调用、无task/job写入、无静默重新登录；401缺身份、403撤权/CSRF，
 404跨org/shop/owner或不存在，503存储/谱系校验不可用，固定safe_message不吐SQL/原文。
-错误schema同asset `$defs/ErrorEnvelope`，不存在“HTTP200但含error”兼容分支。
+错误沿用既有P3 HTTP错误envelope；成功详情schema不覆盖middleware错误，后续API OpenAPI须引用原错误合同。
+不存在“HTTP200但含error”兼容分支。
 Web仅在Root独审核收此asset后消费；schema提交不代表端点存在。
 四类追问enum仅作为后续type声明 `metric_definition/metric_evidence/finding_reason/data_quality`，
 `question_creation_enabled=false`；本片不建question表、不创建伪答案或假可点击控件。
@@ -208,3 +209,20 @@ owned PG、真实HTTP服务、真实模型、发送、Web E2E、Hosted、迁移�
 Git差异空白通过。首轮schema结构检查要求全部声明属性必填，发现共享DTO默认字段未在required中，
 实际AssertionError；已将所有对象属性列为required（可空字段仍须显式null），随后结构检查15defs/16strict objects/
 全部local refs存在/金额仅string通过。该检查不是完整JSON Schema引擎或API运行验证，二者NOT_RUN。
+
+## 7. Read DTO / schema P2 修复实际候选
+
+Root已释放S2实现；本次先交真实 `application/daily/read_models.py`、可重复生成
+`scripts/export_daily_schema.py` 与独立Ajv运行器 `scripts/check_daily_schema.py`。
+资产直接来自真实Pydantic serialization schema，不后处理minimum、required或正则；六处计数用wire专用strict int+Field(ge=0)，
+均导出minimum=0。金额wire为有界canonical十进制string，拒绝JSON number/负零/多余精度；S1数值模型未改。
+成功响应覆盖queued/analyzing/completed/failed/needs_attention及质量诊断；Source仅公开投影，未建立API或打开模型/推送。
+
+最终实际验证：`pytest -q tests/test_daily_report.py tests/test_daily_read_models.py` **182passed/0.21s/native0**；
+针对4文件Ruff/mypy/format通过。初轮176pass/1fail为合法测试比较+00:00与Z文本差异，改为DTO语义roundtrip后通过；
+首轮Ruff残留生成器描述行超长已修正。固定Node24.21.0/npm11.19.0下仅在本树
+`npm --prefix frontend ci --ignore-scripts`按原锁安装41packages/audit42/0vulnerabilities；manifest/锁不改。
+`python -m scripts.check_daily_schema`实际Ajv8.20.0+ajv-formats3.0.1 Draft2020 strict **31cases/native0**，
+包含合法各态、六负计数、金额类型/格式/越界、额外字段、非法状态与hash格式；公式/display/hash语义例由DTO拒绝。
+曾只读使用现成缓存jsonschema4.26.0核26例通过（无安装），最终权威检查改用项目已锁Ajv，前者不作为新依赖。
+旧设计结构检查不是schema引擎的限制已由上述实际检查补齐；PG/HTTP服务/API/真实模型/发送仍NOT_RUN。

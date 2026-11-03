@@ -1,6 +1,6 @@
 {
   "$defs": {
-    "Attention": {
+    "AttentionDaily": {
       "additionalProperties": false,
       "properties": {
         "schema_version": {
@@ -44,23 +44,28 @@
           "type": "boolean"
         },
         "question_kinds": {
-          "items": {
-            "enum": [
-              "metric_definition",
-              "metric_evidence",
-              "finding_reason",
-              "data_quality"
-            ],
-            "type": "string"
-          },
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
           "title": "Question Kinds",
-          "type": "array",
-          "const": [
-            "metric_definition",
-            "metric_evidence",
-            "finding_reason",
-            "data_quality"
-          ]
+          "type": "array"
         },
         "schedule_enabled": {
           "const": false,
@@ -116,7 +121,7 @@
         "failure_code",
         "report"
       ],
-      "title": "Attention",
+      "title": "AttentionDaily",
       "type": "object"
     },
     "CompleteReport": {
@@ -148,7 +153,7 @@
           "type": "string"
         },
         "window": {
-          "$ref": "#/$defs/Window"
+          "$ref": "#/$defs/ReadWindow"
         },
         "source": {
           "$ref": "#/$defs/PublicSource"
@@ -177,8 +182,7 @@
             "type": "string"
           },
           "title": "Quality Flags",
-          "type": "array",
-          "maxItems": 0
+          "type": "array"
         },
         "findings": {
           "items": {
@@ -188,9 +192,9 @@
           "type": "array"
         },
         "evidence_count": {
+          "minimum": 0,
           "title": "Evidence Count",
-          "type": "integer",
-          "minimum": 0
+          "type": "integer"
         },
         "complete": {
           "const": true,
@@ -198,7 +202,7 @@
           "type": "boolean"
         },
         "metrics": {
-          "$ref": "#/$defs/DailyMetrics"
+          "$ref": "#/$defs/ReadMetrics"
         },
         "display": {
           "items": {
@@ -228,7 +232,7 @@
       "title": "CompleteReport",
       "type": "object"
     },
-    "Completed": {
+    "CompletedDaily": {
       "additionalProperties": false,
       "properties": {
         "schema_version": {
@@ -272,23 +276,28 @@
           "type": "boolean"
         },
         "question_kinds": {
-          "items": {
-            "enum": [
-              "metric_definition",
-              "metric_evidence",
-              "finding_reason",
-              "data_quality"
-            ],
-            "type": "string"
-          },
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
           "title": "Question Kinds",
-          "type": "array",
-          "const": [
-            "metric_definition",
-            "metric_evidence",
-            "finding_reason",
-            "data_quality"
-          ]
+          "type": "array"
         },
         "schedule_enabled": {
           "const": false,
@@ -329,7 +338,7 @@
         "failure_code",
         "report"
       ],
-      "title": "Completed",
+      "title": "CompletedDaily",
       "type": "object"
     },
     "DailyFinding": {
@@ -416,129 +425,9 @@
         "severity",
         "metric_key",
         "evidence_ids",
-        "rule_version",
         "rule_config_hash"
       ],
       "title": "DailyFinding",
-      "type": "object"
-    },
-    "DailyMetrics": {
-      "additionalProperties": false,
-      "properties": {
-        "created_order_count": {
-          "ge": 0,
-          "title": "Created Order Count",
-          "type": "integer"
-        },
-        "paid_order_count": {
-          "ge": 0,
-          "title": "Paid Order Count",
-          "type": "integer"
-        },
-        "paid_product_net": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "paid_product_tax": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "paid_shipping_net": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "paid_shipping_tax": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "paid_fee_net": {
-          "type": "string",
-          "pattern": "^(?!-0$)-?(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "paid_fee_tax": {
-          "type": "string",
-          "pattern": "^(?!-0$)-?(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "paid_order_total": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "refund_count": {
-          "ge": 0,
-          "title": "Refund Count",
-          "type": "integer"
-        },
-        "refunded_order_count": {
-          "ge": 0,
-          "title": "Refunded Order Count",
-          "type": "integer"
-        },
-        "refund_amount": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
-          "description": "Canonical Decimal numeric(20,6) wire string; no JSON numbers or float coercion."
-        },
-        "orders_without_payment_timestamp": {
-          "ge": 0,
-          "title": "Orders Without Payment Timestamp",
-          "type": "integer"
-        },
-        "status_counts": {
-          "items": {
-            "$ref": "#/$defs/StatusCount"
-          },
-          "title": "Status Counts",
-          "type": "array"
-        },
-        "average_paid_order_value": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/ExactAverage"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "average_reason": {
-          "anyOf": [
-            {
-              "const": "ZERO_DENOMINATOR",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Average Reason"
-        }
-      },
-      "required": [
-        "created_order_count",
-        "paid_order_count",
-        "paid_product_net",
-        "paid_product_tax",
-        "paid_shipping_net",
-        "paid_shipping_tax",
-        "paid_fee_net",
-        "paid_fee_tax",
-        "paid_order_total",
-        "refund_count",
-        "refunded_order_count",
-        "refund_amount",
-        "orders_without_payment_timestamp",
-        "status_counts",
-        "average_paid_order_value",
-        "average_reason"
-      ],
-      "title": "DailyMetrics",
       "type": "object"
     },
     "ExactAverage": {
@@ -562,7 +451,7 @@
       "title": "ExactAverage",
       "type": "object"
     },
-    "Failed": {
+    "FailedDaily": {
       "additionalProperties": false,
       "properties": {
         "schema_version": {
@@ -606,23 +495,28 @@
           "type": "boolean"
         },
         "question_kinds": {
-          "items": {
-            "enum": [
-              "metric_definition",
-              "metric_evidence",
-              "finding_reason",
-              "data_quality"
-            ],
-            "type": "string"
-          },
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
           "title": "Question Kinds",
-          "type": "array",
-          "const": [
-            "metric_definition",
-            "metric_evidence",
-            "finding_reason",
-            "data_quality"
-          ]
+          "type": "array"
         },
         "schedule_enabled": {
           "const": false,
@@ -672,7 +566,7 @@
         "failure_code",
         "report"
       ],
-      "title": "Failed",
+      "title": "FailedDaily",
       "type": "object"
     },
     "IncompleteReport": {
@@ -704,7 +598,7 @@
           "type": "string"
         },
         "window": {
-          "$ref": "#/$defs/Window"
+          "$ref": "#/$defs/ReadWindow"
         },
         "source": {
           "$ref": "#/$defs/PublicSource"
@@ -743,9 +637,9 @@
           "type": "array"
         },
         "evidence_count": {
+          "minimum": 0,
           "title": "Evidence Count",
-          "type": "integer",
-          "minimum": 0
+          "type": "integer"
         },
         "complete": {
           "const": false,
@@ -825,7 +719,7 @@
       "title": "MetricDisplay",
       "type": "object"
     },
-    "Pending": {
+    "PendingDaily": {
       "additionalProperties": false,
       "properties": {
         "schema_version": {
@@ -869,23 +763,28 @@
           "type": "boolean"
         },
         "question_kinds": {
-          "items": {
-            "enum": [
-              "metric_definition",
-              "metric_evidence",
-              "finding_reason",
-              "data_quality"
-            ],
-            "type": "string"
-          },
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
           "title": "Question Kinds",
-          "type": "array",
-          "const": [
-            "metric_definition",
-            "metric_evidence",
-            "finding_reason",
-            "data_quality"
-          ]
+          "type": "array"
         },
         "schedule_enabled": {
           "const": false,
@@ -930,7 +829,7 @@
         "failure_code",
         "report"
       ],
-      "title": "Pending",
+      "title": "PendingDaily",
       "type": "object"
     },
     "PublicSource": {
@@ -945,12 +844,16 @@
           "type": "string"
         },
         "source_config_version": {
+          "maxLength": 256,
+          "minLength": 1,
           "title": "Source Config Version",
           "type": "string"
         },
         "fixture_version": {
           "anyOf": [
             {
+              "maxLength": 256,
+              "minLength": 1,
               "type": "string"
             },
             {
@@ -960,10 +863,24 @@
           "title": "Fixture Version"
         },
         "currency": {
+          "enum": [
+            "CNY",
+            "USD",
+            "EUR",
+            "JPY",
+            "GBP",
+            "AUD",
+            "CAD",
+            "HKD",
+            "CHF",
+            "SGD"
+          ],
           "title": "Currency",
           "type": "string"
         },
         "timezone": {
+          "maxLength": 256,
+          "minLength": 1,
           "title": "Timezone",
           "type": "string"
         },
@@ -984,7 +901,126 @@
       "title": "PublicSource",
       "type": "object"
     },
-    "StatusCount": {
+    "ReadMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "created_order_count": {
+          "minimum": 0,
+          "title": "Created Order Count",
+          "type": "integer"
+        },
+        "paid_order_count": {
+          "minimum": 0,
+          "title": "Paid Order Count",
+          "type": "integer"
+        },
+        "paid_product_net": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Product Net",
+          "type": "string"
+        },
+        "paid_product_tax": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Product Tax",
+          "type": "string"
+        },
+        "paid_shipping_net": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Shipping Net",
+          "type": "string"
+        },
+        "paid_shipping_tax": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Shipping Tax",
+          "type": "string"
+        },
+        "paid_fee_net": {
+          "pattern": "^(0|-?[1-9][0-9]{0,13}|-?(0|[1-9][0-9]{0,13})\\.[0-9]{0,5}[1-9])$",
+          "title": "Paid Fee Net",
+          "type": "string"
+        },
+        "paid_fee_tax": {
+          "pattern": "^(0|-?[1-9][0-9]{0,13}|-?(0|[1-9][0-9]{0,13})\\.[0-9]{0,5}[1-9])$",
+          "title": "Paid Fee Tax",
+          "type": "string"
+        },
+        "paid_order_total": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Order Total",
+          "type": "string"
+        },
+        "refund_count": {
+          "minimum": 0,
+          "title": "Refund Count",
+          "type": "integer"
+        },
+        "refunded_order_count": {
+          "minimum": 0,
+          "title": "Refunded Order Count",
+          "type": "integer"
+        },
+        "refund_amount": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Refund Amount",
+          "type": "string"
+        },
+        "orders_without_payment_timestamp": {
+          "minimum": 0,
+          "title": "Orders Without Payment Timestamp",
+          "type": "integer"
+        },
+        "status_counts": {
+          "items": {
+            "$ref": "#/$defs/ReadStatusCount"
+          },
+          "title": "Status Counts",
+          "type": "array"
+        },
+        "average_paid_order_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExactAverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "average_reason": {
+          "anyOf": [
+            {
+              "const": "ZERO_DENOMINATOR",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Average Reason"
+        }
+      },
+      "required": [
+        "created_order_count",
+        "paid_order_count",
+        "paid_product_net",
+        "paid_product_tax",
+        "paid_shipping_net",
+        "paid_shipping_tax",
+        "paid_fee_net",
+        "paid_fee_tax",
+        "paid_order_total",
+        "refund_count",
+        "refunded_order_count",
+        "refund_amount",
+        "orders_without_payment_timestamp",
+        "status_counts",
+        "average_paid_order_value",
+        "average_reason"
+      ],
+      "title": "ReadMetrics",
+      "type": "object"
+    },
+    "ReadStatusCount": {
       "additionalProperties": false,
       "properties": {
         "status": {
@@ -1002,7 +1038,7 @@
           "type": "string"
         },
         "count": {
-          "ge": 0,
+          "minimum": 0,
           "title": "Count",
           "type": "integer"
         }
@@ -1011,18 +1047,12 @@
         "status",
         "count"
       ],
-      "title": "StatusCount",
+      "title": "ReadStatusCount",
       "type": "object"
     },
-    "Window": {
+    "ReadWindow": {
       "additionalProperties": false,
       "properties": {
-        "schema_version": {
-          "const": "commerce-v1",
-          "default": "commerce-v1",
-          "title": "Schema Version",
-          "type": "string"
-        },
         "start": {
           "format": "date-time",
           "title": "Start",
@@ -1035,121 +1065,10 @@
         }
       },
       "required": [
-        "schema_version",
         "start",
         "end"
       ],
-      "title": "Window",
-      "type": "object"
-    },
-    "ErrorDetail": {
-      "additionalProperties": false,
-      "properties": {
-        "code": {
-          "enum": [
-            "IDENTITY_REQUIRED",
-            "SCOPE_DENIED",
-            "RESOURCE_NOT_FOUND",
-            "SERVICE_UNAVAILABLE"
-          ],
-          "title": "Code",
-          "type": "string"
-        },
-        "safe_message": {
-          "enum": [
-            "IDENTITY_REQUIRED",
-            "SCOPE_DENIED",
-            "RESOURCE_NOT_FOUND",
-            "SERVICE_UNAVAILABLE"
-          ],
-          "title": "Safe Message",
-          "type": "string"
-        }
-      },
-      "required": [
-        "code",
-        "safe_message"
-      ],
-      "title": "ErrorDetail",
-      "type": "object",
-      "oneOf": [
-        {
-          "properties": {
-            "code": {
-              "const": "IDENTITY_REQUIRED"
-            },
-            "safe_message": {
-              "const": "IDENTITY_REQUIRED"
-            }
-          }
-        },
-        {
-          "properties": {
-            "code": {
-              "const": "SCOPE_DENIED"
-            },
-            "safe_message": {
-              "const": "SCOPE_DENIED"
-            }
-          }
-        },
-        {
-          "properties": {
-            "code": {
-              "const": "RESOURCE_NOT_FOUND"
-            },
-            "safe_message": {
-              "const": "RESOURCE_NOT_FOUND"
-            }
-          }
-        },
-        {
-          "properties": {
-            "code": {
-              "const": "SERVICE_UNAVAILABLE"
-            },
-            "safe_message": {
-              "const": "SERVICE_UNAVAILABLE"
-            }
-          }
-        }
-      ]
-    },
-    "ErrorEnvelope": {
-      "additionalProperties": false,
-      "properties": {
-        "schema_version": {
-          "const": "p3-web-v1",
-          "title": "Schema Version",
-          "type": "string"
-        },
-        "identity_mode": {
-          "const": "session",
-          "title": "Identity Mode",
-          "type": "string"
-        },
-        "server_time": {
-          "format": "date-time",
-          "title": "Server Time",
-          "type": "string"
-        },
-        "trace_id": {
-          "format": "uuid",
-          "title": "Trace Id",
-          "type": "string"
-        },
-        "error": {
-          "$ref": "#/$defs/ErrorDetail"
-        }
-      },
-      "required": [
-        "schema_version",
-        "identity_mode",
-        "server_time",
-        "trace_id",
-        "error"
-      ],
-      "title": "ErrorEnvelope",
+      "title": "ReadWindow",
       "type": "object"
     }
   },
@@ -1178,16 +1097,16 @@
     "daily": {
       "anyOf": [
         {
-          "$ref": "#/$defs/Pending"
+          "$ref": "#/$defs/PendingDaily"
         },
         {
-          "$ref": "#/$defs/Completed"
+          "$ref": "#/$defs/CompletedDaily"
         },
         {
-          "$ref": "#/$defs/Failed"
+          "$ref": "#/$defs/FailedDaily"
         },
         {
-          "$ref": "#/$defs/Attention"
+          "$ref": "#/$defs/AttentionDaily"
         }
       ],
       "title": "Daily"
@@ -1200,9 +1119,9 @@
     "trace_id",
     "daily"
   ],
-  "title": "Envelope",
+  "title": "DailyRead",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:commerceops:proposal:p6-daily-read-v1",
-  "description": "PROPOSED only. GET /api/v1/daily-reports/{task_id}; no endpoint implemented. Cross-field hashes, exact display and authorization require application validation."
+  "$id": "urn:commerceops:p6-daily-read-v1",
+  "description": "Generated from application.daily.read_models.DailyRead; cross-field formulas, exact display, stored hashes and authorization require DTO/store validation."
 }
