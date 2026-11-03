@@ -55,3 +55,20 @@ Hosted仍按原同SHA五job运行：quality为existing+full-smoke，phase3为pha
 完整本地应用启动依赖Root转交S3及K2后续精确已审提交、真实线性head和默认关闭外发/模型的配置合同；在新owned段使用自创合成资料/替身。真实资料、模型/embedding预算和实际发送不从本提案获得授权。原M2 backup在M3 head继续拒绝不匹配版本/表集合；若后续需要M3备份须独立合同，不在本片放宽。
 
 本轮Markdown检查127files/errors0、Git差异空白检查通过。证据仅Git/源码只读核查、本文及文档检查；未运行Compose parser/build/PG/API/浏览器/模型/飞书或Hosted。本提案是否实施及具体资源窗口均待Root精确审查后放行。
+
+
+## Root放行后的实现候选
+
+Root已明确放行本文推荐范围。本增量实现封闭`--m3-pgvector`、只改postgres image/build的override，以及当前五job消费、精确来源/容器/文件列表/清理绑定；原提案正文保留记录时点。Stock compose、M2 owned/backup、Dockerfile/pins及旧窗口文件不改。
+
+新增`scripts/m3_pgvector.py`只负责显式镜像准备和专用绑定，不启动PG或装配应用。显式build单次最多300s且受原父UTC截止减85s限制，超时回收自有CLI进程组、不自动重试；原db-init/pg-test build120s、PG测试300s及原清理不放宽。回执使用当前source SHA/tree、固定构建输入（含`.dockerignore`）hash、native arm64/amd64、PG/vector标签及实际image ID；缺回执、来源变化、镜像tag被替换或实际postgres容器不符即拒绝。Docker元数据不证明扩展SQL可用，实际vector0.8.7与ACL仍由迁移/PG Gate核验。Docker daemon内部build工作是否全部终止不由CLI回收单独证明。
+
+N01及三批Web默认旧模式的闭合字段保持；显式M3新增独立绑定及构建输入。当前CI另有必经M3回执Gate，拒绝遗漏M3绑定，不能借旧模式兼容绕过当前head消费；N01外层cleanup仍按实际ordered compose文件、镜像ID及原owner/project核验。完整PG fingerprint新增同源构建文件，集合分组/G1/G2逻辑不改。
+
+最终验证：使用本工作树`backend/src`优先的PYTHONPATH，28项新增M3纯契约及PG分组/停止/配对、N01/失败证据、M1/M2旧保护回归合计 **295 passed / 11.66s / native0**，日志`.audit/runtime-final-frozen-contract.log`。Ruff/format、mypy七文件、Markdown127files/errors0及Git差异空白通过。直接逐字节比较stock compose、m2_owned、m2_backup及已审Dockerfile/pins与f3基线相同。
+
+原生无资源验证：用本机Docker Compose独立插件和空Docker配置目录分别解析base与base+M3，均exit0；还原新image/build后两份解析JSON完全相等。未创建secret文件、连接业务数据库或启动容器。首次通过`docker compose`及隔离Docker配置调用返回125，保留该失败；后改为直接调用现有独立插件，未修改全局配置。
+
+保留开发检查：首轮相关契约141pass/39fail，其中38项缺本工作树固定Node工具、一项为旧workflow字节断言需精确登记获准的M3扩展；只读链接已有固定Node工具并逐段同步允许增量后，第二轮206pass/9.85s，再经预算传递修正和新增超时/符号链接反例，以上最终295项通过。开发期lint/type报错已修正，未把中间结果签给最终候选。
+
+未运行build/PG/API/browser/provider/模型/飞书或Hosted；当前base仍未包含完整后续M3迁移/S3注册，此实现不转签旧Root镜像或SQL证据。原生amd64、实际镜像、完整PG/Web与容量由Root后续同冻结集成源核收。
