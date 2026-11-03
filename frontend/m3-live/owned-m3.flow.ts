@@ -6,6 +6,7 @@ import { validEvidence, validQuestion } from "../lib/p6-daily-s3-read";
 import { validInquiryRead } from "../lib/p6-inquiry-client";
 import { validCandidate } from "../lib/p6-copy-client";
 import { loadOwned, uuid } from "./owned-m3-input";
+import { validOwnedCopyPreview } from "./owned-copy-preview";
 import { get, go, noOverflow, post, response, session } from "./owned-m3-harness";
 import type { Session } from "./owned-m3-harness";
 const { window: w, seed: seed, stop, record, verify, close } = loadOwned();
@@ -70,8 +71,9 @@ const copyKeys = new Set<string>();
 async function createCopy(s: Session) {
  const page = s.page, copy = seed.copy;
  await page.locator('select[name="shop"]').selectOption(seed.copy.shop_id); await page.locator('input[name="registry"]').fill(copy.registry_id); await page.locator('input[name="digest"]').fill(copy.registry_digest); await page.locator('input[name="product"]').fill(copy.product_source_id); await page.locator('input[name="query"]').fill(copy.query_ref); await page.locator('input[name="reviewer"]').fill(copy.reviewer_id);
- await page.getByRole("button", { name: "预览候选请求" }).click(); const fixed = await fixedPreview(page); expect(fixed.kind).toBe("create"); expect(fixed.input.shop_id).toBe(seed.copy.shop_id); expect(fixed.input.reviewer_id).toBe(copy.reviewer_id); expect(uuid.test(fixed.input.request_key)).toBe(true); if (copyKeys.has(fixed.input.request_key)) throw new Error("Copy request key reused"); copyKeys.add(fixed.input.request_key); await noOverflow(page);
- s.guard.allowCopyProbe(); record({ event: "before_post", operation: "copy.create", input: fixed.input }); const path = "/api/v1/copy/candidates"; exactPreview(s, path, fixed.input); const created = s.dropNext(path); await page.getByRole("button", { name: "确认提交一次" }).click(); const status = await created; record({ event: "response_dropped", operation: "copy.create", status }); expect(status).toBe(202); await expect(page.getByText("结果待核实；请只查询原请求键。")).toBeVisible();
+ await page.getByRole("button", { name: "预览候选请求" }).click(); const fixed = await fixedPreview(page); if (!validOwnedCopyPreview(fixed, copy)) throw new Error("Copy preview does not match owned seed and schema"); if (copyKeys.has(fixed.input.request_key)) throw new Error("Copy request key reused"); copyKeys.add(fixed.input.request_key); await noOverflow(page);
+ s.guard.allowCopyProbe(); record({ event: "before_post", operation: "copy.create", input: fixed.input }); const path = "/api/v1/copy/candidates"; const frozen = JSON.stringify(fixed.input);
+ post(s, path, body => { try { const input: unknown = JSON.parse(body ?? ""); return JSON.stringify(input) === frozen && validOwnedCopyPreview({ kind: "create", input }, copy); } catch { return false; } }); const created = s.dropNext(path); await page.getByRole("button", { name: "确认提交一次" }).click(); const status = await created; record({ event: "response_dropped", operation: "copy.create", status }); expect(status).toBe(202); await expect(page.getByText("结果待核实；请只查询原请求键。")).toBeVisible();
  const keyPath = `/api/v1/copy/candidate-requests/${fixed.input.request_key}`; const body = await receipt(s, keyPath, ""); if (!validCandidate(body)) throw new Error("Copy candidate DTO rejected"); expect(body.data.candidate.owner_id).toBe(seed.owner.principal_id); expect(body.data.candidate.reviewer_id).toBe(copy.reviewer_id); expect(body.data.candidate.retrieval.scope.shop_id).toBe(seed.copy.shop_id); expect(body.data.candidate.retrieval.scope.organization_id).toBe(seed.organization_id); expect(body.data.state).toBe("awaiting_review"); record({ event: "receipt", operation: "copy.create", request_key: fixed.input.request_key, candidate_id: body.data.candidate.candidate_id, candidate_hash: body.data.candidate.candidate_hash });
  await page.getByRole("button", { name: "完成原回执核对" }).click(); return body.data.candidate.candidate_id;
 }

@@ -19,7 +19,8 @@ export function validShopScopes(s: Seed): boolean {
   const shops = [s.daily_shop_id, s.inquiry_shop_id];
   if (![s.owner, s.reviewer, s.unassigned, s.outside].every(a => a && validRoleMap(a.shop_roles, shops))) return false;
   return s.owner.shop_roles[s.daily_shop_id].includes("operator") && s.owner.shop_roles[s.inquiry_shop_id].includes("operator") &&
-    s.reviewer.shop_roles[s.copy.shop_id].includes("approver") && s.unassigned.shop_roles[s.copy.shop_id].includes("approver") && s.outside.shop_roles[s.copy.shop_id].length === 0;
+    s.reviewer.shop_roles[s.copy.shop_id].includes("approver") && s.unassigned.shop_roles[s.copy.shop_id].includes("approver") &&
+    s.outside.home_path === "/tasks" && s.outside.shop_roles[s.daily_shop_id].includes("operator") && s.outside.shop_roles[s.copy.shop_id].length === 0;
 }
 export function loadOwned(): { window: Window; seed: Seed; directory: string; stop: number; record: (event: object) => void; verify: () => void; close: () => void } {
   const directory = resolve(process.env.COMMERCEOPS_M3_PRIVATE_DIR ?? "");
