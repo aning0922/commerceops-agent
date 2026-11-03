@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "af02910665b992c38cef9c1f30ee3a9a2fe620aab1362179b00727924f175886",
+  "config_sha256": "33e1b2bb20c9bfa5c9fe0404f2a56268d4265773217759b7259fdb27826529d5",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -232,6 +232,169 @@
       "source_commit": "e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da",
       "source_path": "backend/migrations/versions/0021_p6_readonly_inquiries.py",
       "source_line": 80
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/src/commerceops/entrypoints/knowledge_copy_http\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "e03dae298ac58f76d1e2323a5983ffafe10c5062e0dc6e1c52aacd26f38427bc",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "backend/src/commerceops/entrypoints/knowledge_copy_http.py",
+      "source_line": 218
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/src/commerceops/entrypoints/knowledge_copy_http\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "c4c65eb64554649746e6cd17210ab907d2b3613af434dc3bf30e68161b0d8d91",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "backend/src/commerceops/entrypoints/knowledge_copy_http.py",
+      "source_line": 229
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/lib/p6\\-inquiry\\-client\\.ts$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "32d3ade5904ace51ba00499406316ec09cca2c53103c6f32b3817065ed665181",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "frontend/lib/p6-inquiry-client.ts",
+      "source_line": 123
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/lib/p6\\-copy\\-client\\.ts$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "32cf2c9499c2b9f86c23973c9dd6794693eb20408577d687c531a0af19bd5fc3",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "frontend/lib/p6-copy-client.ts",
+      "source_line": 46
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/tooling/check\\-p6\\-daily\\-s3\\-schema\\.mjs$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "879663a25802cf1a8ea527dc2b34b5ac0948ca2fd4c620be60f57124bebe9478",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "frontend/tooling/check-p6-daily-s3-schema.mjs",
+      "source_line": 5
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/m3\\-tests/daily\\-s3\\.fixture\\.json$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "9761f2d4abc97c05a69bdd1c48a5e9ec572973bc8d347a90f0163dd4aebe7dd2",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "frontend/m3-tests/daily-s3.fixture.json",
+      "source_line": 72
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/m3\\-tests/daily\\-s3\\.fixture\\.json$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "9761f2d4abc97c05a69bdd1c48a5e9ec572973bc8d347a90f0163dd4aebe7dd2",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "frontend/m3-tests/daily-s3.fixture.json",
+      "source_line": 169
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_m3_local_runtime\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "1560f72d6e586424aa2a01bccb1c4de0a4aadbe00a4740c4b55c8b1d2f2e2a68",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_m3_local_runtime.py",
+      "source_line": 191
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_m3_inquiry_wiring\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_m3_inquiry_wiring.py",
+      "source_line": 102
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_p6_inquiry_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "01877a828b93d29e948eebd5a18fbd1219da0791cc0e12ddc9a873167fa6e47b",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_p6_inquiry_pg.py",
+      "source_line": 602
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_p6_copy_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "ce347dbf648728b418aa6fa7e32c357927ff5b865a06507e9bdfe4363a80c2ab",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_p6_copy_pg.py",
+      "source_line": 172
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_p6_copy_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "acc74328a284ec6eead7a636ebb20716c2048dbd7f8e05d8df40934c7245ffca",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_p6_copy_pg.py",
+      "source_line": 348
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_p6_copy_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "ce347dbf648728b418aa6fa7e32c357927ff5b865a06507e9bdfe4363a80c2ab",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_p6_copy_pg.py",
+      "source_line": 354
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_p6_copy_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "acc74328a284ec6eead7a636ebb20716c2048dbd7f8e05d8df40934c7245ffca",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "tests/test_p6_copy_pg.py",
+      "source_line": 369
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_m3_copy_app_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "9fe7174fdb0526dcf7548af9e7f992bd4cd6da2d2969025200412fc5c748ecc7",
+      "source_commit": "f20dadf10511116e5d67ecc6f841d1e375009a1e",
+      "source_path": "tests/test_m3_copy_app_pg.py",
+      "source_line": 31
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^tests/test_m3_copy_app_pg\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "1782394b2da3adb48a0fdcfd478ea67663d4f7d02e90cac840fb061576347b49",
+      "source_commit": "4c6d601b9b5b54010e6004993bd710613fdf9a3a",
+      "source_path": "tests/test_m3_copy_app_pg.py",
+      "source_line": 27
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/tooling/check\\-p6\\-daily\\-s3\\-schema\\.mjs$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "ff43a3b2ff169e391094eb4d00854cfdfa6b4b367666ae6761dc9eb9c3ec3037",
+      "source_commit": "ba5c550d56ccb9c3ff141018a96719316787857e",
+      "source_path": "frontend/tooling/check-p6-daily-s3-schema.mjs",
+      "source_line": 5
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/migrations/versions/0023_p6_copy_drafts\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "96ce803f7ab588bddd5838a711219fab5becdb93daac2cf3803dcf0f99b5b510",
+      "source_commit": "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+      "source_path": "backend/migrations/versions/0023_p6_copy_drafts.py",
+      "source_line": 34,
+      "source_end_line": 35
     }
   ],
   "historical_findings": [

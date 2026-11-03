@@ -187,6 +187,140 @@ M3_PUBLIC_EXCEPTIONS = (
         "47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a",
         80,
     ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py",
+        "^backend/src/commerceops/entrypoints/knowledge_copy_http\\.py$",
+        "e03dae298ac58f76d1e2323a5983ffafe10c5062e0dc6e1c52aacd26f38427bc",
+        218,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py",
+        "^backend/src/commerceops/entrypoints/knowledge_copy_http\\.py$",
+        "c4c65eb64554649746e6cd17210ab907d2b3613af434dc3bf30e68161b0d8d91",
+        229,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "frontend/lib/p6-inquiry-client.ts",
+        "^frontend/lib/p6\\-inquiry\\-client\\.ts$",
+        "32d3ade5904ace51ba00499406316ec09cca2c53103c6f32b3817065ed665181",
+        123,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "frontend/lib/p6-copy-client.ts",
+        "^frontend/lib/p6\\-copy\\-client\\.ts$",
+        "32cf2c9499c2b9f86c23973c9dd6794693eb20408577d687c531a0af19bd5fc3",
+        46,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "frontend/tooling/check-p6-daily-s3-schema.mjs",
+        "^frontend/tooling/check\\-p6\\-daily\\-s3\\-schema\\.mjs$",
+        "879663a25802cf1a8ea527dc2b34b5ac0948ca2fd4c620be60f57124bebe9478",
+        5,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "frontend/m3-tests/daily-s3.fixture.json",
+        "^frontend/m3\\-tests/daily\\-s3\\.fixture\\.json$",
+        "9761f2d4abc97c05a69bdd1c48a5e9ec572973bc8d347a90f0163dd4aebe7dd2",
+        72,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "frontend/m3-tests/daily-s3.fixture.json",
+        "^frontend/m3\\-tests/daily\\-s3\\.fixture\\.json$",
+        "9761f2d4abc97c05a69bdd1c48a5e9ec572973bc8d347a90f0163dd4aebe7dd2",
+        169,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_m3_local_runtime.py",
+        "^tests/test_m3_local_runtime\\.py$",
+        "1560f72d6e586424aa2a01bccb1c4de0a4aadbe00a4740c4b55c8b1d2f2e2a68",
+        191,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_m3_inquiry_wiring.py",
+        "^tests/test_m3_inquiry_wiring\\.py$",
+        "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        102,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_p6_inquiry_pg.py",
+        "^tests/test_p6_inquiry_pg\\.py$",
+        "01877a828b93d29e948eebd5a18fbd1219da0791cc0e12ddc9a873167fa6e47b",
+        602,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_p6_copy_pg.py",
+        "^tests/test_p6_copy_pg\\.py$",
+        "ce347dbf648728b418aa6fa7e32c357927ff5b865a06507e9bdfe4363a80c2ab",
+        172,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_p6_copy_pg.py",
+        "^tests/test_p6_copy_pg\\.py$",
+        "acc74328a284ec6eead7a636ebb20716c2048dbd7f8e05d8df40934c7245ffca",
+        348,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_p6_copy_pg.py",
+        "^tests/test_p6_copy_pg\\.py$",
+        "ce347dbf648728b418aa6fa7e32c357927ff5b865a06507e9bdfe4363a80c2ab",
+        354,
+    ),
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "tests/test_p6_copy_pg.py",
+        "^tests/test_p6_copy_pg\\.py$",
+        "acc74328a284ec6eead7a636ebb20716c2048dbd7f8e05d8df40934c7245ffca",
+        369,
+    ),
+    (
+        "f20dadf10511116e5d67ecc6f841d1e375009a1e",
+        "tests/test_m3_copy_app_pg.py",
+        "^tests/test_m3_copy_app_pg\\.py$",
+        "9fe7174fdb0526dcf7548af9e7f992bd4cd6da2d2969025200412fc5c748ecc7",
+        31,
+    ),
+)
+
+M3_HISTORY_PUBLIC_EXCEPTIONS = (
+    (
+        "4c6d601b9b5b54010e6004993bd710613fdf9a3a",
+        "tests/test_m3_copy_app_pg.py",
+        "^tests/test_m3_copy_app_pg\\.py$",
+        "1782394b2da3adb48a0fdcfd478ea67663d4f7d02e90cac840fb061576347b49",
+        27,
+    ),
+    (
+        "ba5c550d56ccb9c3ff141018a96719316787857e",
+        "frontend/tooling/check-p6-daily-s3-schema.mjs",
+        "^frontend/tooling/check\\-p6\\-daily\\-s3\\-schema\\.mjs$",
+        "ff43a3b2ff169e391094eb4d00854cfdfa6b4b367666ae6761dc9eb9c3ec3037",
+        5,
+    ),
+)
+
+
+M3_SPAN_PUBLIC_EXCEPTIONS = (
+    (
+        "ac6edf24515aa2148037aa24a84d0618f1e30f74",
+        "backend/migrations/versions/0023_p6_copy_drafts.py",
+        "^backend/migrations/versions/0023_p6_copy_drafts\\.py$",
+        "96ce803f7ab588bddd5838a711219fab5becdb93daac2cf3803dcf0f99b5b510",
+        34,
+        35,
+    ),
 )
 
 
@@ -198,9 +332,12 @@ def m3_public_line_regex(row: str) -> str:
 
 
 def m3_public_rows(root: Path) -> tuple[tuple[str, str, str, str, str, int], ...]:
-    """Read the nine pinned M3 public rows, failing closed on missing/mutated sources."""
+    """Load pinned whole rows and the one exact two-row declaration, failing closed."""
     result = []
-    for commit, path, pattern, digest, line in M3_PUBLIC_EXCEPTIONS:
+    for commit, path, pattern, digest, line in (
+        *M3_PUBLIC_EXCEPTIONS,
+        *M3_HISTORY_PUBLIC_EXCEPTIONS,
+    ):
         source = subprocess.run(
             ["git", "show", commit + ":" + path],
             cwd=root,
@@ -215,6 +352,15 @@ def m3_public_rows(root: Path) -> tuple[tuple[str, str, str, str, str, int], ...
         ):
             raise ValueError("invalid M3 public source")
         result.append((commit, path, pattern, rows[line - 1].decode(), digest, line))
+    for commit, path, pattern, digest, line, end in M3_SPAN_PUBLIC_EXCEPTIONS:
+        source = subprocess.run(
+            ["git", "show", commit + ":" + path], cwd=root, capture_output=True, check=False
+        )
+        rows = source.stdout.splitlines()
+        value = b"\n".join(rows[line - 1 : end])
+        if source.returncode or len(rows) < end or hashlib.sha256(value).hexdigest() != digest:
+            raise ValueError("invalid M3 public source")
+        result.append((commit, path, pattern, value.decode(), digest, line))
     return tuple(result)
 
 
@@ -494,12 +640,13 @@ def main() -> None:
                         "source_commit": commit,
                         "source_path": source_path,
                         "source_line": line,
+                        **({"source_end_line": line + row.count("\n")} if "\n" in row else {}),
                     }
                 )
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 26 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 44 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
