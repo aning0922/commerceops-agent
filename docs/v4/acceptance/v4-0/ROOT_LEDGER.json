@@ -7,9 +7,9 @@
   "cards": {
     "V40-01": "BASELINE_RECONFIRMED",
     "V40-02": "USER_ACCEPTED_CONTRACTS",
-    "V40-03": "身份设计核收；代码实施中",
-    "V40-04": "纯双店种子与契约实施中",
-    "V40-05": "欢迎交互实施；真实浏览器准备中"
+    "V40-03": "SQL初审2P1/1P2修复已冻结8e9d87a，等待独审；会话API实施中",
+    "V40-04": "固定双店种子已实现；variant_ref修复与原生SQL验证待核收",
+    "V40-05": "ac1前端模拟接口浏览器24通过；独审3P2修复中；真实API/PG/Web未跑"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
@@ -33,9 +33,11 @@
   "known_failures": [
     "System Python docs check failed missing markdown_it; new frozen uv venv solved",
     "Initial imported CSV CRLF whitespace failure; eb82c9d LF normalization independently accepted, old source bytes preserved",
-    "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed"
+    "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed",
+    "First cf7 UI fixture:22 passed/2 failed initial anonymous read-count; ac1 trace attributes two reads to React development mount/reconnect; ac1 full24passed, no business code changed",
+    "QA prepared harness first59passed/5failed before locked frontend dependencies were installed; exact original stderr cause not captured; after frozen offline install64passed/4.25s/exit0"
   ],
-  "updated_at_utc": "2026-11-03T14:42:08.580936+00:00",
+  "updated_at_utc": "2026-11-03T15:16:02.056438+00:00",
   "engineering_gate_scope_release": {
     "owner": "SECURITY_SCAN",
     "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
@@ -55,5 +57,13 @@
     "corrected_source": "c4c48401494b00308cc5a2022e4a8fcb0e3f8195",
     "independent_delta_receipt": "0644f9044ef25a6aed7674e84403e4392183de83",
     "result": "accepted design only; real code and PG not yet verified"
+  },
+  "qa_prepared": {
+    "source": "f946bb121b32582131ffe46619fbe97a0a2569da",
+    "review": "d97b4d0de7c0a89419f62d3430c754cd2856ab98",
+    "root_test_native_exit": 0,
+    "passed": 64,
+    "seconds": 4.25,
+    "real_api_pg": "NOT_RUN"
   }
 }

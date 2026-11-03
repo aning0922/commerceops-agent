@@ -1,0 +1,95 @@
+{
+  "source_sha": "ac1d18e23d3235b23fad90ecfe1e4caf051f72bd",
+  "source_tree": "b44577aa2578281ceb042fd4a1e351c2d3f9da42",
+  "mode": "UI_FIXTURE_NOT_API_PG",
+  "stats": {
+    "startTime": "2026-11-03T15:05:53.892Z",
+    "duration": 9734.012999999999,
+    "expected": 24,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "receipt": {
+    "window": {
+      "owner": "ROOT_UI_FIXTURE",
+      "project": "v4ui_fullac1_20261103",
+      "source_sha": "ac1d18e23d3235b23fad90ecfe1e4caf051f72bd",
+      "source_tree": "b44577aa2578281ceb042fd4a1e351c2d3f9da42",
+      "web_port": 18942,
+      "fixture_api_port_no_listener": 18943,
+      "starts_at_utc": "2026-11-03T15:05:52.121746+00:00",
+      "stop_at_utc": "2026-11-03T15:25:52.121746+00:00",
+      "cleanup_reserve_seconds": 180,
+      "evidence_mode": "UI_FIXTURE_NOT_API_PG",
+      "database": null,
+      "external_calls": false
+    },
+    "processes": [
+      {
+        "label": "next-web",
+        "pid": 7124,
+        "pgid": 7124
+      },
+      {
+        "label": "playwright-ui-fixture",
+        "pid": 7129,
+        "pgid": 7129
+      },
+      {
+        "label": "browser-screenshots",
+        "pid": 7289,
+        "pgid": 7289
+      }
+    ],
+    "browser_test_native_exit": 0,
+    "result": "UI_FIXTURE_PASS",
+    "cleanup": {
+      "browser-screenshots": {
+        "native_exit": 0,
+        "no_live_owned_group": true,
+        "signal_errors": []
+      },
+      "playwright-ui-fixture": {
+        "native_exit": 0,
+        "no_live_owned_group": true,
+        "signal_errors": []
+      },
+      "next-web": {
+        "native_exit": 0,
+        "no_live_owned_group": true,
+        "signal_errors": []
+      }
+    },
+    "screenshots_native_exit": 0,
+    "web_port_closed": true,
+    "ended_at_utc": "2026-11-03T15:06:07.153975+00:00",
+    "cleanup_before_deadline": true
+  },
+  "visual_metrics": [
+    {
+      "width": 1440,
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "reducedMotion": true,
+      "title": "CommerceOps · 运营协作工作台"
+    },
+    {
+      "width": 1280,
+      "innerWidth": 1280,
+      "scrollWidth": 1280,
+      "reducedMotion": true,
+      "title": "CommerceOps · 运营协作工作台"
+    },
+    {
+      "width": 390,
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "reducedMotion": true,
+      "title": "CommerceOps · 运营协作工作台"
+    }
+  ],
+  "raw_evidence_index": ".audit/v4-0/ui-fixture-ac1-full",
+  "static_review": "07d8185 found 3 P2; product changes pending, no final frontend acceptance",
+  "earlier_failures_preserved": "UI_FIXTURE_FIRST.json and UI_FIXTURE_TRACE.json"
+}
