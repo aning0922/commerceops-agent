@@ -116,7 +116,7 @@ POST session的org/两shop/三persona/credentials/scopes/tenant/source assignmen
 - tombstone/control receipt/event/mapping最短保存至**原session expires+24小时**；reset不延长。bootstrap owner行因session FK可保留相同期限，但它的恢复权限仍只有最初300秒、精确一个createkey。普通reset不删receipt/event；GC不能把UNKNOWN变回未提交。
 - cap3按DB now下active tenant+session且未revoke统计；第4/5访客429，不踢旧session；已commit但cookie未收到的tenant仍占位，到期才释放。expired行未物理清理不占cap，仍保留tombstone。限流5访客测试与3active并发测试分开，不用首3成功掩盖第4/5被其他限制拦截的原因。
 - create的首次bootstrap-key reservation与rate attempt可独立已提交；它们不证明session创建。COMMIT前故障后GET原key可能UNKNOWN，不以缺tenant/缺receipt伪造ROLLED_BACK。
-- create丢body但cookie应用：GET current核creation_request_key→GET operations查唯一receipt。整header/cookie丢：仍持bootstrap、精确原key且<=300s仅回最小COMMITTED/OWNER_RECOVERY_REQUIRED，不新发bearer；用户明确重新开始才新空间，旧space不是回滚。bootstrap过期后UNKNOWN，不自动重POST。
+- 创建POST始终bootstrap-only：只接受有效原bootstrap+CSRF+原key，active cookie不得再次POST创建。create丢body但cookie应用：GET current核creation_request_key→GET operations查唯一receipt。整header/cookie丢：仍持bootstrap、精确原key且<=300s仅回最小COMMITTED/OWNER_RECOVERY_REQUIRED，不新发bearer；用户明确重新开始才新空间，旧space不是回滚。bootstrap过期后UNKNOWN，不自动重POST。
 - reset/persona保留公开cookie，故丢ACK仍可用当前token只读GETcurrent+原控制回执；logout撤销后无恢复特权，current401不等于原logout可证明COMMITTED。
 
 ## 9. 可独审的seed验证清单（计划，NOT_RUN）

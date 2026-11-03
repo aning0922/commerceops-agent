@@ -352,7 +352,7 @@ issue public v4d_ cookie once; return 201 CreateEnvelope, DB context, original r
 
 生成秘密只在新owned进程内存；不把随机密码、bound token、cookie/CSRF或hash放日志/receipt/event。失败在COMMIT前全回滚business effect（仅独立rate/key reservation可保留），不留部分组织/凭据/seed。COMMIT结果未知时不重试。
 
-**duplicate create与丢cookie**：activecookie且creation_request_key相同、当前认证/CSRF有效时可200返回当前安全session+原receipt，不能再创建。只有consumed bootstrap没有active bearer时，POST不可重发新cookie或旧敏感CreateEnvelope，返回409 OWNER_RECOVERY_REQUIRED；GET原key返回冻结最小COMMITTED状态。此为合同恢复专例的安全收敛，客户端从不自动POST。并发两个同bootstrap create至多一个新tenant；后者无新cookie，不能用数据库hash还原第一cookie。
+**duplicate create与丢cookie**：创建POST仅接受有效原bootstrap、其CSRF与精确原key；active cookie在该入口拒绝，不增加active POST兼容路径。active会话丢body后只GET current核creation_request_key，再GET原receipt。consumed bootstrap重复或并发POST不重发新cookie或旧敏感CreateEnvelope，返回409 OWNER_RECOVERY_REQUIRED，原bootstrap+原key的GET仅返回冻结最小COMMITTED状态；原事务尚未提交时按原锁序等待或返回安全UNKNOWN，不产生第二效果。客户端从不自动POST。并发两个同bootstrap create至多一个新tenant；后者无新cookie，不能用数据库hash还原第一cookie。整header/cookie丢失的300秒最小回读边界不变。
 
 ### 7.3 GET current / GET seed-summary
 
