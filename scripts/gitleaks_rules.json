@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "1c36dac120e6c858f06def98b1c851b11681fa37ae824df81ab1ac2875bce1c3",
+  "config_sha256": "af02910665b992c38cef9c1f30ee3a9a2fe620aab1362179b00727924f175886",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -151,6 +151,87 @@
       "source_commit": "27af9c359c35b1f48f2530681a2d400910914d28",
       "source_path": "tests/e2e/web/live/m2-consumer.ts",
       "source_line": 439
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/m3\\-tests/daily\\-read\\.fixture\\.json$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "9ba1d2eaf28dee54c74df8009dfe068f2205261d884e6eee9b5b816c0dfde3d8",
+      "source_commit": "b63f9bc5efc9b360c872df4ef15481ba15420503",
+      "source_path": "frontend/m3-tests/daily-read.fixture.json",
+      "source_line": 137
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/lib/m3\\-read\\-client\\.ts$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "7cd875fcc4788e55e5bd0ecb98a6f6a096fa1d4539bad46c62633047ef543c41",
+      "source_commit": "b63f9bc5efc9b360c872df4ef15481ba15420503",
+      "source_path": "frontend/lib/m3-read-client.ts",
+      "source_line": 72
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^frontend/m3\\-tests/daily\\-empty\\.fixture\\.json$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "9ba1d2eaf28dee54c74df8009dfe068f2205261d884e6eee9b5b816c0dfde3d8",
+      "source_commit": "b4b3c9ea8ab4b60c3406178c7a08e4ca6d3fb9e4",
+      "source_path": "frontend/m3-tests/daily-empty.fixture.json",
+      "source_line": 140
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/src/commerceops/infrastructure/knowledge_copy_repository\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "f88e20474894ad7b68ada1bb12c042aa419747488fdb40bcba47523e5503cd26",
+      "source_commit": "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+      "source_path": "backend/src/commerceops/infrastructure/knowledge_copy_repository.py",
+      "source_line": 257
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/migrations/versions/0020_p6_knowledge_copy\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "2016dfbb0029ad7285c16c3169cb895854864410744d51bb89fc5d6592fd7948",
+      "source_commit": "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+      "source_path": "backend/migrations/versions/0020_p6_knowledge_copy.py",
+      "source_line": 142
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/migrations/versions/0020_p6_knowledge_copy\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "1e860e56789ea17cf4df6d514d07d28135dd78010d9e9230cc6f1cc2f48464e0",
+      "source_commit": "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+      "source_path": "backend/migrations/versions/0020_p6_knowledge_copy.py",
+      "source_line": 54
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/src/commerceops/application/commerce/readonly_inquiry_tools\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "23006e136c68711f9ce3672034e86c0176d21387c04c9824468927b5be39d942",
+      "source_commit": "22b60150add80f59613445260e1e2851b5d0b86f",
+      "source_path": "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py",
+      "source_line": 199
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/src/commerceops/entrypoints/inquiry_http\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "eaf8d3d2af552e3a55b0f9c3a45ba8dcaf93438deda500af53d3792fcae842cf",
+      "source_commit": "1a78d5a23fd888265cc8e30dde6c492d8b6c94cc",
+      "source_path": "backend/src/commerceops/entrypoints/inquiry_http.py",
+      "source_line": 176
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^backend/migrations/versions/0021_p6_readonly_inquiries\\.py$",
+      "reason": "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash",
+      "exact_line_sha256": "47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a",
+      "source_commit": "1a78d5a23fd888265cc8e30dde6c492d8b6c94cc",
+      "source_path": "backend/migrations/versions/0021_p6_readonly_inquiries.py",
+      "source_line": 72
     }
   ],
   "historical_findings": [

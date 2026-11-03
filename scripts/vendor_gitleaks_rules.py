@@ -122,6 +122,102 @@ M2_CONSUMER_EXCEPTIONS = (
 )
 
 
+# M3: immutable public code rows; candidate requires independent review before integration.
+M3_PUBLIC_EXCEPTIONS = (
+    (
+        "b63f9bc5efc9b360c872df4ef15481ba15420503",
+        "frontend/m3-tests/daily-read.fixture.json",
+        "^frontend/m3\\-tests/daily\\-read\\.fixture\\.json$",
+        "9ba1d2eaf28dee54c74df8009dfe068f2205261d884e6eee9b5b816c0dfde3d8",
+        137,
+    ),
+    (
+        "b63f9bc5efc9b360c872df4ef15481ba15420503",
+        "frontend/lib/m3-read-client.ts",
+        "^frontend/lib/m3\\-read\\-client\\.ts$",
+        "7cd875fcc4788e55e5bd0ecb98a6f6a096fa1d4539bad46c62633047ef543c41",
+        72,
+    ),
+    (
+        "b4b3c9ea8ab4b60c3406178c7a08e4ca6d3fb9e4",
+        "frontend/m3-tests/daily-empty.fixture.json",
+        "^frontend/m3\\-tests/daily\\-empty\\.fixture\\.json$",
+        "9ba1d2eaf28dee54c74df8009dfe068f2205261d884e6eee9b5b816c0dfde3d8",
+        140,
+    ),
+    (
+        "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+        "backend/src/commerceops/infrastructure/knowledge_copy_repository.py",
+        "^backend/src/commerceops/infrastructure/knowledge_copy_repository\\.py$",
+        "f88e20474894ad7b68ada1bb12c042aa419747488fdb40bcba47523e5503cd26",
+        257,
+    ),
+    (
+        "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+        "backend/migrations/versions/0020_p6_knowledge_copy.py",
+        "^backend/migrations/versions/0020_p6_knowledge_copy\\.py$",
+        "2016dfbb0029ad7285c16c3169cb895854864410744d51bb89fc5d6592fd7948",
+        142,
+    ),
+    (
+        "8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d",
+        "backend/migrations/versions/0020_p6_knowledge_copy.py",
+        "^backend/migrations/versions/0020_p6_knowledge_copy\\.py$",
+        "1e860e56789ea17cf4df6d514d07d28135dd78010d9e9230cc6f1cc2f48464e0",
+        54,
+    ),
+    (
+        "22b60150add80f59613445260e1e2851b5d0b86f",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py",
+        "^backend/src/commerceops/application/commerce/readonly_inquiry_tools\\.py$",
+        "23006e136c68711f9ce3672034e86c0176d21387c04c9824468927b5be39d942",
+        199,
+    ),
+    (
+        "1a78d5a23fd888265cc8e30dde6c492d8b6c94cc",
+        "backend/src/commerceops/entrypoints/inquiry_http.py",
+        "^backend/src/commerceops/entrypoints/inquiry_http\\.py$",
+        "eaf8d3d2af552e3a55b0f9c3a45ba8dcaf93438deda500af53d3792fcae842cf",
+        176,
+    ),
+    (
+        "1a78d5a23fd888265cc8e30dde6c492d8b6c94cc",
+        "backend/migrations/versions/0021_p6_readonly_inquiries.py",
+        "^backend/migrations/versions/0021_p6_readonly_inquiries\\.py$",
+        "47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a",
+        72,
+    ),
+)
+
+
+def m3_public_line_regex(row: str) -> str:
+    """Exact ASCII bytes, hex-escaped so generated regex text is not a second public finding."""
+    return (
+        r"^(?:\r?\n)?" + "".join(r"\x" + format(byte, "02x") for byte in row.encode("ascii")) + "$"
+    )
+
+
+def m3_public_rows(root: Path) -> tuple[tuple[str, str, str, str, str, int], ...]:
+    """Read the nine pinned M3 public rows, failing closed on missing/mutated sources."""
+    result = []
+    for commit, path, pattern, digest, line in M3_PUBLIC_EXCEPTIONS:
+        source = subprocess.run(
+            ["git", "show", commit + ":" + path],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        rows = source.stdout.splitlines()
+        if (
+            source.returncode
+            or len(rows) < line
+            or hashlib.sha256(rows[line - 1]).hexdigest() != digest
+        ):
+            raise ValueError("invalid M3 public source")
+        result.append((commit, path, pattern, rows[line - 1].decode(), digest, line))
+    return tuple(result)
+
+
 def m2_consumer_rows(root: Path) -> tuple[tuple[str, str, str, str, int], ...]:
     """Only the eight unchanged reviewed public literals at the pinned consumer revision."""
     result = []
@@ -205,7 +301,7 @@ def main() -> None:
         rule_removed += int("allowlist" in rule) + len(rule.get("allowlists", []))
         rule.pop("allowlist", None)
         rule.pop("allowlists", None)
-    # 十七处公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
+    # 公开格式误报：只允许指定规则/文件的精确整行，不能排除文件。
     schema_row = next(
         line
         for line in (ROOT / "docs/DATA_MODEL.md").read_text().splitlines()
@@ -378,10 +474,32 @@ def main() -> None:
                         "source_line": line,
                     }
                 )
+            for commit, source_path, path, row, digest, line in m3_public_rows(ROOT):
+                reason = "M3公开字段/列引用/操作名候选，仅指定path与完整行及固定来源hash"
+                rule["allowlists"].append(
+                    {
+                        "description": reason,
+                        "condition": "AND",
+                        "regexTarget": "line",
+                        "paths": [path],
+                        "regexes": [m3_public_line_regex(row)],
+                    }
+                )
+                exceptions.append(
+                    {
+                        "rule": rule["id"],
+                        "path": path,
+                        "reason": reason,
+                        "exact_line_sha256": digest,
+                        "source_commit": commit,
+                        "source_path": source_path,
+                        "source_line": line,
+                    }
+                )
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 17 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 26 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
