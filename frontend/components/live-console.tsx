@@ -167,6 +167,8 @@ export function LiveConsole({
           : null,
     [origin, localHttp, invalidate, fixtureMode, fixtureClient, inquiryEnabled],
   );
+  const currentPage = useRef({ path, session, client });
+  currentPage.current = { path, session, client };
   useEffect(() => {
     if (!client) {
       setChecking(false);
@@ -501,6 +503,7 @@ export function LiveConsole({
     data?.path === path && data.client === client && data.session === session
       ? data.value
       : null;
+  const renderedEpoch = epoch.current;
   const operatorShops =
     session?.principal.role_shop_grants
       .filter((grant) => grant.role === "operator")
@@ -750,7 +753,7 @@ export function LiveConsole({
           ) : (
             <>
               {page.kind === "inquiry" && <Inquiry client={client} enabled={inquiryEnabled} shops={operatorShops} holdWrite={holdWrite} />}
-              {page.kind === "daily" && <DailyReport key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? page.read.daily.updated_at}`} read={page.read} />}
+              {page.kind === "daily" && origin && <DailyReport key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? page.read.daily.updated_at}:${page.read.daily.report?.facts_hash ?? ""}:${page.read.daily.report?.content_hash ?? ""}`} read={page.read} origin={origin} invalidate={() => client.clearSession()} parentCurrent={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "tasks" && (
                 <>
                   <div className="metrics">

@@ -1,6 +1,6 @@
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import schema from "./m3-read-schema.generated.json" with { type: "json" };
+import schema from "./p6-daily-s3-read-schema.generated.json" with { type: "json" };
 import type { DailyRead } from "./m3-types.generated";
 type FetchTransport = (url: URL, init: RequestInit) => Promise<Response>;
 type DailyFailureCode = "INVALID_REQUEST" | "SERVICE_UNAVAILABLE" | "SESSION_INVALID" | "ACCESS_DENIED" | "RESOURCE_NOT_FOUND" | "INVALID_RESPONSE";
@@ -49,7 +49,7 @@ export function validDailyRead(value: unknown, taskId: string): value is DailyRe
   if (daily.task_id.toLowerCase() !== taskId.toLowerCase() ||
       Date.parse(daily.updated_at) > Date.parse(read.server_time)) return false;
   const report = daily.report;
-  if (!report) return true;
+  if (!report) return daily.question_creation_enabled === false;
   try { new Intl.DateTimeFormat("zh-CN", { timeZone: report.source.timezone }); }
   catch { return false; }
   if (Date.parse(report.collected_at) > Date.parse(read.server_time) ||
