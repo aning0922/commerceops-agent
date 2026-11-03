@@ -1,0 +1,116 @@
+# V4-0 独立 QA 执行方案
+
+2026-11-03，台北。状态 `PREPARATION_ONLY / RUNTIME_NOT_RUN`。Root 精确释放本文件；
+QA 仅写此文件及 `tests/e2e/v4/**`。实现授权见 `docs/v4/IMPLEMENTATION_AUTHORIZATION.md`；
+四合同与 strict OpenAPI 使用 baseline 冻结原件，其 A 阶段状态保留。沿用 A 审计，不重复审计。
+
+QA 起始源码 `fa96764cf2b8e3ab9adbb579b764f600a7d17e60`，分支 `codex/v4-qa-20261103`。
+仅在 `/Users/aipuli/.codex/worktrees/commerceops-v4-qa/commerceops-agent` 写入。
+本切片不含 API/WEB 作者未提交成果；Root 提供精确已审提交后普通合入、重新绑定最终 SHA/tree。
+
+## 可执行准备与依赖
+
+从当前 worktree 执行 `python3 tests/e2e/v4/preflight.py`，输出当前 SHA/tree、dirty、
+五合同文件 SHA256 和八端点结构检查。此命令无 network/Docker/Secret/启动/清理能力，
+成功只证明准备结构检查通过，不证明运行 Gate。`--window /absolute/new/window.json`
+额外检查 Root 拟定的对象、源码、显式 UTC、端口与清理余量；仍不会开窗或启动服务。
+窗口 JSON 不存凭据，精确字段为：
+
+```json
+{
+  "owner": "QA",
+  "project": "v4qa_REPLACE_NEW_LOWERCASE_ID",
+  "database": "v4qa_REPLACE_NEW_LOWERCASE_ID",
+  "volume": "v4qa_REPLACE_NEW_LOWERCASE_ID",
+  "api_port": 18080,
+  "web_port": 13000,
+  "source_sha": "REPLACE_EXACT_REVIEWED_40_HEX",
+  "source_tree": "REPLACE_EXACT_REVIEWED_40_HEX",
+  "starts_at": "REPLACE_ROOT_UTC",
+  "deadline": "REPLACE_ROOT_UTC",
+  "cleanup_reserve_seconds": 180
+}
+```
+
+上面故意不能直接运行，端口也尚未分配。每 slice 提议最多 1800 秒、reserve 至少180秒，
+不是继承旧预算或已获运行窗口；不足则停并交 Root 调整，不续期。真实 TTL30分钟案例
+须 Root 单独登记覆盖自然到期及清理的窗口，或由 API 作者提供已审 owned PG 时间夹具；
+短 TTL 夹具不能签收真实30分钟自然到期。所有昂贵完整运行由 Root 串行统一安排。
+
+接线前必须取得：身份桥接 SQL/ACL/锁序专项审查回执；API/迁移/seed/reset 已审 SHA；
+WEB 已审 SHA 与真实 Playwright 命令/环境；新 owned PG17.11/pgvector0.8.7 指纹；
+Root 的 project/database/volume/loopback ports/绝对 UTC/cleanup 合同。
+尚未交付的 API/seed 启动参数与 SQL 对象名保持 `PENDING_OWNER_HANDOFF`，禁止猜测运行。
+
+## 有界全链编排（等待 Root 开窗）
+
+1. 在最终干净集成 SHA 上执行 preflight 并保存 stdout/native exit。Root 单独分配全新证据
+   目录（0600 原始证据，不提交 cookie/CSRF/明文凭据），记录工具/锁/合同指纹。
+   资源 owner 在启动前生成本批新凭据；环境不得继承旧 `.env`、私有 runtime 或 `.audit`。
+2. 只创建登记的新项目/卷/网络；PG 无宿主端口，API/Web 仅 loopback。记录本次确切
+   container IDs、volume/network IDs、镜像指纹与创建时间；禁止停未知资源或清扫全机。
+   没有原 M3 镜像 receipt 的继承权，新 receipt 必须绑定本次源码与构建输入。
+3. SCHEMA/API 提供并执行已审迁移和最小 seed 入口，验证低权 runtime 与无额外 Worker/
+   Graph/外部调用；API 实际连新 PG，WEB 实际连 API。直接 readiness GET 不授予测试通过；
+   记录每个自启 PID/进程组和精确命令。启动任一失败转收证与 owned cleanup，不盲重试。
+4. 两个独立 cookie jar/browser context 创建 A/B 访客，完成欢迎→创建→GET current→
+   双店 seed-summary→persona→reset→logout。每一步核 strict DTO、真实 PG receipt/DB UTC/
+   context/seed digest，不以 UI 文本或 HTTP200 单独签收。QA 使用真实 HTTP 与独立 PG 核验，
+   WEB 的专属 UI tests 由其 owner 执行；QA 不写 `frontend/v4-tests/**` 或其配置。
+5. 依下表独立负例执行，显式记录预期拒绝与实际 status/code/DB差异。作者 PG 测试可复现，
+   不能代签独立 HTTP/浏览器全链。ACK 故障仅在新 owned 传输边界丢弃真实响应，后端实际提交；
+   不用 Playwright route mock 返回伪造成功或拒绝作为 Gate。
+6. 工作截止前停本次 writers/API/Web并回收子进程，PG 仍在线时最后采集 DB UTC、receipt、
+   immutable audit/tombstone、B digest；随后只停已登记 owned PG。独立核 PID/端口/容器/
+   网络状态，按 Root 本窗口合同保卷或删除临时卷，绝不擅自 `down -v`。cleanup 失败单列 FAIL。
+
+当前骨架只实现步骤1的只读准备。服务 supervisor、HTTP/PG probes 和 Web 调用在依赖交付、
+Root 释放对象后补齐同一独占目录；没有 runtime run 命令，不能宣称已经实现可运行全链。
+必要共享入口修改先交 Root，不改旧 harness、不新通用 runner/framework/worker。
+
+## 独立负例与判据
+
+| ID | 操作与独立观察 | 必须满足的判据 |
+|---|---|---|
+| Q01 | A/B 同模板不同 tenant；A 查询 B shop/receipt，反向再测 | 404且无标识/业务泄漏；PG tenant/org/shop对象不同 |
+| Q02 | 默认 operator 两店都读；移除一店 grant 后逐店读；受限 admin无grant | 有权店仍成功、撤grant店404；admin无隐含权限；不能因seed两店默认全授权 |
+| Q03 | persona前保留actor/CSRF/generation，切换后重用并撤credential/identity/principal | 当前完整身份再次核验；旧actor/bound session撤销、旧CSRF403/旧generation409，无旧data |
+| Q04 | TTL临界前后、主动撤权、logout，之后读业务/回执及重放旧token | 401/403按合同拒绝；绝对TTL不滑动，bound到期不晚于demo；logout不虚构COMMITTED恢复 |
+| Q05 | 写缺Origin/错Origin/错CSRF；GET缺Origin并改变Host/FetchMetadata | 写403；GET只可信同源例外，same-site/cross-site不放行；不能信任任意转发Host |
+| Q06 | V4 bearer改名commerceops_session请求旧/api/v1；篡改role/tenant/principal | 旧API401；strict额外字段422，无授权效果；私有bound bearer未发布 |
+| Q07 | 控制操作同key同payload串行/并发及异payload | 同回执/一次效果，异文409；PG receipt/效果/审计同事务。浏览器不自动重发POST |
+| Q08 | 真实create提交后仅丢body（cookie已应用） | GET current匹配creation_request_key、原key安全回执；不二次POST/新tenant |
+| Q09 | create提交后丢header/cookie整体，保留原bootstrap | 300秒内仅原key最小COMMITTED/UNKNOWN；OWNER_RECOVERY_REQUIRED；无token/CSRF/tenant泄漏 |
+| Q10 | bootstrap跨key/跨operation/过期、create重放写、丢失bootstrap | 拒绝探测/写；保留UNKNOWN，404/401不能推导回滚；不自动新空间 |
+| Q11 | seed中途真实PG异常/rollback；核manifest固定日期/计数/六异常关系/hash | 初始化全回滚；两店引用一致；source各mode真实为合成，不声称六链可运行 |
+| Q12 | 同reset key并发；reset与已发请求竞争；reset后再查原key/tombstone | 一次epoch推进；旧写不能进新epoch；A清业务但留receipt审计，B digest/count/epoch不变 |
+| Q13 | DB不可读/COMMIT后ACK未知 | 503/server_time=null或传输UNKNOWN，不伪造DB时间/回滚/成功，不自动POST |
+| Q14 | 5独立访客（不是5个tab），前3active，第4/5尝试 | 后两429+Retry-After，无挤掉前3；旧unknown创建仍占cap，限流不自动新建 |
+| Q15 | A双tab延迟读后切persona/reset/logout；丢BC；hidden/offline→恢复 | 开始即清屏；旧context/request_seq不渲染；恢复先GET current，可见5秒核验失败清屏 |
+| Q16 | 真实Web 1440/1280/390、200%缩放、Tab/Esc/focus/reduced-motion | 页面不横溢，modal focus约束/Esc回归/文字aria反馈；缩放不能只用viewport替代 |
+| Q17 | cookie/响应/敏感context与缓存安全 | HttpOnly/SameSite/Path=/api/v4、TLS Secure及显式本地HTTP分记；no-store/Vary；token不入storage/log |
+
+Q03/Q11/Q12/Q13 的底层故障/旧actor需要 API owner 提供已审窄测试入口或真实 PG 操作。
+不新增公开调试路由；PG管理员只改本批 owned fixture，HTTP始终用低权 runtime。
+V4-0没有业务写路由，reset与旧业务写线性化用作者已审PG事务测试及负例复现，不擅自开放旧API。
+Q07并发是服务端防重验证；正常浏览器在UNKNOWN时仍只安全GET。同key异文应隔离为独立
+恶意请求 case，不能因为切persona后CSRF先拒绝就把幂等409判据标绿。
+
+## 完整回归与证据口径
+
+Root 在最终精确集成源码串行安排 `python -m scripts.check`、实际动态完整 integration
+collection、两条 PG 分区及 `scripts.pg_ci_evidence` strict pairing。沿用原G1三项/G2六场景、
+每命令300秒/清理/来源/工具/锁/完整集合要求，不在本切片调整共享 helper。
+`719 = existing542 + phase3 177` 只是 M3历史基数；新增 `tests/v4/**` 后必须按实际collect
+确定完整集合，核每节点归属与两个分区并集完整/交集0，不能手写719+N或漏掉新目录。
+新QA目录的独立 HTTP场景不等同旧integration集合，不拿二者拼接为同一count。
+
+旧Web/N01与对应M3日报/询单/copy回归、strict DTO/schema与路由优先级均保留；由Root分配
+既有已审命令与新owned资源，QA不自行启动旧live harness（可能引用旧资产）。WEB新UI的
+mock/合同测试只记该层，新V4全链须实际PG/API/Web。Full/Hosted分开填，失败/skip/unknown不抹除。
+
+每次报告：source SHA/tree、合同hash、argv/命令、开始/结束UTC/elapsed、native exit、
+selected/collected/call-pass/failed/skip、每case证据位置、PG事实、cleanup与保卷/删卷事实。
+原始cookie/CSRF/凭据不入普通JSON/截图/仓库；公开证据仅保留安全ID和hash。
+当前 actual token/cost `UNKNOWN`；真实PG/API/Web、Full、Hosted全为 `NOT_RUN`。
+本次没有创建资源，cleanup `NOT_APPLICABLE_NO_RESOURCES_CREATED`；不进入V4-1。
