@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createContextGate } from '../lib/v4-context.mjs';
+import { createContextGate, sameIdentityContext } from '../lib/v4-context.mjs';
 const id='11111111-1111-4111-8111-111111111111', other='22222222-2222-4222-8222-222222222222';
 const context = {tenant_id:id, organization_id:id, principal_id:id, shop_id:null, reset_epoch:0, auth_generation:0, authorized_at:'2026-11-03T00:00:00Z'};
 test('only matching latest authorized context may render', () => {
@@ -26,4 +26,11 @@ test('rejects incomplete or malformed contexts on both sides', () => {
     assert.equal(gate.accepts(ticket,{...value,shop_id:id}),false);
   }
   const gate=createContextGate();gate.establish(context);gate.selectShop('');assert.equal(gate.begin(),null);
+});
+
+test('identity comparison refuses incomplete or malformed DTOs', () => {
+  assert.equal(sameIdentityContext(context,{...context,shop_id:id}),true);
+  assert.equal(sameIdentityContext({shop_id:null},{shop_id:null}),false);
+  assert.equal(sameIdentityContext(context,{...context,auth_generation:0.5}),false);
+  assert.equal(sameIdentityContext(context,{...context,principal_id:other}),false);
 });

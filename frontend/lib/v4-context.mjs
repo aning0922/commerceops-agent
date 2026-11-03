@@ -18,6 +18,15 @@ const validContext = ajv.compile({
   required: ['tenant_id', 'organization_id', 'principal_id', 'shop_id', 'reset_epoch', 'auth_generation', 'authorized_at'],
 });
 const validShop = ajv.compile({anyOf: [{type: 'string', format: 'uuid'}, {type: 'null'}]});
+// Session and shop responses have different shop_id values; compare the remaining identity boundary.
+export function sameIdentityContext(left, right) {
+  if (!validContext(left) || !validContext(right)) return false;
+  return left.tenant_id === right.tenant_id &&
+    left.organization_id === right.organization_id &&
+    left.principal_id === right.principal_id &&
+    left.reset_epoch === right.reset_epoch &&
+    left.auth_generation === right.auth_generation;
+}
 export function createContextGate() {
   let generation = 0;
   let context = null;
