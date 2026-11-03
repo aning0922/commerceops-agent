@@ -17,6 +17,7 @@ from commerceops.application.daily.contracts import (
     MetricDisplay,
     MetricKey,
     StatusCount,
+    metric_display,
 )
 from commerceops.domain.commerce_values import canonical_bytes, facts_hash, money
 
@@ -49,21 +50,6 @@ def amount(units: int) -> Decimal:
 def total(values: Iterable[Decimal]) -> Decimal:
     # 无浮点或 Decimal 加法；即使有负费用，结果也不受输入顺序或 precision 影响。
     return amount(sum(micro_units(value) for value in values))
-
-
-def display_money(value: Fraction, currency: str) -> str:
-    digits = 0 if currency == "JPY" else 2
-    numerator = abs(value.numerator) * 10**digits
-    quotient, remainder = divmod(numerator, value.denominator)
-    if remainder * 2 > value.denominator or (
-        remainder * 2 == value.denominator and quotient % 2 == 1
-    ):
-        quotient += 1
-    sign = "-" if value < 0 and quotient != 0 else ""
-    if digits == 0:
-        return sign + str(quotient)
-    whole, fraction = divmod(quotient, 10**digits)
-    return f"{sign}{whole}.{fraction:0{digits}d}"
 
 
 def _evidence(
@@ -282,21 +268,4 @@ def aggregate_daily(snapshot: DailyInput) -> DailyReport:
                 "refund_amount",
             )
         )
-    return _finish(data, evidence, findings, metrics, _display(metrics, data.source.currency))
-
-
-def _display(metrics: DailyMetrics, currency: str) -> tuple[MetricDisplay, ...]:
-    values: list[MetricDisplay] = []
-    for key in DailyMetrics.model_fields:
-        if key in ("status_counts", "average_reason"):
-            continue
-        raw = getattr(metrics, key)
-        text: str | None
-        if isinstance(raw, Decimal):
-            text = display_money(Fraction(raw), currency)
-        elif isinstance(raw, ExactAverage):
-            text = display_money(Fraction(int(raw.numerator), int(raw.denominator)), currency)
-        else:
-            text = None if raw is None else str(raw)
-        values.append(MetricDisplay.model_validate({"metric_key": key, "value": text}))
-    return tuple(values)
+    return _finish(data, evidence, findings, metrics, metric_display(metrics, data.source.currency))

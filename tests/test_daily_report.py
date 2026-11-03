@@ -715,3 +715,79 @@ def test_snapshot_json_roundtrip_and_binding_changes_affect_facts() -> None:
     assert baseline.content_hash != other.content_hash and baseline.facts_hash != other.facts_hash
     changed_rules = report(raw((order("1"),), rules={"currency": "CNY", "low_paid_total": "0"}))
     assert changed_rules.facts_hash != baseline.facts_hash
+
+
+@pytest.mark.parametrize(
+    "tamper", ["wrong_value", "missing", "empty", "duplicate", "extra", "reorder"]
+)
+@pytest.mark.parametrize("rehash", [False, True])
+def test_display_must_be_exact_derivation_even_with_recomputed_hash(
+    tamper: str, rehash: bool
+) -> None:
+    from commerceops.domain.commerce_values import facts_hash
+
+    result = report(raw((order("1", shipping_net="12.34", order_total="12.34"),)))
+    body = result.model_dump(mode="python")
+    display = body["display"]
+    if tamper == "wrong_value":
+        display = tuple(
+            {**item, "value": "999999.00"} if item["metric_key"] == "paid_order_total" else item
+            for item in display
+        )
+    elif tamper == "missing":
+        display = display[1:]
+    elif tamper == "empty":
+        display = ()
+    elif tamper == "duplicate":
+        display = (*display, display[0])
+    elif tamper == "extra":
+        display = (*display, {"metric_key": "paid_order_total", "value": "12.34"})
+    else:
+        display = tuple(reversed(display))
+    body["display"] = display
+    if rehash:
+        body["facts_hash"] = facts_hash(result.canonical_facts())
+    with pytest.raises(ValidationError, match="DAILY_DISPLAY_MISMATCH"):
+        DailyReport.model_validate(body)
+
+
+def test_legitimate_report_rebuild_json_and_low_context_validate() -> None:
+    result = report(raw((order("1", shipping_net="1.015", order_total="1.015"), order("2"))))
+    with localcontext() as context:
+        context.prec = 1
+        context.traps[Inexact] = True
+        context.traps[Rounded] = True
+        assert DailyReport.model_validate(result.model_dump(mode="python")) == result
+        assert DailyReport.model_validate_json(result.model_dump_json()) == result
+        assert (
+            aggregate_daily(
+                DailyInput.model_validate(
+                    raw((order("1", shipping_net="1.015", order_total="1.015"), order("2")))
+                )
+            )
+            == result
+        )
+
+
+def test_ratio_and_citation_binding_are_validated_beyond_report_hash() -> None:
+    import json
+
+    from commerceops.domain.commerce_values import facts_hash
+
+    result = report(raw((order("1", shipping_net="1", order_total="1"),)))
+    body = result.model_dump(mode="json")
+    body["metrics"]["average_paid_order_value"] = {"numerator": "2", "denominator": "1"}
+    body["facts_hash"] = facts_hash(
+        {k: v for k, v in body.items() if k not in {"facts_hash", "display"}}
+    )
+    with pytest.raises(ValidationError, match="DAILY_AVERAGE_INVALID"):
+        DailyReport.model_validate_json(json.dumps(body))
+    body = result.model_dump(mode="json")
+    finding = body["findings"][0]
+    finding["evidence_ids"] = ("b" * 64,)
+    finding["finding_id"] = facts_hash({k: v for k, v in finding.items() if k != "finding_id"})
+    body["facts_hash"] = facts_hash(
+        {k: v for k, v in body.items() if k not in {"facts_hash", "display"}}
+    )
+    with pytest.raises(ValidationError, match="DAILY_EVIDENCE_BINDING_INVALID"):
+        DailyReport.model_validate_json(json.dumps(body))

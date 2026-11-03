@@ -1,6 +1,7 @@
 """独立日报契约；不扩张 inventory/commerce-v1 的数据与权限含义。"""
 
 from datetime import date, datetime, time, timedelta
+from decimal import Decimal
 from fractions import Fraction
 from typing import Annotated, Literal, Self
 from uuid import UUID
@@ -395,6 +396,38 @@ class MetricDisplay(DailyDTO):
     value: str | None
 
 
+def _display_money(value: Fraction, currency: str) -> str:
+    digits = 0 if currency == "JPY" else 2
+    numerator = abs(value.numerator) * 10**digits
+    quotient, remainder = divmod(numerator, value.denominator)
+    if remainder * 2 > value.denominator or (
+        remainder * 2 == value.denominator and quotient % 2 == 1
+    ):
+        quotient += 1
+    sign = "-" if value < 0 and quotient != 0 else ""
+    if digits == 0:
+        return sign + str(quotient)
+    whole, fraction = divmod(quotient, 10**digits)
+    return f"{sign}{whole}.{fraction:0{digits}d}"
+
+
+def metric_display(metrics: DailyMetrics, currency: str) -> tuple[MetricDisplay, ...]:
+    values: list[MetricDisplay] = []
+    for key in DailyMetrics.model_fields:
+        if key in ("status_counts", "average_reason"):
+            continue
+        raw = getattr(metrics, key)
+        text: str | None
+        if isinstance(raw, Decimal):
+            text = _display_money(Fraction(raw), currency)
+        elif isinstance(raw, ExactAverage):
+            text = _display_money(Fraction(int(raw.numerator), int(raw.denominator)), currency)
+        else:
+            text = None if raw is None else str(raw)
+        values.append(MetricDisplay.model_validate({"metric_key": key, "value": text}))
+    return tuple(values)
+
+
 class DailyReport(DailyDTO):
     schema_version: Literal["p6-daily-report-v1"] = "p6-daily-report-v1"
     metric_version: Literal["daily-metrics-v1"] = "daily-metrics-v1"
@@ -441,6 +474,11 @@ class DailyReport(DailyDTO):
             and not any(f.severity == "blocking" for f in self.findings)
         ):
             raise ValueError("DAILY_FALSE_COMPLETENESS")
+        expected_display = (
+            metric_display(self.metrics, self.source.currency) if self.metrics else ()
+        )
+        if self.display != expected_display:
+            raise ValueError("DAILY_DISPLAY_MISMATCH")
         ids = {e.evidence_id for e in self.evidence}
         if (
             len(ids) != len(self.evidence)
