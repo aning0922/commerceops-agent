@@ -89,3 +89,16 @@ test('UI_FIXTURE: revalidation clears a shop whose grant was removed',async ({pa
  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
  await expect(page.getByText(/商品 2/)).toHaveCount(0);await expect(page.getByText('当前视角没有获授权店铺。')).toBeVisible();
 });
+
+test('UI_FIXTURE: rapid repeated activation makes only one bootstrap request',async ({page})=>{
+ let bootstraps=0;
+ await page.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap')){bootstraps++;return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});}
+  if(path.endsWith('/sessions'))return route.abort('failed');
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4');const button=page.getByRole('button',{name:'一键体验'});await expect(button).toBeVisible();
+ await button.evaluate(element=>{(element as HTMLButtonElement).click();(element as HTMLButtonElement).click();});
+ await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();expect(bootstraps).toBe(1);
+});
