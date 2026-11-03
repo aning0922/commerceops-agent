@@ -182,7 +182,8 @@ def test_current_identity_scope_registry_fail_closed(
                 )
             elif change == "role":
                 db.execute(
-                    "UPDATE business.principals SET roles=ARRAY['approver'] WHERE id=%s",
+                    "UPDATE business.principals SET roles=ARRAY['approver'],"
+                    "auth_version=auth_version+1 WHERE id=%s",
                     (k.f.actor.principal_id,),
                 )
             else:
@@ -191,6 +192,14 @@ def test_current_identity_scope_registry_fail_closed(
                     "WHERE principal_id=%s",
                     (k.f.actor.principal_id,),
                 )
+    if change == "role":
+        # Legal role revocation invalidates the old session. Re-login isolates the operator check.
+        k.f.relogin()
+        with pytest.raises(WebFailure) as denied:
+            k.read(**options)
+        assert denied.value.status == 403
+        assert denied.value.code == "KNOWLEDGE_NOT_AVAILABLE"
+        return
     with pytest.raises((ValueError, WebFailure)):
         k.read(**options)
 
