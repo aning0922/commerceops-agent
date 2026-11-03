@@ -24,7 +24,7 @@ CommerceOps Agent 把电商运营中分散的分析、审批和跟进连接起�
 
 M2 的本地合成 Woo 只读接入、备份还原和当前 Mock 部署技术门槛已核收；文档冻结时最终审核/CI与发布收口仍待。完整分层证据见 [Phase5 验收](docs/PHASE5_ACCEPTANCE.md)，正式阶段状态以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际登记为准。
 
-2026-11-03 的 M3 本地实施与验证门禁已通过：日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与审核内部草稿。完整工程3684离线、完整PG719严格配对、M3真实本地浏览器及原Web回归已通过；真实资料、模型/embedding、飞书发送和正式发布仍未验收。见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)与[配置及准备步骤](docs/M3_LOCAL_DELIVERY.md)。
+2026-11-03 的 M3 本地实施与验证已获独立审查核收：日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与审核内部草稿。完整工程3684离线、完整PG719严格配对、M3真实本地浏览器及原Web回归已通过；真实资料、模型/embedding、飞书发送和正式发布仍未验收。见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)与[配置及准备步骤](docs/M3_LOCAL_DELIVERY.md)。
 
 ## 产品体验
 
@@ -173,7 +173,7 @@ uv run --frozen python -m scripts.pg_diagnostic --session initial --round 1 --co
 | --- | --- | --- |
 | **M1 · 核心 Agent 应用** | 库存分析、审批、内部工作项、Web、真实飞书与 Base 闭环 | **已验收** · Phase0–4 |
 | M2 · Woo 测试店只读接入 | 本地合成 Woo 对账、待审批备份恢复、当前 Mock Compose | 技术 Gate 已核收；[正式收口状态](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354) · Phase5 |
-| M3 · 完整求职版本 | 日报与调度、受限动态只读工具、SOP RAG、文案审核草稿 | 本地实施/验证门禁通过，最终文档待审；真实资料/模型/外发等外部验收延后 · Phase6 |
+| M3 · 完整求职版本 | 日报与调度、受限动态只读工具、SOP RAG、文案审核草稿 | 本地实施/验证已核收；真实资料/模型/外发等外部验收延后 · Phase6 |
 
 当前不执行真实采购、支付、退款或库存修改。商业实店数据、生产部署及后续阶段尚未验收。路线与依赖见 [ROADMAP](docs/ROADMAP.md)及 [30 天交付计划](docs/plans/30_DAY_EXECUTION.md)；阶段文档中的历史快照由对应结案回执补齐。
 

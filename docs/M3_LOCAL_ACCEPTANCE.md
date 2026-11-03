@@ -1,6 +1,6 @@
 # M3 本地实施与验证交付验收
 
-2026-11-03，台北。本地状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。用户授权先完成本地实现；真实 SOP/商品资料未准备、真实模型/embedding 预算待定、飞书不实际发送。该授权不复活旧 M1/M2 一次性窗口。外部验收保持 NOT_RUN，不以本文件标记完整 M3 正式验收、合 main 或发布。
+2026-11-03，台北。本地状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。用户授权先完成本地实现；真实 SOP/商品资料未准备、真实模型/embedding 预算待定、飞书不实际发送。该授权不复活旧 M1/M2 一次性窗口。外部验收保持 NOT_RUN，不以本文件标记完整 M3 正式验收、合 main 或发布。
 
 ## 源码与证据分层
 
@@ -25,7 +25,7 @@
 | 原离线 Web六配置 | 3a184e9 | 145/145、skip0/retry0，各CLI0 |
 | 原真实 API Web read/write/items | 3a184e9 | 7/10/7 passed、skip0/notrun0，父入口均0/supervisor0；14产物hash已独核，3新项目0container0network/各保留1新卷 |
 | 原N01 | 3a184e9 | 6/6passed49.366s/helper0/PW0/supervisor0；五负例业务不变，一显式pair/GETunknown/dedup/409；cleanup0/独立0container0network1volpreserved；browser个体exitNOT_CAPTURED |
-| 独立审查 | 各精确提交 | M3真实Web、离线145、原live24、N01六均已ACCEPT；扫描/K2fixture静态ACCEPT；fullcheck/K2actual已Astra独核ACCEPT；本地门禁已通过，最终文档独审待回执；完整M3外部验收延后 |
+| 独立审查 | 各精确提交 | M3真实Web、离线145、原live24、N01六均已ACCEPT；扫描/K2fixture静态ACCEPT；fullcheck/K2actual已Astra独核ACCEPT；完整719及配对已独核，文档22b924f已ACCEPT/无P1P2；完整M3外部验收延后 |
 
 M3 E2E project `m3web-3da9458c2dd4`，实际image `sha256:42acf2ebb32b9128c217eed624b3f988f242f2450b9642bbb537feefa51ff070`。实际分页完整且至少51条，不声称未保存的精确总数。两独立shop同新organization下当前账号各自有scope/role；指定审核批准/拒绝、跨身份404、草稿与390px无溢出通过。cleanup 07:25:20.806571Z exit0，独立容器/网络0、新卷1保留；进程退出为Worker0/API-15/Web143，后两者为实际owned TERM，不能改写成全0。
 
@@ -70,6 +70,11 @@ M3 E2E project `m3web-3da9458c2dd4`，实际image `sha256:42acf2ebb32b9128c217ee
 
 phase3终止恢复part2原四节点本轮全部通过，45秒转储完整44条安全栈。为保留未过滤stderr，该组另有只读Docker日志follower，唯一一次采集、collector原生0，不控制helper或修改pytest/源/计时；原始控制台文件仅本机0600保存。它是本轮观察条件，不抵Gate，也不作为根因修复。两线实际应用镜像分别为existing `sha256:047014fa9a0d61b6b3998574f2c0abd307f966d5d4141604135b9e5a78a2c07a`、phase3 `sha256:f9aad8588d356017e6de4d48131b7d2f8cecd07739f30122bb9ab431e11aca7b`，均arm64；PG使用同一绑定的0678镜像。
 
-严格配对在532冻结HEAD执行，source/tree、工具与锁文件指纹、完整719节点集合一致；分区无交集、无缺项，原G1三项/G2六场景及原清理要求均保留并通过。原始两份ci-evidence及round报告hash见本机final-pg-pair.safe.json；不把旧source局部结果拼成此并集。
+严格配对在532冻结HEAD执行，source/tree、工具与锁文件指纹、完整719节点集合一致；分区无交集、无缺项，原G1三项/G2六场景及原清理要求均保留并通过。两份ci-evidence的hash见本机final-pg-pair.safe.json；对应round原报告保留于上述各独立工作树索引；不把旧source局部结果拼成此并集。
 
 最终文档合批仅更新事实导航与交付说明，受测功能/工程SHA如上，不预填文档未来SHA，不宣称文档HEAD重新执行全部PG或浏览器。未push、合main、触发Hosted或部署；原README工作树保持原样。
+
+
+## 最终本地核收回执
+
+Root于`2026-11-03T10:05:02.260708+00:00`登记已实际收到的独立模型审查：`ACCEPT_M3_LOCAL_DELIVERY_DOCS_22b924f`，绑定普通文档提交`22b924f0549c2740f1330ce755454934d3d92954`，无剩余P1/P2。其parent与完整工程/719 PG受测源码为532eefd；浏览器受测来源仍为3a184e9。独审同时接受本次授权本地范围可收口，完整M3外部验收未接受。本次增量只登记实际回执、机械更新本地状态及修正哈希索引，不改代码/测试/配置，不重写旧失败，不将139标为fixed，不预写本次提交未来SHA。

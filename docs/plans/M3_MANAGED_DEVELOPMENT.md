@@ -2,7 +2,7 @@
 
 ## 当前交付事实
 
-状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。功能来源3a184e9，完整工程与719 PG/严格配对来源532eefd；本地验收见[权威本地记录](../M3_LOCAL_ACCEPTANCE.md)，应用准备见[说明](../M3_LOCAL_DELIVERY.md)。用户已明确延后真实资料、预算与发送；不签完整M3外部验收或发布。下方过程保持各自记录时点。
+状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。功能来源3a184e9，完整工程与719 PG/严格配对来源532eefd；本地验收见[权威本地记录](../M3_LOCAL_ACCEPTANCE.md)，应用准备见[说明](../M3_LOCAL_DELIVERY.md)。用户已明确延后真实资料、预算与发送；不签完整M3外部验收或发布。下方过程保持各自记录时点。
 
 ## 启动时点事实（历史快照）
 

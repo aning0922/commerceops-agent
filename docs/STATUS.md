@@ -1,6 +1,6 @@
 # 阶段状态与主控交接
 
-2026-11-03 M3 本地托管门禁：状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现和必要本地门禁已通过，最终文档核收待独审回执；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
 
 详见[第73节](#73-m3本地实施与验证交付核收外部验收延后)。
 
@@ -1469,6 +1469,6 @@ Root历史精确净用量/人工H-L/历史净余UNKNOWN，机器等待另记。D
 
 ## 73. M3本地实施与验证交付核收外部验收延后
 
-2026-11-03 M3 本地托管门禁：状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现和必要本地门禁已通过，最终文档核收待独审回执；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
 
 功能浏览器实跑3a184e9；工程/完整719PG与配对实跑532eefd。二者业务/前端/基础设施/PG helper/浏览器源码逐字节一致，仅扫描精确公开例外及K2不可变负例/说明不同；证据不改写source。工程3684offline/719排除、46无server；真实本地M3三场景七POST原键恢复、原离线145、原live24与N01六均独审核收。失败0A000、native139根因UNKNOWN、旧失败及全部NOT_CAPTURED按验收表保留。未扩大M2备份0018合同，M3备份扩展未实现。原预算/日期/人工UNKNOWN/once及18页冻结不重置；本阶段不自动进入生产或P2。
