@@ -107,10 +107,12 @@ test.describe("UI_FIXTURE daily detail", () => {
     await expect(page.getByText("付款订单总额", { exact: true }).first()).toBeVisible();
     let count = 0;
     let release!: () => void;
+    let delivered!: () => void;
     const held = new Promise<void>((resolve) => { release = resolve; });
+    const oldResponseDelivered = new Promise<void>((resolve) => { delivered = resolve; });
     await page.route("**/api/v1/daily-reports/*", async route => {
       count++;
-      if (count === 1) { await held; await route.fulfill(json({}, 403)); }
+      if (count === 1) { await held; await route.fulfill(json({}, 403)); delivered(); }
       else await route.fulfill(json(completed));
     });
     await page.getByRole("button", { name: "刷新会话与当前页" }).click();
@@ -118,6 +120,8 @@ test.describe("UI_FIXTURE daily detail", () => {
     await page.getByRole("button", { name: "刷新会话与当前页" }).click();
     await expect(page.getByText("付款订单总额", { exact: true }).first()).toBeVisible();
     release();
+    await oldResponseDelivered;
+    await page.waitForTimeout(150); // Let the old rejected fetch settle before checking current UI.
     await expect(page.getByRole("heading", { name: "经营日报" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "登录运营工作台" })).toHaveCount(0);
   });

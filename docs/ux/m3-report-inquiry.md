@@ -176,3 +176,11 @@ Root 放行窗口 UTC 03:41:44–04:06:44，末尾预留至少90秒清理。初�
 Root 看过390截图后要求缩短首屏指标阅读路径。新代码 `ddeb42d79ba27582e23adf14552a9817c8c5a3d7` 把付款订单数、付款订单总额、当日退款额放到日期下方；其余11项及全部14项精确原值、平均值分子分母与状态计数保留在默认关闭的“金额明细与计算口径”中，用户展开后完整可读。缺付款时间仅标为“本日新建且未记录付款时间的订单数”；统计文案说明平台订单记录不等于核对支付网关到账。没有改变 DTO、聚合值、路由或旧 M1 页面。第11节的 `a64188f` 浏览器证据不转签新布局。
 
 在同一授权窗口内，重新对 `ddeb42d` 执行生产 build（exit0），新自有 Next 监听 PID 82881 及同源 Playwright route 合成响应复跑，**10 passed / 9.3s / exit0**，三个宽度均检查3项核心摘要、14项明细、默认折叠、抽屉、键盘与溢出；其余空/不完整/失败/撤权/迟到403仍通过。各宽度新增 ignored `ui-fixture-{width}-summary.png` 展示默认折叠首屏，原四种截图也在本轮重新生成。390截图人工核对可见三项摘要在来源/异常之前，无页面横向溢出。服务停止后端口18649无监听，未续旧窗。此处仍仅签 UI_FIXTURE 与本地build，真实API/PG、桌面菜单缩放和完整CI未验收。
+
+## 13. 实际浏览器页面缩放独立批（2026-11-03）
+
+Root 另登记新窗口 UTC 04:01:57–04:26:57，末90秒清理；唯一产品源码 `7dfe8bdb8b3753aa155ac3cc63e5ddc72e73dadf`。按[Playwright官方扩展说明](https://playwright.dev/docs/chrome-extensions)在自有独立 persistent context、锁内 Chromium `channel=chromium` headless 加载临时 MV3 测试扩展，扩展只配置本次 `127.0.0.1:55754` host permission；按[Chrome tabs API](https://developer.chrome.com/docs/extensions/reference/api/tabs) 调用 `tabs.setZoomSettings(mode=automatic,scope=per-tab)`、`tabs.setZoom(2)` 和 `getZoom`。它是 `actual_browser_page_zoom_via_tabs_api`，并非浏览器菜单点击、CDP pinch `pageScaleFactor` 或 CSS zoom。
+
+最终 UI_FIXTURE 回执在 ignored `frontend/runtime/m3-actual-browser-page-zoom-ui-fixture/receipt.json`，source 精确绑定 `7dfe8bd`、Chromium 156.0.8078.4；1440/1280/390 的 `getZoom` 均为2，CSS `innerWidth` 依次从1440→720、1280→640、390→195，`devicePixelRatio` 从1→2，`visualViewport.scale`仍1。三宽度均核页面及抽屉宽度不溢出，扫描可见元素边界无越界，抽屉 Shift-Tab/Tab/Esc 和关闭后焦点返回通过。每宽度留 `ui-fixture-tabs-api-zoom200-{width}-viewport.png` 及 fullPage 截图；其中 Playwright 的 zoomed fullPage PNG 以缩小后的 CSS 宽度输出，视觉审查以 CDP viewport PNG 和几何回执为准。390 viewport PNG 宽度为500是 Chromium headless 截图的最小画布，实际页面宽按 `innerWidth=195` 核。
+
+第一次脚本在1280因上一尺寸保留Zoom2、第二次在390因重置Zoom1后的布局异步更新而失败；最终显式重置并等待 DPR1→2 后三个宽度均通过，旧两次失败不抹。另将迟到403浏览器用例加强到等待旧响应实际送达后再检查新会话，单例1passed/2.0s。服务监听 PID 89549 已停，端口55754无监听；每次测试后临时扩展和私有profile已删除，只保留 ignored UI_FIXTURE 截图与回执。实际API/PG、真人系统浏览器、Hosted CI均未由本批核收。
