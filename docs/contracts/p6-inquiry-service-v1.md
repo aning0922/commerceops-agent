@@ -53,3 +53,7 @@ Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config,
 报告读取只支持当前有权的 `analysis_reports` 原始报告，不混入 P3 重观测/日报。读取沿同一个有 SQL/锁超时的事务验证当前 job/来源/对象、持久报告绑定和既有 `_stored` 重算校验；旧报告窗口显式映射 start/end，不向新严格窗口 DTO 透传旧 schema 字段。新增回归首轮 23 pass/1 fail 捕获这个 schema 差异，修正后相关合计 **103 pass**（原 P2/Mock 79 + 服务 24），9 个 Python 文件 Ruff、format、mypy 通过。四项报告事务替身测试覆盖正常、无效持久绑定、报告篡改与未完成状态；不证明实际 SQL 权限或锁。执行器仍按原 60 秒 deadline 取消调用，取消后等待数据库线程真正退出；真实 PG 下截止后的排空耗时/进程终止须由后续 owned 窗口量测，单测不代签墙钟上限。未启动 Alembic、PG、API、Worker、真实 SDK 或模型。
 
 提交前只对 22fix 加本服务片的 18 个文件做隔离内容扫描，没有运行全历史扫描。Gitleaks 8.30.1 对 working/index 各报告 3 个 `generic-api-key` 原始命中：0021 中的身份字段 SQL、询单 receipt 路由操作名，以及 22fix 中的 stock_pool_key 比较表达式。作者检查对应行均为代码标识符，没有凭据字面值；原始退出码 1 与三处命中保留，扫描策略的独立复核仍 pending，不宣称完整扫描 Gate 通过。未修改扫描规则或已冻结的 22fix。
+
+## 精确父 revision 更正（2026-11-03）
+
+直接从 K2 精确提交 `e1a52d6bfe2739f5890bf04c4bf2aafc36c00fc8` 读取 `backend/migrations/versions/0020_p6_knowledge_copy.py`，实际 `revision='0020_p6_knowledge_copy'`。原服务候选 1a78 的短 `down_revision='0020'` 是错误占位，本独立修复更正为 `0020_p6_knowledge_copy`；本片自身 revision 保持 `0021`。上文短父值仅记录原设计/首候选时点，后续运行以这个精确父值为准。K2 自身父链由知识 owner/Root 另修至 `0019_p6_daily_reports`，本树没有复制该迁移或读取其他工作树 WIP；未运行 Alembic/PG。
