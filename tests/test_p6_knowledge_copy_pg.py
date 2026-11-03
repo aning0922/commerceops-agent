@@ -269,6 +269,17 @@ def test_runtime_cannot_create_or_upgrade_and_owner_cannot_rewrite_evidence(
     knowledge: KnowledgeFixture,
 ) -> None:
     k = knowledge
+    extension_state_sql = """SELECT e.extversion,n.nspname,
+        pg_get_userbyid(e.extowner)=current_user AS runtime_is_owner
+        FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace
+        WHERE e.extname='vector'"""
+    with connect(k.f.inventory.app) as db:
+        extension_before = db.execute(extension_state_sql).fetchone()
+        assert extension_before == {
+            "extversion": "0.8.7",
+            "nspname": "knowledge_ext",
+            "runtime_is_owner": False,
+        }
     for statement in (
         "CREATE SCHEMA unapproved_knowledge",
         "CREATE TABLE knowledge_ext.unapproved(x int)",
@@ -279,10 +290,20 @@ def test_runtime_cannot_create_or_upgrade_and_owner_cannot_rewrite_evidence(
     for statement in (
         "UPDATE business.p6_knowledge_documents SET body=body||' forged'",
         "DELETE FROM business.p6_knowledge_chunks",
-        "TRUNCATE business.p6_knowledge_registries",
+        # 0023 adds referencing copy tables. RESTRICT fails on the FK before
+        # BEFORE TRUNCATE; CASCADE includes the dependency closure so the
+        # original immutable trigger, not an FK error, must reject this attempt.
+        "TRUNCATE business.p6_knowledge_registries CASCADE",
     ):
-        with pytest.raises(psycopg.errors.CheckViolation), connect(k.f.inventory.owner) as db:
+        with (
+            pytest.raises(psycopg.errors.CheckViolation) as rejected,
+            connect(k.f.inventory.owner) as db,
+        ):
             db.execute(statement)
+        assert rejected.value.sqlstate == "23514"
+        assert rejected.value.diag.message_primary == "inventory evidence is immutable"
+    with connect(k.f.inventory.app) as db:
+        assert db.execute(extension_state_sql).fetchone() == extension_before
 
 
 @pytest.mark.parametrize(
