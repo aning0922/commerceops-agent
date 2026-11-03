@@ -21,6 +21,7 @@ from typing import Any
 
 import httpx
 
+from .browser_lifecycle import validate_report, verify_source
 from .http_probe import run_scenario
 from .owned_adapter import OwnedAdapter, compose_environment, owner_run
 from .owned_negatives import run_owned_negative
@@ -41,6 +42,7 @@ SCENARIOS = {
     "credential_revoke",
     "grant_revoke",
     "natural_ttl",
+    "browser_lifecycle",
 }
 
 
@@ -96,6 +98,8 @@ class Case:
             raise ValueError("Root source/tree does not equal this worktree")
         if git("status", "--porcelain"):
             raise ValueError("committed clean source required")
+        if self.scenario == "browser_lifecycle":
+            verify_source()
 
     @property
     def api(self) -> str:
@@ -406,8 +410,10 @@ def execute(case: Case) -> dict[str, Any]:
             (
                 sys.executable,
                 "-m",
-                "tests.e2e.v4.owned_driver",
-                "probe",
+                "tests.e2e.v4.browser_lifecycle"
+                if case.scenario == "browser_lifecycle"
+                else "tests.e2e.v4.owned_driver",
+                *(("probe",) if case.scenario != "browser_lifecycle" else ()),
                 "--case",
                 str(directory / "case.json"),
             ),
@@ -418,6 +424,9 @@ def execute(case: Case) -> dict[str, Any]:
         if code != 0 or supervisor.watchdog_errors:
             raise RuntimeError("scenario failed or watchdog used; preserve evidence")
         budget.timeout(1)
+        if case.scenario == "browser_lifecycle":
+            validate_report(json.loads((directory / "processes/probe.raw.log").read_text()))
+            records.append(dict(stage="browser_live", selected=1, passed=1, skipped=0, retries=0))
         status = "SCENARIO_COMPLETED_PENDING_REVIEW"
     except BaseException:
         status = "FAILED_OR_UNKNOWN"
@@ -546,7 +555,13 @@ def execute(case: Case) -> dict[str, Any]:
         records=records,
         volume="PRESERVED_NOT_DELETED",
         pg_api="SEE_ACTUAL_COMMAND_RECORDS",
-        browser="NOT_RUN",
+        browser=(
+            "EXECUTED_PENDING_REVIEW"
+            if status == "SCENARIO_COMPLETED_PENDING_REVIEW" and cleanup_ok
+            else "NOT_ACCEPTED"
+        )
+        if case.scenario == "browser_lifecycle"
+        else "NOT_RUN",
         observer_records=str(directory / "observers"),
         full="NOT_RUN",
         hosted="NOT_RUN",

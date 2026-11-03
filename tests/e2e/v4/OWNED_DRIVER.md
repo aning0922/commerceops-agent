@@ -151,3 +151,26 @@ ttl_probe.py不改变业务期限。初始以PG tenant/session created/expires�
 旧两店及原控制回执401。边界丢失/中断/传输错误留UNKNOWN，不续窗；600独占证据文件
 natural_ttl.safe.json保留部分事实。13项定向纯测试0.08s/native0，无真实等待；实际SQL/
 HTTP/30分钟自然行为NOT_RUN，需Root专项新对象/端口/UTC，不以此签Full。
+
+## browser_lifecycle 独立新增模式（窗口未开放）
+
+仅执行WEB交付a2a7873ca7453fc2c86ffdc1b8cd57063b66f5b3的固定
+frontend/playwright.v4-live.config.ts与frontend/v4-tests/lifecycle.live.spec.ts，标题固定
+`LIVE: isolated demo lifecycle and browser layout`。两个Git blob及工作文件bytes必须一致，
+且在当前HEAD内；缺文件/未集成/改动直接阻断，WEB后续修订必须Root交精确SHA再机械刷新。
+这是候选源码钉住，不代替WEB独审或Root运行准入。
+
+沿用prepare/execute命令，仅manifest scenario=browser_lifecycle，仍≤1800s/reserve180。
+API/Web ready后probe子进程固定exec本地Node/Playwright CLI，不接受任意argv；workers1、
+retries0、forbid-only、JSON reporter。Playwright实际grep含project/file前缀，故用固定
+title后缀匹配，再对JSON的唯一spec.title做严格全等核验，不使用会零匹配的整串标题锚。
+Root独立新case的browser目录700、子进程umask077；仅传V4_WEB_ORIGIN、V4_API_ORIGIN、
+V4_EVIDENCE_DIR与本地工具环境，不传owner DB env。候选config trace/video/screenshot自动
+捕获均off；spec主动截图仍私有，HAR默认无记录。没有浏览器安装/route stub/fallback。
+
+只有native0且实际JSON唯一expected/passed、无skip/flaky/retry/errors，才记浏览器执行待审；
+之后仍按停writers/容器→final PG→down流程。HTML200不再冒充WebGate。此spec不签独立
+真实GUI 200% profile，该项仍另开窗口；其余跨标签/视觉矩阵以WEB原交付实际结果分列。
+新增11项离线source/report/固定命令测试0.06s/native0，不启动Node/browser/HTTP/PG；
+源码测试只从已交Git blob取公开样本，不读取作者WIP。Root尚未在本QA树集成WEB两文件，
+因此当前browser模式会按设计拒绝；所有真实浏览器/自然TTL/Full/Hosted仍NOT_RUN。
