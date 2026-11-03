@@ -84,6 +84,7 @@ export function matchesControlBoundary(before, result, operation, requestKey) {
   }
   if (operation === 'persona') {
     return result.data.next_step === 'READ_CURRENT_SESSION' &&
+      after.principal_id !== before.principal_id &&
       after.reset_epoch === before.reset_epoch &&
       after.auth_generation === before.auth_generation + 1;
   }

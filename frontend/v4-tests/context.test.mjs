@@ -36,7 +36,7 @@ test('identity comparison refuses incomplete or malformed DTOs', () => {
 });
 
 test('control receipt stays bound to its tenant, counters and operation',()=>{
- const after={...context,auth_generation:1};
+ const after={...context,principal_id:other,auth_generation:1};
  const receipt={operation:'persona',request_key:id,status:'COMMITTED',reset_epoch:0,auth_generation:1};
  const result={status:'COMMITTED',context:after,data:{receipt,next_step:'READ_CURRENT_SESSION'}};
  assert.equal(matchesControlBoundary(context,result,'persona',id),true);
@@ -70,8 +70,9 @@ test('reset and persona require exact per-operation counter changes',()=>{
   assert.equal(matchesControlBoundary(context,bad,'reset',id),false);
  }
  assert.equal(matchesControlBoundary(context,{...reset,context:{...reset.context,principal_id:other}},'reset',id),false);
- const persona={...reset,context:{...context,auth_generation:1},data:{...reset.data,receipt:{...receipt,operation:'persona',reset_epoch:0}}};
+ const persona={...reset,context:{...context,principal_id:other,auth_generation:1},data:{...reset.data,receipt:{...receipt,operation:'persona',reset_epoch:0}}};
  assert.equal(matchesControlBoundary(context,persona,'persona',id),true);
+ assert.equal(matchesControlBoundary(context,{...persona,context:{...persona.context,principal_id:id}},'persona',id),false);
  assert.equal(matchesControlBoundary(context,{...persona,context:{...context},data:{...persona.data,receipt:{...persona.data.receipt,auth_generation:0}}},'persona',id),false);
  assert.equal(matchesControlBoundary(context,{...persona,context:{...context,reset_epoch:1,auth_generation:1},data:{...persona.data,receipt:{...persona.data.receipt,reset_epoch:1}}},'persona',id),false);
  const unsafe=Number.MAX_SAFE_INTEGER;
