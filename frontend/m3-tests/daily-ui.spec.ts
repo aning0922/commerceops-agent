@@ -43,6 +43,7 @@ test.describe("UI_FIXTURE daily detail", () => {
       await expect(core.getByText("当日退款额", { exact: true }).first()).toBeVisible();
       await expect(core.getByText("付款订单数", { exact: true }).first()).toBeVisible();
       await expect(page.getByText("付款商品税额", { exact: true })).toBeHidden();
+      await page.screenshot({ path: info.outputPath(`ui-fixture-${width}-summary.png`), fullPage: true });
       await page.getByText("金额明细与计算口径").click();
       await expect(page.getByText("付款商品税额", { exact: true })).toBeVisible();
       await expect(page.getByText("原值：", { exact: false }).first()).toBeVisible();

@@ -170,3 +170,9 @@ Root 放行窗口 UTC 03:41:44–04:06:44，末尾预留至少90秒清理。初�
 最终同源 `npx playwright test --config playwright.m3.contract.config.ts` 在显式 `COMMERCEOPS_M3_UI_FIXTURE_URL=http://127.0.0.1:18649` 下 **10 passed / 11.0s / exit 0**；`npm run build`、`npm run check:read-schema`、`npm run typecheck` 也退出0。浏览器例涵盖1440/1280/390、证据抽屉长64位引用、Tab/Shift-Tab/Esc及返回焦点、完整/完整空数据/不完整metrics=null/失败/当前403、两次刷新后迟到403；三个宽度均断言页面与抽屉无水平溢出。缩放证据分为浏览器 CDP `pageScaleFactor=2`（真实 visualViewport.scale=2，视觉缩放）和 CSS zoom=2（页面重排），不是桌面浏览器菜单“缩放200%”的单独操作回执。
 
 截图均标 `UI_FIXTURE` 并留在 ignored `frontend/test-results/`，可按测试重生；每个宽度各有 `ui-fixture-{width}.png`、`-drawer.png`、`-browser-scale200.png`、`-css-zoom200.png`。目录分别为 `daily-ui-UI-FIXTURE-daily--ce0c0-SS-zoom-drawer-and-keyboard`（1440）、`daily-ui-UI-FIXTURE-daily--0a318-SS-zoom-drawer-and-keyboard`（1280）、`daily-ui-UI-FIXTURE-daily--34761-SS-zoom-drawer-and-keyboard`（390）。中途首轮4例因 route 注册顺序被通配阻断、第二轮3例因测试把闭合details中的节点错误要求计数为0，已保留失败原因并修测试；不计入最终通过。真实API、持久化与桌面菜单缩放、独立审查最终提交、完整Hosted CI仍未核收。
+
+## 12. 核心摘要重排与新同源核查（2026-11-03）
+
+Root 看过390截图后要求缩短首屏指标阅读路径。新代码 `ddeb42d79ba27582e23adf14552a9817c8c5a3d7` 把付款订单数、付款订单总额、当日退款额放到日期下方；其余11项及全部14项精确原值、平均值分子分母与状态计数保留在默认关闭的“金额明细与计算口径”中，用户展开后完整可读。缺付款时间仅标为“本日新建且未记录付款时间的订单数”；统计文案说明平台订单记录不等于核对支付网关到账。没有改变 DTO、聚合值、路由或旧 M1 页面。第11节的 `a64188f` 浏览器证据不转签新布局。
+
+在同一授权窗口内，重新对 `ddeb42d` 执行生产 build（exit0），新自有 Next 监听 PID 82881 及同源 Playwright route 合成响应复跑，**10 passed / 9.3s / exit0**，三个宽度均检查3项核心摘要、14项明细、默认折叠、抽屉、键盘与溢出；其余空/不完整/失败/撤权/迟到403仍通过。各宽度新增 ignored `ui-fixture-{width}-summary.png` 展示默认折叠首屏，原四种截图也在本轮重新生成。390截图人工核对可见三项摘要在来源/异常之前，无页面横向溢出。服务停止后端口18649无监听，未续旧窗。此处仍仅签 UI_FIXTURE 与本地build，真实API/PG、桌面菜单缩放和完整CI未验收。
