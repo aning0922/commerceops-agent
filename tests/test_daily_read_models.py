@@ -152,6 +152,34 @@ def test_asset_is_exact_model_generation_and_standard_count_constraints() -> Non
     assert Path(TARGET).is_file()
 
 
+def test_http_response_serializes_strict_wire_without_python_coercion() -> None:
+    from typing import cast
+
+    from commerceops.entrypoints.daily_http import install_daily
+    from commerceops.infrastructure.daily_read import DailyReadStore
+    from fastapi import FastAPI, Request
+    from fastapi.testclient import TestClient
+
+    class StoredWire:
+        def read(self, *args: Any) -> dict[str, Any]:
+            return valid_read()
+
+    app = FastAPI()
+
+    @app.middleware("http")
+    async def identity(request: Request, call_next: Any) -> Any:
+        request.state.web_actor = None
+        return await call_next(request)
+
+    install_daily(app, cast(DailyReadStore, StoredWire()))
+    with TestClient(app) as client:
+        response = client.get(f"/api/v1/daily-reports/{UUID(int=12)}")
+    assert response.status_code == 200
+    assert DailyRead.model_validate_json(response.content) == DailyRead.model_validate_json(
+        json.dumps(valid_read())
+    )
+
+
 def test_public_projection_verifies_stored_hash_and_excludes_private_fields() -> None:
     stored = report(raw())
     with pytest.raises(ValidationError, match="DAILY_FACTS_HASH_MISMATCH"):

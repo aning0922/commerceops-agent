@@ -280,3 +280,13 @@ Root在干净validation组合SHA `359933f0012adf9202c52f184c6ba46d08ab853f`
 使内部THEN与外层IF的THEN有明确表达式边界；数值上下限和其他SQL不变。
 静态定位与诊断一致，但修正后实际迁移尚未执行，根因归属及16项PG结果仍pending。
 S3追问未提交文件不包含在该修正中；本owner未启动PG或重试。
+
+Root第三轮组合源码 `5d0a73c` 实际migrate/setup-checkpointer/grant-runtime/revision全0，
+说明CASE修正后越过原迁移失败；16PG实际15pass/1fail（28.07秒），
+唯一失败 `test_daily_api_keeps_legacy_openapi_and_owner_only`，原 `--tb=no` 未保留断言。
+04:30:24Z清理0/stopping=true，owned `m3s2-7debcd107a31` 保卷；不把15项通过拼签16全过。
+
+作者仅纯CPU最小HTTP复现：原handler把store的JSON wire dict直接交给strict response_model，
+触发52项ResponseValidationError，首项server_time/datetime_type。
+独立修正handler先按JSON构造真实DailyRead，再由FastAPI序列化，并新增实际TestClient响应回归。
+该复现确认响应边界错误，但没有原PG断言，不先宣称第三轮唯一失败已被完整解决。
