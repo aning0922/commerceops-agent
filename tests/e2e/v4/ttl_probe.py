@@ -64,17 +64,39 @@ def require_expired(reply: dict[str, Any]) -> None:
         raise AssertionError("natural expiry rejected for an unrelated reason")
 
 
+def stage_paths(evidence: Path) -> dict[str, Path]:
+    return {
+        stage: evidence.parent / f"natural_ttl.{stage}.safe.json"
+        for stage in ("initial", "before", "after", "success")
+    }
+
+
+def persist(path: Path, value: dict[str, Any]) -> None:
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "w") as stream:
+        json.dump(value, stream)
+        stream.flush()
+        os.fsync(stream.fileno())
+    parent = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        os.fsync(parent)
+    finally:
+        os.close(parent)
+
+
 def run_natural_ttl(
     api: str, origin: str, budget: Budget, adapter: OwnedAdapter, evidence: Path
 ) -> None:
     visitor = Visitor(api, origin, budget, adapter)
     observation: dict[str, Any] = {"status": "UNKNOWN", "mode": "NATURAL_30_MINUTES"}
+    paths = stage_paths(evidence)
     try:
         original = visitor.create()
         tenant = original["context"]["tenant_id"]
         key = original["data"]["creation_request_key"]
         facts = adapter.ttl_facts(tenant)
         observation.update(tenant_id=tenant, request_key=key, initial=facts)
+        persist(paths["initial"], {**observation, "stage": "initial"})
         expires = verify_ttl(facts, tenant, original["data"]["expires_at"], budget)
         remaining = (expires - stamp(facts["db_utc"])).total_seconds()
         if remaining < 60:
@@ -84,6 +106,7 @@ def run_natural_ttl(
         wait_monotonic(target - 30, budget)
         before = adapter.ttl_facts(tenant)
         observation["before"] = before
+        persist(paths["before"], {**observation, "stage": "before"})
         if stamp(before["db_utc"]) >= expires:
             raise TimeoutError("pre-expiry boundary missed; retain UNKNOWN")
         active = visitor.read_current()
@@ -92,6 +115,7 @@ def run_natural_ttl(
         wait_monotonic(target + 2, budget)
         after = adapter.ttl_facts(tenant)
         observation["after"] = after
+        persist(paths["after"], {**observation, "stage": "after"})
         if stamp(after["db_utc"]) < expires:
             raise TimeoutError("DB clock did not reach natural expiry; no extension")
         if any(after[name] != facts[name] for name in facts if name != "db_utc"):
@@ -107,14 +131,15 @@ def run_natural_ttl(
         )
         require_expired(visitor.check("readDemoControlReceipt", response, (401,)))
         budget.timeout(1)
-        observation["status"] = "NATURAL_TTL_OBSERVED_PENDING_REVIEW"
     finally:
         try:
             visitor.close()
         finally:
-            descriptor = os.open(
-                evidence, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600
-            )
-            with os.fdopen(descriptor, "w") as stream:
-                json.dump(observation, stream)
+            persist(evidence, observation)
         # An interrupt/transport/DB failure escapes with UNKNOWN evidence, never success.
+    # Reached only after all assertions AND Python cleanup/summary persistence.
+    # Prior stage documents remain immutable UNKNOWN even when this is appended.
+    persist(
+        paths["success"],
+        {**observation, "stage": "success", "status": "NATURAL_TTL_OBSERVED_PENDING_REVIEW"},
+    )

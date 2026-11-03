@@ -27,7 +27,7 @@ from .owned_adapter import OwnedAdapter, compose_environment, owner_run
 from .owned_negatives import run_owned_negative
 from .preflight import ROOT, git, utc
 from .supervisor import Budget, OwnedProcess, Supervisor
-from .ttl_probe import run_natural_ttl
+from .ttl_probe import run_natural_ttl, stage_paths
 
 SCENARIOS = {
     "lifecycle",
@@ -563,6 +563,12 @@ def execute(case: Case) -> dict[str, Any]:
         if case.scenario == "browser_lifecycle"
         else "NOT_RUN",
         observer_records=str(directory / "observers"),
+        ttl_planned_evidence_paths={
+            stage: str(path)
+            for stage, path in stage_paths(directory / "natural_ttl.safe.json").items()
+        }
+        if case.scenario == "natural_ttl"
+        else None,
         full="NOT_RUN",
         hosted="NOT_RUN",
     )

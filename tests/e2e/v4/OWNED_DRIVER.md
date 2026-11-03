@@ -174,3 +174,18 @@ V4_EVIDENCE_DIR与本地工具环境，不传owner DB env。候选config trace/v
 新增11项离线source/report/固定命令测试0.06s/native0，不启动Node/browser/HTTP/PG；
 源码测试只从已交Git blob取公开样本，不读取作者WIP。Root尚未在本QA树集成WEB两文件，
 因此当前browser模式会按设计拒绝；所有真实浏览器/自然TTL/Full/Hosted仍NOT_RUN。
+
+## TTL01 持久阶段证据修正
+
+已读正式报告 `1edd70e2da59566a9345bc3968c644bff991f03b:docs/v4/review/TTL_3dd.md`，
+原3dd的SIGTERM -15丢initial反例与0P1/1P2保留。改为首次取得PG事实即在长等待之前独占
+写natural_ttl.initial.safe.json并flush/fsync文件和父目录；before/after事实也各在取到后
+立即写natural_ttl.before.safe.json、natural_ttl.after.safe.json，固定名/600/O_EXCL，
+不覆盖旧stage。全部阶段默认UNKNOWN，原natural_ttl.safe.json仍只作UNKNOWN收尾摘要。
+仅全部到期断言、Python清理及摘要持久化均正常返回，才能另写natural_ttl.success.safe.json
+标记待审成功；先前UNKNOWN文件不改写。父receipt提供ttl_planned_evidence_paths定位，
+该字段只是计划路径，不声称文件已存在；必须结合原生退出和实际success证据核收。
+没有signal handler/延迟SIGTERM/重发业务请求/续窗。合成完整子进程分别在长等待点自发
+SIGTERM与抛TimeoutError：实际native -15与1，均留initial UNKNOWN、无success标签；
+SIGTERM不执行finally仍保有initial。新增不可覆盖检查，本模块16pass/0.23s/native0。
+这些是纯/短命子进程证据，无真实30分钟等待、HTTP/PG或浏览器；本修正仍待独审。

@@ -1,15 +1,21 @@
 """Offline TTL authority/room checks; no real waiting, HTTP or PG execution."""
 
+import json
+import signal
+import subprocess
+import sys
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 from .owned_driver import Case
+from .preflight import ROOT
 from .supervisor import Budget
 from .test_owned_driver import case as case
-from .ttl_probe import require_expired, stamp, verify_ttl
+from .ttl_probe import persist, require_expired, stamp, verify_ttl
 
 pytestmark = pytest.mark.offline
 
@@ -108,3 +114,61 @@ def test_window_extension_is_exclusive_to_natural_ttl(
     else:
         with pytest.raises(ValueError):
             changed.validate()
+
+
+@pytest.mark.parametrize("termination", ["sigterm", "python_error"])
+def test_complete_child_interrupt_retains_initial_unknown_without_success(
+    tmp_path: Path,
+    termination: str,
+) -> None:
+    script = r"""
+import os,signal,sys
+from pathlib import Path
+from datetime import UTC,datetime,timedelta
+from tests.e2e.v4 import ttl_probe as t
+from tests.e2e.v4.supervisor import Budget
+now=datetime.now(UTC);expiry=now+timedelta(minutes=30)
+facts=dict(tenant_id="synthetic",created_at=now.isoformat(),expires_at=expiry.isoformat(),
+ session_created_at=now.isoformat(),session_expires_at=expiry.isoformat(),db_utc=now.isoformat(),
+ tenant_revoked=False,session_revoked=False)
+class Visitor:
+ def __init__(self,*args):pass
+ def create(self):return {"context":{"tenant_id":"synthetic"},"data":{
+  "creation_request_key":"synthetic-original-key","expires_at":expiry.isoformat()}}
+ def close(self):pass
+class Adapter:
+ def ttl_facts(self,tenant):return dict(facts)
+def stop(*args):
+ if sys.argv[2]=="sigterm":os.kill(os.getpid(),signal.SIGTERM)
+ raise TimeoutError("synthetic interrupt at long wait")
+t.Visitor=Visitor;t.wait_monotonic=stop
+try:
+ t.run_natural_ttl("http://unused","http://unused",Budget.bind(now,now+timedelta(minutes=45)),
+  Adapter(),Path(sys.argv[1])/"natural_ttl.safe.json")
+except BaseException:
+ raise SystemExit(1) from None
+"""
+    child = subprocess.run(
+        [sys.executable, "-c", script, str(tmp_path), termination],
+        cwd=ROOT,
+        env={},
+        capture_output=True,
+        timeout=5,
+        check=False,
+    )
+    assert child.returncode == (-signal.SIGTERM if termination == "sigterm" else 1)
+    initial = tmp_path / "natural_ttl.initial.safe.json"
+    row = json.loads(initial.read_text())
+    assert row["status"] == "UNKNOWN" and row["initial"]["expires_at"]
+    assert row["request_key"] == "synthetic-original-key"
+    assert not (tmp_path / "natural_ttl.success.safe.json").exists()
+    assert initial.stat().st_mode & 0o777 == 0o600
+    assert all("NATURAL_TTL_OBSERVED" not in path.read_text() for path in tmp_path.glob("*.json"))
+
+
+def test_stage_documents_are_exclusive_and_not_overwritten(tmp_path: Path) -> None:
+    path = tmp_path / "initial.json"
+    persist(path, {"status": "UNKNOWN"})
+    with pytest.raises(FileExistsError):
+        persist(path, {"status": "should-not-replace"})
+    assert json.loads(path.read_text()) == {"status": "UNKNOWN"}
