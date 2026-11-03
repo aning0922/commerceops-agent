@@ -2,6 +2,7 @@ import {test,expect,type Route} from '@playwright/test';
 const fixtureCors = {
  'access-control-allow-origin': new URL(process.env.V4_WEB_ORIGIN ?? 'http://127.0.0.1:3000').origin,
  'access-control-allow-credentials':'true',
+ 'access-control-expose-headers':'Retry-After',
  'access-control-allow-methods':'GET,POST,OPTIONS',
  'access-control-allow-headers':'content-type,x-csrf-token,x-demo-epoch,x-demo-generation',
 };
