@@ -14,11 +14,11 @@ function validate(name:string, data:unknown) {
   if (!validator) { validator = ajv.compile({...spec, $ref:`#/components/schemas/${name}`}); validators.set(name, validator); }
   if (!validator(data)) throw new Error('INVALID_RESPONSE');
 }
-export class ApiError extends Error { constructor(public status:number, public code:string, public retryAfter:string|null = null) {super(code);} }
+export class ApiError extends Error { constructor(public status:number, public code:string, public retryAfter:string|null = null, public outcome:string|null = null) {super(code);} }
 export async function request<T>(path:string, schema:string, init:RequestInit = {}):Promise<T> {
   const response = await fetch(`/api/v4/demo${path}`, {...init, credentials:'same-origin', cache:'no-store', headers:{...(init.body ? {'Content-Type':'application/json'} : {}), ...init.headers}});
   let value:unknown; try {value = await response.json();} catch {throw new ApiError(response.status, 'INVALID_RESPONSE');}
-  if (!response.ok) { validate('FailureEnvelope',value); const e=value as {error:{code:string}}; throw new ApiError(response.status,e.error.code,response.headers.get('Retry-After')); }
+  if (!response.ok) { validate('FailureEnvelope',value); const e=value as {status:string;error:{code:string}}; throw new ApiError(response.status,e.error.code,response.headers.get('Retry-After'),e.status); }
   validate(schema,value); return value as T;
 }
 export function post<T>(path:string, schema:string, body:object, csrf:string) {
