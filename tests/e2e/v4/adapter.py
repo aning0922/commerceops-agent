@@ -28,9 +28,19 @@ class CapacityFacts:
 class OperationFacts:
     receipts: int
     events: int
+    event_kinds: tuple[str, ...]
     receipt_id: str | None
     tenant_id: str | None
     epoch: int | None
+
+
+def require_operation_events(facts: OperationFacts, operation: str) -> None:
+    expected = {
+        "session_create": ("demo.seed_materialized", "demo.session_created"),
+        "reset": ("demo.reset_committed",),
+    }[operation]
+    if facts.events != len(facts.event_kinds) or tuple(sorted(facts.event_kinds)) != expected:
+        raise AssertionError("original receipt event kinds missing/duplicate/extra/wrong")
 
 
 class V4Adapter(Protocol):

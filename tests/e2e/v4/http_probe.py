@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 
 import httpx
 
-from .adapter import CapacityFacts, V4Adapter
+from .adapter import CapacityFacts, V4Adapter, require_operation_events
 from .supervisor import Budget
 
 PREFIX = "/api/v4/demo"
@@ -272,6 +272,7 @@ class Visitor:
         if observed["status"] != "COMMITTED":
             raise AssertionError("creation commit unverified; retain UNKNOWN")
         facts = self.adapter.operation_facts("session_create", key)
+        require_operation_events(facts, "session_create")
         # A creation receipt has one session_created and one seed_materialized event.
         if facts.receipts != 1 or facts.events != 2 or facts.tenant_id is None:
             raise AssertionError("creation not independently committed in PG")
@@ -353,6 +354,7 @@ def capacity(visitors: list[Visitor]) -> None:
         raise AssertionError("PG must observe three active tenants/sessions/creation receipts")
     for tenant, key in originals:
         facts = adapter.operation_facts("session_create", key)
+        require_operation_events(facts, "session_create")
         if facts.receipts != 1 or facts.events != 2 or facts.tenant_id != tenant:
             raise AssertionError("original capacity cohort creation not proven in PG")
     for visitor in visitors[3:]:
@@ -478,6 +480,7 @@ def same_key_reset(visitor: Visitor) -> None:
     if conflict["error"]["code"] != "IDEMPOTENCY_CONFLICT":
         raise AssertionError("same key/different digest must be an idempotency conflict")
     facts = visitor.adapter.operation_facts("reset", key)
+    require_operation_events(facts, "reset")
     if (
         facts.receipts != 1
         or facts.events != 1

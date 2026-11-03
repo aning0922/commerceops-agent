@@ -215,3 +215,17 @@ Q18为Root新登记的8API内细化，原c4设计对该GET复用分支尚未证�
 用户显式GET得到新owner；旧行/旧key仍不可变且旧token仅保留原key最小回读；第二个新key
 按当前真实限流/容量结果处理，无隐性新tenant；UNKNOWN不自动GET bootstrap/POST。
 这里不将未来分支或未交SQL写为已实现，不用RATE_LIMITED代签CAPACITY_LIMIT。
+
+## QA-04：原回执事件种类精确核验
+
+只读增量报告 `8e9794ac7a57e9055153af39d4eca064da04472f:docs/v4/review/QA_05a.md`：
+原QA-01/02/03在源码审查层关闭，新增QA-04 P2，暂未ACCEPT_PREPARED_HARNESS。
+此次只修事件语义：OPERATION_SQL保留operation/key→receipt/tenant的参数化绑定，另返回
+该receipt全部event_kind有序数组，不过滤期望kind、不DISTINCT、不丢重复或额外事件。
+适配要求数组完整且与count相等；ACK创建及capacity原三key必须精确含一次
+demo.session_created和一次demo.seed_materialized，reset必须仅一次demo.reset_committed。
+顺序不影响判据，遗漏/重复/额外/相同数量但错误种类均失败。
+
+新增 `test_event_criteria.py`：15项定向离线测试，15pass/0.03s/native0；Ruff通过，Mypy
+12源码文件通过。没有重跑未改的旧29项和上一批20项。SQL/PG/API/Web/浏览器/Full/Hosted
+仍NOT_RUN，实际适配继续等后端精确提交与Root资源窗口；本修正待Astra复审。

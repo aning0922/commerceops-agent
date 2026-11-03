@@ -76,6 +76,9 @@ WITH original AS (
 SELECT (SELECT count(*) FROM original) AS receipts,
        (SELECT count(*) FROM business.v4_demo_events e
         JOIN original r ON e.receipt_id=r.id AND e.tenant_id=r.tenant_id) AS events,
+       (SELECT COALESCE(array_agg(e.event_kind ORDER BY e.event_kind, e.id), ARRAY[]::text[])
+        FROM business.v4_demo_events e
+        JOIN original r ON e.receipt_id=r.id AND e.tenant_id=r.tenant_id) AS event_kinds,
        (SELECT min(id::text) FROM original) AS receipt_id,
        (SELECT min(tenant_id::text) FROM original) AS tenant_id,
        (SELECT min(t.reset_epoch) FROM business.v4_demo_tenants t
@@ -129,10 +132,16 @@ class DesignPgFacts:
             raise ValueError("control operation required")
         UUID(key)
         row = self._row(OPERATION_SQL, (operation, key))
-        if set(row) != {"receipts", "events", "receipt_id", "tenant_id", "epoch"}:
+        if set(row) != {"receipts", "events", "event_kinds", "receipt_id", "tenant_id", "epoch"}:
             raise AssertionError("invalid operation facts")
         if any(type(row[name]) is not int or row[name] < 0 for name in ("receipts", "events")):
             raise AssertionError("invalid operation counts")
+        kinds = row["event_kinds"]
+        if not isinstance(kinds, list) or any(not isinstance(kind, str) for kind in kinds):
+            raise AssertionError("complete event kind sequence required")
+        if len(kinds) != row["events"]:
+            raise AssertionError("event sequence/count mismatch")
+        row["event_kinds"] = tuple(kinds)
         if row["epoch"] is not None and (type(row["epoch"]) is not int or row["epoch"] < 0):
             raise AssertionError("invalid observed epoch")
         for name in ("receipt_id", "tenant_id"):
