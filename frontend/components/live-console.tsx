@@ -1,5 +1,8 @@
 "use client";
 import { CreateTaskDialog, DecisionActions } from "./live-actions";
+import { DailyReport } from "./daily-report";
+import { DailyFailure, readDaily } from "../lib/m3-read-client";
+import type { DailyRead } from "../lib/m3-types.generated";
 import { ExecutionFacts, ItemListFacts, ItemDetails } from "./item-views";
 import { itemConsistent } from "../lib/p3-item-contract";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -28,6 +31,7 @@ import {
 } from "./live-readviews";
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
+  | { kind: "daily"; read: DailyRead }
   | { kind: "tasks"; read: DTO["TaskList"] }
   | {
       kind: "task";
@@ -63,9 +67,12 @@ const taskRoute = new RegExp(
 const approvalRoute = new RegExp(`^/approvals/(${uuid})$`, "i");
 const receiptRoute = new RegExp(`^/requests/(${uuid})$`, "i");
 const itemRoute = new RegExp(`^/replenishment-items/(${uuid})$`, "i");
+const dailyRoute = new RegExp(`^/daily-reports/(${uuid})$`, "i");
 const uuidOnly = new RegExp(`^${uuid}$`, "i");
 const titleOf = (path: string) =>
-  path.endsWith("/report")
+  dailyRoute.test(path)
+    ? "经营日报"
+    : path.endsWith("/report")
     ? "库存分析报告"
     : path.endsWith("/events")
       ? "Agent 执行轨迹"
@@ -89,7 +96,7 @@ const titleOf = (path: string) =>
                         ? "内部补货"
                         : "访问限制与会话过期";
 const messageOf = (error: unknown) =>
-  error instanceof P3Failure ? error.message : "暂时无法安全读取。";
+  error instanceof P3Failure || error instanceof DailyFailure ? error.message : "暂时无法安全读取。";
 export function LiveConsole({
   path,
   query,
@@ -211,7 +218,11 @@ export function LiveConsole({
       const cap = session!.principal.capabilities;
       let page: PageData;
       let shop: string | null = null;
-      if (path === "/admin/operations") {
+      if (dailyRoute.test(path)) {
+        if (fixtureMode || !origin) throw new P3Failure("RESOURCE_NOT_FOUND");
+        const id = path.match(dailyRoute)![1];
+        page = { kind: "daily", read: await readDaily(origin, id, () => client!.clearSession(), undefined, accept) };
+      } else if (path === "/admin/operations") {
         if (!cap.can_read_operations) throw new P3Failure("ACCESS_DENIED");
         page = { kind: "operations", read: await client!.operations() };
       } else if (path === "/tasks") {
@@ -359,7 +370,7 @@ export function LiveConsole({
       setConfig(null);
       setError(messageOf(error));
       if (
-        error instanceof P3Failure &&
+        (error instanceof P3Failure || error instanceof DailyFailure) &&
         ["ACCESS_DENIED", "RESOURCE_NOT_FOUND", "INVALID_REQUEST"].includes(
           error.code,
         )
@@ -374,6 +385,8 @@ export function LiveConsole({
     client,
     session,
     path,
+    fixtureMode,
+    origin,
     query.report_id,
     query.version,
     query.operation,
@@ -675,7 +688,7 @@ export function LiveConsole({
           </div>
         </header>
         <main id="main">
-          <div className="mock-banner">
+          {page?.kind !== "daily" && <div className="mock-banner">
             <BusinessSourceNotice
               fixtureMode={fixtureMode}
               kind={
@@ -684,7 +697,7 @@ export function LiveConsole({
                   : null
               }
             />
-          </div>
+          </div>}
           <div className="page-heading">
             <div>
               <h1>{title}</h1>
@@ -727,6 +740,7 @@ export function LiveConsole({
             </Card>
           ) : (
             <>
+              {page.kind === "daily" && <DailyReport key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? page.read.daily.updated_at}`} read={page.read} />}
               {page.kind === "tasks" && (
                 <>
                   <div className="metrics">

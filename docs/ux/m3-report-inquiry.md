@@ -150,3 +150,29 @@ Modal 继续使用原生 dialog、Esc 关闭、Tab/Shift-Tab 限制在可见可�
 敏感检查复用仓库 `scripts.scan_secrets.scan()`，仅在进程内将扫描器路径指向现有 `/opt/homebrew/bin/gitleaks`，版本仍由原脚本严格核为 `8.30.1`；未修改仓库脚本、规则或工具安装。当前可提交文件 `dir` 和原 index 均 0 命中；`git --all --full-history` 返回 20 命中，其中 3 项由原规则识别为已审公开误报，17 项仍为 blocking，整体 exit 1。阻断位置涉及 Harness 等其他可达历史提交，本轮未读取命中原文、未判断误报、未修历史或新增豁免；由 Root 核定，不能记录为完整敏感 Gate 通过。当前本文件零命中不抵消全历史阻断，亦未上传任何内容。
 
 精确提交 SHA 与提交前最后检查结果在本会话交付回执中记录；本文不预填未来提交、独审、测试或 CI 结果。提交后等待 Root 的合同转交与下一实现切片指令。
+
+## 10. 首片日报详情实施（2026-11-03）
+
+Root 已释放独审通过的 S2 Read DTO/schema 提交 `1434909f2753cb5cc7d523b0a8d8f3dcbb6ef6aa`；UI 树普通合入。当前前端以 `/daily-reports/{task_id}` 深链在原会话壳内执行 `GET /api/v1/daily-reports/{task_id}`，由服务端每次判断日报专属权限。本片没有列表或创建端点，旧 P3 任务列表协议保持原样。后端实际 API 与存储仍在实施，此处的契约 transport 测试不代表真实 HTTP 已通过。
+
+读取采用已审 `p6-daily-read-v1.schema.json` 的逐字节副本、独立 Ajv2020 strict 校验与从该 schema 生成的 TS 类型。前端还核请求 task、时间顺序、完整报告的展示项集合、原始计数和金额的 HALF_EVEN 展示映射；指标聚合公式与 hash 仍由服务端 DTO/store 核验。生成类型命令为 `npm exec --yes --package json-schema-to-typescript@15.0.4 -- json2ts -i ../docs/contracts/p6-daily-read-v1.schema.json -o lib/m3-types.generated.ts`，无需修改 lock。
+
+页面显示原值和服务端展示值、业务日窗口/来源/质量、完整与 null、异常及证据引用编号；正文证据未由此 DTO 提供。生成状态与投递状态分开。追问、调度和投递能力字段为 false，故本片无交互入口。401/403 清同一会话的敏感数据，请求世代防止迟到回填；抽屉随报告身份切换卸载。现有 700px 响应式重排和原生 dialog 可复用，浏览器 1440/1280/390、200% 缩放及键盘实际验证待独立窗口。
+
+本地验证：锁定 Node/npm 下 `npm ci --ignore-scripts` 安装 41 包；`npm run check:toolchain`、`npm run typecheck`、`npm run check:read-schema`、`npm run build` 及四个无服务器 Playwright 契约例实际退出 0。完整 Web/E2E、真实 API/PG、Hosted CI、模型与推送均未由本片验证；精确提交与独审结果另由交付回执记录。
+
+## 11. UI_FIXTURE 浏览器核查（2026-11-03）
+
+Root 放行窗口 UTC 03:41:44–04:06:44，末尾预留至少90秒清理。初始 `b63f9bc` 被独审指出旧401/403迟到会误清新会话；`b4b3c9e` 在全局清理前核当前请求世代，5个无服务器契约例覆盖旧401/403与当前401/403。随后 `a64188faf9f647535b1c150fb20a329beb7f17fb` 将质量/订单状态文案改为中文并补证据抽屉溢出检查；这是最终浏览器核查源码。
+
+仅启动本树 `next start --hostname 127.0.0.1 --port 18649`，`COMMERCEOPS_UI_MODE=live` 且 API origin 指本机同端口；Playwright 为每例创建私有 Chromium context，所有 `/api/v1/` 均由明确的合成 route 响应或阻断，没有真实 API、账号、PG、业务外发。服务监听进程 PID 79365，终止后 `lsof -nP -iTCP:18649 -sTCP:LISTEN` 无输出。前一轮 PID 76450 及重建轮进程均已停止；窗口结束前无本树监听服务。
+
+最终同源 `npx playwright test --config playwright.m3.contract.config.ts` 在显式 `COMMERCEOPS_M3_UI_FIXTURE_URL=http://127.0.0.1:18649` 下 **10 passed / 11.0s / exit 0**；`npm run build`、`npm run check:read-schema`、`npm run typecheck` 也退出0。浏览器例涵盖1440/1280/390、证据抽屉长64位引用、Tab/Shift-Tab/Esc及返回焦点、完整/完整空数据/不完整metrics=null/失败/当前403、两次刷新后迟到403；三个宽度均断言页面与抽屉无水平溢出。缩放证据分为浏览器 CDP `pageScaleFactor=2`（真实 visualViewport.scale=2，视觉缩放）和 CSS zoom=2（页面重排），不是桌面浏览器菜单“缩放200%”的单独操作回执。
+
+截图均标 `UI_FIXTURE` 并留在 ignored `frontend/test-results/`，可按测试重生；每个宽度各有 `ui-fixture-{width}.png`、`-drawer.png`、`-browser-scale200.png`、`-css-zoom200.png`。目录分别为 `daily-ui-UI-FIXTURE-daily--ce0c0-SS-zoom-drawer-and-keyboard`（1440）、`daily-ui-UI-FIXTURE-daily--0a318-SS-zoom-drawer-and-keyboard`（1280）、`daily-ui-UI-FIXTURE-daily--34761-SS-zoom-drawer-and-keyboard`（390）。中途首轮4例因 route 注册顺序被通配阻断、第二轮3例因测试把闭合details中的节点错误要求计数为0，已保留失败原因并修测试；不计入最终通过。真实API、持久化与桌面菜单缩放、独立审查最终提交、完整Hosted CI仍未核收。
+
+## 12. 核心摘要重排与新同源核查（2026-11-03）
+
+Root 看过390截图后要求缩短首屏指标阅读路径。新代码 `ddeb42d79ba27582e23adf14552a9817c8c5a3d7` 把付款订单数、付款订单总额、当日退款额放到日期下方；其余11项及全部14项精确原值、平均值分子分母与状态计数保留在默认关闭的“金额明细与计算口径”中，用户展开后完整可读。缺付款时间仅标为“本日新建且未记录付款时间的订单数”；统计文案说明平台订单记录不等于核对支付网关到账。没有改变 DTO、聚合值、路由或旧 M1 页面。第11节的 `a64188f` 浏览器证据不转签新布局。
+
+在同一授权窗口内，重新对 `ddeb42d` 执行生产 build（exit0），新自有 Next 监听 PID 82881 及同源 Playwright route 合成响应复跑，**10 passed / 9.3s / exit0**，三个宽度均检查3项核心摘要、14项明细、默认折叠、抽屉、键盘与溢出；其余空/不完整/失败/撤权/迟到403仍通过。各宽度新增 ignored `ui-fixture-{width}-summary.png` 展示默认折叠首屏，原四种截图也在本轮重新生成。390截图人工核对可见三项摘要在来源/异常之前，无页面横向溢出。服务停止后端口18649无监听，未续旧窗。此处仍仅签 UI_FIXTURE 与本地build，真实API/PG、桌面菜单缩放和完整CI未验收。

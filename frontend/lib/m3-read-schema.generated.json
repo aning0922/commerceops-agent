@@ -1,0 +1,1127 @@
+{
+  "$defs": {
+    "AttentionDaily": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "p6-m3-web-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "title": "Shop Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "daily_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "workflow_version": {
+          "const": "p6-daily-report-v1",
+          "title": "Workflow Version",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "question_creation_enabled": {
+          "const": false,
+          "title": "Question Creation Enabled",
+          "type": "boolean"
+        },
+        "question_kinds": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
+          "title": "Question Kinds",
+          "type": "array"
+        },
+        "schedule_enabled": {
+          "const": false,
+          "title": "Schedule Enabled",
+          "type": "boolean"
+        },
+        "delivery_enabled": {
+          "const": false,
+          "title": "Delivery Enabled",
+          "type": "boolean"
+        },
+        "state": {
+          "const": "needs_attention",
+          "title": "State",
+          "type": "string"
+        },
+        "failure_code": {
+          "enum": [
+            "DAILY_SOURCE_INCOMPLETE",
+            "DAILY_SOURCE_UNAVAILABLE",
+            "DAILY_PERMISSION_INVALID",
+            "DAILY_SOURCE_BINDING_CHANGED",
+            "DAILY_STORAGE_FAILURE",
+            "DAILY_WORKFLOW_UNSAFE"
+          ],
+          "title": "Failure Code",
+          "type": "string"
+        },
+        "report": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IncompleteReport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "task_id",
+        "shop_id",
+        "kind",
+        "workflow_version",
+        "created_at",
+        "updated_at",
+        "question_creation_enabled",
+        "question_kinds",
+        "schedule_enabled",
+        "delivery_enabled",
+        "state",
+        "failure_code",
+        "report"
+      ],
+      "title": "AttentionDaily",
+      "type": "object"
+    },
+    "CompleteReport": {
+      "additionalProperties": false,
+      "properties": {
+        "report_id": {
+          "format": "uuid",
+          "title": "Report Id",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "format": "uuid",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "facts_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Facts Hash",
+          "type": "string"
+        },
+        "business_day": {
+          "format": "date",
+          "title": "Business Day",
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/ReadWindow"
+        },
+        "source": {
+          "$ref": "#/$defs/PublicSource"
+        },
+        "collection_started_at": {
+          "format": "date-time",
+          "title": "Collection Started At",
+          "type": "string"
+        },
+        "collected_at": {
+          "format": "date-time",
+          "title": "Collected At",
+          "type": "string"
+        },
+        "quality_flags": {
+          "items": {
+            "enum": [
+              "MISSING_PAGE",
+              "DUPLICATE_ID",
+              "SOURCE_CHANGED",
+              "CAPACITY_LIMIT",
+              "PARTIAL_FAILURE",
+              "COVERAGE_UNPROVEN",
+              "PAYMENT_STATUS_CONFLICT"
+            ],
+            "type": "string"
+          },
+          "title": "Quality Flags",
+          "type": "array"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/DailyFinding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "evidence_count": {
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        },
+        "complete": {
+          "const": true,
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "metrics": {
+          "$ref": "#/$defs/ReadMetrics"
+        },
+        "display": {
+          "items": {
+            "$ref": "#/$defs/MetricDisplay"
+          },
+          "title": "Display",
+          "type": "array"
+        }
+      },
+      "required": [
+        "report_id",
+        "snapshot_id",
+        "content_hash",
+        "facts_hash",
+        "business_day",
+        "window",
+        "source",
+        "collection_started_at",
+        "collected_at",
+        "quality_flags",
+        "findings",
+        "evidence_count",
+        "complete",
+        "metrics",
+        "display"
+      ],
+      "title": "CompleteReport",
+      "type": "object"
+    },
+    "CompletedDaily": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "p6-m3-web-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "title": "Shop Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "daily_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "workflow_version": {
+          "const": "p6-daily-report-v1",
+          "title": "Workflow Version",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "question_creation_enabled": {
+          "const": false,
+          "title": "Question Creation Enabled",
+          "type": "boolean"
+        },
+        "question_kinds": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
+          "title": "Question Kinds",
+          "type": "array"
+        },
+        "schedule_enabled": {
+          "const": false,
+          "title": "Schedule Enabled",
+          "type": "boolean"
+        },
+        "delivery_enabled": {
+          "const": false,
+          "title": "Delivery Enabled",
+          "type": "boolean"
+        },
+        "state": {
+          "const": "completed",
+          "title": "State",
+          "type": "string"
+        },
+        "failure_code": {
+          "title": "Failure Code",
+          "type": "null"
+        },
+        "report": {
+          "$ref": "#/$defs/CompleteReport"
+        }
+      },
+      "required": [
+        "schema_version",
+        "task_id",
+        "shop_id",
+        "kind",
+        "workflow_version",
+        "created_at",
+        "updated_at",
+        "question_creation_enabled",
+        "question_kinds",
+        "schedule_enabled",
+        "delivery_enabled",
+        "state",
+        "failure_code",
+        "report"
+      ],
+      "title": "CompletedDaily",
+      "type": "object"
+    },
+    "DailyFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "code": {
+          "enum": [
+            "SOURCE_INCOMPLETE",
+            "ORDER_AMOUNT_MISMATCH",
+            "AGGREGATE_OUT_OF_RANGE",
+            "PAYMENT_TIMESTAMP_MISSING",
+            "NO_RECORDED_PAYMENTS",
+            "LOW_PAID_TOTAL",
+            "HIGH_REFUND_AMOUNT",
+            "RULE_NOT_CONFIGURED"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "metric_key": {
+          "anyOf": [
+            {
+              "enum": [
+                "created_order_count",
+                "paid_order_count",
+                "paid_product_net",
+                "paid_product_tax",
+                "paid_shipping_net",
+                "paid_shipping_tax",
+                "paid_fee_net",
+                "paid_fee_tax",
+                "paid_order_total",
+                "refund_count",
+                "refunded_order_count",
+                "refund_amount",
+                "average_paid_order_value",
+                "orders_without_payment_timestamp"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Metric Key"
+        },
+        "evidence_ids": {
+          "items": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "rule_version": {
+          "const": "daily-rules-v1",
+          "default": "daily-rules-v1",
+          "title": "Rule Version",
+          "type": "string"
+        },
+        "rule_config_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Rule Config Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "code",
+        "severity",
+        "metric_key",
+        "evidence_ids",
+        "rule_config_hash"
+      ],
+      "title": "DailyFinding",
+      "type": "object"
+    },
+    "ExactAverage": {
+      "additionalProperties": false,
+      "properties": {
+        "numerator": {
+          "pattern": "^-?(0|[1-9][0-9]*)$",
+          "title": "Numerator",
+          "type": "string"
+        },
+        "denominator": {
+          "pattern": "^[1-9][0-9]*$",
+          "title": "Denominator",
+          "type": "string"
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "title": "ExactAverage",
+      "type": "object"
+    },
+    "FailedDaily": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "p6-m3-web-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "title": "Shop Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "daily_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "workflow_version": {
+          "const": "p6-daily-report-v1",
+          "title": "Workflow Version",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "question_creation_enabled": {
+          "const": false,
+          "title": "Question Creation Enabled",
+          "type": "boolean"
+        },
+        "question_kinds": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
+          "title": "Question Kinds",
+          "type": "array"
+        },
+        "schedule_enabled": {
+          "const": false,
+          "title": "Schedule Enabled",
+          "type": "boolean"
+        },
+        "delivery_enabled": {
+          "const": false,
+          "title": "Delivery Enabled",
+          "type": "boolean"
+        },
+        "state": {
+          "const": "failed",
+          "title": "State",
+          "type": "string"
+        },
+        "failure_code": {
+          "enum": [
+            "DAILY_SOURCE_INCOMPLETE",
+            "DAILY_SOURCE_UNAVAILABLE",
+            "DAILY_PERMISSION_INVALID",
+            "DAILY_SOURCE_BINDING_CHANGED",
+            "DAILY_STORAGE_FAILURE",
+            "DAILY_WORKFLOW_UNSAFE"
+          ],
+          "title": "Failure Code",
+          "type": "string"
+        },
+        "report": {
+          "title": "Report",
+          "type": "null"
+        }
+      },
+      "required": [
+        "schema_version",
+        "task_id",
+        "shop_id",
+        "kind",
+        "workflow_version",
+        "created_at",
+        "updated_at",
+        "question_creation_enabled",
+        "question_kinds",
+        "schedule_enabled",
+        "delivery_enabled",
+        "state",
+        "failure_code",
+        "report"
+      ],
+      "title": "FailedDaily",
+      "type": "object"
+    },
+    "IncompleteReport": {
+      "additionalProperties": false,
+      "properties": {
+        "report_id": {
+          "format": "uuid",
+          "title": "Report Id",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "format": "uuid",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "facts_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Facts Hash",
+          "type": "string"
+        },
+        "business_day": {
+          "format": "date",
+          "title": "Business Day",
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/ReadWindow"
+        },
+        "source": {
+          "$ref": "#/$defs/PublicSource"
+        },
+        "collection_started_at": {
+          "format": "date-time",
+          "title": "Collection Started At",
+          "type": "string"
+        },
+        "collected_at": {
+          "format": "date-time",
+          "title": "Collected At",
+          "type": "string"
+        },
+        "quality_flags": {
+          "items": {
+            "enum": [
+              "MISSING_PAGE",
+              "DUPLICATE_ID",
+              "SOURCE_CHANGED",
+              "CAPACITY_LIMIT",
+              "PARTIAL_FAILURE",
+              "COVERAGE_UNPROVEN",
+              "PAYMENT_STATUS_CONFLICT"
+            ],
+            "type": "string"
+          },
+          "title": "Quality Flags",
+          "type": "array"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/DailyFinding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "evidence_count": {
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        },
+        "complete": {
+          "const": false,
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "metrics": {
+          "title": "Metrics",
+          "type": "null"
+        },
+        "display": {
+          "maxItems": 0,
+          "minItems": 0,
+          "title": "Display",
+          "type": "array"
+        }
+      },
+      "required": [
+        "report_id",
+        "snapshot_id",
+        "content_hash",
+        "facts_hash",
+        "business_day",
+        "window",
+        "source",
+        "collection_started_at",
+        "collected_at",
+        "quality_flags",
+        "findings",
+        "evidence_count",
+        "complete",
+        "metrics",
+        "display"
+      ],
+      "title": "IncompleteReport",
+      "type": "object"
+    },
+    "MetricDisplay": {
+      "additionalProperties": false,
+      "properties": {
+        "metric_key": {
+          "enum": [
+            "created_order_count",
+            "paid_order_count",
+            "paid_product_net",
+            "paid_product_tax",
+            "paid_shipping_net",
+            "paid_shipping_tax",
+            "paid_fee_net",
+            "paid_fee_tax",
+            "paid_order_total",
+            "refund_count",
+            "refunded_order_count",
+            "refund_amount",
+            "average_paid_order_value",
+            "orders_without_payment_timestamp"
+          ],
+          "title": "Metric Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "metric_key",
+        "value"
+      ],
+      "title": "MetricDisplay",
+      "type": "object"
+    },
+    "PendingDaily": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "p6-m3-web-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "shop_id": {
+          "format": "uuid",
+          "title": "Shop Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "daily_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "workflow_version": {
+          "const": "p6-daily-report-v1",
+          "title": "Workflow Version",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "question_creation_enabled": {
+          "const": false,
+          "title": "Question Creation Enabled",
+          "type": "boolean"
+        },
+        "question_kinds": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "const": "metric_definition",
+              "type": "string"
+            },
+            {
+              "const": "metric_evidence",
+              "type": "string"
+            },
+            {
+              "const": "finding_reason",
+              "type": "string"
+            },
+            {
+              "const": "data_quality",
+              "type": "string"
+            }
+          ],
+          "title": "Question Kinds",
+          "type": "array"
+        },
+        "schedule_enabled": {
+          "const": false,
+          "title": "Schedule Enabled",
+          "type": "boolean"
+        },
+        "delivery_enabled": {
+          "const": false,
+          "title": "Delivery Enabled",
+          "type": "boolean"
+        },
+        "state": {
+          "enum": [
+            "queued",
+            "analyzing"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "failure_code": {
+          "title": "Failure Code",
+          "type": "null"
+        },
+        "report": {
+          "title": "Report",
+          "type": "null"
+        }
+      },
+      "required": [
+        "schema_version",
+        "task_id",
+        "shop_id",
+        "kind",
+        "workflow_version",
+        "created_at",
+        "updated_at",
+        "question_creation_enabled",
+        "question_kinds",
+        "schedule_enabled",
+        "delivery_enabled",
+        "state",
+        "failure_code",
+        "report"
+      ],
+      "title": "PendingDaily",
+      "type": "object"
+    },
+    "PublicSource": {
+      "additionalProperties": false,
+      "properties": {
+        "source_kind": {
+          "enum": [
+            "mock",
+            "woocommerce_test"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_config_version": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Source Config Version",
+          "type": "string"
+        },
+        "fixture_version": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fixture Version"
+        },
+        "currency": {
+          "enum": [
+            "CNY",
+            "USD",
+            "EUR",
+            "JPY",
+            "GBP",
+            "AUD",
+            "CAD",
+            "HKD",
+            "CHF",
+            "SGD"
+          ],
+          "title": "Currency",
+          "type": "string"
+        },
+        "timezone": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "coverage_scope": {
+          "const": "controlled_test_dataset",
+          "title": "Coverage Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_kind",
+        "source_config_version",
+        "fixture_version",
+        "currency",
+        "timezone",
+        "coverage_scope"
+      ],
+      "title": "PublicSource",
+      "type": "object"
+    },
+    "ReadMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "created_order_count": {
+          "minimum": 0,
+          "title": "Created Order Count",
+          "type": "integer"
+        },
+        "paid_order_count": {
+          "minimum": 0,
+          "title": "Paid Order Count",
+          "type": "integer"
+        },
+        "paid_product_net": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Product Net",
+          "type": "string"
+        },
+        "paid_product_tax": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Product Tax",
+          "type": "string"
+        },
+        "paid_shipping_net": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Shipping Net",
+          "type": "string"
+        },
+        "paid_shipping_tax": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Shipping Tax",
+          "type": "string"
+        },
+        "paid_fee_net": {
+          "pattern": "^(0|-?[1-9][0-9]{0,13}|-?(0|[1-9][0-9]{0,13})\\.[0-9]{0,5}[1-9])$",
+          "title": "Paid Fee Net",
+          "type": "string"
+        },
+        "paid_fee_tax": {
+          "pattern": "^(0|-?[1-9][0-9]{0,13}|-?(0|[1-9][0-9]{0,13})\\.[0-9]{0,5}[1-9])$",
+          "title": "Paid Fee Tax",
+          "type": "string"
+        },
+        "paid_order_total": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Paid Order Total",
+          "type": "string"
+        },
+        "refund_count": {
+          "minimum": 0,
+          "title": "Refund Count",
+          "type": "integer"
+        },
+        "refunded_order_count": {
+          "minimum": 0,
+          "title": "Refunded Order Count",
+          "type": "integer"
+        },
+        "refund_amount": {
+          "pattern": "^(0|[1-9][0-9]{0,13})(\\.[0-9]{0,5}[1-9])?$",
+          "title": "Refund Amount",
+          "type": "string"
+        },
+        "orders_without_payment_timestamp": {
+          "minimum": 0,
+          "title": "Orders Without Payment Timestamp",
+          "type": "integer"
+        },
+        "status_counts": {
+          "items": {
+            "$ref": "#/$defs/ReadStatusCount"
+          },
+          "title": "Status Counts",
+          "type": "array"
+        },
+        "average_paid_order_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExactAverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "average_reason": {
+          "anyOf": [
+            {
+              "const": "ZERO_DENOMINATOR",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Average Reason"
+        }
+      },
+      "required": [
+        "created_order_count",
+        "paid_order_count",
+        "paid_product_net",
+        "paid_product_tax",
+        "paid_shipping_net",
+        "paid_shipping_tax",
+        "paid_fee_net",
+        "paid_fee_tax",
+        "paid_order_total",
+        "refund_count",
+        "refunded_order_count",
+        "refund_amount",
+        "orders_without_payment_timestamp",
+        "status_counts",
+        "average_paid_order_value",
+        "average_reason"
+      ],
+      "title": "ReadMetrics",
+      "type": "object"
+    },
+    "ReadStatusCount": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "processing",
+            "on-hold",
+            "completed",
+            "cancelled",
+            "refunded",
+            "failed",
+            "trash"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "count": {
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "status",
+        "count"
+      ],
+      "title": "ReadStatusCount",
+      "type": "object"
+    },
+    "ReadWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "format": "date-time",
+          "title": "End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "ReadWindow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "p3-web-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "identity_mode": {
+      "const": "session",
+      "title": "Identity Mode",
+      "type": "string"
+    },
+    "server_time": {
+      "format": "date-time",
+      "title": "Server Time",
+      "type": "string"
+    },
+    "trace_id": {
+      "format": "uuid",
+      "title": "Trace Id",
+      "type": "string"
+    },
+    "daily": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PendingDaily"
+        },
+        {
+          "$ref": "#/$defs/CompletedDaily"
+        },
+        {
+          "$ref": "#/$defs/FailedDaily"
+        },
+        {
+          "$ref": "#/$defs/AttentionDaily"
+        }
+      ],
+      "title": "Daily"
+    }
+  },
+  "required": [
+    "schema_version",
+    "identity_mode",
+    "server_time",
+    "trace_id",
+    "daily"
+  ],
+  "title": "DailyRead",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:commerceops:p6-daily-read-v1",
+  "description": "Generated from application.daily.read_models.DailyRead; cross-field formulas, exact display, stored hashes and authorization require DTO/store validation."
+}
