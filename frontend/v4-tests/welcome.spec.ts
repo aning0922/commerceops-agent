@@ -156,3 +156,35 @@ test('UI_FIXTURE: another tab revalidates identity after a persona switch',async
   await second.bringToFront();await expect(second.getByText(/当前视角：approver/)).toBeVisible();await expect(second.getByText(/当前视角：operator/)).toHaveCount(0);
  } finally {await contextBrowser.close();}
 });
+
+test('UI_FIXTURE: a late first-shop summary cannot overwrite the second shop',async ({page})=>{
+ const secondId='22222222-2222-4222-8222-222222222222';
+ const shops=[{shop_id:id,display_name:'第一家',timezone:'Asia/Taipei',currency:'TWD',grants:['read']},{shop_id:secondId,display_name:'第二家',timezone:'Asia/Taipei',currency:'TWD',grants:['read']}];
+ await page.route('**/api/v4/demo/**',async route=>{
+  const url=new URL(route.request().url());
+  if(url.pathname.endsWith('/session'))return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops,source}}});
+  if(url.pathname.endsWith('/seed-summary')){
+   expect(route.request().headers()['x-demo-epoch']).toBe('0');expect(route.request().headers()['x-demo-generation']).toBe('0');
+   const target=url.searchParams.get('shop_id');if(target===id)await new Promise(resolve=>setTimeout(resolve,150));
+   return route.fulfill({json:{...base,context:{...context,shop_id:target},data:{source,counts:{products:target===id?111:222,skus:1,orders:1,order_lines:1},snapshot_at:now}}});
+  }
+  return route.abort();
+ });
+ await page.goto('/v4');const select=page.getByLabel('店铺');await expect(select).toBeVisible();
+ await select.selectOption(id);await select.selectOption(secondId);
+ await expect(page.getByText(/商品 222/)).toBeVisible();await page.waitForTimeout(250);await expect(page.getByText(/商品 111/)).toHaveCount(0);
+});
+
+test('UI_FIXTURE: lost creation body recovers only with the original request key',async ({page})=>{
+ let original='',posts=0;
+ await page.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){posts++;original=route.request().postDataJSON().request_key;return route.abort('failed');}
+  if(path.endsWith('/session')&&original)return route.fulfill({json:{...base,context,data:{creation_request_key:original,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+  if(path.endsWith(`/operations/session_create/${original}`))return route.fulfill({json:{...base,data:{receipt:{receipt_id:id,operation:'session_create',request_key:original,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();
+ await page.getByRole('button',{name:'核对原操作'}).click();await expect(page.getByText('已核对原操作回执。')).toBeVisible();expect(posts).toBe(1);
+});
