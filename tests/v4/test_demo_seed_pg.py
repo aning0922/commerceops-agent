@@ -431,3 +431,57 @@ def test_seed_native_mid_persona_failure_rolls_back_but_preserves_reserved_key(
             "seed-fault-author",
         )
     assert materialized_counts(demo.owner) == before
+
+
+def test_runtime_acl_rejects_mapping_credentials_history_and_public_function_access(
+    sql_demo: tuple[DatabaseSettings, DatabaseSettings],
+) -> None:
+    owner, app = sql_demo
+    with connect(owner) as db:
+        owner_role = db.execute("SELECT current_user AS name").fetchone()
+        assert owner_role is not None and owner_role["name"] != "commerceops_app"
+        owners = db.execute("""SELECT c.relname,pg_get_userbyid(c.relowner) AS owner
+        FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+        WHERE n.nspname='business' AND c.relkind='r' AND c.relname LIKE 'v4_demo_%'""").fetchall()
+        assert len(owners) == 10
+        assert {row["owner"] for row in owners} == {owner_role["name"]}
+        public_execute = db.execute("""SELECT count(*) AS n FROM pg_proc p
+        JOIN pg_namespace n ON n.oid=p.pronamespace
+        CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a
+        WHERE n.nspname='business' AND p.proname IN
+        ('v4_demo_request_valid','v4_demo_guard','v4_demo_commit_guard','v4_demo_provision')
+        AND a.grantee=0 AND a.privilege_type='EXECUTE'""").fetchone()
+        assert public_execute == {"n": 0}
+    statements = (
+        "INSERT INTO business.v4_demo_fixture_versions DEFAULT VALUES",
+        "INSERT INTO business.v4_demo_tenants DEFAULT VALUES",
+        "INSERT INTO business.v4_demo_shops DEFAULT VALUES",
+        "INSERT INTO business.v4_demo_personas DEFAULT VALUES",
+        "INSERT INTO business.v4_demo_sessions DEFAULT VALUES",
+        "INSERT INTO business.web_credentials DEFAULT VALUES",
+        "INSERT INTO business.principal_role_shop_grants DEFAULT VALUES",
+        "UPDATE business.v4_demo_fixture_versions SET version=version WHERE false",
+        "UPDATE business.v4_demo_shops SET template_key=template_key WHERE false",
+        "UPDATE business.v4_demo_personas SET persona_id=persona_id WHERE false",
+        "UPDATE business.v4_demo_bootstraps SET token_hash=token_hash WHERE false",
+        "UPDATE business.v4_demo_sessions SET token_hash=token_hash WHERE false",
+        "UPDATE business.v4_demo_sessions SET expires_at=expires_at WHERE false",
+        "DELETE FROM business.v4_demo_receipts WHERE false",
+        "DELETE FROM business.v4_demo_events WHERE false",
+        "TRUNCATE business.v4_demo_overlays",
+    )
+    with connect(app) as db:
+        role = db.execute("""SELECT current_user AS name,r.rolsuper,r.rolcreatedb,r.rolcreaterole,
+        r.rolreplication,r.rolbypassrls FROM pg_roles r WHERE r.rolname=current_user""").fetchone()
+        assert role == dict(
+            name="commerceops_app",
+            rolsuper=False,
+            rolcreatedb=False,
+            rolcreaterole=False,
+            rolreplication=False,
+            rolbypassrls=False,
+        )
+        for statement in statements:
+            with pytest.raises(psycopg.errors.InsufficientPrivilege) as captured, db.transaction():
+                db.execute(statement)
+            assert captured.value.sqlstate == "42501"
