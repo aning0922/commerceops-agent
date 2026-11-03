@@ -1,7 +1,7 @@
 """Explicit local inquiry deployment; no implicit fixtures, provider, or credentials."""
 
 from pathlib import Path
-from typing import Literal, Self
+from typing import Any, Literal, Self
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -22,6 +22,15 @@ class InquiryDeployment(BaseModel):
     model_mode: Literal["offline_stub"] = "offline_stub"
     model_requests_enabled: Literal[False] = False
     external_sender_enabled: Literal[False] = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def boolean_flags(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            for name in ("enabled", "model_requests_enabled", "external_sender_enabled"):
+                if name in value and type(value[name]) is not bool:
+                    raise ValueError("INVALID_INQUIRY_DEPLOYMENT")
+        return value
 
     @model_validator(mode="after")
     def explicit_directory(self) -> Self:

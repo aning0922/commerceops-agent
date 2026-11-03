@@ -14,6 +14,8 @@ from commerceops.entrypoints.inventory_http import IdentityResolver, inventory_r
 from commerceops.infrastructure.config import Settings
 from commerceops.infrastructure.daily_sources import DailyDeployment
 from commerceops.infrastructure.inventory_repository import InventoryReadStore
+from commerceops.infrastructure.knowledge_copy_config import CopyDeployment, load_copy_deployment
+from commerceops.infrastructure.knowledge_copy_draft_store import CopyStore
 from commerceops.infrastructure.readonly_inquiry_config import InquiryDeployment
 from commerceops.infrastructure.readonly_inquiry_store import InquiryConfig, InquiryStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
@@ -35,9 +37,16 @@ def create_app(
     daily_enabled: bool = False,
     daily_files: DailyDeployment | None = None,
     inquiry_config: InquiryConfig | None = None,
+    copy_deployment: CopyDeployment | None = None,
 ) -> FastAPI:
     if inquiry_config is not None and (web_config is None or replenishment_store is None):
         raise ValueError("inquiry requires explicit Web session configuration")
+    if (
+        copy_deployment is not None
+        and copy_deployment.enabled
+        and (web_config is None or replenishment_store is None)
+    ):
+        raise ValueError("copy requires explicit Web session configuration")
     app = FastAPI(title="CommerceOps Agent", docs_url=None, redoc_url=None, openapi_url=None)
 
     @app.exception_handler(RequestValidationError)
@@ -103,12 +112,26 @@ def create_app(
             )
         )
         app.state.inquiry_openapi = inquiry_openapi()
+    if copy_deployment is not None and copy_deployment.enabled and web_config is not None:
+        from commerceops.entrypoints.knowledge_copy_http import knowledge_copy_router
+        from commerceops.entrypoints.knowledge_copy_openapi import copy_openapi
+
+        app.include_router(
+            knowledge_copy_router(
+                web_config, CopyStore(web_config.database, copy_deployment.queries())
+            )
+        )
+        app.state.copy_openapi = copy_openapi()
     # 所有请求校验错误均由固定400处理，移除FastAPI默认422文档。
     schema = app.openapi()
     if daily_enabled:
         from commerceops.entrypoints.daily_http import separate_legacy
 
         schema = separate_legacy(schema)
+    if hasattr(app.state, "copy_openapi"):
+        from commerceops.entrypoints.knowledge_copy_openapi import separate_copy_legacy
+
+        schema = separate_copy_legacy(schema)
     if hasattr(app.state, "inquiry_openapi"):
         for path in app.state.inquiry_openapi["paths"]:
             schema["paths"].pop(path, None)
@@ -135,6 +158,9 @@ def main() -> None:
     config_path = os.environ.get("COMMERCEOPS_P3_CONFIG_FILE")
     if os.environ.get("COMMERCEOPS_M3_INQUIRY_CONFIG_FILE") and not config_path:
         raise SystemExit("inquiry requires explicit Web session configuration")
+    copy_enabled = os.environ.get("COMMERCEOPS_M3_COPY_ENABLED", "false")
+    if copy_enabled not in ("true", "false") or (copy_enabled == "true" and not config_path):
+        raise SystemExit("copy requires explicit enabled and Web configuration")
     app = create_app()
     if config_path:
         try:
@@ -154,6 +180,13 @@ def main() -> None:
                 ).runtime()
                 if os.environ.get("COMMERCEOPS_M3_INQUIRY_CONFIG_FILE")
                 else None,
+                copy_deployment=load_copy_deployment(
+                    Path(os.environ["COMMERCEOPS_M3_COPY_CONFIG_FILE"])
+                    if os.environ.get("COMMERCEOPS_M3_COPY_CONFIG_FILE")
+                    else None,
+                    enabled=copy_enabled == "true",
+                    expected_sha256=os.environ.get("COMMERCEOPS_M3_COPY_CONFIG_SHA256"),
+                ),
             )
         except (ValueError, OSError):
             raise SystemExit("P3配置无效，请核对本阶段私有配置") from None

@@ -247,10 +247,32 @@ business.p6_daily_deliveries TO commerceops_app"""
         )
 
 
+def grant_knowledge_copy_runtime(settings: DatabaseSettings) -> None:
+    """Explicit owner action; base runtime bootstrap does not silently enable copy writes."""
+    from commerceops.infrastructure.knowledge_copy_draft_store import grant_copy_runtime
+    from commerceops.infrastructure.knowledge_copy_repository import grant_knowledge_runtime
+
+    with connect(settings) as connection:
+        # The grant helpers independently require the real owner and exact existing entities.
+        grant_knowledge_runtime(connection)
+        present = connection.execute(
+            "SELECT to_regclass('business.p6_copy_candidates') AS name"
+        ).fetchone()
+        if present and present["name"] is not None:
+            grant_copy_runtime(connection)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="PG initialization (separate deploy tasks)")
     parser.add_argument(
-        "action", choices=["migrate", "setup-checkpointer", "grant-runtime", "revision"]
+        "action",
+        choices=[
+            "migrate",
+            "setup-checkpointer",
+            "grant-runtime",
+            "grant-knowledge-copy-runtime",
+            "revision",
+        ],
     )
     arguments = parser.parse_args()
     try:
@@ -262,6 +284,8 @@ def main() -> None:
                 asyncio.run(setup_checkpointer(settings))
             case "grant-runtime":
                 grant_runtime(settings)
+            case "grant-knowledge-copy-runtime":
+                grant_knowledge_copy_runtime(settings)
             case "revision":
                 with connect(settings) as connection:
                     row = connection.execute(
