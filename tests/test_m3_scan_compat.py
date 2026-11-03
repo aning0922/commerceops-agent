@@ -189,10 +189,10 @@ def test_m3_provenance_cannot_be_broadened(
 
 
 def test_m3_sources_are_pinned_and_missing_source_fails_closed(tmp_path: Path) -> None:
-    assert len(M3_PUBLIC_EXCEPTIONS) == 24
+    assert len(M3_PUBLIC_EXCEPTIONS) == 25
     assert len(M3_HISTORY_PUBLIC_EXCEPTIONS) == 2
     assert len(M3_SPAN_PUBLIC_EXCEPTIONS) == 1
-    assert len(pinned_rows()) == 27
+    assert len(pinned_rows()) == 28
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
     for _, _, _, row, digest, _ in pinned_rows():
         assert hashlib.sha256(row.encode()).hexdigest() == digest
