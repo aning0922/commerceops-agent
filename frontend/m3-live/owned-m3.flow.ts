@@ -9,9 +9,16 @@ import { loadOwned, uuid } from "./owned-m3-input";
 import { validOwnedCopyPreview } from "./owned-copy-preview";
 import { get, go, noOverflow, post, response, session } from "./owned-m3-harness";
 import type { Session } from "./owned-m3-harness";
-const { window: w, seed: seed, stop, record, verify, close } = loadOwned();
-test.afterEach(async ({}, info) => { record({ event: "test_finished", title: info.title, status: info.status }); });
-test.afterAll(async () => { close(); });
+type Owned = ReturnType<typeof loadOwned>;
+let owned: Owned | undefined;
+let w: Owned["window"], seed: Owned["seed"], stop: Owned["stop"];
+let record: Owned["record"], verify: Owned["verify"];
+test.beforeAll(() => {
+  owned = loadOwned();
+  ({ window: w, seed, stop, record, verify } = owned);
+});
+test.afterEach(async ({}, info) => { if (owned) record({ event: "test_finished", title: info.title, status: info.status }); });
+test.afterAll(() => { if (owned) owned.close(); });
 const q = (value: Record<string,string>) => `?${new URLSearchParams(value)}`;
 async function fixedPreview(page: Page): Promise<Record<string, any>> { const text = await page.locator("pre").last().textContent(); if (!text) throw new Error("Missing fixed preview"); return JSON.parse(text); }
 function exactPreview(s: Session, path: string, value: unknown) { post(s, path, body => { try { return JSON.stringify(JSON.parse(body ?? "")) === JSON.stringify(value); } catch { return false; } }); }
