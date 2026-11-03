@@ -7,9 +7,9 @@
   "cards": {
     "V40-01": "BASELINE_RECONFIRMED",
     "V40-02": "USER_ACCEPTED_CONTRACTS",
-    "V40-03": "SQL_PLAN_IN_PROGRESS",
-    "V40-04": "SEED_SPEC_IN_PROGRESS",
-    "V40-05": "UI_IMPLEMENTATION_AND_QA_PREPARATION"
+    "V40-03": "身份设计核收；代码实施中",
+    "V40-04": "纯双店种子与契约实施中",
+    "V40-05": "欢迎交互实施；真实浏览器准备中"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
@@ -35,7 +35,7 @@
     "Initial imported CSV CRLF whitespace failure; eb82c9d LF normalization independently accepted, old source bytes preserved",
     "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed"
   ],
-  "updated_at_utc": "2026-11-03T14:13:35.131263+00:00",
+  "updated_at_utc": "2026-11-03T14:42:08.580936+00:00",
   "engineering_gate_scope_release": {
     "owner": "SECURITY_SCAN",
     "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
@@ -45,8 +45,15 @@
       "scripts/gitleaks_rules.json",
       "tests/test_quality_gates.py",
       "tests/test_v4_scan_compat.py",
-      "docs/v4/acceptance/v4-0/SCAN_COMPAT.md"
+      "docs/v4/acceptance/v4-0/SCAN_COMPAT.md",
+      "scripts/vendor_gitleaks_rules.py"
     ],
-    "status": "IN_PROGRESS_REQUIRES_INDEPENDENT_REVIEW"
+    "status": "原13与新增10历史精确兼容已独审合入；最终全扫未运行"
+  },
+  "design_review": {
+    "original": "ad402ecebe446bd823793b156f44e1031cea86a0",
+    "corrected_source": "c4c48401494b00308cc5a2022e4a8fcb0e3f8195",
+    "independent_delta_receipt": "0644f9044ef25a6aed7674e84403e4392183de83",
+    "result": "accepted design only; real code and PG not yet verified"
   }
 }
