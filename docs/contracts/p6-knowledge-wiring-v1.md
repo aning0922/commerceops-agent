@@ -1,6 +1,6 @@
 # M3 knowledge/copy 精确接线清单 v1
 
-2026-11-03（台北）；**INTEGRATION_CHECKLIST / DEFAULT_DISABLED / K3_SQL_PENDING**。
+2026-11-03（台北）；**COPY_CONTRACT_READY / MAIN_WIRING_PENDING / DEFAULT_DISABLED / K3_SQL_PENDING**。
 代码锚：K2唯一性fix e1a52d6、角色夹具fix98cc39d、K3候选cf86b303与请求键fix e40ee5a、
 已合0019父37e7e99、精确0020父标识fix51065b19；S3只读精确对象32dd7c240b9d2d979bf684eeb1dc8bcba7e35d31。
 本文件仅准备单点接线，不表示已安装主API/Worker/生产bootstrap或组合SQL通过；
@@ -15,10 +15,12 @@ K3实际29PG仍待，S3询单SQL仍HOLD（Root整批25/36pass），以上均非�
 |---|---|---|
 | knowledge检索 | [repository](../../backend/src/commerceops/infrastructure/knowledge_copy_repository.py) 的 `retrieve_in_transaction(db,actor,shop_id,registry_id,expected_registry_digest,query)` | 调用方事务、当前scope、固定SQL和PG float32；没有独立HTTP任意向量入口 |
 | 内部草稿 | [CopyStore](../../backend/src/commerceops/infrastructure/knowledge_copy_draft_store.py) 的 `create/read/candidate_request/review/receipt` | 当前只接受服务器显式synthetic Query，不构造provider，不含发布方法 |
-| 独立HTTP | [router](../../backend/src/commerceops/entrypoints/knowledge_copy_http.py) 的 `knowledge_copy_router(config,store)` | 当前未被主create_app注册；自身校验Session/Origin/CSRF，POST schema显式导出 |
+| 独立HTTP | [router](../../backend/src/commerceops/entrypoints/knowledge_copy_http.py) 的 `knowledge_copy_router(config,store)` | 当前未被主create_app注册；自身校验Session/Origin/CSRF，成功及UNKNOWN响应显式DTO校验 |
+| 独立合同 | [copy_openapi / separate_copy_legacy](../../backend/src/commerceops/entrypoints/knowledge_copy_openapi.py) | 五操作、严格请求/响应、原P3错误闭包，独立asset；主入口尚未调用 |
+| 合成Query配置 | [load_copy_deployment](../../backend/src/commerceops/infrastructure/knowledge_copy_config.py) | 默认关闭不读文件；显式raw pin、逐级NoFollow/0600/owner/32KiB及语义digest，返回不可变映射 |
 | owner bootstrap | `grant_knowledge_runtime(db)`、`grant_copy_runtime(db)` | 测试显式调用；现有 [grant_runtime](../../backend/src/commerceops/entrypoints/database.py) 尚未自动接入两者 |
 | 主Worker | [serve](../../backend/src/commerceops/entrypoints/worker.py) / InventoryCompositeRunner | 没有knowledge/copy Runner、workflow_version、job生产者或outbox，不能登记不存在的runner |
-| 主API配置 | [create_app/main](../../backend/src/commerceops/entrypoints/api.py)、[WebConfig](../../backend/src/commerceops/infrastructure/web_config.py) | 没有copy_enabled、query配置文件loader或copy_store参数；下文这些接线项均待Backend实施 |
+| 主API配置 | [create_app/main](../../backend/src/commerceops/entrypoints/api.py)、[WebConfig](../../backend/src/commerceops/infrastructure/web_config.py) | 没有copy_enabled或copy_store参数；独立loader已提供，主入口接线仍由Root实施 |
 
 ## 2. 主API的Backend单点顺序
 
@@ -28,7 +30,13 @@ K3实际29PG仍待，S3询单SQL仍HOLD（Root整批25/36pass），以上均非�
    不把owner连接注入服务、不另开第二API服务。启用却缺配置/父链/授权时固定报错或保持disabled，不回退。
 3. `CopyStore(config.database, queries)` 的queries为不可变 `(org_uuid,shop_uuid,query_ref) -> Query` 映射；
    每个Query必须服务器提供、冻结query/text/vector/profile摘要、标synthetic_vector，HTTP只传query_ref。
-   当前没有自动文件loader；Backend若增加，须strict解析受控非秘密配置并先核版本/digest，不从消息/请求body取向量或许可。
+   现可使用`load_copy_deployment(path, enabled=explicit_bool, expected_sha256=raw_sha256)`；
+   默认enabled=False返回None且不读文件。启用必须给原始文件pin，loader不读env/Secret/数据库/模型。
+   返回的CopyDeployment经`.queries()`提供上述映射，不从消息/请求body取向量、角色或许可。
+   文件含schema_version、enabled、bindings及config_digest；每binding含org/shop/query_ref/query_version/Query/binding_digest，
+   query_ref须以`@query_version`结尾（如synthetic-name@v1），新版本另立ref，旧ref保留原pin。
+   provider_enabled/model_requests_enabled/publication_allowed均必须显式false；未知字段、重复JSON键、重复映射、
+   非有限数、错误query/profile/vector摘要、PG数值越界及坏文件pin均拒绝；单文件最多100条且总长<=32768bytes。
 4. source由owner先登记：registry id+digest、product_source id均是已登记实体的引用；请求中ID/hash只是前置条件。
    Store必须按当前session/角色scope重读并重放owner数据，不能用客户端自洽hash注册/替换来源。
    query_ref配置变更使用新版本并保留原pin；旧候选不能自动重绑定，原回执仍按原key查询。
@@ -39,16 +47,28 @@ K3实际29PG仍待，S3询单SQL仍HOLD（Root整批25/36pass），以上均非�
    copy router仍保留自身同配置核验，Store继续核当前owner/assigned reviewer；不因中间件检查而删Store校验。
 6. **OpenAPI必须同时接线**：现 [export_web](../../backend/src/commerceops/entrypoints/web_openapi.py) 拒绝没有已审合同的/api/v1路径，
    直接include后调用export_web会失败。copy需独立冻结的OpenAPI/错误依赖闭包和与旧合同分离的导出，
-   可沿用 [daily的separate_legacy模式](../../backend/src/commerceops/entrypoints/daily_http.py)。
-   不放宽“未知路径/operation拒绝”或偷偷修改旧P3/P4/P5 schema；当前仅router的POST request schemas已有，完整copy asset尚缺。
+   现使用`copy_openapi()`和`separate_copy_legacy(schema)`完成该独立出口；
+   不放宽“未知路径/operation拒绝”或修改旧P3/P4/P5 schema。copy分离仅移除声明的五路径和不被其他操作引用的新model，
+   未知copy路径仍交原export_web拒绝，旧model保留。
    精确S3只在`daily_enabled`时运行daily的`separate_legacy`；copy的独立导出与分离须按copy启用状态单独运行，
    在最终`export_web`前剥离copy已审路径和专属model，不得依赖日报开关或使用宽泛`/api/v1`过滤。
-   建议将独立copy合同保存至明确的`app.state.copy_openapi`并冻结asset；该state/asset/helper当前均未实现。
-   独立合同应列齐五条路由、path/query参数、严格request/成功DTO、UNKNOWN与错误状态、cookie/CSRF及错误依赖闭包。
+   Root可将`copy_openapi()`保存至`app.state.copy_openapi`；该state绑定仍未安装，helper和冻结asset已交付。
+   [完整OpenAPI](p6-copy-web-v1.openapi.json)及[响应JSON Schema](p6-copy-web-v1.schema.json)可交UI严格消费，
+   同源模块为[http_models](../../backend/src/commerceops/application/knowledge_copy/http_models.py)，
+   `python -m scripts.export_copy_schema`重生成文档及包内asset，旧合同文件不变。
 7. 五个实际路由：POST `/api/v1/copy/candidates`；GET `/api/v1/copy/candidates/{identifier}`；
    POST `.../{identifier}/review`；GET `.../{identifier}/review-receipts/{key}?candidate_hash=...`；
    GET `/api/v1/copy/candidate-requests/{key}`。成功envelope为p6-copy-web-v1，固定错误沿用p3-web-v1 error_response。
    ReviewCopy要求显式v1/hash/key/action/reason；UNKNOWN只GET原键，缺行仍UNKNOWN，不自动POST或换key。
+   候选GET/创建后的读取为CandidateResponse：data含candidate、state、source_current、draft_id、publication_allowed。
+   state四分支为awaiting_review/current=true/draft=null、source_unavailable/current=false/draft=null、
+   saved/draft=UUID（来源之后可失效）、rejected/draft=null；没有批准状态可从文本或模型推定。
+   创建原键未知为UnknownCandidateResponse（仅state/key/publication_allowed）；决策成功与未知分别为
+   DecisionResponse/UnknownDecisionResponse，保留原candidate id/hash、request_key，UNKNOWN的decision/draft id均null。
+   HTTP先重建严格DTO，再序列化；Store错shape/错ID/错receipt key返回固定503，不能把未验证dict当成功体。
+   COPY_VERSION_CHANGED映射冻结PLAN_CHANGED、COPY_ALREADY_REVIEWED映射DECISION_CONFLICT、
+   来源/query/reviewer不可用映射NOT_READY，原IDEMPOTENCY_CONFLICT不改；未知内部错误映射SERVICE_UNAVAILABLE。
+   所有实际错误枚举均属于原P3冻结Error，不向UI裸露COPY_*或异常原文，receipt=null/retryable=false。
 
 ## 3. owner初始化与最小runtime权限
 
@@ -98,4 +118,4 @@ current operator/assigned approver、撤权/TTL/Source replay、同key/异文/�
 | 是 | 是 | daily/copy各自独立导出，旧schema无新增路径/model；同真实session与低权DB |
 
 copy显式启用却缺WebConfig、ReplenishmentStore或服务器Query/source配置时须安全失败；
-生产owner bootstrap、loader、独立OpenAPI资产和主API修改仍由Root单点实施，本线K3代码保持e40冻结。
+生产owner bootstrap与主API修改仍由Root单点实施；e40的Store、0023、锁和PG测试未由本交付修改。
