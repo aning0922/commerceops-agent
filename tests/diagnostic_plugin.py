@@ -134,7 +134,7 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
             "knowledge_copy_repository.py",
             "knowledge_copy_values.py",
             "readonly_inquiry_store.py",
-            "copy_store.py",
+            "knowledge_copy_draft_store.py",
         }:
             frames.append({"file": name, "line": trace.tb_lineno})
         if (
