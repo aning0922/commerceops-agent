@@ -59,3 +59,35 @@ receipt只严格校验OperationEnvelope并返回，没有验证普通Receipt.ope
 已读test_supervisor:61–225含native非零、unowned拒绝、TERM忽略/KILL/reap、PG关闭顺序、已退出leader后代、EPERM有/无独立证明；test_strict_response含格式/额外字段/最小恢复泄漏/DB失败null/未知status拒绝。它们没有运行HTTP七场景，也未覆盖QA-01/02/03的判据错误，因此29pass不能抵这些源码发现。
 
 `adapter.py`仅Protocol；真实adapter/driver未存在，不允许skip/fallback签收。PG/API/Web/Full/Hosted仍NOT_RUN；资源窗口未开放。本报告不修改实现或测试，作者修订后交精确SHA增量审，保持首次失败与本轮三P2记录。
+
+## d663增量复审：原三P2关闭，新增事件语义P2
+
+受审commit `d66305205dc87affafc8caa3db0cbd52a3736bb6` / tree `c9730cb95d9810ab55bf27fcd812390ac5d3e0a6`，parent为05a。结论：**原QA-01/02/03 CLOSED_AT_CODE_REVIEW_LEVEL；新增QA-04 P2，0 P1 / 1 P2，暂不签ACCEPT_PREPARED_HARNESS。** 只读精确提交差异和新SQL/测试/QA_PLAN，不读取WIP，不执行任何SQL、HTTP或测试；原首审保留。
+
+### 原三项关闭依据
+
+- QA-01：http_probe.capacity_rejection要求精确CAPACITY_LIMIT及ASCII正整数Retry-After；capacity先核空库，三原tenant/session/creation receipt的3/3/3与逐key绑定，第4/5无receipt，原三身份不被踢出且最终cohort不变。QA_PLAN已明确仅串行cap3，未称并发容量已验。
+- QA-02：concurrent_reset_result允许两相同200或一个200+精确403/CSRF_INVALID；其他拒绝/无成功不签。后续current+GET原key、当前CSRF显式对抗重放/异文冲突、PG唯一receipt/tenant/epoch+1及current再读保持，旧CSRF正确拒绝不再误判失败。事件类型的新增缺口见QA-04，不重新打开原“两200”问题。
+- QA-03：receipt_binding在普通与最小分支核operation/key，最小分支限session_create；body丢失后核COMMITTED、current.creation_request_key、PG receipt ID/tenant，整体header丢失仍仅暴露最小状态。不同operation/key但schema合法的回执不再冒认原键。
+
+### QA-04 [P2] operation事件只按数量统计，不能证明目标事件种类
+
+位置：`tests/e2e/v4/design_pg_adapter.py:71–83`（OPERATION_SQL），尤其77–78；`http_probe.py`中的create_ack_loss、capacity、same_key_reset对facts.events==2或1的成功判据。
+
+OPERATION_SQL只连接receipt_id/tenant_id后count(*)，没有检查event_kind。故session_create receipt若错误关联两条reset/logout事件，或reset receipt关联一条persona_changed事件，当前事件计数仍满足成功条件。receipt.operation正确也不能证明关联事件种类正确；独立QA应发现此类业务审计缺陷，而非依赖被验后端guard一定正确。
+
+最小修正：读取该原receipt全部事件的有序种类集合（或返回明确的expected-kind计数及unexpected-kind计数），分别要求创建精确 `{demo.session_created, demo.seed_materialized}`，reset精确 `{demo.reset_committed}`，无遗漏/重复/额外事件。单纯WHERE event_kind过滤后只数期望事件仍会隐藏额外错事件，应同时拒绝unexpected。保留receipt/tenant/key/epoch已有绑定。增加“数量相同但种类错误”及“期望事件之外多一条”的离线判据拒绝，最终SQL正确性仍待授权PG核验。
+
+这是新只读适配的具体语义误报，不要求添加新业务表/接口，也不把尚未运行SQL本身报成缺陷。修正可只在QA独占模块与对应测试完成。
+
+### 新SQL适配的其余核验
+
+DesignPgFacts不connect、不发现DSN、不继承配置、不带启动能力；连接显式注入。查询使用固定SQL和prepared参数，operation白名单、UUID key，事务只读/UTC/statement与lock timeout、空闲连接和唯一行/精确字段/type校验；未查询bearer/CSRF/password/credential秘密列。没有DML或可变表名拼接。
+
+SNAPSHOT_SQL绑定tenant，按稳定顺序聚合shops/overlay摘要/receipts/events，排除观测时间，另回DB clock；receipt兼作tombstone的双count与c4设计一致，不宣称独立新表。该digest只覆盖明确列，QA_PLAN已明确不是全ACL/credential字节证明。
+
+CAPACITY_SQL用MATERIALIZED单次DB时刻统计未revoke且未到期tenant/session，creation_receipts总数适用于本场景初始空库。OPERATION_SQL跨owner按operation/key搜索，当前随机唯一key的独立空库场景通过receipts==1再核预期tenant避免合并成单条；不是可公开的用户跨租户查询接口，不得照搬为API授权实现。
+
+完整V4Adapter、实际后端表/运行配置、driver与容器清理仍待最终冻结接线，缺实现阻断不回占位值。supervisor/strict validator本轮未改，其旧静态结论沿用；不据此签实际进程/PG/API/Web/Full。
+
+作者20项定向判据通过及Ruff/Mypy11/docs0只记作者证据；未重跑旧29项是明确事实。测试覆盖错误capacity reason/Retry秒、receipt错key/operation、两种并发结果及错误拒绝，但没有事件种类判据。Q18明确为ROOT登记的后续待后端细化分支，尚无实现/运行回执，不将其签已完成。Root的独立UI_FIXTURE22pass2fail/native1亦不在本SQL/HTTP候选结论内，不能代签或被本审查覆盖。
