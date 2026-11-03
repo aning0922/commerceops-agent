@@ -4,7 +4,7 @@ import { BoundedNetwork } from "./bounded-network";
 import { dropActualResponse } from "./drop-response";
 import type { Account, Window } from "./owned-m3-input";
 export type Session = { context: BrowserContext; page: Page; guard: BoundedNetwork; dropNext: (path: string) => Promise<number> };
-export async function session(browser: Browser, w: Window, stop: number, account: Account, shop: string, record: (event: object) => void, verify: () => void): Promise<Session> {
+export async function session(browser: Browser, w: Window, stop: number, account: Account, organization: string, shops: readonly string[], record: (event: object) => void, verify: () => void): Promise<Session> {
   verify();
   const context = await browser.newContext({ baseURL: w.web_origin, viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
   const remaining = stop - Date.now() - 90000;
@@ -13,9 +13,8 @@ export async function session(browser: Browser, w: Window, stop: number, account
   context.once("close", () => clearTimeout(deadline));
   const guard = new BoundedNetwork(w.web_origin, w.api_origin, stop, 90000);
   const get = (pathname: string, search = "", remaining = 10) => guard.allow({ method: "GET", pathname, search, remaining });
-  get("/login"); get(account.home_path); guard.allowRsc(account.home_path, 5); get("/api/v1/config", `?shop_id=${shop}`); get("/api/v1/auth/session"); get("/api/v1/auth/csrf");
+  get("/login"); get(account.home_path); guard.allowRsc(account.home_path, 5); for (const shop of shops) get("/api/v1/config", `?shop_id=${shop}`); get("/api/v1/auth/session"); get("/api/v1/auth/csrf");
   if (account.home_path === "/tasks") get("/api/v1/tasks", "?limit=20");
-  else get("/api/v1/approvals", "?limit=20&view=visible");
   guard.allow({ method: "POST", pathname: "/api/v1/auth/login", search: "", remaining: 1 });
   await context.routeWebSocket(/.*/, socket => socket.close());
   let drop: { path: string; resolve: (status: number) => void } | null = null;
@@ -49,9 +48,11 @@ export async function session(browser: Browser, w: Window, stop: number, account
   finally { await page.locator("#live-password").evaluateAll(els => els.forEach(el => { (el as HTMLInputElement).value = ""; })).catch(() => {}); }
   const login = await loginResponse; if (login.status() !== 200) throw new Error("Owned login failed");
   const identity = await login.json();
-  if (identity.principal?.principal_id !== account.principal_id || !Array.isArray(identity.principal?.role_shop_grants)) throw new Error("Owned principal mismatch");
-  const roles = identity.principal.role_shop_grants.filter((g: { shop_id: string }) => g.shop_id === shop).map((g: { role: string }) => g.role).filter((x: string) => x === "operator" || x === "approver").sort();
-  if (JSON.stringify(roles) !== JSON.stringify([...account.shop_roles].sort())) throw new Error("Owned shop roles mismatch");
+  if (identity.principal?.principal_id !== account.principal_id || identity.principal?.organization_id !== organization || identity.principal?.capabilities?.home_path !== account.home_path || !Array.isArray(identity.principal?.role_shop_grants)) throw new Error("Owned principal mismatch");
+  for (const shop of shops) {
+    const roles = identity.principal.role_shop_grants.filter((g: { shop_id: string }) => g.shop_id === shop).map((g: { role: string }) => g.role).filter((x: string) => x === "operator" || x === "approver").sort();
+    if (JSON.stringify(roles) !== JSON.stringify([...account.shop_roles[shop]].sort())) throw new Error("Owned shop roles mismatch");
+  }
   await expect(page.locator('[data-source-mode="live-session"]')).toBeVisible();
   return { context, page, guard, dropNext };
 }

@@ -12,7 +12,7 @@ export class BoundedNetwork {
     if (!Number.isSafeInteger(rule.remaining) || rule.remaining < 1 || rule.remaining > 100 || !rule.pathname.startsWith("/") || rule.pathname.includes("?") || rule.pathname.includes("#") || (rule.search && !rule.search.startsWith("?"))) throw new Error("Invalid bounded rule");
     this.rules.push({ ...rule });
   }
-  allowRsc(pathname: string, count: number) { if (!["/tasks", "/approvals"].includes(pathname) || !Number.isSafeInteger(count) || count < 1 || count > 5) throw new Error("Invalid page permit"); this.rsc.set(pathname, count); }
+  allowRsc(pathname: string, count: number) { if (!["/tasks", "/access"].includes(pathname) || !Number.isSafeInteger(count) || count < 1 || count > 5) throw new Error("Invalid page permit"); this.rsc.set(pathname, count); }
   allowCopyProbe() { if (this.probes !== 0) throw new Error("Prior probe not consumed"); this.probes = 1; }
   accept(req: RequestShape, now = Date.now()): boolean {
     let u: URL; try { u = new URL(req.url); } catch { this.blocked++; return false; }
