@@ -27,6 +27,8 @@ from commerceops.infrastructure.feishu_clarification import ClarificationDeliver
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
+from commerceops.infrastructure.readonly_inquiry_config import InquiryDeployment
+from commerceops.infrastructure.readonly_inquiry_store import InquiryConfig, InquiryStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.woo_collection import BoundWooCollectorFactory
@@ -35,6 +37,7 @@ from commerceops.infrastructure.worker_lock import WorkerSession, confirm_termin
 from commerceops.workflows.daily_report import DailyRunner
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
 from commerceops.workflows.inventory_routing import IntentRunner
+from commerceops.workflows.readonly_inquiry import ReadonlyInquiryRunner, runtime_factory
 from commerceops.workflows.replenishment import ApprovalRunner
 from commerceops.workflows.report_explanation import (
     ExplanationRunner,
@@ -70,8 +73,11 @@ async def serve(
     message_sender: BusinessMessageSender | None = None,
     message_gate: DeliveryGate | None = None,
     daily_files: DailyDeployment | None = None,
+    inquiry_config: InquiryConfig | None = None,
 ) -> None:
     stop = asyncio.Event()
+    if inquiry_config is not None and web_config is None:
+        raise ValueError("inquiry requires explicit Web session configuration")
     if web_config is not None and (allow_actual or key_file is not None):
         raise ValueError("P3 model requests are disabled")
     if (clarification_sender is not None or message_sender is not None) != (
@@ -122,7 +128,22 @@ async def serve(
             if daily_files and daily_files.fake_delivery_enabled
             else None
         )
-        if fixture is not None or woo_factory is not None or daily is not None:
+        inquiry_store = (
+            InquiryStore(web_config, inquiry_config)
+            if web_config is not None and inquiry_config is not None and inquiry_config.enabled
+            else None
+        )
+        inquiry = (
+            ReadonlyInquiryRunner(inquiry_store, session, runtime_factory(inquiry_store, session))
+            if inquiry_store is not None
+            else None
+        )
+        if (
+            fixture is not None
+            or woo_factory is not None
+            or daily is not None
+            or inquiry is not None
+        ):
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
                 InventoryRunner(
@@ -134,6 +155,7 @@ async def serve(
                 IntentRunner(IntentStore(settings, session), factory),
                 approval,
                 daily,
+                inquiry,
             )
         else:
             runner = TechnicalRunner()
@@ -208,6 +230,10 @@ def main() -> None:
         settings = web_config.database if web_config else DatabaseSettings()
         daily_path = os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE")
         daily_files = DailyDeployment.load(Path(daily_path)) if daily_path else None
+        inquiry_path = os.environ.get("COMMERCEOPS_M3_INQUIRY_CONFIG_FILE")
+        inquiry_config = (
+            InquiryDeployment.load(Path(inquiry_path)).runtime() if inquiry_path else None
+        )
         if args.action in ("test-run", "inventory-test-run"):
             if os.environ.get("COMMERCEOPS_MODE") != "test" or args.organization is None:
                 raise ValueError("explicit test mode and organization required")
@@ -226,6 +252,7 @@ def main() -> None:
                     key_file=args.model_key_file,
                     web_config=web_config,
                     daily_files=daily_files,
+                    inquiry_config=inquiry_config,
                 )
             )
         else:

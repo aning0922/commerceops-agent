@@ -14,6 +14,8 @@ from commerceops.entrypoints.inventory_http import IdentityResolver, inventory_r
 from commerceops.infrastructure.config import Settings
 from commerceops.infrastructure.daily_sources import DailyDeployment
 from commerceops.infrastructure.inventory_repository import InventoryReadStore
+from commerceops.infrastructure.readonly_inquiry_config import InquiryDeployment
+from commerceops.infrastructure.readonly_inquiry_store import InquiryConfig, InquiryStore
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.web_config import WebConfig
 
@@ -32,12 +34,22 @@ def create_app(
     replenishment_store: ReplenishmentStore | None = None,
     daily_enabled: bool = False,
     daily_files: DailyDeployment | None = None,
+    inquiry_config: InquiryConfig | None = None,
 ) -> FastAPI:
+    if inquiry_config is not None and (web_config is None or replenishment_store is None):
+        raise ValueError("inquiry requires explicit Web session configuration")
     app = FastAPI(title="CommerceOps Agent", docs_url=None, redoc_url=None, openapi_url=None)
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request: Request, error: RequestValidationError) -> JSONResponse:
         if request.url.path.startswith("/api/v1/"):
+            if hasattr(app.state, "inquiry_openapi") and (
+                request.url.path == "/api/v1/readonly-inquiries"
+                or request.url.path.startswith("/api/v1/readonly-inquiries/")
+            ):
+                from commerceops.entrypoints.inquiry_http import failure
+
+                return failure("INVALID_REQUEST", 422)
             from commerceops.entrypoints.replenishment_http import error_response
 
             return error_response("INVALID_REQUEST", 422)
@@ -81,12 +93,25 @@ def create_app(
                 else None,
             )
             app.state.daily_openapi = daily_openapi()
+    if inquiry_config is not None and web_config is not None:
+        from commerceops.entrypoints.inquiry_http import inquiry_openapi, inquiry_router
+        from commerceops.infrastructure.web_sessions import SessionStore
+
+        app.include_router(
+            inquiry_router(
+                InquiryStore(web_config, inquiry_config), SessionStore(web_config), web_config
+            )
+        )
+        app.state.inquiry_openapi = inquiry_openapi()
     # 所有请求校验错误均由固定400处理，移除FastAPI默认422文档。
     schema = app.openapi()
     if daily_enabled:
         from commerceops.entrypoints.daily_http import separate_legacy
 
         schema = separate_legacy(schema)
+    if hasattr(app.state, "inquiry_openapi"):
+        for path in app.state.inquiry_openapi["paths"]:
+            schema["paths"].pop(path, None)
     for path, operations in schema["paths"].items():
         if path.startswith("/tasks/"):
             operations["get"]["responses"].pop("422", None)
@@ -96,6 +121,7 @@ def create_app(
         from commerceops.entrypoints.web_openapi import export_web
 
         schema = export_web(schema)
+    # Dedicated inquiry contract is exported separately; original contracts remain exact.
     app.openapi_schema = schema
     return app
 
@@ -107,6 +133,8 @@ def main() -> None:
         # ValidationError 的原始输入可能包含秘密；入口只输出固定提示。
         raise SystemExit("启动配置无效，请检查 COMMERCEOPS_HOST/PORT/LOG_LEVEL") from None
     config_path = os.environ.get("COMMERCEOPS_P3_CONFIG_FILE")
+    if os.environ.get("COMMERCEOPS_M3_INQUIRY_CONFIG_FILE") and not config_path:
+        raise SystemExit("inquiry requires explicit Web session configuration")
     app = create_app()
     if config_path:
         try:
@@ -120,6 +148,11 @@ def main() -> None:
                     Path(os.environ["COMMERCEOPS_M3_DAILY_CONFIG_FILE"])
                 )
                 if os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE")
+                else None,
+                inquiry_config=InquiryDeployment.load(
+                    Path(os.environ["COMMERCEOPS_M3_INQUIRY_CONFIG_FILE"])
+                ).runtime()
+                if os.environ.get("COMMERCEOPS_M3_INQUIRY_CONFIG_FILE")
                 else None,
             )
         except (ValueError, OSError):

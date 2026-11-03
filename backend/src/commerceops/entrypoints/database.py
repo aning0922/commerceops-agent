@@ -72,6 +72,18 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
  business.jobs TO commerceops_app
 """)
         connection.execute("GRANT SELECT ON business.principal_shop_scopes TO commerceops_app")
+        inquiry_table = connection.execute(
+            "SELECT to_regclass('business.readonly_inquiries') AS name"
+        ).fetchone()
+        if inquiry_table and inquiry_table["name"] is not None:
+            connection.execute("REVOKE ALL ON business.readonly_inquiries FROM commerceops_app")
+            connection.execute(
+                "GRANT SELECT,INSERT ON business.readonly_inquiries TO commerceops_app"
+            )
+            connection.execute(
+                "GRANT UPDATE(state,result,result_canonical,result_hash,version,updated_at) "
+                "ON business.readonly_inquiries TO commerceops_app"
+            )
         daily_table = connection.execute(
             "SELECT to_regclass('business.p6_daily_source_bindings') AS name"
         ).fetchone()
