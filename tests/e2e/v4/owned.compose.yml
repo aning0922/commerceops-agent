@@ -29,10 +29,9 @@
       "command": [
         "python",
         "-m",
-        "commerceops.entrypoints.api"
+        "tests.e2e.v4.owned_api"
       ],
       "environment": {
-        "COMMERCEOPS_HOST": "0.0.0.0",
         "COMMERCEOPS_PORT": "${V4_API_PORT:?Root API port required}",
         "COMMERCEOPS_P3_CONFIG_FILE": "/run/v4_api/web.json",
         "COMMERCEOPS_V4_DEMO_CONFIG_FILE": "/run/v4_api/demo.json",

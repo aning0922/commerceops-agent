@@ -197,3 +197,33 @@ Root通知a2a原审两P2，WEB将live.spec.ts改名lifecycle.live.ts并修contex
 无CLI/env override；即便旧a2a文件存在也不能通过Case.validate启动资源。
 旧PINS仅为历史候选位置，不能视为新审通过。最终由Root精确交接后单独机械更新，
 不读取WEB WIP。此阻断与TTL01修复分普通提交，不改变HTTP/natural_ttl模式。
+
+## 第二个pilot的owned API装配修正（独立于TTL/browser）
+
+Root回执：lifecycle_b source d816/tree65322的migration/原grant/V4 init/grant/verify全部
+native0；API native1，配置固定错误；Web/probe未启动，资源全停/端口关闭/新卷保留。
+静态核d81638997dca94c2f084913f2ff2ccfa4f3c8d80原Settings.host仅127.0.0.1/::1，
+原main不支持0.0.0.0；此前容器拓扑计划漏掉此约束。旧case不重试，原约束不放宽。
+
+Root精确释放新tests/e2e/v4/owned_api.py：在test/pg-test镜像内执行
+`python -m tests.e2e.v4.owned_api`。不是生产入口，也不宣称原main支持容器wildcard。
+保持同一原WebConfig.from_file、DemoConfig.load、ReplenishmentStore与create_app装配，
+同时启用原P3和实际V4；没有StubStore/新API/数据库初始化/Worker/proxy框架。
+
+只接受固定/run/v4_api的700当前UID目录及原600文件规则；预先限制demo/web配置和三个
+key/password路径都在固定新runtime位置，DB必须postgres:5432、commerceops_app、
+v4_demo_新库，禁止owner DB env/commerce_sources/任意config或host override。
+Root显式COMMERCEOPS_PORT必须与http://127.0.0.1:<port> api_origin完全一致且已在受信
+origins中，启用local_http、enabled=true、allow_non_browser_get=false。再调用原loader
+和原create_app；无旧配置fallback，不改变旧middleware或Settings。
+
+唯一差异是该owned入口直接调用uvicorn，固定容器内0.0.0.0/单进程/no reload/no proxy
+headers，访问日志关闭；宿主发布仍由overlay限定127.0.0.1，PG仍不发布。overlay只替换
+v4-api command并移除无效COMMERCEOPS_HOST，保留Root端口与P3/V4固定配置路径及UID。
+实际Docker网络/600挂载可读性/PG鉴权仍须新case验证，不能据ASGI签运行通过。
+
+本轮13项定向纯测试：真实create_app独立八端点及P3 schema、无PG的真实ASGI Origin403/
+liveness200、固定listener参数（uvicorn被拦截未监听）、不合法DB/旧secret路径/owner env/
+host override/端口不一致拒绝，以及旧Settings仍拒绝0.0.0.0。前两轮各12pass/1fail分别是
+不适用的顶层route计数、无PG下误要求401；修正测试假设，原401保留实际PG case待验，
+没有把503改成鉴权成功。无Docker/PG/API/Web服务启动，Full/Hosted仍NOT_RUN。
