@@ -212,8 +212,8 @@ BEGIN
   OR NOT (req ?& ARRAY['method','path','body'])
   OR req-ARRAY['method','path','body']<>'{}'::jsonb
   OR req->>'method' IS DISTINCT FROM 'POST'
-  OR req->>'path' IS DISTINCT FROM '/api/v4/demo/'||
-    CASE operation WHEN 'session_create' THEN 'sessions' ELSE operation END
+  OR req->>'path' IS DISTINCT FROM ('/api/v4/demo/'||
+    (CASE operation WHEN 'session_create' THEN 'sessions' ELSE operation END))
  THEN RETURN false; END IF;
  b:=req->'body';
  keys:=CASE operation
@@ -400,7 +400,7 @@ BEGIN
    OR NOT coalesce(business.v4_demo_request_valid(req,NEW.operation,NEW.request_key,
      NEW.epoch_before,NEW.generation_before,t.fixture_version,s.persona_id),false)
    OR (SELECT count(*) FROM business.v4_demo_events e WHERE e.receipt_id=NEW.id)
-      <>CASE WHEN NEW.operation='session_create' THEN 2 ELSE 1 END
+      <>(CASE WHEN NEW.operation='session_create' THEN 2 ELSE 1 END)
    OR NOT EXISTS(SELECT 1 FROM business.v4_demo_events e WHERE e.receipt_id=NEW.id
       AND e.tenant_id=tid AND e.owner_session_id=s.id
       AND e.reset_epoch=NEW.reset_epoch AND e.auth_generation=NEW.auth_generation
