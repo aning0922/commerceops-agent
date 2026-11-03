@@ -160,3 +160,13 @@ Root 已释放独审通过的 S2 Read DTO/schema 提交 `1434909f2753cb5cc7d523b
 页面显示原值和服务端展示值、业务日窗口/来源/质量、完整与 null、异常及证据引用编号；正文证据未由此 DTO 提供。生成状态与投递状态分开。追问、调度和投递能力字段为 false，故本片无交互入口。401/403 清同一会话的敏感数据，请求世代防止迟到回填；抽屉随报告身份切换卸载。现有 700px 响应式重排和原生 dialog 可复用，浏览器 1440/1280/390、200% 缩放及键盘实际验证待独立窗口。
 
 本地验证：锁定 Node/npm 下 `npm ci --ignore-scripts` 安装 41 包；`npm run check:toolchain`、`npm run typecheck`、`npm run check:read-schema`、`npm run build` 及四个无服务器 Playwright 契约例实际退出 0。完整 Web/E2E、真实 API/PG、Hosted CI、模型与推送均未由本片验证；精确提交与独审结果另由交付回执记录。
+
+## 11. UI_FIXTURE 浏览器核查（2026-11-03）
+
+Root 放行窗口 UTC 03:41:44–04:06:44，末尾预留至少90秒清理。初始 `b63f9bc` 被独审指出旧401/403迟到会误清新会话；`b4b3c9e` 在全局清理前核当前请求世代，5个无服务器契约例覆盖旧401/403与当前401/403。随后 `a64188faf9f647535b1c150fb20a329beb7f17fb` 将质量/订单状态文案改为中文并补证据抽屉溢出检查；这是最终浏览器核查源码。
+
+仅启动本树 `next start --hostname 127.0.0.1 --port 18649`，`COMMERCEOPS_UI_MODE=live` 且 API origin 指本机同端口；Playwright 为每例创建私有 Chromium context，所有 `/api/v1/` 均由明确的合成 route 响应或阻断，没有真实 API、账号、PG、业务外发。服务监听进程 PID 79365，终止后 `lsof -nP -iTCP:18649 -sTCP:LISTEN` 无输出。前一轮 PID 76450 及重建轮进程均已停止；窗口结束前无本树监听服务。
+
+最终同源 `npx playwright test --config playwright.m3.contract.config.ts` 在显式 `COMMERCEOPS_M3_UI_FIXTURE_URL=http://127.0.0.1:18649` 下 **10 passed / 11.0s / exit 0**；`npm run build`、`npm run check:read-schema`、`npm run typecheck` 也退出0。浏览器例涵盖1440/1280/390、证据抽屉长64位引用、Tab/Shift-Tab/Esc及返回焦点、完整/完整空数据/不完整metrics=null/失败/当前403、两次刷新后迟到403；三个宽度均断言页面与抽屉无水平溢出。缩放证据分为浏览器 CDP `pageScaleFactor=2`（真实 visualViewport.scale=2，视觉缩放）和 CSS zoom=2（页面重排），不是桌面浏览器菜单“缩放200%”的单独操作回执。
+
+截图均标 `UI_FIXTURE` 并留在 ignored `frontend/test-results/`，可按测试重生；每个宽度各有 `ui-fixture-{width}.png`、`-drawer.png`、`-browser-scale200.png`、`-css-zoom200.png`。目录分别为 `daily-ui-UI-FIXTURE-daily--ce0c0-SS-zoom-drawer-and-keyboard`（1440）、`daily-ui-UI-FIXTURE-daily--0a318-SS-zoom-drawer-and-keyboard`（1280）、`daily-ui-UI-FIXTURE-daily--34761-SS-zoom-drawer-and-keyboard`（390）。中途首轮4例因 route 注册顺序被通配阻断、第二轮3例因测试把闭合details中的节点错误要求计数为0，已保留失败原因并修测试；不计入最终通过。真实API、持久化与桌面菜单缩放、独立审查最终提交、完整Hosted CI仍未核收。
