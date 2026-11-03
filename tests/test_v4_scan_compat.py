@@ -75,7 +75,7 @@ def test_exact_dir_index_native_and_history_derivation(repository: Path) -> None
     assert derived == baseline
     assert len(derived["rules"]) == len(original["rules"]) == 222
     assert sum(len(x.get("allowlists", [])) for x in derived["rules"]) == 45
-    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 58
+    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 79
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
@@ -337,4 +337,194 @@ def test_additional_history_provenance_rejects_changes(
         monkeypatch.setattr(scanner, name, lambda _, rows=rows: rows)
     monkeypatch.setattr(scanner, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="invalid V4 additional historical scanner finding"):
+        scanner.validate_rules()
+
+
+@cache
+def preflight_sources() -> dict[str, bytes]:
+    from scripts.vendor_gitleaks_rules import V4_PREFLIGHT_SNAPSHOTS
+
+    return {
+        row["path"]: subprocess.check_output(
+            ["git", "show", row["source_commit"] + ":" + row["path"]], cwd=ROOT
+        )
+        for row in V4_PREFLIGHT_SNAPSHOTS
+    }
+
+
+def native_preflight_dir(repo: Path, report: Path, expected: int) -> None:
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "dir",
+            ".",
+            "--config",
+            str(ROOT / ".gitleaks.toml"),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+        ],
+        cwd=repo,
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == expected
+    findings = json.loads(report.read_text())
+    assert bool(findings) == bool(expected)
+
+
+def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> None:
+    from scripts.vendor_gitleaks_rules import v4_preflight_history_findings
+
+    for path, content in preflight_sources().items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    assert not scanner.woo_public_snapshot_violations(
+        tmp_path, [Path(p) for p in preflight_sources()]
+    )
+    native_preflight_dir(tmp_path, tmp_path.parent / "exact.json", 0)
+    old = json.loads(
+        subprocess.check_output(["git", "show", "0ca8a65:scripts/gitleaks_rules.json"], cwd=ROOT)
+    )
+    current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    assert current["exceptions"][:58] == old["exceptions"]
+    for key in (
+        "historical_findings",
+        "v4_historical_findings",
+        "v4_additional_historical_findings",
+    ):
+        assert current[key] == old[key]
+    assert len(v4_preflight_history_findings()) == 89
+    config = tomllib.loads(scanner.history_config().decode())
+    baseline = tomllib.loads(
+        subprocess.check_output(["git", "show", "7c262fb:.gitleaks.toml"], cwd=ROOT).decode()
+    )
+    assert config == baseline
+
+
+@pytest.mark.parametrize("which", range(21))
+def test_preflight_each_span_change_duplicate_and_secret(tmp_path: Path, which: int) -> None:
+    from scripts.vendor_gitleaks_rules import V4_PREFLIGHT_SNAPSHOTS
+
+    record = V4_PREFLIGHT_SNAPSHOTS[which]
+    path = record["path"]
+    target = tmp_path / path
+    target.parent.mkdir(parents=True)
+    original = preflight_sources()[path].decode().splitlines()
+    line, end = record["reported_line"], record["end_line"]
+    for scenario in ("byte", "duplicate", "moved", "secret"):
+        rows = original.copy()
+        if scenario == "byte":
+            rows[end - 1] += " "
+        elif scenario == "duplicate":
+            rows.extend(original[line - 1 : end])
+        elif scenario == "moved":
+            rows.insert(0, "")
+        else:
+            rows[end - 1] += ' api_key = "' + secrets.token_urlsafe(32) + '"'
+        target.write_text("\n".join(rows) + "\n")
+        assert path in scanner.woo_public_snapshot_violations(tmp_path, [Path(path)])
+        if scenario == "secret":
+            native_preflight_dir(tmp_path, tmp_path.parent / (str(which) + ".json"), 1)
+
+
+@pytest.mark.parametrize("label", ["root", "web"])
+def test_preflight_native_exact_history_and_source_mutation(tmp_path: Path, label: str) -> None:
+    old, new = (
+        ("0ca8a657a4eb985175e8642e881f3cf4942b8424", "ea48a13943d269484a4ebe59ca75803bcafe429f")
+        if label == "root"
+        else (
+            "eb82c9d626c210e8e982ba3d8889a4ffdd088c99",
+            "63a5a4f08bad6b98fe95942598291e0714bc09da",
+        )
+    )
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts="
+            + old
+            + ".."
+            + new
+            + " --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 1
+    findings = json.loads(report.read_text())
+    assert len(findings) == (90 if label == "root" else 9)
+    for item in findings:
+        assert scanner.approved_v4_history_finding("git", item)
+        assert not scanner.approved_v4_history_finding("dir", item)
+        for key in (
+            "Commit",
+            "File",
+            "StartLine",
+            "EndLine",
+            "StartColumn",
+            "EndColumn",
+            "Fingerprint",
+            "Match",
+        ):
+            changed = dict(item)
+            changed[key] = (
+                changed[key] + 1 if isinstance(changed[key], int) else changed[key] + "changed"
+            )
+            assert not scanner.approved_v4_history_finding("git", changed)
+    # A matching scanner report still rejects altered immutable source bytes.
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(
+            subprocess,
+            "run",
+            lambda *a, **kw: subprocess.CompletedProcess([], 0, stdout=b"altered source\n"),
+        )
+        assert not scanner.approved_v4_history_finding("git", findings[0])
+
+
+@pytest.mark.parametrize(
+    "field", ["source_commit", "source_line", "start_column", "end_column", "exact_line_sha256"]
+)
+def test_preflight_provenance_refuses_source_changes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, field: str
+) -> None:
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    row = provenance["exceptions"][58]
+    row[field] = row[field] + 1 if isinstance(row[field], int) else row[field] + "changed"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / ".gitleaks.toml").write_bytes((ROOT / ".gitleaks.toml").read_bytes())
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    for name in (
+        "m2_public_rows",
+        "m2_consumer_rows",
+        "m3_public_rows",
+        "v4_public_rows",
+        "v4_preflight_public_rows",
+    ):
+        rows = getattr(scanner, name)(ROOT)
+        monkeypatch.setattr(scanner, name, lambda _, rows=rows: rows)
+    monkeypatch.setattr(scanner, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="invalid V4 preflight scanner rules"):
         scanner.validate_rules()
