@@ -1,0 +1,331 @@
+{
+  "status": "SOURCE_SPECIFIC_WEB24_COMPLETED_PENDING_INDEPENDENT_REVIEW",
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+  "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+  "test_count": 24,
+  "reports": [
+    {
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/.audit/legacy-web-live-20261104-047a43d/read/read-live-results.json",
+        "sha256": "638e86bea6872a44aeb4cb493cdb66f81a7b5eb30ab44b06925c2f18e94e4091"
+      },
+      "status": "passed",
+      "count": 7,
+      "passed": 7,
+      "nonpassed": 0,
+      "duration_ms": 37621.637,
+      "modes": {
+        "source_mode": "live-api",
+        "commerce_source_mode": "mock-fixture",
+        "identity_mode": "session"
+      },
+      "tests": [
+        {
+          "test": "operator真实登录、22记录分页、报告刷新/20SKU/null与实际配置",
+          "status": "passed",
+          "duration_ms": 8704,
+          "location": "e2e/web/live/read.spec.ts:177"
+        },
+        {
+          "test": "approver完整计划无默认确认、指定版本只读、缺缓存解释、events无虚构恢复",
+          "status": "passed",
+          "duration_ms": 7614,
+          "location": "e2e/web/live/read.spec.ts:229"
+        },
+        {
+          "test": "admin-only安全落点，无业务导航/编号/计数与强制深链",
+          "status": "passed",
+          "duration_ms": 3209,
+          "location": "e2e/web/live/read.spec.ts:260"
+        },
+        {
+          "test": "另一operator同店非本人404与不存在一致，URL actor/role无授权",
+          "status": "passed",
+          "duration_ms": 3175,
+          "location": "e2e/web/live/read.spec.ts:285"
+        },
+        {
+          "test": "跨店兼任范围逐角色绑定，不拼operator-A/approver-B",
+          "status": "passed",
+          "duration_ms": 3131,
+          "location": "e2e/web/live/read.spec.ts:304"
+        },
+        {
+          "test": "原request_key只读回执、缺CSRF拒绝、真实logout清Cookie",
+          "status": "passed",
+          "duration_ms": 4109,
+          "location": "e2e/web/live/read.spec.ts:322"
+        },
+        {
+          "test": "当前scope撤销真实401，刷新后清业务缓存/身份且无Mock回退",
+          "status": "passed",
+          "duration_ms": 3565,
+          "location": "e2e/web/live/read.spec.ts:359"
+        }
+      ],
+      "retry_count": "NOT_CAPTURED in custom report"
+    },
+    {
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/frontend/evidence/b04-live/write/live-results.json",
+        "sha256": "aa5fc9936144c7a94862ad0f7b963c86c2c93ba33bdb408eb266ffe542b05a53"
+      },
+      "status": "passed",
+      "count": 10,
+      "passed": 10,
+      "nonpassed": 0,
+      "duration_ms": 332666.253,
+      "modes": {
+        "source_mode": "live-api",
+        "commerce_source_mode": "mock-fixture",
+        "identity_mode": "session"
+      },
+      "tests": [
+        {
+          "test": "普通批准/十次原字节回放，只有一决定/不显示执行成功",
+          "status": "passed",
+          "duration_ms": 3343,
+          "location": "e2e/web/live/write.spec.ts:112"
+        },
+        {
+          "test": "普通拒绝与完整两项假设拒绝，状态/同步独立",
+          "status": "passed",
+          "duration_ms": 2888,
+          "location": "e2e/web/live/write.spec.ts:152"
+        },
+        {
+          "test": "20SKU联合一次完整确认，无默认勾选/普通批准禁用、键盘Escape及1280/390",
+          "status": "passed",
+          "duration_ms": 2146,
+          "location": "e2e/web/live/write.spec.ts:166"
+        },
+        {
+          "test": "真实API漏/多/重复假设及错误版本拒绝，不以UI替身当业务",
+          "status": "passed",
+          "duration_ms": 2626,
+          "location": "e2e/web/live/write.spec.ts:211"
+        },
+        {
+          "test": "真实决定冲突不产生相反意见，原键仍可回读",
+          "status": "passed",
+          "duration_ms": 1445,
+          "location": "e2e/web/live/write.spec.ts:306"
+        },
+        {
+          "test": "实际T3提交后丢ACK：unknown不自动POST，GET原键恢复，同键十次不换键",
+          "status": "passed",
+          "duration_ms": 2042,
+          "location": "e2e/web/live/write.spec.ts:395"
+        },
+        {
+          "test": "operator可信P2报告创建新P3，不复活源completed；new_cycle明确参数新键",
+          "status": "passed",
+          "duration_ms": 2916,
+          "location": "e2e/web/live/write.spec.ts:434"
+        },
+        {
+          "test": "指定版本只读/真实expiry禁用，admin/跨店兼任不隐含决定权",
+          "status": "passed",
+          "duration_ms": 5767,
+          "location": "e2e/web/live/write.spec.ts:470"
+        },
+        {
+          "test": "受控PG superseded状态禁止旧版本决定；不宣称A03重观察",
+          "status": "passed",
+          "duration_ms": 1839,
+          "location": "e2e/web/live/write.spec.ts:509"
+        },
+        {
+          "test": "预备决定后真实撤权：原提交401清业务缓存/确认，不换键",
+          "status": "passed",
+          "duration_ms": 1795,
+          "location": "e2e/web/live/write.spec.ts:531"
+        }
+      ],
+      "retry_count": "NOT_CAPTURED in custom report"
+    },
+    {
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/frontend/evidence/b04-live/live-results.json",
+        "sha256": "08a34505c631f9ba5b76827bf765402f41828bd13dbfcdb6f90ce415c0108212"
+      },
+      "status": "passed",
+      "count": 7,
+      "passed": 7,
+      "nonpassed": 0,
+      "duration_ms": 335962.42699999997,
+      "modes": {
+        "source_mode": "live-api",
+        "commerce_source_mode": "mock-fixture",
+        "identity_mode": "session"
+      },
+      "tests": [
+        {
+          "test": "真实永久执行与item状态/sync独立，20项分页与末项详情",
+          "status": "passed",
+          "duration_ms": 3484,
+          "location": "e2e/web/live/items.spec.ts:100"
+        },
+        {
+          "test": "真实T6 Unicode原因/原键回放：一次版本推进与原receipt，终态无重开",
+          "status": "passed",
+          "duration_ms": 3512,
+          "location": "e2e/web/live/items.spec.ts:123"
+        },
+        {
+          "test": "真实迟来同店approver可处理而来源隐藏；operator/admin不借审批/业务权",
+          "status": "passed",
+          "duration_ms": 5038,
+          "location": "e2e/web/live/items.spec.ts:186"
+        },
+        {
+          "test": "实际T6 commit后受控丢ACK：原GET/同字节恢复，focus不丢原操作",
+          "status": "passed",
+          "duration_ms": 1800,
+          "location": "e2e/web/live/items.spec.ts:264"
+        },
+        {
+          "test": "两当前approver同时complete/close只有一赢家，不产生第二版本或相反动作",
+          "status": "passed",
+          "duration_ms": 3105,
+          "location": "e2e/web/live/items.spec.ts:327"
+        },
+        {
+          "test": "指定旧版本只读/范围兼任不拼权限；缓存GET不新增模型，newcycle独立请求",
+          "status": "passed",
+          "duration_ms": 7176,
+          "location": "e2e/web/live/items.spec.ts:379"
+        },
+        {
+          "test": "预备后真实撤权401清缓存/原操作，无新增item决定",
+          "status": "passed",
+          "duration_ms": 1842,
+          "location": "e2e/web/live/items.spec.ts:467"
+        }
+      ],
+      "retry_count": "NOT_CAPTURED in custom report"
+    }
+  ],
+  "result": {
+    "stop_at_utc": "2026-11-03T18:29:50+00:00",
+    "stages": [
+      {
+        "stage": "read",
+        "passed": true,
+        "project": "p3b04-read-cb6e067862",
+        "actual_provider_calls": 0,
+        "test_exit": 0,
+        "pg_running": false,
+        "pg_pid": 0,
+        "failure_category": null,
+        "invariants_passed": true,
+        "native_zoom": null
+      },
+      {
+        "stage": "write",
+        "passed": true,
+        "project": "p3b04-write-6626bf5853",
+        "actual_provider_calls": 0,
+        "test_exit": 0,
+        "pg_running": false,
+        "pg_pid": 0,
+        "failure_category": null,
+        "invariants_passed": true,
+        "native_zoom": null
+      },
+      {
+        "stage": "items",
+        "passed": true,
+        "project": "p3b04-items-b77c59fd72",
+        "actual_provider_calls": 0,
+        "test_exit": 0,
+        "pg_running": false,
+        "pg_pid": 0,
+        "failure_category": null,
+        "invariants_passed": true,
+        "native_zoom": "passed"
+      }
+    ]
+  },
+  "cleanup": {
+    "recorded_at_utc": "2026-11-03T18:12:46.147351+00:00",
+    "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+    "cleanup": [
+      {
+        "stage": "read",
+        "project": "p3b04-read-cb6e067862",
+        "containers_remaining": 0,
+        "networks_remaining": 0,
+        "volumes_preserved": 1,
+        "registered_pids_alive": [],
+        "ports_still_listening": [],
+        "ports": [
+          49777,
+          49779,
+          49778
+        ],
+        "pg_running": false,
+        "pg_pid": 0
+      },
+      {
+        "stage": "write",
+        "project": "p3b04-write-6626bf5853",
+        "containers_remaining": 0,
+        "networks_remaining": 0,
+        "volumes_preserved": 1,
+        "registered_pids_alive": [],
+        "ports_still_listening": [],
+        "ports": [
+          50748,
+          50750,
+          50749
+        ],
+        "pg_running": false,
+        "pg_pid": 0
+      },
+      {
+        "stage": "items",
+        "project": "p3b04-items-b77c59fd72",
+        "containers_remaining": 0,
+        "networks_remaining": 0,
+        "volumes_preserved": 1,
+        "registered_pids_alive": [],
+        "ports_still_listening": [],
+        "ports": [
+          53116,
+          53118,
+          53117
+        ],
+        "pg_running": false,
+        "pg_pid": 0
+      }
+    ]
+  },
+  "originals": [
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/.audit/web-legacy-prep.safe.json",
+      "sha256": "f8134ea743a638d2804092a014ec0425e45411cc387ba49a9d23ac3a83d2540d"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/.audit/legacy-web-live-20261104-047a43d/result.json",
+      "sha256": "a05cd288581792bc0cc093f5baf13fe3f29482bdabd9e7285e275f3ab909b488"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/.audit/legacy-web-cleanup.safe.json",
+      "sha256": "e00ceac41d65c05d997f424be3771c8e351e9e8b9f05d7a3dfbdf5a007120d73"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/.audit/legacy-web-parent-pathfix.safe.log",
+      "sha256": "1c93f84c501141543410cce51b3e25503e02d36ba3ee5bce55a62db21c82591c"
+    }
+  ],
+  "parent_native_exit": "NOT_CAPTURED in these receipts; per-stage test_exit=0",
+  "earlier_parent_attempt": {
+    "status": "FAILED before pathfix success; retained separately, not replaced",
+    "original": {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-legacy-web-20261104-047a43d/commerceops-agent/.audit/legacy-web-parent.safe.log",
+      "sha256": "af323e9e5f6c445ab8b5d51e0f0b8b8e6042d5719aff85f3690a3755b9b80bfe"
+    }
+  }
+}

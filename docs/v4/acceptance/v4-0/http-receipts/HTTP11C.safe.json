@@ -1,0 +1,67 @@
+{
+  "status": "SCENARIO_COMPLETED_PENDING_REVIEW",
+  "source_stage": "R3",
+  "case": "HTTP11C",
+  "scenario": "grant_revoke",
+  "source_sha": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+  "source_tree": "dd0c81bb5928219d87c713c8956b05aadb1fec9c",
+  "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+  "test_image": "sha256:1ed513e70c526511c9f15c445e26addd5074a40cd7fe0e2061abbff5565e1755",
+  "project": "v4qa_http11c_20261104_0636d3c",
+  "database": "v4_demo_http11c_20261104_0636d3c",
+  "starts_at": "2026-11-03T18:52:22.700737+00:00",
+  "deadline": "2026-11-03T19:12:22.700737+00:00",
+  "closed_at": "2026-11-03T18:52:49.421475+00:00",
+  "elapsed_seconds": 26.742,
+  "native_exit": {
+    "prepare": 0,
+    "scenario": 0,
+    "driver": 0,
+    "outer": 0
+  },
+  "cleanup": {
+    "cleanup_confirmed": true,
+    "forced": false,
+    "final_containers": "",
+    "final_networks": "",
+    "ports_closed": {
+      "18483": true,
+      "13483": true
+    },
+    "retained_volumes": "v4qa_http11c_20261104_0636d3c_pg_data"
+  },
+  "registered_live_process_count": 0,
+  "final_pg_tenant_rows": 1,
+  "final_pg_safe_counts": [
+    {
+      "epoch": 0,
+      "generation": 0,
+      "receipts": 1,
+      "tombstones": 1,
+      "db_utc": "2026-11-03T18:52:47.791095+00:00"
+    }
+  ],
+  "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+  "originals": [
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP11C/case.json",
+      "sha256": "5b1d06a80d8314c2d767b8ef51fe4031f4f63d0fee06b63ad695d787cd429b5b"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP11C/ROOT_OUTER.json",
+      "sha256": "bc70ccdfffdf70d0d8cde8620aacdd513a756b06a2457d939741660aff0fef91"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP11C/driver.outer.log",
+      "sha256": "1572b24a03268914fa899e1abdd52d06059ff8076274abac699b00592bb6bf98"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP11C/final_pg.safe.json",
+      "sha256": "badea3594143df477bb2be2e1e67c7e90b1776d5873a6550344c755d8b2f1e55"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/R3_HTTP08_11_EXECUTION.safe.json",
+      "sha256": "819dfbe00e64ed85b83373ec17f263c5b0c1143ae65313e9878e76aa2cbf22ba"
+    }
+  ]
+}

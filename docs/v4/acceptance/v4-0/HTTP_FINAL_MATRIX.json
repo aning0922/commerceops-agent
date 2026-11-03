@@ -1,0 +1,294 @@
+{
+  "status": "ELEVEN_SOURCE_SPECIFIC_SCENARIOS_COMPLETED_PENDING_INDEPENDENT_REVIEW",
+  "count": 11,
+  "source_policy": "F1/R2/R3 are separate source-specific evidence, not all-R3 acceptance; no merge/deploy/release claim",
+  "cases": [
+    {
+      "case": "HTTP01",
+      "scenario": "lifecycle",
+      "source_stage": "F1",
+      "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:958ead1d2c7c4e049e340786d9b9944cefccc47e76dcf5ff99abb2b79b2e73e1",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 32.469,
+      "final_pg_tenant_rows": 2,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP01.safe.json",
+      "receipt_sha256": "da55a3bc10b2d3639ede4f9c7c857d168eb23e7cf44470a05637b39c22aea14b"
+    },
+    {
+      "case": "HTTP02D",
+      "scenario": "capacity",
+      "source_stage": "F1",
+      "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:958ead1d2c7c4e049e340786d9b9944cefccc47e76dcf5ff99abb2b79b2e73e1",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 40.248,
+      "final_pg_tenant_rows": 3,
+      "active_count": {
+        "tenants": 3,
+        "sessions": 3,
+        "creation_receipts": 3,
+        "basis": "Original successful capacity_facts equality assertion"
+      },
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP02D.safe.json",
+      "receipt_sha256": "bea08789e9dd0b0359b2939dd4803628718b926aa9c946a148314ff14b521309"
+    },
+    {
+      "case": "HTTP03B",
+      "scenario": "ack_body",
+      "source_stage": "R2",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:8c7dd760e679d45090bccbadc940d1d640ee6aeb450e1caea718d2176b6970e5",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 25.912,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP03B.safe.json",
+      "receipt_sha256": "5a42fd281a0b90edcec9250ecba66cfe813f156ee00b77c20e4608b88e703dfe"
+    },
+    {
+      "case": "HTTP04B",
+      "scenario": "ack_headers",
+      "source_stage": "R2",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:8c7dd760e679d45090bccbadc940d1d640ee6aeb450e1caea718d2176b6970e5",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 27.832,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP04B.safe.json",
+      "receipt_sha256": "f319f7bd2fcd2feeeee99d0b251d0552e4f32cc0d8308ce85fcca3195b93bff9"
+    },
+    {
+      "case": "HTTP05B",
+      "scenario": "security",
+      "source_stage": "R2",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:8c7dd760e679d45090bccbadc940d1d640ee6aeb450e1caea718d2176b6970e5",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 24.691,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP05B.safe.json",
+      "receipt_sha256": "07841b48c1709c724cc54158d94179b517b86cf9459b91c6ed34c3df355689f0"
+    },
+    {
+      "case": "HTTP06B",
+      "scenario": "same_key_reset",
+      "source_stage": "R2",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:8c7dd760e679d45090bccbadc940d1d640ee6aeb450e1caea718d2176b6970e5",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 26.807,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP06B.safe.json",
+      "receipt_sha256": "9c8be319473d64d8cccd8d1f610ac3cb0dd45e2177b526e8d74c4cbce12ceccd"
+    },
+    {
+      "case": "HTTP07B",
+      "scenario": "persona_stale",
+      "source_stage": "R2",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:8c7dd760e679d45090bccbadc940d1d640ee6aeb450e1caea718d2176b6970e5",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 25.693,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP07B.safe.json",
+      "receipt_sha256": "08a787f06a3a01ce143e0a5531b5c83edfbc51879409ad7401a0e06c3025e544"
+    },
+    {
+      "case": "HTTP08C",
+      "scenario": "bootstrap_restart",
+      "source_stage": "R3",
+      "source_sha": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "source_tree": "dd0c81bb5928219d87c713c8956b05aadb1fec9c",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:1ed513e70c526511c9f15c445e26addd5074a40cd7fe0e2061abbff5565e1755",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 34.921,
+      "final_pg_tenant_rows": 3,
+      "active_count": {
+        "tenants": 3,
+        "sessions": 3,
+        "creation_receipts": 3,
+        "basis": "Original successful capacity_facts equality assertion"
+      },
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP08C.safe.json",
+      "receipt_sha256": "ee87cbfa1d201ab8e0e6ad8207417901e89216010c1fe42ecf008dca1981eb10"
+    },
+    {
+      "case": "HTTP09C",
+      "scenario": "identity_scopes",
+      "source_stage": "R3",
+      "source_sha": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "source_tree": "dd0c81bb5928219d87c713c8956b05aadb1fec9c",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:1ed513e70c526511c9f15c445e26addd5074a40cd7fe0e2061abbff5565e1755",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 25.194,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP09C.safe.json",
+      "receipt_sha256": "de9f93c2b23e420ac821fb5bb1d5b25b9faa1b8aa7e1d0444cbecb8d5b66645b"
+    },
+    {
+      "case": "HTTP10C",
+      "scenario": "credential_revoke",
+      "source_stage": "R3",
+      "source_sha": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "source_tree": "dd0c81bb5928219d87c713c8956b05aadb1fec9c",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:1ed513e70c526511c9f15c445e26addd5074a40cd7fe0e2061abbff5565e1755",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 26.584,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP10C.safe.json",
+      "receipt_sha256": "346289cfd4c4315e54be00dd1fef16e4c5866f21d39a1e130207cf3ccb5260c8"
+    },
+    {
+      "case": "HTTP11C",
+      "scenario": "grant_revoke",
+      "source_stage": "R3",
+      "source_sha": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "source_tree": "dd0c81bb5928219d87c713c8956b05aadb1fec9c",
+      "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "test_image": "sha256:1ed513e70c526511c9f15c445e26addd5074a40cd7fe0e2061abbff5565e1755",
+      "native_exit": {
+        "prepare": 0,
+        "scenario": 0,
+        "driver": 0,
+        "outer": 0
+      },
+      "elapsed_seconds": 26.742,
+      "final_pg_tenant_rows": 1,
+      "active_count": "NOT_SEPARATELY_CAPTURED; final tenant row count is not active count",
+      "cleanup_confirmed": true,
+      "receipt": "http-receipts/HTTP11C.safe.json",
+      "receipt_sha256": "d57d59aa03160e352003b7ac586a19384a2214df4df67bc1e895e9b250d797e0"
+    }
+  ],
+  "historical_failures_preserved": [
+    {
+      "case": "F1 old PG image preflight",
+      "status": "STOPPED_IMAGE_PREFLIGHT_NOT_RUN",
+      "cause": "Exact old PG image NoSuchImage; no case started",
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/HTTP_BATCH.safe.json",
+        "sha256": "4dccc5980e4e6cafbbdfcbc87e14bc9a159339ad70aee18ec2568b3f356d6522"
+      }
+    },
+    {
+      "case": "HTTP02 F1 capacity",
+      "status": "FAILED_OR_UNKNOWN",
+      "cause": "Startup boundary failure before recorded pg_start; original exception NOT_CAPTURED; cause UNKNOWN",
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/HTTP_EXECUTION.safe.json",
+        "sha256": "a3a37a3adf77c747add5ea6bb78fade3b320b88eab9c9463b57b87f21fa583a2"
+      }
+    },
+    {
+      "case": "HTTP03R F1 ack_body",
+      "status": "FAILED_OR_UNKNOWN",
+      "cause": "probe native1; internal exception NOT_CAPTURED; later code diagnosis does not backfill original event",
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/HTTP03_11_EXECUTION.safe.json",
+        "sha256": "09f3eedf0a6aad399ed98ce11f9bc4271d1c8603783555ae35a58082c2243d86"
+      }
+    },
+    {
+      "case": "HTTP08B R2 bootstrap_restart",
+      "status": "FAILED_OR_UNKNOWN",
+      "cause": "Captured probe TypeError: cannot pickle '_thread.RLock' object; propagated at main:789; exact internal throw line NOT_CAPTURED",
+      "original": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/R2_HTTP03_11_EXECUTION.safe.json",
+        "sha256": "3252252c3446cb76ce877f48c9dcd24570607d1436e6f3bbc65ceaf8e8958d27"
+      }
+    }
+  ],
+  "not_run_by_this_matrix": [
+    "M3 three flow live",
+    "browser",
+    "natural TTL",
+    "Full existing PG",
+    "Hosted"
+  ],
+  "privacy": "Only allowlisted metadata/counts copied; original private exception files, cookies, credentials, DSNs and operation keys excluded."
+}
