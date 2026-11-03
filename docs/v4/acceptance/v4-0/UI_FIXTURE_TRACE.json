@@ -1,0 +1,39 @@
+{
+  "source_sha": "ac1d18e23d3235b23fad90ecfe1e4caf051f72bd",
+  "source_tree": "b44577aa2578281ceb042fd4a1e351c2d3f9da42",
+  "mode": "UI_FIXTURE_DIAGNOSTIC_ONLY",
+  "stats": {
+    "startTime": "2026-11-03T14:57:24.152Z",
+    "duration": 2441.261,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "native_exit": 0,
+  "observations": [
+    "two initial GET current session calls originate from the same mount effect, first passive mount then React development reconnectPassiveEffects stack",
+    "anonymous virtual 15 seconds adds no reads and no POST",
+    "explicit BroadcastChannel invalidation adds exactly one current GET"
+  ],
+  "inference": "initial read-count test assumed one effect; observed development mount/reconnect calls do not establish polling or business retries",
+  "product_code_changed_between_cf7_and_ac1": false,
+  "full_fixture_suite": "NOT_RERUN_ON_ac1",
+  "real_api_pg": "NOT_RUN",
+  "cleanup": {
+    "playwright-ui-fixture": {
+      "native_exit": 0,
+      "no_live_owned_group": true,
+      "signal_errors": []
+    },
+    "next-web": {
+      "native_exit": 0,
+      "no_live_owned_group": true,
+      "signal_errors": []
+    }
+  },
+  "web_port_closed": true,
+  "start_utc": "2026-11-03T14:57:22.395548+00:00",
+  "end_utc": "2026-11-03T14:57:27.180329+00:00",
+  "evidence_index": ".audit/v4-0/ui-trace-ac1"
+}
