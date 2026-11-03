@@ -10,6 +10,16 @@ from .owned_adapter import OwnedAdapter
 from .supervisor import Budget
 
 
+def uncommitted_bootstrap(reply: dict[str, object], key: str) -> None:
+    if reply["data"] != {
+        "operation": "session_create",
+        "request_key": key,
+        "status": "UNKNOWN",
+        "recovery": "WAIT_READ_ONLY",
+    }:
+        raise AssertionError("uncommitted original key must retain minimal UNKNOWN readback")
+
+
 def run_owned_negative(
     name: str, api: str, origin: str, budget: Budget, adapter: OwnedAdapter
 ) -> None:
@@ -61,9 +71,8 @@ def run_owned_negative(
                 headers={"Origin": origin},
                 timeout=budget.timeout(10),
             )
-            unknown = visitor.check("readDemoControlReceipt", response, (404,))
-            if unknown["status"] != "UNKNOWN":
-                raise AssertionError("uncommitted original key must remain UNKNOWN")
+            unknown = visitor.check("readDemoControlReceipt", response, (200,))
+            uncommitted_bootstrap(unknown, first_key)
             from .adapter import CapacityFacts
 
             if adapter.capacity_facts() != CapacityFacts(3, 3, 3):

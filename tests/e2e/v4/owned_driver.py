@@ -22,7 +22,7 @@ from typing import Any
 import httpx
 
 from .http_probe import run_scenario
-from .owned_adapter import OwnedAdapter, compose_environment
+from .owned_adapter import OwnedAdapter, compose_environment, owner_run
 from .owned_negatives import run_owned_negative
 from .preflight import ROOT, git, utc
 from .supervisor import Budget, OwnedProcess, Supervisor
@@ -111,6 +111,15 @@ def private(path: Path, value: str) -> None:
         os.fsync(stream.fileno())
 
 
+def web_environment(case: Case, node: Path) -> dict[str, str]:
+    return {
+        "PATH": str(node.parent) + ":/usr/bin:/bin",
+        "COMMERCEOPS_API_ORIGIN": case.api,
+        "COMMERCEOPS_WEB_TRANSPORT": "local_http",
+        "NEXT_TELEMETRY_DISABLED": "1",
+    }
+
+
 def prepare(case: Case) -> None:
     case.validate()
     directory = Path(case.directory)
@@ -118,6 +127,7 @@ def prepare(case: Case) -> None:
     owner, api = directory / "owner", directory / "api"
     owner.mkdir(mode=0o700)
     api.mkdir(mode=0o700)
+    (directory / "observers").mkdir(mode=0o700)
     for name in ("owner_password", "app_password"):
         private(owner / name, secrets.token_urlsafe(48))
     private(api / "runtime-password", (owner / "app_password").read_text())
@@ -171,6 +181,13 @@ def compose(case: Case) -> tuple[str, ...]:
     docker = shutil.which("docker", path=compose_environment()["PATH"])
     if not docker:
         raise ValueError("Root local Docker tool unavailable")
+    frozen = Path(case.directory) / "no-build.compose.json"
+    if frozen.exists():
+        if frozen.is_symlink() or hashlib.sha256(frozen.read_bytes()).hexdigest() != (
+            frozen.with_suffix(".sha256").read_text()
+        ):
+            raise ValueError("frozen per-case compose changed")
+        return (docker, "compose", "--project-name", case.project, "-f", str(frozen))
     return (
         docker,
         "compose",
@@ -185,6 +202,32 @@ def compose(case: Case) -> tuple[str, ...]:
         "-f",
         str(Path(__file__).with_name("owned.compose.yml")),
     )
+
+
+def no_build_model(model: dict[str, Any], case: Case) -> dict[str, Any]:
+    selected = {}
+    for name in ("postgres", "pg-test", "v4-api"):
+        service = dict(model["services"][name])
+        expected = case.pg_image if name == "postgres" else case.test_image
+        if service.get("image") != expected:
+            raise ValueError("expanded model image differs from Root binding")
+        service.pop("build", None)
+        service["pull_policy"] = "never"
+        selected[name] = service
+    return {**model, "services": selected}
+
+
+def verify_images(case: Case, docker: str, budget: Budget, records: list[dict[str, Any]]) -> None:
+    for image in (case.pg_image, case.test_image):
+        observed = checked(
+            [docker, "image", "inspect", image, "--format", "{{.Id}}"],
+            budget,
+            records,
+            "local_image_exists",
+            cap=5,
+        )
+        if observed.decode().strip() != image:
+            raise ValueError("missing/different local image; no build/pull fallback")
 
 
 def checked(
@@ -246,6 +289,23 @@ def execute(case: Case) -> dict[str, Any]:
     command = compose(case)
     records: list[dict[str, Any]] = []
     docker = command[0]
+    verify_images(case, docker, budget, records)
+    model = no_build_model(
+        json.loads(
+            checked(
+                [*command, "--profile", "test", "config", "--format", "json"],
+                budget,
+                records,
+                "freeze_compose",
+                cap=10,
+            )
+        ),
+        case,
+    )
+    frozen = Path(case.directory) / "no-build.compose.json"
+    private(frozen, json.dumps(model))
+    private(frozen.with_suffix(".sha256"), hashlib.sha256(frozen.read_bytes()).hexdigest())
+    command = compose(case)
     # Initial emptiness is essential: subsequent cleanup is restricted to this
     # exact project. Refuse any previous labelled object, even a stopped one.
     for kind, args in (
@@ -292,7 +352,7 @@ def execute(case: Case) -> dict[str, Any]:
             records,
             "pg_start",
         )
-        owner = [*command, "run", "--rm", "--no-deps", "pg-test", "python", "-m"]
+        owner = list(owner_run(command))
         checked(
             [
                 *owner,
@@ -313,7 +373,7 @@ def execute(case: Case) -> dict[str, Any]:
             checked(
                 [*owner, "scripts.v4_demo_seed", action, *extra], budget, records, "v4_" + action
             )
-        adapter = OwnedAdapter(command, case.project, budget)
+        adapter = OwnedAdapter(command, case.project, budget, evidence=directory / "observers")
         argv, environment = adapter.launch_spec("api")
         api_process = supervisor.start("api", argv, environment)
         ready(case.api + "/health/live", budget, api_process)
@@ -330,11 +390,7 @@ def execute(case: Case) -> dict[str, Any]:
                 "--port",
                 str(case.web_port),
             ),
-            {
-                "PATH": str(node.parent) + ":/usr/bin:/bin",
-                "COMMERCEOPS_API_ORIGIN": case.api,
-                "NEXT_TELEMETRY_DISABLED": "1",
-            },
+            web_environment(case, node),
         )
         ready(case.web + "/v4", budget, web_process)
         child = supervisor.start(
@@ -403,7 +459,7 @@ def execute(case: Case) -> dict[str, Any]:
                     cleanup=True,
                     cap=20,
                 )
-            adapter = OwnedAdapter(command, case.project, budget)
+            adapter = OwnedAdapter(command, case.project, budget, evidence=directory / "observers")
             snapshots = [
                 asdict(adapter.snapshot(tenant, final_collection=True))
                 for tenant in adapter.tenant_ids(final=True)
@@ -483,6 +539,7 @@ def execute(case: Case) -> dict[str, Any]:
         volume="PRESERVED_NOT_DELETED",
         pg_api="SEE_ACTUAL_COMMAND_RECORDS",
         browser="NOT_RUN",
+        observer_records=str(directory / "observers"),
         full="NOT_RUN",
         hosted="NOT_RUN",
     )
@@ -505,7 +562,9 @@ def main() -> None:
             if args.action == "probe":
                 case.validate()
                 budget = Budget.bind(utc(case.starts_at), utc(case.deadline))
-                adapter = OwnedAdapter(compose(case), case.project, budget)
+                adapter = OwnedAdapter(
+                    compose(case), case.project, budget, evidence=Path(case.directory) / "observers"
+                )
                 if case.scenario in {
                     "bootstrap_restart",
                     "identity_scopes",

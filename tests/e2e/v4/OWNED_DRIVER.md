@@ -120,3 +120,22 @@ execute缺Root flag拒绝。没有启动Docker/PG/API/Web或创建实际case run
 首轮类型检查缺yaml stubs/ROOT再导出已修：overlay改用JSON兼容YAML，仅标准库解析，未改锁。
 Ruff通过；Mypy覆盖本切片5个Python文件。不重复其它未变QA测试，当前所有运行Gate均NOT_RUN。
 本次运行前必须再对Root最终已审统一源码检查adapter SQL/配置一致性；actual token/cost UNKNOWN。
+
+## ce51 五项P2整改（与后续TTL/browser新增模式分开）
+
+已读正式报告 `0bd86545da67ebc0d664d9b9ac8cae5a143953f4`：
+`docs/v4/review/OWNED_DRIVER_ce51.md`，0P1/5P2，未签execute准入。
+DRV01：API attached up限定--no-deps，仅选v4-api，并用--exit-code-from v4-api传播退出；
+PG先独立healthy，不纳入API writer停止集合；仍须实际窗口证明PG存活至final facts。
+DRV02：Q18原bootstrap/key读回接受200，精确核data.UNKNOWN/WAIT_READ_ONLY及原key；
+不把外层OK或正确原键当404，错key路径仍另记。DRV03：Web显式传local_http transport。
+DRV04：每个observer启动前定名，finally以600文件记录action/container/native_exit或null、
+TIMEOUT_UNKNOWN/INVALID_FACT_JSON/NONZERO_UNKNOWN及有限safe_status；先落盘再抛，
+不留stderr或任意payload。父receipt引用本case observers目录，已见137不被统一unknown覆盖。
+DRV05：所有服务之前只读inspect两个精确本地image ID；缺失即停，不build/pull补齐。
+本机`docker compose run --help`实际没有--no-build；故展开原三文件后生成本case独占
+no-build.compose.json，移除所有build映射/未用db-init服务，保留三个精确image并固定
+pull_policy=never，附内容hash核对。后续所有owner/observer都用冻结模型且显式--pull never，
+而非传不受支持的参数；启动up仍带--no-build。没有修改原compose/Dockerfile。
+定向纯回归15pass/0.09s/native0，含missing-image、原生137/timeout/坏JSON记录不丢、
+Q18 minimal owner绑定、Web环境、API依赖范围、冻结模型无build。没有启动服务或跑任何case。
