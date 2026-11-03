@@ -140,7 +140,7 @@ copy approve 仅保存内部草稿，不发布；其前端不能独立重算浮�
 | S3 标准镜像组件 | `eff02e3b4c2ba023d09ddde9b4b131720a98fcf6`：显式 `--m3-pgvector`，升级0023/初始化0、legacy79 collect；operations12passed/26.25s、receipts2passed/7.13s，native/outer0，cleanup0/stopping true，独立容器网络卷0 | 标准 helper 删除本次新卷；不签完整旧回归 |
 | 固定扩展准备 | 入口 `0e94d3f` 已审；`3a4f90c` 首次 prepare 成功，arm64 image `94630f25cd59b9b2bfc1fbfe5d630b71f38122e9d52701c27b29c6ecca639a03` | native arm64；新 source 须重新绑定，amd64/Hosted NOT_RUN |
 | copy 主 API | `1e30c9994c2d9f034ce516d0d5453f4dac165150` 独审接受，独立30offline/四开关边界通过；正确 docs 检查132files/errors0 | 原误用不存在检查入口且末commit掩盖退出的失败保留；不等于真实组合通过 |
-| 显式 owner grant + API 单例组合 | validation `42af9ab3f4a13aa018a89ff8f120c767b9ed2183`：标准 image946，1passed/4.04s；K3 INSERT=false→owner CLI→true，真实session/CSRF/创建→原键GET→approve→receipt，1candidate/1decision/1draft/outbox0，cleanup/native/outer0 | 只签该组合用例；先前202误期望200的HOLD保留 |
+| 显式 owner grant + API 单例组合 | validation `42af9ab3f4a13aa018a89ff8f120c767b9ed2183`：该批实际 image504a1480df943d2cf87f80947db069186bf5bd4e411360513f22683f60340231，1passed/4.04s；K3 INSERT=false→owner CLI→true，真实session/CSRF/创建→原键GET→approve→receipt，1candidate/1decision/1draft/outbox0，cleanup/native/outer0 | 只签该组合用例；先前202误期望200的HOLD保留 |
 | UI / schema 准备 | 询单`128e43d`、S3只读`dbdc16c`、日报写`cfd620c`、copy审核`cc7e646` 已审合入；head测试`85ba0b4`已审，精确75business+4CP=79、68PG仅collect | 新 UI 实际浏览器/真实 API 组合待；旧 UI_FIXTURE/zoom 不代签 |
 | 敏感扫描与 exporter | `ac6edf` 树实际扫描 native1：dir/index各15blocking、history156总/20精确已审/136blocking；exporter `a9e3dc1` 已独审准备通过 | 候选豁免独审与实际重扫尚待；实际登记/导出未完成 |
 
