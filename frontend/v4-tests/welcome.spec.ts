@@ -1,4 +1,21 @@
-import {test,expect} from '@playwright/test';
+import {test,expect,type Route} from '@playwright/test';
+const fixtureCors = {
+ 'access-control-allow-origin': new URL(process.env.V4_WEB_ORIGIN ?? 'http://127.0.0.1:3000').origin,
+ 'access-control-allow-credentials':'true',
+ 'access-control-allow-methods':'GET,POST,OPTIONS',
+ 'access-control-allow-headers':'content-type,x-csrf-token,x-demo-epoch,x-demo-generation',
+};
+// Only fixture routes get these headers; real API CORS remains a separate Gate.
+function withCors(handler:(route:Route)=>unknown) {
+ return async (route:Route) => {
+  if (route.request().method()==='OPTIONS') {await route.fulfill({status:204,headers:fixtureCors});return;}
+  const wrapped = new Proxy(route,{get(target,property){
+   if(property==='fulfill') return (options:Parameters<Route['fulfill']>[0])=>target.fulfill({...options,headers:{...options?.headers,...fixtureCors}});
+   const value=Reflect.get(target,property,target);return typeof value==='function'?value.bind(target):value;
+  }});
+  await handler(wrapped);
+ };
+}
 const id='11111111-1111-4111-8111-111111111111';
 const now='2026-11-03T00:00:00Z';
 const base={schema_version:'v4-demo-v1',server_time:now,trace_id:id,status:'OK'};
@@ -6,13 +23,13 @@ const source={data_mode:'demo_fixture',evidence_mode:'synthetic_demo',fixture_ve
 const context={tenant_id:id,organization_id:id,principal_id:id,shop_id:null,reset_epoch:0,auth_generation:0,authorized_at:now};
 test('UI_FIXTURE: welcome creates a session and displays authorized shops',async ({page})=>{
  let created=false, key='';
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const url=new URL(route.request().url());
   if(url.pathname.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(url.pathname.endsWith('/sessions')){key=route.request().postDataJSON().request_key;created=true;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source},receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
   if(url.pathname.endsWith('/session')&&created)return route.fulfill({json:{...base,context,data:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByText('当前视角没有获授权店铺。')).toBeVisible();
  await expect(page.getByText('演示空间已建立。')).toBeVisible();
@@ -20,13 +37,13 @@ test('UI_FIXTURE: welcome creates a session and displays authorized shops',async
 
 test('UI_FIXTURE: unknown creation never automatically repeats the POST',async ({page})=>{
  let posts=0; let key='';
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const url=new URL(route.request().url());
   if(url.pathname.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(url.pathname.endsWith('/sessions')){posts++;key=route.request().postDataJSON().request_key;return route.abort('failed');}
   if(url.pathname.includes('/operations/session_create/'))return route.fulfill({json:{...base,status:'UNKNOWN',data:{operation:'session_create',request_key:key,status:'UNKNOWN',recovery:'OWNER_RECOVERY_REQUIRED'}}});
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();
  await page.getByRole('button',{name:'核对原操作'}).click();
@@ -36,12 +53,12 @@ test('UI_FIXTURE: unknown creation never automatically repeats the POST',async (
 
 test('UI_FIXTURE: a definite capacity rejection remains visible without retry',async ({page})=>{
  let posts=0;
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(path.endsWith('/sessions')){posts++;return route.fulfill({status:429,headers:{'Retry-After':'60'},json:{...base,status:'REJECTED',error:{code:'CAPACITY_LIMIT',safe_message:'full',retryable:false,request_key:null}}});}
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4'); await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByRole('status')).toContainText('60'); expect(posts).toBe(1);
  await expect(page.getByRole('button',{name:'核对原操作'})).toHaveCount(0);
@@ -50,14 +67,14 @@ test('UI_FIXTURE: a definite capacity rejection remains visible without retry',a
 test('UI_FIXTURE: persona switch uses current epoch and re-reads server identity',async ({page})=>{
  let key='', persona='operator', generation=0, switched=0;
  const sessionData=()=>({creation_request_key:key,persona_id:persona,expires_at:now,csrf_token:'csrf',shops:[],source});
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:sessionData(),receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
   if(path.endsWith('/session')&&key)return route.fulfill({json:{...base,context:{...context,auth_generation:generation},data:sessionData()}});
   if(path.endsWith('/persona')){const body=route.request().postDataJSON();expect(body.expected_generation).toBe(0);expect(body.expected_epoch).toBe(0);persona=body.persona_id;generation++;switched++;return route.fulfill({json:{...base,status:'COMMITTED',context:{...context,auth_generation:generation},data:{receipt:{receipt_id:id,operation:'persona',request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:generation},next_step:'READ_CURRENT_SESSION'}}});}
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByText('演示空间已建立。')).toBeVisible();
  await page.getByLabel('体验视角').selectOption('approver');await page.getByRole('button',{name:'切换视角'}).click();
@@ -66,7 +83,7 @@ test('UI_FIXTURE: persona switch uses current epoch and re-reads server identity
 
 test('UI_FIXTURE: welcome remains usable on narrow viewport with keyboard focus',async ({page})=>{
  await page.setViewportSize({width:390,height:844});
- await page.route('**/api/v4/demo/**',route=>route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}}));
+ await page.route('**/api/v4/demo/**',withCors(route=>route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}})));
  await page.goto('/v4');const button=page.getByRole('button',{name:'一键体验'});await expect(button).toBeVisible();
  await button.focus();await expect(button).toBeFocused();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
@@ -75,14 +92,14 @@ test('UI_FIXTURE: welcome remains usable on narrow viewport with keyboard focus'
 test('UI_FIXTURE: revalidation clears a shop whose grant was removed',async ({page})=>{
  let key='',allowed=true;
  const shop={shop_id:id,display_name:'示例店铺',timezone:'Asia/Taipei',currency:'TWD',grants:['read']};
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[shop],source},receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
   if(path.endsWith('/session')&&key)return route.fulfill({json:{...base,context,data:{creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:allowed?[shop]:[],source}}});
   if(path.endsWith('/seed-summary'))return route.fulfill({json:{...base,context:{...context,shop_id:id},data:{source,counts:{products:2,skus:3,orders:4,order_lines:5},snapshot_at:now}}});
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByLabel('店铺').selectOption(id);
  await expect(page.getByText(/商品 2/)).toBeVisible();allowed=false;
@@ -92,12 +109,12 @@ test('UI_FIXTURE: revalidation clears a shop whose grant was removed',async ({pa
 
 test('UI_FIXTURE: rapid repeated activation makes only one bootstrap request',async ({page})=>{
  let bootstraps=0;
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap')){bootstraps++;return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});}
   if(path.endsWith('/sessions'))return route.abort('failed');
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');const button=page.getByRole('button',{name:'一键体验'});await expect(button).toBeVisible();
  await button.evaluate(element=>{(element as HTMLButtonElement).click();(element as HTMLButtonElement).click();});
  await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();expect(bootstraps).toBe(1);
@@ -117,7 +134,7 @@ test('UI_FIXTURE: reset confirms once and logout clears the visible session',asy
  let key='', epoch=0, generation=0, active=false, resets=0, logouts=0;
  const sessionData=()=>({creation_request_key:key,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source});
  const currentContext=()=>({...context,reset_epoch:epoch,auth_generation:generation});
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;active=true;return route.fulfill({json:{...base,status:'COMMITTED',context:currentContext(),data:{session:sessionData(),receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:epoch,auth_generation:generation}}}});}
@@ -129,7 +146,7 @@ test('UI_FIXTURE: reset confirms once and logout clears the visible session',asy
    return route.fulfill({json:{...base,status:'COMMITTED',context:currentContext(),data:{receipt:{receipt_id:id,operation,request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:epoch,auth_generation:generation},next_step:operation==='reset'?'READ_CURRENT_SESSION':'LOGGED_OUT'}}});
   }
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByText('演示空间已建立。')).toBeVisible();
  await page.getByRole('button',{name:'重置演示'}).click();await page.getByRole('button',{name:'确认重置'}).click();
@@ -141,14 +158,14 @@ test('UI_FIXTURE: reset confirms once and logout clears the visible session',asy
 test('UI_FIXTURE: another tab revalidates identity after a persona switch',async ({browser})=>{
  const contextBrowser=await browser.newContext();let key='',persona='operator',generation=0,active=false;
  const sessionData=()=>({creation_request_key:key,persona_id:persona,expires_at:now,csrf_token:'csrf',shops:[],source});
- await contextBrowser.route('**/api/v4/demo/**',async route=>{
+ await contextBrowser.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;active=true;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:sessionData(),receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
   if(path.endsWith('/session')&&active)return route.fulfill({json:{...base,context:{...context,auth_generation:generation},data:sessionData()}});
   if(path.endsWith('/persona')){const body=route.request().postDataJSON();persona=body.persona_id;generation++;return route.fulfill({json:{...base,status:'COMMITTED',context:{...context,auth_generation:generation},data:{receipt:{receipt_id:id,operation:'persona',request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:generation},next_step:'READ_CURRENT_SESSION'}}});}
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  try {
   const first=await contextBrowser.newPage();await first.goto('/v4');await first.getByRole('button',{name:'一键体验'}).click();await expect(first.getByText('演示空间已建立。')).toBeVisible();
   const second=await contextBrowser.newPage();await second.goto('/v4');await expect(second.getByText(/当前视角：operator/)).toBeVisible();
@@ -160,7 +177,7 @@ test('UI_FIXTURE: another tab revalidates identity after a persona switch',async
 test('UI_FIXTURE: a late first-shop summary cannot overwrite the second shop',async ({page})=>{
  const secondId='22222222-2222-4222-8222-222222222222';
  const shops=[{shop_id:id,display_name:'第一家',timezone:'Asia/Taipei',currency:'TWD',grants:['read']},{shop_id:secondId,display_name:'第二家',timezone:'Asia/Taipei',currency:'TWD',grants:['read']}];
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const url=new URL(route.request().url());
   if(url.pathname.endsWith('/session'))return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops,source}}});
   if(url.pathname.endsWith('/seed-summary')){
@@ -169,7 +186,7 @@ test('UI_FIXTURE: a late first-shop summary cannot overwrite the second shop',as
    return route.fulfill({json:{...base,context:{...context,shop_id:target},data:{source,counts:{products:target===id?111:222,skus:1,orders:1,order_lines:1},snapshot_at:now}}});
   }
   return route.abort();
- });
+ }));
  await page.goto('/v4');const select=page.getByLabel('店铺');await expect(select).toBeVisible();
  await select.selectOption(id);await select.selectOption(secondId);
  await expect(page.getByText(/商品 222/)).toBeVisible();await page.waitForTimeout(250);await expect(page.getByText(/商品 111/)).toHaveCount(0);
@@ -177,14 +194,14 @@ test('UI_FIXTURE: a late first-shop summary cannot overwrite the second shop',as
 
 test('UI_FIXTURE: lost creation body recovers only with the original request key',async ({page})=>{
  let original='',posts=0;
- await page.route('**/api/v4/demo/**',async route=>{
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
   const path=new URL(route.request().url()).pathname;
   if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
   if(path.endsWith('/sessions')){posts++;original=route.request().postDataJSON().request_key;return route.abort('failed');}
   if(path.endsWith('/session')&&original)return route.fulfill({json:{...base,context,data:{creation_request_key:original,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
   if(path.endsWith(`/operations/session_create/${original}`))return route.fulfill({json:{...base,data:{receipt:{receipt_id:id,operation:'session_create',request_key:original,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
- });
+ }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();
  await page.getByRole('button',{name:'核对原操作'}).click();await expect(page.getByText('已核对原操作回执。')).toBeVisible();expect(posts).toBe(1);
 });
