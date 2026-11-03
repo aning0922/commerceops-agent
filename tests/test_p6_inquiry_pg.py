@@ -18,7 +18,7 @@ from uuid import UUID, uuid4
 
 import psycopg
 import pytest
-from commerceops.application.commerce.readonly_inquiry_executor import Outcome
+from commerceops.application.commerce.readonly_inquiry_executor import NAMES, Outcome, Tool, execute
 from commerceops.application.commerce.readonly_inquiry_service_contracts import (
     CreateInquiry,
     ResultPayload,
@@ -406,7 +406,8 @@ def test_result_commit_gap_and_new_process_replay(inquiry: InquiryFixture, chang
                     )
                 else:
                     db.execute(
-                        "UPDATE business.principals SET enabled=false WHERE id=%s",
+                        "UPDATE business.principals SET enabled=false,"
+                        "auth_version=auth_version+1 WHERE id=%s",
                         (f.web.actor.principal_id,),
                     )
             with pytest.raises(WebFailure):
@@ -576,7 +577,8 @@ def test_revoke_after_mark_can_settle_fact_free_failure(inquiry: InquiryFixture)
             f.store.mark(job)
             with connect(f.web.inventory.owner) as db:
                 db.execute(
-                    "UPDATE business.principals SET enabled=false WHERE id=%s",
+                    "UPDATE business.principals SET enabled=false,"
+                    "auth_version=auth_version+1 WHERE id=%s",
                     (f.web.actor.principal_id,),
                 )
             with pytest.raises(WebFailure):
@@ -619,3 +621,74 @@ def test_commit_ack_unknown_rechecks_terminal_before_same_job_settlement(
             (task,),
         ).fetchone()
         assert saved == {"n": 1}
+
+
+@pytest.mark.parametrize("question", ["库存 合成演示商品 100", "销量 合成演示商品 100"])
+def test_sql_terminal_validator_accepts_real_executor_evidence(
+    inquiry: InquiryFixture, question: str
+) -> None:
+    """Real SQL positive and bad-reference negative; no bypass of the store or authority."""
+    f = inquiry
+    task = f.store.create(f.web.actor, f.request(question=question)).task_id
+
+    async def scenario() -> None:
+        session = WorkerSession(f.web.config.database, f.web.actor.organization_id)
+        await session.start()
+        try:
+            queue = JobQueue(session, task_ids=frozenset({task}))
+            job = await queue.claim()
+            assert job is not None
+            row, previous = f.store.load(job)
+            assert previous is None
+            f.store.mark(job)
+            context, choice, authority, reader = await runtime_factory(f.store, session)(job, row)
+            outcome = await execute(
+                context, choice, authority, {name: Tool("read", reader) for name in NAMES}
+            )
+            payload = ResultPayload.from_outcome(outcome)
+            assert payload.status == "complete" and payload.evidence_refs and payload.claims
+            schema = ResultPayload.model_json_schema()
+            canonical = payload.model_dump_json()
+            digest = hashlib.sha256(canonical.encode()).hexdigest()
+            with connect(f.web.config.database) as db:
+                f.store.bound_transaction(db)
+                checked = db.execute(
+                    """SELECT
+                    business.inquiry_json_valid(%s,%s,%s) AS shape_valid,
+                    business.valid_inquiry_payload(%s,%s,%s,'completed',%s,%s) AS terminal_valid""",
+                    (
+                        Jsonb(payload.model_dump(mode="json")),
+                        Jsonb(schema),
+                        Jsonb(schema),
+                        Jsonb(payload.model_dump(mode="json")),
+                        canonical,
+                        digest,
+                        job.workflow_version,
+                        context.source_binding,
+                    ),
+                ).fetchone()
+                assert checked == {"shape_valid": True, "terminal_valid": True}
+                invalid = payload.model_dump(mode="json")
+                invalid["evidence_refs"] = ["no-such-evidence"]
+                invalid["claims"] = [{"kind": "fact", "refs": ["no-such-evidence"]}]
+                bad = ResultPayload.model_validate_json(json.dumps(invalid))
+                bad_canonical = bad.model_dump_json()
+                rejected = db.execute(
+                    """SELECT business.valid_inquiry_payload(
+                    %s,%s,%s,'completed',%s,%s) AS valid""",
+                    (
+                        Jsonb(invalid),
+                        bad_canonical,
+                        hashlib.sha256(bad_canonical.encode()).hexdigest(),
+                        job.workflow_version,
+                        context.source_binding,
+                    ),
+                ).fetchone()
+                assert rejected == {"valid": False}
+            f.store.finish(job, payload)
+            await queue.done(job)
+            assert f.row(task)["result_canonical"] == canonical
+        finally:
+            await session.close(clean=True)
+
+    asyncio.run(scenario())

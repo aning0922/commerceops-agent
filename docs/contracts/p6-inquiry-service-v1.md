@@ -83,3 +83,43 @@ Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config,
 计数明确只代表**本次 executor 尝试的已知用量**，不作为跨 job attempt 累计；历史尝试用量为 **UNKNOWN**。execute 尚未开始的本次尝试才可记录 0；普通 executor 失败仍返回带已知计数的 Outcome，不能回到默认 0。DTO 字段描述、同源 OpenAPI 与 migration 冻结 schema 同步标明这个边界。已有终态及 commit ACK unknown 的重读路径继续保留原结果，不由新安全失败覆盖。
 
 新增离线回归运行真实 runner/execute/DemoChoice/Mock facade/实际 store 的 load→mark→finish→fail_safe，只有数据库 transport 和鉴权边界为 double：确认 finish 前 complete 结果已有 3/2/3，撤权后 SQL 写入仍为 3/2/3、两条相同安全 trace、零 facts/claims/refs/options，原失败回执重放不再次调用或写入。相关离线总计 **105 pass**。这是服务路径回归，不是 PG 权限或 SQL 通过证据；独立 36 节点 PG 矩阵 `9d79388d9c45cc8e7bdbec3e771832e19c8c4483` 保持不变且 NOT_RUN。未启动 PG、未全扫或添加 allowlist，原 3 个扫描命中保留。
+
+## 首轮真实 PG 结果与变量歧义修复候选（2026-11-03）
+
+Root 回交精确 validation source `24baad71f3501a88f2ec67949903e7dc2df859de` 的 round-1 安全结构记录：原 36 项实际 **25 pass / 11 fail / 60.73s**、module/outer 均 1；迁移及初始化四动作均 0。失败分为六项 finish 持久结果 UPDATE 的 CheckViolation/23514、一项撤权夹具 principal UPDATE 的 CheckViolation/23514，以及四项子进程事件 AssertionError/sqlstate null。四项子进程内部失败原因未捕获，不能补写成已证实的同一根因。Root 已核 cleanup0/stoppingtrue、容器/网络均 0、保留卷 1；本 owner 没有启动、复活或读取该 PG。
+
+只读发现 `valid_inquiry_payload` 同时声明局部 JSONB 变量 `r` 和同名 JSON 查询别名，首个 evidence_ref 的查询使用未限定 `r->'facts'`，异常又被函数转成 false。PostgreSQL 默认会拒绝变量与列的歧义引用，且条件 SQL 可能到实际执行分支时才解析，见[官方变量替换说明](https://www.postgresql.org/docs/current/plpgsql-implementation.html#PLPGSQL-VAR-SUBST)。这是与六项正常 complete 结果拒绝相符的强候选共因，实际 SQL 验证前不写成已证实根因。
+
+生产最小修复将局部变量改为 `v_read`，引用查询使用显式 `read_entry(value)` / `fact_entry(value)` 及限定列；不删除/放宽事实存在、来源、hash、schema 或当前授权约束。新增两个真实 PG 正例候选（库存/销量）：同原 WorkerSession/queue/当前权限跑真实 execute，分别检查 DTO shape 与终态函数都为 true，再走实际 store.finish 和 job 结算；同例还要求正确 hash 的不存在事实引用为 false。原 36 节点保留，新增后 **38 collected，新增两例 NOT_RUN**；原 25 pass 不代签新候选。
+
+如 Root 需要最窄语法/语义定位，可在后续明确的新 owned SQL 窗口中分别运行以下两个匿名块；仅固定合成 JSON，不访问业务表或旧卷。本 owner 未执行。第一块应暴露旧同名引用的歧义，第二块必须成功；结果仍需 Root 实际记录：
+
+```sql
+DO $probe$
+DECLARE r jsonb;
+BEGIN
+ PERFORM 1 FROM jsonb_array_elements('[{"facts":[{"evidence_id":"probe"}]}]'::jsonb) r,
+ jsonb_array_elements(r->'facts') f WHERE f->>'evidence_id'='probe';
+END $probe$;
+
+DO $probe$
+DECLARE v_read jsonb;
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM
+  jsonb_array_elements('[{"facts":[{"evidence_id":"probe"}]}]'::jsonb) AS read_entry(value),
+  jsonb_array_elements(read_entry.value->'facts') AS fact_entry(value)
+  WHERE fact_entry.value->>'evidence_id'='probe') THEN
+  RAISE EXCEPTION 'synthetic reference missing';
+ END IF;
+END $probe$;
+```
+
+撤权夹具另作独立修正：原 `test_revoke_after_mark_can_settle_fact_free_failure` 在执行生产 fail_safe 前，直接把 principal.enabled 改为 false 却没有递增 auth_version，明确违反 0001 的 `require_auth_version`，该 23514 属夹具错误。冷重放 revoked 变体中尚未到达的同类 UPDATE 一并补 `auth_version=auth_version+1`，用户 GET 撤权拒绝及安全失败断言均保留。此测试修正不代替生产 SQL 变量歧义的验证，也不据此推断四项子进程原始 AssertionError 的原因。38 节点只收集未重跑；后续实际通过/失败由 Root 新窗口记录。
+
+## 独立最窄 SQL 诊断工具（代码已交付，执行 NOT_RUN）
+
+Root 可在下一次明确的新 owned PG 窗口、完整冻结迁移父链与运行依赖下使用 `python -m tests.p6_inquiry_sql_probe`；本 owner 未运行此入口。它只使用 Root 提供的该 owned 服务数据库设置，自行创建 UUID 命名的新临时数据库，沿原 migrate/setup_checkpointer/grant_runtime 和自建真实 Web fixture，完成同原 WorkerSession/queue 的真实 executor 结果。当前运行角色若缺新表权限，accept 阶段会明确失败；工具不额外补授权限掩盖共享接线遗漏。
+
+固定输出阶段包含 bootstrap/accept/worker_start/executor_complete、冻结 schema 的 `inquiry_json_valid`、`valid_inquiry_payload`、canonical/hash/size、当前 permission/session、实际表各 CHECK、finish/job_done/cleanup。冻结 schema 从本冻结 migration 的 JSON 常量只读提取，未用宽松替代 schema。CHECK 表达式只从本新库的 `business.readonly_inquiries` 目录读取，对真实 fixture 行加待落库 typed payload 的 composite 候选求值，不修改或绕过约束。随后实际 store.finish 若失败，仅记录 SQLSTATE 及受控约束名；每个分项独立事务，前一分项出错不污染后续诊断。最终总退出码保留任一分项失败。
+
+stdout 仅允许固定 stage、boolean、五位 SQLSTATE 和 `readonly_inquiries_` 前缀/63 字符内约束标识（或 null）。所有第三方 stdout/stderr 和异常原文均抑制，不输出 facts、规范结果、raw SQL、DSN、参数、账号或路径。工具仅 drop 自己新生成的临时数据库，不管理 Docker 或触及旧卷；Root 的外层绝对截止、进程退出与服务资源清理仍单独登记。新增六项 offline 测试只检查冻结 schema 同步、错误文本/日志抑制及标识过滤，全部通过；不调用诊断 run/diagnose、不连接 PG。工具整体 SQL 行为仍 NOT_RUN，原 25/11 和四项子进程 UNKNOWN 不改写。

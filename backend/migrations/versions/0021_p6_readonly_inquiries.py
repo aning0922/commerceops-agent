@@ -268,7 +268,7 @@ COMMENT ON FUNCTION business.inquiry_safe_failure(jsonb) IS
   Shared payload validation still applies. No facts, claims, refs or options are disclosed.';
 CREATE FUNCTION business.valid_inquiry_payload(v jsonb,c text,h text,state text,w text,source text)
 RETURNS boolean LANGUAGE plpgsql IMMUTABLE AS $$
-DECLARE r jsonb; claim jsonb; reference jsonb; fact jsonb; win jsonb;
+DECLARE v_read jsonb; claim jsonb; reference jsonb; fact jsonb; win jsonb;
  schema jsonb := '{
  "$defs": {
   "Claim": {
@@ -738,8 +738,9 @@ BEGIN
   (SELECT count(DISTINCT t->>'tool_call_id') FROM jsonb_array_elements(v->'traces') t)
  THEN RETURN false; END IF;
  FOR reference IN SELECT value FROM jsonb_array_elements(v->'evidence_refs') LOOP
-  IF NOT EXISTS(SELECT 1 FROM jsonb_array_elements(v->'results') r,
-   jsonb_array_elements(r->'facts') f WHERE f->'evidence_id'=reference)
+  IF NOT EXISTS(SELECT 1 FROM jsonb_array_elements(v->'results') AS read_entry(value),
+   jsonb_array_elements(read_entry.value->'facts') AS fact_entry(value)
+   WHERE fact_entry.value->'evidence_id'=reference)
   THEN RETURN false; END IF;
  END LOOP;
  FOR claim IN SELECT value FROM jsonb_array_elements(v->'claims') LOOP
@@ -749,19 +750,19 @@ BEGIN
    IF NOT (v->'evidence_refs' @> jsonb_build_array(reference)) THEN RETURN false; END IF;
   END LOOP;
  END LOOP;
- FOR r IN SELECT value FROM jsonb_array_elements(v->'results') LOOP
-  IF (r->'complete'='true'::jsonb AND r->>'source_binding'=source
+ FOR v_read IN SELECT value FROM jsonb_array_elements(v->'results') LOOP
+  IF (v_read->'complete'='true'::jsonb AND v_read->>'source_binding'=source
    AND EXISTS(SELECT 1 FROM jsonb_array_elements(v->'traces') t
-    WHERE t->>'tool_call_id'=r->>'tool_call_id')) IS NOT TRUE THEN RETURN false; END IF;
-  FOR win IN SELECT value FROM jsonb_array_elements(r->'windows') LOOP
+    WHERE t->>'tool_call_id'=v_read->>'tool_call_id')) IS NOT TRUE THEN RETURN false; END IF;
+  FOR win IN SELECT value FROM jsonb_array_elements(v_read->'windows') LOOP
    IF ((win->>'end')::timestamptz>(win->>'start')::timestamptz) IS NOT TRUE
    THEN RETURN false; END IF;
   END LOOP;
-  FOR fact IN SELECT value FROM jsonb_array_elements(r->'facts') LOOP
+  FOR fact IN SELECT value FROM jsonb_array_elements(v_read->'facts') LOOP
    IF (jsonb_typeof(fact->'sku_key')='string'
-    AND r->'sku_keys' @> jsonb_build_array(fact->'sku_key')) IS NOT TRUE
+    AND v_read->'sku_keys' @> jsonb_build_array(fact->'sku_key')) IS NOT TRUE
    THEN RETURN false; END IF;
-   IF fact->'window'<>'null'::jsonb AND NOT (r->'windows' @> jsonb_build_array(fact->'window'))
+   IF fact->'window'<>'null'::jsonb AND NOT (v_read->'windows' @> jsonb_build_array(fact->'window'))
    THEN RETURN false; END IF;
    IF fact->>'metric' IN ('sold_units','order_net','order_average','refund_cohort') AND
     (jsonb_typeof(fact->'window')='object' AND jsonb_typeof(fact->'currency')='string')
