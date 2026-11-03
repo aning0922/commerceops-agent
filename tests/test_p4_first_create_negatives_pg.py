@@ -395,6 +395,9 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                     "business.p4_history_messages",
                     "business.p4_read_message_sources",
                     "business.p5_commerce_source_bindings",
+                    "business.p6_daily_source_bindings",
+                    "business.p6_daily_snapshots",
+                    "business.p6_daily_reports",
                 }
                 assert {key: current[key] for key in before} == before
                 assert current["business.p3_template_results"][0] == 0
@@ -407,6 +410,9 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                         "p4_history_messages",
                         "p4_read_message_sources",
                         "p5_commerce_source_bindings",
+                        "p6_daily_source_bindings",
+                        "p6_daily_snapshots",
+                        "p6_daily_reports",
                     )
                 )
                 stage = "grant-current"
@@ -482,17 +488,17 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 with connect(owner) as db:
                     assert db.execute(
                         "SELECT version_num FROM business.alembic_version"
-                    ).fetchone() == {"version_num": "0018_p5_commerce_sources"}
+                    ).fetchone() == {"version_num": "0019_p6_daily_reports"}
                 emit(
                     "c0_migration_preserved",
                     source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
                     original_tables=len(before),
                     original_rows=sum(v[0] for v in before.values()),
                     checkpoints=before["checkpoints.checkpoints"][0],
-                    new_tables_empty=7,
+                    new_tables_empty=10,
                     original_all_bytes_equal=True,
                     first_create_head="0013_p4_first_create",
-                    current_head="0018_p5_commerce_sources",
+                    current_head="0019_p6_daily_reports",
                     current_grants_verified=True,
                 )
             except BaseException as error:

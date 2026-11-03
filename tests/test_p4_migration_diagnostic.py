@@ -172,6 +172,9 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         {"schemaname": "business", "tablename": "p4_history_messages"},
                         {"schemaname": "business", "tablename": "p4_read_message_sources"},
                         {"schemaname": "business", "tablename": "p5_commerce_source_bindings"},
+                        {"schemaname": "business", "tablename": "p6_daily_source_bindings"},
+                        {"schemaname": "business", "tablename": "p6_daily_snapshots"},
+                        {"schemaname": "business", "tablename": "p6_daily_reports"},
                     ]
                 return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
@@ -185,6 +188,9 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         "p4_history_messages",
                         "p4_read_message_sources",
                         "p5_commerce_source_bindings",
+                        "p6_daily_source_bindings",
+                        "p6_daily_snapshots",
+                        "p6_daily_reports",
                     )
                 ):
                     return SimpleNamespace(fetchall=lambda: [])
@@ -235,7 +241,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             return SimpleNamespace(
                 fetchone=lambda: {
                     "version_num": (
-                        "0013_p4_first_create" if snapshots == 2 else "0018_p5_commerce_sources"
+                        "0013_p4_first_create" if snapshots == 2 else "0019_p6_daily_reports"
                     )
                 }
             )
@@ -378,5 +384,5 @@ def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Pat
     assert {p.name for p in (source / "backend/migrations/versions").glob("*.py")} == {
         p.name
         for p in Path("backend/migrations/versions").glob("*.py")
-        if not p.name.startswith(("0014_", "0015_", "0016_", "0017_", "0018_"))
+        if not p.name.startswith(("0014_", "0015_", "0016_", "0017_", "0018_", "0019_"))
     }

@@ -89,7 +89,8 @@
             "DAILY_PERMISSION_INVALID",
             "DAILY_SOURCE_BINDING_CHANGED",
             "DAILY_STORAGE_FAILURE",
-            "DAILY_WORKFLOW_UNSAFE"
+            "DAILY_WORKFLOW_UNSAFE",
+            "WORKER_TERMINATION_UNCONFIRMED"
           ],
           "title": "Failure Code",
           "type": "string"
@@ -540,7 +541,8 @@
             "DAILY_PERMISSION_INVALID",
             "DAILY_SOURCE_BINDING_CHANGED",
             "DAILY_STORAGE_FAILURE",
-            "DAILY_WORKFLOW_UNSAFE"
+            "DAILY_WORKFLOW_UNSAFE",
+            "WORKER_TERMINATION_UNCONFIRMED"
           ],
           "title": "Failure Code",
           "type": "string"
