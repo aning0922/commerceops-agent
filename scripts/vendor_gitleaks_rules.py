@@ -603,9 +603,9 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
     {
         "rule": "generic-api-key",
         "path": "tests/e2e/v4/http_probe.py",
-        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
-        "reported_line": 147,
-        "end_line": 147,
+        "source_commit": "1c1525088708e12b552973ba9d0ab1b7cd6f1ec6",
+        "reported_line": 154,
+        "end_line": 154,
         "start_column": 35,
         "end_column": 56,
         "exact_span_sha256": "f0a75f3531c1a6d29e73bd06c38c0ee551bc3a843a5076f375c084aaa945ff60",
@@ -614,9 +614,9 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
     {
         "rule": "generic-api-key",
         "path": "tests/e2e/v4/http_probe.py",
-        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
-        "reported_line": 259,
-        "end_line": 259,
+        "source_commit": "1c1525088708e12b552973ba9d0ab1b7cd6f1ec6",
+        "reported_line": 266,
+        "end_line": 266,
         "start_column": 35,
         "end_column": 56,
         "exact_span_sha256": "ae7a43d4ee06372ed185ad4903d4027b019261c2b1a440d17f3c6f7c723bafad",
@@ -625,9 +625,9 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
     {
         "rule": "generic-api-key",
         "path": "tests/e2e/v4/http_probe.py",
-        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
-        "reported_line": 364,
-        "end_line": 364,
+        "source_commit": "1c1525088708e12b552973ba9d0ab1b7cd6f1ec6",
+        "reported_line": 371,
+        "end_line": 371,
         "start_column": 35,
         "end_column": 56,
         "exact_span_sha256": "ae7a43d4ee06372ed185ad4903d4027b019261c2b1a440d17f3c6f7c723bafad",
@@ -636,9 +636,9 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
     {
         "rule": "generic-api-key",
         "path": "tests/e2e/v4/http_probe.py",
-        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
-        "reported_line": 394,
-        "end_line": 394,
+        "source_commit": "1c1525088708e12b552973ba9d0ab1b7cd6f1ec6",
+        "reported_line": 401,
+        "end_line": 401,
         "start_column": 23,
         "end_column": 72,
         "exact_span_sha256": "98343f326c7a7ac310fdaebc46b4d8e5bf4a16ce59378d93cef92ae78d737ae0",
@@ -973,6 +973,28 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
         "end_column": 52,
         "exact_span_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
         "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/v4/acceptance/v4-0/TTL_F1.json",
+        "source_commit": "ee1dab651b1b42b99f602a02205a3d8710bb6fd9",
+        "reported_line": 10,
+        "end_line": 10,
+        "start_column": 7,
+        "end_column": 58,
+        "exact_span_sha256": "db49de282d54de455455c517d10e38ace8d1de2125cffeed47b8d1b902b169f3",
+        "match_sha256": "045df48130ac4b19b5488f72d64464b09bbd478264c38218d76fa5c1ef99e7c5",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/v4/review/SCAN_f341.md",
+        "source_commit": "8dedb22016bcbd8d66c20c23adc899b6b0c43559",
+        "reported_line": 7,
+        "end_line": 7,
+        "start_column": 162,
+        "end_column": 193,
+        "exact_span_sha256": "53393d547dc8e044a97e4036e69d20147b037c6d0b5f3a7fcd8ceb1d086a852a",
+        "match_sha256": "c19e9b295b94b965138099d32450b795e1ce73cf2542c9d3576419c5ea56f3a0",
     },
 )
 
@@ -2121,6 +2143,28 @@ V4_PREFLIGHT_HISTORY: tuple[dict[str, Any], ...] = (
         "exact_span_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
         "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/v4/acceptance/v4-0/TTL_F1.json",
+        "source_commit": "ee1dab651b1b42b99f602a02205a3d8710bb6fd9",
+        "reported_line": 10,
+        "end_line": 10,
+        "start_column": 7,
+        "end_column": 58,
+        "exact_span_sha256": "db49de282d54de455455c517d10e38ace8d1de2125cffeed47b8d1b902b169f3",
+        "match_sha256": "045df48130ac4b19b5488f72d64464b09bbd478264c38218d76fa5c1ef99e7c5",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/v4/review/SCAN_f341.md",
+        "source_commit": "8dedb22016bcbd8d66c20c23adc899b6b0c43559",
+        "reported_line": 7,
+        "end_line": 7,
+        "start_column": 162,
+        "end_column": 193,
+        "exact_span_sha256": "53393d547dc8e044a97e4036e69d20147b037c6d0b5f3a7fcd8ceb1d086a852a",
+        "match_sha256": "c19e9b295b94b965138099d32450b795e1ce73cf2542c9d3576419c5ea56f3a0",
+    },
 )
 
 
@@ -2265,6 +2309,21 @@ V4_MERGE_COPY_ANCHORS: tuple[dict[str, str], ...] = (
         "path": "tests/e2e/v4/test_legacy_subnet.py",
         "blob": "ac3098476addaa63aed5311afd49ff102360c737",
     },
+    {
+        "source_commit": "1c1525088708e12b552973ba9d0ab1b7cd6f1ec6",
+        "path": "tests/e2e/v4/http_probe.py",
+        "blob": "d9579c346d2d035f7df06ccfef1eb003cc74260f",
+    },
+    {
+        "source_commit": "ee1dab651b1b42b99f602a02205a3d8710bb6fd9",
+        "path": "docs/v4/acceptance/v4-0/TTL_F1.json",
+        "blob": "78de4ace420feb8034e02809aaaa5dc3e9e8fbc1",
+    },
+    {
+        "source_commit": "8dedb22016bcbd8d66c20c23adc899b6b0c43559",
+        "path": "docs/v4/review/SCAN_f341.md",
+        "blob": "e5208aeac80cc7ecb73b97463a58921b93726642",
+    },
 )
 
 
@@ -2293,11 +2352,59 @@ V4_MERGE_COPY_BINDINGS: tuple[dict[str, Any], ...] = (
         "match_sha256": "f5d8f078e1d354c22377e9c092e9cdde6d794776f5a9fdcb32257cae559f277f",
         "binding_kind": "copy_only",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/http_probe.py",
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "reported_line": 147,
+        "end_line": 147,
+        "start_column": 35,
+        "end_column": 56,
+        "exact_span_sha256": "f0a75f3531c1a6d29e73bd06c38c0ee551bc3a843a5076f375c084aaa945ff60",
+        "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f",
+        "binding_kind": "copy_only",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/http_probe.py",
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "reported_line": 259,
+        "end_line": 259,
+        "start_column": 35,
+        "end_column": 56,
+        "exact_span_sha256": "ae7a43d4ee06372ed185ad4903d4027b019261c2b1a440d17f3c6f7c723bafad",
+        "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f",
+        "binding_kind": "copy_only",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/http_probe.py",
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "reported_line": 364,
+        "end_line": 364,
+        "start_column": 35,
+        "end_column": 56,
+        "exact_span_sha256": "ae7a43d4ee06372ed185ad4903d4027b019261c2b1a440d17f3c6f7c723bafad",
+        "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f",
+        "binding_kind": "copy_only",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/http_probe.py",
+        "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+        "reported_line": 394,
+        "end_line": 394,
+        "start_column": 23,
+        "end_column": 72,
+        "exact_span_sha256": "98343f326c7a7ac310fdaebc46b4d8e5bf4a16ce59378d93cef92ae78d737ae0",
+        "match_sha256": "8ec82ed76f6ab9e030442adcb3473af2759efba1f1e202e59731d27e5e74620d",
+        "binding_kind": "copy_only",
+    },
 )
 
 
 def v4_preflight_history_findings() -> list[dict[str, Any]]:
-    """Only the 104 exact, captured historical proposal fingerprints."""
+    """Only the 106 exact, captured historical proposal fingerprints."""
     return [
         {
             **row,
@@ -2744,7 +2851,7 @@ def main() -> None:
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 94 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 96 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:

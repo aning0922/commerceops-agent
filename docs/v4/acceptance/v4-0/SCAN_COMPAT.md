@@ -202,3 +202,20 @@ Root亲读并只释放 `tests/e2e/v4/test_legacy_subnet.py:57` 的pytest参数�
 新增负例覆盖该行byte/moved/duplicate/真实secret mutation，以及有限原生author与F2真实merge的字段/位置/Match/fingerprint变化、单父不进入copy分类；原全部metadata前缀逐项比较，不放宽既有Gate。仅运行有限原生与相关纯测试，未重跑fullscan或scripts.check，未运行PG/HTTP/Web/Hosted或远端操作。此提交待Astra极小独审后由Root统一重跑Gate，actual token/cost UNKNOWN。
 
 本单项实际有限结果：5 PASS / 2.49s；四文件Ruff check/format及mypy均exit0，rules/source/provenance验证0，七变更文件提案快照原生scan exit0。没有再次全扫，完整scripts.check重跑等待Root。
+
+## R2 c6abe05 fullcheck 的两文档与探针位置残余
+
+Root原实际scripts.check：source `c6abe0528f05b458331f270d758317c1d7b38843` / tree `73e987375e2b6a2f06ac5aabaaab1499d78207d0`，UTC 2026-11-03 18:20:55.399465 → 18:22:46.420587，native1 / 110.962s，source保持clean。证据Root `.audit/v4-0/full-check-c6abe05/output.log`、receipt.json保留：dir2/index2原生命中，git1373=1353classified+20blocking。日志开头另有http_probe固定位置/重复位置guard每scope8条，不能只按原生数量漏记。该fullcheck仍失败，不改写为通过。
+
+Root有限释放两条公开文档内容：TTL实验的合成operation UUID（本身不授予身份，未复制原UUID值）及原已核测试类型声明的review引用（未复制原文）。两个doc author均单父，只追加这两条精确历史和两个完整blob锚，未知author或改文档内容仍拒绝。
+
+| 精确author来源 | path/行列 | 完整span SHA256 | redacted Match SHA256 | wholeblob |
+|---|---|---|---|---|
+| `ee1dab651b1b42b99f602a02205a3d8710bb6fd9` | `docs/v4/acceptance/v4-0/TTL_F1.json` 10:7–58 | `db49de282d54de455455c517d10e38ace8d1de2125cffeed47b8d1b902b169f3` | `045df48130ac4b19b5488f72d64464b09bbd478264c38218d76fa5c1ef99e7c5` | `78de4ace420feb8034e02809aaaa5dc3e9e8fbc1` |
+| `8dedb22016bcbd8d66c20c23adc899b6b0c43559` | `docs/v4/review/SCAN_f341.md` 7:162–193 | `53393d547dc8e044a97e4036e69d20147b037c6d0b5f3a7fcd8ceb1d086a852a` | `c19e9b295b94b965138099d32450b795e1ce73cf2542c9d3576419c5ea56f3a0` | `e5208aeac80cc7ecb73b97463a58921b93726642` |
+
+http_probe候选为 `1c1525088708e12b552973ba9d0ab1b7cd6f1ec6`，Astra回执 `c875d4b:docs/v4/review/COOKIE_SNAPSHOT_1c152.md` 已接受该cookie snapshot代码增量；固定wholeblob `d9579c346d2d035f7df06ccfef1eb003cc74260f`。旧四个公开整行hash逐项不变：147→154、259→266、364→371、394→401。有限native按真实列核为前3项35–56、末项23–72，Match哈希亦与旧记录相同。仅新增此wholeblob锚，当前目录位置随同精确同步；原TOML路径/完整行表达式不变，不增加这四个目录例外。旧四个位置转入copy-only保留，原所有author历史不变；不新增1c作者豁免、不列未来merge SHA。
+
+候选总96目录、149exact历史、31wholeblob锚、6copy-only；原222检测规则及45历史原生例外不变。两文档single-author原生各1finding，三文件有限原生共6finding，仅用于列/span/Match定位。有限13 PASS / 5.76s，覆盖六个当前span的byte/moved/duplicate/secret mutation、两doc author与R2真实merge的错路径/行列/Match/fingerprint及单父拒绝、原147历史与旧锚前缀保持。完整fullscan/scripts.check不重跑，留Root冻结统一；实际R2业务输入不由本metadata修改。
+
+Root另明确确认同一http_probe残余的四dir位置精确同步，原guard日志完整保留。对原20条blocking所对应有限source^!重新原生捕获并逐项分类，20/20=2author+18merge / 4.115s；非allrefs/fullscan。最终四文件Ruff check/format、mypy与规则/source/provenance验证exit0，七变更文件提案快照原生scan exit0。本提交不吸纳后续capture或frontend新修改，独审与Root完整Gate重跑仍待实际回执。
