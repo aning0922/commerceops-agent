@@ -137,3 +137,22 @@ test('UI_FIXTURE: reset confirms once and logout clears the visible session',asy
  await page.getByRole('button',{name:'退出'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
  await expect(page.getByText(/当前视角：/)).toHaveCount(0);expect(logouts).toBe(1);
 });
+
+test('UI_FIXTURE: another tab revalidates identity after a persona switch',async ({browser})=>{
+ const contextBrowser=await browser.newContext();let key='',persona='operator',generation=0,active=false;
+ const sessionData=()=>({creation_request_key:key,persona_id:persona,expires_at:now,csrf_token:'csrf',shops:[],source});
+ await contextBrowser.route('**/api/v4/demo/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){key=route.request().postDataJSON().request_key;active=true;return route.fulfill({json:{...base,status:'COMMITTED',context,data:{session:sessionData(),receipt:{receipt_id:id,operation:'session_create',request_key:key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
+  if(path.endsWith('/session')&&active)return route.fulfill({json:{...base,context:{...context,auth_generation:generation},data:sessionData()}});
+  if(path.endsWith('/persona')){const body=route.request().postDataJSON();persona=body.persona_id;generation++;return route.fulfill({json:{...base,status:'COMMITTED',context:{...context,auth_generation:generation},data:{receipt:{receipt_id:id,operation:'persona',request_key:body.request_key,payload_digest:'a'.repeat(64),status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:generation},next_step:'READ_CURRENT_SESSION'}}});}
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ try {
+  const first=await contextBrowser.newPage();await first.goto('/v4');await first.getByRole('button',{name:'一键体验'}).click();await expect(first.getByText('演示空间已建立。')).toBeVisible();
+  const second=await contextBrowser.newPage();await second.goto('/v4');await expect(second.getByText(/当前视角：operator/)).toBeVisible();
+  await first.bringToFront();await first.getByLabel('体验视角').selectOption('approver');await first.getByRole('button',{name:'切换视角'}).click();await expect(first.getByText(/当前视角：approver/)).toBeVisible();
+  await second.bringToFront();await expect(second.getByText(/当前视角：approver/)).toBeVisible();await expect(second.getByText(/当前视角：operator/)).toHaveCount(0);
+ } finally {await contextBrowser.close();}
+});
