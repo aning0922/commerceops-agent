@@ -1,8 +1,10 @@
 """S3新owned PG候选；本owner仅collect，实际SQL/退出由Root窗口核收。"""
 
 import asyncio
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
@@ -16,7 +18,7 @@ from commerceops.domain.commerce_values import canonical_bytes, facts_hash
 from commerceops.entrypoints.api import create_app
 from commerceops.infrastructure.daily_delivery import DailyFakeDelivery
 from commerceops.infrastructure.daily_operations import DailyOperations
-from commerceops.infrastructure.daily_questions import create_question
+from commerceops.infrastructure.daily_questions import DailyQuestionStore, create_question
 from commerceops.infrastructure.daily_schedules import DailyScheduler
 from commerceops.infrastructure.daily_sources import DailyDeployment
 from commerceops.infrastructure.daily_store import DailyStore, create_daily_task
@@ -111,6 +113,46 @@ def test_question_transaction_replay_and_frozen_current_permission(
         )
     with pytest.raises(WebFailure):
         operations.question(f.actor, task, question, None)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"owner": "unowned-worker"},
+        {"job_id": uuid4()},
+        {"workflow_version": "other-workflow"},
+        {"payload_ref": "task:unowned"},
+        {"thread_id": "unowned-thread"},
+    ],
+)
+def test_rejected_question_run_never_marks_original_task(
+    fixture: P3Fixture, tmp_path: Path, change: dict[str, Any]
+) -> None:
+    f = fixture
+    files, _, task, body, _ = completed(f, tmp_path / "daily")
+    question = create_question(f.config.database, f.actor, task, body)
+
+    async def execute() -> None:
+        session = WorkerSession(f.config.database, f.actor.organization_id)
+        await session.start()
+        try:
+            jobs = JobQueue(session)
+            run = await jobs.claim()
+            assert run is not None and run.task_id == question
+            store = DailyQuestionStore(f.config.database, session)
+            await store.run(replace(run, **change))
+            with connect(f.config.database) as db:
+                row = db.execute(
+                    "SELECT state,failure_code FROM business.business_tasks WHERE id=%s",
+                    (question,),
+                ).fetchone()
+                assert row == {"state": "queued", "failure_code": None}
+            await store.run(run)
+            await jobs.done(run)
+        finally:
+            await session.close(clean=True)
+
+    asyncio.run(execute())
 
 
 def test_real_session_post_csrf_and_uuid_wire(fixture: P3Fixture, tmp_path: Path) -> None:

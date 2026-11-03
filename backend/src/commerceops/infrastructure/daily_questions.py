@@ -302,7 +302,7 @@ AND t.kind='daily_question' AND t.state IN ('queued','analyzing')
 AND EXISTS(SELECT 1 FROM business.jobs j WHERE j.id=%s AND j.task_id=t.id
 AND j.organization_id=t.organization_id AND j.shop_id=t.shop_id AND j.status='running'
 AND j.lease_owner=%s AND j.kind=%s AND j.payload_ref=%s)
-AND %s=%s AND %s=%s""",
+AND %s=%s AND %s=%s AND %s='p6-daily-question-v1' AND %s=%s""",
                     (
                         code,
                         run.task_id,
@@ -317,6 +317,9 @@ AND %s=%s AND %s=%s""",
                         self.session.owner,
                         run.organization_id,
                         self.session.organization,
+                        run.workflow_version,
+                        run.payload_ref,
+                        f"task:{run.task_id}",
                     ),
                 )
             return RunResult()

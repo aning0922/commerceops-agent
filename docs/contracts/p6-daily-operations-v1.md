@@ -132,3 +132,6 @@ S2原迁移/HTTP失败、旧2830pass/165fail离线工具事实与Root所有窗�
 冻结后自查补强：question失败分支也必须同时匹配原job/lease owner/kind/payload、
 task workflow/thread及Worker organization/owner，避免在拒绝不合法RunRequest后按裸task_id写失败态。
 这是单独后续修正；尚无实际PG签收，不回写首候选为已通过。
+同一补强继续绑定RunRequest workflow和规范payload_ref；新增owner/job/workflow/payload/thread五个实际PG负例，
+要求拒绝不合法run后原question仍queued、failure_code仍null，再由原run正常执行。
+后续模块实际collect为10节点（首候选5节点事实保留），新增SQL仍NOT_RUN；Ruff/mypy针对两文件通过。
