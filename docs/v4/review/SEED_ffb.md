@@ -53,3 +53,11 @@ CreateSessionInput无role/tenant/principal字段；PersonaInput以三persona lit
 ## 交接
 
 作者仅修SEED-01并补独立引用负例后交精确SHA，无需重做整份设计或扩迁移。原SQL设计准入仍按c4回执保持；此项只影响纯seed内容验证接受，不重新打开已关闭IDPLAN-01。Reviewer不改实现/测试，当前只提交本报告。
+
+## c6c9f434增量：SEED-01关闭
+
+受审commit `c6c9f43412f7d727b23ddae6a0a12052a2f5c4bd` / tree `bcf0d2aaec5e76e378904d656144c17c1fb67b8f`，parent ffb07ec。结论：**ACCEPT_PURE_COMPONENT；SEED-01 CLOSED_AT_STATIC_CODE_REVIEW_LEVEL，所审纯组件无未关闭P1/P2。**
+
+精确diff仅seed_contract及对应纯测试。ShopFixture.relationships现按SKU序号取冻结product，00–03以该product.ref.id及variant:index重算UUIDv5，04–09要求null，同时精确比较product_ref；原stock pool/cross-shop/catalog检查不删。故跨店/跨商品/随机variant以及错误null/非null均不能只靠“有效UUID”通过。生成器本身未改变，修复在实际FixtureContent验证入口而非仅黄金hash测试。
+
+新增六组负例直接修改content并调用FixtureContent.model_validate_json，覆盖other_shop/other_product/random/null及04不允许variant，预期INVALID_SKU_PRODUCT_VARIANT，不依赖manifest digest不等来间接拒绝。原正常golden和语义测试保留。本次只读差异，未执行生成器/测试，未称实际fixture hash或PG互证通过；原P2记录保留，后续SQL/UI Gate独立。
