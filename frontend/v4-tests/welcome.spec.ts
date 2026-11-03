@@ -17,3 +17,19 @@ test('UI_FIXTURE: welcome creates a session and displays authorized shops',async
  await expect(page.getByText('当前视角没有获授权店铺。')).toBeVisible();
  await expect(page.getByText('演示空间已建立。')).toBeVisible();
 });
+
+test('UI_FIXTURE: unknown creation never automatically repeats the POST',async ({page})=>{
+ let posts=0; let key='';
+ await page.route('**/api/v4/demo/**',async route=>{
+  const url=new URL(route.request().url());
+  if(url.pathname.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(url.pathname.endsWith('/sessions')){posts++;key=route.request().postDataJSON().request_key;return route.abort('failed');}
+  if(url.pathname.includes('/operations/session_create/'))return route.fulfill({json:{...base,status:'UNKNOWN',data:{operation:'session_create',request_key:key,status:'UNKNOWN',recovery:'OWNER_RECOVERY_REQUIRED'}}});
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ });
+ await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
+ await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();
+ await page.getByRole('button',{name:'核对原操作'}).click();
+ await expect(page.getByText(/无法恢复会话/)).toBeVisible();
+ expect(posts).toBe(1);
+});
