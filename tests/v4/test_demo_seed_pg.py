@@ -7,14 +7,19 @@ from uuid import UUID, uuid4
 
 import psycopg
 import pytest
+from commerceops.application.replenishment.contracts import WebFailure
 from commerceops.application.replenishment.security import digest, password_hash
+from commerceops.application.v4_demo import contracts as dto
 from commerceops.domain.commerce_values import canonical_bytes
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.v4_demo_seed import grant_v4_runtime, initialize_fixture
+from psycopg import sql
 from psycopg.types.json import Jsonb
 
 from tests.test_p4_acceptance_pg import database as database
 from tests.test_p4_acceptance_pg import initialize_schema
+from tests.v4.test_demo_sessions_pg import DemoPG
+from tests.v4.test_demo_sessions_pg import demo as demo
 
 pytestmark = pytest.mark.integration
 DB = psycopg.Connection[dict[str, Any]]
@@ -332,3 +337,97 @@ def test_sql_request_validator_rejects_missing_null_extra_wrong_types_and_cas(
 
         assert valid(base)
         assert all(not valid(value) for value in cases)
+
+
+_MATERIALIZED = (
+    "organizations",
+    "shops",
+    "principals",
+    "identities",
+    "principal_shop_scopes",
+    "principal_role_shop_grants",
+    "web_credentials",
+    "web_sessions",
+    "v4_demo_tenants",
+    "v4_demo_shops",
+    "v4_demo_personas",
+    "v4_demo_sessions",
+    "v4_demo_receipts",
+    "v4_demo_events",
+    "v4_demo_overlays",
+)
+
+
+def materialized_counts(owner: DatabaseSettings) -> dict[str, int]:
+    with connect(owner) as db:
+        result: dict[str, int] = {}
+        for table in _MATERIALIZED:
+            row = db.execute(
+                sql.SQL("SELECT count(*) AS n FROM {}").format(sql.Identifier("business", table))
+            ).fetchone()
+            assert row is not None
+            result[table] = row["n"]
+        return result
+
+
+def test_seed_native_mid_persona_failure_rolls_back_but_preserves_reserved_key(
+    demo: DemoPG,
+) -> None:
+    before = materialized_counts(demo.owner)
+    bootstrap, token = demo.store.bootstrap(None, "seed-fault-author")
+    assert token is not None
+    key = uuid4()
+    command = dto.CreateSessionInput(request_key=key, fixture_version="v4-demo-seed-1")
+    with connect(demo.owner) as db:
+        db.execute("""CREATE FUNCTION business.v4_author_persona_fault() RETURNS trigger
+        LANGUAGE plpgsql SET search_path=pg_catalog,business AS $$
+        BEGIN
+          IF NEW.persona_id='approver' THEN
+            IF (SELECT count(*) FROM business.v4_demo_shops WHERE tenant_id=NEW.tenant_id)<>2
+              OR NOT EXISTS(SELECT 1 FROM business.v4_demo_personas
+                WHERE tenant_id=NEW.tenant_id AND persona_id='operator')
+              OR (SELECT count(*) FROM business.principals
+                WHERE organization_id=NEW.organization_id)<>2 THEN
+              RAISE EXCEPTION 'V4_AUTHOR_FAULT_WRONG_STAGE' USING ERRCODE='P0001';
+            END IF;
+            RAISE EXCEPTION 'V4_AUTHOR_PERSONA_FAULT_AFTER_OPERATOR' USING ERRCODE='23514';
+          END IF;
+          RETURN NEW;
+        END $$""")
+        db.execute(
+            "REVOKE ALL ON FUNCTION business.v4_author_persona_fault() FROM PUBLIC,commerceops_app"
+        )
+        db.execute("""CREATE TRIGGER v4_author_persona_fault BEFORE INSERT
+        ON business.v4_demo_personas FOR EACH ROW
+        EXECUTE FUNCTION business.v4_author_persona_fault()""")
+    try:
+        with pytest.raises(psycopg.errors.CheckViolation) as captured:
+            demo.store.create(token, bootstrap["data"]["csrf_token"], command, "seed-fault-author")
+        assert captured.value.sqlstate == "23514"
+        assert captured.value.diag.message_primary == "V4_AUTHOR_PERSONA_FAULT_AFTER_OPERATOR"
+        assert materialized_counts(demo.owner) == before
+        with connect(demo.app) as db:
+            reservation = demo.store.sessions.bootstrap_locked(db, token)
+            assert reservation["create_request_key"] == key and reservation["consumed_at"] is None
+            assert reservation["expires_at"] > reservation["created_at"]
+        recovered = demo.store.operation(token, "session_create", key)
+        assert recovered["data"] == dict(
+            operation="session_create",
+            request_key=str(key),
+            status="UNKNOWN",
+            recovery="WAIT_READ_ONLY",
+        )
+    finally:
+        with connect(demo.owner) as db:
+            db.execute("DROP TRIGGER v4_author_persona_fault ON business.v4_demo_personas")
+            db.execute("DROP FUNCTION business.v4_author_persona_fault()")
+    # Removing the fixture fault grants no automatic POST/replacement-key authority.
+    assert demo.store.operation(token, "session_create", key)["data"]["status"] == "UNKNOWN"
+    with pytest.raises(WebFailure, match="RESOURCE_NOT_FOUND"):
+        demo.store.create(
+            token,
+            bootstrap["data"]["csrf_token"],
+            dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1"),
+            "seed-fault-author",
+        )
+    assert materialized_counts(demo.owner) == before
