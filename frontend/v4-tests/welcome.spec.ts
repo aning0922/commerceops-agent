@@ -102,3 +102,13 @@ test('UI_FIXTURE: rapid repeated activation makes only one bootstrap request',as
  await button.evaluate(element=>{(element as HTMLButtonElement).click();(element as HTMLButtonElement).click();});
  await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();expect(bootstraps).toBe(1);
 });
+
+test('UI_FIXTURE: corrupt pending storage fails closed without creating a space',async ({page})=>{
+ let calls=0;
+ await page.addInitScript(()=>sessionStorage.setItem('commerceops-v4-pending','{'));
+ await page.route('**/api/v4/demo/**',route=>{calls++;return route.abort();});
+ await page.goto('/v4');
+ await expect(page.getByRole('status')).toContainText('无法读取待核对记录');
+ await expect(page.getByRole('button',{name:'一键体验'})).toHaveCount(0);
+ expect(calls).toBe(0);
+});
