@@ -344,22 +344,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 44
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 45
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 44
+        or len(provenance["exceptions"]) != 45
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 43:
+    if len(generic.get("allowlists", [])) != 44:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 43
+        len(generic["allowlists"]) != 44
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]

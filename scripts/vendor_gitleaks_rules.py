@@ -292,6 +292,13 @@ M3_PUBLIC_EXCEPTIONS = (
         "9fe7174fdb0526dcf7548af9e7f992bd4cd6da2d2969025200412fc5c748ecc7",
         31,
     ),
+    (
+        "08d8b8c6e95fd1bd55bdee8574a554fb363b6f31",
+        "tests/test_pg_owned_subnet.py",
+        "^tests/test_pg_owned_subnet\\.py$",
+        "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        113,
+    ),
 )
 
 M3_HISTORY_PUBLIC_EXCEPTIONS = (
@@ -646,7 +653,7 @@ def main() -> None:
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 44 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 45 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:

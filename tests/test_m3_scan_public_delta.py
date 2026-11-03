@@ -97,7 +97,7 @@ def test_current_index_and_two_historical_variants_native(tmp_path: Path) -> Non
     probe(repo, "git", 0)
 
 
-@pytest.mark.parametrize("which", range(18))
+@pytest.mark.parametrize("which", range(19))
 def test_each_new_whole_row_mutation_still_blocks_native(tmp_path: Path, which: int) -> None:
     commit, path, _, _, _, line = pinned_rows()[which]
     repo = tmp_path / "mutation"
@@ -179,3 +179,33 @@ def test_no_git_integration_collection_does_not_load_offline_git_sources(tmp_pat
     assert not (source_root / ".git").exists()
     assert result.returncode == 0, (result.returncode, result.stdout[-1500:], result.stderr[-500:])
     assert "test_sentinel" in result.stdout and "deselected" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "scenario", ["exact", "byte", "other_path", "nested", "same_line", "adjacent"]
+)
+def test_owned_subnet_public_annotation_remains_exact(tmp_path: Path, scenario: str) -> None:
+    commit, path, _, row, _, line = next(
+        x for x in pinned_rows() if x[1] == "tests/test_pg_owned_subnet.py"
+    )
+    relative = (
+        "nested/" + path
+        if scenario == "nested"
+        else path + ".other"
+        if scenario == "other_path"
+        else path
+    )
+    target = tmp_path / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    rows = source(commit, path).decode().splitlines()
+    value = secrets.token_urlsafe(32)
+    if scenario == "byte":
+        rows[line - 1] += " "
+    if scenario == "same_line":
+        rows[line - 1] += ' api_key = "' + value + '"'
+    if scenario == "adjacent":
+        rows.insert(line, 'api_key = "' + value + '"')
+    target.write_text("\n".join(rows) + "\n")
+    violations = scanner.woo_public_snapshot_violations(tmp_path, [Path(relative)])
+    assert bool(violations) == (scenario in {"byte", "same_line"})
+    probe(tmp_path, "dir", 0 if scenario == "exact" else 1)
