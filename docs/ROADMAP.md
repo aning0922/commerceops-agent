@@ -1,5 +1,7 @@
 # 分阶段路线图与外部配置
 
+2026-11-04 V4 当前边界：V40-01—V40-05 的本地实现与必要运行 Gate 已完成，最后文档收口见 [V4-0交付](v4/acceptance/v4-0/DELIVERY.md)。下一阶段 V41-01导航/Shell、V41-02经营查询、V41-03首页/Copilot仅为待授权接单建议，V4-1 NOT_STARTED；不重置原阶段日期、预算或旧失败记录。
+
 2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
 
 Phase5/M2最终事实快照（2026-10-27，台北D18）：必要业务及部署技术Gate已核收，状态为`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。本地实际合成Woo只读/原待审批新卷恢复/权限与到期负例、当前Mock20 Compose/原key与T6v2/恢复/隐藏只读Web均通过；证据层级及AC01–11有限复用见[Phase5验收](PHASE5_ACCEPTANCE.md)和[STATUS72](STATUS.md#72-phase5m2业务与部署已核收的最终事实合批)。原M1真人/模型证据不升级为新Woo真人或生产证据。

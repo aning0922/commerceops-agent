@@ -1,0 +1,924 @@
+{
+  "base_source": "952e6246deb01ec763f2541d9f316753987744f3",
+  "code_engineering_source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
+  "prepared_from_source": "cf9c739594af69a430ab94c58b32bb564cb43a97",
+  "scope": "Current V4 branch paths changed against accepted M3. Responsibility map, not sole commit authorship. Final metadata source and actual Gate receipts are separately bound.",
+  "files": [
+    {
+      "path": ".gitleaks.toml",
+      "responsible_owner": "SECURITY_SCAN"
+    },
+    {
+      "path": "AGENTS.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "backend/migrations/versions/0024_v4_demo_foundation.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/application/v4_demo/__init__.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/application/v4_demo/contracts.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/application/v4_demo/seed_contract.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/api.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/v4_demo_http.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v4_demo_seed.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v4_demo_sessions.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v4_demo_store.py",
+      "responsible_owner": "BACKEND"
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/STATUS.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/IMPLEMENTATION_AUTHORIZATION.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/IMPORT_NORMALIZATION.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/BROWSER_F1.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/BROWSER_R2.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/BROWSER_R3.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/CLOSED_CASE_SWEEP.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/DB_CAP_761.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/DELIVERY.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/ENGINEERING_CBD.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/ENGINEERING_FIRST_F2.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/FILE_MAP.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/FINAL_GATES.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/FULL_EXISTING_FIRST_F1.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_FINAL_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_FINAL_MATRIX.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_LIFECYCLE_F1.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_PILOT_2330.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_PILOT_27F.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_PILOT_4B3C.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/HTTP_PILOT_D816.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/IDENTITY_FOURTEEN_3606.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/LEGACY_WEB24.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/LOCAL_RUN.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/MIGRATION_DIAGNOSTIC_AE4.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/N01_SIX.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/NATIVE_ZOOM_METHOD.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/PG_REUSE_INPUTS.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/QA_PLAN.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/ROLLBACK_TWO_1C35.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/SCAN_COMPAT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/SCHEMA_FIRST_PG.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/SCHEMA_SIX_461.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/TTL_F1.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/TTL_FIRST_F1.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/UI_ACCEPTANCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/UI_FIXTURE_363_FULL.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/UI_FIXTURE_63A_FULL.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/UI_FIXTURE_AC1_FULL.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/UI_FIXTURE_FIRST.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/UI_FIXTURE_TRACE.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP01.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP02D.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP03B.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP04B.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP05B.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP06B.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP07B.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP08C.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP09C.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP10C.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/http-receipts/HTTP11C.safe.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/API_EVENTS_CONTRACT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/BASELINE_REPORT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/CONTRACT_STATUS.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/DOMAIN_SOURCE_CONTRACT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/FROZEN_MANIFEST.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/PERMISSION_DEMO_CONTRACT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/README.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/TASK_PLAN.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/UI_ROUTES_CONTRACT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/DOCUMENT_VALIDATION.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/FINAL_INTEGRITY.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/GITHUB_BASELINE.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/GITHUB_FINAL_VERIFY.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/GITHUB_ISSUES.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/GITHUB_PR52.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/GITHUB_PRS.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/GITHUB_WORKFLOWS.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/LOCAL_START_STATE.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/PACKAGE_MANIFEST_OBSERVED.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/evidence/PACKAGE_VALIDATION.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/CONTRACT_REVIEW.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/CONTRACT_REVIEW_FINAL.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/HARNESS_INTEGRATION_AUDIT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/M3_BACKEND_AUDIT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/PAGE_ROUTE_MATRIX.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/PRODUCT_GAP_AUDIT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/SHARED_FILES.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/UI_CONTRACT_FREEZE_ACK.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/UI_CONTRACT_REVIEW.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/reviews/UI_CONTRACT_REVIEW_FINAL.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/v4-demo-seed-manifest.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/v4-permission-matrix.csv",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/baseline/v4-public-openapi.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/design/IDENTITY_SQL_PLAN.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/design/SEED_SPEC.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/API_d578.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/BOOTSTRAP_SNAPSHOT_9727.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/BROWSER_MODE_2c4.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/BROWSER_R3_VISUAL_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/CAPTURE_GEOMETRY_5cc.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/COOKIE_SNAPSHOT_1c152.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/DB_CAP_2f1.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/ENGINEERING_CBD_468_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/EXPORT_INDEX_2332.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/F1_HTTP_BROWSER_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/F1_NATURAL_TTL_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/FINAL_DOCS_61b_d991.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/FINAL_TUPLE_PIN_ROOT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/HEAD_TABLES_8ef545.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/HTTP11_F1_R2_R3_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/IDENTITY_DELTA_c4.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/IDENTITY_PLAN_a4d.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/LEGACY_SUBNET_4e2.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/LEGACY_WEB24_N01_F1_EVIDENCE.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/LOCAL_RUN_ROOT.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/MIGRATION_DIAGNOSTIC_ce85.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/NATIVE_CAPTURE_1bc.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/NATIVE_ZOOM_693.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/OWNED_API_6ca.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/OWNED_DRIVER_ce51.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/OWNED_NETWORK_3b3.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/PG_REUSE_R2_CBD_BOUNDARY.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/PG_TESTS_31d_823.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/QA_05a.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/REVIEW_PLAN.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCAN_47b.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCAN_73e.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCAN_8ab1.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCAN_a4f.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCAN_e096.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCAN_f341.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SCHEMA_86c.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SEED_ffb.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SQL_SYNTAX_1208.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/SUBNET_a990.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/TTL_3dd.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/WEB_CONTEXT_0134.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/WEB_LIVE_a2a.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/review/WEB_ac1.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/validation/R2_FULL_PG_PAIR_20261104.md",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "frontend/app/v4/[[...path]]/page.tsx",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/components/v4/demo.module.css",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/components/v4/demo.tsx",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-client.ts",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-context.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-generate-schema.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-origin.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-pending.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-schema.json",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/lib/v4-session-message.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/playwright.v4-live.config.ts",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/playwright.v4.config.ts",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/client.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/context.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/lifecycle.live.ts",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/lifecycle.profile.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/lifecycle.profile.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/lifecycle.waiter.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/lifecycle.waiter.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/openapi.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/origin.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/pending.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/session-message.test.mjs",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "frontend/v4-tests/welcome.spec.ts",
+      "responsible_owner": "WEB"
+    },
+    {
+      "path": "scripts/gitleaks_rules.json",
+      "responsible_owner": "SECURITY_SCAN"
+    },
+    {
+      "path": "scripts/scan_secrets.py",
+      "responsible_owner": "SECURITY_SCAN"
+    },
+    {
+      "path": "scripts/v4_demo_seed.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "scripts/vendor_gitleaks_rules.py",
+      "responsible_owner": "SECURITY_SCAN"
+    },
+    {
+      "path": "tests/e2e/v4/MIGRATION_DIAGNOSTIC.md",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/OWNED_DRIVER.md",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/PILOT_INIT_FAILURE.md",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/__init__.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/adapter.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/browser_lifecycle.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/design_pg_adapter.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/http_probe.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/legacy_subnet.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/migration_diagnostic.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/owned.compose.yml",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/owned_adapter.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/owned_api.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/owned_driver.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/owned_negatives.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/owned_pg_probe.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/pg_probe.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/preflight.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/strict_response.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/supervisor.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_browser_lifecycle.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_cookie_snapshot.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_event_criteria.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_http_criteria.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_legacy_subnet.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_migration_diagnostic.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_owned_api.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_owned_driver.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_owned_model_guard.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_owned_networks.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_owned_review_fixes.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_owned_subnets.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_strict_response.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_supervisor.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/test_ttl_probe.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/ttl_probe.py",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/e2e/v4/validate_response.mjs",
+      "responsible_owner": "QA"
+    },
+    {
+      "path": "tests/test_p4_f02_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_p4_first_create_negatives_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_p4_history_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_p4_migration_diagnostic.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_p4_read_reply_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_p5_m2_backup_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_postgres.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/test_quality_gates.py",
+      "responsible_owner": "SECURITY_SCAN"
+    },
+    {
+      "path": "tests/test_v4_scan_compat.py",
+      "responsible_owner": "SECURITY_SCAN"
+    },
+    {
+      "path": "tests/v4/__init__.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/v4/test_demo_api.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/v4/test_demo_seed_cli.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/v4/test_demo_seed_contract.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/v4/test_demo_seed_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    },
+    {
+      "path": "tests/v4/test_demo_sessions_pg.py",
+      "responsible_owner": "BACKEND_QA"
+    }
+  ]
+}
