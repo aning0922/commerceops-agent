@@ -6,8 +6,14 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, Field, field_validator, model_validator
 
+from commerceops.application.commerce.contracts import Digest
 from commerceops.application.daily.contracts import DailyDTO
-from commerceops.application.daily.questions import Citation, QuestionKind, TemplateAnswer
+from commerceops.application.daily.questions import (
+    Citation,
+    QuestionKind,
+    QuestionSpec,
+    TemplateAnswer,
+)
 from commerceops.application.daily.read_models import FailureCode, PublicSource
 
 
@@ -67,6 +73,37 @@ class DailyAccepted(DailyDTO):
 
 class AcceptanceRead(Envelope):
     accepted: DailyAccepted
+
+
+class CreationReceipt(DailyDTO):
+    schema_version: Literal["p6-m3-web-v1"]
+    lookup_status: Literal["accepted"]
+    request_key: UUID
+    shop_id: UUID
+    task_id: UUID
+    state: Literal["queued", "analyzing", "completed", "failed", "needs_attention"]
+    failure_code: FailureCode | None
+    request_hash: Digest
+
+
+class DailyCreationReceipt(CreationReceipt):
+    operation: Literal["daily_report.create"]
+    source_config_version: Annotated[str, Field(min_length=1, max_length=256)]
+    business_day: date
+
+
+class QuestionCreationReceipt(CreationReceipt):
+    operation: Literal["daily_question.create"]
+    parent_task_id: UUID
+    report_id: UUID
+    snapshot_id: UUID
+    content_hash: Digest
+    facts_hash: Digest
+    question: QuestionSpec
+
+
+class CreationReceiptRead(Envelope):
+    receipt: DailyCreationReceipt | QuestionCreationReceipt
 
 
 class QuestionView(DailyDTO):

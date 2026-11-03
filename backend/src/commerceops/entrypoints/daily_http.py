@@ -12,6 +12,7 @@ from commerceops.application.daily.http_models import (
     AcceptanceRead,
     CapabilityRead,
     CreateDailyInput,
+    CreationReceiptRead,
     EvidenceRead,
     QuestionRead,
 )
@@ -24,6 +25,8 @@ from commerceops.infrastructure.daily_read import DailyReadStore
 from commerceops.infrastructure.daily_sources import checked_json
 
 PATH = "/api/v1/daily-reports/{task_id}"
+REPORT_RECEIPT_PATH = "/api/v1/daily-reports/requests/{request_key}"
+QUESTION_RECEIPT_PATH = PATH + "/questions/requests/{request_key}"
 DAILY_PATHS = {
     PATH,
     "/api/v1/daily-capabilities",
@@ -31,6 +34,8 @@ DAILY_PATHS = {
     PATH + "/questions",
     PATH + "/questions/{question_id}",
     PATH + "/evidence",
+    REPORT_RECEIPT_PATH,
+    QUESTION_RECEIPT_PATH,
 }
 
 
@@ -64,6 +69,24 @@ def install_daily(
     @app.get("/api/v1/daily-capabilities", response_model=CapabilityRead)
     def capabilities(request: Request, shop_id: str) -> Any:
         return operations.capabilities(actor(request), parsed_uuid(shop_id))
+
+    @app.get(REPORT_RECEIPT_PATH, response_model=CreationReceiptRead)
+    def report_receipt(request: Request, request_key: str, shop_id: str) -> Any:
+        return operations.creation_receipt(
+            actor(request), parsed_uuid(shop_id), parsed_uuid(request_key)
+        )
+
+    @app.get(QUESTION_RECEIPT_PATH, response_model=CreationReceiptRead)
+    def question_receipt(
+        request: Request, task_id: str, request_key: str, shop_id: str, report_id: str
+    ) -> Any:
+        return operations.question_receipt(
+            actor(request),
+            parsed_uuid(shop_id),
+            parsed_uuid(task_id),
+            parsed_uuid(report_id),
+            parsed_uuid(request_key),
+        )
 
     @app.post("/api/v1/daily-reports", status_code=202, response_model=AcceptanceRead)
     async def create_report(request: Request) -> Any:
