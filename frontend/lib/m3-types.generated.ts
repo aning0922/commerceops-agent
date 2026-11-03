@@ -17,16 +17,40 @@ export type Kind = "daily_report";
 export type WorkflowVersion = "p6-daily-report-v1";
 export type CreatedAt = string;
 export type UpdatedAt = string;
-export type QuestionCreationEnabled = false;
+export type QuestionCreationEnabled = boolean;
 /**
  * @minItems 4
  * @maxItems 4
  */
 export type QuestionKinds = [unknown, unknown, unknown, unknown];
-export type ScheduleEnabled = false;
+export type ScheduleEnabled = boolean;
 export type DeliveryEnabled = false;
-export type State = "queued" | "analyzing";
-export type FailureCode = null;
+export type RunId = string;
+export type ScheduleId = string;
+export type ScheduleVersion = number;
+export type BusinessDay = string;
+export type DueAt = string;
+export type QueuedAt = string;
+export type ActualStartedAt = string | null;
+export type MissedPeriods = number;
+export type SkippedFirstDay = string | null;
+export type SkippedLastDay = string | null;
+export type DeliveryId = string;
+export type Transport = "fake";
+export type State = "pending" | "sending" | "sent" | "failed" | "unknown" | "disabled";
+export type Attempts = number;
+export type ExternalId = string | null;
+export type FailureCode =
+  | (
+      | "FAKE_RESULT_UNKNOWN"
+      | "DAILY_PERMISSION_INVALID"
+      | "DAILY_SOURCE_BINDING_CHANGED"
+      | "DAILY_STORAGE_FAILURE"
+      | "DAILY_WORKFLOW_UNSAFE"
+    )
+  | null;
+export type State1 = "queued" | "analyzing";
+export type FailureCode1 = null;
 export type Report = null;
 export type SchemaVersion2 = "p6-m3-web-v1";
 export type TaskId1 = string;
@@ -35,21 +59,21 @@ export type Kind1 = "daily_report";
 export type WorkflowVersion1 = "p6-daily-report-v1";
 export type CreatedAt1 = string;
 export type UpdatedAt1 = string;
-export type QuestionCreationEnabled1 = false;
+export type QuestionCreationEnabled1 = boolean;
 /**
  * @minItems 4
  * @maxItems 4
  */
 export type QuestionKinds1 = [unknown, unknown, unknown, unknown];
-export type ScheduleEnabled1 = false;
+export type ScheduleEnabled1 = boolean;
 export type DeliveryEnabled1 = false;
-export type State1 = "completed";
-export type FailureCode1 = null;
+export type State2 = "completed";
+export type FailureCode2 = null;
 export type ReportId = string;
 export type SnapshotId = string;
 export type ContentHash = string;
 export type FactsHash = string;
-export type BusinessDay = string;
+export type BusinessDay1 = string;
 export type Start = string;
 export type End = string;
 export type SourceKind = "mock" | "woocommerce_test";
@@ -147,22 +171,23 @@ export type Kind2 = "daily_report";
 export type WorkflowVersion2 = "p6-daily-report-v1";
 export type CreatedAt2 = string;
 export type UpdatedAt2 = string;
-export type QuestionCreationEnabled2 = false;
+export type QuestionCreationEnabled2 = boolean;
 /**
  * @minItems 4
  * @maxItems 4
  */
 export type QuestionKinds2 = [unknown, unknown, unknown, unknown];
-export type ScheduleEnabled2 = false;
+export type ScheduleEnabled2 = boolean;
 export type DeliveryEnabled2 = false;
-export type State2 = "failed";
-export type FailureCode2 =
+export type State3 = "failed";
+export type FailureCode3 =
   | "DAILY_SOURCE_INCOMPLETE"
   | "DAILY_SOURCE_UNAVAILABLE"
   | "DAILY_PERMISSION_INVALID"
   | "DAILY_SOURCE_BINDING_CHANGED"
   | "DAILY_STORAGE_FAILURE"
   | "DAILY_WORKFLOW_UNSAFE"
+  | "DAILY_SCHEDULE_CHANGED"
   | "WORKER_TERMINATION_UNCONFIRMED";
 export type Report1 = null;
 export type SchemaVersion4 = "p6-m3-web-v1";
@@ -172,28 +197,29 @@ export type Kind3 = "daily_report";
 export type WorkflowVersion3 = "p6-daily-report-v1";
 export type CreatedAt3 = string;
 export type UpdatedAt3 = string;
-export type QuestionCreationEnabled3 = false;
+export type QuestionCreationEnabled3 = boolean;
 /**
  * @minItems 4
  * @maxItems 4
  */
 export type QuestionKinds3 = [unknown, unknown, unknown, unknown];
-export type ScheduleEnabled3 = false;
+export type ScheduleEnabled3 = boolean;
 export type DeliveryEnabled3 = false;
-export type State3 = "needs_attention";
-export type FailureCode3 =
+export type State4 = "needs_attention";
+export type FailureCode4 =
   | "DAILY_SOURCE_INCOMPLETE"
   | "DAILY_SOURCE_UNAVAILABLE"
   | "DAILY_PERMISSION_INVALID"
   | "DAILY_SOURCE_BINDING_CHANGED"
   | "DAILY_STORAGE_FAILURE"
   | "DAILY_WORKFLOW_UNSAFE"
+  | "DAILY_SCHEDULE_CHANGED"
   | "WORKER_TERMINATION_UNCONFIRMED";
 export type ReportId1 = string;
 export type SnapshotId1 = string;
 export type ContentHash1 = string;
 export type FactsHash1 = string;
-export type BusinessDay1 = string;
+export type BusinessDay2 = string;
 export type CollectionStartedAt1 = string;
 export type CollectedAt1 = string;
 export type QualityFlags1 = (
@@ -237,9 +263,31 @@ export interface PendingDaily {
   question_kinds: QuestionKinds;
   schedule_enabled: ScheduleEnabled;
   delivery_enabled: DeliveryEnabled;
-  state: State;
-  failure_code: FailureCode;
+  schedule_run?: ScheduleRunStatus | null;
+  delivery?: DailyDeliveryStatus | null;
+  state: State1;
+  failure_code: FailureCode1;
   report: Report;
+}
+export interface ScheduleRunStatus {
+  run_id: RunId;
+  schedule_id: ScheduleId;
+  schedule_version: ScheduleVersion;
+  business_day: BusinessDay;
+  due_at: DueAt;
+  queued_at: QueuedAt;
+  actual_started_at: ActualStartedAt;
+  missed_periods: MissedPeriods;
+  skipped_first_day: SkippedFirstDay;
+  skipped_last_day: SkippedLastDay;
+}
+export interface DailyDeliveryStatus {
+  delivery_id: DeliveryId;
+  transport: Transport;
+  state: State;
+  attempts: Attempts;
+  external_id: ExternalId;
+  failure_code: FailureCode;
 }
 export interface CompletedDaily {
   schema_version: SchemaVersion2;
@@ -253,8 +301,10 @@ export interface CompletedDaily {
   question_kinds: QuestionKinds1;
   schedule_enabled: ScheduleEnabled1;
   delivery_enabled: DeliveryEnabled1;
-  state: State1;
-  failure_code: FailureCode1;
+  schedule_run?: ScheduleRunStatus | null;
+  delivery?: DailyDeliveryStatus | null;
+  state: State2;
+  failure_code: FailureCode2;
   report: CompleteReport;
 }
 export interface CompleteReport {
@@ -262,7 +312,7 @@ export interface CompleteReport {
   snapshot_id: SnapshotId;
   content_hash: ContentHash;
   facts_hash: FactsHash;
-  business_day: BusinessDay;
+  business_day: BusinessDay1;
   window: ReadWindow;
   source: PublicSource;
   collection_started_at: CollectionStartedAt;
@@ -337,8 +387,10 @@ export interface FailedDaily {
   question_kinds: QuestionKinds2;
   schedule_enabled: ScheduleEnabled2;
   delivery_enabled: DeliveryEnabled2;
-  state: State2;
-  failure_code: FailureCode2;
+  schedule_run?: ScheduleRunStatus | null;
+  delivery?: DailyDeliveryStatus | null;
+  state: State3;
+  failure_code: FailureCode3;
   report: Report1;
 }
 export interface AttentionDaily {
@@ -353,8 +405,10 @@ export interface AttentionDaily {
   question_kinds: QuestionKinds3;
   schedule_enabled: ScheduleEnabled3;
   delivery_enabled: DeliveryEnabled3;
-  state: State3;
-  failure_code: FailureCode3;
+  schedule_run?: ScheduleRunStatus | null;
+  delivery?: DailyDeliveryStatus | null;
+  state: State4;
+  failure_code: FailureCode4;
   report: IncompleteReport | null;
 }
 export interface IncompleteReport {
@@ -362,7 +416,7 @@ export interface IncompleteReport {
   snapshot_id: SnapshotId1;
   content_hash: ContentHash1;
   facts_hash: FactsHash1;
-  business_day: BusinessDay1;
+  business_day: BusinessDay2;
   window: ReadWindow;
   source: PublicSource;
   collection_started_at: CollectionStartedAt1;

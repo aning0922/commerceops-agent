@@ -224,3 +224,11 @@ Root 转交精确冻结 `e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da`，其 OpenAPI
 Root 指出冻结 `e2e50f` 的 `InquiryRead.shop_id` 是内部 PG 店铺 UUID，而 `Context.shop_id` 与 `ReadResult.shop_id` 来自外部 commerce fixture 的店铺键；原前端直接比较两者会拒绝合法完成结果。服务端 `InquiryStore.source` 在当前身份与店铺 scope 检查后，把内部店铺的 `external_shop_key` 与 fixture 来源匹配；wire DTO 没有给前端提供该可信映射。前端移除跨命名空间的相等断言，不从首个结果推定当前店铺；原请求内部店铺、receipt/来源摘要/来源窗口、轨迹、事实与 claim 引用仍逐项核验。来源摘要一致不等于前端独立验证了内部到外部店铺映射。
 
 `inquiry-completed-external-shop.fixture.json` 使用隔离导出的精确 e2e Mock fixture、`MockReadFacade`、`DemoChoice`、`execute`、真实 `ResultPayload/InquiryRead` 与 renderer 生成；内部测试 UUID 与执行器从 fixture 得到的 commerce key `demo` 不同，结果有实际合成事实。身份 port 是显式内存替身、未运行 PG/HTTP，不能代签服务端 SQL 映射或实际 API。前端定向11个询单契约例通过，包含此完整样本消费及内部店铺、来源摘要和证据引用错配拒绝；typecheck、schema同步与差异检查通过，真实资源与独审仍待 Root。
+
+## 19. 日报 S3 只读候选与写入缺口（2026-11-03）
+
+依据 Root 转交的冻结后端 `32dd7c240b9d2d979bf684eeb1dc8bcba7e35d31` 同步 S3 日报读取 schema 和 OpenAPI，SHA256 分别为 `fe108320d164496558f73fbbe0698c9c9ae9800182db82d03fce51da5a12954c` 和 `8ea4454551e3fc17f00564de2a09143771742988458561c5a6a6b2ec16d245fc`。页面读取店铺能力、已生成报告的证据分页和指定已有追问，核对任务、报告、快照、内容与事实摘要、引用总数和分页连续性；模板解释明确标注未调用模型。页面可显示服务提供的调度运行与 Fake 投递状态，Fake sent 仅表示模拟接收记录，不能证明真实群发送或已读。会话、页面或报告绑定变化后拒绝迟到结果；当前撤权清除会话。
+
+冻结接口提供日报创建及追问提交 POST，却没有对应按原 request key 查询结果的 GET；原 `/api/v1/requests/{request_key}` 仅接受 `create_task`、`decision`、`resolve` 操作。网络中断后的 UNKNOWN 因此无法按要求恢复，页面暂不提供日报创建及新追问提交。调度管理合同仅为受控 CLI，页面没有调度写操作；Fake 投递也没有重发操作。后续需要后端提供按原键、按当前身份和店铺授权的各自回执读取，并冻结相应错误与绑定合同后，才能评估开放写入口。
+
+`daily-s3.fixture.json` 从隔离导出的上述冻结源码中的真实 DTO、报告与模板构造函数生成，均为合成数据；没有启动 API、PG、浏览器或真实发送。开发中首次联合运行有一条旧测试失败：旧测试要求无报告时拒绝 `question_creation_enabled=true`；冻结服务实际仅在操作启用且报告存在时设为 true。前端恢复该真实服务约束后，日报 S2/S3 共11个无服务器契约例通过，覆盖绑定错配、引用分页、店铺能力、迟到撤权和 Fake UNKNOWN 展示。类型及 schema 检查通过；这些结果不代签实际 API、PG、浏览器、独审或完整 CI。

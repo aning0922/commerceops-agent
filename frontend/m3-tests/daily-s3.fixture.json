@@ -1,0 +1,344 @@
+{
+  "daily": {
+    "schema_version": "p3-web-v1",
+    "identity_mode": "session",
+    "server_time": "2026-11-03T00:00:00Z",
+    "trace_id": "00000000-0000-4000-8000-000000000001",
+    "daily": {
+      "schema_version": "p6-m3-web-v1",
+      "task_id": "00000000-0000-4000-8000-000000000001",
+      "shop_id": "00000000-0000-4000-8000-000000000004",
+      "kind": "daily_report",
+      "workflow_version": "p6-daily-report-v1",
+      "created_at": "2026-11-02T16:00:00Z",
+      "updated_at": "2026-11-02T16:01:00Z",
+      "question_creation_enabled": true,
+      "question_kinds": [
+        "metric_definition",
+        "metric_evidence",
+        "finding_reason",
+        "data_quality"
+      ],
+      "schedule_enabled": true,
+      "delivery_enabled": false,
+      "schedule_run": {
+        "run_id": "00000000-0000-4000-8000-000000000003",
+        "schedule_id": "00000000-0000-4000-8000-000000000002",
+        "schedule_version": 1,
+        "business_day": "2026-11-02",
+        "due_at": "2026-11-02T16:00:00Z",
+        "queued_at": "2026-11-02T16:01:00Z",
+        "actual_started_at": null,
+        "missed_periods": 1,
+        "skipped_first_day": "2026-11-01",
+        "skipped_last_day": "2026-11-01"
+      },
+      "delivery": {
+        "delivery_id": "00000000-0000-4000-8000-000000000003",
+        "transport": "fake",
+        "state": "unknown",
+        "attempts": 1,
+        "external_id": null,
+        "failure_code": "FAKE_RESULT_UNKNOWN"
+      },
+      "state": "completed",
+      "failure_code": null,
+      "report": {
+        "report_id": "00000000-0000-4000-8000-000000000002",
+        "snapshot_id": "00000000-0000-0000-0000-000000000004",
+        "content_hash": "ea2bd4f4e14a5f9d42b549f4fe81e2e9cf801c96e89e3ef2cd9ea8d49e185c3f",
+        "facts_hash": "37c340e7256711a2e190fd31b2348885abafe8075509cc05e58d41d2e93f9480",
+        "business_day": "2026-11-02",
+        "window": {
+          "start": "2026-11-01T16:00:00Z",
+          "end": "2026-11-02T16:00:00Z"
+        },
+        "source": {
+          "source_kind": "mock",
+          "source_config_version": "daily-fixture-1",
+          "fixture_version": "daily-gold-1",
+          "currency": "CNY",
+          "timezone": "Asia/Taipei",
+          "coverage_scope": "controlled_test_dataset"
+        },
+        "collection_started_at": "2026-11-02T16:00:00Z",
+        "collected_at": "2026-11-02T16:01:00Z",
+        "quality_flags": [],
+        "findings": [
+          {
+            "finding_id": "f143e63602d14ab00a2f957eda4414b3b922401ac57532bacfcc4d1167d2ac17",
+            "code": "PAYMENT_TIMESTAMP_MISSING",
+            "severity": "warning",
+            "metric_key": "orders_without_payment_timestamp",
+            "evidence_ids": [
+              "b6aa730fc33e4fa40f3747069bd06f26c78aaba76ab0244c078ba72295f8f454"
+            ],
+            "rule_version": "daily-rules-v1",
+            "rule_config_hash": "80b66cf87c9e4299b37622195b44db23024805e045a74055ac883dea3599a9f0"
+          },
+          {
+            "finding_id": "79f130b594c63ff1596836cfaf016261aa6ed68b65866e0ed50af364d1414a76",
+            "code": "RULE_NOT_CONFIGURED",
+            "severity": "info",
+            "metric_key": null,
+            "evidence_ids": [
+              "07c8ff0faf2a66ff3c7235f640301a38c094b6f178268b564c0e9dfb651d38c1"
+            ],
+            "rule_version": "daily-rules-v1",
+            "rule_config_hash": "80b66cf87c9e4299b37622195b44db23024805e045a74055ac883dea3599a9f0"
+          }
+        ],
+        "evidence_count": 8,
+        "complete": true,
+        "metrics": {
+          "created_order_count": 1,
+          "paid_order_count": 1,
+          "paid_product_net": "10",
+          "paid_product_tax": "0",
+          "paid_shipping_net": "0",
+          "paid_shipping_tax": "0",
+          "paid_fee_net": "0",
+          "paid_fee_tax": "0",
+          "paid_order_total": "10",
+          "refund_count": 1,
+          "refunded_order_count": 1,
+          "refund_amount": "2",
+          "orders_without_payment_timestamp": 1,
+          "status_counts": [
+            {
+              "status": "pending",
+              "count": 1
+            }
+          ],
+          "average_paid_order_value": {
+            "numerator": "10",
+            "denominator": "1"
+          },
+          "average_reason": null
+        },
+        "display": [
+          {
+            "metric_key": "created_order_count",
+            "value": "1"
+          },
+          {
+            "metric_key": "paid_order_count",
+            "value": "1"
+          },
+          {
+            "metric_key": "paid_product_net",
+            "value": "10.00"
+          },
+          {
+            "metric_key": "paid_product_tax",
+            "value": "0.00"
+          },
+          {
+            "metric_key": "paid_shipping_net",
+            "value": "0.00"
+          },
+          {
+            "metric_key": "paid_shipping_tax",
+            "value": "0.00"
+          },
+          {
+            "metric_key": "paid_fee_net",
+            "value": "0.00"
+          },
+          {
+            "metric_key": "paid_fee_tax",
+            "value": "0.00"
+          },
+          {
+            "metric_key": "paid_order_total",
+            "value": "10.00"
+          },
+          {
+            "metric_key": "refund_count",
+            "value": "1"
+          },
+          {
+            "metric_key": "refunded_order_count",
+            "value": "1"
+          },
+          {
+            "metric_key": "refund_amount",
+            "value": "2.00"
+          },
+          {
+            "metric_key": "orders_without_payment_timestamp",
+            "value": "1"
+          },
+          {
+            "metric_key": "average_paid_order_value",
+            "value": "10.00"
+          }
+        ]
+      }
+    }
+  },
+  "capabilities": {
+    "schema_version": "p3-web-v1",
+    "identity_mode": "session",
+    "server_time": "2026-11-03T00:00:00Z",
+    "trace_id": "00000000-0000-4000-8000-000000000001",
+    "capabilities": {
+      "schema_version": "p6-m3-web-v1",
+      "shop_id": "00000000-0000-4000-8000-000000000004",
+      "enabled": true,
+      "source": {
+        "source_kind": "mock",
+        "source_config_version": "daily-fixture-1",
+        "fixture_version": "daily-gold-1",
+        "currency": "CNY",
+        "timezone": "Asia/Taipei",
+        "coverage_scope": "controlled_test_dataset"
+      },
+      "earliest_business_day": "2026-11-01",
+      "metric_version": "daily-metrics-v1",
+      "question_kinds": [
+        "metric_definition",
+        "metric_evidence",
+        "finding_reason",
+        "data_quality"
+      ],
+      "schedule_management_mode": "controlled_cli",
+      "delivery_mode": "fake_only",
+      "model_requests_enabled": false,
+      "external_sender_enabled": false
+    }
+  },
+  "evidence": {
+    "schema_version": "p3-web-v1",
+    "identity_mode": "session",
+    "server_time": "2026-11-03T00:00:00Z",
+    "trace_id": "00000000-0000-4000-8000-000000000001",
+    "evidence": {
+      "schema_version": "p6-m3-web-v1",
+      "task_id": "00000000-0000-4000-8000-000000000001",
+      "report_id": "00000000-0000-4000-8000-000000000002",
+      "snapshot_id": "00000000-0000-0000-0000-000000000004",
+      "content_hash": "ea2bd4f4e14a5f9d42b549f4fe81e2e9cf801c96e89e3ef2cd9ea8d49e185c3f",
+      "facts_hash": "37c340e7256711a2e190fd31b2348885abafe8075509cc05e58d41d2e93f9480",
+      "citations": [
+        {
+          "citation_id": "07c8ff0faf2a66ff3c7235f640301a38c094b6f178268b564c0e9dfb651d38c1",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "rule",
+          "entity_ref": "rule:4e2506e8723fbf8d",
+          "field_path": "record",
+          "value": "{\"currency\":\"CNY\",\"high_refund_amount\":null,\"low_paid_total\":null,\"rule_version\":\"daily-rules-v1\"}"
+        },
+        {
+          "citation_id": "3d5bc257286a173f62bc3ec435fa66b4c76086d5be0e690d91601e3f1f961a0a",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "order",
+          "entity_ref": "order:35918874b9ac314d",
+          "field_path": "record",
+          "value": "{\"created_at\":\"2026-10-29T16:00:00Z\",\"currency\":\"CNY\",\"fee_net\":\"0\",\"fee_tax\":\"0\",\"order_total\":\"10\",\"paid_at\":\"2026-11-01T16:00:00Z\",\"shipping_net\":\"0\",\"shipping_tax\":\"0\",\"status\":\"processing\"}"
+        },
+        {
+          "citation_id": "461050297dc8e1fd9dddc38c90e3c886538f92752ac847f41293538d17549a94",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "order",
+          "entity_ref": "order:477574035e9ee153",
+          "field_path": "record",
+          "value": "{\"created_at\":\"2026-10-27T16:00:00Z\",\"currency\":\"CNY\",\"fee_net\":\"0\",\"fee_tax\":\"0\",\"order_total\":\"0\",\"paid_at\":\"2026-10-28T16:00:00Z\",\"shipping_net\":\"0\",\"shipping_tax\":\"0\",\"status\":\"processing\"}"
+        },
+        {
+          "citation_id": "4632b0a3fb3a2bcfb4d465b3c948bbcf21e78f53d8247f6477998f4626bc4d1c",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "coverage",
+          "entity_ref": "coverage:d1b3fe16f1840c33",
+          "field_path": "record",
+          "value": "{\"consistency\":\"observational\",\"order_lines_complete\":true,\"orders_complete\":true,\"quality_flags\":[],\"refunds_complete\":true,\"strategy\":\"complete_fixture\"}"
+        },
+        {
+          "citation_id": "6be9e80d1e146dbd48e53cdaaf584888d6e0a8531edb1b0a83edc0717e8fe8c7",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "order_line",
+          "entity_ref": "order_line:257462e3709f1e17",
+          "field_path": "record",
+          "value": "{\"currency\":\"CNY\",\"net_amount\":\"10\",\"quantity\":1,\"tax_amount\":\"0\"}"
+        },
+        {
+          "citation_id": "b038207f9ffc774d47a483d1e38a1b8798fa29ccbcead0376df89e3a19900fc5",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "refund",
+          "entity_ref": "refund:165d5c4f96524910",
+          "field_path": "record",
+          "value": "{\"amount\":\"7\",\"currency\":\"CNY\",\"occurred_at\":\"2026-11-02T16:00:00Z\",\"quantity_reason\":\"AMOUNT_ONLY\",\"restocked\":null}"
+        },
+        {
+          "citation_id": "b6aa730fc33e4fa40f3747069bd06f26c78aaba76ab0244c078ba72295f8f454",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "order",
+          "entity_ref": "order:e895353334ff512b",
+          "field_path": "record",
+          "value": "{\"created_at\":\"2026-11-01T16:00:00Z\",\"currency\":\"CNY\",\"fee_net\":\"0\",\"fee_tax\":\"0\",\"order_total\":\"0\",\"paid_at\":null,\"shipping_net\":\"0\",\"shipping_tax\":\"0\",\"status\":\"pending\"}"
+        },
+        {
+          "citation_id": "f8542fb625c6007b58f7bf3fb4f2b2d6e96719d3bbaecb6f089a68089723f729",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "refund",
+          "entity_ref": "refund:7c0618d7191af2b0",
+          "field_path": "record",
+          "value": "{\"amount\":\"2\",\"currency\":\"CNY\",\"occurred_at\":\"2026-11-01T16:00:00Z\",\"quantity_reason\":\"AMOUNT_ONLY\",\"restocked\":null}"
+        }
+      ],
+      "total_evidence_count": 8,
+      "next_cursor": null
+    }
+  },
+  "question": {
+    "schema_version": "p3-web-v1",
+    "identity_mode": "session",
+    "server_time": "2026-11-03T00:00:00Z",
+    "trace_id": "00000000-0000-4000-8000-000000000001",
+    "question": {
+      "schema_version": "p6-m3-web-v1",
+      "parent_task_id": "00000000-0000-4000-8000-000000000001",
+      "question_id": "00000000-0000-4000-8000-000000000003",
+      "state": "completed",
+      "failure_code": null,
+      "answer": {
+        "schema_version": "p6-daily-answer-v1",
+        "report_id": "00000000-0000-4000-8000-000000000002",
+        "snapshot_id": "00000000-0000-0000-0000-000000000004",
+        "content_hash": "ea2bd4f4e14a5f9d42b549f4fe81e2e9cf801c96e89e3ef2cd9ea8d49e185c3f",
+        "facts_hash": "37c340e7256711a2e190fd31b2348885abafe8075509cc05e58d41d2e93f9480",
+        "kind": "metric_evidence",
+        "summary": "支付cohort商品、税、运费和费用六项之和；不代表利润或实际结算。 本报告展示值：10.00。",
+        "total_evidence_count": 2,
+        "citation_ids": [
+          "3d5bc257286a173f62bc3ec435fa66b4c76086d5be0e690d91601e3f1f961a0a",
+          "95c9a3ad1391547b4471d1df8ce45aa6d43b12841c412a532a347a1a8cedc0d3"
+        ],
+        "narrative_mode": "template",
+        "evidence_mode": "not_used",
+        "model_requests_enabled": false,
+        "external_sender_enabled": false
+      },
+      "citations": [
+        {
+          "citation_id": "3d5bc257286a173f62bc3ec435fa66b4c76086d5be0e690d91601e3f1f961a0a",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "order",
+          "entity_ref": "order:35918874b9ac314d",
+          "field_path": "record",
+          "value": "{\"created_at\":\"2026-10-29T16:00:00Z\",\"currency\":\"CNY\",\"fee_net\":\"0\",\"fee_tax\":\"0\",\"order_total\":\"10\",\"paid_at\":\"2026-11-01T16:00:00Z\",\"shipping_net\":\"0\",\"shipping_tax\":\"0\",\"status\":\"processing\"}"
+        },
+        {
+          "citation_id": "95c9a3ad1391547b4471d1df8ce45aa6d43b12841c412a532a347a1a8cedc0d3",
+          "snapshot_id": "00000000-0000-0000-0000-000000000004",
+          "entity_kind": "metric",
+          "entity_ref": "report_metric",
+          "field_path": "metrics.paid_order_total",
+          "value": "\"10\""
+        }
+      ],
+      "total_evidence_count": 2,
+      "next_cursor": null
+    }
+  }
+}

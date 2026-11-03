@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { CompleteReport, DailyRead, MetricDisplay } from "../lib/m3-types.generated";
 import { Card, Modal, Notice } from "./ui";
+import { DailyS3Read } from "./daily-s3-read";
 
 const metricNames: Record<MetricDisplay["metric_key"], string> = {
   created_order_count: "新建订单数", paid_order_count: "付款订单数",
@@ -53,7 +54,7 @@ function MetricTiles({ report, items, showRaw }: { report: CompleteReport; items
   </div>)}</dl>;
 }
 
-export function DailyReport({ read }: { read: DailyRead }) {
+export function DailyReport({ read, origin, invalidate, parentCurrent }: { read: DailyRead; origin: string; invalidate: () => void; parentCurrent: () => boolean }) {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const daily = read.daily;
   const report = daily.report;
@@ -67,8 +68,16 @@ export function DailyReport({ read }: { read: DailyRead }) {
          daily.state === "failed" ? "日报生成失败。" :
          daily.state === "queued" ? "日报等待生成。" : "日报正在生成。"}
         {daily.failure_code && <> 原因：{failureNames[daily.failure_code]}。</>}
-        推送记录尚不可读取；生成状态不代表已投递。
+        {daily.delivery ? "生成状态与模拟投递记录分开。" : "当前没有可展示的投递记录；生成状态不代表已投递。"}
       </Notice>
+      {daily.schedule_run && <Card title="定时运行记录">
+        <p>业务日期：{daily.schedule_run.business_day}；计划时间：{daily.schedule_run.due_at}；受理时间：{daily.schedule_run.queued_at}。</p>
+        <p>实际开始：{daily.schedule_run.actual_started_at ?? "未报告"}；恢复时跳过 {daily.schedule_run.missed_periods} 期。</p>
+      </Card>}
+      {daily.delivery && <Card title="模拟投递记录">
+        <p>{({ pending: "等待模拟处理", sending: "模拟处理中", sent: "本地模拟已记录", failed: "模拟处理失败", unknown: "模拟投递结果待核实", disabled: "模拟投递未启用" })[daily.delivery.state]}。</p>
+        <p>这是本地模拟，不代表实际群消息发送或已读。</p>
+      </Card>}
       {!report ? (
         <Card title="日报事实"><p>当前没有可展示的封存日报。刷新只读取已有状态。</p></Card>
       ) : (
@@ -122,6 +131,7 @@ export function DailyReport({ read }: { read: DailyRead }) {
               </details>
             </Modal>
           )}
+          <DailyS3Read read={read} origin={origin} invalidate={invalidate} parentCurrent={parentCurrent} />
         </>
       )}
     </>
