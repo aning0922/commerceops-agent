@@ -64,9 +64,9 @@ Root 的 project/database/volume/loopback ports/绝对 UTC/cleanup 合同。
    immutable audit/tombstone、B digest；随后只停已登记 owned PG。独立核 PID/端口/容器/
    网络状态，按 Root 本窗口合同保卷或删除临时卷，绝不擅自 `down -v`。cleanup 失败单列 FAIL。
 
-当前骨架只实现步骤1的只读准备。服务 supervisor、HTTP/PG probes 和 Web 调用在依赖交付、
-Root 释放对象后补齐同一独占目录；没有 runtime run 命令，不能宣称已经实现可运行全链。
-必要共享入口修改先交 Root，不改旧 harness、不新通用 runner/framework/worker。
+首提交59a7仅实现步骤1的只读准备。后续本目录已新增项目专用 supervisor 与真实 HTTP/PG
+probe代码，具体能力与尚待接线见下节；仍未启动服务，不能宣称已通过全链。
+必要共享入口修改先交 Root，不改旧 harness、不新通用 runner/framework/业务worker。
 
 ## 独立负例与判据
 
@@ -114,3 +114,47 @@ selected/collected/call-pass/failed/skip、每case证据位置、PG事实、clea
 原始cookie/CSRF/凭据不入普通JSON/截图/仓库；公开证据仅保留安全ID和hash。
 当前 actual token/cost `UNKNOWN`；真实PG/API/Web、Full、Hosted全为 `NOT_RUN`。
 本次没有创建资源，cleanup `NOT_APPLICABLE_NO_RESOURCES_CREATED`；不进入V4-1。
+
+## QA 第二切片：运行代码已准备，尚无服务运行证据
+
+该节覆盖上一段“没有创建资源”的准备时点：本切片只创建并终止了进程单元测试的短命 Python
+子进程，没有 PG/API/Web/浏览器/容器/卷。PG/API/Web、Full、Hosted 继续 `NOT_RUN`。
+
+| 文件 | 已实现能力 | 运行前仍须核定 |
+|---|---|---|
+| `tests/e2e/v4/supervisor.py` | 固定api/web/pg/probe角色、独立进程组、显式env、新建0600日志、UTC+monotonic截止、watchdog、TERM→KILL/reap、writer先停/PG后停、无自动重启 | Root精确argv/env/对象；只管理自启进程，不替代容器/卷清理 |
+| `tests/e2e/v4/http_probe.py` | 真httpx/CookieJar、loopback限制、禁代理/redirect/自动POST重试、7个明确场景入口、安全响应头/上下文核验、旧API改cookie401、persona旧CSRF/generation、同key并发reset | 已审adapter、初始空新库、真实HTTP/PG运行、未覆盖的Q矩阵专项夹具 |
+| `tests/e2e/v4/pg_probe.py` | 真实psycopg只读事务、statement/lock timeout、prepared单参数查询、精确tenant快照/DB UTC/计数/hash | 精确schema的已审单SELECT与新owned connection；不自找DSN/读env/连旧库 |
+| `tests/e2e/v4/validate_response.mjs`、`strict_response.py` | 现有锁定Ajv2020+formats校验冻结OpenAPI的operation/status response，未知status/extra/格式拒绝，不输出payload | adapter直接调用validate_response并绑定同一Budget；Node/依赖固定安装 |
+| `tests/e2e/v4/adapter.py` | 唯一V4Adapter类型接缝：launch_spec、persona_ids、snapshot、validate_response | 目前只有Protocol，缺实现必须阻断，不能skip/fallback或猜业务配置 |
+
+`run_scenario(scenario, api, origin, budget, adapter)` 支持 `lifecycle`、`capacity`、
+`ack_body`、`ack_headers`、`security`、`same_key_reset`、`persona_stale`；每个场景要求
+**独立初始空新owned库**，不能把多个场景串在cap3库里再删除tenant凑数。访客client在finally
+关闭；transport/DB异常保持UNKNOWN并向外抛出，不执行后续业务写或自动重试。丢ACK方法是
+对真实HTTP响应作测试端丢弃/还原原bootstrap jar，不制造成功JSON，不恢复明文bearer。
+
+Root后续已审driver必须按以下顺序接线：preflight精确clean/source/window → Budget.bind →
+新建Supervisor独占证据目录 → 已审foreground PG/API/Web argv/readiness → 将
+`run_scenario`放在Supervisor管理的**独立probe子进程组**内执行 → 保存native exit →
+`stop_writers()` → PG最终只读snapshot(final_collection=True) → `close_pg()` →
+新owned对象独立cleanup核验。HTTP每次I/O timeout不是HTTP总时长保证，probe必须在该
+supervisor子进程内，由watchdog为整个场景封顶，禁止直接在无父进程约束的Root中运行。
+
+Supervisor不采纳PID、不搜索Docker、不停止未知容器；若PG通过Docker提供，精确资源owner
+另交已审的创建/停止/保卷合同，不能把终止docker CLI当容器已停。PG进程角色只适合真正
+foreground受管进程；缺容器cleanup实现则该资源路径仍阻断。readiness重试只允许已审的
+有限只读启动检查，不能重试创建/persona/reset/logout或自动延长窗口。
+
+后端一次性待接字段清单：API启用/可信Origin/local_http配置名与argv；最小显式env及
+新凭据来源；迁移/seed初始化命令；两个预登记persona ID；新owned PG连接入口；返回
+Snapshot七字段的只读SQL（digest排除采集时间，保留B业务/epoch/receipt/tombstone）；
+低权ACL/旧bound session撤销的专项SQL；reset/seed rollback故障夹具。WEB待交：实际
+启动argv/Origin、已审Playwright入口与新资源环境。以上不从作者WIP或旧私有配置读取。
+
+纯验证命令是 `.venv/bin/python -m pytest -q tests/e2e/v4`，另运行该目录Ruff lint/format、
+Mypy及 `python -m scripts.check_docs`。它仅签纯/进程/DTO契约，不计作HTTP/PG/E2E Gate。
+首轮出现过pytest相对导入collection失败（exit2），补v4包入口后通过；首轮lint两项已修正。
+Node缓存安装曾因复制的npm launcher找不到`../lib/cli.js`而exit1，改为固定Node执行同包
+`lib/node_modules/npm/bin/npm-cli.js --prefix frontend ci --ignore-scripts --offline`
+后exit0、41 packages安装，未改锁。这不是在线完整漏洞查询或scripts.check通过。
