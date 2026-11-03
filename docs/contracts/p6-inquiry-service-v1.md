@@ -1,6 +1,6 @@
 # P6 只读查询任务与 Web 服务接线 v1 候选
 
-2026-11-03（台北）。状态 `DESIGN / REVIEW_REQUIRED`。本文件消费已提交的 [执行器合同](p6-readonly-inquiry-v1.md)及[Mock facade/答案合同](p6-readonly-tools-v1.md)，只设计持久化、单 Worker 与 Web API 接线；不表示已有 API、迁移或真实模型。本批没有改 `3cab0c98f6c679f9d53fdcd2c83d7bfe70f314f9` 的源码。
+2026-11-03（台北）。当前状态 `IMPLEMENTATION_CANDIDATE / REVIEW_REQUIRED / PG_NOT_RUN`。本文件消费已提交的 [执行器合同](p6-readonly-inquiry-v1.md)及[Mock facade/答案合同](p6-readonly-tools-v1.md)。原设计提交 `832c7d12097f4688c3416b078f8407b420e6c6a5` 只规划持久化、单 Worker 与 Web API；独立 P2 修复后已有未注册的服务实现候选，见末节。真实迁移、共享 API/Worker 接线和实际模型仍未验收。
 
 ## 现有约束与接入位置
 
@@ -38,4 +38,18 @@ Worker 认领后在同一 owner 下取不可变任务输入，重查当前 princ
 
 ## 实施顺序与最低真实本地 Gate
 
-Root 待 0020 知识迁移父链冻结后，统一分配 0021、唯一后端 owner 与 API/Worker/迁移文件；0022 留给日报调度。本合同不预占迁移实际 revision，也不假设 0019 日报已经合入本工作树。建议先冻结 Pydantic 请求/响应/OpenAPI 与 migration/ACL；再完成新 owned PG 下的 POST 原键并发、commit 后回执丢失读原键、同 Worker `analyze` dispatch/重启/持久完成、撤权/跨店/报告对象拒绝、partial 页与候选澄清；最后以本地显式 offline_stub/Mock 完整 Web 请求闭环核 DTO、审计、来源标签和清理。无真实模型时 D05/provider、实际飞书和 Woo、生产部署、完整 M3 Gate 一律 `NOT_RUN`。自有 PG/API 服务、精确独审和 CI 的实际证据由 Root 后续记录，设计提交不代签运行。
+原设计要求 Root 统一协调 0020 知识迁移父链、0021 询单、唯一后端 owner 与 API/Worker 文件；本片实施前 Root 已明确分配 `0021/down_revision=0020`，0022 留给日报调度，当前树尚未合入 0019/0020。先冻结 Pydantic 请求/响应/OpenAPI 与 migration/ACL；再完成新 owned PG 下的 POST 原键并发、commit 后回执丢失读原键、同 Worker `analyze` dispatch/重启/持久完成、撤权/跨店/报告对象拒绝、partial 页与候选澄清；最后以本地显式 offline_stub/Mock 完整 Web 请求闭环核 DTO、审计、来源标签和清理。无真实模型时 D05/provider、实际飞书和 Woo、生产部署、完整 M3 Gate 一律 `NOT_RUN`。自有 PG/API 服务、精确独审和 CI 的实际证据由 Root 后续记录，设计提交不代签运行。
+
+## 首片服务候选与共享接线清单（2026-11-03，待独审/PG）
+
+本批在独立 P2 修复 `22b60150add80f59613445260e1e2851b5d0b86f` 之后实现服务片，未混入该修复提交。新增严格 service DTO、默认关闭的 `InquiryConfig`、专属 `InquiryStore`、当前 PG 权限与报告读取 runtime、同一 `analyze` runner 及独立未注册 `inquiry_router`。POST 只接规范问题/店铺/可选报告/原键，服务器决定固定 Mock fixture、来源摘要、七个完整店铺自然日覆盖域及 `offline_stub`；GET 回执/结果公开这个域和“本地演示数据 / 离线模型替身”标签。DemoChoice 仅支持明确演示语法“库存 <精确名称/SKU>”“销量 <精确名称/SKU>”“解释报告”（需服务器已绑报告），实际工具与结果依旧通过同一 execute；它不是实际 LLM 或通用语言理解验收。
+
+`0021_p6_readonly_inquiries.py` 的 `revision='0021'/down_revision='0020'` 按 Root 正式分配，含专属表、请求不可变/单次终态结果、当前 operator/会话资格、任务绑定与终态结果保护触发器、`valid_readonly_inquiry_result` 及有限 ACL。当前树没有 0020，未运行 Alembic 或 PG；真实迁移、并发幂等、同事务原键受理、commit 后失回执、真实撤权/对象读/冷重启与资源退出均 `NOT_RUN`。本地默认 disabled，只在后续 Root 明确配置/owned PG 窗口下开启。旧 web_requests operation、原 P0 Router、共享 API/Worker/Compose/锁/CI 未改。
+
+Root/Backend 后续最小接线：在原 API 壳构造 `InquiryStore(web_config, inquiry_config)`，以真实 `SessionStore` 挂 `inquiry_router`；合并同源 `p6-inquiry-web-v1.openapi.json` 到原导出并保证全局 middleware 对 P6 身份/CSRF错误使用 P6 错误形状，不能让旧 P3 envelope 穿透。Worker composite runner 需按精确 WORKFLOW 分发 `ReadonlyInquiryRunner(store,session,runtime_factory(store,session))`，仍同单 Worker/一个槽与现队列终止确认流程。现有 `worker_lock.mark_attention` 的终态特殊排除尚无 P6；集成前必须对本片 `completed/failed` 且经 `business.valid_readonly_inquiry_result` 核验的持久结果增加窄排除，并真实验证完成至 job 结算间的异常退出，否则新终态保护会拒绝覆盖且影响共享扫描事务。不能删除原终态保护规避此项。运行角色若在迁移后才创建，原 grant-runtime 需显式调用本表的最小权限授权；本片没有写共享权限入口。
+
+作者离线测试仅为 strict DTO、内存替身 ASGI、安全来源时间域、实际 Mock facade/renderer 的 runner 生命周期和完成重放，以及取消时等待有界数据库线程退出；不把 MemoryRunnerStore 或 HTTP Store double 当 PG 权限/事务证据。初轮 HTTP 测试配置的重复密钥/非法本地主机名导致 7 项未进入接口，修正为两组独立运行期测试值及 localhost 后通过。OpenAPI 资产由 `python -m commerceops.entrypoints.inquiry_http --export ...` 从真实 Pydantic DTO 生成，测试精确比较资产。全量 CI、真实模型/平台与 Web 页面仍待集成，不在本候选宣称完成。
+
+报告读取只支持当前有权的 `analysis_reports` 原始报告，不混入 P3 重观测/日报。读取沿同一个有 SQL/锁超时的事务验证当前 job/来源/对象、持久报告绑定和既有 `_stored` 重算校验；旧报告窗口显式映射 start/end，不向新严格窗口 DTO 透传旧 schema 字段。新增回归首轮 23 pass/1 fail 捕获这个 schema 差异，修正后相关合计 **103 pass**（原 P2/Mock 79 + 服务 24），9 个 Python 文件 Ruff、format、mypy 通过。四项报告事务替身测试覆盖正常、无效持久绑定、报告篡改与未完成状态；不证明实际 SQL 权限或锁。执行器仍按原 60 秒 deadline 取消调用，取消后等待数据库线程真正退出；真实 PG 下截止后的排空耗时/进程终止须由后续 owned 窗口量测，单测不代签墙钟上限。未启动 Alembic、PG、API、Worker、真实 SDK 或模型。
+
+提交前只对 22fix 加本服务片的 18 个文件做隔离内容扫描，没有运行全历史扫描。Gitleaks 8.30.1 对 working/index 各报告 3 个 `generic-api-key` 原始命中：0021 中的身份字段 SQL、询单 receipt 路由操作名，以及 22fix 中的 stock_pool_key 比较表达式。作者检查对应行均为代码标识符，没有凭据字面值；原始退出码 1 与三处命中保留，扫描策略的独立复核仍 pending，不宣称完整扫描 Gate 通过。未修改扫描规则或已冻结的 22fix。

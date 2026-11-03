@@ -1,0 +1,1080 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "P6 offline inquiry",
+    "version": "p6-inquiry-web-v1"
+  },
+  "paths": {
+    "/api/v1/readonly-inquiries": {
+      "post": {
+        "operationId": "createReadonlyInquiry",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInquiry"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Persisted task receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readonly-inquiries/{task_id}": {
+      "get": {
+        "operationId": "readReadonlyInquiry",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently authorized persisted result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readonly-inquiries/requests/{request_key}": {
+      "get": {
+        "operationId": "readReadonlyInquiryReceipt",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currently authorized persisted result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Safe error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InquiryError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Claim": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "fact",
+              "compare"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "refs": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 1,
+            "title": "Refs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "refs"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "CreateInquiry": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-inquiry-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "question": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "context_report_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Context Report Id"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "shop_id",
+          "question",
+          "request_key"
+        ],
+        "title": "CreateInquiry",
+        "type": "object"
+      },
+      "Fact": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "metric": {
+            "enum": [
+              "available_stock",
+              "inbound_units",
+              "sold_units",
+              "order_net",
+              "order_average",
+              "refund_cohort"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "sku_key": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sku Key"
+          },
+          "window": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Window"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "quality_flags": {
+            "default": [],
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Quality Flags",
+            "type": "array"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Unit",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Currency"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "metric",
+          "as_of",
+          "value",
+          "unit"
+        ],
+        "title": "Fact",
+        "type": "object"
+      },
+      "InquiryError": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-inquiry-web-v1",
+            "default": "p6-inquiry-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "code": {
+            "enum": [
+              "SESSION_INVALID",
+              "ACCESS_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "INVALID_REQUEST",
+              "INVALID_JSON",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "ORIGIN_DENIED",
+              "CSRF_INVALID",
+              "IDEMPOTENCY_CONFLICT",
+              "SERVICE_UNAVAILABLE",
+              "INQUIRY_DISABLED",
+              "NOT_READY"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "const": "无法处理此查询，请核对当前权限、输入或原请求回执。",
+            "default": "无法处理此查询，请核对当前权限、输入或原请求回执。",
+            "title": "Message",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "trace_id"
+        ],
+        "title": "InquiryError",
+        "type": "object"
+      },
+      "InquiryRead": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-inquiry-web-v1",
+            "default": "p6-inquiry-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "identity_mode": {
+            "const": "session",
+            "default": "session",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "analyzing",
+              "completed",
+              "failed",
+              "needs_attention"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "duplicate": {
+            "title": "Duplicate",
+            "type": "boolean"
+          },
+          "source_mode": {
+            "const": "mock",
+            "default": "mock",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "source_binding": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Binding",
+            "type": "string"
+          },
+          "source_domain": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "evidence_mode": {
+            "const": "offline_stub",
+            "default": "offline_stub",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "data_label": {
+            "const": "本地演示数据 / 离线模型替身",
+            "default": "本地演示数据 / 离线模型替身",
+            "title": "Data Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "shop_id",
+          "request_key",
+          "state",
+          "duplicate",
+          "source_binding",
+          "source_domain",
+          "server_time",
+          "trace_id",
+          "result",
+          "answer"
+        ],
+        "title": "InquiryRead",
+        "type": "object"
+      },
+      "InquiryReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-inquiry-web-v1",
+            "default": "p6-inquiry-web-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "identity_mode": {
+            "const": "session",
+            "default": "session",
+            "title": "Identity Mode",
+            "type": "string"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "analyzing",
+              "completed",
+              "failed",
+              "needs_attention"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "duplicate": {
+            "title": "Duplicate",
+            "type": "boolean"
+          },
+          "source_mode": {
+            "const": "mock",
+            "default": "mock",
+            "title": "Source Mode",
+            "type": "string"
+          },
+          "source_binding": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Binding",
+            "type": "string"
+          },
+          "source_domain": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "evidence_mode": {
+            "const": "offline_stub",
+            "default": "offline_stub",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "shop_id",
+          "request_key",
+          "state",
+          "duplicate",
+          "source_binding",
+          "source_domain",
+          "server_time",
+          "trace_id"
+        ],
+        "title": "InquiryReceipt",
+        "type": "object"
+      },
+      "ProductMatch": {
+        "additionalProperties": false,
+        "properties": {
+          "sku_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Sku Key",
+            "type": "string"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Label"
+          }
+        },
+        "required": [
+          "sku_key"
+        ],
+        "title": "ProductMatch",
+        "type": "object"
+      },
+      "ReadResult": {
+        "additionalProperties": false,
+        "properties": {
+          "tool_call_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Tool Call Id",
+            "type": "string"
+          },
+          "shop_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "source_binding": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Binding",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Report Id"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "quality_flags": {
+            "default": [],
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Quality Flags",
+            "type": "array"
+          },
+          "scanned_rows": {
+            "minimum": 0,
+            "title": "Scanned Rows",
+            "type": "integer"
+          },
+          "sku_keys": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Sku Keys",
+            "type": "array"
+          },
+          "products": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProductMatch"
+            },
+            "maxItems": 100,
+            "title": "Products",
+            "type": "array"
+          },
+          "facts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Fact"
+            },
+            "maxItems": 100,
+            "title": "Facts",
+            "type": "array"
+          },
+          "windows": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Window"
+            },
+            "maxItems": 2,
+            "title": "Windows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tool_call_id",
+          "shop_id",
+          "source_binding",
+          "snapshot_id",
+          "as_of",
+          "complete",
+          "scanned_rows",
+          "sku_keys"
+        ],
+        "title": "ReadResult",
+        "type": "object"
+      },
+      "ResultPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "p6-inquiry-result-v1",
+            "default": "p6-inquiry-result-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "complete",
+              "clarify",
+              "unsupported",
+              "insufficient_evidence",
+              "invalid_response",
+              "source_incomplete",
+              "access_denied",
+              "budget_exceeded",
+              "timeout",
+              "tool_denied"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "model_calls": {
+            "maximum": 3,
+            "minimum": 0,
+            "title": "Model Calls",
+            "type": "integer"
+          },
+          "tool_calls": {
+            "maximum": 4,
+            "minimum": 0,
+            "title": "Tool Calls",
+            "type": "integer"
+          },
+          "scanned_rows": {
+            "minimum": 0,
+            "title": "Scanned Rows",
+            "type": "integer"
+          },
+          "traces": {
+            "items": {
+              "$ref": "#/components/schemas/TraceRead"
+            },
+            "maxItems": 4,
+            "title": "Traces",
+            "type": "array"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ReadResult"
+            },
+            "maxItems": 4,
+            "title": "Results",
+            "type": "array"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "maxItems": 100,
+            "title": "Claims",
+            "type": "array"
+          },
+          "clarification_options": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMatch"
+            },
+            "maxItems": 100,
+            "title": "Clarification Options",
+            "type": "array"
+          },
+          "evidence_mode": {
+            "const": "offline_stub",
+            "default": "offline_stub",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "workflow_version": {
+            "const": "p6-readonly-inquiry-v1",
+            "default": "p6-readonly-inquiry-v1",
+            "title": "Workflow Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "model_calls",
+          "tool_calls",
+          "scanned_rows",
+          "traces",
+          "results",
+          "evidence_refs",
+          "claims",
+          "clarification_options"
+        ],
+        "title": "ResultPayload",
+        "type": "object"
+      },
+      "TraceRead": {
+        "additionalProperties": false,
+        "properties": {
+          "tool_call_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Tool Call Id",
+            "type": "string"
+          },
+          "name": {
+            "enum": [
+              "commerce.read_products",
+              "commerce.read_orders",
+              "commerce.read_inventory",
+              "reports.read"
+            ],
+            "title": "Name",
+            "type": "string"
+          },
+          "args_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Args Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool_call_id",
+          "name",
+          "args_hash"
+        ],
+        "title": "TraceRead",
+        "type": "object"
+      },
+      "Window": {
+        "additionalProperties": false,
+        "properties": {
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "Window",
+        "type": "object"
+      }
+    }
+  }
+}
