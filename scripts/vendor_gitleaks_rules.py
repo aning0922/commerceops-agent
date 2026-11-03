@@ -2176,6 +2176,28 @@ V4_PREFLIGHT_HISTORY: tuple[dict[str, Any], ...] = (
         "exact_span_sha256": "acd26a0ef07569e7f142448bb97a86f3293eff69abb69e400f70d2be55257911",
         "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_v4_scan_compat.py",
+        "source_commit": "44633302af915358771c32875d27a1b8ac3e7860",
+        "reported_line": 1128,
+        "end_line": 1128,
+        "start_column": 13,
+        "end_column": 53,
+        "exact_span_sha256": "11ba67c032185fd580d6aac2788c22d36007598910f0ec5db9a5dbd56dcd986c",
+        "match_sha256": "410e0fc24ad03d7f93c52fc3e10177fc41674bc1056307351c1f0b6cccff120c",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_v4_scan_compat.py",
+        "source_commit": "44633302af915358771c32875d27a1b8ac3e7860",
+        "reported_line": 1131,
+        "end_line": 1131,
+        "start_column": 15,
+        "end_column": 44,
+        "exact_span_sha256": "f7d28318c0db6ce5803ed3ef8d6b0710cd5fcf1879c424e53e1ac86e3c6d1b0d",
+        "match_sha256": "410e0fc24ad03d7f93c52fc3e10177fc41674bc1056307351c1f0b6cccff120c",
+    },
 )
 
 
@@ -2442,7 +2464,7 @@ V4_MERGE_COPY_BINDINGS: tuple[dict[str, Any], ...] = (
 
 
 def v4_preflight_history_findings() -> list[dict[str, Any]]:
-    """Only the 107 exact, captured historical proposal fingerprints."""
+    """Only the 109 exact, captured historical proposal fingerprints."""
     return [
         {
             **row,

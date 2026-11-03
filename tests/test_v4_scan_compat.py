@@ -401,7 +401,7 @@ def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> N
         "v4_additional_historical_findings",
     ):
         assert current[key] == old[key]
-    assert len(v4_preflight_history_findings()) == 107
+    assert len(v4_preflight_history_findings()) == 109
     config = tomllib.loads(scanner.history_config().decode())
     baseline = tomllib.loads(
         subprocess.check_output(["git", "show", "7c262fb:.gitleaks.toml"], cwd=ROOT).decode()
@@ -1124,15 +1124,15 @@ def test_final_enum_preserves_rules_and_all_previous_approvals() -> None:
         subprocess.check_output(["git", "show", base + ":scripts/gitleaks_rules.json"], cwd=ROOT)
     )
     new = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
-    for key in old:
-        if key == "v4_preflight_historical_findings":
-            assert new[key][:-1] == old[key]
-            assert len(new[key]) == 107
-        elif key == "v4_merge_copy_anchors":
-            assert new[key][:-2] == old[key]
-            assert len(new[key]) == 34
+    for field in old:
+        if field == "v4_preflight_historical_findings":
+            assert new[field][:-3] == old[field]
+            assert len(new[field]) == 109
+        elif field == "v4_merge_copy_anchors":
+            assert new[field][:-2] == old[field]
+            assert len(new[field]) == 34
         else:
-            assert new[key] == old[key]
+            assert new[field] == old[field]
     native = tomllib.loads(scanner.history_config().decode())
     assert len(native["rules"]) == 222
     assert sum(len(r.get("allowlists", [])) for r in native["rules"]) == 45
@@ -1141,3 +1141,78 @@ def test_final_enum_preserves_rules_and_all_previous_approvals() -> None:
         json.loads((ROOT / "docs/v4/acceptance/v4-0/ROOT_LEDGER.json").read_text())["authorization"]
         == "B / local"
     )
+
+
+def test_final_enum_fix_boundaries(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    commit = "44633302af915358771c32875d27a1b8ac3e7860"
+    path = "tests/test_v4_scan_compat.py"
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=" + commit + "^! --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 1
+    items = json.loads(report.read_text())
+    assert len(items) == 2
+    for item in items:
+        assert item["File"] == path
+        assert scanner.approved_v4_history_finding("git", item)
+        assert scanner.approved_v4_merge_copy("git", item) is None
+        for scope in ("dir", "index"):
+            assert not scanner.approved_v4_history_finding(scope, item)
+            assert scanner.approved_v4_merge_copy(scope, item) is None
+        for field in (
+            "File",
+            "RuleID",
+            "StartLine",
+            "EndLine",
+            "StartColumn",
+            "EndColumn",
+            "Match",
+            "Fingerprint",
+            "Commit",
+        ):
+            changed = dict(item)
+            changed[field] = (
+                changed[field] + 1 if isinstance(changed[field], int) else changed[field] + "x"
+            )
+            assert not scanner.approved_v4_history_finding("git", changed)
+            assert scanner.approved_v4_merge_copy("git", changed) is None
+        changed = dict(item, Commit="5f103e6b28ac6fe1486431b8a142b4227ca5a443")
+        changed["Fingerprint"] = f"{changed['Commit']}:{path}:{item['RuleID']}:{item['StartLine']}"
+        assert not scanner.approved_v4_history_finding("git", changed)
+        assert scanner.approved_v4_merge_copy("git", changed) is None
+    original_run = subprocess.run
+
+    def tampered_spans(command: list[str], *args: Any, **kwargs: Any) -> Any:
+        response = original_run(command, *args, **kwargs)
+        if command == ["git", "show", commit + ":" + path]:
+            rows = response.stdout.splitlines()
+            for item in items:
+                rows[item["StartLine"] - 1] += b" "
+            response.stdout = b"\n".join(rows)
+        return response
+
+    monkeypatch.setattr(subprocess, "run", tampered_spans)
+    for item in items:
+        assert not scanner.approved_v4_history_finding("git", item)
+        assert scanner.approved_v4_merge_copy("git", item) is None
