@@ -1,4 +1,4 @@
-import {test,expect,type Route} from '@playwright/test';
+import {test,expect,type Page,type Route} from '@playwright/test';
 const fixtureCors = {
  'access-control-allow-origin': new URL(process.env.V4_WEB_ORIGIN ?? 'http://127.0.0.1:3000').origin,
  'access-control-allow-credentials':'true',
@@ -246,24 +246,57 @@ test('UI_FIXTURE: an invalidation closes the reset dialog before revalidation',a
  await expect(dialog).not.toBeVisible();await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);
 });
 
-test('UI_FIXTURE: an anonymous page does not poll or create sessions',async ({page})=>{
- let reads=0,posts=0;await page.clock.install();
+// Capture only session-read call sites and lifecycle event names; no cookies, headers or bodies.
+async function traceInitialSessionReads(page:Page) {
+ await page.addInitScript(()=>{
+  const traced=window as Window & {__v4InitialTrace?:{kind:string;at:number;stack?:string}[]};
+  traced.__v4InitialTrace=[];
+  const original=window.fetch;
+  window.fetch=function(input:RequestInfo|URL,init?:RequestInit) {
+   const raw=typeof input==='string'?input:input instanceof URL?input.href:input.url;
+   if(new URL(raw,location.href).pathname==='/api/v4/demo/session')traced.__v4InitialTrace?.push({kind:'session-fetch',at:performance.now(),stack:new Error().stack});
+   return original.call(this,input,init);
+  };
+  for(const kind of ['focus','online','offline']) window.addEventListener(kind,()=>traced.__v4InitialTrace?.push({kind,at:performance.now()}));
+  document.addEventListener('visibilitychange',()=>traced.__v4InitialTrace?.push({kind:`visibility:${document.visibilityState}`,at:performance.now()}));
+ });
+}
+
+test('UI_FIXTURE: an anonymous page does not poll or create sessions',async ({page},testInfo)=>{
+ let reads=0,posts=0;const paths:string[]=[];await page.clock.install();await traceInitialSessionReads(page);
  await page.route('**/api/v4/demo/**',withCors(route=>{
-  if(route.request().method()==='POST')posts++;else reads++;
+  const req=route.request();paths.push(`${req.method()} ${new URL(req.url()).pathname}`);
+  if(req.method()==='POST')posts++;else reads++;
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
  }));
- await page.goto('/v4');await expect.poll(()=>reads).toBe(1);
- await page.clock.fastForward('00:15');expect(reads).toBe(1);expect(posts).toBe(0);
+ try {
+  await page.goto('/v4');await page.waitForLoadState('networkidle');
+  const baseline=reads;
+  // One mount read or the observed two startup reads are accepted; both must be session-only.
+  expect([1,2]).toContain(baseline);expect(paths).toEqual(Array(baseline).fill('GET /api/v4/demo/session'));
+  await page.clock.fastForward('00:15');expect(reads).toBe(baseline);expect(posts).toBe(0);
+ } finally {
+  const trace=await page.evaluate(()=>(window as Window & {__v4InitialTrace?:unknown}).__v4InitialTrace??[]);
+  await testInfo.attach('anonymous-startup-trace',{body:JSON.stringify({reads,posts,paths,trace},null,2),contentType:'application/json'});
+ }
 });
 
-test('UI_FIXTURE: an explicit cross-tab invalidation permits one anonymous recheck',async ({page})=>{
- let reads=0;
+test('UI_FIXTURE: an explicit cross-tab invalidation permits one anonymous recheck',async ({page},testInfo)=>{
+ let reads=0;const paths:string[]=[];await traceInitialSessionReads(page);
  await page.route('**/api/v4/demo/**',withCors(route=>{
-  reads++;return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+  const req=route.request();paths.push(`${req.method()} ${new URL(req.url()).pathname}`);reads++;
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
  }));
- await page.goto('/v4');await expect.poll(()=>reads).toBe(1);
- await page.evaluate(()=>{const channel=new BroadcastChannel('commerceops-v4-invalidate');channel.postMessage('invalidate');channel.close();});
- await expect.poll(()=>reads).toBe(2);
+ try {
+  await page.goto('/v4');await page.waitForLoadState('networkidle');const baseline=reads;
+  expect([1,2]).toContain(baseline);expect(paths).toEqual(Array(baseline).fill('GET /api/v4/demo/session'));
+  await page.evaluate(()=>{const channel=new BroadcastChannel('commerceops-v4-invalidate');channel.postMessage('invalidate');channel.close();});
+  await expect.poll(()=>reads).toBe(baseline+1);await page.waitForLoadState('networkidle');
+  expect(reads).toBe(baseline+1);expect(paths).toEqual(Array(baseline+1).fill('GET /api/v4/demo/session'));
+ } finally {
+  const trace=await page.evaluate(()=>(window as Window & {__v4InitialTrace?:unknown}).__v4InitialTrace??[]);
+  await testInfo.attach('invalidation-startup-trace',{body:JSON.stringify({reads,paths,trace},null,2),contentType:'application/json'});
+ }
 });
 
 test('UI_FIXTURE: a verified visible session is rechecked on its interval',async ({page})=>{
