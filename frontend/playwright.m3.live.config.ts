@@ -6,5 +6,5 @@ export default defineConfig({
   timeout: 45000, globalTimeout: 180000, reporter: "list",
   outputDir: `${process.env.COMMERCEOPS_M3_PRIVATE_DIR}/playwright`,
   use: { baseURL: process.env.COMMERCEOPS_M3_LIVE_WEB_URL, browserName: "chromium", headless: true,
-    viewport: { width: 1440, height: 1000 }, trace: "off", video: "off", screenshot: "off" },
+    viewport: { width: 1440, height: 1000 }, trace: "off", video: "off", screenshot: "off", serviceWorkers: "block" },
 });

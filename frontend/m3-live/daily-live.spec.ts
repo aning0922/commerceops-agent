@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { assertOwnedBuild, assertOwnedListener, ownedEndpoints, readOwnedListener } from "../../tests/e2e/web/owned-listeners";
 import { validDailyRead } from "../lib/m3-read-client";
+import { allowedOwnedRequest } from "./network-guard";
 
 const root = resolve(import.meta.dirname, "../..");
 const directory = resolve(process.env.COMMERCEOPS_M3_PRIVATE_DIR!);
@@ -28,14 +29,14 @@ if (![facts.task_id, facts.report_id, facts.snapshot_id].every((value: unknown) 
     typeof account.login !== "string" || typeof account.password !== "string") throw new Error("Invalid owned test inputs");
 
 test.afterEach(async ({ page }) => { await page.goto("about:blank").catch(() => {}); });
-test("owned daily read: session, exact DTO binding and visible facts", async ({ page }) => {
+test("owned daily read: session, exact DTO binding and visible facts", async ({ page, context }) => {
   if (Date.now() + 45000 + 90000 >= Date.parse(windowInfo.stop_at_utc))
     throw new Error("Insufficient owned window for test and cleanup reserve");
   const api = windowInfo.api_origin as string;
-  await page.route(`${api}/api/v1/**`, async (route) => {
+  await context.routeWebSocket(/.*/, socket => socket.close());
+  await context.route("**/*", async (route) => {
     const request = route.request();
-    const path = new URL(request.url()).pathname;
-    if (request.method() === "GET" || (request.method() === "POST" && path === "/api/v1/auth/login")) await route.continue();
+    if (allowedOwnedRequest(request.url(), request.method(), windowInfo.web_origin, api, facts.task_id)) await route.continue();
     else await route.abort();
   });
   await page.goto("/login");
