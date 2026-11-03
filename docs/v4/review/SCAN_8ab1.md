@@ -51,3 +51,19 @@ redacted Match哈希与原生43条结果的真实性在本审查仅有tracked作
 ## 交接与后续
 
 ROOT可核收原13兼容代码；整体Full扫描不准入。Backend身份SQL若转交则优先审关键路径；本审查不占用或开放PG/Web窗口。后续代码/配置发生变化须重新绑定SHA，保留此首轮结论及失败账；Reviewer未代作者修改实现或测试。
+
+## 后续增量：0ca追加10项history-only（原轮结论保留）
+
+受ROOT追加授权，审查candidate `0ca8a657a4eb985175e8642e881f3cf4942b8424` / tree `8df96e1de00390f239af70bb7c7c89008460a3ef`，parent为上文8ab1。结论：**ACCEPT_SCOPED_HISTORY_DELTA，0 P1/P2；最终all-refs完整扫描仍未核收，不从此增量宣称全扫PASS。**
+
+独立静态结果：
+
+- `.gitleaks.toml`与8ab1逐字节相同。JSON provenance只多`v4_additional_historical_findings`十项，移除该字段后整个对象与父相同。旧222规则、dir/index58例外、旧20/fa13均未改。
+- 对每个新固定commit/path/line/span重新git show并计算SHA256，10/10相等。实际内容为UI固定槽位名/Context比较、三个Ledger版本各两条授权或工作树元数据、OpenAPI两个认证阶段枚举；未见真实credential。不是按文件夹或泛化关键字批准。
+- 标准库AST对比确认history_config、scan、snapshot guard及旧approved_history_finding均未改；因此历史派生45例外及完整`--all --full-history`调用仍沿用已审路径。新十项不增加dir/index豁免，同内容当前目录命中仍须原作者正常处理。
+- approved_v4_history_finding仅将匹配候选扩成fa13+新10；仍先精确核scope=git、规则/path/source/起止行列/fingerprint/Match hash，再按所匹配的固定source读完整span核hash。新按单项读取替代原来每次读取全部fa13，没有变成按report自选可信source；该source来自固定清单。缺源/不符返回拒绝，外层扫描异常也不转为通过。
+- 新tests/test_v4_scan_compat.py:248–340对fa及五个新commit分别原生扫描，固定13或2项；逐字段变更、非git scope、源缺失拒绝，并验证provenance变更。测试使用限commit是专项验证，不替代tests/test_quality_gates.py保留的真实all-refs严格断言；后者仍逐finding全部批准才通过，未删除未知项断言。
+
+作者记录另记：17 PASS/8.81s及fa补测1 PASS/0.81s、静态工具exit0；旧回归342 PASS/1 FAIL/1 deselected，唯一same_line_generic-4退出2且具体异常UNKNOWN，后续单节点1 PASS/2.93s；没有重跑完整旧回归。此处均为该提交SCAN_COMPAT记录，Reviewer没有重跑或读取私有日志，不能以单节点成功覆盖原整轮失败/排除。
+
+此前git43/reviewed33/blocking10/outer1原事实保留。新增精确10项在源码上可分类，不证明当前所有refs只含这43项或最终集成扫描已绿；必须ROOT对冻结集成SHA执行完整current/index/allrefs后核收。新失败/新来源继续blocking，无自动扩大清单。
