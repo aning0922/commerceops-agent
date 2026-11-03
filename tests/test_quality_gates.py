@@ -23,6 +23,7 @@ from scripts.vendor_gitleaks_rules import (
     P3_PUBLIC_ROW,
     RO_PUBLIC_ROW,
     WOO_PUBLIC_EXCEPTIONS,
+    v4_additional_history_findings,
     v4_history_findings,
 )
 
@@ -624,9 +625,14 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
     )
     assert result.returncode == 1
     rows = json.loads(report.read_text())
-    approved = (*secret_scan.APPROVED_TEST_HISTORY, *v4_history_findings())
+    approved = (
+        *secret_scan.APPROVED_TEST_HISTORY,
+        *v4_history_findings(),
+        *v4_additional_history_findings(),
+    )
     assert len(secret_scan.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
+    assert len(v4_additional_history_findings()) == 10
     reachable = set(
         subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()
     )

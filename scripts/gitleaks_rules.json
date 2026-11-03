@@ -915,5 +915,127 @@
       "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
       "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/v4-public-openapi.json:generic-api-key:251"
     }
+  ],
+  "v4_additional_historical_findings": [
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/components/v4/demo.tsx",
+      "source_commit": "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+      "reported_line": 7,
+      "end_line": 7,
+      "start_column": 8,
+      "end_column": 42,
+      "exact_span_sha256": "321c40305b3977373aa33cad247d66eccb91a9af3b6d5ef861d390d49d221456",
+      "match_sha256": "323916e3773577c1a0819f53f4623f1e8c4f08d02814314c52f26a1291d6979d",
+      "fingerprint": "c5f4d101339fed02c463c6dc8058bb92b15881ca:frontend/components/v4/demo.tsx:generic-api-key:7"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/components/v4/demo.tsx",
+      "source_commit": "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+      "reported_line": 10,
+      "end_line": 10,
+      "start_column": 166,
+      "end_column": 203,
+      "exact_span_sha256": "717bd4cc248808ee824f89a7f1ee644900867102a54b02047a819e046f802327",
+      "match_sha256": "5f0689911c62ddd1332b2e427ce3121ad275e7d073946f672bae83c9b0d8dc3f",
+      "fingerprint": "c5f4d101339fed02c463c6dc8058bb92b15881ca:frontend/components/v4/demo.tsx:generic-api-key:10"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+      "reported_line": 3,
+      "end_line": 3,
+      "start_column": 5,
+      "end_column": 44,
+      "exact_span_sha256": "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "75dc6d55e386d85713943df0fb7a0b3ba5fef053:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:3"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+      "reported_line": 16,
+      "end_line": 16,
+      "start_column": 7,
+      "end_column": 46,
+      "exact_span_sha256": "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+      "match_sha256": "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+      "fingerprint": "75dc6d55e386d85713943df0fb7a0b3ba5fef053:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:16"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "772f95927546dc3c648b58cd3906f91cae64c2f4",
+      "reported_line": 3,
+      "end_line": 3,
+      "start_column": 5,
+      "end_column": 44,
+      "exact_span_sha256": "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "772f95927546dc3c648b58cd3906f91cae64c2f4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:3"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "772f95927546dc3c648b58cd3906f91cae64c2f4",
+      "reported_line": 16,
+      "end_line": 16,
+      "start_column": 7,
+      "end_column": 46,
+      "exact_span_sha256": "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+      "match_sha256": "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+      "fingerprint": "772f95927546dc3c648b58cd3906f91cae64c2f4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:16"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+      "reported_line": 3,
+      "end_line": 3,
+      "start_column": 5,
+      "end_column": 44,
+      "exact_span_sha256": "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "46e44e5548d720bdb735e2a0f4673bdc73854de4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:3"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+      "reported_line": 16,
+      "end_line": 16,
+      "start_column": 7,
+      "end_column": 46,
+      "exact_span_sha256": "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+      "match_sha256": "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+      "fingerprint": "46e44e5548d720bdb735e2a0f4673bdc73854de4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:16"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/lib/v4-openapi.json",
+      "source_commit": "48c30d224529319d5a9ff203429eeff86060fc00",
+      "reported_line": 99,
+      "end_line": 99,
+      "start_column": 11,
+      "end_column": 74,
+      "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+      "fingerprint": "48c30d224529319d5a9ff203429eeff86060fc00:frontend/lib/v4-openapi.json:generic-api-key:99"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/lib/v4-openapi.json",
+      "source_commit": "48c30d224529319d5a9ff203429eeff86060fc00",
+      "reported_line": 251,
+      "end_line": 251,
+      "start_column": 11,
+      "end_column": 74,
+      "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+      "fingerprint": "48c30d224529319d5a9ff203429eeff86060fc00:frontend/lib/v4-openapi.json:generic-api-key:251"
+    }
   ]
 }

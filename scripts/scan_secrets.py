@@ -37,6 +37,7 @@ from scripts.vendor_gitleaks_rules import (
     m2_public_rows,
     m3_public_line_regex,
     m3_public_rows,
+    v4_additional_history_findings,
     v4_history_findings,
     v4_public_line_regex,
     v4_public_rows,
@@ -487,6 +488,8 @@ def validate_rules() -> None:
 
     if provenance.get("v4_historical_findings") != v4_history_findings():
         raise ValueError("invalid V4 historical scanner finding")
+    if provenance.get("v4_additional_historical_findings") != v4_additional_history_findings():
+        raise ValueError("invalid V4 additional historical scanner finding")
     for offset, (source_path, path, row, digest, line, end) in enumerate(v4_public_rows(ROOT)):
         evidence = provenance["exceptions"][45 + offset]
         if (
@@ -536,7 +539,7 @@ def history_config() -> bytes:
 def approved_v4_history_finding(scope: str, item: dict[str, Any]) -> bool:
     if scope != "git":
         return False
-    for row in v4_history_findings():
+    for row in (*v4_history_findings(), *v4_additional_history_findings()):
         if any(
             item.get(key) != row[field]
             for key, field in (
@@ -557,11 +560,20 @@ def approved_v4_history_finding(scope: str, item: dict[str, Any]) -> bool:
             or hashlib.sha256(match.encode()).hexdigest() != row["match_sha256"]
         ):
             return False
-        try:
-            v4_public_rows(ROOT)
-        except (ValueError, OSError, subprocess.SubprocessError):
-            return False
-        return True
+        source = subprocess.run(
+            ["git", "show", str(row["source_commit"]) + ":" + str(row["path"])],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+        )
+        lines = source.stdout.splitlines()
+        line, end = int(str(row["reported_line"])), int(str(row["end_line"]))
+        return (
+            source.returncode == 0
+            and len(lines) >= end
+            and hashlib.sha256(b"\n".join(lines[line - 1 : end])).hexdigest()
+            == row["exact_span_sha256"]
+        )
     return False
 
 

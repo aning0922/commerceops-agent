@@ -453,6 +453,129 @@ V4_PUBLIC_EXCEPTIONS = (
 )
 
 
+V4_ADDITIONAL_HISTORY = (
+    (
+        "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+        "frontend/components/v4/demo.tsx",
+        7,
+        7,
+        8,
+        42,
+        "321c40305b3977373aa33cad247d66eccb91a9af3b6d5ef861d390d49d221456",
+        "323916e3773577c1a0819f53f4623f1e8c4f08d02814314c52f26a1291d6979d",
+    ),
+    (
+        "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+        "frontend/components/v4/demo.tsx",
+        10,
+        10,
+        166,
+        203,
+        "717bd4cc248808ee824f89a7f1ee644900867102a54b02047a819e046f802327",
+        "5f0689911c62ddd1332b2e427ce3121ad275e7d073946f672bae83c9b0d8dc3f",
+    ),
+    (
+        "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        3,
+        3,
+        5,
+        44,
+        "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+    ),
+    (
+        "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        16,
+        16,
+        7,
+        46,
+        "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+        "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+    ),
+    (
+        "772f95927546dc3c648b58cd3906f91cae64c2f4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        3,
+        3,
+        5,
+        44,
+        "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+    ),
+    (
+        "772f95927546dc3c648b58cd3906f91cae64c2f4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        16,
+        16,
+        7,
+        46,
+        "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+        "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+    ),
+    (
+        "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        3,
+        3,
+        5,
+        44,
+        "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+    ),
+    (
+        "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        16,
+        16,
+        7,
+        46,
+        "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+        "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+    ),
+    (
+        "48c30d224529319d5a9ff203429eeff86060fc00",
+        "frontend/lib/v4-openapi.json",
+        99,
+        99,
+        11,
+        74,
+        "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+        "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+    ),
+    (
+        "48c30d224529319d5a9ff203429eeff86060fc00",
+        "frontend/lib/v4-openapi.json",
+        251,
+        251,
+        11,
+        74,
+        "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+        "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+    ),
+)
+
+
+def v4_additional_history_findings() -> list[dict[str, object]]:
+    """Ten separately authorized historical public metadata/UI/schema findings only."""
+    return [
+        {
+            "rule": "generic-api-key",
+            "path": path,
+            "source_commit": commit,
+            "reported_line": line,
+            "end_line": end,
+            "start_column": col,
+            "end_column": end_col,
+            "exact_span_sha256": digest,
+            "match_sha256": match_digest,
+            "fingerprint": f"{commit}:{path}:generic-api-key:{line}",
+        }
+        for commit, path, line, end, col, end_col, digest, match_digest in V4_ADDITIONAL_HISTORY
+    ]
+
+
 def v4_public_rows(root: Path) -> tuple[tuple[str, str, str, str, int, int], ...]:
     """Only the thirteen captured V4 public spans from the immutable A import."""
     result = []
@@ -859,6 +982,7 @@ def main() -> None:
         "exceptions": exceptions,
         "historical_findings": list(APPROVED_TEST_HISTORY),
         "v4_historical_findings": v4_history_findings(),
+        "v4_additional_historical_findings": v4_additional_history_findings(),
     }
     (ROOT / "scripts/gitleaks_rules.json").write_text(
         json.dumps(provenance, indent=2, ensure_ascii=False) + "\n"

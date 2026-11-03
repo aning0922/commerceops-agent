@@ -243,3 +243,98 @@ def test_both_lines_of_multiline_public_span_are_fixed(repository: Path) -> None
         rows[number - 1] += " "
         target.write_text("\n".join(rows) + "\n")
         assert path in scanner.woo_public_snapshot_violations(repository, [Path(path)])
+
+
+@pytest.mark.parametrize(
+    "commit",
+    [
+        V4_SOURCE_COMMIT,
+        "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+        "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+        "772f95927546dc3c648b58cd3906f91cae64c2f4",
+        "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+        "48c30d224529319d5a9ff203429eeff86060fc00",
+    ],
+)
+def test_additional_history_native_exact_fields_only(tmp_path: Path, commit: str) -> None:
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "report.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=" + commit + "^! --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=60,
+    )
+    assert result.returncode == 1
+    findings = json.loads(report.read_text())
+    assert len(findings) == (13 if commit == V4_SOURCE_COMMIT else 2)
+    for finding in findings:
+        assert scanner.approved_v4_history_finding("git", finding)
+        assert not scanner.approved_v4_history_finding("dir", finding)
+        assert not scanner.approved_v4_history_finding("index", finding)
+        assert not scanner.approved_history_finding("git", finding)
+        for key in (
+            "RuleID",
+            "File",
+            "Commit",
+            "StartLine",
+            "EndLine",
+            "StartColumn",
+            "EndColumn",
+            "Fingerprint",
+            "Match",
+        ):
+            changed = dict(finding)
+            changed[key] = (
+                changed[key] + 1 if isinstance(changed[key], int) else changed[key] + "changed"
+            )
+            assert not scanner.approved_v4_history_finding("git", changed)
+        # Identical report and fingerprint cannot pass when immutable source cannot be read.
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(scanner, "ROOT", tmp_path)
+            assert not scanner.approved_v4_history_finding("git", finding)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "source_commit",
+        "path",
+        "reported_line",
+        "end_line",
+        "exact_span_sha256",
+        "match_sha256",
+        "fingerprint",
+    ],
+)
+def test_additional_history_provenance_rejects_changes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, field: str
+) -> None:
+    provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    for row in provenance["v4_additional_historical_findings"]:
+        row[field] = row[field] + 1 if isinstance(row[field], int) else row[field] + "changed"
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / ".gitleaks.toml").write_bytes((ROOT / ".gitleaks.toml").read_bytes())
+    (tmp_path / "scripts/gitleaks_rules.json").write_text(json.dumps(provenance))
+    for name in ("m2_public_rows", "m2_consumer_rows", "m3_public_rows"):
+        rows = getattr(scanner, name)(ROOT)
+        monkeypatch.setattr(scanner, name, lambda _, rows=rows: rows)
+    monkeypatch.setattr(scanner, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="invalid V4 additional historical scanner finding"):
+        scanner.validate_rules()
