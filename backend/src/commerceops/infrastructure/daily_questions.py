@@ -295,10 +295,28 @@ WHERE id=%s""",
             async with await open_async(self.settings) as db:
                 await db.execute(
                     r"""
-UPDATE business.business_tasks SET state='needs_attention',failure_code=%s,
-version=version+1,updated_at=clock_timestamp() WHERE id=%s AND organization_id=%s AND
-shop_id=%s
-AND kind='daily_question' AND state IN ('queued','analyzing')""",
-                    (code, run.task_id, run.organization_id, run.shop_id),
+UPDATE business.business_tasks t SET state='needs_attention',failure_code=%s,
+version=t.version+1,updated_at=clock_timestamp() WHERE t.id=%s AND t.organization_id=%s
+AND t.shop_id=%s AND t.workflow_version='p6-daily-question-v1' AND t.thread_id=%s
+AND t.kind='daily_question' AND t.state IN ('queued','analyzing')
+AND EXISTS(SELECT 1 FROM business.jobs j WHERE j.id=%s AND j.task_id=t.id
+AND j.organization_id=t.organization_id AND j.shop_id=t.shop_id AND j.status='running'
+AND j.lease_owner=%s AND j.kind=%s AND j.payload_ref=%s)
+AND %s=%s AND %s=%s""",
+                    (
+                        code,
+                        run.task_id,
+                        run.organization_id,
+                        run.shop_id,
+                        run.thread_id,
+                        run.job_id,
+                        self.session.owner,
+                        run.kind,
+                        run.payload_ref,
+                        run.owner,
+                        self.session.owner,
+                        run.organization_id,
+                        self.session.organization,
+                    ),
                 )
             return RunResult()

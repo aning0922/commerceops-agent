@@ -128,3 +128,7 @@ S2原迁移/HTTP失败、旧2830pass/165fail离线工具事实与Root所有窗�
 
 提交前changed-content扫描首2项均为非秘密：SQL provider字段比较、metric字段名条件。
 以等值SQL的IS NOT DISTINCT FROM及语义明确的metric变量修正误报形状，未改扫描规则/豁免或编码隐藏内容。
+
+冻结后自查补强：question失败分支也必须同时匹配原job/lease owner/kind/payload、
+task workflow/thread及Worker organization/owner，避免在拒绝不合法RunRequest后按裸task_id写失败态。
+这是单独后续修正；尚无实际PG签收，不回写首候选为已通过。
