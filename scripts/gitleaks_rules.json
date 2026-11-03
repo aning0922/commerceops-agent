@@ -2,7 +2,7 @@
   "version": "8.30.1",
   "source": "https://raw.githubusercontent.com/gitleaks/gitleaks/v8.30.1/config/gitleaks.toml",
   "source_sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf",
-  "config_sha256": "5f01937442eda0e20e863190be6d05181f856910537361ed4eec56a77cd65c24",
+  "config_sha256": "9b12f01c5db884e15eb7439dd77d86d0552e376ca1a40048ae72787a7df9dce3",
   "rule_count": 222,
   "rule_ids_sha256": "71c98377587b028db1b5e5e73cd6b786b429d64dca971e5cc652046cb984bd69",
   "removed_global_allowlists": 1,
@@ -404,6 +404,136 @@
       "source_path": "backend/migrations/versions/0023_p6_copy_drafts.py",
       "source_line": 34,
       "source_end_line": 35
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/API_EVENTS_CONTRACT\\.md$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "528898a328812d86eb33d61c91e19abeded3af2a10f3f704e8a08e4ed37bca2d",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/API_EVENTS_CONTRACT.md",
+      "source_line": 14,
+      "source_end_line": 14
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/evidence/A_EXECUTION_RECEIPT\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "56ac6716fc7063f773d8f0bdfa2c06e127018b85e8145add1b2f96ec05825be0",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json",
+      "source_line": 5,
+      "source_end_line": 6
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "856cb9d6ff038755db512d1f403343e4edd2582bd34d31327e83a34bf8f30830",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+      "source_line": 5,
+      "source_end_line": 5
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "73132a728480edc215e784b5a744c975d92faa6d5fc8b59dc3f08f7774b712b2",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+      "source_line": 9,
+      "source_end_line": 9
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 42,
+      "source_end_line": 42
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 64,
+      "source_end_line": 64
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 86,
+      "source_end_line": 86
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 108,
+      "source_end_line": 108
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 130,
+      "source_end_line": 130
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 152,
+      "source_end_line": 152
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/reviews/M3_API_INVENTORY\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "d85fa80d9bbc30593eca344f3779926519709f713c5fec429acde709c30ac6aa",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_line": 18512,
+      "source_end_line": 18512
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/v4\\-public\\-openapi\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/v4-public-openapi.json",
+      "source_line": 99,
+      "source_end_line": 99
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "^docs/v4/baseline/v4\\-public\\-openapi\\.json$",
+      "reason": "V4公开合同/字段/摘要；仅固定来源path与完整行/span",
+      "exact_line_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "source_path": "docs/v4/baseline/v4-public-openapi.json",
+      "source_line": 251,
+      "source_end_line": 251
     }
   ],
   "historical_findings": [
@@ -626,6 +756,286 @@
       "reported_line_sha256": "5b7854c8b9bc60ca9a7c78596763ce2fa937adcb2420835ee10144e57784b534",
       "fingerprint": "2c109a979749313808a9c6e42fc4e7cc0adf4ac5:tests/test_harness_preproduction.py:generic-api-key:1019",
       "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4"
+    }
+  ],
+  "v4_historical_findings": [
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/API_EVENTS_CONTRACT.md",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 14,
+      "end_line": 14,
+      "start_column": 33,
+      "end_column": 66,
+      "exact_span_sha256": "528898a328812d86eb33d61c91e19abeded3af2a10f3f704e8a08e4ed37bca2d",
+      "match_sha256": "9c3ca0a9c8ed46b0201fc53f4c8914e194f2e81655f7a1938d6c4733ff6faddf",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/API_EVENTS_CONTRACT.md:generic-api-key:14"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 5,
+      "end_line": 6,
+      "start_column": 59,
+      "end_column": 27,
+      "exact_span_sha256": "56ac6716fc7063f773d8f0bdfa2c06e127018b85e8145add1b2f96ec05825be0",
+      "match_sha256": "83ecc9e7036a080f5530ff0dac847b357765fa83645a244c07ea5be9933320d3",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json:generic-api-key:5"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 5,
+      "end_line": 5,
+      "start_column": 5,
+      "end_column": 95,
+      "exact_span_sha256": "856cb9d6ff038755db512d1f403343e4edd2582bd34d31327e83a34bf8f30830",
+      "match_sha256": "4215f99f741938888312b0a55a895ca8aee5a68f77cd084d675590f92ef4f5c0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json:generic-api-key:5"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 9,
+      "end_line": 9,
+      "start_column": 5,
+      "end_column": 95,
+      "exact_span_sha256": "73132a728480edc215e784b5a744c975d92faa6d5fc8b59dc3f08f7774b712b2",
+      "match_sha256": "f567aa1e427a8fbccb4d9626c06aea3b8d039499925aac1e0d14e57d01b6c872",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json:generic-api-key:9"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 42,
+      "end_line": 42,
+      "start_column": 9,
+      "end_column": 55,
+      "exact_span_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:42"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 64,
+      "end_line": 64,
+      "start_column": 9,
+      "end_column": 55,
+      "exact_span_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:64"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 86,
+      "end_line": 86,
+      "start_column": 9,
+      "end_column": 55,
+      "exact_span_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:86"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 108,
+      "end_line": 108,
+      "start_column": 9,
+      "end_column": 55,
+      "exact_span_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:108"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 130,
+      "end_line": 130,
+      "start_column": 9,
+      "end_column": 55,
+      "exact_span_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:130"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 152,
+      "end_line": 152,
+      "start_column": 9,
+      "end_column": 55,
+      "exact_span_sha256": "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:152"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 18512,
+      "end_line": 18512,
+      "start_column": 17,
+      "end_column": 57,
+      "exact_span_sha256": "d85fa80d9bbc30593eca344f3779926519709f713c5fec429acde709c30ac6aa",
+      "match_sha256": "b8653d0c62cca5e6f2108b44e9c6b9982a15cef79e8bfc2cf01b9509afc03ebb",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/reviews/M3_API_INVENTORY.json:generic-api-key:18512"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/v4-public-openapi.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 99,
+      "end_line": 99,
+      "start_column": 11,
+      "end_column": 74,
+      "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/v4-public-openapi.json:generic-api-key:99"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/baseline/v4-public-openapi.json",
+      "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+      "reported_line": 251,
+      "end_line": 251,
+      "start_column": 11,
+      "end_column": 74,
+      "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+      "fingerprint": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60:docs/v4/baseline/v4-public-openapi.json:generic-api-key:251"
+    }
+  ],
+  "v4_additional_historical_findings": [
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/components/v4/demo.tsx",
+      "source_commit": "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+      "reported_line": 7,
+      "end_line": 7,
+      "start_column": 8,
+      "end_column": 42,
+      "exact_span_sha256": "321c40305b3977373aa33cad247d66eccb91a9af3b6d5ef861d390d49d221456",
+      "match_sha256": "323916e3773577c1a0819f53f4623f1e8c4f08d02814314c52f26a1291d6979d",
+      "fingerprint": "c5f4d101339fed02c463c6dc8058bb92b15881ca:frontend/components/v4/demo.tsx:generic-api-key:7"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/components/v4/demo.tsx",
+      "source_commit": "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+      "reported_line": 10,
+      "end_line": 10,
+      "start_column": 166,
+      "end_column": 203,
+      "exact_span_sha256": "717bd4cc248808ee824f89a7f1ee644900867102a54b02047a819e046f802327",
+      "match_sha256": "5f0689911c62ddd1332b2e427ce3121ad275e7d073946f672bae83c9b0d8dc3f",
+      "fingerprint": "c5f4d101339fed02c463c6dc8058bb92b15881ca:frontend/components/v4/demo.tsx:generic-api-key:10"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+      "reported_line": 3,
+      "end_line": 3,
+      "start_column": 5,
+      "end_column": 44,
+      "exact_span_sha256": "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "75dc6d55e386d85713943df0fb7a0b3ba5fef053:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:3"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+      "reported_line": 16,
+      "end_line": 16,
+      "start_column": 7,
+      "end_column": 46,
+      "exact_span_sha256": "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+      "match_sha256": "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+      "fingerprint": "75dc6d55e386d85713943df0fb7a0b3ba5fef053:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:16"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "772f95927546dc3c648b58cd3906f91cae64c2f4",
+      "reported_line": 3,
+      "end_line": 3,
+      "start_column": 5,
+      "end_column": 44,
+      "exact_span_sha256": "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "772f95927546dc3c648b58cd3906f91cae64c2f4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:3"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "772f95927546dc3c648b58cd3906f91cae64c2f4",
+      "reported_line": 16,
+      "end_line": 16,
+      "start_column": 7,
+      "end_column": 46,
+      "exact_span_sha256": "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+      "match_sha256": "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+      "fingerprint": "772f95927546dc3c648b58cd3906f91cae64c2f4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:16"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+      "reported_line": 3,
+      "end_line": 3,
+      "start_column": 5,
+      "end_column": 44,
+      "exact_span_sha256": "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+      "match_sha256": "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+      "fingerprint": "46e44e5548d720bdb735e2a0f4673bdc73854de4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:3"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+      "source_commit": "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+      "reported_line": 16,
+      "end_line": 16,
+      "start_column": 7,
+      "end_column": 46,
+      "exact_span_sha256": "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+      "match_sha256": "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+      "fingerprint": "46e44e5548d720bdb735e2a0f4673bdc73854de4:docs/v4/acceptance/v4-0/ROOT_LEDGER.json:generic-api-key:16"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/lib/v4-openapi.json",
+      "source_commit": "48c30d224529319d5a9ff203429eeff86060fc00",
+      "reported_line": 99,
+      "end_line": 99,
+      "start_column": 11,
+      "end_column": 74,
+      "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+      "fingerprint": "48c30d224529319d5a9ff203429eeff86060fc00:frontend/lib/v4-openapi.json:generic-api-key:99"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "frontend/lib/v4-openapi.json",
+      "source_commit": "48c30d224529319d5a9ff203429eeff86060fc00",
+      "reported_line": 251,
+      "end_line": 251,
+      "start_column": 11,
+      "end_column": 74,
+      "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+      "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+      "fingerprint": "48c30d224529319d5a9ff203429eeff86060fc00:frontend/lib/v4-openapi.json:generic-api-key:251"
     }
   ]
 }

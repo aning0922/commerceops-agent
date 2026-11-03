@@ -331,6 +331,292 @@ M3_SPAN_PUBLIC_EXCEPTIONS = (
 )
 
 
+V4_SOURCE_COMMIT = "fa96764cf2b8e3ab9adbb579b764f600a7d17e60"
+V4_PUBLIC_EXCEPTIONS = (
+    (
+        "docs/v4/baseline/API_EVENTS_CONTRACT.md",
+        "528898a328812d86eb33d61c91e19abeded3af2a10f3f704e8a08e4ed37bca2d",
+        14,
+        14,
+        "9c3ca0a9c8ed46b0201fc53f4c8914e194f2e81655f7a1938d6c4733ff6faddf",
+        33,
+        66,
+    ),
+    (
+        "docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json",
+        "56ac6716fc7063f773d8f0bdfa2c06e127018b85e8145add1b2f96ec05825be0",
+        5,
+        6,
+        "83ecc9e7036a080f5530ff0dac847b357765fa83645a244c07ea5be9933320d3",
+        59,
+        27,
+    ),
+    (
+        "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+        "856cb9d6ff038755db512d1f403343e4edd2582bd34d31327e83a34bf8f30830",
+        5,
+        5,
+        "4215f99f741938888312b0a55a895ca8aee5a68f77cd084d675590f92ef4f5c0",
+        5,
+        95,
+    ),
+    (
+        "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+        "73132a728480edc215e784b5a744c975d92faa6d5fc8b59dc3f08f7774b712b2",
+        9,
+        9,
+        "f567aa1e427a8fbccb4d9626c06aea3b8d039499925aac1e0d14e57d01b6c872",
+        5,
+        95,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+        42,
+        42,
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+        9,
+        55,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+        64,
+        64,
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+        9,
+        55,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+        86,
+        86,
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+        9,
+        55,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+        108,
+        108,
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+        9,
+        55,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+        130,
+        130,
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+        9,
+        55,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "980ed41784decd653ab8f0c989e736cc46433f8370327eb52007dabe73cf9020",
+        152,
+        152,
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+        9,
+        55,
+    ),
+    (
+        "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "d85fa80d9bbc30593eca344f3779926519709f713c5fec429acde709c30ac6aa",
+        18512,
+        18512,
+        "b8653d0c62cca5e6f2108b44e9c6b9982a15cef79e8bfc2cf01b9509afc03ebb",
+        17,
+        57,
+    ),
+    (
+        "docs/v4/baseline/v4-public-openapi.json",
+        "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+        99,
+        99,
+        "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+        11,
+        74,
+    ),
+    (
+        "docs/v4/baseline/v4-public-openapi.json",
+        "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+        251,
+        251,
+        "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+        11,
+        74,
+    ),
+)
+
+
+V4_ADDITIONAL_HISTORY = (
+    (
+        "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+        "frontend/components/v4/demo.tsx",
+        7,
+        7,
+        8,
+        42,
+        "321c40305b3977373aa33cad247d66eccb91a9af3b6d5ef861d390d49d221456",
+        "323916e3773577c1a0819f53f4623f1e8c4f08d02814314c52f26a1291d6979d",
+    ),
+    (
+        "c5f4d101339fed02c463c6dc8058bb92b15881ca",
+        "frontend/components/v4/demo.tsx",
+        10,
+        10,
+        166,
+        203,
+        "717bd4cc248808ee824f89a7f1ee644900867102a54b02047a819e046f802327",
+        "5f0689911c62ddd1332b2e427ce3121ad275e7d073946f672bae83c9b0d8dc3f",
+    ),
+    (
+        "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        3,
+        3,
+        5,
+        44,
+        "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+    ),
+    (
+        "75dc6d55e386d85713943df0fb7a0b3ba5fef053",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        16,
+        16,
+        7,
+        46,
+        "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+        "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+    ),
+    (
+        "772f95927546dc3c648b58cd3906f91cae64c2f4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        3,
+        3,
+        5,
+        44,
+        "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+    ),
+    (
+        "772f95927546dc3c648b58cd3906f91cae64c2f4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        16,
+        16,
+        7,
+        46,
+        "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+        "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+    ),
+    (
+        "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        3,
+        3,
+        5,
+        44,
+        "b534727572b8f90d8e830a2426d3f752ce045406e215feea1448ccded811170a",
+        "5bbce8764fbe2008b0cbcdf1e32161ab6ee6fa458fce9738272616ddee00b2a0",
+    ),
+    (
+        "46e44e5548d720bdb735e2a0f4673bdc73854de4",
+        "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+        16,
+        16,
+        7,
+        46,
+        "6bac7811165742126d23b6f218b46bc50a1444074921788996ae76230be0f9b6",
+        "2cdb26c38d3fed7008faac0d3db964536d381dfeee2bfbdfbac31c17575c743e",
+    ),
+    (
+        "48c30d224529319d5a9ff203429eeff86060fc00",
+        "frontend/lib/v4-openapi.json",
+        99,
+        99,
+        11,
+        74,
+        "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+        "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+    ),
+    (
+        "48c30d224529319d5a9ff203429eeff86060fc00",
+        "frontend/lib/v4-openapi.json",
+        251,
+        251,
+        11,
+        74,
+        "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
+        "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
+    ),
+)
+
+
+def v4_additional_history_findings() -> list[dict[str, object]]:
+    """Ten separately authorized historical public metadata/UI/schema findings only."""
+    return [
+        {
+            "rule": "generic-api-key",
+            "path": path,
+            "source_commit": commit,
+            "reported_line": line,
+            "end_line": end,
+            "start_column": col,
+            "end_column": end_col,
+            "exact_span_sha256": digest,
+            "match_sha256": match_digest,
+            "fingerprint": f"{commit}:{path}:generic-api-key:{line}",
+        }
+        for commit, path, line, end, col, end_col, digest, match_digest in V4_ADDITIONAL_HISTORY
+    ]
+
+
+def v4_public_rows(root: Path) -> tuple[tuple[str, str, str, str, int, int], ...]:
+    """Only the thirteen captured V4 public spans from the immutable A import."""
+    result = []
+    for path, digest, line, end, _, _, _ in V4_PUBLIC_EXCEPTIONS:
+        source = subprocess.run(
+            ["git", "show", V4_SOURCE_COMMIT + ":" + path],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        rows = source.stdout.splitlines()
+        value = b"\n".join(rows[line - 1 : end])
+        if source.returncode or len(rows) < end or hashlib.sha256(value).hexdigest() != digest:
+            raise ValueError("invalid V4 public source")
+        result.append((path, "^" + re.escape(path) + "$", value.decode(), digest, line, end))
+    return tuple(result)
+
+
+def v4_public_line_regex(row: str) -> str:
+    """Exact Unicode codepoints; generated text must not introduce another finding."""
+    return r"^(?:\r?\n)?" + "".join(r"\x{" + format(ord(c), "x") + "}" for c in row) + "$"
+
+
+def v4_history_findings() -> list[dict[str, object]]:
+    return [
+        {
+            "rule": "generic-api-key",
+            "path": path,
+            "source_commit": V4_SOURCE_COMMIT,
+            "reported_line": line,
+            "end_line": end,
+            "start_column": col,
+            "end_column": end_col,
+            "exact_span_sha256": digest,
+            "match_sha256": match_digest,
+            "fingerprint": f"{V4_SOURCE_COMMIT}:{path}:generic-api-key:{line}",
+        }
+        for path, digest, line, end, match_digest, col, end_col in V4_PUBLIC_EXCEPTIONS
+    ]
+
+
 def m3_public_line_regex(row: str) -> str:
     """Exact ASCII bytes, hex-escaped so generated regex text is not a second public finding."""
     return (
@@ -650,10 +936,33 @@ def main() -> None:
                         **({"source_end_line": line + row.count("\n")} if "\n" in row else {}),
                     }
                 )
+            for source_path, path, row, digest, line, end in v4_public_rows(ROOT):
+                reason = "V4公开合同/字段/摘要；仅固定来源path与完整行/span"
+                rule["allowlists"].append(
+                    {
+                        "description": reason,
+                        "condition": "AND",
+                        "regexTarget": "line",
+                        "paths": [path],
+                        "regexes": [v4_public_line_regex(row)],
+                    }
+                )
+                exceptions.append(
+                    {
+                        "rule": rule["id"],
+                        "path": path,
+                        "reason": reason,
+                        "exact_line_sha256": digest,
+                        "source_commit": V4_SOURCE_COMMIT,
+                        "source_path": source_path,
+                        "source_line": line,
+                        "source_end_line": end,
+                    }
+                )
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 45 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 58 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
@@ -672,6 +981,8 @@ def main() -> None:
         "removed_rule_allowlists": rule_removed,
         "exceptions": exceptions,
         "historical_findings": list(APPROVED_TEST_HISTORY),
+        "v4_historical_findings": v4_history_findings(),
+        "v4_additional_historical_findings": v4_additional_history_findings(),
     }
     (ROOT / "scripts/gitleaks_rules.json").write_text(
         json.dumps(provenance, indent=2, ensure_ascii=False) + "\n"
