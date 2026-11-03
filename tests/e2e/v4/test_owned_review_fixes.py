@@ -4,7 +4,6 @@ import json
 import subprocess
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -14,6 +13,7 @@ from .owned_driver import Case, web_environment
 from .owned_negatives import uncommitted_bootstrap
 from .supervisor import Budget
 from .test_owned_driver import case as case
+from .test_owned_driver import expanded_model
 
 pytestmark = pytest.mark.offline
 KEY = "70f225c8-66bd-4b95-a204-3a83af871590"
@@ -89,17 +89,10 @@ def test_all_owner_and_observer_invocations_forbid_pull_and_build(name: str | No
 
 
 def test_frozen_model_removes_all_build_fallbacks(case: Case) -> None:
-    model: dict[str, Any] = {
-        "services": {
-            name: {"image": image, "build": {"context": "."}}
-            for name, image in (
-                ("postgres", case.pg_image),
-                ("pg-test", case.test_image),
-                ("v4-api", case.test_image),
-                ("db-init", "unused"),
-            )
-        }
-    }
+    model = expanded_model(case)
+    model["services"]["db-init"] = {"image": "unused"}
+    for service in model["services"].values():
+        service["build"] = {"context": "."}
     fixed = owned_driver.no_build_model(model, case)
     assert set(fixed["services"]) == {"postgres", "pg-test", "v4-api"}
     assert all(

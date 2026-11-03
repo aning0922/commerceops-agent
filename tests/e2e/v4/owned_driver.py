@@ -6,6 +6,7 @@ images, ports, UTC manifest and an explicit window flag. Never discovers secrets
 
 import argparse
 import hashlib
+import ipaddress
 import json
 import os
 import re
@@ -20,6 +21,8 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+
+from scripts.pg_diagnostic import owned_subnet
 
 from .browser_lifecycle import validate_report, verify_source
 from .http_probe import run_scenario
@@ -62,8 +65,11 @@ class Case:
     scenario: str
     migration_sha256: str
     uid: int
+    pg_subnet: str
+    host_subnet: str
 
     def validate(self) -> None:
+        validate_subnets(self.pg_subnet, self.host_subnet)
         if not re.fullmatch(r"v4qa_[a-z0-9_]{8,32}", self.project):
             raise ValueError("new QA project required")
         if not re.fullmatch(r"v4_demo_[a-z0-9_]{1,48}", self.database):
@@ -176,6 +182,8 @@ def prepare(case: Case) -> None:
         V4_UID=str(case.uid),
         V4_PG_IMAGE=case.pg_image,
         V4_TEST_IMAGE=case.test_image,
+        V4_PG_SUBNET=case.pg_subnet,
+        V4_HOST_SUBNET=case.host_subnet,
     )
     # Reject env-file metacharacters in owner-provided paths, never shell interpolate.
     if any(re.search(r"[\s#$'\"\\]", value) for value in env.values()):
@@ -212,6 +220,7 @@ def compose(case: Case) -> tuple[str, ...]:
 
 
 def no_build_model(model: dict[str, Any], case: Case) -> dict[str, Any]:
+    verify_expanded_model(model, case)
     selected = {}
     for name in ("postgres", "pg-test", "v4-api"):
         service = dict(model["services"][name])
@@ -222,6 +231,74 @@ def no_build_model(model: dict[str, Any], case: Case) -> dict[str, Any]:
         service["pull_policy"] = "never"
         selected[name] = service
     return {**model, "services": selected}
+
+
+def verify_expanded_model(model: dict[str, Any], case: Case) -> None:
+    """Validate normalized compose-config output before freezing/creating resources."""
+    validate_subnets(case.pg_subnet, case.host_subnet)
+    networks = model.get("networks")
+    if not isinstance(networks, dict) or set(networks) != {"default", "host_facing"}:
+        raise ValueError("expanded network set differs from Case")
+    for name, subnet, internal in (
+        ("default", case.pg_subnet, True),
+        ("host_facing", case.host_subnet, False),
+    ):
+        net = networks[name]
+        if not isinstance(net, dict):
+            raise ValueError("expanded network shape invalid")
+        if (
+            net.get("internal", False) is not internal
+            or net.get("driver", "bridge") != "bridge"
+            or net.get("name", f"{case.project}_{name}") != f"{case.project}_{name}"
+            or net.get("external", False) is not False
+            or net.get("attachable", False) is not False
+            or net.get("enable_ipv6", False) is not False
+            or net.get("enable_ipv4", True) is not True
+            or net.get("driver_opts")
+        ):
+            raise ValueError("expanded network scope/driver differs from Case")
+        ipam = net.get("ipam")
+        if (
+            not isinstance(ipam, dict)
+            or set(ipam) - {"config", "driver", "options"}
+            or ipam.get("driver", "default") != "default"
+            or ipam.get("options")
+            or ipam.get("config") != [{"subnet": subnet}]
+        ):
+            raise ValueError("expanded IPAM differs from registered Case CIDR")
+    services = model.get("services")
+    if not isinstance(services, dict):
+        raise ValueError("expanded services invalid")
+    for role in ("postgres", "pg-test", "v4-api"):
+        service = services.get(role)
+        expected = {"default", "host_facing"} if role == "v4-api" else {"default"}
+        if not isinstance(service, dict) or service.get("network_mode"):
+            raise ValueError("expanded service network mode invalid")
+        attached = service.get("networks")
+        if (
+            not isinstance(attached, dict)
+            or set(attached) != expected
+            or any(
+                value is not None and (type(value) is not dict or value)
+                for value in attached.values()
+            )
+        ):
+            raise ValueError("expanded network membership differs from Case")
+        if role != "v4-api" and service.get("ports"):
+            raise ValueError("PG/owner must not publish host ports")
+    ports = services["v4-api"].get("ports")
+    if not isinstance(ports, list) or len(ports) != 1 or not isinstance(ports[0], dict):
+        raise ValueError("exact API loopback port required")
+    port = ports[0]
+    if (
+        port.get("host_ip") != "127.0.0.1"
+        or type(port.get("target")) is not int
+        or port["target"] != case.api_port
+        or port.get("published") != str(case.api_port)
+        or port.get("protocol", "tcp") != "tcp"
+        or port.get("mode", "ingress") != "ingress"
+    ):
+        raise ValueError("expanded API host/port differs from Case")
 
 
 def verify_images(case: Case, docker: str, budget: Budget, records: list[dict[str, Any]]) -> None:
@@ -235,6 +312,103 @@ def verify_images(case: Case, docker: str, budget: Budget, records: list[dict[st
         )
         if observed.decode().strip() != image:
             raise ValueError("missing/different local image; no build/pull fallback")
+
+
+def validate_subnets(pg: str, host: str) -> None:
+    # Reuse the existing canonical RFC1918 /24 validator at its actual source.
+    first, second = (ipaddress.IPv4Network(owned_subnet(value)) for value in (pg, host))
+    if first.overlaps(second):
+        raise ValueError("explicit owned subnets overlap")
+
+
+def verify_existing_subnets(
+    case: Case, docker: str, budget: Budget, records: list[dict[str, Any]]
+) -> dict[str, Any]:
+    validate_subnets(case.pg_subnet, case.host_subnet)
+    requested = [ipaddress.IPv4Network(case.pg_subnet), ipaddress.IPv4Network(case.host_subnet)]
+
+    def inventory() -> list[str]:
+        raw = checked(
+            [docker, "network", "ls", "--no-trunc", "--quiet"],
+            budget,
+            records,
+            "subnet_inventory",
+            cap=5,
+        )
+        ids = raw.decode("ascii").split()
+        if (
+            len(ids) > 1024
+            or len(ids) != len(set(ids))
+            or any(not re.fullmatch(r"[a-f0-9]{64}", value) for value in ids)
+        ):
+            raise ValueError("network inventory unknown")
+        return sorted(ids)
+
+    ids = inventory()
+    fingerprint: list[dict[str, Any]] = []
+    if ids:
+        template = (
+            '{"id":{{json .Id}},"name":{{json .Name}},'
+            '"driver":{{json .Driver}},"ipam":{{json .IPAM.Config}}}'
+        )
+        lines = (
+            checked(
+                [docker, "network", "inspect", "--format", template, *ids],
+                budget,
+                records,
+                "subnet_inspect",
+                cap=10,
+            )
+            .decode()
+            .splitlines()
+        )
+        if len(lines) != len(ids):
+            raise ValueError("incomplete subnet inspection")
+        seen: set[str] = set()
+        for line in lines:
+            row = json.loads(line)
+            if not isinstance(row, dict) or set(row) != {"id", "name", "driver", "ipam"}:
+                raise ValueError("unknown subnet inspection shape")
+            if (
+                type(row["id"]) is not str
+                or type(row["name"]) is not str
+                or not row["name"]
+                or type(row["driver"]) is not str
+                or row["driver"] not in {"bridge", "overlay", "macvlan", "ipvlan", "host", "null"}
+            ):
+                raise ValueError("unknown Docker network identity/driver")
+            if row["id"] not in ids or row["id"] in seen:
+                raise ValueError("network identity mismatch")
+            seen.add(row["id"])
+            configs = row["ipam"]
+            if configs is None or configs == []:
+                if (row["name"], row["driver"]) not in {("host", "host"), ("none", "null")}:
+                    raise ValueError("unresolved IPAM; refuse allocation")
+            elif not isinstance(configs, list):
+                raise ValueError("invalid IPAM")
+            else:
+                for config in configs:
+                    if not isinstance(config, dict) or type(config.get("Subnet")) is not str:
+                        raise ValueError("unresolved subnet")
+                    current = ipaddress.ip_network(config["Subnet"], strict=True)
+                    if any(
+                        current.version == target.version and current.overlaps(target)
+                        for target in requested
+                    ):
+                        raise ValueError("requested subnet overlaps actual Docker network")
+            fingerprint.append(row)
+    if inventory() != ids:
+        raise ValueError("network inventory changed during verification")
+    digest = hashlib.sha256(
+        json.dumps(sorted(fingerprint, key=lambda row: row["id"]), sort_keys=True).encode()
+    ).hexdigest()
+    return dict(
+        status="NO_OVERLAP_OBSERVED",
+        pg_subnet=case.pg_subnet,
+        host_subnet=case.host_subnet,
+        inspected_networks=len(ids),
+        inventory_sha256=digest,
+    )
 
 
 def checked(
@@ -297,6 +471,10 @@ def execute(case: Case) -> dict[str, Any]:
     records: list[dict[str, Any]] = []
     docker = command[0]
     verify_images(case, docker, budget, records)
+    private(
+        directory / "subnet_inventory.safe.json",
+        json.dumps(verify_existing_subnets(case, docker, budget, records)),
+    )
     model = no_build_model(
         json.loads(
             checked(

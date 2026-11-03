@@ -29,7 +29,9 @@ Root填写新私有manifest（没有秘密值；以下占位不能直接执行�
   "deadline": "REPLACE_ROOT_UTC",
   "scenario": "lifecycle",
   "migration_sha256": "REPLACE_ACTUAL_REVIEWED_0024_BYTES_SHA256",
-  "uid": 501
+  "uid": 501,
+  "pg_subnet": "REPLACE_ROOT_EXPLICIT_RFC1918_IPV4_24",
+  "host_subnet": "REPLACE_ROOT_SECOND_EXPLICIT_RFC1918_IPV4_24"
 }
 ```
 
@@ -279,3 +281,45 @@ no mocks/retries0/worker1及trace/HAR关闭保持，WEB_HANDOFF_READY恢复True�
 交付完整，不是实际浏览器通过或窗口开放。还须Root统一集成新owned_api/网络delta/WEB
 并给新冻结source/image/对象/端口/UTC；旧pilotC不续窗。此更新与API host-facing网络修复
 分提交。本轮仅12项定向纯source/report/command测试，无Node、profile、GUI、HTTP或PG启动。
+
+## pilotD地址池耗尽后的显式双subnet合同
+
+Root转交pilotD2330失败：新host_facing创建报predefined address pools fully subnetted，
+API/HTTP/Web未启动、tenant0；窗口已关闭、资源全停并保留新卷。不是允许prune、复用旧网
+或修改Docker daemon的依据，本轮没有查询或修改实际Docker资源。
+
+Case新增必填pg_subnet/host_subnet，无默认值；均canonical RFC1918 IPv4 /24且互不重叠。
+复用当前实际在scripts.pg_diagnostic.owned_subnet的既有validator（不修改该helper）。
+prepare写V4_PG_SUBNET/V4_HOST_SUBNET，overlay default/host_facing分别用required变量
+指定IPAM config.subnet；PG/pg-test仍只连internal default，API才双网络，宿主发布仍loopback。
+冻结model保留精确IPAM/no-build/pull_policy，未改daemon/角色权限/服务集合。
+
+execute在任何服务/owner action前只读network ls+inspect，核两次完整ID集合一致，并对所有
+实际IPAM Subnet解析/查重叠；任何CLI失败、坏JSON、漏行、未知driver/无L3信息都failclosed。
+只有已知host/host与none/null内建网络可无Subnet；IPv6已知范围不与IPv4请求混比。
+不筛仅本project网络，避免漏掉其它已有网段，但不读取其labels/secrets或改动任何网络。
+成功保存subnet_inventory.safe.json：请求范围/实际网络数/观察指纹/NO_OVERLAP_OBSERVED；
+这是当次只读快照，不锁住daemon地址池，若之后发生并发冲突仍失败，不自动另选范围或重试。
+
+Root已提出HTTP10.242.10/11、TTL10.242.20/21、Full10.242.30/31、Web10.242.40+的登记
+方向；这些不是代码默认值，也不从消息自动开窗。最终每个新manifest须Root明确两个完整
+CIDR/source/image/project/绝对UTC，启动时仍检查实际inventory。旧manifest缺参数即拒绝，
+所有旧case/retained volume不复用。WEB单owner的legacy_subnet.py/test_legacy_subnet.py未改。
+
+## expanded Compose与Case网络/端口防漂移
+
+Root对a990补核发现：只盘点Case CIDR不代表实际env展开后的IPAM相同。此原审事实保留。
+新增verify_expanded_model，在no_build_model冻结前验证实际规范JSON：顶层网络恰default/
+host_facing、project自动name无跨project引用；default internal=true，host_facing允许规范
+输出省略internal=false；bridge/default IPAM driver等正常字段保留，但两个唯一config.subnet
+须分别精确等于Case canonical CIDR，不接受其它/额外range、gateway或外部网络。
+PG/pg-test仅default且不发布ports，API恰default+host_facing，无别名/static IP改写；
+API唯一port必须127.0.0.1、target和published均等于Case.api_port/tcp。
+因此篡改compose.env即使仍不碰实际旧网段，也不能绕过Root已登记的Case子网/端口。
+
+本机实际仅执行docker compose config --format json（/dev/null env-file+纯占位路径，无
+读取secret、无daemon资源操作），native0；得到services.networks为dict/null、published为
+string、host_facing默认省略internal字段、network带自动name的真实shape，并由新guard接受。
+纯回归44pass/0.10s/native0，覆盖env/Case两个CIDR不一致与网络/连接/ports漂移反例；
+首轮测试辅助函数漏Any import导致collection失败，修正后通过，不是运行case失败。
+未变更业务/权限/已审监听机制或旧网络，资源创建/实际HTTP/PG/Web/TTL/Full/Hosted仍NOT_RUN。
