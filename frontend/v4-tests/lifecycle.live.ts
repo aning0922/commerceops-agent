@@ -59,4 +59,35 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
  await switchPersona('operator',2);
  const logoutResponse=response(page,'POST','/logout');await page.getByRole('button',{name:'退出'}).click();const logoutRaw=await logoutResponse;const logout=await read(logoutRaw,'ControlEnvelope');const logoutBody=logoutRaw.request().postDataJSON();expect(logout.data.receipt.operation).toBe('logout');expect(logout.data.receipt.request_key).toBe(logoutBody.request_key);expect(logoutBody.expected_epoch).toBe(previous.context.reset_epoch);expect(logoutBody.expected_generation).toBe(previous.context.auth_generation);sameTenant(previous.context,logout.context);expect(logout.context.reset_epoch).toBe(previous.context.reset_epoch);expect(logout.context.auth_generation).toBe(previous.context.auth_generation);await expect(page.getByText('已退出演示。')).toBeVisible();await expect(page.getByText(/当前视角：/)).toHaveCount(0);
  const sessionCookies=(await context.cookies(`${api}/api/v4/demo/session`)).filter(c=>c.name==='commerceops_v4_demo');expect(sessionCookies.every(c=>!c.value)).toBe(true);
+ // A separate 390px tenant verifies the actual signed-in UI, not only the welcome layout.
+ await page.setViewportSize({width:390,height:844});
+ const mobileCreate=response(page,'POST','/sessions');
+ const mobileCurrent=page.waitForResponse(async r=>{
+  const url=new URL(r.url());if(url.origin!==api||url.pathname!=='/api/v4/demo/session'||r.request().method()!=='GET'||!r.ok())return false;
+  const created=await read(await mobileCreate,'CreateEnvelope');
+  return sessionResponseMatches(r,api,{creationKey:created.data.receipt.request_key,tenant:created.context.tenant_id,organization:created.context.organization_id,persona:'operator',epoch:created.context.reset_epoch,generation:created.context.auth_generation});
+ });
+ await page.getByRole('button',{name:'一键体验'}).click();
+ const mobileRaw=await mobileCreate;const mobileCreated=await read(mobileRaw,'CreateEnvelope');const mobileBody=mobileRaw.request().postDataJSON();
+ expect(mobileCreated.data.receipt.operation).toBe('session_create');expect(mobileCreated.data.receipt.request_key).toBe(mobileBody.request_key);expect(mobileBody.request_key).not.toBe(createBody.request_key);expect(mobileCreated.context.tenant_id).not.toBe(current.context.tenant_id);
+ const mobile=await read(await mobileCurrent,'SessionEnvelope');expect(mobile.data.creation_request_key).toBe(mobileBody.request_key);expect(mobile.data.persona_id).toBe('operator');expect(mobile.data.shops).toHaveLength(2);expect(mobile.context.reset_epoch).toBe(mobileCreated.data.receipt.reset_epoch);expect(mobile.context.auth_generation).toBe(mobileCreated.data.receipt.auth_generation);
+ await expect(page.getByText('演示空间已建立。')).toBeVisible();const mobileShop=mobile.data.shops[0];
+ const mobileSummaryResponse=response(page,'GET','/seed-summary');await page.getByLabel('店铺').selectOption(mobileShop.shop_id);
+ const mobileSummaryRaw=await mobileSummaryResponse;const mobileSummary=await read(mobileSummaryRaw,'SeedSummaryEnvelope');
+ sameTenant(mobile.context,mobileSummary.context);expect(mobileSummary.context.shop_id).toBe(mobileShop.shop_id);expect(mobileSummary.context.reset_epoch).toBe(mobile.context.reset_epoch);expect(mobileSummary.context.auth_generation).toBe(mobile.context.auth_generation);expect(new URL(mobileSummaryRaw.url()).searchParams.get('shop_id')).toBe(mobileShop.shop_id);
+ expect(mobileSummaryRaw.request().headers()['x-demo-epoch']).toBe(String(mobile.context.reset_epoch));expect(mobileSummaryRaw.request().headers()['x-demo-generation']).toBe(String(mobile.context.auth_generation));
+ await expect(page.getByText(new RegExp(`商品 ${mobileSummary.data.counts.products} · SKU ${mobileSummary.data.counts.skus}`))).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:join(evidence,'live-mobile-session-390.png'),fullPage:true});
+ // Directly exercise the supported settings deep link; this does not claim a separate navigation menu exists.
+ const settingsCurrent=page.waitForResponse(r=>sessionResponseMatches(r,api,{creationKey:mobileBody.request_key,tenant:mobile.context.tenant_id,organization:mobile.context.organization_id,persona:'operator',epoch:mobile.context.reset_epoch,generation:mobile.context.auth_generation}));
+ await page.goto('/v4/settings/demo');const settings=await read(await settingsCurrent,'SessionEnvelope');expect(settings.data.creation_request_key).toBe(mobileBody.request_key);
+ const mobileReset=page.getByRole('button',{name:'重置演示'});await expect(mobileReset).toBeVisible();await mobileReset.focus();await expect(mobileReset).toBeFocused();await page.keyboard.press('Enter');
+ const mobileDialog=page.getByRole('dialog',{name:'重置当前演示空间？'});await expect(mobileDialog).toBeVisible();await expect(mobileDialog.getByRole('button',{name:'确认重置'})).toBeVisible();await expect(mobileDialog.getByRole('button',{name:'取消'})).toBeVisible();
+ await page.keyboard.press('Tab');expect(await mobileDialog.evaluate(element=>element.contains(document.activeElement))).toBe(true);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:join(evidence,'live-mobile-reset-dialog-390.png'),fullPage:true});
+ await page.keyboard.press('Escape');await expect(mobileDialog).not.toBeVisible();await expect(mobileReset).toBeFocused();
+ const mobileLogoutResponse=response(page,'POST','/logout');await page.getByRole('button',{name:'退出'}).click();const mobileLogoutRaw=await mobileLogoutResponse;const mobileLogout=await read(mobileLogoutRaw,'ControlEnvelope');const mobileLogoutBody=mobileLogoutRaw.request().postDataJSON();
+ expect(mobileLogout.data.receipt.operation).toBe('logout');expect(mobileLogout.data.receipt.request_key).toBe(mobileLogoutBody.request_key);expect(mobileLogoutBody.expected_epoch).toBe(mobile.context.reset_epoch);expect(mobileLogoutBody.expected_generation).toBe(mobile.context.auth_generation);sameTenant(mobile.context,mobileLogout.context);expect(mobileLogout.context.reset_epoch).toBe(mobile.context.reset_epoch);expect(mobileLogout.context.auth_generation).toBe(mobile.context.auth_generation);
+ await expect(page.getByText('已退出演示。')).toBeVisible();await expect(page.getByText(/当前视角：/)).toHaveCount(0);expect((await context.cookies(`${api}/api/v4/demo/session`)).filter(c=>c.name==='commerceops_v4_demo').every(c=>!c.value)).toBe(true);
 });
