@@ -175,3 +175,52 @@ Root 审查后登记新的 owned project/network/新卷、本机绝对 UTC 和�
 准备片本地检查：Dockerfile RUN 块仅送 `/bin/sh -n`，exit0（未执行）；静态核两 stage 的基础 digest、
 两个架构的 PG 开发包 hash、全部直接工具链版本与 pin 清单相同；文档检查122files/errors0/exit0，
 Git 差异空白检查通过。未跑 Docker parser/build/PG/业务测试，不把 shell 语法通过写成镜像可用。
+
+## K2 代码候选交付记录（2026-11-03）
+
+Root 明确独占分配本线 `0020_p6_knowledge_copy`（Backend 后续从0021）；0019 日报父提交仍待精确转交。
+当前 `down_revision="0019"` 是 Root 指定的待父提交绑定值；**未运行 Alembic graph/upgrade/PG**，
+须在收到实际0019后普通合入并核真实 revision 标识，再交 Root 的冻结/独审与新 owned UTC GO。
+K1 源码、0019/旧迁移、根 Compose/锁/CI、API/Worker 入口均未改。
+
+本片新增五张检索专属表：documents、authorizations、chunks、embeddings、registries，前缀均为
+`business.p6_knowledge_`；manifest 为有界不可变 canonical JSON，不新增通用授权/CMS/第二服务。
+0020 安装固定 knowledge_ext/vector0.8.7；证据 body/hash、codepoint切片、citation、原向量→实际float4、
+profile及manifest成员在列约束/插入触发器绑定同 org/shop；证据 update/delete/truncate拒绝，
+仅owner可更新当前 approved/revoked/enabled 并留下审计，不删除旧证据/撤权历史。
+此处 owner 注册只接受 self-authored synthetic，不能记为真实资料或人工审核完成；K3 copy表尚未创建。
+
+`knowledge_copy_repository.py` 提供调用方事务内的 owner合成注册、显式bootstrap及 scoped只读检索。
+注册用嵌套savepoint，任一后续验证失败回滚本次全部新增；重复注册校验原数据，不重新启用撤权或disabled状态。
+bootstrap必须在现有 `grant_runtime` 之后由owner显式调用 `grant_knowledge_runtime(db)`，本片没有修改共享入口；
+此步骤授予runtime仅SELECT/限定函数/USAGE，不给来源登记、证据写或CREATE权限，也不读取密码/创建角色。
+`p6_lock_knowledge` 是窄 SECURITY DEFINER锁函数：复用当前p3 operator权限锁，再锁本registry与相关授权行，
+避免为FOR SHARE授予runtime UPDATE资料权限；固定search_path、参数化对象ID，无任意SQL或注册写操作。
+
+实际检索固定SQL先核scope/registry/profile/证据成员/许可有效期/当前授权，再count容量、算距离及top5。
+超过20有效候选拒绝，不截断冒充穷尽；结果带eligible_count/complete/exhaustive与registry/profile版本，
+有效证据池及选中引用均来自同一SQL语句；原完整manifest只留摘要，不泄漏被拒文档ID/正文。
+SQL距离为版本化PG事实；DTO另重算实际float4字节/hash、f64 reference_distance、范围/容差、
+排序/count/命中和reason，不能靠重算外层hash豁免结构或显示事实校验。API不接收这些结果DTO作为授权事实。
+
+数值策略正式收紧为 `bounded-components-1e-6-1e6-normsq-1e-12-1e12-v1`：每个非零float4分量绝对值
+须在[1e-6,1e6]，平方范数在[1e-12,1e12]，维度<=2000；规范化-0，拒原非零分量round成0。
+这使每个非零乘积和范数累加远离float4下溢/溢出，应用和数据库CHECK双层约束，
+不只依赖PG最终可能夹紧到[0,2]的结果。K1 f64证据不改；实际PG profile另编号，不暗中归一化。
+边界按实际float4值判断，不承诺十进制1e-6 round后恰等于下界；小于下界就拒绝。
+
+本地已跑：K1+K2纯测试 **84passed/0.22s/exit0**；新增五文件strict mypy与Ruff通过。
+K2新增纯测试18项（K1原66项保留），含独立网络字节、0.1 round-trip、极值/下溢/零/错profile、
+合法距离0不能掩盖极值、结果count/hits/mode/过期篡改。开发Ruff格式/导入与mypy Literal/异型空tuple
+比较错误已修复；未删负例或降检查。真实PG测试 **28节点仅collect**，当前全部 **NOT_RUN**。
+矩阵含真vector_send/距离、20/21容量、>20撤权高分先过滤、当前身份/版本/角色/scope、低权CRUD/CREATE/升级拒绝、
+数值CHECK指定约束反例、owner错片段重hash仍拒、过期/外组织隔离、撤权锁竞争、savepoint失败回滚及阈值边界。
+
+Root另提供的已构建事实（非本线执行）：8ee Dockerfile、arm64，74.12s/native0；tag
+`commerceops-m3-vector:8ee1df0-arm64`，image `sha256:4ebf3de8870438618836dd1765632b7e90cb950632c929162441367087439d5a`；
+Root无网络检查PG17.11/control0.8.7/ldd无缺失、容器退出。该回执仅构建，不签本0020或SQL/PG Gate；本线未重复build。
+
+后续PG命令形状：在Root新owned服务/新凭据/新环境内，从本片冻结源码执行
+`uv run --frozen python -m pytest tests/test_p6_knowledge_copy_pg.py -m integration -q --junitxml=<owned-log>/knowledge.xml`。
+该fixture每例仅在本窗PG中新建唯一数据库、按真实head迁移/初始化/低权授权并清理该自有DB；
+因此必须先绑定精确0019/0020和含扩展镜像，不能在原PG/旧环境运行。资源/绝对截止/清理仍由Root统一准入。
