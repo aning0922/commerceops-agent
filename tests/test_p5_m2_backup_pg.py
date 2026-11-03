@@ -60,6 +60,8 @@ def test_current_m3_head_is_not_an_m2_backup_schema(
         assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
             "version_num": "0023_p6_copy_drafts"
         }
+    # snapshot首句设置事务隔离/只读；此新连接之前不能已有SELECT。
+    with connect(owner) as db:
         with pytest.raises(BackupFailure, match="^M2_SCHEMA_REVISION$"):
             quiescent_snapshot(db)
         assert db.execute("SHOW transaction_read_only").fetchone() == {
