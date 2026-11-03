@@ -7,9 +7,9 @@
   "cards": {
     "V40-01": "BASELINE_RECONFIRMED",
     "V40-02": "USER_ACCEPTED_CONTRACTS",
-    "V40-03": "schema代码独审已核；实际迁移首窗FAIL/0tests，安全诊断准备中；会话API主体实施中",
-    "V40-04": "纯种子修复已独审核收；真实PG运行Gate待完成",
-    "V40-05": "前端63a代码独审核收，真实UI_FIXTURE33/33；API/PG/Web全链未跑"
+    "V40-03": "API准备代码已独审；原生身份14项通过；真实HTTP与自然TTL待验",
+    "V40-04": "纯种子与schema已独审；原生SQL5+旧schema1通过；中途rollback与reset原key增补独审中",
+    "V40-05": "前端候选33UI_FIXTURE通过并独审；真实HTTP/Web driver接线修复中"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
@@ -36,9 +36,13 @@
     "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed",
     "First cf7 UI fixture:22 passed/2 failed initial anonymous read-count; ac1 trace attributes two reads to React development mount/reconnect; ac1 full24passed, no business code changed",
     "QA prepared harness first59passed/5failed before locked frontend dependencies were installed; exact original stderr cause not captured; after frozen offline install64passed/4.25s/exit0",
-    "ea48 owned PG first initialization migrate exit1; original SQL error intentionally filtered by legacy helper; cause UNKNOWN;0tests executed; exact owned cleanup0 and independent container/network/volume inventories empty"
+    "ea48 owned PG first initialization migrate exit1; original SQL error intentionally filtered by legacy helper; cause UNKNOWN;0tests executed; exact owned cleanup0 and independent container/network/volume inventories empty",
+    "Native migrate SyntaxError42601 at static FUNCTIONS position565; two CASE parentheses fixed in12081e4, exact delta independently accepted; new native migration0 and schema6pass resolve this cause",
+    "Owned diagnostic one-off cleanup originally false; exact stopped probe ownership verified and rm0; separate reconciliation inventories all empty, original false retained",
+    "Post API ASGI found legitimate UUID JSON rejected422 before store;534844a fixed wire parsing, Astra38pass closes P1; no strictDTO relaxation",
+    "Nonfinal source47 scan discovery dir5/index5/git249 blocking;244 merge copies and5 authored public spans independently being handled with exact provenance proposal; final scan NOT_RUN"
   ],
-  "updated_at_utc": "2026-11-03T15:23:12.395498+00:00",
+  "updated_at_utc": "2026-11-03T15:56:28.499934+00:00",
   "engineering_gate_scope_release": {
     "owner": "SECURITY_SCAN",
     "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
@@ -83,5 +87,28 @@
     },
     "full_engineering_gate": "NOT_RUN",
     "full_pg_gate": "NOT_RUN"
-  }
+  },
+  "native_components": {
+    "schema": {
+      "source": "46164111b7ae3760f4b274dfe951403400b04e68",
+      "passed": 6,
+      "native_exit": 0,
+      "cleanup_exit": 0
+    },
+    "identity": {
+      "source": "3606e5bd1eff972e946cd71c6313f1e25979ffdb",
+      "passed": 14,
+      "native_exit": 0,
+      "cleanup_exit": 0
+    }
+  },
+  "remaining_gates": [
+    "native rollback/reset extra tests",
+    "independent actual HTTP eleven scenarios",
+    "natural fixed30min TTL",
+    "actual API/PG/Web browser and200percent zoom",
+    "final full engineering and dynamic PG/G1G2 pairing",
+    "old M3 Web/N01 corresponding regression",
+    "exact candidate independent final review and cleanup"
+  ]
 }
