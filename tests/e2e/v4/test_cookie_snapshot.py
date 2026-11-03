@@ -59,3 +59,20 @@ def test_cookie_snapshot_preserves_attributes_and_survives_active_replacement() 
         active[0].value = "mutated-restored"
         active[0].set_nonstandard_attr("SameSite", "None")
         assert [vars(c) for c in snapshot.jar] == expected
+
+
+def test_fresh_bootstrap_owner_with_same_cookie_name_retains_old_snapshot() -> None:
+    with httpx.Client(trust_env=False) as client:
+        client.cookies.set("bootstrap", "old-owner", domain="127.0.0.1", path="/api/v4/demo")
+        old_cookie = snapshot_cookies(client.cookies)
+        client.cookies.set("bootstrap", "new-owner", domain="127.0.0.1", path="/api/v4/demo")
+        new_cookie = snapshot_cookies(client.cookies)
+        # Cookies iteration yields equal names; owner identity requires Cookie values.
+        assert list(old_cookie) == list(new_cookie) == ["bootstrap"]
+        assert [(c.name, c.value) for c in old_cookie.jar] == [("bootstrap", "old-owner")]
+        assert [(c.name, c.value) for c in new_cookie.jar] == [("bootstrap", "new-owner")]
+        client.cookies = snapshot_cookies(old_cookie)
+        assert client.cookies.get("bootstrap") == "old-owner"
+        client.cookies.set("bootstrap", "later-owner", domain="127.0.0.1", path="/api/v4/demo")
+        assert old_cookie.get("bootstrap") == "old-owner"
+        assert new_cookie.get("bootstrap") == "new-owner"
