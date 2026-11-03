@@ -22,7 +22,7 @@ Root提供的既有脱敏报告原生42项，其中20项原历史审批不变，
 | `8a6c6ebb59abf451c810bb6aebcdf1b8f6510e9d` | `backend/migrations/versions/0020_p6_knowledge_copy.py` | 54 | `1e860e56789ea17cf4df6d514d07d28135dd78010d9e9230cc6f1cc2f48464e0` | 知识chunk字段DDL |
 | `22b60150add80f59613445260e1e2851b5d0b86f` | `backend/src/commerceops/application/commerce/readonly_inquiry_tools.py` | 199 | `23006e136c68711f9ce3672034e86c0176d21387c04c9824468927b5be39d942` | 共享库存池字段比较 |
 | `1a78d5a23fd888265cc8e30dde6c492d8b6c94cc` | `backend/src/commerceops/entrypoints/inquiry_http.py` | 176 | `eaf8d3d2af552e3a55b0f9c3a45ba8dcaf93438deda500af53d3792fcae842cf` | 询单回执路由及OpenAPI操作名 |
-| `1a78d5a23fd888265cc8e30dde6c492d8b6c94cc` | `backend/migrations/versions/0021_p6_readonly_inquiries.py` | 72 | `47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a` | 会话身份与权限版本列比较 |
+| `e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da` | `backend/migrations/versions/0021_p6_readonly_inquiries.py` | 80 | `47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a` | 会话身份与权限版本列比较 |
 
 ## 兼容边界
 
@@ -58,3 +58,12 @@ Root已转交bcf独审结论`ACCEPT_EXACT_ROW_EXCEPTIONS`（独立20项反例通
 0021行位已被Root报告发生变化，但新fix尚未交精确提交，仍保留原72行pin并显式待最新源码稳定；不能据此增量声称当前全部集成scan畅通。本增量不重跑190项或主仓库全历史扫描，最终全source稳定后由Root统一scan。
 
 增量定向验证：11 passed / 13.06s / native0（两条新行位的exact/index/moved/history-byte、逐字节正则及固定来源缺失拒绝）；日志`.audit/k2-pin-targeted.log`。直接用完整e1源文件生成dir/index两快照均无违规，分别追加一个字节均被拒绝。校验`.gitleaks.toml`与bcf字节完全相同，provenance仅两项source_commit/source_line改变；Ruff、Markdown127files/errors0及Git差异空白检查通过。原190/122测试账仅绑定bcf原候选，不转签本次新pin提交。
+
+
+## 0021已审e2行位增量（2026-11-03）
+
+Root在runtime实施放行中明确转交已独审接受的 `e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da`。仅把0021会话身份/权限版本列比较的固定来源由原 `1a78d5a23fd888265cc8e30dde6c492d8b6c94cc` 第72行重绑定至e2第80行；直接读两份Git源，完整行逐字节相同，hash仍为 `47034fc2724e57435d98f01be94605e95af668f2f3c865c1bed96b5b9a0e401a`。path、完整行regex、所有规则和20项原历史审批不变。
+
+本增量不改runtime交付，不把后续未由Root明确转交的提交作为批准来源；S3或后续业务源码若再变行位仍应阻断，待最终全source稳定后Root统一扫描。上一K2段“待最新0021”的标记为原时点，本节仅更新已审e2的pin。
+
+增量验证：6 passed / 5.79s / native0，日志`.audit/0021-pin-targeted.log`；覆盖新80行exact/index/moved/history-byte、正则逐字节及固定源缺失拒绝。完整e2源文件的dir/index快照通过，分别追加一字节均拒绝；`.gitleaks.toml`仍与51逐字节相同，provenance只改此一项source_commit/source_line。Ruff、Markdown127files/errors0及Git空白检查通过。不重复190项或主库全历史扫描，不宣称最终集成scan畅通。
