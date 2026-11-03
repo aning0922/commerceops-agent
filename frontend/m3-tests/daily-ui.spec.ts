@@ -50,6 +50,8 @@ test.describe("UI_FIXTURE daily detail", () => {
       await expect(dialog.getByText("事实摘要", { exact: false })).toBeHidden();
       await dialog.getByText("报告绑定与版本").click();
       await expect(dialog.getByText("事实摘要", { exact: false })).toBeVisible();
+      expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+      await page.screenshot({ path: info.outputPath(`ui-fixture-${width}-drawer.png`), fullPage: true });
       await dialog.getByRole("button", { name: "关闭来源与证据引用" }).focus();
       await page.keyboard.press("Shift+Tab");
       await expect(dialog.getByText("报告绑定与版本")).toBeFocused();
@@ -89,5 +91,25 @@ test.describe("UI_FIXTURE daily detail", () => {
     await page.getByRole("button", { name: "刷新会话与当前页" }).click();
     await expect(page.getByRole("heading", { name: "登录运营工作台" })).toBeVisible();
     await expect(page.getByText("日报生成失败。", { exact: false })).toHaveCount(0);
+  });
+  test("late 403 after a newer successful refresh keeps the current session", async ({ page }) => {
+    await setup(page, completed);
+    await page.goto(`/daily-reports/${id}`);
+    await expect(page.getByText("付款订单总额", { exact: true })).toBeVisible();
+    let count = 0;
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    await page.route("**/api/v1/daily-reports/*", async route => {
+      count++;
+      if (count === 1) { await held; await route.fulfill(json({}, 403)); }
+      else await route.fulfill(json(completed));
+    });
+    await page.getByRole("button", { name: "刷新会话与当前页" }).click();
+    await expect.poll(() => count).toBe(1);
+    await page.getByRole("button", { name: "刷新会话与当前页" }).click();
+    await expect(page.getByText("付款订单总额", { exact: true })).toBeVisible();
+    release();
+    await expect(page.getByRole("heading", { name: "经营日报" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "登录运营工作台" })).toHaveCount(0);
   });
 });

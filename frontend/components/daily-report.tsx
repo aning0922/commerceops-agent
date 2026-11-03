@@ -24,6 +24,15 @@ const findingNames: Record<string, string> = {
   HIGH_REFUND_AMOUNT: "退款金额高于规则值", RULE_NOT_CONFIGURED: "规则未配置",
 };
 const severityNames: Record<string, string> = { info: "提示", warning: "警告", blocking: "阻断" };
+const qualityNames: Record<string, string> = {
+  MISSING_PAGE: "采集页缺失", DUPLICATE_ID: "记录重复", SOURCE_CHANGED: "采集期间来源变化",
+  CAPACITY_LIMIT: "采集容量达到上限", PARTIAL_FAILURE: "部分数据采集失败",
+  COVERAGE_UNPROVEN: "采集范围未能核实", PAYMENT_STATUS_CONFLICT: "付款时间与订单状态冲突",
+};
+const orderStatusNames: Record<string, string> = {
+  pending: "待处理", processing: "处理中", "on-hold": "暂停", completed: "已完成",
+  cancelled: "已取消", refunded: "已退款", failed: "失败", trash: "已移入回收站",
+};
 const failureNames: Record<string, string> = {
   DAILY_SOURCE_INCOMPLETE: "来源数据不完整", DAILY_SOURCE_UNAVAILABLE: "来源暂不可用",
   DAILY_PERMISSION_INVALID: "当前权限不满足读取要求", DAILY_SOURCE_BINDING_CHANGED: "来源绑定已变化",
@@ -58,7 +67,7 @@ export function DailyReport({ read }: { read: DailyRead }) {
             <p>{report.complete ? "数据完整" : "数据不完整"} · {source} · {report.source.currency}</p>
             <p>统计窗口：{local(report.window.start, zone!)} 至 {local(report.window.end, zone!)}（结束不含） · {zone}</p>
             <p>观测截至：{local(report.collected_at, zone!)}；服务端读取：{local(read.server_time, zone!)}</p>
-            <p>来源范围：受控测试数据集。质量标记：{report.quality_flags.length ? report.quality_flags.join("、") : "无"}。</p>
+            <p>来源范围：受控测试数据集。质量标记：{report.quality_flags.length ? report.quality_flags.map(x => qualityNames[x]).join("、") : "无"}。</p>
           </Card>
           <Card title="指标与口径">
             {report.complete ? (
@@ -74,7 +83,7 @@ export function DailyReport({ read }: { read: DailyRead }) {
               </dl>
             ) : <p>来源不完整，指标未提供；缺失值不按零展示。</p>}
             {report.complete && <details><summary>按来源状态计数</summary><ul>
-              {report.metrics.status_counts.map((row) => <li key={row.status}>{row.status}：{row.count}</li>)}
+              {report.metrics.status_counts.map((row) => <li key={row.status}>{orderStatusNames[row.status]}：{row.count}</li>)}
             </ul></details>}
             <p>付款、退款分别按本日报的业务日期及平台订单记录中的时间字段统计，不代表已核对支付网关到账；精确口径以封存报告为准。</p>
           </Card>
