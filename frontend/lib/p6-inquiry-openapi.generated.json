@@ -938,18 +938,21 @@
             "type": "string"
           },
           "model_calls": {
+            "description": "Known model calls in this executor attempt; prior attempts UNKNOWN.",
             "maximum": 3,
             "minimum": 0,
             "title": "Model Calls",
             "type": "integer"
           },
           "tool_calls": {
+            "description": "Known tool calls in this executor attempt; prior attempts UNKNOWN.",
             "maximum": 4,
             "minimum": 0,
             "title": "Tool Calls",
             "type": "integer"
           },
           "scanned_rows": {
+            "description": "Known scanned rows in this executor attempt; prior attempts UNKNOWN.",
             "minimum": 0,
             "title": "Scanned Rows",
             "type": "integer"

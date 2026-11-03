@@ -22,7 +22,7 @@ export function InquiryResult({ read }: { read: InquiryRead }) {
     <p>{read.data_label} · 来源窗口：{read.source_domain.start} 至 {read.source_domain.end}（结束不含）</p>
     {!result ? <p>{read.state === "queued" || read.state === "analyzing" ? "正在查询，尚无结果。" : "当前没有可展示的结果。"}</p> : <>
       <p>{statusText[result.status]}</p>
-      {read.state === "failed" && <details><summary>查询用量</summary><p>离线模型替身调用 {result.model_calls} 次；工具调用 {result.tool_calls} 次；扫描记录 {result.scanned_rows} 条。</p></details>}
+      {read.state === "failed" && <details><summary>本次执行已知用量</summary><p>仅本次执行尝试的已知用量；此前尝试用量未知。离线模型替身调用 {result.model_calls} 次；工具调用 {result.tool_calls} 次；扫描记录 {result.scanned_rows} 条。</p></details>}
       {result.status === "complete" && <ul className="inquiry-facts">{visibleFacts.map((fact, index) => <li key={`${fact.evidence_id}-answer-${index}`}>
         商品 {fact.sku_key} · {metricText[fact.metric]}：{fact.value ?? "未报告"} {fact.unit}{fact.currency ? ` ${fact.currency}` : ""}
       </li>)}</ul>}

@@ -212,3 +212,9 @@ Root 放行基于已审设计 `832c7d1` 与冻结服务 DTO `1a78d5a23fd888265cc
 Root 指出 `18a2973973def9120ac4f50a7e8604a33b45c532` 的 `fail_safe` 会持久化 `failed` 与无事实的 `access_denied` 结果，而当前授权读取可返回该结果；原前端仅接受 `completed` 的非空结果。现仅在 `failed` 下接受已知非成功、非澄清状态，要求结果、事实引用、claim 与澄清选项均为空，继续校验来源和工具轨迹，不把非零模型替身调用、工具调用或扫描数当成无效。页面用固定安全文案呈现失败，并在折叠区显示服务返回的离线替身用量，不展示服务自由文本作为事实。
 
 `frontend/m3-tests/inquiry-failed.fixture.json` 由隔离导出的 `18a297` 源码中的实际 `InquiryRead`、`ResultPayload.from_outcome(Outcome("access_denied",0,0,0,()))` 和 renderer 生成，是 DTO 样本而非真实 PG 回执。定向9个询单无服务器契约例通过，涵盖该样本、带非零用量的安全变体及失败结果夹带成功事实/引用/claim/选项的拒绝；typecheck、schema同步检查与差异检查退出0。`18a297` 与 `1a78d5a` 的服务 DTO 与 OpenAPI 资产逐文件无差异；后端后续用量修复的精确冻结提交及独审仍待 Root 转交，不预签其 schema、PG、实际 API 或浏览器结果。
+
+## 17. 询单已知用量合同同步（2026-11-03）
+
+Root 转交精确冻结 `e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da`，其 OpenAPI 相对1a资产新增三处描述，均限定为本次执行尝试的已知用量、历史尝试 UNKNOWN。前端复制同源 OpenAPI、重新生成类型并将校验摘要更新为 `9e9a7e093d4cccfde5634226d7076003a9f124c54643d76bd1466aea1b017ed5`；第15节旧摘要保留其历史时点，不再作为当前同步目标。失败结果的折叠用量区明确标“仅本次执行尝试的已知用量；此前尝试用量未知”，不把零或非零当作历史总量。
+
+新增合成 `inquiry-failed-known-usage.fixture.json` 由隔离导出的 e2e 源码 `ResultPayload.safe_failure`、真实 DTO 和 renderer 生成，模拟本次已知 `model_calls=3/tool_calls=2/scanned_rows=3` 与两条轨迹，事实/claim/引用/选项均为空；不是实际 PG 或服务运行回执。定向10个询单无服务器契约例、typecheck、schema同步与差异检查均通过；未启浏览器、服务或 PG，实际 API 与整包独审仍待 Root。

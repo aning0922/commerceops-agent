@@ -355,11 +355,20 @@ export interface components {
              * @enum {string}
              */
             readonly status: "complete" | "clarify" | "unsupported" | "insufficient_evidence" | "invalid_response" | "source_incomplete" | "access_denied" | "budget_exceeded" | "timeout" | "tool_denied";
-            /** Model Calls */
+            /**
+             * Model Calls
+             * @description Known model calls in this executor attempt; prior attempts UNKNOWN.
+             */
             readonly model_calls: number;
-            /** Tool Calls */
+            /**
+             * Tool Calls
+             * @description Known tool calls in this executor attempt; prior attempts UNKNOWN.
+             */
             readonly tool_calls: number;
-            /** Scanned Rows */
+            /**
+             * Scanned Rows
+             * @description Known scanned rows in this executor attempt; prior attempts UNKNOWN.
+             */
             readonly scanned_rows: number;
             /** Traces */
             readonly traces: readonly components["schemas"]["TraceRead"][];

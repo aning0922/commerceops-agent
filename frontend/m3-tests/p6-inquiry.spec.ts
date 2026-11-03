@@ -6,6 +6,7 @@ import { inquiryApi, inquiryBoundToRequest, validInquiryRead } from "../lib/p6-i
 import type { InquiryInput, InquiryRead } from "../lib/p6-inquiry-client";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import failed from "./inquiry-failed.fixture.json" with { type: "json" };
+import knownFailed from "./inquiry-failed-known-usage.fixture.json" with { type: "json" };
 
 const id = "00000000-0000-4000-8000-000000000001", key = "00000000-0000-4000-8000-000000000002";
 const binding = "a".repeat(64), domain = { start: "2026-11-01T00:00:00Z", end: "2026-11-02T00:00:00Z" };
@@ -56,6 +57,20 @@ test("18a failed DTO accepts safe failure and known nonzero usage without disclo
   expect(validInquiryRead({ ...failed, result: { ...failed.result, evidence_refs: ["ref1"] } })).toBe(false);
   expect(validInquiryRead({ ...failed, result: { ...failed.result, claims: [{ kind: "fact", refs: ["ref1"] }] } })).toBe(false);
   expect(validInquiryRead({ ...failed, result: { ...failed.result, clarification_options: [{ sku_key: "sku1", label: "商品" }] } })).toBe(false);
+});
+test("e2e50f safe failure preserves current-attempt 3/2/3 usage and two traces", () => {
+  expect(validInquiryRead(knownFailed)).toBe(true);
+  if (!validInquiryRead(knownFailed) || !knownFailed.result) throw new Error("Frozen DTO fixture must validate");
+  expect([knownFailed.result.model_calls, knownFailed.result.tool_calls, knownFailed.result.scanned_rows]).toEqual([3, 2, 3]);
+  expect(knownFailed.result.traces).toHaveLength(2);
+  expect(knownFailed.result.results).toEqual([]);
+  expect(knownFailed.result.claims).toEqual([]);
+  expect(knownFailed.result.evidence_refs).toEqual([]);
+  expect(knownFailed.result.clarification_options).toEqual([]);
+  const html = renderToStaticMarkup(createElement(InquiryResult, { read: knownFailed })).replaceAll("<!-- -->", "");
+  expect(html).toContain("仅本次执行尝试的已知用量；此前尝试用量未知");
+  expect(html).toContain("离线模型替身调用 3 次；工具调用 2 次；扫描记录 3 条");
+  expect(html).not.toContain("查看依据与时间");
 });
 test("prepared request freezes key, shop and body against later mutation", async () => {
   const mutable = { ...input };

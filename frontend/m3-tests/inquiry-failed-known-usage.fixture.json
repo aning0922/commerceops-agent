@@ -1,0 +1,45 @@
+{
+  "schema_version": "p6-inquiry-web-v1",
+  "identity_mode": "session",
+  "task_id": "00000000-0000-4000-8000-000000000001",
+  "shop_id": "00000000-0000-4000-8000-000000000001",
+  "request_key": "00000000-0000-4000-8000-000000000002",
+  "state": "failed",
+  "duplicate": true,
+  "source_mode": "mock",
+  "source_binding": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_domain": {
+    "start": "2026-11-01T00:00:00Z",
+    "end": "2026-11-02T00:00:00Z"
+  },
+  "evidence_mode": "offline_stub",
+  "server_time": "2026-11-03T00:00:00Z",
+  "trace_id": "00000000-0000-4000-8000-000000000001",
+  "result": {
+    "schema_version": "p6-inquiry-result-v1",
+    "status": "access_denied",
+    "model_calls": 3,
+    "tool_calls": 2,
+    "scanned_rows": 3,
+    "traces": [
+      {
+        "tool_call_id": "call1",
+        "name": "commerce.read_products",
+        "args_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "tool_call_id": "call2",
+        "name": "commerce.read_inventory",
+        "args_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ],
+    "results": [],
+    "evidence_refs": [],
+    "claims": [],
+    "clarification_options": [],
+    "evidence_mode": "offline_stub",
+    "workflow_version": "p6-readonly-inquiry-v1"
+  },
+  "answer": "当前身份无权查看此结果。",
+  "data_label": "本地演示数据 / 离线模型替身"
+}
