@@ -416,6 +416,7 @@
         "severity",
         "metric_key",
         "evidence_ids",
+        "rule_version",
         "rule_config_hash"
       ],
       "title": "DailyFinding",
@@ -1034,6 +1035,7 @@
         }
       },
       "required": [
+        "schema_version",
         "start",
         "end"
       ],

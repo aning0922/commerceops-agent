@@ -147,7 +147,8 @@ DDL实际SQL、role/grant负例和升级旧态字节验证须先精确独审再�
 
 normalized_request固定：schema_version=p6-daily-task-v1、daily_source、business_day、snapshot_id、rules、
 request_key(UUID)、request_hash、conversation_id、requester_auth_version；client不提供这些server绑定字段。
-request_hash覆盖规范client shop/date/resolved-source-version和规则版本，默认日期在第一次受理时解析并持久化；
+request_hash覆盖规范client原始shop/date（省略固定记null）/请求source-version与服务端规则版本；
+实际解析后的日期/来源另作为不可变server绑定保存，默认日期在第一次受理时解析并持久化；
 同key重试先读原记录，不能隔日把省略日期重解析后误报冲突或新建。显式不同正文409。
 新增仅daily kind的partial unique index `(organization_id,requester_id,(normalized_request->>'request_key'))`，
 实现同actor/endpoint跨店铺键冲突，不把shop放进unique从而允许同key跨店铺另建任务。
@@ -202,3 +203,8 @@ owned PG、真实HTTP服务、真实模型、发送、Web E2E、Hosted、迁移�
 
 用户最新依赖裁定：SOP未准备、真实模型/embedding预算稍后、暂不实际推送；
 此设计只接新owned合成来源，模型和实际发送保持关闭，不继承旧Secret/群窗口。
+
+设计资产检查：Markdown 120文件/0错误，新增两文件敏感内容扫描native exit 0/no leaks，
+Git差异空白通过。首轮schema结构检查要求全部声明属性必填，发现共享DTO默认字段未在required中，
+实际AssertionError；已将所有对象属性列为required（可空字段仍须显式null），随后结构检查15defs/16strict objects/
+全部local refs存在/金额仅string通过。该检查不是完整JSON Schema引擎或API运行验证，二者NOT_RUN。
