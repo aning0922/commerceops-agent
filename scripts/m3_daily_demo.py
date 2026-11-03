@@ -25,6 +25,19 @@ def main() -> None:
         if args.directory.exists() or not args.directory.is_absolute():
             raise ValueError("NEW_PRIVATE_DIRECTORY_REQUIRED")
         with connect(settings) as db:
+            identity = db.execute(
+                """SELECT current_database() AS database_name,
+                current_user AS connected_user,pg_catalog.pg_get_userbyid(c.relowner) AS table_owner
+                FROM pg_catalog.pg_class c WHERE c.oid='business.organizations'::regclass
+                AND c.relkind='r'"""
+            ).fetchone()
+            if (
+                identity is None
+                or identity["database_name"] != settings.name
+                or not identity["table_owner"]
+                or identity["connected_user"] != identity["table_owner"]
+            ):
+                raise ValueError("OWNED_DATABASE_OWNER_REQUIRED")
             row = db.execute("SELECT count(*) AS n FROM business.organizations").fetchone()
             if row is None or row["n"] != 0:
                 raise ValueError("EMPTY_OWNED_DATABASE_REQUIRED")

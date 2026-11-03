@@ -99,3 +99,16 @@ shop 上互相覆盖 external key/timezone。
 
 作者只跑 namespace 拒绝、文件权限、固定 fixture复制/typed 配置加载/拒绝覆盖八项离线测试，
 Ruff/format/mypy及文档检查；没有执行 seed、连接 PG、启动服务、访问浏览器、模型或外发。
+
+## 实际连接 owner 前置修复候选
+
+原独审 1P2/HOLD 保留：仅配置用户名、namespace 和空库不能证明初始化连接是实际表 owner，
+runtime 基础 INSERT 权限可能使逐事务 initializer 部分落库。本修复在任何 mkdir/initializer
+之前，同一实际连接首先查询 current_database、current_user 及 pg_catalog.pg_class 中
+business.organizations 普通表的真实 relowner；数据库名必须等于显式 settings.name，当前
+用户必须等于该表 owner，缺表/缺 owner/不符均固定拒绝。随后才运行原空库检查。
+
+日报 seed 经 Root 窄授权加入相同前置核验；原 namespace/empty/私有目录与初始化器保持。
+新增 12 个 offline 节点覆盖两入口的 runtime、currentdb 不符、缺 owner/表及非空拒绝，
+确认 initializer 未调用、目录未创建；正向仅到 initializer sentinel 边界，未真实写库。
+连同原八项为 20 pass；新实际 SQL、seed 和服务仍 NOT_RUN，等待原 Reviewer 复核。
