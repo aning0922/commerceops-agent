@@ -1,0 +1,35 @@
+{
+  "source_sha": "1c35a0b044d3976c0b5b15d69bfb6dae44e71749",
+  "source_tree": "a65bd286b8284749c51e09826bc35384b65952fc",
+  "same_tree_root_sha": "f3a68c0aee2c16fe792a3ed95b556ada1061f477",
+  "mode": "NATIVE_PG_DELTA_COMPONENT_ONLY",
+  "native_exit": 0,
+  "project": "p123-ee04c38f10ae",
+  "actual_call_results": [
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466919.024837128,
+      "nodeid": "tests/v4/test_demo_seed_pg.py::test_seed_native_mid_persona_failure_rolls_back_but_preserves_reserved_key",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.40186083409935236
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466923.733354089,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_reset_same_key_payload_once_changed_payload_conflicts_and_other_tenant_stays",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.7249421670567244
+    }
+  ],
+  "started_at": "2026-11-03T15:58:18.282915+00:00",
+  "finished_at": "2026-11-03T15:58:57.969575+00:00",
+  "cleanup_exit": 0,
+  "stopping_confirmed": true,
+  "live_http_web": "NOT_RUN",
+  "full_pg": "NOT_RUN",
+  "evidence_index": ".audit/v4-0/rollback-two-1c35"
+}
