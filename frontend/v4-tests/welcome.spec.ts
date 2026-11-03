@@ -286,7 +286,7 @@ test('UI_FIXTURE: a control receipt from a different tenant is never shown as su
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
  }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
- await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByRole('button',{name:'切换视角'}).click();
+ await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByLabel('体验视角').selectOption('approver');await page.getByRole('button',{name:'切换视角'}).click();
  await expect(page.getByText('操作结果未知，请使用原操作核对。')).toBeVisible();await expect(page.getByText('身份视角已更新。')).toHaveCount(0);expect(calls).toBe(1);
 });
 
@@ -301,4 +301,14 @@ test('UI_FIXTURE: creation response and current session must share the same iden
  }));
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();
  await expect(page.getByText('结果未知，请使用原操作核对。')).toBeVisible();await expect(page.getByText('演示空间已建立。')).toHaveCount(0);
+});
+
+test('UI_FIXTURE: current persona is selected and cannot be switched to itself',async ({page})=>{
+ let writes=0;
+ await page.route('**/api/v4/demo/**',withCors(route=>{
+  if(route.request().method()==='POST')writes++;
+  return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'approver',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+ }));
+ await page.goto('/v4');await expect(page.getByLabel('体验视角')).toHaveValue('approver');
+ await expect(page.getByRole('button',{name:'切换视角'})).toBeDisabled();expect(writes).toBe(0);
 });
