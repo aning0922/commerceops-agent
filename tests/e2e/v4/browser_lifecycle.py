@@ -14,10 +14,10 @@ TITLE = "LIVE: isolated demo lifecycle and browser layout"
 # Root handed off f18; Astra aa91caf accepted its prepared native-zoom delta.
 # Presence, raw Git blobs and current HEAD must all agree before any resource launch.
 WEB_HANDOFF_READY = True
-WEB_SOURCE = "f18ba5bf5c9de88d113eb5a5bff244cd66416c2b"
+WEB_SOURCE = "1bcd87a03c1c734208e846723724f7bafc8e1974"
 PINS = {
     "frontend/playwright.v4-live.config.ts": "ca9bb704f27220de9930f7e03e56492c79b0faa4",
-    "frontend/v4-tests/lifecycle.live.ts": "d590a90c1507b8a2a9550840d09bee9cfbf7a3dc",
+    "frontend/v4-tests/lifecycle.live.ts": "7886099a4c3bbc4f3fdbc1b4ec53b402d63936ce",
     "frontend/v4-tests/lifecycle.waiter.mjs": "ec74f8c560ad293821dcd4545c275395c243d3d0",
     "frontend/v4-tests/lifecycle.profile.mjs": "343757319e0c3ed6d50f6777a3d7aadbc2a9d4ed",
     "frontend/lib/v4-schema.json": "e625120e42a28b8f777d7e2e02b0da0aa9d2b5be",
