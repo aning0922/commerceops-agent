@@ -206,3 +206,17 @@ test('UI_FIXTURE: lost creation body recovers only with the original request key
  await page.goto('/v4');await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByRole('button',{name:'核对原操作'})).toBeVisible();
  await page.getByRole('button',{name:'核对原操作'}).click();await expect(page.getByText('已核对原操作回执。')).toBeVisible();expect(posts).toBe(1);
 });
+
+test('UI_FIXTURE: server expiry clears session without creating another',async ({page})=>{
+ let expired=false,posts=0;
+ await page.route('**/api/v4/demo/**',withCors(async route=>{
+  if(route.request().method()==='POST')posts++;
+  const path=new URL(route.request().url()).pathname;
+  if(path.endsWith('/session')&&!expired)return route.fulfill({json:{...base,context,data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[],source}}});
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'EXPIRED',safe_message:'expired',retryable:false,request_key:null}}});
+ }));
+ await page.goto('/v4');await expect(page.getByText(/当前视角：operator/)).toBeVisible();
+ expired=true;await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+ await expect(page.getByRole('status')).toContainText('已到期');
+ await expect(page.getByText(/当前视角：operator/)).toHaveCount(0);expect(posts).toBe(0);
+});
