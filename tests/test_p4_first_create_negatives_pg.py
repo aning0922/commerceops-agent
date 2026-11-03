@@ -398,6 +398,22 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                     "business.p6_daily_source_bindings",
                     "business.p6_daily_snapshots",
                     "business.p6_daily_reports",
+                    "business.p6_knowledge_documents",
+                    "business.p6_knowledge_authorizations",
+                    "business.p6_knowledge_chunks",
+                    "business.p6_knowledge_embeddings",
+                    "business.p6_knowledge_registries",
+                    "business.readonly_inquiries",
+                    "business.p6_daily_destinations",
+                    "business.p6_daily_schedules",
+                    "business.p6_daily_schedule_runs",
+                    "business.p6_daily_questions",
+                    "business.p6_daily_deliveries",
+                    "business.p6_daily_fake_receipts",
+                    "business.p6_copy_products",
+                    "business.p6_copy_candidates",
+                    "business.p6_copy_decisions",
+                    "business.p6_copy_drafts",
                 }
                 assert {key: current[key] for key in before} == before
                 assert current["business.p3_template_results"][0] == 0
@@ -413,6 +429,22 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                         "p6_daily_source_bindings",
                         "p6_daily_snapshots",
                         "p6_daily_reports",
+                        "p6_knowledge_documents",
+                        "p6_knowledge_authorizations",
+                        "p6_knowledge_chunks",
+                        "p6_knowledge_embeddings",
+                        "p6_knowledge_registries",
+                        "readonly_inquiries",
+                        "p6_daily_destinations",
+                        "p6_daily_schedules",
+                        "p6_daily_schedule_runs",
+                        "p6_daily_questions",
+                        "p6_daily_deliveries",
+                        "p6_daily_fake_receipts",
+                        "p6_copy_products",
+                        "p6_copy_candidates",
+                        "p6_copy_decisions",
+                        "p6_copy_drafts",
                     )
                 )
                 stage = "grant-current"
@@ -488,17 +520,17 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 with connect(owner) as db:
                     assert db.execute(
                         "SELECT version_num FROM business.alembic_version"
-                    ).fetchone() == {"version_num": "0019_p6_daily_reports"}
+                    ).fetchone() == {"version_num": "0023_p6_copy_drafts"}
                 emit(
                     "c0_migration_preserved",
                     source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
                     original_tables=len(before),
                     original_rows=sum(v[0] for v in before.values()),
                     checkpoints=before["checkpoints.checkpoints"][0],
-                    new_tables_empty=10,
+                    new_tables_empty=26,
                     original_all_bytes_equal=True,
                     first_create_head="0013_p4_first_create",
-                    current_head="0019_p6_daily_reports",
+                    current_head="0023_p6_copy_drafts",
                     current_grants_verified=True,
                 )
             except BaseException as error:

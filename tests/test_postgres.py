@@ -47,7 +47,7 @@ def runtime(settings: DatabaseSettings) -> DatabaseSettings:
 
 def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
     row = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    assert row and row["version_num"] == "0019_p6_daily_reports"
+    assert row and row["version_num"] == "0023_p6_copy_drafts"
     assert db.execute("SHOW server_version").fetchone()["server_version"].startswith("17.11")  # type: ignore[index]
     tables = db.execute("""SELECT table_schema, table_name FROM information_schema.tables
         WHERE table_schema IN ('business','checkpoints','public')""").fetchall()
@@ -102,6 +102,22 @@ def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
         "p6_daily_source_bindings",
         "p6_daily_snapshots",
         "p6_daily_reports",
+        "p6_knowledge_documents",
+        "p6_knowledge_authorizations",
+        "p6_knowledge_chunks",
+        "p6_knowledge_embeddings",
+        "p6_knowledge_registries",
+        "readonly_inquiries",
+        "p6_daily_destinations",
+        "p6_daily_schedules",
+        "p6_daily_schedule_runs",
+        "p6_daily_questions",
+        "p6_daily_deliveries",
+        "p6_daily_fake_receipts",
+        "p6_copy_products",
+        "p6_copy_candidates",
+        "p6_copy_decisions",
+        "p6_copy_drafts",
         "p4_base_links",
         "p4_sender_state",
         "p4_sdk_windows",
