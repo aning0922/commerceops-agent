@@ -283,3 +283,26 @@ HTTP替身不签真实session/数据库Gate；ACK模拟不是raw-wire捕获，�
 0019精确父提交已由Root交付37e7e99e89fdfc7b87145317fabf373306d60dfd，实际revision为
 `0019_p6_daily_reports`。遵Root指令先普通冻结本K3候选，再普通merge该精确提交并另提交0020父标识修复。
 0023仍只保留待0022转交的父依赖，不预填其SHA；整体Alembic graph/升级/K3 SQL、完整CI、人审均NOT_RUN。
+
+### K3 P2：不同候选复用审批请求键的竞争修复候选
+
+原cf86独审发现：请求键唯一范围是`(organization_id,actor_id,request_key)`，
+原先只锁单一candidate；同一approver并发审核两个不同candidate、复用同一key时，
+双方都可能先读不到receipt，败方触发UniqueViolation并走503，未返回约定的异文409。
+该P2与原121纯测试通过事实分记，不能由旧测试签收此竞争行为。
+
+本修复给原请求键约束固定名`p6_copy_decision_request_key`，只将decision与draft两次INSERT
+放入一个局部savepoint；捕获时必须同时匹配business schema、p6_copy_decisions表和此约束名。
+局部回滚完成后按原org/actor/key读取已提交receipt，异文409、同文返回原decision/draft；
+未读到则503，不假定已回滚、不重试写入、不换key。其他唯一约束异常原样抛出，
+原候选行锁、同候选first-decision、权限/来源/TTL与commit原子约束均保留。
+
+新增六项离线故障注入验证局部回滚先于receipt查询、INSERT仅一次、异文/同文/缺回执，
+以及错误schema/table/constraint不被吞掉；使用真实psycopg UniqueViolation诊断字段，
+SQL和事务仍为替身，不签实际数据库竞争。新增PG节点在真实source replay之后以Barrier(2)
+让两个不同candidate的审批会话均到达INSERT前，要求一份saved、一份确切409，
+并核count为2candidate/1decision/1draft/1review audit；原同candidate并发节点保留。
+
+本次组合纯与HTTP替身测试实际127passed/0.84s/exit0；四个变更Python文件strict mypy、
+Ruff及format通过。K2 30与K3 29共59个PG节点仅collect/0.70s/exit0；
+本线未运行PG、Docker、SDK或模型。K3实际SQL和独审仍pending，0023父0022仍待精确交付。

@@ -519,3 +519,50 @@ def test_candidate_json_null_rehash_cannot_bypass_database_guards(
           encode(sha256(convert_to(p,'UTF8')),'hex'),created_at,expires_at FROM input""",
             (str(UUID(int=99)), json_path, c.value.candidate_id, UUID(int=99), uuid4()),
         )
+
+
+def test_two_candidates_same_actor_request_key_race_returns_exact_conflict(
+    copy_case: CopyFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from threading import Barrier
+
+    c = copy_case
+    second = c.store.create(c.k.f.actor, c.command.model_copy(update={"request_key": uuid4()}))
+    shared = uuid4()
+    left = c.review(key=shared)
+    right = left.model_copy(update={"candidate_hash": second.candidate_hash})
+    barrier = Barrier(2)
+    original = CopyStore.verify_sources
+
+    def meet_before_insert(
+        self: CopyStore,
+        db: Connection[dict[str, Any]],
+        row: dict[str, Any],
+        value: CopyCandidate,
+        *,
+        replay_rank: bool,
+    ) -> None:
+        original(self, db, row, value, replay_rank=replay_rank)
+        # Both sessions have observed no receipt and locked different candidates at this point.
+        if replay_rank:
+            barrier.wait(timeout=10)
+
+    monkeypatch.setattr(CopyStore, "verify_sources", meet_before_insert)
+
+    def decide(item: tuple[UUID, ReviewCopy]) -> str:
+        identifier, request = item
+        try:
+            return c.store.review(c.k.f.actor, identifier, request).state
+        except WebFailure as error:
+            assert error.status == 409 and error.code == "IDEMPOTENCY_CONFLICT"
+            return error.code
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(decide, item)
+            for item in ((c.value.candidate_id, left), (second.candidate_id, right))
+        ]
+        outcomes = [f.result(timeout=20) for f in futures]
+    assert sorted(outcomes) == ["IDEMPOTENCY_CONFLICT", "saved"]
+    assert c.counts() == (2, 1, 1, 1)

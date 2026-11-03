@@ -7,6 +7,8 @@ from types import MappingProxyType
 from typing import Any
 from uuid import UUID, uuid4
 
+from psycopg.errors import UniqueViolation
+
 from commerceops.application.knowledge_copy.citations import ProductCitation
 from commerceops.application.knowledge_copy.commands import CopyReceipt, CreateCopy, ReviewCopy
 from commerceops.application.knowledge_copy.contracts import Manifest, Query, checked, digest
@@ -420,44 +422,62 @@ class CopyStore:
         candidate = _candidate(row)
         self.verify_sources(db, row, candidate, replay_rank=True)
         identifier_decision, draft = uuid4(), uuid4() if request.action == "approve" else None
-        db.execute(
-            """INSERT INTO business.p6_copy_decisions
-         (id,organization_id,shop_id,candidate_id,candidate_hash,actor_id,identity_id,session_id,
-          auth_version,request_key,action,reason,request_payload,request_hash)
-         VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-            (
-                identifier_decision,
-                actor.organization_id,
-                row["shop_id"],
-                identifier,
-                request.candidate_hash,
-                actor.principal_id,
-                actor.identity_id,
-                actor.session_id,
-                actor.auth_version,
-                request.request_key,
-                request.action,
-                request.reason,
-                canonical(semantics),
-                expected_hash,
-            ),
-        )
-        if draft:
-            candidate = _candidate(row)
-            db.execute(
-                """INSERT INTO business.p6_copy_drafts
-             (id,organization_id,shop_id,candidate_id,candidate_hash,decision_id,text)
-             VALUES(%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    draft,
-                    actor.organization_id,
-                    row["shop_id"],
-                    identifier,
-                    request.candidate_hash,
-                    identifier_decision,
-                    candidate.text,
-                ),
-            )
+        try:
+            with db.transaction():
+                db.execute(
+                    """INSERT INTO business.p6_copy_decisions
+                 (id,organization_id,shop_id,candidate_id,candidate_hash,actor_id,identity_id,session_id,
+                  auth_version,request_key,action,reason,request_payload,request_hash)
+                 VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                    (
+                        identifier_decision,
+                        actor.organization_id,
+                        row["shop_id"],
+                        identifier,
+                        request.candidate_hash,
+                        actor.principal_id,
+                        actor.identity_id,
+                        actor.session_id,
+                        actor.auth_version,
+                        request.request_key,
+                        request.action,
+                        request.reason,
+                        canonical(semantics),
+                        expected_hash,
+                    ),
+                )
+                if draft:
+                    candidate = _candidate(row)
+                    db.execute(
+                        """INSERT INTO business.p6_copy_drafts
+                     (id,organization_id,shop_id,candidate_id,candidate_hash,decision_id,text)
+                     VALUES(%s,%s,%s,%s,%s,%s,%s)""",
+                        (
+                            draft,
+                            actor.organization_id,
+                            row["shop_id"],
+                            identifier,
+                            request.candidate_hash,
+                            identifier_decision,
+                            candidate.text,
+                        ),
+                    )
+        except UniqueViolation as error:
+            if (
+                error.diag.schema_name != "business"
+                or error.diag.table_name != "p6_copy_decisions"
+                or error.diag.constraint_name != "p6_copy_decision_request_key"
+            ):
+                raise
+            # Only this insert/draft savepoint rolled back. Do not replay the write or change key.
+            previous = db.execute(
+                RECEIPT, (actor.organization_id, actor.principal_id, request.request_key)
+            ).fetchone()
+            if previous is None:
+                raise WebFailure("COPY_RECEIPT_UNAVAILABLE", 503) from None
+            if previous["request_hash"] != expected_hash:
+                raise WebFailure("IDEMPOTENCY_CONFLICT", 409) from None
+            return _receipt(previous)
         return CopyReceipt(
             request_key=request.request_key,
             candidate_id=identifier,

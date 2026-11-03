@@ -79,7 +79,8 @@ CREATE TABLE business.p6_copy_decisions (
  reason text NOT NULL CHECK(length(btrim(reason)) BETWEEN 1 AND 500),
  request_payload text NOT NULL,request_hash text NOT NULL,
  decided_at timestamptz NOT NULL DEFAULT clock_timestamp(),
- UNIQUE(organization_id,actor_id,request_key),UNIQUE(candidate_id),
+ CONSTRAINT p6_copy_decision_request_key UNIQUE(organization_id,actor_id,request_key),
+ UNIQUE(candidate_id),
  UNIQUE(organization_id,shop_id,id,candidate_id,candidate_hash,action),
  FOREIGN KEY(organization_id,shop_id,candidate_id,candidate_hash)
  REFERENCES business.p6_copy_candidates(organization_id,shop_id,id,candidate_hash),
