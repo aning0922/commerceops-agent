@@ -96,6 +96,10 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:
         "InsufficientPrivilege",
         "CheckViolation",
         "SourceBindingError",
+        "WebFailure",
+        "WorkerBusy",
+        "TerminationRequired",
+        "FixtureLookupError",
     }:
         kind = "BaseException"
     import psycopg
