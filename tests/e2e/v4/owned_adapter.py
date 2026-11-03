@@ -126,6 +126,9 @@ class OwnedAdapter:
     def bootstrap_facts(self, key: str) -> dict[str, Any]:
         return self._facts("bootstrap", "--key", key)
 
+    def ttl_facts(self, tenant: str) -> dict[str, Any]:
+        return self._facts("ttl", "--tenant", tenant)
+
     def revoke_credential(self, tenant: str, principal: str) -> None:
         if self._facts("credential-revoke", "--tenant", tenant, "--principal", principal) != {
             "revoked": 1

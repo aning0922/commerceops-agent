@@ -139,3 +139,15 @@ pull_policy=never，附内容hash核对。后续所有owner/observer都用冻结
 而非传不受支持的参数；启动up仍带--no-build。没有修改原compose/Dockerfile。
 定向纯回归15pass/0.09s/native0，含missing-image、原生137/timeout/坏JSON记录不丢、
 Q18 minimal owner绑定、Web环境、API依赖范围、冻结模型无build。没有启动服务或跑任何case。
+
+## natural_ttl 独立新增模式（窗口未开放）
+
+仅此scenario允许≤2700s，其他仍≤1800s，reserve180不变。沿用同driver/manifest，
+独立project/DB/API；不启动或绑定Web，web_port仅保留manifest兼容字段。
+ttl_probe.py不改变业务期限。初始以PG tenant/session created/expires和API expiry核恰30分钟，
+并拒绝已撤销/不同期限；工作截止须≥expiry+60秒，另留180秒cleanup，否则UNKNOWN/非0。
+静置只在probe内monotonic分段等待，无业务轮询；Root可用独立资源做Full串行PG。
+到期前30秒取PG+有效current；之后核DB确已跨expiry、原期限/撤销事实未变，再核current、
+旧两店及原控制回执401。边界丢失/中断/传输错误留UNKNOWN，不续窗；600独占证据文件
+natural_ttl.safe.json保留部分事实。13项定向纯测试0.08s/native0，无真实等待；实际SQL/
+HTTP/30分钟自然行为NOT_RUN，需Root专项新对象/端口/UTC，不以此签Full。

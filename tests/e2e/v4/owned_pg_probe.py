@@ -29,6 +29,7 @@ def main() -> None:
                     "bootstrap",
                     "credential-revoke",
                     "grant-revoke",
+                    "ttl",
                 ),
             )
             parser.add_argument("--tenant")
@@ -59,7 +60,22 @@ def main() -> None:
             with connect(settings) as db:
                 facts = DesignPgFacts(db, budget)
                 value: Any
-                if args.action == "tenants":
+                if args.action == "ttl":
+                    UUID(args.tenant)
+                    ttl_row = facts._row(
+                        "SELECT t.id::text AS tenant_id,t.created_at,t.expires_at,"
+                        "s.created_at AS session_created_at,s.expires_at AS session_expires_at,"
+                        "t.revoked_at IS NOT NULL AS tenant_revoked,"
+                        "s.revoked_at IS NOT NULL AS session_revoked,"
+                        "clock_timestamp() AS db_utc FROM business.v4_demo_tenants t JOIN "
+                        "business.v4_demo_sessions s ON s.tenant_id=t.id WHERE t.id=%s",
+                        (args.tenant,),
+                    )
+                    value = {
+                        key: item.isoformat() if isinstance(item, datetime) else item
+                        for key, item in ttl_row.items()
+                    }
+                elif args.action == "tenants":
                     value = facts._row(
                         "SELECT COALESCE(jsonb_agg(id ORDER BY id), '[]'::jsonb) "
                         "AS tenants FROM business.v4_demo_tenants",
