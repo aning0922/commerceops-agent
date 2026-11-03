@@ -91,3 +91,13 @@ CAPACITY_SQL用MATERIALIZED单次DB时刻统计未revoke且未到期tenant/sessi
 完整V4Adapter、实际后端表/运行配置、driver与容器清理仍待最终冻结接线，缺实现阻断不回占位值。supervisor/strict validator本轮未改，其旧静态结论沿用；不据此签实际进程/PG/API/Web/Full。
 
 作者20项定向判据通过及Ruff/Mypy11/docs0只记作者证据；未重跑旧29项是明确事实。测试覆盖错误capacity reason/Retry秒、receipt错key/operation、两种并发结果及错误拒绝，但没有事件种类判据。Q18明确为ROOT登记的后续待后端细化分支，尚无实现/运行回执，不将其签已完成。Root的独立UI_FIXTURE22pass2fail/native1亦不在本SQL/HTTP候选结论内，不能代签或被本审查覆盖。
+
+## f946增量：QA-04关闭与准备工具核收
+
+受审candidate `f946bb121b32582131ffe46619fbe97a0a2569da` / tree `33d653b49b86f81aeb3459de5cbb0e04917d6035`，parent d663。结论：**QA-04 CLOSED_AT_CODE_REVIEW_LEVEL；ACCEPT_PREPARED_HARNESS，准备工具已报告问题无未关闭P1/P2。** 不是SQL实际执行、HTTP/PG/Web或完整QA Gate接受。
+
+精确diff确认：OperationFacts新增完整event_kinds；OPERATION_SQL对原receipt和相同tenant关联事件array_agg按kind/id排序，没有期望kind过滤和DISTINCT。DesignPgFacts要求序列类型及长度与count一致；require_operation_events比较完整排序tuple而非set，因此遗漏/重复/额外/同数错kind均拒绝。create_ack_loss、capacity原三key和same_key_reset实际调用该判据，原receipt/tenant/epoch约束保留。测试15项源码含两顺序正例、缺失/重复/错种/额外/截断计数负例；作者15pass及Ruff/type12/docs0仅记作者证据，本次未执行。
+
+范围说明：SQL仍以receipt_id且相同tenant连接，这一结果只证明该匹配域内的事件种类；不能用它证明全库不存在跨tenant/owner伪关联事件。后端86c的SQL-02仍需数据库复合绑定及独立负例整改，SQL-01/03亦未由QA工具接受关闭。最终真实adapter接线应与修正后的schema相符；不要把准备工具回执用于绕过schema HOLD。
+
+Q18待后端精确细化、最终driver/资源/命令准入、真实HTTP/PG/浏览器与Full/Hosted继续分列NOT_RUN；Root UI局部追踪结果不是本工具的业务证明。原05a三P2、d663新P2及首进程失败/EPERM UNKNOWN全部保留。只新增审查文字，未读取作者WIP、未启任何资源。
