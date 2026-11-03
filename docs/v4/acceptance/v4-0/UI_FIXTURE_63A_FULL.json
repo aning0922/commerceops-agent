@@ -1,0 +1,93 @@
+{
+  "source_sha": "63a5a4f08bad6b98fe95942598291e0714bc09da",
+  "mode": "UI_FIXTURE_NOT_API_PG",
+  "stats": {
+    "startTime": "2026-11-03T15:17:38.046Z",
+    "duration": 12189.116,
+    "expected": 33,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "receipt": {
+    "window": {
+      "owner": "ROOT_UI_FIXTURE",
+      "project": "v4ui_full63a_20261103",
+      "source_sha": "63a5a4f08bad6b98fe95942598291e0714bc09da",
+      "source_tree": "97425fb41939d9dfe7d5df74cd6889ae14c8e094",
+      "web_port": 18942,
+      "fixture_api_port_no_listener": 18943,
+      "starts_at_utc": "2026-11-03T15:17:36.198865+00:00",
+      "stop_at_utc": "2026-11-03T15:37:36.198865+00:00",
+      "cleanup_reserve_seconds": 180,
+      "evidence_mode": "UI_FIXTURE_NOT_API_PG",
+      "database": null,
+      "external_calls": false
+    },
+    "processes": [
+      {
+        "label": "next-web",
+        "pid": 10622,
+        "pgid": 10622
+      },
+      {
+        "label": "playwright-ui-fixture",
+        "pid": 10715,
+        "pgid": 10715
+      },
+      {
+        "label": "browser-screenshots",
+        "pid": 10861,
+        "pgid": 10861
+      }
+    ],
+    "browser_test_native_exit": 0,
+    "result": "UI_FIXTURE_PASS",
+    "cleanup": {
+      "browser-screenshots": {
+        "native_exit": 0,
+        "no_live_owned_group": true,
+        "signal_errors": []
+      },
+      "playwright-ui-fixture": {
+        "native_exit": 0,
+        "no_live_owned_group": true,
+        "signal_errors": []
+      },
+      "next-web": {
+        "native_exit": 0,
+        "no_live_owned_group": true,
+        "signal_errors": []
+      }
+    },
+    "screenshots_native_exit": 0,
+    "web_port_closed": true,
+    "ended_at_utc": "2026-11-03T15:17:53.739431+00:00",
+    "cleanup_before_deadline": true
+  },
+  "metrics": [
+    {
+      "width": 1440,
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "reducedMotion": true,
+      "title": "CommerceOps · 运营协作工作台"
+    },
+    {
+      "width": 1280,
+      "innerWidth": 1280,
+      "scrollWidth": 1280,
+      "reducedMotion": true,
+      "title": "CommerceOps · 运营协作工作台"
+    },
+    {
+      "width": 390,
+      "innerWidth": 390,
+      "scrollWidth": 390,
+      "reducedMotion": true,
+      "title": "CommerceOps · 运营协作工作台"
+    }
+  ],
+  "review": "IN_PROGRESS",
+  "raw_evidence_index": ".audit/v4-0/ui-fixture-63a-full"
+}
