@@ -29,6 +29,7 @@ from scripts.vendor_gitleaks_rules import (
     RO_PUBLIC_ROW,
     RO_ROW_DIGEST,
     RO_SOURCE_COMMIT,
+    V4_PREFLIGHT_SNAPSHOTS,
     V4_PUBLIC_EXCEPTIONS,
     V4_SOURCE_COMMIT,
     WOO_PUBLIC_EXCEPTIONS,
@@ -39,6 +40,8 @@ from scripts.vendor_gitleaks_rules import (
     m3_public_rows,
     v4_additional_history_findings,
     v4_history_findings,
+    v4_preflight_history_findings,
+    v4_preflight_public_rows,
     v4_public_line_regex,
     v4_public_rows,
     validate_woo_public_sources,
@@ -350,22 +353,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 58
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 79
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 58
+        or len(provenance["exceptions"]) != 79
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 57:
+    if len(generic.get("allowlists", [])) != 78:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 57
+        len(generic["allowlists"]) != 78
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -511,6 +514,32 @@ def validate_rules() -> None:
         ):
             raise ValueError("invalid V4 scanner rules")
 
+    if provenance.get("v4_preflight_historical_findings") != v4_preflight_history_findings():
+        raise ValueError("invalid V4 preflight historical scanner finding")
+    for offset, (record, row) in enumerate(v4_preflight_public_rows(ROOT)):
+        evidence = provenance["exceptions"][58 + offset]
+        path = "^" + re.escape(record["path"]) + "$"
+        if generic["allowlists"][57 + offset] != {
+            "description": evidence.get("reason"),
+            "condition": "AND",
+            "regexTarget": "line",
+            "paths": [path],
+            "regexes": [v4_public_line_regex(row)],
+        } or evidence != {
+            "rule": "generic-api-key",
+            "path": path,
+            "reason": evidence.get("reason"),
+            "exact_line_sha256": record["exact_span_sha256"],
+            "source_commit": record["source_commit"],
+            "source_path": record["path"],
+            "source_line": record["reported_line"],
+            "source_end_line": record["end_line"],
+            "start_column": record["start_column"],
+            "end_column": record["end_column"],
+            "match_sha256": record["match_sha256"],
+        }:
+            raise ValueError("invalid V4 preflight scanner rules")
+
     validate_woo_public_sources(ROOT)
 
 
@@ -523,7 +552,8 @@ def history_config() -> bytes:
     content = (ROOT / ".gitleaks.toml").read_text()
     pattern = (
         r"(?m)^\[\[rules\.allowlists\]\]\n"
-        r'description = "V4公开合同/字段/摘要；仅固定来源path与完整行/span"\n'
+        r'description = "(?:V4公开合同/字段/摘要；仅固定来源path与完整行/span|'
+        r'V4预检候选；仅固定来源path与完整行/span)"\n'
         r"(?:(?!^\[\[rules(?:\.allowlists)?\]\]).*\n)*"
     )
     derived, removed = re.subn(pattern, "", content)
@@ -531,7 +561,7 @@ def history_config() -> bytes:
     expected = tomllib.loads(content)
     generic = next(rule for rule in expected["rules"] if rule["id"] == "generic-api-key")
     generic["allowlists"] = generic["allowlists"][:44]
-    if removed != 13 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
+    if removed != 34 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
         raise ValueError("invalid V4 history config derivation")
     return derived.encode()
 
@@ -539,7 +569,11 @@ def history_config() -> bytes:
 def approved_v4_history_finding(scope: str, item: dict[str, Any]) -> bool:
     if scope != "git":
         return False
-    for row in (*v4_history_findings(), *v4_additional_history_findings()):
+    for row in (
+        *v4_history_findings(),
+        *v4_additional_history_findings(),
+        *v4_preflight_history_findings(),
+    ):
         if any(
             item.get(key) != row[field]
             for key, field in (
@@ -622,6 +656,21 @@ def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
 def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[str]:
     """核Woo/M2/M3公开例外的固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
     violations = []
+    v4_entries = (
+        *V4_PUBLIC_EXCEPTIONS,
+        *(
+            (
+                r["path"],
+                r["exact_span_sha256"],
+                r["reported_line"],
+                r["end_line"],
+                r["match_sha256"],
+                r["start_column"],
+                r["end_column"],
+            )
+            for r in V4_PREFLIGHT_SNAPSHOTS
+        ),
+    )
     for candidate in paths:
         relative = candidate.as_posix()
         for source_path, pattern, _, digest, line in (
@@ -654,7 +703,7 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s
             ),
             *(
                 (p, "^" + re.escape(p) + "$", digest, line, end)
-                for p, digest, line, end, _, _, _ in V4_PUBLIC_EXCEPTIONS
+                for p, digest, line, end, _, _, _ in v4_entries
             ),
         ):
             if re.search(pattern, relative) is None:
@@ -674,7 +723,7 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s
     # A duplicated approved row at a new line must not inherit the native line allowance.
     for candidate in paths:
         relative = candidate.as_posix()
-        entries = [x for x in V4_PUBLIC_EXCEPTIONS if x[0] == relative]
+        entries = [x for x in v4_entries if x[0] == relative]
         path = directory / candidate
         if not entries or not path.is_file():
             continue
