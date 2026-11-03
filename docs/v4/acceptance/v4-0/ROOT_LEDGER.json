@@ -7,9 +7,9 @@
   "cards": {
     "V40-01": "BASELINE_RECONFIRMED",
     "V40-02": "USER_ACCEPTED_CONTRACTS",
-    "V40-03": "SQL初审2P1/1P2修复已冻结8e9d87a，等待独审；会话API实施中",
-    "V40-04": "固定双店种子已实现；variant_ref修复与原生SQL验证待核收",
-    "V40-05": "ac1前端模拟接口浏览器24通过；独审3P2修复中；真实API/PG/Web未跑"
+    "V40-03": "schema代码独审已核；实际迁移首窗FAIL/0tests，安全诊断准备中；会话API主体实施中",
+    "V40-04": "纯种子修复已独审核收；真实PG运行Gate待完成",
+    "V40-05": "前端63a代码独审核收，真实UI_FIXTURE33/33；API/PG/Web全链未跑"
   },
   "owner_worktrees": {
     "ROOT": "commerceops-v4-control",
@@ -20,10 +20,10 @@
   },
   "protected_old_worktrees": "unchanged",
   "model_policy": {
-    "backend": "gpt-6.1-sol/high for identity and transactions",
+    "backend": "gpt-6.1-sol/high; temporarily xhigh for SQL transaction repair, returned high after component freeze",
     "web": "gpt-6.1-terra/high",
     "review": "gpt-6-astra/high for critical; bounded increments may reduce effort",
-    "qa": "gpt-6.1-sol/medium; elevate on complex issues"
+    "qa": "gpt-6.1-sol/high for safe migration diagnosis; medium for mechanical handoff"
   },
   "actual_token_cost": "UNKNOWN",
   "hosted": "NOT_AUTHORIZED_NOT_RUN",
@@ -35,9 +35,10 @@
     "Initial imported CSV CRLF whitespace failure; eb82c9d LF normalization independently accepted, old source bytes preserved",
     "Initial non-frozen import discovery scan: dir/index13 findings, history33=20 old approved+13 new; exact public-literal compatibility under independent review, no scan gate passed",
     "First cf7 UI fixture:22 passed/2 failed initial anonymous read-count; ac1 trace attributes two reads to React development mount/reconnect; ac1 full24passed, no business code changed",
-    "QA prepared harness first59passed/5failed before locked frontend dependencies were installed; exact original stderr cause not captured; after frozen offline install64passed/4.25s/exit0"
+    "QA prepared harness first59passed/5failed before locked frontend dependencies were installed; exact original stderr cause not captured; after frozen offline install64passed/4.25s/exit0",
+    "ea48 owned PG first initialization migrate exit1; original SQL error intentionally filtered by legacy helper; cause UNKNOWN;0tests executed; exact owned cleanup0 and independent container/network/volume inventories empty"
   ],
-  "updated_at_utc": "2026-11-03T15:16:02.056438+00:00",
+  "updated_at_utc": "2026-11-03T15:23:12.395498+00:00",
   "engineering_gate_scope_release": {
     "owner": "SECURITY_SCAN",
     "purpose": "only exact new public A artifacts line/span/provenance plus original fa96764 history; preserve all rules/all-history and reject altered/new secrets",
@@ -65,5 +66,22 @@
     "passed": 64,
     "seconds": 4.25,
     "real_api_pg": "NOT_RUN"
+  },
+  "integrated_component_checks": {
+    "python_seed_and_qa": {
+      "passed": 162,
+      "seconds": 4.84,
+      "native_exit": 0
+    },
+    "new_frontend_pure": {
+      "passed": 21,
+      "seconds": 0.194,
+      "native_exit": 0
+    },
+    "frontend_full_typecheck": {
+      "native_exit": 0
+    },
+    "full_engineering_gate": "NOT_RUN",
+    "full_pg_gate": "NOT_RUN"
   }
 }
