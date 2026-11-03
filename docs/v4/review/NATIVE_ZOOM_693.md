@@ -29,3 +29,16 @@ profile使用本批evidence目录下mkdtemp新前缀，未传既有用户profile
 精确693快照仅Playwright --list：**1 test / 1 file / native0**，同一LIVE标题。清理纯探针native0，结果如上；未复跑无关pure/type/build，也未启动headful或真实200%。临时收集/合成目录已清理。旧35fixture/原live准备与本追加段运行结果分列。
 
 请WEB只补profile删除条件后交普通精确commit。QA当前2c4仍固定363，应在新spec最终接受后另交机械pin更新，不放宽source/blob/命令。当前不得用693或ROOT旧方法探针签signed spec的native200；实际GUI仍须新owned窗口及对应输出/退出/清理事实。
+
+
+## f18（含e8a）清理专项复审：ZOOM-01关闭
+
+日期：2026-11-04（Asia/Taipei）。candidate `f18ba5bf5c9de88d113eb5a5bff244cd66416c2b` / tree `37503a2cd0c5bd3e8fb6ac08ff56e6ad50e5a6ac`，parent `e8a04cc15b5fbd89bc0951fbbcbc5256b4c74ef8`（tree `dde7f9523859ee1aded3d560c48f5cbf03315d4c`），前接693。**结论：ZOOM-01 CLOSED，清理增量0 P1 / 0 P2；ACCEPT_PREPARED_NATIVE_ZOOM_DELTA。** 本次只复审原d052清理问题、三分支纯测及双失败原因保留，其余693原生缩放/交互审查范围沿用上文，不重做全审或声称实际运行通过。
+
+live finally实际接入新增closeAndCleanOwnedProfile helper。无context直接返回false且不调用remove，launch错误仍由原catch重抛；有context先await close，close拒绝即传播且不调用remove；只有close正常完成才对该调用者传入的本次mkdtemp profile执行rm(recursive/force)，不发现或删除其它profile。正文失败而close成功时仍保留正文原错误，已确认关闭的本次目录可以清理；close失败则保留目录。
+
+f18新增独立zoomFailed布尔与zoomFailure记录，避免throw undefined等falsy值丢失原失败判断。正文与清理同时失败时抛AggregateError([原失败,清理失败])；只有清理失败时直接抛清理错误，未吞掉失败或转为成功。没有新增signal handler、任意profile输入、重试或资源操作。
+
+独立精确f18的新增Node测试 **3 PASS / 0 FAIL / 0 SKIP / 64.147ms / native0**：null context remove0；close错误原对象传播且remove0；close成功严格先closed、后仅删除给定profile与固定options。另用精确helper和同一catch/finally控制流构造不使用page/browser fixture的Playwright纯用例，刻意令正文与close各抛不同合成原因：实际JSON report为failed、native1，并分别保留AggregateError、正文原因与close原因三条错误。这个native1是预期失败证据保留探针，不是作者live测试失败；没有启动浏览器或服务。
+
+所有临时纯测试目录已清理，未改实现/产品代码。实际headful启动、Chrome原生200%、API/PG/UI行为及profile关闭事实仍待ROOT新owned窗口；ROOT方法探针不代签本spec。后续QA应把最终spec及新运行依赖lifecycle.profile.mjs一并纳入精确source/blob绑定；本回执没有审查或自动更新browserMode pins，也不授权旧pin接受新文件。
