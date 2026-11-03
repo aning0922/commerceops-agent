@@ -10,6 +10,7 @@ export default defineConfig({
     "live-network-guard.spec.ts",
     "p6-inquiry.spec.ts",
     "copy.spec.ts",
+    "operations-collection.spec.ts",
   ],
   forbidOnly: true,
   workers: 1,
