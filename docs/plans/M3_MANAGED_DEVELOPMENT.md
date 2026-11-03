@@ -121,3 +121,15 @@ S2精确候选37e7e99经过独审217purepass/no新增P1P2，结论仅ACCEPT_S2_P
 首轮m3s2-dc4f56944928 build/healthy退出0，04:23:34Z migrate退出1，16测试未开始；原诊断器不保留原始stderr，具体根因当时UNKNOWN。04:23:35Z cleanup0、CLI/reader结束，独立查询容器网络0，新卷保留。为取得安全诊断，另开全新owned round2，不读取首轮卷；04:25:01Z同源码返回ProgrammingError/SQLSTATE42601/primary“syntax error at end of input”，16测试仍未开始，04:25:02Z cleanup0、容器网络独立查询0、新卷保留。只采集异常类别/SQLSTATE/primary，不输出DSN、参数或完整SQL。Root怀疑p6_binding_guard的IF中未括起CASE，但须后续实际SQL证实，不把假设写为已证实根因。已交Backend独立最小修复，S2尚未核收。
 
 K2修复e1a52d6已静态接受，但尚未SQL核收；其真实revision为0020_p6_knowledge_copy，parent占位0019须改为0019_p6_daily_reports。询单服务1a78d5a候选实际revision为0021，parent占位0020亦须绑定上述真实K2标识；独审与PG测试代码继续。后续0022/0023父链只按实际冻结值接线，不凭分配号宣称Alembic已通过。询单终态JSON NULL与原session/fixture先于完成回执重放的风险正在独审，未核收。
+
+### 日报 S2 组件核收与 K2 首轮实际验证
+
+日报最小修复66ee8d7（IF内CASE括号）和89d1d86（严格响应模型JSON校验后返回模型）分别独审接受。Root纯CPU真实ASGI先复现response_model对wire dict的UUID/datetime/tuple拒绝，未放松DTO；作者与独审39Read/TestClient通过。后续旧截止内整模块复测运行余量估计不足，82ff候选到04:35:03Z停止时只有10callpass，exit137/cleanup0，失败事实保留，不能拼为16通过。
+
+Root另建K2专用validation树849ba3bdf3329736be965c93374545cb02f136bb：S2两fix、K2e1a52d6及独立cherry-pick51065b1一行真实parent（不带缺0022的K3祖先），46collect通过。新窗口04:36:02Z→04:51:02Z/180清理余量，显式Compose override仍仅原postgres服务，按已构建镜像完整ImageID固定，无模型/embedding/飞书或旧资产。首轮0019→0020迁移/初始化均0，K2实际29pass/1fail50.05s，唯一role反例；因该模块非0，后续日报16未跑。04:37:46Z cleanup0/stopping确认，owned m3k2-195fff8f757c保卷。
+
+为定位新增P6错误，Root f195701仅将四个指定P6模块与固定safe文件名帧加入原opt-in结构诊断，原异常消息/SQL/locals不输出、分类/SQLSTATE/16帧上限不变；独审ACCEPT_P6_DIAGNOSTICS。随机marker排除探针首因模拟metadata缺funcargs失败，补齐后通过；不改业务断言。第二轮源fe6e7b89091e9b8a9f1e4e94158af68fb4e8372f在fresh owned m3k2-406293707a73先跑日报：实际16passed/30.18s/native0；再跑K2单role反例，CheckViolation23514定位test_p6_knowledge_copy_pg.py:184的角色UPDATE，尚未执行到检索断言。整个batch仍exit1，04:39:49Z cleanup0/stopping确认，独立容器网络0/新卷保留。知识owner确认缺原auth_version增量约束，将独立修夹具并新身份验证，不放宽原约束。S2可按组件已审源码+实际16核收，K2与整体M3仍未核收。Root已普通合89和095前端失败码同步；095祖先247联调入口亦伴随合入，该入口仍HOLD且从未运行，需402精确修复独审后才可真实联调，不把当前全树称为已审。
+
+Root359广离线实际3126pass/5fail/606deselected/261.58s/native1。四项失败确认缺frontend锁定依赖，补齐固定Node/npm（初次PATH错误、复制后npm脚本入口相对路径错误均保留，后使用canonical npm-cli路径offline ci0）后相同四项4pass/2.81s；剩余全历史原20对native42的22个新增命中，由新可见扫描会话提出bcf9604候选：9组源commit/path/整行/hash公开字段，190定向及122旧质量门禁通过，完整主库扫描待独审后Root统一执行。该会话随后转新local-runtime独立树，只拟同PG的固定扩展镜像和本地/CI验证入口提案。
+
+询单18a修复前两P2后复审新增CASE括号与失败usage归零两P2，已交作者；K3 cf86有跨candidate同审核人同key并发冲突返回503的P2，已交修复；询单UI d9因未接受新无facts失败结果亦已接回。以上离线通过不代签真实SQL或完整功能。

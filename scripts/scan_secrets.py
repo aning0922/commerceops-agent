@@ -20,6 +20,7 @@ from scripts.vendor_gitleaks_rules import (
     M2_CONSUMER_SOURCE_COMMIT,
     M2_PUBLIC_EXCEPTIONS,
     M2_SOURCE_COMMIT,
+    M3_PUBLIC_EXCEPTIONS,
     P3_PUBLIC_PATH,
     P3_PUBLIC_ROW,
     P3_ROW_DIGEST,
@@ -31,6 +32,8 @@ from scripts.vendor_gitleaks_rules import (
     WOO_SOURCE_COMMIT,
     m2_consumer_rows,
     m2_public_rows,
+    m3_public_line_regex,
+    m3_public_rows,
     validate_woo_public_sources,
 )
 
@@ -328,7 +331,7 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
 
 
 def validate_rules() -> None:
-    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及十七处精确行豁免。"""
+    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及固定精确行豁免。"""
     content = (ROOT / ".gitleaks.toml").read_bytes()
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     config = tomllib.loads(content.decode())
@@ -340,22 +343,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 17
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 26
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 17
+        or len(provenance["exceptions"]) != 26
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 16:
+    if len(generic.get("allowlists", [])) != 25:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 16
+        len(generic["allowlists"]) != 25
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -453,6 +456,27 @@ def validate_rules() -> None:
         ):
             raise ValueError("invalid scanner rules")
 
+    for offset, (commit, source_path, path, row, digest, line) in enumerate(m3_public_rows(ROOT)):
+        allowance = generic["allowlists"][16 + offset]
+        evidence = provenance["exceptions"][17 + offset]
+        if (
+            allowance
+            != {
+                "description": evidence.get("reason"),
+                "condition": "AND",
+                "regexTarget": "line",
+                "paths": [path],
+                "regexes": [m3_public_line_regex(row)],
+            }
+            or evidence.get("rule") != "generic-api-key"
+            or evidence.get("path") != path
+            or evidence.get("exact_line_sha256") != digest
+            or evidence.get("source_commit") != commit
+            or evidence.get("source_path") != source_path
+            or evidence.get("source_line") != line
+        ):
+            raise ValueError("invalid scanner rules")
+
     validate_woo_public_sources(ROOT)
 
 
@@ -499,7 +523,7 @@ def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
 
 
 def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[str]:
-    """核Woo和M2公开例外的固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
+    """核Woo/M2/M3公开例外的固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
     violations = []
     for candidate in paths:
         relative = candidate.as_posix()
@@ -509,6 +533,10 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s
             *(
                 (p, pattern, "", digest, line)
                 for p, pattern, digest, line in M2_CONSUMER_EXCEPTIONS
+            ),
+            *(
+                (p, pattern, "", digest, line)
+                for _, p, pattern, digest, line in M3_PUBLIC_EXCEPTIONS
             ),
         ):
             if re.search(pattern, relative) is None:
@@ -614,7 +642,7 @@ def scan(root: Path) -> int:
             command = [
                 str(SCANNER),
                 mode,
-                str(source),
+                "." if mode == "dir" else str(source),
                 "--config",
                 str(ROOT / ".gitleaks.toml"),
                 "--redact=100",
@@ -630,7 +658,10 @@ def scan(root: Path) -> int:
             ]
             if mode == "git":
                 command += ["--log-opts=--all --full-history -m --text --no-textconv --no-ext-diff"]
-            process = subprocess.run(command, cwd=staging, capture_output=True)
+            # Relative dir paths permit exact repository-path allowlists, including in Git.
+            process = subprocess.run(
+                command, cwd=source if mode == "dir" else staging, capture_output=True
+            )
             if process.returncode not in (0, 1) or not report.exists():
                 print(f"ERROR {scope}: 扫描器未成功完成（原始输出已抑制）")
                 return 2
