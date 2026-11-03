@@ -3,7 +3,7 @@
 from alembic import op
 
 revision = "0020_p6_knowledge_copy"
-down_revision = "0019"  # Root will hand over the exact frozen parent before any Alembic/PG run.
+down_revision = "0019_p6_daily_reports"
 branch_labels = None
 depends_on = None
 
