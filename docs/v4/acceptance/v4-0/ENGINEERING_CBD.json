@@ -28,7 +28,15 @@
   "log_path": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/.audit/v4-0/full-check-cbd1c4e/output.log",
   "log_sha256": "9e08c432c7852dba123e2a6957393b6279ba19eec36cbdb76784a179f84d90f1",
   "checks": {
-    "secret_scan": "dir/index/all reachable full history PASS",
+    "secret_scan": {
+      "wrapper_exit": 0,
+      "scope": "dir/index/all reachable full history",
+      "native_history_exit": 1,
+      "native_history_findings": 1555,
+      "classified_reviewed_findings": 1555,
+      "blocking_findings": 0,
+      "note": "Native findings remain visible and are individually classified by reviewed exact provenance; no blanket history exclusion."
+    },
     "lock": "PASS",
     "markdown_files": 204,
     "markdown_errors": 0,
