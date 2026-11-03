@@ -82,3 +82,17 @@ Root 先协调独占目录；建议在 `backend/src/commerceops/application/comm
 边界测试还要注入撤权发生在两个 Tool 之间、Tool 完成与最终回答之间、模型迟到、重复 call ID、混合 final+tool、额外参数、响应截断、来源 partial page、同 SKU 不同时间和未知模型 usage。Fake 全绿只证明执行器合同候选；真实 tool calling、PG、API/Worker、生产店铺、D05 provider 及全 M3 Gate 均 `NOT_RUN`。
 
 本次交付仅为合同草案；未读凭据、未调用模型/平台、未启动服务或 PG、未修改生产代码。独审应先评定路由版本兼容、当前报告读取范围及新模型预算策略，再释放独占实施路径。
+
+## 8. 首片纯执行器作者交付（2026-11-03，待独审）
+
+在本合同精确 `cd2caad` 获 Root 转交的 `ACCEPT_IMPLEMENTATION` 后，新增 `readonly_inquiry_contracts.py` 和 `readonly_inquiry_executor.py`、同前缀测试。strict JSON 联合解析拒绝额外字段、重复 JSON key、未知/写工具和混合 final+tool；静态四项 registry 逐次核 read effect。注入的 IdentityPort 在读取前后、下一模型消费旧结果前以及最终披露前重查对象权限；ReadPort 接收同绝对截止和剩余扫描行数，违规超报则结果不披露。参数与工具结果的 SKU、窗口、店铺/来源、报告 ID 均有绑定检查。
+
+全局累计跨度取全部窗口最早 start 到最晚 end，SKU 集合跨提案/结果累计，扫描行数取端口的实际扫描计数而非筛后 facts。模型第三轮再提 Tool 时拒绝执行；批次超过四工具在任何该批读取前拒绝。端口负责在剩余扫描额度内停页，后续真实来源包装仍须单独核验实际扫描统计可信性，不能凭纯执行器测试推导真实 adapter 已满足。
+
+当前输出只有来自已校验端口的数字事实与引用，没有自由模型叙述，不实现任意数值 claim。聚合/币种/零分母由后续确定性 ReadPort 包装提供；本首片只验证引用、精确数值字符串/null 的保留，不宣称已实现电商聚合。测试手工金标为两期 3+5=8 件与库存 12 件；Fake 给确定性事实，Choice Fake 读上一轮真实安全返回的 SKU 再构造下一轮参数，改变 A/B 解析结果确实改变下一调用。
+
+作者检查最终结果：`pytest -q tests/test_p6_readonly_inquiry.py` 30 passed；目标两生产文件及测试的 Ruff/format、mypy（三文件）通过。初轮21项通过；随后 Ruff 的断言/闭包/行长提示及 mypy TypeAdapter 注解错误已修正；新增绑定与边界覆盖后最终30项通过。测试包含 D01 单库存/商品解析后两期订单与库存、D02非法写/额外参数、D03累计限制与第三轮拒绝、D04多观测时间/null/错引及撤权、D05同一中立Fake轨迹模式；真实 provider D05 `NOT_RUN`。未启动服务/PG、未接 Router/Worker/API/迁移或真实 provider；全量 CI 和独立审查由 Root 另行核收。
+
+## f0 独审 P2 增量处理（2026-11-03，候选待复审）
+
+Root 转交原 `f0ceb20` 的两项 P2：最终只有 refs 无逐 claim 可读结论；商品多匹配时模型可自行择一。本次通过严格 `Claim(kind=fact|compare, refs)`、Fact 的 SKU/窗口/观测时间及确定性 renderer 生成逐期可复算文字；完整目录多匹配由执行器直接停为 `clarify` 并携带安全候选，模型不再参与单选。原失败与审查结论保留，本增量独审、真实来源和全量 CI 另核。细节及作者测试见 [Tool facade 与答案回执](p6-readonly-tools-v1.md#首片作者实现回执2026-11-03待独审)。
