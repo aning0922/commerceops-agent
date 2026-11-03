@@ -75,7 +75,7 @@ def test_exact_dir_index_native_and_history_derivation(repository: Path) -> None
     assert derived == baseline
     assert len(derived["rules"]) == len(original["rules"]) == 222
     assert sum(len(x.get("allowlists", [])) for x in derived["rules"]) == 45
-    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 93
+    assert sum(len(x.get("allowlists", [])) for x in original["rules"]) == 94
     assert len(scanner.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
@@ -401,7 +401,7 @@ def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> N
         "v4_additional_historical_findings",
     ):
         assert current[key] == old[key]
-    assert len(v4_preflight_history_findings()) == 103
+    assert len(v4_preflight_history_findings()) == 104
     config = tomllib.loads(scanner.history_config().decode())
     baseline = tomllib.loads(
         subprocess.check_output(["git", "show", "7c262fb:.gitleaks.toml"], cwd=ROOT).decode()
@@ -692,7 +692,7 @@ def test_discovery_metadata_preserves_exact_history_and_only_moves_fixed_spans()
         assert new["source_line"] == old["source_line"] + 4
         moved.append(old["source_line"])
     assert sorted(moved) == [151, 170, 197]
-    assert len(V4_PREFLIGHT_SNAPSHOTS) == 35
+    assert len(V4_PREFLIGHT_SNAPSHOTS) == 36
 
 
 @pytest.mark.parametrize(
@@ -752,3 +752,82 @@ def test_residual_driver_copy_only_bindings_are_exact(
         changed = {**item, "Commit": source}
         changed["Fingerprint"] = f"{source}:{item['File']}:{item['RuleID']}:{item['StartLine']}"
         assert scanner.approved_v4_merge_copy("git", changed) is None
+
+
+def test_legacy_single_literal_boundaries(tmp_path: Path) -> None:
+    test_preflight_each_span_change_duplicate_and_secret(tmp_path, 35)
+
+
+@pytest.mark.parametrize(
+    "commit,is_merge",
+    [
+        ("4e267522c353074d583a29c89e9022d4f8d93f33", False),
+        ("6e98399fb485d7a852d0e4c92923af0ef005782c", True),
+    ],
+)
+def test_legacy_single_exact_author_or_blob_copy(
+    tmp_path: Path, commit: str, is_merge: bool
+) -> None:
+    config = tmp_path / "history.toml"
+    config.write_bytes(scanner.history_config())
+    report = tmp_path / "native.json"
+    result = subprocess.run(
+        [
+            str(scanner.SCANNER),
+            "git",
+            str(ROOT),
+            "--config",
+            str(config),
+            "--redact=100",
+            "--no-banner",
+            "--log-level=error",
+            "--report-format=json",
+            "--report-path",
+            str(report),
+            "--ignore-gitleaks-allow",
+            "--gitleaks-ignore-path",
+            "/dev/null",
+            "--log-opts=" + commit + "^! --full-history -m --text --no-textconv --no-ext-diff",
+        ],
+        capture_output=True,
+        timeout=30,
+    )
+    assert result.returncode == 1
+    matches = [
+        r
+        for r in json.loads(report.read_text())
+        if r["File"] == "tests/e2e/v4/test_legacy_subnet.py"
+    ]
+    assert len(matches) == 1
+    item = matches[0]
+    assert scanner.approved_v4_history_finding("git", item) == (not is_merge)
+    assert bool(scanner.approved_v4_merge_copy("git", item)) == is_merge
+    for key in ("File", "StartLine", "EndLine", "StartColumn", "EndColumn", "Match", "Fingerprint"):
+        changed = dict(item)
+        changed[key] = (
+            changed[key] + 1 if isinstance(changed[key], int) else changed[key] + "changed"
+        )
+        assert not scanner.approved_v4_history_finding("git", changed)
+        assert scanner.approved_v4_merge_copy("git", changed) is None
+
+
+def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
+    previous = json.loads(
+        subprocess.check_output(["git", "show", "73e0a58:scripts/gitleaks_rules.json"], cwd=ROOT)
+    )
+    current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    assert current["exceptions"][:93] == previous["exceptions"]
+    for field in (
+        "historical_findings",
+        "v4_historical_findings",
+        "v4_additional_historical_findings",
+        "v4_merge_copy_bindings",
+    ):
+        assert current[field] == previous[field]
+    assert (
+        current["v4_preflight_historical_findings"][:103]
+        == previous["v4_preflight_historical_findings"]
+    )
+    assert current["v4_merge_copy_anchors"][:27] == previous["v4_merge_copy_anchors"]
+    assert len(current["exceptions"]) == 94
+    assert len(current["v4_merge_copy_anchors"]) == 28

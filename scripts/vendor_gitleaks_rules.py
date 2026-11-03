@@ -963,6 +963,17 @@ V4_PREFLIGHT_SNAPSHOTS: tuple[dict[str, Any], ...] = (
         "exact_span_sha256": "dd7d51714550d1e9ae38863dfc91e83f7ecc1ff6a598762e2f06750db1b161e0",
         "match_sha256": "e7604b8b7a79c4930b78516ef572619404fa3858f7fa5099ccc7dfe4505b1f7d",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/test_legacy_subnet.py",
+        "source_commit": "4e267522c353074d583a29c89e9022d4f8d93f33",
+        "reported_line": 57,
+        "end_line": 57,
+        "start_column": 22,
+        "end_column": 52,
+        "exact_span_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
 )
 
 V4_PREFLIGHT_HISTORY: tuple[dict[str, Any], ...] = (
@@ -2099,6 +2110,17 @@ V4_PREFLIGHT_HISTORY: tuple[dict[str, Any], ...] = (
         "exact_span_sha256": "0b1c32a3a906b1cbb3e54b26c76eb430044e421008f76e9b6a2edea7d9836ffe",
         "match_sha256": "73d3414f0d8555aae77ce476eefd9af83978c299f6afd2e446ef43e96d9279ee",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/e2e/v4/test_legacy_subnet.py",
+        "source_commit": "4e267522c353074d583a29c89e9022d4f8d93f33",
+        "reported_line": 57,
+        "end_line": 57,
+        "start_column": 22,
+        "end_column": 52,
+        "exact_span_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
 )
 
 
@@ -2238,6 +2260,11 @@ V4_MERGE_COPY_ANCHORS: tuple[dict[str, str], ...] = (
         "path": "tests/e2e/v4/test_owned_review_fixes.py",
         "blob": "0b51b2c3775c0052a9f009f857a1cf317d2aaebb",
     },
+    {
+        "source_commit": "4e267522c353074d583a29c89e9022d4f8d93f33",
+        "path": "tests/e2e/v4/test_legacy_subnet.py",
+        "blob": "ac3098476addaa63aed5311afd49ff102360c737",
+    },
 )
 
 
@@ -2270,7 +2297,7 @@ V4_MERGE_COPY_BINDINGS: tuple[dict[str, Any], ...] = (
 
 
 def v4_preflight_history_findings() -> list[dict[str, Any]]:
-    """Only the 103 exact, captured historical proposal fingerprints."""
+    """Only the 104 exact, captured historical proposal fingerprints."""
     return [
         {
             **row,
@@ -2717,7 +2744,7 @@ def main() -> None:
     content = (
         "# Gitleaks v8.30.1 MIT 规则的固定副本；来源/生成信息见 scripts/gitleaks_rules.json。\n"
         "# 删除全部上游 allowlist；保留所有规则及正向 path/regex/entropy。\n"
-        "# 不使用 extend/useDefault；仅有 93 个指定规则/路径/精确整行 AND 豁免。\n"
+        "# 不使用 extend/useDefault；仅有 94 个指定规则/路径/精确整行 AND 豁免。\n"
         + tomli_w.dumps(config)
     ).encode()
     if tomllib.loads(content.decode()) != config:
