@@ -5,6 +5,7 @@ import {join} from 'node:path';
 import {readFileSync} from 'node:fs';
 import {mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {sessionResponseMatches} from './lifecycle.waiter.mjs';
+import {closeAndCleanOwnedProfile} from './lifecycle.profile.mjs';
 const schema=JSON.parse(readFileSync(new URL('../lib/v4-schema.json',import.meta.url),'utf8'));
 
 const api=new URL(process.env.V4_API_ORIGIN!).origin;
@@ -92,7 +93,7 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
  expect(mobileLogout.data.receipt.operation).toBe('logout');expect(mobileLogout.data.receipt.request_key).toBe(mobileLogoutBody.request_key);expect(mobileLogoutBody.expected_epoch).toBe(mobile.context.reset_epoch);expect(mobileLogoutBody.expected_generation).toBe(mobile.context.auth_generation);sameTenant(mobile.context,mobileLogout.context);expect(mobileLogout.context.reset_epoch).toBe(mobile.context.reset_epoch);expect(mobileLogout.context.auth_generation).toBe(mobile.context.auth_generation);
  await expect(page.getByText('已退出演示。')).toBeVisible();await expect(page.getByText(/当前视角：/)).toHaveCount(0);expect((await context.cookies(`${api}/api/v4/demo/session`)).filter(c=>c.name==='commerceops_v4_demo').every(c=>!c.value)).toBe(true);
  // Isolated headful Chromium profile: native browser zoom, not viewport or CSS emulation.
- const profile=await mkdtemp(join(evidence,'v4-zoom-profile-'));let zoomContext:BrowserContext|null=null;
+ const profile=await mkdtemp(join(evidence,'v4-zoom-profile-'));let zoomContext:BrowserContext|null=null;let zoomFailure:unknown;
  try {
   zoomContext=await chromium.launchPersistentContext(profile,{headless:false,viewport:null,args:['--window-size=1440,1000'],reducedMotion:'reduce'});
   const zoomPage=zoomContext.pages()[0]??await zoomContext.newPage();
@@ -118,5 +119,8 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
   const zoomReset=zoomPage.getByRole('button',{name:'重置演示'});await zoomReset.focus();await expect(zoomReset).toBeFocused();await zoomPage.keyboard.press('Enter');const zoomDialog=zoomPage.getByRole('dialog',{name:'重置当前演示空间？'});await expect(zoomDialog).toBeVisible();await expect(zoomDialog.getByRole('button',{name:'确认重置'})).toBeVisible();await expect(zoomDialog.getByRole('button',{name:'取消'})).toBeVisible();await zoomPage.keyboard.press('Tab');expect(await zoomDialog.evaluate(element=>element.contains(document.activeElement))).toBe(true);
   expect((await dimensions()).scrollWidth).toBeLessThanOrEqual((await dimensions()).innerWidth);await zoomPage.screenshot({path:join(evidence,'live-dialog-native-200.png'),fullPage:true});await zoomPage.keyboard.press('Escape');await expect(zoomDialog).not.toBeVisible();await expect(zoomReset).toBeFocused();
   const zoomLogoutResponse=response(zoomPage,'POST','/logout');await zoomPage.getByRole('button',{name:'退出'}).click();const zoomLogoutRaw=await zoomLogoutResponse;const zoomLogout=await read(zoomLogoutRaw,'ControlEnvelope');const zoomLogoutBody=zoomLogoutRaw.request().postDataJSON();expect(zoomLogout.data.receipt.operation).toBe('logout');expect(zoomLogout.data.receipt.request_key).toBe(zoomLogoutBody.request_key);expect(zoomLogoutBody.expected_epoch).toBe(zoomSession.context.reset_epoch);expect(zoomLogoutBody.expected_generation).toBe(zoomSession.context.auth_generation);sameTenant(zoomSession.context,zoomLogout.context);expect(zoomLogout.context.reset_epoch).toBe(zoomSession.context.reset_epoch);expect(zoomLogout.context.auth_generation).toBe(zoomSession.context.auth_generation);await expect(zoomPage.getByText('已退出演示。')).toBeVisible();await expect(zoomPage.getByText(/当前视角：/)).toHaveCount(0);expect((await zoomContext.cookies(`${api}/api/v4/demo/session`)).filter(c=>c.name==='commerceops_v4_demo').every(c=>!c.value)).toBe(true);
- } finally {await zoomContext?.close();await rm(profile,{recursive:true,force:true});}
+ } catch(error) {zoomFailure=error;throw error;} finally {
+  try {await closeAndCleanOwnedProfile(zoomContext,profile,rm);}
+  catch(cleanupError) {if(zoomFailure!==undefined)throw new AggregateError([zoomFailure,cleanupError],'Live zoom and profile cleanup failed');throw cleanupError;}
+ }
 });
