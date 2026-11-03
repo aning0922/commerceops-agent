@@ -32,6 +32,7 @@ test('LIVE: isolated demo lifecycle and browser layout',async ({page,context})=>
  expect(current.data.persona_id).toBe('operator');expect(current.data.shops).toHaveLength(2);
  expect(current.context.reset_epoch).toBe(created.data.receipt.reset_epoch);expect(current.context.auth_generation).toBe(created.data.receipt.auth_generation);
  await expect(page.getByText('演示空间已建立。')).toBeVisible();
+ const createdCookies=(await context.cookies(`${api}/api/v4/demo/session`)).filter(c=>c.name==='commerceops_v4_demo');expect(createdCookies.length).toBe(1);expect(createdCookies[0].httpOnly).toBe(true);expect(createdCookies[0].sameSite).toBe('Lax');expect(createdCookies[0].path).toBe('/api/v4');if(new URL(api).protocol==='https:')expect(createdCookies[0].secure).toBe(true);
  for(const shop of current.data.shops){
   const summaryResponse=response(page,'GET','/seed-summary');await page.getByLabel('店铺').selectOption(shop.shop_id);
   const raw=await summaryResponse;const data=await read(raw,'SeedSummaryEnvelope');sameTenant(current.context,data.context);expect(data.context.shop_id).toBe(shop.shop_id);
