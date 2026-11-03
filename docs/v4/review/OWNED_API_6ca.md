@@ -27,3 +27,14 @@ COMMERCEOPS_PORT要求规范数字1024–65535，与精确http://127.0.0.1:<port
 精确6ca快照下定向 **13 PASS / 1.32s / native0**，父进程psycopg.connect额外设为禁止调用。实际ASGI仅验证真实app的Origin403及liveness200；uvicorn.run被截获，未实际listen。旧Settings仍拒绝wildcard、安全错误不回显输入的用例保留。另两项密码文件反例按上文真实复现。全部临时文件已清理，无容器/API/Web/PG操作。
 
 请QA局部补密码文件守卫后交精确普通commit复审，ROOT再开全新pilot。Linux挂载UID/600可读性、实际HTTP/P3改名cookie401、PG鉴权与最终清理仍需该新case证据，不能用13项pure代签。browser2c4与未来native200路径独立审查，不因本入口结论而预签。
+
+
+## 7913最小增量复审：OWNED-API-01关闭
+
+日期：2026-11-04（Asia/Taipei）。candidate `7913e728ea4c16a0141fededc371f0efa74951c9` / tree `5d585083246767b80db89ba3403465767b5042ac`，parent `f9d3d6dfab5f312ed5653e428972c095cf174316`。本次仅审owned_api三行及对应test/doc，不把parent browser pin变化顺带签收。**结论：OWNED-API-01 CLOSED，增量0 P1 / 0 P2；ACCEPT_PREPARED_OWNED_API_ENTRY。** 可交ROOT绑定新source/image/project/端口/UTC作新的实际pilot和其后独立TTL；本回执本身不启动资源或预填运行通过。
+
+load_owned_config在固定DB路径检查之后、原WebConfig/DemoConfig装配之前，实际调用private_bytes(RUNTIME / runtime-password)。由既有helper执行逐级O_NOFOLLOW、普通文件、0600、当前UID及读取大小限制，拒绝固定名symlink或开放权限；没有chmod/chown/删除/替换未知挂载，旧DatabaseSettings/WebConfig、原Settings/API main/认证均未修改。监听仍为已审独立owned容器入口，不能推广成生产main允许wildcard。
+
+独立精确7913快照定向 **16 PASS / 1.29s / native0**，父进程psycopg.connect额外禁止调用。新增symlink及0644反例都拒绝，main保持固定安全退出且uvicorn不被调用，原不安全文件保持原样；合法0600/current UID仍装配通过。原13项真实ASGI边界/固定listener参数等继续通过，uvicorn监听仍被截获，本轮没有实际bind或PG连接。临时文件已清理；原6ca反例不回写删除。
+
+Linux实际挂载UID/600读取、监听可达性、P3/V4鉴权和cleanup须ROOT新case回执。11HTTP及natural_ttl已有组件准备接受不因本修复改变业务时长/边界；browserMode及新200% source/pins仍独立审查，不能靠本入口接受提前放行。ROOT转交DBcap单节点nativePASS/cleanup事实只属provision层，不纳入本入口实际证据。
