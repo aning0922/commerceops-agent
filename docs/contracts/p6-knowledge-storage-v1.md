@@ -306,3 +306,46 @@ SQL和事务仍为替身，不签实际数据库竞争。新增PG节点在真实
 本次组合纯与HTTP替身测试实际127passed/0.84s/exit0；四个变更Python文件strict mypy、
 Ruff及format通过。K2 30与K3 29共59个PG节点仅collect/0.70s/exit0；
 本线未运行PG、Docker、SDK或模型。K3实际SQL和独审仍pending，0023父0022仍待精确交付。
+
+### K3 Web响应、独立合同与合成Query配置交付候选
+
+Root已回执e40请求键修复独审ACCEPT_K3_KEY_FIX/127独立纯测试，另交付S3精确对象32dd7c2，
+只读核对其0022→0021与本K3父标识一致；本线仍未合入S3或运行完整链/PG。
+Root随后明确放行本片补完必要Web DTO、独立OpenAPI和默认关闭的显式Query loader；
+本交付不改e40的CopyStore、0023、锁或PG测试，也不修改共享API/Worker/database/旧合同/CI。
+
+新`application.knowledge_copy.http_models`严格表达真实Store.read的四种状态、source_current和draft_id，
+以及创建原键UNKNOWN、已确认approve/reject决定、原键UNKNOWN决定与各自envelope。
+saved可在来源之后失效时保留原draft；UNKNOWN不带已保存ID、不解释为rollback、不自动写入。
+Router在序列化前按DTO重建，决策还核原candidate id/hash/key；坏Store输出固定503。
+GET始终重新认证；新增离线负例在模拟ACK丢失后撤销session，读取返回401且不调用Port读取或再写。
+这只是替身边界，不签真实session、网络ACK或真人操作。
+
+原COPY_*错误不在P3冻结枚举内，本片显式映射到PLAN_CHANGED/DECISION_CONFLICT/NOT_READY/
+ACCESS_DENIED/SERVICE_UNAVAILABLE，保留原IDEMPOTENCY_CONFLICT；未知内部码不回显。
+错误仍是合法p3-web-v1 Error形状/原枚举，receipt=null/retryable=false；旧P3/P4/P5资产不改。
+新独立`copy_openapi()`包含五操作、path/query/Origin/CSRF/cookie、POST请求、成功/UNKNOWN及错误依赖闭包；
+`separate_copy_legacy`只移除五条已声明路径和未被其他操作引用的新model，未知路径仍由export_web拒绝。
+Root仍须在主API正确位置调用两helper，默认关闭与daily/copy四组合接线尚未在本线实施。
+
+新`load_copy_deployment(path,enabled=False,expected_sha256=None)`默认返回None且零文件读取。
+显式启用要求原始文件sha256、绝对路径无..、逐级NoFollow、regular/0600/当前owner及32KiB限长；
+duplicate JSON、非有限数、未知字段、重复org/shop/ref、错误query/profile/vector/binding/config摘要均拒绝。
+query_ref必须为版本化引用（以@query_version结尾），最多100项；额外按实际PG float4范围验证向量。
+模型/provider/publication三标志只能为真实bool false；只有self-authored synthetic Query，
+只返回不可变映射，不读取env/Secret/数据库、登记来源、构造provider或接受HTTP权限/向量。
+source许可、owner登记和当前授权仍由原Store/SQL独立核验，不由配置摘要授予。
+
+同源资产：docs/contracts/p6-copy-web-v1.schema.json、同名.openapi.json及包内.openapi.json；
+`python -m scripts.export_copy_schema`重生成；UI消费边界见[p6接线清单](p6-knowledge-wiring-v1.md)。
+JSON Schema验证结构；精确引用/显示公式/hash/source/current auth仍须真实DTO/Store。
+共享wire案例明确保留“结构合法但hash公式被改”的DTO拒绝/Schema允许差别，不把schema通过当授权。
+
+本地最终组合185passed/1.02s/exit0；九个变更Python文件strict mypy/Ruff/format通过。
+独立Ajv2020 8.20.0/formats3.0.1严格校验24案例和五操作请求/响应schema通过，实际Node20.20.1；
+依赖仅从既有npm缓存离线安装到新/tmp目录，无生命周期脚本、网络或项目依赖/锁改动。
+该证据不是锁定前端Node24.21.0的build或UI验收。K3原29PG只collect，实际SQL仍待Root。
+开发保留：首HTTP1failed/11passed由父校验器影响嵌套strict tuple的JSON处理引起，
+已仅在JSON表示层转不可变tuple且保留Python输入strict；首资产比对1failed/42passed为错误闭包set顺序不稳定，
+已排序再冻结字节。静态发现query_parameter漏profile参数等已修，不修改旧测试门槛。
+本批没有PG/Docker build/浏览器/实际服务、SDK、模型或外发；全链、主API/owner bootstrap、真实资料与人审仍未签收。
