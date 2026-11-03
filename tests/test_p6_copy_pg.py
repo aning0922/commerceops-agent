@@ -30,6 +30,7 @@ from fastapi.testclient import TestClient
 from psycopg import Connection, sql
 
 from tests.p3_support import ORIGIN
+from tests.test_p3_pg import fixture as fixture
 from tests.test_p6_knowledge_copy_contracts import product, query
 from tests.test_p6_knowledge_copy_pg import KnowledgeFixture
 from tests.test_p6_knowledge_copy_pg import knowledge as knowledge
