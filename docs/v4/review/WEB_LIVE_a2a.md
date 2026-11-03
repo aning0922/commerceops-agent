@@ -52,3 +52,20 @@ LIVE-02 CLOSED：persona/reset实际waitForResponse改接sessionResponseMatches�
 未改生产组件/路由/冻结schema；独立Git blob核v4-schema.json与63a相同。ROOT另释放的紧凑移动nav仍WIP，本轮没有读取或预签；待第三精确commit单独审。没有新增14模块、任意routes或用CSS/viewport假冒真实200%。trace/video/自动失败截图仍关闭，显式图像只限计划页面，运行需ROOT独占新evidence目录及同一新owned窗口。
 
 独立精确8ef快照Node纯测试 **22 PASS / 0 FAIL / 0 SKIP / 166.147ms / native0**，包括新增等待器事件序列。首次Reviewer临时快照漏导出OpenAPI测试读取的冻结baseline，导致该文件native1；补齐同SHA baseline后才得到上述完整22通过，未修改测试或将首次失败归为作者实现缺陷。三个Playwright collect结果如上；typecheck本轮未重跑，作者结果保持分列。所有临时目录/cache已清理，无真实服务/浏览器/PG执行，截图尚未产生。
+
+
+## 363移动导航产品及live点击增量
+
+日期：2026-11-04（Asia/Taipei）。candidate `36319b458a304311d01e3f05afc356568424a59a` / tree `780139f74366fd0af0ca021aee4eb67fa099abd3`，parent8ef。**结论：ACCEPT_PREPARED_MOBILE_NAV_DELTA，0 P1 / 0 P2。** 只接受此次四文件24行新增/3行删除的移动导航及测试准备，未签实际UI/浏览器/200% Gate；原LIVE-01/02关闭状态保持。
+
+产品新增usePathname和带aria-label“演示导航”的原生nav/anchor。href固定为/v4、/v4/demo、/v4/settings/demo，均为原catch-all已批准的三个路由，没有新增route、14模块或动态外部URL。aria-current只在精确当前pathname时为page，其余省略；使用原生href链接，无onClick写操作、tabindex=-1或自定义键盘拦截。现有root focus-visible样式适用于链接。CSS默认隐藏，仅≤760px显示flex-wrap、gap和40px最小高度，当前项有边框/背景/字重区别；不改桌面sidebar布局。
+
+导航是普通同源页面GET，未改start/control/recover、csrf/context/seq、cookie或storage逻辑。导航后原Demo初始化继续先检查sessionStorage pending：有原操作则只显示核对入口，不自动POST；无pending才只读refresh current。即使用户在业务响应未知时导航，原key仍由原存储/恢复边界处理，不因菜单重放写请求。此为源码核验，未模拟实际浏览器卸载/传输中断。
+
+live移动设置步骤已由page.goto替换为实际可见nav link定位、focus、键盘Enter，随后核URL、设置链接aria-current=page，并读回同creation key、tenant/org、persona、代际及principal。之后仍执行390弹窗/焦点/Esc及logout段。该源码现在准备验证UI导航，前节8ef“只验证deep link”是历史时点；本轮尚未执行，不能把准备步骤描述为已观察的导航成功。
+
+新增两项UI_FIXTURE分别360/390：明确mock响应，核nav可见、欢迎current、两个固定href、Enter导航后的设置current、operator恢复、POST计数0及无横向溢出。它们仍是fixture而非真实鉴权。programmatic focus+Enter证明计划中的激活路径，未扩称完整Tab顺序/辅助技术审计；原生链接的可聚焦结构已静态核查。
+
+独立从363精确快照只执行Playwright --list：原fixture配置无live env **35tests/1file/native0**，含两个新mobile nav标题且不含LIVE；专用live配置 **1test/1file/native0**，只含原LIVE标题。未启动浏览器/Next/PG/API或生成截图。作者type/nextbuild是作者准备事实，本轮未复跑；ROOT后续35实际fixture及真实live应另绑其source/命令/退出与失败记录。临时收集目录已清理，无browserMode WIP读取。
+
+本增量不包含真正200%浏览器GUI、真实触摸/窄屏系统浏览器验收或新的业务导航页；ROOT独立headful profile窗口尚未由本回执执行。可交ROOT普通集成及后续既定验证，具体新owned资源准入仍由其回执决定。
