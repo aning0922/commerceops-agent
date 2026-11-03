@@ -10,7 +10,10 @@
           "CMD-SHELL",
           "pg_isready -U commerceops_owner -d \"$${POSTGRES_DB}\""
         ]
-      }
+      },
+      "networks": [
+        "default"
+      ]
     },
     "pg-test": {
       "image": "${V4_TEST_IMAGE:?Root-bound test image required}",
@@ -20,6 +23,9 @@
       },
       "volumes": [
         "${V4_OWNER_DIR:?new owner directory required}:/run/v4_owner"
+      ],
+      "networks": [
+        "default"
       ]
     },
     "v4-api": {
@@ -47,12 +53,20 @@
         "postgres": {
           "condition": "service_healthy"
         }
-      }
+      },
+      "networks": [
+        "default",
+        "host_facing"
+      ]
     }
   },
   "networks": {
     "default": {
       "internal": true
+    },
+    "host_facing": {
+      "driver": "bridge",
+      "internal": false
     }
   }
 }
