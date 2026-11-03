@@ -1,0 +1,21 @@
+{
+  "status": "OBSERVED",
+  "before": {
+    "innerWidth": 1440,
+    "outerWidth": 1440,
+    "dpr": 2,
+    "visualScale": 1,
+    "cssZoom": "1"
+  },
+  "after": {
+    "innerWidth": 720,
+    "outerWidth": 1440,
+    "dpr": 4,
+    "visualScale": 1,
+    "cssZoom": "1"
+  },
+  "nativeZoomSelection": "2",
+  "browserClosed": true,
+  "scope": "native browser zoom method research only; public data page, no project API/PG/Web",
+  "live_profile_pids": []
+}
