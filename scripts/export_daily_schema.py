@@ -23,6 +23,11 @@ def schema_bytes() -> bytes:
 
 def main() -> None:
     TARGET.write_bytes(schema_bytes())
+    from commerceops.entrypoints.daily_http import daily_openapi
+
+    encoded = (json.dumps(daily_openapi(), ensure_ascii=False, indent=2) + "\n").encode()
+    (ROOT / "docs/contracts/p6-daily-read-v1.openapi.json").write_bytes(encoded)
+    (ROOT / "backend/src/commerceops/assets/p6-daily-read-v1.openapi.json").write_bytes(encoded)
 
 
 if __name__ == "__main__":
