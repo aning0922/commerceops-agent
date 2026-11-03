@@ -21,11 +21,13 @@ from typing import Any
 
 import httpx
 
+from .browser_lifecycle import validate_report, verify_source
 from .http_probe import run_scenario
 from .owned_adapter import OwnedAdapter, compose_environment, owner_run
 from .owned_negatives import run_owned_negative
 from .preflight import ROOT, git, utc
 from .supervisor import Budget, OwnedProcess, Supervisor
+from .ttl_probe import run_natural_ttl, stage_paths
 
 SCENARIOS = {
     "lifecycle",
@@ -39,6 +41,8 @@ SCENARIOS = {
     "identity_scopes",
     "credential_revoke",
     "grant_revoke",
+    "natural_ttl",
+    "browser_lifecycle",
 }
 
 
@@ -79,8 +83,9 @@ class Case:
         if any(type(p) is not int or not 1024 <= p <= 65535 for p in ports) or ports[0] == ports[1]:
             raise ValueError("distinct explicit loopback ports required")
         start, end = utc(self.starts_at), utc(self.deadline)
-        if not 180 < (end - start).total_seconds() <= 1800:
-            raise ValueError("case window must include 180s cleanup, max 1800s")
+        maximum = 2700 if self.scenario == "natural_ttl" else 1800
+        if not 180 < (end - start).total_seconds() <= maximum:
+            raise ValueError("case exceeds explicit TTL/non-TTL limit")
         if self.scenario not in SCENARIOS or type(self.uid) is not int or self.uid != os.getuid():
             raise ValueError("explicit scenario and current owner UID required")
         path = Path(self.directory)
@@ -93,6 +98,8 @@ class Case:
             raise ValueError("Root source/tree does not equal this worktree")
         if git("status", "--porcelain"):
             raise ValueError("committed clean source required")
+        if self.scenario == "browser_lifecycle":
+            verify_source()
 
     @property
     def api(self) -> str:
@@ -328,7 +335,11 @@ def execute(case: Case) -> dict[str, Any]:
     try:
         sockets: list[socket.socket] = []
         try:
-            for port in (case.api_port, case.web_port):
+            for port in (
+                (case.api_port,)
+                if case.scenario == "natural_ttl"
+                else (case.api_port, case.web_port)
+            ):
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sockets.append(sock)
                 sock.bind(("127.0.0.1", port))
@@ -377,29 +388,32 @@ def execute(case: Case) -> dict[str, Any]:
         argv, environment = adapter.launch_spec("api")
         api_process = supervisor.start("api", argv, environment)
         ready(case.api + "/health/live", budget, api_process)
-        node = ROOT / ".tools/node/bin/node"
-        web_process = supervisor.start(
-            "web",
-            (
-                str(node),
-                str(ROOT / "frontend/node_modules/next/dist/bin/next"),
-                "dev",
-                str(ROOT / "frontend"),
-                "--hostname",
-                "127.0.0.1",
-                "--port",
-                str(case.web_port),
-            ),
-            web_environment(case, node),
-        )
-        ready(case.web + "/v4", budget, web_process)
+        if case.scenario != "natural_ttl":
+            node = ROOT / ".tools/node/bin/node"
+            web_process = supervisor.start(
+                "web",
+                (
+                    str(node),
+                    str(ROOT / "frontend/node_modules/next/dist/bin/next"),
+                    "dev",
+                    str(ROOT / "frontend"),
+                    "--hostname",
+                    "127.0.0.1",
+                    "--port",
+                    str(case.web_port),
+                ),
+                web_environment(case, node),
+            )
+            ready(case.web + "/v4", budget, web_process)
         child = supervisor.start(
             "probe",
             (
                 sys.executable,
                 "-m",
-                "tests.e2e.v4.owned_driver",
-                "probe",
+                "tests.e2e.v4.browser_lifecycle"
+                if case.scenario == "browser_lifecycle"
+                else "tests.e2e.v4.owned_driver",
+                *(("probe",) if case.scenario != "browser_lifecycle" else ()),
                 "--case",
                 str(directory / "case.json"),
             ),
@@ -410,6 +424,9 @@ def execute(case: Case) -> dict[str, Any]:
         if code != 0 or supervisor.watchdog_errors:
             raise RuntimeError("scenario failed or watchdog used; preserve evidence")
         budget.timeout(1)
+        if case.scenario == "browser_lifecycle":
+            validate_report(json.loads((directory / "processes/probe.raw.log").read_text()))
+            records.append(dict(stage="browser_live", selected=1, passed=1, skipped=0, retries=0))
         status = "SCENARIO_COMPLETED_PENDING_REVIEW"
     except BaseException:
         status = "FAILED_OR_UNKNOWN"
@@ -538,8 +555,20 @@ def execute(case: Case) -> dict[str, Any]:
         records=records,
         volume="PRESERVED_NOT_DELETED",
         pg_api="SEE_ACTUAL_COMMAND_RECORDS",
-        browser="NOT_RUN",
+        browser=(
+            "EXECUTED_PENDING_REVIEW"
+            if status == "SCENARIO_COMPLETED_PENDING_REVIEW" and cleanup_ok
+            else "NOT_ACCEPTED"
+        )
+        if case.scenario == "browser_lifecycle"
+        else "NOT_RUN",
         observer_records=str(directory / "observers"),
+        ttl_planned_evidence_paths={
+            stage: str(path)
+            for stage, path in stage_paths(directory / "natural_ttl.safe.json").items()
+        }
+        if case.scenario == "natural_ttl"
+        else None,
         full="NOT_RUN",
         hosted="NOT_RUN",
     )
@@ -565,7 +594,15 @@ def main() -> None:
                 adapter = OwnedAdapter(
                     compose(case), case.project, budget, evidence=Path(case.directory) / "observers"
                 )
-                if case.scenario in {
+                if case.scenario == "natural_ttl":
+                    run_natural_ttl(
+                        case.api,
+                        case.web,
+                        budget,
+                        adapter,
+                        Path(case.directory) / "natural_ttl.safe.json",
+                    )
+                elif case.scenario in {
                     "bootstrap_restart",
                     "identity_scopes",
                     "credential_revoke",

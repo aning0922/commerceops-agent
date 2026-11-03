@@ -139,3 +139,130 @@ pull_policy=never，附内容hash核对。后续所有owner/observer都用冻结
 而非传不受支持的参数；启动up仍带--no-build。没有修改原compose/Dockerfile。
 定向纯回归15pass/0.09s/native0，含missing-image、原生137/timeout/坏JSON记录不丢、
 Q18 minimal owner绑定、Web环境、API依赖范围、冻结模型无build。没有启动服务或跑任何case。
+
+## natural_ttl 独立新增模式（窗口未开放）
+
+仅此scenario允许≤2700s，其他仍≤1800s，reserve180不变。沿用同driver/manifest，
+独立project/DB/API；不启动或绑定Web，web_port仅保留manifest兼容字段。
+ttl_probe.py不改变业务期限。初始以PG tenant/session created/expires和API expiry核恰30分钟，
+并拒绝已撤销/不同期限；工作截止须≥expiry+60秒，另留180秒cleanup，否则UNKNOWN/非0。
+静置只在probe内monotonic分段等待，无业务轮询；Root可用独立资源做Full串行PG。
+到期前30秒取PG+有效current；之后核DB确已跨expiry、原期限/撤销事实未变，再核current、
+旧两店及原控制回执401。边界丢失/中断/传输错误留UNKNOWN，不续窗；600独占证据文件
+natural_ttl.safe.json保留部分事实。13项定向纯测试0.08s/native0，无真实等待；实际SQL/
+HTTP/30分钟自然行为NOT_RUN，需Root专项新对象/端口/UTC，不以此签Full。
+
+## browser_lifecycle 独立新增模式（窗口未开放）
+
+仅执行WEB交付a2a7873ca7453fc2c86ffdc1b8cd57063b66f5b3的固定
+frontend/playwright.v4-live.config.ts与frontend/v4-tests/lifecycle.live.spec.ts，标题固定
+`LIVE: isolated demo lifecycle and browser layout`。两个Git blob及工作文件bytes必须一致，
+且在当前HEAD内；缺文件/未集成/改动直接阻断，WEB后续修订必须Root交精确SHA再机械刷新。
+这是候选源码钉住，不代替WEB独审或Root运行准入。
+
+沿用prepare/execute命令，仅manifest scenario=browser_lifecycle，仍≤1800s/reserve180。
+API/Web ready后probe子进程固定exec本地Node/Playwright CLI，不接受任意argv；workers1、
+retries0、forbid-only、JSON reporter。Playwright实际grep含project/file前缀，故用固定
+title后缀匹配，再对JSON的唯一spec.title做严格全等核验，不使用会零匹配的整串标题锚。
+Root独立新case的browser目录700、子进程umask077；仅传V4_WEB_ORIGIN、V4_API_ORIGIN、
+V4_EVIDENCE_DIR与本地工具环境，不传owner DB env。候选config trace/video/screenshot自动
+捕获均off；spec主动截图仍私有，HAR默认无记录。没有浏览器安装/route stub/fallback。
+
+只有native0且实际JSON唯一expected/passed、无skip/flaky/retry/errors，才记浏览器执行待审；
+之后仍按停writers/容器→final PG→down流程。HTML200不再冒充WebGate。此spec不签独立
+真实GUI 200% profile，该项仍另开窗口；其余跨标签/视觉矩阵以WEB原交付实际结果分列。
+新增11项离线source/report/固定命令测试0.06s/native0，不启动Node/browser/HTTP/PG；
+源码测试只从已交Git blob取公开样本，不读取作者WIP。Root尚未在本QA树集成WEB两文件，
+因此当前browser模式会按设计拒绝；所有真实浏览器/自然TTL/Full/Hosted仍NOT_RUN。
+
+## TTL01 持久阶段证据修正
+
+已读正式报告 `1edd70e2da59566a9345bc3968c644bff991f03b:docs/v4/review/TTL_3dd.md`，
+原3dd的SIGTERM -15丢initial反例与0P1/1P2保留。改为首次取得PG事实即在长等待之前独占
+写natural_ttl.initial.safe.json并flush/fsync文件和父目录；before/after事实也各在取到后
+立即写natural_ttl.before.safe.json、natural_ttl.after.safe.json，固定名/600/O_EXCL，
+不覆盖旧stage。全部阶段默认UNKNOWN，原natural_ttl.safe.json仍只作UNKNOWN收尾摘要。
+仅全部到期断言、Python清理及摘要持久化均正常返回，才能另写natural_ttl.success.safe.json
+标记待审成功；先前UNKNOWN文件不改写。父receipt提供ttl_planned_evidence_paths定位，
+该字段只是计划路径，不声称文件已存在；必须结合原生退出和实际success证据核收。
+没有signal handler/延迟SIGTERM/重发业务请求/续窗。合成完整子进程分别在长等待点自发
+SIGTERM与抛TimeoutError：实际native -15与1，均留initial UNKNOWN、无success标签；
+SIGTERM不执行finally仍保有initial。新增不可覆盖检查，本模块16pass/0.23s/native0。
+这些是纯/短命子进程证据，无真实30分钟等待、HTTP/PG或浏览器；本修正仍待独审。
+
+## WEB新交付等待阻断
+
+Root通知a2a原审两P2，WEB将live.spec.ts改名lifecycle.live.ts并修context waiter。
+在新精确SHA/path/blob交付并核收前，browser_lifecycle.WEB_HANDOFF_READY固定False，
+无CLI/env override；即便旧a2a文件存在也不能通过Case.validate启动资源。
+旧PINS仅为历史候选位置，不能视为新审通过。最终由Root精确交接后单独机械更新，
+不读取WEB WIP。此阻断与TTL01修复分普通提交，不改变HTTP/natural_ttl模式。
+
+## 第二个pilot的owned API装配修正（独立于TTL/browser）
+
+Root回执：lifecycle_b source d816/tree65322的migration/原grant/V4 init/grant/verify全部
+native0；API native1，配置固定错误；Web/probe未启动，资源全停/端口关闭/新卷保留。
+静态核d81638997dca94c2f084913f2ff2ccfa4f3c8d80原Settings.host仅127.0.0.1/::1，
+原main不支持0.0.0.0；此前容器拓扑计划漏掉此约束。旧case不重试，原约束不放宽。
+
+Root精确释放新tests/e2e/v4/owned_api.py：在test/pg-test镜像内执行
+`python -m tests.e2e.v4.owned_api`。不是生产入口，也不宣称原main支持容器wildcard。
+保持同一原WebConfig.from_file、DemoConfig.load、ReplenishmentStore与create_app装配，
+同时启用原P3和实际V4；没有StubStore/新API/数据库初始化/Worker/proxy框架。
+
+只接受固定/run/v4_api的700当前UID目录及原600文件规则；预先限制demo/web配置和三个
+key/password路径都在固定新runtime位置，DB必须postgres:5432、commerceops_app、
+v4_demo_新库，禁止owner DB env/commerce_sources/任意config或host override。
+Root显式COMMERCEOPS_PORT必须与http://127.0.0.1:<port> api_origin完全一致且已在受信
+origins中，启用local_http、enabled=true、allow_non_browser_get=false。再调用原loader
+和原create_app；无旧配置fallback，不改变旧middleware或Settings。
+
+唯一差异是该owned入口直接调用uvicorn，固定容器内0.0.0.0/单进程/no reload/no proxy
+headers，访问日志关闭；宿主发布仍由overlay限定127.0.0.1，PG仍不发布。overlay只替换
+v4-api command并移除无效COMMERCEOPS_HOST，保留Root端口与P3/V4固定配置路径及UID。
+实际Docker网络/600挂载可读性/PG鉴权仍须新case验证，不能据ASGI签运行通过。
+
+本轮13项定向纯测试：真实create_app独立八端点及P3 schema、无PG的真实ASGI Origin403/
+liveness200、固定listener参数（uvicorn被拦截未监听）、不合法DB/旧secret路径/owner env/
+host override/端口不一致拒绝，以及旧Settings仍拒绝0.0.0.0。前两轮各12pass/1fail分别是
+不适用的顶层route计数、无PG下误要求401；修正测试假设，原401保留实际PG case待验，
+没有把503改成鉴权成功。无Docker/PG/API/Web服务启动，Full/Hosted仍NOT_RUN。
+
+## 已核收WEB363的机械绑定更新（与owned API拓扑修复分提交）
+
+Root交付WEB `36319b458a304311d01e3f05afc356568424a59a`，独审回执
+`7d6720a31e7fabce35ee4eced4e638c69ca5fb0a`，替代旧a2a待修候选。
+固定spec改为frontend/v4-tests/lifecycle.live.ts（不再*.spec.ts），标题不变；
+config仍frontend/playwright.v4-live.config.ts，环境仍V4_WEB_ORIGIN/V4_API_ORIGIN/
+V4_EVIDENCE_DIR。新PINS同时钉住config/spec/context waiter lifecycle.waiter.mjs/
+v4-schema.json四个准确Git blob，工作bytes与HEAD必须一致；任何依赖改动仍阻断。
+WEB_HANDOFF_READY仅代表Root已交接这份已审来源，不代替Root的资源窗口批准。
+本QA树未普通合入WEB文件，故仍不能直接执行；须Root统一集成新API entry、backend、WEB
+并构建新test镜像，绑定完整source/tree/image/project/端口/UTC，不复用lifecycle_b。
+本轮12项定向纯source/report/command检查0.09s/native0；取样仅从363已交Git对象，
+未读WEB WIP、未启动Node或浏览器。真实GUI 200%独立profile、实际浏览器、Full与Hosted
+仍未核收，不将Root进行中的UI_FIXTURE重跑预填为通过。
+
+## WEB原生200候选6937的pin元数据准备（待独审）
+
+Root交付候选`6937a39d4ebb6d77f653d489db9964083a179d68`，tree
+`d72d15861696e157e00297a8cccab1e2446df22a`，parent363；本次仅按已提交Git对象读差异。
+只有lifecycle.live.ts的blob变为fba785c22827c0378924fd0d10a646ee27e25805；
+config、lifecycle.waiter.mjs、v4-schema.json三个依赖blob不变，均继续固定包含。
+新增headful/profile/Chrome原生设置段写在该spec内，没有遗漏的新自定义helper文件。
+标题、120秒config、固定命令、retries0/worker1和trace/HAR默认关闭边界均未改。
+WEB_SOURCE/PINS刷新为候选元数据，同时WEB_HANDOFF_READY=False；hash校验机制未改，
+不能凭候选提交或原363已核收状态启动。必须Astra接受该新候选、Root统一集成并给新source/
+image/project/端口/UTC后才能解除阻断与运行；不使用363旧测试签200%真实缩放。
+本轮仅定向纯metadata/source/report验证，无Node/browser/profile/GUI/PG服务启动。
+
+## OWNED-API01：启动前校验runtime-password实际文件
+
+已读正式审查`ef848d9bc0a5ba2cb75994a21c09d2db52f1ef97:docs/v4/review/OWNED_API_6ca.md`，
+0P1/1P2，原13pure通过不抵密码文件反例。仅在owned_api装配app前增加对固定
+/run/v4_api/runtime-password的既有private_bytes调用，逐级O_NOFOLLOW、普通文件、0600、
+当前UID校验与新配置/其他key一致。旧DatabaseSettings/WebConfig及连接逻辑均未改，
+不chmod/chown/替换未知挂载，失败仍OWNED_V4_API_CONFIGURATION_INVALID固定退出。
+新增symlink/0644拒绝（同时断言文件未被修复、uvicorn未调用）及合法600/current UID接受；
+本模块16项定向pure通过，未启动监听或连接PG。本修复单独提交，不含browser pin变更；
+待Astra增量复审后由Root新窗口核实际Linux挂载、鉴权和监听，旧case不重试。
