@@ -91,3 +91,13 @@ S1修复e47a2e3已独审ACCEPT_S1_FIX，独立149pass及十币种/四HALF_EVEN�
 Root测试修正063bb75已独审ACCEPT：完整可达历史的实际findings必须等于对应精确审批集合；production scanner不改。本机17provenance通过；新非浅单分支隔离clone仅3条审批源可达/17条源不在该历史，18针对性tests通过4.69s/exit0。首次17fail由Root误用返回None的git helper导致，pytest失败但外层末命令曾掩盖为0；已改check_output并使用set-e，该失败保留。
 
 S2设计836bf87获得storage/source/runner实施准入，Web schema6处ge非标准关键字为P2，修正/实际Pydantic生成验证前不开放Web消费。Backend已获新0019迁移、三表持久化/来源/runner/Read DTO/API及必要测试代码实施授权，新ownedPG需冻结候选后Root具体UTC登记；旧0018保护不改。动态执行器f0ceb20已提交/30purepass，正式独审中；K1纯知识模块实施中。
+
+### 接线与迁移独占分配
+
+Root完整本地check绑定aaaa132263a219f49539347e4e6818f11283b258，322.614s/native0；2944offline通过、590integration排除、4既有warning，工程锁/文档/lint/type/Node/Python审计通过（Python95包/已知0，npm0）。之后新实现须另验证，不用此结果代签。K1 59c40c2独审ACCEPT，Root已合并66pass0.22s；ReadDTO1434909独审ACCEPT_WEB_SCHEMA，Root已合并182pass0.25s，Ajv复核进行中。
+
+新增专职Web会话01a19f70-5c01-7bd3-9d92-4f0ba28babe9（Sol6/high），已转1434909实际DTO/schema并放行首片日报详情/strict client/契约测试，接口无列表或创建能力时不伪造。动态会话继续独占inquiry模块，f0旧结果HOLD，消费片负责逐claim可读答复、双窗口事实/代码歧义澄清及真正MockCommerce分页。
+
+为减少串行等待，Root明确更新共享DDL协调：唯一线性链0018→0019日报（Backend独占）→0020知识/copy（知识owner独占）→后续0021起（Root另分）。各owner只写自己的新迁移/专属模块，0020必须固定down_revision0019并普通合入已冻结父提交后才能真实升级验证；不并行创造head。根Compose/共享database入口/权限helper仍由Backend+Root单点协调。此为Root授权的独占范围更新，旧一人写全部DDL规则在本次分配范围内被替代。
+
+固定知识构建8ee1df0已独审放行；Root实际镜像build74.12s/native0，唯一tag commerceops-m3-vector:8ee1df0-arm64，image sha256:4ebf3de8870438618836dd1765632b7e90cb950632c929162441367087439d5a。只读无网络utility容器核PG17.11/control0.8.7/ldd无缺失后已退出，无PG服务启动；扩展CREATE/SQL/低权/向量float32与保存事务仍NOT_RUN。构建GO03:27:10Z→03:47:10Z，结果早于截止；未使用旧卷或秘密。知识owner已获K2专属0020/repository代码实施授权，PG仍待冻结后统一具体窗口。
