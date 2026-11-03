@@ -150,3 +150,13 @@ Modal 继续使用原生 dialog、Esc 关闭、Tab/Shift-Tab 限制在可见可�
 敏感检查复用仓库 `scripts.scan_secrets.scan()`，仅在进程内将扫描器路径指向现有 `/opt/homebrew/bin/gitleaks`，版本仍由原脚本严格核为 `8.30.1`；未修改仓库脚本、规则或工具安装。当前可提交文件 `dir` 和原 index 均 0 命中；`git --all --full-history` 返回 20 命中，其中 3 项由原规则识别为已审公开误报，17 项仍为 blocking，整体 exit 1。阻断位置涉及 Harness 等其他可达历史提交，本轮未读取命中原文、未判断误报、未修历史或新增豁免；由 Root 核定，不能记录为完整敏感 Gate 通过。当前本文件零命中不抵消全历史阻断，亦未上传任何内容。
 
 精确提交 SHA 与提交前最后检查结果在本会话交付回执中记录；本文不预填未来提交、独审、测试或 CI 结果。提交后等待 Root 的合同转交与下一实现切片指令。
+
+## 10. 首片日报详情实施（2026-11-03）
+
+Root 已释放独审通过的 S2 Read DTO/schema 提交 `1434909f2753cb5cc7d523b0a8d8f3dcbb6ef6aa`；UI 树普通合入。当前前端以 `/daily-reports/{task_id}` 深链在原会话壳内执行 `GET /api/v1/daily-reports/{task_id}`，由服务端每次判断日报专属权限。本片没有列表或创建端点，旧 P3 任务列表协议保持原样。后端实际 API 与存储仍在实施，此处的契约 transport 测试不代表真实 HTTP 已通过。
+
+读取采用已审 `p6-daily-read-v1.schema.json` 的逐字节副本、独立 Ajv2020 strict 校验与从该 schema 生成的 TS 类型。前端还核请求 task、时间顺序、完整报告的展示项集合、原始计数和金额的 HALF_EVEN 展示映射；指标聚合公式与 hash 仍由服务端 DTO/store 核验。生成类型命令为 `npm exec --yes --package json-schema-to-typescript@15.0.4 -- json2ts -i ../docs/contracts/p6-daily-read-v1.schema.json -o lib/m3-types.generated.ts`，无需修改 lock。
+
+页面显示原值和服务端展示值、业务日窗口/来源/质量、完整与 null、异常及证据引用编号；正文证据未由此 DTO 提供。生成状态与投递状态分开。追问、调度和投递能力字段为 false，故本片无交互入口。401/403 清同一会话的敏感数据，请求世代防止迟到回填；抽屉随报告身份切换卸载。现有 700px 响应式重排和原生 dialog 可复用，浏览器 1440/1280/390、200% 缩放及键盘实际验证待独立窗口。
+
+本地验证：锁定 Node/npm 下 `npm ci --ignore-scripts` 安装 41 包；`npm run check:toolchain`、`npm run typecheck`、`npm run check:read-schema`、`npm run build` 及四个无服务器 Playwright 契约例实际退出 0。完整 Web/E2E、真实 API/PG、Hosted CI、模型与推送均未由本片验证；精确提交与独审结果另由交付回执记录。
