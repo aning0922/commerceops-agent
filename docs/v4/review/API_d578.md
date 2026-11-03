@@ -57,3 +57,18 @@ init导出目录必须全新绝对路径，逐父目录dir_fd/O_NOFOLLOW，新�
 ## 交接及未运行证据
 
 请作者只修API-01及相应合法HTTP正例，普通提交精确SHA复审。19项stub ASGI不是PG鉴权，新增PG测试尚WIP未读取。原首窗migrate exit1/0tests、cleanup及SQL根因UNKNOWN保留；已独审安全诊断入口不改变本API候选状态。本轮没有实际PG、Docker、原配置/凭据读取、API监听服务、Hosted/push或V4-1操作。审查只提交文档。
+
+
+## 534增量复审：API-01关闭
+
+candidate `534844a848b7e4412a6b4b2ff178f7d0aa56c82e` / tree `ae03e8b997813c4db31a564ee76ee848d86bb162`，精确parent `12081e4f7dd326611b2be001aca4ed9a22acb9d1`。本次只审两个文件的JSON wire解析和对应ASGI增量，不把父链31d PG测试或1208 SQL修正当成本轮新审范围。**结论：API-01 CLOSED；解析增量0 P1 / 0 P2，原d578主体在此修正下可记ACCEPT_PREPARED_API，但不签PG/实际API Gate。** 原d578四POST合法UUID被422拒绝的P1与独立复现完整保留。
+
+四个POST函数去除FastAPI自动typed body参数，改为各自调用read_command(request,精确DTO)，内部先await原body(request)，再model_validate_json原bytes。重复键、media type、字节上限、非有限JSON常量校验仍经过原body；DTO strict/extra=forbid及UUID/整型约束未放宽。DemoRoute不再预读body是去重，四个POST实际各自明确读取，不存在漏接端点。Origin中间件和Store当前CSRF/身份/CAS未改。
+
+四个router decorator增加openapi_extra=request_body(精确DTO)，required=true且application/json schema与该DTO.model_json_schema逐一相同；因此手工解析没有丢失requestBody合同。前文生成OpenAPI与冻结baseline的命名/组件差异说明仍保持，不把此验证说成整份文档字节一致。
+
+独立将本SHA backend/src和已提交test_demo_api.py导出至Reviewer临时目录，使用既有依赖Python（FastAPI 0.142.4/Pydantic 2.13.5），仅快照源码优先导入，环境不含owner DB变量；执行精确单模块全部 **38 passed / 2.02s / native0**（原19+合法POST4+严格counter负例15）。测试是StubStore ASGI，不监听服务、不连接数据库。还独立覆盖四端点的合法请求：到达Store时均为准确CreateSessionInput/PersonaInput/ResetInput/LogoutInput，request_key为UUID，控制expected_epoch/generation为非bool的int；四条随后由stub返回SESSION_INVALID/401，证明已越过解析而未假称鉴权成功。该追加typed探针native0。
+
+原38项保留无Origin/恶意Origin、extra/无效UUID、重复键/content-type及缺失/错误代际等拒绝；新增15项覆盖三个控制端点epoch=True、字符串0、浮点0.0、负数、null仍422且不入Store。pytest和probe临时文件已清理；没有编辑作者实现、测试或读取WIP。
+
+ROOT另转交candidate46164111/tree4175d5ba原native migrate0/no tests/cleanup all0及新owned SQL5+旧schema1窗口安排，此处只记转交事实，Reviewer未复跑、未据此签API/SQL整体验收。823b第五访客及后续PG测试不在本解析delta结论内；实际运行结果应由ROOT绑定各自源码/命令记录。
