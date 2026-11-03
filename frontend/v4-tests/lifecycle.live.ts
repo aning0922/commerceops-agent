@@ -20,13 +20,13 @@ function sameTenant(a:any,b:any){expect(b.tenant_id).toBe(a.tenant_id);expect(b.
 // Capture the native window surface; Playwright fullPage clips horizontally at browser zoom 200%.
 async function captureNative200(page:Page,stem:string,segments:boolean){
  const cdp=await page.context().newCDPSession(page);
- const measure=()=>page.evaluate(()=>({y:scrollY,width:innerWidth,height:innerHeight,documentHeight:document.documentElement.scrollHeight,dpr:devicePixelRatio}));
+ const measure=()=>page.evaluate(()=>({y:scrollY,width:innerWidth,height:visualViewport!.height,layoutHeight:innerHeight,documentHeight:document.documentElement.scrollHeight,dpr:devicePixelRatio}));
  const paint=()=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
  let original:number|undefined;
  try {
   const initial=await measure();original=initial.y;
   if(initial.width<=0||initial.height<=0||initial.documentHeight<=0||initial.dpr<=0)throw new Error('invalid native capture dimensions');
-  const captures:{y:number;width:number;height:number;documentHeight:number;pngWidth:number;pngHeight:number}[]=[];
+  const captures:{y:number;width:number;height:number;layoutHeight:number;documentHeight:number;pngWidth:number;pngHeight:number}[]=[];
   let target=segments?0:initial.y;
   for(let index=0;index<32;index++){
    if(segments){await page.evaluate(y=>window.scrollTo({top:y,behavior:'instant'}),target);await paint();}
@@ -39,12 +39,13 @@ async function captureNative200(page:Page,stem:string,segments:boolean){
    const png=Buffer.from(shot.data,'base64');
    if(png.length<24||png.readUInt32BE(0)!==0x89504e47)throw new Error('invalid native capture PNG');
    const pngWidth=png.readUInt32BE(16),pngHeight=png.readUInt32BE(20);
-   if(pngWidth!==Math.round(position.width*position.dpr)||pngHeight<position.height*position.dpr)throw new Error('native capture viewport dimensions do not match');
+   if(pngWidth!==Math.round(position.width*position.dpr)||pngHeight!==Math.round(position.height*position.dpr))throw new Error('native capture viewport dimensions do not match');
    const after=await measure();
    if(after.y!==position.y||after.width!==position.width||after.height!==position.height||after.documentHeight!==position.documentHeight||after.dpr!==position.dpr)throw new Error('native capture moved during screenshot');
    const name=segments?`${stem}-segment-${String(index+1).padStart(2,'0')}.png`:`${stem}.png`;
    await writeFile(join(evidence,name),png);
-   captures.push({y:position.y,width:position.width,height:position.height,documentHeight:position.documentHeight,pngWidth,pngHeight});
+   captures.push({y:position.y,width:position.width,height:position.height,layoutHeight:position.layoutHeight,documentHeight:position.documentHeight,pngWidth,pngHeight});
+   if(segments)await writeFile(join(evidence,`${stem}-progress.json`),JSON.stringify({status:"INCOMPLETE",originalScrollY:original,segments:captures},null,2));
    if(!segments||position.y+position.height>=position.documentHeight)break;
    target=Math.min(position.y+Math.max(1,Math.floor(position.height*0.8)),position.documentHeight-position.height);
   }
