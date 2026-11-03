@@ -115,3 +115,11 @@ END $probe$;
 ```
 
 撤权夹具另作独立修正：原 `test_revoke_after_mark_can_settle_fact_free_failure` 在执行生产 fail_safe 前，直接把 principal.enabled 改为 false 却没有递增 auth_version，明确违反 0001 的 `require_auth_version`，该 23514 属夹具错误。冷重放 revoked 变体中尚未到达的同类 UPDATE 一并补 `auth_version=auth_version+1`，用户 GET 撤权拒绝及安全失败断言均保留。此测试修正不代替生产 SQL 变量歧义的验证，也不据此推断四项子进程原始 AssertionError 的原因。38 节点只收集未重跑；后续实际通过/失败由 Root 新窗口记录。
+
+## 独立最窄 SQL 诊断工具（代码已交付，执行 NOT_RUN）
+
+Root 可在下一次明确的新 owned PG 窗口、完整冻结迁移父链与运行依赖下使用 `python -m tests.p6_inquiry_sql_probe`；本 owner 未运行此入口。它只使用 Root 提供的该 owned 服务数据库设置，自行创建 UUID 命名的新临时数据库，沿原 migrate/setup_checkpointer/grant_runtime 和自建真实 Web fixture，完成同原 WorkerSession/queue 的真实 executor 结果。当前运行角色若缺新表权限，accept 阶段会明确失败；工具不额外补授权限掩盖共享接线遗漏。
+
+固定输出阶段包含 bootstrap/accept/worker_start/executor_complete、冻结 schema 的 `inquiry_json_valid`、`valid_inquiry_payload`、canonical/hash/size、当前 permission/session、实际表各 CHECK、finish/job_done/cleanup。冻结 schema 从本冻结 migration 的 JSON 常量只读提取，未用宽松替代 schema。CHECK 表达式只从本新库的 `business.readonly_inquiries` 目录读取，对真实 fixture 行加待落库 typed payload 的 composite 候选求值，不修改或绕过约束。随后实际 store.finish 若失败，仅记录 SQLSTATE 及受控约束名；每个分项独立事务，前一分项出错不污染后续诊断。最终总退出码保留任一分项失败。
+
+stdout 仅允许固定 stage、boolean、五位 SQLSTATE 和 `readonly_inquiries_` 前缀/63 字符内约束标识（或 null）。所有第三方 stdout/stderr 和异常原文均抑制，不输出 facts、规范结果、raw SQL、DSN、参数、账号或路径。工具仅 drop 自己新生成的临时数据库，不管理 Docker 或触及旧卷；Root 的外层绝对截止、进程退出与服务资源清理仍单独登记。新增六项 offline 测试只检查冻结 schema 同步、错误文本/日志抑制及标识过滤，全部通过；不调用诊断 run/diagnose、不连接 PG。工具整体 SQL 行为仍 NOT_RUN，原 25/11 和四项子进程 UNKNOWN 不改写。
