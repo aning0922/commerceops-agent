@@ -24,6 +24,8 @@ CommerceOps Agent 把电商运营中分散的分析、审批和跟进连接起�
 
 M2 的本地合成 Woo 只读接入、备份还原和当前 Mock 部署技术门槛已核收；文档冻结时最终审核/CI与发布收口仍待。完整分层证据见 [Phase5 验收](docs/PHASE5_ACCEPTANCE.md)，正式阶段状态以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际登记为准。
 
+2026-11-03 的 M3 本地实施与验证门禁已通过：日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与审核内部草稿。完整工程3684离线、完整PG719严格配对、M3真实本地浏览器及原Web回归已通过；真实资料、模型/embedding、飞书发送和正式发布仍未验收。见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)与[配置及准备步骤](docs/M3_LOCAL_DELIVERY.md)。
+
 ## 产品体验
 
 ### 一条请求，贯穿分析、决策与跟进
@@ -123,9 +125,9 @@ PATH="$PWD/.tools/node/bin:$PATH" \
 
 此模式使用演示数据，无需数据库、模型密钥或飞书凭据，不产生业务写入。仓库当前为 Public，可直接克隆；工具安装和冷缓存依赖下载需要网络。
 
-### 当前M3的本地PG诊断（应用接线仍待S3核收）
+### M3本地PG诊断与应用配置
 
-M3迁移需要 **PG17.11 + pgvector0.8.7**。基础`compose.yml`继续保留stock镜像；显式使用`compose.m3.yml`只替换同一个postgres服务的image/build。默认M2镜像及其0018/60表备份合同不变。这里提供的是新自有PG诊断路径，完整M3来源、API和单Worker启动参数待S3精确配置合同，不复用旧Secret。
+M3迁移需要 **PG17.11 + pgvector0.8.7**。基础`compose.yml`继续保留stock镜像；显式使用`compose.m3.yml`只替换同一个postgres服务的image/build。默认M2镜像及其0018/60表备份合同不变。这里提供新自有PG诊断路径；主API、原单Worker及Web的明确配置关系见[本地启动说明](docs/M3_LOCAL_DELIVERY.md)，独立seed与owner联合装配须分别准备，不复用旧Secret。
 
 在Root登记的新构建/PG对象与绝对UTC截止内，先设置`COMMERCEOPS_M3_STOP_AT_UTC`为该截止，再执行以下命令形状。第一条有界显式构建并绑定当前SHA/tree、构建输入、native架构和image ID；第二条复用原完整PG集合/G1/G2及清理门禁，禁止隐式build/pull。两条共用截止，不因第一条耗时自动延长：
 
@@ -134,7 +136,7 @@ uv run --frozen python -m scripts.m3_pgvector --stop-at-utc "$COMMERCEOPS_M3_STO
 uv run --frozen python -m scripts.pg_diagnostic --session initial --round 1 --combined --full-smoke --m3-pgvector --deadline "$COMMERCEOPS_M3_STOP_AT_UTC"
 ```
 
-已有镜像回执或round登记会拒绝覆盖，需按Root新登记处理；上述诊断按其原合同清理新测试卷。单独Compose使用时固定顺序为`-f compose.yml -f compose.m3.yml`，有私有port overlay则最后追加；启动前需同源镜像准备和owner迁移/checkpointer/runtime授权，不能仅凭容器健康声称应用就绪。当前实现与未测项见[本地runtime合同](docs/contracts/p6-local-runtime-v1.md)；amd64冷构建、当前完整PG/Web/Hosted容量仍待实测。
+已有镜像回执或round登记会拒绝覆盖，需按Root新登记处理；上述诊断按其原合同清理新测试卷。单独Compose使用时固定顺序为`-f compose.yml -f compose.m3.yml`，有私有port overlay则最后追加；启动前需同源镜像准备和owner迁移/checkpointer/runtime授权，不能仅凭容器健康声称应用就绪。当前实现与未测项见[本地runtime合同](docs/contracts/p6-local-runtime-v1.md)；本机arm64完整PG/Web结果见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)；amd64冷构建、Hosted及生产容量未验。
 
 ### 方式二：运行完整离线业务闭环
 
@@ -171,7 +173,7 @@ uv run --frozen python -m scripts.pg_diagnostic --session initial --round 1 --co
 | --- | --- | --- |
 | **M1 · 核心 Agent 应用** | 库存分析、审批、内部工作项、Web、真实飞书与 Base 闭环 | **已验收** · Phase0–4 |
 | M2 · Woo 测试店只读接入 | 本地合成 Woo 对账、待审批备份恢复、当前 Mock Compose | 技术 Gate 已核收；[正式收口状态](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354) · Phase5 |
-| M3 · 完整求职版本 | 日报与调度、受限动态只读工具、SOP RAG、文案审核草稿 | 规划中 · Phase6 |
+| M3 · 完整求职版本 | 日报与调度、受限动态只读工具、SOP RAG、文案审核草稿 | 本地实施/验证门禁通过，最终文档待审；真实资料/模型/外发等外部验收延后 · Phase6 |
 
 当前不执行真实采购、支付、退款或库存修改。商业实店数据、生产部署及后续阶段尚未验收。路线与依赖见 [ROADMAP](docs/ROADMAP.md)及 [30 天交付计划](docs/plans/30_DAY_EXECUTION.md)；阶段文档中的历史快照由对应结案回执补齐。
 

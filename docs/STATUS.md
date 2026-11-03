@@ -1,5 +1,9 @@
 # 阶段状态与主控交接
 
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现和必要本地门禁已通过，最终文档核收待独审回执；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
+详见[第73节](#73-m3本地实施与验证交付核收外部验收延后)。
+
 Phase5/M2最终事实入口（2026-10-27，台北D18）：必要业务及部署技术Gate已由Root与原Reviewer核收，当前`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。实际运行source8ad/treeea86，2778offline/590PG排除、实际本地合成Woo/备份恢复/两负例及当前Mock20 Compose均通过；最终完整CI、main与合后CI尚待。详见[第72节](#72-phase5m2业务与部署已核收的最终事实合批)及[Phase5验收](PHASE5_ACCEPTANCE.md)。本文件为文档合批时点快照，后续正式结案统一以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)实际更新为准，不预填未来SHA或complete。第71节及下方旧导航按原日期保留。
 
 Phase5/M2当前导航（2026-10-26，台北D17）：[Issue49](https://github.com/aning0922/commerceops-agent/issues/49)已扩为完整阶段授权；30 Agent有效小时含原首批全部用量，A12/B8/Review5/Root5可总内调配，300h/原日期/人工H-L UNKNOWN不重置。原A/B及Reviewer继续，Root集中发布/CI/正常main与合后CI；不自动M3。当前[业务与备份短合同](contracts/p5-m2-v1.md)为待审冻结候选，主体接线未实施；首批与安全依赖的精确证据边界见[第71节](#71-phase5m2统一授权首批证据与后续合同)。下方首批8h/不自动完整M2等只保留其历史时点。
@@ -1461,3 +1465,10 @@ NOT_CAPTURED、七份旧日志非敏感原字节不可恢复、Issue23未知风�
 总1800 Agent有效分钟不增，A823/B307/Review370/Root300；本批开始前A累计估595–778，旧用量保留，
 Root历史精确净用量/人工H-L/历史净余UNKNOWN，机器等待另记。D1/D30/300h/D18–20及18页冻结不重置，
 不自动进入M3/Phase6。
+
+
+## 73. M3本地实施与验证交付核收外部验收延后
+
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现和必要本地门禁已通过，最终文档核收待独审回执；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
+功能浏览器实跑3a184e9；工程/完整719PG与配对实跑532eefd。二者业务/前端/基础设施/PG helper/浏览器源码逐字节一致，仅扫描精确公开例外及K2不可变负例/说明不同；证据不改写source。工程3684offline/719排除、46无server；真实本地M3三场景七POST原键恢复、原离线145、原live24与N01六均独审核收。失败0A000、native139根因UNKNOWN、旧失败及全部NOT_CAPTURED按验收表保留。未扩大M2备份0018合同，M3备份扩展未实现。原预算/日期/人工UNKNOWN/once及18页冻结不重置；本阶段不自动进入生产或P2。

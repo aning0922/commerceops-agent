@@ -1,5 +1,7 @@
 # 工程约束
 
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现和必要本地门禁已通过，最终文档核收待独审回执；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)和[启动说明](docs/M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
 Phase6/M3 托管开发新授权（2026-11-03，台北）：用户在主控会话 `01a19f1b-f4c0-75c1-a9f0-8f8b88db72d5` 明确要求“现在开始，你就是主控，采用托管开发，主要负责各个会话开发的协调，采用侧边可见会话，不同的会话要根据所开发的内容动态调整模型，以及推理强度”。本阶段从已核远端 main `6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265` 开始；Issue49 已 closed/completed。Root 统筹 M3 合同、分工、集成、发布与验收；开发者仅在各自独立工作树提交，Reviewer 独立审查精确提交。第一交付切片为日报、持久调度/推送与证据追问，后续动态只读工具、SOP RAG/审核草稿按原产品范围推进。用户允许主控按任务调整可见会话模型及推理强度；不自动转付费 API，额度不可用须报告。历史预算/失败/UNKNOWN/证据不重置，原计划日期是历史目标，不保证仍可达到。真实业务资源、凭据、真人窗口及实际外发不从旧授权继承；先完成可审代码和本地替身验证，缺少外部资源时继续独立工作并集中列出依赖。不得削减原安全/恢复/权限/完整 CI Gate。Harness 分支、账本、SPENT/UNKNOWN 预留与旧窗口不动，M3 不依赖未验 H4。下方旧“不进入 M3”等保留其原批次时点，本次授权覆盖 M3 开发启动。详见 docs/plans/M3_MANAGED_DEVELOPMENT.md。
 
 Phase5/M2最后事实合批（2026-10-27，台北D18）：Root及原Reviewer已核收必要业务与部署Gate，当前`business_and_deployment_gates_passed / awaiting_final_review_and_CI`；正式M2以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际main/同SHA合后CI及结案记录为准。已验source8ad436595794ef83f3a99bc80bd9ad4948b7117e/treeea86b637190ec0ec42da771638a6c72b2853e82b，完整2778offline/590integration排除/native0；实际本地合成Woo/新卷dump-restore/原审批10重放/撤权403及真实到期410、当前Mock20 Compose/T6v2/恢复/隐藏只读Web/清理均已核，详见[Phase5验收](docs/PHASE5_ACCEPTANCE.md)与[STATUS72](docs/STATUS.md#72-phase5m2业务与部署已核收的最终事实合批)。当前不预造最终CI/pass/main SHA/complete。

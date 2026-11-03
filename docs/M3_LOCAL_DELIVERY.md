@@ -1,5 +1,7 @@
 # M3 本地功能与配置说明
 
+当前本地实施与验证状态及各精确来源见[本地验收](M3_LOCAL_ACCEPTANCE.md)。下方第1–6节保留6216316时点的静态说明与当时pending，不能当作最新门禁状态；配置/功能关系继续适用。最新启动准备边界见第7节。
+
 2026-11-03（台北）。静态说明绑定 Root 普通合入的源码
 `6216316f397f987463049e4062d453ff75961b28`。本说明集中描述当前本地装配及已登记组件证据，
 不构成 M3 完成、完整验收或发布回执。最终完整门禁由 Root 按实际源码与结果补记。
@@ -148,3 +150,18 @@ copy approve 仅保存内部草稿，不发布；其前端不能独立重算浮�
 Hosted/amd64、真实 SOP/商品许可、真实 provider/embedding/model、实际 sender/发布及人工质量验收均 **NOT_RUN**。
 组件测试、collect、静态接线、Fake 或局部组合不抵扣这些门禁。Root 后续按实际冻结源码、运行与清理回执
 统一补最终结果；所有旧失败、UNKNOWN、NOT_CAPTURED、未跑项、预算与账本继续保留。
+
+
+## 7. 已验证组合与启动准备边界
+
+3a18真实本地PG/API/唯一Worker/Web组合已通过：日报daily/Taipei与询单copy的demo/Shanghai是同一新organization下两个独立shop，原账号各有显式scope/role；自创合成资料、模板/offline_stub/合成向量，默认真实外发关闭。七POST各一次/丢响应后原键GET、指派审核approve内部草稿/reject零草稿、跨身份404/完整至少51引用分页/390px均有实测。此结果不变更历史组件行的原source，也不证明真实模型或资料质量。
+
+| 入口 | 新库及适用关系 |
+|---|---|
+| `python -m scripts.m3_daily_demo --directory <新绝对目录>` | 独立新空m3_daily_demo_*库，生成Web/日报配置与原账号；需owner连接、runtime password file |
+| `COMMERCEOPS_MODE=m3-inquiry-demo python -m scripts.m3_inquiry_demo --directory <新绝对目录> --web-port <端口>` | 另一个独立新空m3_inquiry_demo_*库；不能直接追加到已seed日报库 |
+| `python -m scripts.m3_copy_demo --database <库名> --organization <UUID> --shop <UUID> --directory <新绝对目录>` | 附加登记入口；限定m3_daily_demo_*、fresh synthetic baseline shop、原账号scope/双角色、知识/商品未登记及显式owner授权 |
+
+各新库先迁移、初始化checkpointer和基础runtime grant；copy另显式grant-knowledge-copy-runtime。连接须通过实际表owner检查，目录须不存在且为绝对路径。联合同库双店方案仍须owner登记第二baseline shop、原账号shop scope/role和InquiryDeployment；当前没有公开一键联合seedCLI，私有.audit assembler仅验证用。copy owner事务先COMMIT后逐文件独占导出/fsync，不是三文件整体原子发布；失败可能留已提交数据或部分文件，保留现场核实，不自动重试。
+
+API/单Worker/UI仍使用第2/4节实际入口、配置与显式开关。schedule当前Web只读，owner负责配置；UI开关不授予权限。运行需新owned对象/明确截止与清理，不复用历史一次性窗口或秘密资产。当前代码不是默认开箱生产环境；业务provider/embedding接入、真实资料、实际发送、M3备份扩展及外部质量验收另行实施和核收。

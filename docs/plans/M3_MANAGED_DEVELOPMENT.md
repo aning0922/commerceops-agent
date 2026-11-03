@@ -1,6 +1,10 @@
 # M3 托管开发与交付记录
 
-## 当前事实
+## 当前交付事实
+
+状态 `LOCAL_GATES_PASSED / READY_FOR_FINAL_REVIEW`。功能来源3a184e9，完整工程与719 PG/严格配对来源532eefd；本地验收见[权威本地记录](../M3_LOCAL_ACCEPTANCE.md)，应用准备见[说明](../M3_LOCAL_DELIVERY.md)。用户已明确延后真实资料、预算与发送；不签完整M3外部验收或发布。下方过程保持各自记录时点。
+
+## 启动时点事实（历史快照）
 
 - 授权日期：2026-11-03（台北）。主控会话：01a19f1b-f4c0-75c1-a9f0-8f8b88db72d5。
 - 远端 main 只读核对：6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265；Issue49 closed/completed。
@@ -169,3 +173,12 @@ Root此前把首个control构建的946镜像ID沿用到后续标准构建，这�
 完整PG按718节点划为existing541/phase3177，同源分区与完整并集仍待实际结束和配对；最初existing因并行重打共用tag在命令前拒绝0tests，之后因默认网络地址池用尽启动拒绝0tests，均cleanup0且不改业务断言。Root保留其他既有网络，后续按可用资源串行，不清理历史环境。相同52525/source_tree/六项INPUTS/本机架构与当前实际image19ac的真实构建回执，可在独立校验后供其他同源树使用；只复用构建产物，不转移任何测试通过，原件与SHA/sidecar另存。
 
 真实browser准备批保留全部失败：Root私有parent漏传timeout导致资源登记前失败；大样本来源与旧config_ref唯一约束冲突，后改为新owner配置引用/新版本并保留原绑定；就绪探测误用/health而实际路由为/health/live；共用tag变化和默认地址池耗尽均先拒绝且业务POST0。新独立显式172.16.240.0/24子网经重叠检查，仅用于本轮自有网络，未改daemon/旧环境。52525/m3web-1ccaa5d5712d实际seed、来源登记导出、API/唯一Worker/Next已ready，Playwright发现期与worker顶层重复loadOwned，独占账本EEXIST，业务POST0、cleanup0。UI仅修测试生命周期，不放松O_EXCL；真实七POST闭环仍待新窗口。
+
+
+### 本地实施与必要门禁最终核收（2026-11-03）
+
+532eefd完整check native0：3684offline/719integration排除/4既有warnings539.16s、type496/format640/Markdown140、strict无server10files46零skip/retry、Ajv24cases5ops、Python95包0knownvulns/npm0。scan dir/index0、git20原精确已审/0blocking、原生git1保留。K2独立实际30/51.49s/native0后，同源完整719=542+177及严格配对、G1/G2/清理通过；原3a18 existing386pass1fail155NOT_RUN与phase3169pass8NOT_RUN/native139根因UNKNOWN不被覆盖。
+
+3a18实际M3 browser3/47.1s、七业务POST各一次+七次本地HTTP回复丢失/原键GET恢复、完整且至少51引用分页、指定审核/跨身份404/390px；原离线145、原live7/10/7与N01六均实际通过并独审核收。API-15/Web143 owned TERM、Next个体UNKNOWN、N01独立browser NOT_CAPTURED保持。
+
+原M2备份保持0018/60表，不扩成M3备份。真实SOP/商品资料、真实provider/embedding/质量、飞书发送和人工质量依用户延后，Hosted/amd64/main/发布NOT_RUN。完整失效记录/准确镜像ID/各source及清理证据均归并[本地验收](../M3_LOCAL_ACCEPTANCE.md)。本地业务仅offline_stub/合成向量/模板/Fake receiver，不把实际Codex开发模型调用误写成业务provider调用。
