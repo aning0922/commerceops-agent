@@ -265,17 +265,18 @@ def test_complete_credential_and_bound_checks(demo: DemoPG, mutation: str) -> No
         demo.store.sessions.current(token)
 
 
-def test_cap_three_rejects_fourth_without_evicting_or_revealing_other_tenants(demo: DemoPG) -> None:
+def test_cap_three_rejects_fourth_and_fifth_without_evicting_other_tenants(demo: DemoPG) -> None:
     visitors = [enter(demo) for _ in range(3)]
-    bootstrap, owner = demo.store.bootstrap(None, "v4-author")
-    assert owner is not None
-    with pytest.raises(WebFailure, match="CAPACITY_LIMIT"):
-        demo.store.create(
-            owner,
-            bootstrap["data"]["csrf_token"],
-            dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1"),
-            "v4-author",
-        )
+    for _ in range(2):  # Fourth and fifth visitors both leave the first three intact.
+        bootstrap, owner = demo.store.bootstrap(None, "v4-author")
+        assert owner is not None
+        with pytest.raises(WebFailure, match="CAPACITY_LIMIT"):
+            demo.store.create(
+                owner,
+                bootstrap["data"]["csrf_token"],
+                dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1"),
+                "v4-author",
+            )
     contexts = [demo.store.sessions.current(token)["context"] for _, token in visitors]
     assert len({context["tenant_id"] for context in contexts}) == 3
     first_data, first_token = visitors[0]
