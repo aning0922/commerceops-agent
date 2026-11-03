@@ -7,6 +7,7 @@ import type { InquiryInput, InquiryRead } from "../lib/p6-inquiry-client";
 import type { A01ReadClient } from "../lib/p3-live-client";
 import failed from "./inquiry-failed.fixture.json" with { type: "json" };
 import knownFailed from "./inquiry-failed-known-usage.fixture.json" with { type: "json" };
+import externalCompleted from "./inquiry-completed-external-shop.fixture.json" with { type: "json" };
 
 const id = "00000000-0000-4000-8000-000000000001", key = "00000000-0000-4000-8000-000000000002";
 const binding = "a".repeat(64), domain = { start: "2026-11-01T00:00:00Z", end: "2026-11-02T00:00:00Z" };
@@ -39,6 +40,24 @@ test("strict inquiry result binds task source trace claims and facts", () => {
     expect(validInquiryRead({ ...pending, state: "completed", answer: "请核实", result: { ...finished.result,
       status, tool_calls: 0, traces: [], results: [], evidence_refs: [], claims: [], clarification_options: [] } })).toBe(true);
   }
+});
+test("frozen Mock executor and service DTO use separate internal and commerce shop IDs", () => {
+  expect(externalCompleted.result.results.length).toBeGreaterThan(0);
+  expect(externalCompleted.result.results.every(result => result.shop_id !== externalCompleted.shop_id)).toBe(true);
+  expect(validInquiryRead(externalCompleted)).toBe(true);
+  if (!validInquiryRead(externalCompleted)) throw new Error("Frozen Mock service DTO must validate");
+  expect(inquiryBoundToRequest(externalCompleted, { key: externalCompleted.request_key, shop: externalCompleted.shop_id,
+    receipt: externalCompleted, contextReport: null })).toBe(true);
+  expect(inquiryBoundToRequest(externalCompleted, { key: externalCompleted.request_key, shop: key,
+    receipt: externalCompleted, contextReport: null })).toBe(false);
+  const changed = { ...externalCompleted, result: { ...externalCompleted.result!,
+    results: externalCompleted.result!.results.map((item, index) => index ? item : { ...item, source_binding: "c".repeat(64) }) } };
+  expect(validInquiryRead(changed)).toBe(false);
+  const badRefs = { ...externalCompleted, result: { ...externalCompleted.result!, evidence_refs: ["not-a-fact"] } };
+  expect(validInquiryRead(badRefs)).toBe(false);
+  const html = renderToStaticMarkup(createElement(InquiryResult, { read: externalCompleted }));
+  expect(html).toContain("可用库存");
+  expect(html).toContain("本地演示数据 / 离线模型替身");
 });
 test("18a failed DTO accepts safe failure and known nonzero usage without disclosing facts", () => {
   expect(validInquiryRead(failed)).toBe(true);

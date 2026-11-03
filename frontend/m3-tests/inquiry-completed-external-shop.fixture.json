@@ -1,0 +1,124 @@
+{
+  "schema_version": "p6-inquiry-web-v1",
+  "identity_mode": "session",
+  "task_id": "00000000-0000-4000-8000-000000000001",
+  "shop_id": "00000000-0000-4000-8000-000000000001",
+  "request_key": "00000000-0000-4000-8000-000000000002",
+  "state": "completed",
+  "duplicate": true,
+  "source_mode": "mock",
+  "source_binding": "30bffdf2a596057c903399a7b8ca5cad382b599185a13154f74bb43ecf27cb0c",
+  "source_domain": {
+    "start": "2026-09-30T16:00:00Z",
+    "end": "2026-10-07T16:00:00Z"
+  },
+  "evidence_mode": "offline_stub",
+  "server_time": "2026-11-03T00:00:00Z",
+  "trace_id": "00000000-0000-4000-8000-000000000001",
+  "result": {
+    "schema_version": "p6-inquiry-result-v1",
+    "status": "complete",
+    "model_calls": 3,
+    "tool_calls": 2,
+    "scanned_rows": 3,
+    "traces": [
+      {
+        "tool_call_id": "resolve",
+        "name": "commerce.read_products",
+        "args_hash": "95fa1740839973c0d937c7dc85dd20e69687398334943117ada583e38120db92"
+      },
+      {
+        "tool_call_id": "read",
+        "name": "commerce.read_inventory",
+        "args_hash": "3b10daaea621497ec195434a45909b5268ffbb362d1eaf66da2eb9875e7750dd"
+      }
+    ],
+    "results": [
+      {
+        "tool_call_id": "resolve",
+        "shop_id": "demo",
+        "source_binding": "30bffdf2a596057c903399a7b8ca5cad382b599185a13154f74bb43ecf27cb0c",
+        "snapshot_id": "090ce7d633f43bf17bde8578aa23f7c4021b70d9cbc9c6f9206c0adb490766c1",
+        "report_id": null,
+        "as_of": "2026-10-08T02:00:00Z",
+        "complete": true,
+        "quality_flags": [],
+        "scanned_rows": 1,
+        "sku_keys": [
+          "sku/demo/100/p"
+        ],
+        "products": [
+          {
+            "sku_key": "sku/demo/100/p",
+            "label": "DEMO"
+          }
+        ],
+        "facts": [],
+        "windows": []
+      },
+      {
+        "tool_call_id": "read",
+        "shop_id": "demo",
+        "source_binding": "30bffdf2a596057c903399a7b8ca5cad382b599185a13154f74bb43ecf27cb0c",
+        "snapshot_id": "fd02a16fa6374902c7a990c921c94f702e5abe9dea3a1b0e7bb855cffaab8f47",
+        "report_id": null,
+        "as_of": "2026-10-08T02:00:00Z",
+        "complete": true,
+        "quality_flags": [],
+        "scanned_rows": 2,
+        "sku_keys": [
+          "sku/demo/100/p"
+        ],
+        "products": [],
+        "facts": [
+          {
+            "evidence_id": "81c5f2332d91611399b0294f2f011a691c23fa5811fc86d727dab53672762980",
+            "metric": "available_stock",
+            "sku_key": "sku/demo/100/p",
+            "window": null,
+            "as_of": "2026-10-08T02:00:00Z",
+            "quality_flags": [],
+            "value": "20",
+            "unit": "件",
+            "currency": null
+          },
+          {
+            "evidence_id": "f36126af9366bf6b13adb71294ad5d73cdc907eb65889ddea116cd9753cdd081",
+            "metric": "inbound_units",
+            "sku_key": "sku/demo/100/p",
+            "window": null,
+            "as_of": "2026-10-08T02:00:00Z",
+            "quality_flags": [],
+            "value": "0",
+            "unit": "件",
+            "currency": null
+          }
+        ],
+        "windows": []
+      }
+    ],
+    "evidence_refs": [
+      "81c5f2332d91611399b0294f2f011a691c23fa5811fc86d727dab53672762980",
+      "f36126af9366bf6b13adb71294ad5d73cdc907eb65889ddea116cd9753cdd081"
+    ],
+    "claims": [
+      {
+        "kind": "fact",
+        "refs": [
+          "81c5f2332d91611399b0294f2f011a691c23fa5811fc86d727dab53672762980"
+        ]
+      },
+      {
+        "kind": "fact",
+        "refs": [
+          "f36126af9366bf6b13adb71294ad5d73cdc907eb65889ddea116cd9753cdd081"
+        ]
+      }
+    ],
+    "clarification_options": [],
+    "evidence_mode": "offline_stub",
+    "workflow_version": "p6-readonly-inquiry-v1"
+  },
+  "answer": "sku/demo/100/p：可用库存 20 件；窗口 当前观测；观测 2026-10-08T02:00:00+00:00；证据 81c5f2332d91611399b0294f2f011a691c23fa5811fc86d727dab53672762980。\nsku/demo/100/p：在途数量 0 件；窗口 当前观测；观测 2026-10-08T02:00:00+00:00；证据 f36126af9366bf6b13adb71294ad5d73cdc907eb65889ddea116cd9753cdd081。",
+  "data_label": "本地演示数据 / 离线模型替身"
+}

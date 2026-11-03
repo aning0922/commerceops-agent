@@ -35,9 +35,11 @@ export function validInquiryRead(value: unknown): value is InquiryRead {
     const ids = new Set(result.traces.map(x => x.tool_call_id));
     const facts = result.results.flatMap(x => x.facts);
     const refs = new Set(facts.map(x => x.evidence_id));
+    // Each result's shop_id is a commerce key; read.shop_id is the internal UUID.
+    // Their mapping is authorized by the service and is not present in this wire DTO.
     if (facts.some(f => facts.some(other => other.evidence_id === f.evidence_id && JSON.stringify(other) !== JSON.stringify(f))) ||
         new Set(result.evidence_refs).size !== result.evidence_refs.length ||
-        result.results.some(x => !ids.has(x.tool_call_id) || x.shop_id !== read.shop_id || x.source_binding !== read.source_binding ||
+        result.results.some(x => !ids.has(x.tool_call_id) || x.source_binding !== read.source_binding ||
           x.report_id !== null && typeof x.report_id !== "string" ||
           !x.complete || x.windows.some(w => Date.parse(w.start) >= Date.parse(w.end)) || x.products.some(p => !x.sku_keys.includes(p.sku_key)) ||
           x.facts.some(f => f.sku_key === null || !x.sku_keys.includes(f.sku_key) ||

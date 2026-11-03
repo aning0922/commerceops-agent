@@ -218,3 +218,9 @@ Root 指出 `18a2973973def9120ac4f50a7e8604a33b45c532` 的 `fail_safe` 会持久
 Root 转交精确冻结 `e2e50f53661a8b07e8bf62f1ad4afa6fe5c769da`，其 OpenAPI 相对1a资产新增三处描述，均限定为本次执行尝试的已知用量、历史尝试 UNKNOWN。前端复制同源 OpenAPI、重新生成类型并将校验摘要更新为 `9e9a7e093d4cccfde5634226d7076003a9f124c54643d76bd1466aea1b017ed5`；第15节旧摘要保留其历史时点，不再作为当前同步目标。失败结果的折叠用量区明确标“仅本次执行尝试的已知用量；此前尝试用量未知”，不把零或非零当作历史总量。
 
 新增合成 `inquiry-failed-known-usage.fixture.json` 由隔离导出的 e2e 源码 `ResultPayload.safe_failure`、真实 DTO 和 renderer 生成，模拟本次已知 `model_calls=3/tool_calls=2/scanned_rows=3` 与两条轨迹，事实/claim/引用/选项均为空；不是实际 PG 或服务运行回执。定向10个询单无服务器契约例、typecheck、schema同步与差异检查均通过；未启浏览器、服务或 PG，实际 API 与整包独审仍待 Root。
+
+## 18. 询单内部店铺与 commerce 店铺键（2026-11-03）
+
+Root 指出冻结 `e2e50f` 的 `InquiryRead.shop_id` 是内部 PG 店铺 UUID，而 `Context.shop_id` 与 `ReadResult.shop_id` 来自外部 commerce fixture 的店铺键；原前端直接比较两者会拒绝合法完成结果。服务端 `InquiryStore.source` 在当前身份与店铺 scope 检查后，把内部店铺的 `external_shop_key` 与 fixture 来源匹配；wire DTO 没有给前端提供该可信映射。前端移除跨命名空间的相等断言，不从首个结果推定当前店铺；原请求内部店铺、receipt/来源摘要/来源窗口、轨迹、事实与 claim 引用仍逐项核验。来源摘要一致不等于前端独立验证了内部到外部店铺映射。
+
+`inquiry-completed-external-shop.fixture.json` 使用隔离导出的精确 e2e Mock fixture、`MockReadFacade`、`DemoChoice`、`execute`、真实 `ResultPayload/InquiryRead` 与 renderer 生成；内部测试 UUID 与执行器从 fixture 得到的 commerce key `demo` 不同，结果有实际合成事实。身份 port 是显式内存替身、未运行 PG/HTTP，不能代签服务端 SQL 映射或实际 API。前端定向11个询单契约例通过，包含此完整样本消费及内部店铺、来源摘要和证据引用错配拒绝；typecheck、schema同步与差异检查通过，真实资源与独审仍待 Root。
