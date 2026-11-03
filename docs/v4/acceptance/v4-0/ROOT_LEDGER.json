@@ -1,7 +1,7 @@
 {
   "stage": "V4-0",
   "status": "LOCAL_IMPLEMENTATION_AND_RUNTIME_GATES_ACCEPTED",
-  "authorization": "USER_APPROVED_B_LOCAL_ONLY",
+  "authorization": "B / local",
   "started_at_utc": "2026-11-03T14:04:33Z",
   "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
   "base_tree": "43e4e732824e23b991660a4f7882ba8f5a265df1",
