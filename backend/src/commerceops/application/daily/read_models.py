@@ -49,6 +49,7 @@ FailureCode = Literal[
     "DAILY_SOURCE_BINDING_CHANGED",
     "DAILY_STORAGE_FAILURE",
     "DAILY_WORKFLOW_UNSAFE",
+    "WORKER_TERMINATION_UNCONFIRMED",
 ]
 
 
@@ -120,6 +121,13 @@ class PublicSource(DailyDTO):
 
 
 class ReportFields(DailyDTO):
+    @field_validator("complete", mode="before", check_fields=False)
+    @classmethod
+    def strict_complete(cls, value: object) -> object:
+        if type(value) is not bool:
+            raise ValueError("DAILY_BOOLEAN_INVALID")
+        return value
+
     report_id: UUID
     snapshot_id: UUID
     content_hash: Digest
@@ -173,6 +181,15 @@ class IncompleteReport(ReportFields):
 
 
 class DailyFields(DailyDTO):
+    @field_validator(
+        "question_creation_enabled", "schedule_enabled", "delivery_enabled", mode="before"
+    )
+    @classmethod
+    def strict_capabilities(cls, value: object) -> object:
+        if type(value) is not bool:
+            raise ValueError("DAILY_BOOLEAN_INVALID")
+        return value
+
     schema_version: Literal["p6-m3-web-v1"]
     task_id: UUID
     shop_id: UUID

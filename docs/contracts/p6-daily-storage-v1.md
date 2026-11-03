@@ -226,3 +226,44 @@ Root已释放S2实现；本次先交真实 `application/daily/read_models.py`、
 包含合法各态、六负计数、金额类型/格式/越界、额外字段、非法状态与hash格式；公式/display/hash语义例由DTO拒绝。
 曾只读使用现成缓存jsonschema4.26.0核26例通过（无安装），最终权威检查改用项目已锁Ajv，前者不作为新依赖。
 旧设计结构检查不是schema引擎的限制已由上述实际检查补齐；PG/HTTP服务/API/真实模型/发送仍NOT_RUN。
+
+## 8. S2 第一实际SQL候选交付（2026-11-03，未执行PG）
+
+Root已授权主体实现，0019由Backend独占；本树当前链为0018→0019，0020知识/0021只读查询由Root另行协调，
+后续本owner迁移预留0022，不抢占其他owner。0019新增且仅新增三表；旧迁移及P3/P4/P5冻结OpenAPI原件未改。
+当前实现元数据实际键为source_kind（映射shops.adapter_kind），不复用M2七日来源注册。
+新增来源配置/owner登记CLI、独立manifest/mapper/collector、store、同槽runner、按task_id只读API与独立OpenAPI。
+日报GET从旧完整OpenAPI过滤，另交 `p6-daily-read-v1.openapi.json`（docs/backend asset同生成器）；
+离线证明启用日报前后旧OpenAPI完全相等。发布操作、列表/POST/调度/追问留S3，当前均未实现。
+
+必要旧文件改动：database入口仅按表存在授予p6窄ACL；worker入口显式新deployment；composite runner仅可选daily注册；
+worker_lock仅在p6表存在时保护已封存完成态不被通用终止诊断覆盖，旧schema路径不引用新表；
+API入口仅可选日报安装及独立schema分离。旧解释runner主体、审批/角色语义和旧资产保持。
+当前head验收测试同步0019/三张空新表/总表数+3，并保留历史0012→0013、0016→0017及所有旧行/CP字节等值断言。
+
+作者已验证：针对S1/Read DTO/source/历史迁移诊断四模块 **250passed/6.56s/native0**；
+全仓Ruff通过、421文件format检查通过、418文件mypy通过；Markdown120文件/0错误。
+来源30项离线测试覆盖Fake HTTP全量/末复核路径、旧单今付/跨期退款、纯金额/未知数量、状态冲突、
+manifest缺对象、固定总截止/失败/跨源、文件pin/权限/重复JSON等。没有实际HTTP服务或平台证据。
+广离线运行实际 **2830passed/165failed/606deselected/119.64s/native1**；失败缓存仅四模块：
+M1 driver11、live_failure_ci_gate38、p5_scanner44、quality_gates72；本树固定.tools/node/bin/node和.tools/gitleaks均缺。
+已见缺工具错误；未逐例确认165项根因，不宣称全部仅环境问题。Root干净validation全回归仍须真实重跑。
+开发源测试曾16pass/1fail（pin漂移被归为unavailable，已保留binding_changed）；
+新增退款未知映射/数量分支首28pass/2fail（分支接线未完整，已修），随后30通过；静态中间失败保留工具回执。
+
+**PG为NOT_RUN**：`uv run --frozen --offline pytest --collect-only -q tests/test_daily_pg.py` 已collect16节点，
+涉及三表事务/read、提交后异常/原回执、新OS进程冷重放、请求键、ACL/owner不可改证据、JSON null、
+撤权、独立API/旧OpenAPI等值、跨org FK、插入失败回滚、真实PG阻塞后的有界关闭。
+仅collect不构成SQL/ACL/退出通过；迁移本身仅Alembic解析确认head/down_revision。
+
+给Root的第一窗口提案：干净validation精确本候选源码；单个全新owned PG17.11服务（Root可用已审pgvector派生镜像），
+不接旧卷/旧库，无真实HTTP/Woo/模型/飞书。父窗口≤900秒，pytest业务段≤600秒，至少180秒清理余量；
+命令 `uv run --frozen --offline pytest -q tests/test_daily_pg.py`，外层必须有Root绝对UTC截止，
+失败不自动重试。16个function fixture各自创建/删除唯一临时DB，沿用原P3新资源夹具；
+冷重放case另起两个受控Python child，各timeout60并native wait，其他case不启动OS业务child。
+服务默认无宿主发布，若本机pytest须使用Root新owned临时loopback映射并登记关闭；
+namespace/owner/资源名/具体UTC由Root另定，绝不借旧授权开PG。停止子进程/连接后停服务并保留新卷，
+保留原始退出码/失败与UNKNOWN。全原590PG及新16、HTTP真实闭环、CI/模型/发送均未由本批验证通过。
+
+提交前changed-content扫描首报3项，逐文件定位均为新SQL列引用/凭据文件引用字段名及测试店铺标识，
+未含凭据字节；等价SQL比较/数组表达与低熵测试标识调整后复扫，不新增或放宽扫描豁免。

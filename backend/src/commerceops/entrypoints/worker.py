@@ -16,6 +16,8 @@ from commerceops.application.feishu_business.contracts import BaseProjectionAdap
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.im_delivery import BusinessMessageSender
 from commerceops.application.runner import RunnerPort, RunRequest, RunResult
+from commerceops.infrastructure.daily_sources import DailyDeployment
+from commerceops.infrastructure.daily_store import DailyStore
 from commerceops.infrastructure.database import DatabaseSettings
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
@@ -28,6 +30,7 @@ from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.woo_collection import BoundWooCollectorFactory
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, confirm_termination
+from commerceops.workflows.daily_report import DailyRunner
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
 from commerceops.workflows.inventory_routing import IntentRunner
 from commerceops.workflows.replenishment import ApprovalRunner
@@ -64,6 +67,7 @@ async def serve(
     delivery_gate: DeliveryGate | None = None,
     message_sender: BusinessMessageSender | None = None,
     message_gate: DeliveryGate | None = None,
+    daily_files: DailyDeployment | None = None,
 ) -> None:
     stop = asyncio.Event()
     if web_config is not None and (allow_actual or key_file is not None):
@@ -105,7 +109,8 @@ async def serve(
             if web_config is not None
             else None
         )
-        if fixture is not None or woo_factory is not None:
+        daily = DailyRunner(DailyStore(settings, session, daily_files)) if daily_files else None
+        if fixture is not None or woo_factory is not None or daily is not None:
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
                 InventoryRunner(
@@ -116,6 +121,7 @@ async def serve(
                 ExplanationRunner(ExplanationStore(settings, session), factory),
                 IntentRunner(IntentStore(settings, session), factory),
                 approval,
+                daily,
             )
         else:
             runner = TechnicalRunner()
@@ -179,6 +185,8 @@ def main() -> None:
         config_path = os.environ.get("COMMERCEOPS_P3_CONFIG_FILE")
         web_config = WebConfig.from_file(Path(config_path)) if config_path else None
         settings = web_config.database if web_config else DatabaseSettings()
+        daily_path = os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE")
+        daily_files = DailyDeployment.load(Path(daily_path)) if daily_path else None
         if args.action in ("test-run", "inventory-test-run"):
             if os.environ.get("COMMERCEOPS_MODE") != "test" or args.organization is None:
                 raise ValueError("explicit test mode and organization required")
@@ -196,6 +204,7 @@ def main() -> None:
                     allow_actual=args.allow_actual_model_probe,
                     key_file=args.model_key_file,
                     web_config=web_config,
+                    daily_files=daily_files,
                 )
             )
         else:

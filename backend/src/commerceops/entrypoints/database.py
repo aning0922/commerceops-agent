@@ -72,6 +72,33 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
  business.jobs TO commerceops_app
 """)
         connection.execute("GRANT SELECT ON business.principal_shop_scopes TO commerceops_app")
+        daily_table = connection.execute(
+            "SELECT to_regclass('business.p6_daily_source_bindings') AS name"
+        ).fetchone()
+        if daily_table and daily_table["name"] is not None:
+            connection.execute(
+                "REVOKE ALL ON business.p6_daily_source_bindings, "
+                "business.p6_daily_snapshots,business.p6_daily_reports FROM commerceops_app"
+            )
+            connection.execute(
+                "GRANT SELECT ON business.p6_daily_source_bindings TO commerceops_app"
+            )
+            connection.execute(
+                "GRANT SELECT,INSERT ON business.p6_daily_snapshots, "
+                "business.p6_daily_reports TO commerceops_app"
+            )
+            for function in (
+                "p6_json_hash(text,jsonb,text)",
+                "p6_keys(jsonb,text[])",
+                "p6_source_valid(uuid,uuid,uuid,jsonb)",
+                "p6_current_permission(uuid,uuid,uuid,bigint)",
+            ):
+                connection.execute(
+                    sql.SQL("GRANT EXECUTE ON FUNCTION business.{} TO commerceops_app").format(
+                        sql.SQL(function)
+                    )
+                )
+
         source_table = connection.execute(
             "SELECT to_regclass('business.p5_commerce_source_bindings') AS name"
         ).fetchone()

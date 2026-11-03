@@ -66,6 +66,13 @@ def wire_cases() -> list[tuple[str, dict[str, Any], bool, bool]]:
         report=public_report(UUID(int=13), quality).model_dump(mode="json"),
     )
     cases.append(("valid-quality-diagnostic", other, True, True))
+    for field in ("question_creation_enabled", "schedule_enabled", "delivery_enabled"):
+        other = copy.deepcopy(base)
+        other["daily"][field] = 0
+        cases.append(("boolean-not-zero-" + field, other, False, False))
+    other = copy.deepcopy(base)
+    other["daily"]["report"]["complete"] = 1
+    cases.append(("boolean-not-one-complete", other, False, False))
     paths = [
         ("created_order_count",),
         ("paid_order_count",),
@@ -159,3 +166,40 @@ def test_public_projection_verifies_stored_hash_and_excludes_private_fields() ->
         "coverage_scope",
     }
     assert "evidence" not in body and "config_digest" not in body["source"]
+
+
+def test_daily_openapi_is_separate_and_legacy_surface_unchanged(tmp_path: Path) -> None:
+    import secrets
+
+    from commerceops.entrypoints.api import create_app
+    from commerceops.entrypoints.daily_http import PATH, daily_openapi
+    from commerceops.infrastructure.database import DatabaseSettings
+    from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
+    from commerceops.infrastructure.web_config import WebConfig
+
+    from tests.inventory_support import DIRECTORY
+
+    db = DatabaseSettings(
+        host="127.0.0.1", name="unused", user="unused", password_file=tmp_path / "never-read"
+    )
+    config = WebConfig(
+        db,
+        secrets.token_bytes(32),
+        secrets.token_bytes(32),
+        ("http://127.0.0.1",),
+        transport_mode="local_http",
+    )
+    store = ReplenishmentStore(config, DIRECTORY)
+    legacy = create_app(web_config=config, replenishment_store=store).openapi()
+    app = create_app(web_config=config, replenishment_store=store, daily_enabled=True)
+    assert app.openapi() == legacy
+    document = daily_openapi()
+    assert app.state.daily_openapi == document and set(document["paths"]) == {PATH}
+    assert document["paths"][PATH]["get"]["security"] == [{"SessionCookie": []}]
+    assert "SessionCookie" in document["components"]["securitySchemes"]
+    root = Path(__file__).resolve().parents[1]
+    for target in (
+        "docs/contracts/p6-daily-read-v1.openapi.json",
+        "backend/src/commerceops/assets/p6-daily-read-v1.openapi.json",
+    ):
+        assert json.loads((root / target).read_bytes()) == document
