@@ -368,7 +368,11 @@ class ShopFixture(Contract):
         suppliers = {item.ref.id for item in self.suppliers}
         quotes = {item.ref.id: item for item in self.supplier_quotes}
         knowledge = {item.ref.id for item in self.knowledge_refs}
-        for sku in self.skus:
+        for index, sku in enumerate(self.skus):
+            product = self.products[index // 2 if index < 4 else index - 2]
+            variant = uuid5(product.ref.id, f"variant:{index}") if index < 4 else None
+            if sku.product_ref != product.ref or sku.variant_ref != variant:
+                raise ValueError("INVALID_SKU_PRODUCT_VARIANT")
             if sku.stock_pool_ref != uuid5(sku.ref.id, "stock-pool"):
                 raise ValueError("INVALID_STOCK_POOL_SOURCE")
             if sku.product_ref.id not in products:

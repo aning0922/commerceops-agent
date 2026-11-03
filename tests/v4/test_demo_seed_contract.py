@@ -429,3 +429,30 @@ def test_seed_imports_have_no_runtime_or_io_dependencies() -> None:
                     "request",
                     "write_text",
                 }
+
+
+@pytest.mark.parametrize(
+    "target,source",
+    [
+        (0, "other_shop"),
+        (0, "other_product"),
+        (0, "random"),
+        (0, "null"),
+        (4, "other_shop"),
+        (4, "random"),
+    ],
+)
+def test_variant_source_and_nullable_shape_are_exact(
+    content: dict[str, Any],
+    target: int,
+    source: str,
+) -> None:
+    variants: dict[str, Any] = {
+        "other_shop": content["shops"][1]["skus"][0]["variant_ref"],
+        "other_product": content["shops"][0]["skus"][2]["variant_ref"],
+        "random": str(UUID(int=99)),
+        "null": None,
+    }
+    content["shops"][0]["skus"][target]["variant_ref"] = variants[source]
+    with pytest.raises(ValidationError, match="INVALID_SKU_PRODUCT_VARIANT"):
+        seed.FixtureContent.model_validate_json(json.dumps(content))
