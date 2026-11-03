@@ -52,10 +52,12 @@
 
 ## 交付来源与耗时
 
-完整 PG 实际执行来源 R2，existing 1947.5 秒、phase3 1684.853 秒，原配对 0.085 秒；与候选不同的两处扫描 fingerprint 如实分列。完整工程实际执行来源 cbd；之后只整合文档。全阶段墙钟由 ROOT_LEDGER 的起始 UTC 与最终文档 Gate 的结束 UTC 分账，Agent 有效工时及实际模型费用未计量，保持 UNKNOWN，不虚填预算净余。
+完整 PG 实际执行来源 R2，existing 1947.5 秒、phase3 1684.853 秒，原配对 0.085 秒；与候选不同的两处扫描 fingerprint 如实分列。完整工程实际执行来源 cbd；其后整合文档，并追加已独审的精确历史误报来源元数据、计数断言与拒绝测试。扫描算法和原检测配置未变，该小增量有独立 10 项针对性测试、lint/type 与原生 proposal/增量扫描，最终完整扫描另记。全阶段墙钟由 ROOT_LEDGER 的起始 UTC 与最终文档 Gate 的结束 UTC 分账，Agent 有效工时及实际模型费用未计量，保持 UNKNOWN，不虚填预算净余。
 
 ## 合同与文件清单
 
 四份核心合同、OpenAPI 与 seed manifest 保持已批准内容。权限 CSV 仅做 LF 导入：当前 649 字节，历史 CRLF 656 字节，七个换行；逐行内容相同，两种 SHA256 及原件位置见 `../../IMPORT_NORMALIZATION.json`。旧冻结清单的 CRLF hash 继续保留，不拿它充当当前 LF 文件的 bytes hash。
 
 文件责任清单见 `FILE_MAP.json`；源代码实际受测来源与后增事实文档分开，后增文档不触发重做已通过的业务 PG。最终阶段独审见 `../../review/FINAL_LOCAL_STAGE_CF9.md`；本阶段本地实施和必要运行 Gate 已接受。最终文档 Gate 由冻结提交下 `.audit/v4-0/final-document-gate-<source7>/receipt.json` 独立记录，包含源码前后不变、完整扫描、文档和文件清单核对。
+
+最终文档检查曾因公开授权文案误报而失败，原件及本地误提交均保留，见 `FINAL_DOC_031_FAILURE.json` 和 `FINAL_GATES.json` 的历史兼容记录。随后以普通提交修正当前写法，仅核准实际捕获的三条作者历史和两份完整 blob；没有目录级新例外、检测规则放宽、历史删除或业务改动。不得把首次文档扫描失败回填为通过。

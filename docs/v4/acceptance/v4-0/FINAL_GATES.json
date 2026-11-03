@@ -178,5 +178,30 @@
   "final_document_gate": {
     "receipt_pattern": ".audit/v4-0/final-document-gate-<source7>/receipt.json",
     "scope": "Final source/JSON/file-map/Markdown/diff/dir/index/full-history verification; separate from the runtime evidence sources."
+  },
+  "final_history_compatibility": {
+    "source": "609cdb3eed2b21199247e7ee8ef56c7ab797062b",
+    "independent_review": "Astra high ACCEPT exact candidate via review chat",
+    "original_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-scan/commerceops-agent/.audit/v4-0/final-enum-correction/receipt.json",
+    "original_receipt_sha256": "31d99c4fc5a4c0c4d9dc5152f1b8ad98cc270f58768344f7520e63ff6d2b94cb",
+    "new_exact_author_records": 3,
+    "new_whole_blob_snapshots": 2,
+    "unchanged_rule_count": 222,
+    "unchanged_directory_records": 96,
+    "unchanged_native_history_allowlist": 45,
+    "unchanged_copy_only_records": 7,
+    "old_149_history_records_preserved": true,
+    "exact_history_total": 152,
+    "targeted_tests": {
+      "passed": 10,
+      "deselected": 241,
+      "seconds": 4.46
+    },
+    "proposal_native_dir_index": "0 findings / exit 0 each",
+    "corrective_commit_native_increment": "0 findings / exit 0",
+    "scanner_algorithm_and_detection_config": "BYTE_UNCHANGED",
+    "failed_candidate_preserved": "44633302af915358771c32875d27a1b8ac3e7860",
+    "failed_final_document_gate": "FINAL_DOC_031_FAILURE.json",
+    "scope": "Historical finding provenance and compatibility tests only; no backend, product UI or PG input change."
   }
 }

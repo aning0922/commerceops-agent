@@ -1,7 +1,7 @@
 {
   "base_source": "952e6246deb01ec763f2541d9f316753987744f3",
   "code_engineering_source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
-  "prepared_from_source": "107630e4f28ea0fb2c9306fb3e6594989c130bdc",
+  "prepared_from_source": "830ae00998920e8ff6d3bab88113982cdd808841",
   "scope": "Exact paths changed against accepted M3 at final metadata preparation, including this file. Responsibility map, not sole commit authorship. Final frozen source is bound by separate document-Gate receipt.",
   "files": [
     {
@@ -98,6 +98,10 @@
     },
     {
       "path": "docs/v4/acceptance/v4-0/FILE_MAP.json",
+      "responsible_owner": "ROOT_DOCS"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/FINAL_DOC_031_FAILURE.json",
       "responsible_owner": "ROOT_DOCS"
     },
     {
@@ -928,5 +932,6 @@
       "path": "tests/v4/test_demo_sessions_pg.py",
       "responsible_owner": "BACKEND_QA"
     }
-  ]
+  ],
+  "additional_verified_history_metadata_source": "609cdb3eed2b21199247e7ee8ef56c7ab797062b"
 }
