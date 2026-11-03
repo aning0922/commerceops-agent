@@ -45,15 +45,15 @@ export function Copy({ client, principal, operators, approvers, current }: { cli
   const resolved = verifiedReceipt && (held?.kind === "create" ? item !== null : !!decision && decision.state !== "UNKNOWN");
   function clear() { if (!resolved) return; sessionStorage.removeItem(storage); locked.current = false; setHeld(null); setDecision(null); setVerifiedReceipt(false); setMessage(""); }
   const canReview = item && mayReview(item, principal, approvers);
-  return <><Notice title="内部文案候选" tone="info">使用服务器登记的合成向量与确定性模板；不调用模型、不外发。草稿仅供内部使用。</Notice><Card>
+  return <div className="m3-operation"><Notice title="内部文案候选" tone="info">使用服务器登记的合成向量与确定性模板；不调用模型、不外发。草稿仅供内部使用。</Notice><Card>
     {!available && !held && <button disabled={busy} onClick={() => void check()}>检查服务是否可用</button>}
     {!held && locked.current && <p>保留的原请求无法安全解析，写入已停用。</p>}
     {held ? <><p>原请求键：<span className="daily-id">{held.input.request_key}</span>；未核实前仅查询原键，不重发。</p><button disabled={busy} onClick={() => void lookup()}>读取原请求回执</button>{decision && <p>决定状态：{decision.state}{decision.draft_id && ` · 内部草稿 ${decision.draft_id}`}</p>}{resolved && <button onClick={clear}>完成原回执核对</button>}</> : available && !locked.current && <>
       {operators.length > 0 && !preview && <form onSubmit={prepareCreate}><h3>创建内部候选</h3><label>店铺<select name="shop">{operators.map(x => <option key={x}>{x}</option>)}</select></label><label>知识库 registry UUID<input name="registry" required /></label><label>registry 摘要<input name="digest" required /></label><label>商品来源 UUID<input name="product" required /></label><label>服务器登记的 query_ref<input name="query" required /></label><label>指派审核人 UUID<input name="reviewer" required /></label><button disabled={busy}>预览候选请求</button></form>}
       {!preview && <form onSubmit={e => void read(e)}><label>候选编号<input name="candidate" required /></label><button disabled={busy}>读取候选或内部草稿</button></form>}
-      {preview && <><p>固定请求：确认前核对原键与全部参数。</p><pre className="daily-id">{JSON.stringify(preview, null, 2)}</pre><button disabled={busy} onClick={() => void send()}>确认提交一次</button><button onClick={() => setPreview(null)}>返回修改</button></>}
+      {preview && <><p>固定请求：确认前核对原键与全部参数。</p><pre className="daily-id m3-request-preview">{JSON.stringify(preview, null, 2)}</pre><button disabled={busy} onClick={() => void send()}>确认提交一次</button><button onClick={() => setPreview(null)}>返回修改</button></>}
     </>}
   </Card>{item && <Card title={item.state === "saved" ? "内部草稿" : "候选详情"}><p>状态：{item.state} · 来源当前{item.source_current ? "有效" : "不可用"} · 候选 {item.candidate.candidate_id}</p><p>模板结果，合成向量；服务端核验来源，前端没有独立重放向量检索。</p><p className="daily-id">{item.candidate.text}</p><p>摘要：{item.candidate.candidate_hash} · 截止：{item.candidate.expires_at}</p>{item.draft_id && <p>内部草稿编号：{item.draft_id}</p>}<ul>{item.candidate.claims.map(c => <li key={c.claim_id}>{c.kind}: {c.text}<details><summary>查看来源</summary>{c.product && <p>商品证据 {c.product.evidence_id} · SKU {c.product.snapshot.sku} · 来源版本 {c.product.snapshot.source_version}</p>}{c.sop && <p>资料 {c.sop.chunk.document.title} · 版本 {c.sop.chunk.document.document_version} · 段落 {c.sop.chunk.section} · 证据 {c.sop.evidence_id}</p>}</details></li>)}</ul>
     {canReview && !held && !preview && <form onSubmit={prepareReview}><label>审核决定<select name="action"><option value="approve">批准并保存内部草稿</option><option value="reject">拒绝</option></select></label><label>审核原因<textarea name="reason" required maxLength={500} /></label><button disabled={busy}>预览审核决定</button></form>}</Card>}
-    {message && <Notice title="文案操作状态" tone="info">{message}</Notice>}</>;
+    {message && <Notice title="文案操作状态" tone="info">{message}</Notice>}</div>;
 }
