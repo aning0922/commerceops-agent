@@ -13,12 +13,14 @@ from uuid import UUID, uuid4
 import psycopg
 import pytest
 from commerceops.application.replenishment.contracts import WebFailure
+from commerceops.application.replenishment.security import csrf_token, digest, password_hash
 from commerceops.application.v4_demo import contracts as dto
+from commerceops.domain.commerce_values import canonical_bytes
 from commerceops.entrypoints.api import create_app
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from commerceops.infrastructure.replenishment_repository import ReplenishmentStore
 from commerceops.infrastructure.v4_demo_seed import grant_v4_runtime, initialize_fixture
-from commerceops.infrastructure.v4_demo_sessions import DemoConfig
+from commerceops.infrastructure.v4_demo_sessions import DemoConfig, bounded, demo_csrf
 from commerceops.infrastructure.v4_demo_store import DemoStore
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.web_sessions import actor_guard
@@ -447,96 +449,172 @@ def test_revoked_target_persona_is_denied_while_current_operator_remains_valid(
         assert receipts == {"n": 0}
 
 
-def test_five_simultaneous_creates_commit_exactly_three_without_eviction(demo: DemoPG) -> None:
+def test_five_runtime_provisions_commit_three_and_reject_two_at_db_capacity(demo: DemoPG) -> None:
+    """DB provision competition only; not a five-create HTTP throughput promise."""
+
     @dataclass(frozen=True)
     class Visitor:
         owner: str = field(repr=False)
-        csrf: str = field(repr=False)
+        active: str = field(repr=False)
         command: dto.CreateSessionInput
-        peer: str
+        bootstrap: UUID
+        session: UUID
+        bound: UUID
+        nonce: UUID
 
     @dataclass(frozen=True)
     class Outcome:
         index: int
-        status: int
-        code: str
-        data: dict[str, Any] | None = field(default=None, repr=False)
-        active: str | None = field(default=None, repr=False)
+        backend_pid: int
+        committed: bool
+        tenant: UUID | None = None
+        sqlstate: str | None = None
+        message: str | None = None
 
+    expected_objects = dict(
+        organizations=3,
+        shops=6,
+        principals=9,
+        identities=9,
+        principal_shop_scopes=9,
+        principal_role_shop_grants=9,
+        web_credentials=9,
+        web_sessions=3,
+        v4_demo_tenants=3,
+        v4_demo_shops=6,
+        v4_demo_personas=9,
+        v4_demo_sessions=3,
+        v4_demo_receipts=3,
+        v4_demo_events=6,
+        v4_demo_overlays=0,
+    )
+
+    def object_counts() -> dict[str, int]:
+        with connect(demo.app) as db:
+            bounded(db)
+            result: dict[str, int] = {}
+            for table in expected_objects:
+                row = db.execute(
+                    sql.SQL("SELECT count(*) AS n FROM {}").format(
+                        sql.Identifier("business", table)
+                    )
+                ).fetchone()
+                assert row is not None
+                result[table] = row["n"]
+            return result
+
+    assert object_counts() == dict.fromkeys(expected_objects, 0)
+    # Real scrypt once before the DB race; never replace the application hash slot.
+    credential = password_hash(secrets.token_urlsafe(32))
     visitors: list[Visitor] = []
     for index in range(5):
-        peer = f"v4-race-{index}"
-        bootstrap, owner = demo.store.bootstrap(None, peer)
+        bootstrap, owner = demo.store.bootstrap(None, f"v4-db-race-{index}")
         assert owner is not None
+        command = dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1")
+        # Each original owner/key reservation commits independently before workers start.
+        with connect(demo.app) as db:
+            bounded(db)
+            row = demo.store.sessions.bootstrap_locked(db, owner)
+            demo.store.sessions.supplied_csrf(row, bootstrap["data"]["csrf_token"])
+            assert row["create_request_key"] is None and row["consumed_at"] is None
+            db.execute(
+                "UPDATE business.v4_demo_bootstraps SET create_request_key=%s WHERE id=%s",
+                (command.request_key, row["id"]),
+            )
         visitors.append(
             Visitor(
                 owner,
-                bootstrap["data"]["csrf_token"],
-                dto.CreateSessionInput(request_key=uuid4(), fixture_version="v4-demo-seed-1"),
-                peer,
+                "v4d_" + secrets.token_urlsafe(32),
+                command,
+                row["id"],
+                uuid4(),
+                uuid4(),
+                uuid4(),
             )
         )
     assert len({visitor.command.request_key for visitor in visitors}) == 5
-    with connect(demo.app) as db:
-        prepared = db.execute("""SELECT
-        (SELECT count(*) FROM business.v4_demo_tenants) AS tenants,
-        (SELECT count(*) FROM business.v4_demo_sessions) AS sessions,
-        (SELECT count(*) FROM business.v4_demo_receipts) AS receipts,
-        (SELECT count(*) FROM business.v4_demo_bootstraps) AS owners,
-        (SELECT count(DISTINCT token_hash) FROM business.v4_demo_bootstraps) AS unique_owners
-        """).fetchone()
-        assert prepared == dict(tenants=0, sessions=0, receipts=0, owners=5, unique_owners=5)
-    barrier = Barrier(6)  # All five workers and the caller arrive before one release.
+    assert len({visitor.bootstrap for visitor in visitors}) == 5
+    barrier = Barrier(6)
 
-    def create_visitor(index: int) -> Outcome:
+    def provision(index: int) -> Outcome:
         visitor = visitors[index]
-        store = DemoStore(demo.config)
-        barrier.wait(timeout=10)
+        pid = 0
         try:
-            # Each real Store transaction opens its own psycopg connection; no shared
-            # connection, replaced hash slot, fake lock, retry or prefilled tenant.
-            data, active = store.create(visitor.owner, visitor.csrf, visitor.command, visitor.peer)
-        except WebFailure as error:
-            return Outcome(index, error.status, error.code)
-        return Outcome(index, 201, "COMMITTED", data, active)
+            # Five actual runtime connections remain open at the barrier. The only
+            # capacity exclusion is the original advisory lock inside provision.
+            with connect(demo.app) as db:
+                bounded(db)
+                identity = db.execute(
+                    "SELECT pg_backend_pid() AS pid,current_user AS role"
+                ).fetchone()
+                assert identity is not None and identity["role"] == "commerceops_app"
+                pid = identity["pid"]
+                barrier.wait(timeout=10)
+                text = canonical_bytes(
+                    dict(
+                        method="POST",
+                        path="/api/v4/demo/sessions",
+                        body=visitor.command.model_dump(mode="json"),
+                    )
+                ).decode()
+                row = db.execute(
+                    "SELECT business.v4_demo_provision(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+                    "AS tenant_id",
+                    (
+                        visitor.bootstrap,
+                        visitor.command.request_key,
+                        text,
+                        digest(text),
+                        digest(visitor.active),
+                        visitor.session,
+                        visitor.bound,
+                        digest(demo_csrf(demo.config, visitor.session, visitor.nonce, 0, 0)),
+                        visitor.nonce,
+                        digest(secrets.token_urlsafe(32)),
+                        digest(csrf_token(demo.config.web.csrf_secret, visitor.bound)),
+                        demo.config.web.key_version,
+                        credential,
+                    ),
+                ).fetchone()
+                assert row is not None
+                tenant = row["tenant_id"]
+            # Return success only after the real transaction COMMIT completed.
+            return Outcome(index, pid, True, tenant)
+        except psycopg.errors.CheckViolation as error:
+            # Other CHECK failures retain their exact safe classification and fail
+            # the final comparison; no broad exception is counted as capacity.
+            return Outcome(
+                index, pid, False, sqlstate=error.sqlstate, message=error.diag.message_primary
+            )
 
     pool = ThreadPoolExecutor(max_workers=5)
     futures = []
     try:
-        futures = [pool.submit(create_visitor, index) for index in range(5)]
+        futures = [pool.submit(provision, index) for index in range(5)]
         barrier.wait(timeout=10)
         _, pending = wait(futures, timeout=45)
-        assert not pending, "five-create workers exceeded bounded completion window"
+        assert not pending, "five-provision workers exceeded bounded completion window"
         outcomes = [future.result(timeout=0) for future in futures]
     finally:
         barrier.abort()
         for future in futures:
             future.cancel()
-        # Never wait indefinitely during exception unwinding. Live work is a real
-        # failure; the existing owned fixture then FORCE-drops only this new DB.
-        # Store connect/SQL/lock waits retain their own production bounds.
+        # No unbounded pool join during failure unwinding. The existing new-owned
+        # fixture FORCE-drops only this test DB; production connect/SQL/lock bounds stay.
         pool.shutdown(wait=False, cancel_futures=True)
-
-    winners = [outcome for outcome in outcomes if outcome.status == 201]
-    losers = [outcome for outcome in outcomes if outcome.status != 201]
-    for outcome in winners:
-        assert outcome.data is not None and outcome.active is not None
-        expected = outcome.data["context"]
-        current = demo.store.sessions.current(outcome.active)
-        for name in (
-            "tenant_id",
-            "organization_id",
-            "principal_id",
-            "reset_epoch",
-            "auth_generation",
-        ):
-            assert current["context"][name] == expected[name]
-        assert current["data"]["creation_request_key"] == str(
-            visitors[outcome.index].command.request_key
-        )
-        assert current["data"]["expires_at"] == outcome.data["data"]["session"]["expires_at"]
-    for outcome in losers:
-        visitor = visitors[outcome.index]
+    assert len({item.backend_pid for item in outcomes}) == 5
+    assert all(item.backend_pid > 0 for item in outcomes)
+    winners = [item for item in outcomes if item.committed]
+    losers = [item for item in outcomes if not item.committed]
+    for item in winners:
+        visitor = visitors[item.index]
+        current = demo.store.sessions.current(visitor.active)
+        assert UUID(current["context"]["tenant_id"]) == item.tenant
+        assert current["data"]["creation_request_key"] == str(visitor.command.request_key)
+        assert current["context"]["reset_epoch"] == 0
+        assert current["context"]["auth_generation"] == 0
+    for item in losers:
+        visitor = visitors[item.index]
         recovered = demo.store.operation(
             visitor.owner, "session_create", visitor.command.request_key
         )
@@ -547,11 +625,14 @@ def test_five_simultaneous_creates_commit_exactly_three_without_eviction(demo: D
             recovery="WAIT_READ_ONLY",
         )
         with connect(demo.app) as db:
-            row = demo.store.sessions.bootstrap_locked(db, visitor.owner)
-            assert row["create_request_key"] == visitor.command.request_key
-            assert row["consumed_at"] is None
+            bounded(db)
+            reservation = demo.store.sessions.bootstrap_locked(db, visitor.owner)
+            assert reservation["create_request_key"] == visitor.command.request_key
+            assert reservation["consumed_at"] is None
 
+    physical = object_counts()
     with connect(demo.app) as db:
+        bounded(db)
         tenants = db.execute("""SELECT id,organization_id,revoked_at,
         expires_at>clock_timestamp() AS live FROM business.v4_demo_tenants""").fetchall()
         sessions = db.execute("""SELECT id,tenant_id,revoked_at,
@@ -562,36 +643,30 @@ def test_five_simultaneous_creates_commit_exactly_three_without_eviction(demo: D
         personas = db.execute(
             "SELECT tenant_id,principal_id,identity_id FROM business.v4_demo_personas"
         ).fetchall()
-        active_tenants = sum(row["live"] and row["revoked_at"] is None for row in tenants)
-        active_sessions = sum(row["live"] and row["revoked_at"] is None for row in sessions)
-    # Report only safe classifications/counts on failure, never bearer/CSRF values.
+    # Safe results/counts only; no bearer, bootstrap CSRF or password hash in repr.
     observed = dict(
-        successes=len(winners),
-        failures=sorted((item.status, item.code) for item in losers),
-        tenants=len(tenants),
-        active_tenants=active_tenants,
-        sessions=len(sessions),
-        active_sessions=active_sessions,
-        create_receipts=len(receipts),
+        commits=len(winners),
+        failures=sorted((item.sqlstate, item.message) for item in losers),
+        active_tenants=sum(row["live"] and row["revoked_at"] is None for row in tenants),
+        active_sessions=sum(row["live"] and row["revoked_at"] is None for row in sessions),
         organizations=len({row["organization_id"] for row in tenants}),
         shops=len({row["shop_id"] for row in shops}),
         principals=len({row["principal_id"] for row in personas}),
         identities=len({row["identity_id"] for row in personas}),
+        objects=physical,
     )
     assert observed == dict(
-        successes=3,
-        failures=[(429, "CAPACITY_LIMIT"), (429, "CAPACITY_LIMIT")],
-        tenants=3,
+        commits=3,
+        failures=[("23514", "demo capacity limit"), ("23514", "demo capacity limit")],
         active_tenants=3,
-        sessions=3,
         active_sessions=3,
-        create_receipts=3,
         organizations=3,
         shops=6,
         principals=9,
         identities=9,
+        objects=expected_objects,
     )
-    winning_tenants = {UUID(item.data["context"]["tenant_id"]) for item in winners if item.data}
+    winning_tenants = {item.tenant for item in winners}
     assert {row["id"] for row in tenants} == winning_tenants
     assert {row["tenant_id"] for row in sessions} == winning_tenants
     assert {row["tenant_id"] for row in receipts} == winning_tenants

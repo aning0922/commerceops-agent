@@ -306,7 +306,7 @@ DB statement_timeout=5000ms、lock_timeout=1000ms、单事务客户端总预算1
 
 速率记录独立短事务，按`pg_advisory_xact_lock(1446261841,hashtext(peer_digest))`串行窗口后INSERT并COMMIT，包括拒绝前已接受的尝试，不能随着业务rollback清零。peer_digest用新部署secret HMAC过peer，不存原IP/UA/凭据；bootstrap每peer20/300s，session_create每peer10/300s；active cap3由create主事务容量锁内再次统计。密码散列新随机一次性secret，每次create只算一次供该tenant三persona复用（各login/identity不同）；原secret立即丢弃，不是可用演示口令。单进程非阻塞Semaphore(1)保护scrypt，不无限排队；忙返回429 RATE_LIMITED，peer限流及bootstrap key仍保留。编码沿旧scrypt，credential check不借此跳过。
 
-容量按未revoked且expires>DB now的tenant+session计数；丢Set-Cookie的已提交tenant仍占位；后台未清的expired不占位。credential被外部撤销但未显式revoke的tenant保守占位至期限，不擅自踢掉。五访客竞争恰≤3commit，其他429 CAPACITY_LIMIT/Retry-After；Retry-After取最早active expires的剩余秒向上取整，至少1，DB故障不补宿主时钟。bootstrap总活跃记录额外上限128，在专用bootstrap容量锁内检测，拒绝不删除他人。
+容量按未revoked且expires>DB now的tenant+session计数；丢Set-Cookie的已提交tenant仍占位；后台未清的expired不占位。credential被外部撤销但未显式revoke的tenant保守占位至期限，不擅自踢掉。DB provision五连接竞争应恰3commit/2固定capacity23514；完整create还受独立hash/rate限制，不能承诺恰3成功或把RATE_LIMITED记作CAPACITY_LIMIT。串行第四/第五访客为429 CAPACITY_LIMIT/Retry-After；Retry-After取最早active expires的剩余秒向上取整，至少1，DB故障不补宿主时钟。bootstrap总活跃记录额外上限128，在专用bootstrap容量锁内检测，拒绝不删除他人。
 
 ## 7. 八端点的事务伪码（本文件没有实现）
 
@@ -428,7 +428,7 @@ GET operations：
 | ID-02 | credential disabled、identity/principal/org映射任一错、principal disabled/auth版本变化、bound过期/撤销/元组错/keyversion错/CSRF digest错逐一拒绝；不是仅测试principal |
 | ID-03 | persona/reset旧actor_guard直接401，旧公开CSRF拒绝；新bound与原deadline相同；同persona切换仍轮换；reset admin保持admin/shops空 |
 | ID-04 | 两访客org/principals/shops不同；猜ID/跨店/去scope/admin无grant拒绝，无payload；直接错误租户FK/epoch写23514或FK拒绝 |
-| ID-05 | 五个并发create只有3成功；丢cookie已commit空间占位；429不踢旧session；过期释放count但不删receipt；peer limits和bootstrap cap128 |
+| ID-05 | DB provision五独立runtime连接并发恰3commit/2容量23514；完整create突发只承诺≤3commit，hash/rate拒绝独立分记；丢cookie已commit空间占位；429不踢旧session；过期释放count但不删receipt；peer limits和bootstrap cap128 |
 | ID-06 | 同key同payload一effect、异文409；并发reset只一次epoch推进；旧CSRF403后GET原key可确认；ACK body丢与整cookie/header丢分别测 |
 | ID-07 | reset与read/fixture-note夹具写/owner revoke并发线性化；current授权响应context时刻明确；迟到UI数据另由WEB/QA注入 |
 | ID-08 | 本批新窄grant前后逐表/列/function权限实测；普通runtime不能写fixture/mapping/credential/grants或删receipt/event，PUBLIC不能调用provision；provision不能指向既有org |
@@ -584,3 +584,14 @@ d578交付时的19项ASGI使用显式StubStore，仅证明当时的拒绝路径/
 ROOT须绑定实际集成source/tree，而非直接把本作者或其他worktree的旧回执搬来。作者本会话无PG/监听服务窗口；ROOT的独立迁移/组件运行、失败和cleanup以其原回执为准，本节不预填PASS。prepared独审也不等于实际运行准入。
 
 仍待实际证据：25节点各自setup/call/teardown、并发create/reset及撤权/读写竞争、完整身份与逐列ACL矩阵、每个持久阶段故障/commit后ACK、retention/GC、真实POST cookie/CSRF/CORS/Web、当前动态全量PG/G1G2及旧M3对应Full。五访客串行拒绝不能代签恰三并发成功，单个provision故障点不能代签所有阶段回滚。未完成项不能从离线绿灯推断完成；不进入V4-1、不触发Hosted、外部调用或生产发布。
+
+
+## 16. 并发容量Gate口径澄清（2026-11-04）
+
+ROOT纠正了最初“五个完整create同时请求必须恰3成功/2CAPACITY_LIMIT”的测试要求：原create在DB事务前另有单进程非阻塞HASH_SLOT(1)及rate限制，真实突发可能先得到RATE_LIMITED。该要求会新增吞吐保证，当前不采用。准备提交bb601d0未执行PG，后续以普通新提交替换测试口径，保留历史而不amend/reset；业务limiter、数据库锁与旧串行五访客判据均不变。
+
+新增单项 `test_five_runtime_provisions_commit_three_and_reject_two_at_db_capacity` 只验证原DB provision容量Gate：真实scrypt预先算一次；五个不同bootstrap及原key各自独立COMMIT预约；五条实际commerceops_app连接在barrier前保持打开并记录不同backend PID；barrier后直接调用原SECURITY DEFINER provision，竞争其原advisory xact lock，无mock/重试/提权。成功须真实COMMIT后回报，拒绝须精确SQLSTATE23514/message=demo capacity limit，其他错误不能算容量通过。
+
+断言要求3commit/2容量拒绝、三活跃tenant/session/create receipt、15个物化表的精确基数、三独立org/六shop/九principal/identity、三成功bearer仍有效及各租户映射完整；两失败owner保留原key且未consume，真实operations仅UNKNOWN/WAIT_READ_ONLY。barrier10秒、worker等待45秒，沿现有runtime连接/SQL/锁超时，不改全局role timeout；异常不无限join，外层新库fixture保留其FORCE-drop失败清理路径。此为待实际执行的测试，不能据collect签并发PASS。
+
+该DB Gate不证明完整create HTTP突发吞吐；原Store串行五访客3成功/2精确CAPACITY_LIMIT用例保持，独立QA的HTTP串行3/2 Gate也不能由此case替代。完整burst若后续单列，只能分别核≤3成功及精确RATE_LIMITED/CAPACITY_LIMIT，无部分物化，不能将两种429混记。same-key reset真实HTTP并发由QA独立case承担，本增量不另造框架或扩展至V4-1。
