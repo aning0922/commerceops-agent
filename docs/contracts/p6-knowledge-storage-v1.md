@@ -243,3 +243,66 @@ SQL与K2 DTO排序键不区分这些版本。Root原独立反例为六条同距�
 新增PG两节点覆盖合法不同registry精确版本与应用/直接SQL重hash混版拒绝，仍须新owned窗口实际执行。
 开发新Source回归首次因漏导入canonical为1failed/87passed，修复后88passed；新SQL测试漏导入仅静态发现并修复，
 无PG执行。本修复独立提交，只含K2原文件与本事实记录；K3未提交文件保留且不混入该commit。
+
+### K3 源码候选 / HOLD（实际PG与父链尚未就绪）
+
+Root预留0023（父0022）给本线内部草稿；本片完成新commands、候选重建、CopyStore、独立router及0023，
+不改共享API/Worker/旧迁移。K3四表为p6_copy_products/candidates/decisions/drafts：
+产品仅owner登记synthetic事实；候选由当前授权registry检索和服务器固定合成query映射生成，
+商品标题与SOP片段逐claim重建，无自由价格/收益/功效。标`template / model_evidence_mode=not_used`，
+向量仍标synthetic_vector；没有真实生成式provider、embedding、平台或人审完成证据。
+
+候选固定owner/当前指派reviewer、id/v1/hash、来源与到期（15分钟和来源最早到期取小）；
+审核命令必须显式version/hash/key/action/reason，不能从模型approved/文本推定批准。
+CopyStore在审核时用owner登记商品、registry真实profile/阈值、不可变向量/引用，以及服务器原query
+逐项重放，重新查询完整排名；拒调用方仅自洽重hash的来源/阈值/候选。query_ref配置须保持原版本，
+改变配置使旧候选HOLD，不能悄换query或来源；原决定回执仍可按原键只读核对。
+
+审批先锁当前principal/角色scope，再锁候选与registry/product/相关授权行；owner与指派approver
+当前资格、session、版本、TTL/撤权均核验。SQL commit约束再查到期与来源，并强制
+approve有且仅有一份draft、reject无draft；决定/草稿/审计同事务，历史不可改/删/截断。
+同actor/key同语义返回原决定，异文409；不同key/actor首决定由候选唯一约束和行锁串行化。
+保存仅返回COMMIT后的确认，运输结果不明为UNKNOWN；查询缺行不声称已回滚，不自动POST/新建键/外发。
+无发布outbox、商品价格修改或其他外部写工具。嵌套savepoint保证调用方捕获普通验证异常也不残留本次半写。
+
+Backend单点集成exports（本片不注册主入口）：
+
+- `knowledge_copy_http.knowledge_copy_router(config, store)`，由现有FastAPI明确include_router；复用真实SessionStore、Origin/CSRF、固定安全错误；POST JSON schemas已随router导出。
+- `CopyStore(config.database, {(org_uuid,shop_uuid,query_ref): synthetic_Query})`；映射不可变、缺条目拒绝，不加载env/模型，不接受客户端向量或actor。空映射即不提供候选生成。
+- owner在现有grant_runtime、grant_knowledge_runtime后显式调用`grant_copy_runtime(db)`，runtime只读products，窄插入candidate/decision/draft；不可注册来源、改历史或CREATE。
+- owner合成fixture登记使用`register_copy_product(db,id,ProductCitation)`；业务路由不提供登记接口。
+- HTTP：POST `/api/v1/copy/candidates`；GET `/copy/candidates/{id}`（同api/v1前缀）；POST `.../{id}/review`；GET `.../{id}/review-receipts/{key}?candidate_hash=...`；GET `/api/v1/copy/candidate-requests/{key}`。UNKNOWN仅查询原键。
+
+本地组合K1/K2/K3纯与HTTP替身测试实跑121passed/0.80s，新增八文件strict mypy、Ruff/format通过；
+K3当前28个真实PG节点仅collect，全部NOT_RUN。覆盖真实矩阵代码：显式指派/仅approver、原键同文/异文、
+双连接同/异key及不同actor、撤权/TTL/提交时到期、grant/product锁竞争、NULL重hash、拒绝零草稿、
+无draft批准提交失败、事务回滚/实际COMMIT后模拟客户端ACK丢失/原键只读恢复、历史不可改和outbox计数不增。
+HTTP替身不签真实session/数据库Gate；ACK模拟不是raw-wire捕获，新Store实例也不称进程重启验收。
+开发Ruff导入/行长、mypy动态Literal、漏Manifest导入均修复；未执行新PG或删改既有Gate。
+
+0019精确父提交已由Root交付37e7e99e89fdfc7b87145317fabf373306d60dfd，实际revision为
+`0019_p6_daily_reports`。遵Root指令先普通冻结本K3候选，再普通merge该精确提交并另提交0020父标识修复。
+0023仍只保留待0022转交的父依赖，不预填其SHA；整体Alembic graph/升级/K3 SQL、完整CI、人审均NOT_RUN。
+
+### K3 P2：不同候选复用审批请求键的竞争修复候选
+
+原cf86独审发现：请求键唯一范围是`(organization_id,actor_id,request_key)`，
+原先只锁单一candidate；同一approver并发审核两个不同candidate、复用同一key时，
+双方都可能先读不到receipt，败方触发UniqueViolation并走503，未返回约定的异文409。
+该P2与原121纯测试通过事实分记，不能由旧测试签收此竞争行为。
+
+本修复给原请求键约束固定名`p6_copy_decision_request_key`，只将decision与draft两次INSERT
+放入一个局部savepoint；捕获时必须同时匹配business schema、p6_copy_decisions表和此约束名。
+局部回滚完成后按原org/actor/key读取已提交receipt，异文409、同文返回原decision/draft；
+未读到则503，不假定已回滚、不重试写入、不换key。其他唯一约束异常原样抛出，
+原候选行锁、同候选first-decision、权限/来源/TTL与commit原子约束均保留。
+
+新增六项离线故障注入验证局部回滚先于receipt查询、INSERT仅一次、异文/同文/缺回执，
+以及错误schema/table/constraint不被吞掉；使用真实psycopg UniqueViolation诊断字段，
+SQL和事务仍为替身，不签实际数据库竞争。新增PG节点在真实source replay之后以Barrier(2)
+让两个不同candidate的审批会话均到达INSERT前，要求一份saved、一份确切409，
+并核count为2candidate/1decision/1draft/1review audit；原同candidate并发节点保留。
+
+本次组合纯与HTTP替身测试实际127passed/0.84s/exit0；四个变更Python文件strict mypy、
+Ruff及format通过。K2 30与K3 29共59个PG节点仅collect/0.70s/exit0；
+本线未运行PG、Docker、SDK或模型。K3实际SQL和独审仍pending，0023父0022仍待精确交付。
