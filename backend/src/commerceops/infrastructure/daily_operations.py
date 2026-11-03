@@ -9,12 +9,18 @@ from commerceops.application.daily.http_models import (
     AcceptanceRead,
     CapabilityRead,
     CreateDailyInput,
+    CreationReceiptRead,
     EvidenceRead,
     QuestionRead,
 )
-from commerceops.application.daily.questions import Citation, QuestionTaskRequest, _safe_evidence
+from commerceops.application.daily.questions import (
+    QUESTION_WORKFLOW,
+    Citation,
+    QuestionTaskRequest,
+    _safe_evidence,
+)
 from commerceops.application.daily.read_models import QUESTION_KINDS
-from commerceops.application.daily.source import DailyUnsafe
+from commerceops.application.daily.source import WORKFLOW, DailyTaskRequest, DailyUnsafe
 from commerceops.application.replenishment.contracts import WebActor, WebFailure
 from commerceops.infrastructure.daily_questions import (
     create_question,
@@ -32,6 +38,129 @@ class DailyOperations:
         self, settings: DatabaseSettings, files: DailyDeployment | None, cursor_key: bytes
     ):
         self.settings, self.files, self.cursor_key = settings, files, cursor_key
+
+    def creation_receipt(
+        self, actor: WebActor, shop_id: UUID, request_key: UUID
+    ) -> CreationReceiptRead:
+        """只读原日报受理记录；404不证明原POST没有提交，不读当前来源配置。"""
+        with connect(self.settings) as db:
+            actor_guard(db, actor)
+            if not role_scope(db, actor, shop_id, "operator"):
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            task = db.execute(
+                """SELECT * FROM business.business_tasks WHERE organization_id=%s
+            AND shop_id=%s AND requester_id=%s AND kind='daily_report' AND workflow_version=%s
+            AND normalized_request->>'request_key'=%s""",
+                (actor.organization_id, shop_id, actor.principal_id, WORKFLOW, str(request_key)),
+            ).fetchone()
+            if task is None:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            value = DailyTaskRequest.model_validate_json(json.dumps(task["normalized_request"]))
+            if (
+                value.daily_source.organization_id,
+                value.daily_source.shop_id,
+                value.request_key,
+                value.conversation_id,
+            ) != (actor.organization_id, shop_id, request_key, task["conversation_id"]):
+                raise DailyUnsafe("DAILY_STORAGE_FAILURE")
+            return CreationReceiptRead.model_validate_json(
+                json.dumps(
+                    envelope(
+                        db,
+                        receipt={
+                            "schema_version": "p6-m3-web-v1",
+                            "lookup_status": "accepted",
+                            "operation": "daily_report.create",
+                            "request_key": request_key,
+                            "shop_id": shop_id,
+                            "task_id": task["id"],
+                            "state": task["state"],
+                            "failure_code": task["failure_code"],
+                            "request_hash": value.request_hash,
+                            "source_config_version": value.daily_source.source_config_version,
+                            "business_day": value.business_day.isoformat(),
+                        },
+                    )
+                )
+            )
+
+    def question_receipt(
+        self, actor: WebActor, shop_id: UUID, parent_id: UUID, report_id: UUID, request_key: UUID
+    ) -> CreationReceiptRead:
+        """原question key按owner/shop/parent/report隔离；不触发answer或新job。"""
+        with connect(self.settings) as db:
+            actor_guard(db, actor)
+            if not role_scope(db, actor, shop_id, "operator"):
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            task = db.execute(
+                """SELECT q.*,r.snapshot_id AS original_snapshot_id,
+            r.facts_hash AS original_facts_hash,
+            r.report->>'content_hash' AS original_content_hash FROM business.business_tasks q
+            JOIN business.business_tasks p ON p.organization_id=q.organization_id
+            AND p.shop_id=q.shop_id
+            AND p.requester_id=q.requester_id AND p.conversation_id=q.conversation_id
+            AND p.id::text=q.normalized_request->>'parent_task_id'
+            JOIN business.p6_daily_reports r ON r.task_id=p.id
+            AND r.organization_id=p.organization_id
+            AND r.shop_id=p.shop_id AND r.id::text=q.normalized_request#>>'{input,report_id}'
+            WHERE q.organization_id=%s AND q.shop_id=%s AND q.requester_id=%s
+            AND q.kind='daily_question' AND q.workflow_version=%s
+            AND q.normalized_request#>>'{input,request_key}'=%s
+            AND p.id=%s AND p.kind='daily_report' AND p.workflow_version=%s AND r.id=%s""",
+                (
+                    actor.organization_id,
+                    shop_id,
+                    actor.principal_id,
+                    QUESTION_WORKFLOW,
+                    str(request_key),
+                    parent_id,
+                    WORKFLOW,
+                    report_id,
+                ),
+            ).fetchone()
+            if task is None:
+                raise WebFailure("RESOURCE_NOT_FOUND", 404)
+            value = QuestionTaskRequest.model_validate_json(json.dumps(task["normalized_request"]))
+            if (
+                value.parent_task_id,
+                value.input.request_key,
+                value.input.report_id,
+                value.input.snapshot_id,
+                value.input.content_hash,
+                value.input.facts_hash,
+            ) != (
+                parent_id,
+                request_key,
+                report_id,
+                task["original_snapshot_id"],
+                task["original_content_hash"],
+                task["original_facts_hash"],
+            ):
+                raise DailyUnsafe("DAILY_STORAGE_FAILURE")
+            return CreationReceiptRead.model_validate_json(
+                json.dumps(
+                    envelope(
+                        db,
+                        receipt={
+                            "schema_version": "p6-m3-web-v1",
+                            "lookup_status": "accepted",
+                            "operation": "daily_question.create",
+                            "request_key": request_key,
+                            "shop_id": shop_id,
+                            "task_id": task["id"],
+                            "state": task["state"],
+                            "failure_code": task["failure_code"],
+                            "request_hash": value.request_hash,
+                            "parent_task_id": parent_id,
+                            "report_id": report_id,
+                            "snapshot_id": value.input.snapshot_id,
+                            "content_hash": value.input.content_hash,
+                            "facts_hash": value.input.facts_hash,
+                            "question": value.input.question.model_dump(mode="json"),
+                        },
+                    )
+                )
+            )
 
     def capabilities(self, actor: WebActor, shop: UUID) -> CapabilityRead:
         with connect(self.settings) as db:
@@ -66,7 +195,9 @@ class DailyOperations:
                             "shop_id": shop,
                             "enabled": source is not None,
                             "source": source,
-                            "earliest_business_day": earliest,
+                            "earliest_business_day": earliest.isoformat()
+                            if earliest is not None
+                            else None,
                             "metric_version": metric,
                             "question_kinds": QUESTION_KINDS,
                             "schedule_management_mode": "controlled_cli",
