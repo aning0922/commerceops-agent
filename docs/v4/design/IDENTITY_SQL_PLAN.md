@@ -315,13 +315,13 @@ DB statement_timeout=5000ms、lock_timeout=1000ms、单事务客户端总预算1
 ```text
 check Origin/HTTPS/Host/fetch policy before any session mutation
 if active cookie authenticates: reject conflict; do not overwrite active cookie
-if valid unconsumed bootstrap cookie: return same bootstrap CSRF/absolute deadline
+if valid bootstrap cookie AND create_request_key IS NULL: return same CSRF/absolute deadline
 otherwise: peer-rate attempt; lock bootstrap-capacity; DB now
   insert new 300s bootstrap with random v4b_ hash, key_version and CSRF digest
   COMMIT; only then Set-Cookie bootstrap; return anonymous BootstrapEnvelope
 ```
 
-消耗过的bootstrap仍保留供原key GET；UI只有用户明确“重新开始”才请求新bootstrap再显式POST。GET本身只建匿名nonce，不创建新tenant；它替换旧bootstrap cookie并不证明旧create回滚。unknown页不得自动走此分支。bootstrap响应也丢失时，原匿名行到期，不能推断业务已创建。
+已绑定create_request_key的bootstrap（不论是否consumed）均不复用为新建owner；原行与300秒单key回读权保留，用户明确重新开始调用GET才签新bootstrap，不清空旧绑定。确定性429后重新开始不会被旧key永久404卡住；UNKNOWN客户端不自动调用此GET。消耗过的bootstrap仍保留供原key GET；UI只有用户明确“重新开始”才请求新bootstrap再显式POST。GET本身只建匿名nonce，不创建新tenant；它替换旧bootstrap cookie并不证明旧create回滚。unknown页不得自动走此分支。bootstrap响应也丢失时，原匿名行到期，不能推断业务已创建。
 
 ### 7.2 POST sessions 与受限 provision
 
@@ -465,3 +465,12 @@ GET operations：
 ## 12. 交付到下一Gate
 
 本次只冻结两设计文件普通commit交Astra；实际tokens/cost不可见为UNKNOWN。待ROOT明确专项准入才实现0024+v4_demo模块/API/CLI/作者测试，并按V40-03→04串行交付；旧compat测试与任何旧文件helper必须另获精确释放。本方案选择无需改旧web_sessions.py/database.py，若实现发现做不到则停对应路径并交具体diff申请，不自行降guard。
+
+
+## 13. SQL-01/02/03 专项纠偏（实现候选，PG仍NOT_RUN）
+
+十表数量不变。DemoSession新增内部last_receipt_id（不进入API DTO），其与session id/tenant/after epoch/generation一起通过deferred复合FK指向receipt；每次控制更新必须更换指针。session的deferred guard将该次NEW与事务最终session全行比较，明确拒绝同session同事务的第二控制步骤（包括create后再control）。再以NEW.last_receipt定位唯一receipt，并逐项对照捕获的OLD before和NEW after；历史receipt不得替新effect背书。receipt INSERT反向要求自己正是当前session.last_receipt、after值完全相同。只插receipt/event不改状态、只换指针不做真实轮换、历史回执复用、只改epoch/撤销而无匹配receipt均拒绝。reset还要求本tenant overlay已清空。
+
+event新增receipt_id/owner_session_id/tenant_id/epoch/generation复合FK及operation→kind语义guard；create恰两种各一，其余恰一种一条。event独立INSERT也要核原receipt关系，不因旧receipt本轮未更新而漏验；额外错kind不得追加。
+
+新增固定v4_demo_request_valid(jsonb,text,uuid,bigint,bigint,text,text)检查wrapper与各operation body的object/exact keys/non-null types/constants/key/fixture/persona/expected CAS；missing/null/错类型均返回false。守卫以NOT coalesce(...,false)拒绝，不用NULL敏感的不等式。该无DB权限提升函数由owner helper单独授runtime EXECUTE，不新增通用schema解释器或免验GUC。实际SQL负例将在ROOT新owned窗口验证；当前不以结构纯检查关闭PG Gate。

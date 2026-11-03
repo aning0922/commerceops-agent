@@ -101,9 +101,11 @@ def grant_v4_runtime(db: DB) -> None:
         "GRANT UPDATE(reset_epoch,revoked_at) ON business.v4_demo_tenants TO commerceops_app"
     )
     db.execute("""GRANT UPDATE(persona_id,principal_id,identity_id,bound_web_session_id,
-    auth_version,auth_generation,reset_epoch,csrf_nonce,csrf_digest,revoked_at)
+    auth_version,auth_generation,reset_epoch,csrf_nonce,csrf_digest,revoked_at,last_receipt_id)
     ON business.v4_demo_sessions TO commerceops_app""")
     db.execute("GRANT DELETE ON business.v4_demo_overlays TO commerceops_app")
+    db.execute("""GRANT EXECUTE ON FUNCTION business.v4_demo_request_valid(
+    jsonb,text,uuid,bigint,bigint,text,text) TO commerceops_app""")
     db.execute(
         sql.SQL("GRANT EXECUTE ON FUNCTION business.{} TO commerceops_app").format(
             sql.SQL(PROVISION)

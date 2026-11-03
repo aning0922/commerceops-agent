@@ -5,6 +5,7 @@ import copy
 import hashlib
 import json
 import random
+import re
 from datetime import UTC, datetime
 from decimal import localcontext
 from pathlib import Path
@@ -456,3 +457,32 @@ def test_variant_source_and_nullable_shape_are_exact(
     content["shops"][0]["skus"][target]["variant_ref"] = variants[source]
     with pytest.raises(ValidationError, match="INVALID_SKU_PRODUCT_VARIANT"):
         seed.FixtureContent.model_validate_json(json.dumps(content))
+
+
+def test_sql_structure_has_deferred_bidirectional_binding_without_implicit_parameters() -> None:
+    from sqlalchemy import text
+
+    path = Path("backend/migrations/versions/0024_v4_demo_foundation.py")
+    module = ast.parse(path.read_text())
+    constants = {
+        node.targets[0].id: ast.literal_eval(node.value)
+        for node in module.body
+        if isinstance(node, ast.Assign)
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id in ("DDL", "FUNCTIONS")
+    }
+    ddl, functions = constants["DDL"], constants["FUNCTIONS"]
+    assert len(re.findall(r"CREATE TABLE business\.v4_demo_", ddl)) == 10
+    assert "FOREIGN KEY(last_receipt_id,id,tenant_id,reset_epoch,auth_generation)" in ddl
+    assert "FOREIGN KEY(receipt_id,owner_session_id,tenant_id,reset_epoch,auth_generation)" in ddl
+    assert ddl.count("DEFERRABLE INITIALLY DEFERRED") == 2
+    assert "to_jsonb(s) IS DISTINCT FROM to_jsonb(NEW)" in functions
+    assert "NEW.id IS DISTINCT FROM s.last_receipt_id" in functions
+    assert "r.epoch_before=OLD.reset_epoch" in functions
+    assert "r.generation_before=OLD.auth_generation" in functions
+    assert "TG_TABLE_NAME='v4_demo_events'" in functions
+    assert functions.count("NOT coalesce(business.v4_demo_request_valid(") == 2
+    assert "req->>'method' IS DISTINCT FROM 'POST'" in functions
+    assert "req-ARRAY['method','path','body']" in functions
+    assert not text(ddl).compile().params
+    assert not text(functions).compile().params

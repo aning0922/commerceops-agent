@@ -86,8 +86,10 @@ CREATE TABLE business.v4_demo_bootstraps (
 CREATE TABLE business.v4_demo_sessions (
  id uuid PRIMARY KEY,
  tenant_id uuid NOT NULL UNIQUE REFERENCES business.v4_demo_tenants(id),
+ UNIQUE(id,tenant_id),
  bootstrap_id uuid NOT NULL UNIQUE REFERENCES business.v4_demo_bootstraps(id),
  creation_request_key uuid NOT NULL,
+ last_receipt_id uuid NOT NULL UNIQUE,
  token_hash text NOT NULL UNIQUE CHECK (token_hash ~ '^[a-f0-9]{64}$'),
  persona_id text NOT NULL,
  principal_id uuid NOT NULL,
@@ -123,6 +125,8 @@ CREATE TABLE business.v4_demo_receipts (
  committed_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  retain_until timestamptz NOT NULL,
  UNIQUE (owner_session_id,operation,request_key),
+ UNIQUE(id,owner_session_id,tenant_id,reset_epoch,auth_generation),
+ FOREIGN KEY(owner_session_id,tenant_id) REFERENCES business.v4_demo_sessions(id,tenant_id),
  CHECK (payload_digest=encode(sha256(convert_to(canonical_request,'UTF8')),'hex')),
  CHECK (jsonb_typeof(canonical_request::jsonb)='object'),
  CHECK (octet_length(canonical_request)<=4096),
@@ -140,7 +144,10 @@ CREATE TABLE business.v4_demo_events (
  reset_epoch bigint NOT NULL CHECK (reset_epoch>=0),
  auth_generation bigint NOT NULL CHECK (auth_generation>=0),
  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
- UNIQUE (receipt_id,event_kind)
+ UNIQUE (receipt_id,event_kind),
+ FOREIGN KEY(receipt_id,owner_session_id,tenant_id,reset_epoch,auth_generation)
+ REFERENCES business.v4_demo_receipts(id,owner_session_id,tenant_id,reset_epoch,auth_generation)
+ DEFERRABLE INITIALLY DEFERRED
 );
 
 CREATE TABLE business.v4_demo_overlays (
@@ -168,6 +175,10 @@ CREATE TABLE business.v4_demo_rate_attempts (
  occurred_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 
+ALTER TABLE business.v4_demo_sessions ADD CONSTRAINT v4_demo_effect_receipt
+ FOREIGN KEY(last_receipt_id,id,tenant_id,reset_epoch,auth_generation)
+ REFERENCES business.v4_demo_receipts(id,owner_session_id,tenant_id,reset_epoch,auth_generation)
+ DEFERRABLE INITIALLY DEFERRED;
 CREATE INDEX v4_demo_capacity ON business.v4_demo_tenants(expires_at)
  WHERE revoked_at IS NULL;
 CREATE INDEX v4_demo_session_live ON business.v4_demo_sessions(expires_at)
@@ -192,6 +203,47 @@ TABLES = (
 )
 
 FUNCTIONS = r"""
+CREATE FUNCTION business.v4_demo_request_valid(req jsonb,operation text,rkey uuid,
+ before_epoch bigint,before_generation bigint,fixture text,persona text) RETURNS boolean
+ LANGUAGE plpgsql IMMUTABLE SET search_path=pg_catalog,business AS $$
+DECLARE b jsonb; keys text[];
+BEGIN
+ IF jsonb_typeof(req) IS DISTINCT FROM 'object'
+  OR NOT (req ?& ARRAY['method','path','body'])
+  OR req-ARRAY['method','path','body']<>'{}'::jsonb
+  OR req->>'method' IS DISTINCT FROM 'POST'
+  OR req->>'path' IS DISTINCT FROM '/api/v4/demo/'||
+    CASE operation WHEN 'session_create' THEN 'sessions' ELSE operation END
+ THEN RETURN false; END IF;
+ b:=req->'body';
+ keys:=CASE operation
+   WHEN 'session_create' THEN ARRAY['request_key','fixture_version']
+   WHEN 'persona' THEN ARRAY['request_key','persona_id','expected_epoch','expected_generation']
+   WHEN 'reset' THEN ARRAY['request_key','fixture_version','expected_epoch','expected_generation']
+   WHEN 'logout' THEN ARRAY['request_key','expected_epoch','expected_generation']
+   ELSE NULL END;
+ IF keys IS NULL OR jsonb_typeof(b) IS DISTINCT FROM 'object'
+  OR NOT (b ?& keys) OR b-keys<>'{}'::jsonb
+  OR jsonb_typeof(b->'request_key') IS DISTINCT FROM 'string'
+  OR b->>'request_key' IS DISTINCT FROM rkey::text THEN RETURN false; END IF;
+ IF operation IN ('session_create','reset') AND
+  (jsonb_typeof(b->'fixture_version') IS DISTINCT FROM 'string'
+   OR b->>'fixture_version' IS DISTINCT FROM fixture) THEN RETURN false; END IF;
+ IF operation='persona' AND (jsonb_typeof(b->'persona_id') IS DISTINCT FROM 'string'
+   OR b->>'persona_id' IS DISTINCT FROM persona
+   OR persona NOT IN ('operator','approver','restricted_admin')) THEN RETURN false; END IF;
+ IF operation<>'session_create' THEN
+  IF jsonb_typeof(b->'expected_epoch') IS DISTINCT FROM 'number'
+   OR jsonb_typeof(b->'expected_generation') IS DISTINCT FROM 'number'
+   OR (b->>'expected_epoch') !~ '^(0|[1-9][0-9]*)$'
+   OR (b->>'expected_generation') !~ '^(0|[1-9][0-9]*)$'
+   OR (b->>'expected_epoch')::numeric IS DISTINCT FROM before_epoch::numeric
+   OR (b->>'expected_generation')::numeric IS DISTINCT FROM before_generation::numeric
+  THEN RETURN false; END IF;
+ END IF;
+ RETURN true;
+END $$;
+
 CREATE FUNCTION business.v4_demo_guard() RETURNS trigger LANGUAGE plpgsql
 SET search_path=pg_catalog,business AS $$
 DECLARE n jsonb; o jsonb; tenant uuid; deadline timestamptz;
@@ -238,13 +290,19 @@ BEGIN
   THEN RAISE EXCEPTION 'demo tenant immutable' USING ERRCODE='23514'; END IF;
  ELSIF TG_TABLE_NAME='v4_demo_sessions' THEN
   IF (n-ARRAY['persona_id','principal_id','identity_id','bound_web_session_id','auth_version',
-     'auth_generation','reset_epoch','csrf_nonce','csrf_digest','revoked_at']) <>
+     'auth_generation','reset_epoch','csrf_nonce','csrf_digest','revoked_at','last_receipt_id']) <>
     (o-ARRAY['persona_id','principal_id','identity_id','bound_web_session_id','auth_version',
-     'auth_generation','reset_epoch','csrf_nonce','csrf_digest','revoked_at'])
+     'auth_generation','reset_epoch','csrf_nonce','csrf_digest','revoked_at','last_receipt_id'])
    OR NEW.reset_epoch NOT IN (OLD.reset_epoch,OLD.reset_epoch+1)
    OR (OLD.revoked_at IS NOT NULL AND NEW.revoked_at IS DISTINCT FROM OLD.revoked_at)
   THEN RAISE EXCEPTION 'demo session immutable' USING ERRCODE='23514'; END IF;
-  IF (n-ARRAY['revoked_at'])<>(o-ARRAY['revoked_at']) THEN
+  IF NEW.last_receipt_id IS NOT DISTINCT FROM OLD.last_receipt_id THEN
+   RAISE EXCEPTION 'demo new transition receipt required' USING ERRCODE='23514'; END IF;
+  IF NEW.revoked_at IS NOT NULL THEN
+   IF (n-ARRAY['revoked_at','last_receipt_id'])<>(o-ARRAY['revoked_at','last_receipt_id'])
+     OR OLD.revoked_at IS NOT NULL THEN
+    RAISE EXCEPTION 'demo logout transition invalid' USING ERRCODE='23514'; END IF;
+  ELSE
    IF NEW.auth_generation<>OLD.auth_generation+1
     OR NEW.bound_web_session_id=OLD.bound_web_session_id OR NEW.csrf_nonce=OLD.csrf_nonce
     OR NEW.csrf_digest=OLD.csrf_digest OR NOT EXISTS(
@@ -278,6 +336,7 @@ BEGIN
   (w.organization_id,w.principal_id,w.identity_id,w.auth_version) IS DISTINCT FROM
   (t.organization_id,s.principal_id,s.identity_id,s.auth_version)
   OR w.absolute_expires_at>t.expires_at OR w.idle_expires_at>t.expires_at
+  OR w.created_at<t.created_at OR w.created_at>=t.expires_at
   OR w.token_hash=s.token_hash
   OR EXISTS(SELECT 1 FROM business.v4_demo_bootstraps b WHERE b.token_hash=w.token_hash)
   OR (s.revoked_at IS NOT NULL AND w.revoked_at IS NULL)
@@ -298,25 +357,50 @@ BEGIN
     OR sh.timezone<>CASE m.template_key WHEN 'v4-shop-a' THEN 'Asia/Taipei' ELSE
  'Asia/Shanghai' END))
  THEN RAISE EXCEPTION 'demo shop source invalid' USING ERRCODE='23514'; END IF;
- IF TG_TABLE_NAME='v4_demo_sessions' AND TG_OP='UPDATE' THEN
-  IF NOT EXISTS(SELECT 1 FROM business.v4_demo_receipts r WHERE r.owner_session_id=s.id
-    AND r.epoch_before=OLD.reset_epoch AND r.generation_before=OLD.auth_generation
-    AND r.reset_epoch=NEW.reset_epoch AND r.auth_generation=NEW.auth_generation
-    AND r.operation=CASE WHEN NEW.revoked_at IS NOT NULL THEN 'logout'
-      WHEN NEW.reset_epoch<>OLD.reset_epoch THEN 'reset' ELSE 'persona' END)
-  THEN RAISE EXCEPTION 'demo effect receipt missing' USING ERRCODE='23514'; END IF;
+ IF TG_TABLE_NAME='v4_demo_sessions' THEN
+  IF to_jsonb(s) IS DISTINCT FROM to_jsonb(NEW) THEN
+   RAISE EXCEPTION 'demo one control per transaction' USING ERRCODE='23514'; END IF;
+  IF TG_OP='UPDATE' THEN
+   IF NOT EXISTS(SELECT 1 FROM business.v4_demo_receipts r WHERE r.id=NEW.last_receipt_id
+     AND r.owner_session_id=s.id AND r.tenant_id=tid
+     AND r.epoch_before=OLD.reset_epoch AND r.generation_before=OLD.auth_generation
+     AND r.reset_epoch=NEW.reset_epoch AND r.auth_generation=NEW.auth_generation
+     AND r.operation=CASE WHEN NEW.revoked_at IS NOT NULL THEN 'logout'
+       WHEN NEW.reset_epoch<>OLD.reset_epoch THEN 'reset' ELSE 'persona' END)
+   THEN RAISE EXCEPTION 'demo effect receipt missing' USING ERRCODE='23514'; END IF;
+  ELSIF NOT EXISTS(SELECT 1 FROM business.v4_demo_receipts r WHERE r.id=NEW.last_receipt_id
+    AND r.owner_session_id=s.id AND r.tenant_id=tid AND r.operation='session_create'
+    AND r.epoch_before=0 AND r.generation_before=0 AND r.reset_epoch=0 AND r.auth_generation=0)
+  THEN RAISE EXCEPTION 'demo creation receipt missing' USING ERRCODE='23514'; END IF;
  END IF;
  IF TG_TABLE_NAME='v4_demo_tenants' AND TG_OP='UPDATE' AND NEW.reset_epoch<>OLD.reset_epoch THEN
   IF NOT EXISTS(SELECT 1 FROM business.v4_demo_receipts r WHERE r.tenant_id=tid
    AND r.operation='reset' AND r.epoch_before=OLD.reset_epoch AND r.reset_epoch=NEW.reset_epoch)
   THEN RAISE EXCEPTION 'demo reset receipt missing' USING ERRCODE='23514'; END IF;
  END IF;
+ IF TG_TABLE_NAME='v4_demo_events' THEN
+  IF NOT EXISTS(SELECT 1 FROM business.v4_demo_receipts r
+    WHERE r.id=NEW.receipt_id AND r.owner_session_id=NEW.owner_session_id
+    AND r.tenant_id=NEW.tenant_id AND r.reset_epoch=NEW.reset_epoch
+    AND r.auth_generation=NEW.auth_generation AND (
+     (r.operation='session_create' AND NEW.event_kind IN
+       ('demo.session_created','demo.seed_materialized'))
+     OR (r.operation='persona' AND NEW.event_kind='demo.persona_changed')
+     OR (r.operation='reset' AND NEW.event_kind='demo.reset_committed')
+     OR (r.operation='logout' AND NEW.event_kind='demo.session_revoked')))
+  THEN RAISE EXCEPTION 'demo event binding invalid' USING ERRCODE='23514'; END IF;
+ END IF;
  IF TG_TABLE_NAME='v4_demo_receipts' THEN
   req:=NEW.canonical_request::jsonb;
-  IF NEW.owner_session_id<>s.id OR NEW.retain_until<>t.retain_until
-   OR (req#>>'{body,request_key}') IS DISTINCT FROM NEW.request_key::text
-   OR req->>'method'<>'POST' OR req->>'path' IS DISTINCT FROM
-    '/api/v4/demo/'||CASE NEW.operation WHEN 'session_create' THEN 'sessions' ELSE NEW.operation END
+  IF clock_timestamp()>=t.expires_at
+   OR NEW.owner_session_id IS DISTINCT FROM s.id OR NEW.id IS DISTINCT FROM s.last_receipt_id
+   OR NEW.reset_epoch IS DISTINCT FROM s.reset_epoch
+   OR NEW.auth_generation IS DISTINCT FROM s.auth_generation
+   OR NEW.retain_until IS DISTINCT FROM t.retain_until
+   OR NOT coalesce(business.v4_demo_request_valid(req,NEW.operation,NEW.request_key,
+     NEW.epoch_before,NEW.generation_before,t.fixture_version,s.persona_id),false)
+   OR (SELECT count(*) FROM business.v4_demo_events e WHERE e.receipt_id=NEW.id)
+      <>CASE WHEN NEW.operation='session_create' THEN 2 ELSE 1 END
    OR NOT EXISTS(SELECT 1 FROM business.v4_demo_events e WHERE e.receipt_id=NEW.id
       AND e.tenant_id=tid AND e.owner_session_id=s.id
       AND e.reset_epoch=NEW.reset_epoch AND e.auth_generation=NEW.auth_generation
@@ -331,7 +415,8 @@ BEGIN
    OR (NEW.operation='persona' AND (NEW.reset_epoch<>NEW.epoch_before
       OR NEW.auth_generation<>NEW.generation_before+1))
    OR (NEW.operation='reset' AND (NEW.reset_epoch<>NEW.epoch_before+1
-      OR NEW.auth_generation<>NEW.generation_before+1))
+      OR NEW.auth_generation<>NEW.generation_before+1
+      OR EXISTS(SELECT 1 FROM business.v4_demo_overlays WHERE tenant_id=tid)))
    OR (NEW.operation='logout' AND (NEW.reset_epoch<>NEW.epoch_before
       OR NEW.auth_generation<>NEW.generation_before))
   THEN RAISE EXCEPTION 'demo receipt transition invalid' USING ERRCODE='23514'; END IF;
@@ -357,11 +442,9 @@ BEGIN
  IF b.id IS NULL OR b.consumed_at IS NOT NULL OR b.create_request_key IS DISTINCT FROM rkey
   OR stamp>=b.expires_at OR f.version IS NULL OR public_hash=private_hash
   OR public_hash=b.token_hash OR private_hash=b.token_hash
-  OR body->>'method'<>'POST' OR body->>'path'<>'/api/v4/demo/sessions'
-  OR body#>>'{body,request_key}' IS DISTINCT FROM rkey::text
-  OR body#>>'{body,fixture_version}' IS DISTINCT FROM f.version
-  OR (body->'body')-ARRAY['request_key','fixture_version']<>'{}'::jsonb
-  OR request_digest<>encode(sha256(convert_to(request_text,'UTF8')),'hex')
+  OR NOT coalesce(business.v4_demo_request_valid(body,'session_create',rkey,0,0,
+    f.version,'operator'),false)
+  OR request_digest IS DISTINCT FROM encode(sha256(convert_to(request_text,'UTF8')),'hex')
   OR EXISTS(SELECT 1 FROM business.web_sessions WHERE token_hash=public_hash)
   OR EXISTS(SELECT 1 FROM business.v4_demo_sessions WHERE token_hash=private_hash)
  THEN RAISE EXCEPTION 'demo provision denied' USING ERRCODE='23514'; END IF;
@@ -410,9 +493,10 @@ BEGIN
  VALUES(wid,private_hash,'session',org,operator_id,operator_identity,auth,
   private_csrf_hash,keyver,stamp,stamp,expiry,expiry);
  INSERT INTO business.v4_demo_sessions
-  (id,tenant_id,bootstrap_id,creation_request_key,token_hash,persona_id,principal_id,identity_id,
+  (id,tenant_id,bootstrap_id,creation_request_key,last_receipt_id,token_hash,persona_id,
+ principal_id,identity_id,
    bound_web_session_id,auth_version,csrf_nonce,csrf_digest,key_version,created_at,expires_at)
- VALUES(sid,tid,bid,rkey,public_hash,'operator',operator_id,operator_identity,wid,auth,
+ VALUES(sid,tid,bid,rkey,rid,public_hash,'operator',operator_id,operator_identity,wid,auth,
   nonce,csrf_hash,keyver,stamp,expiry);
  INSERT INTO business.v4_demo_receipts(id,owner_session_id,tenant_id,operation,request_key,
   canonical_request,payload_digest,epoch_before,generation_before,reset_epoch,auth_generation,
@@ -450,6 +534,7 @@ def upgrade() -> None:
                 "EXECUTE FUNCTION business.v4_demo_commit_guard()"
             )
     for signature in (
+        "v4_demo_request_valid(jsonb,text,uuid,bigint,bigint,text,text)",
         "v4_demo_guard()",
         "v4_demo_commit_guard()",
         "v4_demo_provision(uuid,uuid,text,text,text,uuid,uuid,text,uuid,text,text,text,text)",
