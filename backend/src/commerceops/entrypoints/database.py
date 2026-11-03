@@ -99,6 +99,33 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
                     )
                 )
 
+        daily_ops = connection.execute(
+            "SELECT to_regclass('business.p6_daily_schedules') AS name"
+        ).fetchone()
+        if daily_ops and daily_ops["name"] is not None:
+            connection.execute(r"""
+REVOKE ALL ON business.p6_daily_schedules,business.p6_daily_destinations,
+business.p6_daily_schedule_runs,business.p6_daily_questions,business.p6_daily_deliveries,
+business.p6_daily_fake_receipts FROM commerceops_app""")
+            connection.execute(
+                r"""GRANT SELECT ON business.p6_daily_schedules,business.p6_daily_destinations TO
+commerceops_app"""
+            )
+            connection.execute(r"""
+GRANT SELECT,INSERT ON business.p6_daily_schedule_runs,business.p6_daily_questions,
+business.p6_daily_deliveries,business.p6_daily_fake_receipts TO commerceops_app""")
+            connection.execute(
+                r"""GRANT UPDATE(enabled,pause_reason,last_created_day,updated_at) ON
+business.p6_daily_schedules TO commerceops_app"""
+            )
+            connection.execute(
+                r"""GRANT UPDATE(status,attempts,external_id,failure_code,claimed_by,updated_at) ON
+business.p6_daily_deliveries TO commerceops_app"""
+            )
+            connection.execute(
+                "GRANT EXECUTE ON FUNCTION business.p6_schedule_current(uuid) TO commerceops_app"
+            )
+
         source_table = connection.execute(
             "SELECT to_regclass('business.p5_commerce_source_bindings') AS name"
         ).fetchone()

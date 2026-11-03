@@ -112,6 +112,15 @@ async def mark_attention(db: AsyncConnection[dict[str, Any]], owner: str) -> Non
         if daily_row and daily_row["name"] is not None
         else ""
     )
+    questions = await (
+        await db.execute("SELECT to_regclass('business.p6_daily_questions') AS name")
+    ).fetchone()
+    if questions and questions["name"] is not None:
+        daily_guard += (
+            " AND NOT (t.kind='daily_question' AND t.state='completed' AND EXISTS "
+            "(SELECT 1 FROM business.p6_daily_questions q WHERE q.task_id=t.id "
+            "AND q.organization_id=t.organization_id AND q.shop_id=t.shop_id))"
+        )
     await db.execute(
         sql.SQL("""UPDATE business.business_tasks t SET state='needs_attention',
         failure_code='WORKER_TERMINATION_UNCONFIRMED',version=version+1,updated_at=clock_timestamp()

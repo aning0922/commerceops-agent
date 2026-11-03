@@ -186,6 +186,17 @@ class DailyStore:
         )
         if metadata.source(request.daily_source.source_binding_id) != request.daily_source:
             raise DailyUnsafe("DAILY_SOURCE_BINDING_CHANGED")
+        present = await (
+            await db.execute("SELECT to_regclass('business.p6_daily_schedule_runs') AS name")
+        ).fetchone()
+        if present and present["name"] is not None:
+            current = await (
+                await db.execute(
+                    "SELECT business.p6_schedule_current(%s) AS allowed", (task["id"],)
+                )
+            ).fetchone()
+            if not current or not current["allowed"]:
+                raise DailyUnsafe("DAILY_SCHEDULE_CHANGED")
         return metadata
 
     async def existing(self, run: RunRequest) -> StoredDaily | None:
@@ -215,6 +226,25 @@ class DailyStore:
                 updated_at=clock_timestamp() WHERE id=%s""",
                     (run.task_id,),
                 )
+                # 独立持久实际开始回执；queued/due/collection三种时间不混记。
+                scheduled = await (
+                    await db.execute(
+                        "SELECT to_regclass('business.p6_daily_schedule_runs') AS name"
+                    )
+                ).fetchone()
+                if scheduled and scheduled["name"] is not None:
+                    await db.execute(
+                        r"""
+INSERT INTO business.audit_events(id,organization_id,task_id,actor_id,source,action,
+entity_type,entity_id,after_state,trace_id) SELECT
+%s,t.organization_id,t.id,t.requester_id,'daily',
+'schedule_run_started','daily_schedule_run',r.id::text,jsonb_build_object('due_at',r.due_at),%s
+FROM business.business_tasks t JOIN business.p6_daily_schedule_runs r ON
+r.task_id=t.id
+WHERE t.id=%s AND NOT EXISTS(SELECT 1 FROM business.audit_events a
+WHERE a.task_id=t.id AND a.source='daily' AND a.action='schedule_run_started')""",
+                        (uuid4(), uuid4(), run.task_id),
+                    )
                 return request, metadata
 
         task = asyncio.create_task(operation())
@@ -353,6 +383,16 @@ class DailyStore:
                     run.task_id,
                 ),
             )
+            operations = await (
+                await db.execute("SELECT to_regclass('business.p6_daily_deliveries') AS name")
+            ).fetchone()
+            saved = StoredDaily(report_id, snapshot, report, receipt)
+            if operations and operations["name"] is not None:
+                from commerceops.infrastructure.daily_delivery import enqueue_delivery
+
+                await enqueue_delivery(
+                    db, run.task_id, saved, fake_enabled=self.files.fake_delivery_enabled
+                )
             await db.execute(
                 """INSERT INTO business.audit_events(id,organization_id,task_id,actor_id,
             source,action,entity_type,entity_id,after_state,trace_id)
@@ -374,7 +414,7 @@ class DailyStore:
                 ),
             )
             await self.session.check()
-            return StoredDaily(report_id, snapshot, report, receipt)
+            return saved
 
     async def fail(self, run: RunRequest, code: str) -> None:
         if code not in {
@@ -383,6 +423,7 @@ class DailyStore:
             "DAILY_PERMISSION_INVALID",
             "DAILY_SOURCE_BINDING_CHANGED",
             "DAILY_STORAGE_FAILURE",
+            "DAILY_SCHEDULE_CHANGED",
             "DAILY_WORKFLOW_UNSAFE",
         }:
             raise DailyUnsafe()
@@ -400,6 +441,7 @@ class DailyStore:
                     "DAILY_SOURCE_BINDING_CHANGED",
                     "DAILY_WORKFLOW_UNSAFE",
                     "DAILY_STORAGE_FAILURE",
+                    "DAILY_SCHEDULE_CHANGED",
                 }
                 else "failed"
             )
