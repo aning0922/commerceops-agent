@@ -210,6 +210,16 @@ def verify_receipt(db: Any, receipt: dict[str, Any], template_key: str) -> dict[
     return {"receipt": receipt, "event": event, "effects": effects, "effect_state": state}
 
 
+def preview_state(attempt: dict[str, Any], rows: list[dict[str, Any]]) -> str:
+    if len(rows) > 1:
+        raise ValueError("FINAL_PREVIEW_KEY_NOT_UNIQUE")
+    if "SQL_ROLLBACK_VERIFIED" in attempt["observations"] and rows:
+        raise ValueError("FINAL_ROLLED_BACK_PREVIEW_PERSISTED")
+    if "COMMITTED_READBACK" in attempt["observations"] and (not rows or not rows[0]["published"]):
+        raise ValueError("FINAL_PUBLISHED_PREVIEW_READBACK_MISSING")
+    return "PUBLISHED" if rows and rows[0]["published"] else "UNKNOWN"
+
+
 def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
     results = []
     for entry in subjects["scopes"].values():
@@ -239,19 +249,12 @@ def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
                     ).format(where),
                     (*params, attempt["request_key"]),
                 ).fetchall()
-                if len(rows) > 1:
-                    raise ValueError("FINAL_PREVIEW_KEY_NOT_UNIQUE")
-                if "SQL_ROLLBACK_VERIFIED" in attempt["observations"] and rows:
-                    raise ValueError("FINAL_ROLLED_BACK_PREVIEW_PERSISTED")
-                if "COMMITTED_READBACK" in attempt["observations"] and (
-                    not rows or not rows[0]["published"]
-                ):
-                    raise ValueError("FINAL_PUBLISHED_PREVIEW_READBACK_MISSING")
+                state = preview_state(attempt, rows)
                 actions.append(
                     {
                         "attempt": attempt,
                         "jobs": rows,
-                        "db_state": "PUBLISHED" if rows and rows[0]["published"] else "UNKNOWN",
+                        "db_state": state,
                     }
                 )
             else:

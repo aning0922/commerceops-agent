@@ -1,12 +1,13 @@
 """Registry/export and independent digest boundaries only; no PG facts are fabricated."""
 
+import copy
 import json
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
-from .final_facts import decode_subjects, effect_digest
+from .final_facts import decode_subjects, effect_digest, preview_state
 from .subjects import frozen_subjects, registry
 
 pytestmark = pytest.mark.offline
@@ -47,4 +48,25 @@ def test_effect_summary_is_order_stable_and_binds_object_payload_and_operation()
             [{**rows[0], "payload_digest": "c" * 64}, rows[1]], "import_confirm", "product_id"
         )
         != expected
+    )
+
+
+@pytest.mark.parametrize("rows", [[], [{"published": False}]])
+def test_committed_preview_readback_cannot_disappear_into_unknown(
+    rows: list[dict[str, bool]],
+) -> None:
+    attempt = {"observations": ["ATTEMPT_STARTED", "ACK_OK", "COMMITTED_READBACK"]}
+    original = copy.deepcopy(attempt)
+    with pytest.raises(ValueError, match="FINAL_PUBLISHED_PREVIEW_READBACK_MISSING"):
+        preview_state(attempt, rows)
+    assert attempt == original
+
+
+def test_unconfirmed_preview_unknown_and_actual_published_stay_distinct() -> None:
+    attempt = {"observations": ["ATTEMPT_STARTED", "ACK_UNKNOWN", "UNKNOWN_READBACK"]}
+    assert preview_state(attempt, []) == "UNKNOWN"
+    assert preview_state(attempt, [{"published": False}]) == "UNKNOWN"
+    assert (
+        preview_state({"observations": ["COMMITTED_READBACK"]}, [{"published": True}])
+        == "PUBLISHED"
     )
