@@ -1,4 +1,4 @@
-import {expect,type Page,type Request,type Response} from '@playwright/test';
+import {expect,type Page,type Request,type Response,type Route} from '@playwright/test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import businessSchema from '../lib/v41-schema.json' with {type:'json'};
@@ -29,10 +29,10 @@ export function waitApi(page:Page,api:string,path:string,method='GET'){
 export async function installBusinessJournal(page:Page,api:string,writer:SubjectWriter,getIdentity:()=>Identity|null){
  type Operation='preview'|'product_tags'|'order_fulfillment'|'import_confirm';
  type Entry={context:Identity;shop:string;key:string;operation:Operation};
- const active=new Map<Request,Entry>(),writes=new Set<Promise<void>>();let failure=false;
+ const active=new Map<Request,Entry>(),writes=new Set<Promise<void>>(),routes=new Set<Promise<void>>();let failure=false;
  const enqueue=(job:Promise<void>)=>{writes.add(job);void job.then(()=>writes.delete(job),()=>{failure=true;writes.delete(job);});};
  const classify=(path:string):Operation|null=>path==='/api/v4/imports/previews'?'preview':/^\/api\/v4\/products\/[0-9a-f-]+\/tags$/i.test(path)?'product_tags':/^\/api\/v4\/orders\/[0-9a-f-]+\/fulfillment$/i.test(path)?'order_fulfillment':/^\/api\/v4\/imports\/[0-9a-f-]+\/confirm$/i.test(path)?'import_confirm':null;
- await page.route(api+'/api/v4/**',async route=>{
+ const dispatch=async(route:Route)=>{
   const request=route.request(),url=new URL(request.url()),operation=request.method()==='POST'&&url.origin===api?classify(url.pathname):null;
   if(!operation){await route.continue();return;}
   const identity=getIdentity();let body:Record<string,unknown> & {shop_id?:string;request_key?:string;expected_epoch?:number;expected_generation?:number};
@@ -43,14 +43,15 @@ export async function installBusinessJournal(page:Page,api:string,writer:Subject
   const entry={context:{...fresh.context},shop:body.shop_id,key:body.request_key,operation};
   try{await writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ATTEMPT_STARTED',{method:'POST',path:url.pathname,body});}
   catch{failure=true;await route.abort();return;}
-  active.set(request,entry);try{await route.continue();}catch{failure=true;active.delete(request);enqueue(Promise.resolve().then(()=>writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ACK_UNKNOWN')));} 
- });
+  active.set(request,entry);try{await route.continue();}catch{failure=true;if(active.delete(request))enqueue(Promise.resolve().then(()=>writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ACK_UNKNOWN')));}
+ };
+ await page.route(api+'/api/v4/**',route=>{const job=dispatch(route);routes.add(job);void job.then(()=>routes.delete(job),()=>{failure=true;routes.delete(job);});return job;});
  page.on('response',response=>{
   const entry=active.get(response.request());if(!entry)return;active.delete(response.request());
   enqueue((async()=>{let state:SubjectState='ACK_UNKNOWN';try{const body=await response.json();const schemaName=entry.operation==='preview'?'BusinessEnvelope_ImportPreviewData_':'BusinessEnvelope_ActionResult_';const valid=validator('business',schemaName)(body)&&sameScope(body?.context,entry.context,entry.shop)&&(entry.operation==='preview'||body?.data?.receipt?.request_key===entry.key);if(response.ok()&&valid&&body?.status==='COMMITTED')state='ACK_COMMITTED';else if(response.ok()&&valid&&body?.status==='OK')state='ACK_OK';else if(!response.ok()&&body?.status==='REJECTED'&&validator('business','FailureEnvelope')(body))state='ACK_REJECTED';}catch{}await writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,state);})());
  });
  page.on('requestfailed',request=>{const entry=active.get(request);if(!entry)return;active.delete(request);enqueue(Promise.resolve().then(()=>writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ACK_UNKNOWN')));});
- return {async flush(){await Promise.allSettled([...writes]);if(failure||active.size)throw new Error('SUBJECT_JOURNAL_FAILED');},pending:()=>active.size};
+ return {async flush(){while(routes.size||writes.size)await Promise.allSettled([...routes,...writes]);if(failure||active.size)throw new Error('SUBJECT_JOURNAL_FAILED');},pending:()=>active.size};
 }
 /** Read the real session inside the browser and return only a whitelisted, CSRF-redacted DTO. */
 export async function safeSession(page:Page,api:string){
