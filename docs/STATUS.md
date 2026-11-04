@@ -1,3 +1,14 @@
+## 当前归档状态（2026-11-04，台北）
+
+V41-01—06 六卡的合同受控本地实现、运行、AI工程视觉及交付文档已核收，V4-1本地阶段完成。
+当前暂停后续开发，归档/PR 正待主控推进并合入 main；PR与实际main合并结果须另行登记。
+主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)（主控集成时提供）。
+以 [V4文档入口](v4/README.md)、[V4-1交付核收](v4/acceptance/v4-1/REVIEW.md)、
+[分层测试矩阵](v4/acceptance/v4-1/QA_RESULTS.json) 与 [原图索引](v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json) 为导航。
+本地六卡完成不代表原99功能/66页全部完成；人工视觉、真机touch、外部业务、Hosted与生产边界保留。
+用户尚未交新研究，V4-2未启动，旧V4-2及以后路线仅作历史参考，不作为下阶段计划。
+原预算、失败/UNKNOWN、各来源Gate及保留资源不改写；下文均保留其记录时点，旧“未PR/main”等不预填本次归档结果。
+
 2026-11-04 V4-1 六卡本地 Gate 已核收：统一业务/QA源码 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e` / tree `34da95131e04d7360ea8aa5250ea40215bcb0713`，已正常推送阶段分支。当前同源 235 Python、74 Node、Native40纯组件、完整TS及33项Mock通过；r10新owned API/PG/Web双spec、11业务key/10手机子集、最终SQL0、Native五图原几何及独立清理已由Main `4e4741a` 核收。40原图（32业务/3Shell/5Native）经Root/Terra实际AI视觉核查无P1/P2，人工审批/真机触摸未验；部分手机表格右列需横滚的静态证据限制保留。4fec完整工程4601、e7严格FullPG773、54ab四HTTP案按各自原source保留，不改挂最终SHA。最新canonical scanner261 wrapper0、history原生1/已审1760/阻断0；refs变化与允许生成文件差异写实。所有临时验收服务关闭，业务验收卷保留，旧失败/UNKNOWN不覆盖。交付文档一致性已独审核收，V4-1本地阶段完成，详见[阶段交付](v4/acceptance/v4-1/REVIEW.md)、[测试矩阵](v4/acceptance/v4-1/QA_RESULTS.json)、[原图索引](v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json)。未进入V4-2，未PR/main/Hosted/真实provider/Woo写/飞书外发/生产。下方为各自历史时点。
 
 2026-11-04 V4-1收口范围补齐：scope审查确认原规划批量标记未交付、真实业务手机Gate不足，Root已冻结当前页串行标签与1440/1280/390真实业务补充合同；ef0ae澄清reserved pending仅严格COMMITTED+fresh读回才清，a66cb独审核收，原accepted库/后端/权限不改。WEB/QA分路径并行实施，不能签六卡complete。r8业务10120ms通过、3次currentFacts精确关联通过，完整Shell在Native采集前首图超时失败；全资源关闭保卷，原具体await仍UNKNOWN，Native定位器已证源码缺陷并窄修。完整工程4fec/FullPG e7双线773已核，eb30完整scanner0/历史native1已审1760无阻断，第40批已推且Actions[]。阶段继续不V4-2。见[补充合同](v4/v4-1/BATCH_AND_MOBILE_ADDENDUM.md)、[范围审查](v4/v4-1/reviews/SCOPE_GAPS_eb30.md)。以下按历史时点保留。
