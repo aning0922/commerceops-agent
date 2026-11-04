@@ -39,7 +39,7 @@ test('UI_FIXTURE: late denied write cannot clear a newly selected shop',async({p
  let release!:()=>void;const wait=new Promise<void>(resolve=>{release=resolve;});let dispatched!:()=>void;const sent=new Promise<void>(resolve=>{dispatched=resolve;});
  await fixture(page,async route=>{const url=new URL(route.request().url());if(url.pathname.endsWith('/tags')){dispatched();await wait;return route.fulfill({status:401,json:failure});}return route.fulfill({json:{...business,context:{...identity,shop_id:url.searchParams.get('shop_id')},data:detail}});});
  await openDetail(page);await page.getByRole('button',{name:'编辑标签'}).click();await page.getByLabel('标签（逗号分隔，最多 8 项）').fill('新标签');await page.getByRole('button',{name:'确认保存'}).click();await sent;
- await page.getByLabel('店铺').selectOption(other);await expect(page.getByLabel('店铺')).toHaveValue(other);release();await expect(page.getByLabel('店铺')).toHaveValue(other);await expect(page.getByRole('button',{name:'退出'})).toBeVisible();
+ await page.getByLabel('详情店铺').selectOption(other);await expect(page.getByLabel('详情店铺')).toHaveValue(other);release();await expect(page.getByLabel('详情店铺')).toHaveValue(other);await expect(page.getByRole('button',{name:'退出演示'})).toBeVisible();
 });
 
 for(const stage of ['lookup','readback'] as const)test(`UI_FIXTURE: current recovery ${stage} denial clears and retains original key`,async({page})=>{
@@ -49,13 +49,13 @@ for(const stage of ['lookup','readback'] as const)test(`UI_FIXTURE: current reco
   const url=new URL(route.request().url());if(url.pathname.includes('/actions/')){lookups++;if(stage==='lookup')return route.fulfill({status:403,json:failure});return route.fulfill({json:{...business,context:{...identity,shop_id:id},data:{operation:'product_tags',request_key:key,status:'COMMITTED',receipt:{receipt_id:id,operation:'product_tags',request_key:key,payload_digest:digest,resource_id:product,resource_version:1,committed_at:now,before_revision:digest,after_revision:after}}}});}
   if(lookups&&stage==='readback')return route.fulfill({status:403,json:failure});return route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}});
  });
- await openDetail(page);await page.getByRole('button',{name:'核对原业务操作'}).click();await expect(page.getByText('当前身份或店铺无法验证，请重新核对会话。')).toBeVisible();await expect(page.getByRole('heading',{name:'测试商品'})).toHaveCount(0);expect(JSON.parse((await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending')))!).request_key).toBe(key);
+ await openDetail(page);await page.getByRole('dialog',{name:'商品详情'}).getByRole('button',{name:'核对原业务操作'}).click();await expect(page.getByText('当前身份或店铺无法验证，请重新核对会话。')).toBeVisible();await expect(page.getByRole('heading',{name:'测试商品'})).toHaveCount(0);expect(JSON.parse((await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending')))!).request_key).toBe(key);
 });
 
 test('UI_FIXTURE: pending business evidence does not disable logout after reload',async({page})=>{
  await page.addInitScript(value=>sessionStorage.setItem('commerceops-v41-pending',JSON.stringify(value)),pending);
  await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
- await openDetail(page);await page.reload();await expect(page.getByRole('button',{name:'退出'})).toBeEnabled();await page.getByRole('button',{name:'退出'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
+ await openDetail(page);await page.reload();await expect(page.getByRole('button',{name:'退出演示'})).toBeEnabled();await page.getByRole('button',{name:'退出演示'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
  expect(JSON.parse((await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending')))!).request_key).toBe(key);
 });
 
@@ -70,5 +70,5 @@ test('UI_FIXTURE: nonprinting tag is rejected before a write key or request exis
 
 test('UI_FIXTURE: a shop selection is restored only after a fresh matching session',async({page})=>{
  await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
- await openDetail(page);await page.reload();await expect(page.getByLabel('店铺')).toHaveValue(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();
+ await openDetail(page);await page.reload();await expect(page.getByLabel('详情店铺')).toHaveValue(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();
 });
