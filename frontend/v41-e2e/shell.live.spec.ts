@@ -1,4 +1,4 @@
-import {test,expect,type Response,type APIResponse,type Request,type Route} from '@playwright/test';
+import {test,expect,type Response,type APIResponse,type Request,type Route,type Frame} from '@playwright/test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import {mkdirSync,writeFileSync} from 'node:fs';
@@ -83,14 +83,29 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   async function restoreOriginal(){
     await page.bringToFront();
     await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('visible');
-    const renewed=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/session'&&r.request().method()==='GET');
-    await page.reload();const restored=await session(await renewed);
-    for(const key of identityFields)expect(restored.context[key]).toBe(current.context[key]);
-    expect(restored.data.creation_request_key).toBe(current.data.creation_request_key);
-    expect(restored.data.persona_id).toBe('operator');expect(await sameCookies()).toEqual(originalCookies);
-    await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
-    await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
-    expect(creates).toBe(1);
+    let committed=false;
+    const sessionRequests=new Set<Request>();
+    const trackCommit=(frame:Frame)=>{if(frame===page.mainFrame())committed=true;};
+    const trackRequest=(request:Request)=>{
+      if(committed&&request.url()===sessionCookieURL&&request.method()==='GET'&&request.frame()===page.mainFrame())sessionRequests.add(request);
+    };
+    page.on('framenavigated',trackCommit);page.on('request',trackRequest);
+    const renewed=page.waitForResponse(response=>sessionRequests.has(response.request()));
+    try{
+      await page.reload();
+      const response=await renewed;
+      expect(committed).toBe(true);expect(sessionRequests.has(response.request())).toBe(true);
+      expect(await response.finished()).toBeNull();
+      const restored=await session(response);
+      for(const key of identityFields)expect(restored.context[key]).toBe(current.context[key]);
+      expect(restored.data.creation_request_key).toBe(current.data.creation_request_key);
+      expect(restored.data.persona_id).toBe('operator');expect(await sameCookies()).toEqual(originalCookies);
+      await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
+      await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
+      expect(creates).toBe(1);
+    }finally{
+      page.off('framenavigated',trackCommit);page.off('request',trackRequest);
+    }
   }
   async function currentFacts(){
     const reply=page.waitForResponse(r=>new URL(r.url()).origin===api&&new URL(r.url()).pathname==='/api/v4/read-context'&&r.request().method()==='GET');
