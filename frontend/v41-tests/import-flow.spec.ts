@@ -45,6 +45,8 @@ for(const format of ['csv','xlsx'] as const)test(`UI_FIXTURE: ${format} discover
  await page.reload();await page.getByLabel('店铺').selectOption(id);await page.getByRole('button',{name:'读取已保存预览'}).click();await expect(page.getByText(/状态 DISCOVERED/)).toBeVisible();
  if(format==='csv')await input.setInputFiles({name:'sample.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\nSKU-1,Demo,12,TWD\n')});else await input.setInputFiles(fileURLToPath(new URL('./fixtures/sample.xlsx',import.meta.url)));
  for(const [label,value] of [['SKU','sku'],['商品名称','title'],['价格','price'],['币种','currency']])await page.getByLabel(label,{exact:true}).selectOption(value);
+ await input.setInputFiles({name:`different.${format}`,mimeType:'application/octet-stream',buffer:Buffer.from('different')});await page.getByRole('button',{name:'确认映射并重新预览'}).click();await expect(page.getByText('文件或预览状态无法核验，未发送操作。')).toBeVisible();expect(previewCount).toBe(1);
+ if(format==='csv')await input.setInputFiles({name:'sample.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\nSKU-1,Demo,12,TWD\n')});else await input.setInputFiles(fileURLToPath(new URL('./fixtures/sample.xlsx',import.meta.url)));
  await page.getByRole('button',{name:'确认映射并重新预览'}).click();await expect(page.getByText(/状态 READY/)).toBeVisible();await page.getByRole('button',{name:'准备确认导入'}).click();await page.getByRole('button',{name:'确认导入',exact:true}).click();
  await expect(page.getByText(/导入未确认或结果未知/)).toBeVisible();await page.getByRole('button',{name:'核对原业务操作'}).click();await expect(page.getByText('已核对原导入回执和来源。')).toBeVisible();expect(previewCount).toBe(2);expect(confirmCount).toBe(1);expect(lookupCount).toBe(1);
 });
