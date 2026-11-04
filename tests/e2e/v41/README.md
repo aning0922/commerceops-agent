@@ -59,3 +59,10 @@ CSV/XLSX recipe走预览→原preview key只读查询→确认→原action key C
 本切片纯测只验证合成CSV/XLSX bytes、真实Ajv/精确已审b723schema与拒绝漂移，不发HTTP/连PG。
 Node依赖来自已锁公开工具字节，未装依赖或联网。API路由/SQL/grant的最终精确来源到达后仍须
 对齐状态码和接缝、独审再准入；当前runtime handoff未发布，所有业务执行仍NOT_RUN。
+
+Root8cb合入后的strict schema已同步：JobRef.data_revision/parser/import_schema版本参与首次
+confirm预检，preview保存值/请求值/当前fresh读取三方一致；已提交原键十重放保留原请求。
+`kpi_reference.py`从原始seed账目独立按店铺自然日/Decimal核八项指标，不调用V41聚合；HTTP
+候选recipe接入fixture摘要、同源类型、八指标及导入仅增加商品/未知库存的金标检查。金标纯测
+覆盖TWD/CNY、未知付款、退款事件非结算、空分母、跨本地午夜/来源窗口、导入不造销量。
+这是金标代码与静态输入验证，真实HTTP/SQL及并发、权限竞争/事务中断等专项仍待实际来源接线。

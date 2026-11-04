@@ -6,7 +6,7 @@ import io
 import json
 import subprocess
 import zipfile
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -17,6 +17,7 @@ from tests.e2e.v4.http_probe import Visitor
 from tests.e2e.v4.owned_adapter import OwnedAdapter, compose_environment, owner_run
 from tests.e2e.v4.supervisor import Budget
 
+from .kpi_reference import assert_metrics, reference
 from .owned_driver import ROOT, Case
 from .runner import persist
 
@@ -235,6 +236,39 @@ class Business:
         return counts
 
 
+def seed_dashboard_golden(data: dict[str, Any], currency: str, imported: int = 0) -> None:
+    from commerceops.application.v4_demo.seed_contract import generate_seed
+
+    seed = generate_seed()
+    period = data["period"]
+    expected = reference(
+        seed.content.model_dump(mode="json"),
+        currency,
+        date.fromisoformat(period["from_date"]),
+        date.fromisoformat(period["to_date"]),
+        imported=imported,
+    )
+    assert_metrics(data, expected)
+    source = data["snapshot"]["source"]
+    if source["fixture_digest"] != seed.manifest.content_digest:
+        raise AssertionError("V41_KPI_WRONG_SEED_DIGEST")
+    if source["data_mode"] != ("demo_mixed" if imported else "demo_fixture"):
+        raise AssertionError("V41_KPI_WRONG_EFFECTIVE_SOURCE")
+
+
+def confirmation_fields(
+    job: dict[str, Any], preview_revision: str, current_revision: str
+) -> dict[str, Any]:
+    if job.get("data_revision") != preview_revision or current_revision != preview_revision:
+        raise ValueError("V41_PREVIEW_REVISION_CHANGED_REPREVIEW_REQUIRED")
+    if (
+        job.get("parser_version") != "v41-parser-1"
+        or job.get("import_schema_version") != "v41-import-1"
+    ):
+        raise ValueError("V41_PREVIEW_PARSER_SCHEMA_CHANGED")
+    return {"expected_job_version": job["version"], "expected_job_digest": job["job_digest"]}
+
+
 def import_flow(business: Business, kind: str) -> None:
     before = business.call("products")["data"]
     original_counts = business.facts()
@@ -257,10 +291,10 @@ def import_flow(business: Business, kind: str) -> None:
     if counts["v41_import_products"] != original_counts["v41_import_products"]:
         raise AssertionError("V41_PREVIEW_WROTE_PRODUCT")
     job = preview["job"]
+    current_revision = business.call("products")["data"]["snapshot"]["data_revision"]
     confirm = business.write(
-        before["snapshot"]["data_revision"],
-        expected_job_version=job["version"],
-        expected_job_digest=job["job_digest"],
+        current_revision,
+        **confirmation_fields(job, before["snapshot"]["data_revision"], current_revision),
     )
     committed = business.call(
         "confirm", ids={"import_job_id": job["import_job_id"]}, payload=confirm
@@ -284,6 +318,7 @@ def import_flow(business: Business, kind: str) -> None:
     if len(found["items"]) != 1 or found["items"][0]["skus"][0]["label"] != sku:
         raise AssertionError("V41_IMPORTED_SKU_NOT_QUERYABLE")
     dashboard = business.call("dashboard")["data"]
+    seed_dashboard_golden(dashboard, currency, imported=1)
     metric = next(m for m in dashboard["metrics"] if m["metric"] == "product_count")
     from decimal import Decimal
 
@@ -384,10 +419,9 @@ def invalid_import_is_atomic(business: Business) -> None:
     if preview["confirmable"] or preview["state"] != "INVALID" or preview["issue_count"] < 1:
         raise AssertionError("V41_INVALID_ROW_ACCEPTED")
     job = preview["job"]
+    current_revision = business.call("products")["data"]["snapshot"]["data_revision"]
     confirm = business.write(
-        snapshot["data_revision"],
-        expected_job_version=job["version"],
-        expected_job_digest=job["job_digest"],
+        current_revision, **confirmation_fields(job, snapshot["data_revision"], current_revision)
     )
     business.call(
         "confirm", ids={"import_job_id": job["import_job_id"]}, payload=confirm, expected=(409,)
@@ -441,6 +475,7 @@ def main() -> None:
         elif case.scenario == "dashboard_same_source":
             products = business.call("products")["data"]
             dashboard = business.call("dashboard")["data"]
+            seed_dashboard_golden(dashboard, business.shop["currency"])
             if products["snapshot"]["data_revision"] != dashboard["snapshot"]["data_revision"]:
                 raise AssertionError("V41_READS_MIXED_REVISION")
         elif case.scenario == "catalog_orders":

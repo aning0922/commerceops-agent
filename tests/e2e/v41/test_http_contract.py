@@ -13,11 +13,11 @@ from uuid import uuid4
 import pytest
 from defusedxml import ElementTree  # type: ignore[import-untyped]
 
-from .http_recipes import import_bytes
+from .http_recipes import confirmation_fields, import_bytes
 from .process import ROOT
 
 pytestmark = pytest.mark.offline
-SCHEMA_SOURCE = "b72331fa572d9d67ad176902283da721aeda4cf1"
+SCHEMA_SOURCE = "8cb673e5c38e98ce21fb1bb1d8b8d20fe5cdc181"
 
 
 @pytest.mark.parametrize("kind", ["csv", "xlsx"])
@@ -146,3 +146,79 @@ def test_real_strict_validator_rejects_drift_without_echoing_payload(
     )
     assert result.returncode in {1, 2} and not json.loads(result.stdout)["valid"]
     assert "private-sentinel" not in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize(
+    "saved,preview,current",
+    [("saved", "saved", "new"), ("saved", "new", "new"), ("new", "saved", "new")],
+)
+def test_confirmation_requires_all_three_revisions(saved: str, preview: str, current: str) -> None:
+    job = {
+        "data_revision": saved,
+        "version": 1,
+        "job_digest": "public-digest",
+        "parser_version": "v41-parser-1",
+        "import_schema_version": "v41-import-1",
+    }
+    with pytest.raises(ValueError, match="REPREVIEW_REQUIRED"):
+        confirmation_fields(job, preview, current)
+
+
+def test_confirmation_preserves_original_job_binding() -> None:
+    job = {
+        "data_revision": "same",
+        "version": 2,
+        "job_digest": "original-digest",
+        "parser_version": "v41-parser-1",
+        "import_schema_version": "v41-import-1",
+    }
+    assert confirmation_fields(job, "same", "same") == {
+        "expected_job_version": 2,
+        "expected_job_digest": "original-digest",
+    }
+    job["parser_version"] = "unexpected"
+    with pytest.raises(ValueError, match="PARSER_SCHEMA"):
+        confirmation_fields(job, "same", "same")
+
+
+@pytest.mark.parametrize("missing", ["data_revision", "parser_version"])
+def test_latest_job_ref_strict_schema_rejects_missing_revision_or_wrong_parser(
+    validator: tuple[Path, Path], missing: str
+) -> None:
+    node, spec = validator
+    payload = lookup()
+    payload["status"] = "OK"
+    data = payload["data"]
+    assert isinstance(data, dict)
+    data["status"] = "COMMITTED"
+    job = {
+        "import_job_id": str(uuid4()),
+        "version": 1,
+        "parent_job_id": None,
+        "job_digest": "a" * 64,
+        "data_revision": "b" * 64,
+        "parser_version": "v41-parser-1",
+        "import_schema_version": "v41-import-1",
+        "expires_at": "2026-11-04T00:10:00Z",
+    }
+    if missing == "data_revision":
+        del job["data_revision"]
+    else:
+        job["parser_version"] = "wrong"
+    data["job"] = job
+    request = {
+        "method": "GET",
+        "route": "/api/v4/imports/preview-requests/{request_key}",
+        "status": 200,
+        "payload": payload,
+    }
+    result = subprocess.run(
+        [str(node), str(spec)],
+        input=json.dumps(request),
+        capture_output=True,
+        text=True,
+        env={},
+        timeout=5,
+        check=False,
+    )
+    assert result.returncode == 1 and json.loads(result.stdout) == {"valid": False}
