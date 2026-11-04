@@ -2412,6 +2412,11 @@ V4_MERGE_COPY_ANCHORS: tuple[dict[str, str], ...] = (
         "path": "frontend/app/v4/[[...path]]/page.tsx",
         "blob": "6fe538b6de6f6532a8198476a0ca8a2dd9ca05ee",
     },
+    {
+        "source_commit": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+        "path": "frontend/app/v4/[[...path]]/page.tsx",
+        "blob": "7e2b1229c4544eb751925f38df0ffd5a658cb060",
+    },
 )
 
 

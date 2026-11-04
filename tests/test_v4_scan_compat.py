@@ -74,6 +74,11 @@ APPROVED_V41_COPY_ANCHORS: list[dict[str, str]] = [
         "path": "frontend/app/v4/[[...path]]/page.tsx",
         "blob": "6fe538b6de6f6532a8198476a0ca8a2dd9ca05ee",
     },
+    {
+        "source_commit": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+        "path": "frontend/app/v4/[[...path]]/page.tsx",
+        "blob": "7e2b1229c4544eb751925f38df0ffd5a658cb060",
+    },
 ]
 APPROVED_V41_PAGE11_BINDING: dict[str, object] = {
     "rule": "generic-api-key",
@@ -920,7 +925,7 @@ def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
     assert current["v4_merge_copy_anchors"] == (
         final_metadata["v4_merge_copy_anchors"] + APPROVED_V41_COPY_ANCHORS
     )
-    assert len(current["v4_merge_copy_anchors"]) == 40
+    assert len(current["v4_merge_copy_anchors"]) == 41
 
 
 @pytest.mark.parametrize("which", [2, 3, 4, 5, 36, 37])
@@ -1244,7 +1249,7 @@ def test_final_enum_preserves_rules_and_all_previous_approvals() -> None:
             assert len(old[field]) == 32 and len(final_metadata[field]) == 34
             assert final_metadata[field][:32] == old[field]
             assert new[field] == old[field] + final_metadata[field][32:] + APPROVED_V41_COPY_ANCHORS
-            assert len(new[field]) == 40
+            assert len(new[field]) == 41
         elif field == "v4_merge_copy_bindings":
             assert len(old[field]) == 7
             assert new[field] == old[field] + [APPROVED_V41_PAGE11_BINDING]
