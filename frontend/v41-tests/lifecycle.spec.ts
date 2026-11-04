@@ -100,5 +100,5 @@ test('UI_FIXTURE: old UNKNOWN survives logout while a verified new tenant can wr
  }));
  await openDetail(page);const preserved=await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'));await page.getByRole('button',{name:'退出演示'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
  await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByLabel('店铺').selectOption(id);
- await expect(page.getByRole('button',{name:'编辑标签'})).toBeEnabled();expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBe(preserved);expect(oldLookups).toBe(0);
+ await expect(page.getByRole('button',{name:'编辑标签'})).toBeEnabled();await expect(page.getByRole('dialog',{name:'商品详情'}).getByText('其他演示空间的未确认记录已保留；当前空间独立核对。')).toBeVisible();expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBe(preserved);expect(oldLookups).toBe(0);
 });
