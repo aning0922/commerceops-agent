@@ -140,6 +140,11 @@ def gc_tenant(db: DB, tenant_id: UUID) -> None:
         (t["organization_id"],),
     ).fetchone():
         raise ValueError("V4_GC_BUSINESS_DEPENDENCY")
+    revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
+    if revision == {"version_num": "0025_v41_catalog_operations"}:
+        from commerceops.infrastructure.v41_runtime import gc_effects
+
+        gc_effects(db, tenant_id)
     principals = db.execute(
         "SELECT principal_id FROM business.v4_demo_personas WHERE tenant_id=%s "
         "ORDER BY principal_id",

@@ -72,6 +72,7 @@ CREATE TABLE business.v41_action_receipts (
 CREATE TABLE business.v41_import_jobs (
  id uuid PRIMARY KEY,
  {IDENTITY},
+ canonical_preview_request text NOT NULL CHECK(octet_length(canonical_preview_request)<=16384),
  preview_key uuid NOT NULL,
  request_digest text NOT NULL CHECK(request_digest ~ '^[a-f0-9]{{64}}$'),
  file_digest text NOT NULL CHECK(file_digest ~ '^[a-f0-9]{{64}}$'),
@@ -106,6 +107,7 @@ CREATE TABLE business.v41_import_jobs (
  reset_epoch,auth_generation) REFERENCES business.v41_import_jobs
  (id,tenant_id,shop_id,owner_session_id,principal_id,reset_epoch,auth_generation),
  {LINKS},
+ CHECK(request_digest=encode(sha256(convert_to(canonical_preview_request,'UTF8')),'hex')),
  CHECK(expires_at>created_at AND expires_at<=created_at+interval '10 minutes'),
  CHECK(retain_until>expires_at),
  CHECK((parse_state='STOPPED')=(parse_slot IS NULL)),
@@ -299,9 +301,18 @@ BEGIN
  IF NOT allowed THEN RAISE EXCEPTION 'ACCESS_DENIED' USING ERRCODE='23514'; END IF;
  RETURN s;
 END $$;
+CREATE FUNCTION business.v41_read_guard(bearer text,binding text,shop uuid,epoch bigint,
+ generation bigint) RETURNS text LANGUAGE plpgsql SECURITY DEFINER
+SET search_path=pg_catalog,business AS $$
+DECLARE s business.v4_demo_sessions;
+BEGIN
+ s:=business.v41_actor(bearer,NULL,binding,shop,epoch,generation,false);
+ RETURN business.v41_revision(s.tenant_id,shop,s.reset_epoch);
+END $$;
 """
 
 SIGNATURES = (
+    "v41_read_guard(text,text,uuid,bigint,bigint)",
     "v41_canonical(jsonb)",
     "v41_hash(jsonb)",
     "v41_utc(timestamptz)",
@@ -313,7 +324,7 @@ SIGNATURES = (
 ACTION_FUNCTIONS = r"""
 CREATE FUNCTION business.v41_text_valid(value text) RETURNS boolean LANGUAGE sql IMMUTABLE
 SET search_path=pg_catalog,business AS $$
- SELECT coalesce(btrim(value)=value AND normalize(value,NFC)=value AND value !~ (
+ SELECT coalesce(btrim(value)=value AND normalize(value,NFC)=value AND value COLLATE "C" !~ (
  U&'[\0001-\001F\007F-\00A0\00AD\0378-\0379\0380-\0383\038B\038D\03A2\0530\0557-\0558' ||
  U&'\058B-\058C\0590\05C8-\05CF\05EB-\05EE\05F5-\0605\061C\06DD\070E-\070F\074B-\074C' ||
  U&'\07B2-\07BF\07FB-\07FC\082E-\082F\083F\085C-\085D\085F\086B-\086F\088F-\0897\08E2\0984' ||
@@ -993,11 +1004,12 @@ BEGIN
   ORDER BY n LIMIT 1;
  IF slot IS NULL THEN RAISE EXCEPTION 'RATE_LIMITED' USING ERRCODE='23514'; END IF;
  INSERT INTO business.v41_import_jobs(id,tenant_id,organization_id,shop_id,owner_session_id,
-  principal_id,reset_epoch,auth_generation,preview_key,request_digest,file_digest,data_revision,
+  principal_id,reset_epoch,auth_generation,preview_key,canonical_preview_request,request_digest,
+  file_digest,data_revision,
   parser_version,import_schema_version,requested_parent_job_id,chain_version,created_at,expires_at,
   retain_until,parse_state,parse_slot,lease_digest,process_ref)
  VALUES(gen_random_uuid(),s.tenant_id,t.organization_id,shop,s.id,s.principal_id,s.reset_epoch,
-  s.auth_generation,(body->>'request_key')::uuid,digest,req->>'file_digest',
+  s.auth_generation,(body->>'request_key')::uuid,canonical,digest,req->>'file_digest',
   body->>'expected_data_revision','v41-parser-1','v41-import-1',parent.id,version,stamp,
   least(stamp+interval '10 minutes',s.expires_at),t.retain_until,'RESERVED',slot,
   lease_digest,process_ref) RETURNING * INTO result;
@@ -1084,6 +1096,8 @@ BEGIN
  IF jsonb_typeof(data) IS DISTINCT FROM 'object' OR jsonb_typeof(rows) IS DISTINCT FROM 'array'
   OR jsonb_array_length(rows)>500 OR canonical IS DISTINCT FROM business.v41_canonical(data)
   OR normalized IS DISTINCT FROM business.v41_canonical(rows)
+  OR data->'mapping' IS DISTINCT FROM j.canonical_preview_request::jsonb->'command'->'mapping'
+  OR data->'mapping_version' IS DISTINCT FROM '1'::jsonb
   OR data->>'file_digest' IS DISTINCT FROM j.file_digest
   OR data->'job'->>'import_job_id' IS DISTINCT FROM j.id::text
   OR data->'job'->>'version' IS DISTINCT FROM j.chain_version::text
