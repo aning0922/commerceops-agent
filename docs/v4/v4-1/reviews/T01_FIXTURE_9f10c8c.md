@@ -1,0 +1,7 @@
+# V41 T01缺policy夹具修复复审
+
+日期：2026-11-04（台北）。source `9f10c8c5ad1a44fd487159b9f19955cab24af9b2`，tree `bf2ce5e1b05ffec2cec82ba89d126b8a2d53ba03`，parent `55ce78b841df0513e09d4e013d2857475fe64bf7`。唯一增量为test_business_pg.py八行。
+
+结论：ACCEPT_T01_FIXTURE_CODE_ONLY，T01源码层关闭。先直接调用Store并要求真实psycopg InsufficientPrivilege（42501类型），随后测试owner只授policy的active_version/config_digest两列SELECT，保持表无policy行，再要求Store WebFailure SERVICE_UNAVAILABLE。此时assert_policy可读到空结果，尚不会到SQL read_guard；之后才按原测试激活policy并授已审runtime权限，继续版本/配置反例。没有给private invocation_verifier、整表SELECT或DML，也没有通过提前激活policy伪装缺行。
+
+独立精确git archive仅collect：22节点，native0，2.96秒，无fixture执行。八行修复没有执行实际GRANT/PG，不能将collect写为22通过或Full准入。Root报告的旧772 ownerDDL SQLAlchemy bindtrue失败是另项实际事实；其后续修复需新精确SHA审查，不能由本测试修复代签。未读CLI WIP，无资源/远端操作。
