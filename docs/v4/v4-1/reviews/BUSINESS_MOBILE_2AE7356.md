@@ -40,3 +40,13 @@ spec精确126行在批量dialog按Escape后执行 `expect(batchButton).toBeFocus
 独立资源无关检查提取精确returnBatchFocus函数，使用Fake DOM refs/RAF：8个正常header、disabled fallback、身份scope漂移、hidden/offline及排队后失效场景符合预期；另按上述源码effect顺序构造同scope视图关闭，实际排入并调用header.focus，预期应为0。该结果是源码闭包/时序模型，不是React或浏览器实跑。原件目录 `/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/v41-focus-review-n1j97ojz` 的 `focus-closure.mjs` native0，保留供窄修复核。
 
 实际自动焦点、Mock33、业务两标题测试体仍NOT_RUN；作者TS/collect/preflight为转交结果，不记PASS。仅追加审查记录并普通冻结，无WIP读取、浏览器/服务/PG/build/网络操作，不push。
+
+## ee547b4焦点范围窄修：剩余P2源码关闭
+
+2026-11-04。结论：`FOCUS_P2_CLOSED_SOURCE_AND_BOUNDED_PURE_ONLY`。精确WEB `ee547b4a6b0823ac9a652081d507b157b22b86d5` / tree `09b5fd300d1d13e6334290f18a5e72c8de063c3d`，父 `28aff5ae9d6abe58a5c5b8c345e0ceb13d553046`；唯一修改business-pending.tsx，完整文件SHA256 `3efd7d68f0d82c90b2e69317b62cfa55bd40baec515396da4376a66737df650a`。原0ce13/6ec57发现与HOLD时点不改写。
+
+打开时和当前回焦绑定现均为非空editScope与view的JSON元组；无有效scope则空。原schedule前及RAF callback内两次相等检查因此同时拒绝同身份同店但view已变的关闭。正常用户取消仍自动选择当前enabled header，再fallback搜索/标题；原cleanup、dialog仍open拒绝、hidden/offline、原pending与撤batch行为未变。QA ec7的header自动焦点断言仍与该产品接口一致，没有新增测试手动focus。
+
+独立只提取本次精确binding表达式及原returnBatchFocus回调，复用Fake DOM/RAF检查4个限定场景，native0：正常关闭聚焦header；同scope换view后再触发close不schedule；排定后换view不focus；排定后身份scope变化不focus。原“cleanup先于onClose”反例已在新binding下拒绝排队。本轮没有重跑旧整体或父数据P2；React/真实DOM自动焦点仍未运行。
+
+纯原件保留于 `/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/v41-ee547-review-_y4sumvt/focus-binding-fixed.mjs`，SHA256 `282b0aa2a8bc1ed5c906bdd6406bbbd0e19b5123079839be8196722f9aeee0e5`。这只关闭本报告两个焦点源码问题；不代签父receipt新predicates、Mock33、真实phone/组合browser或未来r9。无资源启动、无WIP读取，指定预检后仅本文件普通追加冻结、不push。
