@@ -52,7 +52,7 @@ function CatalogPending({kind,detail,title,view,catalog}:{kind:'product'|'order'
   const products=kind==='product', data=catalog.data;
   const [tagDraft,setTagDraft]=useState<{token:string;value:TagDraft}|null>(null),[fulfillDraft,setFulfillDraft]=useState<{token:string}|null>(null);
   const item=products?catalog.detail?.product:catalog.detail?.order;
-  const draftToken=catalog.editScope&&item?JSON.stringify([catalog.editScope,kind,products?item.product_id:item.order_id,products?item.version:item.fulfillment_version]):null;
+  const draftToken=catalog.editScope&&item?JSON.stringify([catalog.editScope,kind,products?item.product_id:item.order_id,products?item.version:item.fulfillment_version,catalog.detail?.snapshot.data_revision]):null;
   useEffect(()=>{setTagDraft(null);setFulfillDraft(null);},[catalog.editScope,kind]);
   useEffect(()=>{if(draftToken){setTagDraft(old=>old&&old.token!==draftToken?null:old);setFulfillDraft(old=>old&&old.token!==draftToken?null:old);}},[draftToken]);
   useEffect(()=>{const element=drawer.current;if(!element)return;if(detail&&catalog.scopeToken&&!element.open)element.showModal();else if((!detail||!catalog.scopeToken)&&element.open)element.close();return ()=>{if(element.open)element.close();};},[detail,catalog.scopeToken]);
