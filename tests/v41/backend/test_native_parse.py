@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import time
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -26,7 +27,7 @@ def command(data: bytes = b"sku,title,price,currency\nNEW-1,Example,0.1,TWD\n") 
 
 
 def test_native_result_exit_reaped_and_no_raw_file() -> None:
-    events = []
+    events: list[Any] = []
     ref = uuid4()
     result = run_parser(command(), ref, lambda pid: events.append(pid), events.append)
     assert result.result.state == "READY" and result.result.products[0].price == "0.1"
@@ -38,7 +39,7 @@ def test_native_result_exit_reaped_and_no_raw_file() -> None:
 
 
 def test_binding_failure_kills_and_actually_reaps_before_stop() -> None:
-    events = []
+    events: list[Any] = []
 
     def bind(pid: int) -> None:
         events.append(pid)
@@ -53,9 +54,9 @@ def test_binding_failure_kills_and_actually_reaps_before_stop() -> None:
 
 
 def test_stop_persistence_failure_is_not_substituted_or_retried() -> None:
-    events = []
+    events: list[Any] = []
 
-    def stop(proof: dict) -> None:
+    def stop(proof: dict[str, Any]) -> None:
         events.append(proof)
         raise OSError("simulated persistence loss")
 
@@ -65,7 +66,7 @@ def test_stop_persistence_failure_is_not_substituted_or_retried() -> None:
 
 
 def test_invalid_actual_file_returns_no_partial_result_and_safe_native_failure() -> None:
-    proofs = []
+    proofs: list[dict[str, Any]] = []
     with pytest.raises(ParseUnavailable, match="IMPORT_INVALID"):
         run_parser(command(b"not-a-valid-csv\x00"), uuid4(), lambda _: None, proofs.append)
     assert proofs[0]["native_exit"] == 1 and proofs[0]["reaped"] is True

@@ -151,3 +151,39 @@ Reset 不改旧控制事务：它已推进 tenant/session epoch，V41 所有读�
 6. Root 在冻结精确组合源码释放新 owned 资源 UTC 窗口及完整旧 M3 回归。动态 collect 当前全部 PG，既有 existing+phase3 精确配对、全部 G1/G2、原 Web24/N01 和必要完整工程检查不减少；新增节点按实际所属分区计，不把 745 或旧五绿当永久集合或新 SHA 结果。清理/镜像/架构/源码绑定按新窗口实测归档。
 
 本轮 Docker/PG/API/Web/provider/Woo/外部/Hosted/push 均未运行。旧 V40/M3/Harness 工作树、提交和 `.audit` 未改；旧失败、UNKNOWN、预算及等待分账不重置。后续代码作者自检不代替独立审查；V4-1 六卡完成须有实际 API/PG/浏览器及同源导入闭环，不能用本提案签完成。
+
+## 2026-11-04 owner CLI 候选与 QA 交接
+
+此段是已实施候选的调用合同；不覆盖上文提案历史，不构成 runtime GRANT 或实际 PG 验收。
+新增入口为 `commerceops.entrypoints.v41_database`，仅 `inspect`、`activate-policy`、
+`grant-runtime` 三种 manifest action。单次只执行一个 owner 事务，不自动迁移、建库、fixture、
+旧基础 grant、API 启动、外部调用或重试。真实运行必须由 Root 在独审后另登记具体对象、资源与 UTC。
+
+Root 设置 `V41_OPERATION_FILE` 为其实际登记的绝对私有 manifest 路径（0600、非 symlink），
+在冻结 checkout 根运行：
+
+```sh
+.venv/bin/python -m commerceops.entrypoints.v41_database --operation-file "${V41_OPERATION_FILE:?Root must register the private operation file}"
+```
+
+manifest 的 schema 来源是入口内严格 `Operation`；版本 `v41-owner-operation-v1`，包含唯一
+`operation_id`、上述 action、绝对 `source_root`、精确 40 位 `source_commit` / `source_tree`、
+固定 `schema_revision=0025_v41_catalog_operations`、`database_name=v4_demo_...`、UTC `deadline`，
+以及 `owner_config_file` / `demo_config_file` 的绝对路径与各自 SHA256、`web_config_sha256`。
+所有值由 Root 从实际冻结提交和私有文件登记，不在示例中预填未来 SHA 或未知路径。
+
+owner 文件严格 `schema_version=v41-owner-db-v1`，字段为 `host/port/name/user/password_file`；
+密码路径为绝对0600普通文件，user 不能是 `commerceops_app`。Demo 文件沿用
+`v4-demo-deployment-v1`，其 WebConfig 仍通过现有私有文件读取与摘要校验；runtime DB 必须与
+owner 的 host/port/name 相同且角色恰 `commerceops_app`。CLI 检查实际 current_database/current_user、
+0025、PG17.11/vector0.8.7 和表 owner；入口模块必须来自登记 source_root，Git HEAD/tree 必须精确
+匹配且工作区干净。每次操作前及提交前重核源码与 DB/host 截止；Root 外层仍负责绝对 stop/cleanup，
+该提交前截止检查不代替原生进程监督。
+
+成功 stdout 为 `v41-owner-receipt-v1`，仅在事务 context 成功退出后报告 COMMITTED（inspect 为
+VERIFIED）；不输出私有 verifier、binding、凭据、配置原文或异常链。失败 exit1 / UNKNOWN /
+retryable=false，保留原 operation_id 的外层回执，由 Root 只读核实，不自动再次执行。基础 DDL-only
+pilot 仍使用原 `commerceops.entrypoints.database migrate`，不能用会自动 grant 的旧测试夹具代替。
+
+当前 CLI 只通过帮助输出、严格 manifest/私有文件/目标拒绝等离线验证；实际 owner 操作、SQL
+HMAC/ACL、S02/S05 并发与完整业务/浏览器 Gate 均以后续独立回执为准。
