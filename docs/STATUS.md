@@ -1,8 +1,8 @@
 ## 当前归档状态（2026-11-04，台北）
 
 V41-01—06 六卡的合同受控本地实现、运行、AI工程视觉及交付文档已核收，V4-1本地阶段完成。
-当前暂停后续开发，归档/PR 正待主控推进并合入 main；PR与实际main合并结果须另行登记。
-主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)（主控集成时提供）。
+当前暂停后续开发，归档集成 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53) 已创建为 Draft，等待用户合并确认；main 尚未合入。
+主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)。
 以 [V4文档入口](v4/README.md)、[V4-1交付核收](v4/acceptance/v4-1/REVIEW.md)、
 [分层测试矩阵](v4/acceptance/v4-1/QA_RESULTS.json) 与 [原图索引](v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json) 为导航。
 本地六卡完成不代表原99功能/66页全部完成；人工视觉、真机touch、外部业务、Hosted与生产边界保留。

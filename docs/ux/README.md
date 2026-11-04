@@ -1,7 +1,7 @@
 # 本地设计工具链与M1产品设计索引
 
 2026-11-04 当前入口：[V4文档与阶段归档](../v4/README.md)、[V4-1本地交付核收](../v4/acceptance/v4-1/REVIEW.md)、
-[40张原图索引](../v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json)。V41六卡本地完成，归档/PR待main集成；
+[40张原图索引](../v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json)。V41六卡本地完成，[归档PR #53](https://github.com/aning0922/commerceops-agent/pull/53)为Draft，等待main合并确认；
 AI工程视觉与用户人工视觉、真机touch等未验边界分账。用户尚未交新研究，不自动启动V4-2。
 以下M1设计批次、预算、授权和失败按各自历史日期保留，不作为当前产品实现或下一阶段计划。
 

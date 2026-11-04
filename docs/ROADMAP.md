@@ -3,9 +3,9 @@
 ## 当前状态：V4-1 本地完成，归档待 main 集成（2026-11-04，台北）
 
 V41-01—06 六卡在合同受控合成本地范围内已完成并独审核收，业务代码冻结为
-`261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e`。当前暂停后续开发，归档/PR 正待主控推进并合入 main；
-实际 PR、main SHA 与合并结果由主控随后登记。
-主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)（主控集成时提供）。权威事实见 [V4文档入口](v4/README.md)、
+`261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e`。当前暂停后续开发；归档集成 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53) 已创建为 Draft，等待用户合并确认。
+main 尚未合入，实际合并结果另记。
+主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)。权威事实见 [V4文档入口](v4/README.md)、
 [V4-1交付核收](v4/acceptance/v4-1/REVIEW.md) 与 [分层测试结果](v4/acceptance/v4-1/QA_RESULTS.json)。
 
 40 原图的 AI 工程视觉已核收；用户人工视觉、真机触摸、真实模型/embedding、外部业务、Hosted与生产
