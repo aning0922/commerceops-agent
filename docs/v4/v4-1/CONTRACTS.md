@@ -1,6 +1,6 @@
 # V4-1 增量实施合同
 
-Root 冻结版本：V41-1c（独审 P2、导入回执与当前 key policy）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
+Root 冻结版本：V41-1d（独立调用能力与撤权栅栏候选）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
 
 ## 1. 已有与新增
 
@@ -57,3 +57,13 @@ preview 保存创建时 data_revision、parser/schema version 及文件/映射/n
 API独占StageSpec所列production/schema/0025/共享api.py以及批准的v4_demo_seed.py兼容和新scripts/v41_schema.py导出器；WEB独占UI和生成的frontend/lib/v41-schema.json；QA独占独立runner/E2E，不代写shared DTO/SQL。API先纯DTO/视图/KPI/解析金标，再真实SQL/store/router候选；SQL低权/锁序 code独审后Root释放新owned运行窗。WEB先Shell再消费已审DTO schema接真实Dashboard/商品订单/导入，不用假API代签。
 
 当前放行：纯服务/DTO/导出schema、Shell/UI、QA监督基础、以及API SQL候选编写供独审；实际PG/API/browser仍需Root精确source/UTC/资源准入。端到端Gate、原Full动态PG严格双线/G1三G2六、完整工程及旧相关回归按StageSpec，不以本文件或作者自检签完成。
+
+## S04 独立调用能力补充（候选准入，非运行核收）
+
+2026-11-04 Root 依据精确后端独审6208ba9增量准入：保持七表，在既有 singleton policy 增加一项32-byte owner-only invocation_verifier私有派生能力。原始配置秘密不得入表；派生须独立domain与当前key_version。runtime撤销policy表级SELECT，仅对原六项公开metadata列授列级SELECT；PUBLIC/app不得读私有列、写policy或执行私有计算helper。所有SECURITY DEFINER固定search_path，私有helper和新表默认全撤权。缺能力、长度错误、配置错配、旧版本复用一律拒绝。
+
+V41私有binding保留旧bound-session校验并增加独立V41调用MAC，采用无歧义的规范消息绑定bound-session ID与当前policy版本。SQL必须以受保护能力独立重算，不能以app已可写的web_sessions.csrf_digest作唯一权威。浏览器、公开DTO、错误、日志和测试回执不得输出能力或私有binding。只追加调用者自证的reaped/PID/摘要不能修复S04。低权仍不能铸造reservation或lease；实际server持随机lease、实际wait/reap后才允许持久stop。失联/父亡槽保留UNKNOWN，不按时间自动释放；撤权后只准以真实lease完成资源清理，不准业务发布。
+
+允许候选以标准HMAC-SHA256固定block实现避免新增extension，但必须提供Python金标、PG实际向量、错误长度/分段/跨session/跨version拒绝。低权组合攻击必须覆盖改写旧csrf_digest、自选binding/lease、未bind假stop、活child假reap与伪输出，证明无slot释放或数据发布。owner能力保密ACL、rotation及同版本换secret拒绝均需实际验证；源码或纯测试通过不能授runtime。
+
+S02最小修复限定V41私有permission/write_guard，不修改原p3撤权trigger、旧lock_p3_permission或原Resolver。完整当前身份/凭据/角色/店铺及auth_version谓词必须保留；principal共享锁作为旧强制撤权trigger提交栅栏，不反向锁credential/scope/grant tuple，identity仍显式锁。必须用真实PG屏障证明业务先/撤权先两种ordering，deadlock、lock-timeout、503或撤权回滚均FAIL，不能当正常线性化。最终代码精确SHA仍须独审，runtime继续HOLD。

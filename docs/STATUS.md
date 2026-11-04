@@ -1,3 +1,5 @@
+2026-11-04 V4-1本地托管进行中：完整V41-01—06已进入独立阶段工作树，按V41-1d增量合同实施，未进入V4-2。已审查询/安全导出及默认撤权SQL候选分批推至阶段集成分支；三owner已提交候选另分支备份，不代表运行验收。真实Shell浏览器切片通过，导入Mock R2执行1例失败、5例未跑，资源已清理；修复准备新case。当前业务runtime GRANT受S02撤权锁序与S04解析停止权威独审阻断，真实V41 PG/API尚未执行；只准备新owned空库DDL/ACL pilot。Hosted、真实模型/embedding、Woo/飞书与生产未运行。见[阶段范围](v4/v4-1/STAGE_SPEC.md)、[增量合同](v4/v4-1/CONTRACTS.md)和[分批推送回执](v4/acceptance/v4-1/PUSHES.json)。以下旧导航按记录时点保留。
+
 # 阶段状态与主控交接
 
 2026-11-04 V4-0 本地托管：状态 `LOCAL_IMPLEMENTATION_ACCEPTED`：本地实施、必要运行 Gate 与最终独审已核收；最终文档的冻结提交扫描另有 source-bound 回执。服务器 DemoSession、双店合成种子、身份/店铺边界、重置回滚和三条欢迎辅助路由已实现；完整 PG745 严格配对、工程4316 offline、HTTP11、自然30分钟TTL、真实浏览器和旧Web/N01证据分别绑定实际源码。交付与未验范围见 [V4-0本地交付](v4/acceptance/v4-0/DELIVERY.md)。V4-1未启动，Hosted/外部真实业务调用/远端写/生产未运行；下方旧导航保留其历史时点。
