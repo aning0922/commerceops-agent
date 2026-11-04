@@ -230,6 +230,8 @@ def order_detail(view: EffectiveView, order_id: UUID, read_at: datetime) -> dto.
 
 
 def _safe_csv(value: str) -> str:
+    if any(not character.isprintable() for character in value):
+        raise ValueError("INVALID_REQUEST")
     return "'" + value if value.lstrip().startswith(("=", "+", "-", "@")) else value
 
 

@@ -11,6 +11,7 @@ from commerceops.application.v4_demo.seed_contract import generate_seed
 from commerceops.application.v41 import contracts as dto
 from commerceops.application.v41.effective import ImportedProduct, TagEffect, ViewScope, build_view
 from commerceops.application.v41.queries import (
+    _safe_csv,
     drilldown,
     export_orders,
     export_products,
@@ -190,3 +191,33 @@ def test_read_context_contains_authorized_view_facts_not_simulated_ai() -> None:
             dto.ReadContextQuery(shop_id=owner.shop_id, kind="product", resource_id=uuid4()),
             NOW,
         )
+
+
+@pytest.mark.parametrize(
+    "prefix", ["\x00", "\x01", "\x1b", "\x7f", "\t", "\r", "\n", "\u200b", "\u202e", "\u00a0"]
+)
+def test_all_csv_text_rejects_control_and_nonprinting_formula_prefixes(prefix: str) -> None:
+    with pytest.raises(ValueError, match="INVALID_REQUEST"):
+        _safe_csv(prefix + "=1+1")
+    with pytest.raises(ValueError, match="NONCANONICAL_TAGS"):
+        dto.SetProductTags(
+            shop_id=uuid4(),
+            request_key=uuid4(),
+            expected_epoch=0,
+            expected_generation=0,
+            expected_data_revision="a" * 64,
+            expected_version=0,
+            tags=(prefix + "=1+1",),
+        )
+
+
+@pytest.mark.parametrize("value", ["=1+1", "+1", "-1", "@SUM(A1)", "  =1+1"])
+def test_printable_formula_prefixes_are_literals(value: str) -> None:
+    assert _safe_csv(value) == "'" + value
+
+
+def test_csv_unicode_quotes_and_separators_round_trip() -> None:
+    value = '中文，normal, "quoted" 😀'
+    buffer = io.StringIO(newline="")
+    csv.writer(buffer).writerow((_safe_csv(value),))
+    assert next(csv.reader(io.StringIO(buffer.getvalue()))) == [value]

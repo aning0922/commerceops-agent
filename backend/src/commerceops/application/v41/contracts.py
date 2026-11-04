@@ -44,7 +44,9 @@ Reason = Literal[
 
 
 def canonical_tags(tags: tuple[str, ...]) -> tuple[str, ...]:
-    if len(tags) != len(set(tags)) or any(tag.strip() != tag for tag in tags):
+    if len(tags) != len(set(tags)) or any(
+        tag.strip() != tag or any(not character.isprintable() for character in tag) for tag in tags
+    ):
         raise ValueError("NONCANONICAL_TAGS")
     return tags
 
