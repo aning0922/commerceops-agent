@@ -26,3 +26,17 @@ spec精确126行在批量dialog按Escape后执行 `expect(batchButton).toBeFocus
 新review-owned只读源码副本目录 `/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/v41-mobile-review-09h9g32q`，纯状态脚本 `review-mobile-boundaries.mjs` native0；另执行精确progressCounts的正常/重复标记拒绝检查。没有运行spec测试体、TS、collect、浏览器、服务、PG、build、网络或CI。父receipt与Native pin的后续新冻结仍需其独立review，不能以本片或未来r9名义预签。
 
 仅新增此审查文档，经指定changed-file/index预检后普通冻结、不push；P2修正前不签本片source接受，旧各案和原P2历史保留。
+
+## 28aff5a / ec7b671焦点增量复审
+
+2026-11-04。结论：`HOLD_P2_VIEW_CHANGE_CLOSE_CAN_REQUEUE_FOCUS`。WEB `28aff5ae9d6abe58a5c5b8c345e0ceb13d553046` / tree `ea66f9cbb203229064135c957ec96cd24356f52b`，父696；QA `ec7b6717f5a4421f494b91c9eed803178e7039cd` / tree `f595c0f54032ae43dc944a595bf4da44143ce1e5`，父 `ea4d81fd5011c018498415594872ac6dbdc513a7`。本轮只审这两精确增量，不核父receipt/digest/status/scope等其他候选。
+
+正常关闭路径已修正：真实dialog close事件在下一帧选择当前connected/有rect/非disabled的header checkbox，之后fallback enabled搜索框或可编程聚焦标题；保留清选择/撤batch token，不改pending。QA只把126行回焦断言替换为header，原关闭、checked0、零POST、重新选择不变；Mock390新增自动header聚焦及Space重选，没有test手动focus伪造返回。原disabled触发器矛盾已消除。
+
+仍有一项范围竞争P2，位置WEB `business-pending.tsx:55–73`：openedBatchScope与currentBatchScope只存catalog.editScope，而view变化也会程序关闭dialog。相同身份/店铺下从商品列表变为SKU规格等视图、组件保持挂载时，旧 `[editScope,view]` effect cleanup先取消已排RAF；后续effect把batchOpen置false，close effect调用d.close，异步onClose又调用returnBatchFocus。此时editScope未变，回调可在cleanup之后新建RAF，并聚焦新视图的控件。即使原RAF已被取消，也不能阻止这个较晚排入的回调；因此不满足Root明确的“范围变化不抢焦点”。这不是旧scope业务数据泄漏或pending被清除的报告。
+
+最小修正：把view（或明确的视图关闭generation）一起绑定到打开时与当前回焦scope，并在安排及执行RAF时复核；或者显式标记范围变化关闭不允许回焦。保留正常用户取消的header/fallback、hidden/offline两次检查及unmount清理，不为测试改选择/原pending。补同editScope不同view、cleanup先于onClose的纯负例即可，不需扩业务或放宽断言。
+
+独立资源无关检查提取精确returnBatchFocus函数，使用Fake DOM refs/RAF：8个正常header、disabled fallback、身份scope漂移、hidden/offline及排队后失效场景符合预期；另按上述源码effect顺序构造同scope视图关闭，实际排入并调用header.focus，预期应为0。该结果是源码闭包/时序模型，不是React或浏览器实跑。原件目录 `/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/v41-focus-review-n1j97ojz` 的 `focus-closure.mjs` native0，保留供窄修复核。
+
+实际自动焦点、Mock33、业务两标题测试体仍NOT_RUN；作者TS/collect/preflight为转交结果，不记PASS。仅追加审查记录并普通冻结，无WIP读取、浏览器/服务/PG/build/网络操作，不push。
