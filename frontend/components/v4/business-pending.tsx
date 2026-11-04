@@ -23,11 +23,11 @@ function PageHeader({eyebrow,title,description,status="数据服务待接入"}:{
 function PendingMessage({title,children}:{title:string;children:React.ReactNode}) {
   return <div className={styles.empty} role="status"><span className={styles.emptyIcon} aria-hidden="true">◇</span><strong>{title}</strong><p>{children}</p></div>;
 }
-function DashboardPending({data,state}:{data:DashboardData|null;state:'idle'|'loading'|'error'}) {
+function DashboardPending({data,state,days,onDays}:{data:DashboardData|null;state:'idle'|'loading'|'error';days:7|14;onDays:(days:7|14)=>void}) {
   const metrics=['已支付金额','已支付订单','订单创建数','退款事件金额'];
   return <section className={styles.workspace} aria-labelledby="dashboard-title">
     <div id="dashboard-title"><PageHeader eyebrow="OVERVIEW · 经营总览" title="经营驾驶舱" status={data?'合成数据':state==='loading'?'正在读取':state==='error'?'数据暂不可用':'请选择授权店铺'} description="在同一店铺和时间范围内查看经营表现与后续行动。"/></div>
-    <div className={styles.toolbar}><div><strong>经营概览</strong><p>{data?`${data.period.from_date} 至 ${data.period.to_date}（结束日期不含） · ${data.period.timezone}`:state==='error'?'暂时无法读取经营数据，请检查服务和当前授权。':'选择授权店铺后读取经营指标。'}</p></div><label>时间范围 <select disabled defaultValue="pending"><option value="pending">等待数据接入</option></select></label></div>
+    <div className={styles.toolbar}><div><strong>经营概览</strong><p>{data?`${data.period.from_date} 至 ${data.period.to_date}（结束日期不含） · ${data.period.timezone}`:state==='error'?'暂时无法读取经营数据，请检查服务和当前授权。':'选择授权店铺后读取经营指标。'}</p></div><label>时间范围 <select value={days} onChange={event=>onDays(Number(event.target.value) as 7|14)}><option value={7}>最近 7 个完整日</option><option value={14}>最近 14 个完整日</option></select></label></div>
     <div className={styles.metrics}>{metrics.map((label)=>{const metric=data?.metrics.find(item=>metricLabels[item.metric]===label);return <article className={styles.metric} key={label}><div className={styles.metricTop}><span>{label}</span><span aria-hidden="true">↗</span></div><strong aria-label={metric?.value==null?'数值未知':undefined}>{metric?.value??'—'}</strong><small>{metric ? `${metric.currency??''} ${metric.completeness==='COMPLETE'?'完整':`已知小计 ${metric.known_value} · 不完整：${metric.reason_codes.join('、')}`}` : '暂无已验证数据'}</small></article>;})}</div>
     <div className={styles.dashboardGrid}><article className={styles.panel}><div className={styles.panelHead}><div><h3>经营趋势</h3><p>按店铺时区查看所选期间的指标变化</p></div><span className={styles.muted}>{data?'已核验响应':'待接入'}</span></div>{data && data.trend.length ? <div className={styles.tableScroll}><table><thead><tr><th>日期</th><th>指标</th><th>数值</th></tr></thead><tbody>{data.trend.flatMap(day=>day.metrics.map(metric=><tr key={`${day.day}-${metric.metric}`}><td>{day.day}</td><td>{metricLabels[metric.metric]??metric.metric}</td><td>{metric.value??'未知'} {metric.currency??''}</td></tr>))}</tbody></table></div> : <PendingMessage title={state==='loading'?'正在读取趋势':'暂无已验证的趋势数据'}>数据可用后显示对应日期和来源。</PendingMessage>}</article>
       <article className={styles.panel}><div className={styles.panelHead}><div><h3>规则洞察</h3><p>基于已授权数据的规则提示</p></div><span className={styles.muted}>非模型生成</span></div>{data && data.insights.length ? <ul>{data.insights.map((insight,index)=><li key={`${insight.rule}-${index}`}>{insight.rule} · {insight.reason??'规则触发'} · {insight.rule_version}{insight.threshold_units!=null?` · 阈值 ${insight.threshold_units}`:''}</li>)}</ul> : <PendingMessage title="暂无已验证的规则结果">规则结果可用后显示依据。</PendingMessage>}</article></div>
@@ -68,10 +68,10 @@ function ImportPending({catalog}:{catalog:CatalogProps}) {
     <ImportFlow key={catalog.scopeToken} identityActive={!!catalog.scopeToken} enabled={catalog.canWrite&&!!catalog.data} busy={catalog.writeBusy} preview={catalog.preview} hasReference={catalog.hasPreviewReference} canConfirm={catalog.canConfirmImport} onDiscover={catalog.onDiscover} onMap={catalog.onMap} onRead={catalog.onReadPreview} onConfirm={catalog.onConfirmImport} onDiscard={catalog.onDiscardPreview}/>
   </section>;
 }
-export function BusinessPending({pathname,dashboard,dashboardState,catalog}:{pathname:string;dashboard:DashboardData|null;dashboardState:'idle'|'loading'|'error';catalog:CatalogProps}) {
+export function BusinessPending({pathname,dashboard,dashboardState,dashboardDays,onDashboardDays,catalog}:{pathname:string;dashboard:DashboardData|null;dashboardState:'idle'|'loading'|'error';dashboardDays:7|14;onDashboardDays:(days:7|14)=>void;catalog:CatalogProps}) {
   const route=resolveV41Route(pathname);
   if (!route || route.auxiliary || !route.module) return null;
-  if (route.module.id==='01') return <DashboardPending data={pathname==='/v4/dashboard'?dashboard:null} state={pathname==='/v4/dashboard'?dashboardState:'idle'}/>;
+  if (route.module.id==='01') return <DashboardPending data={pathname==='/v4/dashboard'?dashboard:null} state={pathname==='/v4/dashboard'?dashboardState:'idle'} days={dashboardDays} onDays={onDashboardDays}/>;
   if (pathname==='/v4/products/import') return <ImportPending catalog={catalog}/>;
   if (route.module.id==='04' || route.module.id==='05') {
     return <CatalogPending kind={route.module.id==='04'?'product':'order'} title={route.title} view={route.title} catalog={catalog} detail={route.title==='商品详情'||route.title==='订单详情'}/>;

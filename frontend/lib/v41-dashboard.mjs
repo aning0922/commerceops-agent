@@ -27,3 +27,12 @@ export function isSafeDashboard(data) {
   }
   return true;
 }
+
+// Compare calendar dates, without applying the browser's timezone.
+export function matchesDashboardPeriod(period,days,timezone) {
+  if(!period || ![7,14].includes(days) || period.timezone!==timezone ||
+     !/^\d{4}-\d{2}-\d{2}$/.test(period.from_date) || !/^\d{4}-\d{2}-\d{2}$/.test(period.to_date)) return false;
+  const from=Date.parse(`${period.from_date}T00:00:00Z`),to=Date.parse(`${period.to_date}T00:00:00Z`);
+  return Number.isFinite(from)&&Number.isFinite(to)&&to-from===days*86400000 &&
+    new Date(from).toISOString().slice(0,10)===period.from_date && new Date(to).toISOString().slice(0,10)===period.to_date;
+}

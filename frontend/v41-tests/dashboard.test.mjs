@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {isSafeDashboard} from '../lib/v41-dashboard.mjs';
+import {matchesDashboardPeriod,isSafeDashboard} from '../lib/v41-dashboard.mjs';
 function sample(){return {model_mode:'not_used',snapshot:{source:{data_mode:'demo_fixture',fixture_digest:'same',baseline_snapshot_at:'same',uploads:[]}},metrics:[{metric:'paid_order_amount',completeness:'PARTIAL',value:null,known_value:'2140',unit:'money',currency:'TWD',reason_codes:['UNKNOWN_PAYMENT_TIME']}],trend:[]};}
 test('partial metrics remain unknown and invalid semantic combinations are rejected',()=>{
  const value=sample();assert.equal(isSafeDashboard(value),true);
@@ -14,4 +14,12 @@ test('mixed source preserves upload provenance and rejects duplicates or wrong s
  assert.equal(isSafeDashboard(value),true);
  assert.equal(isSafeDashboard({...value,snapshot:{source:{...value.snapshot.source,uploads:[row,row]}}}),false);
  assert.equal(isSafeDashboard({...value,snapshot:{source:{...value.snapshot.source,uploads:[{...row,fixture_digest:'wrong'}]}}}),false);
+});
+
+test('dashboard response period must match selected days and authorized shop timezone',()=>{
+ const p={from_date:'2026-10-26',to_date:'2026-11-02',timezone:'Asia/Taipei'};
+ assert.equal(matchesDashboardPeriod(p,7,'Asia/Taipei'),true);
+ assert.equal(matchesDashboardPeriod(p,14,'Asia/Taipei'),false);
+ assert.equal(matchesDashboardPeriod(p,7,'Asia/Shanghai'),false);
+ assert.equal(matchesDashboardPeriod({...p,from_date:'2026-02-30'},7,'Asia/Taipei'),false);
 });
