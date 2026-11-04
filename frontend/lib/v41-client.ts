@@ -3,7 +3,7 @@ import addFormats from 'ajv-formats';
 import schema from './v41-schema.json';
 import type {Context} from './v4-client';
 
-// Generated schema source: API commit b72331fa572d9d67ad176902283da721aeda4cf1.
+// Generated schema source: Root source 8cb673e5c38e98ce21fb1bb1d8b8d20fe5cdc181.
 // Runtime routes and backend authorization must still be independently verified.
 const ajv = new Ajv2020({strict:true,allowUnionTypes:true,validateFormats:true});
 addFormats(ajv);

@@ -54,9 +54,9 @@ function validPreviewRef(value) {
   const job=value?.job;
   return !!value && Object.keys(value).sort().join(',')==='context,file_digest,job,shop_id' &&
     isSessionContext(value.context) && uuid.test(value.shop_id) && digest.test(value.file_digest) &&
-    !!job && Object.keys(job).sort().join(',')==='expires_at,import_job_id,job_digest,parent_job_id,version' &&
+    !!job && Object.keys(job).sort().join(',')==='data_revision,expires_at,import_job_id,import_schema_version,job_digest,parent_job_id,parser_version,version' &&
     uuid.test(job.import_job_id) && (job.parent_job_id===null || uuid.test(job.parent_job_id)) &&
-    digest.test(job.job_digest) && Number.isInteger(job.version) && job.version>=1 && job.version<=5 &&
+    digest.test(job.job_digest) && digest.test(job.data_revision) && job.parser_version==='v41-parser-1' && job.import_schema_version==='v41-import-1' && Number.isInteger(job.version) && job.version>=1 && job.version<=5 &&
     typeof job.expires_at==='string' && Number.isFinite(Date.parse(job.expires_at));
 }
 export function loadV41Preview(storage) {
@@ -71,14 +71,14 @@ export function finishV41Preview(storage,session,response) {
   const parent=record.parent_job_id?{import_job_id:record.parent_job_id,version:record.version}:null;
   if(!operator || !isSessionContext(current) || !sameIdentityContext(record.context,current) ||
     !sameIdentityContext(record.context,response?.context) || response.context.shop_id!==record.shop_id ||
-    !['OK','COMMITTED'].includes(response.status) || !validPreview(preview,record.file_digest,parent,response.server_time))return false;
+    !['OK','COMMITTED'].includes(response.status) || !validPreview(preview,record.file_digest,parent,response.server_time,record.revision))return false;
   const previous=loadV41Preview(storage);
   if(previous.state==='blocked')return false;
   const reference={context:record.context,shop_id:record.shop_id,file_digest:record.file_digest,job:preview.job};
   if(!validPreviewRef(reference))return false;
   if(previous.state==='ready') {
     const same=JSON.stringify(previous.value)===JSON.stringify(reference);
-    const parentMatch=previous.value.job.import_job_id===record.parent_job_id && previous.value.job.version===record.version && previous.value.file_digest===record.file_digest && previous.value.shop_id===record.shop_id && sameIdentityContext(previous.value.context,record.context);
+    const parentMatch=previous.value.job.import_job_id===record.parent_job_id && previous.value.job.version===record.version && previous.value.job.data_revision===record.revision && previous.value.file_digest===record.file_digest && previous.value.shop_id===record.shop_id && sameIdentityContext(previous.value.context,record.context);
     if(!same&&!parentMatch)return false;
   }
   if(previous.state==='empty' && parent)return false;

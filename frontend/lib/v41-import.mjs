@@ -22,9 +22,9 @@ export function validMapping(mapping,headers) {
   return values.length===new Set(values).size;
 }
 /** The caller must schema-validate the complete envelope and its current context first. */
-export function validPreview(preview,expectedDigest,parentJob,serverTime) {
+export function validPreview(preview,expectedDigest,parentJob,serverTime,expectedRevision) {
   if(!preview || !preview.job || !digest.test(expectedDigest) || preview.file_digest!==expectedDigest ||
-    !digest.test(preview.job.job_digest) || !Number.isInteger(preview.job.version) ||
+    !digest.test(preview.job.job_digest) || !digest.test(expectedRevision) || preview.job.data_revision!==expectedRevision || preview.job.parser_version!=='v41-parser-1' || preview.job.import_schema_version!=='v41-import-1' || !Number.isInteger(preview.job.version) ||
     preview.job.version!==(parentJob?parentJob.version+1:1) || preview.job.parent_job_id!==(parentJob?.import_job_id??null) ||
     !Number.isFinite(Date.parse(serverTime)) || !Number.isFinite(Date.parse(preview.job.expires_at)) || Date.parse(preview.job.expires_at)<=Date.parse(serverTime) ||
     !Array.isArray(preview.headers) || !Array.isArray(preview.sample) || !Array.isArray(preview.issues) ||

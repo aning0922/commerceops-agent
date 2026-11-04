@@ -14,7 +14,7 @@ output=output.replace("'ajv-formats'",JSON.stringify(pathToFileURL(require.resol
 output=output.replace("import schema from './v41-schema.json';",`const schema = ${schema};`);
 const {validateV41,readV41,postV41}=await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`);
 test('schema exactly derives from the committed candidate source',()=>{
- const source=execFileSync('git',['show','b72331fa572d9d67ad176902283da721aeda4cf1:docs/v4/v4-1/API_CONTRACT.json'],{encoding:'utf8'});
+ const source=execFileSync('git',['show','8cb673e5c38e98ce21fb1bb1d8b8d20fe5cdc181:docs/v4/v4-1/API_CONTRACT.json'],{encoding:'utf8'});
  assert.deepEqual(JSON.parse(schema),JSON.parse(source).json_schema);
 });
 test('strict schema refuses unknown definitions and extra request fields',()=>{
@@ -34,7 +34,7 @@ test('read rejects unsupported routes before network and rejects malformed respo
  } finally {globalThis.fetch=original;}
 });
 test('every committed route request and response schema compiles in strict Ajv',()=>{
- const source=execFileSync('git',['show','b72331fa572d9d67ad176902283da721aeda4cf1:docs/v4/v4-1/API_CONTRACT.json'],{encoding:'utf8'});
+ const source=execFileSync('git',['show','8cb673e5c38e98ce21fb1bb1d8b8d20fe5cdc181:docs/v4/v4-1/API_CONTRACT.json'],{encoding:'utf8'});
  const contract=JSON.parse(source);
  for(const route of contract.routes) for(const ref of [route.request,route.response,route.failure]) {
   const name=ref.$ref.slice('#/$defs/'.length);

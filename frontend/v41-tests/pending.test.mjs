@@ -25,7 +25,7 @@ test('only matching committed receipt and fresh identity can remove original pen
 test('preview recovery saves a bound reference before clearing the original key',()=>{
  const s=storage(),value={...fixture(),operation:'import_preview',resource_id:null,file_digest:'c'.repeat(64),parent_job_id:null};
  const session={context:value.context,data:{shops:[{shop_id:value.shop_id,grants:['operator']}]}};
- const preview={job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),expires_at:'2026-11-03T00:10:00Z'},state:'DISCOVERED',file_digest:value.file_digest,mapping:null,headers:['sku'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
+ const preview={job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),data_revision:value.revision,parser_version:'v41-parser-1',import_schema_version:'v41-import-1',expires_at:'2026-11-03T00:10:00Z'},state:'DISCOVERED',file_digest:value.file_digest,mapping:null,headers:['sku'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
  const response={status:'OK',server_time:'2026-11-03T00:00:00Z',context:{...value.context,shop_id:value.shop_id},data:preview};
  assert.equal(reserveV41Pending(s,value),true);
  assert.equal(finishV41Preview(s,session,{...response,data:{...preview,file_digest:'e'.repeat(64)}}),false);
@@ -36,7 +36,7 @@ test('preview recovery saves a bound reference before clearing the original key'
 test('preview reference survives a failed pending removal and can be reconciled without another POST',()=>{
  const s=storage(),value={...fixture(),operation:'import_preview',resource_id:null,file_digest:'c'.repeat(64),parent_job_id:null};
  const session={context:value.context,data:{shops:[{shop_id:value.shop_id,grants:['operator']}]}};
- const data={job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),expires_at:'2026-11-03T00:10:00Z'},state:'DISCOVERED',file_digest:value.file_digest,mapping:null,headers:['sku'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
+ const data={job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),data_revision:value.revision,parser_version:'v41-parser-1',import_schema_version:'v41-import-1',expires_at:'2026-11-03T00:10:00Z'},state:'DISCOVERED',file_digest:value.file_digest,mapping:null,headers:['sku'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
  const response={status:'OK',server_time:'2026-11-03T00:00:00Z',context:{...value.context,shop_id:value.shop_id},data};
  assert.equal(reserveV41Pending(s,value),true);const remove=s.removeItem;s.removeItem=()=>{throw Error('unavailable');};
  assert.equal(finishV41Preview(s,session,response),false);assert.equal(loadV41Pending(s).state,'pending');assert.equal(loadV41Preview(s).state,'ready');

@@ -1231,6 +1231,7 @@
       "properties": {
         "code": {
           "enum": [
+            "EMPTY_DATA",
             "FORMULA_REJECTED",
             "INVALID_HEADER",
             "INVALID_ROW_WIDTH",
@@ -1276,6 +1277,11 @@
     "ImportJobRef": {
       "additionalProperties": false,
       "properties": {
+        "data_revision": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Data Revision",
+          "type": "string"
+        },
         "expires_at": {
           "format": "date-time",
           "title": "Expires At",
@@ -1284,6 +1290,12 @@
         "import_job_id": {
           "format": "uuid",
           "title": "Import Job Id",
+          "type": "string"
+        },
+        "import_schema_version": {
+          "const": "v41-import-1",
+          "default": "v41-import-1",
+          "title": "Import Schema Version",
           "type": "string"
         },
         "job_digest": {
@@ -1303,6 +1315,12 @@
           ],
           "title": "Parent Job Id"
         },
+        "parser_version": {
+          "const": "v41-parser-1",
+          "default": "v41-parser-1",
+          "title": "Parser Version",
+          "type": "string"
+        },
         "version": {
           "maximum": 5,
           "minimum": 1,
@@ -1315,6 +1333,7 @@
         "version",
         "parent_job_id",
         "job_digest",
+        "data_revision",
         "expires_at"
       ],
       "title": "ImportJobRef",

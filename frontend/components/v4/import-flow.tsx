@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 import {validMapping} from '../../lib/v41-import.mjs';
 import styles from './business-pending.module.css';
 
-export type ImportJob={import_job_id:string;version:number;parent_job_id:string|null;job_digest:string;expires_at:string};
+export type ImportJob={import_job_id:string;version:number;parent_job_id:string|null;job_digest:string;data_revision:string;parser_version:'v41-parser-1';import_schema_version:'v41-import-1';expires_at:string};
 export type ImportMapping={sku:string;title:string;price:string;currency:string;tags:string|null};
 export type ImportPreview={job:ImportJob;state:'DISCOVERED'|'READY'|'INVALID'|'SUPERSEDED'|'COMMITTED';file_digest:string;mapping:ImportMapping|null;headers:string[];sample:{row:number;cells:string[]}[];row_count:number;issue_count:number;issues:{row:number;column:string|null;code:string}[];confirmable:boolean};
 export function ImportFlow({enabled,busy,preview,hasReference,onDiscover,onMap,onRead,onConfirm}:{enabled:boolean;busy:boolean;preview:ImportPreview|null;hasReference:boolean;onDiscover:(file:File)=>void;onMap:(file:File,mapping:ImportMapping)=>void;onRead:()=>void;onConfirm:()=>void}) {
