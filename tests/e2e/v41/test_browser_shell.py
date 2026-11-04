@@ -316,10 +316,105 @@ def test_missing_capture_and_reused_member_birth_never_allow_signal_or_clean(
 
 
 def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: MonkeyPatch
 ) -> None:
     tmp_path.chmod(0o700)
-    c = case(tmp_path)
+    c = cast(
+        Case, SimpleNamespace(**vars(case(tmp_path)), inputs={"uv.lock": "a" * 64}, uid=os.getuid())
+    )
+    tools = {"/approved/component-browser": "a" * 64}
+    monkeypatch.setattr(browser, "runtime_tools", lambda _binding: tools)
+    source = {
+        "head": c.source_sha,
+        "tree": c.source_tree,
+        "moduleSha256": browser.NATIVE_MODULE_SHA256,
+        "inputs": c.inputs,
+    }
+    native_dir = tmp_path / "native-zoom"
+    (native_dir / "screenshots").mkdir(parents=True)
+    native_dir.chmod(0o700)
+    pages = []
+    for label in ("dashboard", "products"):
+        css = {"zoom": "1", "transform": "none"}
+        before = {
+            "outerWidth": 1440,
+            "outerHeight": 1000,
+            "innerWidth": 1440,
+            "innerHeight": 900,
+            "devicePixelRatio": 1,
+            "rootCss": css,
+            "bodyCss": css,
+        }
+        after = {**before, "innerWidth": 720, "innerHeight": 450, "devicePixelRatio": 2}
+        settings = {"mode": "automatic", "scope": "per-tab"}
+        names = [label + "-100.png", label + "-200.png"]
+        if label == "products":
+            names.append("products-200-bottom.png")
+        screenshots = []
+        for name in names:
+            # Header-only component bytes are not evidence of any real image or native browser.
+            png = bytes((137, 80, 78, 71, 13, 10, 26, 10)) + bytes((0, 0, 0, 13)) + b"IHDR"
+            png += (1440).to_bytes(4) + (900).to_bytes(4)
+            path = native_dir / "screenshots" / name
+            path.write_bytes(png)
+            path.chmod(0o600)
+            screenshots.append(
+                {
+                    "path": "screenshots/" + name,
+                    "sha256": hashlib.sha256(png).hexdigest(),
+                    "pixelWidth": 1440,
+                    "pixelHeight": 900,
+                }
+            )
+        pages.append(
+            {
+                "label": label,
+                "pathname": "/v4/" + label,
+                "rowCount": 1,
+                "baseline": {"actual": 1, "tabId": 7, "settings": settings},
+                "zoom": {
+                    "actual": 2,
+                    "tabId": 7,
+                    "settings": settings,
+                    "events": [{"tabId": 7, "oldZoomFactor": 1, "newZoomFactor": 2}],
+                },
+                "before": before,
+                "after": after,
+                "screenshots": screenshots,
+            }
+        )
+    report: dict[str, Any] = {
+        "source": source,
+        "tools": tools,
+        "status": browser.NATIVE_STATUS,
+        "scope": "SAME_SHELL_VISITOR_READONLY_NATIVE_200",
+        "nativeBrowserExit": "NOT_EXPOSED",
+        "humanVisualAcceptance": "NOT_RUN",
+        "cleanup": {
+            "confirmed": True,
+            "profileProcesses": [],
+            "registeredAlive": [],
+            "sourceAfter": source,
+            "toolsAfter": tools,
+        },
+        "requests": {"allowedReads": 2, "refused": []},
+        "pages": pages,
+        "profile": {
+            "path": str(tmp_path / "browser-tmp/playwright_chromiumdev_profile-native200"),
+            "mode": 0o700,
+            "uid": c.uid,
+        },
+    }
+    native_file = native_dir / "receipt.json"
+    native_file.write_text(json.dumps(report))
+    native_file.chmod(0o600)
+    native_summary = {
+        "status": browser.NATIVE_STATUS,
+        "receiptPath": str(native_file),
+        "nativeBrowserExit": "NOT_EXPOSED",
+        "visualAcceptance": "PENDING_REVIEW",
+        "receiptSha256": hashlib.sha256(native_file.read_bytes()).hexdigest(),
+    }
     for label in ("shell", "business"):
         folder = tmp_path / ("browser-" + label)
         folder.mkdir(mode=0o700)
@@ -327,7 +422,7 @@ def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
             "source_sha": c.source_sha,
             "source_tree": c.source_tree,
             "scope": "LIVE_" + label.upper() + "_ONLY",
-            "native200": "NOT_RUN_IN_THIS_SPEC",
+            "native200": native_summary if label == "shell" else "NOT_RUN_IN_THIS_SPEC",
         }
         if label == "shell":
             screenshots = []
@@ -342,14 +437,37 @@ def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
         path = folder / (label + ".safe.json")
         path.write_text(json.dumps(value))
         path.chmod(0o600)
-    assert set(browser.validate_receipts(c)) == {"shell", "business"}
+    assert set(browser.validate_receipts(c, {})) == {"shell", "business"}
+    bad = {**native_summary, "status": "PASS"}
+    with pytest.raises(ValueError, match="PENDING_REVIEW_REQUIRED"):
+        browser.validate_native_receipt(c, {}, bad)
+    report["cleanup"]["forced"] = True
+    native_file.write_text(json.dumps(report))
+    forced = {
+        **native_summary,
+        "receiptSha256": hashlib.sha256(native_file.read_bytes()).hexdigest(),
+    }
+    with pytest.raises(ValueError, match="CLEANUP_NOT_CONFIRMED"):
+        browser.validate_native_receipt(c, {}, forced)
+    del report["cleanup"]["forced"]
+    report["pages"][0]["zoom"]["actual"] = 1
+    native_file.write_text(json.dumps(report))
+    changed = {
+        **native_summary,
+        "receiptSha256": hashlib.sha256(native_file.read_bytes()).hexdigest(),
+    }
+    with pytest.raises(ValueError, match="FACTOR_EVENT"):
+        browser.validate_native_receipt(c, {}, changed)
+    report["pages"][0]["zoom"]["actual"] = 2
+    native_file.write_text(json.dumps(report))
     (tmp_path / "browser-shell/shell-1440.png").write_bytes(b"changed")
     with pytest.raises(ValueError, match="SCREENSHOT_HASH"):
-        browser.validate_receipts(c)
+        browser.validate_receipts(c, {})
 
 
 def test_browser_runtime_rejects_unbound_source_and_binary_drift_before_launch(
     tmp_path: Path,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     tmp_path.chmod(0o700)
     c = cast(
@@ -364,6 +482,17 @@ def test_browser_runtime_rejects_unbound_source_and_binary_drift_before_launch(
     executable = tmp_path / "public-binary-fixture"
     executable.write_text("public file fixture; never executed")
     executable.chmod(0o700)
+    root = tmp_path / "public-source"
+    node = root / ".tools/node/bin/node"
+    node.parent.mkdir(parents=True)
+    node.write_text("public node fixture; never executed")
+    node.chmod(0o700)
+    package = root / "frontend/node_modules/playwright/package.json"
+    package.parent.mkdir(parents=True)
+    package.write_text(json.dumps({"version": "1.64.0"}))
+    framework = root / "public-framework"
+    framework.write_text("public framework fixture; never loaded")
+    monkeypatch.setattr(browser, "ROOT", root)
     auth = str(uuid4())
     value = {
         "schema_version": "v41-browser-runtime-v1",
@@ -376,6 +505,10 @@ def test_browser_runtime_rejects_unbound_source_and_binary_drift_before_launch(
         "test_image": c.test_image,
         "executable": str(executable),
         "sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
+        "framework": str(framework),
+        "framework_sha256": hashlib.sha256(framework.read_bytes()).hexdigest(),
+        "node_sha256": hashlib.sha256(node.read_bytes()).hexdigest(),
+        "playwright_version": "1.64.0",
     }
     path = tmp_path / "browser-runtime.safe.json"
     path.write_text(json.dumps(value))
@@ -383,6 +516,10 @@ def test_browser_runtime_rejects_unbound_source_and_binary_drift_before_launch(
     assert browser.runtime(c, auth) == value
     with pytest.raises(ValueError, match="EXACT_BROWSER"):
         browser.runtime(c, str(uuid4()))
+    framework.write_text("changed public framework")
+    with pytest.raises(ValueError, match="BINARY_HASH"):
+        browser.runtime(c, auth)
+    framework.write_text("public framework fixture; never loaded")
     executable.write_text("changed public bytes")
     with pytest.raises(ValueError, match="BINARY_HASH"):
         browser.runtime(c, auth)

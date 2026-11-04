@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import math
 import os
 import re
 import signal
@@ -27,7 +28,11 @@ TITLES = {
     "shell.live.spec.ts": "LIVE V41: shell identity navigation and responsive boundaries",
     "business.live.spec.ts": "LIVE V41: business reads writes and import roundtrip",
 }
+NATIVE_MODULE_SHA256 = "3d71c7695b946a1714d98c1a92cfe7af7c3cd4fec9b3cae05ca91820414f15dd"
+NATIVE_STATUS = "NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW"
 SOURCE_PATHS = (
+    "tests/e2e/v41/native_zoom.cjs",
+    "frontend/v41-e2e/native-capture.ts",
     "frontend/v41-e2e/playwright.config.ts",
     "frontend/v41-e2e/shell.live.spec.ts",
     "frontend/v41-e2e/business.live.spec.ts",
@@ -47,6 +52,11 @@ def verify_source(root: Path) -> None:
         committed = subprocess.check_output(["git", "show", "HEAD:" + name], cwd=root)
         if path.read_bytes() != committed:
             raise ValueError("FIXED_BROWSER_SOURCE_DIFFERS_FROM_HEAD")
+        if (
+            name == "tests/e2e/v41/native_zoom.cjs"
+            and hashlib.sha256(committed).hexdigest() != NATIVE_MODULE_SHA256
+        ):
+            raise ValueError("REVIEWED_NATIVE_MODULE_REQUIRED")
 
 
 def runtime(case: "Case", authorization_id: str) -> dict[str, Any]:
@@ -61,21 +71,47 @@ def runtime(case: "Case", authorization_id: str) -> dict[str, Any]:
         "project": case.project,
         "test_image": case.test_image,
     }
-    if set(record) != set(expected) | {"executable", "sha256"} or any(
-        record[k] != v for k, v in expected.items()
-    ):
+    pins = {
+        "executable",
+        "sha256",
+        "framework",
+        "framework_sha256",
+        "node_sha256",
+        "playwright_version",
+    }
+    if set(record) != set(expected) | pins or any(record[k] != v for k, v in expected.items()):
         raise ValueError("ROOT_EXACT_BROWSER_RUNTIME_REQUIRED")
-    path = Path(record["executable"])
-    if (
-        not path.is_absolute()
-        or path.resolve() != path
-        or not path.is_file()
-        or not os.access(path, os.X_OK)
-        or not re.fullmatch(r"[a-f0-9]{64}", record["sha256"])
-        or hashlib.sha256(path.read_bytes()).hexdigest() != record["sha256"]
-    ):
-        raise ValueError("ROOT_BROWSER_BINARY_HASH_MISMATCH")
+    runtime_tools(record)
     return dict(record)
+
+
+def runtime_tools(record: dict[str, Any]) -> dict[str, str]:
+    if record.get("playwright_version") != "1.64.0":
+        raise ValueError("ROOT_FIXED_PLAYWRIGHT_VERSION_REQUIRED")
+    tools = {}
+    for name, digest, executable in (
+        (record["executable"], record["sha256"], True),
+        (record["framework"], record["framework_sha256"], False),
+        (str((ROOT / ".tools/node/bin/node").resolve()), record["node_sha256"], True),
+    ):
+        path = Path(name)
+        if (
+            not path.is_absolute()
+            or path.resolve() != path
+            or not path.is_file()
+            or executable
+            and not os.access(path, os.X_OK)
+            or not isinstance(digest, str)
+            or not re.fullmatch(r"[a-f0-9]{64}", digest)
+            or hashlib.sha256(path.read_bytes()).hexdigest() != digest
+        ):
+            raise ValueError("ROOT_BROWSER_BINARY_HASH_MISMATCH")
+        tools[str(path)] = digest
+    package = (ROOT / "frontend/node_modules/playwright/package.json").resolve(strict=True)
+    if json.loads(package.read_bytes()).get("version") != record["playwright_version"]:
+        raise ValueError("ROOT_FIXED_PLAYWRIGHT_VERSION_REQUIRED")
+    tools[str(package)] = hashlib.sha256(package.read_bytes()).hexdigest()
+    return tools
 
 
 def command(case: "Case") -> tuple[str, ...]:
@@ -134,7 +170,7 @@ def validate_report(report: dict[str, Any]) -> None:
             raise ValueError("BROWSER_RETRY_SKIP_OR_FAILURE_REFUSED")
 
 
-def validate_receipts(case: "Case") -> dict[str, Any]:
+def validate_receipts(case: "Case", binding: dict[str, Any]) -> dict[str, Any]:
     directory = Path(case.directory)
     receipts = {}
     for label in ("shell", "business"):
@@ -146,11 +182,12 @@ def validate_receipts(case: "Case") -> dict[str, Any]:
                 "source_sha": case.source_sha,
                 "source_tree": case.source_tree,
                 "scope": "LIVE_" + label.upper() + "_ONLY",
-                "native200": "NOT_RUN_IN_THIS_SPEC",
+                **({"native200": "NOT_RUN_IN_THIS_SPEC"} if label == "business" else {}),
             }.items()
         ):
             raise ValueError("BROWSER_RECEIPT_SOURCE_OR_SCOPE_MISMATCH")
         if label == "shell":
+            validate_native_receipt(case, binding, value.get("native200"))
             screenshots = value.get("screenshots", [])
             expected_paths = [
                 str(directory / "browser-shell" / f"shell-{n}.png") for n in (1440, 1280, 390)
@@ -170,6 +207,140 @@ def validate_receipts(case: "Case") -> dict[str, Any]:
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         }
     return receipts
+
+
+def validate_native_receipt(case: "Case", binding: dict[str, Any], summary: Any) -> None:
+    directory = Path(case.directory) / "native-zoom"
+    receipt_path = directory / "receipt.json"
+    if (
+        not isinstance(summary, dict)
+        or set(summary)
+        != {"status", "receiptPath", "nativeBrowserExit", "visualAcceptance", "receiptSha256"}
+        or any(
+            summary[k] != value
+            for k, value in {
+                "status": NATIVE_STATUS,
+                "receiptPath": str(receipt_path),
+                "nativeBrowserExit": "NOT_EXPOSED",
+                "visualAcceptance": "PENDING_REVIEW",
+            }.items()
+        )
+    ):
+        raise ValueError("NATIVE_CAPTURE_PENDING_REVIEW_REQUIRED")
+    raw = private_bytes(receipt_path, 2_000_000)
+    receipt = decode(raw)
+    expected_source = {
+        "head": case.source_sha,
+        "tree": case.source_tree,
+        "moduleSha256": NATIVE_MODULE_SHA256,
+        "inputs": case.inputs,
+    }
+    tools = runtime_tools(binding)
+    if (
+        hashlib.sha256(raw).hexdigest() != summary["receiptSha256"]
+        or receipt.get("source") != expected_source
+        or receipt.get("tools") != tools
+        or receipt.get("status") != NATIVE_STATUS
+        or receipt.get("scope") != "SAME_SHELL_VISITOR_READONLY_NATIVE_200"
+        or receipt.get("nativeBrowserExit") != "NOT_EXPOSED"
+        or receipt.get("humanVisualAcceptance") != "NOT_RUN"
+        or receipt.get("failure")
+    ):
+        raise ValueError("NATIVE_RECEIPT_IDENTITY_OR_STATUS_MISMATCH")
+    cleanup = receipt.get("cleanup", {})
+    if (
+        cleanup.get("confirmed") is not True
+        or cleanup.get("forced", False) is not False
+        or cleanup.get("emergencyEvents", []) != []
+        or cleanup.get("profileProcesses") != []
+        or cleanup.get("registeredAlive") != []
+        or cleanup.get("sourceAfter") != expected_source
+        or cleanup.get("toolsAfter") != tools
+        or cleanup.get("failure")
+        or cleanup.get("closeFailure")
+    ):
+        raise ValueError("NATIVE_CLEANUP_NOT_CONFIRMED")
+    if receipt.get("profile") != {
+        "path": str(
+            Path(case.directory) / "browser-tmp" / "playwright_chromiumdev_profile-native200"
+        ),
+        "mode": 0o700,
+        "uid": case.uid,
+    }:
+        raise ValueError("NATIVE_PROFILE_CAPTURE_SCOPE_MISMATCH")
+    requests = receipt.get("requests", {})
+    if (
+        type(requests.get("allowedReads")) is not int
+        or requests["allowedReads"] <= 0
+        or requests.get("refused") != []
+    ):
+        raise ValueError("NATIVE_READONLY_CAPTURE_REQUIRED")
+    pages = receipt.get("pages", [])
+    if not isinstance(pages, list) or [p["label"] for p in pages] != ["dashboard", "products"]:
+        raise ValueError("NATIVE_FIXED_PAGE_SET_REQUIRED")
+    for page in pages:
+        before, after = page["before"], page["after"]
+        baseline, zoom = page["baseline"], page["zoom"]
+        if (
+            page["pathname"] != "/v4/" + page["label"]
+            or type(page["rowCount"]) is not int
+            or page["rowCount"] <= 0
+            or baseline["actual"] != 1
+            or zoom["actual"] != 2
+            or type(zoom["tabId"]) is not int
+            or baseline["tabId"] != zoom["tabId"]
+            or not any(
+                e.get("tabId") == zoom["tabId"]
+                and e.get("oldZoomFactor") == 1
+                and e.get("newZoomFactor") == 2
+                for e in zoom["events"]
+            )
+        ):
+            raise ValueError("NATIVE_FACTOR_EVENT_REQUIRED")
+        for value in (baseline, zoom):
+            if (
+                value["settings"].get("mode") != "automatic"
+                or value["settings"].get("scope") != "per-tab"
+            ):
+                raise ValueError("NATIVE_BROWSER_PER_TAB_REQUIRED")
+        for geometry in (before, after):
+            for key in ("innerWidth", "innerHeight", "devicePixelRatio"):
+                if (
+                    isinstance(geometry[key], bool)
+                    or not isinstance(geometry[key], (int, float))
+                    or not math.isfinite(geometry[key])
+                    or geometry[key] <= 0
+                ):
+                    raise ValueError("NATIVE_FINITE_GEOMETRY_REQUIRED")
+            if geometry["outerWidth"] != 1440 or geometry["outerHeight"] != 1000:
+                raise ValueError("NATIVE_ACTUAL_WINDOW_GEOMETRY_REQUIRED")
+            for css in (geometry["rootCss"], geometry["bodyCss"]):
+                if css["zoom"] not in {"1", "normal"} or css["transform"] != "none":
+                    raise ValueError("NATIVE_CSS_SIMULATION_REFUSED")
+        if (
+            abs(after["innerWidth"] * 2 - before["innerWidth"]) > 2
+            or abs(after["innerHeight"] * 2 - before["innerHeight"]) > 2
+            or abs(after["devicePixelRatio"] - before["devicePixelRatio"] * 2) > 0.000001
+        ):
+            raise ValueError("NATIVE_LAYOUT_SCALE_MISMATCH")
+        names = [page["label"] + "-100.png", page["label"] + "-200.png"]
+        if page["label"] == "products":
+            names.append("products-200-bottom.png")
+        if [shot["path"] for shot in page["screenshots"]] != ["screenshots/" + n for n in names]:
+            raise ValueError("NATIVE_FIXED_PNG_SET_REQUIRED")
+        for index, shot in enumerate(page["screenshots"]):
+            image = private_bytes(directory / shot["path"], 8_000_000)
+            width, height = int.from_bytes(image[16:20]), int.from_bytes(image[20:24])
+            geometry = before if index == 0 else after
+            if (
+                len(image) < 24
+                or image[:8] != bytes((137, 80, 78, 71, 13, 10, 26, 10))
+                or hashlib.sha256(image).hexdigest() != shot["sha256"]
+                or (width, height) != (shot["pixelWidth"], shot["pixelHeight"])
+                or abs(width - geometry["innerWidth"] * geometry["devicePixelRatio"]) > 2
+                or abs(height - geometry["innerHeight"] * geometry["devicePixelRatio"]) > 2
+            ):
+                raise ValueError("NATIVE_PNG_BYTES_OR_GEOMETRY_MISMATCH")
 
 
 def import_journals(case: "Case") -> dict[str, Any]:
