@@ -116,3 +116,28 @@ def test_schema_is_generated_closed_and_has_preview_lookup() -> None:
     assert "mapping" not in preview["required"]
     assert "parent_job_id" in preview["properties"]
     assert routes["/api/v4/products/{product_id}/tags"]["csrf_required"] is True
+
+
+@pytest.mark.parametrize(
+    "tag",
+    [
+        "\u00a0x",
+        "x\u00a0",
+        "a\u2007b",
+        "a\u202fb",
+        "a\u200bb",
+        "a\u202eb",
+        "a\u2060b",
+        "e\u0301",
+        " leading",
+        "trailing ",
+    ],
+)
+def test_canonical_tags_reject_unicode_spaces_format_and_nfd(tag: str) -> None:
+    with pytest.raises(ValueError, match="NONCANONICAL_TAGS"):
+        dto.canonical_tags((tag,))
+
+
+@pytest.mark.parametrize("tag", ["中文", "😀", "é", "a b", "=SUM(A1)", "+value", "@label", "-sale"])
+def test_canonical_tags_keep_nfc_printable_data(tag: str) -> None:
+    assert dto.canonical_tags((tag,)) == (tag,)

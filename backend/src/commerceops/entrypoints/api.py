@@ -150,8 +150,10 @@ def create_app(
     app.openapi_schema = schema
     if v4_demo_config is not None and v4_demo_config.enabled:
         from commerceops.entrypoints.v4_demo_http import install_demo
+        from commerceops.entrypoints.v41_http import install_business
 
         install_demo(app, v4_demo_config)
+        install_business(app, v4_demo_config)
     return app
 
 
@@ -202,8 +204,10 @@ def main() -> None:
             demo_config = DemoConfig.load(Path(demo_path))
             if demo_config.enabled:
                 from commerceops.entrypoints.v4_demo_http import install_demo
+                from commerceops.entrypoints.v41_http import install_business
 
                 install_demo(app, demo_config)
+                install_business(app, demo_config)
         except (ValueError, OSError):
             raise SystemExit("V4 demo configuration invalid") from None
     uvicorn.run(

@@ -14,6 +14,7 @@ from commerceops.application.v4_demo.contracts import (
     Digest,
     Timestamp,
 )
+from commerceops.application.v41.text_rules import canonical_text
 
 Amount = Annotated[str, Field(pattern=r"^(0|[1-9][0-9]{0,19})(\.[0-9]{0,5}[1-9])?$")]
 ShortText = Annotated[str, Field(min_length=1, max_length=120)]
@@ -44,9 +45,7 @@ Reason = Literal[
 
 
 def canonical_tags(tags: tuple[str, ...]) -> tuple[str, ...]:
-    if len(tags) != len(set(tags)) or any(
-        tag.strip() != tag or any(not character.isprintable() for character in tag) for tag in tags
-    ):
+    if len(tags) != len(set(tags)) or any(not canonical_text(tag) for tag in tags):
         raise ValueError("NONCANONICAL_TAGS")
     return tags
 

@@ -26,7 +26,10 @@ PROVISION = "v4_demo_provision(uuid,uuid,text,text,text,uuid,uuid,text,uuid,text
 
 def require_owner(db: DB) -> None:
     revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    if revision != {"version_num": "0024_v4_demo_foundation"}:
+    if revision not in (
+        {"version_num": "0024_v4_demo_foundation"},
+        {"version_num": "0025_v41_catalog_operations"},
+    ):
         raise ValueError("V4_SCHEMA_REVISION")
     environment = db.execute("""SELECT current_setting('server_version') AS version,
     (SELECT extversion FROM pg_extension WHERE extname='vector') AS vector""").fetchone()
@@ -137,6 +140,11 @@ def gc_tenant(db: DB, tenant_id: UUID) -> None:
         (t["organization_id"],),
     ).fetchone():
         raise ValueError("V4_GC_BUSINESS_DEPENDENCY")
+    revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
+    if revision == {"version_num": "0025_v41_catalog_operations"}:
+        from commerceops.infrastructure.v41_runtime import gc_effects
+
+        gc_effects(db, tenant_id)
     principals = db.execute(
         "SELECT principal_id FROM business.v4_demo_personas WHERE tenant_id=%s "
         "ORDER BY principal_id",
