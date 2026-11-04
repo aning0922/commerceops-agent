@@ -160,3 +160,12 @@ test('UI_FIXTURE: current session rejection clears visible edit draft',async({pa
  const denied=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/v4/demo/session'&&response.status()===403);await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await denied;
  await expect(page.getByRole('dialog',{name:'商品详情'})).toHaveCount(0);await expect(page.getByLabel('标签（逗号分隔，最多 8 项）')).toHaveCount(0);
 });
+
+test('UI_FIXTURE: changed identity generation clears the prior edit draft',async({page})=>{
+ let generation=0;await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,auth_generation:generation,shop_id:id},data:detail}}));
+ await openDetail(page);await page.getByRole('button',{name:'编辑标签'}).click();await page.getByLabel('标签（逗号分隔，最多 8 项）').fill('旧身份草稿');
+ generation=1;await page.route('**/api/v4/demo/session',cors(route=>route.fulfill({json:{...base,context:{...identity,auth_generation:generation},data:{creation_request_key:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[shop(id)],source}}})));
+ const sessionRead=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/v4/demo/session'&&response.request().method()==='GET');await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await sessionRead;
+ await expect(page.getByRole('dialog',{name:'商品详情'})).toHaveCount(0);await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);
+ await expect(page.getByRole('button',{name:'编辑标签'})).toBeVisible();await expect(page.getByLabel('标签（逗号分隔，最多 8 项）')).toHaveCount(0);
+});
