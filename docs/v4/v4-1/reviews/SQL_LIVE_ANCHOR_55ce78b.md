@@ -1,0 +1,35 @@
+# V41 live-persona改绑保护与GC锁图复审
+
+日期：2026-11-04（台北）。source `55ce78b841df0513e09d4e013d2857475fe64bf7`，tree `6eae4e122d6d1d6a274309f8211e937d62334396`，parent `f32c4a63d63011e88adf130e94b89f31bb09b31d`。以已审c696330为基线完整读取最终两文件增量，并追溯现行V4 persona ACL/guard/provision、V41 actor及owner GC调用链；未读CLI或其他WIP。
+
+结论：ACCEPT_S05_LIVE_ANCHOR_CODE_ONLY。遵守Root限定的live-only语义，不承诺GC后遗留disabled主体永久冻结。源码层S05可关闭，S02同principal屏障与S04私有invocation候选维持先前接受；真实SQL/ACL/并发/GC Gate仍NOT_RUN，T01保持。
+
+## 权威来源与改绑保护
+
+v41_demo_principal只查询business.v4_demo_personas中的organization_id/principal_id。最终代码不读取组织名称、marker或identity外部来源字段作为该判定。旧基础grant确实允许app修改organizations/principals/identities，不能据其属性推断私有归属；本候选已避开这些可写属性。
+
+v4_demo_personas受原private复合FK与principal/identity唯一键保护。grant_v4_runtime对该表先REVOKE再仅SELECT，没有app DML；原v4_demo_guard禁止UPDATE，DELETE要求owner与retention。app不能通过普通DML删除/改写live anchor；既有SECURITY DEFINER provision只创建新的随机tenant/principal/identity及相应persona，不提供将任意旧M3 principal标记为demo的参数入口。
+
+三表web_credentials/principal_shop_scopes/principal_role_shop_grants新增a_v41_demo_binding BEFORE UPDATE；仅当org/principal二元组变化，且OLD或NEW任一命中live persona时拒绝。名字排序位于原p3_scope_principal_lock之前，直接拒绝不另取principal或credential/scope/grant锁，所以不会重新引入S02反序。私有判定和trigger helper统一REVOKE，不增加app可调用签名。
+
+同principal的credential identity变化、shop/role/enabled变化仍由旧trigger取得同principal UPDATE并推进auth_version；INSERT没有移除旧主体权限，DELETE继续取OLD主体锁。纯非demo→非demo UPDATE两个anchor均false，原P3路径保持；涉及demo的跨org或跨principal改绑拒绝。新规则只增加于0025，不改旧迁移/旧trigger/resolver。
+
+## GC与active actor锁图
+
+actor先从token定位，再FOR UPDATE tenant、session，核live persona/TTL后才principal SHARE等。gc_tenant也先锁tenant、session，核retention与旧业务依赖，再调用gc_effects；后者重入同tenant锁，拒未STOPPED parse，按固定顺序删六V41子表。随后GC按稳定principal顺序锁UPDATE，撤bound sessions、禁credential和principal，最后删session/persona/shop/bootstrap/tenant，同事务，policy singleton保留。
+
+已有actor先持tenant/session时，GC不能越过这些锁删除persona；它可能因原lock预算不足失败，不能把失败记成清理完成。GC先持锁时，新actor必须等其结束，提交后找不到原tenant/session而拒绝，不能在anchor消失后凭遗留principal继续V41操作。retention还在session expiry之后24小时；本结论依赖已审官方GC路径与TTL/deferred检查，不把可写组织名称当隔离权限来源。
+
+GC提交后persona不在，旧disabled principal/credential不再被此新trigger永久冻结，符合Root裁定。即使遗留主体后来被旧管理路径变更，也没有原V41 session/tenant可供actor接受。新候选不声称给owner任意绕过trigger的SQL提供保护，也不要求为此新增持久marker表或扩大旧M3影响。
+
+## 测试范围与逐步PG建议
+
+新增三节点分别尝试operator→approver的credential/scope/grant改绑，要求owner收到V41_DEMO_BINDING_IMMUTABLE、app直接DML权限拒绝、两trigger名称顺序正确、auth_version不变及合法业务读保持。它们尚未执行，也没有完整覆盖demo→非demo/非demo→demo/纯非demo、组织名称与identity可写属性改变、GC并发/GC后语义；这些是后续真实接受的明确边界。
+
+最小PG7：代码审查层面可以由Root为精确55ce78b另释放新owned测试窗口，执行既定三表×两顺序六节点及旧双session同key/policy换版一节点。该建议仅限测试fixture中的owner激活/受审grant和该七节点，不是公开API/CLI/runtime handoff许可；必须绑定实际资源/UTC/命令/失败退出与清理，不自动重试，不预填PASS。S04实际ACL/HMAC攻击与新增三S05负例可由Root按后续明确批次分项安排，未运行前继续标NOT_RUN。
+
+完整PG22：当前不建议整体释放。T01 missing-policy测试仍在未授新表SELECT时预期Store WebFailure，未修正；不能让已知夹具错误消耗整包窗口后再把失败当业务根因。完整22也不替代尚缺的lease无能力伪stop、撤权后实际reap/发布拒绝及GC/非demo真实边界证据。应先修T01并按最终精确源码重新审定需要执行的子集；CLI仍未审。
+
+## 独立验证
+
+精确git archive对test_business_pg.py仅collect：22 collected，native0，2.61秒；无fixture执行、无warning。本次增量为SQL及PG测试，没有为只读审查运行迁移、GRANT或业务函数。未运行PG、Docker、native parser、服务、浏览器、Full扫描或远端操作；全部既有真实Gate状态及历史失败保留。
