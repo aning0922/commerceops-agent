@@ -28,3 +28,13 @@ eb30 demo.tsx:177–195的businessWrite读取React detail闭包，返回void且c
 - **布局证据**：同冻结组合补390及1280/1440相应业务列表、详情/操作与导入表单的可读布局截图，记录viewport/source/真实API来源及视觉判断；复用同一流程分段取证，不要求把全部后端安全矩阵按每个宽度重跑。Shell旧三宽、Mock旧交互及原生200%各自保留边界，不能互相顶替；未跑r8不得预填通过。
 
 WEB仅在Root新冻结路径内实现；QA真实spec由独立唯一owner处理。新代码须精确源码独审与受影响验证，再依Root资源窗口取得真实手机/批量证据；当前工程、PG、browser不同source分账。本Reviewer没有修改任何业务/合同/测试代码，没有执行资源或读取QA WIP、旧Cookie/private；本次仅此范围缺口文档普通冻结。
+
+## bdafd0d补充合同及ef0ae74窄修核收
+
+2026-11-04。结论：`ADDENDUM_ACCEPTED / PENDING_CLOSURE_P2_CLOSED`，仅方案合同层。原补充合同提交 `bdafd0d94f83a26a209835f93687e9adbcd56c58`、tree `b2d8e7dfe4740ddf03b8234d5512c7062ca6840b`只新增BATCH_AND_MOBILE_ADDENDUM.md；随后 `ef0ae74906f424073ace07bec0bd93c5d69fd9e1`、tree `b02faa1f87010a7f8e84b5596c57c90b94205312`直接继承bdafd0d，唯一修改第15段一行，其他条款保持。
+
+原第15段引用并不存在的“原严格COMMITTED/REJECTED清除路径”，曾作为窄P2保留：现v41-pending.mjs的finish仅在COMMITTED回执及fresh读回核验后移除，ActionLookup仅COMMITTED/UNKNOWN。ef0ae74现明确REJECTED仅用于显示并停止，已reserve pending只准原严格COMMITTED闭合后清除，不新增REJECTED释放；UNKNOWN/无回执不证明未提交，发送前未reserve/dispatch的本地拒绝才记未发送，原键恢复后不自动续批。与现accepted pending库边界一致，该P2关闭。
+
+其余合同已将本报告必要边界落为当前页IDs/版本/标签完整替换、单写锁与显式单项结果、逐项revision衔接、首错停、run token撤销/迟到拒绝、部分成功分账及原pending控制阻断；明确WEB/QA单owner、未释放accepted pending库改动。真实手机与桌面业务Gate、原两标题/workers1/retries0/240秒及原offline/hidden/Native/lateACK保持，真实请求/journal/effect动态核算，不硬填旧数量。未发现其他实质合同漏洞；不保证原240秒内新增全链必然有容量，实际不足仍按原失败边界处理，不自动延长。
+
+本次只在原范围文档追加精确合同接受段，原5ca7b6dc8f66ab8a3c453bf1482a10054e8178ed及其历史判断不覆盖、不amend。未读WEB/QA WIP、未改实现/合同、未运行测试或服务；批量与移动端的实现、真实Gate及六卡complete仍待各自精确源码和实际证据，合同接受不代签。
