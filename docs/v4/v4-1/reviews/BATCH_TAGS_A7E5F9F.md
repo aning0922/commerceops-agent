@@ -66,3 +66,13 @@ POST的try/catch独立，只有该调用自身的明确REJECTED返回rejected；
 静态字节反查：删除两新增行后与父文件完全相同。原完整进度、POST数量1、原pending key、用户取消后原键只读恢复、lookup精确method/op/key/shop与exact1、恢复后无第二POST均保留；click数量仍11，无新增click/retry/sleep/reload，未修改timeout或配置。仅执行Git字节比较及源码读取，没有运行Mock或其他测试体。
 
 Root转交r1为1pass/1fail/31NOT_RUN，原结果和其实际时序/根因UNKNOWN保持；该源码修正不倒推旧案已抓到特定fetch race，也不预签重跑或33PASS。指定预检后本文件普通追加冻结，不push、不启动资源。
+
+## 4da424a真实lookup包络对齐独审
+
+2026-11-04。结论：`ACCEPT_MOCK_LOOKUP_WIRE_FIX_SOURCE_AND_PURE_ONLY`，无新增实质P1/P2。精确 `4da424a5b82b8e35ce7d601e0a04ab6b62c35df9` / tree `86b5004020150e0e8cd5301bbf0c5a53432f5149`，父99a；唯一差分删除Mock actions响应的顶层status UNKNOWN覆盖，继承envelope既有OK。文件SHA256 `8e5fecb11a4e42fb33d726229661518cc9ba5cfcb7fd6fd29c32a1de5d9f9892`。独立精确替换反查与父文件完全对应，没有其他行差异。
+
+Root静态诊断成立：fbb冻结v41_store.action_lookup生成ActionLookup.data.status为COMMITTED或UNKNOWN，再经_reply返回context/data；v41_http action路由调用默认committed=false的reply，顶层为OK。生成strict BusinessEnvelope虽然类型允许UNKNOWN，但这不表示正常只读lookup将业务未决状态提升到顶层；原createV41Gate.accepts要求顶层OK。新Mock保持data.status UNKNOWN/receipt null，未改真实gate/client/pending、断言文案、原method/op/key/shop严格lookup、exact1或恢复后零追加POST。
+
+独立使用已核同字节的原schema/gate/pending库进行资源无关检查native0：新OK包络严格Ajv通过且gate接纳；旧顶层UNKNOWN及错误shop仍被gate拒绝；内层UNKNOWN不能通过finishV41Pending，原pending/key保留。该检查不是Mock测试体或真实HTTP。作者脚本/TS/33collect/preflight仍属转交结果，不记33PASS。
+
+Root转交r2仍1pass/1fail/31NOT_RUN；静态不匹配不能倒推出该案具体动态await或唯一根因，原失败原件保持。当前build/runtime fbb与本次仅Mock修复SHA分账，后续执行应记录实际来源，不改挂既有build或旧工程结果。仅此审查增量普通冻结，未启浏览器、服务、PG、网络或Full，无push。
