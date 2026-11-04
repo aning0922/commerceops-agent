@@ -178,7 +178,9 @@ async function captureNativePng(page, filename, expected, observations, limited,
   let session = null, failure = null;
   try {
     session = await work(page.context().newCDPSession(page));
-    observation.before = captureMetrics(await work(session.send('Page.getLayoutMetrics')));
+    const beforeMetrics = await work(session.send('Page.getLayoutMetrics'));
+    observation.before = captureMetrics(beforeMetrics);
+    observation.beforeZoomPresent = Object.hasOwn(beforeMetrics.cssVisualViewport || {}, 'zoom');
     const result = await work(session.send('Page.captureScreenshot', {format: 'png', fromSurface: true, captureBeyondViewport: false}));
     check(typeof result.data === 'string' && result.data.length <= 10666668, 'NATIVE_BOUNDED_PNG_REQUIRED');
     const bytes = Buffer.from(result.data, 'base64');
@@ -186,11 +188,13 @@ async function captureNativePng(page, filename, expected, observations, limited,
     observation.byteLength = bytes.length;
     if (bytes.length >= 24) {observation.pixelWidth = bytes.readUInt32BE(16); observation.pixelHeight = bytes.readUInt32BE(20);}
     pngGeometry(bytes, expected); // Reject this shot before another protocol read or capture.
-    observation.after = captureMetrics(await work(session.send('Page.getLayoutMetrics')));
+    const afterMetrics = await work(session.send('Page.getLayoutMetrics'));
+    observation.after = captureMetrics(afterMetrics);
+    observation.afterZoomPresent = Object.hasOwn(afterMetrics.cssVisualViewport || {}, 'zoom');
     observation.dom = numericFields(await work(geometry(page)), ['innerWidth', 'innerHeight', 'outerWidth', 'outerHeight', 'devicePixelRatio']);
     check(['innerWidth', 'innerHeight', 'devicePixelRatio'].every(key => observation.dom[key] === expected[key]) && observation.dom.outerWidth === 1440 && observation.dom.outerHeight === 1000 && expected.outerWidth === 1440 && expected.outerHeight === 1000, 'NATIVE_CAPTURE_GEOMETRY_DRIFT');
     const beforeZoom = observation.before.cssVisualViewport.zoom, afterZoom = observation.after.cssVisualViewport.zoom;
-    check(Number.isFinite(beforeZoom) && beforeZoom > 0 && beforeZoom === afterZoom, 'NATIVE_CAPTURE_ZOOM_DRIFT');
+    if (observation.beforeZoomPresent || observation.afterZoomPresent) check(observation.beforeZoomPresent && observation.afterZoomPresent && Number.isFinite(beforeZoom) && beforeZoom > 0 && beforeZoom === afterZoom, 'NATIVE_CAPTURE_ZOOM_DRIFT');
     pngGeometry(bytes, observation.dom);
     return bytes;
   } catch (error) {failure = error; throw error;}
@@ -299,6 +303,17 @@ async function selfTest() {
     const page = {context: () => ({newCDPSession: async () => session}), evaluate: async () => dom};
     await assert.rejects(captureNativePng(page, '/unused/products-200.png', measured, observations, async promise => promise, (_, raw) => saved.push(raw)), drift === 'cdp_zoom' ? /NATIVE_CAPTURE_ZOOM_DRIFT/ : /NATIVE_CAPTURE_GEOMETRY_DRIFT/);
     assert.deepEqual(saved, [bytes]); assert.equal(detached, true);
+    checks++;
+  }
+  for (const metadata of ['absent', 'presence_drift', 'invalid']) {
+    let reads = 0;
+    const session = {send: async method => {
+      if (method === 'Page.getLayoutMetrics') return {cssVisualViewport: metadata === 'absent' || ++reads === 1 && metadata === 'presence_drift' ? {} : {zoom: metadata === 'invalid' ? 'untrusted' : 2}};
+      return {data: header(2880, 1824).toString('base64')};
+    }, detach: async () => {}};
+    const page = {context: () => ({newCDPSession: async () => session}), evaluate: async () => measured};
+    const task = captureNativePng(page, '/unused/products-200.png', measured, [], async promise => promise, () => {});
+    if (metadata === 'absent') await task; else await assert.rejects(task, /NATIVE_CAPTURE_ZOOM_DRIFT/);
     checks++;
   }
   return {status: 'PURE_COMPONENT_CHECKS_PASS', checks, browserLaunches: 0, profilesCreated: 0, nativeZoom: 'NOT_RUN', screenshots: 'NOT_RUN', S01: 'NOT_RUN'};
