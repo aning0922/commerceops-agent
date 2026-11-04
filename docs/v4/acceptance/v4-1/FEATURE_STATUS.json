@@ -2065,5 +2065,17 @@
       "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
     }
   ],
-  "document_generation_scope": "只读冻结Git与既有公开回执；仅此JSON新增，不运行测试/资源/网络，不改baseline、不读身份或作者WIP"
+  "document_generation_scope": "只读冻结Git与既有公开回执；仅此JSON新增，不运行测试/资源/网络，不改baseline、不读身份或作者WIP",
+  "root_checkpoint_addendum": {
+    "status": "IMPLEMENTING_NOT_COMPLETE",
+    "batch_product_candidate": "a7e5f9ff4b53a956390c0807c3efcad135c9047a",
+    "batch_product_review": "7fea316a9999cf6413fbcee11199ac83d5138038",
+    "batch_product_blocker": "COMMITTED POST followed by rejected fresh readback must remain pending, not rejected",
+    "mock_candidate": "4427f347206bf55250d847d3fffcf76051006d29",
+    "mock_review": "bfd9e5476072c15f9c473470ccb0a74ba65f390d",
+    "mock_blocker": "original request key lookup predicate missing",
+    "mobile_spec_candidate": "2ae73562effbabbee2092a1ff249fc43fe5f288c",
+    "native_fix_candidate": "217baea74687490fb4a45f108f62841f57d2f931",
+    "final_browser": "NOT_RUN_FOR_NEW_COMBINATION"
+  }
 }
