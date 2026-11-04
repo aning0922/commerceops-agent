@@ -174,7 +174,7 @@ def test_persistent_partial_cross_process_round_history_and_zero_business_until_
         assert all(h["after_state"]["candidate_hash"] for h in history)
     with connect(f.inventory.owner) as db:
         revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-        assert revision == {"version_num": "0024_v4_demo_foundation"}
+        assert revision == {"version_num": "0025_v41_catalog_operations"}
         tables = db.execute(
             "SELECT count(*) AS n FROM pg_tables WHERE schemaname IN ('business','checkpoints')"
         ).fetchone()
