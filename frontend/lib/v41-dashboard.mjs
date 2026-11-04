@@ -7,9 +7,8 @@ function validMetric(metric) {
   if (!complete && !metric.reason_codes.length) return false;
   return (metric.unit==='money') === (metric.currency!==null);
 }
-export function isSafeDashboard(data) {
-  const source=data?.snapshot?.source;
-  if (!source || !Array.isArray(source.uploads) || !Array.isArray(data.metrics) || !Array.isArray(data.trend) || data.model_mode!=='not_used') return false;
+export function isSafeDataset(source) {
+  if (!source || !Array.isArray(source.uploads)) return false;
   if ((source.data_mode==='demo_mixed') !== (source.uploads.length>0)) return false;
   const uploaded=new Set();
   for (const item of source.uploads) {
@@ -18,6 +17,10 @@ export function isSafeDashboard(data) {
     if(uploaded.has(key))return false;
     uploaded.add(key);
   }
+  return true;
+}
+export function isSafeDashboard(data) {
+  if (!isSafeDataset(data?.snapshot?.source) || !Array.isArray(data.metrics) || !Array.isArray(data.trend) || data.model_mode!=='not_used') return false;
   if (new Set(data.metrics.map(item=>item.metric)).size!==data.metrics.length || !data.metrics.every(validMetric)) return false;
   for (const point of data.trend) {
     if (!Array.isArray(point.metrics) || !point.metrics.every(validMetric) || new Set(point.metrics.map(item=>item.metric)).size!==point.metrics.length) return false;
