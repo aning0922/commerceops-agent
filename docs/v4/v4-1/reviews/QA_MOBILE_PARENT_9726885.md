@@ -53,3 +53,19 @@
 按 Root 核定，原 spec 的真实 Request/Response NativeTiming 严格不等式、精确受审采样代码、原 pending/CAS/fresh readback 以及最终逐 key PG 回执，共同作为本地串行证据。既有 NativeTiming 断言与父层字段校验继续保留，未知或不合法字段仍失败；不将这些证据表述为外部 wire 或独立网络抓包，也不以本次源码复核预签未来实际运行。原合同没有要求额外 raw sidecar，不能因已撤回的错误建议新增材料或门槛。
 
 QA 可专注第 2、3 项最小加固；未来实际运行如出现新的时序异常，再按新事实处理。本轮只追加这一核定记录，未更改组件、原 journal、既有 timing、业务流程或原始反例，未执行测试或启动资源。
+
+## d410097 第 2、3 项精确增量复审
+
+2026-11-04 同日追加。当前结论：`HOLD / P2_3_CLOSED / P2_2_ONE_JOB_VERSION_BINDING_REMAINS`。冻结提交 `d4100975c770abf5efdf85fda9344c4ece4d4bb9`，tree `954ed2cbe4717656150de5d8aa0f42dc398f4a84`，parent `ec7b6717f5a4421f494b91c9eed803178e7039cd`；差分仅 browser_shell.py 与 test_browser_shell.py。原第 1 项维持正式撤回，不新增 sidecar、全局顺序 gate 或采样计划；原报告及纠错历史完整保留。
+
+严格按新完整 fixture 先正后负：每个独立变体均先调用同冻结 validate_business_mobile，正例返回 9 keys/32 PNG 条目后才实施单类变异。没有使用旧简化 snapshot fixture 来制造预先 schema 失败。原四个有效反例现分别被拒绝：整体替换 mobile 内文件摘要触发 `BUSINESS_MOBILE_PREVIEW_ORIGINAL_BYTES_DIGEST`；preview UNKNOWN 对 ACK_OK 触发 `BUSINESS_MOBILE_STATUS_ACK_MISMATCH`；借另一真实已注册 scope 的 mapping 截图触发 `BUSINESS_MOBILE_SCREENSHOT_MAIN_SCOPE`；product_list 三宽空 snapshot 由冻结 Snapshot DTO 报 data_revision、snapshot_id、read_at、source 四项 missing。另改原 file_base64 并正确重算 witness body hash，仍在 `PREVIEW_ORIGINAL_BYTES_DIGEST` 被拒，证明没有只依赖旧 request hash 或报告内部摘要相等。
+
+源码核对确认：server_request 从经过原严格 request 校验的 preview body 独立解码并计算文件摘要；operation.status 与实际 journal ACK_OK/ACK_COMMITTED 配对；discovery/mapped/import 的文件、原 parent job、expected_job_digest 和 job 对象已有新增交叉绑定。非 anonymous 截图必须属于唯一实际业务 operation scope；Snapshot 直接调用冻结后端 DTO，额外/缺失/错误字段受其约束，fixture 来源链、三宽 source 相等、列表/批量确认来源及 tag/fulfillment/import 截图的对应修订有具体检查。因此原第 3 项以及第 2 项的摘要/status 反例在源码与纯组件层面关闭，但第 2 项尚留以下版本矛盾。
+
+**剩余 P2：job.version 仅彼此相等，没有绑定已核的 operation/readback/原请求版本。** 定位本冻结 browser_shell.py:1335–1342、1365–1378、1615–1620。preview 分支检查 job id/data_revision；import 分支检查 job id/job_digest；链尾比较 imported.readback.job 与 mapped.readback.job 相等，但两边的 job.version 都未与已核 read.version/operation.version 或原 expected_job_version 相连。
+
+最小独立反例从新完整正例出发，只改同一个 mapped preview 及其 import_confirm 的两个 `readback.job.version` 字段，由 2 改为 999。两者的 operation.version、readback.version 仍为 2，原 journal expected_job_version、pending、job_digest、文件摘要、截图、counts 和其他字段完全不改；校验仍接受。另将所有 job.version 一致替换的较宽变体也接受，但剩余结论以两个字段的最小反例为准。这属于原第 2 项已要求的 job/version 链，不涉及串行证据或新增验收范围。应将 preview/import 的 job.version 绑定对应已核 resource/readback version，并在 import 路径保持与原 expected_job_version 的语义一致；增加上述两份 job 对象一致错误、但与原请求版本不一致的拒绝测试，保留合法正例。
+
+独立使用固定 control Python、精确冻结公开源码与新 fixture，直接调用原新增/相关纯测试函数（包括参数化分支）共 35 次，全通过；其中已有晚写 READBACK 标记的合法正例通过，确认未恢复错误的全局索引 gate。另有上述 baseline、五个具体拒绝变体和两个版本缺口变体，最终脚本 exit 0 代表这些预期观察成立，不是父收验整体通过。私有复现为 `.audit/v4-1/mobile-d410097-review/repro.py` 与 `result.safe.json`；每次校验调用前后原 journal 字节相同。作者 68 focused/185 offline、Ruff/mypy/preflight 未在本轮冒称独立全量重跑。
+
+该差分未改 business spec、producer、subjectWriter/registry、journal schema/时点、final_facts 或 config；Native pin 保持已核 `295bf2c61e7cd30e7a47d7368d93fbadb40764fb41072a9119b5d78ed925689e`，未放松旧 focus/header、NativeTiming、pending/CAS/readback 或逐 key SQL 门槛。未读取后续 WIP；浏览器、服务、网络、PG、信号均 0。合成 PNG 条目仍仅纯校验 fixture，不是实际截图。整体 r9 实际运行 NOT_RUN；等待剩余窄版本绑定的新精确 freeze，不能提前签该父层候选完整接纳或阶段验收。
