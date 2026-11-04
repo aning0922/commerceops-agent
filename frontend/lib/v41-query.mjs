@@ -1,3 +1,4 @@
+import {validV41Tag} from './v41-tags.mjs';
 const allowed={product:{origin:['demo_fixture','demo_upload'],sort:['title_asc','title_desc','price_asc','price_desc']},order:{payment:['recorded','unknown'],fulfillment:['demo_unfulfilled','demo_fulfilled'],time_basis:['created','paid'],sort:['created_desc','created_asc','amount_desc','amount_asc']}};
 /** Build both list and export from the same validated filters; cursors are list-only. */
 export function buildCatalogQuery(shop,kind,q,filters,cursor='') {
@@ -10,7 +11,7 @@ export function buildCatalogQuery(shop,kind,q,filters,cursor='') {
   for(const [key,value] of Object.entries(filters)) {
     if(value==='')continue;
     if(kind==='order'&&(key==='from_date'||key==='to_date')) {if(typeof value!=='string')return null;}
-    else if(kind==='product'&&key==='tag') {if(typeof value!=='string'||!value.trim()||value!==value.trim()||value.length>24)return null;}
+    else if(kind==='product'&&key==='tag') {if(!validV41Tag(value))return null;}
     else if(!allowed[kind][key]?.includes(value))return null;
     query.set(key,value);
   }

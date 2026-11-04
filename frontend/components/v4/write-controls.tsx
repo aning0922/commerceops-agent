@@ -1,16 +1,17 @@
 'use client';
 import {useState} from 'react';
 import styles from './business-pending.module.css';
+import {validV41Tag} from '../../lib/v41-tags.mjs';
 
 export function TagControls({tags,enabled,busy,onSave}:{tags:string[];enabled:boolean;busy:boolean;onSave:(tags:string[])=>void}) {
   const [editing,setEditing]=useState(false),[text,setText]=useState(tags.join(', '));
   const values=text.split(',').map(value=>value.trim()).filter(Boolean);
-  const valid=values.length<=8 && values.every(value=>value.length<=24) && new Set(values).size===values.length;
+  const valid=values.length<=8 && values.every(validV41Tag) && new Set(values).size===values.length;
   if(!editing)return <button type="button" disabled={!enabled||busy} onClick={()=>setEditing(true)}>编辑标签</button>;
   return <form onSubmit={event=>{event.preventDefault();if(valid&&enabled&&!busy)onSave(values);}}>
     <label>标签（逗号分隔，最多 8 项）<input value={text} onChange={event=>setText(event.target.value)} disabled={busy}/></label>
     <p>将保存：{values.length?values.join('、'):'无标签'}</p>
-    {!valid&&<p role="status">标签须不重复、每项不超过 24 字。</p>}
+    {!valid&&<p role="status">标签须为可打印字符、不重复且每项不超过 24 字。</p>}
     <div className={styles.writeActions}><button type="button" onClick={()=>{setText(tags.join(', '));setEditing(false);}} disabled={busy}>取消</button><button type="submit" disabled={!valid||!enabled||busy}>确认保存</button></div>
   </form>;
 }
