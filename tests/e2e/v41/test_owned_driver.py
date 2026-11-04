@@ -12,7 +12,9 @@ from pytest import MonkeyPatch
 from tests.e2e.v4 import owned_driver as public
 
 from . import owned_driver as driver
+from .image_provenance import runtime_files
 from .owned_manifest import OwnedManifest
+from .test_fixed_daemon import tools as daemon_tools
 from .test_owned_manifest import bound as bound
 
 pytestmark = pytest.mark.offline
@@ -65,3 +67,48 @@ def test_execute_requires_root_window_and_unaligned_handoff_blocks_before_docker
     with pytest.raises(ValueError, match="HANDOFF_PENDING"):
         driver.execute(case, True)
     assert not (Path(case.directory) / "execution.once").exists()
+
+
+@pytest.mark.parametrize("static_bad", [True, False])
+def test_static_daemon_mismatch_has_zero_calls_and_server_mismatch_has_identity_only(
+    bound: tuple[OwnedManifest, Path, datetime], monkeypatch: MonkeyPatch, static_bad: bool
+) -> None:
+    manifest, root, _ = bound
+    monkeypatch.setattr(driver, "ROOT", root)
+    case = driver.Case(**asdict(manifest))
+    driver.prepare(case)
+    directory = Path(case.directory)
+    tool, _, receipt = daemon_tools(root.parent)
+    if static_bad:
+        receipt["docker_endpoint"] = "tcp://unapproved"
+    receipt.update(
+        source_sha=case.source_sha,
+        source_tree=case.source_tree,
+        test_image_id=case.test_image,
+    )
+    build = {
+        **receipt,
+        "test_build_native_exit": 0,
+        "runtime_files_sha256": runtime_files(root),
+    }
+    public.private(directory / "image-build.safe.json", json.dumps(build))
+    (root / ".git/info/exclude").write_text(".tools/\nfrontend/node_modules/\n")
+    for name in [".tools/node/bin/node", "frontend/node_modules/next/dist/bin/next"]:
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("public tool fixture")
+    monkeypatch.setattr(driver, "runtime_handoff", lambda _case: None)
+    monkeypatch.setattr(driver, "reserve_ports", lambda *_ports: None)
+    monkeypatch.setattr(public, "compose", lambda _case: (str(tool), "compose"))
+    if static_bad:
+        with pytest.raises(ValueError, match="EXPLICIT_LOCAL_UNIX"):
+            driver.execute(case, True)
+        assert not tool.with_suffix(".calls").exists()
+        assert not (directory / "execution.once").exists()
+    else:
+        report = driver.execute(case, True)
+        calls = [json.loads(line) for line in tool.with_suffix(".calls").read_text().splitlines()]
+        assert calls == [["--host", "unix:///approved/local.sock", "info", "--format", "{{.ID}}"]]
+        assert not report["information"].get("namespace_initial_empty")
+        assert not report["cleanup"]["confirmed"]
+        assert [row["stage"] for row in report["required"]] == ["docker_server"]

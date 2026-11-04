@@ -79,7 +79,7 @@ operation/key关联到具体receipt/event的更细SQL、库存末态、runtime�
 四类.env文件（repo/frontend两处），并要求新case内0600/本UID的image-build.safe.json。
 Root必须提供真实build证据，至少source_sha/tree、test_image_id、test_build_native_exit=0、
 `runtime_files_sha256`（当前Git所有backend/tests/scripts及Python/锁输入文件）、实际本地
-Docker context/Unix endpoint/server ID/docker binary hash。不是用任意占位handoff解锁。
+Docker Unix endpoint/server ID/docker binary hash；后续固定选择增量见下段。不是用任意占位handoff解锁。
 
 driver在初始空namespace后、PG启动前，对exact image运行固定只读Python哈希程序（network
 none、read-only、drop caps、无host mounts），逐文件比对宿主/Root receipt/镜像真实bytes。
@@ -100,3 +100,19 @@ subjects.py在业务请求前以私有锁登记scope/原operation-key，ACK与�
 同进程并发登记不丢写的测试只证明本机元数据原子性，不是PG并发验收。import_confirm回执另核
 resource_id=job.id、resource_version=原job.version、before_revision=preview保存值、after_revision
 =确认后有效版本，不错误套用商品/履约的version+1。登记后的最终业务PG采集仍待driver接线。
+
+
+针对daemon绑定顺序P1与终态来源P2的离线增量：Root receipt另须提供已批准的本机Unix
+`docker_endpoint`、`docker_server_id`、`docker_binary_sha256`和公开Compose插件绝对路径/
+`compose_plugin_sha256`。不继承全局context。`fixed_daemon.py`在任何daemon调用前创建专属
+空HOME/DOCKER_CONFIG与固定shim；auths为空、只链接已pin公开Compose插件，每次调用复核
+解释器/Docker/plugin/config字节并显式固定--host，拒绝调用者覆盖host/context/config。
+父驱动、公共镜像/IPAM检查、adapter、子HTTP探针和finally清理均使用同一shim。首个daemon
+调用只读info核server ID；静态不符时零daemon命令，server ID不符时一次身份查询、零资源/
+清理命令；namespace初始为空的清理资格仅在身份核收后登记。未读取旧credentials或改全局context。
+
+`source_seal.py`逐一核所有Git跟踪常规文件的真实bytes/可执行位与HEAD blob，包含宿主frontend、
+Compose和全部跟踪锁文件；另保存实际Python、Node、Next入口、Docker和Compose插件的路径/
+字节hash/权限。执行前后各自落盘并严格比较，不再将HEAD/tree或镜像COPY子集相等单独记为
+全来源UNCHANGED。此seal不声称未跟踪依赖目录中每个包已做供应链审计。真实本机短stand-in
+进程只证明argv/env和上述拒绝边界；Docker、PG、API、Web和业务Gate仍NOT_RUN。

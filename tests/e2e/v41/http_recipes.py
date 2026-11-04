@@ -12,13 +12,12 @@ from typing import Any
 from uuid import UUID, uuid4
 from xml.sax.saxutils import escape
 
-from tests.e2e.v4 import owned_driver as public
 from tests.e2e.v4.http_probe import Visitor
 from tests.e2e.v4.owned_adapter import OwnedAdapter, compose_environment, owner_run
 from tests.e2e.v4.supervisor import Budget
 
 from .kpi_reference import assert_metrics, reference
-from .owned_driver import ROOT, Case
+from .owned_driver import ROOT, Case, fixed_compose
 from .runner import persist
 from .subjects import registry
 
@@ -575,7 +574,7 @@ def main() -> None:
     case = Case(**json.loads(args.case.read_text()))
     case.validate(prepared=True)
 
-    compose = public.compose(case)  # type: ignore[arg-type]
+    compose = fixed_compose(case)
     budget = Budget.bind(
         datetime.fromisoformat(case.starts_at),
         datetime.fromisoformat(case.deadline),

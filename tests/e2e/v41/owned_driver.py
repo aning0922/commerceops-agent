@@ -17,6 +17,8 @@ from tests.e2e.v4 import owned_driver as public
 from tests.e2e.v4.owned_adapter import OwnedAdapter, compose_environment, owner_run
 from tests.e2e.v4.supervisor import Budget, Supervisor
 
+from .fixed_daemon import freeze as freeze_daemon
+from .fixed_daemon import load as load_daemon
 from .image_provenance import probe_argv, runtime_files, validate_build, validate_measured
 from .owned_manifest import OwnedManifest
 from .runner import persist
@@ -24,9 +26,9 @@ from .runtime_checks import (
     reject_implicit_env,
     reserve_ports,
     verify_api_record,
-    verify_host_binding,
     verify_web_listener,
 )
+from .source_seal import snapshot
 
 ROOT = Path(__file__).resolve().parents[3]
 HANDOFF = "tests/e2e/v41/runtime_handoff.json"
@@ -107,6 +109,12 @@ def runtime_handoff(case: Case) -> None:
         raise ValueError("V41_CASE_CHANGED")
 
 
+def fixed_compose(case: Case) -> tuple[str, ...]:
+    # public.compose resolves paths only; it never queries a daemon.
+    command = public.compose(cast(Any, case))
+    return (str(load_daemon(Path(case.directory))), *command[1:])
+
+
 def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
     if not root_opened_window:
         raise ValueError("ROOT_EXACT_RUNTIME_WINDOW_REQUIRED")
@@ -130,6 +138,18 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         build_receipt, case.source_sha, case.source_tree, case.test_image, expected_runtime
     )
     build_receipt_digest = digest(build_receipt_path)
+    original = public.compose(cast(Any, case))
+    # Static binding failure exits before the try/finally or any daemon query.
+    freeze_daemon(directory, original[0], build_receipt)
+    tool_paths = [
+        Path(sys.executable).resolve(),
+        ROOT / ".tools/node/bin/node",
+        ROOT / "frontend/node_modules/next/dist/bin/next",
+        Path(original[0]).resolve(),
+        Path(build_receipt["compose_plugin_path"]).resolve(),
+    ]
+    source_before = snapshot(ROOT, tool_paths)
+    persist(directory / "source-before.json", source_before)
     public.private(directory / "execution.once", "V41 one new attempt; no replay\n")
     budget = Budget.bind(
         datetime.fromisoformat(case.starts_at), datetime.fromisoformat(case.deadline)
@@ -146,7 +166,7 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         "cleanup": {},
         "summary": "NOT_WRITTEN",
     }
-    command = public.compose(cast(Any, case))
+    command = fixed_compose(case)
     supervisor: Supervisor | None = None
     volume_format = (
         '{"name":{{json .Name}},"driver":{{json .Driver}},'
@@ -205,6 +225,15 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             persist(directory / "execution.json", report)
 
     try:
+        # The first daemon query is identity only; cleanup is not armed until
+        # this fixed endpoint/server and the empty project have both passed.
+        server = checked("docker_server", [command[0], "info", "--format", "{{.ID}}"], 5)
+        if server.decode().strip() != build_receipt["docker_server_id"]:
+            raise ValueError("ROOT_DOCKER_SERVER_MISMATCH")
+        report["information"]["fixed_daemon"] = {
+            "endpoint": build_receipt["docker_endpoint"],
+            "server_id": server.decode().strip(),
+        }
         public.verify_images(cast(Any, case), command[0], budget, records)
         report["information"]["ipam"] = public.verify_existing_subnets(
             cast(Any, case), command[0], budget, records
@@ -221,7 +250,7 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         public.private(
             directory / "no-build.compose.sha256", digest(directory / "no-build.compose.json")
         )
-        command = public.compose(cast(Any, case))
+        command = fixed_compose(case)
         for kind, args in [
             ("container", ["ps", "-aq"]),
             ("network", ["network", "ls", "-q"]),
@@ -234,31 +263,6 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             ).strip():
                 raise ValueError("V41_NAMESPACE_NOT_EMPTY")
         report["information"]["namespace_initial_empty"] = True
-        context = checked("docker_context", [command[0], "context", "show"], 5).decode().strip()
-        endpoint = json.loads(
-            checked(
-                "docker_endpoint",
-                [
-                    command[0],
-                    "context",
-                    "inspect",
-                    context,
-                    "--format",
-                    "{{json .Endpoints.docker.Host}}",
-                ],
-                5,
-            )
-        )
-        if not endpoint.startswith("unix:///") or build_receipt.get("docker_endpoint") != endpoint:
-            raise ValueError("ROOT_LOCAL_DOCKER_ENDPOINT_UNPROVEN")
-        server = (
-            checked("docker_server", [command[0], "info", "--format", "{{.ID}}"], 5)
-            .decode()
-            .strip()
-        )
-        verify_host_binding(
-            build_receipt, context, endpoint, server, digest(Path(command[0]).resolve())
-        )
         actual_source = checked(
             "image_source",
             probe_argv(command[0], case.project, case.test_image, ROOT, case.uid),
@@ -625,7 +629,12 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                 raise ValueError("TERMINAL_PUBLIC_INPUT_CHANGED")
             reject_implicit_env(ROOT)
             runtime_handoff(case)
-            report["information"]["terminal_source_seal"] = "UNCHANGED"
+            load_daemon(directory)
+            source_after = snapshot(ROOT, tool_paths)
+            persist(directory / "source-after.json", source_after)
+            if source_after != source_before:
+                raise ValueError("TERMINAL_TRACKED_SOURCE_OR_TOOL_CHANGED")
+            report["information"]["terminal_source_seal"] = "TRACKED_SOURCE_AND_TOOLS_UNCHANGED"
         except Exception as error:
             failures.append({"stage": "terminal_source_seal", "type": type(error).__name__})
         report["cleanup"]["failures"] = failures
