@@ -1,6 +1,6 @@
 # V4-1 增量实施合同
 
-Root 冻结版本：V41-1。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
+Root 冻结版本：V41-1a（独审 P2 补充）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
 
 ## 1. 已有与新增
 
@@ -42,13 +42,13 @@ reset继续原控制事务推进 epoch；V41所有读写、preview和receipt业�
 
 JSON body≤3MiB，base64严格decode后文件≤2MiB；500行、24列、单cell≤512字、title≤120；每tenant/shop/epoch最多500导入SKU。CSV只UTF8可BOM、严格逗号引号、表头不可重复/空、列宽一致、非法控制和公式样单元格拒绝，export同样防公式。XLSX受限单sheet无宏OOXML：≤32 entries，实际解压≤8MiB/单entry≤2MiB/ratio≤100；拒加密/路径穿越/符号链接/重复entry/嵌套档/宏/外链/公式（包括缓存值）/DTD实体/非允许节点/外部PI。XML在增量读取/建节点时控深度/节点/字符串/属性，不整包不受限fromstring；仅string/inline/shared string/decimal，复杂格式明确拒绝。解析硬预算2秒，必要独立子进程kill并wait证明停止；不能把async/线程取消当实际终止。
 
-持久配额与CPU解析并发是两回事。解析前完整身份/Origin/CSRF和准入，解析不持tenant/业务行锁；同tenant最多1个在跑、全局最多2个，建议独立app连接的窄PG advisory slots跨process非阻塞准入，命名空间与旧Worker锁隔离，失败429。槽位到实际解析子进程退出/reap后才释放；后置写job前新事务再核当前权力/context/TTL。真实代码和低权直调/超时回收需专项实测，不能以preview行数替代并发。SQL statement 5秒/lock1秒，不为容量升原安全上限。
+持久配额与CPU解析并发是两回事。解析前完整身份/Origin/CSRF和准入，解析不持tenant/业务行锁；同tenant最多1个在跑、全局最多2个，建议独立app连接的窄PG advisory slots跨process非阻塞准入，命名空间与旧Worker锁隔离，失败429。槽位到实际解析子进程退出/reap后才释放；后置写job前新事务再核当前权力/context/TTL。父进程异常退出、持锁连接失联或身份无法核实后，不得仅因 advisory lock 已释放而重新发放仍可能存活解析的容量。允许最小持久 fail-closed admission：未知槽位保持占用，确认实际解析已终止并完成回收前拒绝新准入；不要求新增通用自动回收框架。真实代码和低权直调、父进程/连接失联、超时强停及随后重新准入需专项实测，不能以preview行数替代并发。SQL statement 5秒/lock1秒，不为容量升原安全上限。
 
 初次mapping可null仅发现表头/安全sample/质量，随后重传同file、mapping及parent_job_id创建不可变子版本。parent必须当前owner/tenant/shop/epoch/gen、同file digest/同链；创建子版本与supersede旧版同事务，旧版不可confirm，confirmed终态不得再扩链。每链最多5版本，每tenant最多12jobs，最多3未过期active heads；superseded/confirmed不占active，不能释放仍在跑的解析槽位。每preview10分钟且不晚于session期限。原始file不持久化，只有有界normalized rows、headers/安全sample/quality/digests，最多20sample/100错误，不回显公式或完整文件。
 
 preview本身也owner+原preview key唯一、canonical request digest幂等；相同key同文返回同job、不重复配额，异文409。新增 GET /api/v4/imports/preview-requests/{request_key} 在当前身份/shop/epoch/gen/权限下返回最小job_ref/UNKNOWN；缺行不推断回滚，不自动换key再POST，不回原file。无需扩大旧控制或三种business receipt枚举，临时job承担自己的key约束。
 
-confirm仅job id/version/digest和预期context/revision，不信客户端rows；新事务锁tenant/session/权限/shop/job，复核未supersede/未过期/文件映射normalized摘要/所有重复/币种/总量。effect/receipt/event同事务，任一失败整批回滚；并发同SKU一胜一拒；已确认job换key也不能重复导入，同原key十次只一次。确认后SKU在列表/详情/export/商品数/read-context同源可查。
+preview 保存创建时 data_revision、parser/schema version 及文件/映射/normalized 摘要；confirm 的新效果必须让 preview 保存值、请求值与当前有效数据版本三方相符，数据变更须重新预览，不能只换请求 revision 确认旧预览。confirm仅job id/version/digest和预期context/revision，不信客户端rows；新事务锁tenant/session/权限/shop/job，复核未supersede/未过期/文件映射normalized摘要/所有重复/币种/总量。effect/receipt/event同事务，任一失败整批回滚；并发同SKU一胜一拒；已确认job换key也不能重复导入，同原key十次只一次。确认后SKU在列表/详情/export/商品数/read-context同源可查。
 
 ## 7. 切片、所有权与Gate
 
