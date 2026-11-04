@@ -567,6 +567,34 @@
       "functional_status": "ENGINEERING_AND_EXISTING_PG_REVIEWED_PHASE3_AND_BROWSER_PENDING",
       "checkpoint": "r34",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "faf9a0725a5f1ffc326abf75ea57d49c453a65ed",
+      "base": "8174707a07289d03e09e24bb3e7c5e71051c4490",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "faf9a0725a5f1ffc326abf75ea57d49c453a65ed",
+      "actions_runs": [],
+      "functional_status": "REVIEWED_UI_CHECKLIST_DRAFT_PHASE3_AND_BROWSER_PENDING",
+      "checkpoint": "r35",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-qa-20261104",
+      "source": "c154777f8689da589a25a253a6c234bfb7891444",
+      "base": "e706d550dd1b8678eb92e4e863f124bd8007d2f2",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "c154777f8689da589a25a253a6c234bfb7891444",
+      "actions_runs": [],
+      "functional_status": "CANDIDATE_COMPONENT_CHECKS_PASS_REVIEW_AND_RUNTIME_PENDING",
+      "checkpoint": "r36",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [
