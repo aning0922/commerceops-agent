@@ -3,7 +3,7 @@
   "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
   "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
   "case": "ui-fixture-batch-r4",
-  "status": "MOCK_33_PASSED_CLOSED_PENDING_INDEPENDENT_REVIEW",
+  "status": "MOCK_33_PASS_CLOSED_ACCEPTED",
   "stats": {
     "passed": 33,
     "failed": 0,
@@ -72,5 +72,8 @@
       "path": "ui-fixture-batch-r4/source-after.raw.json",
       "sha256": "cb89309ea07d302b2c7d83af9cdb92d718d8eb76d6591f82ab399c136b19f011"
     }
-  ]
+  ],
+  "review_source": "ac0a18ac089b86b40252a9b687c5b985c70b05a1",
+  "review_path": "docs/v4/v4-1/reviews/MOCK_BATCH_RUNTIME.md",
+  "outer_exit_provenance": "Executor actual outer tool result and unchanged runner return logic; outer-receipt field itself records worker exit."
 }

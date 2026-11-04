@@ -2,14 +2,14 @@
   "stage": "V4-1",
   "mode": "local_implementation_with_incremental_branch_backups",
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
-  "status": "implementing",
+  "status": "local_stage_gates_accepted_delivery_review_pending",
   "cards": {
-    "V41-01": "implemented_local_http_accepted_browser_full_pending",
-    "V41-02": "implemented_local_http_accepted_browser_full_pending",
-    "V41-03": "implemented_local_http_accepted_browser_full_pending",
-    "V41-04": "implemented_local_http_accepted_browser_full_pending",
-    "V41-05": "batch_and_real_mobile_source_accepted_final_runtime_pending",
-    "V41-06": "import_http_pg_accepted_mobile_source_accepted_final_runtime_pending"
+    "V41-01": "implemented_controlled_scope_local_gate_accepted",
+    "V41-02": "implemented_controlled_scope_local_gate_accepted",
+    "V41-03": "implemented_controlled_scope_local_gate_accepted",
+    "V41-04": "implemented_controlled_scope_local_gate_accepted",
+    "V41-05": "implemented_controlled_scope_local_gate_accepted",
+    "V41-06": "implemented_controlled_scope_local_gate_accepted"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
@@ -310,15 +310,16 @@
   },
   "remote_checkpoint": {
     "branch": "codex/v41-control-20261104",
-    "source": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
-    "base": "5acf03ae30807c160aa110035127a4e308e95da9",
+    "source": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "base": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
     "raw_native_exit": 0,
     "raw_findings": 0,
     "blocking_findings": 0,
     "push_native_exit": 0,
-    "remote_head": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
+    "remote_head": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
     "actions_runs": [],
-    "functional_status": "MOBILE_AND_BATCH_SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING"
+    "functional_status": "R10_AND_MOCK_ACCEPTED_FORTY_RAW_IMAGES_AND_INDEPENDENT_REVIEWS_DELIVERED_DOCUMENT_PACKAGING_PENDING",
+    "batch": "r57"
   },
   "full_audit": {
     "status": "exact_development_source_scan_pass_not_final_stage",
@@ -339,14 +340,17 @@
       "receipt": "ENGINEERING_R3.json"
     },
     "latest_exact_scanner": {
-      "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
-      "receipt": "SCAN_EB30.json",
-      "native": 0,
-      "blocking": 0
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "receipt": "SCAN_261F399.json",
+      "wrapper_native": 0,
+      "history_native": 1,
+      "reviewed": 1760,
+      "blocking": 0,
+      "refs_frozen": false
     }
   },
   "business_runtime": {
-    "status": "FOUR_REAL_LOCAL_HTTP_RECIPES_ACCEPTED_BROWSER_AND_FULL_PENDING",
+    "status": "LOCAL_RUNTIME_AND_FULL_BROWSER_ACCEPTED",
     "reviewed_business_source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
     "postgresql_executed": true,
     "owned_fixture_runtime_grants_executed": true,
@@ -354,18 +358,62 @@
     "S02_same_principal_ordering": "PG7_ACCEPTED",
     "S04": "PG22_PLUS_SEPARATE_LIVE_CHILD_ACCEPTED_BOUNDED_SCOPE",
     "S05_live_rebind": "PG22_ACCEPTED",
-    "current_defect": null,
+    "current_defect": "NONE_IN_ACCEPTED_V41_CONTROLLED_SCOPE; recorded limitations in RISKS.md",
     "owner_cli_archive_route": "735_FIXED_HELPER_REAL_COMMITTED_COMMITTED_VERIFIED_R2",
     "browser_parent": "E20_GROUP_FIX_SOURCE_ACCEPTED",
     "source_accepted_http": "54ab68f054a136f98dac0a50986caced11362fbd",
-    "source_accepted_business_browser": "538665aebac7064c3d9b77bcbf65b4879b864123",
-    "native_source": "651_SOURCE_ACCEPTED_ACTUAL_CAPTURE_NOT_RUN",
+    "source_accepted_business_browser": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "native_source": "c8e817a587c6b65df520f8171e418c1637bf5822",
     "full_pg": "accepted_exact_e7_full_pair_773",
     "real_browser": "r8_business_pass_shell_native_timeout_closed",
     "combined_candidate": {
-      "source": "fbb29a429b7f680328ab4451a717adb3ad2d99c1",
-      "tree": "ef6d8230ac4b58401af2771d722064aadacc5eed",
-      "status": "SOURCE_REVIEWED_RUNTIME_PENDING"
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+      "status": "SOURCE_OFFLINE_MOCK_REAL_BROWSER_SQL_AND_AI_VISUAL_ACCEPTED"
+    },
+    "final_receipt": "BROWSER_R10.json"
+  },
+  "code_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "code_tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "runtime_accepted_utc": "2026-11-04T11:02:44.309511+00:00",
+  "final_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+  "latest_normal_push": {
+    "branch": "codex/v41-control-20261104",
+    "source": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "base": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "raw_native_exit": 0,
+    "raw_findings": 0,
+    "blocking_findings": 0,
+    "push_native_exit": 0,
+    "remote_head": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "actions_runs": [],
+    "functional_status": "R10_AND_MOCK_ACCEPTED_FORTY_RAW_IMAGES_AND_INDEPENDENT_REVIEWS_DELIVERED_DOCUMENT_PACKAGING_PENDING"
+  },
+  "models_closeout": {
+    "api": "Sol medium execution; Sol high targeted diagnosis",
+    "web": "Terra high UI; Sol high repair; Sol medium fixed execution",
+    "qa": "Sol high consumer; Sol medium pin; Terra high actual visuals",
+    "gates": "Sol high native protocol repair; Sol medium fixed checks",
+    "main_review": "Astra high",
+    "evidence_review": "Astra high",
+    "documentation": "Sol medium",
+    "quota": "UNKNOWN_NOT_EXPOSED",
+    "cost": "UNKNOWN_NOT_EXPOSED",
+    "paid_fallback": "NOT_USED"
+  },
+  "prior_remote_checkpoint_records": [
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
+      "base": "5acf03ae30807c160aa110035127a4e308e95da9",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
+      "actions_runs": [],
+      "functional_status": "MOBILE_AND_BATCH_SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING"
     }
-  }
+  ],
+  "record_interpretation": "status/cards/code_source/final_receipt are current local-stage facts; earlier source-bound ledger entries remain historical and are not relabeled."
 }

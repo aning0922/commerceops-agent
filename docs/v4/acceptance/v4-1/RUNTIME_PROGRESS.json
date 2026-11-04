@@ -1,6 +1,6 @@
 {
   "stage": "V4-1",
-  "scope": "local_specialized_checks_not_full_stage_acceptance",
+  "scope": "ACCEPTED_LOCAL_V41_CONTROLLED_STAGE_GATES",
   "runs": [
     {
       "case": "owner-ddl-pilot-r4",
@@ -893,16 +893,33 @@
         "flaky": 0,
         "retries": 0
       }
+    },
+    {
+      "case": "browser-final-r10",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+      "status": "accepted_closed",
+      "parent_native": 0,
+      "specs_passed": 2,
+      "mobile_keys": 10,
+      "business_keys": 11,
+      "pngs": 40,
+      "final_sql_native": 0,
+      "receipt": "BROWSER_R10.json",
+      "review_source": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
     }
   ],
   "mock_ui": {
-    "source": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
-    "tests": 24,
-    "passed": 24,
+    "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "tests": 33,
+    "passed": 33,
     "failed": 0,
     "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
     "actual_http_business_api": false,
-    "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
+    "review": "ac0a18ac089b86b40252a9b687c5b985c70b05a1",
+    "receipt": "UI_MOCK_BATCH_R4.json"
   },
   "full_engineering": "pass",
   "full_paired_postgresql": "accepted_exact_e7_full_pair_773",
@@ -923,16 +940,16 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": "Original Mock r1 synchronization failure and browser r8 Native timeout preserved; reviewed source fixes integrated at fbb29a4; fresh runtime pending",
+  "current_failure": "NONE_CURRENT; prior failures and UNKNOWN preserved in runs and linked receipts",
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
   "real_http_review": "ab278a4a775305758a749fd755b60a9607a005ef",
-  "real_browser": "partial",
-  "native200": "NOT_RUN",
-  "native_source_review": "b23d47ff35daa04353e465c282031f8678f721f9",
+  "real_browser": "accepted_exact_261_owned_r10",
+  "native200": "CAPTURE_GEOMETRY_AND_AI_VISUAL_ACCEPTED_WITH_ORIGINAL_LIMITS",
+  "native_source_review": "aba7c1609a95af6d19d924b521fba039b677a523",
   "browser_caller": "source accepted at b9ecd4ee382792662db9c795cdb6c629fd7efeeb",
-  "remaining_browser_steps": "actual hidden, native 200 capture and visual review, delayed acknowledgement",
+  "remaining_browser_steps": "NONE_WITHIN_ORIGINAL_LOCAL_STAGE_SCOPE; human/physical touch not run",
   "real_browser_partial_review": "46eacbf592982036f5e979c95171aa37f89dd831",
   "full_pg_failed_receipt": "FULLPG_R1_FAILURE.json",
   "full_engineering_current_source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
@@ -947,5 +964,5 @@
   "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed",
   "full_pg_pair_receipt": "PG_PAIR_FINAL.json",
   "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8",
-  "remaining_product_steps": "Product batch/mobile/Native implementation and source review accepted; final combination static, Mock33, real browser mobile/Native/lateACK, visual and receipts pending"
+  "remaining_product_steps": "NONE_IN_V41_LOCAL_STAGE_SCOPE; formal delivery document review and final pushes pending"
 }

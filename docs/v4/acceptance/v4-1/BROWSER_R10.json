@@ -4,7 +4,7 @@
   "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
   "case": "browser-final-r10",
   "image": "sha256:e834528d433acaf8ab9c3214d775670e0602d42b906a12ea02ea186b4a783798",
-  "status": "EXECUTION_PASS_PENDING_INDEPENDENT_REVIEW",
+  "status": "ACCEPTED_EXACT_LOCAL_RUNTIME_AND_CLOSURE",
   "driver_status": "SCENARIO_COMPLETED_PENDING_REVIEW",
   "raw_driver_summary": "NOT_WRITTEN",
   "started_utc": "2026-11-04T10:48:49.477572+00:00",
@@ -74,7 +74,7 @@
     "failures": []
   },
   "source_tool_terminal_seal": "TRACKED_SOURCE_AND_TOOLS_UNCHANGED",
-  "raw_before_after_hashes_differ": "Source snapshot records include generated ignored build data; original matches_source guard passed. Full raw files preserved.",
+  "raw_before_after_hashes_differ": "Only generated_inputs differs (allowed next-env generation); head/tree/tracked_sha256/tool_sha256 equal. Both original raw snapshots retained.",
   "artifacts": [
     {
       "path": "browser-final-r10/execution.json",
@@ -116,5 +116,7 @@
       "path": "browser-final-r10/final_facts.stdout.private.log",
       "sha256": "0e4b6bd35794fbb040a4515f821d6c8ca3a66eba6846f4bfc84605542620dad7"
     }
-  ]
+  ],
+  "review_source": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+  "review_path": "docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md"
 }
