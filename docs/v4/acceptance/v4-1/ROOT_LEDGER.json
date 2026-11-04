@@ -5,11 +5,11 @@
   "status": "implementing",
   "cards": {
     "V41-01": "implemented_mock_ui_accepted_real_http_pending",
-    "V41-02": "implemented_real_pg_partial",
+    "V41-02": "implemented_specialized_pg_accepted_real_http_full_pending",
     "V41-03": "implemented_mock_ui_accepted_real_http_pending",
-    "V41-04": "implemented_pg7_accepted_tag_repeat_write_failure_open",
+    "V41-04": "implemented_specialized_pg_accepted_real_http_full_pending",
     "V41-05": "implemented_mock_ui_accepted_real_http_pending",
-    "V41-06": "implemented_offline_mock_import_accepted_real_pg_pending"
+    "V41-06": "implemented_specialized_pg_accepted_real_http_full_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
@@ -97,6 +97,68 @@
       },
       "closed": true,
       "volumes_preserved": true
+    },
+    {
+      "case": "pg22-root-r3",
+      "source": "0d5f848dc9ce78cdc6cb47f6a7feccee8412ba33",
+      "status": "CLOSED_PG22_FAILED_NO_RETRY",
+      "stats": {
+        "collected": 22,
+        "executed": 8,
+        "passed": 7,
+        "failed": 1,
+        "not_run": 14,
+        "skipped": 0,
+        "failed_node": "test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation",
+        "sqlstate": "42501",
+        "error": "permission denied for table v41_security_policy",
+        "test_source_line": 469,
+        "helper_source_line": 52,
+        "package_source_lines": {
+          "v41_security.py": 75,
+          "v41_store.py": [
+            190,
+            96
+          ]
+        }
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg22-root-r4",
+      "source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
+      "status": "CLOSED_PG22_PASS_OWNED_SPECIALIST_SCOPE_ONLY",
+      "stats": {
+        "collected": 22,
+        "executed": 22,
+        "passed": 22,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "19.764"
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "additional6-root-r1",
+      "source": "e54c603b267c06bff851822b8c2fdaef8fad3230",
+      "status": "CLOSED_ADDITIONAL6_PASS_OWNED_SCOPE_ONLY",
+      "stats": {
+        "collected": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "12.812",
+        "live_child": 1,
+        "live_gc_orderings": 2,
+        "synthetic_historical_gc_outcomes": 3
+      },
+      "closed": true,
+      "volumes_preserved": true
     }
   ],
   "hosted": "not_run",
@@ -104,19 +166,22 @@
   "model_cost": "unknown",
   "next_stage": "not_started",
   "owner_slices": {
-    "backend_contract": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+    "backend_contract": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
     "qa_supervisor": "c5b00f13e32eaf8538b0386dca374fa78d17cbb0",
     "review": "ongoing_exact_slices",
     "web_shell": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
-    "qa_candidate": "f667d099857f69fef0938bc077953b5e05769e25"
+    "qa_candidate": "95deb3943d53f444bb63e48b5245deb3d19ea3fe",
+    "owner_helper": "7358880dfb82c72da899d02f133d0ff3462f0042",
+    "current_head_compatibility": "827f21c5f22b2343febede1fb6c336bddfe8a214"
   },
   "models": {
-    "api": "Astra high temporary database runtime repair",
+    "api": "Sol high after temporary Astra SQL repair",
     "web": "Terra high",
     "qa": "Sol high",
     "review": "Astra high",
     "gates": "Sol high",
-    "ui_review": "Astra high UI accepted and GC evidence scope review"
+    "ui_review": "Astra high UI accepted and GC evidence scope review",
+    "gc_tests": "Sol high"
   },
   "remote_checkpoint": {
     "branch": "codex/v41-control-20261104",
@@ -124,32 +189,32 @@
     "mode": "push",
     "ci": "no_runs_observed",
     "pull_request": "not_created",
-    "last_actual_head": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf"
+    "last_actual_head": "590eb5ceb97f3fd747198f0d2a5fa49de52fe23d"
   },
   "full_audit": {
-    "status": "development_scan_pass_not_final_stage_source",
+    "status": "exact_development_source_scan_pass_not_final_stage",
     "full_native_exit": 0,
     "current_native_findings": 0,
     "index_native_findings": 0,
     "row_guard_blocks": 0,
-    "git_raw_findings": 1759,
-    "git_classified_findings": 1759,
+    "git_raw_findings": 1760,
+    "git_classified_findings": 1760,
     "git_blocking_findings": 0,
-    "source_at_start": "c8988fb",
-    "source_at_end": "4acba0c",
-    "scope_note": "Root public documentation commits occurred during scan; final exact source audit remains required",
-    "log_sha256": "ee067350f3f7e51613bfc9a8af9a13a107b1887c0466944bddb57805a4d187d9"
+    "source_at_start": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
+    "source_at_end": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
+    "scope_note": "Exact db5 scan; later commits require final exact audit",
+    "log_sha256": "a9a3bc4fe2fdac33434ceb0df69510a61bceea62123aecb5b6c4449523479471"
   },
   "business_runtime": {
-    "status": "HOLD_ACTUAL_TAG_REPEAT_WRITE_FAILURE",
-    "reviewed_business_source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+    "status": "SPECIALIZED_PG_ACCEPTED_HTTP_AND_FULL_PENDING",
+    "reviewed_business_source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
     "postgresql_executed": true,
     "owned_fixture_runtime_grants_executed": true,
     "public_http_runtime_started": false,
     "S02_same_principal_ordering": "PG7_ACCEPTED",
-    "S04": "CODE_ACCEPTED_REMAINING_PG_PENDING",
-    "S05_live_rebind": "CODE_ACCEPTED_REMAINING_PG_PENDING",
-    "current_defect": "23514_V41_TAG_INVALID_second_tag_action",
-    "owner_cli_archive_route": "HOLD_C01_USE_REVIEWED_HELPER_CANDIDATE"
+    "S04": "PG22_PLUS_SEPARATE_LIVE_CHILD_ACCEPTED_BOUNDED_SCOPE",
+    "S05_live_rebind": "PG22_ACCEPTED",
+    "current_defect": null,
+    "owner_cli_archive_route": "903_ARCHIVE_CLI_HOLD_REPLACED_BY_SOURCE_ACCEPTED_FIXED_735_HELPER_ACTUAL_SQL_PENDING"
   }
 }

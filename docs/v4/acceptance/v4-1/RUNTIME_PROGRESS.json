@@ -110,18 +110,139 @@
           "sha256": "9b366a8c3d4e23297118f6cfbd1395e524062fcaa204a0edbb2188ff6a93c563"
         }
       ]
+    },
+    {
+      "case": "pg22-root-r3",
+      "status": "CLOSED_PG22_FAILED_NO_RETRY",
+      "source": "0d5f848dc9ce78cdc6cb47f6a7feccee8412ba33",
+      "tree": "2255ac42683ecf0e75eee69e0c37cb2ff9811311",
+      "image_id": "sha256:44678112de37b12d163c5abc6c1a0298959f8f51cd2ea74da53052aef00dc2cf",
+      "started_utc": "2026-11-04T03:52:33.772579+00:00",
+      "ended_utc": "2026-11-04T03:52:53.990529+00:00",
+      "stats": {
+        "collected": 22,
+        "executed": 8,
+        "passed": 7,
+        "failed": 1,
+        "not_run": 14,
+        "skipped": 0,
+        "failed_node": "test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation",
+        "sqlstate": "42501",
+        "error": "permission denied for table v41_security_policy",
+        "test_source_line": 469,
+        "helper_source_line": 52,
+        "package_source_lines": {
+          "v41_security.py": 75,
+          "v41_store.py": [
+            190,
+            96
+          ]
+        }
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr3_data",
+        "v41pgrootr3_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg22-root-r3/receipt.json",
+          "sha256": "fbd23e47802ded75a0c6e59638261f9983462e5645bfb5a5754f3ae86f864394"
+        },
+        {
+          "path": "pg22-root-r3/closedfinal.json",
+          "sha256": "7a589137e1caac8323bd5445d5cbaf915eff1a1746e21e98fcaddb65ec5c65d5"
+        },
+        {
+          "path": "pg22-root-r3/final_owner_facts.json",
+          "sha256": "ddc8e10d654648b948f4fd0d664851fca9ee834bebc3e1e2d06bf5ca1abc39ae"
+        }
+      ]
+    },
+    {
+      "case": "pg22-root-r4",
+      "status": "CLOSED_PG22_PASS_OWNED_SPECIALIST_SCOPE_ONLY",
+      "source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
+      "tree": "0a8f25a18942c0c49c45e988af8733cb7b9a7ff1",
+      "image_id": "sha256:6b61ec7c7d638ead5d94fcff15b515c9be6b8b7417db1178025f7e89f38968aa",
+      "started_utc": "2026-11-04T04:02:37.276564+00:00",
+      "ended_utc": "2026-11-04T04:03:07.461961+00:00",
+      "stats": {
+        "collected": 22,
+        "executed": 22,
+        "passed": 22,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "19.764"
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr4_data",
+        "v41pgrootr4_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg22-root-r4/receipt.json",
+          "sha256": "93fdd0bac43088e6dfcfe21137085a06e67310afd7acff06a869e572ee913014"
+        },
+        {
+          "path": "pg22-root-r4/closedfinal.json",
+          "sha256": "08382b6d7c6041d4cd94f8369facb20a10fc94bc9c890d636127c28f4554922e"
+        },
+        {
+          "path": "pg22-root-r4/final_owner_facts.json",
+          "sha256": "e3ec87ed1049aca9c0d831401e45168d671febecc7da937976eeab370ae52e47"
+        }
+      ]
+    },
+    {
+      "case": "additional6-root-r1",
+      "status": "CLOSED_ADDITIONAL6_PASS_OWNED_SCOPE_ONLY",
+      "source": "e54c603b267c06bff851822b8c2fdaef8fad3230",
+      "tree": "f5cb64a2309d4fbe1ed8b35fa861bb49ba890eed",
+      "image_id": "sha256:a9aab23bed7c42674b55c5bc5abefa65dff59552612bbfce8932413e2ef5751d",
+      "started_utc": "2026-11-04T04:19:48.091570+00:00",
+      "ended_utc": "2026-11-04T04:20:11.704419+00:00",
+      "stats": {
+        "collected": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "12.812",
+        "live_child": 1,
+        "live_gc_orderings": 2,
+        "synthetic_historical_gc_outcomes": 3
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pggcliver1_data",
+        "v41pggcliver1_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "additional6-root-r1/receipt.json",
+          "sha256": "8357e958d35d595a2214e45a4001b8a6d12f99fa78ce9c8ea88acb20a655f093"
+        },
+        {
+          "path": "additional6-root-r1/closedfinal.json",
+          "sha256": "20bdec92dbb8da932da5cd748777f447619852bfc61188f79a808dae8653c22e"
+        },
+        {
+          "path": "additional6-root-r1/final_owner_facts.json",
+          "sha256": "47213c17007ece43bd4d9d0375c01537d57c8129b8dc06dfc8f3aced34f306a7"
+        }
+      ]
     }
   ],
-  "current_failure": {
-    "case": "pg22-root-r2",
-    "node": "test_golden_reads_tags_receipt_replay_original_after_later_effect",
-    "source_line": 221,
-    "sqlstate": "23514",
-    "safe_error": "V41_TAG_INVALID",
-    "phase": "second_tag_action",
-    "trigger_operation_not_captured": true,
-    "root_cause": "under_owner_investigation"
-  },
   "mock_ui": {
     "source": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
     "tests": 24,
@@ -137,5 +258,21 @@
   "hosted": "NOT_RUN",
   "external_business_providers": "NOT_RUN",
   "production": "NOT_RUN",
-  "previous_failed_cases": "PRESERVED_NOT_REPLACED"
+  "previous_failed_cases": "PRESERVED_NOT_REPLACED",
+  "previous_failure": {
+    "case": "pg22-root-r2",
+    "node": "test_golden_reads_tags_receipt_replay_original_after_later_effect",
+    "source_line": 221,
+    "sqlstate": "23514",
+    "safe_error": "V41_TAG_INVALID",
+    "phase": "second_tag_action",
+    "trigger_operation_not_captured": true,
+    "root_cause": "under_owner_investigation",
+    "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
+    "verified_in_case": "pg22-root-r4"
+  },
+  "current_failure": null,
+  "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
+  "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
+  "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY"
 }
