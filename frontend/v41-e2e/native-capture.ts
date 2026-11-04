@@ -7,7 +7,7 @@ import type {Cookie} from '@playwright/test';
 import {readBrowserCase,type BrowserCase,type SubjectContext} from './browser-subjects';
 
 const moduleFile=fileURLToPath(new URL('../../tests/e2e/v41/native_zoom.cjs',import.meta.url));
-const moduleHash='3d71c7695b946a1714d98c1a92cfe7af7c3cd4fec9b3cae05ca91820414f15dd';
+const moduleHash='295bf2c61e7cd30e7a47d7368d93fbadb40764fb41072a9119b5d78ed925689e';
 const digest=(raw:Buffer|string)=>createHash('sha256').update(raw).digest('hex');
 export type NativeCapture={status:'NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW';receiptPath:string;nativeBrowserExit:'NOT_EXPOSED';visualAcceptance:'PENDING_REVIEW';receiptSha256:string};
 type CompleteCase=BrowserCase&{inputs:Record<string,string>;database:string;pg_image:string;test_image:string;pg_subnet:string;host_subnet:string};

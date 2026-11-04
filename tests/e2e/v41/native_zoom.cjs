@@ -141,6 +141,18 @@ function requireNative200(baseline, readback) {
   return {status: 'NATIVE_FACTOR_2_CONFIRMED_ONLY', visualAcceptance: 'SEPARATE_SCREENSHOT_AND_SCENARIO_REVIEW_REQUIRED'};
 }
 
+const SAFE_STAGES = Object.freeze(['launch', 'worker', 'navigation_session', 'shop_locate', 'shop_select', 'business_read', 'rows', 'native_zoom', 'png', 'cleanup']);
+function safeStage(stage, evidence = {}) {
+  check(SAFE_STAGES.includes(stage), 'NATIVE_UNSUPPORTED_SAFE_STAGE');
+  check(evidence && Object.getPrototypeOf(evidence) === Object.prototype, 'NATIVE_UNSAFE_STAGE_EVIDENCE');
+  const booleans = ['sessionVerified', 'shopVerified', 'businessVerified'];
+  const counts = ['completedPages', 'rowCount', 'completedPngs'];
+  for (const [key, value] of Object.entries(evidence)) {
+    check(booleans.includes(key) ? typeof value === 'boolean' : counts.includes(key) && Number.isSafeInteger(value) && value >= 0, 'NATIVE_UNSAFE_STAGE_EVIDENCE');
+  }
+  return Object.freeze({stage, evidence: Object.freeze({...evidence})});
+}
+
 function selfTest() {
   let checks = 0;
   const count = fn => {fn(); checks++;};
@@ -180,6 +192,25 @@ function selfTest() {
     assert.equal(report.status, 'FAILED_OR_UNKNOWN');
     assert.equal(report.cleanup.forced, true);
     assert.deepEqual(report.cleanup.emergencyEvents, [event]);
+    assert.equal(failure.safeStage.stage, 'cleanup');
+  });
+  count(() => assert.throws(() => safeStage('unknown'), /NATIVE_UNSUPPORTED_SAFE_STAGE/));
+  for (const evidence of [{url: 'unsafe'}, {sessionVerified: 'true'}, {rowCount: -1}, {rowCount: 1.5}, {completedPngs: Infinity}, []]) {
+    count(() => assert.throws(() => safeStage('rows', evidence), /NATIVE_UNSAFE_STAGE_EVIDENCE/));
+  }
+  count(() => {
+    const evidence = {sessionVerified: true, completedPages: 0};
+    const located = safeStage('shop_locate', evidence);
+    const failure = safeFailure(new Error('untrusted original text'), located);
+    evidence.sessionVerified = false;
+    const cleanup = safeStage('cleanup');
+    assert.equal(located.evidence.sessionVerified, true);
+    assert.throws(() => {located.evidence.sessionVerified = false;}, TypeError);
+    assert.deepEqual(Object.keys(failure).sort(), ['code', 'safeStage', 'type']);
+    assert.equal(failure.code, 'NATIVE_BROWSER_OR_COMPONENT_FAILURE');
+    assert.equal(markForcedStop({cleanup: {}}, {}, failure), failure);
+    assert.equal(failure.safeStage.stage, 'shop_locate');
+    assert.equal(safeFailure({name: 'untrusted type', message: 'raw error'}, cleanup).type, 'Error');
   });
   return {status: 'PURE_COMPONENT_CHECKS_PASS', checks, browserLaunches: 0, profilesCreated: 0, nativeZoom: 'NOT_RUN', screenshots: 'NOT_RUN', S01: 'NOT_RUN'};
 }
@@ -292,7 +323,7 @@ function markForcedStop(report, event, currentFailure) {
   report.cleanup.forced = true;
   (report.cleanup.emergencyEvents ||= []).push(event);
   report.status = 'FAILED_OR_UNKNOWN';
-  return currentFailure || {type: 'Error', code: 'NATIVE_FORCED_PROFILE_STOP'};
+  return currentFailure || safeFailure(new Error('NATIVE_FORCED_PROFILE_STOP'), safeStage('cleanup'));
 }
 
 function persistEmergencyIntent(filename, event) {
@@ -303,8 +334,8 @@ function persistEmergencyIntent(filename, event) {
   } finally {fs.closeSync(fd);}
 }
 
-function safeFailure(error) {
-  return {type: error?.name || 'Error', code: /^NATIVE_[A-Z0-9_]+$/.test(error?.message || '') ? error.message : 'NATIVE_BROWSER_OR_COMPONENT_FAILURE'};
+function safeFailure(error, stage) {
+  return {type: error?.name === 'TimeoutError' ? 'TimeoutError' : 'Error', code: /^NATIVE_[A-Z0-9_]+$/.test(error?.message || '') ? error.message : 'NATIVE_BROWSER_OR_COMPONENT_FAILURE', safeStage: safeStage(stage.stage, stage.evidence)};
 }
 
 async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
@@ -349,9 +380,12 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
   const receiptPath = path.join(directory, 'receipt.json');
   const report = {status: 'FAILED_OR_UNKNOWN', scope: 'SAME_SHELL_VISITOR_READONLY_NATIVE_200', startedUtc: new Date().toISOString(), source: sourceBefore, tools: toolsBefore.files, currentShopSha256: sha(currentShopId), shellContextSha256: sha(JSON.stringify(CONTEXT_KEYS.map(k => shell.context[k]))), cookieCount: cookies.length, profile: {path: owned.profile, mode: fs.statSync(owned.profile).mode & 0o777, uid: process.getuid()}, extensionSha256: Object.fromEntries(Object.entries(extension).map(([name, bytes]) => [name, sha(bytes)])), nativeBrowserExit: 'NOT_EXPOSED', pages: [], requests: {allowedReads: 0, refused: []}, processes: [], cleanup: {confirmed: false}, humanVisualAcceptance: 'NOT_RUN'};
   let context = null, monitor = null, monitorFailure = null, failure = null;
+  let stage = safeStage('launch'), completedPngs = 0;
+  const enter = (name, evidence = {}) => {stage = safeStage(name, {completedPages: report.pages.length, completedPngs, ...evidence}); report.safeStage = stage;};
   const known = new Map();
-  const observe = () => {try {return processWitness(owned.profile, known);} catch (error) {monitorFailure = safeFailure(error); return null;}};
+  const observe = () => {try {return processWitness(owned.profile, known);} catch (error) {monitorFailure = safeFailure(error, stage); return null;}};
   try {
+    enter('launch');
     timeout();
     monitor = setInterval(observe, 250);
     const {chromium} = toolsBefore.load('playwright');
@@ -371,6 +405,7 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
       }
     });
     await context.addCookies(cookies); // Only this fresh profile receives current cookies; receipt/logs never contain their values.
+    enter('worker');
     let worker = context.serviceWorkers().find(item => item.url().startsWith('chrome-extension://'));
     if (!worker) worker = await context.waitForEvent('serviceworker', {timeout: timeout(15000)});
     const workerUrl = new URL(worker.url());
@@ -378,6 +413,7 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
     report.worker = {extensionId: workerUrl.hostname, path: workerUrl.pathname};
     const page = context.pages()[0] || await context.newPage();
     for (const [label, pathname, dataPath] of [['dashboard', '/v4/dashboard', '/api/v4/dashboard'], ['products', '/v4/products', '/api/v4/products']]) {
+      enter('navigation_session');
       timeout(); check(!monitorFailure, 'NATIVE_PROCESS_OBSERVER_FAILED');
       const targetUrl = webOrigin + pathname;
       const sessionResponse = page.waitForResponse(response => new URL(response.url()).origin === apiOrigin && new URL(response.url()).pathname === '/api/v4/demo/session', {timeout: timeout(15000)});
@@ -393,22 +429,30 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
       const session = await sessionReply.json();
       sameContext(shell.context, session.context);
       check(session.status === 'OK' && session.data?.shops?.some(shop => shop.shop_id === currentShopId && Array.isArray(shop.grants) && shop.grants.some(grant => ['operator', 'approver'].includes(grant))), 'NATIVE_SAME_AUTHORIZED_SHOP_REQUIRED');
-      const selector = page.getByLabel('店铺', {exact: true});
+      enter('shop_locate', {sessionVerified: true});
+      const selector = page.getByRole('combobox', {name: '店铺', exact: true});
       await selector.waitFor({state: 'visible', timeout: timeout(10000)});
       check(await selector.count() === 1, 'NATIVE_ONE_SHOP_SELECTOR_REQUIRED');
+      enter('shop_select', {sessionVerified: true});
       await selector.selectOption(currentShopId, {timeout: timeout(10000)});
+      enter('business_read', {sessionVerified: true, shopVerified: true});
       const dataReply = await dataResponse;
       check(dataReply.status() === 200, 'NATIVE_BUSINESS_READ_REJECTED');
       const payload = await dataReply.json(); sameContext(shell.context, payload.context, currentShopId);
       check(payload.status === 'OK' && payload.data, 'NATIVE_REAL_BUSINESS_DATA_REQUIRED');
+      enter('rows', {sessionVerified: true, shopVerified: true, businessVerified: true});
       const rows = page.locator(label === 'products' ? 'section[aria-label="商品中心"] tbody tr' : 'table tbody tr');
       const readyUntil = performance.now() + timeout(10000);
       while (await rows.count() === 0) {check(performance.now() < readyUntil, 'NATIVE_REAL_TABLE_ROWS_REQUIRED'); await pause(50);}
+      enter('native_zoom', {rowCount: await rows.count()});
       const baseline = await setNativeZoom(worker, targetUrl, 1);
       const before = await geometry(page);
       check(before.outerWidth === 1440 && before.outerHeight === 1000, 'NATIVE_ACTUAL_WINDOW_1440_1000_REQUIRED');
       const first = path.join(owned.screenshots, label + '-100.png');
+      enter('png');
       await page.screenshot({path: first, fullPage: false, scale: 'device', timeout: timeout(10000)}); fs.chmodSync(first, 0o600);
+      completedPngs++;
+      enter('native_zoom');
       await setNativeZoom(worker, targetUrl, 2);
       let zoom = await readNativeZoom(worker, targetUrl);
       const eventUntil = performance.now() + timeout(5000);
@@ -419,14 +463,21 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const after = await geometry(page);
       const second = path.join(owned.screenshots, label + '-200.png');
+      enter('png');
       await page.screenshot({path: second, fullPage: false, scale: 'device', timeout: timeout(10000)}); fs.chmodSync(second, 0o600);
+      completedPngs++;
       const pictures = [first, second];
       if (label === 'products') {
+        enter('rows');
         await rows.last().scrollIntoViewIfNeeded({timeout: timeout(10000)});
+        enter('native_zoom');
         check((await readNativeZoom(worker, targetUrl)).actual === 2, 'NATIVE_ZOOM_CHANGED_BEFORE_BOTTOM_CAPTURE');
         const bottom = path.join(owned.screenshots, 'products-200-bottom.png');
+        enter('png');
         await page.screenshot({path: bottom, fullPage: false, scale: 'device', timeout: timeout(10000)}); fs.chmodSync(bottom, 0o600); pictures.push(bottom);
+        completedPngs++;
       }
+      enter('png');
       report.pages.push({label, pathname, rowCount: await rows.count(), baseline, zoom, before, after, screenshots: pictures.map(filename => {
         const bytes = fs.readFileSync(filename);
         check(bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), 'NATIVE_REAL_PNG_REQUIRED');
@@ -436,10 +487,11 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
     }
     report.status = 'NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW';
   } catch (error) {
-    failure = safeFailure(error); report.failure = failure;
+    failure = safeFailure(error, stage); report.failure = failure;
   } finally {
     if (monitor) clearInterval(monitor);
-    try {if (context) await limited(context.close(), 15000, true);} catch (error) {report.cleanup.closeFailure = safeFailure(error); failure ||= safeFailure(error);}
+    enter('cleanup');
+    try {if (context) await limited(context.close(), 15000, true);} catch (error) {report.cleanup.closeFailure = safeFailure(error, stage); failure ||= report.cleanup.closeFailure;}
     try {
       let witness = processWitness(owned.profile, known);
       const until = performance.now() + timeout(3000, true);
@@ -466,8 +518,8 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
       report.cleanup.sourceAfter = sourceEvidence(ownedCase); report.cleanup.toolsAfter = toolEvidence(browserRuntime).files;
       check(JSON.stringify(report.cleanup.sourceAfter) === JSON.stringify(sourceBefore) && JSON.stringify(report.cleanup.toolsAfter) === JSON.stringify(toolsBefore.files), 'NATIVE_SOURCE_OR_TOOL_CHANGED');
       check(!monitorFailure, 'NATIVE_PROCESS_OBSERVER_FAILED'); report.cleanup.confirmed = true;
-    } catch (error) {report.cleanup.failure = safeFailure(error); failure ||= safeFailure(error);}
-    if (failure) report.status = 'FAILED_OR_UNKNOWN';
+    } catch (error) {report.cleanup.failure = safeFailure(error, stage); failure ||= report.cleanup.failure;}
+    if (failure) {report.status = 'FAILED_OR_UNKNOWN'; report.failure = failure;}
     report.endedUtc = new Date().toISOString();
     try {writeNew(receiptPath, JSON.stringify(report, null, 2) + '\n');} catch {failure = {code: 'NATIVE_RECEIPT_WRITE_FAILED'};}
   }
