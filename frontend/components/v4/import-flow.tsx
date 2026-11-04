@@ -25,7 +25,7 @@ export function ImportFlow({enabled,identityActive,busy,preview,hasReference,can
       {file&&<button type="button" disabled={!enabled||busy||!validMapping(mapping,preview.headers)||preview.state==='COMMITTED'||preview.state==='SUPERSEDED'} onClick={()=>onMap(file,mapping)}>确认映射并重新预览</button>}
       <h4>安全样本</h4><div className={styles.tableScroll}><table><thead><tr><th>行</th>{preview.headers.map(header=><th key={header}>{header}</th>)}</tr></thead><tbody>{preview.sample.map(sample=><tr key={sample.row}><td>{sample.row}</td>{sample.cells.map((cell,index)=><td key={index}>{cell}</td>)}</tr>)}</tbody></table></div>
       <h4>质量问题</h4>{preview.issues.length?<ul>{preview.issues.map((issue,index)=><li key={`${issue.row}-${index}`}>第 {issue.row} 行 · {issue.column??'整行'} · {issue.code}</li>)}</ul>:<p>当前预览没有返回问题明细。</p>}
-      {!confirm?<button type="button" disabled={!enabled||busy||!preview.confirmable||!canConfirm} onClick={()=>setConfirm(true)}>{canConfirm?'准备确认导入':'确认接口待接入'}</button>:<div><p>确认将本次有效预览原子导入当前演示店铺；失败不应留下部分商品。</p><div className={styles.writeActions}><button type="button" disabled={busy} onClick={()=>setConfirm(false)}>取消</button><button type="button" disabled={!enabled||busy||!preview.confirmable} onClick={onConfirm}>确认导入</button></div></div>}
+      {!confirm?<button type="button" disabled={!enabled||busy||!preview.confirmable||!canConfirm} onClick={()=>setConfirm(true)}>{canConfirm?'准备确认导入':'需要有效预览与当前数据版本'}</button>:<div><p>确认将本次有效预览原子导入当前演示店铺；失败不应留下部分商品。</p><div className={styles.writeActions}><button type="button" disabled={busy} onClick={()=>setConfirm(false)}>取消</button><button type="button" disabled={!enabled||busy||!preview.confirmable||!canConfirm} onClick={onConfirm}>确认导入</button></div></div>}
     </article>}
   </div>;
 }

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
 import {encodeImportFile,validMapping,validPreview} from '../lib/v41-import.mjs';
 const digest='a'.repeat(64),now='2026-11-03T00:00:00Z',expires='2026-11-03T00:10:00Z';
 const mapping={sku:'sku',title:'title',price:'price',currency:'currency',tags:null};
@@ -26,4 +27,14 @@ test('reject unsupported and oversized files before reading bytes',async()=>{
  let reads=0;const bad={name:'bad.xlsm',size:10,arrayBuffer(){reads++;}};
  await assert.rejects(encodeImportFile(bad),/UNSUPPORTED_FILE/);await assert.rejects(encodeImportFile({...bad,name:'large.csv',size:2*1024*1024+1}),/INVALID_FILE/);assert.equal(reads,0);
  const good=new File(['sku,title\na,b\n'],'sample.csv');const result=await encodeImportFile(good);assert.equal(result.format,'csv');assert.equal(result.file_digest.length,64);assert.equal(atob(result.file_base64),'sku,title\na,b\n');
+});
+
+test('CSV and XLSX bytes survive encoding with an exact digest',async()=>{
+ const xlsx=await readFile(new URL('./fixtures/sample.xlsx',import.meta.url));
+ for(const [name,bytes] of [['sample.csv',Buffer.from('sku,title,price,currency\nSKU-1,Demo,12,TWD\n')],['sample.xlsx',xlsx]]){
+  const output=await encodeImportFile(new File([bytes],name));
+  assert.equal(output.format,name.endsWith('.xlsx')?'xlsx':'csv');
+  assert.deepEqual(Buffer.from(output.file_base64,'base64'),bytes);
+  assert.equal(output.file_digest,createHash('sha256').update(bytes).digest('hex'));
+ }
 });
