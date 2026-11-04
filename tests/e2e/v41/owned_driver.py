@@ -17,7 +17,7 @@ from tests.e2e.v4 import owned_driver as public
 from tests.e2e.v4.owned_adapter import OwnedAdapter, compose_environment, owner_run
 from tests.e2e.v4.supervisor import Budget, Supervisor
 
-from . import owner_bridge
+from . import browser_shell, owner_bridge
 from .fixed_daemon import freeze as freeze_daemon
 from .fixed_daemon import load as load_daemon
 from .image_provenance import probe_argv, runtime_files, validate_build, validate_measured
@@ -127,6 +127,12 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
     case.validate(prepared=True)
     auth = runtime_handoff(case)  # No Docker/resource work before a concrete Root authorization.
     directory = Path(case.directory)
+    browser_binding: dict[str, Any] | None = None
+    browser_runtime_digest: str | None = None
+    if case.scenario == "shell_navigation":
+        browser_shell.verify_source(ROOT)
+        browser_binding = browser_shell.runtime(case, auth["authorization_id"])
+        browser_runtime_digest = digest(directory / "browser-runtime.safe.json")
     reject_implicit_env(ROOT)
     reserve_ports(case.api_port, case.web_port)
     expected_runtime = runtime_files(ROOT)
@@ -164,6 +170,13 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         Path(original[0]).resolve(),
         Path(host_binding["compose_plugin_path"]).resolve(),
     ]
+    if browser_binding is not None:
+        tool_paths.extend(
+            [
+                ROOT / "frontend/node_modules/@playwright/test/cli.js",
+                Path(browser_binding["executable"]),
+            ]
+        )
     source_before = snapshot(ROOT, tool_paths)
     persist(directory / "source-before.json", source_before)
     public.private(directory / "execution.once", "V41 one new attempt; no replay\n")
@@ -466,7 +479,9 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             (
                 sys.executable,
                 "-m",
-                "tests.e2e.v41.http_recipes",
+                "tests.e2e.v41.browser_shell"
+                if case.scenario == "shell_navigation"
+                else "tests.e2e.v41.http_recipes",
                 "--case",
                 str(directory / "case.json"),
             ),
@@ -476,6 +491,14 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         records.append({"stage": "probe", "native_exit": native})
         if native or supervisor.watchdog_errors:
             raise RuntimeError("V41_PROBE_FAILED_OR_UNKNOWN")
+        if case.scenario == "shell_navigation":
+            browser_shell.validate_report(
+                json.loads((directory / "processes/probe.raw.log").read_bytes())
+            )
+            report["information"]["browser_receipts"] = browser_shell.validate_receipts(case)
+            records.append(
+                {"stage": "browser", "selected": 2, "passed": 2, "skipped": 0, "retries": 0}
+            )
         report["status"] = "SCENARIO_COMPLETED_PENDING_CLEANUP"
     except Exception as error:
         report["failure"] = {"type": type(error).__name__, "errno": getattr(error, "errno", None)}
@@ -488,6 +511,34 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                 writers_stopped = not supervisor.watchdog_errors
         except Exception as error:
             failures.append({"stage": "writers", "type": type(error).__name__})
+        if browser_binding is not None and supervisor is not None:
+            try:
+                browser_probe = next((p for p in supervisor.owned if p.role == "probe"), None)
+                if browser_probe is None:
+                    residuals = {
+                        "forced": [],
+                        "remaining": [],
+                        "clean_exit": True,
+                        "not_started": True,
+                    }
+                else:
+                    residuals = browser_shell.stop_residuals(
+                        case, browser_binding, budget, browser_probe.process.pid
+                    )
+                report["cleanup"]["browser"] = residuals
+                if not residuals["clean_exit"]:
+                    failures.append({"stage": "browser_residuals", "type": "ForcedStopOrRemaining"})
+                writers_stopped = writers_stopped and not residuals["remaining"]
+            except Exception as error:
+                writers_stopped = False
+                failures.append({"stage": "browser_residuals", "type": type(error).__name__})
+            if writers_stopped and any(p.role == "probe" for p in supervisor.owned):
+                journals = browser_shell.import_journals(case)
+                report["information"]["browser_subjects"] = journals
+                if journals["errors"]:
+                    failures.append(
+                        {"stage": "browser_subjects", "type": "IncompleteOrInvalidJournal"}
+                    )
         if report["information"].get("namespace_initial_empty"):
             try:
                 check_ids = (
@@ -661,6 +712,11 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                 or digest(directory / "expected-runtime.json") != expected_file_digest
             ):
                 raise ValueError("TERMINAL_ROOT_BUILD_OR_DAEMON_INPUT_CHANGED")
+            if browser_binding is not None and (
+                digest(directory / "browser-runtime.safe.json") != browser_runtime_digest
+                or browser_shell.runtime(case, auth["authorization_id"]) != browser_binding
+            ):
+                raise ValueError("TERMINAL_BROWSER_RUNTIME_CHANGED")
             load_daemon(directory)
             source_after = snapshot(ROOT, tool_paths)
             persist(directory / "source-after.json", source_after)

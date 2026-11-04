@@ -12,6 +12,7 @@ from commerceops.application.v4_demo.seed_contract import FixtureContent, genera
 from commerceops.domain.commerce_values import facts_hash
 from psycopg import sql
 
+from .request_witness import match_original_request, validate_request
 from .subjects import OPERATIONS
 
 IDENTITY = (
@@ -65,11 +66,20 @@ def decode_subjects(raw: bytes) -> dict[str, Any]:
         if not isinstance(operations, dict) or len(operations) > 100:
             raise ValueError("SUBJECT_OPERATIONS_BOUND")
         for name, attempt in operations.items():
-            if set(attempt) != {"operation", "request_key", "state", "observations"}:
+            if set(attempt) not in (
+                {"operation", "request_key", "state", "observations"},
+                {"operation", "request_key", "state", "observations", "requests"},
+            ):
                 raise ValueError("SUBJECT_OPERATION_MISMATCH")
             operation, key = attempt["operation"], str(UUID(attempt["request_key"]))
             if operation not in OPERATIONS or name != operation + ":" + key:
                 raise ValueError("SUBJECT_ORIGINAL_OPERATION_KEY_REQUIRED")
+            if "requests" in attempt:
+                requests = attempt["requests"]
+                if not isinstance(requests, list) or not 1 <= len(requests) <= 10:
+                    raise ValueError("SUBJECT_ORIGINAL_REQUESTS_BOUND")
+                for request in requests:
+                    validate_request(request, operation, key, scope)
             history = attempt["observations"]
             states = {
                 "ATTEMPT_STARTED",
@@ -246,12 +256,15 @@ def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
                         "SELECT id,preview_key,chain_version,parent_job_id,parse_state,parse_slot,"
                         "data_revision,parser_version,import_schema_version,job_digest,normalized_digest,"
                         "parse_pid,process_ref,stop_proof,preview_data IS NOT NULL AS published,"
-                        "created_at,expires_at FROM business.v41_import_jobs "
+                        "canonical_preview_request,created_at,expires_at "
+                        "FROM business.v41_import_jobs "
                         "WHERE {} AND preview_key=%s"
                     ).format(where),
                     (*params, attempt["request_key"]),
                 ).fetchall()
                 state = preview_state(attempt, rows)
+                for row in rows:
+                    match_original_request(attempt, row["canonical_preview_request"])
                 actions.append(
                     {
                         "attempt": attempt,
@@ -271,8 +284,12 @@ def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
                     raise ValueError("FINAL_ACTION_KEY_NOT_UNIQUE")
                 if "SQL_ROLLBACK_VERIFIED" in attempt["observations"] and rows:
                     raise ValueError("FINAL_ROLLED_BACK_ACTION_PERSISTED")
-                if "COMMITTED_READBACK" in attempt["observations"] and not rows:
+                if {"ACK_COMMITTED", "COMMITTED_READBACK"}.intersection(
+                    attempt["observations"]
+                ) and not rows:
                     raise ValueError("FINAL_COMMITTED_READBACK_RECEIPT_MISSING")
+                for row in rows:
+                    match_original_request(attempt, row["canonical_request"])
                 actions.append(
                     {
                         "attempt": attempt,
