@@ -36,30 +36,43 @@ def identity(pid: int) -> str:
     ).strip()
 
 
-def stop_registered(directory: Path) -> list[int]:
-    remaining = []
+def safe_error(stage: str, error: Exception) -> dict[str, Any]:
+    return {"stage": stage, "type": type(error).__name__, "errno": getattr(error, "errno", None)}
+
+
+def stop_registered(directory: Path) -> dict[str, Any]:
+    remaining: list[dict[str, Any]] = []
+    observations: list[dict[str, Any]] = []
     for path in directory.glob("*.process.json"):
-        item = json.loads(path.read_text())
-        pid = item["pid"]
-        if group_absent(pid):
-            continue
-        # Never signal a reused PID or adopt an unregistered group.
-        if identity(pid) != item["birth"]:
-            remaining.append(pid)
-            continue
-        for sig in (signal.SIGTERM, signal.SIGKILL):
-            try:
-                os.killpg(pid, sig)
-            except ProcessLookupError:
-                pass
-            until = time.monotonic() + 0.2
-            while not group_absent(pid) and time.monotonic() < until:
-                time.sleep(0.01)
+        pid = None
+        try:
+            item = json.loads(path.read_text())
+            pid = item["pid"]
+            if type(pid) is not int or pid <= 0:
+                raise ValueError("invalid registered pid")
             if group_absent(pid):
-                break
-        if not group_absent(pid):
-            remaining.append(pid)
-    return remaining
+                observations.append({"pid": pid, "status": "NO_LIVE_GROUP"})
+                continue
+            if identity(pid) != item["birth"]:
+                remaining.append({"pid": pid, "status": "UNKNOWN_IDENTITY_MISMATCH"})
+                continue
+            for sig in (signal.SIGTERM, signal.SIGKILL):
+                try:
+                    os.killpg(pid, sig)
+                except ProcessLookupError:
+                    pass
+                until = time.monotonic() + 0.2
+                while not group_absent(pid) and time.monotonic() < until:
+                    time.sleep(0.01)
+                if group_absent(pid):
+                    break
+            if not group_absent(pid):
+                remaining.append({"pid": pid, "status": "GROUP_REMAINS"})
+        except Exception as error:
+            observation = {"pid": pid, "status": "UNKNOWN", **safe_error("registered_probe", error)}
+            remaining.append(observation)
+            observations.append(observation)
+    return {"remaining": remaining, "observations": observations}
 
 
 def command(directory: Path, label: str, mode: str, cap: float) -> dict[str, Any]:
@@ -76,6 +89,7 @@ def command(directory: Path, label: str, mode: str, cap: float) -> dict[str, Any
         "timed_out": False,
         "pid": None,
         "group_absent": False,
+        "errors": [],
     }
     with os.fdopen(fd, "wb") as log:
         process = subprocess.Popen(
@@ -88,40 +102,44 @@ def command(directory: Path, label: str, mode: str, cap: float) -> dict[str, Any
             start_new_session=True,
         )
         record["pid"] = process.pid
-        # Child can exit before ps; use a live process handle registration before wait.
+        # Every action after successful Popen is within the cleanup boundary.
         try:
             birth = identity(process.pid)
-        except subprocess.CalledProcessError:
-            birth = "EXITED_BEFORE_IDENTITY"
-        registration = directory / (label + ".process.json")
-        registered = os.open(registration, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-        with os.fdopen(registered, "w") as stream:
-            json.dump({"pid": process.pid, "birth": birth}, stream)
-        try:
+            registration = directory / (label + ".process.json")
+            registered = os.open(
+                registration, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600
+            )
+            with os.fdopen(registered, "w") as stream:
+                json.dump({"pid": process.pid, "birth": birth}, stream)
             record["native_exit"] = process.wait(timeout=cap)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as error:
             record["timed_out"] = True
+            record["errors"].append(safe_error("identity_register_or_wait", error))
+        except Exception as error:
+            record["errors"].append(safe_error("identity_register_or_wait", error))
         finally:
-            # Always stop this created group, including descendants after leader exit.
-            for sig in (signal.SIGTERM, signal.SIGKILL):
-                if group_absent(process.pid):
-                    break
-                try:
-                    os.killpg(process.pid, sig)
-                except ProcessLookupError:
-                    pass
-                try:
-                    process.wait(timeout=0.2)
-                except subprocess.TimeoutExpired:
-                    pass
-            record["native_exit"] = process.wait(timeout=1)
-            record["group_absent"] = group_absent(process.pid)
+            # The unreaped direct child handle proves ownership even when ps/registration failed.
+            # Never signal a group whose identity could not be verified.
+            try:
+                if process.poll() is None:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=0.2)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                record["native_exit"] = process.wait(timeout=1)
+            except Exception as error:
+                record["errors"].append(safe_error("direct_child_reap", error))
+            try:
+                record["group_absent"] = group_absent(process.pid)
+            except Exception as error:
+                record["errors"].append(safe_error("group_probe", error))
     record.update(
         finished_utc=stamp(),
         elapsed_seconds=time.monotonic() - start,
         log={"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()},
     )
     record["passed"] = (
-        record["native_exit"] == 0 and not record["timed_out"] and record["group_absent"]
+        record["native_exit"] == 0 and record["group_absent"] and not record["errors"]
     )
     return record

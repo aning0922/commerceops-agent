@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from .process import ROOT, command, stamp, stop_registered
+from .process import ROOT, command, safe_error, stamp, stop_registered
 
 RECIPES = frozenset(
     {"normal", "nonzero", "timeout", "observer_missing", "cleanup_fail", "summary_fail"}
@@ -152,8 +152,10 @@ def run(directory: Path, recipe: str) -> dict[str, Any]:
             argv, cwd=ROOT, env={}, stdout=log, stderr=subprocess.STDOUT, start_new_session=True
         )
         # Fixed recipes have bounded children, including their cleanup; wait/reap actual worker.
+        native: int | None = None
         timed_out = False
-        remaining: list[int] = []
+        remaining: list[dict[str, Any]] = []
+        observations: list[dict[str, Any]] = []
         try:
             native = process.wait(timeout=25)
         except subprocess.TimeoutExpired:
@@ -167,8 +169,19 @@ def run(directory: Path, recipe: str) -> dict[str, Any]:
                 except subprocess.TimeoutExpired:
                     pass
         finally:
-            native = process.wait(timeout=1)
-            remaining = stop_registered(directory)
+            try:
+                native = process.wait(timeout=1)
+            except Exception as error:
+                native = process.poll()
+                observations.append(safe_error("worker_reap", error))
+            try:
+                inventory = stop_registered(directory)
+                remaining = inventory["remaining"]
+                observations.extend(inventory["observations"])
+            except Exception as error:
+                unknown = {"pid": None, "status": "UNKNOWN", **safe_error("outer_inventory", error)}
+                remaining.append(unknown)
+                observations.append(unknown)
     result: dict[str, Any] = {
         "scope": "LOCAL_PROCESS_SIMULATION_ONLY",
         "recipe": recipe,
@@ -177,6 +190,7 @@ def run(directory: Path, recipe: str) -> dict[str, Any]:
         "worker_reaped": process.poll() is not None,
         "outer_timed_out": timed_out,
         "remaining_registered_resources": remaining,
+        "cleanup_observations": observations,
         "elapsed_seconds": time.monotonic() - start,
         "ended_utc": stamp(),
         "checks_receipt": {
@@ -197,6 +211,9 @@ def run(directory: Path, recipe: str) -> dict[str, Any]:
         },
         "stage_gate": "NOT_RUN",
     }
+    result["requested_outer_exit"] = (
+        native if native else int(not result["worker_reaped"] or timed_out or bool(remaining))
+    )
     persist(directory / "outer.json", result)
     return result
 
@@ -211,10 +228,7 @@ def main() -> None:
         raise SystemExit(worker(args.directory, args.recipe))
     result = run(args.directory, args.recipe)
     print(json.dumps(result))
-    raise SystemExit(
-        result["worker_native_exit"]
-        or int(result["outer_timed_out"] or bool(result["remaining_registered_resources"]))
-    )
+    raise SystemExit(result["requested_outer_exit"])
 
 
 if __name__ == "__main__":
