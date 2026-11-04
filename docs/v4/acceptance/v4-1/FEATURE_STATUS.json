@@ -4,7 +4,7 @@
   "snapshot_source": "f7e037680844fbcf93e0efb34d4c4dfc85b909f9",
   "date": "2026-11-04",
   "timezone": "Asia/Taipei",
-  "assessment_level": "19阶段项只按合同内受控范围记录实现/执行；不是原规划19/19或99/99全覆盖，80项不重评，最终运行独审pending",
+  "assessment_level": "19阶段项只按合同内受控范围记录实现/执行；不是原规划19/19或99/99全覆盖，80项不重评，最终运行独审4e4741ad已核收（仅合同受控本地范围）",
   "baseline": {
     "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
     "sha256": "ea2ad65df9c15b3010f788eccf47bd03afbb621352e98cc2f00f979354376283",
@@ -1031,7 +1031,7 @@
       },
       "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
       "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
-      "controlled_scope": "历史eb30规划批量标记未交付；261已实现并本地执行当前补充合同范围，最终独审待核。新增合同限定当前授权页去重IDs显式多选，规范标签完整替换，逐项原key/版本与revision串行接续；首错/UNKNOWN/持久化失败/取消即停，不跨页/全店，不承诺整批原子性。",
+      "controlled_scope": "历史eb30规划批量标记未交付；261已实现并本地执行当前补充合同范围，最终独审4e4741ad已核收（仅合同受控本地范围）。新增合同限定当前授权页去重IDs显式多选，规范标签完整替换，逐项原key/版本与revision串行接续；首错/UNKNOWN/持久化失败/取消即停，不跨页/全店，不承诺整批原子性。",
       "evidence_refs": [
         "scope_eb30",
         "addendum",
