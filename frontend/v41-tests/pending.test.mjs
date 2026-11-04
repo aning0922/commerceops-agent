@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
-import {loadV41Pending,reserveV41Pending,finishV41Pending} from '../lib/v41-pending.mjs';
+import {loadV41Pending,reserveV41Pending,finishV41Pending,finishV41Preview,loadV41Preview} from '../lib/v41-pending.mjs';
 function storage(){const m=new Map();return {getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};}
-function fixture(){const id=()=>randomUUID(),context={tenant_id:id(),organization_id:id(),principal_id:id(),shop_id:null,reset_epoch:2,auth_generation:3,authorized_at:new Date().toISOString()};return {operation:'product_tags',request_key:id(),resource_id:id(),shop_id:id(),revision:'a'.repeat(64),version:0,context};}
+function fixture(){const id=()=>randomUUID(),context={tenant_id:id(),organization_id:id(),principal_id:id(),shop_id:null,reset_epoch:2,auth_generation:3,authorized_at:new Date().toISOString()};return {operation:'product_tags',request_key:id(),resource_id:id(),shop_id:id(),revision:'a'.repeat(64),version:0,file_digest:null,parent_job_id:null,context};}
 function resource(value){return {status:'OK',context:{...value.context,shop_id:value.shop_id},data:{snapshot:{data_revision:'b'.repeat(64)},product:{product_id:value.resource_id,version:value.version+1}}};}
 function result(value){return {status:'COMMITTED',context:{...value.context,shop_id:value.shop_id},data:{next_step:'READ_CURRENT_RESOURCE',receipt:{operation:value.operation,request_key:value.request_key,resource_id:value.resource_id,before_revision:value.revision,after_revision:'b'.repeat(64),resource_version:value.version+1}}};}
 test('reservation is exclusive, minimal, and unavailable/corrupt storage blocks',()=>{
@@ -20,4 +20,25 @@ test('only matching committed receipt and fresh identity can remove original pen
  assert.equal(finishV41Pending(s,session,{...result(value),data:{...result(value).data,status:'UNKNOWN'}},resource(value)),false);
  assert.equal(finishV41Pending(s,session,result(value),{...resource(value),data:{...resource(value).data,snapshot:{data_revision:'changed'}}}),false);
  assert.equal(loadV41Pending(s).state,'pending');assert.equal(finishV41Pending(s,session,result(value),resource(value)),true);assert.equal(loadV41Pending(s).state,'empty');
+});
+
+test('preview recovery saves a bound reference before clearing the original key',()=>{
+ const s=storage(),value={...fixture(),operation:'import_preview',resource_id:null,file_digest:'c'.repeat(64),parent_job_id:null};
+ const session={context:value.context,data:{shops:[{shop_id:value.shop_id,grants:['operator']}]}};
+ const preview={job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),expires_at:'2026-11-03T00:10:00Z'},state:'DISCOVERED',file_digest:value.file_digest,mapping:null,headers:['sku'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
+ const response={status:'OK',server_time:'2026-11-03T00:00:00Z',context:{...value.context,shop_id:value.shop_id},data:preview};
+ assert.equal(reserveV41Pending(s,value),true);
+ assert.equal(finishV41Preview(s,session,{...response,data:{...preview,file_digest:'e'.repeat(64)}}),false);
+ assert.equal(loadV41Pending(s).state,'pending');assert.equal(finishV41Preview(s,session,response),true);
+ assert.equal(loadV41Pending(s).state,'empty');assert.equal(loadV41Preview(s).value.job.import_job_id,preview.job.import_job_id);
+});
+
+test('preview reference survives a failed pending removal and can be reconciled without another POST',()=>{
+ const s=storage(),value={...fixture(),operation:'import_preview',resource_id:null,file_digest:'c'.repeat(64),parent_job_id:null};
+ const session={context:value.context,data:{shops:[{shop_id:value.shop_id,grants:['operator']}]}};
+ const data={job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),expires_at:'2026-11-03T00:10:00Z'},state:'DISCOVERED',file_digest:value.file_digest,mapping:null,headers:['sku'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
+ const response={status:'OK',server_time:'2026-11-03T00:00:00Z',context:{...value.context,shop_id:value.shop_id},data};
+ assert.equal(reserveV41Pending(s,value),true);const remove=s.removeItem;s.removeItem=()=>{throw Error('unavailable');};
+ assert.equal(finishV41Preview(s,session,response),false);assert.equal(loadV41Pending(s).state,'pending');assert.equal(loadV41Preview(s).state,'ready');
+ s.removeItem=remove;assert.equal(finishV41Preview(s,session,response),true);assert.equal(loadV41Pending(s).state,'empty');
 });

@@ -134,7 +134,7 @@ export function Demo({origin}:{origin:string|null}){
   if(!origin||!base||!data||!resource||version===undefined||!shop||writeLock.current||writeState!=='empty'||loadPending()||!base.data.shops.some(s=>s.shop_id===shop&&s.grants.includes('operator')))return;
   const ticket=businessGate.current.begin('business-write');if(!ticket)return;
   let storage:Storage;try{storage=sessionStorage;}catch{setWriteState('blocked');setWriteMessage('无法保存待核对状态，未发送操作。');return;}
-  const record={operation,request_key:crypto.randomUUID(),resource_id:resource,shop_id:shop,revision:data.snapshot.data_revision,version,context:{...base.context}};
+  const record={operation,request_key:crypto.randomUUID(),resource_id:resource,shop_id:shop,revision:data.snapshot.data_revision,version,file_digest:null,parent_job_id:null,context:{...base.context}};
   if(!reserveV41Pending(storage,record)){setWriteState(loadV41Pending(storage).state as 'empty'|'pending'|'blocked');setWriteMessage('无法安全登记操作，未发送。');return;}
   setWriteState('pending');writeLock.current=true;setWriteBusy(true);setWriteMessage('正在提交；请勿重复操作。');
   const payload={shop_id:shop,request_key:record.request_key,expected_epoch:base.context.reset_epoch,expected_generation:base.context.auth_generation,expected_data_revision:record.revision,expected_version:version,...(product?{tags:tags??[]}:{action:'mark_demo_fulfilled'})};
