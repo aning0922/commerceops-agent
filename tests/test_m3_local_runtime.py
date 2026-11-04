@@ -3,6 +3,7 @@
 import json
 import os
 import subprocess
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -332,7 +333,10 @@ def test_build_log_safe_error_enums(tmp_path: Path, line: str, code: str, http: 
     path = tmp_path / "raw.log"
     with m3.private_log(path) as stream:
         stream.write(("#5 1.0 M3_IMAGE_STAGE ENTER COMPILE\n#5 2.0 " + line + "\n").encode())
-    result = m3.build_output_facts([path])
+    deadline = time.monotonic() + 5
+    result = m3.build_output_facts(
+        [m3.read_private_log(path, deadline=deadline)], deadline=deadline
+    )
     assert result["observed_error"] == code
     assert result["curl_http_status"] == http
     assert line not in json.dumps(result)
@@ -349,7 +353,10 @@ def test_only_executed_marker_lines_count(tmp_path: Path) -> None:
             b"#5 0.3 M3_IMAGE_STAGE ENTER APT_INSTALL\n"
             b"#5 0.4 M3_IMAGE_STAGE DONE FUTURE_UNKNOWN\n"
         )
-    result = m3.build_output_facts([path])
+    deadline = time.monotonic() + 5
+    result = m3.build_output_facts(
+        [m3.read_private_log(path, deadline=deadline)], deadline=deadline
+    )
     assert result["last_entered"] == "APT_INSTALL"
     assert result["last_completed"] == "APT_UPDATE"
     assert result["observed_error"] == "UNKNOWN"
@@ -370,7 +377,7 @@ def test_private_log_fails_closed(tmp_path: Path, damage: str) -> None:
             path.rename(tmp_path / "target")
             path.symlink_to(tmp_path / "target")
         with pytest.raises((OSError, ValueError)):
-            m3.build_output_facts([path])
+            m3.read_private_log(path, deadline=time.monotonic() + 5)
 
 
 @pytest.mark.parametrize("failure", [None, "build", "source", "inspect", "binding"])
@@ -524,3 +531,105 @@ def test_dockerfile_markers_preserve_original_commands() -> None:
     for stage in m3.STAGES:
         assert current.count("M3_IMAGE_STAGE ENTER " + stage + "'") == 1
         assert current.count("M3_IMAGE_STAGE DONE " + stage + "'") == 1
+
+
+@pytest.mark.parametrize("grows_after_stat", [False, True])
+def test_private_log_size_limit_checks_stat_and_bounded_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, grows_after_stat: bool
+) -> None:
+    path = tmp_path / "raw.log"
+    with m3.private_log(path) as stream:
+        stream.truncate(m3.LOG_LIMIT + 1)
+    actual_fstat = os.fstat
+    calls = 0
+
+    def fstat(fd: int) -> os.stat_result:
+        nonlocal calls
+        calls += 1
+        result = actual_fstat(fd)
+        if grows_after_stat and calls == 1:
+            fields = list(result)
+            fields[6] = 0
+            return os.stat_result(fields)
+        return result
+
+    monkeypatch.setattr(os, "fstat", fstat)
+    with pytest.raises(m3.LogTooLargeError, match="^LOG_TOO_LARGE$"):
+        m3.read_private_log(path, deadline=time.monotonic() + 5)
+    assert calls == (2 if grows_after_stat else 1)
+
+
+def test_log_parser_checks_budget_during_lines(monkeypatch: pytest.MonkeyPatch) -> None:
+    ticks = iter([0.0, 0.1, 5.0])
+    monkeypatch.setattr(time, "monotonic", lambda: next(ticks))
+    with pytest.raises(TimeoutError):
+        m3.build_output_facts(
+            [b"M3_IMAGE_STAGE ENTER COMPILE\nM3_IMAGE_STAGE DONE COMPILE\n"], deadline=1
+        )
+
+
+@pytest.mark.parametrize("diagnostic_failure", [None, "size", "budget", "parse_budget"])
+def test_diagnostic_limits_preserve_build_facts_and_read_once(
+    source: Path, monkeypatch: pytest.MonkeyPatch, diagnostic_failure: str | None
+) -> None:
+    reads: list[str] = []
+    clock = [0.0]
+    monkeypatch.setattr(time, "monotonic", lambda: clock[0])
+
+    class Child:
+        returncode = 9
+
+        def wait(self, timeout: float) -> None:
+            if diagnostic_failure == "budget":
+                clock[0] = 120
+
+        def poll(self) -> int:
+            return 9
+
+    def spawn(*args: Any, **kwargs: Any) -> Child:
+        if diagnostic_failure == "size":
+            kwargs["stderr"].truncate(m3.LOG_LIMIT + 1)
+        else:
+            kwargs["stderr"].write(b"M3_IMAGE_STAGE ENTER APT_INSTALL\n")
+        return Child()
+
+    actual_read = m3.read_private_log
+
+    def read(path: Path, *, deadline: float) -> bytes:
+        reads.append(path.name)
+        assert deadline <= 5
+        return actual_read(path, deadline=deadline)
+
+    monkeypatch.setattr(subprocess, "Popen", spawn)
+    monkeypatch.setattr(m3, "read_private_log", read)
+    if diagnostic_failure == "parse_budget":
+
+        def parse(*args: Any, **kwargs: Any) -> dict[str, Any]:
+            raise TimeoutError("private unprinted input")
+
+        monkeypatch.setattr(m3, "build_output_facts", parse)
+    facts: dict[str, Any] = {}
+    with pytest.raises(ValueError, match="M3 bounded image build failed"):
+        m3.prepare_image(source, datetime.now(UTC) + timedelta(seconds=190), diagnostic=facts)
+    assert facts["stage"] == "BUILD"
+    assert facts["code"] == "BUILD_NONZERO"
+    assert facts["returncode"] == 9
+    assert facts["timedout"] is False
+    assert facts["reaped"] is True
+    assert facts["source_commit"] == "a" * 40
+    assert len(facts["inputs"]) == 6
+    assert reads == (
+        [] if diagnostic_failure == "budget" else ["stdout.private.log", "stderr.private.log"]
+    )
+    if diagnostic_failure is None:
+        assert facts["diagnostic_code"] == "OK"
+        assert facts["last_entered"] == "APT_INSTALL"
+        assert len(facts["logs_sha256"]) == 2
+    else:
+        assert facts["diagnostic_code"] == (
+            "LOG_TOO_LARGE" if diagnostic_failure == "size" else "BUDGET_EXHAUSTED"
+        )
+        assert facts["diagnostic_stage"] == "UNKNOWN"
+        assert facts["last_entered"] == facts["last_completed"] == "UNKNOWN"
+        assert "logs_sha256" not in facts
+    assert not (source / m3.RECEIPT).exists()

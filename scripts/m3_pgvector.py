@@ -168,15 +168,25 @@ STAGES = (
     "COMPILE",
     "INSTALL",
 )
+LOG_LIMIT = 8 * 1024 * 1024
 
 
-def build_output_facts(paths: list[Path]) -> dict[str, Any]:
+class LogTooLargeError(ValueError):
+    """A complete diagnostic log exceeds the fixed local read bound."""
+
+
+def build_output_facts(outputs: list[bytes], *, deadline: float) -> dict[str, Any]:
     """Only actual standalone output lines; an echoed RUN program is never execution proof."""
     entered = completed = "NOT_RUN"
     observed_error = "UNKNOWN"
     http_status = None
-    for path in paths:
-        for raw in read_private_log(path).decode(errors="replace").splitlines():
+    for output in outputs:
+        if time.monotonic() >= deadline:
+            raise TimeoutError("M3 diagnostic budget exhausted")
+        for raw_line in output.splitlines():
+            if time.monotonic() >= deadline:
+                raise TimeoutError("M3 diagnostic budget exhausted")
+            raw = raw_line.decode(errors="replace")
             line = re.sub(r"^#[0-9]+ [0-9]+(?:\.[0-9]+)? ", "", raw)
             marker = re.fullmatch(r"M3_IMAGE_STAGE (ENTER|DONE) ([A-Z_]+)", line)
             if marker and marker[2] in STAGES:
@@ -202,6 +212,8 @@ def build_output_facts(paths: list[Path]) -> dict[str, Any]:
                 observed_error = "DIGEST"
             elif entered == "COMPILE" and re.fullmatch(r"make(?:\[[0-9]+\])?: \*\*\* .+", line):
                 observed_error = "COMPILE"
+    if time.monotonic() >= deadline:
+        raise TimeoutError("M3 diagnostic budget exhausted")
     return {
         "last_entered": entered,
         "last_completed": completed,
@@ -210,7 +222,9 @@ def build_output_facts(paths: list[Path]) -> dict[str, Any]:
     }
 
 
-def read_private_log(path: Path) -> bytes:
+def read_private_log(path: Path, *, deadline: float) -> bytes:
+    if time.monotonic() >= deadline:
+        raise TimeoutError("M3 diagnostic budget exhausted")
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
     with os.fdopen(fd, "rb") as stream:
         info = os.fstat(stream.fileno())
@@ -220,7 +234,17 @@ def read_private_log(path: Path) -> bytes:
             or stat.S_IMODE(info.st_mode) != 0o600
         ):
             raise ValueError("M3 private diagnostic log refused")
-        return stream.read()
+        if info.st_size > LOG_LIMIT:
+            raise LogTooLargeError("LOG_TOO_LARGE")
+        output = stream.read(LOG_LIMIT + 1)
+        final_size = os.fstat(stream.fileno()).st_size
+        if len(output) > LOG_LIMIT or final_size > LOG_LIMIT:
+            raise LogTooLargeError("LOG_TOO_LARGE")
+        if final_size != len(output):
+            raise ValueError("M3 diagnostic log changed during read")
+        if time.monotonic() >= deadline:
+            raise TimeoutError("M3 diagnostic budget exhausted")
+        return output
 
 
 def private_log(path: Path) -> BinaryIO:
@@ -343,16 +367,44 @@ def prepare_image(root: Path, stop: datetime, *, diagnostic: dict[str, Any] | No
         )
     finally:
         if directory is not None:
+            facts.pop("logs_sha256", None)
+            facts.update(
+                diagnostic_stage="UNKNOWN",
+                diagnostic_code="NOT_RUN",
+                last_entered="UNKNOWN",
+                last_completed="UNKNOWN",
+                observed_error="UNKNOWN",
+                curl_http_status=None,
+            )
+            now = time.monotonic()
+            budget = min(5, expires - now - 75, (stop - datetime.now(UTC)).total_seconds() - 75)
+            diagnostic_deadline = now + max(0, budget)
             try:
-                facts.update(build_output_facts(logs))
-                facts["logs_sha256"] = {
-                    p.name: hashlib.sha256(read_private_log(p)).hexdigest() for p in logs
-                }
-                with private_log(directory / "diagnostic.safe.json") as stream:
-                    stream.write(json.dumps(facts, sort_keys=True).encode())
+                if budget <= 0:
+                    raise TimeoutError("M3 diagnostic budget exhausted")
+                outputs = {p.name: read_private_log(p, deadline=diagnostic_deadline) for p in logs}
+                parsed = build_output_facts(list(outputs.values()), deadline=diagnostic_deadline)
+                hashes = {}
+                for name, data in outputs.items():
+                    if time.monotonic() >= diagnostic_deadline:
+                        raise TimeoutError("M3 diagnostic budget exhausted")
+                    hashes[name] = hashlib.sha256(data).hexdigest()
+                if time.monotonic() >= diagnostic_deadline:
+                    raise TimeoutError("M3 diagnostic budget exhausted")
+                facts.update(parsed, logs_sha256=hashes)
+                facts.update(diagnostic_stage="COMPLETE", diagnostic_code="OK")
+            except LogTooLargeError:
+                facts["diagnostic_code"] = "LOG_TOO_LARGE"
+            except TimeoutError:
+                facts["diagnostic_code"] = "BUDGET_EXHAUSTED"
             except (OSError, ValueError):
-                facts.update(stage="LOGGING", code="FAILED")
-                raise
+                facts["diagnostic_code"] = "LOG_REFUSED"
+            if time.monotonic() < diagnostic_deadline:
+                try:
+                    with private_log(directory / "diagnostic.safe.json") as stream:
+                        stream.write(json.dumps(facts, sort_keys=True).encode())
+                except (OSError, ValueError):
+                    facts.update(diagnostic_stage="UNKNOWN", diagnostic_code="LOG_WRITE_FAILED")
 
 
 def main() -> None:
