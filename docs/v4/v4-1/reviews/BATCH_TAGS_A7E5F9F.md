@@ -39,3 +39,20 @@ source `a7e5f9ff4b53a956390c0807c3efcad135c9047a` / tree `330b21d4ef7707b1a10bf4
 脚本原件保留于同临时树 `review-batch-closure.mjs`，SHA256 `55ca4f2b9887e0c0a653a450faf78ccd620072889e9e32c7d7034fe18ab19028`；上述场景没有发现第二项实质产品源码阻断。它没有模拟React render/effect调度、DOM或真实HTTP/PG，不能替代后续Mock/真实browser。原 `review-post-readback.mjs` 与 `review-post-readback-strict.mjs` 均保留，原P2不因这8项通过而关闭。
 
 Root另转交UI-review在4427 Mock发现原key lookup断言不足，已由另一owner负责修正。本轮未读该Mock候选或其WIP；本报告不对4427签noP2，不把该独立测试缺口合并为本产品源码P2已修。等待新冻结仅增量复核。
+
+## cc5c9a6精确增量复审：产品分类P2关闭
+
+2026-11-04（台北）。结论：`PRODUCT_P2_CLOSED_SOURCE_AND_BOUNDED_PURE_ONLY`。原a7发现与HOLD事实保留。修复 `cc5c9a6b3a361c2c451c5652023b9e73b5488f9d` / tree `28443dd17a32045e81c5a40ed1393dd1e724f456`，父 `4427f347206bf55250d847d3fffcf76051006d29`；后续仅Mock增量 `6960d5666ba4fd51215aa54bef16058aab566052` / tree `cd6b884b4d39e84baa2f1078ab6ce4d622ca0cb2` 的demo.tsx与cc5字节相同。相对已审a7，产品源码唯一增量是单项函数拆分POST和readback错误边界。
+
+POST的try/catch独立，只有该调用自身的明确REJECTED返回rejected；收到结果后仍核active/ticket/status，settleWrite及成功闭合阶段任何异常都返回unknown。原false闭合、取消、标签核对、pending reserve/finish、scope、锁、revision接续和单项包装函数未放宽。未新增pending释放或重发。该修复准确解决原反例，不把readback拒绝改写为原写入拒绝。
+
+在新review-owned精确696 archive目录 `/var/folders/hs/czlwyhb553l9_ghpn6byp6v00000gn/T/v41-cc5-review-jbe4kt91` 复用既有函数提取和原gate/pending复现，四个限定场景均native0：
+
+- 严格DTO合法COMMITTED POST→fresh GET409：POST1/GET1，success0/rejected0/pending1/unsent1，原pending保留、不送B。
+- 同链GET403：分类同上；此例隔离单项分类，guard副作用为替身，不冒充真实403清scope的UI结果。
+- POST本身明确REJECTED：POST1/GET0，rejected1/pending计数0/unsent1，持久pending仍保留，符合已澄清合同。
+- 原两项正常链：POST2/详情GET4、两独立key、revision接续、success2及pending严格闭合为空，写锁覆盖至finally。
+
+仅只读cc5新增Mock的409/403案例覆盖意图：409检查待核对1/明确拒绝0；403保留旧scope清除而不复活进度；两者核一POST与原key保留。没有运行这些测试体，也不代UI-review审签696的lookup强化；动态collect33/4spec不是33PASS。作者TS/74Node/preflight仍为转交结果，本轮未重复全范围。原a7纯复现脚本及失败记录均保留。
+
+本次产品源码P2关闭不等于Mock、真实batch/mobile/browser或阶段验收通过；这些Gate仍按后续实际source回执。无浏览器、服务、PG、build或网络启动，仅本文件追加结论，指定预检后普通冻结、不push。
