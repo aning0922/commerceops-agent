@@ -138,3 +138,18 @@ sample_error的JSONDecodeError仍UNKNOWN。不将它表述为全部773通过。
 不改业务、数据库、测试断言或workflow；增加命令启动开销能否满足总预算须由新实际运行核验。
 修复需单owner冻结、独审及Root完整快照/合并历史预检后才释放新Hosted。
 此时phase3与最终pair结果尚待收口，旧run不取消、不回写或盲重跑。
+
+
+## 首组完整模块分批候选核收
+
+作者冻结fba531b1b10c1cf4b11f6cbdf013123d74c10345，仅combined_groups及必要纯测，
+[独立审查](HOSTED_PG_BATCH_REVIEW.md)无新增P1/P2。作者120项关联纯测通过，
+Ruff/格式/严格mypy/current-index公开行位与原生扫描及提交后增量扫描通过；
+首次collect-only因缺显式诊断标志退出3保留，补旗后完整收集773项成功，未执行PG用例。
+
+独审用冻结源码复算与R4真实collection一致，全部596+177、0交集、原其他组及顺序保持；
+四完整模块动态收录本模块新节点，标签无斜杠，分组函数之外生产AST未改。
+300秒/总截止/reserve/G1G2/严格配对与cleanup未改，不减少测试或放宽断言。
+Root普通集成后，对最终组合执行原完整scanner和真实双亲merge历史预检；
+不在R4运行未结束时推送，避免既有concurrency规则取消其未核收作业。
+此处只签本地映射及独审，不签下一轮Hosted结果或未来main已更新。

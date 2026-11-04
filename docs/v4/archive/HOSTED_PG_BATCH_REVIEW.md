@@ -1,0 +1,19 @@
+# fba531b 完整自然模块分组增量核收
+
+2026-11-05（台北）。结论：`ACCEPTED_COMPLETE_MODULE_REBATCH / NO_OPEN_P1_P2`。仅签精确分组源码及纯映射检查，不保证新运行总容量，不改变R4原失败。
+
+sourcefba531b1b10c1cf4b11f6cbdf013123d74c10345 / treed38fb137da8a3b534565471d988c18b2ad5d500c，basebcebf10ef2d87d6cdf404cbf13592a8ecf230fdc。精确两文件scripts/pg_diagnostic.py与tests/test_pg_diag_partition.py。独立AST比较生产文件剔除combined_groups后完全相同；业务、checker、G1/G2、300秒/总截止/cleanup及workflow均未改。
+
+函数仅识别四个指定完整自然模块，将各模块全部collected node按原输入顺序纳入，模块顺序按collection首次出现，位于legacy ordinary之后、原P5/M3之前。没有硬编码节点数量或按已知测试名筛选；这四模块未来新增节点仍完整进入对应组。其他新路径仍留在ordinary，未被丢弃。仅V4 collection也进入完整模块分组；不含P3/M3/V4的历史fallback仍保留。
+
+标签明确为combined-existing-v4-test_demo_seed_pg、combined-existing-v4-test_demo_sessions_pg、combined-existing-v41-backend-test_business_pg、combined-existing-v41-backend-test_gc_pg，无斜杠，仅Docker容器名允许字符，当前映射无碰撞。run_combined沿原路径集合传给pytest，tests入口沿原project-label容器映射与登记清理；无新runner/调度器。原checker partition不变，validate继续调用同一combined_groups核精确label/节点/模块全覆盖，不需宽松接受旧分组。
+
+独立从冻结源码只执行无资源的分组/partition函数，对原件collection重算。773唯一节点精确等于R4实际artifact full_node_ids；新旧映射逐项等于作者mapping.safe.json。首组290→236，新四组7/19/23/5；其他所有组节点与相对顺序不变，完整并集773、无重复遗漏，existing596/phase3177。模块内部完整输入顺序保留，原P4各分片和历史回归边界保持。
+
+作者原件目录 /Users/aipuli/.codex/worktrees/commerceops-pr53-pg-batches-20261105/commerceops-agent/.audit/pr53-pg-batches 。freeze.safe.json SHA256独立匹配80ee3175ea70ff0221485726a551c6ffa199481b1961485c1a97f3920ccb5a46；mapping.safe.json hash20538ef7f7662d90a4615006f7a9991e60bd4e17e23150c5211cb2d00b6f78ec及4份登记log摘要均独立相符。targeted日志120pass/0.23s，显式collection773/4747deselected；首次未带显式诊断旗标collect exit3原记录保留。
+
+新pure覆盖all/existing/phase3与反向模块顺序、模块内未来节点、未知新路径保留、原其他组等价、完整无重叠、每命令300、V4-only及首错停止后续不执行。回执Ruff/format/strict mypy两文件/diff通过、current/index原公开row零违规与native0、增量history0；完整历史wrapper未由此替代，Root最终组合及真实merge原wrapper预检继续需要。没有PG执行或Full重跑。
+
+增加四次命令启动有额外开销；R4未运行的existing后续306项/G1仍无当前容量证明。此次不加总deadline、不减节点/断言、不重试；实际效果待Root在R4终态后统一正常集成/push新案。原R4 quality300秒失败、268通过、22首组未证通过、G1未完成及清理原证据保留。
+
+本轮只读冻结源码/原件，独立纯数据映射核算native0，未运行pytest/collect/PG/服务/Hosted或修改业务。原review WT不变，唯一远端操作owner仍Root。
