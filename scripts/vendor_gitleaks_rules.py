@@ -2372,6 +2372,36 @@ V4_MERGE_COPY_ANCHORS: tuple[dict[str, str], ...] = (
         "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
         "blob": "38d2c0fef2037f40a580951716e180542e8f570a",
     },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/API_EVENTS_CONTRACT.md",
+        "blob": "c0375ea6f87ca3c6c77fdc1ebcb91c258916b7b0",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json",
+        "blob": "6f557ffb294209637a0293f5b310d3477edb6435",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+        "blob": "992581f35dec4fa94b1dc2fdb5ac79a4211909b6",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "blob": "4120a447bf26812585d40ea81fc156cfdfa7400a",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/v4-public-openapi.json",
+        "blob": "58ad090b39b70954065b9613b53a8fe65f19e193",
+    },
+    {
+        "source_commit": "f949781fa0b9958fedeaf3303c4cf6cefdef8322",
+        "path": "frontend/app/v4/[[...path]]/page.tsx",
+        "blob": "6fe538b6de6f6532a8198476a0ca8a2dd9ca05ee",
+    },
 )
 
 
