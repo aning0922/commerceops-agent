@@ -191,15 +191,20 @@ export function Demo({origin}:{origin:string|null}){
   if(!validateV41(product?'SetProductTags':'FulfillDemoOrder',payload)||!active())return {status:'cancelled'};
   if(!reserveV41Pending(storage,record)){setWriteState(loadV41Pending(storage).state as 'empty'|'pending'|'blocked');setWriteMessage('无法安全登记操作，未发送。');return {status:'cancelled'};}
   setWriteState('pending');dispatch();
+  let result:BusinessEnvelope<unknown>;
   try{
-   const result=await guardedRequest(gate,ticket,()=>postV41<unknown>(origin,`/api/v4/${product?'products':'orders'}/${encodeURIComponent(resource)}/${product?'tags':'fulfillment'}`,payload,base.data.csrf_token));
-   if(!active()||!gate.accepts(ticket,{...result,status:'OK'})||!['OK','COMMITTED'].includes(result.status))return {status:'unknown'};
+   result=await guardedRequest(gate,ticket,()=>postV41<unknown>(origin,`/api/v4/${product?'products':'orders'}/${encodeURIComponent(resource)}/${product?'tags':'fulfillment'}`,payload,base.data.csrf_token));
+  }catch(error){return {status:error instanceof V41Error&&error.outcome==='REJECTED'?'rejected':'unknown'};}
+  if(!active()||!gate.accepts(ticket,{...result,status:'OK'})||!['OK','COMMITTED'].includes(result.status))return {status:'unknown'};
+  // A committed POST cannot become a rejected write because its later readback failed.
+  try{
    if(await settleWrite(record,result,product?tags:undefined,run)){
     if(!active())return {status:'unknown'};
     setWriteState('empty');return {status:'success',revision:(result.data as {receipt:{after_revision:string}}).receipt.after_revision};
    }
    return {status:'unknown'};
-  }catch(error){return {status:error instanceof V41Error&&error.outcome==='REJECTED'?'rejected':'unknown'};}
+  }catch{return {status:'unknown'};}
+
  }
  async function businessWrite(operation:'product_tags'|'order_fulfillment',tags?:string[]){
   const base=current.current,data=detail,item=operation==='product_tags'?data?.product:data?.order;

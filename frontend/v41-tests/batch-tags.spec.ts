@@ -12,8 +12,8 @@ const envelope={schema_version:'v4-business-v1',server_time:now,trace_id:tenant,
 const shop=(shop_id:string)=>({shop_id,display_name:shop_id===tenant?'第一店':'第二店',timezone:'Asia/Taipei',currency:'TWD',grants:['operator']});
 function latch(){let resolve!:()=>void;const promise=new Promise<void>(r=>{resolve=r;});return {promise,resolve};}
 type Body={shop_id:string;request_key:string;expected_version:number;expected_data_revision:string;tags:string[]};
-async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'='success'){
- let committed=0;const requests:Body[]=[],events:string[]=[],sent=latch(),release=latch();
+async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'|'readback409'|'readback403'='success'){
+ let committed=0;const requests:Body[]=[],events:string[]=[],sent=latch(),release=latch(),readback=latch();
  const products=ids.map((product_id,i)=>({product_id,title:`批量商品 ${i+1}`,tags:['原标签'],version:0,source:{...source,baseline_snapshot_at:now,import_job_id:null},skus:[{sku_id:product_id,label:`BATCH-${i}`,price:'12',currency:'TWD',available_units:null,stock_reason:'UNKNOWN_STOCK'}]}));
  const snapshot=()=>({snapshot_id:digest,data_revision:revision(committed),read_at:now,source:dataset});
  async function pending(){return page.evaluate(()=>{
@@ -31,6 +31,10 @@ async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'='succe
   if(request.method()==='GET'&&ids.some(id=>path===`/api/v4/products/${id}`)){
    const product=products.find(p=>path.endsWith(p.product_id))!;
    events.push(`read:${product.product_id}:v${product.version}`);
+   if(committed===1&&product.product_id===ids[0]&&(mode==='readback409'||mode==='readback403')){
+    readback.resolve();await release.promise;
+    return fulfill({...envelope,status:'REJECTED',error:{code:mode==='readback403'?'ACCESS_DENIED':'VERSION_CONFLICT',safe_message:'Mock readback denied',retryable:false,request_key:requests[0].request_key}},mode==='readback403'?403:409);
+   }
    return fulfill({...envelope,context,data:{snapshot:snapshot(),product,related_order_ids:[]}});
   }
   if(request.method()==='POST'&&path.endsWith('/tags')){
@@ -48,7 +52,7 @@ async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'='succe
  });
  await page.goto('/v4/products');await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(tenant);
  await expect(page.locator('tbody tr')).toHaveCount(2);
- return {requests,events,sent,release,pending};
+ return {requests,events,sent,release,readback,pending};
 }
 async function selectTwo(page:Page){
  const rows=page.locator('tbody tr');await rows.nth(0).getByRole('checkbox').check();await rows.nth(1).getByRole('checkbox').check();
@@ -96,4 +100,27 @@ test('UI_MOCK batch: 390px dialog exposes replacement, empty-clear, focus and Es
  const input=dialog.getByLabel('标签（逗号分隔，最多 8 项）');await input.fill('重复,重复');await expect(dialog.getByRole('button',{name:'确认逐项替换'})).toBeDisabled();await input.fill('');await expect(dialog.getByRole('button',{name:'确认逐项替换'})).toBeEnabled();
  const bounds=await dialog.boundingBox();expect(bounds).not.toBeNull();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(390);
  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();expect(await dialog.evaluate(element=>element.contains(document.activeElement))).toBe(false);await expect(page.locator('tbody input[type=checkbox]:checked')).toHaveCount(0);expect(f.requests).toHaveLength(0);expect(await f.pending()).toBeNull();
+});
+
+for(const status of [409,403] as const)test(`UI_MOCK batch: COMMITTED POST followed by readback ${status} remains pending, never a rejected write`,async({page})=>{
+ const f=await setup(page,status===409?'readback409':'readback403'),dialog=await selectTwo(page);
+ await dialog.getByLabel('标签（逗号分隔，最多 8 项）').fill('替换标签');
+ const posted=page.waitForResponse(response=>response.request().method()==='POST'&&new URL(response.url()).pathname.endsWith('/tags'));
+ await dialog.getByRole('button',{name:'确认逐项替换'}).click();
+ const response=await posted;expect(response.status()).toBe(200);expect((await response.json()).status).toBe('COMMITTED');
+ try{
+  await f.readback.promise;
+  await expect(dialog.getByRole('status',{name:'批量标签进度'})).toHaveText('已核成功 0 · 明确拒绝 0 · 待核对 1 · 未发送 1');
+ }finally{f.release.resolve();}
+ if(status===409){
+  await expect(dialog.getByRole('button',{name:'取消',exact:true})).toBeVisible();
+  await expect(dialog.getByRole('status',{name:'批量标签进度'})).toHaveText('已核成功 0 · 明确拒绝 0 · 待核对 1 · 未发送 1');
+ }else{
+  // Current 403 must still clear the old scope; never resurrect progress just for this assertion.
+  await expect(page.getByText('当前身份或店铺无法验证，请重新核对会话。')).toBeVisible();
+  await expect(page.getByRole('status',{name:'批量标签进度'})).toHaveCount(0);
+  await expect(page.getByRole('dialog',{name:'批量设置标签',exact:true})).not.toBeVisible();
+ }
+ expect(f.requests).toHaveLength(1);expect((await f.pending()).request_key).toBe(f.requests[0].request_key);
+ expect(f.events.filter(event=>event.startsWith('post:'))).toHaveLength(1);
 });
