@@ -513,7 +513,18 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             failures.append({"stage": "writers", "type": type(error).__name__})
         if browser_binding is not None and supervisor is not None:
             try:
-                residuals = browser_shell.stop_residuals(case, browser_binding, budget)
+                browser_probe = next((p for p in supervisor.owned if p.role == "probe"), None)
+                if browser_probe is None:
+                    residuals = {
+                        "forced": [],
+                        "remaining": [],
+                        "clean_exit": True,
+                        "not_started": True,
+                    }
+                else:
+                    residuals = browser_shell.stop_residuals(
+                        case, browser_binding, budget, browser_probe.process.pid
+                    )
                 report["cleanup"]["browser"] = residuals
                 if not residuals["clean_exit"]:
                     failures.append({"stage": "browser_residuals", "type": "ForcedStopOrRemaining"})

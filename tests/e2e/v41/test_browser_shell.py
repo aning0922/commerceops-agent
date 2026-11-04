@@ -4,12 +4,14 @@ import copy
 import hashlib
 import json
 import os
+import signal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
 from uuid import uuid4
 
 import pytest
+from pytest import MonkeyPatch
 
 from . import browser_shell as browser
 from .final_facts import decode_subjects
@@ -192,31 +194,125 @@ def test_preview_witness_uses_real_dto_defaults_and_file_digest() -> None:
     assert normalized["command"]["parent_job_id"] is None
 
 
-def test_residual_browser_identity_requires_fresh_case_profile_current_uid_and_exact_binary(
+def browser_process_fixture(directory: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    birth = "Wed Nov 4 11:00:00 2026"
+    binary = "/new/approved/chromium"
+    rows = [
+        {
+            "pid": 778,
+            "ppid": 777,
+            "uid": os.getuid(),
+            "pgid": 777,
+            "birth": birth,
+            "argv": "/approved/node cli.js",
+        },
+        {
+            "pid": 12345,
+            "ppid": 778,
+            "uid": os.getuid(),
+            "pgid": 12345,
+            "birth": birth,
+            "argv": binary
+            + " --user-data-dir="
+            + str(directory / "browser-tmp/playwright_chromiumdev_profile-x"),
+        },
+        {
+            "pid": 12346,
+            "ppid": 12345,
+            "uid": os.getuid(),
+            "pgid": 12345,
+            "birth": birth,
+            "argv": "/approved/chromium-helper --type=renderer",
+        },
+    ]
+    return rows, {"executable": binary, "sha256": "f" * 64}
+
+
+def test_live_group_capture_requires_owned_node_ancestry_and_exact_profile_binary(
     tmp_path: Path,
 ) -> None:
-    binary = "/new/approved/chromium"
-    argv = (
-        binary
-        + " --user-data-dir="
-        + str(tmp_path / "browser-tmp/playwright_chromiumdev_profile-x")
-    )
-    line = f"12345 {os.getuid()} 12345 {argv}\n"
-    assert browser.owned_browser_processes(line, tmp_path, binary) == [
-        {"pid": 12345, "pgid": 12345}
-    ]
-    for wrong in (
-        line.replace(binary, "/other/chromium"),
-        line.replace(" 12345 " + binary, " 12 " + binary),
+    rows, binding = browser_process_fixture(tmp_path)
+    row = rows[1]
+    raw = f"{row['pid']} {row['ppid']} {row['uid']} {row['pgid']} {row['birth']} {row['argv']}\n"
+    assert browser.process_rows(raw) == [row]
+    groups = browser.observe_groups(rows, tmp_path, binding["executable"], 778, rows[0]["birth"])
+    assert len(groups) == 1
+    assert {r["pid"] for r in groups[0]["members"]} == {12345, 12346}
+    for changes in (
+        {"ppid": 1},
+        {"argv": rows[1]["argv"].replace(binding["executable"], "/other/chromium")},
     ):
+        bad = copy.deepcopy(rows)
+        bad[1].update(changes)
         with pytest.raises(ValueError):
-            browser.owned_browser_processes(wrong, tmp_path, binary)
-    assert (
-        browser.owned_browser_processes(
-            line.replace("browser-tmp", "other-profile"), tmp_path, binary
-        )
-        == []
+            browser.observe_groups(bad, tmp_path, binding["executable"], 778, rows[0]["birth"])
+
+
+def group_journal(c: Case, rows: list[dict[str, Any]], binding: dict[str, Any]) -> None:
+    header = {
+        "kind": "START",
+        "source_sha": c.source_sha,
+        "source_tree": c.source_tree,
+        "directory": c.directory,
+        "wrapper_pid": 777,
+        "uid": os.getuid(),
+        "binary_sha256": binding["sha256"],
+    }
+    groups = browser.observe_groups(
+        rows, Path(c.directory), binding["executable"], 778, rows[0]["birth"]
     )
+    path = Path(c.directory) / "browser-groups.private.jsonl"
+    path.write_bytes(b"".join(json.dumps(row).encode() + b"\n" for row in [header, *groups]))
+    path.chmod(0o600)
+
+
+@pytest.mark.parametrize("leader_at_first_check", [True, False])
+def test_cleanup_checks_all_recorded_group_members_after_leader_exits(
+    tmp_path: Path, monkeypatch: MonkeyPatch, leader_at_first_check: bool
+) -> None:
+    from tests.e2e.v4.supervisor import Budget
+
+    tmp_path.chmod(0o700)
+    c = case(tmp_path)
+    rows, binding = browser_process_fixture(tmp_path)
+    group_journal(c, rows, binding)
+    current = rows[1:] if leader_at_first_check else [rows[2]]
+    signals: list[tuple[int, int]] = []
+
+    def signal_group(pgid: int, sig: int) -> None:
+        nonlocal current
+        signals.append((pgid, sig))
+        # TERM removes only the leader. Renderer has no profile argument and remains in the group.
+        current = [rows[2]] if sig == signal.SIGTERM else []
+
+    monkeypatch.setattr(browser, "inventory", lambda *_args, **_kwargs: current)
+    monkeypatch.setattr(os, "killpg", signal_group)
+    budget = cast(Budget, SimpleNamespace(timeout=lambda *_args, **_kwargs: 0))
+    result = browser.stop_residuals(c, binding, budget, 777)
+    assert signals == [(12345, signal.SIGTERM), (12345, signal.SIGKILL)]
+    assert result["remaining"] == [] and result["clean_exit"] is False
+    assert result["forced"]
+
+
+def test_missing_capture_and_reused_member_birth_never_allow_signal_or_clean(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    from tests.e2e.v4.supervisor import Budget
+
+    tmp_path.chmod(0o700)
+    c = case(tmp_path)
+    rows, binding = browser_process_fixture(tmp_path)
+    group_journal(c, rows, binding)
+    current = [{**rows[2], "birth": "Wed Nov 4 11:01:00 2026"}]
+    monkeypatch.setattr(browser, "inventory", lambda *_args, **_kwargs: current)
+    monkeypatch.setattr(os, "killpg", lambda *_args: pytest.fail("unknown PID/group signaled"))
+    budget = cast(Budget, SimpleNamespace(timeout=lambda *_args, **_kwargs: 0))
+    with pytest.raises(ValueError, match="CONTINUITY_UNKNOWN"):
+        browser.stop_residuals(c, binding, budget, 777)
+    path = tmp_path / "browser-groups.private.jsonl"
+    path.write_bytes(path.read_bytes().splitlines(keepends=True)[0])
+    with pytest.raises(ValueError, match="JOURNAL_INCOMPLETE"):
+        browser.stop_residuals(c, binding, budget, 777)
 
 
 def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(

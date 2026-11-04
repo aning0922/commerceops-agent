@@ -8,6 +8,7 @@ import signal
 import subprocess
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -15,6 +16,7 @@ from uuid import UUID
 from tests.e2e.v4.supervisor import Budget
 
 from .owner_setup import decode, private_bytes
+from .runner import persist
 from .subjects import private_subject_bytes, registry
 
 if TYPE_CHECKING:
@@ -261,56 +263,288 @@ def import_journals(case: "Case") -> dict[str, Any]:
     return report
 
 
-def owned_browser_processes(output: str, directory: Path, executable: str) -> list[dict[str, int]]:
-    """Fresh exclusive TMPDIR plus exact binary/current UID; never a system browser profile."""
-    profile = re.compile(
-        r"(?:^| )--user-data-dir="
-        + re.escape(str(directory / "browser-tmp"))
-        + r"/playwright_chromiumdev_profile-[^ /]+(?: |$)"
-    )
-    matching = []
+def process_rows(output: str) -> list[dict[str, Any]]:
+    rows = []
     for line in output.splitlines():
-        parts = line.strip().split(None, 3)
-        if len(parts) == 4 and profile.search(parts[3]):
-            matching.append((int(parts[0]), int(parts[1]), int(parts[2]), parts[3]))
-    leaders = {
-        pid
-        for pid, uid, group, argv in matching
-        if uid == os.getuid() and group == pid and argv.startswith(executable + " ")
-    }
-    if any(uid != os.getuid() or group not in leaders for _, uid, group, _ in matching):
-        raise ValueError("BROWSER_RESIDUAL_IDENTITY_UNKNOWN")
-    return [{"pid": pid, "pgid": pid} for pid in sorted(leaders)]
-
-
-def stop_residuals(case: "Case", binding: dict[str, Any], budget: Budget) -> dict[str, Any]:
-    """Independent after-writers inventory; any forced stop remains a failed run."""
-
-    def inventory() -> list[dict[str, int]]:
-        result = subprocess.run(
-            ["/bin/ps", "-axo", "pid=,uid=,pgid=,command="],
-            capture_output=True,
-            text=True,
-            env={},
-            timeout=budget.timeout(2, cleanup=True),
-            check=False,
-        )
-        if result.returncode or result.stderr:
+        if not line.strip():
+            continue
+        parts = line.split(None, 9)
+        if len(parts) != 10:
             raise ValueError("BROWSER_PROCESS_INVENTORY_UNKNOWN")
-        return owned_browser_processes(result.stdout, Path(case.directory), binding["executable"])
+        pid, ppid, uid, pgid = map(int, parts[:4])
+        rows.append(
+            {
+                "pid": pid,
+                "ppid": ppid,
+                "uid": uid,
+                "pgid": pgid,
+                "birth": " ".join(parts[4:9]),
+                "argv": parts[9],
+            }
+        )
+    if len({r["pid"] for r in rows}) != len(rows):
+        raise ValueError("BROWSER_PROCESS_IDENTITY_AMBIGUOUS")
+    return rows
 
-    initial = inventory()
-    for row in initial:
-        # Recheck exact fresh profile/binary/UID/group immediately before every signal.
+
+def inventory(budget: Budget, *, cleanup: bool = False) -> list[dict[str, Any]]:
+    result = subprocess.run(
+        ["/bin/ps", "-axo", "pid=,ppid=,uid=,pgid=,lstart=,command="],
+        capture_output=True,
+        text=True,
+        env={"LC_ALL": "C"},
+        timeout=budget.timeout(2, cleanup=cleanup),
+        check=False,
+    )
+    if result.returncode or result.stderr:
+        raise ValueError("BROWSER_PROCESS_INVENTORY_UNKNOWN")
+    return process_rows(result.stdout)
+
+
+def profile_pattern(directory: Path) -> re.Pattern[str]:
+    return re.compile(
+        r"(?:^| )--user-data-dir=("
+        + re.escape(str(directory / "browser-tmp"))
+        + r"/playwright_chromiumdev_profile-[^ /]+)(?: |$)"
+    )
+
+
+def observe_groups(
+    rows: list[dict[str, Any]], directory: Path, executable: str, node: int, birth: str
+) -> list[dict[str, Any]]:
+    """Capture live detached browser groups only through the actual owned Node ancestry."""
+    by_pid = {r["pid"]: r for r in rows}
+    if node not in by_pid or by_pid[node]["birth"] != birth or by_pid[node]["uid"] != os.getuid():
+        raise ValueError("OWNED_BROWSER_NODE_IDENTITY_UNKNOWN")
+    groups = []
+    for leader in rows:
+        match = profile_pattern(directory).search(leader["argv"])
+        if match is None or leader["pid"] != leader["pgid"]:
+            continue
+        if leader["uid"] != os.getuid() or not leader["argv"].startswith(executable + " "):
+            raise ValueError("BROWSER_GROUP_LEADER_IDENTITY_UNKNOWN")
+        ancestor, seen = leader["ppid"], set()
+        while ancestor != node:
+            if ancestor in seen or ancestor not in by_pid or by_pid[ancestor]["uid"] != os.getuid():
+                raise ValueError("BROWSER_GROUP_ANCESTRY_UNKNOWN")
+            seen.add(ancestor)
+            ancestor = by_pid[ancestor]["ppid"]
+        members = [
+            {k: r[k] for k in ("pid", "uid", "birth")} for r in rows if r["pgid"] == leader["pgid"]
+        ]
+        if len(members) > 128 or any(m["uid"] != os.getuid() for m in members):
+            raise ValueError("BROWSER_GROUP_MEMBERS_UNKNOWN")
+        groups.append(
+            {
+                "kind": "GROUP",
+                "pid": leader["pid"],
+                "pgid": leader["pgid"],
+                "birth": leader["birth"],
+                "profile": match[1],
+                "members": members,
+            }
+        )
+    return groups
+
+
+def load_groups(case: "Case", binding: dict[str, Any], probe_pid: int) -> dict[int, dict[str, Any]]:
+    raw = private_subject_bytes(Path(case.directory) / "browser-groups.private.jsonl")
+    lines = raw.splitlines(keepends=True)
+    if not 2 <= len(lines) <= 130 or any(not line.endswith(b"\n") for line in lines):
+        raise ValueError("BROWSER_GROUP_JOURNAL_INCOMPLETE")
+    records = [decode(line) for line in lines]
+    header = {
+        "kind": "START",
+        "source_sha": case.source_sha,
+        "source_tree": case.source_tree,
+        "directory": case.directory,
+        "wrapper_pid": probe_pid,
+        "uid": os.getuid(),
+        "binary_sha256": binding["sha256"],
+    }
+    if records[0] != header:
+        raise ValueError("BROWSER_GROUP_JOURNAL_BINDING_MISMATCH")
+    groups: dict[int, dict[str, Any]] = {}
+    for record in records[1:]:
+        if (
+            set(record) != {"kind", "pid", "pgid", "birth", "profile", "members"}
+            or record["kind"] != "GROUP"
+        ):
+            raise ValueError("BROWSER_GROUP_RECORD_REQUIRED")
+        pid = record["pid"]
+        if (
+            type(pid) is not int
+            or pid <= 0
+            or type(record["pgid"]) is not int
+            or record["pgid"] != pid
+            or not isinstance(record["birth"], str)
+            or not 10 < len(record["birth"]) < 40
+            or profile_pattern(Path(case.directory)).fullmatch(
+                "--user-data-dir=" + record["profile"]
+            )
+            is None
+        ):
+            raise ValueError("BROWSER_GROUP_ORIGINAL_IDENTITY_REQUIRED")
+        members = record["members"]
+        if not isinstance(members, list) or not 1 <= len(members) <= 128:
+            raise ValueError("BROWSER_GROUP_ORIGINAL_MEMBERS_REQUIRED")
+        group = groups.setdefault(pid, {**record, "members": {}})
+        if (group["birth"], group["profile"]) != (record["birth"], record["profile"]):
+            raise ValueError("BROWSER_GROUP_ID_REUSED")
+        for member in members:
+            if (
+                set(member) != {"pid", "uid", "birth"}
+                or type(member["pid"]) is not int
+                or member["pid"] <= 0
+                or member["uid"] != os.getuid()
+                or not isinstance(member["birth"], str)
+                or not 10 < len(member["birth"]) < 40
+            ):
+                raise ValueError("BROWSER_GROUP_MEMBER_IDENTITY_REQUIRED")
+            previous = group["members"].setdefault(member["pid"], member)
+            if previous != member:
+                raise ValueError("BROWSER_GROUP_MEMBER_ID_REUSED")
+        if group["members"].get(pid, {}).get("birth") != record["birth"]:
+            raise ValueError("BROWSER_GROUP_LIVE_LEADER_PROOF_REQUIRED")
+    if not groups:
+        raise ValueError("BROWSER_GROUP_OWNERSHIP_NOT_CAPTURED")
+    return groups
+
+
+def group_members(
+    rows: list[dict[str, Any]], groups: dict[int, dict[str, Any]], directory: Path
+) -> list[dict[str, Any]]:
+    for row in rows:
+        if profile_pattern(directory).search(row["argv"]) and row["pgid"] not in groups:
+            raise ValueError("BROWSER_UNREGISTERED_PROFILE_GROUP")
+    members = []
+    for pgid, group in groups.items():
+        current = [r for r in rows if r["pgid"] == pgid]
+        if current and not any(
+            group["members"].get(r["pid"], {}).get("birth") == r["birth"] for r in current
+        ):
+            raise ValueError("BROWSER_GROUP_CONTINUITY_UNKNOWN")
+        for row in current:
+            previous = group["members"].get(row["pid"])
+            if (
+                row["uid"] != os.getuid()
+                or previous is not None
+                and row["birth"] != previous["birth"]
+            ):
+                raise ValueError("BROWSER_GROUP_MEMBER_IDENTITY_CHANGED")
+            members.append({k: row[k] for k in ("pid", "uid", "pgid", "birth")})
+    return members
+
+
+def stop_residuals(
+    case: "Case", binding: dict[str, Any], budget: Budget, probe_pid: int
+) -> dict[str, Any]:
+    """Full previously observed groups, including orphaned children without profile arguments."""
+    groups = load_groups(case, binding, probe_pid)
+    empty: set[int] = set()
+
+    def current() -> list[dict[str, Any]]:
+        rows = group_members(inventory(budget, cleanup=True), groups, Path(case.directory))
+        if any(r["pgid"] in empty for r in rows):
+            raise ValueError("BROWSER_EMPTIED_GROUP_REAPPEARED")
+        empty.update(pgid for pgid in groups if not any(r["pgid"] == pgid for r in rows))
+        return rows
+
+    initial = current()
+    for pgid in sorted({r["pgid"] for r in initial}):
         for sig in (signal.SIGTERM, signal.SIGKILL):
-            if row not in inventory():
+            if not any(r["pgid"] == pgid for r in current()):
                 break
-            os.killpg(row["pgid"], sig)
+            # Unknown or reused identities raise before signaling the original continuous group.
+            os.killpg(pgid, sig)
             until = time.monotonic() + budget.timeout(1, cleanup=True)
-            while row in inventory() and time.monotonic() < until:
+            while any(r["pgid"] == pgid for r in current()) and time.monotonic() < until:
                 time.sleep(0.02)
-    remaining = inventory()
-    return {"forced": initial, "remaining": remaining, "clean_exit": not initial and not remaining}
+    remaining = current()
+    return {
+        "forced": initial,
+        "remaining": remaining,
+        "clean_exit": not initial and not remaining,
+        "registered_groups": sorted(groups),
+    }
+
+
+def run_browser(
+    case: "Case", binding: dict[str, Any], argv: tuple[str, ...], env: dict[str, str]
+) -> int:
+    budget = Budget.bind(
+        datetime.fromisoformat(case.starts_at), datetime.fromisoformat(case.deadline)
+    )
+    path = Path(case.directory) / "browser-groups.private.jsonl"
+    with path.open("xb") as journal:
+        path.chmod(0o600)
+        count = 0
+
+        def append(record: dict[str, Any]) -> None:
+            nonlocal count
+            raw = (json.dumps(record, sort_keys=True) + "\n").encode()
+            if count >= 130 or journal.tell() + len(raw) > 512000:
+                raise ValueError("BROWSER_GROUP_JOURNAL_BOUND")
+            journal.write(raw)
+            journal.flush()
+            os.fsync(journal.fileno())
+            count += 1
+
+        append(
+            {
+                "kind": "START",
+                "source_sha": case.source_sha,
+                "source_tree": case.source_tree,
+                "directory": case.directory,
+                "wrapper_pid": os.getpid(),
+                "uid": os.getuid(),
+                "binary_sha256": binding["sha256"],
+            }
+        )
+        # Node inherits the Supervisor wrapper group; capture detached Chromium groups below.
+        child = subprocess.Popen(argv, cwd=ROOT, env=env, stdin=subprocess.DEVNULL)
+        seen: dict[int, dict[str, Any]] = {}
+        node_birth: str | None = None
+        try:
+            while child.poll() is None:
+                rows = inventory(budget)
+                if child.poll() is not None:
+                    break
+                node = next((r for r in rows if r["pid"] == child.pid), None)
+                if node is None:
+                    raise ValueError("OWNED_BROWSER_NODE_NOT_OBSERVED")
+                if node_birth is None:
+                    node_birth = node["birth"]
+                for group in observe_groups(
+                    rows, Path(case.directory), binding["executable"], child.pid, node_birth
+                ):
+                    old = seen.get(group["pgid"])
+                    if old is not None and old["birth"] != group["birth"]:
+                        raise ValueError("BROWSER_GROUP_ID_REUSED")
+                    if old != group:
+                        append(group)
+                        seen[group["pgid"]] = group
+                time.sleep(min(0.05, budget.timeout(0.05)))
+            return child.wait(timeout=budget.timeout(2, cleanup=True))
+        finally:
+            if child.poll() is None:
+                child.terminate()
+                try:
+                    child.wait(timeout=budget.timeout(2, cleanup=True))
+                except subprocess.TimeoutExpired:
+                    child.kill()
+                    child.wait(timeout=budget.timeout(2, cleanup=True))
+            persist(
+                Path(case.directory) / "browser-node.exit.private.json",
+                {
+                    "source_sha": case.source_sha,
+                    "source_tree": case.source_tree,
+                    "pid": child.pid,
+                    "birth": node_birth,
+                    "native_exit": child.returncode,
+                    "scope": "OWNED_NODE_CLI_CHILD",
+                },
+            )
 
 
 def main() -> None:
@@ -341,7 +575,7 @@ def main() -> None:
         "PLAYWRIGHT_BROWSERS_PATH": "0",
         "NEXT_TELEMETRY_DISABLED": "1",
     }
-    os.execve(argv[0], argv, env)  # noqa: S606 -- fixed reviewed executable/argv, no shell.
+    raise SystemExit(run_browser(case, binding, argv, env))
 
 
 if __name__ == "__main__":
