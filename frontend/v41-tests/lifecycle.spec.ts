@@ -72,3 +72,11 @@ test('UI_FIXTURE: a shop selection is restored only after a fresh matching sessi
  await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
  await openDetail(page);await page.reload();await expect(page.getByLabel('详情店铺')).toHaveValue(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();
 });
+
+for(const width of [390,1440])test(`UI_FIXTURE: detail drawer opens and Escape returns to list at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});
+ await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
+ await openDetail(page);const drawer=page.getByRole('dialog',{name:'商品详情'});await expect(drawer).toBeVisible();
+ expect(await drawer.evaluate(element=>element.contains(document.activeElement))).toBe(true);
+ await page.keyboard.press('Escape');await expect(page).toHaveURL(/\/v4\/products$/);
+});
