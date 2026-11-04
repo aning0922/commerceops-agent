@@ -152,3 +152,11 @@ test('UI_FIXTURE: switching shops clears the prior tag draft',async({page})=>{
  await page.getByRole('dialog',{name:'商品详情'}).getByRole('combobox',{name:'详情店铺',exact:true}).selectOption(other);
  await expect(page.getByRole('button',{name:'编辑标签'})).toBeVisible();await expect(page.getByLabel('标签（逗号分隔，最多 8 项）')).toHaveCount(0);
 });
+
+test('UI_FIXTURE: current session rejection clears visible edit draft',async({page})=>{
+ await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
+ await openDetail(page);await page.getByRole('button',{name:'编辑标签'}).click();await page.getByLabel('标签（逗号分隔，最多 8 项）').fill('撤权前草稿');
+ await page.route('**/api/v4/demo/session',cors(route=>route.fulfill({status:403,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}})));
+ const denied=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/v4/demo/session'&&response.status()===403);await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await denied;
+ await expect(page.getByRole('dialog',{name:'商品详情'})).toHaveCount(0);await expect(page.getByLabel('标签（逗号分隔，最多 8 项）')).toHaveCount(0);
+});
