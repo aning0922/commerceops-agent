@@ -18,7 +18,9 @@ test('navigation exposes fourteen categories and an honest model-disabled panel'
 test('mobile menu traps focus, closes on Escape and static routes stay honest',async({page})=>{
   await page.setViewportSize({width:390,height:844});
   await page.goto('/v4/products/import');
-  await expect(page.getByText('商品导入',{exact:true})).toBeVisible();
+  const importLink=page.getByRole('navigation',{name:'商品视图'}).getByRole('link',{name:'商品导入',exact:true});
+  await expect(importLink).toBeVisible();
+  await expect(importLink).toHaveAttribute('aria-current','page');
   await expect(page.getByText('导入演示商品',{exact:true})).toBeVisible();
   const opener=page.getByRole('button',{name:'打开业务导航'});
   await opener.click();
