@@ -78,12 +78,21 @@ def m3_pg_module(path: str) -> bool:
 
 
 def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
+    v4_modules = (
+        "tests/v4/test_demo_seed_pg.py",
+        "tests/v4/test_demo_sessions_pg.py",
+        "tests/v41/backend/test_business_pg.py",
+        "tests/v41/backend/test_gc_pg.py",
+    )
     phase3 = [
         node
         for node in nodes
         if node.split("::", 1)[0].startswith(("tests/test_p3", "tests/test_p4"))
     ]
-    if not phase3 and not any(m3_pg_module(node.split("::", 1)[0]) for node in nodes):
+    if not phase3 and not any(
+        m3_pg_module(node.split("::", 1)[0]) or node.split("::", 1)[0] in v4_modules
+        for node in nodes
+    ):
         return {"combined": nodes}  # 历史无P3保持原单条命令、原空paths。
     phase3_set = set(phase3)
     existing = [node for node in nodes if node not in phase3_set]
@@ -95,10 +104,21 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
     m3_paths = sorted(
         {node.split("::", 1)[0] for node in existing if m3_pg_module(node.split("::", 1)[0])}
     )
-    ordinary = [node for node in existing if node.split("::", 1)[0] not in {*p5_paths, *m3_paths}]
+    # 41864322517: legacy + complete V40/V41 modules exhausted one 300s command.
+    # Keep natural module/inner-node collection order; no cardinality or deadline changes.
+    v4_paths = list(
+        dict.fromkeys(
+            node.split("::", 1)[0] for node in existing if node.split("::", 1)[0] in v4_modules
+        )
+    )
+    ordinary = [
+        node for node in existing if node.split("::", 1)[0] not in {*v4_paths, *p5_paths, *m3_paths}
+    ]
     groups = {"combined-existing": ordinary} if ordinary else {}
-    for path in [*p5_paths, *m3_paths]:
-        label = "combined-existing-" + path.removeprefix("tests/").removesuffix(".py")
+    for path in [*v4_paths, *p5_paths, *m3_paths]:
+        label = "combined-existing-" + path.removeprefix("tests/").removesuffix(".py").replace(
+            "/", "-"
+        )
         groups[label] = [node for node in existing if node.split("::", 1)[0] == path]
     # 从实际collection按现有P3模块派生；不硬编码阶段cardinality或挑选test node。
     for path in sorted({node.split("::", 1)[0] for node in phase3}):

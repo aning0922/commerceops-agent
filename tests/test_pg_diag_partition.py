@@ -571,3 +571,88 @@ def test_local_regression_cannot_replace_ci_or_full_smoke(
     with pytest.raises(SystemExit) as error:
         pg_diagnostic.main()
     assert error.value.code == 2
+
+
+V4_COMPLETE_MODULES = (
+    ("tests/v4/test_demo_seed_pg.py", "combined-existing-v4-test_demo_seed_pg"),
+    ("tests/v4/test_demo_sessions_pg.py", "combined-existing-v4-test_demo_sessions_pg"),
+    ("tests/v41/backend/test_business_pg.py", "combined-existing-v41-backend-test_business_pg"),
+    ("tests/v41/backend/test_gc_pg.py", "combined-existing-v41-backend-test_gc_pg"),
+)
+
+
+@pytest.mark.parametrize("scope", ["all", "existing", "phase3"])
+@pytest.mark.parametrize("reverse_modules", [False, True])
+def test_complete_v4_modules_keep_order_coverage_legacy_groups_and_caps(
+    scope: str, reverse_modules: bool
+) -> None:
+    modules = list(reversed(V4_COMPLETE_MODULES)) if reverse_modules else list(V4_COMPLETE_MODULES)
+    additions = [
+        path + "::" + suffix
+        for path, _ in modules
+        for suffix in ("case_02", "case_00", "future_case", "case_01")
+    ]
+    legacy = (
+        OLD
+        + [
+            "tests/v4/test_future_pg.py::still_ordinary",
+            "tests/test_p5_future_pg.py::one",
+            "tests/test_m3_future_pg.py::one",
+        ]
+        + P3
+    )
+    nodes = legacy + additions
+    groups = pg_diagnostic.combined_groups(nodes)
+    labels = [label for _, label in modules]
+    assert list(groups)[:5] == ["combined-existing", *labels]
+    assert [(name, group) for name, group in groups.items() if name not in labels] == list(
+        pg_diagnostic.combined_groups(legacy).items()
+    )
+    for path, label in modules:
+        assert groups[label] == [node for node in additions if node.split("::", 1)[0] == path]
+        assert "/" not in label
+    flattened = [node for group in groups.values() for node in group]
+    assert len(flattened) == len(set(flattened)) == len(nodes)
+    assert set(flattened) == set(nodes)
+    records = [collection(nodes)]
+    calls: list[tuple[str, list[str], float]] = []
+    actual: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        calls.append((label, paths, cap))
+        selected = [node for node in nodes if node.split("::", 1)[0] in paths or node in paths]
+        actual.extend(selected)
+        records.append(collection(selected))
+        return True
+
+    pg_diagnostic.run_combined(records, {}, command, scope)
+    from scripts.pg_ci_evidence import partition
+
+    assert sorted(actual) == partition(nodes, scope)
+    assert len(actual) == len(set(actual))
+    assert all(cap == 300 for _, _, cap in calls)
+    v4_calls = [(label, paths) for label, paths, _ in calls if label in labels]
+    assert v4_calls == ([] if scope == "phase3" else [(label, [path]) for path, label in modules])
+
+
+def test_v4_only_collection_still_splits_complete_modules() -> None:
+    nodes = [path + "::one" for path, _ in V4_COMPLETE_MODULES]
+    assert pg_diagnostic.combined_groups(nodes) == {
+        label: [node] for (_, label), node in zip(V4_COMPLETE_MODULES, nodes, strict=True)
+    }
+
+
+def test_failed_v4_module_keeps_later_modules_unrun() -> None:
+    nodes = OLD + P3 + [path + "::one" for path, _ in V4_COMPLETE_MODULES]
+    records = [collection(nodes)]
+    labels: list[str] = []
+
+    def command(label: str, paths: list[str], cap: float) -> bool:
+        assert cap == 300
+        labels.append(label)
+        records.append(collection([node for node in nodes if node.split("::", 1)[0] in paths]))
+        return label != V4_COMPLETE_MODULES[0][1]
+
+    with pytest.raises(RuntimeError, match="combined integration group failed"):
+        pg_diagnostic.run_combined(records, {}, command, "existing")
+    assert labels == ["combined-existing", V4_COMPLETE_MODULES[0][1]]
