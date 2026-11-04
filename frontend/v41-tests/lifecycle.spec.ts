@@ -67,3 +67,8 @@ test('UI_FIXTURE: nonprinting tag is rejected before a write key or request exis
  await expect(page.getByRole('button',{name:'确认保存'})).toBeDisabled();await expect(page.getByText(/标签须为可打印字符/)).toBeVisible();
  expect(posts).toBe(0);expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBeNull();
 });
+
+test('UI_FIXTURE: a shop selection is restored only after a fresh matching session',async({page})=>{
+ await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
+ await openDetail(page);await page.reload();await expect(page.getByLabel('店铺')).toHaveValue(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();
+});
