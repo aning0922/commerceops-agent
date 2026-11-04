@@ -28,8 +28,8 @@ export function reserveV41Pending(storage,value) {
     return storage.getItem(slot)===serialized && loadV41Pending(storage).state==='pending';
   } catch {return false;}
 }
-/** Receipt and fresh current identity must both match; absence/UNKNOWN never clears the record. */
-export function finishV41Pending(storage,session,response) {
+/** Validated receipt, fresh identity and matching readback are required; UNKNOWN never clears. */
+export function finishV41Pending(storage,session,response,resource) {
   const pending=loadV41Pending(storage);if(pending.state!=='pending')return false;
   const value=pending.value,receipt=response?.data?.receipt,current=session?.context;
   const currentOperator=Array.isArray(session?.data?.shops) && session.data.shops.some(shop=>shop.shop_id===value.shop_id && Array.isArray(shop.grants) && shop.grants.includes('operator'));
@@ -41,5 +41,10 @@ export function finishV41Pending(storage,session,response) {
     receipt.operation!==value.operation || receipt.request_key!==value.request_key ||
     receipt.resource_id!==value.resource_id || receipt.before_revision!==value.revision ||
     receipt.resource_version!==value.version+1 || !digest.test(receipt.after_revision)) return false;
+  if (!sameIdentityContext(value.context,resource?.context) || resource.context.shop_id!==value.shop_id || resource.status!=='OK' || resource.data?.snapshot?.data_revision!==receipt.after_revision) return false;
+  const item=value.operation==='product_tags'?resource.data?.product:value.operation==='order_fulfillment'?resource.data?.order:null;
+  const actualId=value.operation==='product_tags'?item?.product_id:item?.order_id;
+  const actualVersion=value.operation==='product_tags'?item?.version:item?.fulfillment_version;
+  if(!item || actualId!==value.resource_id || actualVersion!==receipt.resource_version) return false;
   try {storage.removeItem(slot);return storage.getItem(slot)===null;} catch {return false;}
 }

@@ -1,5 +1,6 @@
 import {resolveV41Route} from '../../lib/v41-routes';
 import styles from './business-pending.module.css';
+import {TagControls,FulfillmentControls} from './write-controls';
 
 export type DashboardData = {
   snapshot:{data_revision:string;read_at:string;source:{data_mode:string;fixture_version:string;baseline_snapshot_at:string}};
@@ -10,9 +11,9 @@ export type DashboardData = {
   model_mode:'not_used';
 };
 export type CatalogData={snapshot:{data_revision:string;snapshot_id:string;source:{data_mode:string;fixture_version:string;baseline_snapshot_at:string};read_at:string};items:CatalogItem[];total:number;next_cursor:string|null};
-export type CatalogItem={product_id?:string;order_id?:string;title?:string;tags?:string[];skus?:{sku_id:string;label:string;price:string;currency:string;available_units:number|null}[];created_at?:string;paid_at?:string|null;payment_status?:string;demo_fulfillment?:string;lines?:{line_id:string;product_id:string;sku_id:string;quantity:number;net_amount:string;currency:string}[];refunds?:{refund_id:string;occurred_at:string;amount:string;currency:string;payment_gateway_status:string}[];source:{data_mode:string}};
+export type CatalogItem={product_id?:string;order_id?:string;version?:number;title?:string;tags?:string[];skus?:{sku_id:string;label:string;price:string;currency:string;available_units:number|null}[];created_at?:string;paid_at?:string|null;payment_status?:string;demo_fulfillment?:string;fulfillment_version?:number;lines?:{line_id:string;product_id:string;sku_id:string;quantity:number;net_amount:string;currency:string}[];refunds?:{refund_id:string;occurred_at:string;amount:string;currency:string;payment_gateway_status:string}[];source:{data_mode:string}};
 export type CatalogDetailData={snapshot:CatalogData['snapshot'];product?:CatalogItem;order?:CatalogItem;related_order_ids?:string[]};
-type CatalogProps={data:CatalogData|null;state:'idle'|'loading'|'error';enabled:boolean;scopeToken:string;exportState:'idle'|'loading'|'error';onExport:()=>void;detail:CatalogDetailData|null;detailState:'idle'|'loading'|'error';previous:boolean;onSearch:(q:string)=>void;onNext:()=>void;onPrevious:()=>void};
+type CatalogProps={data:CatalogData|null;state:'idle'|'loading'|'error';enabled:boolean;scopeToken:string;canWrite:boolean;writeBusy:boolean;onTags:(tags:string[])=>void;onFulfill:()=>void;exportState:'idle'|'loading'|'error';onExport:()=>void;detail:CatalogDetailData|null;detailState:'idle'|'loading'|'error';previous:boolean;onSearch:(q:string)=>void;onNext:()=>void;onPrevious:()=>void};
 const metricLabels:Record<string,string>={paid_order_amount:'已支付金额',paid_order_count:'已支付订单',created_order_count:'订单创建数',refund_event_amount:'退款事件金额'};
 
 function PageHeader({eyebrow,title,description,status="数据服务待接入"}:{eyebrow:string;title:string;description:string;status?:string}) {
@@ -40,7 +41,7 @@ function CatalogPending({kind,detail,title,view,catalog}:{kind:'product'|'order'
     <PageHeader eyebrow={products?'CATALOG · 商品管理':'ORDERS · 订单管理'} title={title} status={data?'合成数据':catalog.state==='loading'?'正在读取':catalog.state==='error'?'数据暂不可用':'请选择授权店铺'} description={products?'按授权店铺查找商品，并查看规格、标签与来源。':'按授权店铺查看订单、关联商品与演示履约状态。'}/>
     <div className={styles.note}><strong>当前为演示界面</strong><span>{data?'数据仅代表当前授权店铺与本次查询快照，不代表真实外部同步。':'当前没有已验证的商品或订单数据。'}</span></div>
     {detail?<article className={styles.panel}><div className={styles.panelHead}><div><h3>{products?'商品信息':'订单信息'}</h3><p>当前店铺的授权详情</p></div><a href={products?'/v4/products':'/v4/orders'}>返回列表</a></div>
-      {catalog.detail ? <DetailBody data={catalog.detail} kind={kind}/> : <PendingMessage title={catalog.detailState==='loading'?'正在读取详情':catalog.detailState==='error'?'详情不可用':'请选择授权店铺'}>详情仅在服务端核验对象与店铺权限后显示。</PendingMessage>}
+      {catalog.detail ? <DetailBody key={`${kind}:${catalog.detail.snapshot.data_revision}`} data={catalog.detail} kind={kind} catalog={catalog}/> : <PendingMessage title={catalog.detailState==='loading'?'正在读取详情':catalog.detailState==='error'?'详情不可用':'请选择授权店铺'}>详情仅在服务端核验对象与店铺权限后显示。</PendingMessage>}
     </article>:
     <article className={styles.panel}><div className={styles.catalogHead}><div><h3>{products?'商品列表':'订单列表'}</h3><p>{view==='SKU规格'?'SKU 展示范围为本次加载的商品页':view==='分类标签'?'标签展示范围为本次加载的商品页；分类树来源未提供':'列表、筛选和分页使用服务端授权结果'}</p></div><div className={styles.actions}><button type="button" disabled={!catalog.enabled||!data||catalog.exportState==='loading'} onClick={catalog.onExport}>{catalog.exportState==='loading'?'正在导出':'导出 CSV'}</button>{products&&<button type="button" disabled>导入商品</button>}</div></div>
       <form key={`${kind}:${catalog.scopeToken}`} className={styles.filters} onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);catalog.onSearch(String(form.get('q')??'').trim());}}><label>{products?'搜索商品':'搜索订单'}<input name="q" maxLength={80} disabled={!catalog.enabled} placeholder={products?'商品名称或 SKU':'订单信息'} /></label><button type="submit" disabled={!catalog.enabled}>筛选</button></form>
@@ -52,11 +53,11 @@ function CatalogPending({kind,detail,title,view,catalog}:{kind:'product'|'order'
     </article>}
   </section>;
 }
-function DetailBody({data,kind}:{data:CatalogDetailData;kind:'product'|'order'}) {
+function DetailBody({data,kind,catalog}:{data:CatalogDetailData;kind:'product'|'order';catalog:CatalogProps}) {
   const item=kind==='product'?data.product:data.order;
   if(!item)return null;
   return <div className={styles.detailBody}>
-    {kind==='product'?<><h3>{item.title}</h3><p>标签：{item.tags?.join('、')||'无标签'}</p><h4>SKU / 规格</h4><ul>{item.skus?.map(sku=><li key={sku.sku_id}>{sku.label} · {sku.currency} {sku.price} · 库存 {sku.available_units??'未知'}</li>)}</ul><button type="button" disabled>编辑标签（待接入）</button>{!!data.related_order_ids?.length&&<><h4>关联订单</h4><ul>{data.related_order_ids.map(id=><li key={id}><a href={`/v4/orders/${id}`}>查看关联订单</a></li>)}</ul></>}</>:<><h3>订单详情</h3><p>创建时间：{item.created_at}</p><p>支付：{item.payment_status==='payment_timestamp_unknown'?'支付时间未知':item.paid_at}</p><p>履约：{item.demo_fulfillment==='demo_fulfilled'?'演示已履约':'演示未履约'}</p><h4>商品明细</h4><ul>{item.lines?.map(line=><li key={line.line_id}><a href={`/v4/products/${line.product_id}`}>查看关联商品</a> · 数量 {line.quantity} · {line.currency} {line.net_amount}</li>)}</ul><h4>退款事件</h4>{item.refunds?.length?<ul>{item.refunds.map(refund=><li key={refund.refund_id}>{refund.occurred_at} · {refund.currency} {refund.amount} · 到账状态未知</li>)}</ul>:<p>无退款事件</p>}<button type="button" disabled>演示履约（待接入）</button></>}
+    {kind==='product'?<><h3>{item.title}</h3><p>标签：{item.tags?.join('、')||'无标签'}</p><h4>SKU / 规格</h4><ul>{item.skus?.map(sku=><li key={sku.sku_id}>{sku.label} · {sku.currency} {sku.price} · 库存 {sku.available_units??'未知'}</li>)}</ul><TagControls tags={item.tags??[]} enabled={catalog.canWrite} busy={catalog.writeBusy} onSave={catalog.onTags}/>{!!data.related_order_ids?.length&&<><h4>关联订单</h4><ul>{data.related_order_ids.map(id=><li key={id}><a href={`/v4/orders/${id}`}>查看关联订单</a></li>)}</ul></>}</>:<><h3>订单详情</h3><p>创建时间：{item.created_at}</p><p>支付：{item.payment_status==='payment_timestamp_unknown'?'支付时间未知':item.paid_at}</p><p>履约：{item.demo_fulfillment==='demo_fulfilled'?'演示已履约':'演示未履约'}</p><h4>商品明细</h4><ul>{item.lines?.map(line=><li key={line.line_id}><a href={`/v4/products/${line.product_id}`}>查看关联商品</a> · 数量 {line.quantity} · {line.currency} {line.net_amount}</li>)}</ul><h4>退款事件</h4>{item.refunds?.length?<ul>{item.refunds.map(refund=><li key={refund.refund_id}>{refund.occurred_at} · {refund.currency} {refund.amount} · 到账状态未知</li>)}</ul>:<p>无退款事件</p>}<FulfillmentControls enabled={catalog.canWrite && item.payment_status==='payment_recorded' && item.demo_fulfillment==='demo_unfulfilled'} busy={catalog.writeBusy} onConfirm={catalog.onFulfill}/></>}
     <p className={styles.source}>来源 {item.source.data_mode==='demo_upload'?'演示导入':'合成基线'} · 读取时间 {data.snapshot.read_at}</p>
   </div>;
 }
