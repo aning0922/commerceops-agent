@@ -19,6 +19,10 @@ test('preview checks original file, lineage, expiry and ready invariants',()=>{
  assert.equal(validPreview({...p,job:{...p.job,parser_version:'other'}},digest,null,now,digest),false);
  assert.equal(validPreview({...p,job:{...p.job,import_schema_version:'other'}},digest,null,now,digest),false);
  assert.equal(validPreview({...p,job:{...p.job,expires_at:now}},digest,null,now,digest),false);
+ const committed={...p,state:'COMMITTED',confirmable:false,job:{...p.job,expires_at:now}};
+ assert.equal(validPreview(committed,digest,null,now,digest),false);
+ assert.equal(validPreview(committed,digest,null,now,digest,true),true);
+ assert.equal(validPreview({...committed,state:'READY',confirmable:true},digest,null,now,digest,true),false);
  const child={...p,job:{...p.job,import_job_id:randomUUID(),parent_job_id:p.job.import_job_id,version:2}};
  assert.equal(validPreview(child,digest,p.job,now,digest),true);
  assert.equal(validPreview({...child,job:{...child.job,parent_job_id:null}},digest,p.job,now,digest),false);

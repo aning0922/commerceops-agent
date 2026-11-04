@@ -50,7 +50,7 @@ export function finishV41Pending(storage,session,response,resource,dataset) {
       ref.value.file_digest!==value.file_digest || ref.value.job.import_job_id!==value.resource_id || ref.value.job.job_digest!==value.job_digest ||
       !job || job.import_job_id!==value.resource_id || job.job_digest!==value.job_digest || job.data_revision!==value.revision || job.version!==value.version ||
       resource.data.state!=='COMMITTED' || resource.data.file_digest!==value.file_digest ||
-      !validPreview(resource.data,value.file_digest,job.parent_job_id?{import_job_id:job.parent_job_id,version:job.version-1}:null,resource.server_time,value.revision) ||
+      !validPreview(resource.data,value.file_digest,job.parent_job_id?{import_job_id:job.parent_job_id,version:job.version-1}:null,resource.server_time,value.revision,true) ||
       !sameIdentityContext(value.context,dataset?.context) || dataset.context.shop_id!==value.shop_id || dataset.status!=='OK' ||
       dataset.data?.snapshot?.data_revision!==receipt.after_revision || !isSafeDataset(source) ||
       source.uploads.filter(row=>row.import_job_id===value.resource_id && row.file_digest===value.file_digest).length!==resource.data.row_count || resource.data.row_count<1) return false;
