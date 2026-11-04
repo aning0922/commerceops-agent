@@ -204,3 +204,33 @@ V41 ops 监督设计必须先独立核：
 | `03_delivery/PHASE_ROADMAP.md` | `54c65e513a418ba2e2bde62df6048550b086d46c7b7da0d4257189f769ec74e4` |
 | `05_quality/TEST_AND_ACCEPTANCE.md` | `c4ed70d461d0101e2db00b58231f151fad523511d415bd52158ea6ca59ae6e28` |
 | `01_product/SCOPE_AND_PAGES.md` | `5f68594ffb2759504d7472bcccec2e732fc623a6c4f96b6292f059a7b3d35a68` |
+
+
+## 合入增量 V41-1 的精确目标（2026-11-04）
+
+Root 合同 `84db1ba34120cac3b4fccb6bbe316d3efbca1659` 已普通合入本 QA 树；权威为
+[CONTRACTS.md](../CONTRACTS.md) 和 [STAGE_SPEC.md](../STAGE_SPEC.md)。下列取代本计划相应
+数值/语义的 CONTRACT_PENDING，实际 DTO/schema、SQL 和资源窗仍待精确冻结。没有改变旧原包。
+
+- same-source：当前 fixture+tenant/shop/epoch+有效确认导入的统一视图，data_revision 与
+  auth_generation 分开；cursor 绑定 filter/sort/revision/snapshot/稳定键，新数据返回明确冲突。
+- 商品上传闭集 sku/title/price/currency/tags；ASCII casefold SKU 唯一，不 upsert；价格非负
+  十进制最多 6 小数；导入不创造销量/库存。标签最多 8 项、每项 1—24 字。
+- JSON body≤3MiB，严格 base64 后文件≤2MiB；500 行、24 列、cell≤512 字、title≤120 字；
+  每 tenant/shop/epoch 最多 500 导入 SKU。CSV 固定 UTF-8/可 BOM 和严格逗号引号。
+- XLSX 单 sheet、≤32 entries，实际解压总计≤8MiB、单 entry≤2MiB、ratio≤100；XML 增量
+  深度/节点/字符串/属性边界仍待精确实现独审，不猜未给出的数值。宏/外链/公式缓存/DTD 等拒绝。
+- 解析硬预算 2 秒；独立子进程真实终止并 wait/reap 后才释放槽位，不能用 async/线程取消代替。
+  同 tenant 最多 1 个、全局最多 2 个解析；PG advisory slot 跨进程、准入前鉴权，解析不持业务锁；
+  后置 job 写重新核当前权力和 TTL。SQL statement5s/lock1s 不放宽。QA 模拟的 TERM→KILL/reap
+  只证明短进程机制，不证明 2 秒解析器或 PG slot 生命周期，后者须 API/PG 专项真实验证。
+- preview 原 key 同文唯一、异文409；GET `/api/v4/imports/preview-requests/{request_key}` 在当前
+  tenant/shop/owner/epoch/gen/权限下只返回最小 job_ref/UNKNOWN。缺行不判回滚，不自动新 key POST。
+- parent_job_id 链必须同 file/owner/context，不可变子版与 supersede 同事务；每链≤5版本、
+  每 tenant≤12 jobs、≤3未过期 active heads；preview10分钟且不晚于 session。sample≤20、错误≤100。
+- confirm 仅接受 job/version/digest 和预期 context/revision；重核权限、expiry、supersede、SKU/
+  币种/额度；effect/receipt/event 同事务。自身已提交原 key 同文回执在业务 CAS 前读回，不能把
+  第一次效果推进的版本当重放失败；旧身份/TTL/撤权仍先拒。已确认 job 换 key 不得再次导入。
+
+后续精确 schema 到位后补独立 golden/真实 E2E；当前只已有固定本机监督模拟，没有业务 API
+断言、PG、browser 或 importer 实跑结果。原 V40 wrapper1/031/446 和所有历史失败保留。

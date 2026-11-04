@@ -4,31 +4,54 @@
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
   "status": "implementing",
   "cards": {
-    "V41-01": "implementing",
-    "V41-02": "implementing",
-    "V41-03": "contract_frozen",
-    "V41-04": "contract_frozen",
-    "V41-05": "contract_frozen",
-    "V41-06": "implementing"
+    "V41-01": "implementing_after_shell_fixture",
+    "V41-02": "query_candidate_under_review",
+    "V41-03": "ui_candidate_with_review_holds",
+    "V41-04": "sql_foundation_under_review",
+    "V41-05": "ui_candidate_with_review_holds",
+    "V41-06": "parser_policy_accepted_runtime_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
-  "runtime_resources": [],
+  "runtime_resources": [
+    {
+      "scope": "shell_fixture",
+      "source": "3b25d1185c990d12ad67bb23073d36b67a611d60",
+      "status": "closed",
+      "port": 13441,
+      "tests": 3,
+      "screenshots": 5
+    }
+  ],
   "hosted": "not_run",
   "external_business_calls": "not_run",
   "model_cost": "unknown",
   "next_stage": "not_started",
   "owner_slices": {
-    "backend_contract": "62ab257fef65c5d7f237969ce901b69b2fd3fcdc",
-    "qa_supervisor": "549d67c17a9e67448cacc0f29517de07af6e70d2",
-    "review": "in_progress",
-    "web_shell": "in_progress"
+    "backend_contract": "eb73a5eda3e94368009882ce437dc9e8760cec75",
+    "qa_supervisor": "c5b00f13e32eaf8538b0386dca374fa78d17cbb0",
+    "review": "ongoing_exact_slices",
+    "web_shell": "c343516e78d4d227a7f705aef4dc3b73469b0e99"
   },
   "models": {
     "api": "Sol high",
     "web": "Terra high",
-    "qa": "Sol medium",
+    "qa": "Sol high",
     "review": "Astra high",
-    "gates": "Sol medium"
+    "gates": "Sol high"
+  },
+  "remote_checkpoint": {
+    "branch": "codex/v41-control-20261104",
+    "status": "pushed_partial",
+    "mode": "push",
+    "ci": "no_runs_observed",
+    "pull_request": "not_created",
+    "last_actual_head": "fcd8477c2d709afe82f7a678844b59dcdb07f511"
+  },
+  "full_audit": {
+    "status": "hold",
+    "unpublished_stash_findings": 14,
+    "stash": "65959a543abab123614da2ee6c9722e24c9c6386",
+    "remote_reachable": false
   }
 }

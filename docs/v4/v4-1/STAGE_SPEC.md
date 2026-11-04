@@ -36,4 +36,6 @@ Fast／专项检查先跑受影响路径；迁移／权限／共享 API 完成�
 
 ## 结束边界
 
-完成 V4-1 本地 Gate 后交付可复现入口、操作步骤、截图、卡片完成表、实际 SHA／检查／耗时、失败和清理。V4-2 不自动开始。Hosted CI、远端写／push／PR／main、真实模型／embedding、飞书／Woo 外发与生产发布未授权；依赖的公开工程审计按原流程分层，不称完全零网络。模型按 Sol／Terra／Astra 与任务复杂度调整，实际费用不可见记 UNKNOWN，无付费 fallback。
+完成 V4-1 本地 Gate 后交付可复现入口、操作步骤、截图、卡片完成表、实际 SHA／检查／耗时、失败和清理。V4-2 不自动开始。Hosted CI、PR／main、真实模型／embedding、飞书／Woo 外发与生产发布未授权；依赖的公开工程审计按原流程分层，不称完全零网络。模型按 Sol／Terra／Astra 与任务复杂度调整，实际费用不可见记 UNKNOWN，无付费 fallback。
+
+用户随后新增授权 Root 及时常规推送已审集成切片，规则见 [推送合同](PUSH_POLICY.md)。此补充只覆盖阶段分支 push；PR/main、Hosted、真实外部业务与生产继续未授权。
