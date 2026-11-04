@@ -1,0 +1,33 @@
+# V41 SQL探针准备与F01终态修复复审
+
+日期：2026-11-04（台北）。source `ef6ab0a1e930296ba4509a2f3e43722629858c64`，tree `c07d3092c6db15d68a53b557b8e1df8b7701c1f9`，parent `4f63363aef15210195239f5c6bec94fe1c6e519f`。完整读取相对676c464的九文件增量，含固定SQL probe、host桥接、见证表与F01实现；未读WIP。
+
+结论：ACCEPT_DISABLED_PROBE_PREPARATION / PARTIAL_F01_FIX / HOLD_ACTUAL_PROBES。COMMITTED_READBACK丢失已拒，ACK_COMMITTED仍漏；app角色metadata查询及旧binding攻击判据须对齐已审新后端。runtime_definition仍绑定772且HOLD，没有实际PG/API运行回执。
+
+## P2-F01仍缺ACK_COMMITTED分支
+
+preview_state新增唯一性、SQL_ROLLBACK_VERIFIED后不得出现job、COMMITTED_READBACK后缺行或未published硬拒；不修改传入attempt。未确认UNKNOWN仍按真实rows区分PUBLISHED/UNKNOWN，方向正确。
+
+但第218行仅判断COMMITTED_READBACK，没有Root明确要求的ACK_COMMITTED。精确纯复现observations=[ATTEMPT_STARTED,ACK_COMMITTED]时，rows=[]与rows=[published:false]都返回UNKNOWN，未抛错，原观察保持。API预览成功本来会回COMMITTED；若ACK已记录而随后GET/进程中断，最终collector仍应将承诺与缺失的矛盾标为失败，不能仅因未走完GET就降级成普通UNKNOWN。
+
+将ACK_COMMITTED与COMMITTED_READBACK任一出现视为已确认，缺行/未发布均拒，保持原观察；不要把ACK_OK当成已提交。补两种承诺各自缺行/未发布、合法未确认UNKNOWN及不修改原件向量。当前只能关闭F01的readback子路径，不能关闭整项。
+
+## SQL probe准备范围及两个接线阻断
+
+入口仅两个固定动作，有Root布尔准入、definition HOLD/阻断项与后端文件hash检查；读取私配前即拒当前执行。host在原scope/key登记后创建单一私有输入，通过同fixed daemon compose exec进入新API容器，记录每命令native/UTC/input及日志hash；不安装依赖、不用owner连接执行攻击、无SQL或HTTP自动重试。SQL最终rollback后新事务核六表、fixture库存金额及bound锚摘要，原keyHTTP查询要求UNKNOWN，再追加SQL_ROLLBACK_VERIFIED。采集发现该key持久行则拒。
+
+P2-Q01：sql_probes.identity第103行以commerceops_app直接SELECT business.alembic_version；已审基础/V4/V41 grant没有给该元数据表SELECT。因此无论forced rollback还是组合攻击都会在正向身份/业务阶段前遇到42501，无法到达目标。应消费Root/owner只读已核schema绑定或使用经批准的窄元数据接点，不能为测试随意扩大app元数据权限，也不能把这个前置42501计为攻击拒绝成功。
+
+P2-Q02：binding_stop_attack仍是772历史攻击重现，不能原样转为c696/55ce修复的验收。第277行把legacy csrf_digest可写本身加入findings，最后任何findings都exit1；但当前已审方案明确保留旧表写权限，以独立私有invocation阻止组合绕过。锚可写应保留为前置事实，不能单独否决正确的双段MAC保护。第266行的chosen又是非43字符单段文本；若更新pins后只去掉该finding，reserve可能仅因格式拒绝而被误签私有MAC有效。须用语法合法两段且伪造invocation/错session/错version的攻击，记录预期拒绝原因，保留真实正向对照。仅宽泛23514不能单独证明命中了目标MAC检查。
+
+现有见证表把“锚可写即FAIL”与无可信lease/持真实私有lease的stop边界一并写成旧判据，也应按最终方案修正。普通app DB角色没有私有invocation或lease原文；可信监督器持lease的实际wait后清理是合法能力。不能把监督器私有lease交给攻击方再假称无能力低权，也不能把任意伪reaped字段作为真实wait。代码明确live_child_stop/parent_death另需fixture，保持NOT_RUN是正确的。
+
+## 强制回滚候选可核收的部分
+
+forced_rollback先检查新原key没有receipt，在真实apply返回后执行SET CONSTRAINTS ALL IMMEDIATE，确认同receipt下1event/1effect，再主动抛ForcedRollback并调用rollback；新事务读取完整scope六表摘要、fixture和bound锚与前值一致。没有尝试COMMIT，不是未知提交恢复，也不是回滚空事务。该源码路径适合固定tags事务回滚准备，但受Q01前置缺口阻断，且不能代签导入插行中断、外层连接丢失或全部原子性Gate。
+
+## 独立验证与HOLD
+
+精确git archive运行final_facts/subjects纯测试：7 passed，native0，1.19秒，无warning。另用固定Python -I进程显式把精确archive源码放在sys.path首位，执行两动作×有无Root标志四个CLI：均按期望native1、stderr空，在私配/DB访问前返回对应权限/HOLD代码；避免env清空时误加载其他checkout安装版本。ACK_COMMITTED反例纯运行native0。没有真实SQL/fixture、Docker、PG、网络HTTP、服务、浏览器、Full扫描或远端操作。
+
+本source的runtime_definition仍HOLD且driver owner序列无条件拒绝；不以metadata、phantom CLI、纯测试或collect解除运行门槛。S02/S04/S05实际Gate及Root旧DDL失败另计，新的DDL空格修复未在本回执审查。
