@@ -1,6 +1,6 @@
 # V4-1 增量实施合同
 
-Root 冻结版本：V41-1a（独审 P2 补充）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
+Root 冻结版本：V41-1b（独审 P2 与导入回执补充）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
 
 ## 1. 已有与新增
 
@@ -48,7 +48,7 @@ JSON body≤3MiB，base64严格decode后文件≤2MiB；500行、24列、单cell
 
 preview本身也owner+原preview key唯一、canonical request digest幂等；相同key同文返回同job、不重复配额，异文409。新增 GET /api/v4/imports/preview-requests/{request_key} 在当前身份/shop/epoch/gen/权限下返回最小job_ref/UNKNOWN；缺行不推断回滚，不自动换key再POST，不回原file。无需扩大旧控制或三种business receipt枚举，临时job承担自己的key约束。
 
-preview 保存创建时 data_revision、parser/schema version 及文件/映射/normalized 摘要；confirm 的新效果必须让 preview 保存值、请求值与当前有效数据版本三方相符，数据变更须重新预览，不能只换请求 revision 确认旧预览。confirm仅job id/version/digest和预期context/revision，不信客户端rows；新事务锁tenant/session/权限/shop/job，复核未supersede/未过期/文件映射normalized摘要/所有重复/币种/总量。effect/receipt/event同事务，任一失败整批回滚；并发同SKU一胜一拒；已确认job换key也不能重复导入，同原key十次只一次。确认后SKU在列表/详情/export/商品数/read-context同源可查。
+preview 保存创建时 data_revision、parser/schema version 及文件/映射/normalized 摘要；confirm 的新效果必须让 preview 保存值、请求值与当前有效数据版本三方相符，数据变更须重新预览，不能只换请求 revision 确认旧预览。confirm仅job id/version/digest和预期context/revision，不信客户端rows；新事务锁tenant/session/权限/shop/job，复核未supersede/未过期/文件映射normalized摘要/所有重复/币种/总量。effect/receipt/event同事务，任一失败整批回滚；并发同SKU一胜一拒；已确认job换key也不能重复导入，同原key十次只一次。确认后SKU在列表/详情/export/商品数/read-context同源可查。import_confirm 回执的 resource_id 是 job UUID、resource_version 是不可变的 preview job.version；COMMITTED 只改变状态，不推进内容版本。before_revision 为 preview 保存的版本，after_revision 为确认后有效数据版本；商品标签/履约仍各自 old_version+1。UI 以当前授权下的已提交原回执、同 job/version/digest 的 COMMITTED 回读及 after_revision 的有效数据回读完成核对，不将产品/订单的 +1 规则套在导入 job。
 
 ## 7. 切片、所有权与Gate
 

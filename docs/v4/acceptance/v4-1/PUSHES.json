@@ -1,0 +1,24 @@
+{
+  "checkpoints": [
+    {
+      "source": "fcd8477c2d709afe82f7a678844b59dcdb07f511",
+      "remote_head": "fcd8477c2d709afe82f7a678844b59dcdb07f511",
+      "branch": "codex/v41-control-20261104",
+      "push_native_exit": 0,
+      "actions_runs": [],
+      "pull_request_created": false,
+      "incremental_history_base": "1730194028a01ddea0bbc573774d740ea4a29d55",
+      "incremental_commit_count": 59,
+      "incremental_native_findings": 0,
+      "current_native_findings": 0,
+      "index_native_findings": 0,
+      "allrefs_scan_native_exit": 1,
+      "allrefs_scope": "includes_unpushed_stash",
+      "allrefs_blocking_count": 14,
+      "allrefs_blocking_source": "65959a543abab123614da2ee6c9722e24c9c6386",
+      "blocking_reachable_remote": false,
+      "full_stage_gate": "NOT_PASSED",
+      "allrefs_log_sha256": "c16dbb7895b01a9b7ddb247a6feff7c48578be31381fa7cc21d80ae4396904ab"
+    }
+  ]
+}
