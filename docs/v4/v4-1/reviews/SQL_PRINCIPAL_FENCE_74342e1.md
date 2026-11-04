@@ -1,0 +1,39 @@
+# V41 principal提交屏障与PG矩阵候选复审
+
+日期：2026-11-04（台北）。source `74342e19a6a4a04dc37dc1d664c4b0b82031d524`，tree `2444b85190101b9c05f003fdbab76575acb50fae`，parent `772ecc6d423e06351c8cdeb78c23a9382d47d466`。完整读取五文件增量及830行PG候选，并追溯旧resolver、P3 trigger、schema/grant与测试fixture。没有读取WIP。
+
+结论：ACCEPT_S02_SAME_PRINCIPAL_CANDIDATE / HOLD_S04_S05_AND_RUNTIME。原S02三表同principal撤权的反序边在源码层移除；不能扩写为所有权限UPDATE已经线性化。新增P2-S05改绑旧主体未受同一屏障保护，另有P2-T01完整PG矩阵的missing-policy夹具期望错误。原S04未修、不得GRANT或运行业务。
+
+## 当前权限谓词与同principal修复
+
+v41_permission逐项保留旧lock_p3_permission的web分支：principal id/org/enabled/auth_version/requested_role成员关系；identity id/provider=web及principal/org复合绑定；credential同identity/principal/org且enabled；scope同principal/org/shop且enabled；grant同scope三字段、enabled及requested_role。V41 demo本来只允许web identity，不复制feishu旁路不构成遗漏。helper为私有，纳入迁移REVOKE，不在runtime EXECUTE名单。
+
+actor仍先tenant/session、principal SHARE、bound session、identity SHARE、policy SHARE；移除credential FOR SHARE，读scope/grant使用非锁定提交态查询。apply尾部及deferred guard改用同一完整谓词；guard补principal SHARE。Store写路径用独立v41_write_guard验证operator/CSRF，移除旧role_scope对scope/grant的反向行锁；旧resolver本身只锁principal/bound session，不再从V41调用引入三表反向tuple锁。
+
+对于保持principal/org不变的enabled=false或DELETE，旧p3_revoke_scope必先取得同principal UPDATE并递增auth_version，才允许事务提交。actor先持SHARE时，撤权虽已占credential/scope/grant tuple，其trigger等待principal；actor用提交态谓词读取旧值且不再请求这些tuple锁，可先提交，然后撤权提交。撤权先提交时，后续principal/auth_version/当前谓词拒绝旧session。在当前默认READ COMMITTED事务路径上，这一候选的原循环边已移除；具体SQL执行与线性化时序尚未实测。
+
+## P2-S05：UPDATE改绑主体没有锁旧principal
+
+旧0005第157至159行对DELETE取OLD主体，对UPDATE只取NEW主体。schema没有禁止web_credentials改organization_id/principal_id/identity_id，也没有禁止grant改绑principal；新v41_permission的注释却把所有变化都描述为经过当前principal屏障。
+
+具体可达路径：A事务持原principal A的SHARE；B将A的credential改到已有合法principal/identity B（该表只有login主键，没有identity唯一约束），FK可满足，而trigger只锁/推进B。B不需要A锁，可在A最后一次权限/deferred查询之后、A提交之前移走A的credential。对于grant，移到有合法scope且该role尚无冲突的另一principal也有同类问题。identity A的SHARE不会阻止更新引用它的credential到另一identity；重复谓词SELECT也不覆盖最后检查至COMMIT的间隙。
+
+必须明确并执行不可变主体边界，或使改绑路径按稳定顺序保护OLD和NEW两个principal；不能仅以运维通常只改enabled为依据声称完整屏障。修复应作为经Root批准的窄当前迁移/入口约束，不擅改旧P3历史或整体resolver；保留必要M3语义。补改绑负例/交错，证明要么DB拒绝改绑，要么旧主体的权限移除也排在持有SHARE的事务之后。本次为源码锁图结论，不伪造PG执行结果。
+
+## 六个ordering与policy节点
+
+新增三表×双方先后共六节点：action-first由resolver实际持principal，另连接UPDATE enabled=false，并用pg_blocking_pids确认被原actor阻塞后执行apply/COMMIT；随后future必须成功提交撤权。revoke-first等待future COMMIT才调用Store，要求旧session拒绝。末态三表0/1与后续读拒绝均检查；不接受deadlock/lock timeout/503为通过，不重试。它们覆盖同principal enabled=false，未覆盖S05主体变更；0.5秒探测/原1秒lock预算能否容纳仍需真实容量证据，不能提前签通过。
+
+第七个policy节点独立构造owner合法policy换版，同时故意保留两旧session行同版本、未revoked；要求SQL read_guard拒绝，随后Python配置匹配拒绝。此为有意义的旧反例隔离。S04后须按最终binding签名/新私有列授权同步夹具，再由Root另给精确source与资源窗口；当前只是候选。
+
+## P2-T01：missing-policy测试混同ACL拒绝和缺行拒绝
+
+test_business_pg.py第447至451行使用demo fixture直接page，并预期WebFailure SERVICE_UNAVAILABLE。该fixture只执行基础grant和grant_v4_runtime；0025已经REVOKE新policy表，尚未调用新grant。Store.assert_policy首次SELECT将先遇到psycopg InsufficientPrivilege，Store不将其转成WebFailure（转换在HTTP boundary）。故此场景未到达缺policy行的判断。
+
+应拆分：无新ACL时明确验证权限拒绝；验证缺行SERVICE_UNAVAILABLE时，以受控fixture给予恰好已审读取能力且保持policy空，或在HTTP层验证正确封装，同时确认真的到达缺行条件。不要激活policy后假称测试缺行，也不要为过测试给app额外DML。此项不属于拟议六ordering加一policy的最小七节点，但完整18节点运行前需修正；当前未实际运行，不能记为PG失败。
+
+## 其他增量与证据边界
+
+Store._reply新增DB时钟对tenant/session期限终态复核；OpenAPI为业务读取补query参数，固定入口/权限枚举不变。新write_guard列入独立runtime候选名单，迁移仍全撤权，未调用grant。S04可写binding锚/自选lease问题原样保持，Root已告的私有verifier方案不是本source实现，不以方案替代修复。
+
+独立精确git archive：test_business_pg.py仅collect，18 collected / 2.87秒 / native0，未执行任何fixture、SQL、native parser或资源启动；test_http_boundary.py进程内stub ASGI 16 passed / 2.60秒 / native0。保留该提交pyproject marker配置，本次无marker warning。没有PG、Docker、网络服务、浏览器、Full扫描或远端操作。此前S03源码接受与S04 HOLD保持，不重签全后端或真实权限Gate。
