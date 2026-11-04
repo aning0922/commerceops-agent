@@ -1,0 +1,37 @@
+# V41 0025六表及身份/revision底座专项审查
+
+日期：2026-11-04（台北）。source `aab5cecda58d134347715b6bfaf6f298a1ccf765`，tree `b48bfb760549b8f7bfcfcf916d86219dad536151`。完整读取唯一0025与effective.py增量，并对照0024引用键、现行lock_p3_permission、DemoSessions resolver及canonical-facts-v1。不读作者后续WIP；无PG/迁移执行。
+
+结论：ACCEPT_REVOKED_DDL_BASE / HOLD_ACTOR_ADMISSION_P2。六表全撤权底座可继续候选开发；两项P2阻断将v41_actor当作完整授权helper接入/授予运行能力。无apply/release/deferred triggers是本切片明确边界，不因缺后续代码直接否定底座，也不预签完整安全通过。
+
+## P2-S01：actor没有绑定当前有效key配置
+
+v41_actor仅比较bound WebSession与DemoSession的key_version彼此一致，没有校验当前有效配置版本；Python DemoSessions.resolve_locked还要求DemoSession key_version匹配config.web.key_version，并重算CSRF绑定。配置轮换而旧两行仍互相一致时，Python拒绝旧会话，SQLhelper仍可能接受旧bearer及原csrf，后续若apply直接调用它就出现入口语义差异。
+
+最小修复：定义并实施SQL可核的当前有效key来源，或在版本切换时原子撤销旧会话的数据库不变量，使低权直调不能跳过当前配置生效；不得新增一个由调用者随意填写expected key version就算修复。说明SQL与Python完整身份/CSRF检查如何共同成立，明确哪些helper永不向app授EXECUTE。补旧版本两表一致但当前配置已变、bound身份/摘要异常的拒绝证据。当前PUBLIC/app全REVOKE，所以不称已有可达漏洞；限制是下一授权切片必须解决。
+
+## P2-S02：credential/identity有效性读取未锁到对应行
+
+v41_actor连接principals/identities/web_credentials后仅FOR SHARE OF principal；现行lock_p3_permission只锁principal/scope/grant，credential有效性为EXISTS读取。实际credential撤销路径可直接UPDATE web_credentials.enabled，不必取得principal锁。因此credential撤销或identity映射变更可能在检查之后、业务提交之前完成，仅靠提交前再SELECT依然存在最后检查到COMMIT的间隙。
+
+最小修复：把参与当前身份判断的credential/identity行纳入一致锁序，或提供所有撤销/映射写必经同一受保护锁的数据库证明；同步核V40控制与新事务顺序，避免反向锁死。后续真实PG并发矩阵要证明“撤销先提交则新写拒绝/写先线性化则撤销等待”，不能只跑顺序撤权用例。该要求面向新v41_actor，不回写旧V40历史验收。
+
+## DDL与ACL静态核查
+
+六表与合同职责对应；tenant/organization、tenant/shop、session/tenant、organization/principal均引用实际既有复合唯一键；effect/job/receipt连接包含身份与epoch/gen，receipt链接deferred以支持同事务效果/回执。import parent唯一约束防多后继，原preview/action key分别owner级唯一；product/SKU/canonical SKU及job-row唯一约束明确。事件一receipt唯一，效果数1—500。
+
+解析槽位0/1全局unique与tenant unique覆盖RESERVED/RUNNING/UNKNOWN，不含expiry谓词，符合未知存活占用不得因TTL释放。STOPPED与slot NULL等价，STOPPED需要reaped布尔proof；目前proof只是结构约束，未来release必须核受信生命周期证明，不能接受任意JSON自报已reap。preview与normalized仅STOPPED可落完整结果，父引用在ready阶段同requested parent。
+
+PUBLIC/app对六表和全部新函数均显式REVOKE，无grant、无table/sequence动态用户标识。唯一SECURITY DEFINER actor固定search_path为pg_catalog,business，SQL对象明确限定，无输入拼接EXECUTE；upgrade f-string只遍历代码内固定表/签名。后续不要把该底座的静态撤权结论转成真实低权ACL测试通过。
+
+当前尚无列payload与effect/event语义联动、不可变触发器、真实template membership/币种/总量/retention上界/版本递增/提交时身份复核等约束，已明确留待apply/deferred slice；在完成之前不得授DML/执行能力。canonical_payload当前只证明编码/hash，不证明与tags/content等列内容相等。
+
+## canonical/revision一致性与证据
+
+SQL canonical递归对象C排序、数组原序、无分隔空格，hash为UTF8 SHA256；revision构造fixture_digest+scope+按kind/UUID排序效果元组。Python改为同一manifest，而不再hash完整读取视图；读取时间/身份generation不混入业务版本。effect payload hash来自各原始Tag/Fulfillment/ImportedProduct DTO，SQL后续写入必须采用同样完整payload，不能只hash标签数组或content子对象。
+
+独立纯核：从精确aab5cec取源码，使用标准json/sha256独立构造空效果及含三类效果/中文文本manifest，两向量均与Python revision一致。静态对照SQL字段/排序与该manifest相符；没有执行PostgreSQL，不能把Python重建当SQL实际一致性证明。PG后续需空/三类/多效果排序、Unicode转义、NULL/整数、UTC秒及微秒跨时区向量，并拒超出合同的JSON数值类型；SQL jsonb canonical不能自动代替Python strict DTO。
+
+另隔离运行精确候选analytics+queries原纯测试：13 passed、0.30秒、native0；两个offline marker未注册warning保留。未重跑全工程/79pure，也未执行DDL语法、FK、SECDEF或低权PG检查。原导出P2-E01仍独立待修。
+
+迁移0024→0025、旧数据/权限保全、seed owner allowlist、GC/未知解析容量与最终Head断言、实际源码镜像绑定均是后续Gate，不预写成功。Root全历史扫描的新阻断不由本报告放宽或修复。
