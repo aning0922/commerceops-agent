@@ -1,0 +1,15 @@
+# c70995f 固定行位最小修复核收
+
+2026-11-04（台北）。结论：`ACCEPTED_EXACT_ROW_RESTORATION / R3_ROW_P2_CLOSED / NO_OPEN_REPORTED_P1_P2`。可交Root集成，仍须按既定安排对最终组合执行完整原wrapper与真实main+candidate merge历史预检，之后才决定第四轮Hosted；本报告不预签那些尚未完成的检查。
+
+固定sourcec70995f434618414f670827a9e0e0e60183d44ca / treeb55770d4e10abddd3e734cbf45ee9a163a396973，parent2513597b742e029303097c6e7d8066063e59bea0。精确单文件tests/test_m3_local_runtime.py，删除顶部import time、在六个实际使用它的新增测试函数内局部导入；独立AST剔除import time后与251完全相同，无删断言、改节点或放宽预期。局部导入仍取得相同Python time模块，monkeypatch原对象不变。
+
+独立核冻结文件第191行与ac6edf原绑定逐字节相等，SHA256 1560f72d6e586424aa2a01bccb1c4de0a4aadbe00a4740c4b55c8b1d2f2e2a68；原路径/行位/完整行恢复，没有新增例外、anchor或metadata。helper、Dockerfile、scanner、gitleaks_rules.json及.gitleaks.toml与251逐字节相同。原progress argv必要预期保留，未整文件退回cbd。
+
+原件目录 /Users/aipuli/.codex/worktrees/commerceops-pr53-image-diagnostic/commerceops-agent/.audit/pr53-amd64-r1/line191-current-index 。freeze.safe.json SHA256独立匹配815e953859826b4fcd7b9ebb79a9e48c76f8152e06b047671a428d91c3d5fa0e；其head/tree/parent正确。引用receipt.safe.json hash65149b5c619bdde13c7a4da3492aefd9753ad34a584d1cd15198b4bc82b32fe9也独立匹配。
+
+dir/index原报告及增量history原报告均为空数组，hash37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570；回执分别native0/findings0。两scope另记录原woo_public_snapshot_violations=[]，不以原生scanner0代替wrapper行绑定校验。结合本轮精确191恢复及未改其余原绑定，R3特定阻断已闭合。本回执明确full_history_scan NOT_RUN，不冒整体原wrapper已完成；Root最终组合检查仍待。
+
+line191-targeted.private.log实际28passed/27deselected/0.38s；freeze回执列Ruff/format/strict mypy/diff通过。仅定向结果，不把原883/251失败或R3五fail改记通过，不启动更多本地构建或完整测试。原镜像问题根因UNKNOWN及BuildKit内部UNKNOWN保留。
+
+此前PG_REVIEW_AND_CORRECTION.md及REVIEW_2513597.md保留，明确本审先前遗漏固定行位的纠正链。此次只读冻结对象/原件及AST/hash核验，无测试/扫描器/网络/服务/CI/push；原review WT不变。只版本集成，不新增业务或进入V4-2。

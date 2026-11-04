@@ -97,3 +97,18 @@ Full、PG、Mock/legacy Web、N01均未到达，artifact为空，[Web原件核�
 第三轮用于获取精确Hosted证据，不预填通过，也不追填前两轮底层UNKNOWN。
 
 旧main已正常备份，未来新阶段须从实时核准的最新已验main开始；本任务不启动V4-2。
+
+## 第三轮实际结果与固定行位恢复
+
+[运行41861157096](https://github.com/aning0922/commerceops-agent/actions/runs/41861157096)
+实际checkout e973c64f/tree6905148，五项失败；[精确结果](HOSTED_R3_RESULT.json)。
+这次是current/index公开固定行位约束失败，不是新的密钥命中或merge-copy历史分类失败。
+预算测试顶部新增time导入导致原已审行191移至192；历史扫描仍1707已审、0阻断，镜像及业务未到达。
+原审漏核完整wrapper的公开行位置合同，失败与更正不回写。
+
+c70995f仅将time导入放入六个新增测试函数，恢复原191与完整hash；
+[独立复审](HOSTED_ROW_RESTORATION_REVIEW.md)确认其余AST相同、未改helper/Dockerfile/规则/例外。
+定向28项通过、27未选中；current/index原公开行校验与原生扫描、作者增量历史均通过。
+下一次正式Hosted前，Root须对最终组合执行原完整scanner wrapper，
+并将实际main与候选完整树构造的真实双亲merge纳入历史预检；
+不再只以作者增量扫描代替完整快照约束。实际结果另按最终提交私有回执记录，不预填。
