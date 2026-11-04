@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
+from .request_witness import validate_request
 from .runner import persist
 
 OPERATIONS = frozenset({"preview", "product_tags", "order_fulfillment", "import_confirm"})
@@ -23,6 +24,7 @@ def registry(
     operation: str | None = None,
     key: str | None = None,
     state: str = "ATTEMPT_STARTED",
+    request: dict[str, Any] | None = None,
 ) -> None:
     info = directory.lstat()
     if (
@@ -75,16 +77,26 @@ def registry(
             history.append(state)
             if len(history) > 100:
                 raise ValueError("BOUNDED_SUBJECT_OBSERVATIONS_REQUIRED")
+            requests = list(previous.get("requests", [])) if previous else []
+            if request is not None:
+                validate_request(request, operation, str(key), scope)
+                if request not in requests:
+                    requests.append(request)
+                if len(requests) > 10:
+                    raise ValueError("BOUNDED_ORIGINAL_REQUESTS_REQUIRED")
             entry["operations"][identity_key] = {
                 "operation": operation,
                 "request_key": key,
                 "state": state,
                 "observations": history,
+                **({"requests": requests} if requests else {}),
             }
         if len(value["scopes"]) > 20 or any(
             len(v["operations"]) > 100 for v in value["scopes"].values()
         ):
             raise ValueError("BOUNDED_SUBJECT_REGISTRY_REQUIRED")
+        if len(json.dumps(value).encode()) > 512000:
+            raise ValueError("BOUNDED_SUBJECT_REGISTRY_BYTES_REQUIRED")
         persist(path, value)
 
 

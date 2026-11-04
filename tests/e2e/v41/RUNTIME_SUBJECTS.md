@@ -1,5 +1,13 @@
 # V41 额外 PG／HTTP 主体清单
 
+当前 H/S 定义增量：H02 ca69b83 已补四 GET 实际调用路径和原 job 独立 GET，恢复与 imported
+绑定的 demo_fixture/demo_mixed 金标。闭集 16 为 12 GET + 4 POST；集合相等不能证明实际执行。
+S01 固定 Shell/business 双标题与 2 passed/0 skipped/0 retry 报告、原请求 journal/末态接线；
+实际运行仍 NOT_RUN。Shell 迟到成功响应在 logout 后清屏专项尚未实现，原生 200% 由 GATES
+独立 owned headful/profile 路线承担；不能由三宽截图或 logout 基本清屏代签。完整当前文件卡与
+一次单案 execute 路径见 QA_PLAN 正文前部。下方原 AST/DDL/HOLD 清单保持其历史时点。
+
+
 2026-11-04（台北）。只读来源为 Root `7f1667a14059a2ea4ae00dcc19811d6a22a06526`，后端
 `55ce78b841df0513e09d4e013d2857475fe64bf7`；精确测试路径、行、矩阵参数与文件hash见同目录
 `runtime_subjects.json`。只用AST盘点，没有pytest collect、fixture、PG、HTTP或服务执行。
@@ -62,9 +70,10 @@ Root报告的DDL旧案单列：0025中的JSONB reaped:true冒号被SQLAlchemy解
 
 ## 真实监听 HTTP 主体
 
-16条实际路由已逐项与QA闭集映射对照写JSON。当前http_recipes只定义12条，缺：
+初次历史盘点时，16条实际路由已逐项与QA闭集映射对照写JSON，http_recipes只定义12条，缺：
 GET `/api/v4/dashboard/drilldown`、`/api/v4/products/export`、`/api/v4/orders/export`、
-`/api/v4/read-context`。定义已有不代表已运行或完整断言；Shell导航也不能代签业务HTTP。
+`/api/v4/read-context`。这四项现已由 ca69b83 的配方覆盖，job GET 与 source 金标另补；
+定义/调用路径不代表已运行或完整断言，以下表格保留初次盘点状态，实际新案回执另计。
 
 | 主体ID | 必需实际请求／主体 | 成功／拒绝与末态要求 | 当前准备边界 |
 | --- | --- | --- | --- |
