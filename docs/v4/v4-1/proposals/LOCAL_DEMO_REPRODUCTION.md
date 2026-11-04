@@ -1,7 +1,8 @@
 # V4-1 本地演示复现说明草案
 
-日期：2026-11-04，Asia/Taipei。文档依据 Root 冻结源码
-`bec4291636f31218bee7e9b6fca1211680cfc940`，只读该提交的路由、合同和固定运行器。
+日期：2026-11-04，Asia/Taipei。文档事实依据 Root 冻结 `477b262f399293300ceb8db0e0f43bbbff50c267`；
+待新运行组合为 `fbb29a429b7f680328ab4451a717adb3ad2d99c1` / tree
+`ef6d8230ac4b58401af2771d722064aadacc5eed`，只读冻结源码、合同及既有回执。
 状态：`DRAFT / CURRENT_BROWSER_PENDING`。本说明不授予运行权限，也不代表存在可访问的常驻服务。
 文档集成后，实际复现仍须绑定 Root 最终核定的新 source/tree 和对应镜像，不能直接沿用本文
 基线或历史镜像、窗口、私配、once、项目、数据库、端口及卷。
@@ -16,10 +17,14 @@
 - FullPG 两线在 source `e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6` 严格配对：596 + 177，
   并集 773、交集 0；详见 [最终配对独审](../reviews/PG_PAIR_e7ae_FINAL.md)。该结论只属 e7，
   不代签其他源码或浏览器。
-- 按 Root 转交的 r7 事实，业务单项通过，Shell 首次在 `read_at` 处失败，整案不通过；
-  全部本案资源已关闭。下一测试关联修复尚未冻结，当前完整浏览器、原生截图和人工视觉验收
-  仍待验；不将业务单项或旧案结果挂到后续 source。最终 source、截图及完整 browser 证据
-  核收后，由 Root 更新本 DRAFT 状态。
+- 当前组合批量/真实移动端/Native与父收验源码已独审，**运行仍pending**，不能说新Full或真实手机已通过。
+  相对eb30实际12代码路径与4fec/e7复用边界见 [最终矩阵](FINAL_GATE_MATRIX.md)。
+- 原browser r8 source `eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d` 业务单项10120ms通过，
+  Shell Native在首张PNG前TimeoutError，具体原await未捕获；整案failed_closed，lateACK未到。
+  新Native源码的阶段诊断不是历史根因证明，也不把超时修成通过。
+- 原batch Mock r1 source `5acf03ae30807c160aa110035127a4e308e95da9` 实际1PASS/1FAIL/31NOT_RUN，
+  原route时间线UNKNOWN；[原件](../../acceptance/v4-1/UI_MOCK_BATCH_R1.json)保留。
+  新等待边界只获源码审查，最终Mock33、真实移动端/Native/lateACK及人工视觉结果待新案回执。
 - 既有运行案均已关闭。本文只提供路由和新窗口中的 URL 生成方式，不承诺历史 URL 可用。
 - 所有演示数据均为合成数据。飞书、Woo、真实模型／embedding 和外部业务调用保持关闭；
   Copilot 显示“模型未启用”，规则洞察不冒充模型回答。这里的本机 API HTTP、PG 和浏览器
@@ -104,6 +109,40 @@ CSV/XLSX 的大小、行列、安全解析及拒绝规则以 [合同](../CONTRAC
 标签操作仅改变演示覆盖层；履约模拟不改库存、钱或真实物流。有效确认导入也仅进入本地
 演示有效视图。结果 UNKNOWN 时保留原 operation/key，先按 UI 核对原操作，不换键重发。
 重置和退出是显式控制动作，不是失败恢复工具，不能用来掩盖原请求状态。
+
+## 当前页批量标签：仅新案窗口内演示
+
+以下是已审受控交互的演示步骤，最终组合实际复现仍pending；不是无运行材料即可执行的服务。
+
+1. 在当前已授权店铺商品列表读取一页，显式选择至少两个本页去重商品。选择不跨页保留，
+   不提供全查询/全店操作；改变搜索、筛选、排序或页码会清选择并取消本批运行许可。
+2. 填写同一目标规范标签并确认选中数、对象及版本。语义是**完整替换**，空标签集合即清空，
+   不是仅追加。确认冻结当前身份/店铺/页查询、IDs/版本、初始data_revision；界面须说明可部分成功。
+3. 保持单串行：每项先以当前权限读取精确对象/version；首项revision等于确认页，后项只接
+   前一项已核receipt.after_revision。只有原COMMITTED回执、fresh详情的version/revision/标签
+   全部闭合后才计成功并发下一项；不要把POST返回或pending进度出现当作完成。
+4. 查看已核成功、明确拒绝、待核对、未发送四种结果。首个UNKNOWN、401/403/409、持久化或
+   读回失败停止剩余；COMMITTED后GET拒绝仍保留待核对与原pending，不误称回滚或明确未提交。
+5. “停止余下操作”、关闭、刷新、路由/店铺/角色变化、reset/logout、hidden/offline均取消后续。
+   已发POST不因Abort而回滚，已成功项不随后项失败回滚；迟到响应不能更新新范围或续发。
+6. 有未决结果时保留原operation/request_key，使用现有只读核对入口，不换key重发，不以空回执
+   推断未提交。即便恢复确认COMMITTED也不自动续行；重新读取当前页、选择并确认才是新批次。
+   不手改sessionStorage或清pending来“恢复”；reset/logout不是掩盖未决请求的方法。
+
+实际新browser需把至少两项不同原key、跨key串行journal与最终SQL效果/版本/来源逐一对账。
+组件/Mock通过不等于真实权限或提交；完整范围见 [批量与移动补充合同](../BATCH_AND_MOBILE_ADDENDUM.md)。
+
+## 真实业务移动布局与原生缩放：验收仍待新案
+
+在Root新窗口内用真实API/PG/Web分别核1440、1280、390；390必须实际操作商品列表/详情、
+批量及单项标签确认、订单列表/详情/演示履约，以及CSV和XLSX映射控件、确认与来源读回。
+保存每项操作、严格同源响应、原key/journal和真实截图，检查焦点/Esc、控件可达、局部表格
+滚动、无意外页面横向溢出及无权限空态。Shell设置页三宽或旧Mock不代业务390；
+390 viewport也不冒称实体手机硬件已验。最终图像/人工可读性结论单列。
+
+原生200%仍使用精确已审模块与pin，同案会话/新profile，核实际zoom事件/geometry和PNG；
+不是CSS/viewport模拟。必须连同hidden/offline、受控迟到ACK及正常/故障清理完成，
+不能因新增batch/mobile而跳过旧Gate。无实际新回执前全部保留pending。
 
 ## 新 owned 案的准备条件
 
