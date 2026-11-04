@@ -44,3 +44,18 @@ seed、API/Web/probe。停止writers后才采final facts，采集/stop失败也�
 该文件目前不存在；不能靠提供旧配置、创建占位handoff或使用0024通过来启动。HTTP/PG observer
 业务recipes在独立后续切片补齐，缺模块同样在任何Docker调用之前拒绝。CLI不是常驻部署器，
 实际运行还需Root父监督/绝对UTC/资源专属准入及退出采集，不从纯测或prepare继承授权。
+
+`http_recipes.py` 只发固定路由的真实httpx请求，使用当前Demo身份/Origin/CSRF/epoch/generation，
+JSON响应由 `validate_response.mjs` 对精确V41生成schema用实际Ajv严格验证，无自动POST重试。
+CSV/XLSX recipe走预览→原preview key只读查询→确认→原action key COMMITTED核验→显式同键十次
+→PG一次效果/receipt/event→SKU查询/同源product_count，并附错误行INVALID/confirm拒绝无部分
+效果和另一访客404。catalog recipe含旧version拒绝零写、标签读回、列表/详情一致、订单商品
+关联、受控履约与原键只读核验。解析/事务内部故障注入、权限竞争、全KPI金标与浏览器Shell
+仍待后续精确接线，不用这些候选recipes冒签全部六卡矩阵。
+
+`pg_observer.py` 仅schema/tenant两动作，显式new V41 DB/0025/六表校验、READ ONLY、5s statement/
+1s lock上限及Root deadline；动态标识仅固定TABLES通过psycopg Identifier引用，tenant参数化。
+最终schema元数据不等于业务回滚/提交证明；每个recipe必须另核实际tenant事实。
+本切片纯测只验证合成CSV/XLSX bytes、真实Ajv/精确已审b723schema与拒绝漂移，不发HTTP/连PG。
+Node依赖来自已锁公开工具字节，未装依赖或联网。API路由/SQL/grant的最终精确来源到达后仍须
+对齐状态码和接缝、独审再准入；当前runtime handoff未发布，所有业务执行仍NOT_RUN。
