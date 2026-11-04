@@ -595,6 +595,20 @@
       "functional_status": "CANDIDATE_COMPONENT_CHECKS_PASS_REVIEW_AND_RUNTIME_PENDING",
       "checkpoint": "r36",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+      "base": "faf9a0725a5f1ffc326abf75ea57d49c453a65ed",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+      "actions_runs": [],
+      "functional_status": "REVIEWED_NODEFAULTS_FIXTURE_NEW_BROWSER_BUILD_ONLY",
+      "checkpoint": "r37",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [

@@ -796,6 +796,48 @@
           "sha256": "ec292c151b176c22aaf0914f91458d9c032835636867c879fc7b380ba301a094"
         }
       ]
+    },
+    {
+      "case": "browser-final-r7",
+      "source": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+      "tree": "2c49fb436eb0df55b9487e1b0276a456774acc10",
+      "status": "failed_closed",
+      "business_spec_passed": true,
+      "business_duration_ms": 10087,
+      "shell_spec_passed": false,
+      "shell_duration_ms": 13594,
+      "failure": "first currentFacts exact read_at visibility; pre offline gate",
+      "retry": 0,
+      "native200": "NOT_RUN",
+      "hidden": "NOT_RUN",
+      "delayed_ack": "NOT_RUN",
+      "shell_owned_cft_native_exit": 0,
+      "node_native_exit": 1,
+      "browser_forced": [],
+      "browser_remaining": [],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r7_pg_data"
+      ],
+      "ports_closed": [
+        18476,
+        13476
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r7/execution.json",
+          "sha256": "b7107568bc0032a324cf57cff54bf80f3443be040edbb76fd4c4fccaefee9bf9"
+        },
+        {
+          "path": "browser-final-r7/closedfinal.json",
+          "sha256": "cc6b96bf6f7214955d4f92f4298188d355e7f355805316fcc133e5ea3984aae4"
+        },
+        {
+          "path": "browser-final-r7/browser-shell-cdp/endpoint-ack.safe.json",
+          "sha256": "17d35c770f31c2cc1fcb52f60caaca196b3c2497b6e6be12974b16694b60d318"
+        }
+      ]
     }
   ],
   "mock_ui": {
@@ -808,7 +850,7 @@
     "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
   },
   "full_engineering": "pass",
-  "full_paired_postgresql": "existing_pass_phase3_running",
+  "full_paired_postgresql": "accepted_exact_e7_full_pair_773",
   "real_http_api_web": "pass",
   "hosted": "NOT_RUN",
   "external_business_providers": "NOT_RUN",
@@ -826,7 +868,7 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": "Browser hidden remained visible; full business browser reruns paused for isolated about-blank focus-override diagnosis",
+  "current_failure": "r7 first currentFacts exact response read_at differed from displayed later read_at; old request lineage remains unknown; failed case closed; targeted correlation diagnosis",
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
@@ -847,5 +889,7 @@
   "existing_pg_receipt": "PG_EXISTING_R2.json",
   "existing_pg_review": "8d870f3c27d67b90ccefee1086e8ea5ae9fcc951",
   "browser_focus_ab_experiment": "observed both minimized with visible; no product pass",
-  "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed"
+  "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed",
+  "full_pg_pair_receipt": "PG_PAIR_FINAL.json",
+  "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8"
 }
