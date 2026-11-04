@@ -1,0 +1,25 @@
+# V41 owner policy 与 credential 锁序复审
+
+日期：2026-11-04（台北）。source `20ff78a73caad24c6c8ac4659d1ab7482a1a4bad`，tree `4e4de46ba034a076af1d7a4a76675358217bea00`，parent `8707c0ca47d688bad9618574e3cf7088c7413574`。完整读取四文件增量，并追溯同source下P3撤权trigger、permission函数和V40 resolver/GC调用顺序；未读WIP。
+
+结论：ACCEPT_POLICY_FOUNDATION_ONLY / HOLD_S02_LOCK_ORDER。S01的权威版本基础候选已有实质补强，尚无端到端运行接线验收；S02不能关闭，新增credential锁与既有撤权路径反序。S03 Unicode跨层差异继续保留，不在本提交中解除。所有新V41函数/表仍对app及PUBLIC撤权，不能运行或授予权限。
+
+## P2-S02：credential 撤权与 actor 形成循环等待
+
+0025的v41_actor在264至265行先锁principal FOR SHARE，268行锁bound session，279至283行再锁identity及credential FOR SHARE。既有0005第153至172行把p3_revoke_scope注册为web_credentials的逐行BEFORE UPDATE/DELETE trigger；该trigger第159行请求principal FOR UPDATE并递增auth_version。
+
+可达交错：事务A先持principal共享锁，在请求credential前暂停；事务B直接UPDATE同credential enabled=false，更新行锁取得后进入BEFORE trigger，等待A的principal；A继续请求credential共享锁，等待B。形成principal→credential与credential→principal的循环。当前bounded的lock_timeout也可能先打断其中一方，因此本静态结论不预填实际SQLSTATE或具体victim；无论是deadlock还是lock timeout导致撤权失败，都不能用503或失败回滚冒签撤权已线性化完成。
+
+应统一所有受支持撤权入口与actor/resolver的锁顺序，并证明旧直接DML是否仍是允许路径。只在v41_actor内部将credential提前不足以解决已经由V40 resolver持有principal锁的调用。不得仅加自动重试、捕获503或删掉当前身份校验。后续在Root授权的真实PG窗口，用屏障固定上述两种先后顺序，要求撤权正常提交；业务按既定先后合法完成或拒绝，撤权提交后的新调用拒绝，保留原once/receipt事实。现有GC先锁principal再改credential是一个路径事实，不能证明所有直接撤权SQL都遵循该顺序。
+
+## 已核 policy 基础与尚未接线的边界
+
+第7表为owner-only singleton，active_version/config_digest/generation/retired_versions约束明确；禁止DELETE/TRUNCATE，版本不能回用，更新generation严格加一。Python拒同版本不同配置摘要，包含CSRF/nonce key摘要、origin、transport与非浏览器开关。缺policy及active-version不符在SQL actor拒绝，bound-session MAC由服务器配置计算，新增commit guard再核当前policy版本。
+
+activate_policy核0025、owned DB命名、PG/vector版本及四表owner；caller必须拥有事务。先transition/provision advisory、排序tenant/session锁，再锁policy并变更；同事务按精确私有demo bound-session及org/principal/identity匹配撤销旧版本，未按组织批量撤销M3会话。与actor的tenant-first顺序一致，不能据此声称实际轮换已测试。初始化、rotation、回滚、旧绑定永久失效与GC保留singleton仍需实际PG证明。
+
+本提交中assert_policy、binding_proof、activate_policy只有定义，没有生产调用点；bootstrap仅将require_owner允许的schema扩至0025，并不自动激活policy。属于准备片的明确边界：后续runtime guard须在同tenant锁内实际调用配置匹配校验，使用owner已提交的policy和私有binding proof，再开放已审函数权限。当前不能把helper存在或三个纯测试视为bootstrap/runtime完成，亦不应以额外低权限全表SELECT代替窄接线审查。
+
+## 验证
+
+精确20ff78a通过git archive隔离执行test_security_config.py：3 passed，native exit0，3.68秒；隔离执行缺offline marker注册的一条warning保留。覆盖配置摘要变更、禁用/非法版本、bound-session MAC，不包含owner SQL、trigger或并发。没有PG/Docker/API/浏览器/新Full扫描或远端操作；本次锁序结论是源码交错分析，不伪造实测死锁回执。

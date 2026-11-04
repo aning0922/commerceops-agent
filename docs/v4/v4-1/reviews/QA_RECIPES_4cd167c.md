@@ -1,0 +1,17 @@
+# V41 recipe确定性修复及KPI准备复审
+
+日期：2026-11-04（台北）。精确source `4cd167cc978399ac13e1fd1fa2fd6eebfa7b1cb3`，包含独立前序 `3570b1dfd000d63cbd378a5a5b020e7653766b4f` 的JobRef/金标准备；未读WIP。
+
+结论：ACCEPT_R01_R02_R04_FIXES / HOLD_RESPONSE_STATUS。原R01履约字段、R02跨租户负例、R04版本schema问题在源码层关闭；R03身份字段部分已修，但业务成功状态仍需补齐（P2-R05）。不是运行HTTP/PG通过。
+
+已核fulfillment_fields取fulfillment_version，原keyCOMMITTED后再十次显式重复、详情状态版本/其余订单金额字段不变、PG effect/receipt/event加一。其他visitor先合法读自己模板商品，再以原shop做404；只有显式登记独有upload才做跨对象404，避免共有fixture误判。assert_context补organization与实际请求shop（不是session的nullshop）。PG查询business.alembic_version且counts参数化tenant/shop。
+
+3570的confirmation_fields核saved/preview/current revision及parser/import-schema版本，旧revision不能换值确认；validator夹具转Root8cb契约，后续仍需跟最新API。独立KPI reference从原seed原始订单/退款/库存计算八指标，日期按店铺民用日，金额Decimal、未知/来源窗口与导入只增商品处理合理；不导入生产analytics作为金标。
+
+## P2-R05：业务读取可把UNKNOWN信封当成功
+
+Business.call在HTTP<400时只做schema/context核验，未按route核status。BusinessEnvelope允许UNKNOWN，dashboard/products/detail的后续recipe直接消费data并可能通过金标；这与WEB仅接受OK及合同未知语义不一致。原R03要求的UNKNOWN不冒成功仍未落实。
+
+最小修复：按固定route定义可接受信封状态，普通业务读要求OK；写ACK/原key恢复明确区分COMMITTED/UNKNOWN，UNKNOWN只允许只读恢复，不能签场景完成。补schema和context完全合法但业务读status UNKNOWN的负例，以及合法原key UNKNOWN保留路径；不要全局禁止所有UNKNOWN而破坏恢复合同。
+
+验证：在精确f077486隔离源上执行scope/runtime/image/KPI四模块18pure，native0/0.34秒；其中本报告所读http_recipes/pg_observer/kpi_reference字节相对4cd保持。四个offline marker warning保留。没有实际HTTP/PG/browser，原R/D其他运行缺口保持。browser spec caf8c1e不在本复审范围。
