@@ -1,3 +1,5 @@
+2026-11-04 V4-1真实API首轮：9e1新owned案r2已实际完成0025/旧ACL/种子与三个owner动作（COMMITTED、COMMITTED、VERIFIED）、API/Web和dashboard隔离probe0，37required命令全0；终态因唯一Next自动生成声明封存拒绝，整体driver/outer1、失败保留。已核资源关闭保卷；1794精确模板窄修经独审后cherry至4c4，组合27组件通过，新案实跑待验。ca69全GET配方和538真实业务browser源码已核收，187浏览器PGID清理P2仍修复中。已分批推送4c4及owner候选，Actions[]。Full/最终browser/原生200仍NOT_RUN，不进入V4-2。见[精确运行记录](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下保留历史时点。
+
 2026-11-04 V4-1运行增量：标签重复写入与policy夹具权限修复后，dc22专项22PG全部通过；另e54新增live-child1与GC5共6PG通过并完成独审。两批按各自SHA记录，不拼同源28；所有案容器/网络关闭、卷保留。Mock UI24通过。固定owner启动helper735及当前head兼容827已独审集成，真实HTTP/API/Web、完整工程与严格双PG配对、最终截图仍待验。阶段继续IMPLEMENTING；分批推送已到590eb5c，无PR/Actions，不进入V4-2或生产。见[运行分层](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)与[推送回执](v4/acceptance/v4-1/PUSHES.json)。以下导航保留此前时点。
 
 2026-11-04 V4-1最新运行增量：精确source4907756已通过新owned 0025迁移/七表初始空/29函数ACL默认拒绝及7项撤权顺序与policy真实PG测试；Mock UI冻结3342968的24项全部通过。扩大到V41专项22项时实际2PASS/1FAIL/19NOT_RUN，第二次标签写入23514/V41_TAG_INVALID正由独占owner修复；所有案资源已清容器网络、保卷。当前阶段仍IMPLEMENTING，HTTP/API/Web、全仓Full工程/严格双PG配对、最终截图等未验；不进入V4-2/Hosted/外部业务/生产。精确分层见[当前运行回执](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下导航保留此前时点。

@@ -241,6 +241,111 @@
           "sha256": "47213c17007ece43bd4d9d0375c01537d57c8129b8dc06dfc8f3aced34f306a7"
         }
       ]
+    },
+    {
+      "case": "real-api-dashboard-r1",
+      "status": "CLOSED_FAILED_BEFORE_NAMESPACE_OR_PG_API_START",
+      "source": "9e1beb0e967553a8d9dc24484f1d5845fee2e8ed",
+      "tree": "97bd376738e6fd03e7bc5ba91935891adc6ea98d",
+      "image_id": "sha256:4cca6d7cabddcfed0c62d29ef45a7cf8e7fae51086692cceb06f740a39d4369d",
+      "driver_native_exit": 1,
+      "outer_native_exit": 1,
+      "original_driver_status": "FAILED_OR_UNKNOWN",
+      "original_cleanup_confirmed": false,
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "ports_free": {
+        "18460": true,
+        "13460": true
+      },
+      "once_preserved": true,
+      "artifacts": [
+        {
+          "path": "real-api-dashboard-r1/closedfinal.json",
+          "sha256": "0081e53bcf0af73986031700fbe2135f35daeb308863db0f0bed1427ddaefe0b"
+        },
+        {
+          "path": "real-api-dashboard-r1/execution.json",
+          "sha256": "844a3657ca8cf1b1fa174f3cd0398212b6fd3abe7eadc7398f48b2af854b9276"
+        }
+      ],
+      "actual_pg_api_started": false,
+      "original_exception_message": "NOT_CAPTURED",
+      "fresh_diagnostic": "Requested 172.29.176/24 and 177/24 overlap existing 172.29.0/16; old network unchanged"
+    },
+    {
+      "case": "real-api-dashboard-r2",
+      "status": "CLOSED_RESOURCES_HTTP_COMPLETED_TERMINAL_SOURCE_SEAL_FAILED",
+      "source": "9e1beb0e967553a8d9dc24484f1d5845fee2e8ed",
+      "tree": "97bd376738e6fd03e7bc5ba91935891adc6ea98d",
+      "image_id": "sha256:4cca6d7cabddcfed0c62d29ef45a7cf8e7fae51086692cceb06f740a39d4369d",
+      "driver_native_exit": 1,
+      "outer_native_exit": 1,
+      "original_driver_status": "SCENARIO_COMPLETED_PENDING_CLEANUP",
+      "original_cleanup_confirmed": false,
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "ports_free": {
+        "18460": true,
+        "13460": true
+      },
+      "once_preserved": true,
+      "artifacts": [
+        {
+          "path": "real-api-dashboard-r2/closedfinal.json",
+          "sha256": "90ca4f09c28b531680d78701c518055c40fc858170a7618bca03b76d36723deb"
+        },
+        {
+          "path": "real-api-dashboard-r2/execution.json",
+          "sha256": "dd527bfbd17c2e455bf04a5db04864ea1303a45976230bd56837ea2a834db24e"
+        }
+      ],
+      "actual_pg_api_web_started": true,
+      "probe_native_exit": 0,
+      "required_commands": 37,
+      "required_nonzero": [],
+      "owner_actions": [
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "d09f14cb-c5ee-4d91-9315-51dfe00bd214",
+          "receipt_sha256": "0b381bf47d9fb8fb16bc68f84032a67daf746cbab3064ba398c298aa01a70d2a"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "1ec40b48-3e20-4edf-a444-e1b4a6e52797",
+          "receipt_sha256": "029f2394784c9b9e2432a9a06f7a31c033c1d90917f28fea35d1536a58733b90"
+        },
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "f36a334b-0a94-466b-885d-0f44cae1c4a5",
+          "receipt_sha256": "8c21f8e2a4c0c8512f1125c9cb26d3e49d613520451be277ff2536db721e100e"
+        }
+      ],
+      "writers_native_exits": {
+        "probe": 0,
+        "web": 0,
+        "api": 130
+      },
+      "preserved_volumes": [
+        "v41qa_dashboard_9e1_r2_pg_data"
+      ],
+      "tracked_drift": [],
+      "tool_drift": [],
+      "generated_untracked": {
+        "path": "frontend/next-env.d.ts",
+        "head_entry": "ABSENT",
+        "bytes": 296,
+        "mode": 384,
+        "sha256": "0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc",
+        "preserved": true
+      },
+      "original_exception_message": "NOT_CAPTURED",
+      "fresh_diagnostic": "UNAPPROVED_UNTRACKED_RUNTIME_INPUT",
+      "new_fix": "1794fc7d5e87f252ad16fa54c5594a6c704ef3ac",
+      "fix_not_applied_retroactively": true
     }
   ],
   "mock_ui": {
@@ -254,7 +359,7 @@
   },
   "full_engineering": "NOT_RUN",
   "full_paired_postgresql": "NOT_RUN",
-  "real_http_api_web": "NOT_RUN",
+  "real_http_api_web": "partial",
   "hosted": "NOT_RUN",
   "external_business_providers": "NOT_RUN",
   "production": "NOT_RUN",
@@ -271,7 +376,12 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": null,
+  "current_failure": {
+    "case": "real-api-dashboard-r2",
+    "scope": "terminal_source_seal",
+    "new_source_fix_reviewed": "262d5d99de82cf8e82412c5e008c8d3e2ab5366d",
+    "new_source_actual_rerun": "NOT_RUN"
+  },
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY"
