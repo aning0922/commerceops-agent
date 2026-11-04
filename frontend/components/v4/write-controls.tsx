@@ -1,12 +1,12 @@
 'use client';
 import {useState} from 'react';
 import styles from './business-pending.module.css';
-import {validV41Tag} from '../../lib/v41-tags.mjs';
+import {validV41Tag,hasV41NonPrintable} from '../../lib/v41-tags.mjs';
 
 export function TagControls({tags,enabled,busy,onSave}:{tags:string[];enabled:boolean;busy:boolean;onSave:(tags:string[])=>void}) {
   const [editing,setEditing]=useState(false),[text,setText]=useState(tags.join(', '));
-  const values=text.split(',').map(value=>value.trim()).filter(Boolean);
-  const valid=values.length<=8 && values.every(validV41Tag) && new Set(values).size===values.length;
+  const parts=text.split(','),values=parts.map(value=>value.trim()).filter(Boolean);
+  const valid=!parts.some(hasV41NonPrintable) && values.length<=8 && values.every(validV41Tag) && new Set(values).size===values.length;
   if(!editing)return <button type="button" disabled={!enabled||busy} onClick={()=>setEditing(true)}>编辑标签</button>;
   return <form onSubmit={event=>{event.preventDefault();if(valid&&enabled&&!busy)onSave(values);}}>
     <label>标签（逗号分隔，最多 8 项）<input value={text} onChange={event=>setText(event.target.value)} disabled={busy}/></label>
