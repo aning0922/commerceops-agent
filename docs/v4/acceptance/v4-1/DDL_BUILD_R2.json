@@ -1,0 +1,93 @@
+{
+  "scope": "772_TESTIMAGE_BUILD_AND_READONLY_SOURCECHECK_ONLY",
+  "source": "772ecc6d423e06351c8cdeb78c23a9382d47d466",
+  "tree": "c3c2a797df43b4af1c3e9d713a1e8aa03762b3b1",
+  "image_id": "sha256:69833822bd3ffdece19bea9a2319be11e3935f9e66372395b0bdfdb23cee7288",
+  "dockerfile_sha256": "8b977b19a56ba460f197f0971d36fe1b14960f8cb14917c405a4062507e1717c",
+  "expected_manifest_sha256": "4dbf30240616f520a67bbe0fe883b2f9a711ebda8834bf39ced75fded3bfae63",
+  "runtime_files": 665,
+  "installed_python_files": 216,
+  "status": "BUILD_AND_INSIDE_SOURCE_PROOF_PASS",
+  "started_utc": "2026-11-04T03:04:31.530661+00:00",
+  "ended_utc": "2026-11-04T03:05:05.051495+00:00",
+  "commands": [
+    {
+      "label": "server",
+      "native_exit": 0,
+      "timed_out": false,
+      "stdout_sha256": "cc6fab5523ffb756616866330c945102677aef12da9592354f7034bd43c13c92",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "base",
+      "native_exit": 0,
+      "timed_out": false,
+      "stdout_sha256": "fd557a1de011b75fb7851c2a859cf9e8ab30428aadbad6dae5577baa5358eaa1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "new_tag_absent",
+      "native_exit": 1,
+      "timed_out": false,
+      "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "stderr_sha256": "44637f67cd247803016bc07c71e60365b6a07b21faef32d9cb4f1cfbef5c2cae"
+    },
+    {
+      "label": "sourcecheck_absent",
+      "native_exit": 1,
+      "timed_out": false,
+      "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "stderr_sha256": "4fc11ae85804d4a75fc45af0578688f407482b23f46de376fd10be8cebec1893"
+    },
+    {
+      "label": "build",
+      "native_exit": 0,
+      "timed_out": false,
+      "stdout_sha256": "6f6a25d63736f4c693c3ab2937f45f0a84ded0c3bac375a80d674fe10cde7076",
+      "stderr_sha256": "ec34a09e033b515c85951f12dbaa17dc3090601dd78ed912c6b4548ce882034a"
+    },
+    {
+      "label": "new_image",
+      "native_exit": 0,
+      "timed_out": false,
+      "stdout_sha256": "62ac97306c0ce9647773daa036b57a327f0fa898b99e6c1e9ad9574cdf2df09c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "sourcecheck",
+      "native_exit": 0,
+      "timed_out": false,
+      "stdout_sha256": "f60a178726592bb1098a457a2f952f4a5cfd62b7a362df6e5ed0849dc8626570",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "base_after",
+      "native_exit": 0,
+      "timed_out": false,
+      "stdout_sha256": "fd557a1de011b75fb7851c2a859cf9e8ab30428aadbad6dae5577baa5358eaa1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "remaining_sourcecheck",
+      "native_exit": 1,
+      "timed_out": false,
+      "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "stderr_sha256": "4fc11ae85804d4a75fc45af0578688f407482b23f46de376fd10be8cebec1893"
+    },
+    {
+      "label": "final_sourcecheck_absent",
+      "native_exit": 1,
+      "timed_out": false,
+      "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "stderr_sha256": "4fc11ae85804d4a75fc45af0578688f407482b23f46de376fd10be8cebec1893"
+    }
+  ],
+  "cleanup": {
+    "sourcecheck_absent": true,
+    "registered_cli_groups_absent": true
+  },
+  "receipt_sha256": "c901e4dbdaefce86ceeab56146499f7fee29c42e6e24e81fe64b9f98afc2a9a1",
+  "postgresql_started": false,
+  "runtime_grant": "NOT_RUN",
+  "supersedes_failed_build": false
+}
