@@ -3,7 +3,7 @@
 import secrets
 from dataclasses import replace
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from commerceops.infrastructure.database import DatabaseSettings
@@ -11,6 +11,7 @@ from commerceops.infrastructure.v4_demo_sessions import DemoConfig
 from commerceops.infrastructure.v41_security import (
     binding_proof,
     config_fingerprint,
+    invocation_key,
     policy_matches,
 )
 from commerceops.infrastructure.web_config import WebConfig
@@ -69,3 +70,43 @@ def test_private_binding_proof_changes_with_bound_identity_and_current_secret() 
     assert proof != binding_proof(
         replace(value, web=replace(value.web, csrf_secret=secrets.token_bytes(32))), identity
     )
+
+
+def test_invocation_domain_version_nonce_and_legacy_segments_are_independent() -> None:
+    import base64
+    import hmac
+
+    from commerceops.application.replenishment.security import csrf_token
+
+    value = config()
+    value = replace(
+        value,
+        web=replace(
+            value.web,
+            nonce_secret=bytes(range(32)),
+            csrf_secret=bytes(range(32, 64)),
+            key_version="v2",
+        ),
+    )
+    identity = UUID("00000000-0000-0000-0000-000000000001")
+    derived = hmac.digest(bytes(range(32)), b'v41-invocation-key-1\0{"key_version":"v2"}', "sha256")
+    assert invocation_key(value) == derived and len(derived) == 32
+    payload = (
+        b'v41-runtime-binding-1\0{"bound_session_id":'
+        b'"00000000-0000-0000-0000-000000000001","key_version":"v2"}'
+    )
+    expected = (
+        base64.urlsafe_b64encode(hmac.digest(derived, payload, "sha256")).decode().rstrip("=")
+    )
+    first, second = binding_proof(value, identity).split(".")
+    assert first == csrf_token(value.web.csrf_secret, identity) and second == expected
+    assert len(first) == len(second) == 43 and first != second
+    for changed in (
+        replace(value, web=replace(value.web, key_version="v3")),
+        replace(value, web=replace(value.web, nonce_secret=bytes(range(1, 33)))),
+    ):
+        a, b = binding_proof(changed, identity).split(".")
+        assert a == first and b != second
+    changed = replace(value, web=replace(value.web, csrf_secret=bytes(range(33, 65))))
+    a, b = binding_proof(changed, identity).split(".")
+    assert a != first and b == second

@@ -43,10 +43,15 @@ def grant_runtime(db: DB, config: DemoConfig) -> None:
     _tables_owned(db)
     bounded(db)
     assert_policy(db, config)
-    for suffix in (*TABLES, "security_policy"):
+    for suffix in TABLES:
         table = sql.Identifier("business", "v41_" + suffix)
         db.execute(sql.SQL("REVOKE ALL ON {} FROM PUBLIC,commerceops_app").format(table))
         db.execute(sql.SQL("GRANT SELECT ON {} TO commerceops_app").format(table))
+    db.execute("REVOKE ALL ON business.v41_security_policy FROM PUBLIC,commerceops_app")
+    db.execute(
+        "GRANT SELECT(singleton,active_version,config_digest,generation,activated_at,"
+        "retired_versions) ON business.v41_security_policy TO commerceops_app"
+    )
     for signature in RUNTIME:
         # Every signature above is a checked-in constant, never an input or broad schema grant.
         db.execute(

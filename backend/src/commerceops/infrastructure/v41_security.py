@@ -15,8 +15,8 @@ from typing import Any
 from uuid import UUID
 
 from commerceops.application.replenishment.contracts import WebFailure
-from commerceops.application.replenishment.security import csrf_token
-from commerceops.domain.commerce_values import facts_hash
+from commerceops.application.replenishment.security import capability, csrf_token
+from commerceops.domain.commerce_values import canonical_bytes, facts_hash
 from commerceops.infrastructure.v4_demo_sessions import DemoConfig, bounded
 from commerceops.infrastructure.web_sessions import DB
 
@@ -49,10 +49,25 @@ def policy_matches(row: Mapping[str, Any] | None, config: DemoConfig) -> bool:
     )
 
 
-def binding_proof(config: DemoConfig, bound_session_id: UUID) -> str:
-    """Private server-derived bound-session MAC, never accepted from or returned to the browser."""
+def invocation_key(config: DemoConfig) -> bytes:
+    """Owner-only derived verifier; never returned to the browser or the runtime SQL role."""
     config_fingerprint(config)
-    return csrf_token(config.web.csrf_secret, bound_session_id)
+    return hmac.digest(
+        config.web.nonce_secret,
+        b"v41-invocation-key-1\0" + canonical_bytes(dict(key_version=config.web.key_version)),
+        "sha256",
+    )
+
+
+def binding_proof(config: DemoConfig, bound_session_id: UUID) -> str:
+    """Two independent MACs: legacy bound-session closure and owner-policy invocation."""
+    legacy = csrf_token(config.web.csrf_secret, bound_session_id)
+    invocation = capability(
+        invocation_key(config),
+        "v41-runtime-binding-1",
+        dict(bound_session_id=str(bound_session_id), key_version=config.web.key_version),
+    )
+    return legacy + "." + invocation
 
 
 def assert_policy(db: DB, config: DemoConfig) -> None:
@@ -91,6 +106,7 @@ def _owner(db: DB) -> None:
 def activate_policy(db: DB, config: DemoConfig) -> dict[str, Any]:
     """Caller owns transaction: tenant/session locks, then policy switch and old demo revocation."""
     fingerprint = config_fingerprint(config)
+    verifier = invocation_key(config)
     _owner(db)
     bounded(db)
     db.execute("SELECT pg_advisory_xact_lock(1446261845,2)")
@@ -111,20 +127,23 @@ def activate_policy(db: DB, config: DemoConfig) -> dict[str, Any]:
     if current is None:
         db.execute(
             "INSERT INTO business.v41_security_policy(singleton,active_version,config_digest,"
-            "generation) VALUES(true,%s,%s,1)",
-            (version, fingerprint),
+            "generation,invocation_verifier) VALUES(true,%s,%s,1,%s)",
+            (version, fingerprint, verifier),
         )
     elif version == current["active_version"]:
-        if not hmac.compare_digest(current["config_digest"], fingerprint):
+        if not hmac.compare_digest(
+            current["config_digest"], fingerprint
+        ) or not hmac.compare_digest(bytes(current["invocation_verifier"]), verifier):
             raise ValueError("V41_POLICY_VERSION_REUSE")
     else:
         if version in current["retired_versions"] or len(current["retired_versions"]) >= 64:
             raise ValueError("V41_POLICY_VERSION_REUSE")
         db.execute(
             """UPDATE business.v41_security_policy SET active_version=%s,config_digest=%s,
+         invocation_verifier=%s,
          generation=generation+1,activated_at=clock_timestamp(),
          retired_versions=array_append(retired_versions,active_version) WHERE singleton""",
-            (version, fingerprint),
+            (version, fingerprint, verifier),
         )
     # Match private demo binding IDs only; never revoke M3/non-demo sessions by organization.
     stopped = db.execute(

@@ -42,6 +42,7 @@ CREATE TABLE business.v41_security_policy (
  singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton),
  active_version text NOT NULL CHECK(active_version ~ '^[A-Za-z0-9_.-]{{1,80}}$'),
  config_digest text NOT NULL CHECK(config_digest ~ '^[a-f0-9]{{64}}$'),
+ invocation_verifier bytea NOT NULL CHECK(octet_length(invocation_verifier)=32),
  generation bigint NOT NULL CHECK(generation>0),
  activated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  retired_versions text[] NOT NULL DEFAULT '{{}}' CHECK(cardinality(retired_versions)<=64),
@@ -236,6 +237,35 @@ LANGUAGE sql STABLE SET search_path=pg_catalog,business AS $$
   ) e),'[]'::jsonb))) FROM business.v4_demo_tenants t WHERE t.id=tid AND t.reset_epoch=epoch
 $$;
 
+CREATE FUNCTION business.v41_hmac_sha256(material bytea,payload bytea) RETURNS bytea
+LANGUAGE plpgsql IMMUTABLE SET search_path=pg_catalog,business AS $$
+DECLARE normalized bytea; block bytea; inner_pad bytea; outer_pad bytea; n integer;
+BEGIN
+ IF material IS NULL OR payload IS NULL OR octet_length(material) NOT BETWEEN 1 AND 1024
+  OR octet_length(payload)>4096 THEN
+  RAISE EXCEPTION 'INVALID_REQUEST' USING ERRCODE='23514'; END IF;
+ normalized:=CASE WHEN octet_length(material)>64 THEN sha256(material) ELSE material END;
+ block:=normalized||decode(repeat('00',64-octet_length(normalized)),'hex');
+ inner_pad:=block; outer_pad:=block;
+ FOR n IN 0..63 LOOP
+  inner_pad:=set_byte(inner_pad,n,get_byte(block,n)#54);
+  outer_pad:=set_byte(outer_pad,n,get_byte(block,n)#92);
+ END LOOP;
+ RETURN sha256(outer_pad||sha256(inner_pad||payload));
+END $$;
+CREATE FUNCTION business.v41_invocation_mac(material bytea,bound uuid,version text) RETURNS text
+LANGUAGE plpgsql IMMUTABLE SET search_path=pg_catalog,business AS $$
+DECLARE payload bytea;
+BEGIN
+ IF material IS NULL OR octet_length(material)<>32 OR bound IS NULL OR version IS NULL
+  OR version !~ '^[A-Za-z0-9_.-]{1,80}$' THEN
+  RAISE EXCEPTION 'INVALID_REQUEST' USING ERRCODE='23514'; END IF;
+ payload:=convert_to('v41-runtime-binding-1','UTF8')||decode('00','hex')||
+  convert_to(business.v41_canonical(jsonb_build_object('bound_session_id',bound,
+   'key_version',version)),'UTF8');
+ RETURN rtrim(translate(replace(encode(business.v41_hmac_sha256(material,payload),'base64'),
+  chr(10),''),'+/','-_'),'=');
+END $$;
 -- Caller holds the principal SHARE lock. The existing p3_revoke_scope trigger on
 -- credentials/scopes/grants must acquire principal UPDATE and advance auth_version before
 -- committing any change. Read their committed predicates here without taking reverse tuple
@@ -281,7 +311,7 @@ BEGIN
   RAISE EXCEPTION 'EPOCH_CHANGED' USING ERRCODE='23514'; END IF;
  IF generation IS DISTINCT FROM s.auth_generation THEN
   RAISE EXCEPTION 'GENERATION_CHANGED' USING ERRCODE='23514'; END IF;
- -- Match the V40 resolver's principal/bound-session order, then hold identity and credential.
+ -- Match V40 principal/bound order; identity SHARE, credential predicates under principal SHARE.
  SELECT a.* INTO p FROM business.principals a WHERE a.id=s.principal_id
   AND a.organization_id=t.organization_id FOR SHARE;
  IF p.id IS NULL OR NOT p.enabled OR p.auth_version<>s.auth_version THEN
@@ -294,8 +324,9 @@ BEGIN
   OR least(w.absolute_expires_at,w.idle_expires_at)<=clock_timestamp()
   OR greatest(w.absolute_expires_at,w.idle_expires_at)>s.expires_at THEN
   RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
- IF binding IS NULL OR octet_length(binding)>256 OR w.csrf_digest IS DISTINCT FROM
-  encode(sha256(convert_to(binding,'UTF8')),'hex') THEN
+ IF binding IS NULL OR binding !~ '^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$'
+  OR w.csrf_digest IS DISTINCT FROM
+  encode(sha256(convert_to(split_part(binding,'.',1),'UTF8')),'hex') THEN
   RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
  PERFORM 1 FROM business.identities i WHERE i.id=s.identity_id AND i.provider='web'
   AND i.organization_id=t.organization_id AND i.principal_id=s.principal_id FOR SHARE;
@@ -306,7 +337,9 @@ BEGIN
  SELECT * INTO policy FROM business.v41_security_policy WHERE singleton FOR SHARE;
  IF policy.singleton IS NULL THEN
   RAISE EXCEPTION 'SERVICE_UNAVAILABLE' USING ERRCODE='23514'; END IF;
- IF s.key_version IS DISTINCT FROM policy.active_version THEN
+ IF s.key_version IS DISTINCT FROM policy.active_version
+  OR split_part(binding,'.',2) IS DISTINCT FROM business.v41_invocation_mac(
+   policy.invocation_verifier,s.bound_web_session_id,policy.active_version) THEN
   RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
  IF writing AND (csrf IS NULL OR octet_length(csrf)>256 OR s.csrf_digest<>
   encode(sha256(convert_to(csrf,'UTF8')),'hex')) THEN
@@ -339,6 +372,8 @@ END $$;
 """
 
 SIGNATURES = (
+    "v41_hmac_sha256(bytea,bytea)",
+    "v41_invocation_mac(bytea,uuid,text)",
     "v41_permission(uuid,uuid,uuid,uuid,bigint,text)",
     "v41_write_guard(text,text,text,uuid,bigint,bigint)",
     "v41_read_guard(text,text,uuid,bigint,bigint)",

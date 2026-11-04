@@ -99,7 +99,7 @@ def test_seven_tables_private_helpers_and_low_role_no_dml(
 ) -> None:
     demo, _ = business
     with connect(demo.app) as db:
-        for suffix in (*TABLES, "security_policy"):
+        for suffix in TABLES:
             name = "business.v41_" + suffix
             row = db.execute(
                 "SELECT has_table_privilege(current_user,%s,'SELECT') AS can_read,"
@@ -117,11 +117,21 @@ def test_seven_tables_private_helpers_and_low_role_no_dml(
             "v41_canonical(jsonb)",
             "v41_hash(jsonb)",
             "v41_text_valid(text)",
+            "v41_hmac_sha256(bytea,bytea)",
+            "v41_invocation_mac(bytea,uuid,text)",
         ):
             assert db.execute(
                 "SELECT has_function_privilege(current_user,%s,'EXECUTE') AS allowed",
                 ("business." + signature,),
             ).fetchone() == dict(allowed=False)
+    with connect(demo.app) as db:
+        row = db.execute(
+            "SELECT has_table_privilege(current_user,%s,'SELECT') AS table_read,"
+            "has_column_privilege(current_user,%s,'active_version','SELECT') AS metadata,"
+            "has_column_privilege(current_user,%s,'invocation_verifier','SELECT') AS private_read",
+            ("business.v41_security_policy",) * 3,
+        ).fetchone()
+        assert row == dict(table_read=False, metadata=True, private_read=False)
     for suffix in (*TABLES, "security_policy"):
         with pytest.raises(psycopg.errors.InsufficientPrivilege), connect(demo.app) as db:
             db.execute(
@@ -828,3 +838,120 @@ def test_sql_current_policy_rejects_two_old_consistent_session_rows(
         app.execute("SELECT business.v41_read_guard(%s,%s,%s,%s,%s)", (token, binding, shop, 0, 0))
     with pytest.raises(WebFailure, match="SERVICE_UNAVAILABLE"):
         page(store, token, shop)
+
+
+def test_private_verifier_hmac_goldens_and_forged_writable_binding_no_admission(
+    business: tuple[DemoPG, BusinessStore],
+) -> None:
+    import hmac
+
+    demo, store = business
+    token, current, shop = session(demo)
+    revision = page(store, token, shop).snapshot.data_revision
+    with connect(demo.app) as db:
+        subject = demo.store.sessions.resolve_locked(db, token)
+        bound = subject.session["bound_web_session_id"]
+        original = db.execute(
+            "SELECT csrf_digest FROM business.web_sessions WHERE id=%s", (bound,)
+        ).fetchone()
+        assert original is not None
+    for query in (
+        "SELECT invocation_verifier FROM business.v41_security_policy",
+        "SELECT * FROM business.v41_security_policy",
+        "SELECT business.v41_hmac_sha256('a'::bytea,'b'::bytea)",
+        "SELECT business.v41_invocation_mac('a'::bytea,NULL,NULL)",
+    ):
+        with pytest.raises(psycopg.errors.InsufficientPrivilege), connect(demo.app) as db:
+            db.execute(query)
+    with connect(demo.owner) as owner:
+        vectors = (
+            (bytes([11]) * 20, b"Hi There"),
+            (b"Jefe", b"what do ya want for nothing?"),
+            (bytes([170]) * 131, b"Test Using Larger Than Block-Size Key - Hash Key First"),
+            (bytes(range(32)), b""),
+            (bytes(range(64)), bytes(range(256))),
+            (bytes(range(65)), b"longer than a block"),
+        )
+        for material, payload in vectors:
+            row = owner.execute(
+                "SELECT business.v41_hmac_sha256(%s,%s) AS digest", (material, payload)
+            ).fetchone()
+            assert row is not None and bytes(row["digest"]) == hmac.digest(
+                material, payload, "sha256"
+            )
+        from commerceops.infrastructure.v41_security import invocation_key
+
+        proof = binding_proof(demo.config, bound)
+        expected = owner.execute(
+            "SELECT business.v41_invocation_mac(%s,%s,%s) AS proof",
+            (invocation_key(demo.config), bound, demo.config.web.key_version),
+        ).fetchone()
+        assert expected is not None and expected["proof"] == proof.split(".")[1]
+    for bad_material, bad_payload in (
+        (None, b"x"),
+        (b"", b"x"),
+        (b"x" * 1025, b"x"),
+        (b"x", None),
+        (b"x", b"x" * 4097),
+    ):
+        with (
+            pytest.raises(psycopg.errors.CheckViolation, match="INVALID_REQUEST"),
+            connect(demo.owner) as owner,
+        ):
+            owner.execute("SELECT business.v41_hmac_sha256(%s,%s)", (bad_material, bad_payload))
+    command = preview_command(shop, revision)
+    canonical = canonical_bytes(
+        dict(
+            command=command.model_dump(mode="json", exclude={"file_base64"}),
+            file_digest=hashlib.sha256(base64.b64decode(command.file_base64)).hexdigest(),
+        )
+    ).decode()
+    chosen = secrets.token_urlsafe(32)
+    forged = chosen + "." + secrets.token_urlsafe(32)
+    with connect(demo.app) as attacker:
+        # This legacy permission really exists; the new authority cannot depend solely on it.
+        attacker.execute(
+            "UPDATE business.web_sessions SET csrf_digest=%s WHERE id=%s",
+            (hashlib.sha256(chosen.encode()).hexdigest(), bound),
+        )
+    try:
+        wrong_session = binding_proof(demo.config, uuid4()).split(".")[1]
+        wrong_version = binding_proof(
+            replace(demo.config, web=replace(demo.config.web, key_version="v3")), bound
+        ).split(".")[1]
+        for fake in (
+            chosen,
+            forged,
+            chosen + "." + wrong_session,
+            chosen + "." + wrong_version,
+            chosen + ".." + chosen,
+            chosen + "." + chosen + "." + chosen,
+            "",
+            chosen + ".short",
+        ):
+            with (
+                pytest.raises(psycopg.errors.CheckViolation, match="SESSION_INVALID"),
+                connect(demo.app) as attacker,
+            ):
+                attacker.execute(
+                    "SELECT * FROM business.v41_reserve_preview(%s,%s,%s,%s,%s,%s)",
+                    (
+                        token,
+                        current["data"]["csrf_token"],
+                        fake,
+                        canonical,
+                        hashlib.sha256(secrets.token_bytes(32)).hexdigest(),
+                        uuid4(),
+                    ),
+                )
+        with connect(demo.owner) as owner:
+            assert owner.execute(
+                "SELECT count(*) AS n FROM business.v41_import_jobs"
+            ).fetchone() == dict(n=0)
+    finally:
+        with connect(demo.app) as db:
+            db.execute(
+                "UPDATE business.web_sessions SET csrf_digest=%s WHERE id=%s",
+                (original["csrf_digest"], bound),
+            )
+    assert page(store, token, shop).total == 8
