@@ -20,6 +20,9 @@ TABLES = (
 )
 
 
+SCHEMA_TABLES = (*TABLES, "v41_security_policy")
+
+
 def row(value: dict[str, Any] | None) -> dict[str, Any]:
     if value is None:
         raise ValueError("OBSERVER_ROW_MISSING")
@@ -33,6 +36,7 @@ def main() -> None:
     parser.add_argument("--shop")
     parser.add_argument("--deadline", required=True)
     parser.add_argument("--final", action="store_true")
+    parser.add_argument("--policy-state", choices=("empty", "active"), default="active")
     args = parser.parse_args()
     try:
         end = datetime.fromisoformat(args.deadline)
@@ -56,9 +60,15 @@ def main() -> None:
                 "SELECT table_name FROM information_schema.tables "
                 "WHERE table_schema='business' AND table_name LIKE 'v41_%'"
             ).fetchall()
-            if {r["table_name"] for r in rows} != set(TABLES):
+            if {r["table_name"] for r in rows} != set(SCHEMA_TABLES):
                 raise ValueError("V41_TABLE_SET_MISMATCH")
-            value: dict[str, object] = {"revision": revision, "tables": sorted(TABLES)}
+            value: dict[str, object] = {"revision": revision, "tables": sorted(SCHEMA_TABLES)}
+            policy_count = row(
+                db.execute("SELECT count(*) AS count FROM business.v41_security_policy").fetchone()
+            )["count"]
+            if policy_count != (0 if args.policy_state == "empty" else 1):
+                raise ValueError("V41_OWNER_POLICY_COUNT_MISMATCH")
+            value["global_policy_rows"] = policy_count
             if args.action == "tenant":
                 tenant = str(UUID(args.tenant))
                 shop = str(UUID(args.shop))

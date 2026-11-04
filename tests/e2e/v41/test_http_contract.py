@@ -8,12 +8,13 @@ import subprocess
 import sys
 import zipfile
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import pytest
 from defusedxml import ElementTree  # type: ignore[import-untyped]
 
-from .http_recipes import confirmation_fields, import_bytes
+from .http_recipes import assert_import_receipt, confirmation_fields, import_bytes
 from .process import ROOT
 
 pytestmark = pytest.mark.offline
@@ -222,3 +223,26 @@ def test_latest_job_ref_strict_schema_rejects_missing_revision_or_wrong_parser(
         check=False,
     )
     assert result.returncode == 1 and json.loads(result.stdout) == {"valid": False}
+
+
+def test_import_receipt_binds_job_version_without_artificial_increment() -> None:
+    job = {"import_job_id": str(uuid4()), "version": 2, "data_revision": "before"}
+    key = str(uuid4())
+    receipt = {
+        "operation": "import_confirm",
+        "request_key": key,
+        "resource_id": job["import_job_id"],
+        "resource_version": 2,
+        "before_revision": "before",
+        "after_revision": "after",
+    }
+    assert_import_receipt(receipt, job, key, "after")
+    changes: list[dict[str, Any]] = [
+        {"resource_version": 3},
+        {"resource_id": str(uuid4())},
+        {"before_revision": "wrong"},
+        {"request_key": str(uuid4())},
+    ]
+    for change in changes:
+        with pytest.raises(AssertionError):
+            assert_import_receipt({**receipt, **change}, job, key, "after")

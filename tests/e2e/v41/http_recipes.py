@@ -20,6 +20,7 @@ from tests.e2e.v4.supervisor import Budget
 from .kpi_reference import assert_metrics, reference
 from .owned_driver import ROOT, Case
 from .runner import persist
+from .subjects import registry
 
 ROUTES = {
     "dashboard": ("GET", "/api/v4/dashboard"),
@@ -119,6 +120,7 @@ class Business:
         if visitor.current is None:
             raise ValueError("actual current demo identity required")
         self.shop = visitor.current["data"]["shops"][0]
+        registry(Path(case.directory), visitor.current["context"], self.shop["shop_id"])
 
     def call(
         self,
@@ -157,6 +159,20 @@ class Business:
                 "state": "UNKNOWN_UNTIL_READBACK",
             }
             persist(Path(self.case.directory) / "pending.private.json", self.pending)
+        operation = {
+            "preview": "preview",
+            "confirm": "import_confirm",
+            "tags": "product_tags",
+            "fulfill": "order_fulfillment",
+        }.get(name)
+        if method == "POST" and operation is not None and payload is not None:
+            registry(
+                Path(self.case.directory),
+                context,
+                str(payload["shop_id"]),
+                operation=operation,
+                key=payload["request_key"],
+            )
         response = self.visitor.client.request(
             method,
             path,
@@ -200,7 +216,35 @@ class Business:
             assert_context(reply["context"], context, target_shop)
         if method == "POST" and self.pending is not None:
             self.pending["state"] = "ACK_" + reply["status"]
+            if operation is not None and payload is not None:
+                registry(
+                    Path(self.case.directory),
+                    context,
+                    str(payload["shop_id"]),
+                    operation=operation,
+                    key=payload["request_key"],
+                    state=self.pending["state"],
+                )
             persist(Path(self.case.directory) / "pending.private.json", self.pending)
+        if name in {"preview_lookup", "receipt"}:
+            if reply["data"].get("request_key") != ids["request_key"]:
+                raise AssertionError("V41_READBACK_ORIGINAL_KEY_MISMATCH")
+            if name == "receipt" and reply["data"].get("operation") != ids["operation"]:
+                raise AssertionError("V41_READBACK_OPERATION_MISMATCH")
+            lookup_operation = "preview" if name == "preview_lookup" else ids["operation"]
+            state = (
+                "COMMITTED_READBACK"
+                if reply["data"]["status"] == "COMMITTED"
+                else "UNKNOWN_READBACK"
+            )
+            registry(
+                Path(self.case.directory),
+                context,
+                params["shop_id"],
+                operation=lookup_operation,
+                key=ids["request_key"],
+                state=state,
+            )
         return reply
 
     def write(self, revision: str, **extra: Any) -> dict[str, Any]:
@@ -284,6 +328,24 @@ def confirmation_fields(
     return {"expected_job_version": job["version"], "expected_job_digest": job["job_digest"]}
 
 
+def assert_import_receipt(
+    receipt: dict[str, Any], job: dict[str, Any], request_key: str, after_revision: str
+) -> None:
+    expected = {
+        "operation": "import_confirm",
+        "request_key": request_key,
+        "resource_id": job["import_job_id"],
+        "resource_version": job["version"],
+        "before_revision": job["data_revision"],
+        "after_revision": after_revision,
+    }
+    if (
+        any(receipt.get(k) != v for k, v in expected.items())
+        or after_revision == job["data_revision"]
+    ):
+        raise AssertionError("V41_IMPORT_RECEIPT_JOB_VERSION_REVISION_MISMATCH")
+
+
 def import_flow(business: Business, kind: str) -> None:
     before = business.call("products")["data"]
     original_counts = business.facts()
@@ -332,6 +394,9 @@ def import_flow(business: Business, kind: str) -> None:
     found = business.call("products", query={"q": sku})["data"]
     if len(found["items"]) != 1 or found["items"][0]["skus"][0]["label"] != sku:
         raise AssertionError("V41_IMPORTED_SKU_NOT_QUERYABLE")
+    assert_import_receipt(
+        committed, job, confirm["request_key"], found["snapshot"]["data_revision"]
+    )
     business.unique_product_id = found["items"][0]["product_id"]
     dashboard = business.call("dashboard")["data"]
     seed_dashboard_golden(dashboard, currency, imported=1)

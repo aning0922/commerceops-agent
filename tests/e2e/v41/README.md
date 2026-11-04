@@ -92,3 +92,11 @@ mount；首次Web HTTP前以lsof+ps核实际listener在本次process group且仅
 结束时要求同一元数据、精确非空预期卷列表；Docker卷没有另一个不可变UUID，不将名称冒称UUID。
 终态重核HEAD/tree/runtime files、五输入、私配seal、build receipt及.env拒绝；seed导出是输出，
 不再被误作不可变配置。注册业务对象末态/按key关联SQL等剩余runtime HOLD仍需后续切片。
+
+后续安全policy补充：schema精确集合改为六业务表加v41_security_policy；observer单独核owner
+初始化前0/后1行，global policy不进入tenant/shop业务计数，不作为GC效果。实际secret/version/
+fingerprint轮换与低权拒绝待API精确SQL/CLI源，不能由singleton行数推断安全接受。
+subjects.py在业务请求前以私有锁登记scope/原operation-key，ACK与原键GET观察分开并保历史；
+同进程并发登记不丢写的测试只证明本机元数据原子性，不是PG并发验收。import_confirm回执另核
+resource_id=job.id、resource_version=原job.version、before_revision=preview保存值、after_revision
+=确认后有效版本，不错误套用商品/履约的version+1。登记后的最终业务PG采集仍待driver接线。
