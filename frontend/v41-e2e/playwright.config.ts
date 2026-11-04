@@ -9,5 +9,5 @@ if(!executablePath||resolve(executablePath)!==executablePath||realpathSync(execu
 process.umask(0o077);
 export default defineConfig({
   testDir:'.',testMatch:['shell.live.spec.ts','business.live.spec.ts'],timeout:240000,workers:1,retries:0,forbidOnly:true,
-  use:{launchOptions:{executablePath},baseURL:`http://127.0.0.1:${c.web_port}`,trace:'off',video:'off',screenshot:'off',reducedMotion:'reduce'},
+  use:{headless:false,launchOptions:{executablePath},baseURL:`http://127.0.0.1:${c.web_port}`,trace:'off',video:'off',screenshot:'off',reducedMotion:'reduce'},
 });

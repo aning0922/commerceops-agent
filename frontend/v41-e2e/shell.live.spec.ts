@@ -1,5 +1,5 @@
 import {test,expect,type Response,type APIResponse,type Request,type Route} from '@playwright/test';
-import Ajv2020 from 'ajv/dist/2020';
+import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -28,8 +28,8 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   mkdirSync(evidence,{mode:0o700});
   const subjects=subjectWriter(c,'shell');
   const screenshots:{path:string;sha256:string}[]=[];
-  let creates=0;
-  page.on('request',r=>{const u=new URL(r.url());if(u.origin===api&&u.pathname==='/api/v4/demo/sessions'&&r.method()==='POST')creates++;});
+  let creates=0,apiPosts=0;
+  page.on('request',r=>{const u=new URL(r.url());if(u.origin===api&&r.method()==='POST')apiPosts++;if(u.origin===api&&u.pathname==='/api/v4/demo/sessions'&&r.method()==='POST')creates++;});
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/v4');
   const first=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/session'&&r.request().method()==='GET'&&r.ok());
@@ -40,6 +40,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   expect(current.data.creation_request_key).toBe(creation.data.receipt.request_key);
   for(const shop of current.data.shops)subjects.scope(current.context,shop.shop_id);
   expect(current.data.persona_id).toBe('operator');expect(current.data.shops).toHaveLength(2);
+  await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
   await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
   for(const item of routes.modules){
     const nav=page.locator('nav[aria-label="业务导航"]:visible');
@@ -70,11 +71,72 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     const bytes=await page.screenshot({path,fullPage:true});
     screenshots.push({path,sha256:createHash('sha256').update(bytes).digest('hex')});
   }
+  // StageSpec clear gates use real browser lifecycle events and the existing visitor only.
+  const identityFields=['tenant_id','organization_id','principal_id','reset_epoch','auth_generation'] as const;
+  const sameCookies=()=>context.cookies(api).then(items=>items.filter(item=>item.name==='commerceops_v4_demo').map(({name,value,domain,path})=>({name,value,domain,path})));
+  const originalCookies=await sameCookies(),lifecyclePosts=apiPosts;
+  expect(originalCookies).toHaveLength(1);
+  await page.setViewportSize({width:1440,height:900});await page.goto('/v4/dashboard');
+  await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
+  await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
+  async function restoreOriginal(){
+    await page.bringToFront();
+    await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('visible');
+    const renewed=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/session'&&r.request().method()==='GET');
+    await page.reload();const restored=await session(await renewed);
+    for(const key of identityFields)expect(restored.context[key]).toBe(current.context[key]);
+    expect(restored.data.creation_request_key).toBe(current.data.creation_request_key);
+    expect(restored.data.persona_id).toBe('operator');expect(await sameCookies()).toEqual(originalCookies);
+    await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
+    await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
+    expect(creates).toBe(1);
+  }
+  async function currentFacts(){
+    const reply=page.waitForResponse(r=>new URL(r.url()).origin===api&&new URL(r.url()).pathname==='/api/v4/read-context'&&r.request().method()==='GET');
+    await page.getByRole('button',{name:'智能助手',exact:true}).click();
+    const response=await reply;expect(response.status()).toBe(200);
+    expect(response.headers()['cache-control']).toBe('no-store');
+    const body=await response.json();
+    expect(ajv.compile({...businessSchema,$ref:'#/$defs/BusinessEnvelope_ReadContextData_'})(body)).toBe(true);
+    for(const key of identityFields)expect(body.context[key]).toBe(current.context[key]);
+    expect(body.context.shop_id).toBe(current.data.shops[0].shop_id);
+    const panel=page.getByRole('dialog',{name:'智能助手'});
+    await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toBeVisible();
+    await expect(panel.getByText('数据读取于 '+body.data.snapshot.read_at,{exact:true})).toBeVisible();
+    return body.data.snapshot.read_at as string;
+  }
+  async function sensitiveCleared(readAt:string){
+    await expect(page.getByText('当前视角：',{exact:false})).toHaveCount(0);
+    // includeHidden checks DOM removal, so backgrounding the page cannot itself make this pass.
+    await expect(page.getByRole('heading',{name:'当前事实',exact:true,includeHidden:true})).toHaveCount(0);
+    await expect(page.getByText('数据读取于 '+readAt,{exact:true})).toHaveCount(0);
+  }
+  const offlineReadAt=await currentFacts();
+  try{
+    await context.setOffline(true);
+    await expect.poll(()=>page.evaluate(()=>navigator.onLine)).toBe(false);
+    await sensitiveCleared(offlineReadAt);expect(await sameCookies()).toEqual(originalCookies);
+  }finally{await context.setOffline(false);}
+  await expect.poll(()=>page.evaluate(()=>navigator.onLine)).toBe(true);
+  await restoreOriginal();
+  const hiddenReadAt=await currentFacts();
+  const cover=await context.newPage();
+  try{
+    await cover.goto('about:blank');await cover.bringToFront();
+    await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('hidden');
+    await sensitiveCleared(hiddenReadAt);expect(await sameCookies()).toEqual(originalCookies);
+  }finally{await page.bringToFront();await cover.close();}
+  await restoreOriginal();await currentFacts();await page.keyboard.press('Escape');
+  expect(apiPosts).toBe(lifecyclePosts);expect(creates).toBe(1);
+  const lifecycleClear={tier:'REAL_BROWSER_OFFLINE_AND_VISIBILITY',offline:{navigatorOnLine:false,sensitiveDOM:'CLEARED',recovery:'SAME_COOKIE_GET_RELOAD'},hidden:{documentVisibilityState:'hidden',sensitiveDOM:'CLEARED',recovery:'SAME_COOKIE_GET_RELOAD'},extraPosts:apiPosts-lifecyclePosts};
   const nativeSession=await session(await page.request.get(api+'/api/v4/demo/session',{headers:{Origin:`http://127.0.0.1:${c.web_port}`},maxRedirects:0,maxRetries:0,timeout:10000}));
   for(const key of ['tenant_id','organization_id','principal_id','reset_epoch','auth_generation'])expect(nativeSession.context[key]).toBe(current.context[key]);
   const nativeShop=await page.getByRole('combobox',{name:'店铺',exact:true}).inputValue();
   expect(nativeSession.data.shops.some((shop:{shop_id:string})=>shop.shop_id===nativeShop)).toBe(true);
-  const native200=await captureNative200(c,await context.cookies(api),nativeSession.context,nativeShop);
+  let native200:Awaited<ReturnType<typeof captureNative200>>;
+  try{native200=await captureNative200(c,await context.cookies(api),nativeSession.context,nativeShop);}
+  finally{await restoreOriginal();} // The native headed window may have hidden and cleared this Shell.
+
   // Network ACK delay injection: fetch a genuine read-context success, then hold its delivery.
   // read-context has no client AbortController; no signal, request, body or response is rewritten.
   await page.setViewportSize({width:1440,height:900});
@@ -160,5 +222,5 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     try{if(claimed)await delivery;}finally{await page.unroute(target,hold);}
   }
   await page.reload();await expect(page.getByRole('button',{name:'一键体验 →',exact:true})).toBeVisible();expect(creates).toBe(1);
-  writeFileSync(join(evidence,'shell.safe.json'),JSON.stringify({source_sha:c.source_sha,source_tree:c.source_tree,scope:'LIVE_SHELL_ONLY',screenshots,native200,businessKPI:'NOT_VERIFIED_BY_SHELL',delayedAck,actual_create_requests:creates},null,2),{mode:0o600,flag:'wx'});
+  writeFileSync(join(evidence,'shell.safe.json'),JSON.stringify({source_sha:c.source_sha,source_tree:c.source_tree,scope:'LIVE_SHELL_ONLY',screenshots,native200,businessKPI:'NOT_VERIFIED_BY_SHELL',lifecycleClear,delayedAck,actual_create_requests:creates},null,2),{mode:0o600,flag:'wx'});
 });
