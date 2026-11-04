@@ -136,15 +136,44 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   await expect.poll(()=>page.evaluate(()=>navigator.onLine)).toBe(true);
   await restoreOriginal();
   const hiddenReadAt=await currentFacts();
-  const cover=await context.newPage();
+  expect(page.context()).toBe(context);
+  const windowSession=await context.newCDPSession(page);
+  let hiddenWindowRestored=false;
   try{
-    await cover.goto('about:blank');await cover.bringToFront();
-    await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('hidden');
-    await sensitiveCleared(hiddenReadAt);expect(await sameCookies()).toEqual(originalCookies);
-  }finally{await page.bringToFront();await cover.close();}
+    const {targetInfo:ownedTarget}=await windowSession.send('Target.getTargetInfo');
+    expect(ownedTarget.type).toBe('page');
+    expect(typeof ownedTarget.targetId).toBe('string');expect(ownedTarget.targetId.length).toBeGreaterThan(0);
+    if(typeof ownedTarget.browserContextId!=='string'||!ownedTarget.browserContextId.length)throw new Error('Owned browser context identity required');
+    expect(ownedTarget.url).toBe(page.url());expect(new URL(ownedTarget.url).origin).toBe(`http://127.0.0.1:${c.web_port}`);
+    const ownedWindow=await windowSession.send('Browser.getWindowForTarget',{targetId:ownedTarget.targetId});
+    expect(Number.isInteger(ownedWindow.windowId)).toBe(true);expect(ownedWindow.bounds.windowState).toBe('normal');
+    async function verifyOwnedWindow(){
+      expect(page.context()).toBe(context);
+      const {targetInfo:actual}=await windowSession.send('Target.getTargetInfo');
+      expect(actual.type).toBe('page');expect(actual.targetId).toBe(ownedTarget.targetId);
+      expect(actual.browserContextId).toBe(ownedTarget.browserContextId);
+      expect(actual.url).toBe(ownedTarget.url);expect(page.url()).toBe(ownedTarget.url);
+      const actualWindow=await windowSession.send('Browser.getWindowForTarget',{targetId:ownedTarget.targetId});
+      expect(actualWindow.windowId).toBe(ownedWindow.windowId);
+    }
+    try{
+      await verifyOwnedWindow();
+      await windowSession.send('Browser.setWindowBounds',{windowId:ownedWindow.windowId,bounds:{windowState:'minimized'}});
+      await expect.poll(async()=>(await windowSession.send('Browser.getWindowBounds',{windowId:ownedWindow.windowId})).bounds.windowState).toBe('minimized');
+      await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('hidden');
+      await sensitiveCleared(hiddenReadAt);expect(await sameCookies()).toEqual(originalCookies);
+    }finally{
+      await verifyOwnedWindow();
+      await windowSession.send('Browser.setWindowBounds',{windowId:ownedWindow.windowId,bounds:{windowState:'normal'}});
+      await expect.poll(async()=>(await windowSession.send('Browser.getWindowBounds',{windowId:ownedWindow.windowId})).bounds.windowState).toBe('normal');
+      await page.bringToFront();
+      await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('visible');
+      hiddenWindowRestored=true;
+    }
+  }finally{await windowSession.detach();}
   await restoreOriginal();await currentFacts();await page.keyboard.press('Escape');
   expect(apiPosts).toBe(lifecyclePosts);expect(creates).toBe(1);
-  const lifecycleClear={tier:'REAL_BROWSER_OFFLINE_AND_VISIBILITY',offline:{navigatorOnLine:false,sensitiveDOM:'CLEARED',recovery:'SAME_COOKIE_GET_RELOAD'},hidden:{documentVisibilityState:'hidden',sensitiveDOM:'CLEARED',recovery:'SAME_COOKIE_GET_RELOAD'},extraPosts:apiPosts-lifecyclePosts};
+  const lifecycleClear={tier:'REAL_BROWSER_OFFLINE_AND_VISIBILITY',offline:{navigatorOnLine:false,sensitiveDOM:'CLEARED',recovery:'SAME_COOKIE_GET_RELOAD'},hidden:{ownedTargetWindowMatched:true,windowState:'minimized',documentVisibilityState:'hidden',sensitiveDOM:'CLEARED',restoredWindowState:'normal',restoredVisible:hiddenWindowRestored,recovery:'SAME_COOKIE_GET_RELOAD'},extraPosts:apiPosts-lifecyclePosts};
   const nativeSession=await session(await page.request.get(api+'/api/v4/demo/session',{headers:{Origin:`http://127.0.0.1:${c.web_port}`},maxRedirects:0,maxRetries:0,timeout:10000}));
   for(const key of ['tenant_id','organization_id','principal_id','reset_epoch','auth_generation'])expect(nativeSession.context[key]).toBe(current.context[key]);
   const nativeShop=await page.getByRole('combobox',{name:'店铺',exact:true}).inputValue();
