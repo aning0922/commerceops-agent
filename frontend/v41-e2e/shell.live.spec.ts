@@ -1,4 +1,4 @@
-import {test,expect,type Response} from '@playwright/test';
+import {test,expect,type Response,type APIResponse,type Request,type Route} from '@playwright/test';
 import Ajv2020 from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
 import {mkdirSync,writeFileSync} from 'node:fs';
@@ -6,11 +6,13 @@ import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import routes from '../lib/v41-routes.json' with {type:'json'};
 import schema from '../lib/v4-schema.json' with {type:'json'};
+import businessContract from '../../docs/v4/v4-1/API_CONTRACT.json' with {type:'json'};
+const businessSchema=businessContract.json_schema;
 import {readBrowserCase,subjectWriter} from './browser-subjects';
 
 const c=readBrowserCase(),api=`http://127.0.0.1:${c.api_port}`;
 const evidence=join(c.directory,'browser-shell');
-const ajv=new Ajv2020({strict:true,allErrors:true});addFormats(ajv);
+const ajv=new Ajv2020({strict:true,allErrors:true,allowUnionTypes:true});addFormats(ajv);
 async function envelope(r:Response,definition:'SessionEnvelope'|'CreateEnvelope'|'ControlEnvelope'){
   expect(r.status()).toBe(definition==='CreateEnvelope'?201:200);
   expect(r.headers()['cache-control']).toBe('no-store');
@@ -67,17 +69,90 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     const bytes=await page.screenshot({path,fullPage:true});
     screenshots.push({path,sha256:createHash('sha256').update(bytes).digest('hex')});
   }
-  await page.getByLabel('体验视角').selectOption('restricted_admin');
-  const switched=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/session'&&r.request().method()==='GET'&&r.ok());
-  const changed=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/persona'&&r.request().method()==='POST');
-  await page.getByRole('button',{name:'切换视角',exact:true}).click();
-  await envelope(await changed,'ControlEnvelope');
-  const admin=await session(await switched);expect(admin.data.persona_id).toBe('restricted_admin');expect(admin.data.shops).toHaveLength(0);
-  await expect(page.getByText('当前视角没有获授权店铺。')).toBeVisible();
-  const loggedOut=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/logout'&&r.request().method()==='POST');
-  await page.getByRole('button',{name:'退出',exact:true}).click();await envelope(await loggedOut,'ControlEnvelope');
-  await expect(page.getByText('当前视角：',{exact:false})).toHaveCount(0);
-  expect((await context.cookies(api)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
+  // Network ACK delay injection: fetch a genuine read-context success, then hold its delivery.
+  // read-context has no client AbortController; no signal, request, body or response is rewritten.
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/v4/dashboard');
+  await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
+  await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
+  const assistant=page.getByRole('button',{name:'智能助手',exact:true});
+  const baseline=page.waitForResponse(r=>new URL(r.url()).origin===api&&new URL(r.url()).pathname==='/api/v4/read-context'&&r.request().method()==='GET');
+  await assistant.click();
+  const baselineResponse=await baseline;
+  expect(baselineResponse.status()).toBe(200);
+  expect(ajv.compile({...businessSchema,$ref:'#/$defs/BusinessEnvelope_ReadContextData_'})(await baselineResponse.json())).toBe(true);
+  await expect(page.getByRole('dialog',{name:'智能助手'}).getByRole('heading',{name:'当前事实',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
+  let releaseAck!:()=>void, capture!:(value:{upstream:APIResponse;request:Request})=>void, captureError!:(error:unknown)=>void;
+  let delivered!:()=>void, deliveryError!:(error:unknown)=>void;
+  const release=new Promise<void>(resolve=>{releaseAck=resolve;});
+  const captured=new Promise<{upstream:APIResponse;request:Request}>((resolve,reject)=>{capture=resolve;captureError=reject;});
+  const delivery=new Promise<void>((resolve,reject)=>{delivered=resolve;deliveryError=reject;});
+  // Observe rejections immediately; the original promises are still awaited below and fail the test.
+  void captured.catch(()=>{});void delivery.catch(()=>{});
+  const target=(url:URL)=>url.origin===api&&url.pathname==='/api/v4/read-context';
+  let claimed=false;
+  const hold=async(route:Route)=>{
+    if(claimed||route.request().method()!=='GET'){await route.continue();return;}
+    claimed=true;
+    let upstream:APIResponse|undefined;
+    try{
+      upstream=await route.fetch({maxRetries:0,maxRedirects:0,timeout:10000});
+      capture({upstream,request:route.request()});
+      await release;
+      await route.fulfill({response:upstream}); // Forward the authentic status/headers/body unchanged.
+      await upstream.dispose();upstream=undefined;
+      delivered();
+    }catch(error){captureError(error);deliveryError(error);await route.abort().catch(()=>{});}
+    finally{await upstream?.dispose();}
+  };
+  await page.route(target,hold);
+  let delayedAck:Record<string,unknown>;
+  try{
+    await assistant.click();
+    const held=await captured,raw=await held.upstream.body(),old=JSON.parse(raw.toString('utf8'));
+    expect(held.upstream.status()).toBe(200);expect(old.status).toBe('OK');
+    expect(held.upstream.headers()['cache-control']).toBe('no-store');
+    expect(ajv.compile({...businessSchema,$ref:'#/$defs/BusinessEnvelope_ReadContextData_'})(old)).toBe(true);
+    for(const key of ['tenant_id','organization_id','principal_id','reset_epoch','auth_generation'])expect(old.context[key]).toBe(current.context[key]);
+    expect(old.context.shop_id).toBe(current.data.shops[0].shop_id);
+    expect(old.data.kind).toBe('dashboard');expect(old.data.metrics).toHaveLength(8);
+    await expect(page.getByRole('dialog',{name:'智能助手'}).getByText('正在读取当前授权上下文…',{exact:true})).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.getByLabel('体验视角').selectOption('restricted_admin');
+    const switched=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/session'&&r.request().method()==='GET'&&r.ok());
+    const changed=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/persona'&&r.request().method()==='POST');
+    await page.getByRole('button',{name:'切换视角',exact:true}).click();
+    await envelope(await changed,'ControlEnvelope');
+    const admin=await session(await switched);expect(admin.data.persona_id).toBe('restricted_admin');expect(admin.data.shops).toHaveLength(0);
+    await expect(page.getByText('当前视角没有获授权店铺。')).toBeVisible();
+    const loggedOut=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/logout'&&r.request().method()==='POST');
+    await page.getByRole('button',{name:'退出',exact:true}).click();await envelope(await loggedOut,'ControlEnvelope');
+    await expect(page.getByText('当前视角：',{exact:false})).toHaveCount(0);
+    expect((await context.cookies(api)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
+    const panel=page.getByRole('dialog',{name:'智能助手'});
+    await assistant.click();await expect(panel).toBeVisible();
+    await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toHaveCount(0);
+    await expect(panel.getByText('选择授权店铺，并打开驾驶舱或具体商品、订单后查看。',{exact:true})).toBeVisible();
+    const late=page.waitForResponse(r=>r.request()===held.request);
+    releaseAck();await delivery;
+    const received=await late;
+    expect(await received.finished()).toBeNull();expect(received.status()).toBe(200);
+    const receivedHash=createHash('sha256').update(await received.body()).digest('hex');
+    const originalHash=createHash('sha256').update(raw).digest('hex');expect(receivedHash).toBe(originalHash);
+    // readV41 parses/validates synchronously after body completion; wait for the following UI paint.
+    await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+    await expect(page.getByText('当前视角：',{exact:false})).toHaveCount(0);
+    await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toHaveCount(0);
+    await expect(page.getByText('数据读取于 '+old.data.snapshot.read_at,{exact:true})).toHaveCount(0);
+    await expect(panel.getByText('选择授权店铺，并打开驾驶舱或具体商品、订单后查看。',{exact:true})).toBeVisible();
+    expect((await context.cookies(api)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
+    delayedAck={tier:'NETWORK_ACK_DELAY_INJECTION_REAL_UPSTREAM',path:'/api/v4/read-context',upstream_status:200,delivered_status:200,upstream_sha256:originalHash,delivered_sha256:receivedHash,release_barrier:'LOGOUT_COMMITTED_AND_SENSITIVE_STATE_CLEARED',sensitive_state_after_delivery:'ABSENT'};
+    await page.keyboard.press('Escape');
+  }finally{
+    releaseAck();
+    try{if(claimed)await delivery;}finally{await page.unroute(target,hold);}
+  }
   await page.reload();await expect(page.getByRole('button',{name:'一键体验 →',exact:true})).toBeVisible();expect(creates).toBe(1);
-  writeFileSync(join(evidence,'shell.safe.json'),JSON.stringify({source_sha:c.source_sha,source_tree:c.source_tree,scope:'LIVE_SHELL_ONLY',screenshots,native200:'NOT_RUN_IN_THIS_SPEC',businessKPI:'NOT_VERIFIED_BY_SHELL',actual_create_requests:creates},null,2),{mode:0o600,flag:'wx'});
+  writeFileSync(join(evidence,'shell.safe.json'),JSON.stringify({source_sha:c.source_sha,source_tree:c.source_tree,scope:'LIVE_SHELL_ONLY',screenshots,native200:'NOT_RUN_IN_THIS_SPEC',businessKPI:'NOT_VERIFIED_BY_SHELL',delayedAck,actual_create_requests:creates},null,2),{mode:0o600,flag:'wx'});
 });

@@ -3,8 +3,9 @@
 当前 H/S 定义增量：H02 ca69b83 已补四 GET 实际调用路径和原 job 独立 GET，恢复与 imported
 绑定的 demo_fixture/demo_mixed 金标。闭集 16 为 12 GET + 4 POST；集合相等不能证明实际执行。
 S01 固定 Shell/business 双标题与 2 passed/0 skipped/0 retry 报告、原请求 journal/末态接线；
-实际运行仍 NOT_RUN。Shell 迟到成功响应在 logout 后清屏专项尚未实现，原生 200% 由 GATES
-独立 owned headful/profile 路线承担；不能由三宽截图或 logout 基本清屏代签。完整当前文件卡与
+实际运行仍 NOT_RUN。Shell 已定义真实 read-context 成功响应在 logout/敏感状态清空后原样
+交付的网络 ACK 延迟注入专项，核 body hash/response finished/UI paint；当前仅源码准备，
+不声称实际通过或完整浏览器权限 Gate。原生 200% 等待 GATES 已审模块，同三宽截图分列。完整当前文件卡与
 一次单案 execute 路径见 QA_PLAN 正文前部。下方原 AST/DDL/HOLD 清单保持其历史时点。
 
 

@@ -15,7 +15,8 @@ Root 的其他独立运行不得移填成本片结果；先前冻结与失败原
 | S01 父路径 | `tests/e2e/v41/browser_shell.py`、`owned_driver.py`、`test_browser_shell.py` | shell_navigation 固定 Shell 与 business 两标题、恰好 2 passed/0 skipped/0 retry；仅 native0 不通过。固定 argv，无 all 或任意 spec 参数；缺已提交业务 spec 或 Root 浏览器绑定时在 Docker 前拒绝 |
 | S01 前端接缝 | `frontend/v41-e2e/playwright.config.ts`、`shell.live.spec.ts`、`browser-subjects.ts` | testMatch 固定两 spec；Shell 真实严格 session/control 响应、14 导航/刷新、三宽截图/键盘/persona/logout。WEB 独占 business.live.spec.ts 与 live-business.fixture.ts，QA 不编辑这两文件 |
 | S01 原始请求与末态 | `tests/e2e/v41/request_witness.py`、`subjects.py`、`final_facts.py` | 真实 POST 透传前 fsync scope/原 key/path/body/hash；writers 停止后导入两份私有 journal，有效前缀保留，失败/UNKNOWN 不重放；按实际 DB canonical 请求核对原意图 |
-| 尚未实现的浏览器门槛 | Shell 迟到响应清屏专项；完整权限/失效交错矩阵 | 当前 Shell 的 logout 清屏不代签被延迟成功响应在 logout 后到达；没有此场景实际证据，仍 `IMPLEMENTATION_PENDING / NOT_RUN`，不得报 FR-05 完成 |
+| Shell 迟到清屏专项 | `frontend/v41-e2e/shell.live.spec.ts` | 原 operator 的真实 read-context GET 经 route.fetch 成功后暂缓交付；既有 persona/logout 成功且清空敏感状态后原样交付，核完整 body hash 相同、真实 response finished 和 UI paint 后事实仍清空。无 sleep、无新访客/业务写；tier=`NETWORK_ACK_DELAY_INJECTION_REAL_UPSTREAM`，仅源码准备，实际 `NOT_RUN` |
+| 浏览器权限矩阵 | 完整权限/失效交错 | 本片只含现有 persona/logout 与延迟响应专项，不签完整 browser 权限 Gate；PG 专项不能代签，FR-05 尚未完成 |
 | 原生 200% | GATES 独立新 owned headful/profile 路线 | 本片不包含该路线，两个 safe receipt 均保留 native200=NOT_RUN_IN_THIS_SPEC；viewport/CSS 不代签 |
 
 执行接口仍为五个既有 scenario，不增加第六个或通用组合执行器。单案精确入口：
