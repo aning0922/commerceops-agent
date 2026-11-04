@@ -1,11 +1,21 @@
 # V4-1 本地演示复现说明草案
 
-日期：2026-11-04，Asia/Taipei。文档事实依据 Root 冻结 `477b262f399293300ceb8db0e0f43bbbff50c267`；
-待新运行组合为 `fbb29a429b7f680328ab4451a717adb3ad2d99c1` / tree
-`ef6d8230ac4b58401af2771d722064aadacc5eed`，只读冻结源码、合同及既有回执。
-状态：`DRAFT / CURRENT_BROWSER_PENDING`。本说明不授予运行权限，也不代表存在可访问的常驻服务。
-文档集成后，实际复现仍须绑定 Root 最终核定的新 source/tree 和对应镜像，不能直接沿用本文
-基线或历史镜像、窗口、私配、once、项目、数据库、端口及卷。
+日期：2026-11-04，Asia/Taipei。当前代码 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e` / tree
+`34da95131e04d7360ea8aa5250ea40215bcb0713`。状态：**LOCAL_STAGE_GATE_ACCEPTED**。
+同源受影响检查与Mock33通过，Root转交r10两spec/consumer/SQL/closure实际完成；
+AI工程视觉40原图无P1/P2，Main最终runtime独审4e4741ad已核收，用户人工视觉审批NOT_RUN。
+没有持续有效URL，所有临时服务已关闭。本说明不授权重开旧案或声明产品发布。
+需要再次演示时，Root必须给新source/tree核对、新镜像/资源/私配/once与绝对UTC，不能沿用历史窗口。
+
+
+本地阶段 **V41-01–06 已完成并核收**，仅限合成owned环境与原合同受控范围。最终runtime独审
+`4e4741ad56e5ee8d3a22bc9f4ac6564715d92955` / tree `85f0293eb07d3d648949df47674d7965c6294f18`，
+[正式原件审查](https://github.com/aning0922/commerceops-agent/blob/4e4741ad56e5ee8d3a22bc9f4ac6564715d92955/docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md)采用该文件后续“完整实际运行追加核收”段；早期build-only/pending原文保留其时点。
+r10同261/imagee834：2spec、11keys（10mobile子集）、4preview、7receipt/event、26当前effects及
+2个历史替换tag分记，最终SQL0；source/tools与唯一允许next-env生成差异已核。原API清理130、
+execution summary NOT_WRITTEN、Native browser exit NOT_EXPOSED、human审批NOT_RUN不改写。
+旧4fec Full/e7 FullPG/54ab HTTP继续只属各自SHA；阶段接受不等于99功能、66页面、真机触摸、
+外部业务、Hosted或生产发布通过，V4-2 NOT_STARTED。
 
 ## 当前证据与演示边界
 
@@ -17,14 +27,14 @@
 - FullPG 两线在 source `e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6` 严格配对：596 + 177，
   并集 773、交集 0；详见 [最终配对独审](../reviews/PG_PAIR_e7ae_FINAL.md)。该结论只属 e7，
   不代签其他源码或浏览器。
-- 当前组合批量/真实移动端/Native与父收验源码已独审，**运行仍pending**，不能说新Full或真实手机已通过。
+- 当前261批量/真实移动端/Native与父收验已实际运行，最终独审4e4741ad已核收；不能说旧Full已在新SHA重跑或实体手机/touch已验。
   相对eb30实际12代码路径与4fec/e7复用边界见 [最终矩阵](FINAL_GATE_MATRIX.md)。
 - 原browser r8 source `eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d` 业务单项10120ms通过，
   Shell Native在首张PNG前TimeoutError，具体原await未捕获；整案failed_closed，lateACK未到。
   新Native源码的阶段诊断不是历史根因证明，也不把超时修成通过。
 - 原batch Mock r1 source `5acf03ae30807c160aa110035127a4e308e95da9` 实际1PASS/1FAIL/31NOT_RUN，
   原route时间线UNKNOWN；[原件](../../acceptance/v4-1/UI_MOCK_BATCH_R1.json)保留。
-  新等待边界只获源码审查，最终Mock33、真实移动端/Native/lateACK及人工视觉结果待新案回执。
+  原Mock r1–r3全部保留；261同源Mock33已通过。r9双spec通过但parent1的原失败保留，API计数权威校正不是伪造公开计数或改旧native。r10真实执行已获Main最终独审4e4741ad核收，AI视觉已核，人工审批NOT_RUN。
 - 既有运行案均已关闭。本文只提供路由和新窗口中的 URL 生成方式，不承诺历史 URL 可用。
 - 所有演示数据均为合成数据。飞书、Woo、真实模型／embedding 和外部业务调用保持关闭；
   Copilot 显示“模型未启用”，规则洞察不冒充模型回答。这里的本机 API HTTP、PG 和浏览器
@@ -112,7 +122,7 @@ CSV/XLSX 的大小、行列、安全解析及拒绝规则以 [合同](../CONTRAC
 
 ## 当前页批量标签：仅新案窗口内演示
 
-以下是已审受控交互的演示步骤，最终组合实际复现仍pending；不是无运行材料即可执行的服务。
+以下步骤对应261已实现并实际执行的受控交互，最终独审4e4741ad已核收；不是无运行材料即可执行的服务。
 
 1. 在当前已授权店铺商品列表读取一页，显式选择至少两个本页去重商品。选择不跨页保留，
    不提供全查询/全店操作；改变搜索、筛选、排序或页码会清选择并取消本批运行许可。
@@ -132,7 +142,7 @@ CSV/XLSX 的大小、行列、安全解析及拒绝规则以 [合同](../CONTRAC
 实际新browser需把至少两项不同原key、跨key串行journal与最终SQL效果/版本/来源逐一对账。
 组件/Mock通过不等于真实权限或提交；完整范围见 [批量与移动补充合同](../BATCH_AND_MOBILE_ADDENDUM.md)。
 
-## 真实业务移动布局与原生缩放：验收仍待新案
+## 真实业务移动布局与原生缩放：已执行，最终独审已核
 
 在Root新窗口内用真实API/PG/Web分别核1440、1280、390；390必须实际操作商品列表/详情、
 批量及单项标签确认、订单列表/详情/演示履约，以及CSV和XLSX映射控件、确认与来源读回。
@@ -142,7 +152,7 @@ CSV/XLSX 的大小、行列、安全解析及拒绝规则以 [合同](../CONTRAC
 
 原生200%仍使用精确已审模块与pin，同案会话/新profile，核实际zoom事件/geometry和PNG；
 不是CSS/viewport模拟。必须连同hidden/offline、受控迟到ACK及正常/故障清理完成，
-不能因新增batch/mobile而跳过旧Gate。无实际新回执前全部保留pending。
+不能因新增batch/mobile而跳过旧Gate。r10已运行并有40图；Main最终运行独审4e4741ad已核收，AI40图核验不代用户人工审批。390表右列需横向滚动，图片不证明图外列/发现性/触摸。
 
 ## 新 owned 案的准备条件
 
@@ -219,6 +229,6 @@ Shell 场景固定两标题，不能用单业务 spec 通过代签整条 Shell/n
 
 检查本案 `execution.json`、外层 native exit／timeout、各阶段日志与 hash、独立关闭回执及
 保卷事实。`SCENARIO_COMPLETED_PENDING_REVIEW` 只表示该案已完成待复核，不是阶段 complete。
-原生 200% 仅可记录采集待视觉复核；浏览器退出码 `NOT_EXPOSED` 与人工审图 `NOT_RUN` 保持分账。
+r10五张Native图及全部40图已完成AI工程视觉审查；浏览器退出码 `NOT_EXPOSED` 与用户人工视觉审批 `NOT_RUN` 仍保持分账。
 强停、清理 UNKNOWN、断言失败或来源漂移均保留原件，不自动重试／重放或续窗。需要修复时由
 Root 另定新 source、资源和窗口。已关闭窗口的 URL 随之失效，本说明不提供重新启动旧服务的命令。
