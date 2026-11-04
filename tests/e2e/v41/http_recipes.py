@@ -24,6 +24,10 @@ from .subjects import registry
 
 ROUTES = {
     "dashboard": ("GET", "/api/v4/dashboard"),
+    "drilldown": ("GET", "/api/v4/dashboard/drilldown"),
+    "products_export": ("GET", "/api/v4/products/export"),
+    "orders_export": ("GET", "/api/v4/orders/export"),
+    "read_context": ("GET", "/api/v4/read-context"),
     "products": ("GET", "/api/v4/products"),
     "product": ("GET", "/api/v4/products/{product_id}"),
     "tags": ("POST", "/api/v4/products/{product_id}/tags"),
@@ -189,6 +193,18 @@ class Business:
             timeout=self.budget.timeout(10),
         )
         reply: dict[str, Any] = response.json()
+        persist(
+            Path(self.case.directory) / ("http-" + uuid4().hex + ".private.json"),
+            {
+                "method": method,
+                "route": template,
+                "path": path,
+                "query": params if method == "GET" else None,
+                "status": response.status_code,
+                "headers": {n: response.headers.get(n) for n in ("cache-control", "vary")},
+                "response": reply,
+            },
+        )
         result = subprocess.run(
             [
                 str(ROOT / ".tools/node/bin/node"),
@@ -216,6 +232,9 @@ class Business:
             raise AssertionError("V41_STRICT_HTTP_RESPONSE_FAILED")
         if response.headers.get("cache-control") != "no-store":
             raise AssertionError("V41_NO_STORE_REQUIRED")
+        vary = {v.strip().lower() for v in response.headers.get("vary", "").split(",")}
+        if not {"cookie", "origin"}.issubset(vary):
+            raise AssertionError("V41_VARY_COOKIE_ORIGIN_REQUIRED")
         if response.status_code < 400:
             if method == "GET":
                 assert_read_status(name, reply)
@@ -573,11 +592,25 @@ def isolate_other_visitor(business: Business, budget: Budget) -> None:
         # Shared fixture IDs are intentionally legal in each visitor's own authorized shop.
         own_product = isolated.call("products")["data"]["items"][0]
         isolated.call("product", ids={"product_id": own_product["product_id"]})
-        isolated.call("products", query={"shop_id": business.shop["shop_id"]}, expected=(404,))
+        for name, query in (
+            ("products", {}),
+            ("drilldown", {"metric": "created_order_count"}),
+            ("products_export", {}),
+            ("orders_export", {}),
+            ("read_context", {"kind": "dashboard"}),
+        ):
+            isolated.call(
+                name, query={**query, "shop_id": business.shop["shop_id"]}, expected=(404,)
+            )
         if business.unique_product_id is not None:
             # Only an explicitly registered tenant-owned upload is a foreign-object negative.
             isolated.call(
                 "product", ids={"product_id": business.unique_product_id}, expected=(404,)
+            )
+            isolated.call(
+                "read_context",
+                query={"kind": "product", "resource_id": business.unique_product_id},
+                expected=(404,),
             )
     finally:
         other.close()
@@ -607,11 +640,9 @@ def main() -> None:
         if case.scenario in {"import_csv", "import_xlsx"}:
             import_flow(business, case.scenario.removeprefix("import_"))
         elif case.scenario == "dashboard_same_source":
-            products = business.call("products")["data"]
-            dashboard = business.call("dashboard")["data"]
-            seed_dashboard_golden(dashboard, business.shop["currency"])
-            if products["snapshot"]["data_revision"] != dashboard["snapshot"]["data_revision"]:
-                raise AssertionError("V41_READS_MIXED_REVISION")
+            from .read_recipes import readback_both_shops
+
+            readback_both_shops(business)
         elif case.scenario == "catalog_orders":
             from .transaction_recipes import run_probes
 
@@ -620,10 +651,16 @@ def main() -> None:
             from .concurrency_recipes import catalog_concurrency
 
             catalog_concurrency(business)
+            from .read_recipes import readback_shop
+
+            readback_shop(business)
         else:
             raise ValueError("V41_BROWSER_RECIPE_ALIGNMENT_PENDING")
         if case.scenario in {"import_csv", "import_xlsx"}:
             invalid_import_is_atomic(business)
+            from .read_recipes import readback_shop
+
+            readback_shop(business, imported=1)
         isolate_other_visitor(business, budget)
         print(json.dumps({"status": "SCENARIO_COMPLETED_PENDING_REVIEW"}))
     finally:
