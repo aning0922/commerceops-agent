@@ -112,3 +112,29 @@ c70995f仅将time导入放入六个新增测试函数，恢复原191与完整has
 下一次正式Hosted前，Root须对最终组合执行原完整scanner wrapper，
 并将实际main与候选完整树构造的真实双亲merge纳入历史预检；
 不再只以作者增量扫描代替完整快照约束。实际结果另按最终提交私有回执记录，不预填。
+
+
+## 第四轮实际进展与分组容量整改
+
+[运行41864322517](https://github.com/aning0922/commerceops-agent/actions/runs/41864322517)
+head为bcebf10，实际checkout305d0d2e3547c3d11cc42ca8da4bb2b51485cd5e，
+tree8f62a8a5e443916f55bf552e52276f641a8c3eab。完整scanner和镜像准备已通过；
+frontend、n01-web已成功，Full4736通过/776排除、mypy617源码通过、Contract90，
+五组Mock13/8/22/9/3；真实Web read7/write10/items7和N01六项通过，
+原安全不变量/来源摘要/停止清理已独核。此处不替代PG与配对门禁。
+
+quality首combined-existing组290节点在300秒命令上限耗尽：268项已有call通过、
+269项开始，无已记录断言失败；266项在timeout前已有call通过，另2项在停止过程中完成。
+后续306项未到达、G1未完成，cleanup0与stopping_confirmed保留；
+sample_error的JSONDecodeError仍UNKNOWN。不将它表述为全部773通过。
+[原始独审](HOSTED_R4_QUALITY_PARTIAL_REVIEW.md)与
+[逐项时间/映射核算](HOSTED_R4_QUALITY_TIMING_MAPPING.md)保留失败来源。
+
+第269项是在timeout事件后开始，不能认定其造成此前超时。
+前268项setup/call/teardown累计287.848495秒支持首组累计容量不足。
+最小修复仅在原分组函数抽出完整自然V40/V41模块，原首组变legacy236，
+另四组7/19/23/5置于原legacy之后、P5/M3之前；全部596+177=773节点、
+模块内部顺序、原300秒/总截止/清理预留/G1G2/严格配对保持。
+不改业务、数据库、测试断言或workflow；增加命令启动开销能否满足总预算须由新实际运行核验。
+修复需单owner冻结、独审及Root完整快照/合并历史预检后才释放新Hosted。
+此时phase3与最终pair结果尚待收口，旧run不取消、不回写或盲重跑。
