@@ -553,6 +553,20 @@
       "functional_status": "LATEST_CLOSED_FAILURES_AND_RUNNING_COMPLETE_GATES_RECORDED",
       "checkpoint": "r33",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "8174707a07289d03e09e24bb3e7c5e71051c4490",
+      "base": "aaa6b6385bbba5a30f859df82349ee7822b7c4a3",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "8174707a07289d03e09e24bb3e7c5e71051c4490",
+      "actions_runs": [],
+      "functional_status": "ENGINEERING_AND_EXISTING_PG_REVIEWED_PHASE3_AND_BROWSER_PENDING",
+      "checkpoint": "r34",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [
