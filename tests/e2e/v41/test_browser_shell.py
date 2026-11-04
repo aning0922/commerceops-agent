@@ -326,6 +326,7 @@ def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
     tools = {"/approved/component-browser": "a" * 64}
     monkeypatch.setattr(browser, "runtime_tools", lambda _binding: tools)
     monkeypatch.setattr(browser, "validate_shell_cdp", lambda _case: {})
+    monkeypatch.setattr(browser, "validate_business_mobile", lambda _case, _value: {})
     source = {
         "head": c.source_sha,
         "tree": c.source_tree,
@@ -439,7 +440,12 @@ def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
         path = folder / (label + ".safe.json")
         path.write_text(json.dumps(value))
         path.chmod(0o600)
-    assert set(browser.validate_receipts(c, {})) == {"shell", "business", "shell_cdp"}
+    assert set(browser.validate_receipts(c, {})) == {
+        "shell",
+        "business",
+        "shell_cdp",
+        "business_mobile",
+    }
     bad = {**native_summary, "status": "PASS"}
     with pytest.raises(ValueError, match="PENDING_REVIEW_REQUIRED"):
         browser.validate_native_receipt(c, {}, bad)
@@ -767,3 +773,385 @@ def test_shell_cdp_closure_requires_native_exit_and_bound_page_proof(
         write("closeout.safe.json", {**closeout, **delta})
         with pytest.raises(ValueError):
             browser.validate_shell_cdp(c)
+
+
+def mobile_component_receipt(root: Path) -> tuple[Any, dict[str, Any]]:
+    """Synthetic headers/DTOs for pure rejection checks, never real screenshots or API evidence."""
+    from .request_witness import canonical
+
+    root = root.resolve()
+    root.chmod(0o700)
+    c = SimpleNamespace(directory=str(root), source_sha="a" * 40, source_tree="b" * 40)
+    context: dict[str, Any] = {
+        "tenant_id": str(uuid4()),
+        "organization_id": str(uuid4()),
+        "principal_id": str(uuid4()),
+        "reset_epoch": 0,
+        "auth_generation": 1,
+    }
+    shop = str(uuid4())
+    events: list[dict[str, Any]] = []
+
+    def event(op: str | None, key: str | None, state: str, request: Any = None) -> None:
+        events.append(
+            {
+                "schema": "v41-browser-subject-event-1",
+                "source_sha": c.source_sha,
+                "source_tree": c.source_tree,
+                "context": context,
+                "shop_id": shop,
+                "operation": op,
+                "request_key": key,
+                "state": state,
+                "request": request,
+            }
+        )
+
+    event(None, None, "ATTEMPT_STARTED")
+    ops: list[dict[str, Any]] = []
+    pending: list[dict[str, Any]] = []
+
+    def source(revision: str, uploads: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        return {
+            "context": context,
+            "shop_id": shop,
+            "snapshot": {"data_revision": revision, "source": {"uploads": uploads or []}},
+            "job": None,
+            "file_digest": None,
+        }
+
+    def add(
+        kind: str,
+        resource: str,
+        before: str,
+        after: str | None,
+        version: int = 1,
+        fmt: str | None = None,
+        parent: str | None = None,
+    ) -> dict[str, Any]:
+        key = str(uuid4())
+        body: dict[str, Any] = {
+            "shop_id": shop,
+            "request_key": key,
+            "expected_epoch": 0,
+            "expected_generation": 1,
+            "expected_data_revision": before,
+        }
+        if kind == "preview":
+            path = "/api/v4/imports/previews"
+            body.update(
+                format=fmt,
+                filename="component." + str(fmt),
+                file_base64="YQ==",
+                mapping_version=1,
+                parent_job_id=parent,
+                mapping=None
+                if parent is None
+                else {
+                    "sku": "sku",
+                    "title": "title",
+                    "price": "price",
+                    "currency": "currency",
+                    "tags": None,
+                },
+            )
+        else:
+            name = (
+                "products"
+                if kind == "product_tags"
+                else "orders"
+                if kind == "order_fulfillment"
+                else "imports"
+            )
+            path = (
+                f"/api/v4/{name}/{resource}/"
+                + {
+                    "product_tags": "tags",
+                    "order_fulfillment": "fulfillment",
+                    "import_confirm": "confirm",
+                }[kind]
+            )
+            body["expected_job_version" if kind == "import_confirm" else "expected_version"] = (
+                version if kind == "import_confirm" else version - 1
+            )
+            if kind == "product_tags":
+                body["tags"] = ["same-label"]
+            elif kind == "order_fulfillment":
+                body["action"] = "mark_demo_fulfilled"
+            else:
+                body["expected_job_digest"] = "d" * 64
+        witness = {
+            "method": "POST",
+            "path": path,
+            "body": body,
+            "request_body_sha256": hashlib.sha256(canonical(body).encode()).hexdigest(),
+        }
+        event(kind, key, "ATTEMPT_STARTED", witness)
+        event(kind, key, "ACK_OK" if kind == "preview" else "ACK_COMMITTED")
+        event(kind, state="COMMITTED_READBACK", key=key)
+        read = {
+            **source(after or before),
+            "resource_id": resource,
+            "version": version,
+            "tags": ["same-label"] if kind == "product_tags" else None,
+            "demo_fulfillment": "demo_fulfilled" if kind == "order_fulfillment" else None,
+            "state": "COMMITTED",
+            "row_count": 1,
+        }
+        if kind in {"preview", "import_confirm"}:
+            read.update(
+                job={"import_job_id": resource, "version": version, "data_revision": before},
+                file_digest="f" * 64,
+            )
+            if kind == "import_confirm":
+                read["dataset"] = source(
+                    str(after), [{"import_job_id": resource, "file_digest": "f" * 64}]
+                )
+        operation = {
+            "operation": kind,
+            "key": key,
+            "resource_id": resource,
+            "version": version,
+            "before_revision": before,
+            "after_revision": after,
+            "effect_count": None if kind == "preview" else 1,
+            "context": context,
+            "shop_id": shop,
+            "width": 390,
+            "post_ordinal": len(ops) + 1,
+            "status": "OK" if kind == "preview" else "COMMITTED",
+            "readback": read,
+        }
+        ops.append(operation)
+        pending.append(
+            {
+                "key": key,
+                "operation": "import_preview" if kind == "preview" else kind,
+                "resource_id": None if kind == "preview" else resource,
+                "shop_id": shop,
+                "context": context,
+                "version": version - 1 if kind != "import_confirm" else version,
+                "revision": before,
+            }
+        )
+        return operation
+
+    first = add("product_tags", str(uuid4()), "0" * 64, "1" * 64)
+    second = add("product_tags", str(uuid4()), "1" * 64, "2" * 64)
+    fulfillment = add("order_fulfillment", str(uuid4()), "2" * 64, "3" * 64)
+    pipelines = {}
+    revision = "3" * 64
+    for index, fmt in enumerate(("csv", "xlsx")):
+        discovery = add("preview", str(uuid4()), revision, None, fmt=fmt)
+        mapped = add(
+            "preview",
+            str(uuid4()),
+            revision,
+            None,
+            version=2,
+            fmt=fmt,
+            parent=discovery["resource_id"],
+        )
+        committed = add(
+            "import_confirm", mapped["resource_id"], revision, str(index + 4) * 64, version=2
+        )
+        revision = committed["after_revision"]
+        pipelines[fmt] = (discovery, mapped, committed)
+    journal(root, "business", events)
+    directory = root / "browser-business"
+    directory.mkdir(mode=0o700)
+    screenshots = []
+    required = {
+        (state, width) for state in browser.MOBILE_STATES for width in (390, 1280, 1440)
+    } | {(state, 390) for state in browser.MOBILE_EXTRAS}
+    for state, width in sorted(required):
+        src = source("0" * 64)
+        if state in {"anonymous_empty", "second_visitor_empty"}:
+            src = {
+                "permission": "anonymous",
+                "revocation_tested": False,
+                "context": None,
+                "shop_id": None,
+            }
+        elif state in {"csv_mapping", "xlsx_mapping"}:
+            src = pipelines[state.split("_")[0]][0]["readback"]
+        elif state in {"csv_readback", "xlsx_readback"}:
+            src = pipelines[state.split("_")[0]][2]["readback"]["dataset"]
+        route = "/v4/products"
+        if state in {"product_detail", "tag_edit", "tag_readback"}:
+            route += "/" + first["resource_id"]
+        elif state in {"order_detail", "fulfillment_confirm", "fulfillment_readback"}:
+            route = "/v4/orders/" + fulfillment["resource_id"]
+        elif state == "order_list":
+            route = "/v4/orders"
+        elif state in {"csv_mapping", "xlsx_mapping"}:
+            route = "/v4/products/import"
+        if state == "tag_readback":
+            src = source(first["after_revision"])
+        elif state == "fulfillment_readback":
+            src = source(fulfillment["after_revision"])
+        elif state == "batch_readback":
+            src = source(second["after_revision"])
+        png = (
+            bytes((137, 80, 78, 71, 13, 10, 26, 10))
+            + bytes((0, 0, 0, 13))
+            + b"IHDR"
+            + width.to_bytes(4)
+            + (900).to_bytes(4)
+        )
+        p = directory / f"{state}-{width}.png"
+        p.write_bytes(png)
+        p.chmod(0o600)
+        screenshots.append(
+            {
+                "state": state,
+                "width": width,
+                "path": str(p),
+                "sha256": hashlib.sha256(png).hexdigest(),
+                "pixel_width": width,
+                "pixel_height": 900,
+                "viewport": {"width": width, "height": 900, "dpr": 1},
+                "route": route,
+                "source": src,
+            }
+        )
+    batch = {
+        "selected_ids": [first["resource_id"], second["resource_id"]],
+        "keys": [first["key"], second["key"]],
+        "initial_revision": first["before_revision"],
+        "current_page": {
+            "items": [
+                {"product_id": op["resource_id"], "version": op["version"] - 1}
+                for op in (first, second)
+            ],
+            "query": "?shop_id=" + shop,
+            "source": source(first["before_revision"]),
+        },
+        "serial_readback": True,
+        "serial_evidence": [
+            {
+                "previous_key": first["key"],
+                "next_key": second["key"],
+                "read_start": 1000,
+                "read_end_offset": 20,
+                "next_post_start": 1021,
+            }
+        ],
+        "progress": {"已核成功": 2, "明确拒绝": 0, "待核对": 0, "未发送": 0},
+    }
+    mobile = {
+        "schema": "v41-business-mobile-v1",
+        "screenshots": screenshots,
+        "operations": ops,
+        "pending_proofs": pending,
+        "mobile_keys": [op["key"] for op in ops],
+        "batch": batch,
+        "permission_evidence": "ANONYMOUS_ONLY_NOT_403_REVOKED",
+        "interactions": [
+            {
+                "state": state,
+                "width": 390,
+                "tab_inside": True,
+                "escape": "NON_MODAL_NO_POST"
+                if state.endswith("_mapping")
+                else "RETURNED_LIST_NO_POST",
+            }
+            for state in (
+                "product_detail",
+                "fulfillment_confirm",
+                "tag_edit",
+                "csv_mapping",
+                "xlsx_mapping",
+            )
+        ],
+    }
+    counts = {
+        "tag_committed": sum(op["operation"] == "product_tags" for op in ops),
+        "fulfillment_committed": sum(op["operation"] == "order_fulfillment" for op in ops),
+        "preview_committed": sum(op["operation"] == "preview" for op in ops),
+        "import_committed": sum(op["operation"] == "import_confirm" for op in ops),
+        "downloads": 0,
+    }
+    return c, {"mobile_business": mobile, "counts": counts, "facts": {"downloads": []}}
+
+
+def test_mobile_receipt_accepts_only_journal_bound_dynamic_facts(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    result = browser.validate_business_mobile(c, value)
+    assert len(result["confirmed_keys"]) == len(value["mobile_business"]["operations"])
+    assert result["png_count"] == len(value["mobile_business"]["screenshots"])
+
+
+@pytest.mark.parametrize(
+    "drift",
+    [
+        "missing_png",
+        "png_hash",
+        "png_geometry",
+        "png_path",
+        "png_scope",
+        "count",
+        "key",
+        "pending",
+        "version",
+        "mobile",
+        "batch_scope",
+        "batch_revision",
+        "batch_member",
+        "batch_time",
+        "batch_progress",
+        "format_source",
+        "anonymous",
+        "journal_unknown",
+    ],
+)
+def test_mobile_receipt_rejects_missing_mismatched_or_ambiguous(tmp_path: Path, drift: str) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    mobile = value["mobile_business"]
+    if drift == "missing_png":
+        mobile["screenshots"].pop()
+    elif drift == "png_hash":
+        mobile["screenshots"][0]["sha256"] = "wrong"
+    elif drift == "png_geometry":
+        mobile["screenshots"][0]["pixel_width"] += 1
+    elif drift == "png_path":
+        mobile["screenshots"][0]["path"] = str(tmp_path.parent / "unowned.png")
+    elif drift == "png_scope":
+        mobile["screenshots"][1]["source"] = {
+            "context": {**mobile["operations"][0]["context"], "reset_epoch": 999},
+            "shop_id": mobile["operations"][0]["shop_id"],
+            "snapshot": {},
+        }
+    elif drift == "count":
+        value["counts"]["tag_committed"] += 1
+    elif drift == "key":
+        mobile["operations"][0]["key"] = mobile["operations"][1]["key"]
+    elif drift == "pending":
+        mobile["pending_proofs"][0]["key"] = str(uuid4())
+    elif drift == "version":
+        mobile["operations"][0]["version"] += 1
+    elif drift == "mobile":
+        mobile["mobile_keys"].pop()
+    elif drift == "batch_scope":
+        mobile["batch"]["current_page"]["query"] = "?shop_id=" + str(uuid4())
+    elif drift == "batch_revision":
+        mobile["batch"]["initial_revision"] = "9" * 64
+    elif drift == "batch_member":
+        mobile["batch"]["selected_ids"][0] = str(uuid4())
+    elif drift == "batch_time":
+        mobile["batch"]["serial_evidence"][0]["next_post_start"] = 1001
+    elif drift == "batch_progress":
+        mobile["batch"]["progress"]["待核对"] = 1
+    elif drift == "format_source":
+        for shot in mobile["screenshots"]:
+            if shot["state"] == "xlsx_mapping":
+                shot["source"] = next(
+                    s["source"] for s in mobile["screenshots"] if s["state"] == "csv_mapping"
+                )
+    elif drift == "anonymous":
+        mobile["screenshots"][0]["source"]["revocation_tested"] = True
+    elif drift == "journal_unknown":
+        path = tmp_path / "browser-business.subjects.private.jsonl"
+        path.write_bytes(path.read_bytes().replace(b"ACK_COMMITTED", b"ACK_UNKNOWN", 1))
+    with pytest.raises(ValueError):
+        browser.validate_business_mobile(c, value)

@@ -10,6 +10,7 @@ import stat
 import subprocess
 import sys
 import time
+import urllib.parse
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -18,6 +19,7 @@ from uuid import UUID
 from tests.e2e.v4.supervisor import Budget
 
 from .owner_setup import decode, private_bytes
+from .request_witness import validate_request
 from .runner import persist
 from .subjects import private_subject_bytes, registry
 
@@ -206,6 +208,8 @@ def validate_receipts(case: "Case", binding: dict[str, Any]) -> dict[str, Any]:
                     != shot["sha256"]
                 ):
                     raise ValueError("BROWSER_SCREENSHOT_HASH_MISMATCH")
+        if label == "business":
+            receipts["business_mobile"] = validate_business_mobile(case, value)
         receipts[label] = {
             "path": str(path),
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -1046,6 +1050,521 @@ def shell_cdp_ports_closed(case: "Case", budget: Budget) -> None:
         raise ValueError("SHELL_CDP_CLEANUP_ENDPOINT_UNKNOWN")
     if shell_cdp_listener(ack["port"], budget, cleanup=True):
         raise ValueError("SHELL_CDP_PORT_LIVE_OR_REUSED_NO_SIGNAL")
+
+
+MOBILE_STATES = {
+    "product_list",
+    "product_detail",
+    "tag_edit",
+    "order_list",
+    "order_detail",
+    "fulfillment_confirm",
+    "csv_mapping",
+    "xlsx_mapping",
+}
+MOBILE_EXTRAS = {
+    "anonymous_empty",
+    "second_visitor_empty",
+    "batch_confirm",
+    "batch_readback",
+    "tag_readback",
+    "fulfillment_readback",
+    "csv_readback",
+    "xlsx_readback",
+}
+MOBILE_IDENTITY = ("tenant_id", "organization_id", "principal_id", "reset_epoch", "auth_generation")
+
+
+def mobile_require(condition: Any, reason: str) -> None:
+    if not condition:
+        raise ValueError("BUSINESS_MOBILE_" + reason)
+
+
+def mobile_scope(context: Any, shop: Any) -> tuple[Any, ...]:
+    mobile_require(isinstance(context, dict) and set(context) == set(MOBILE_IDENTITY), "CONTEXT")
+    for name in MOBILE_IDENTITY[:3]:
+        mobile_require(
+            isinstance(context[name], str) and str(UUID(context[name])) == context[name], "UUID"
+        )
+    for name in MOBILE_IDENTITY[3:]:
+        mobile_require(type(context[name]) is int and context[name] >= 0, "IDENTITY_COUNTER")
+    mobile_require(isinstance(shop, str) and str(UUID(shop)) == shop, "SHOP")
+    return (*[context[name] for name in MOBILE_IDENTITY], shop)
+
+
+def mobile_journal(case: "Case") -> tuple[set[tuple[Any, ...]], dict[str, dict[str, Any]]]:
+    raw = private_subject_bytes(Path(case.directory) / "browser-business.subjects.private.jsonl")
+    lines = raw.splitlines(keepends=True)
+    mobile_require(
+        lines and len(lines) <= 1000 and all(line.endswith(b"\n") for line in lines),
+        "JOURNAL_BOUND",
+    )
+    scopes: set[tuple[Any, ...]] = set()
+    entries: dict[str, dict[str, Any]] = {}
+    for line in lines:
+        event = decode(line)
+        mobile_require(
+            event.get("schema") == "v41-browser-subject-event-1"
+            and event.get("source_sha") == case.source_sha
+            and event.get("source_tree") == case.source_tree,
+            "JOURNAL_SOURCE",
+        )
+        scope = mobile_scope(event["context"], event["shop_id"])
+        if event["operation"] is None:
+            mobile_require(
+                event["request_key"] is None
+                and event["state"] == "ATTEMPT_STARTED"
+                and event["request"] is None,
+                "JOURNAL_SCOPE_EVENT",
+            )
+            scopes.add(scope)
+            continue
+        mobile_require(scope in scopes, "UNREGISTERED_SCOPE")
+        key, operation, state = event["request_key"], event["operation"], event["state"]
+        mobile_require(isinstance(key, str) and str(UUID(key)) == key, "KEY")
+        mobile_require(
+            operation in {"product_tags", "order_fulfillment", "preview", "import_confirm"},
+            "OPERATION",
+        )
+        entry = entries.setdefault(
+            key, {"scope": scope, "operation": operation, "states": [], "request": None}
+        )
+        mobile_require(
+            entry["scope"] == scope and entry["operation"] == operation, "KEY_SCOPE_ALIAS"
+        )
+        if state == "ATTEMPT_STARTED":
+            mobile_require(not entry["states"], "DUPLICATE_DISPATCH")
+            entry["request"] = validate_request(
+                event["request"],
+                operation,
+                key,
+                {**event["context"], "shop_id": event["shop_id"]},
+            )
+        else:
+            mobile_require(
+                entry["request"] is not None and event["request"] is None, "ACK_WITHOUT_INTENT"
+            )
+        entry["states"].append(state)
+    for entry in entries.values():
+        states = entry["states"]
+        allowed = (
+            {"ACK_OK", "ACK_COMMITTED"} if entry["operation"] == "preview" else {"ACK_COMMITTED"}
+        )
+        mobile_require(
+            len(states) == 3
+            and states[0] == "ATTEMPT_STARTED"
+            and states[1] in allowed
+            and states[2] == "COMMITTED_READBACK",
+            "UNSETTLED_OR_AMBIGUOUS_JOURNAL",
+        )
+    return scopes, entries
+
+
+def mobile_screenshots(
+    case: "Case", records: Any, scopes: set[tuple[Any, ...]]
+) -> dict[tuple[str, int], dict[str, Any]]:
+    mobile_require(isinstance(records, list) and len(records) <= 64, "SCREENSHOT_LIST")
+    shots: dict[tuple[str, int], dict[str, Any]] = {}
+    for record in records:
+        state, width = record["state"], record["width"]
+        mobile_require(
+            state in MOBILE_STATES | MOBILE_EXTRAS
+            and type(width) is int
+            and width in {390, 1280, 1440},
+            "SCREENSHOT_STATE",
+        )
+        pair = (state, width)
+        mobile_require(pair not in shots, "DUPLICATE_SCREENSHOT")
+        path = Path(case.directory) / "browser-business" / f"{state}-{width}.png"
+        mobile_require(record["path"] == str(path) and path.resolve() == path, "SCREENSHOT_PATH")
+        image = private_bytes(path, 8_000_000)
+        mobile_require(
+            len(image) >= 24
+            and image[:8] == bytes((137, 80, 78, 71, 13, 10, 26, 10))
+            and image[12:16] == b"IHDR"
+            and hashlib.sha256(image).hexdigest() == record["sha256"],
+            "PNG_BYTES_HASH",
+        )
+        pixels = (int.from_bytes(image[16:20]), int.from_bytes(image[20:24]))
+        viewport = record["viewport"]
+        dpr = viewport["dpr"]
+        mobile_require(
+            viewport["width"] == width
+            and type(viewport["height"]) is int
+            and viewport["height"] > 0
+            and type(dpr) in {int, float}
+            and math.isfinite(dpr)
+            and dpr > 0,
+            "VIEWPORT",
+        )
+        mobile_require(
+            pixels == (record["pixel_width"], record["pixel_height"])
+            and abs(pixels[0] - width * dpr) <= 1
+            and pixels[1] >= viewport["height"] * dpr - 1,
+            "PNG_GEOMETRY",
+        )
+        mobile_require(
+            isinstance(record["route"], str) and record["route"].startswith("/v4/"), "ROUTE"
+        )
+        route = record["route"]
+        if state in {"product_detail", "tag_edit", "tag_readback"}:
+            mobile_require(re.fullmatch(r"/v4/products/[a-f0-9-]{36}", route), "PRODUCT_ROUTE")
+        elif state in {"order_detail", "fulfillment_confirm", "fulfillment_readback"}:
+            mobile_require(re.fullmatch(r"/v4/orders/[a-f0-9-]{36}", route), "ORDER_ROUTE")
+        elif state in {"csv_mapping", "xlsx_mapping"}:
+            mobile_require(route == "/v4/products/import", "IMPORT_ROUTE")
+        else:
+            mobile_require(
+                route == ("/v4/orders" if state == "order_list" else "/v4/products"), "LIST_ROUTE"
+            )
+        source = record["source"]
+        if state in {"anonymous_empty", "second_visitor_empty"}:
+            mobile_require(
+                width == 390
+                and source.get("permission") == "anonymous"
+                and source.get("revocation_tested") is False
+                and source.get("context") is None
+                and source.get("shop_id") is None,
+                "ANONYMOUS_NOT_REVOCATION",
+            )
+        else:
+            mobile_require(
+                mobile_scope(source["context"], source["shop_id"]) in scopes, "SCREENSHOT_SCOPE"
+            )
+            mobile_require(
+                isinstance(source.get("snapshot"), dict) or isinstance(source.get("job"), dict),
+                "SCREENSHOT_SOURCE",
+            )
+        shots[pair] = record
+    required = {(state, width) for state in MOBILE_STATES for width in (390, 1280, 1440)} | {
+        (state, 390) for state in MOBILE_EXTRAS
+    }
+    mobile_require(set(shots) == required, "MISSING_SCREENSHOT_COVERAGE")
+    return shots
+
+
+def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, Any]:
+    mobile: Any = value.get("mobile_business")
+    mobile_require(
+        isinstance(mobile, dict)
+        and mobile.get("schema") == "v41-business-mobile-v1"
+        and mobile.get("permission_evidence") == "ANONYMOUS_ONLY_NOT_403_REVOKED",
+        "SCHEMA",
+    )
+    scopes, journal = mobile_journal(case)
+    shots = mobile_screenshots(case, mobile["screenshots"], scopes)
+    operations = mobile["operations"]
+    mobile_require(
+        isinstance(operations, list) and len(operations) == len(journal), "OPERATION_COVERAGE"
+    )
+    by_key: dict[str, dict[str, Any]] = {}
+    ordinals: set[int] = set()
+    proofs: dict[str, dict[str, Any]] = {}
+    for proof in mobile["pending_proofs"]:
+        mobile_require(proof["key"] not in proofs, "DUPLICATE_PENDING")
+        proofs[proof["key"]] = proof
+    for operation in operations:
+        key = operation["key"]
+        mobile_require(key in journal and key not in by_key and key in proofs, "KEY_COVERAGE")
+        entry, proof = journal[key], proofs[key]
+        kind, request = entry["operation"], entry["request"]
+        body = request["body"]
+        mobile_require(
+            operation["operation"] == kind
+            and mobile_scope(operation["context"], operation["shop_id"]) == entry["scope"],
+            "OPERATION_SCOPE",
+        )
+        mobile_require(
+            mobile_scope(proof["context"], proof["shop_id"]) == entry["scope"]
+            and proof["key"] == key
+            and proof["operation"] == ("import_preview" if kind == "preview" else kind)
+            and proof["revision"] == body["expected_data_revision"],
+            "PENDING_BINDING",
+        )
+        mobile_require(
+            type(operation["post_ordinal"]) is int
+            and operation["post_ordinal"] > 0
+            and operation["post_ordinal"] not in ordinals
+            and operation["width"] in {390, 1280, 1440},
+            "POST_OBSERVATION",
+        )
+        ordinals.add(operation["post_ordinal"])
+        mobile_require(
+            operation["before_revision"] == body["expected_data_revision"]
+            and type(operation["version"]) is int
+            and operation["version"] > 0,
+            "CAS_BEFORE",
+        )
+        read = operation["readback"]
+        mobile_require(
+            mobile_scope(read["context"], read["shop_id"]) == entry["scope"]
+            and read["resource_id"] == operation["resource_id"]
+            and read["version"] == operation["version"],
+            "FRESH_READBACK_IDENTITY",
+        )
+        if kind == "preview":
+            mobile_require(
+                proof["resource_id"] is None
+                and proof["version"] == operation["version"] - 1
+                and operation["after_revision"] is None
+                and operation["effect_count"] is None
+                and read["job"]["import_job_id"] == operation["resource_id"]
+                and read["job"]["data_revision"] == operation["before_revision"],
+                "PREVIEW_BINDING",
+            )
+        else:
+            version = (
+                body["expected_job_version"]
+                if kind == "import_confirm"
+                else body["expected_version"]
+            )
+            mobile_require(
+                proof["resource_id"] == operation["resource_id"]
+                and proof["version"] == version
+                and request["path"].split("/")[4] == operation["resource_id"]
+                and operation["version"] == version + (0 if kind == "import_confirm" else 1),
+                "RESOURCE_VERSION",
+            )
+            mobile_require(
+                operation["status"] == "COMMITTED"
+                and type(operation["effect_count"]) is int
+                and operation["effect_count"] > 0
+                and re.fullmatch(r"[a-f0-9]{64}", operation["after_revision"]) is not None
+                and operation["after_revision"] != operation["before_revision"],
+                "COMMITTED_EFFECT",
+            )
+            if kind == "import_confirm":
+                dataset = read["dataset"]
+                mobile_require(
+                    mobile_scope(dataset["context"], dataset["shop_id"]) == entry["scope"]
+                    and dataset["snapshot"]["data_revision"] == operation["after_revision"]
+                    and read["state"] == "COMMITTED"
+                    and read["job"]["import_job_id"] == operation["resource_id"]
+                    and read["row_count"] == operation["effect_count"],
+                    "IMPORT_EFFECT_READBACK",
+                )
+                uploads = dataset["snapshot"]["source"]["uploads"]
+                mobile_require(
+                    len(
+                        [
+                            row
+                            for row in uploads
+                            if row["import_job_id"] == operation["resource_id"]
+                            and row["file_digest"] == read["file_digest"]
+                        ]
+                    )
+                    == operation["effect_count"],
+                    "IMPORT_SOURCE_COUNT",
+                )
+            else:
+                mobile_require(
+                    operation["effect_count"] == 1
+                    and read["snapshot"]["data_revision"] == operation["after_revision"],
+                    "SINGLE_EFFECT",
+                )
+                mobile_require(
+                    read["tags"] == body["tags"]
+                    if kind == "product_tags"
+                    else read["demo_fulfillment"] == "demo_fulfilled",
+                    "RESOURCE_EFFECT_VALUE",
+                )
+        by_key[key] = operation
+    mobile_require(set(by_key) == set(journal) == set(proofs), "UNOBSERVED_OPERATION_OR_PENDING")
+    expected_counts = {
+        "tag_committed": sum(op["operation"] == "product_tags" for op in operations),
+        "fulfillment_committed": sum(op["operation"] == "order_fulfillment" for op in operations),
+        "preview_committed": sum(op["operation"] == "preview" for op in operations),
+        "import_committed": sum(op["operation"] == "import_confirm" for op in operations),
+        "downloads": len(value["facts"]["downloads"]),
+    }
+    mobile_require(
+        value["counts"] == expected_counts
+        and all(type(n) is int for n in value["counts"].values()),
+        "COUNTS",
+    )
+    mobile_keys = mobile["mobile_keys"]
+    mobile_require(
+        isinstance(mobile_keys, list)
+        and len(mobile_keys) == len(set(mobile_keys))
+        and set(mobile_keys) == {key for key, op in by_key.items() if op["width"] == 390},
+        "MOBILE_SUBSET",
+    )
+    mobile_require(
+        {by_key[key]["operation"] for key in mobile_keys} >= {"product_tags", "order_fulfillment"},
+        "MOBILE_TWO_OPERATIONS",
+    )
+    for state, kind in (
+        ("tag_readback", "product_tags"),
+        ("fulfillment_readback", "order_fulfillment"),
+    ):
+        shot = shots[(state, 390)]
+        matches = [
+            op
+            for op in operations
+            if op["operation"] == kind
+            and op["width"] == 390
+            and op["resource_id"] == shot["route"].split("/")[3]
+            and op["after_revision"] == shot["source"]["snapshot"]["data_revision"]
+            and mobile_scope(op["context"], op["shop_id"])
+            == mobile_scope(shot["source"]["context"], shot["source"]["shop_id"])
+        ]
+        mobile_require(len(matches) == 1, "MOBILE_READBACK_SCREENSHOT")
+    batch = mobile["batch"]
+    selected, keys = batch["selected_ids"], batch["keys"]
+    mobile_require(
+        len(selected) == len(set(selected)) == len(keys) == len(set(keys)) == 2
+        and set(keys) <= set(by_key),
+        "BATCH_CARDINALITY",
+    )
+    page = batch["current_page"]
+    source = page["source"]
+    page_scope = mobile_scope(source["context"], source["shop_id"])
+    mobile_require(
+        page_scope in scopes and source["snapshot"]["data_revision"] == batch["initial_revision"],
+        "BATCH_PAGE_SOURCE",
+    )
+    query = urllib.parse.parse_qs(page["query"].removeprefix("?"), keep_blank_values=True)
+    mobile_require(query.get("shop_id") == [source["shop_id"]], "BATCH_PAGE_QUERY")
+    items = {item["product_id"]: item["version"] for item in page["items"]}
+    mobile_require(
+        len(items) == len(page["items"]) and set(selected) <= set(items), "BATCH_PAGE_MEMBERSHIP"
+    )
+    mobile_require({by_key[key]["resource_id"] for key in keys} == set(selected), "BATCH_RESOURCES")
+    revision = batch["initial_revision"]
+    tags = None
+    for index, key in enumerate(keys):
+        op = by_key[key]
+        mobile_require(
+            op["operation"] == "product_tags"
+            and mobile_scope(op["context"], op["shop_id"]) == page_scope
+            and op["before_revision"] == revision
+            and op["version"] == items[op["resource_id"]] + 1,
+            "BATCH_CAS_CHAIN",
+        )
+        if index:
+            mobile_require(
+                op["post_ordinal"] > by_key[keys[index - 1]]["post_ordinal"], "BATCH_POST_ORDER"
+            )
+        if tags is None:
+            tags = op["readback"]["tags"]
+        mobile_require(op["readback"]["tags"] == tags, "BATCH_UNIFORM_TAGS")
+        revision = op["after_revision"]
+    mobile_require(
+        shots[("batch_readback", 390)]["source"]["snapshot"]["data_revision"] == revision
+        and mobile_scope(
+            shots[("batch_readback", 390)]["source"]["context"],
+            shots[("batch_readback", 390)]["source"]["shop_id"],
+        )
+        == page_scope,
+        "BATCH_SCREENSHOT_READBACK",
+    )
+    evidence = batch["serial_evidence"]
+    mobile_require(
+        len(evidence) == len(keys) - 1 and batch["serial_readback"] is True, "BATCH_TIMING_COVERAGE"
+    )
+    for index, item in enumerate(evidence):
+        mobile_require(
+            item["previous_key"] == keys[index]
+            and item["next_key"] == keys[index + 1]
+            and all(
+                type(item[n]) in {int, float} and math.isfinite(item[n])
+                for n in ("read_start", "read_end_offset", "next_post_start")
+            )
+            and item["read_start"] > 0
+            and item["read_end_offset"] >= 0
+            and item["next_post_start"] >= item["read_start"] + item["read_end_offset"],
+            "BATCH_READ_BEFORE_NEXT_POST",
+        )
+    mobile_require(
+        batch["progress"] == {"已核成功": len(keys), "明确拒绝": 0, "待核对": 0, "未发送": 0},
+        "BATCH_PROGRESS",
+    )
+    for fmt in ("csv", "xlsx"):
+        candidates = [
+            op
+            for key, op in by_key.items()
+            if op["operation"] == "preview" and journal[key]["request"]["body"]["format"] == fmt
+        ]
+        discovered = [
+            op
+            for op in candidates
+            if journal[op["key"]]["request"]["body"].get("parent_job_id") is None
+        ]
+        mobile_require(len(discovered) == 1, "FORMAT_DISCOVERY")
+        initial = discovered[0]
+        mapped = [
+            op
+            for op in candidates
+            if journal[op["key"]]["request"]["body"].get("parent_job_id") == initial["resource_id"]
+        ]
+        mobile_require(len(mapped) == 1, "FORMAT_MAPPING")
+        imports = [
+            op
+            for op in operations
+            if op["operation"] == "import_confirm" and op["resource_id"] == mapped[0]["resource_id"]
+        ]
+        mobile_require(len(imports) == 1 and imports[0]["width"] == 390, "MOBILE_FORMAT_IMPORT")
+        for width in (390, 1280, 1440):
+            mobile_require(
+                shots[(fmt + "_mapping", width)]["source"]["job"]["import_job_id"]
+                == initial["resource_id"]
+                and shots[(fmt + "_mapping", width)]["source"]["file_digest"]
+                == initial["readback"]["file_digest"],
+                "MAPPING_SCREENSHOT_SOURCE",
+            )
+        uploaded = shots[(fmt + "_readback", 390)]["source"]["snapshot"]["source"]["uploads"]
+        mobile_require(
+            any(
+                row["import_job_id"] == mapped[0]["resource_id"]
+                and row["file_digest"] == mapped[0]["readback"]["file_digest"]
+                for row in uploaded
+            ),
+            "FORMAT_SCREENSHOT_READBACK",
+        )
+    mobile_require(
+        all(type(n) is int and n >= 0 for n in batch["progress"].values()), "BATCH_PROGRESS_TYPES"
+    )
+    interactions = mobile["interactions"]
+    for state in (
+        "product_detail",
+        "fulfillment_confirm",
+        "tag_edit",
+        "csv_mapping",
+        "xlsx_mapping",
+    ):
+        mobile_require(
+            any(
+                item["state"] == state
+                and item["width"] == 390
+                and (item.get("tab_inside") is True or item.get("tab_controls") is True)
+                for item in interactions
+            ),
+            "FOCUS_EVIDENCE",
+        )
+    for state in ("product_detail", "fulfillment_confirm"):
+        mobile_require(
+            any(
+                item["state"] == state and item.get("escape") == "RETURNED_LIST_NO_POST"
+                for item in interactions
+            ),
+            "ESCAPE_EVIDENCE",
+        )
+    for state in ("csv_mapping", "xlsx_mapping"):
+        mobile_require(
+            any(
+                item["state"] == state and item.get("escape") == "NON_MODAL_NO_POST"
+                for item in interactions
+            ),
+            "MAPPING_ESCAPE_EVIDENCE",
+        )
+    return {
+        "confirmed_keys": sorted(by_key),
+        "mobile_keys": sorted(mobile_keys),
+        "png_count": len(shots),
+        "journal_sha256": hashlib.sha256(
+            private_subject_bytes(Path(case.directory) / "browser-business.subjects.private.jsonl")
+        ).hexdigest(),
+    }
 
 
 if __name__ == "__main__":
