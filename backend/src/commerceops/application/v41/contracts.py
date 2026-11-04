@@ -412,6 +412,7 @@ class ImportPreviewInput(WriteContext):
 
 
 ImportIssueCode = Literal[
+    "EMPTY_DATA",
     "FORMULA_REJECTED",
     "INVALID_HEADER",
     "INVALID_ROW_WIDTH",

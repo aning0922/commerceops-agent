@@ -1232,6 +1232,7 @@
         "properties": {
           "code": {
             "enum": [
+              "EMPTY_DATA",
               "FORMULA_REJECTED",
               "INVALID_HEADER",
               "INVALID_ROW_WIDTH",
