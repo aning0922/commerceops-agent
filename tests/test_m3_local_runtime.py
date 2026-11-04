@@ -3,7 +3,6 @@
 import json
 import os
 import subprocess
-import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -330,6 +329,8 @@ def test_source_input_symlink_is_refused_before_build(
     ],
 )
 def test_build_log_safe_error_enums(tmp_path: Path, line: str, code: str, http: int | None) -> None:
+    import time
+
     path = tmp_path / "raw.log"
     with m3.private_log(path) as stream:
         stream.write(("#5 1.0 M3_IMAGE_STAGE ENTER COMPILE\n#5 2.0 " + line + "\n").encode())
@@ -343,6 +344,8 @@ def test_build_log_safe_error_enums(tmp_path: Path, line: str, code: str, http: 
 
 
 def test_only_executed_marker_lines_count(tmp_path: Path) -> None:
+    import time
+
     path = tmp_path / "raw.log"
     with m3.private_log(path) as stream:
         stream.write(
@@ -364,6 +367,8 @@ def test_only_executed_marker_lines_count(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize("damage", ["mode", "symlink", "existing"])
 def test_private_log_fails_closed(tmp_path: Path, damage: str) -> None:
+    import time
+
     path = tmp_path / "raw.log"
     with m3.private_log(path) as stream:
         stream.write(b"private")
@@ -537,6 +542,8 @@ def test_dockerfile_markers_preserve_original_commands() -> None:
 def test_private_log_size_limit_checks_stat_and_bounded_read(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, grows_after_stat: bool
 ) -> None:
+    import time
+
     path = tmp_path / "raw.log"
     with m3.private_log(path) as stream:
         stream.truncate(m3.LOG_LIMIT + 1)
@@ -560,6 +567,8 @@ def test_private_log_size_limit_checks_stat_and_bounded_read(
 
 
 def test_log_parser_checks_budget_during_lines(monkeypatch: pytest.MonkeyPatch) -> None:
+    import time
+
     ticks = iter([0.0, 0.1, 5.0])
     monkeypatch.setattr(time, "monotonic", lambda: next(ticks))
     with pytest.raises(TimeoutError):
@@ -572,6 +581,8 @@ def test_log_parser_checks_budget_during_lines(monkeypatch: pytest.MonkeyPatch) 
 def test_diagnostic_limits_preserve_build_facts_and_read_once(
     source: Path, monkeypatch: pytest.MonkeyPatch, diagnostic_failure: str | None
 ) -> None:
+    import time
+
     reads: list[str] = []
     clock = [0.0]
     monkeypatch.setattr(time, "monotonic", lambda: clock[0])
