@@ -126,3 +126,27 @@ source不变及scope内receipt/event各+1；已存在tag行只更新，不能把
 每次POST使用独立私有request文件保存原payload与ACK，避免旧单一pending文件在并发时互相
 覆盖；subject原key登记不变。transport异常保留原UNKNOWN并使场景失败，不自动POST/新key。
 并发判定纯测只证明候选断言边界，未发HTTP/连接PG，不是并发运行或事务回滚证据。
+
+精确772ecc6/c3c2a797后端接缝读取（取代先前猜测的v41_database预留）：实际router是
+commerceops.entrypoints.v41_http.install_business，create_app在enabled DemoConfig时安装，
+现有tests.e2e.v4.owned_api通过该factory可组装业务API。owner激活/grant只有
+v41_security.activate_policy(db,config)与v41_runtime.grant_runtime(db,config)；精确提交内没有
+policy/grant/verify CLI。runtime_definition.json绑定此快照八源码hash、实际helper和三个CLI=null，
+明确HOLD P2-S02/P1-S04；不是可启动handoff。runtime_handoff.json仍未创建。driver移除不存在的
+模块名并保留daemon前硬拒，不能靠手填READY或占位handoff跳过未实现owner setup。
+
+最终业务采集准备已接入driver：stop_writers、API stop和所有owner oneoff退出确认后，将锁定
+subjects原件导出为新私有owner/export/v41-subjects.private.json；PG关闭前运行固定subjects --final
+观察器。全程READ ONLY/statement5s/lock1s；固定512KB有界、逐级no-follow/UID/0600文件边界。
+final_facts按真实tenant/org/shop推导唯一owner session，再按完整scope+原operation/key查询
+receipt/event/effect与job版本/parse_state/slot/pid/process/proof，不用中途scope计数或schema
+元数据代替。旧tag行被后续版本替换时单独标记，按原请求重建历史payload/事件摘要；不把
+“当前无旧receipt引用”误判重复或丢失效果。原ACK/读回UNKNOWN保留，与最终DB有无提交分列。
+终态同时校验实际fixture完整摘要与固定seed来源，并采合成sku/库存/订单金额/退款原件；导入
+价格等在实际effect内容中保留。这里只是实际SQL接线；未运行PG，stop_proof字段自洽也不证明
+真实reap，S04必须另验内核Popen wait/真实低权攻击，不能由这份读取签安全接受。
+
+审查c334的D04/R05准备修复：执行前后都遍历frontend/backend/tests/scripts实际文件集，拒未批准
+的新源码/目录symlink；只明确排除frontend/.next、frontend/node_modules、__pycache__与
+frontend/tsconfig.tsbuildinfo，根.audit/.venv/.tools不作为运行源码目录。普通业务GET要求顶层
+status=OK；receipt/preview_lookup保留合法UNKNOWN语义。纯复现与断言测试不代签浏览器/HTTP实跑。

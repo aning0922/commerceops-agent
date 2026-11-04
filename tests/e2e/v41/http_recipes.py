@@ -105,6 +105,11 @@ def assert_context(actual: dict[str, Any], session: dict[str, Any], target_shop:
         raise AssertionError("V41_SHOP_CONTEXT_DRIFT")
 
 
+def assert_read_status(name: str, reply: dict[str, Any]) -> None:
+    if name not in {"receipt", "preview_lookup"} and reply.get("status") != "OK":
+        raise AssertionError("V41_ORDINARY_READ_REQUIRES_OK")
+
+
 def fulfillment_fields(order: dict[str, Any]) -> dict[str, Any]:
     return {"expected_version": order["fulfillment_version"], "action": "mark_demo_fulfilled"}
 
@@ -210,6 +215,8 @@ class Business:
         if response.headers.get("cache-control") != "no-store":
             raise AssertionError("V41_NO_STORE_REQUIRED")
         if response.status_code < 400:
+            if method == "GET":
+                assert_read_status(name, reply)
             target_shop = (
                 str(payload["shop_id"]) if method == "POST" and payload else params["shop_id"]
             )

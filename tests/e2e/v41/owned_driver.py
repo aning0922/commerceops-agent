@@ -29,12 +29,11 @@ from .runtime_checks import (
     verify_web_listener,
 )
 from .source_seal import snapshot
+from .subjects import frozen_subjects
 
 ROOT = Path(__file__).resolve().parents[3]
 HANDOFF = "tests/e2e/v41/runtime_handoff.json"
-GRANT_MODULE = (
-    "commerceops.entrypoints.v41_database"  # Interface reservation; API owner must align.
-)
+DEFINITION = "tests/e2e/v41/runtime_definition.json"
 
 
 @dataclass(frozen=True)
@@ -87,15 +86,21 @@ def runtime_handoff(case: Case) -> None:
     """Block before Docker until API/SQL/probe seams are explicitly committed/aligned."""
     path = ROOT / HANDOFF
     expected = {
-        "schema": "v41-qa-runtime-handoff-1",
-        "grant_module": GRANT_MODULE,
+        "schema": "v41-qa-runtime-handoff-2",
         "factory": "commerceops.entrypoints.api.create_app",
         "revision": "0025_v41_catalog_operations",
     }
     if not path.is_file() or path.is_symlink() or json.loads(path.read_text()) != expected:
         raise ValueError("V41_RUNTIME_HANDOFF_PENDING")
+    definition = json.loads((ROOT / DEFINITION).read_text())
+    if definition["state"] != "READY" or any(
+        definition[n] is None for n in ("owner_policy_cli", "owner_grant_cli", "owner_verify_cli")
+    ):
+        raise ValueError("V41_RUNTIME_GRANT_HOLD_S02_S04_OR_OWNER_CLI_PENDING")
     for name in [
-        "backend/src/commerceops/entrypoints/v41_database.py",
+        "backend/src/commerceops/entrypoints/v41_http.py",
+        "backend/src/commerceops/infrastructure/v41_runtime.py",
+        "backend/src/commerceops/infrastructure/v41_security.py",
         "tests/e2e/v41/http_recipes.py",
         "tests/e2e/v41/pg_observer.py",
     ]:
@@ -107,6 +112,8 @@ def runtime_handoff(case: Case) -> None:
         raise ValueError("V41_PRIVATE_INPUT_CHANGED")
     if json.loads((directory / "case.json").read_text()) != asdict(case):
         raise ValueError("V41_CASE_CHANGED")
+    # Actual owner helper exists; no reviewed activation/grant/verify CLI is committed.
+    raise ValueError("V41_OWNER_POLICY_GRANT_VERIFY_SEQUENCE_PENDING")
 
 
 def fixed_compose(case: Case) -> tuple[str, ...]:
@@ -333,8 +340,6 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         for label, module, action in [
             ("checkpointer", "commerceops.entrypoints.database", "setup-checkpointer"),
             ("legacy_grant", "commerceops.entrypoints.database", "grant-runtime"),
-            ("new_grant", GRANT_MODULE, "grant-runtime"),
-            ("verify_new_grant", GRANT_MODULE, "verify-runtime"),
         ]:
             checked(label, [*owner, module, action])
         for action in ("init-fixture", "grant-runtime", "verify-fixture"):
@@ -522,12 +527,17 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                     )
                 if not writers_stopped:
                     raise RuntimeError("WRITERS_NOT_CONFIRMED_STOPPED")
+                subject_export = directory / "owner/export/v41-subjects.private.json"
+                public.private(subject_export, frozen_subjects(directory).decode())
+                report["information"]["final_subject_export_sha256"] = digest(subject_export)
                 checked(
                     "final_facts",
                     [
                         *owner_run(command),
                         "tests.e2e.v41.pg_observer",
-                        "schema",
+                        "subjects",
+                        "--subjects-file",
+                        "/run/v4_owner/export/v41-subjects.private.json",
                         "--deadline",
                         case.deadline,
                         "--final",

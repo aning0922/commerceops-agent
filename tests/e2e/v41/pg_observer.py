@@ -4,11 +4,15 @@ import argparse
 import json
 import re
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 from uuid import UUID
 
 from commerceops.infrastructure.database import DatabaseSettings, connect
 from psycopg import sql
+
+from .final_facts import collect, decode_subjects
+from .subjects import private_subject_bytes
 
 TABLES = (
     "v41_product_tags",
@@ -31,7 +35,8 @@ def row(value: dict[str, Any] | None) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("schema", "tenant"))
+    parser.add_argument("action", choices=("schema", "tenant", "subjects"))
+    parser.add_argument("--subjects-file", type=Path)
     parser.add_argument("--tenant")
     parser.add_argument("--shop")
     parser.add_argument("--deadline", required=True)
@@ -69,6 +74,11 @@ def main() -> None:
             if policy_count != (0 if args.policy_state == "empty" else 1):
                 raise ValueError("V41_OWNER_POLICY_COUNT_MISMATCH")
             value["global_policy_rows"] = policy_count
+            if args.action == "subjects":
+                fixed = Path("/run/v4_owner/export/v41-subjects.private.json")
+                if args.subjects_file != fixed or not args.final:
+                    raise ValueError("FIXED_FINAL_SUBJECT_EXPORT_REQUIRED")
+                value["business_facts"] = collect(db, decode_subjects(private_subject_bytes(fixed)))
             if args.action == "tenant":
                 tenant = str(UUID(args.tenant))
                 shop = str(UUID(args.shop))
@@ -88,7 +98,7 @@ def main() -> None:
                 "utc"
             ].isoformat()
             db.rollback()
-        print(json.dumps(value))
+        print(json.dumps(value, default=str))
     except Exception as error:
         print(json.dumps({"status": "FAILED", "error_type": type(error).__name__}))
         raise SystemExit(1) from None

@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 from commerceops.application.v41 import contracts as dto
 
-from .http_recipes import assert_context, fulfillment_fields
+from .http_recipes import assert_context, assert_read_status, fulfillment_fields
 
 pytestmark = pytest.mark.offline
 
@@ -56,3 +56,12 @@ def test_fulfillment_uses_real_order_contract_field_not_product_version() -> Non
         "expected_version": 3,
         "action": "mark_demo_fulfilled",
     }
+
+
+def test_ordinary_business_reads_require_ok_and_original_key_unknown_stays_legal() -> None:
+    for name in ("products", "product", "orders", "order", "dashboard", "job"):
+        assert_read_status(name, {"status": "OK"})
+        with pytest.raises(AssertionError, match="ORDINARY_READ_REQUIRES_OK"):
+            assert_read_status(name, {"status": "UNKNOWN"})
+    for name in ("receipt", "preview_lookup"):
+        assert_read_status(name, {"status": "UNKNOWN"})

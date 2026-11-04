@@ -40,3 +40,19 @@ def test_all_tracked_frontend_compose_locks_and_actual_tools_are_bound(
     assert snapshot(root, [tool]) == before
     tool.write_text("version two")
     assert snapshot(root, [tool]) != before
+
+
+def test_new_next_route_is_rejected_but_named_outputs_are_excluded(
+    bound: tuple[OwnedManifest, Path, datetime],
+) -> None:
+    _, root, _ = bound
+    before = snapshot(root, [])
+    generated = root / "frontend/.next/cache/output.js"
+    generated.parent.mkdir(parents=True)
+    generated.write_text("generated output")
+    assert snapshot(root, []) == before
+    added = root / "frontend/app/extra/page.tsx"
+    added.parent.mkdir(parents=True)
+    added.write_text("new runtime input")
+    with pytest.raises(ValueError, match="UNAPPROVED_UNTRACKED_RUNTIME_INPUT"):
+        snapshot(root, [])

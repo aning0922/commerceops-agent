@@ -1,11 +1,39 @@
 """Bind actual tracked bytes, locks and the exact host executables before/after a run."""
 
 import hashlib
+import os
 import subprocess
 from pathlib import Path
 from typing import Any
 
 from .fixed_daemon import file_hash
+
+# These are generated output or already separately bound dependency/tool environments.
+EXCLUDED_PATHS = {"frontend/node_modules", "frontend/.next"}
+
+
+def reject_new_inputs(root: Path, tracked: dict[str, str]) -> None:
+    for relative in ("frontend", "backend", "tests", "scripts"):
+        directory = root / relative
+        if not directory.exists():
+            continue
+        for parent, directories, names in os.walk(directory, followlinks=False):
+            directories[:] = [
+                n
+                for n in directories
+                if n != "__pycache__"
+                and (Path(parent) / n).relative_to(root).as_posix() not in EXCLUDED_PATHS
+            ]
+            for name in directories:
+                if (Path(parent) / name).is_symlink():
+                    raise ValueError("UNAPPROVED_SOURCE_DIRECTORY_SYMLINK")
+            for name in names:
+                path = Path(parent) / name
+                relative_name = path.relative_to(root).as_posix()
+                if relative_name == "frontend/tsconfig.tsbuildinfo":
+                    continue
+                if relative_name not in tracked:
+                    raise ValueError("UNAPPROVED_UNTRACKED_RUNTIME_INPUT")
 
 
 def snapshot(root: Path, tools: list[Path]) -> dict[str, Any]:
@@ -43,6 +71,7 @@ def snapshot(root: Path, tools: list[Path]) -> dict[str, Any]:
         files[name] = hashlib.sha256(raw).hexdigest()
     if not files or git("diff", "--name-only", "--cached", "HEAD").strip():
         raise ValueError("CLEAN_TRACKED_SOURCE_REQUIRED")
+    reject_new_inputs(root, files)
     pins = {
         str(p.resolve(strict=True)): {
             "sha256": file_hash(p.resolve(strict=True)),

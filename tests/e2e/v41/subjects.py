@@ -4,6 +4,8 @@ import fcntl
 import hashlib
 import json
 import os
+import stat
+from contextlib import ExitStack
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -83,3 +85,41 @@ def registry(
         ):
             raise ValueError("BOUNDED_SUBJECT_REGISTRY_REQUIRED")
         persist(path, value)
+
+
+def frozen_subjects(directory: Path) -> bytes:
+    """Writers must already be stopped; take a locked, bounded immutable export."""
+    from .final_facts import decode_subjects
+
+    fd = os.open(directory / "subjects.lock", os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(fd, "r") as lock:
+        fcntl.flock(lock, fcntl.LOCK_SH)
+        raw = private_subject_bytes(directory / "subjects.private.json")
+        decode_subjects(raw)
+        return raw
+
+
+def private_subject_bytes(path: Path) -> bytes:
+    """Same no-follow/owner-private boundary, with the registry's explicit 512KB cap."""
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("PRIVATE_SUBJECT_PATH_REQUIRED")
+    with ExitStack() as stack:
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        parent = os.open(path.anchor, flags)
+        stack.callback(os.close, parent)
+        for name in path.parts[1:-1]:
+            parent = os.open(name, flags, dir_fd=parent)
+            stack.callback(os.close, parent)
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+        with os.fdopen(descriptor, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if (
+                not stat.S_ISREG(info.st_mode)
+                or stat.S_IMODE(info.st_mode) != 0o600
+                or info.st_uid != os.geteuid()
+            ):
+                raise ValueError("PRIVATE_SUBJECT_FILE_REQUIRED")
+            raw = stream.read(512_001)
+        if len(raw) > 512_000:
+            raise ValueError("SUBJECTS_BOUND_EXCEEDED")
+        return raw
