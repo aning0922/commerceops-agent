@@ -1530,6 +1530,18 @@
       "exact_span_sha256": "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
       "match_sha256": "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
       "fingerprint": "48c30d224529319d5a9ff203429eeff86060fc00:frontend/lib/v4-openapi.json:generic-api-key:251"
+    },
+    {
+      "rule": "generic-api-key",
+      "path": "docs/v4/acceptance/v4-1/UI_MOCK_R4.json",
+      "source_commit": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1",
+      "reported_line": 41,
+      "end_line": 41,
+      "start_column": 17,
+      "end_column": 96,
+      "exact_span_sha256": "ef2044b08ac81ab8c2608eff2d3eb913e9eb96245d7ac374e57f928035828ecd",
+      "match_sha256": "3cd7e8955b0d42fea60694c8c2de19889f771ce5bf0f7c65febcf6d5d7c40270",
+      "fingerprint": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1:docs/v4/acceptance/v4-1/UI_MOCK_R4.json:generic-api-key:41"
     }
   ],
   "v4_preflight_historical_findings": [

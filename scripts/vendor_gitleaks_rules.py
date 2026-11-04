@@ -555,11 +555,21 @@ V4_ADDITIONAL_HISTORY = (
         "8be6f4bca3a1da670fce95c06c6934451902ee33de2192f7eaa5b3a2c124be87",
         "2207071b3e12e69394e74480112e69daef3b21c0fd8baaa66abb4a584b7f39d6",
     ),
+    (
+        "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1",
+        "docs/v4/acceptance/v4-1/UI_MOCK_R4.json",
+        41,
+        41,
+        17,
+        96,
+        "ef2044b08ac81ab8c2608eff2d3eb913e9eb96245d7ac374e57f928035828ecd",
+        "3cd7e8955b0d42fea60694c8c2de19889f771ce5bf0f7c65febcf6d5d7c40270",
+    ),
 )
 
 
 def v4_additional_history_findings() -> list[dict[str, object]]:
-    """Ten separately authorized historical public metadata/UI/schema findings only."""
+    """Eleven separately authorized historical public metadata/UI/schema findings only."""
     return [
         {
             "rule": "generic-api-key",
