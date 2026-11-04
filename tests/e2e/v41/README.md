@@ -22,3 +22,12 @@ cleanup 独立决定 worker 退出，不能被必需检查的通过掩盖。写�
 持久化后模拟 KeyError/worker1，另验固定入口拒绝；不伪造 integration 字典或 transport。
 pytest 原始失败与复核结果应保存不同新证据目录；不得用这些模拟代替 V41 StageGate。
 V40 wrapper1、031/446 及旧业务失败原件只读保留，本片未复制其私配或私有异常。
+
+
+`owned_manifest.py` 是后续新 owned driver 的只读 admission 接口，不是启动器：固定五类
+场景（Shell、同源 KPI、商品订单、CSV、XLSX），只接受新 V41 namespace/DB/目录、精确
+source/tree、0025/合同/API导出schema/前端schema/锁摘要、exact images、UTC父子截止与
+至少180s清理余量；复用原公共 subnet 校验。当前API导出目标见精确提交62ab257，前端schema
+仍须WEB精确来源核收。输入缺失/脏源码/旧namespace/窗口不足直接拒绝，无0024或旧私配fallback。
+只返回PUBLIC_BINDINGS_VALIDATED_ONLY，实际image/IPAM/ports仍NOT_INSPECTED、runtime NOT_RUN。
+后续真实启动接缝、HTTP严格响应及业务golden待精确已审schema/资源窗，不接受任意命令扩展。
