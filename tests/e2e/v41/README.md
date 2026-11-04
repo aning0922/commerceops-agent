@@ -31,3 +31,16 @@ source/tree、0025/合同/API导出schema/前端schema/锁摘要、exact images�
 仍须WEB精确来源核收。输入缺失/脏源码/旧namespace/窗口不足直接拒绝，无0024或旧私配fallback。
 只返回PUBLIC_BINDINGS_VALIDATED_ONLY，实际image/IPAM/ports仍NOT_INSPECTED、runtime NOT_RUN。
 后续真实启动接缝、HTTP严格响应及业务golden待精确已审schema/资源窗，不接受任意命令扩展。
+
+`owned_driver.py` 新增 prepare/execute 固定入口，复用 V40 公共随机输入、Compose拓扑/镜像/IPAM
+校验及低层进程监督；使用独立 V41 Case/0025/input pins/once/回执，不调用旧 Case.validate、
+旧 execute 或0024诊断。prepare 只创建新随机0700/0600配置并封存摘要；execute先核Root显式窗和
+当前源的新runtime handoff，再做真实镜像只读检查、模型冻结、新namespace、PG/迁移/双grant、
+seed、API/Web/probe。停止writers后才采final facts，采集/stop失败也继续scoped down/inventory，
+资源清理、命令native和日志hash分别写execution.json。此代码尚未实际启动资源或签运行Gate。
+
+新grant接口当前仅预留为 `commerceops.entrypoints.v41_database` 的 grant-runtime/verify-runtime；
+必须与API owner最终SQL/router精确源对齐、独审，再由Root提交固定runtime_handoff.json后才准入。
+该文件目前不存在；不能靠提供旧配置、创建占位handoff或使用0024通过来启动。HTTP/PG observer
+业务recipes在独立后续切片补齐，缺模块同样在任何Docker调用之前拒绝。CLI不是常驻部署器，
+实际运行还需Root父监督/绝对UTC/资源专属准入及退出采集，不从纯测或prepare继承授权。

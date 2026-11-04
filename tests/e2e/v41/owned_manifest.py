@@ -50,7 +50,7 @@ class OwnedManifest:
     parent_deadline: str
     uid: int
 
-    def validate(self, root: Path, now: datetime) -> None:
+    def validate(self, root: Path, now: datetime, *, prepared: bool = False) -> None:
         if not root.is_absolute() or root.resolve() != root:
             raise ValueError("canonical source root required")
         if self.scenario not in SCENARIOS or self.uid != os.getuid() or type(self.uid) is not int:
@@ -63,10 +63,14 @@ class OwnedManifest:
         if (
             not path.is_absolute()
             or path.resolve() != path
-            or path.exists()
+            or (path.exists() and not prepared)
             or not path.parent.is_dir()
         ):
             raise ValueError("new canonical case directory required")
+        if prepared:
+            info = path.lstat()
+            if not path.is_dir() or info.st_uid != os.getuid() or info.st_mode & 0o777 != 0o700:
+                raise ValueError("owner-private prepared directory required")
         if (
             any(
                 type(p) is not int or not 1024 <= p <= 65535 for p in (self.api_port, self.web_port)
