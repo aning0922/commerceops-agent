@@ -1,0 +1,47 @@
+# V41 完整后端候选专项独审
+
+日期：2026-11-04（台北）。source `772ecc6d423e06351c8cdeb78c23a9382d47d466`，tree `c3c2a797df43b4af1c3e9d713a1e8aa03762b3b1`，parent `0839f0a0cc4a476d14c7e81b3836002934bc1ae7`。以已审20ff78a为基线，读取提交内新增SQL、Unicode规则、native parse/protocol、Store/runtime/router、共享API/GC接点及相关测试，追溯基础grant和旧trigger。仅精确Git对象，不读WIP。
+
+结论：HOLD_BUSINESS_AND_RUNTIME_GRANT。P2-S02锁序未修；新增P1-S04，基础app权限允许改写SQL binding校验锚，进而与新lease接口组合伪造解析stop。原S03标签规则差异在源码层关闭，真实PG跨层证明仍待。S01正常Store配置校验已接入，但不能据此关闭整个低权权威边界。
+
+## P1-S04：低权可改写binding锚，再自选lease伪造停止
+
+本结论针对拟执行现有基础grant、V4 grant及新V41 grant后的组合权限；当前全撤权DDL本身没有开放这条路径。
+
+同source的entrypoints/database.py第181行授予commerceops_app对business.web_sessions完整SELECT/INSERT/UPDATE。检查所有迁移，未发现对该表csrf_digest更新的不可变trigger。新v41_runtime.grant_runtime第45至54行只收紧七张新表，并给app六个固定函数EXECUTE，未撤销上述旧表UPDATE。0025 actor第278附近仅以传入binding的SHA256匹配这张可写表的csrf_digest；DB没有独立验证该binding是服务器MAC。
+
+具体静态调用链：低权调用者使用自己合法demo bearer/CSRF及当前shop/epoch/gen/revision，读取自己的bound session ID，把该web_sessions.csrf_digest改成自选binding的摘要；随后直接调v41_reserve_preview，传该binding、自选lease_digest/process_ref。reserve返回持久job后，调用者知道lease原文，可直接调用v41_stop_parser并自编pid、native_exit=0、timed_out=false、reaped=true和output_digest。初始parse_pid为NULL时，stop不要求先bind；它只核lease摘要、process_ref及JSON形状，随后置STOPPED并清parse_slot（0025第1030至1061行）。这不需要启动、停止或wait任何子进程。
+
+对于同样掌握lease的调用者，publish所比较的native output_digest也来自该自编proof，不构成独立执行来源。完整内容/身份/摘要约束仍存在，但无法证明真实解析曾发生或已停止；不能用这些自洽摘要签可信stop。此处没有宣称无身份跨租户写入，也没有把普通HTTP浏览器直接等同DB角色；这是合同明确要求的低权直调防绕过路径。
+
+修复应使binding权威与lease/stop权威不能由同一低权调用者改写或自行铸造：审清必要旧表列权限与demo专用保护，或采用经审查的窄可信调用能力；不要只增加reaped字段/摘要、依赖Python先调用或移除校验。必须在真实低权角色下验证上述组合路径被拒，含未bind伪stop、已bind但子进程仍活、伪输出以及撤权后合法实际reap清理。不要为修复直接扩大旧M3权限或重写历史迁移。本次仅源码与ACL组合分析，未执行SQL、未生成实际攻击/运行回执。
+
+## P2-S02：原principal/credential反序仍存在
+
+20ff78a的actor锁序在最终772未改：tenant/session→principal SHARE→bound session→identity SHARE→credential SHARE。Store._guard第94至107行先调用旧DemoSessions.resolve_locked，再调SQL read_guard，所以进入新actor前也已经持有principal。旧0005 p3_revoke_scope逐行BEFORE UPDATE/DELETE trigger先由credential DML取得行锁，再请求principal UPDATE。事务A持principal等待credential、事务B持credential等待principal的交错仍可达。
+
+沿用SQL_POLICY_20ff78a回执：统一受支持撤权/读写入口的锁图，再用真实PG屏障交错验证；不能将lock timeout、deadlock victim、503或撤权回滚视为撤权正常完成，不自动重试原操作。
+
+## S01与S03源码进展
+
+Store在tenant锁内调用resolve_locked、assert_policy、私有binding_proof、SQL read_guard，再次assert_policy；SQL持policy共享锁直到事务完成。写额外核CSRF与当前operator，最终apply/发布重新走actor。owner activation不由HTTP/API自动调用。该正常路径补上20ff只有helper定义的缺口；低权直调仍受S04阻断，rotation/缺policy/同版本变密钥/旧两行同key与DB权威版本不同等真实测试未运行。
+
+Unicode标签改用固定Unicode15禁用范围、ASCII边缘空格拒绝及NFC，两端规则已统一。独立从精确SQL的U&字面量解码范围，逐一与Python FORBIDDEN比较所有非零合法Unicode scalar（排除surrogate）：差异0。NUL由PG text编码约束拒绝；本机Python Unicode为15.0.0。18个新增标签向量连同旧contracts通过。原NBSP/NFD标签差异S03可在源码层关闭；此比较不等于执行PG正则/normalize，实际运行仍需验证。导入单元格原规范化流程保留。
+
+## Native parser与持久lease
+
+正常Store路径先完整准入并COMMIT RESERVED，再Popen；解析期间不持tenant业务锁。server随机lease只持内存，DB保存摘要，process_ref独立；原key重放不会起第二个child。PID bind与stop各独立连接/事务，持久失败不自动重试。reserve的全局advisory短事务及持久唯一slot实现全局2/tenant1，UNKNOWN或过期不释放；GC拒任何未STOPPED行。
+
+child固定解释器模块、独立process group、close_fds、精简环境，不携带DB/session密钥或磁盘原始文件。main在应用导入与输入前设SIGALRM/2秒；顶层两个包init仅docstring。父进程用自身Popen handle killpg，communicate/wait之后才生成proof；失败/非0与停止持久化分别保留，后续结果严格schema/canonical校验。父死亡不会删除持久reservation，child自身timer是辅助终止边界，不是数据库reap证明。
+
+已读五个native测试：正常、bind失败后实际reap、stop写失败不重试、非法输入、stdin悬停时自身alarm。它们没有真正杀父并结合PG观察旧slot占用/新准入拒绝，也没有低权SQL伪proof测试。本轮未执行native测试；不能把作者总offline数字签成父亡/真实lease验证。后续native精确source必须保证-I模块来自冻结安装/镜像，不能用PYTHONPATH切源码却让child加载另一安装版本。
+
+## Store/router及DDL-only pilot边界
+
+16条路由固定注册，静态export优先UUID detail；只在显式enabled DemoConfig安装，无注册时DB访问。独立业务middleware核Origin/transport，写要求受信Origin，读取epoch/gen为规范整数；JSON流最多3MiB，拒重复键/非有限常量/多余字段。闭集错误不回显内部异常，未知保持UNKNOWN且retryable=false。Store统一同tenant/shop/current context读取fixture和effects，逐项hash/DTO/canonical核验并匹配DB revision；action原key在SQL新效果CAS之前查询，未知只读lookup。preview发布前重新准入，SQL重核revision、parent/配额/输出摘要；import confirm保留当前身份、版本和总500SKU事务校验。
+
+owner-only DDL编译试验：静态未见新增破坏性DDL、外部调用或自动GRANT。upgrade只建七新表/函数/约束/trigger，最后对PUBLIC/app撤销所有新表及函数权限；downgrade明确拒绝。迁移env在事务内执行。独立runtime grant函数没有迁移/API调用点；owner GC只按已锁tenant的retention删除六业务表，policy不删、活解析HOLD、原V40清理随后执行。故没有基于已读源码阻止Root筹备新owned空库迁移/ACL编译pilot的破坏性问题；这不是SQL编译成功或运行授权。Root仍绑定精确source/资源/UTC，新库only、无业务guard执行、无GRANT；实际catalog权限/事务退出以新回执为准。pilot不能关闭S02/S04或代签完整迁移后业务运行。
+
+## 本次验证与交付
+
+精确772 git archive隔离执行contracts/imports/previews/http_boundary四模块：100 passed，native exit0，3.50秒；四条隔离offline marker warning保留。HTTP为TestClient进程内ASGI且authority stub，无监听端口/真实API/PG。独立Unicode全部scalar范围比较exit0。未重跑作者280offline，不替代137V41/143V40或26旧PG排除的原作者回执；没有Docker、PG、native parser child、服务、浏览器、Full扫描或远端操作。
