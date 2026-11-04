@@ -51,18 +51,6 @@ test('LIVE V41: business reads writes and import roundtrip',async({page,browser}
   const response=waitApi(page,api,'/api/v4/products');const products=await readable(page,()=>page.goto('/v4/products').then(()=>{}),response,'BusinessEnvelope_Page_Product__',identity!,first.shop_id);
   expect(products.data.items.length).toBeGreaterThan(0);const chosen=products.data.items[0];productId=chosen.product_id;productVersion=chosen.version;if(!uuid.test(productId))throw new Error('PRODUCT_ID_INVALID');
   facts.source_modes.push(products.data.snapshot.source.data_mode);
-  const firstIds=products.data.items.map((item:{product_id:string})=>item.product_id);
-  if(products.data.next_cursor){
-   const next=waitProducts(page,api,first.shop_id,'',products.data.next_cursor);await page.getByRole('button',{name:'下一页'}).click();
-   const nextPage=await validated(await next,'business','BusinessEnvelope_Page_Product__');assertScope(nextPage.context,identity!,first.shop_id);
-   expect(nextPage.data.snapshot.snapshot_id).toBe(products.data.snapshot.snapshot_id);expect(nextPage.data.snapshot.data_revision).toBe(products.data.snapshot.data_revision);
-   const nextIds=nextPage.data.items.map((item:{product_id:string})=>item.product_id);expect(nextIds.length).toBeGreaterThan(0);expect(nextIds.some((id:string)=>firstIds.includes(id))).toBe(false);
-   await expect(page.locator(`tbody a[href="/v4/products/${nextIds[0]}"]`)).toBeVisible();await expect(page.locator(`tbody a[href="/v4/products/${firstIds[0]}"]`)).toHaveCount(0);
-   const previous=waitProducts(page,api,first.shop_id,'','');await page.getByRole('button',{name:'上一页'}).click();
-   const previousPage=await validated(await previous,'business','BusinessEnvelope_Page_Product__');assertScope(previousPage.context,identity!,first.shop_id);
-   expect(previousPage.data.snapshot.snapshot_id).toBe(products.data.snapshot.snapshot_id);expect(previousPage.data.items.map((item:{product_id:string})=>item.product_id)).toEqual(firstIds);expect(previousPage.data.next_cursor).toBe(products.data.next_cursor);
-   await expect(page.locator(`tbody a[href="/v4/products/${firstIds[0]}"]`)).toBeVisible();await expect(page.locator(`tbody a[href="/v4/products/${nextIds[0]}"]`)).toHaveCount(0);facts.pagination='OBSERVED';
-  }else facts.pagination='NOT_AVAILABLE_IN_CURRENT_PAGE';
   const sku=chosen.skus[0]?.label;if(typeof sku!=='string'||!sku)throw new Error('PRODUCT_SKU_UNAVAILABLE');
   await page.getByLabel('搜索商品').fill(sku);const filteredResponse=waitProducts(page,api,first.shop_id,sku,'');await page.getByRole('button',{name:'筛选',exact:true}).click();
   const filtered=await validated(await filteredResponse,'business','BusinessEnvelope_Page_Product__');assertScope(filtered.context,identity!,first.shop_id);
@@ -107,7 +95,7 @@ test('LIVE V41: business reads writes and import roundtrip',async({page,browser}
   let revision=initial.data.snapshot.data_revision;
   for(const format of ['csv','xlsx'] as const){
    const input=page.getByLabel('文件');
-   if(format==='csv')await input.setInputFiles({name:'owned-products.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\nV41LIVE-CSV,Owned CSV product,123,TWD\n')});
+   if(format==='csv')await input.setInputFiles({name:'owned-products.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\n'+Array.from({length:22},(_,i)=>`V41LIVE-CSV-${String(i).padStart(2,'0')},Owned CSV product ${i},123,TWD\n`).join(''))});
    else await input.setInputFiles(fileURLToPath(new URL('../v41-tests/fixtures/sample.xlsx',import.meta.url)));
    const firstPreview=waitApi(page,api,'/api/v4/imports/previews','POST');const firstLookup=page.waitForResponse(response=>{const url=new URL(response.url());return url.origin===api&&url.pathname.startsWith('/api/v4/imports/preview-requests/')&&response.request().method()==='GET';});const firstJob=page.waitForResponse(response=>{const url=new URL(response.url());return url.origin===api&&/^\/api\/v4\/imports\/[0-9a-f-]{36}$/i.test(url.pathname)&&response.request().method()==='GET';});
    await page.getByRole('button',{name:'上传并预览'}).click();const firstRaw=await firstPreview,firstKey=keyOf(firstRaw),discovery=await validated(firstRaw,'business','BusinessEnvelope_ImportPreviewData_');assertScope(discovery.context,identity!,first.shop_id);expect(discovery.data.job.data_revision).toBe(revision);expect(discovery.data.state).toBe('DISCOVERED');
@@ -143,7 +131,22 @@ test('LIVE V41: business reads writes and import roundtrip',async({page,browser}
     'COMMITTED_READBACK',
    );counts.import_committed++;facts.source_modes.push(after.data.snapshot.source.data_mode);
    await expect(page.getByText('已核对导入回执、作业状态和数据来源。')).toBeVisible();
-   const sku=format==='csv'?'V41LIVE-CSV':'SKU-1',readProducts=waitApi(page,api,'/api/v4/products');await page.getByRole('link',{name:'查看商品列表'}).click();const productPage=await validated(await readProducts,'business','BusinessEnvelope_Page_Product__');assertScope(productPage.context,identity!,first.shop_id);
+   const sku=format==='csv'?'V41LIVE-CSV-00':'SKU-1',readProducts=waitApi(page,api,'/api/v4/products');await page.getByRole('link',{name:'查看商品列表'}).click();const productPage=await validated(await readProducts,'business','BusinessEnvelope_Page_Product__');assertScope(productPage.context,identity!,first.shop_id);
+   if(format==='csv'){
+    await page.getByLabel('搜索商品').fill('');const unfiltered=waitProducts(page,api,first.shop_id,'','');await page.getByRole('button',{name:'筛选',exact:true}).click();
+    const firstPage=await validated(await unfiltered,'business','BusinessEnvelope_Page_Product__');assertScope(firstPage.context,identity!,first.shop_id);expect(firstPage.data.snapshot.data_revision).toBe(revision);
+    const firstIds=firstPage.data.items.map((item:{product_id:string})=>item.product_id);expect(firstIds).toHaveLength(20);expect(firstPage.data.total).toBeGreaterThan(20);expect(firstPage.data.total).toBeLessThanOrEqual(40);
+    const cursor=firstPage.data.next_cursor;if(!cursor)throw new Error('PAGINATION_CURSOR_UNAVAILABLE');
+    const next=waitProducts(page,api,first.shop_id,'',cursor);await page.getByRole('button',{name:'下一页'}).click();
+    const nextPage=await validated(await next,'business','BusinessEnvelope_Page_Product__');assertScope(nextPage.context,identity!,first.shop_id);
+    expect(nextPage.data.snapshot.snapshot_id).toBe(firstPage.data.snapshot.snapshot_id);expect(nextPage.data.snapshot.data_revision).toBe(revision);expect(nextPage.data.total).toBe(firstPage.data.total);expect(nextPage.data.next_cursor).toBeNull();
+    const nextIds=nextPage.data.items.map((item:{product_id:string})=>item.product_id);expect(nextIds.length).toBeGreaterThan(0);expect(nextIds.some((id:string)=>firstIds.includes(id))).toBe(false);expect(new Set([...firstIds,...nextIds]).size).toBe(firstPage.data.total);
+    await expect(page.locator(`tbody a[href="/v4/products/${nextIds[0]}"]`)).toBeVisible();await expect(page.locator(`tbody a[href="/v4/products/${firstIds[0]}"]`)).toHaveCount(0);
+    const previous=waitProducts(page,api,first.shop_id,'','');await page.getByRole('button',{name:'上一页'}).click();
+    const previousPage=await validated(await previous,'business','BusinessEnvelope_Page_Product__');assertScope(previousPage.context,identity!,first.shop_id);
+    expect(previousPage.data.snapshot.snapshot_id).toBe(firstPage.data.snapshot.snapshot_id);expect(previousPage.data.snapshot.data_revision).toBe(revision);expect(previousPage.data.total).toBe(firstPage.data.total);expect(previousPage.data.items.map((item:{product_id:string})=>item.product_id)).toEqual(firstIds);expect(previousPage.data.next_cursor).toBe(cursor);
+    await expect(page.locator(`tbody a[href="/v4/products/${firstIds[0]}"]`)).toBeVisible();await expect(page.locator(`tbody a[href="/v4/products/${nextIds[0]}"]`)).toHaveCount(0);facts.pagination='OBSERVED';
+   }
    await page.getByLabel('搜索商品').fill(sku);const search=waitProducts(page,api,first.shop_id,sku,'');await page.getByRole('button',{name:'筛选',exact:true}).click();const found=await validated(await search,'business','BusinessEnvelope_Page_Product__');assertScope(found.context,identity!,first.shop_id);expect(found.data.total).toBe(1);expect(found.data.next_cursor).toBeNull();expect(found.data.items).toHaveLength(1);const imported=found.data.items.find((item:{source:{import_job_id:string};skus:{label:string}[]})=>item.source.import_job_id===jobId&&item.skus.some(s=>s.label===sku));if(!imported)throw new Error('IMPORTED_SKU_NOT_FOUND');expect(imported.source.data_mode).toBe('demo_upload');expect(imported.source.file_digest).toBe(mapped.data.file_digest);
    if(format==='csv'){
     const returnProducts=waitApi(page,api,'/api/v4/products');await page.goto('/v4/products/import');const current=await validated(await returnProducts,'business','BusinessEnvelope_Page_Product__');assertScope(current.context,identity!,first.shop_id);revision=current.data.snapshot.data_revision;await page.getByRole('button',{name:'放弃本地预览引用'}).click();await page.getByRole('button',{name:'确认放弃本地引用'}).click();
