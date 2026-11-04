@@ -1,0 +1,159 @@
+{
+  "phase": "V4-1",
+  "scope": "Navigation and route foundation; availability is not business authorization or page-completion evidence.",
+  "modules": [
+    {
+      "id": "01",
+      "name": "经营驾驶舱",
+      "href": "/v4/dashboard",
+      "kind": "business"
+    },
+    {
+      "id": "02",
+      "name": "AI智能工作台",
+      "href": "/v4/ai",
+      "kind": "category"
+    },
+    {
+      "id": "03",
+      "name": "经营分析中心",
+      "href": "/v4/analytics",
+      "kind": "category"
+    },
+    {
+      "id": "04",
+      "name": "商品中心",
+      "href": "/v4/products",
+      "kind": "business"
+    },
+    {
+      "id": "05",
+      "name": "订单中心",
+      "href": "/v4/orders",
+      "kind": "business"
+    },
+    {
+      "id": "06",
+      "name": "库存中心",
+      "href": "/v4/inventory",
+      "kind": "category"
+    },
+    {
+      "id": "07",
+      "name": "采购供应商",
+      "href": "/v4/suppliers",
+      "kind": "category"
+    },
+    {
+      "id": "08",
+      "name": "客户与售后",
+      "href": "/v4/customers",
+      "kind": "category"
+    },
+    {
+      "id": "09",
+      "name": "智能客服",
+      "href": "/v4/support/inbox",
+      "kind": "category"
+    },
+    {
+      "id": "10",
+      "name": "营销中心",
+      "href": "/v4/marketing",
+      "kind": "category"
+    },
+    {
+      "id": "11",
+      "name": "自动化中心",
+      "href": "/v4/automations",
+      "kind": "category"
+    },
+    {
+      "id": "12",
+      "name": "知识中心",
+      "href": "/v4/knowledge",
+      "kind": "category"
+    },
+    {
+      "id": "13",
+      "name": "审批与任务",
+      "href": "/v4/work/todos",
+      "kind": "category"
+    },
+    {
+      "id": "14",
+      "name": "数据与系统管理",
+      "href": "/v4/settings/demo",
+      "kind": "control"
+    }
+  ],
+  "stage_views": [
+    {
+      "id": "V4-P01-01",
+      "name": "经营首页",
+      "route": "/v4/dashboard"
+    },
+    {
+      "id": "V4-P01-02",
+      "name": "AI经营洞察",
+      "route": "/v4/insights"
+    },
+    {
+      "id": "V4-P01-03",
+      "name": "指标明细钻取",
+      "route": "/v4/dashboard/drilldown"
+    },
+    {
+      "id": "V4-P04-01",
+      "name": "商品列表",
+      "route": "/v4/products"
+    },
+    {
+      "id": "V4-P04-02",
+      "name": "商品详情",
+      "route": "/v4/products/:productId"
+    },
+    {
+      "id": "V4-P04-03",
+      "name": "SKU规格",
+      "route": "/v4/products/variants"
+    },
+    {
+      "id": "V4-P04-04",
+      "name": "分类标签",
+      "route": "/v4/products/categories"
+    },
+    {
+      "id": "V4-P04-05",
+      "name": "商品导入",
+      "route": "/v4/products/import"
+    },
+    {
+      "id": "V4-P05-01",
+      "name": "订单列表",
+      "route": "/v4/orders"
+    },
+    {
+      "id": "V4-P05-02",
+      "name": "订单详情",
+      "route": "/v4/orders/:orderId"
+    },
+    {
+      "id": "V4-P05-03",
+      "name": "异常订单",
+      "route": "/v4/orders/anomalies"
+    },
+    {
+      "id": "V4-P05-04",
+      "name": "履约模拟",
+      "route": "/v4/orders/fulfillment-demo"
+    }
+  ],
+  "auxiliary": [
+    "/v4",
+    "/v4/demo",
+    "/v4/settings/demo"
+  ],
+  "resource_ids": "UUID, static reserved route segments evaluated first",
+  "unknown_route": "404"
+}

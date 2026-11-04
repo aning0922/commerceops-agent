@@ -1,5 +1,7 @@
 # 工程约束
 
+V4-1 本地托管新授权（2026-11-04，台北）：用户已明确继续托管直到上一轮指定的下一阶段完成。原任务包 V4-1 是 V41-01—06 六卡，不能仅做摘要前三卡。唯一阶段起点为已核 V4-0 1730194，所有 V4-0／M3／Harness 工作树和历史证据保留。本阶段规则、单 owner 与 Gate 见 docs/v4/v4-1/STAGE_SPEC.md；旧“不进 V4-1”仅保留原日期，不覆盖本次用户授权。不自动 V4-2，不 Hosted／远端写／真实外部业务调用或生产。
+
 V4-0 B 本地托管实施（2026-11-03，台北）：用户已明确审核接受A推荐方案/四合同并授权V40-01—05。仅新V4工作树从实时核准M3 952e6246/tree43e4e7接续；旧M3/Harness树不动。以docs/v4/IMPLEMENTATION_AUTHORIZATION.md、docs/v4/baseline/TASK_PLAN.md和冻结八文件为范围。A原件PENDING/NOT_STARTED保留其时点，当前实现状态按本批实际证据填写。先身份桥接SQL/ACL/锁序专项审查，SCHEMA/API单owner管理迁移/API/seed/reset，WEB/QA不重叠独占路径，Reviewer独审精确SHA，Root统筹及时普通commit/merge。只新owned本地PG/API/Web与必要完整旧M3回归，不进V4-1、不Harness合并/Hosted/push/真实外部/生产，不动旧窗口/密钥/账本。模型可按任务调整Sol/Terra/Astra与推理，不自动付费fallback。所有旧导航仅为其日期历史。
 
 托管开发提交节奏（2026-11-03，台北）：每个独立可审切片在必要检查通过后及时普通 commit，并向主控转交精确 SHA；等待依赖、移交或结束会话前核对已完成改动的提交状态。主控及时普通合入已核收提交。远端 push、PR 和 main 操作继续由主控按具体授权统一执行。
