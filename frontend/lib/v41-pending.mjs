@@ -124,6 +124,8 @@ export function scopedV41Storage(storage,session) {
   }
   const legacyPending=loadV41Pending(storage),legacyPreview=loadV41Preview(storage);
   if(legacyPending.state==='blocked'||legacyPreview.state==='blocked')throw new Error('STORAGE_BLOCKED');
+  if(legacyPending.state==='pending'&&storage.getItem(`${slot}:${legacyPending.value.context.tenant_id.toLowerCase()}`)!==null)throw new Error('STORAGE_BLOCKED');
+  if(legacyPreview.state==='ready'&&storage.getItem(`${previewSlot}:${legacyPreview.value.context.tenant_id.toLowerCase()}`)!==null)throw new Error('STORAGE_BLOCKED');
   const inspect=(key,validator)=>{
     const raw=storage.getItem(key);if(raw===null)return false;
     let value;try{value=JSON.parse(raw);}catch{throw new Error('STORAGE_BLOCKED');}

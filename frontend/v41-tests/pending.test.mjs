@@ -93,7 +93,7 @@ test('tenant scoped pending retains legacy UNKNOWN and isolates new verified ten
 test('corrupt, conflicting or wrong-owner scoped records block all new operations',()=>{
  const s=storage(),old=fixture(),fresh=fixture();assert.equal(reserveV41Pending(s,old),true);
  const oldKey=`commerceops-v41-pending:${old.context.tenant_id.toLowerCase()}`;s.setItem(oldKey,JSON.stringify(old));
- assert.throws(()=>scopedV41Storage(s,{context:old.context}),/STORAGE_BLOCKED/);
+ assert.throws(()=>scopedV41Storage(s,{context:old.context}),/STORAGE_BLOCKED/);assert.throws(()=>scopedV41Storage(s,{context:fresh.context}),/STORAGE_BLOCKED/);
  s.setItem(oldKey,'{');assert.throws(()=>scopedV41Storage(s,{context:fresh.context}),/STORAGE_BLOCKED/);
  s.setItem(oldKey,JSON.stringify(fresh));assert.throws(()=>scopedV41Storage(s,{context:fresh.context}),/STORAGE_BLOCKED/);
 });
