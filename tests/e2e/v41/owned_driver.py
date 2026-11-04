@@ -174,7 +174,7 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         tool_paths.extend(
             [
                 ROOT / "frontend/node_modules/@playwright/test/cli.js",
-                Path(browser_binding["executable"]),
+                *[Path(name) for name in browser_shell.runtime_tools(browser_binding)],
             ]
         )
     source_before = snapshot(ROOT, tool_paths)
@@ -495,7 +495,9 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             browser_shell.validate_report(
                 json.loads((directory / "processes/probe.raw.log").read_bytes())
             )
-            report["information"]["browser_receipts"] = browser_shell.validate_receipts(case)
+            report["information"]["browser_receipts"] = browser_shell.validate_receipts(
+                case, browser_binding or {}
+            )
             records.append(
                 {"stage": "browser", "selected": 2, "passed": 2, "skipped": 0, "retries": 0}
             )

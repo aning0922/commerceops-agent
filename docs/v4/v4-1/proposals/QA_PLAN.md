@@ -17,14 +17,18 @@ Root 的其他独立运行不得移填成本片结果；先前冻结与失败原
 | S01 原始请求与末态 | `tests/e2e/v41/request_witness.py`、`subjects.py`、`final_facts.py` | 真实 POST 透传前 fsync scope/原 key/path/body/hash；writers 停止后导入两份私有 journal，有效前缀保留，失败/UNKNOWN 不重放；按实际 DB canonical 请求核对原意图 |
 | Shell 迟到清屏专项 | `frontend/v41-e2e/shell.live.spec.ts` | 原 operator 的真实 read-context GET 经 route.fetch 成功后暂缓交付；既有 persona/logout 成功且清空敏感状态后原样交付，核完整 body hash 相同、真实 response finished 和 UI paint 后事实仍清空。无 sleep、无新访客/业务写；tier=`NETWORK_ACK_DELAY_INJECTION_REAL_UPSTREAM`，仅源码准备，实际 `NOT_RUN` |
 | 浏览器权限矩阵 | 完整权限/失效交错 | 本片只含现有 persona/logout 与延迟响应专项，不签完整 browser 权限 Gate；PG 专项不能代签，FR-05 尚未完成 |
-| 原生 200% | GATES 独立新 owned headful/profile 路线 | 本片不包含该路线，两个 safe receipt 均保留 native200=NOT_RUN_IN_THIS_SPEC；viewport/CSS 不代签 |
+| 原生 200% caller | GATES `native_zoom.cjs` 精确 651cac31，QA `native-capture.ts` / Shell / Python parent | 同 Shell cookies/context，三宽及键盘后、persona/logout 前调用固定 run；Root framework/Node/Playwright pin、模块 hash、factor/event、几何及五 PNG/cleanup 逐项核验。仅可记录 CAPTURED_PENDING_VISUAL_REVIEW，nativeBrowserExit=NOT_EXPOSED，humanVisualAcceptance=NOT_RUN；forced 不能补签成功。本 QA 仍未启动实际 native/browser |
+
 
 执行接口仍为五个既有 scenario，不增加第六个或通用组合执行器。单案精确入口：
 `python -m tests.e2e.v41.owned_driver execute --case <Root新私有case.json> --root-opened-window`。
 先按原 prepare 仅生成新私配，再由 Root 提供新 authorization/build/expected-runtime/daemon 回执。
 Shell 额外需要 0600 `browser-runtime.safe.json`：精确字段 schema_version=v41-browser-runtime-v1、
-source_sha/source_tree/authorization_id/directory/uid/project/test_image/executable/sha256；executable 为
-实际 canonical Chromium 路径及 bytes hash，无隐式下载、缓存或用户 profile。资源/UTC 由 Root 新核。
+source_sha/source_tree/authorization_id/directory/uid/project/test_image/executable/sha256，另严格要求
+framework/framework_sha256/node_sha256/playwright_version（固定 1.64.0）。这些字段映射模块的六个
+固定 runtime 参数；Chrome/framework/真实 Node/package 文件均入原 tool seal，无隐式下载、缓存、
+任意 module/argv 或用户 profile。原生 profile 仅 browser-tmp/playwright_chromiumdev_profile-native200，
+纳入原已审 PGID 祖先/出生身份捕获；资源/UTC 仍由 Root 新核，定义不构成运行批准。
 
 父流程保持：精确 source/image/Root 绑定 → 原 bootstrap → 已审三 owner 动作 → 本案 API/Web →
 固定 HTTP 配方，或 shell_navigation 的固定双标题 Node/Playwright → writers 停止 → 独立浏览器

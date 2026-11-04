@@ -9,11 +9,12 @@ import schema from '../lib/v4-schema.json' with {type:'json'};
 import businessContract from '../../docs/v4/v4-1/API_CONTRACT.json' with {type:'json'};
 const businessSchema=businessContract.json_schema;
 import {readBrowserCase,subjectWriter} from './browser-subjects';
+import {captureNative200} from './native-capture';
 
 const c=readBrowserCase(),api=`http://127.0.0.1:${c.api_port}`;
 const evidence=join(c.directory,'browser-shell');
 const ajv=new Ajv2020({strict:true,allErrors:true,allowUnionTypes:true});addFormats(ajv);
-async function envelope(r:Response,definition:'SessionEnvelope'|'CreateEnvelope'|'ControlEnvelope'){
+async function envelope(r:Response|APIResponse,definition:'SessionEnvelope'|'CreateEnvelope'|'ControlEnvelope'){
   expect(r.status()).toBe(definition==='CreateEnvelope'?201:200);
   expect(r.headers()['cache-control']).toBe('no-store');
   expect(r.headers()['vary'].toLowerCase().split(',').map(x=>x.trim())).toEqual(expect.arrayContaining(['cookie','origin']));
@@ -21,7 +22,7 @@ async function envelope(r:Response,definition:'SessionEnvelope'|'CreateEnvelope'
   expect(ajv.compile({...schema,$ref:'#/$defs/'+definition})(body)).toBe(true);
   return body;
 }
-async function session(r:Response){return envelope(r,'SessionEnvelope');}
+async function session(r:Response|APIResponse){return envelope(r,'SessionEnvelope');}
 
 test('LIVE V41: shell identity navigation and responsive boundaries',async({page,context})=>{
   mkdirSync(evidence,{mode:0o700});
@@ -69,6 +70,11 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     const bytes=await page.screenshot({path,fullPage:true});
     screenshots.push({path,sha256:createHash('sha256').update(bytes).digest('hex')});
   }
+  const nativeSession=await session(await page.request.get(api+'/api/v4/demo/session',{headers:{Origin:`http://127.0.0.1:${c.web_port}`},maxRedirects:0,maxRetries:0,timeout:10000}));
+  for(const key of ['tenant_id','organization_id','principal_id','reset_epoch','auth_generation'])expect(nativeSession.context[key]).toBe(current.context[key]);
+  const nativeShop=await page.getByRole('combobox',{name:'店铺',exact:true}).inputValue();
+  expect(nativeSession.data.shops.some((shop:{shop_id:string})=>shop.shop_id===nativeShop)).toBe(true);
+  const native200=await captureNative200(c,await context.cookies(api),nativeSession.context,nativeShop);
   // Network ACK delay injection: fetch a genuine read-context success, then hold its delivery.
   // read-context has no client AbortController; no signal, request, body or response is rewritten.
   await page.setViewportSize({width:1440,height:900});
@@ -154,5 +160,5 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     try{if(claimed)await delivery;}finally{await page.unroute(target,hold);}
   }
   await page.reload();await expect(page.getByRole('button',{name:'一键体验 →',exact:true})).toBeVisible();expect(creates).toBe(1);
-  writeFileSync(join(evidence,'shell.safe.json'),JSON.stringify({source_sha:c.source_sha,source_tree:c.source_tree,scope:'LIVE_SHELL_ONLY',screenshots,native200:'NOT_RUN_IN_THIS_SPEC',businessKPI:'NOT_VERIFIED_BY_SHELL',delayedAck,actual_create_requests:creates},null,2),{mode:0o600,flag:'wx'});
+  writeFileSync(join(evidence,'shell.safe.json'),JSON.stringify({source_sha:c.source_sha,source_tree:c.source_tree,scope:'LIVE_SHELL_ONLY',screenshots,native200,businessKPI:'NOT_VERIFIED_BY_SHELL',delayedAck,actual_create_requests:creates},null,2),{mode:0o600,flag:'wx'});
 });
