@@ -623,6 +623,20 @@
       "functional_status": "FULLPG_PAIR_ACCEPTED_BROWSER_R7_FAILED_CLOSED",
       "checkpoint": "r38",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+      "base": "bec4291636f31218bee7e9b6fca1211680cfc940",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+      "actions_runs": [],
+      "functional_status": "REVIEWED_EXACT_CURRENT_FACTS_CORRELATION_NEW_BROWSER_PENDING",
+      "checkpoint": "r40",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [

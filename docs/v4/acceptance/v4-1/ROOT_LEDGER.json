@@ -8,8 +8,8 @@
     "V41-02": "implemented_local_http_accepted_browser_full_pending",
     "V41-03": "implemented_local_http_accepted_browser_full_pending",
     "V41-04": "implemented_local_http_accepted_browser_full_pending",
-    "V41-05": "implemented_local_http_accepted_browser_full_pending",
-    "V41-06": "implemented_local_http_accepted_browser_full_pending"
+    "V41-05": "batch_tags_and_real_business_mobile_implementing",
+    "V41-06": "import_http_pg_business_pass_mobile_mapping_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
@@ -310,16 +310,16 @@
   },
   "remote_checkpoint": {
     "branch": "codex/v41-control-20261104",
-    "source": "2140fe22a97850a1c312393198b78a0225ff3b9a",
-    "base": "faf9a0725a5f1ffc326abf75ea57d49c453a65ed",
+    "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+    "base": "bec4291636f31218bee7e9b6fca1211680cfc940",
     "raw_native_exit": 0,
     "raw_findings": 0,
     "blocking_findings": 0,
     "push_native_exit": 0,
-    "remote_head": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+    "remote_head": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
     "actions_runs": [],
-    "functional_status": "REVIEWED_NODEFAULTS_FIXTURE_NEW_BROWSER_BUILD_ONLY",
-    "batch": "r37"
+    "functional_status": "REVIEWED_EXACT_CURRENT_FACTS_CORRELATION_NEW_BROWSER_PENDING",
+    "batch": "r40"
   },
   "full_audit": {
     "status": "exact_development_source_scan_pass_not_final_stage",
@@ -340,8 +340,8 @@
       "receipt": "ENGINEERING_R3.json"
     },
     "latest_exact_scanner": {
-      "source": "2140fe22a97850a1c312393198b78a0225ff3b9a",
-      "receipt": "SCAN_2140.json",
+      "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+      "receipt": "SCAN_EB30.json",
       "native": 0,
       "blocking": 0
     }
@@ -362,6 +362,6 @@
     "source_accepted_business_browser": "538665aebac7064c3d9b77bcbf65b4879b864123",
     "native_source": "651_SOURCE_ACCEPTED_ACTUAL_CAPTURE_NOT_RUN",
     "full_pg": "accepted_exact_e7_full_pair_773",
-    "real_browser": "r7_business_pass_shell_first_current_facts_timestamp_failed_closed"
+    "real_browser": "r8_business_pass_shell_native_timeout_closed"
   }
 }

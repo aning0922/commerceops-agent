@@ -838,6 +838,47 @@
           "sha256": "17d35c770f31c2cc1fcb52f60caaca196b3c2497b6e6be12974b16694b60d318"
         }
       ]
+    },
+    {
+      "case": "browser-final-r8",
+      "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+      "tree": "c4283496c3546169e4f24037731aa0fea949eb9e",
+      "status": "failed_closed",
+      "business_spec_passed": true,
+      "business_duration_ms": 10120,
+      "shell_spec_passed": false,
+      "shell_duration_ms": 22330,
+      "failure": "Native TimeoutError before first native PNG; exact original await not captured",
+      "facts_correlations_passed": 3,
+      "native200": "FAILED_OR_UNKNOWN_NO_IMAGES",
+      "delayed_ack": "NOT_RUN",
+      "shell_owned_cft_native_exit": 0,
+      "node_native_exit": 1,
+      "browser_forced": [],
+      "browser_remaining": [],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r8_pg_data"
+      ],
+      "ports_closed": [
+        18477,
+        13477
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r8/execution.json",
+          "sha256": "51bc0d0a270bfff918dff4b143cd1ca6a11ec79947793e056899f2e0d54aeac4"
+        },
+        {
+          "path": "browser-final-r8/closedfinal.json",
+          "sha256": "ce996b8cb82262988e581bfe264c5ab04ad46485e49a8ad683509a0e192c39cb"
+        },
+        {
+          "path": "browser-final-r8/native-zoom/receipt.json",
+          "sha256": "d132f7b46da2fc75ed23bd4630b5658ee5bd34fe3a6fe3b39582d111ae751a4a"
+        }
+      ]
     }
   ],
   "mock_ui": {
@@ -868,7 +909,7 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": "r7 first currentFacts exact response read_at differed from displayed later read_at; old request lineage remains unknown; failed case closed; targeted correlation diagnosis",
+  "current_failure": "Native actual r8 timed out before first PNG; module locator defect proven from source but original exact await UNKNOWN",
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
@@ -891,5 +932,6 @@
   "browser_focus_ab_experiment": "observed both minimized with visible; no product pass",
   "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed",
   "full_pg_pair_receipt": "PG_PAIR_FINAL.json",
-  "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8"
+  "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8",
+  "remaining_product_steps": "current-page batch labels and real business mobile gate per BATCH_AND_MOBILE_ADDENDUM; Native/lateACK and final evidence"
 }
