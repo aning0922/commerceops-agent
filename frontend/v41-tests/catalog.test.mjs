@@ -18,3 +18,10 @@ test('uploaded rows require matching dataset provenance and payments retain unkn
  assert.equal(isSafeCatalog({...value,items:[order]},'order'),true);
  assert.equal(isSafeCatalog({...value,items:[{...order,payment_status:'payment_recorded'}]},'order'),false);
 });
+test('detail must match the requested object and its dataset provenance',async()=>{
+ const {isSafeDetail}=await import('../lib/v41-catalog.mjs');
+ const value=page(),detail={snapshot:value.snapshot,product:value.items[0]};
+ assert.equal(isSafeDetail(detail,'product','p'),true);
+ assert.equal(isSafeDetail(detail,'product','different'),false);
+ assert.equal(isSafeDetail({...detail,product:{...detail.product,source:{...detail.product.source,fixture_digest:'other'}}},'product','p'),false);
+});

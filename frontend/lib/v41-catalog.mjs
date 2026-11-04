@@ -20,3 +20,10 @@ export function isSafeCatalog(page, kind) {
   }
   return Number.isSafeInteger(page.total) && page.total>=page.items.length;
 }
+
+export function isSafeDetail(detail,kind,requestedId) {
+  const item=kind==='product'?detail?.product:detail?.order;
+  const actual=kind==='product'?item?.product_id:item?.order_id;
+  if(typeof actual!=='string' || typeof requestedId!=='string' || actual.toLowerCase()!==requestedId.toLowerCase())return false;
+  return isSafeCatalog({snapshot:detail.snapshot,items:[item],total:1},kind);
+}
