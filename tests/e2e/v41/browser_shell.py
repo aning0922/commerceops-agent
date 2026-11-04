@@ -6,6 +6,7 @@ import math
 import os
 import re
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -33,6 +34,8 @@ NATIVE_STATUS = "NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW"
 SOURCE_PATHS = (
     "tests/e2e/v41/native_zoom.cjs",
     "frontend/v41-e2e/native-capture.ts",
+    "frontend/v41-e2e/owned-cdp.fixture.ts",
+    "frontend/v41-e2e/owned-cdp.argv.json",
     "frontend/v41-e2e/playwright.config.ts",
     "frontend/v41-e2e/shell.live.spec.ts",
     "frontend/v41-e2e/business.live.spec.ts",
@@ -187,6 +190,7 @@ def validate_receipts(case: "Case", binding: dict[str, Any]) -> dict[str, Any]:
         ):
             raise ValueError("BROWSER_RECEIPT_SOURCE_OR_SCOPE_MISMATCH")
         if label == "shell":
+            receipts["shell_cdp"] = validate_shell_cdp(case)
             validate_native_receipt(case, binding, value.get("native200"))
             screenshots = value.get("screenshots", [])
             expected_paths = [
@@ -632,6 +636,7 @@ def stop_residuals(
             while any(r["pgid"] == pgid for r in current()) and time.monotonic() < until:
                 time.sleep(0.02)
     remaining = current()
+    shell_cdp_ports_closed(case, budget)
     return {
         "forced": initial,
         "remaining": remaining,
@@ -695,6 +700,7 @@ def run_browser(
                     if old != group:
                         append(group)
                         seen[group["pgid"]] = group
+                register_shell_cdp(case, binding, budget, child.pid, node_birth)
                 time.sleep(min(0.05, budget.timeout(0.05)))
             return child.wait(timeout=budget.timeout(2, cleanup=True))
         finally:
@@ -747,6 +753,299 @@ def main() -> None:
         "NEXT_TELEMETRY_DISABLED": "1",
     }
     raise SystemExit(run_browser(case, binding, argv, env))
+
+
+SHELL_CDP_FIELDS = (
+    "source_sha",
+    "source_tree",
+    "case_sha256",
+    "runtime_sha256",
+    "directory",
+    "uid",
+    "worker_pid",
+    "worker_birth",
+    "nonce",
+    "profile",
+)
+
+
+def shell_cdp_intent(case: "Case") -> dict[str, Any] | None:
+    directory = Path(case.directory) / "browser-shell-cdp"
+    path = directory / "intent.private.json"
+    if not path.exists():
+        return None
+    info = directory.lstat()
+    if (
+        directory.resolve() != directory
+        or not stat.S_ISDIR(info.st_mode)
+        or info.st_uid != case.uid
+        or stat.S_IMODE(info.st_mode) != 0o700
+    ):
+        raise ValueError("SHELL_CDP_PRIVATE_DIRECTORY_REQUIRED")
+    value = decode(private_bytes(path))
+    expected = {
+        "schema": "v41-shell-cdp-intent-v1",
+        "source_sha": case.source_sha,
+        "source_tree": case.source_tree,
+        "directory": case.directory,
+        "uid": case.uid,
+        "case_sha256": hashlib.sha256(
+            private_bytes(Path(case.directory) / "case.json")
+        ).hexdigest(),
+        "runtime_sha256": hashlib.sha256(
+            private_bytes(Path(case.directory) / "browser-runtime.safe.json")
+        ).hexdigest(),
+        "title": TITLES["shell.live.spec.ts"],
+    }
+    if set(value) != set(SHELL_CDP_FIELDS) | {"schema", "title", "executable", "argv"} or any(
+        value.get(k) != v for k, v in expected.items()
+    ):
+        raise ValueError("SHELL_CDP_INTENT_BINDING_MISMATCH")
+    nonce = value["nonce"]
+    if not isinstance(nonce, str) or str(UUID(nonce)) != nonce:
+        raise ValueError("SHELL_CDP_NONCE_REQUIRED")
+    profile = (
+        Path(case.directory) / "browser-tmp" / ("playwright_chromiumdev_profile-shell-cdp-" + nonce)
+    )
+    pi = profile.lstat()
+    if (
+        value["profile"] != str(profile)
+        or profile.resolve() != profile
+        or not stat.S_ISDIR(pi.st_mode)
+        or pi.st_uid != case.uid
+        or stat.S_IMODE(pi.st_mode) != 0o700
+    ):
+        raise ValueError("SHELL_CDP_PROFILE_IDENTITY_REQUIRED")
+    if (
+        type(value["worker_pid"]) is not int
+        or value["worker_pid"] <= 0
+        or not isinstance(value["worker_birth"], str)
+    ):
+        raise ValueError("SHELL_CDP_WORKER_IDENTITY_REQUIRED")
+    return value
+
+
+def shell_cdp_listener(port: int, budget: Budget, *, cleanup: bool = False) -> list[dict[str, Any]]:
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise ValueError("SHELL_CDP_EXACT_PORT_REQUIRED")
+    result = subprocess.run(
+        ["/usr/sbin/lsof", "-nP", "-iTCP:" + str(port), "-sTCP:LISTEN", "-Fpcn"],
+        capture_output=True,
+        text=True,
+        env={"LC_ALL": "C"},
+        timeout=budget.timeout(2, cleanup=cleanup),
+        check=False,
+    )
+    if result.returncode == 1 and not result.stdout.strip() and not result.stderr.strip():
+        return []
+    if result.returncode or result.stderr.strip():
+        raise ValueError("SHELL_CDP_LISTENER_UNKNOWN")
+    records = []
+    pid = None
+    for line in result.stdout.splitlines():
+        if line.startswith("p"):
+            if not line[1:].isdigit():
+                raise ValueError("SHELL_CDP_LISTENER_PID_UNKNOWN")
+            pid = int(line[1:])
+        elif line.startswith("n"):
+            if pid is None:
+                raise ValueError("SHELL_CDP_LISTENER_PID_MISSING")
+            records.append({"pid": pid, "address": line[1:]})
+    if not records:
+        raise ValueError("SHELL_CDP_LISTENER_RECORDS_UNKNOWN")
+    return records
+
+
+def shell_cdp_endpoint(profile: Path, uid: int) -> tuple[int, str, str]:
+    path = profile / "DevToolsActivePort"
+    if path.resolve() != path:
+        raise ValueError("SHELL_CDP_ENDPOINT_SYMLINK_REFUSED")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, "rb") as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != uid or info.st_mode & 0o022:
+            raise ValueError("SHELL_CDP_ENDPOINT_OWNER_MODE_REQUIRED")
+        raw = stream.read(1025)
+    lines = raw.decode("ascii").splitlines()
+    if (
+        len(raw) > 1024
+        or len(lines) != 2
+        or re.fullmatch(r"[1-9][0-9]{0,4}", lines[0]) is None
+        or not 1 <= int(lines[0]) <= 65535
+        or re.fullmatch(r"/devtools/browser/[A-Za-z0-9-]+", lines[1]) is None
+    ):
+        raise ValueError("SHELL_CDP_ENDPOINT_NONCANONICAL")
+    return int(lines[0]), lines[1], hashlib.sha256(raw).hexdigest()
+
+
+def register_shell_cdp(
+    case: "Case", binding: dict[str, Any], budget: Budget, node: int, birth: str
+) -> None:
+    intent = shell_cdp_intent(case)
+    if intent is None:
+        return
+    directory = Path(case.directory) / "browser-shell-cdp"
+    if (directory / "endpoint-ack.safe.json").exists():
+        return  # Immutable original acknowledgement; never replace or extend.
+    spawn_path = directory / "spawn.private.json"
+    if not spawn_path.exists():
+        return
+    spawned = decode(private_bytes(spawn_path))
+    expected = {k: intent[k] for k in SHELL_CDP_FIELDS}
+    if (
+        set(spawned) != set(expected) | {"schema", "native_pid"}
+        or spawned.get("schema") != "v41-shell-cdp-spawn-v1"
+        or any(spawned.get(k) != v for k, v in expected.items())
+        or type(spawned["native_pid"]) is not int
+    ):
+        raise ValueError("SHELL_CDP_SPAWN_BINDING_MISMATCH")
+    rows = inventory(budget)
+    by_pid = {r["pid"]: r for r in rows}
+    worker = by_pid.get(intent["worker_pid"])
+    if worker is None or worker["birth"] != intent["worker_birth"] or worker["uid"] != case.uid:
+        raise ValueError("SHELL_CDP_WORKER_BIRTH_UNKNOWN")
+    cursor, visited = worker["pid"], set()
+    while cursor != node:
+        if cursor in visited or cursor not in by_pid or by_pid[cursor]["uid"] != case.uid:
+            raise ValueError("SHELL_CDP_WORKER_ANCESTRY_UNKNOWN")
+        visited.add(cursor)
+        cursor = by_pid[cursor]["ppid"]
+    groups = observe_groups(rows, Path(case.directory), binding["executable"], node, birth)
+    groups = [g for g in groups if g["profile"] == intent["profile"]]
+    if not groups:
+        return
+    if len(groups) != 1 or groups[0]["pid"] != spawned["native_pid"]:
+        raise ValueError("SHELL_CDP_NATIVE_GROUP_MISMATCH")
+    group = groups[0]
+    leader = by_pid[group["pid"]]
+    args = [
+        arg.replace("<OWNED_SHELL_PROFILE>", intent["profile"])
+        for arg in json.loads((ROOT / "frontend/v41-e2e/owned-cdp.argv.json").read_bytes())
+    ]
+    if (
+        leader["ppid"] != worker["pid"]
+        or intent["executable"] != binding["executable"]
+        or intent["argv"] != args
+        or leader["argv"] != binding["executable"] + " " + " ".join(args)
+    ):
+        raise ValueError("SHELL_CDP_FIXED_NATIVE_ARGV_REQUIRED")
+    registration = {
+        **expected,
+        "native_pid": group["pid"],
+        "native_birth": group["birth"],
+        "pgid": group["pgid"],
+        "members": group["members"],
+        "actual_argv": leader["argv"],
+    }
+    registered_path = directory / "registered.private.json"
+    if not registered_path.exists():
+        persist(registered_path, {"schema": "v41-shell-cdp-registered-v1", **registration})
+    active = Path(intent["profile"]) / "DevToolsActivePort"
+    if not active.exists():
+        return
+    port, browser_path, file_sha = shell_cdp_endpoint(Path(intent["profile"]), case.uid)
+    listeners = shell_cdp_listener(port, budget)
+    if not listeners:
+        return
+    if any(r != {"pid": group["pid"], "address": "127.0.0.1:" + str(port)} for r in listeners):
+        raise ValueError("SHELL_CDP_EXCLUSIVE_OWNED_LOOPBACK_REQUIRED")
+    current = next((r for r in inventory(budget) if r["pid"] == leader["pid"]), None)
+    if current != leader:
+        raise ValueError("SHELL_CDP_NATIVE_IDENTITY_CHANGED")
+    persist(
+        directory / "endpoint-ack.safe.json",
+        {
+            "schema": "v41-shell-cdp-ack-v1",
+            **registration,
+            "host": "127.0.0.1",
+            "port": port,
+            "browser_path": browser_path,
+            "devtools_file_sha256": file_sha,
+            "listeners": listeners,
+        },
+    )
+
+
+def validate_shell_cdp(case: "Case") -> dict[str, Any]:
+    intent = shell_cdp_intent(case)
+    if intent is None:
+        raise ValueError("SHELL_CDP_INTENT_NOT_CAPTURED")
+    directory = Path(case.directory) / "browser-shell-cdp"
+    ack_raw = private_bytes(directory / "endpoint-ack.safe.json")
+    ack = decode(ack_raw)
+    closeout = decode(private_bytes(directory / "closeout.safe.json"))
+    expected = {k: intent[k] for k in SHELL_CDP_FIELDS}
+    if (
+        any(ack.get(k) != v or closeout.get(k) != v for k, v in expected.items())
+        or ack.get("schema") != "v41-shell-cdp-ack-v1"
+        or ack.get("host") != "127.0.0.1"
+        or closeout.get("schema") != "v41-shell-cdp-closeout-v1"
+    ):
+        raise ValueError("SHELL_CDP_RECEIPT_BINDING_MISMATCH")
+    if (
+        closeout.get("native_pid") != ack.get("native_pid")
+        or closeout.get("ack_sha256") != hashlib.sha256(ack_raw).hexdigest()
+        or closeout.get("status") != "NATIVE_CLOSED_PENDING_PARENT_CHECK"
+        or closeout.get("close_ack") is not True
+        or type(closeout.get("native_exit")) is not int
+        or closeout["native_exit"] != 0
+        or closeout.get("signal") is not None
+        or closeout.get("failures") != []
+        or closeout.get("close_failure") is not None
+    ):
+        raise ValueError("SHELL_CDP_NATIVE_CLOSURE_NOT_CONFIRMED")
+    page_raw = private_bytes(directory / "page-binding.safe.json")
+    page = decode(page_raw)
+    if (
+        any(page.get(k) != v for k, v in expected.items())
+        or page.get("schema") != "v41-shell-cdp-page-v1"
+        or page.get("native_pid") != ack.get("native_pid")
+        or page.get("ack_sha256") != hashlib.sha256(ack_raw).hexdigest()
+        or closeout.get("page_binding_sha256") != hashlib.sha256(page_raw).hexdigest()
+        or not isinstance(page.get("target_id"), str)
+        or not page["target_id"]
+        or type(page.get("window_id")) is not int
+        or page.get("transport") != "OWNED_DEFAULT_CONTEXT_CDP"
+        or page.get("no_defaults") is not True
+        or page.get("initial_url") != "about:blank"
+        or page.get("context_count") != 1
+        or page.get("page_count") != 1
+        or type(page.get("context_id_present")) is not bool
+        or (
+            page["context_id_present"]
+            and (not isinstance(page.get("context_id"), str) or not page["context_id"])
+        )
+        or (not page["context_id_present"] and page.get("context_id") is not None)
+    ):
+        raise ValueError("SHELL_CDP_PAGE_PROOF_REQUIRED")
+    native = decode(private_bytes(directory / "native-exit.private.json"))
+    if (
+        native.get("schema") != "v41-shell-cdp-native-exit-v1"
+        or any(native.get(k) != v for k, v in expected.items())
+        or native.get("native_pid") != ack.get("native_pid")
+        or type(native.get("native_exit")) is not int
+        or native["native_exit"] != 0
+        or native.get("signal") is not None
+    ):
+        raise ValueError("SHELL_CDP_NATIVE_EXIT_NOT_CAPTURED")
+    return {
+        "path": str(directory / "closeout.safe.json"),
+        "sha256": hashlib.sha256(private_bytes(directory / "closeout.safe.json")).hexdigest(),
+    }
+
+
+def shell_cdp_ports_closed(case: "Case", budget: Budget) -> None:
+    intent = shell_cdp_intent(case)
+    if intent is None:
+        return
+    ack = decode(private_bytes(Path(case.directory) / "browser-shell-cdp/endpoint-ack.safe.json"))
+    if (
+        any(ack.get(k) != intent[k] for k in SHELL_CDP_FIELDS)
+        or ack.get("schema") != "v41-shell-cdp-ack-v1"
+    ):
+        raise ValueError("SHELL_CDP_CLEANUP_ENDPOINT_UNKNOWN")
+    if shell_cdp_listener(ack["port"], budget, cleanup=True):
+        raise ValueError("SHELL_CDP_PORT_LIVE_OR_REUSED_NO_SIGNAL")
 
 
 if __name__ == "__main__":

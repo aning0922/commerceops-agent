@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import signal
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -324,6 +325,7 @@ def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
     )
     tools = {"/approved/component-browser": "a" * 64}
     monkeypatch.setattr(browser, "runtime_tools", lambda _binding: tools)
+    monkeypatch.setattr(browser, "validate_shell_cdp", lambda _case: {})
     source = {
         "head": c.source_sha,
         "tree": c.source_tree,
@@ -437,7 +439,7 @@ def test_browser_safe_receipts_bind_exact_sources_and_original_screenshot_bytes(
         path = folder / (label + ".safe.json")
         path.write_text(json.dumps(value))
         path.chmod(0o600)
-    assert set(browser.validate_receipts(c, {})) == {"shell", "business"}
+    assert set(browser.validate_receipts(c, {})) == {"shell", "business", "shell_cdp"}
     bad = {**native_summary, "status": "PASS"}
     with pytest.raises(ValueError, match="PENDING_REVIEW_REQUIRED"):
         browser.validate_native_receipt(c, {}, bad)
@@ -523,3 +525,245 @@ def test_browser_runtime_rejects_unbound_source_and_binary_drift_before_launch(
     executable.write_text("changed public bytes")
     with pytest.raises(ValueError, match="BINARY_HASH"):
         browser.runtime(c, auth)
+
+
+def test_shell_cdp_endpoint_rejects_noncanonical_or_symlink(tmp_path: Path) -> None:
+    p = tmp_path / "DevToolsActivePort"
+    for raw in (
+        b"0\n/devtools/browser/x",
+        b"052345\n/devtools/browser/x",
+        b"52345\nhttps://other",
+        b"52345\n/devtools/browser/x\nextra",
+    ):
+        p.write_bytes(raw)
+        p.chmod(0o600)
+        with pytest.raises(ValueError):
+            browser.shell_cdp_endpoint(tmp_path, os.getuid())
+    p.write_bytes(b"52345\n/devtools/browser/owned-one")
+    assert browser.shell_cdp_endpoint(tmp_path, os.getuid())[:2] == (
+        52345,
+        "/devtools/browser/owned-one",
+    )
+    p.rename(tmp_path / "target")
+    p.symlink_to(tmp_path / "target")
+    with pytest.raises(ValueError):
+        browser.shell_cdp_endpoint(tmp_path, os.getuid())
+
+
+def test_shell_cdp_listener_is_exact_port_and_refuses_unknown(monkeypatch: MonkeyPatch) -> None:
+    budget = SimpleNamespace(timeout=lambda *_a, **_k: 1)
+    seen = []
+
+    def fake(argv: list[str], **kwargs: Any) -> Any:
+        seen.append(argv)
+        return SimpleNamespace(returncode=0, stdout="p123\ncChrome\nn127.0.0.1:52345\n", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake)
+    assert browser.shell_cdp_listener(52345, cast(Any, budget)) == [
+        {"pid": 123, "address": "127.0.0.1:52345"}
+    ]
+    assert seen[0] == ["/usr/sbin/lsof", "-nP", "-iTCP:52345", "-sTCP:LISTEN", "-Fpcn"]
+    with pytest.raises(ValueError):
+        browser.shell_cdp_listener(True, cast(Any, budget))
+
+
+def test_shell_cdp_reused_port_never_signals(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
+    intent: dict[str, Any] = {k: "bound" for k in browser.SHELL_CDP_FIELDS}
+    monkeypatch.setattr(browser, "shell_cdp_intent", lambda _case: intent)
+    monkeypatch.setattr(
+        browser,
+        "private_bytes",
+        lambda _path: json.dumps(
+            {**intent, "schema": "v41-shell-cdp-ack-v1", "port": 52345}
+        ).encode(),
+    )
+    monkeypatch.setattr(
+        browser,
+        "shell_cdp_listener",
+        lambda *_a, **_k: [{"pid": 999, "address": "127.0.0.1:52345"}],
+    )
+    monkeypatch.setattr(os, "killpg", lambda *_args: pytest.fail("port-reused process signaled"))
+    with pytest.raises(ValueError, match="PORT_LIVE_OR_REUSED"):
+        browser.shell_cdp_ports_closed(
+            cast(Any, SimpleNamespace(directory=str(tmp_path))), cast(Any, None)
+        )
+
+
+@pytest.mark.parametrize("drift", [None, "birth", "ancestry", "native_pid", "argv", "listener"])
+def test_shell_cdp_parent_ack_requires_owned_chain_and_exact_endpoint(
+    monkeypatch: MonkeyPatch, tmp_path: Path, drift: str | None
+) -> None:
+    c = cast(Any, SimpleNamespace(directory=str(tmp_path), uid=os.getuid()))
+    directory = tmp_path / "browser-shell-cdp"
+    directory.mkdir(mode=0o700)
+    profile = tmp_path / "browser-tmp/playwright_chromiumdev_profile-shell-cdp-owned"
+    profile.mkdir(parents=True, mode=0o700)
+    (profile / "DevToolsActivePort").write_bytes(b"52345\n/devtools/browser/owned")
+    (profile / "DevToolsActivePort").chmod(0o600)
+    rows, binding = browser_process_fixture(tmp_path)
+    rows[1]["argv"] = binding["executable"] + " --user-data-dir=" + str(profile)
+    intent: dict[str, Any] = {k: "bound" for k in browser.SHELL_CDP_FIELDS}
+    intent.update(
+        worker_pid=778,
+        worker_birth=rows[0]["birth"],
+        profile=str(profile),
+        executable=binding["executable"],
+        argv=["--user-data-dir=" + str(profile)],
+    )
+    spawned: dict[str, Any] = {k: intent[k] for k in browser.SHELL_CDP_FIELDS}
+    spawned.update(schema="v41-shell-cdp-spawn-v1", native_pid=12345)
+    (directory / "spawn.private.json").write_text(json.dumps(spawned))
+    (directory / "spawn.private.json").chmod(0o600)
+    if drift == "birth":
+        rows[0]["birth"] = "different birth"
+    elif drift == "ancestry":
+        rows[1]["ppid"] = 999
+    elif drift == "native_pid":
+        spawned["native_pid"] = 999
+        (directory / "spawn.private.json").write_text(json.dumps(spawned))
+    elif drift == "argv":
+        rows[1]["argv"] += " --extra-variable"
+    monkeypatch.setattr(browser, "shell_cdp_intent", lambda _case: intent)
+    monkeypatch.setattr(browser, "inventory", lambda *_a, **_k: rows)
+    monkeypatch.setattr(
+        browser,
+        "shell_cdp_listener",
+        lambda *_a, **_k: [
+            {"pid": 999 if drift == "listener" else 12345, "address": "127.0.0.1:52345"}
+        ],
+    )
+    # The only source-file read here is the pinned literal argv list; no browser is started.
+    fake_root = tmp_path / "source"
+    (fake_root / "frontend/v41-e2e").mkdir(parents=True)
+    (fake_root / "frontend/v41-e2e/owned-cdp.argv.json").write_text(json.dumps(intent["argv"]))
+    monkeypatch.setattr(browser, "ROOT", fake_root)
+    if drift is not None:
+        with pytest.raises(ValueError):
+            browser.register_shell_cdp(c, binding, cast(Any, None), 778, intent["worker_birth"])
+        assert not (directory / "endpoint-ack.safe.json").exists()
+    else:
+        browser.register_shell_cdp(c, binding, cast(Any, None), 778, intent["worker_birth"])
+        ack = json.loads((directory / "endpoint-ack.safe.json").read_bytes())
+        assert ack["native_pid"] == 12345 and ack["port"] == 52345
+        assert {m["pid"] for m in ack["members"]} == {12345, 12346}
+        original = (directory / "endpoint-ack.safe.json").read_bytes()
+        browser.register_shell_cdp(c, binding, cast(Any, None), 778, intent["worker_birth"])
+        assert (directory / "endpoint-ack.safe.json").read_bytes() == original
+
+
+def test_shell_cdp_intent_binds_case_bytes_source_and_profile(tmp_path: Path) -> None:
+    root = tmp_path.resolve()
+    root.chmod(0o700)
+    c = cast(
+        Any,
+        SimpleNamespace(
+            directory=str(root), source_sha="a" * 40, source_tree="b" * 40, uid=os.getuid()
+        ),
+    )
+    directory = root / "browser-shell-cdp"
+    directory.mkdir(mode=0o700)
+    nonce = str(uuid4())
+    profile = root / "browser-tmp" / ("playwright_chromiumdev_profile-shell-cdp-" + nonce)
+    profile.mkdir(parents=True, mode=0o700)
+    for name, raw in [
+        ("case.json", b'{"complete-case":"component"}'),
+        ("browser-runtime.safe.json", b'{"runtime":"component"}'),
+    ]:
+        (root / name).write_bytes(raw)
+        (root / name).chmod(0o600)
+    intent = {
+        "schema": "v41-shell-cdp-intent-v1",
+        "source_sha": c.source_sha,
+        "source_tree": c.source_tree,
+        "directory": c.directory,
+        "uid": c.uid,
+        "case_sha256": hashlib.sha256((root / "case.json").read_bytes()).hexdigest(),
+        "runtime_sha256": hashlib.sha256(
+            (root / "browser-runtime.safe.json").read_bytes()
+        ).hexdigest(),
+        "title": browser.TITLES["shell.live.spec.ts"],
+        "nonce": nonce,
+        "profile": str(profile),
+        "worker_pid": 123,
+        "worker_birth": "Wed Nov 4 11:00:00 2026",
+        "executable": "/component/chromium",
+        "argv": [],
+    }
+    path = directory / "intent.private.json"
+    path.write_text(json.dumps(intent))
+    path.chmod(0o600)
+    assert browser.shell_cdp_intent(c) == intent
+    for key in ["case_sha256", "runtime_sha256", "source_sha", "source_tree", "profile"]:
+        path.write_text(json.dumps({**intent, key: "drift"}))
+        with pytest.raises(ValueError):
+            browser.shell_cdp_intent(c)
+
+
+def test_shell_cdp_closure_requires_native_exit_and_bound_page_proof(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
+    c = cast(Any, SimpleNamespace(directory=str(tmp_path)))
+    identity: dict[str, Any] = {k: "bound" for k in browser.SHELL_CDP_FIELDS}
+    directory = tmp_path / "browser-shell-cdp"
+    directory.mkdir(mode=0o700)
+    monkeypatch.setattr(browser, "shell_cdp_intent", lambda _case: identity)
+    ack = {**identity, "schema": "v41-shell-cdp-ack-v1", "native_pid": 123, "host": "127.0.0.1"}
+
+    def write(name: str, value: dict[str, Any]) -> str:
+        p = directory / name
+        p.write_text(json.dumps(value))
+        p.chmod(0o600)
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+
+    ack_hash = write("endpoint-ack.safe.json", ack)
+    page = {
+        **identity,
+        "schema": "v41-shell-cdp-page-v1",
+        "native_pid": 123,
+        "ack_sha256": ack_hash,
+        "target_id": "owned",
+        "window_id": 1,
+        "context_id_present": False,
+        "context_id": None,
+        "initial_url": "about:blank",
+        "transport": "OWNED_DEFAULT_CONTEXT_CDP",
+        "no_defaults": True,
+        "context_count": 1,
+        "page_count": 1,
+    }
+    page_hash = write("page-binding.safe.json", page)
+    native = {
+        **identity,
+        "schema": "v41-shell-cdp-native-exit-v1",
+        "native_pid": 123,
+        "native_exit": 0,
+        "signal": None,
+    }
+    write("native-exit.private.json", native)
+    closeout = {
+        **identity,
+        "schema": "v41-shell-cdp-closeout-v1",
+        "native_pid": 123,
+        "ack_sha256": ack_hash,
+        "page_binding_sha256": page_hash,
+        "status": "NATIVE_CLOSED_PENDING_PARENT_CHECK",
+        "close_ack": True,
+        "native_exit": 0,
+        "signal": None,
+        "failures": [],
+        "close_failure": None,
+    }
+    write("closeout.safe.json", closeout)
+    assert browser.validate_shell_cdp(c)["path"] == str(directory / "closeout.safe.json")
+    deltas: list[dict[str, Any]] = [
+        {"native_exit": "UNKNOWN"},
+        {"native_exit": True},
+        {"close_ack": False},
+        {"native_pid": 999},
+        {"page_binding_sha256": "different"},
+        {"failures": [{"stage": "setup"}]},
+    ]
+    for delta in deltas:
+        write("closeout.safe.json", {**closeout, **delta})
+        with pytest.raises(ValueError):
+            browser.validate_shell_cdp(c)
