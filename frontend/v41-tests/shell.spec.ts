@@ -35,8 +35,8 @@ test('mobile menu traps focus, closes on Escape and static routes stay honest',a
 test('business workspaces show clear pending states without invented data or actions',async({page})=>{
   await page.goto('/v4/dashboard');
   await expect(page.getByRole('heading',{name:'经营驾驶舱'})).toBeVisible();
-  await expect(page.getByText('指标、趋势与来源将在经营数据服务接入后显示。')).toBeVisible();
-  await expect(page.getByLabel('数据未接入')).toHaveCount(4);
+  await expect(page.getByText('选择授权店铺后读取经营指标。')).toBeVisible();
+  await expect(page.getByLabel('数值未知')).toHaveCount(4);
   await page.goto('/v4/products');
   await expect(page.getByRole('heading',{name:'商品列表'})).toBeVisible();
   await expect(page.getByRole('button',{name:'导出 CSV'})).toBeDisabled();
