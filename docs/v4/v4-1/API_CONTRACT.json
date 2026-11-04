@@ -267,6 +267,51 @@
         "title": "BusinessEnvelope[DashboardData]",
         "type": "object"
       },
+      "BusinessEnvelope_ExportData_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ExportData"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ExportData]",
+        "type": "object"
+      },
       "BusinessEnvelope_ImportPreviewData_": {
         "additionalProperties": false,
         "properties": {
@@ -906,6 +951,57 @@
         "title": "DashboardData",
         "type": "object"
       },
+      "DatasetSource": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_snapshot_at": {
+            "format": "date-time",
+            "title": "Baseline Snapshot At",
+            "type": "string"
+          },
+          "data_mode": {
+            "enum": [
+              "demo_fixture",
+              "demo_mixed"
+            ],
+            "title": "Data Mode",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "synthetic_demo",
+            "default": "synthetic_demo",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "fixture_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixture Digest",
+            "type": "string"
+          },
+          "fixture_version": {
+            "const": "v4-demo-seed-1",
+            "default": "v4-demo-seed-1",
+            "title": "Fixture Version",
+            "type": "string"
+          },
+          "uploads": {
+            "items": {
+              "$ref": "#/$defs/SourceRef"
+            },
+            "maxItems": 500,
+            "title": "Uploads",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_mode",
+          "fixture_digest",
+          "baseline_snapshot_at",
+          "uploads"
+        ],
+        "title": "DatasetSource",
+        "type": "object"
+      },
       "DrilldownQuery": {
         "additionalProperties": false,
         "properties": {
@@ -990,6 +1086,47 @@
           "metric"
         ],
         "title": "DrilldownQuery",
+        "type": "object"
+      },
+      "ExportData": {
+        "additionalProperties": false,
+        "properties": {
+          "csv_text": {
+            "maxLength": 1048576,
+            "title": "Csv Text",
+            "type": "string"
+          },
+          "filename": {
+            "enum": [
+              "products.csv",
+              "orders.csv"
+            ],
+            "title": "Filename",
+            "type": "string"
+          },
+          "format": {
+            "const": "csv",
+            "default": "csv",
+            "title": "Format",
+            "type": "string"
+          },
+          "row_count": {
+            "maximum": 500,
+            "minimum": 0,
+            "title": "Row Count",
+            "type": "integer"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          }
+        },
+        "required": [
+          "snapshot",
+          "filename",
+          "csv_text",
+          "row_count"
+        ],
+        "title": "ExportData",
         "type": "object"
       },
       "FailureEnvelope": {
@@ -2262,11 +2399,41 @@
             "title": "Kind",
             "type": "string"
           },
+          "metrics": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/Metric"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
           "model_mode": {
             "const": "not_used",
             "default": "not_used",
             "title": "Model Mode",
             "type": "string"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Order"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "product": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Product"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "resource_ids": {
             "items": {
@@ -2469,6 +2636,19 @@
             "default": "v41-rules-1",
             "title": "Rule Version",
             "type": "string"
+          },
+          "threshold_units": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Threshold Units"
           }
         },
         "required": [
@@ -2638,7 +2818,7 @@
             "type": "string"
           },
           "source": {
-            "$ref": "#/$defs/SourceRef"
+            "$ref": "#/$defs/DatasetSource"
           }
         },
         "required": [
@@ -2672,6 +2852,19 @@
             "title": "Evidence Mode",
             "type": "string"
           },
+          "file_digest": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "File Digest"
+          },
           "fixture_digest": {
             "pattern": "^[a-f0-9]{64}$",
             "title": "Fixture Digest",
@@ -2694,6 +2887,20 @@
               }
             ],
             "title": "Import Job Id"
+          },
+          "import_row": {
+            "anyOf": [
+              {
+                "maximum": 501,
+                "minimum": 2,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Import Row"
           }
         },
         "required": [
@@ -2802,9 +3009,9 @@
         "$ref": "#/$defs/ProductQuery"
       },
       "response": {
-        "$ref": "#/$defs/BusinessEnvelope_Page_Product__"
+        "$ref": "#/$defs/BusinessEnvelope_ExportData_"
       },
-      "transport": "text/csv; DTO response describes authorized source rows only"
+      "transport": "application/json; context checked before CSV Blob download"
     },
     {
       "context_headers": true,
@@ -2875,9 +3082,9 @@
         "$ref": "#/$defs/OrderQuery"
       },
       "response": {
-        "$ref": "#/$defs/BusinessEnvelope_Page_Order__"
+        "$ref": "#/$defs/BusinessEnvelope_ExportData_"
       },
-      "transport": "text/csv; DTO response describes authorized source rows only"
+      "transport": "application/json; context checked before CSV Blob download"
     },
     {
       "context_headers": true,

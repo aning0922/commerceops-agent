@@ -87,7 +87,7 @@ def test_partial_metric_cannot_claim_numeric_value_or_zero_denominator() -> None
 
 
 def test_upload_source_cannot_impersonate_fixture() -> None:
-    fields = dict(
+    fields: dict[str, object] = dict(
         data_mode="demo_fixture",
         fixture_digest="a" * 64,
         baseline_snapshot_at=datetime.now(UTC).isoformat(),
@@ -96,6 +96,8 @@ def test_upload_source_cannot_impersonate_fixture() -> None:
     with pytest.raises(ValidationError):
         dto.SourceRef.model_validate_json(json.dumps(fields))
     fields["data_mode"] = "demo_upload"
+    fields["import_row"] = 2
+    fields["file_digest"] = "b" * 64
     assert dto.SourceRef.model_validate_json(json.dumps(fields)).import_job_id is not None
 
 

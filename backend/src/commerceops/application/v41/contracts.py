@@ -122,11 +122,40 @@ class SourceRef(Contract):
     fixture_digest: Digest
     baseline_snapshot_at: Timestamp
     import_job_id: UUID | None
+    import_row: Annotated[int, Field(ge=2, le=501)] | None = None
+    file_digest: Digest | None = None
 
     @model_validator(mode="after")
     def upload_identity(self) -> Self:
-        if (self.data_mode == "demo_upload") != (self.import_job_id is not None):
+        upload_fields = (self.import_job_id, self.import_row, self.file_digest)
+        if self.data_mode == "demo_upload" and any(value is None for value in upload_fields):
             raise ValueError("SOURCE_JOB_MISMATCH")
+        if self.data_mode == "demo_fixture" and any(value is not None for value in upload_fields):
+            raise ValueError("SOURCE_JOB_MISMATCH")
+        return self
+
+
+class DatasetSource(Contract):
+    data_mode: Literal["demo_fixture", "demo_mixed"]
+    evidence_mode: Literal["synthetic_demo"] = "synthetic_demo"
+    fixture_version: Literal["v4-demo-seed-1"] = "v4-demo-seed-1"
+    fixture_digest: Digest
+    baseline_snapshot_at: Timestamp
+    uploads: tuple[SourceRef, ...] = Field(max_length=500)
+
+    @model_validator(mode="after")
+    def mixed_source(self) -> Self:
+        if (self.data_mode == "demo_mixed") != bool(self.uploads):
+            raise ValueError("MIXED_SOURCE_MISMATCH")
+        if any(
+            row.data_mode != "demo_upload"
+            or row.fixture_digest != self.fixture_digest
+            or row.baseline_snapshot_at != self.baseline_snapshot_at
+            for row in self.uploads
+        ):
+            raise ValueError("MIXED_SOURCE_IDENTITY")
+        if len({(row.import_job_id, row.import_row) for row in self.uploads}) != len(self.uploads):
+            raise ValueError("DUPLICATE_UPLOAD_SOURCE")
         return self
 
 
@@ -134,7 +163,7 @@ class Snapshot(Contract):
     data_revision: Digest
     snapshot_id: Digest
     read_at: Timestamp
-    source: SourceRef
+    source: DatasetSource
 
 
 class Metric(Contract):
@@ -173,6 +202,7 @@ class RuleInsight(Contract):
     analysis_mode: Literal["deterministic_rules"] = "deterministic_rules"
     resource_ids: tuple[UUID, ...] = Field(max_length=100)
     reason: Reason | None
+    threshold_units: Counter | None = None
 
 
 class DashboardData(Contract):
@@ -274,6 +304,14 @@ class Page[T](Contract):
     items: tuple[T, ...] = Field(max_length=100)
     total: Counter
     next_cursor: Annotated[str, Field(max_length=2048)] | None
+
+
+class ExportData(Contract):
+    snapshot: Snapshot
+    format: Literal["csv"] = "csv"
+    filename: Literal["products.csv", "orders.csv"]
+    csv_text: Annotated[str, Field(max_length=1048576)]
+    row_count: Annotated[int, Field(ge=0, le=500)]
 
 
 class BusinessEnvelope[T](Contract):
@@ -470,7 +508,27 @@ class ReadContextData(Contract):
     kind: Literal["dashboard", "product", "order"]
     resource_ids: tuple[UUID, ...] = Field(max_length=100)
     insights: tuple[RuleInsight, ...]
+    metrics: tuple[Metric, ...] = ()
+    product: Product | None = None
+    order: Order | None = None
     model_mode: Literal["not_used"] = "not_used"
+
+    @model_validator(mode="after")
+    def matching_context(self) -> Self:
+        if self.kind == "dashboard":
+            if self.product is not None or self.order is not None:
+                raise ValueError("READ_CONTEXT_KIND")
+        elif self.kind == "product":
+            if self.product is None or self.order is not None or self.metrics:
+                raise ValueError("READ_CONTEXT_KIND")
+            if self.resource_ids != (self.product.product_id,):
+                raise ValueError("READ_CONTEXT_RESOURCE")
+        else:
+            if self.order is None or self.product is not None or self.metrics:
+                raise ValueError("READ_CONTEXT_KIND")
+            if self.resource_ids != (self.order.order_id,):
+                raise ValueError("READ_CONTEXT_RESOURCE")
+        return self
 
 
 class BusinessError(Contract):

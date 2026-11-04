@@ -27,7 +27,7 @@ def contract() -> dict[str, Any]:
             "GET",
             "/api/v4/products/export",
             dto.ProductQuery,
-            dto.BusinessEnvelope[dto.Page[dto.Product]],
+            dto.BusinessEnvelope[dto.ExportData],
         ),
         (
             "GET",
@@ -42,7 +42,7 @@ def contract() -> dict[str, Any]:
             dto.BusinessEnvelope[dto.ActionResult],
         ),
         ("GET", "/api/v4/orders", dto.OrderQuery, dto.BusinessEnvelope[dto.Page[dto.Order]]),
-        ("GET", "/api/v4/orders/export", dto.OrderQuery, dto.BusinessEnvelope[dto.Page[dto.Order]]),
+        ("GET", "/api/v4/orders/export", dto.OrderQuery, dto.BusinessEnvelope[dto.ExportData]),
         ("GET", "/api/v4/orders/{order_id}", dto.Query, dto.BusinessEnvelope[dto.OrderDetail]),
         (
             "POST",
@@ -109,7 +109,7 @@ def contract() -> dict[str, Any]:
             context_headers=method == "GET",
         )
         if path.endswith("/export"):
-            entry["transport"] = "text/csv; DTO response describes authorized source rows only"
+            entry["transport"] = "application/json; context checked before CSV Blob download"
         entries.append(entry)
     return dict(
         schema_version="v41-api-contract-1",
