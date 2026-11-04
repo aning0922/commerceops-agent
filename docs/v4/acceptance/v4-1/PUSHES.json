@@ -609,6 +609,20 @@
       "functional_status": "REVIEWED_NODEFAULTS_FIXTURE_NEW_BROWSER_BUILD_ONLY",
       "checkpoint": "r37",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "bec4291636f31218bee7e9b6fca1211680cfc940",
+      "base": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "bec4291636f31218bee7e9b6fca1211680cfc940",
+      "actions_runs": [],
+      "functional_status": "FULLPG_PAIR_ACCEPTED_BROWSER_R7_FAILED_CLOSED",
+      "checkpoint": "r38",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [
@@ -848,5 +862,20 @@
     "remote_head": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
     "actions_runs": [],
     "stage_gate": "NOT_PASSED"
-  }
+  },
+  "rejected_attempts": [
+    {
+      "status": "STOPPED_BEFORE_SCAN_AND_PUSH",
+      "stage": "merge-base --is-ancestor",
+      "native_exit": 1,
+      "remote_base": "c154777f8689da589a25a253a6c234bfb7891444",
+      "candidate": "859dbad0764ce280f244f539880fd97024274b4b",
+      "reason": "candidate based on Root2140 containing a cherry-pick of c154, original QA source commit is not its ancestor",
+      "push_invoked": false,
+      "force_or_reset": false,
+      "followup": "preserve original QA branch; after exact independent review, integrate candidate into Root and normal-push next bounded slice",
+      "original_failure_output": "tool history; no raw stdout file persisted",
+      "checkpoint": "r39"
+    }
+  ]
 }
