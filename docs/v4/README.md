@@ -1,5 +1,7 @@
 # V4 文档与阶段归档入口
 
+**后续基线规则（本次不启动 V4-2）**：未来新阶段获授权后，必须实时 fetch 并核对已完成本次集成及合后验收的最新 `main`，再创建独立阶段分支；不从旧 main、原 V4-1 控制分支或过期候选启动。当前集成与 CI 实际状态见 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53)。更新前 main 已正常备份为 [归档分支](https://github.com/aning0922/commerceops-agent/tree/codex/archive-main-before-v41-20261104)，未修改保护或原始工作树。
+
 2026-11-04（台北）：V41-01—06 六卡在合同受控合成本地范围内已完成并独审核收。
 业务代码冻结为 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e`，归档集成 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53) 已创建为 Draft，等待用户合并确认；
 main 尚未合入，实际合并结果另记。
