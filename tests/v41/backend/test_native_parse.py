@@ -26,7 +26,7 @@ def command(data: bytes = b"sku,title,price,currency\nNEW-1,Example,0.1,TWD\n") 
 
 
 def test_native_result_exit_reaped_and_no_raw_file() -> None:
-    events = []
+    events: list[int | dict[str, object]] = []
     ref = uuid4()
     result = run_parser(command(), ref, lambda pid: events.append(pid), events.append)
     assert result.result.state == "READY" and result.result.products[0].price == "0.1"
@@ -38,7 +38,7 @@ def test_native_result_exit_reaped_and_no_raw_file() -> None:
 
 
 def test_binding_failure_kills_and_actually_reaps_before_stop() -> None:
-    events = []
+    events: list[int | dict[str, object]] = []
 
     def bind(pid: int) -> None:
         events.append(pid)
@@ -47,15 +47,20 @@ def test_binding_failure_kills_and_actually_reaps_before_stop() -> None:
     with pytest.raises(ParseUnavailable, match="PARSE_FAILED"):
         run_parser(command(), uuid4(), bind, events.append)
     proof = events[1]
+    if not isinstance(proof, dict):
+        raise TypeError("stop callback must emit a proof mapping")
+    pid = proof["pid"]
+    if not isinstance(pid, int):
+        raise TypeError("stop proof must carry an integer PID")
     assert proof["native_exit"] != 0 and proof["reaped"] is True
     with pytest.raises(ProcessLookupError):
-        os.kill(proof["pid"], 0)
+        os.kill(pid, 0)
 
 
 def test_stop_persistence_failure_is_not_substituted_or_retried() -> None:
-    events = []
+    events: list[dict[str, object]] = []
 
-    def stop(proof: dict) -> None:
+    def stop(proof: dict[str, object]) -> None:
         events.append(proof)
         raise OSError("simulated persistence loss")
 
@@ -65,7 +70,7 @@ def test_stop_persistence_failure_is_not_substituted_or_retried() -> None:
 
 
 def test_invalid_actual_file_returns_no_partial_result_and_safe_native_failure() -> None:
-    proofs = []
+    proofs: list[dict[str, object]] = []
     with pytest.raises(ParseUnavailable, match="IMPORT_INVALID"):
         run_parser(command(b"not-a-valid-csv\x00"), uuid4(), lambda _: None, proofs.append)
     assert proofs[0]["native_exit"] == 1 and proofs[0]["reaped"] is True
