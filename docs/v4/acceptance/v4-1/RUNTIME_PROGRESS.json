@@ -807,8 +807,8 @@
     "actual_http_business_api": false,
     "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
   },
-  "full_engineering": "r3_running",
-  "full_paired_postgresql": "existing_r2_running_phase3_prepared",
+  "full_engineering": "pass",
+  "full_paired_postgresql": "existing_pass_phase3_running",
   "real_http_api_web": "pass",
   "hosted": "NOT_RUN",
   "external_business_providers": "NOT_RUN",
@@ -841,5 +841,11 @@
   "full_engineering_current_source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
   "full_pg_current_source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
   "full_pg_capacity_review": "a4a49da0d3f66102e991f8c031530434657fc47f",
-  "closed_first_pg_review": "57138461431d38e883fc69de384e747ce39b4656"
+  "closed_first_pg_review": "57138461431d38e883fc69de384e747ce39b4656",
+  "full_engineering_receipt": "ENGINEERING_R3.json",
+  "full_engineering_review": "935448fb4ef7bfbb8f6703f7a2dbb857c2d4895d",
+  "existing_pg_receipt": "PG_EXISTING_R2.json",
+  "existing_pg_review": "8d870f3c27d67b90ccefee1086e8ea5ae9fcc951",
+  "browser_focus_ab_experiment": "observed both minimized with visible; no product pass",
+  "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed"
 }

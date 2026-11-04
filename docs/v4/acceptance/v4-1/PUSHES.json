@@ -539,6 +539,20 @@
       "functional_status": "OWNED_WINDOW_HIDDEN_SOURCE_ACCEPTED_REAL_HIDDEN_NOT_RUN",
       "checkpoint": "r32",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "aaa6b6385bbba5a30f859df82349ee7822b7c4a3",
+      "base": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "aaa6b6385bbba5a30f859df82349ee7822b7c4a3",
+      "actions_runs": [],
+      "functional_status": "LATEST_CLOSED_FAILURES_AND_RUNNING_COMPLETE_GATES_RECORDED",
+      "checkpoint": "r33",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [

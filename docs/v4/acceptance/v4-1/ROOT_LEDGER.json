@@ -328,7 +328,11 @@
     "source_at_end": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
     "scope_note": "Exact db5 scan; later commits require final exact audit",
     "log_sha256": "a9a3bc4fe2fdac33434ceb0df69510a61bceea62123aecb5b6c4449523479471",
-    "current_engineering": "failed_r2"
+    "current_engineering": {
+      "status": "pass",
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "receipt": "ENGINEERING_R3.json"
+    }
   },
   "business_runtime": {
     "status": "FOUR_REAL_LOCAL_HTTP_RECIPES_ACCEPTED_BROWSER_AND_FULL_PENDING",
@@ -344,6 +348,8 @@
     "browser_parent": "E20_GROUP_FIX_SOURCE_ACCEPTED",
     "source_accepted_http": "54ab68f054a136f98dac0a50986caced11362fbd",
     "source_accepted_business_browser": "538665aebac7064c3d9b77bcbf65b4879b864123",
-    "native_source": "651_SOURCE_ACCEPTED_ACTUAL_CAPTURE_NOT_RUN"
+    "native_source": "651_SOURCE_ACCEPTED_ACTUAL_CAPTURE_NOT_RUN",
+    "full_pg": "existing_pass_phase3_running",
+    "real_browser": "business_partial_pass_shell_pending"
   }
 }
