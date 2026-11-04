@@ -1328,6 +1328,14 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
         )
         if read.get("snapshot") is not None:
             mobile_snapshot(read["snapshot"])
+        if kind in {"preview", "import_confirm"}:
+            job = read.get("job")
+            mobile_require(
+                isinstance(job, dict)
+                and type(job.get("version")) is int
+                and job["version"] == operation["version"] == read["version"],
+                "JOB_PROJECTION_VERSION_BINDING",
+            )
         if kind == "preview":
             mobile_require(
                 read["file_digest"] == entry["file_digest"], "PREVIEW_ORIGINAL_BYTES_DIGEST"

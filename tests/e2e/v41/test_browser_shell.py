@@ -1323,3 +1323,46 @@ def test_late_qa_readback_marker_is_not_a_global_network_order_gate(tmp_path: Pa
     events.insert(position + 1, mark)
     journal(tmp_path, "business", events)
     assert browser.validate_business_mobile(c, value)["confirmed_keys"]
+
+
+@pytest.mark.parametrize("location", ["preview", "import_confirm", "mapping_screenshot"])
+def test_one_job_projection_version_cannot_drift(tmp_path: Path, location: str) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    mobile = value["mobile_business"]
+    if location == "mapping_screenshot":
+        shot = next(
+            s for s in mobile["screenshots"] if s["state"] == "csv_mapping" and s["width"] == 390
+        )
+        shot["source"] = copy.deepcopy(shot["source"])
+        shot["source"]["job"]["version"] = 999
+        reason = "THREE_WIDTH_SOURCE_MISMATCH"
+    else:
+        op = next(op for op in mobile["operations"] if op["operation"] == location)
+        op["readback"]["job"] = {**op["readback"]["job"], "version": 999}
+        reason = "JOB_PROJECTION_VERSION_BINDING"
+    with pytest.raises(ValueError, match=reason):
+        browser.validate_business_mobile(c, value)
+
+
+def test_all_job_projections_cannot_agree_on_version_999(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    mobile = value["mobile_business"]
+    journal_path = tmp_path / "browser-business.subjects.private.jsonl"
+    original_journal = journal_path.read_bytes()
+    originals = [
+        (op["key"], op["version"], op["readback"]["version"]) for op in mobile["operations"]
+    ]
+    pending_versions = [proof["version"] for proof in mobile["pending_proofs"]]
+    for op in mobile["operations"]:
+        if op["readback"].get("job") is not None:
+            op["readback"]["job"]["version"] = 999
+    for shot in mobile["screenshots"]:
+        if shot["source"].get("job") is not None:
+            shot["source"]["job"]["version"] = 999
+    assert originals == [
+        (op["key"], op["version"], op["readback"]["version"]) for op in mobile["operations"]
+    ]
+    assert pending_versions == [proof["version"] for proof in mobile["pending_proofs"]]
+    assert journal_path.read_bytes() == original_journal
+    with pytest.raises(ValueError, match="JOB_PROJECTION_VERSION_BINDING"):
+        browser.validate_business_mobile(c, value)
