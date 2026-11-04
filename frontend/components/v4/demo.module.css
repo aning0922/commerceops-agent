@@ -5,3 +5,4 @@
 @media(max-width:760px){.mobileNav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.mobileNav a{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid #cad8e8;border-radius:8px;color:#24405f;background:#fff;text-decoration:none;font-size:14px}.mobileNav a[aria-current="page"]{background:#e7f0ff;border-color:#7199dc;font-weight:700}}
 .main{width:min(100%,1280px);margin:0 auto;padding:36px 40px 52px}
 @media(max-width:760px){.main{padding:20px 16px 40px}}
+.compactHero{padding:18px 22px;border-radius:12px;box-shadow:none}.compactHero .eyebrow,.compactHero .heroIntro{display:none}.compactHero h1{font-size:16px;margin:0 0 8px}.compactHero .notice{margin:8px 0;padding:10px 12px}.compactHero .button,.compactHero .secondary{padding:9px 12px}.compactHero select{padding:8px}
