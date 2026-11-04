@@ -56,3 +56,13 @@ POST的try/catch独立，只有该调用自身的明确REJECTED返回rejected；
 仅只读cc5新增Mock的409/403案例覆盖意图：409检查待核对1/明确拒绝0；403保留旧scope清除而不复活进度；两者核一POST与原key保留。没有运行这些测试体，也不代UI-review审签696的lookup强化；动态collect33/4spec不是33PASS。作者TS/74Node/preflight仍为转交结果，本轮未重复全范围。原a7纯复现脚本及失败记录均保留。
 
 本次产品源码P2关闭不等于Mock、真实batch/mobile/browser或阶段验收通过；这些Gate仍按后续实际source回执。无浏览器、服务、PG、build或网络启动，仅本文件追加结论，指定预检后普通冻结、不push。
+
+## 99a48b5 Mock等待边界增量审查
+
+2026-11-04。结论：`ACCEPT_TWO_LINE_WAIT_BOUNDARY_SOURCE_ONLY`，无新增实质P1/P2。精确 `99a48b54eff83733aa805465acc68c2619ffd91c` / tree `97d91ca7eb8ff6e279693705de4e56cf7c281051`，父 `ee547b4a6b0823ac9a652081d507b157b22b86d5`。只在batch-tags.spec.ts的UNKNOWN/409两例共同体增加注释及一行等待，文件SHA256 `d3bfb06ba26dad208459de384e87a849834ccef7a3059d71aa9f47e8ba1ffd1c`。
+
+只读核实f.sent在Mock POST handler已验证原pending/key/对象/version/revision、加入requests/events之后resolve；它证明已观察到POST，单独不能证明响应处理完成。新增等待同dialog内精确“取消”按钮visible：产品writeBusy=true时只渲染“停止余下操作”，false才渲染取消表单；batchTags在await整段applyBatchTags之后才于finally释放writeLock并setWriteBusy(false)。两者结合为源码可辨的发送及UI处理结束边界，避免把dispatch即发布的pending1当作fetch结束。此等待不声称业务COMMITTED，后续原UNKNOWN/REJECTED分类断言仍独立存在。
+
+静态字节反查：删除两新增行后与父文件完全相同。原完整进度、POST数量1、原pending key、用户取消后原键只读恢复、lookup精确method/op/key/shop与exact1、恢复后无第二POST均保留；click数量仍11，无新增click/retry/sleep/reload，未修改timeout或配置。仅执行Git字节比较及源码读取，没有运行Mock或其他测试体。
+
+Root转交r1为1pass/1fail/31NOT_RUN，原结果和其实际时序/根因UNKNOWN保持；该源码修正不倒推旧案已抓到特定fetch race，也不预签重跑或33PASS。指定预检后本文件普通追加冻结，不push、不启动资源。
