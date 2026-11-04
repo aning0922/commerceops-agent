@@ -42,7 +42,7 @@ export function finishV41Pending(storage,session,response,resource,dataset) {
     (lookup ? response.data.status!=='COMMITTED' || response.data.operation!==value.operation || response.data.request_key!==value.request_key : response.data.next_step!=='READ_CURRENT_RESOURCE') ||
     receipt.operation!==value.operation || receipt.request_key!==value.request_key ||
     receipt.resource_id!==value.resource_id || receipt.before_revision!==value.revision ||
-    (value.operation!=='import_confirm' && receipt.resource_version!==value.version+1) || !digest.test(receipt.after_revision)) return false;
+    receipt.resource_version!==(value.operation==='import_confirm'?value.version:value.version+1) || !digest.test(receipt.after_revision)) return false;
   if (!sameIdentityContext(value.context,resource?.context) || resource.context.shop_id!==value.shop_id || resource.status!=='OK') return false;
   if(value.operation==='import_confirm') {
     const ref=loadV41Preview(storage),job=resource.data?.job,source=dataset?.data?.snapshot?.source;

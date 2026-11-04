@@ -71,6 +71,7 @@ test('import confirmation needs bound job readback and matching imported provena
  const readback={...preview,data:{...data,state:'COMMITTED',confirmable:false}};
  const sourceRow={data_mode:'demo_upload',fixture_digest:'source',baseline_snapshot_at:'time',import_job_id:job.import_job_id,import_row:2,file_digest:confirm.file_digest};
  const dataset={status:'OK',context,data:{snapshot:{data_revision:'b'.repeat(64),source:{data_mode:'demo_mixed',fixture_digest:'source',baseline_snapshot_at:'time',uploads:[sourceRow]}}}};
+ assert.equal(finishV41Pending(s,session,{...receipt,data:{...receipt.data,receipt:{...receipt.data.receipt,resource_version:confirm.version+1}}},readback,dataset),false);
  assert.equal(finishV41Pending(s,session,receipt,readback,{...dataset,data:{snapshot:{...dataset.data.snapshot,data_revision:'f'.repeat(64)}}}),false);
  assert.equal(finishV41Pending(s,session,receipt,readback,{...dataset,data:{snapshot:{...dataset.data.snapshot,source:{...dataset.data.snapshot.source,uploads:[]}}}}),false);
  assert.equal(loadV41Pending(s).state,'pending');
