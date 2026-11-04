@@ -7,6 +7,7 @@ const responseHeaders = new Map([
   ["Cache-Control", "no-store"],
 ]);
 const config: NextConfig = {
+  devIndicators: false,
   poweredByHeader: false,
   async headers() {
     return [
