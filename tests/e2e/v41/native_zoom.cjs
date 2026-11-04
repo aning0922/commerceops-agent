@@ -171,6 +171,16 @@ function selfTest() {
   count(() => assert.throws(() => requireNative200(baseline, {...observation, settings: {mode: 'manual', scope: 'per-tab'}})));
   count(() => assert.throws(() => requireNative200(baseline, {...observation, tabId: 9})));
   count(() => assert.throws(() => requireNative200(baseline, {...observation, events: []})));
+  count(() => {
+    const report = {status: 'NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW', cleanup: {confirmed: false}};
+    const event = {boundIdentity: {pid: 123, uid: 501, birth: 'component-only'}, signal: 'SIGTERM', reason: 'PROFILE_REMAINS_AFTER_CLOSE_GRACE'};
+    const failure = markForcedStop(report, event, null);
+    report.cleanup.confirmed = true; // Later absence cannot erase the abnormal stop.
+    assert.equal(failure.code, 'NATIVE_FORCED_PROFILE_STOP');
+    assert.equal(report.status, 'FAILED_OR_UNKNOWN');
+    assert.equal(report.cleanup.forced, true);
+    assert.deepEqual(report.cleanup.emergencyEvents, [event]);
+  });
   return {status: 'PURE_COMPONENT_CHECKS_PASS', checks, browserLaunches: 0, profilesCreated: 0, nativeZoom: 'NOT_RUN', screenshots: 'NOT_RUN', S01: 'NOT_RUN'};
 }
 
@@ -276,6 +286,21 @@ function processWitness(profile, known) {
 function sameContext(expected, measured, shopId = null) {
   check(expected && measured && CONTEXT_KEYS.every(key => expected[key] !== undefined && expected[key] === measured[key]), 'NATIVE_SHELL_IDENTITY_CHANGED');
   check(measured.shop_id === shopId, 'NATIVE_SHOP_CONTEXT_DIFFERED');
+}
+
+function markForcedStop(report, event, currentFailure) {
+  report.cleanup.forced = true;
+  (report.cleanup.emergencyEvents ||= []).push(event);
+  report.status = 'FAILED_OR_UNKNOWN';
+  return currentFailure || {type: 'Error', code: 'NATIVE_FORCED_PROFILE_STOP'};
+}
+
+function persistEmergencyIntent(filename, event) {
+  const fd = fs.openSync(filename, 'wx', 0o600);
+  try {
+    fs.writeFileSync(fd, JSON.stringify(event, null, 2) + '\n');
+    fs.fsyncSync(fd); // Intent must reach storage before any attempted signal.
+  } finally {fs.closeSync(fd);}
 }
 
 function safeFailure(error) {
@@ -426,7 +451,13 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
         for (const current of witness.alive) {
           const bound = known.get(current.pid);
           check(bound && bound.birth === current.birth && bound.uid === process.getuid() && current.pid !== process.pid, 'NATIVE_EMERGENCY_PROCESS_IDENTITY_REFUSED');
-          try {process.kill(current.pid, sig);} catch (error) {if (error.code !== 'ESRCH') throw error;}
+          const event = {recordedUtc: new Date().toISOString(), boundIdentity: {...bound}, observedIdentity: {...current}, signal: sig, reason: report.cleanup.closeFailure ? 'CONTEXT_CLOSE_FAILED_PROFILE_REMAINS' : 'PROFILE_REMAINS_AFTER_CLOSE_GRACE'};
+          failure = markForcedStop(report, event, failure);
+          const stem = 'emergency-' + String(report.cleanup.emergencyEvents.length).padStart(4, '0');
+          persistEmergencyIntent(path.join(owned.processes, stem + '.intent.json'), event);
+          let outcome = 'SIGNAL_SENT';
+          try {process.kill(current.pid, sig);} catch (error) {if (error.code !== 'ESRCH') throw error; outcome = 'ALREADY_EXITED';}
+          writeNew(path.join(owned.processes, stem + '.result.json'), JSON.stringify({signal: sig, pid: current.pid, outcome}, null, 2) + '\n');
         }
         await pause(Math.min(250, timeout(1000, true))); witness = processWitness(owned.profile, known);
       }
