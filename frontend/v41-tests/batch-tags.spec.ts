@@ -14,6 +14,7 @@ function latch(){let resolve!:()=>void;const promise=new Promise<void>(r=>{resol
 type Body={shop_id:string;request_key:string;expected_version:number;expected_data_revision:string;tags:string[]};
 async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'|'readback409'|'readback403'='success'){
  let committed=0;const requests:Body[]=[],events:string[]=[],sent=latch(),release=latch(),readback=latch();
+ const lookups:{method:string;path:string;shop_id:string}[]=[];
  const products=ids.map((product_id,i)=>({product_id,title:`批量商品 ${i+1}`,tags:['原标签'],version:0,source:{...source,baseline_snapshot_at:now,import_job_id:null},skus:[{sku_id:product_id,label:`BATCH-${i}`,price:'12',currency:'TWD',available_units:null,stock_reason:'UNKNOWN_STOCK'}]}));
  const snapshot=()=>({snapshot_id:digest,data_revision:revision(committed),read_at:now,source:dataset});
  async function pending(){return page.evaluate(()=>{
@@ -47,12 +48,18 @@ async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'|'readb
    const before=revision(committed);product.version++;product.tags=[...body.tags];committed++;
    return fulfill({...envelope,status:'COMMITTED',context:{...identity,shop_id:body.shop_id},data:{next_step:'READ_CURRENT_RESOURCE',receipt:{receipt_id:product.product_id,operation:'product_tags',request_key:body.request_key,payload_digest:digest,resource_id:product.product_id,resource_version:product.version,committed_at:now,before_revision:before,after_revision:revision(committed)}}});
   }
-  if(path.includes('/actions/'))return fulfill({...envelope,status:'UNKNOWN',context,data:{operation:'product_tags',request_key:path.split('/').at(-1),status:'UNKNOWN',receipt:null}});
+  if(path.includes('/actions/')){
+   expect(requests).toHaveLength(1);const original=requests[0];
+   expect(request.method()).toBe('GET');expect(path).toBe(`/api/v4/actions/product_tags/${original.request_key}`);
+   expect([...url.searchParams.entries()]).toEqual([['shop_id',original.shop_id]]);
+   lookups.push({method:request.method(),path,shop_id:original.shop_id});
+   return fulfill({...envelope,status:'UNKNOWN',context:{...identity,shop_id:original.shop_id},data:{operation:'product_tags',request_key:original.request_key,status:'UNKNOWN',receipt:null}});
+  }
   throw new Error('UNEXPECTED_MOCK_REQUEST '+request.method()+' '+path);
  });
  await page.goto('/v4/products');await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(tenant);
  await expect(page.locator('tbody tr')).toHaveCount(2);
- return {requests,events,sent,release,readback,pending};
+ return {requests,events,sent,release,readback,pending,lookups};
 }
 async function selectTwo(page:Page){
  const rows=page.locator('tbody tr');await rows.nth(0).getByRole('checkbox').check();await rows.nth(1).getByRole('checkbox').check();
@@ -75,6 +82,7 @@ for(const mode of ['unknown','conflict'] as const)test(`UI_MOCK batch: first ${m
  expect(f.requests).toHaveLength(1);expect((await f.pending()).request_key).toBe(f.requests[0].request_key);
  await dialog.getByRole('button',{name:'取消',exact:true}).click();await page.getByRole('button',{name:'核对原业务操作',exact:true}).click();
  await expect(page.getByText('原操作仍需核对；未重复提交。')).toBeVisible();expect(f.requests).toHaveLength(1);expect((await f.pending()).request_key).toBe(f.requests[0].request_key);
+ expect(f.lookups).toEqual([{method:'GET',path:`/api/v4/actions/product_tags/${f.requests[0].request_key}`,shop_id:f.requests[0].shop_id}]);
 });
 
 for(const change of ['shop','close','query'] as const)test(`UI_MOCK batch: ${change} cancels remaining rows while a late POST preserves pending`,async({page})=>{
