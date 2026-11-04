@@ -69,3 +69,15 @@ QA 可专注第 2、3 项最小加固；未来实际运行如出现新的时序�
 独立使用固定 control Python、精确冻结公开源码与新 fixture，直接调用原新增/相关纯测试函数（包括参数化分支）共 35 次，全通过；其中已有晚写 READBACK 标记的合法正例通过，确认未恢复错误的全局索引 gate。另有上述 baseline、五个具体拒绝变体和两个版本缺口变体，最终脚本 exit 0 代表这些预期观察成立，不是父收验整体通过。私有复现为 `.audit/v4-1/mobile-d410097-review/repro.py` 与 `result.safe.json`；每次校验调用前后原 journal 字节相同。作者 68 focused/185 offline、Ruff/mypy/preflight 未在本轮冒称独立全量重跑。
 
 该差分未改 business spec、producer、subjectWriter/registry、journal schema/时点、final_facts 或 config；Native pin 保持已核 `295bf2c61e7cd30e7a47d7368d93fbadb40764fb41072a9119b5d78ed925689e`，未放松旧 focus/header、NativeTiming、pending/CAS/readback 或逐 key SQL 门槛。未读取后续 WIP；浏览器、服务、网络、PG、信号均 0。合成 PNG 条目仍仅纯校验 fixture，不是实际截图。整体 r9 实际运行 NOT_RUN；等待剩余窄版本绑定的新精确 freeze，不能提前签该父层候选完整接纳或阶段验收。
+
+## d36a514 剩余 job.version 绑定复审关闭
+
+2026-11-04 同日追加。当前源码结论：`SOURCE_INCREMENT_ACCEPTED / P2_2_AND_P2_3_CLOSED`。精确提交 `d36a514e307107e61834e1722739252f94902cd8`，tree `4a32dae83a84832b3d3baeae0cdaacf0f4be569a`，直接 parent 为上述 `d4100975c770abf5efdf85fda9344c4ece4d4bb9`。仅 browser_shell.py 新增 8 行 guard、对应 test_browser_shell.py 新增 43 行测试；未发现本增量的新 P1/P2。原报告、有效反例、误判更正及 Root 最终范围裁定全部保留。
+
+新增 guard 在 preview/import_confirm 两分支之前，要求 readback.job 为 dict，job.version 为严格 int（不接受 bool），且与 operation.version、readback.version 相等。import 原 RESOURCE_VERSION 分支继续将 operation.version 绑定原 request.expected_job_version，因此此前“mapped/import 两 job.version 同为 999、原请求与 operation/readback 仍为 2”的缺口不能再通过；原 discovery/mapped/import 文件摘要、job_digest、scope/snapshot 绑定未减少。
+
+独立对每个变体先使用本冻结的新完整 fixture 验证正例，均返回 9 keys/32 合成 PNG 条目，再实施变异。单 preview job、单 import job、同 mapped/import 两处 job，以及全部 job.version 一致改为 999，四种情形全部精确触发 `BUSINESS_MOBILE_JOB_PROJECTION_VERSION_BINDING`。前轮整体伪换文件摘要、改原 base64 并重算 witness hash、preview UNKNOWN、另一合法 scope 借用、空 snapshot 五种否例仍在原对应原因拒绝，没有依赖更早的不相关 schema 失败冒签版本修复。
+
+固定 control Python 直接调用本冻结相关纯测试函数及参数化分支共 39 次通过，包括单 mapping screenshot 版本漂移拒绝和事后 READBACK 标记的合法正例；最终独立复现脚本 exit 0。私有材料为 `.audit/v4-1/mobile-d36a514-review/repro.py` 与 `result.safe.json`。每次校验前后 journal 字节一致；未读作者 WIP，也未运行浏览器、网络、服务或 PG。该结果是精确源码/纯组件关闭，不是实际图像、真实业务或 r9 执行证据。
+
+原第 1 项仍正式撤回，不恢复 global journal order 或 sidecar gate；原真实 NativeTiming、pending/CAS/fresh readback 与逐 key SQL 的本地串行证据边界保持。第 2、3 项在本冻结范围内全部闭合，可交 Root 后续组合与运行安排；实际全 r9 仍 NOT_RUN，视觉验收、运行清理及阶段完成不由本次代签。
