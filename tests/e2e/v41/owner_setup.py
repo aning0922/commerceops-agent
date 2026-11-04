@@ -55,7 +55,11 @@ def strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 
 def decode(raw: bytes) -> dict[str, Any]:
-    value = json.loads(raw, object_pairs_hook=strict_object)
+    value = json.loads(
+        raw,
+        object_pairs_hook=strict_object,
+        parse_constant=lambda _: (_ for _ in ()).throw(ValueError("OWNER_FINITE_JSON_REQUIRED")),
+    )
     if not isinstance(value, dict):
         raise ValueError("OWNER_OBJECT_REQUIRED")
     return value
@@ -426,6 +430,12 @@ def target(db: Any, auth: dict[str, Any], security: Any, deadline: datetime) -> 
 
 def verify_acl(db: Any, config: Any, security: Any, runtime: Any) -> dict[str, Any]:
     tables = ["v41_" + suffix for suffix in runtime.TABLES] + ["v41_security_policy"]
+    rows = db.execute(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema='business' "
+        "AND left(table_name,4)='v41_'"
+    ).fetchall()
+    if {r["table_name"] for r in rows} != set(tables):
+        raise ValueError("V41_ACTUAL_TABLE_SET_MISMATCH")
     for table in tables:
         owner = db.execute(
             "SELECT current_user=pg_get_userbyid(relowner) AS allowed "
@@ -600,6 +610,19 @@ def execute(spec: dict[str, Any], manifest_sha256: str) -> dict[str, Any]:
             },
             stream,
         )
+        stream.flush()
+        os.fsync(stream.fileno())
+    # A new UUID cannot silently replay a failed action in this same owned authorization.
+    try:
+        action_fd = os.open(
+            PROFILE / "attempts" / (spec["action"] + ".once"),
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+            0o600,
+        )
+    except FileExistsError:
+        raise AttemptSpent("OWNER_ACTION_ALREADY_ATTEMPTED") from None
+    with os.fdopen(action_fd, "w") as stream:
+        json.dump({"operation_id": operation_id, "manifest_sha256": manifest_sha256}, stream)
         stream.flush()
         os.fsync(stream.fileno())
     manifest_path = PROFILE / "operations" / (operation_id + ".json")

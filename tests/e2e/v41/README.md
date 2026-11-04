@@ -174,3 +174,49 @@ Root7f/后端55ce实际接缝主体盘点见RUNTIME_SUBJECTS.md及runtime_subjec
 都失败，ACK_OK不升级。低权探针已去掉alembic_version直读；host先取得真实owner只读catalog
 回执，经source/tree/新DB/owner current_user/七表/policy与native0绑定后提供给受保护新输入，
 app只消费该绑定，不新授元数据SELECT。owner观察器仍实际查询版本并单独保存原件。
+
+## 固定 archive owner recipe 候选（替代不可执行CLI假设）
+
+本片按Root明确授权实现三动作固定helper：activate-policy、grant-runtime、verify-runtime。
+standalone路径为`/app/tests/e2e/v41/owner_setup.py`，以`/app/.venv/bin/python -I -B`直接执行；
+不调用903的Git/parents[4] CLI、不装假.git、不新增任意模块/SQL/第四bootstrap动作。
+bootstrap继续原driver的migrate/checkpointer/base grant/V4 fixture init+grant+verify顺序；
+随后三动作分别真实提交并校验持久回执，全部成功后才允许API启动。GC由专职owner负责。
+
+`owner_recipe.json`只描述上述实际代码接口，不是READY或运行批准。运行仍需Root在新case内
+另提供0600/no-follow/本UID的四个实际输入文件，prepare不生成或假填这些批准材料：
+
+- `runtime-authorization.json`：schema `v41-root-runtime-authorization-v1`，Root真实authorization_id、
+  固定Root authority枚举（见owner_setup.authorization）、source SHA/tree、test/PG immutable image IDs、新project/DB、
+  case_directory、固定scenario、UID、API/Web ports及UTC starts/deadline/parent_deadline；owner_actions
+  精确三项。driver对逐项Case字段核验，仍需显式root-opened-window，保留180秒清理余量。
+- `image-build.safe.json`：Root已核strong build/inside receipt原件，状态BUILD_AND_INSIDE_SOURCE_PROOF_PASS，
+  实际source_binding、image.id、build/sourcecheck原生0、inside_verification全部原值；不能拼手填PASS。
+- `expected-runtime.json`：该receipt引用的**原始expected文件bytes**，不是重新排版后的JSON，也不能用
+  sourcecheck stdin替换。原始文件SHA与`json.dumps(expected,sort_keys=True).encode()`的manifest SHA
+  分别核；installed `.py`子集manifest另外派生，文件计数只信息，不硬编码667/216。
+- `docker-host.safe.json`：Root实际本机Unix endpoint/server ID、Docker binary SHA、公开Compose plugin
+  path/SHA的固定daemon绑定。每个host调用仍用同一shim、新空HOME/config，不继承旧context/凭据。
+
+`verify_inside.txt`逐字节复用Root批准的20718b7c...程序：实际遍历完整/app/backend、tests、scripts
+加三依赖文件，与精确文件集/bytes比较；真实find_spec定位noneditable venv package后逐项核
+installed `*.py`集合与原backend/src/commerceops映射。sourcecheck容器仍network none/read-only/
+无host mounts，强制entrypoint固定Python。helper在导入生产helpers之前和事务提交之前再次运行
+同程序；不将副本bytes、包版本号或任意manifest声明当实际installed证明。
+
+prepare只从本次新随机API材料导出owner/v41的0700/0600配置，重写固定mount路径并封存owner/
+app密码、CSRF/nonce及owner/demo/web JSON全部真实bytes；绝不复制旧privatebindings。每动作
+有独立operation_id、source/image/DB/UID/UTC与原状态、Root授权/build/双manifest/hash与全配置
+hash，并在SQL之前持久intent；helper以O_EXCL/fsync消费原op及本case同action一次标记。换UUID
+不绕过失败action，原manifest/marker/receipt不覆盖，UNKNOWN不自动重试或进入下一阶段。
+
+每动作先验证实际新owner目标、0025、PG17.11/vector0.8.7及表owner，提交前再次核源/安装代码、
+原operation文件、全配置secret、DB/host截止。只有已审activate_policy与grant_runtime可写；
+verify-runtime独立READ ONLY，逐实际RUNTIME签名派生并核完整函数ACL，核六业务表与policy各列/
+私有verifier/PUBLIC/列级DML及delegation，当前policy fingerprint和private verifier匹配。旧M3
+relation/column/function ACL在动作间和事务前后哈希不变；无raw key/MAC/凭据输出。
+
+主helper先保存实际COMMITTED/VERIFIED回执，再输出安全JSON；已观察COMMIT后的证据写失败保留
+COMMITTED并使外层非0，不抹成回滚。父wrapper另记真实native/start/end/logs。SQL probe后续只在
+同Root授权与实际owner verify回执存在时准入；旧runtime_definition仍是772历史HOLD记录，填READY
+不能代替这条真实顺序。全部本地检查目前只涵盖组件/文件/短进程，不是owner SQL/ACL实跑。

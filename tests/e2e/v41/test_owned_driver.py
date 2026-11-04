@@ -16,6 +16,7 @@ from .image_provenance import runtime_files
 from .owned_manifest import OwnedManifest
 from .test_fixed_daemon import tools as daemon_tools
 from .test_owned_manifest import bound as bound
+from .test_owner_setup import build_fixture
 
 pytestmark = pytest.mark.offline
 
@@ -86,18 +87,18 @@ def test_static_daemon_mismatch_has_zero_calls_and_server_mismatch_has_identity_
         source_tree=case.source_tree,
         test_image_id=case.test_image,
     )
-    build = {
-        **receipt,
-        "test_build_native_exit": 0,
-        "runtime_files_sha256": runtime_files(root),
-    }
+    build, raw_expected = build_fixture(
+        runtime_files(root), case.source_sha, case.source_tree, case.test_image
+    )
     public.private(directory / "image-build.safe.json", json.dumps(build))
+    public.private(directory / "expected-runtime.json", raw_expected.decode())
+    public.private(directory / "docker-host.safe.json", json.dumps(receipt))
     (root / ".git/info/exclude").write_text(".tools/\nfrontend/node_modules/\n")
     for name in [".tools/node/bin/node", "frontend/node_modules/next/dist/bin/next"]:
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("public tool fixture")
-    monkeypatch.setattr(driver, "runtime_handoff", lambda _case: None)
+    monkeypatch.setattr(driver, "runtime_handoff", lambda _case, **_options: {})
     monkeypatch.setattr(driver, "reserve_ports", lambda *_ports: None)
     monkeypatch.setattr(public, "compose", lambda _case: (str(tool), "compose"))
     if static_bad:

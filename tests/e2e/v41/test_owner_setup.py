@@ -113,6 +113,10 @@ def test_exact_three_actions_and_root_window_have_no_ready_bypass() -> None:
     ):
         with pytest.raises(ValueError):
             setup.authorization({**value, **changes})
+    with pytest.raises(ValueError, match="FINITE_JSON"):
+        setup.decode(b'{"value":NaN}')
+    with pytest.raises(ValueError, match="DUPLICATE"):
+        setup.decode(b'{"value":1,"value":2}')
     setup.operation(spec())
     with pytest.raises(ValueError):
         setup.operation(spec("bootstrap"))
@@ -180,6 +184,9 @@ def test_first_attempt_failure_stays_spent_before_any_database_io(
     with pytest.raises(setup.AttemptSpent):
         setup.execute(value, setup.sha(raw))
     assert (tmp_path / "attempts" / value["operation_id"]).read_bytes() == original
+    changed_key = {**value, "operation_id": str(uuid4())}
+    with pytest.raises(setup.AttemptSpent, match="ACTION_ALREADY"):
+        setup.execute(changed_key, "0" * 64)
 
 
 def test_observed_commit_survives_receipt_write_failure(

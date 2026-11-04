@@ -23,6 +23,10 @@ def bound(tmp_path: Path) -> tuple[OwnedManifest, Path, datetime]:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("public fixture\n")
 
+    package = root / "backend/src/commerceops/__init__.py"
+    package.parent.mkdir(parents=True, exist_ok=True)
+    package.write_text('"""Public package fixture."""\n')
+
     def git(*args: str) -> str:
         return subprocess.check_output(
             ["git", *args], cwd=root, text=True, stderr=subprocess.DEVNULL

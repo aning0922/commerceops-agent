@@ -7,17 +7,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-# Fixed read-only program; no image-authored verifier, network, host mounts or secrets.
-READ_PUBLIC = (
-    "import hashlib,json,pathlib,sys; paths=json.load(sys.stdin); "
-    "root=pathlib.Path('/app'); "
-    "assert len(paths)<=5000; "
-    "assert all(isinstance(p,str) and not p.startswith('/') "
-    "and '..' not in p.split('/') for p in paths); "
-    "assert all((root/p).is_file() and (root/p).resolve().is_relative_to(root) for p in paths); "
-    "print(json.dumps({p:hashlib.sha256((root/p).read_bytes()).hexdigest() "
-    "for p in paths},sort_keys=True))"
-)
+# Verbatim Root-approved 490 inside-proof program; raw-file hash differs from manifest hash.
+READ_PUBLIC = Path(__file__).with_name("verify_inside.txt").read_text()
 
 
 def runtime_files(root: Path) -> dict[str, str]:
@@ -51,19 +42,22 @@ def runtime_files(root: Path) -> dict[str, str]:
 
 
 def validate_build(
-    receipt: dict[str, Any], source: str, tree: str, image: str, expected: dict[str, str]
+    receipt: dict[str, Any],
+    source: str,
+    tree: str,
+    image: str,
+    expected: dict[str, str],
+    raw_expected: bytes,
 ) -> None:
-    required = {
-        "source_sha": source,
-        "source_tree": tree,
-        "test_image_id": image,
-        "test_build_native_exit": 0,
-        "runtime_files_sha256": expected,
-    }
-    if any(receipt.get(k) != v for k, v in required.items()):
+    from .owner_setup import build_binding
+
+    if (
+        build_binding(
+            receipt, {"source_sha": source, "source_tree": tree, "test_image": image}, raw_expected
+        )
+        != expected
+    ):
         raise ValueError("ROOT_BUILD_SOURCE_INPUT_BINDING_MISMATCH")
-    if type(receipt.get("test_build_native_exit")) is not int:
-        raise ValueError("ROOT_BUILD_NATIVE_REQUIRED")
 
 
 def probe_argv(docker: str, project: str, image: str, cwd: Path, uid: int) -> list[str]:
@@ -99,21 +93,21 @@ def probe_argv(docker: str, project: str, image: str, cwd: Path, uid: int) -> li
         "--workdir",
         "/app",
         "-i",
-        image,
+        "--entrypoint",
         "/app/.venv/bin/python",
+        image,
         "-I",
+        "-B",
         "-c",
         READ_PUBLIC,
     ]
 
 
-def validate_measured(raw: bytes, expected: dict[str, str]) -> dict[str, object]:
-    if len(raw) > 2_000_000 or json.loads(raw) != expected:
-        raise ValueError("ACTUAL_IMAGE_PUBLIC_SOURCE_DIFFERS")
-    return {
-        "status": "IMAGE_RUNTIME_BYTES_MATCH",
-        "files": len(expected),
-        "manifest_sha256": hashlib.sha256(
-            json.dumps(expected, sort_keys=True).encode()
-        ).hexdigest(),
-    }
+def validate_measured(raw: bytes, expected: dict[str, str]) -> dict[str, Any]:
+    from .owner_setup import installed_expected, manifest_hash, proof_result
+
+    if len(raw) > 2_000_000:
+        raise ValueError("ACTUAL_IMAGE_PUBLIC_SOURCE_LIMIT")
+    value = json.loads(raw)
+    proof_result(value, expected)
+    return {**value, "installed_manifest_sha256": manifest_hash(installed_expected(expected))}
