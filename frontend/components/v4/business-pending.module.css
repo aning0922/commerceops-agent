@@ -19,3 +19,8 @@
 .drawerControls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}.drawerControls select{max-width:200px;margin-left:6px;padding:8px;border:1px solid #cbdcf1;border-radius:8px;background:#fff;color:#243d61}.drawerControls button{padding:8px 12px;border:1px solid #cbdcf1;border-radius:8px;background:#edf3fc;color:#244d88;cursor:pointer}
 
 .stageNav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.stageNav a{padding:7px 10px;border-radius:8px;color:#315d9f;text-decoration:none;font-size:12px}.stageNav a[aria-current=page]{background:#dfeafa;color:#183f78;font-weight:700}
+
+.batchDialog{width:min(34rem,calc(100vw - 2rem));max-height:calc(100dvh - 2rem);overflow:auto;border:1px solid #d9e0e8;border-radius:1rem;padding:1.25rem;color:inherit;background:#fff;}
+.batchDialog::backdrop{background:rgb(15 23 42 / 40%);}
+.batchDialog label{display:grid;gap:.5rem;margin-block:1rem;}
+.batchDialog input{max-width:100%;min-width:0;padding:.6rem;font:inherit;}
