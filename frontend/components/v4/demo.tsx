@@ -179,9 +179,10 @@ export function Demo({origin}:{origin:string|null}){
   const ticket=businessGate.current.begin('business-write');if(!ticket)return;
   let storage:Storage;try{storage=sessionStorage;}catch{setWriteState('blocked');setWriteMessage('无法保存待核对状态，未发送操作。');return;}
   const record={operation,request_key:crypto.randomUUID(),resource_id:resource,shop_id:shop,revision:data.snapshot.data_revision,version,file_digest:null,job_digest:null,parent_job_id:null,context:{...base.context}};
+  const payload={shop_id:shop,request_key:record.request_key,expected_epoch:base.context.reset_epoch,expected_generation:base.context.auth_generation,expected_data_revision:record.revision,expected_version:version,...(product?{tags:tags??[]}:{action:'mark_demo_fulfilled'})};
+  if(!validateV41(product?'SetProductTags':'FulfillDemoOrder',payload)){setWriteMessage('提交内容无法验证，未发送操作。');return;}
   if(!reserveV41Pending(storage,record)){setWriteState(loadV41Pending(storage).state as 'empty'|'pending'|'blocked');setWriteMessage('无法安全登记操作，未发送。');return;}
   setWriteState('pending');writeLock.current=true;setWriteBusy(true);setWriteMessage('正在提交；请勿重复操作。');
-  const payload={shop_id:shop,request_key:record.request_key,expected_epoch:base.context.reset_epoch,expected_generation:base.context.auth_generation,expected_data_revision:record.revision,expected_version:version,...(product?{tags:tags??[]}:{action:'mark_demo_fulfilled'})};
   try{
    const result=await guardedRequest(businessGate.current,ticket,()=>postV41<unknown>(origin,`/api/v4/${product?'products':'orders'}/${encodeURIComponent(resource)}/${product?'tags':'fulfillment'}`,payload,base.data.csrf_token));
    if(!businessGate.current.accepts(ticket,{...result,status:'OK'})||!['OK','COMMITTED'].includes(result.status))throw new Error('UNKNOWN');
