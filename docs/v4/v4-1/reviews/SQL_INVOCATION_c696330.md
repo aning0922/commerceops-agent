@@ -1,0 +1,33 @@
+# V41 私有invocation verifier与双段binding复审
+
+日期：2026-11-04（台北）。source `c696330ee7e2d7ea48d1cea780abafdb9ace38f4`，tree `c0c004344489580a9a79337e821c90c1ba51fb5e`，parent `74342e19a6a4a04dc37dc1d664c4b0b82031d524`。完整读取五文件增量并复核policy/actor、既有capability、Store/native/lease/commit guard调用路径；未读WIP。
+
+结论：ACCEPT_S04_ADMISSION_FIX_CODE_ONLY / HOLD_S05_T01_AND_RUNTIME。原低权改csrf_digest后自行铸造binding/lease的准入绕过在源码层已堵；不是实际ACL/HMAC/stop Gate通过，也不解除GRANT或真实业务HOLD。S05主体改绑屏障及T01缺policy夹具保持，Root后续窄trigger方案不在本source中。
+
+## 独立权威与ACL
+
+仍为七表。policy新增NOT NULL、恰32-byte invocation_verifier；它是有签名能力的私有派生key，不是可公开摘要。owner以nonce_secret、独立domain及key_version派生，原nonce/CSRF secret不写DB。只有owner激活/轮换SQL携带该值，返回结果只含version/generation/revoked计数；没有公开DTO、日志或API返回路径。
+
+新runtime grant对policy撤销table-level权限后，仅给app singleton/active_version/config_digest/generation/activated_at/retired_versions六列SELECT；不授private列、整表SELECT或DML。v41_hmac_sha256与v41_invocation_mac在SIGNATURES统一REVOKE，均未进入RUNTIME EXECUTE名单；只有已认证的SECURITY DEFINER actor内部读取private列/调用helper，没有对app暴露签名oracle。正常assert_policy仅读两个公开列，GC不碰singleton。以上为精确源码ACL计划，真实catalog权限未运行。
+
+binding严格两段43字符base64url，以单点分隔。第一段继续匹配legacy bound-session csrf_digest，第二段由SQL从owner policy私有key独立计算，并绑定实际bound_session_id及policy.active_version；actor另核session key_version一致。旧S04的app UPDATE web_sessions.csrf_digest能力仍存在，但只改变第一段锚，不再能产生第二段MAC。修改legacy字段、任意第二段、其他session/版本MAC、单段/多段格式均不满足完整准入。SQL检查不依赖调用者声明expected key，也不只靠Python先验。
+
+## HMAC、编码与轮换
+
+SQL按标准64-byte SHA-256 block处理：键长>64先sha256，零填充，逐byte异或0x36/0x5c，计算outer||hash(inner||payload)；拒NULL、空key、key>1024、payload>4096，允许空payload。invocation函数进一步限key32、UUID bound及规范version。payload为独立domain、NUL分隔、canonical JSON；此处JSON仅含ASCII键、UUID与规范version，键顺序/紧凑编码与Python canonical_bytes一致。base64去换行、URL字母转换及去padding与Python capability相符。未把人工阅读或Python测试称为SQL已编译/执行。
+
+owner同版本重复激活同时比较config_digest与私有verifier；换secret而复用版本拒绝。轮换在原tenant/session锁之后同事务更新version/digest/verifier/generation并撤旧demo bound sessions；nonce/version任一变化改变invocation，CSRF变化只改变legacy段。SQL actor持当前policy SHARE直到提交，旧bound/session/version不可仅因两旧行相互一致而通过。Root要求的轮换、缺行、旧MAC拒绝与配置一致性仍须最终源码真实PG证明。
+
+## lease停止权威的准确边界
+
+普通低权SQL角色只读到lease_digest/process_ref/PID，不能由摘要取得server随机lease原文；reserve现在还需要私有有效invocation，原先从可写csrf锚自选lease的链被挡在reserve前。Store只在内存持lease，正常bind/stop沿Popen handle，实际communicate/wait后提交；raw lease不在公开响应或DB行中。
+
+stop仍是私有lease能力授权接口，不是数据库对操作系统进程的独立证明。持有真实lease的可信监督器可以提交stop，SQL只核lease/process/PID与proof结构；RESERVED且尚未bind时允许可信监督器在bind失败、实际reap后写回真实PID。不能宣称持有效私有lease但故意说谎的调用者会被SQL识别，更不能把trusted lease交给低权负例后仍声称它是无能力攻击者。
+
+撤权/过期/轮换后，真实reap清理不重新调用actor；commit guard对preview_data仍空的job生命周期UPDATE保留例外，所以身份失效不会迫使已停止进程永久占槽。publish则重新走actor/当前权力，旧身份不能借清理权限发布业务预览。stop写失败不自动重试，旧UNKNOWN/占槽继续保留。该设计路径没有在本轮实测。
+
+本次新增PG节点验证private列及helper拒绝、六组SQL/Python HMAC向量、五个长度/NULL负例，以及实际改写legacy csrf_digest后八种伪binding仍不能建job，并恢复原锚。它未直接覆盖已有RESERVED/RUNNING job上的错误/缺lease伪stop、活child不被释放、撤权后actual reap成功且publish拒绝；这些应保留独立实际Gate，不能由reserve攻击失败或本次19节点collect代签。父亡原测试也仍只有候选代码。
+
+## 验证
+
+独立精确git archive执行test_security_config.py：4 passed，native0，1.37秒，含硬编码canonical payload与标准库HMAC对照及CSRF/nonce/version两段独立变化。test_business_pg.py仅collect：19节点，native0，2.22秒；未执行fixture、SQL或native child。没有marker warning，未重跑作者281offline。没有PG、Docker、GRANT、服务、浏览器、Full扫描或远端操作。
