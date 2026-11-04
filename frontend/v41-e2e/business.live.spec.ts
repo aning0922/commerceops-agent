@@ -123,7 +123,7 @@ test('LIVE V41: business reads writes and import roundtrip',async({page,browser}
   const batchButton=page.getByRole('button',{name:'批量设置标签',exact:true}),batchDialog=page.getByRole('dialog',{name:'批量设置标签',exact:true});
   await selectCurrentTwo();await batchButton.click();await expect(batchDialog).toBeVisible();
   await batchDialog.getByLabel('标签（逗号分隔，最多 8 项）').fill('v41-live-batch');
-  await focusInside(page,batchDialog);const beforeCancel=postRequests.size;await page.keyboard.press('Escape');await expect(batchDialog).not.toBeVisible();expect(postRequests.size).toBe(beforeCancel);await expect(batchButton).toBeFocused();
+  await focusInside(page,batchDialog);const beforeCancel=postRequests.size;await page.keyboard.press('Escape');await expect(batchDialog).not.toBeVisible();expect(postRequests.size).toBe(beforeCancel);await expect(header).toBeFocused();
   await expect(page.locator('tbody').getByRole('checkbox',{checked:true})).toHaveCount(0);await selectCurrentTwo();await batchButton.click();
   await batchDialog.getByLabel('标签（逗号分隔，最多 8 项）').fill('v41-live-batch');
   await capture('batch_confirm',sourceOf(products));
