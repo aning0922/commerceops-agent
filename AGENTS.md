@@ -1,5 +1,7 @@
 # 工程约束
 
+PR #53 主线合并新授权（2026-11-04，台北）：用户明确确认合并 PR #53，授权本次必要 Hosted CI；检查通过后 Root 正常合入 main 并核对合后结果，不绕过保护，不强推或删除原始分支。该授权覆盖下方旧等待确认/不 Hosted/不 merge 的历史边界，不授予真实模型、embedding、飞书外发、Woo 写或生产发布。仅为本次精确候选运行既有质量门禁，保留失败/UNKNOWN与原证据分层；不合独立 Harness，不启动后续功能开发。完成后继续暂停，等待用户提供新研究包。实时 PR 与运行结果见 https://github.com/aning0922/commerceops-agent/pull/53；本次不预填未来 CI 或合并成功。
+
 V4-1 独立归档与 main 集成授权（2026-11-04，台北）：用户确认 V4-1 本地阶段已完成，暂停后续功能开发。Root 仅核对已核收 codex/v41-control-20261104、更新 README/状态/导航、复用可信验收证据并审查 main 累计差异，检查后创建面向 main 的 PR，等待用户合并确认。新研究包尚未交付，接收/差异分析/重新排期属下一个独立任务；不按旧路线自动 V4-2。本次明确 PR 授权覆盖下方旧“不 PR”的历史边界，普通分批提交推送继续；不新增业务功能/重设计/合未经核收的实验分支，不强推/删原分支，不自动 merge、Hosted、真实外部调用或生产。PR 使用带跳过标记的最终 HEAD，保留 required checks 待满足与保护规则；当前归档依据见 docs/v4/archive/V41_MAIN_INTEGRATION.md。
 
 V4-1 本地 Gate 核收与交付收口（2026-11-04，台北）：V41-01—06 合同内实现、同源235/74/Native40纯组件/33Mock、r10真实业务/Shell/手机/Native/逐key SQL及独立清理已经冻结独审核收，代码源261f399/tree34da。40原图AI工程审查已通过，human/真机touch NOT_RUN，正式包文档一致性已独审核收，V4-1本地阶段完成；旧Full/PG/HTTP/失败/UNKNOWN分层不改标签。当前不新增功能或资源，不自动V4-2、不PR/main/Hosted/真实模型embedding/Woo写/飞书发送/生产。允许Root在已授权阶段分支继续普通短提交和及时push，保留所有原refs与历史预算。权威交付见 docs/v4/acceptance/v4-1/REVIEW.md、QA_RESULTS.json、MANIFEST.json；下方“当前”各按原时点保留。

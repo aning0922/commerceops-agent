@@ -1,5 +1,9 @@
 ## 当前归档状态（2026-11-04，台北）
 
+用户已明确授权 PR #53 的必要 Hosted CI、检查通过后的受保护正常合并及合后核对。
+当前正在执行该接单；[实时 PR 与检查](https://github.com/aning0922/commerceops-agent/pull/53)为运行和合并结果来源，
+不预填成功。下方等待确认/不 Hosted 是此前归档快照，已由本次授权覆盖；后续功能继续暂停，等待新研究包。
+
 V41-01—06 六卡的合同受控本地实现、运行、AI工程视觉及交付文档已核收，V4-1本地阶段完成。
 当前暂停后续开发，归档集成 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53) 已创建为 Draft，等待用户合并确认；main 尚未合入。
 主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)。
