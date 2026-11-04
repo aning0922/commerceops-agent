@@ -29,3 +29,19 @@
 独立验证使用固定 control Python 与从精确 Git 对象提取的公开源码。直接导入冻结 browser_shell；仅从原测试 AST 取 fixture 和两个纯测试函数，未载入测试框架 fixture 生命周期。原 1 个正例及 18 个参数化拒绝分支共 19 次直接调用通过；额外 baseline 与上述 5 个缺口变体全部接受，最终复现 CLI exit 0，表示缺口成立。私有材料为 Reviewer `.audit/v4-1/mobile-9726885-review/repro.py` 与 `result.safe.json`。首次准备误列不存在的包 initializer 导致 archive exit 128；首次整测试模块 import 因未提取 scripts 依赖 exit 1；改为列举现有路径并仅 AST 提取必要纯 fixture 后验证完成，这些是 reviewer 准备错误，未伪装产品失败或丢弃最终否例。
 
 作者报告的 52 focused pure/Ruff/mypy/preflight 属作者证据，本轮未冒称独立重跑全套。浏览器、profile、CDP、网络、服务、PG 与信号均 0；合成目录仅在 Reviewer scratch 创建和清理，没有访问原运行资产。此报告只阻断本新增父收验源码的接纳，不声称真实业务运行已经出现反例；整改后需新的精确 freeze 与增量复审，未来真实窗口、视觉及阶段验收均另核。
+
+## Root 澄清后的第 1 项解释更正
+
+2026-11-04 同日追加。当前结论修正为 `HOLD / TWO_CONFIRMED_P2 / SERIAL_PROVENANCE_PROPOSAL_PENDING`；上方 THREE_P2 是原审查时点记录，第 1 项的反例解释和修复建议以下文为准，第 2、3 项已证缺口不变。保留旧反例、脚本与原文，不改动冻结组件、原 journal 或 Native timing。
+
+独立核对精确 `2ae73562effbabbee2092a1ff249fc43fe5f288c` 的 business.live.spec.ts:130–147 后确认：先 `await Promise.all(batchPosts)` 与 `Promise.all(batchReads)`，然后在逐项验证循环末尾写 COMMITTED_READBACK。该 subject 事件是事后核验记录，日志写入顺序不等于对应网络请求/响应的发生顺序。因此正常串行执行也可能在 A 的 COMMITTED_READBACK 日志之前已有 B 的 ATTEMPT_STARTED。原变体仍确实被 validator 接受，但不能据此判定网络非串行；原“原日志显示前项真实读回前启动后项”的解释与强制 A.READBACK 行索引小于 B.ATTEMPT 的建议正式撤回，不得据此新增 gate。
+
+同冻结 spec:140、146 等待真实 response.finished，并直接从前项 read.request().timing() 与后项 raw.request().timing() 取 startTime/responseEnd，检查 responseEnd 非负及下一 POST 起始不早于前 GET 完成，再保存 serial_evidence。这些是源码定义的真实 Request/Response 观测值，不应描述为任意硬编码计数；本轮没有实际浏览器证据来否定其真实采集。当前独立反例没有构造“已绑定真实网络时间顺序相反但整个采集仍通过”的证明，故不再将第 1 项计作已证 P2。
+
+若 Root 要求父层可从原始材料重算串行关系，最小方案建议仅增加本 case 的窄私有采样材料，供 QA 提案后冻结独审：
+
+1. 在现有真实 Request/Response 观测点保存对应对象的原 timing 快照，保留原 startTime/responseEnd 数值与缺失/失败状态；以实际 Request 对象关联 POST 与 GET，不使用 subject journal 行序或异步 callback 写文件顺序推断网络时间。可以在请求自然完成后收集，无需等待该文件写入才放行下一业务操作。
+2. 原始记录绑定 source SHA/tree、同 case、scope/shop、POST operation/key/path/request_body_sha256，以及 GET method/path/query、resource id、严格 schema 核验后的 readback version/data_revision 和响应内容摘要。绑定应复用原 request witness、已验证 receipt/readback 对象，保存必要原始安全字段，不能仅再复制一份 serial_evidence 或“已完成”boolean。不得包含凭证/headers/cookies。
+3. 父层只读核材料路径/权限/摘要及唯一对应关系，从原 POST key/bodyhash 和 readback resource/version/revision 找到同一对请求，再重算既有时间不等式，并与 summary 一致；缺失、重复、不同 scope/case、未知/非有限 timing 或无法唯一匹配一律不接纳。原始材料 hash 仅证明字节未漂移，真实性仍依赖精确受审的采样代码及后续真实 owned 运行，不称其为独立网络见证器。
+
+这是一份未实施方案，不自动扩展 QA 改动范围；待 Root/QA 确定精确材料契约。保持原 subjectWriter/registry 状态、journal 时点、业务 dispatch/读回、超时及运行窗口不变，不通过延迟、重放业务或改日志时点迎合校验。原 pending-before-POST 与批末 pending 为空继续保留；若另需逐项 pending 闭合证据，应另绑定实际边界采样，不能从事后 subject 事件推导。此次更正没有重跑组件或启动任何资源。
