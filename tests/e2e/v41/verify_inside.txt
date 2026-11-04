@@ -1,0 +1,41 @@
+import hashlib
+import importlib.util
+import json
+import pathlib
+import sys
+
+expected = json.load(sys.stdin)
+root = pathlib.Path('/app')
+actual = {}
+for directory in ('backend', 'tests', 'scripts'):
+    for path in (root / directory).rglob('*'):
+        if path.is_symlink():
+            raise SystemExit('RUNTIME_SYMLINK_REJECTED')
+        if path.is_file():
+            actual[path.relative_to(root).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+for name in ('pyproject.toml', 'uv.lock', '.python-version'):
+    actual[name] = hashlib.sha256((root / name).read_bytes()).hexdigest()
+if actual != expected:
+    raise SystemExit('RUNTIME_FILESET_OR_BYTES_DIFFER')
+spec = importlib.util.find_spec('commerceops')
+package = pathlib.Path(next(iter(spec.submodule_search_locations))).resolve()
+if not package.is_relative_to('/app/.venv'):
+    raise SystemExit('PACKAGE_NOT_NONEDITABLE_VENV')
+prefix = 'backend/src/commerceops/'
+installed_expected = {
+    name[len(prefix):]: digest for name, digest in expected.items()
+    if name.startswith(prefix) and name.endswith('.py')
+}
+installed_actual = {}
+for path in package.rglob('*.py'):
+    if path.is_symlink():
+        raise SystemExit('INSTALLED_SYMLINK_REJECTED')
+    installed_actual[path.relative_to(package).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+if installed_actual != installed_expected:
+    raise SystemExit('INSTALLED_PACKAGE_FILESET_OR_BYTES_DIFFER')
+print(json.dumps({
+    'status': 'EXACT_SOURCE_AND_NONEDITABLE_PACKAGE_MATCH',
+    'runtime_files': len(actual),
+    'installed_python_files': len(installed_actual),
+    'manifest_sha256': hashlib.sha256(json.dumps(expected, sort_keys=True).encode()).hexdigest(),
+}))
