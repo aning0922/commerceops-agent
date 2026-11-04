@@ -1,5 +1,5 @@
 import {expect,type Page,type Request,type Response} from '@playwright/test';
-import Ajv2020 from 'ajv/dist/2020';
+import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import businessSchema from '../lib/v41-schema.json' with {type:'json'};
 import sessionSchema from '../lib/v4-schema.json' with {type:'json'};
@@ -38,7 +38,9 @@ export async function installBusinessJournal(page:Page,api:string,writer:Subject
   const identity=getIdentity();let body:Record<string,unknown> & {shop_id?:string;request_key?:string;expected_epoch?:number;expected_generation?:number};
   try{body=request.postDataJSON();}catch{failure=true;await route.abort();return;}
   if(!identity||typeof body.shop_id!=='string'||typeof body.request_key!=='string'||body.expected_epoch!==identity.reset_epoch||body.expected_generation!==identity.auth_generation){failure=true;await route.abort();return;}
-  const entry={context:{...identity},shop:body.shop_id,key:body.request_key,operation};
+  let fresh;try{fresh=await safeSession(page,api);}catch{failure=true;await route.abort();return;}
+  if(!sameScope(fresh.context,identity,null)||!fresh.data.shops.some((shop:{shop_id:string;grants:string[]})=>shop.shop_id===body.shop_id&&shop.grants.includes('operator'))){failure=true;await route.abort();return;}
+  const entry={context:{...fresh.context},shop:body.shop_id,key:body.request_key,operation};
   try{await writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ATTEMPT_STARTED',{method:'POST',path:url.pathname,body});}
   catch{failure=true;await route.abort();return;}
   active.set(request,entry);try{await route.continue();}catch{failure=true;active.delete(request);enqueue(Promise.resolve().then(()=>writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ACK_UNKNOWN')));} 
@@ -49,4 +51,41 @@ export async function installBusinessJournal(page:Page,api:string,writer:Subject
  });
  page.on('requestfailed',request=>{const entry=active.get(request);if(!entry)return;active.delete(request);enqueue(Promise.resolve().then(()=>writer.operation(subjectContext(entry.context),entry.shop,entry.operation,entry.key,'ACK_UNKNOWN')));});
  return {async flush(){await Promise.allSettled([...writes]);if(failure||active.size)throw new Error('SUBJECT_JOURNAL_FAILED');},pending:()=>active.size};
+}
+/** Read the real session inside the browser and return only a whitelisted, CSRF-redacted DTO. */
+export async function safeSession(page:Page,api:string){
+ const safe=await page.evaluate(async endpoint=>{
+  const response=await fetch(endpoint,{credentials:'include',cache:'no-store'});if(!response.ok)throw new Error('OWNED_SESSION_NOT_OK');
+  const value=await response.json(),data=value?.data,context=value?.context,source=data?.source;
+  if(!data||!context||!source||typeof data.csrf_token!=='string'||!Array.isArray(data.shops))throw new Error('OWNED_SESSION_INVALID');
+  return {schema_version:value.schema_version,server_time:value.server_time,trace_id:value.trace_id,status:value.status,
+   context:{tenant_id:context.tenant_id,organization_id:context.organization_id,principal_id:context.principal_id,shop_id:context.shop_id,reset_epoch:context.reset_epoch,auth_generation:context.auth_generation,authorized_at:context.authorized_at},
+   data:{creation_request_key:data.creation_request_key,persona_id:data.persona_id,expires_at:data.expires_at,csrf_token:'[REDACTED]',shops:data.shops.map((shop:{shop_id:string;display_name:string;timezone:string;currency:string;grants:string[]})=>({shop_id:shop.shop_id,display_name:shop.display_name,timezone:shop.timezone,currency:shop.currency,grants:shop.grants})),source:{data_mode:source.data_mode,evidence_mode:source.evidence_mode,fixture_version:source.fixture_version,fixture_digest:source.fixture_digest}}};
+ },api+'/api/v4/demo/session');
+ if(!validator('session','SessionEnvelope')(safe))throw new Error('OWNED_SESSION_SCHEMA_MISMATCH');return safe;
+}
+/** Persist server-returned session scope before the UI consumes a successful create response. */
+export async function installSessionRegistration(page:Page,api:string,writer:SubjectWriter){
+ const registrations:{context:SubjectContext;shops:string[]}[]=[];
+ await page.exposeBinding('__v41_record_actual_subject',async (_source,value:{context:SubjectContext;shops:string[]})=>{
+  if(!value||!value.context||!Array.isArray(value.shops)||value.shops.length>2)throw new Error('SESSION_SUBJECT_INVALID');
+  for(const shop of value.shops)await writer.scope(value.context,shop);
+  registrations.push(value);
+ });
+ await page.addInitScript((origin:string)=>{
+  const original=window.fetch.bind(window);
+  window.fetch=async (...args:Parameters<typeof fetch>)=>{
+   const response=await original(...args),input=args[0],init=args[1],url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url,location.href);
+   const method=(init?.method??(input instanceof Request?input.method:'GET')).toUpperCase();
+   if(url.origin===origin&&url.pathname==='/api/v4/demo/sessions'&&method==='POST'&&response.ok){
+    const value=await response.clone().json(),ctx=value?.context,shops=value?.data?.session?.shops;
+    if(!ctx||!Array.isArray(shops)||shops.length>2)throw new Error('SESSION_SUBJECT_INVALID');
+    const context={tenant_id:ctx.tenant_id,organization_id:ctx.organization_id,principal_id:ctx.principal_id,reset_epoch:ctx.reset_epoch,auth_generation:ctx.auth_generation};
+    const record=(window as unknown as {__v41_record_actual_subject:(v:{context:typeof context;shops:string[]})=>Promise<void>}).__v41_record_actual_subject;
+    await record({context,shops:shops.map((shop:{shop_id:string})=>shop.shop_id)});
+   }
+   return response;
+  };
+ },api);
+ return registrations;
 }
