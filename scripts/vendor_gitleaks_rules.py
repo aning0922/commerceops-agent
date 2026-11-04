@@ -2490,6 +2490,18 @@ V4_MERGE_COPY_BINDINGS: tuple[dict[str, Any], ...] = (
         "match_sha256": "49c7f621d5c18ce5203358ccea3853971ec8a2cfe69661241ce5c31c5f97f32f",
         "binding_kind": "copy_only",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "frontend/app/v4/[[...path]]/page.tsx",
+        "source_commit": "f949781fa0b9958fedeaf3303c4cf6cefdef8322",
+        "reported_line": 11,
+        "end_line": 11,
+        "start_column": 43,
+        "end_column": 116,
+        "exact_span_sha256": "87405b72cf4ecad5f2e883918142fa6809f7b0c973fc89881eb429f190a5b64b",
+        "match_sha256": "896d3957535652b65e2eb532731f764c8b1d7f6eafe0bbc90df606658c4b367b",
+        "binding_kind": "copy_only",
+    },
 )
 
 
