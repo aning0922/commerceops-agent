@@ -1,8 +1,8 @@
 # V4-1 本地演示复现说明草案
 
 日期：2026-11-04，Asia/Taipei。文档依据 Root 冻结源码
-`8f6687560bb5c71804fd249068e2a9912fe35556`，只读该提交的路由、合同和固定运行器。
-状态：`DRAFT / STAGE_NOT_COMPLETE`。本说明不授予运行权限，也不代表存在可访问的常驻服务。
+`bec4291636f31218bee7e9b6fca1211680cfc940`，只读该提交的路由、合同和固定运行器。
+状态：`DRAFT / CURRENT_BROWSER_PENDING`。本说明不授予运行权限，也不代表存在可访问的常驻服务。
 文档集成后，实际复现仍须绑定 Root 最终核定的新 source/tree 和对应镜像，不能直接沿用本文
 基线或历史镜像、窗口、私配、once、项目、数据库、端口及卷。
 
@@ -11,8 +11,15 @@
 - 四个有限真实 HTTP 场景已独立核收：同源看板、商品订单、CSV、XLSX，详见
   [54ab 四案核收](../reviews/HTTP54AB_FOUR_CASES.md)。它们证明各自冻结源及窗口，不能替代
   本文基线或后续组合的浏览器与 Full 验收。
-- 按 Root 本次交接，业务 browser 单项已通过；本文不据此补造整套浏览器通过回执。
-  Shell、原生 200%、最终组合完整工程／Full 仍待验，阶段尚未 complete。
+- 完整工程检查在 source `4fec4a7416d7b9434d979f461d5da78508cfb850` 通过，详见
+  [独审](../reviews/ENGINEERING_4fec4a7_R3.md)；仅签该源码，不代签新浏览器源码。
+- FullPG 两线在 source `e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6` 严格配对：596 + 177，
+  并集 773、交集 0；详见 [最终配对独审](../reviews/PG_PAIR_e7ae_FINAL.md)。该结论只属 e7，
+  不代签其他源码或浏览器。
+- 按 Root 转交的 r7 事实，业务单项通过，Shell 首次在 `read_at` 处失败，整案不通过；
+  全部本案资源已关闭。下一测试关联修复尚未冻结，当前完整浏览器、原生截图和人工视觉验收
+  仍待验；不将业务单项或旧案结果挂到后续 source。最终 source、截图及完整 browser 证据
+  核收后，由 Root 更新本 DRAFT 状态。
 - 既有运行案均已关闭。本文只提供路由和新窗口中的 URL 生成方式，不承诺历史 URL 可用。
 - 所有演示数据均为合成数据。飞书、Woo、真实模型／embedding 和外部业务调用保持关闭；
   Copilot 显示“模型未启用”，规则洞察不冒充模型回答。这里的本机 API HTTP、PG 和浏览器
@@ -105,7 +112,7 @@ READY 标记。没有材料或没有新的实际 GO 时，只能阅读说明，�
 
 | 类别 | 必要条件 |
 | --- | --- |
-| 冻结源码与工具 | 正确且干净的专属 checkout、精确 source/tree、合同／迁移／schema／锁摘要；依赖和工具链已按冻结源准备，不能临时联网安装或自动下载浏览器 |
+| 冻结源码与工具 | 正确且干净的专属 checkout、精确 source/tree、合同／迁移／schema／锁摘要；依赖和工具链已按冻结源准备，依赖安装及浏览器工具准备须由 Root 按新案授权、冻结源与工具 pin 安排，不能复用旧案配置或在运行时自动下载浏览器 |
 | 镜像来源 | 精确 PG/test image ID；真实 build/inside-source/noneditable 安装证明，与本案源码和原始 expected-runtime 文件 bytes 绑定；不自动 build、拉取或 retag |
 | 资源与时间 | 新 `v41qa_…` project、`v4_demo_v41_…` DB、新不存在的 canonical case 目录、当前 UID、两独立 loopback 端口、两独立子网及绝对 UTC starts/deadline/parent_deadline；原清理预留至少 180 秒，容量不足即 HOLD |
 | 权限与宿主 | 本案 owner/app 分离、低权限 runtime；Root 核定的 Docker daemon/binary/Compose plugin 身份，不能采用当前默认 daemon 或已有监听器 |
