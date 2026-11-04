@@ -1,0 +1,15 @@
+# V41 浏览器PGID停止证明P2关闭回执
+
+日期：2026-11-04（台北）。source `e20cf67f7bc7073e4e0c4a80cd3e2b3d853bc859`，tree `ea346fda433eb40fc2a18a39f9f3e1ac8a0c991d`，parent `1794fc7d5e87f252ad16fa54c5594a6c704ef3ac`。精确四文件增量，不读WIP、不运行资源。
+
+结论：ACCEPT_BROWSER_PARENT_GROUP_FIX_SOURCE。57b7b41报告的PGID清理P2在源码层关闭，本次authority/启动失败增量未见新P1/P2。结合187、2db、1794既有分项审查，Root可集成该精确源链并保留已cherry的1794同字节；合并后的source/tree/image与实际运行窗口仍须另冻结，不能以此回执签真实浏览器或Full已通过。
+
+原反例已修：wrapper保留真实Node Popen PID，首次观测保存birth并持续核其UID/birth；仅接纳本案TMPDIR/profile、精确browser binary、本UID、真实Node祖先链下的group leader。存活期把leader及同PGID全部成员的PID/UID/birth写入bounded私有JSONL并逐条flush/fsync，含无profile参数的子进程。header绑定source/tree/case/wrapper PID/binary hash，清理由原Supervisor probe PID核header，缺capture/截断/字段或身份冲突拒绝。
+
+末态按已登记完整PGID枚举所有成员，不再依赖leader或每个child仍带profile。至少一个旧成员birth维持连续性，已见PID的birth变化、UID异常、无连续旧成员、未登记profile组和已经观察为空的组重新出现都会在signal前拒绝。leader先退出但旧renderer仍活的两种测试均实际走TERM/KILL模型，直到完整组为空；forced非空始终clean_exit=false，父案FAIL保持，只有确认remaining空后才可读取已停止writers的原journal/末态。未知异常令writers_stopped=false，不放末态采集。
+
+启动失败分支：父流程尚未创建probe时仅记录not_started，不读取不存在的组journal；probe已创建但wrapper/Node未成功启动或未捕获组时不走该豁免，load_groups缺失/仅START即拒绝。Popen抛错前START已落盘，异常原样向上传播，不伪造child native0或capture。成功创建Node后finally负责等待/终止并保存实际exit/birth；其进程仍继承Supervisor wrapper组，浏览器detached组另由上述已登记identity处理。735四owner文件再次核为逐字节不变。
+
+独立验证：精确e20 QA archive加已审Root590 backend明确依赖，test_browser_shell、test_owned_driver、test_source_seal共30 passed，3.70s，nativeexit0。另以mock inventory/Popen/killpg核五边界：错误UID、未登记profile组、空组重现且零signal、Popen异常保留、仅START无capture拒绝，nativeexit0。没有创建真实浏览器子进程或发真实信号。作者type/Ruff及实际启动/清理效果不由这些组件结果代签。
+
+runtime_subjects历史12路由缺口已改绑95deb父版本，关闭57中的非阻断事实笔误。2db迟到ACK仍只接受其组合失效顺序的DEFINED_NOT_RUN配方，native200/完整权限矩阵另验。旧187反例及HOLD回执保留，不追溯变成当时已正确。无HTTP、SQL、owner、Docker、服务、Full/CI或远端写入。
