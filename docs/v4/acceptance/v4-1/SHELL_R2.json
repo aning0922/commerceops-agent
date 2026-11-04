@@ -1,0 +1,108 @@
+{
+  "stage": "V4-1",
+  "scope": "SHELL_FIXTURE_ONLY",
+  "source": "3b25d1185c990d12ad67bb23073d36b67a611d60",
+  "tree": "091749469771e60d3d3817f0f29c9dae4922f0f5",
+  "status": "ACCEPTED_SHELL_RUNTIME_SLICE",
+  "tests": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0
+  },
+  "outer_native_exit": 0,
+  "probe_native_exit": 0,
+  "service_native_exit": 0,
+  "source_unchanged": true,
+  "port_released": true,
+  "registered_groups_absent": true,
+  "business_api_permissions_full_stage": "NOT_RUN",
+  "screenshots": {
+    "shots": [
+      {
+        "file": "dashboard-1440.png",
+        "url": "/v4/dashboard",
+        "menu": false,
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 900,
+        "scrollHeight": 1464,
+        "overflow": false
+      },
+      {
+        "file": "import-1440.png",
+        "url": "/v4/products/import",
+        "menu": false,
+        "width": 1440,
+        "scrollWidth": 1440,
+        "height": 900,
+        "scrollHeight": 1034,
+        "overflow": false
+      },
+      {
+        "file": "dashboard-390.png",
+        "url": "/v4/dashboard",
+        "menu": false,
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 844,
+        "scrollHeight": 2225,
+        "overflow": false
+      },
+      {
+        "file": "import-390.png",
+        "url": "/v4/products/import",
+        "menu": false,
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 844,
+        "scrollHeight": 1350,
+        "overflow": false
+      },
+      {
+        "file": "menu-390.png",
+        "url": "/v4/products/import",
+        "menu": true,
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 844,
+        "scrollHeight": 1350,
+        "overflow": false
+      }
+    ],
+    "refused": [],
+    "scope": "synthetic shell; API/business/permissions NOT_RUN"
+  },
+  "evidence_refs": {
+    "receipt.json": {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-control/commerceops-agent/.audit/v4-1/shell-3b25d11-r2/receipt.json",
+      "sha256": "5da28ce3b3047132d4ca27598877767ff305260d2b3d3b5ff940b6dd77bfc364"
+    },
+    "outer-receipt.json": {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-control/commerceops-agent/.audit/v4-1/shell-3b25d11-r2/outer-receipt.json",
+      "sha256": "f5abd549c374e73d6413f5135b617d70efe22c645eb2dcc93f43ec8c9cda3983"
+    },
+    "verification.json": {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-control/commerceops-agent/.audit/v4-1/shell-3b25d11-r2/verification.json",
+      "sha256": "c9b3b3c829634bfce14aba7af120a3f38155ce672f13c8ae45bb6ca624f26120"
+    },
+    "playwright.json": {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-control/commerceops-agent/.audit/v4-1/shell-3b25d11-r2/playwright.json",
+      "sha256": "13285c5c3471cfb5c8b90d1ef32281a6ee86190f943c35db500cf04402b7403d"
+    }
+  },
+  "prior_failure": {
+    "case": "shell-3b25d11",
+    "status": "FAILED_BEFORE_RESOURCE_START",
+    "outer_native_exit": 1,
+    "reason": "RUNPY_FILE_PATH_LAUNCHER",
+    "tests": "NOT_RUN",
+    "preserved": true
+  },
+  "visual_followup": [
+    "mobile_menu_heading_contrast",
+    "compact_authenticated_business_header",
+    "remove_dev_indicator_overlay"
+  ]
+}

@@ -2,20 +2,33 @@
   "stage": "V4-1",
   "mode": "local",
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
-  "status": "planning",
+  "status": "implementing",
   "cards": {
-    "V41-01": "not_started",
-    "V41-02": "not_started",
-    "V41-03": "not_started",
-    "V41-04": "not_started",
-    "V41-05": "not_started",
-    "V41-06": "not_started"
+    "V41-01": "implementing",
+    "V41-02": "implementing",
+    "V41-03": "contract_frozen",
+    "V41-04": "contract_frozen",
+    "V41-05": "contract_frozen",
+    "V41-06": "implementing"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
-  "implementation_release": "pending_incremental_contract_freeze",
+  "implementation_release": "84db1ba",
   "runtime_resources": [],
   "hosted": "not_run",
   "external_business_calls": "not_run",
   "model_cost": "unknown",
-  "next_stage": "not_started"
+  "next_stage": "not_started",
+  "owner_slices": {
+    "backend_contract": "62ab257fef65c5d7f237969ce901b69b2fd3fcdc",
+    "qa_supervisor": "549d67c17a9e67448cacc0f29517de07af6e70d2",
+    "review": "in_progress",
+    "web_shell": "in_progress"
+  },
+  "models": {
+    "api": "Sol high",
+    "web": "Terra high",
+    "qa": "Sol medium",
+    "review": "Astra high",
+    "gates": "Sol medium"
+  }
 }

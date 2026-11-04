@@ -1,0 +1,3255 @@
+{
+  "json_schema": {
+    "$defs": {
+      "ActionLookup": {
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "enum": [
+              "product_tags",
+              "order_fulfillment",
+              "import_confirm"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ActionReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation",
+          "request_key",
+          "status",
+          "receipt"
+        ],
+        "title": "ActionLookup",
+        "type": "object"
+      },
+      "ActionReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "after_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "After Revision",
+            "type": "string"
+          },
+          "before_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Before Revision",
+            "type": "string"
+          },
+          "committed_at": {
+            "format": "date-time",
+            "title": "Committed At",
+            "type": "string"
+          },
+          "operation": {
+            "enum": [
+              "product_tags",
+              "order_fulfillment",
+              "import_confirm"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "payload_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Payload Digest",
+            "type": "string"
+          },
+          "receipt_id": {
+            "format": "uuid",
+            "title": "Receipt Id",
+            "type": "string"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "resource_id": {
+            "format": "uuid",
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "resource_version": {
+            "minimum": 0,
+            "title": "Resource Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "receipt_id",
+          "operation",
+          "request_key",
+          "payload_digest",
+          "resource_id",
+          "resource_version",
+          "committed_at",
+          "before_revision",
+          "after_revision"
+        ],
+        "title": "ActionReceipt",
+        "type": "object"
+      },
+      "ActionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "next_step": {
+            "const": "READ_CURRENT_RESOURCE",
+            "default": "READ_CURRENT_RESOURCE",
+            "title": "Next Step",
+            "type": "string"
+          },
+          "receipt": {
+            "$ref": "#/$defs/ActionReceipt"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "title": "ActionResult",
+        "type": "object"
+      },
+      "BusinessEnvelope_ActionLookup_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ActionLookup"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ActionLookup]",
+        "type": "object"
+      },
+      "BusinessEnvelope_ActionResult_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ActionResult"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ActionResult]",
+        "type": "object"
+      },
+      "BusinessEnvelope_DashboardData_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/DashboardData"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[DashboardData]",
+        "type": "object"
+      },
+      "BusinessEnvelope_ExportData_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ExportData"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ExportData]",
+        "type": "object"
+      },
+      "BusinessEnvelope_ImportPreviewData_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ImportPreviewData"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ImportPreviewData]",
+        "type": "object"
+      },
+      "BusinessEnvelope_OrderDetail_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/OrderDetail"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[OrderDetail]",
+        "type": "object"
+      },
+      "BusinessEnvelope_Page_Order__": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/Page_Order_"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[Page[Order]]",
+        "type": "object"
+      },
+      "BusinessEnvelope_Page_Product__": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/Page_Product_"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[Page[Product]]",
+        "type": "object"
+      },
+      "BusinessEnvelope_Page_Union_Order__Product__RefundEvent___": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/Page_Union_Order__Product__RefundEvent__"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[Page[Union[Order, Product, RefundEvent]]]",
+        "type": "object"
+      },
+      "BusinessEnvelope_PreviewLookup_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/PreviewLookup"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[PreviewLookup]",
+        "type": "object"
+      },
+      "BusinessEnvelope_ProductDetail_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ProductDetail"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ProductDetail]",
+        "type": "object"
+      },
+      "BusinessEnvelope_ReadContextData_": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/$defs/Context"
+          },
+          "data": {
+            "$ref": "#/$defs/ReadContextData"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "context",
+          "data"
+        ],
+        "title": "BusinessEnvelope[ReadContextData]",
+        "type": "object"
+      },
+      "BusinessError": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "SESSION_INVALID",
+              "ORIGIN_DENIED",
+              "CSRF_INVALID",
+              "ACCESS_DENIED",
+              "RESOURCE_NOT_FOUND",
+              "EPOCH_CHANGED",
+              "GENERATION_CHANGED",
+              "INVALID_REQUEST",
+              "IDEMPOTENCY_CONFLICT",
+              "VERSION_CONFLICT",
+              "STATE_CONFLICT",
+              "PAYMENT_STATE_UNKNOWN",
+              "SNAPSHOT_CHANGED",
+              "IMPORT_INVALID",
+              "IMPORT_EXPIRED",
+              "LIMIT_EXCEEDED",
+              "RATE_LIMITED",
+              "SERVICE_UNAVAILABLE"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "request_key": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Key"
+          },
+          "retryable": {
+            "const": false,
+            "title": "Retryable",
+            "type": "boolean"
+          },
+          "safe_message": {
+            "maxLength": 160,
+            "title": "Safe Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "safe_message",
+          "retryable",
+          "request_key"
+        ],
+        "title": "BusinessError",
+        "type": "object"
+      },
+      "ColumnMapping": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Currency",
+            "type": "string"
+          },
+          "price": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Price",
+            "type": "string"
+          },
+          "sku": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Sku",
+            "type": "string"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tags"
+          },
+          "title": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "title",
+          "price",
+          "currency"
+        ],
+        "title": "ColumnMapping",
+        "type": "object"
+      },
+      "ConfirmImport": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_data_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Data Revision",
+            "type": "string"
+          },
+          "expected_epoch": {
+            "minimum": 0,
+            "title": "Expected Epoch",
+            "type": "integer"
+          },
+          "expected_generation": {
+            "minimum": 0,
+            "title": "Expected Generation",
+            "type": "integer"
+          },
+          "expected_job_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Job Digest",
+            "type": "string"
+          },
+          "expected_job_version": {
+            "maximum": 5,
+            "minimum": 1,
+            "title": "Expected Job Version",
+            "type": "integer"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id",
+          "request_key",
+          "expected_epoch",
+          "expected_generation",
+          "expected_data_revision",
+          "expected_job_version",
+          "expected_job_digest"
+        ],
+        "title": "ConfirmImport",
+        "type": "object"
+      },
+      "Context": {
+        "additionalProperties": false,
+        "properties": {
+          "auth_generation": {
+            "minimum": 0,
+            "title": "Auth Generation",
+            "type": "integer"
+          },
+          "authorized_at": {
+            "format": "date-time",
+            "title": "Authorized At",
+            "type": "string"
+          },
+          "organization_id": {
+            "format": "uuid",
+            "title": "Organization Id",
+            "type": "string"
+          },
+          "principal_id": {
+            "format": "uuid",
+            "title": "Principal Id",
+            "type": "string"
+          },
+          "reset_epoch": {
+            "minimum": 0,
+            "title": "Reset Epoch",
+            "type": "integer"
+          },
+          "shop_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shop Id"
+          },
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "organization_id",
+          "principal_id",
+          "shop_id",
+          "reset_epoch",
+          "auth_generation",
+          "authorized_at"
+        ],
+        "title": "Context",
+        "type": "object"
+      },
+      "DashboardData": {
+        "additionalProperties": false,
+        "properties": {
+          "comparison_reason": {
+            "const": "NO_COMPARABLE_PERIOD",
+            "default": "NO_COMPARABLE_PERIOD",
+            "title": "Comparison Reason",
+            "type": "string"
+          },
+          "comparison_value": {
+            "default": null,
+            "title": "Comparison Value",
+            "type": "null"
+          },
+          "insights": {
+            "items": {
+              "$ref": "#/$defs/RuleInsight"
+            },
+            "title": "Insights",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/$defs/Metric"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "model_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Model Mode",
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/$defs/Period"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          },
+          "trend": {
+            "items": {
+              "$ref": "#/$defs/TrendPoint"
+            },
+            "maxItems": 90,
+            "title": "Trend",
+            "type": "array"
+          }
+        },
+        "required": [
+          "snapshot",
+          "period",
+          "metrics",
+          "trend",
+          "insights"
+        ],
+        "title": "DashboardData",
+        "type": "object"
+      },
+      "DatasetSource": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_snapshot_at": {
+            "format": "date-time",
+            "title": "Baseline Snapshot At",
+            "type": "string"
+          },
+          "data_mode": {
+            "enum": [
+              "demo_fixture",
+              "demo_mixed"
+            ],
+            "title": "Data Mode",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "synthetic_demo",
+            "default": "synthetic_demo",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "fixture_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixture Digest",
+            "type": "string"
+          },
+          "fixture_version": {
+            "const": "v4-demo-seed-1",
+            "default": "v4-demo-seed-1",
+            "title": "Fixture Version",
+            "type": "string"
+          },
+          "uploads": {
+            "items": {
+              "$ref": "#/$defs/SourceRef"
+            },
+            "maxItems": 500,
+            "title": "Uploads",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_mode",
+          "fixture_digest",
+          "baseline_snapshot_at",
+          "uploads"
+        ],
+        "title": "DatasetSource",
+        "type": "object"
+      },
+      "DrilldownQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cursor"
+          },
+          "days": {
+            "default": 7,
+            "enum": [
+              7,
+              14
+            ],
+            "title": "Days",
+            "type": "integer"
+          },
+          "from_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "From Date"
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "metric": {
+            "enum": [
+              "created_order_count",
+              "paid_order_count",
+              "paid_order_amount",
+              "refund_event_count",
+              "refund_event_amount",
+              "average_paid_order_amount",
+              "product_count",
+              "low_stock_count"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "to_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "To Date"
+          }
+        },
+        "required": [
+          "shop_id",
+          "metric"
+        ],
+        "title": "DrilldownQuery",
+        "type": "object"
+      },
+      "ExportData": {
+        "additionalProperties": false,
+        "properties": {
+          "csv_text": {
+            "maxLength": 1048576,
+            "title": "Csv Text",
+            "type": "string"
+          },
+          "filename": {
+            "enum": [
+              "products.csv",
+              "orders.csv"
+            ],
+            "title": "Filename",
+            "type": "string"
+          },
+          "format": {
+            "const": "csv",
+            "default": "csv",
+            "title": "Format",
+            "type": "string"
+          },
+          "row_count": {
+            "maximum": 500,
+            "minimum": 0,
+            "title": "Row Count",
+            "type": "integer"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          }
+        },
+        "required": [
+          "snapshot",
+          "filename",
+          "csv_text",
+          "row_count"
+        ],
+        "title": "ExportData",
+        "type": "object"
+      },
+      "FailureEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/$defs/BusinessError"
+          },
+          "schema_version": {
+            "const": "v4-business-v1",
+            "default": "v4-business-v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "server_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Server Time"
+          },
+          "status": {
+            "enum": [
+              "REJECTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trace_id": {
+            "format": "uuid",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "server_time",
+          "trace_id",
+          "status",
+          "error"
+        ],
+        "title": "FailureEnvelope",
+        "type": "object"
+      },
+      "FulfillDemoOrder": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "mark_demo_fulfilled",
+            "title": "Action",
+            "type": "string"
+          },
+          "expected_data_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Data Revision",
+            "type": "string"
+          },
+          "expected_epoch": {
+            "minimum": 0,
+            "title": "Expected Epoch",
+            "type": "integer"
+          },
+          "expected_generation": {
+            "minimum": 0,
+            "title": "Expected Generation",
+            "type": "integer"
+          },
+          "expected_version": {
+            "minimum": 0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id",
+          "request_key",
+          "expected_epoch",
+          "expected_generation",
+          "expected_data_revision",
+          "expected_version",
+          "action"
+        ],
+        "title": "FulfillDemoOrder",
+        "type": "object"
+      },
+      "ImportIssue": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "EMPTY_DATA",
+              "FORMULA_REJECTED",
+              "INVALID_HEADER",
+              "INVALID_ROW_WIDTH",
+              "INVALID_SKU",
+              "DUPLICATE_SKU",
+              "INVALID_TITLE",
+              "INVALID_PRICE",
+              "CURRENCY_MISMATCH",
+              "INVALID_TAGS",
+              "MAPPING_REQUIRED",
+              "MAPPING_COLUMN_MISSING",
+              "ROW_LIMIT"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "column": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column"
+          },
+          "row": {
+            "minimum": 0,
+            "title": "Row",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row",
+          "column",
+          "code"
+        ],
+        "title": "ImportIssue",
+        "type": "object"
+      },
+      "ImportJobRef": {
+        "additionalProperties": false,
+        "properties": {
+          "data_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Data Revision",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "import_job_id": {
+            "format": "uuid",
+            "title": "Import Job Id",
+            "type": "string"
+          },
+          "import_schema_version": {
+            "const": "v41-import-1",
+            "default": "v41-import-1",
+            "title": "Import Schema Version",
+            "type": "string"
+          },
+          "job_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Job Digest",
+            "type": "string"
+          },
+          "parent_job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Job Id"
+          },
+          "parser_version": {
+            "const": "v41-parser-1",
+            "default": "v41-parser-1",
+            "title": "Parser Version",
+            "type": "string"
+          },
+          "version": {
+            "maximum": 5,
+            "minimum": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "import_job_id",
+          "version",
+          "parent_job_id",
+          "job_digest",
+          "data_revision",
+          "expires_at"
+        ],
+        "title": "ImportJobRef",
+        "type": "object"
+      },
+      "ImportPreviewData": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmable": {
+            "title": "Confirmable",
+            "type": "boolean"
+          },
+          "file_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "File Digest",
+            "type": "string"
+          },
+          "headers": {
+            "items": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 24,
+            "minItems": 1,
+            "title": "Headers",
+            "type": "array"
+          },
+          "issue_count": {
+            "minimum": 0,
+            "title": "Issue Count",
+            "type": "integer"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/$defs/ImportIssue"
+            },
+            "maxItems": 100,
+            "title": "Issues",
+            "type": "array"
+          },
+          "job": {
+            "$ref": "#/$defs/ImportJobRef"
+          },
+          "mapping": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ColumnMapping"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mapping_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Mapping Version",
+            "type": "integer"
+          },
+          "row_count": {
+            "maximum": 500,
+            "minimum": 0,
+            "title": "Row Count",
+            "type": "integer"
+          },
+          "sample": {
+            "items": {
+              "$ref": "#/$defs/ImportSample"
+            },
+            "maxItems": 20,
+            "title": "Sample",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "DISCOVERED",
+              "READY",
+              "INVALID",
+              "SUPERSEDED",
+              "COMMITTED"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job",
+          "state",
+          "file_digest",
+          "mapping",
+          "headers",
+          "sample",
+          "row_count",
+          "issue_count",
+          "issues",
+          "confirmable"
+        ],
+        "title": "ImportPreviewData",
+        "type": "object"
+      },
+      "ImportPreviewInput": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_data_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Data Revision",
+            "type": "string"
+          },
+          "expected_epoch": {
+            "minimum": 0,
+            "title": "Expected Epoch",
+            "type": "integer"
+          },
+          "expected_generation": {
+            "minimum": 0,
+            "title": "Expected Generation",
+            "type": "integer"
+          },
+          "file_base64": {
+            "maxLength": 2796204,
+            "minLength": 1,
+            "title": "File Base64",
+            "type": "string"
+          },
+          "filename": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Filename",
+            "type": "string"
+          },
+          "format": {
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "mapping": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ColumnMapping"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "mapping_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Mapping Version",
+            "type": "integer"
+          },
+          "parent_job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Parent Job Id"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id",
+          "request_key",
+          "expected_epoch",
+          "expected_generation",
+          "expected_data_revision",
+          "format",
+          "filename",
+          "file_base64"
+        ],
+        "title": "ImportPreviewInput",
+        "type": "object"
+      },
+      "ImportSample": {
+        "additionalProperties": false,
+        "properties": {
+          "cells": {
+            "items": {
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 24,
+            "title": "Cells",
+            "type": "array"
+          },
+          "row": {
+            "maximum": 501,
+            "minimum": 2,
+            "title": "Row",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row",
+          "cells"
+        ],
+        "title": "ImportSample",
+        "type": "object"
+      },
+      "Metric": {
+        "additionalProperties": false,
+        "properties": {
+          "completeness": {
+            "enum": [
+              "COMPLETE",
+              "PARTIAL",
+              "UNAVAILABLE"
+            ],
+            "title": "Completeness",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "enum": [
+                  "TWD",
+                  "CNY"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "excluded_count": {
+            "minimum": 0,
+            "title": "Excluded Count",
+            "type": "integer"
+          },
+          "included_count": {
+            "minimum": 0,
+            "title": "Included Count",
+            "type": "integer"
+          },
+          "known_value": {
+            "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+            "title": "Known Value",
+            "type": "string"
+          },
+          "metric": {
+            "enum": [
+              "created_order_count",
+              "paid_order_count",
+              "paid_order_amount",
+              "refund_event_count",
+              "refund_event_amount",
+              "average_paid_order_amount",
+              "product_count",
+              "low_stock_count"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "reason_codes": {
+            "items": {
+              "enum": [
+                "UNKNOWN_PAYMENT_TIME",
+                "UNKNOWN_SETTLEMENT",
+                "UNKNOWN_COST",
+                "UNKNOWN_STOCK",
+                "UNKNOWN_INBOUND",
+                "NO_DENOMINATOR",
+                "OUTSIDE_SOURCE_WINDOW",
+                "NO_COMPARABLE_PERIOD"
+              ],
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "settlement_status": {
+            "enum": [
+              "NOT_APPLICABLE",
+              "UNKNOWN"
+            ],
+            "title": "Settlement Status",
+            "type": "string"
+          },
+          "unit": {
+            "enum": [
+              "count",
+              "money"
+            ],
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "metric",
+          "value",
+          "known_value",
+          "unit",
+          "currency",
+          "completeness",
+          "reason_codes",
+          "included_count",
+          "excluded_count",
+          "settlement_status"
+        ],
+        "title": "Metric",
+        "type": "object"
+      },
+      "Order": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "currency": {
+            "enum": [
+              "TWD",
+              "CNY"
+            ],
+            "title": "Currency",
+            "type": "string"
+          },
+          "demo_fulfillment": {
+            "enum": [
+              "demo_unfulfilled",
+              "demo_fulfilled"
+            ],
+            "title": "Demo Fulfillment",
+            "type": "string"
+          },
+          "fulfillment_version": {
+            "minimum": 0,
+            "title": "Fulfillment Version",
+            "type": "integer"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/$defs/OrderLine"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Lines",
+            "type": "array"
+          },
+          "net_amount": {
+            "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+            "title": "Net Amount",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "paid_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid At"
+          },
+          "payment_status": {
+            "enum": [
+              "payment_recorded",
+              "payment_timestamp_unknown"
+            ],
+            "title": "Payment Status",
+            "type": "string"
+          },
+          "refunds": {
+            "items": {
+              "$ref": "#/$defs/RefundEvent"
+            },
+            "maxItems": 100,
+            "title": "Refunds",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/$defs/SourceRef"
+          }
+        },
+        "required": [
+          "order_id",
+          "created_at",
+          "paid_at",
+          "payment_status",
+          "net_amount",
+          "currency",
+          "demo_fulfillment",
+          "fulfillment_version",
+          "source",
+          "lines",
+          "refunds"
+        ],
+        "title": "Order",
+        "type": "object"
+      },
+      "OrderDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "order": {
+            "$ref": "#/$defs/Order"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          }
+        },
+        "required": [
+          "snapshot",
+          "order"
+        ],
+        "title": "OrderDetail",
+        "type": "object"
+      },
+      "OrderLine": {
+        "additionalProperties": false,
+        "properties": {
+          "currency": {
+            "enum": [
+              "TWD",
+              "CNY"
+            ],
+            "title": "Currency",
+            "type": "string"
+          },
+          "line_id": {
+            "format": "uuid",
+            "title": "Line Id",
+            "type": "string"
+          },
+          "net_amount": {
+            "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+            "title": "Net Amount",
+            "type": "string"
+          },
+          "product_id": {
+            "format": "uuid",
+            "title": "Product Id",
+            "type": "string"
+          },
+          "quantity": {
+            "exclusiveMinimum": 0,
+            "title": "Quantity",
+            "type": "integer"
+          },
+          "sku_id": {
+            "format": "uuid",
+            "title": "Sku Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "line_id",
+          "product_id",
+          "sku_id",
+          "quantity",
+          "net_amount",
+          "currency"
+        ],
+        "title": "OrderLine",
+        "type": "object"
+      },
+      "OrderQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cursor"
+          },
+          "days": {
+            "default": 7,
+            "enum": [
+              7,
+              14
+            ],
+            "title": "Days",
+            "type": "integer"
+          },
+          "from_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "From Date"
+          },
+          "fulfillment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "demo_unfulfilled",
+                  "demo_fulfilled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Fulfillment"
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "payment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "recorded",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Payment"
+          },
+          "q": {
+            "default": "",
+            "maxLength": 80,
+            "title": "Q",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "sort": {
+            "default": "created_desc",
+            "enum": [
+              "created_desc",
+              "created_asc",
+              "amount_desc",
+              "amount_asc"
+            ],
+            "title": "Sort",
+            "type": "string"
+          },
+          "time_basis": {
+            "default": "created",
+            "enum": [
+              "created",
+              "paid"
+            ],
+            "title": "Time Basis",
+            "type": "string"
+          },
+          "to_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "To Date"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "OrderQuery",
+        "type": "object"
+      },
+      "Page_Order_": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Order"
+            },
+            "maxItems": 100,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          },
+          "total": {
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot",
+          "items",
+          "total",
+          "next_cursor"
+        ],
+        "title": "Page[Order]",
+        "type": "object"
+      },
+      "Page_Product_": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Product"
+            },
+            "maxItems": 100,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          },
+          "total": {
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot",
+          "items",
+          "total",
+          "next_cursor"
+        ],
+        "title": "Page[Product]",
+        "type": "object"
+      },
+      "Page_Union_Order__Product__RefundEvent__": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Order"
+                },
+                {
+                  "$ref": "#/$defs/Product"
+                },
+                {
+                  "$ref": "#/$defs/RefundEvent"
+                }
+              ]
+            },
+            "maxItems": 100,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          },
+          "total": {
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot",
+          "items",
+          "total",
+          "next_cursor"
+        ],
+        "title": "Page[Union[Order, Product, RefundEvent]]",
+        "type": "object"
+      },
+      "Period": {
+        "additionalProperties": false,
+        "properties": {
+          "from_date": {
+            "format": "date",
+            "title": "From Date",
+            "type": "string"
+          },
+          "from_utc": {
+            "format": "date-time",
+            "title": "From Utc",
+            "type": "string"
+          },
+          "timezone": {
+            "enum": [
+              "Asia/Taipei",
+              "Asia/Shanghai"
+            ],
+            "title": "Timezone",
+            "type": "string"
+          },
+          "to_date": {
+            "format": "date",
+            "title": "To Date",
+            "type": "string"
+          },
+          "to_utc": {
+            "format": "date-time",
+            "title": "To Utc",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_date",
+          "to_date",
+          "timezone",
+          "from_utc",
+          "to_utc"
+        ],
+        "title": "Period",
+        "type": "object"
+      },
+      "PeriodQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "days": {
+            "default": 7,
+            "enum": [
+              7,
+              14
+            ],
+            "title": "Days",
+            "type": "integer"
+          },
+          "from_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "From Date"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "to_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "To Date"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "PeriodQuery",
+        "type": "object"
+      },
+      "PreviewLookup": {
+        "additionalProperties": false,
+        "properties": {
+          "job": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ImportJobRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "COMMITTED",
+              "UNKNOWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_key",
+          "status",
+          "job"
+        ],
+        "title": "PreviewLookup",
+        "type": "object"
+      },
+      "Product": {
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "format": "uuid",
+            "title": "Product Id",
+            "type": "string"
+          },
+          "skus": {
+            "items": {
+              "$ref": "#/$defs/SKU"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Skus",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/$defs/SourceRef"
+          },
+          "tags": {
+            "items": {
+              "maxLength": 24,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Tags",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "product_id",
+          "title",
+          "tags",
+          "version",
+          "source",
+          "skus"
+        ],
+        "title": "Product",
+        "type": "object"
+      },
+      "ProductDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "product": {
+            "$ref": "#/$defs/Product"
+          },
+          "related_order_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Related Order Ids",
+            "type": "array"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          }
+        },
+        "required": [
+          "snapshot",
+          "product",
+          "related_order_ids"
+        ],
+        "title": "ProductDetail",
+        "type": "object"
+      },
+      "ProductQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cursor"
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "enum": [
+                  "demo_fixture",
+                  "demo_upload"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Origin"
+          },
+          "q": {
+            "default": "",
+            "maxLength": 80,
+            "title": "Q",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "sort": {
+            "default": "title_asc",
+            "enum": [
+              "title_asc",
+              "title_desc",
+              "price_asc",
+              "price_desc"
+            ],
+            "title": "Sort",
+            "type": "string"
+          },
+          "tag": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tag"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "ProductQuery",
+        "type": "object"
+      },
+      "Query": {
+        "additionalProperties": false,
+        "properties": {
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shop_id"
+        ],
+        "title": "Query",
+        "type": "object"
+      },
+      "ReadContextData": {
+        "additionalProperties": false,
+        "properties": {
+          "insights": {
+            "items": {
+              "$ref": "#/$defs/RuleInsight"
+            },
+            "title": "Insights",
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "dashboard",
+              "product",
+              "order"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "metrics": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/Metric"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "model_mode": {
+            "const": "not_used",
+            "default": "not_used",
+            "title": "Model Mode",
+            "type": "string"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Order"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "product": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Product"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "resource_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "snapshot": {
+            "$ref": "#/$defs/Snapshot"
+          }
+        },
+        "required": [
+          "snapshot",
+          "kind",
+          "resource_ids",
+          "insights"
+        ],
+        "title": "ReadContextData",
+        "type": "object"
+      },
+      "ReadContextQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "days": {
+            "default": 7,
+            "enum": [
+              7,
+              14
+            ],
+            "title": "Days",
+            "type": "integer"
+          },
+          "from_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "From Date"
+          },
+          "kind": {
+            "enum": [
+              "dashboard",
+              "product",
+              "order"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "resource_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resource Id"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "to_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "To Date"
+          }
+        },
+        "required": [
+          "shop_id",
+          "kind"
+        ],
+        "title": "ReadContextQuery",
+        "type": "object"
+      },
+      "RefundEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "enum": [
+              "TWD",
+              "CNY"
+            ],
+            "title": "Currency",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "payment_gateway_status": {
+            "const": "UNKNOWN",
+            "default": "UNKNOWN",
+            "title": "Payment Gateway Status",
+            "type": "string"
+          },
+          "quantity": {
+            "default": null,
+            "title": "Quantity",
+            "type": "null"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "title": "Refund Id",
+            "type": "string"
+          },
+          "restocked": {
+            "default": null,
+            "title": "Restocked",
+            "type": "null"
+          }
+        },
+        "required": [
+          "refund_id",
+          "occurred_at",
+          "amount",
+          "currency"
+        ],
+        "title": "RefundEvent",
+        "type": "object"
+      },
+      "RuleInsight": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_mode": {
+            "const": "deterministic_rules",
+            "default": "deterministic_rules",
+            "title": "Analysis Mode",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "UNKNOWN_PAYMENT_TIME",
+                  "UNKNOWN_SETTLEMENT",
+                  "UNKNOWN_COST",
+                  "UNKNOWN_STOCK",
+                  "UNKNOWN_INBOUND",
+                  "NO_DENOMINATOR",
+                  "OUTSIDE_SOURCE_WINDOW",
+                  "NO_COMPARABLE_PERIOD"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "resource_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Resource Ids",
+            "type": "array"
+          },
+          "rule": {
+            "enum": [
+              "unknown_payment_time",
+              "unknown_cost",
+              "low_stock",
+              "refund_events"
+            ],
+            "title": "Rule",
+            "type": "string"
+          },
+          "rule_version": {
+            "const": "v41-rules-1",
+            "default": "v41-rules-1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "threshold_units": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Threshold Units"
+          }
+        },
+        "required": [
+          "rule",
+          "resource_ids",
+          "reason"
+        ],
+        "title": "RuleInsight",
+        "type": "object"
+      },
+      "SKU": {
+        "additionalProperties": false,
+        "properties": {
+          "available_units": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available Units"
+          },
+          "cost_amount": {
+            "default": null,
+            "title": "Cost Amount",
+            "type": "null"
+          },
+          "cost_reason": {
+            "const": "UNKNOWN_COST",
+            "default": "UNKNOWN_COST",
+            "title": "Cost Reason",
+            "type": "string"
+          },
+          "currency": {
+            "enum": [
+              "TWD",
+              "CNY"
+            ],
+            "title": "Currency",
+            "type": "string"
+          },
+          "inbound_reason": {
+            "const": "UNKNOWN_INBOUND",
+            "default": "UNKNOWN_INBOUND",
+            "title": "Inbound Reason",
+            "type": "string"
+          },
+          "inbound_units": {
+            "default": null,
+            "title": "Inbound Units",
+            "type": "null"
+          },
+          "label": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Label",
+            "type": "string"
+          },
+          "price": {
+            "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+            "title": "Price",
+            "type": "string"
+          },
+          "sku_id": {
+            "format": "uuid",
+            "title": "Sku Id",
+            "type": "string"
+          },
+          "stock_reason": {
+            "anyOf": [
+              {
+                "const": "UNKNOWN_STOCK",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stock Reason"
+          }
+        },
+        "required": [
+          "sku_id",
+          "label",
+          "price",
+          "currency",
+          "available_units",
+          "stock_reason"
+        ],
+        "title": "SKU",
+        "type": "object"
+      },
+      "SetProductTags": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_data_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Data Revision",
+            "type": "string"
+          },
+          "expected_epoch": {
+            "minimum": 0,
+            "title": "Expected Epoch",
+            "type": "integer"
+          },
+          "expected_generation": {
+            "minimum": 0,
+            "title": "Expected Generation",
+            "type": "integer"
+          },
+          "expected_version": {
+            "minimum": 0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "request_key": {
+            "format": "uuid",
+            "title": "Request Key",
+            "type": "string"
+          },
+          "shop_id": {
+            "format": "uuid",
+            "title": "Shop Id",
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "maxLength": 24,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "shop_id",
+          "request_key",
+          "expected_epoch",
+          "expected_generation",
+          "expected_data_revision",
+          "expected_version",
+          "tags"
+        ],
+        "title": "SetProductTags",
+        "type": "object"
+      },
+      "Snapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "data_revision": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Data Revision",
+            "type": "string"
+          },
+          "read_at": {
+            "format": "date-time",
+            "title": "Read At",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/DatasetSource"
+          }
+        },
+        "required": [
+          "data_revision",
+          "snapshot_id",
+          "read_at",
+          "source"
+        ],
+        "title": "Snapshot",
+        "type": "object"
+      },
+      "SourceRef": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_snapshot_at": {
+            "format": "date-time",
+            "title": "Baseline Snapshot At",
+            "type": "string"
+          },
+          "data_mode": {
+            "enum": [
+              "demo_fixture",
+              "demo_upload"
+            ],
+            "title": "Data Mode",
+            "type": "string"
+          },
+          "evidence_mode": {
+            "const": "synthetic_demo",
+            "default": "synthetic_demo",
+            "title": "Evidence Mode",
+            "type": "string"
+          },
+          "file_digest": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "File Digest"
+          },
+          "fixture_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixture Digest",
+            "type": "string"
+          },
+          "fixture_version": {
+            "const": "v4-demo-seed-1",
+            "default": "v4-demo-seed-1",
+            "title": "Fixture Version",
+            "type": "string"
+          },
+          "import_job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Import Job Id"
+          },
+          "import_row": {
+            "anyOf": [
+              {
+                "maximum": 501,
+                "minimum": 2,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Import Row"
+          }
+        },
+        "required": [
+          "data_mode",
+          "fixture_digest",
+          "baseline_snapshot_at",
+          "import_job_id"
+        ],
+        "title": "SourceRef",
+        "type": "object"
+      },
+      "TrendPoint": {
+        "additionalProperties": false,
+        "properties": {
+          "day": {
+            "format": "date",
+            "title": "Day",
+            "type": "string"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/$defs/Metric"
+            },
+            "title": "Metrics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "day",
+          "metrics"
+        ],
+        "title": "TrendPoint",
+        "type": "object"
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "V41 strict business DTOs"
+  },
+  "routes": [
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/dashboard",
+      "request": {
+        "$ref": "#/$defs/PeriodQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_DashboardData_"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/dashboard/drilldown",
+      "request": {
+        "$ref": "#/$defs/DrilldownQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_Page_Union_Order__Product__RefundEvent___"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/products",
+      "request": {
+        "$ref": "#/$defs/ProductQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_Page_Product__"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/products/export",
+      "request": {
+        "$ref": "#/$defs/ProductQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ExportData_"
+      },
+      "transport": "application/json; context checked before CSV Blob download"
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/products/{product_id}",
+      "request": {
+        "$ref": "#/$defs/Query"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ProductDetail_"
+      }
+    },
+    {
+      "context_headers": false,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": true,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "POST",
+      "origin_required": true,
+      "path": "/api/v4/products/{product_id}/tags",
+      "request": {
+        "$ref": "#/$defs/SetProductTags"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ActionResult_"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/orders",
+      "request": {
+        "$ref": "#/$defs/OrderQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_Page_Order__"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/orders/export",
+      "request": {
+        "$ref": "#/$defs/OrderQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ExportData_"
+      },
+      "transport": "application/json; context checked before CSV Blob download"
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/orders/{order_id}",
+      "request": {
+        "$ref": "#/$defs/Query"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_OrderDetail_"
+      }
+    },
+    {
+      "context_headers": false,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": true,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "POST",
+      "origin_required": true,
+      "path": "/api/v4/orders/{order_id}/fulfillment",
+      "request": {
+        "$ref": "#/$defs/FulfillDemoOrder"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ActionResult_"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/read-context",
+      "request": {
+        "$ref": "#/$defs/ReadContextQuery"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ReadContextData_"
+      }
+    },
+    {
+      "context_headers": false,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": true,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "POST",
+      "origin_required": true,
+      "path": "/api/v4/imports/previews",
+      "request": {
+        "$ref": "#/$defs/ImportPreviewInput"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ImportPreviewData_"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/imports/preview-requests/{request_key}",
+      "request": {
+        "$ref": "#/$defs/Query"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_PreviewLookup_"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/imports/{import_job_id}",
+      "request": {
+        "$ref": "#/$defs/Query"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ImportPreviewData_"
+      }
+    },
+    {
+      "context_headers": false,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": true,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "POST",
+      "origin_required": true,
+      "path": "/api/v4/imports/{import_job_id}/confirm",
+      "request": {
+        "$ref": "#/$defs/ConfirmImport"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ActionResult_"
+      }
+    },
+    {
+      "context_headers": true,
+      "cookie": "commerceops_v4_demo",
+      "csrf_required": false,
+      "current_identity_required": true,
+      "failure": {
+        "$ref": "#/$defs/FailureEnvelope"
+      },
+      "method": "GET",
+      "origin_required": false,
+      "path": "/api/v4/actions/{operation}/{request_key}",
+      "request": {
+        "$ref": "#/$defs/Query"
+      },
+      "response": {
+        "$ref": "#/$defs/BusinessEnvelope_ActionLookup_"
+      }
+    }
+  ],
+  "schema_version": "v41-api-contract-1",
+  "status": "PURE_DTOS_NOT_RUNTIME_ROUTES"
+}
