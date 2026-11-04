@@ -1,0 +1,13 @@
+# V41 迟到真实read ACK配方源码审查
+
+日期：2026-11-04（台北）。source `2db8f33863eda411cf0474f73e6657e39865f756`，tree `3bd2a188e971bf3c2e4dd23915892557ac15859e`，parent `187e26cb181c4247fe26364fd68fd6e106d5a9ad`。实际增量为一个Shell spec与三份状态文档；未读WIP。
+
+结论：ACCEPT_NARROW_NETWORK_ACK_DELAY_RECIPE_SOURCE，在本片定义的真实上游网络ACK延迟注入配方范围未发现新增P1/P2。187父路径PGID清理P2仍独立HOLD，不能用本片接受解除实际浏览器组合准入。
+
+固定dashboard/read-context先实际baseline200及schema/事实面板；随后只claim一个真实GET，以route.fetch(maxRetries=0,maxRedirects=0,timeout=10000)取得真实上游。旧tenant/org/principal/epoch/generation/shop、八指标、OK/no-store/schema均核验。原请求停在交付前，仍使用客户端实际15秒AbortSignal.timeout；没有改写signal、请求body或构造成功payload，若客户端超时不能满足后续finished/200/body断言。
+
+release前关闭助手、切restricted_admin并核真实control/session零店铺，再真实logout、无身份/无cookie、助手无事实。release后使用route.fulfill(response=原APIResponse)，核原Request对应的浏览器response、finished无错误、status200及完整body SHA相等；再经过双requestAnimationFrame和UI断言确认事实/原read_at/身份未恢复。失败不写safe成功回执；finally释放等待、等待已claim交付并unroute，错误仍使测试失败。此为NETWORK_ACK_DELAY_INJECTION_REAL_UPSTREAM，不能称自然网络故障或未经注入的实跑。
+
+严格范围：关闭助手本身会invalidate gate，persona切换也使旧身份失效；所以本案证明的是该组合顺序下的迟到交付后清屏，不单独证明logout唯一失效机制。response.finished与后续paint是该配方的观察点，不是所有应用异步回调或完整权限交错矩阵证明。没有实际运行，延迟专项只可标DEFINED_NOT_RUN；三份文档仍保留FR-05未完成、native200另路、完整browser权限Gate未签，不能以源码接受代签这些门槛。
+
+独立静态验证：精确archive单spec与真实共享writer/JSON依赖，用锁定Node/TypeScript和已准备只读依赖执行strict noEmit检查，nativeexit0。首命令因当前编译器要求显式--ignoreConfig而TS5112/native1，加入该选项后检查通过，未修改源码或生成产物。没有浏览器、HTTP、SQL、服务、Docker、截图或新的真实上游调用，未运行资源/Full/CI/远端写入。
