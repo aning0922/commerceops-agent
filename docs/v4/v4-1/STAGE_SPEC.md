@@ -23,8 +23,8 @@
 - API：`backend/src/commerceops/application/v41/**`、`infrastructure/v41_*.py`、`entrypoints/v41_*.py`、唯一共享 `entrypoints/api.py`、新 0025 迁移、`tests/v41/backend/**`（下列GC专门路径除外）。V4-0 共享身份／seed/reset 接点须先合同列明；旧 current-head PG 期望仅在新迁移明确后窄释放，历史迁移段不改。
 - WEB：`frontend/app/v4/**`、`components/v4/**`、`lib/v41-*`、`frontend/v41-tests/**`。生成 schema 从已审后端来源生成，旧根布局／锁／业务客户端不并行改。
 - GC 测试：`tests/v41/backend/test_gc_pg.py`、`tests/v41/backend/gc_fixture.py` 与 `proposals/GC_FIXTURE_PLAN.md` 单独由 GC owner 控制，API/QA 不并行编辑；只在新 owned fixture 测试，恢复和自然时间证据分账。
-- QA：`tests/e2e/v41/**`、`frontend/v41-e2e/**`、本阶段真实 API／PG／浏览器回执，不代写业务、共享 schema 或迁移。
-- GATES：工程工具／扫描和动态 Full PG 计划、私有执行包装器；共享正式脚本先由 Root 指定唯一 owner，不改原扫描规则或历史例外。
+- QA：`tests/e2e/v41/**`、`frontend/v41-e2e/**`、本阶段真实 API／PG／浏览器回执，不代写业务、共享 schema 或迁移。其中 `frontend/v41-e2e/business.live.spec.ts` 与 `live-business.fixture.ts` 已窄释放给 WEB 单 owner；QA 保留共享 config、Shell、subject writer 与父消费链，双方不交叉编辑。
+- GATES：工程工具／扫描和动态 Full PG 计划、私有执行包装器；共享正式脚本先由 Root 指定唯一 owner，不改原扫描规则或历史例外。新增窄路径 `tests/e2e/v41/native_zoom.cjs` 由 GATES 独占实现与冻结；QA 只在已审模块后接入 Shell，使用同案新生成会话、全新 profile 和原生浏览器 zoom，不读日常 profile、不新增访客或业务写。
 - REVIEW：独立提交检查、权限／事务／导入专项和精确 SHA 核收；不代作者改 WIP。
 
 每个可审切片自检成功后普通 commit；原生预检在提交之前完成。任何错误立即停止该命令序列，不在失败后继续提交；相同未知失败先定位，历史失败／UNKNOWN／原请求身份保留，不自动重放。已核切片正常 merge；单文件文档或隔离最小修复可由 Root 对独审冻结 commit 作普通 cherry-pick，保留原 refs／原 SHA 与组合映射，避免带入未审祖先。无 reset／amend／强推或删除原失败 refs。
