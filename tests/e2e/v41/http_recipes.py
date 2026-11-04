@@ -114,7 +114,6 @@ class Business:
         self, visitor: Visitor, case: Case, compose: tuple[str, ...], budget: Budget
     ) -> None:
         self.visitor, self.case, self.compose, self.budget = visitor, case, compose, budget
-        self.pending: dict[str, Any] | None = None
         self.unique_product_id: str | None = None
         if visitor.current is None:
             raise ValueError("actual current demo identity required")
@@ -149,15 +148,17 @@ class Business:
             "X-Demo-Generation": str(context["auth_generation"]),
         }
         params = {"shop_id": self.shop["shop_id"], **(query or {})}
+        pending: dict[str, Any] | None = None
+        pending_path = Path(self.case.directory) / ("request-" + uuid4().hex + ".private.json")
         if method == "POST":
             headers["X-CSRF-Token"] = current["data"]["csrf_token"]
-            self.pending = {
+            pending = {
                 "route": name,
                 "ids": ids,
                 "payload": payload,
                 "state": "UNKNOWN_UNTIL_READBACK",
             }
-            persist(Path(self.case.directory) / "pending.private.json", self.pending)
+            persist(pending_path, pending)
         operation = {
             "preview": "preview",
             "confirm": "import_confirm",
@@ -213,8 +214,8 @@ class Business:
                 str(payload["shop_id"]) if method == "POST" and payload else params["shop_id"]
             )
             assert_context(reply["context"], context, target_shop)
-        if method == "POST" and self.pending is not None:
-            self.pending["state"] = "ACK_" + reply["status"]
+        if method == "POST" and pending is not None:
+            pending["state"] = "ACK_" + reply["status"]
             if operation is not None and payload is not None:
                 registry(
                     Path(self.case.directory),
@@ -222,9 +223,9 @@ class Business:
                     str(payload["shop_id"]),
                     operation=operation,
                     key=payload["request_key"],
-                    state=self.pending["state"],
+                    state=pending["state"],
                 )
-            persist(Path(self.case.directory) / "pending.private.json", self.pending)
+            persist(pending_path, pending)
         if name in {"preview_lookup", "receipt"}:
             if reply["data"].get("request_key") != ids["request_key"]:
                 raise AssertionError("V41_READBACK_ORIGINAL_KEY_MISMATCH")
@@ -406,7 +407,6 @@ def import_flow(business: Business, kind: str) -> None:
         raise AssertionError("V41_KPI_IMPORT_COUNT_MISMATCH")
     if found["snapshot"]["data_revision"] != dashboard["snapshot"]["data_revision"]:
         raise AssertionError("V41_READS_MIXED_REVISION")
-    business.pending = None
 
 
 def catalog_flow(business: Business) -> None:
@@ -598,6 +598,9 @@ def main() -> None:
                 raise AssertionError("V41_READS_MIXED_REVISION")
         elif case.scenario == "catalog_orders":
             catalog_flow(business)
+            from .concurrency_recipes import catalog_concurrency
+
+            catalog_concurrency(business)
         else:
             raise ValueError("V41_BROWSER_RECIPE_ALIGNMENT_PENDING")
         if case.scenario in {"import_csv", "import_xlsx"}:

@@ -116,3 +116,13 @@ Compose和全部跟踪锁文件；另保存实际Python、Node、Next入口、Do
 字节hash/权限。执行前后各自落盘并严格比较，不再将HEAD/tree或镜像COPY子集相等单独记为
 全来源UNCHANGED。此seal不声称未跟踪依赖目录中每个包已做供应链审计。真实本机短stand-in
 进程只证明argv/env和上述拒绝边界；Docker、PG、API、Web和业务Gate仍NOT_RUN。
+
+catalog候选进一步增加两次双请求真实HTTP竞争：两独立CookieJar绑定同一当前session，屏障仅
+同步客户端发起，不伪称控制了PG锁交错。同key同文要求两次COMMITTED回执完全相同；不同key
+使用同一expected version/revision，要求恰一COMMITTED与一VERSION_CONFLICT/SNAPSHOT_CHANGED，
+再GET两原key分别确认winner回执/loser UNKNOWN。每轮核商品version仅+1、赢家tags、原价/库存/
+source不变及scope内receipt/event各+1；已存在tag行只更新，不能把tag行数再+1当作唯一效果。
+细化到原key关联的实际SQL仍待最终0025列与apply接线，当前计数不能代签它。
+每次POST使用独立私有request文件保存原payload与ACK，避免旧单一pending文件在并发时互相
+覆盖；subject原key登记不变。transport异常保留原UNKNOWN并使场景失败，不自动POST/新key。
+并发判定纯测只证明候选断言边界，未发HTTP/连接PG，不是并发运行或事务回滚证据。
