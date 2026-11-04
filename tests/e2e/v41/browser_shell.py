@@ -31,7 +31,7 @@ TITLES = {
     "shell.live.spec.ts": "LIVE V41: shell identity navigation and responsive boundaries",
     "business.live.spec.ts": "LIVE V41: business reads writes and import roundtrip",
 }
-NATIVE_MODULE_SHA256 = "3d71c7695b946a1714d98c1a92cfe7af7c3cd4fec9b3cae05ca91820414f15dd"
+NATIVE_MODULE_SHA256 = "295bf2c61e7cd30e7a47d7368d93fbadb40764fb41072a9119b5d78ed925689e"
 NATIVE_STATUS = "NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW"
 SOURCE_PATHS = (
     "tests/e2e/v41/native_zoom.cjs",
