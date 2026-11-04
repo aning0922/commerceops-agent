@@ -13,6 +13,7 @@ from commerceops.application.v41.imports import (
     decode_file,
     preview_request_digest,
 )
+from commerceops.application.v41.parse_protocol import ParseResult
 from commerceops.domain.commerce_values import facts_hash
 
 
@@ -98,7 +99,7 @@ def _job_digest(
 def prepare_preview(
     scope: PreviewScope,
     command: dto.ImportPreviewInput,
-    quality: QualityPreview,
+    quality: QualityPreview | ParseResult,
     history: tuple[PreviewRecord, ...],
     now: datetime,
     job_id: UUID,
@@ -107,9 +108,10 @@ def prepare_preview(
 ) -> PreviewRecord:
     """No locking/authentication here. Persistent admission must serialize this same policy."""
     _context(scope, now, command)
-    if sha256(decode_file(command.file_base64)).hexdigest() != quality.table.file_digest:
+    parsed = ParseResult.from_quality(quality) if isinstance(quality, QualityPreview) else quality
+    if sha256(decode_file(command.file_base64)).hexdigest() != parsed.file_digest:
         raise ValueError("PREVIEW_FILE_MISMATCH")
-    digest = preview_request_digest(command, quality.table.file_digest)
+    digest = preview_request_digest(command, parsed.file_digest)
     for record in history:
         if (record.scope.owner_session_id, record.preview_key) == (
             scope.owner_session_id,
@@ -134,7 +136,7 @@ def prepare_preview(
         ref = parent.data.job
         if ref.import_job_id in parents or ref.import_job_id in confirmed or ref.expires_at <= now:
             raise ValueError("STATE_CONFLICT")
-        if parent.data.file_digest != quality.table.file_digest:
+        if parent.data.file_digest != parsed.file_digest:
             raise ValueError("PREVIEW_FILE_MISMATCH")
         version = ref.version + 1
         if version > 5:
@@ -166,11 +168,11 @@ def prepare_preview(
             expires_at=min(now + timedelta(minutes=10), scope.session_expires_at),
         ),
         state=quality.state,
-        file_digest=quality.table.file_digest,
+        file_digest=parsed.file_digest,
         mapping=command.mapping,
-        headers=quality.table.headers,
+        headers=parsed.headers,
         sample=quality.sample,
-        row_count=len(quality.table.rows),
+        row_count=parsed.row_count,
         issue_count=quality.issue_count,
         issues=quality.issues,
         confirmable=quality.state == "READY",
