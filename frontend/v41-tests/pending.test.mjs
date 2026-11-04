@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {loadV41Pending,reserveV41Pending,finishV41Pending,finishV41Preview,loadV41Preview} from '../lib/v41-pending.mjs';
 function storage(){const m=new Map();return {getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};}
-function fixture(){const id=()=>randomUUID(),context={tenant_id:id(),organization_id:id(),principal_id:id(),shop_id:null,reset_epoch:2,auth_generation:3,authorized_at:new Date().toISOString()};return {operation:'product_tags',request_key:id(),resource_id:id(),shop_id:id(),revision:'a'.repeat(64),version:0,file_digest:null,parent_job_id:null,context};}
+function fixture(){const id=()=>randomUUID(),context={tenant_id:id(),organization_id:id(),principal_id:id(),shop_id:null,reset_epoch:2,auth_generation:3,authorized_at:new Date().toISOString()};return {operation:'product_tags',request_key:id(),resource_id:id(),shop_id:id(),revision:'a'.repeat(64),version:0,file_digest:null,job_digest:null,parent_job_id:null,context};}
 function resource(value){return {status:'OK',context:{...value.context,shop_id:value.shop_id},data:{snapshot:{data_revision:'b'.repeat(64)},product:{product_id:value.resource_id,version:value.version+1}}};}
 function result(value){return {status:'COMMITTED',context:{...value.context,shop_id:value.shop_id},data:{next_step:'READ_CURRENT_RESOURCE',receipt:{operation:value.operation,request_key:value.request_key,resource_id:value.resource_id,before_revision:value.revision,after_revision:'b'.repeat(64),resource_version:value.version+1}}};}
 test('reservation is exclusive, minimal, and unavailable/corrupt storage blocks',()=>{
@@ -57,4 +57,22 @@ test('mapping creates a bound next preview and stale revision or lineage cannot 
  assert.equal(finishV41Preview(s,session,{...response,data:{...child,job:{...nextJob,parent_job_id:randomUUID()}}}),false);
  assert.equal(finishV41Preview(s,session,{...response,data:child}),true);
  assert.equal(loadV41Preview(s).value.job.import_job_id,nextJob.import_job_id);assert.equal(loadV41Pending(s).state,'empty');
+});
+test('import confirmation needs bound job readback and matching imported provenance',()=>{
+ const s=storage(),base={...fixture(),operation:'import_preview',resource_id:null,file_digest:'c'.repeat(64),parent_job_id:null};
+ const session={context:base.context,data:{shops:[{shop_id:base.shop_id,grants:['operator']}]}};
+ const job={import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),data_revision:base.revision,parser_version:'v41-parser-1',import_schema_version:'v41-import-1',expires_at:'2026-11-03T00:10:00Z'};
+ const data={job,state:'READY',file_digest:base.file_digest,mapping:{sku:'sku',title:'title',price:'price',currency:'currency',tags:null},headers:['sku','title','price','currency'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:true};
+ const context={...base.context,shop_id:base.shop_id},preview={status:'OK',server_time:'2026-11-03T00:00:00Z',context,data};
+ assert.equal(reserveV41Pending(s,base),true);assert.equal(finishV41Preview(s,session,preview),true);
+ const confirm={...base,operation:'import_confirm',resource_id:job.import_job_id,job_digest:job.job_digest,version:job.version,request_key:randomUUID()};
+ assert.equal(reserveV41Pending(s,confirm),true);
+ const receipt={status:'COMMITTED',context,data:{next_step:'READ_CURRENT_RESOURCE',receipt:{operation:'import_confirm',request_key:confirm.request_key,resource_id:job.import_job_id,before_revision:confirm.revision,after_revision:'b'.repeat(64),resource_version:1}}};
+ const readback={...preview,data:{...data,state:'COMMITTED',confirmable:false}};
+ const sourceRow={data_mode:'demo_upload',fixture_digest:'source',baseline_snapshot_at:'time',import_job_id:job.import_job_id,import_row:2,file_digest:confirm.file_digest};
+ const dataset={status:'OK',context,data:{snapshot:{data_revision:'b'.repeat(64),source:{data_mode:'demo_mixed',fixture_digest:'source',baseline_snapshot_at:'time',uploads:[sourceRow]}}}};
+ assert.equal(finishV41Pending(s,session,receipt,readback,{...dataset,data:{snapshot:{...dataset.data.snapshot,data_revision:'f'.repeat(64)}}}),false);
+ assert.equal(finishV41Pending(s,session,receipt,readback,{...dataset,data:{snapshot:{...dataset.data.snapshot,source:{...dataset.data.snapshot.source,uploads:[]}}}}),false);
+ assert.equal(loadV41Pending(s).state,'pending');
+ assert.equal(finishV41Pending(s,session,receipt,readback,dataset),true);assert.equal(loadV41Pending(s).state,'empty');
 });

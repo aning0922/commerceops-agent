@@ -27,3 +27,11 @@ export function createV41Gate() {
     },
   };
 }
+
+// Run the rejection side effect only for the still-current request ticket.
+export async function guardV41Request(gate,ticket,run,isDenied,onDenied) {
+  try {return await run();} catch(error) {
+    if(isDenied(error) && gate.accepts(ticket,{status:'OK',context:{...ticket.context,shop_id:ticket.shop}})) onDenied();
+    throw error;
+  }
+}
