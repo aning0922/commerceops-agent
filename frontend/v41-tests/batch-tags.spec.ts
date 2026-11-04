@@ -53,7 +53,7 @@ async function setup(page:Page,mode:'success'|'unknown'|'conflict'|'held'|'readb
    expect(request.method()).toBe('GET');expect(path).toBe(`/api/v4/actions/product_tags/${original.request_key}`);
    expect([...url.searchParams.entries()]).toEqual([['shop_id',original.shop_id]]);
    lookups.push({method:request.method(),path,shop_id:original.shop_id});
-   return fulfill({...envelope,status:'UNKNOWN',context:{...identity,shop_id:original.shop_id},data:{operation:'product_tags',request_key:original.request_key,status:'UNKNOWN',receipt:null}});
+   return fulfill({...envelope,context:{...identity,shop_id:original.shop_id},data:{operation:'product_tags',request_key:original.request_key,status:'UNKNOWN',receipt:null}});
   }
   throw new Error('UNEXPECTED_MOCK_REQUEST '+request.method()+' '+path);
  });
