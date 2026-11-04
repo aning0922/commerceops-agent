@@ -428,6 +428,13 @@ def target(db: Any, auth: dict[str, Any], security: Any, deadline: datetime) -> 
         raise ValueError("OWNER_ACTUAL_TARGET_OR_DB_DEADLINE")
 
 
+def verify_function_privileges(functions: list[dict[str, Any]], oids: set[int]) -> None:
+    if not oids.issubset({row["id"] for row in functions}) or any(
+        row["app"] != (row["id"] in oids) or row["public"] or row["delegate"] for row in functions
+    ):
+        raise ValueError("V41_RUNTIME_PRIVATE_FUNCTION_ACL_MISMATCH")
+
+
 def verify_acl(db: Any, config: Any, security: Any, runtime: Any) -> dict[str, Any]:
     tables = ["v41_" + suffix for suffix in runtime.TABLES] + ["v41_security_policy"]
     rows = db.execute(
@@ -496,15 +503,13 @@ def verify_acl(db: Any, config: Any, security: Any, runtime: Any) -> dict[str, A
     functions = db.execute(
         "SELECT p.oid AS id,p.proname AS name,"
         "has_function_privilege('commerceops_app',p.oid,'EXECUTE') AS app,"
+        "has_function_privilege('commerceops_app',p.oid,'EXECUTE WITH GRANT OPTION') AS delegate,"
         "EXISTS(SELECT 1 FROM aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a "
         "WHERE a.grantee=0 AND a.privilege_type='EXECUTE') AS public "
         "FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
         "WHERE n.nspname='business' AND left(p.proname,4)='v41_' ORDER BY p.oid"
     ).fetchall()
-    if not oids.issubset({r["id"] for r in functions}) or any(
-        r["app"] != (r["id"] in oids) or r["public"] for r in functions
-    ):
-        raise ValueError("V41_RUNTIME_PRIVATE_FUNCTION_ACL_MISMATCH")
+    verify_function_privileges(functions, oids)
     persona = db.execute(
         "SELECT has_table_privilege('commerceops_app','business.v4_demo_personas',"
         "'INSERT,UPDATE,DELETE,TRUNCATE') AS write"

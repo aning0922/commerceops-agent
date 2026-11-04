@@ -1,4 +1,4 @@
-"""Owner binding/refusal primitives only. No owner SQL, services or runtime acceptance."""
+"""Owner binding and ACL verdict components. No owner SQL, services or runtime acceptance."""
 
 import copy
 import json
@@ -218,3 +218,33 @@ def test_observed_commit_survives_receipt_write_failure(
         "operation_id": value["operation_id"],
         "receipt_persist_error_type": "OSError",
     }
+
+
+@pytest.mark.parametrize(
+    ("row_index", "privilege"),
+    ((0, "delegate"), (1, "delegate"), (0, "public"), (1, "public"), (1, "app")),
+)
+def test_function_acl_rejects_extra_privilege_on_runtime_or_private_function(
+    row_index: int, privilege: str
+) -> None:
+    # Catalog-row components only: this is the predicate used by verify_acl,
+    # not evidence of an actual PostgreSQL GRANT or owner action.
+    ordinary = [
+        {"id": 101, "app": True, "public": False, "delegate": False},
+        {"id": 202, "app": False, "public": False, "delegate": False},
+    ]
+    setup.verify_function_privileges(ordinary, {101})
+    excessive = copy.deepcopy(ordinary)
+    excessive[row_index][privilege] = True
+    with pytest.raises(ValueError, match="FUNCTION_ACL_MISMATCH"):
+        setup.verify_function_privileges(excessive, {101})
+    setup.verify_function_privileges(ordinary, {101})
+
+
+def test_function_acl_requires_every_runtime_oid_and_its_execute_permission() -> None:
+    with pytest.raises(ValueError, match="FUNCTION_ACL_MISMATCH"):
+        setup.verify_function_privileges([], {101})
+    with pytest.raises(ValueError, match="FUNCTION_ACL_MISMATCH"):
+        setup.verify_function_privileges(
+            [{"id": 101, "app": False, "public": False, "delegate": False}], {101}
+        )
