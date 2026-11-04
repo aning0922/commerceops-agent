@@ -497,6 +497,48 @@
       "functional_status": "RESTORE_SOURCE_ACCEPTED_POSTCOMMIT_VALIDATION_DEVIATION_RETAINED",
       "checkpoint": "r30",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "320f3bc817f860556a2000af5e96fff2a367050e",
+      "base": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "320f3bc817f860556a2000af5e96fff2a367050e",
+      "actions_runs": [],
+      "functional_status": "CLOSED_PG_FAILURE_AND_REVIEWED_NEW_CAPACITY_CONDITIONS",
+      "checkpoint": "r31",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "base": "320f3bc817f860556a2000af5e96fff2a367050e",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "actions_runs": [],
+      "functional_status": "OWNED_WINDOW_HIDDEN_SOURCE_ACCEPTED_RUNTIME_PENDING",
+      "checkpoint": "r32",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-qa-20261104",
+      "source": "e706d550dd1b8678eb92e4e863f124bd8007d2f2",
+      "base": "1b4c6129b2d8600c2f071ed248c212eee21467f3",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "e706d550dd1b8678eb92e4e863f124bd8007d2f2",
+      "actions_runs": [],
+      "functional_status": "OWNED_WINDOW_HIDDEN_SOURCE_ACCEPTED_REAL_HIDDEN_NOT_RUN",
+      "checkpoint": "r32",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [

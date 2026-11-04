@@ -709,6 +709,93 @@
           "sha256": "8a3662ac099ead3f5e6e2f261a23ac8dc53ecf4ccd1222f3ddbc8e041eeb857a"
         }
       ]
+    },
+    {
+      "case": "browser-final-r4",
+      "source": "f7743310ff7a0808694efb40990b5a29ed251224",
+      "status": "failed_closed",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9077,
+        "shell_failed": 1,
+        "shell_duration_ms": 7560,
+        "retries": 0
+      },
+      "observed_failure": "CDP response body unavailable during first offline restore; exact original request identity unknown",
+      "root_cause": "UNKNOWN",
+      "native200": "NOT_RUN",
+      "delayed_acknowledgement": "NOT_RUN",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volume_policy": "original owned volume preserved and independently checked",
+      "artifacts": [
+        {
+          "path": "browser-final-r4/execution.json",
+          "sha256": "e0f4cd4a8e139b8bd463171c2c1535f3438580ef18710082dc1769609912f5c9"
+        },
+        {
+          "path": "browser-final-r4/closedfinal.json",
+          "sha256": "76240a7e5d42621540e75f54a3ddafcdadd13edceeeac2fff475b310949322af"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r5",
+      "source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+      "status": "failed_closed",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 8793,
+        "shell_failed": 1,
+        "shell_duration_ms": 11911,
+        "retries": 0
+      },
+      "observed_failure": "Actual hidden predicate remained visible after cover-page activation; window topology unknown",
+      "root_cause": "UNKNOWN",
+      "native200": "NOT_RUN",
+      "delayed_acknowledgement": "NOT_RUN",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volume_policy": "original owned volume preserved and independently checked",
+      "artifacts": [
+        {
+          "path": "browser-final-r5/execution.json",
+          "sha256": "e118f3ca00040158d8f55a46e65c146c50db03bff55a021eb693305e687b4ec8"
+        },
+        {
+          "path": "browser-final-r5/closedfinal.json",
+          "sha256": "06f474bd8937cd496259dbae4595254b9f634501d45d76bd4f200cf9892fc7f8"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r6",
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "status": "failed_closed",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9619,
+        "shell_failed": 1,
+        "shell_duration_ms": 13626,
+        "retries": 0
+      },
+      "observed_failure": "Actual window bounds read minimized but document visibility remained visible; cause unconfirmed",
+      "root_cause": "UNKNOWN",
+      "native200": "NOT_RUN",
+      "delayed_acknowledgement": "NOT_RUN",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volume_policy": "original owned volume preserved and independently checked",
+      "artifacts": [
+        {
+          "path": "browser-final-r6/execution.json",
+          "sha256": "922d4dfcc2cd59f24ad70498e8805979bac0e51852b06f052dd32372507bc1b1"
+        },
+        {
+          "path": "browser-final-r6/closedfinal.json",
+          "sha256": "ec292c151b176c22aaf0914f91458d9c032835636867c879fc7b380ba301a094"
+        }
+      ]
     }
   ],
   "mock_ui": {
@@ -720,8 +807,8 @@
     "actual_http_business_api": false,
     "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
   },
-  "full_engineering": "failed_r2",
-  "full_paired_postgresql": "existing_r1_failed_deadline_phase3_not_run",
+  "full_engineering": "r3_running",
+  "full_paired_postgresql": "existing_r2_running_phase3_prepared",
   "real_http_api_web": "pass",
   "hosted": "NOT_RUN",
   "external_business_providers": "NOT_RUN",
@@ -739,7 +826,7 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": "global PG deadline and browser actual hidden visibility; isolated fixes and new complete windows pending",
+  "current_failure": "Browser hidden remained visible; full business browser reruns paused for isolated about-blank focus-override diagnosis",
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
@@ -748,7 +835,11 @@
   "native200": "NOT_RUN",
   "native_source_review": "a3a823236255ae8b06c0b06595a35081cbb59270",
   "browser_caller": "source accepted at b9ecd4ee382792662db9c795cdb6c629fd7efeeb",
-  "remaining_browser_steps": "r5 passed offline recovery, failed actual hidden visibility; native and delayed acknowledgement not reached",
+  "remaining_browser_steps": "actual hidden, native 200 capture and visual review, delayed acknowledgement",
   "real_browser_partial_review": "46eacbf592982036f5e979c95171aa37f89dd831",
-  "full_pg_failed_receipt": "FULLPG_R1_FAILURE.json"
+  "full_pg_failed_receipt": "FULLPG_R1_FAILURE.json",
+  "full_engineering_current_source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+  "full_pg_current_source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+  "full_pg_capacity_review": "a4a49da0d3f66102e991f8c031530434657fc47f",
+  "closed_first_pg_review": "57138461431d38e883fc69de384e747ce39b4656"
 }
