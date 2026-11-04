@@ -3,15 +3,26 @@ const digest=/^[a-f0-9]{64}$/;
 const columns=['sku','title','price','currency','tags'];
 
 /** Files stay in memory only. Server remains responsible for format, content and security validation. */
-export async function encodeImportFile(file) {
+async function readImportBytes(file) {
   if(!file || typeof file.name!=='string' || file.name.length<1 || file.name.length>128 || /[\u0000-\u001f\u007f]/.test(file.name) || !Number.isSafeInteger(file.size) || file.size<=0 || file.size>maximumBytes) throw new Error('INVALID_FILE');
-  const extension=file.name.toLowerCase().endsWith('.csv')?'csv':file.name.toLowerCase().endsWith('.xlsx')?'xlsx':null;
-  if(!extension)throw new Error('UNSUPPORTED_FILE');
+  const format=file.name.toLowerCase().endsWith('.csv')?'csv':file.name.toLowerCase().endsWith('.xlsx')?'xlsx':null;
+  if(!format)throw new Error('UNSUPPORTED_FILE');
   const bytes=new Uint8Array(await file.arrayBuffer());if(bytes.byteLength!==file.size)throw new Error('FILE_CHANGED');
+  return {bytes,format};
+}
+async function digestBytes(bytes) {
   const hash=new Uint8Array(await crypto.subtle.digest('SHA-256',bytes));
-  const fileDigest=Array.from(hash,value=>value.toString(16).padStart(2,'0')).join('');
+  return Array.from(hash,value=>value.toString(16).padStart(2,'0')).join('');
+}
+export async function digestImportFile(file) {const {bytes}=await readImportBytes(file);return digestBytes(bytes);}
+export async function encodeImportFile(file) {
+  const {bytes,format}=await readImportBytes(file),fileDigest=await digestBytes(bytes);
   let binary='';for(let offset=0;offset<bytes.length;offset+=16384)binary+=String.fromCharCode(...bytes.subarray(offset,offset+16384));
-  return {format:extension,filename:file.name,file_base64:btoa(binary),file_digest:fileDigest};
+  return {format,filename:file.name,file_base64:btoa(binary),file_digest:fileDigest};
+}
+export function matchesImportSelection(preview,mapping,file,fileDigest) {
+  if(!preview?.mapping || !mapping || !preview.confirmable)return false;
+  return columns.every(key=>mapping[key]===preview.mapping[key]) && (!file || (digest.test(fileDigest) && fileDigest===preview.file_digest));
 }
 export function validMapping(mapping,headers) {
   if(!mapping || typeof mapping!=='object' || Array.isArray(mapping) || !Array.isArray(headers) || Object.keys(mapping).some(key=>!columns.includes(key)))return false;

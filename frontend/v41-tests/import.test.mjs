@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {encodeImportFile,validMapping,validPreview} from '../lib/v41-import.mjs';
+import {encodeImportFile,digestImportFile,matchesImportSelection,validMapping,validPreview} from '../lib/v41-import.mjs';
 const digest='a'.repeat(64),now='2026-11-03T00:00:00Z',expires='2026-11-03T00:10:00Z';
 const mapping={sku:'sku',title:'title',price:'price',currency:'currency',tags:null};
 function preview(){return {job:{import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'b'.repeat(64),data_revision:'a'.repeat(64),parser_version:'v41-parser-1',import_schema_version:'v41-import-1',expires_at:expires},state:'READY',file_digest:digest,mapping,headers:['sku','title','price','currency'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:true};}
@@ -41,4 +41,14 @@ test('CSV and XLSX bytes survive encoding with an exact digest',async()=>{
   assert.deepEqual(Buffer.from(output.file_base64,'base64'),bytes);
   assert.equal(output.file_digest,createHash('sha256').update(bytes).digest('hex'));
  }
+});
+
+test('confirmation binds both selected file digest and exact saved mapping',async()=>{
+ const p=preview(),file=new File(['new bytes'],'x.csv'),actual=await digestImportFile(file);
+ assert.equal(matchesImportSelection(p,mapping,null,null),true);
+ assert.equal(matchesImportSelection(p,mapping,file,digest),true);
+ assert.equal(matchesImportSelection(p,mapping,file,null),false);
+ assert.equal(matchesImportSelection(p,mapping,file,actual),false);
+ assert.equal(matchesImportSelection(p,{...mapping,title:'sku'},null,null),false);
+ assert.equal(matchesImportSelection({...p,confirmable:false},mapping,null,null),false);
 });
