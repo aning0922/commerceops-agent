@@ -18,7 +18,62 @@
       "allrefs_blocking_source": "65959a543abab123614da2ee6c9722e24c9c6386",
       "blocking_reachable_remote": false,
       "full_stage_gate": "NOT_PASSED",
-      "allrefs_log_sha256": "c16dbb7895b01a9b7ddb247a6feff7c48578be31381fa7cc21d80ae4396904ab"
+      "allrefs_log_sha256": "c16dbb7895b01a9b7ddb247a6feff7c48578be31381fa7cc21d80ae4396904ab",
+      "current_index_row_guard_blocks": 4,
+      "allrefs_blocking_count_scope": "git_findings_only"
+    },
+    {
+      "source": "847f43bb9c029371962b8c147b6e996a6ab1d02f",
+      "remote_head": "847f43bb9c029371962b8c147b6e996a6ab1d02f",
+      "branch": "codex/v41-control-20261104",
+      "push_native_exit": 0,
+      "incremental_history_base": "cc078616c1702d5b0e38e12fa4615672641aeffa",
+      "incremental_native_findings": 0,
+      "actions_runs": [],
+      "pull_request_created": false,
+      "full_stage_gate": "NOT_PASSED",
+      "reviewed_scope": "queries_export_and_inert_revoked_SQL"
+    }
+  ],
+  "owner_candidate_backups": [
+    {
+      "branch": "codex/v41-api-20261104",
+      "source": "8707c0ca47d688bad9618574e3cf7088c7413574",
+      "base": "1730194028a01ddea0bbc573774d740ea4a29d55",
+      "native_exit": 0,
+      "findings": 0,
+      "scope": "candidate_committed_ancestry",
+      "functional_review": "HOLD_OR_INCOMPLETE",
+      "runtime": "NOT_RUN",
+      "report_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "push_native_exit": 0,
+      "remote_head": "8707c0ca47d688bad9618574e3cf7088c7413574"
+    },
+    {
+      "branch": "codex/v41-web-20261104",
+      "source": "51cfe60cddd4cb3307dd87fdd5b44cf891e95f99",
+      "base": "1730194028a01ddea0bbc573774d740ea4a29d55",
+      "native_exit": 0,
+      "findings": 0,
+      "scope": "candidate_committed_ancestry",
+      "functional_review": "HOLD_OR_INCOMPLETE",
+      "runtime": "NOT_RUN",
+      "report_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "push_native_exit": 0,
+      "remote_head": "51cfe60cddd4cb3307dd87fdd5b44cf891e95f99"
+    },
+    {
+      "branch": "codex/v41-qa-20261104",
+      "source": "d4bdfad8458f5a8452014654a1e436ea66043a0a",
+      "base": "1730194028a01ddea0bbc573774d740ea4a29d55",
+      "native_exit": 0,
+      "findings": 0,
+      "scope": "candidate_committed_ancestry",
+      "functional_review": "HOLD_OR_INCOMPLETE",
+      "runtime": "NOT_RUN",
+      "report_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "push_native_exit": 0,
+      "remote_head": "d4bdfad8458f5a8452014654a1e436ea66043a0a"
     }
   ]
 }

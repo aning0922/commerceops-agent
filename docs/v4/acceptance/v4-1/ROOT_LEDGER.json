@@ -1,6 +1,6 @@
 {
   "stage": "V4-1",
-  "mode": "local",
+  "mode": "local_implementation_with_incremental_branch_backups",
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
   "status": "implementing",
   "cards": {
@@ -21,6 +21,21 @@
       "port": 13441,
       "tests": 3,
       "screenshots": 5
+    },
+    {
+      "scope": "ui_mock_fixture_r2",
+      "source": "51cfe60cddd4cb3307dd87fdd5b44cf891e95f99",
+      "status": "closed_failed",
+      "tests_executed": 1,
+      "tests_passed": 0,
+      "tests_not_run": 5,
+      "failure": "CSV_mapping_locator_timeout",
+      "actual_api_postgresql": false,
+      "native_exit": 1,
+      "ports_closed": [
+        13442,
+        18442
+      ]
     }
   ],
   "hosted": "not_run",
@@ -46,12 +61,29 @@
     "mode": "push",
     "ci": "no_runs_observed",
     "pull_request": "not_created",
-    "last_actual_head": "fcd8477c2d709afe82f7a678844b59dcdb07f511"
+    "last_actual_head": "847f43bb9c029371962b8c147b6e996a6ab1d02f"
   },
   "full_audit": {
-    "status": "hold",
-    "unpublished_stash_findings": 14,
-    "stash": "65959a543abab123614da2ee6c9722e24c9c6386",
+    "status": "hold_current_row_location_repair_in_progress",
+    "git_raw_findings": 1759,
+    "git_classified_findings": 1759,
+    "git_blocking_findings": 0,
+    "current_index_row_guard_blocks": 4,
+    "raw_current_native_findings": 0,
+    "raw_index_native_findings": 0,
+    "full_native_exit": 1,
+    "stash_preserved": "65959a543abab123614da2ee6c9722e24c9c6386",
     "remote_reachable": false
+  },
+  "business_runtime": {
+    "status": "HOLD",
+    "reviewed_candidate": "772ecc6d423e06351c8cdeb78c23a9382d47d466",
+    "review_receipt": "6208ba90588c443fe70ddef74c59961891a7f81d",
+    "blockers": [
+      "S02_current_permission_lock_order",
+      "S04_low_privilege_parser_stop_authority"
+    ],
+    "postgresql_executed": false,
+    "runtime_grant_executed": false
   }
 }
