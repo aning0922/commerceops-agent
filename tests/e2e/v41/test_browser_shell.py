@@ -12,6 +12,7 @@ from typing import Any, cast
 from uuid import uuid4
 
 import pytest
+from commerceops.application.v41.contracts import Snapshot
 from pytest import MonkeyPatch
 
 from . import browser_shell as browser
@@ -812,10 +813,35 @@ def mobile_component_receipt(root: Path) -> tuple[Any, dict[str, Any]]:
     pending: list[dict[str, Any]] = []
 
     def source(revision: str, uploads: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        normalized = [
+            {
+                "data_mode": "demo_upload",
+                "fixture_digest": "e" * 64,
+                "baseline_snapshot_at": "2026-11-02T00:00:00Z",
+                "import_row": 2,
+                **row,
+            }
+            for row in uploads or []
+        ]
+        snapshot = Snapshot.model_validate_json(
+            json.dumps(
+                {
+                    "data_revision": revision,
+                    "snapshot_id": "a" * 64,
+                    "read_at": "2026-11-04T08:00:00Z",
+                    "source": {
+                        "data_mode": "demo_mixed" if normalized else "demo_fixture",
+                        "fixture_digest": "e" * 64,
+                        "baseline_snapshot_at": "2026-11-02T00:00:00Z",
+                        "uploads": normalized,
+                    },
+                }
+            )
+        ).model_dump(mode="json")
         return {
             "context": context,
             "shop_id": shop,
-            "snapshot": {"data_revision": revision, "source": {"uploads": uploads or []}},
+            "snapshot": snapshot,
             "job": None,
             "file_digest": None,
         }
@@ -898,14 +924,22 @@ def mobile_component_receipt(root: Path) -> tuple[Any, dict[str, Any]]:
             "state": "COMMITTED",
             "row_count": 1,
         }
+        if kind == "preview":
+            read["snapshot"] = None
         if kind in {"preview", "import_confirm"}:
             read.update(
-                job={"import_job_id": resource, "version": version, "data_revision": before},
-                file_digest="f" * 64,
+                job={
+                    "import_job_id": resource,
+                    "version": version,
+                    "data_revision": before,
+                    "job_digest": "d" * 64,
+                },
+                file_digest=hashlib.sha256(b"a").hexdigest(),
             )
             if kind == "import_confirm":
                 read["dataset"] = source(
-                    str(after), [{"import_job_id": resource, "file_digest": "f" * 64}]
+                    str(after),
+                    [{"import_job_id": resource, "file_digest": hashlib.sha256(b"a").hexdigest()}],
                 )
         operation = {
             "operation": kind,
@@ -974,7 +1008,10 @@ def mobile_component_receipt(root: Path) -> tuple[Any, dict[str, Any]]:
                 "shop_id": None,
             }
         elif state in {"csv_mapping", "xlsx_mapping"}:
-            src = pipelines[state.split("_")[0]][0]["readback"]
+            src = {
+                name: pipelines[state.split("_")[0]][0]["readback"][name]
+                for name in ("context", "shop_id", "snapshot", "job", "file_digest")
+            }
         elif state in {"csv_readback", "xlsx_readback"}:
             src = pipelines[state.split("_")[0]][2]["readback"]["dataset"]
         route = "/v4/products"
@@ -992,6 +1029,8 @@ def mobile_component_receipt(root: Path) -> tuple[Any, dict[str, Any]]:
             src = source(fulfillment["after_revision"])
         elif state == "batch_readback":
             src = source(second["after_revision"])
+        elif state in {"order_list", "order_detail", "fulfillment_confirm"}:
+            src = source(fulfillment["before_revision"])
         png = (
             bytes((137, 80, 78, 71, 13, 10, 26, 10))
             + bytes((0, 0, 0, 13))
@@ -1155,3 +1194,132 @@ def test_mobile_receipt_rejects_missing_mismatched_or_ambiguous(tmp_path: Path, 
         path.write_bytes(path.read_bytes().replace(b"ACK_COMMITTED", b"ACK_UNKNOWN", 1))
     with pytest.raises(ValueError):
         browser.validate_business_mobile(c, value)
+
+
+@pytest.mark.parametrize("status", ["UNKNOWN", "COMMITTED", "REJECTED"])
+def test_preview_status_must_match_original_ack(tmp_path: Path, status: str) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    next(op for op in value["mobile_business"]["operations"] if op["operation"] == "preview")[
+        "status"
+    ] = status
+    with pytest.raises(ValueError, match="STATUS_ACK_MISMATCH"):
+        browser.validate_business_mobile(c, value)
+
+
+def test_preview_ack_cannot_be_relabelled_while_status_stays_ok(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    path = tmp_path / "browser-business.subjects.private.jsonl"
+    events = [json.loads(line) for line in path.read_bytes().splitlines()]
+    next(
+        event for event in events if event["operation"] == "preview" and event["state"] == "ACK_OK"
+    )["state"] = "ACK_COMMITTED"
+    journal(tmp_path, "business", events)
+    with pytest.raises(ValueError, match="STATUS_ACK_MISMATCH"):
+        browser.validate_business_mobile(c, value)
+
+
+def test_action_committed_ack_cannot_claim_unknown_status(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    value["mobile_business"]["operations"][0]["status"] = "UNKNOWN"
+    with pytest.raises(ValueError, match="STATUS_ACK_MISMATCH"):
+        browser.validate_business_mobile(c, value)
+
+
+def test_all_reported_file_digests_cannot_override_original_bytes(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    actual = hashlib.sha256(b"a").hexdigest()
+    forged = json.loads(json.dumps(value).replace(actual, "9" * 64))
+    # All job/upload/mapping/screenshot summaries agree with each other, but not raw POST bytes.
+    with pytest.raises(ValueError, match="PREVIEW_ORIGINAL_BYTES_DIGEST"):
+        browser.validate_business_mobile(c, forged)
+
+
+def test_changed_original_base64_is_independently_rehashed(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    path = tmp_path / "browser-business.subjects.private.jsonl"
+    events = [json.loads(line) for line in path.read_bytes().splitlines()]
+    event = next(
+        e for e in events if e["operation"] == "preview" and e["state"] == "ATTEMPT_STARTED"
+    )
+    event["request"]["body"]["file_base64"] = "Yg=="
+    event["request"]["request_body_sha256"] = hashlib.sha256(
+        canonical(event["request"]["body"]).encode()
+    ).hexdigest()
+    journal(tmp_path, "business", events)
+    with pytest.raises(ValueError, match="PREVIEW_ORIGINAL_BYTES_DIGEST"):
+        browser.validate_business_mobile(c, value)
+
+
+def test_mapping_cannot_borrow_another_legitimately_registered_scope(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    path = tmp_path / "browser-business.subjects.private.jsonl"
+    events = [json.loads(line) for line in path.read_bytes().splitlines()]
+    registration = copy.deepcopy(events[0])
+    registration["context"].update(
+        tenant_id=str(uuid4()), organization_id=str(uuid4()), principal_id=str(uuid4())
+    )
+    registration["shop_id"] = str(uuid4())
+    events.insert(0, registration)
+    journal(tmp_path, "business", events)
+    for shot in value["mobile_business"]["screenshots"]:
+        if shot["state"] == "csv_mapping":
+            shot["source"] = {
+                **copy.deepcopy(shot["source"]),
+                "context": registration["context"],
+                "shop_id": registration["shop_id"],
+            }
+    # The second scope really is registered; membership alone must not confer job provenance.
+    with pytest.raises(ValueError, match="SCREENSHOT_MAIN_SCOPE"):
+        browser.validate_business_mobile(c, value)
+
+
+@pytest.mark.parametrize("field", ["all", "snapshot_id", "read_at", "source", "extra", "evidence"])
+def test_three_width_snapshot_uses_frozen_public_dto(tmp_path: Path, field: str) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    shot = next(
+        s
+        for s in value["mobile_business"]["screenshots"]
+        if s["state"] == "product_list" and s["width"] == 1280
+    )
+    shot["source"] = copy.deepcopy(shot["source"])
+    snapshot = shot["source"]["snapshot"]
+    if field == "all":
+        shot["source"]["snapshot"] = {}
+    elif field == "extra":
+        snapshot["not_a_public_field"] = True
+    elif field == "evidence":
+        snapshot["source"]["evidence_mode"] = "financial_authority"
+    else:
+        del snapshot[field]
+    with pytest.raises(ValueError):
+        browser.validate_business_mobile(c, value)
+
+
+def test_valid_but_unrelated_fixture_snapshot_is_not_operation_source(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    for shot in value["mobile_business"]["screenshots"]:
+        if shot["state"] == "tag_edit":
+            shot["source"] = copy.deepcopy(shot["source"])
+            shot["source"]["snapshot"]["source"]["fixture_digest"] = "9" * 64
+    with pytest.raises(ValueError, match="FIXTURE_SOURCE_CHAIN"):
+        browser.validate_business_mobile(c, value)
+
+
+def test_late_qa_readback_marker_is_not_a_global_network_order_gate(tmp_path: Path) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    path = tmp_path / "browser-business.subjects.private.jsonl"
+    events = [json.loads(line) for line in path.read_bytes().splitlines()]
+    first, second = value["mobile_business"]["batch"]["keys"]
+    # The true fresh GET can finish before QA persists READBACK after Promise.all.
+    mark = next(
+        e for e in events if e["request_key"] == first and e["state"] == "COMMITTED_READBACK"
+    )
+    events.remove(mark)
+    position = next(
+        i
+        for i, e in enumerate(events)
+        if e["request_key"] == second and e["state"] == "ACK_COMMITTED"
+    )
+    events.insert(position + 1, mark)
+    journal(tmp_path, "business", events)
+    assert browser.validate_business_mobile(c, value)["confirmed_keys"]

@@ -16,10 +16,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
+from commerceops.application.v41.contracts import Snapshot
+
 from tests.e2e.v4.supervisor import Budget
 
 from .owner_setup import decode, private_bytes
-from .request_witness import validate_request
+from .request_witness import server_request, validate_request
 from .runner import persist
 from .subjects import private_subject_bytes, registry
 
@@ -1157,7 +1159,23 @@ def mobile_journal(case: "Case") -> tuple[set[tuple[Any, ...]], dict[str, dict[s
             and states[2] == "COMMITTED_READBACK",
             "UNSETTLED_OR_AMBIGUOUS_JOURNAL",
         )
+    for entry in entries.values():
+        if entry["operation"] == "preview":
+            entry["file_digest"] = server_request(entry["request"], "preview")["file_digest"]
     return scopes, entries
+
+
+def mobile_snapshot(value: Any) -> None:
+    # Validate the frozen public DTO directly; do not manufacture missing wire fields.
+    Snapshot.model_validate_json(json.dumps(value, allow_nan=False))
+
+
+def mobile_same_source(actual: dict[str, Any], expected: dict[str, Any]) -> None:
+    fields = ("context", "shop_id", "snapshot", "job", "file_digest")
+    mobile_require(
+        set(actual) == set(fields) and actual == {name: expected[name] for name in fields},
+        "SCREENSHOT_OPERATION_SOURCE",
+    )
 
 
 def mobile_screenshots(
@@ -1235,6 +1253,8 @@ def mobile_screenshots(
                 isinstance(source.get("snapshot"), dict) or isinstance(source.get("job"), dict),
                 "SCREENSHOT_SOURCE",
             )
+        if source.get("snapshot") is not None:
+            mobile_snapshot(source["snapshot"])
         shots[pair] = record
     required = {(state, width) for state in MOBILE_STATES for width in (390, 1280, 1440)} | {
         (state, 390) for state in MOBILE_EXTRAS
@@ -1267,6 +1287,10 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
         key = operation["key"]
         mobile_require(key in journal and key not in by_key and key in proofs, "KEY_COVERAGE")
         entry, proof = journal[key], proofs[key]
+        mobile_require(
+            operation["status"] == ("OK" if entry["states"][1] == "ACK_OK" else "COMMITTED"),
+            "STATUS_ACK_MISMATCH",
+        )
         kind, request = entry["operation"], entry["request"]
         body = request["body"]
         mobile_require(
@@ -1302,7 +1326,12 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
             and read["version"] == operation["version"],
             "FRESH_READBACK_IDENTITY",
         )
+        if read.get("snapshot") is not None:
+            mobile_snapshot(read["snapshot"])
         if kind == "preview":
+            mobile_require(
+                read["file_digest"] == entry["file_digest"], "PREVIEW_ORIGINAL_BYTES_DIGEST"
+            )
             mobile_require(
                 proof["resource_id"] is None
                 and proof["version"] == operation["version"] - 1
@@ -1335,6 +1364,11 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
             )
             if kind == "import_confirm":
                 dataset = read["dataset"]
+                mobile_snapshot(dataset["snapshot"])
+                mobile_require(
+                    read["job"]["job_digest"] == body["expected_job_digest"],
+                    "IMPORT_ORIGINAL_JOB_DIGEST",
+                )
                 mobile_require(
                     mobile_scope(dataset["context"], dataset["shop_id"]) == entry["scope"]
                     and dataset["snapshot"]["data_revision"] == operation["after_revision"]
@@ -1370,6 +1404,15 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
                 )
         by_key[key] = operation
     mobile_require(set(by_key) == set(journal) == set(proofs), "UNOBSERVED_OPERATION_OR_PENDING")
+    main_scopes = {mobile_scope(op["context"], op["shop_id"]) for op in operations}
+    mobile_require(len(main_scopes) == 1, "BUSINESS_MAIN_SCOPE")
+    main_scope = next(iter(main_scopes))
+    for (state, _width), shot in shots.items():
+        if state not in {"anonymous_empty", "second_visitor_empty"}:
+            mobile_require(
+                mobile_scope(shot["source"]["context"], shot["source"]["shop_id"]) == main_scope,
+                "SCREENSHOT_MAIN_SCOPE",
+            )
     expected_counts = {
         "tag_committed": sum(op["operation"] == "product_tags" for op in operations),
         "fulfillment_committed": sum(op["operation"] == "order_fulfillment" for op in operations),
@@ -1409,6 +1452,7 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
             == mobile_scope(shot["source"]["context"], shot["source"]["shop_id"])
         ]
         mobile_require(len(matches) == 1, "MOBILE_READBACK_SCREENSHOT")
+        mobile_same_source(shot["source"], matches[0]["readback"])
     batch = mobile["batch"]
     selected, keys = batch["selected_ids"], batch["keys"]
     mobile_require(
@@ -1423,6 +1467,63 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
         page_scope in scopes and source["snapshot"]["data_revision"] == batch["initial_revision"],
         "BATCH_PAGE_SOURCE",
     )
+    mobile_require(page_scope == main_scope, "BATCH_MAIN_SCOPE")
+    mobile_snapshot(source["snapshot"])
+    fixture_fields = ("fixture_digest", "baseline_snapshot_at", "fixture_version", "evidence_mode")
+    fixture_anchor = tuple(source["snapshot"]["source"][name] for name in fixture_fields)
+    snapshots = [
+        shot["source"]["snapshot"]
+        for shot in shots.values()
+        if shot["source"].get("snapshot") is not None
+    ]
+    snapshots += [
+        op["readback"]["snapshot"]
+        for op in operations
+        if op["readback"].get("snapshot") is not None
+    ]
+    snapshots += [
+        op["readback"]["dataset"]["snapshot"] for op in operations if "dataset" in op["readback"]
+    ]
+    mobile_require(
+        all(
+            tuple(snapshot["source"][name] for name in fixture_fields) == fixture_anchor
+            for snapshot in snapshots
+        ),
+        "FIXTURE_SOURCE_CHAIN",
+    )
+    for state in MOBILE_STATES:
+        mobile_require(
+            all(
+                shots[(state, width)]["source"] == shots[(state, 390)]["source"]
+                for width in (1280, 1440)
+            ),
+            "THREE_WIDTH_SOURCE_MISMATCH",
+        )
+    for state in ("product_list", "batch_confirm"):
+        for (shot_state, _width), shot in shots.items():
+            if state == shot_state:
+                mobile_same_source(shot["source"], source)
+    for state, kind in (
+        ("product_detail", "product_tags"),
+        ("tag_edit", "product_tags"),
+        ("order_list", "order_fulfillment"),
+        ("order_detail", "order_fulfillment"),
+        ("fulfillment_confirm", "order_fulfillment"),
+    ):
+        for (shot_state, _width), shot in shots.items():
+            if shot_state != state:
+                continue
+            revision = shot["source"]["snapshot"]["data_revision"]
+            resource = shot["route"].split("/")[3] if state != "order_list" else None
+            mobile_require(
+                any(
+                    op["operation"] == kind
+                    and op["before_revision"] == revision
+                    and (resource is None or op["resource_id"] == resource)
+                    for op in operations
+                ),
+                "SCREENSHOT_BEFORE_OPERATION",
+            )
     query = urllib.parse.parse_qs(page["query"].removeprefix("?"), keep_blank_values=True)
     mobile_require(query.get("shop_id") == [source["shop_id"]], "BATCH_PAGE_QUERY")
     items = {item["product_id"]: item["version"] for item in page["items"]}
@@ -1498,12 +1599,33 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
             if journal[op["key"]]["request"]["body"].get("parent_job_id") == initial["resource_id"]
         ]
         mobile_require(len(mapped) == 1, "FORMAT_MAPPING")
+        digest = journal[initial["key"]]["file_digest"]
+        mobile_require(
+            journal[mapped[0]["key"]]["file_digest"] == digest
+            and mapped[0]["readback"]["file_digest"] == digest,
+            "MAPPED_ORIGINAL_BYTES_DIGEST",
+        )
         imports = [
             op
             for op in operations
             if op["operation"] == "import_confirm" and op["resource_id"] == mapped[0]["resource_id"]
         ]
         mobile_require(len(imports) == 1 and imports[0]["width"] == 390, "MOBILE_FORMAT_IMPORT")
+        imported = imports[0]
+        mobile_require(
+            imported["readback"]["file_digest"] == digest
+            and imported["readback"]["job"] == mapped[0]["readback"]["job"]
+            and journal[imported["key"]]["request"]["body"]["expected_job_digest"]
+            == mapped[0]["readback"]["job"]["job_digest"],
+            "IMPORT_JOB_BYTES_CHAIN",
+        )
+        for width in (390, 1280, 1440):
+            mobile_same_source(shots[(fmt + "_mapping", width)]["source"], initial["readback"])
+        read_shot = shots[(fmt + "_readback", 390)]["source"]
+        mobile_require(
+            read_shot["snapshot"]["data_revision"] == imported["after_revision"],
+            "FORMAT_READBACK_REVISION",
+        )
         for width in (390, 1280, 1440):
             mobile_require(
                 shots[(fmt + "_mapping", width)]["source"]["job"]["import_job_id"]
