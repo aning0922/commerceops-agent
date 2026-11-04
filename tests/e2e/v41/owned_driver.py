@@ -30,7 +30,7 @@ from .runtime_checks import (
     verify_api_record,
     verify_web_listener,
 )
-from .source_seal import snapshot
+from .source_seal import matches_source, snapshot
 from .subjects import frozen_subjects
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -664,7 +664,7 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             load_daemon(directory)
             source_after = snapshot(ROOT, tool_paths)
             persist(directory / "source-after.json", source_after)
-            if source_after != source_before:
+            if not matches_source(source_before, source_after):
                 raise ValueError("TERMINAL_TRACKED_SOURCE_OR_TOOL_CHANGED")
             report["information"]["terminal_source_seal"] = "TRACKED_SOURCE_AND_TOOLS_UNCHANGED"
         except Exception as error:
