@@ -948,7 +948,7 @@ def mobile_component_receipt(root: Path) -> tuple[Any, dict[str, Any]]:
             "version": version,
             "before_revision": before,
             "after_revision": after,
-            "effect_count": None if kind == "preview" else 1,
+            "effect_count": None,
             "context": context,
             "shop_id": shop,
             "width": 390,
@@ -1365,4 +1365,99 @@ def test_all_job_projections_cannot_agree_on_version_999(tmp_path: Path) -> None
     assert pending_versions == [proof["version"] for proof in mobile["pending_proofs"]]
     assert journal_path.read_bytes() == original_journal
     with pytest.raises(ValueError, match="JOB_PROJECTION_VERSION_BINDING"):
+        browser.validate_business_mobile(c, value)
+
+
+def test_mobile_wire_has_no_api_effect_count_authority(tmp_path: Path) -> None:
+    from commerceops.application.v41.contracts import ActionReceipt
+
+    assert "effect_count" not in ActionReceipt.model_fields
+    c, value = mobile_component_receipt(tmp_path)
+    assert all(op["effect_count"] is None for op in value["mobile_business"]["operations"])
+    assert browser.validate_business_mobile(c, value)["confirmed_keys"]
+
+
+@pytest.mark.parametrize("kind", ["preview", "product_tags", "order_fulfillment", "import_confirm"])
+@pytest.mark.parametrize("forged", [0, 1, True])
+def test_mobile_rejects_invented_api_effect_count(tmp_path: Path, kind: str, forged: Any) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    op = next(op for op in value["mobile_business"]["operations"] if op["operation"] == kind)
+    op["effect_count"] = forged
+    reason = "PREVIEW_BINDING" if kind == "preview" else "COMMITTED_EFFECT"
+    with pytest.raises(ValueError, match=reason):
+        browser.validate_business_mobile(c, value)
+
+
+def import_count_chain(value: dict[str, Any]) -> list[dict[str, Any]]:
+    """The first original discovery, mapped preview and its committed readback."""
+    return [
+        op
+        for op in value["mobile_business"]["operations"]
+        if op["operation"] in {"preview", "import_confirm"}
+    ][:3]
+
+
+@pytest.mark.parametrize("position", [0, 1, 2])
+@pytest.mark.parametrize("forged", [None, 0, -1, 501, True, 1.0, "1"])
+def test_mobile_import_row_count_requires_strict_bounded_integer(
+    tmp_path: Path, position: int, forged: Any
+) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    import_count_chain(value)[position]["readback"]["row_count"] = forged
+    reason = "IMPORT_EFFECT_READBACK" if position == 2 else "IMPORT_JOB_BYTES_CHAIN"
+    with pytest.raises(ValueError, match=reason):
+        browser.validate_business_mobile(c, value)
+
+
+@pytest.mark.parametrize("position", [0, 1])
+def test_mobile_import_count_must_match_original_preview_chain(
+    tmp_path: Path, position: int
+) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    import_count_chain(value)[position]["readback"]["row_count"] = 2
+    with pytest.raises(ValueError, match="IMPORT_JOB_BYTES_CHAIN"):
+        browser.validate_business_mobile(c, value)
+
+
+@pytest.mark.parametrize("fault", ["missing", "extra", "other_job", "other_file"])
+def test_mobile_import_source_count_requires_original_job_and_file(
+    tmp_path: Path, fault: str
+) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    committed = import_count_chain(value)[2]
+    uploads = committed["readback"]["dataset"]["snapshot"]["source"]["uploads"]
+    if fault == "missing":
+        # Keep the overall source valid but remove this import's only member.
+        uploads[0]["import_job_id"] = str(uuid4())
+    elif fault == "extra":
+        uploads.append({**uploads[0], "import_row": 3})
+    elif fault == "other_job":
+        uploads.append({**uploads[0], "import_job_id": str(uuid4()), "import_row": 3})
+        committed["readback"]["row_count"] = 2
+    else:
+        uploads[0]["file_digest"] = "a" * 64
+    with pytest.raises(ValueError, match="IMPORT_SOURCE_COUNT"):
+        browser.validate_business_mobile(c, value)
+
+
+@pytest.mark.parametrize("count", [22, 500])
+def test_mobile_import_accepts_multiple_rows_bound_to_original_chain(
+    tmp_path: Path, count: int
+) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    chain = import_count_chain(value)
+    for op in chain:
+        op["readback"]["row_count"] = count
+    uploads = chain[2]["readback"]["dataset"]["snapshot"]["source"]["uploads"]
+    first = uploads[0]
+    uploads[:] = [{**first, "import_row": index + 2} for index in range(count)]
+    assert browser.validate_business_mobile(c, value)["confirmed_keys"]
+
+
+@pytest.mark.parametrize("kind", ["preview", "product_tags", "order_fulfillment", "import_confirm"])
+def test_mobile_missing_effect_count_is_not_treated_as_null(tmp_path: Path, kind: str) -> None:
+    c, value = mobile_component_receipt(tmp_path)
+    op = next(op for op in value["mobile_business"]["operations"] if op["operation"] == kind)
+    del op["effect_count"]
+    with pytest.raises(KeyError, match="effect_count"):
         browser.validate_business_mobile(c, value)

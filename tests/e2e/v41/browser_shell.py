@@ -1364,8 +1364,8 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
             )
             mobile_require(
                 operation["status"] == "COMMITTED"
-                and type(operation["effect_count"]) is int
-                and operation["effect_count"] > 0
+                # ActionReceipt has no effect count; final_facts verifies DB effects.
+                and operation["effect_count"] is None
                 and re.fullmatch(r"[a-f0-9]{64}", operation["after_revision"]) is not None
                 and operation["after_revision"] != operation["before_revision"],
                 "COMMITTED_EFFECT",
@@ -1382,7 +1382,8 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
                     and dataset["snapshot"]["data_revision"] == operation["after_revision"]
                     and read["state"] == "COMMITTED"
                     and read["job"]["import_job_id"] == operation["resource_id"]
-                    and read["row_count"] == operation["effect_count"],
+                    and type(read["row_count"]) is int
+                    and 1 <= read["row_count"] <= 500,
                     "IMPORT_EFFECT_READBACK",
                 )
                 uploads = dataset["snapshot"]["source"]["uploads"]
@@ -1395,13 +1396,12 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
                             and row["file_digest"] == read["file_digest"]
                         ]
                     )
-                    == operation["effect_count"],
+                    == read["row_count"],
                     "IMPORT_SOURCE_COUNT",
                 )
             else:
                 mobile_require(
-                    operation["effect_count"] == 1
-                    and read["snapshot"]["data_revision"] == operation["after_revision"],
+                    read["snapshot"]["data_revision"] == operation["after_revision"],
                     "SINGLE_EFFECT",
                 )
                 mobile_require(
@@ -1622,6 +1622,13 @@ def validate_business_mobile(case: "Case", value: dict[str, Any]) -> dict[str, A
         imported = imports[0]
         mobile_require(
             imported["readback"]["file_digest"] == digest
+            and all(
+                type(op["readback"]["row_count"]) is int and 1 <= op["readback"]["row_count"] <= 500
+                for op in (initial, mapped[0], imported)
+            )
+            and imported["readback"]["row_count"]
+            == mapped[0]["readback"]["row_count"]
+            == initial["readback"]["row_count"]
             and imported["readback"]["job"] == mapped[0]["readback"]["job"]
             and journal[imported["key"]]["request"]["body"]["expected_job_digest"]
             == mapped[0]["readback"]["job"]["job_digest"],
