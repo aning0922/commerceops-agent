@@ -257,6 +257,62 @@
       "functional_status": "SEAL_AND_DELAY_ACK_SOURCE_ACCEPTED_PARENT_PGID_HOLD",
       "checkpoint": "r19",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "base": "4c4d213e61b95f8fc7c004665c15d2950d66bbd6",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "actions_runs": [],
+      "functional_status": "REVIEWED_HTTP_SOURCE_NEW_FROZEN_RERUN_PENDING",
+      "checkpoint": "r20",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "f3922ce1ef2aa60d565ff841f0fff84ec5ddb7b7",
+      "base": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "f3922ce1ef2aa60d565ff841f0fff84ec5ddb7b7",
+      "actions_runs": [],
+      "functional_status": "DUAL_BROWSER_LIFECYCLE_SOURCE_ACCEPTED_LIVE_PENDING",
+      "checkpoint": "r21",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-qa-20261104",
+      "source": "e20cf67f7bc7073e4e0c4a80cd3e2b3d853bc859",
+      "base": "1794fc7d5e87f252ad16fa54c5594a6c704ef3ac",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "e20cf67f7bc7073e4e0c4a80cd3e2b3d853bc859",
+      "actions_runs": [],
+      "functional_status": "PGID_P2_SOURCE_CLOSED_LIVE_PENDING",
+      "checkpoint": "r21",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "a96fb93d239b76a8b997e300e747aa673b485c7c",
+      "base": "f3922ce1ef2aa60d565ff841f0fff84ec5ddb7b7",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "a96fb93d239b76a8b997e300e747aa673b485c7c",
+      "actions_runs": [],
+      "functional_status": "NATIVE_SOURCE_REVIEWED_FINAL_CALLER_AND_LIVE_GATE_PENDING",
+      "checkpoint": "r22",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [

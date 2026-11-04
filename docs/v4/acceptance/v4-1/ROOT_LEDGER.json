@@ -5,11 +5,11 @@
   "status": "implementing",
   "cards": {
     "V41-01": "implemented_mock_ui_accepted_real_http_pending",
-    "V41-02": "implemented_specialized_pg_accepted_real_http_full_pending",
+    "V41-02": "implemented_local_http_accepted_browser_full_pending",
     "V41-03": "implemented_mock_ui_accepted_real_http_pending",
-    "V41-04": "implemented_specialized_pg_accepted_real_http_full_pending",
+    "V41-04": "implemented_local_http_accepted_browser_full_pending",
     "V41-05": "implemented_mock_ui_accepted_real_http_pending",
-    "V41-06": "implemented_specialized_pg_accepted_real_http_full_pending"
+    "V41-06": "implemented_local_http_accepted_browser_full_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
@@ -181,7 +181,7 @@
     "review": "Astra high",
     "gates": "Sol high",
     "ui_review": "Astra high UI accepted and GC evidence scope review",
-    "gc_tests": "Sol high"
+    "gc_tests": "Sol medium now engineering regression; GC source frozen"
   },
   "remote_checkpoint": {
     "branch": "codex/v41-control-20261104",
@@ -189,7 +189,7 @@
     "mode": "push",
     "ci": "no_runs_observed",
     "pull_request": "not_created",
-    "last_actual_head": "4c4d213e61b95f8fc7c004665c15d2950d66bbd6"
+    "last_actual_head": "a96fb93d239b76a8b997e300e747aa673b485c7c"
   },
   "full_audit": {
     "status": "exact_development_source_scan_pass_not_final_stage",
@@ -206,7 +206,7 @@
     "log_sha256": "a9a3bc4fe2fdac33434ceb0df69510a61bceea62123aecb5b6c4449523479471"
   },
   "business_runtime": {
-    "status": "REAL_OWNER_AND_DASHBOARD_EXECUTED_SOURCE_SEAL_FAILURE_REPAIRED_PENDING_RERUN",
+    "status": "FOUR_REAL_LOCAL_HTTP_RECIPES_ACCEPTED_BROWSER_AND_FULL_PENDING",
     "reviewed_business_source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
     "postgresql_executed": true,
     "owned_fixture_runtime_grants_executed": true,
@@ -214,10 +214,11 @@
     "S02_same_principal_ordering": "PG7_ACCEPTED",
     "S04": "PG22_PLUS_SEPARATE_LIVE_CHILD_ACCEPTED_BOUNDED_SCOPE",
     "S05_live_rebind": "PG22_ACCEPTED",
-    "current_defect": "SOURCE_SEAL_NEXT_ENV_CANONICAL_FIX_REVIEWED_NEW_CASE_PENDING",
+    "current_defect": null,
     "owner_cli_archive_route": "735_FIXED_HELPER_REAL_COMMITTED_COMMITTED_VERIFIED_R2",
-    "browser_parent": "187_PGID_P2_REPAIR_PENDING",
-    "source_accepted_http": "ca69b83404c4270bfd9cef09a58a343c148769fb",
-    "source_accepted_business_browser": "538665aebac7064c3d9b77bcbf65b4879b864123"
+    "browser_parent": "E20_GROUP_FIX_SOURCE_ACCEPTED",
+    "source_accepted_http": "54ab68f054a136f98dac0a50986caced11362fbd",
+    "source_accepted_business_browser": "538665aebac7064c3d9b77bcbf65b4879b864123",
+    "native_source": "651_SOURCE_ACCEPTED_ACTUAL_CAPTURE_NOT_RUN"
   }
 }

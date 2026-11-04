@@ -346,6 +346,210 @@
       "fresh_diagnostic": "UNAPPROVED_UNTRACKED_RUNTIME_INPUT",
       "new_fix": "1794fc7d5e87f252ad16fa54c5594a6c704ef3ac",
       "fix_not_applied_retroactively": true
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "17bce5e5-f722-414f-8f83-78340f886072",
+          "receipt_sha256": "063919f2ad4babfdf5c8f67e5af365c2cbf35fe46ab126dc45dfbc22bcd9aeee"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "869997b0-56b0-4e5f-8e2b-9aeca21fad87",
+          "receipt_sha256": "f0b134456846d45a8a01618e4c79a9b54addab2f5aa3b3e6391357fdde6eb872"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "f394d168-4a3e-4eee-bb2d-c9bd035896aa",
+          "receipt_sha256": "74fbbb48aa6ea743238f418a3eb35e24cdc936ee3610bd02328c4d2906951c6a"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18461": true,
+        "13461": true
+      },
+      "case": "real-http54ab-dash-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_dash_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-dash-r1/closedfinal.json",
+          "sha256": "b3c0e41b48ac8c82525e320d8e284e1997b108cef001763e79348cba81373f08"
+        },
+        {
+          "path": "real-http54ab-dash-r1/execution.json",
+          "sha256": "729bb0054e90eb44145d0a4a7fbe5444d09abbf1ce9d979489ef80b078eaddec"
+        }
+      ]
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "7526184a-bafc-45b8-9439-256d0b95f514",
+          "receipt_sha256": "31203e1fba2696d581cf21a2759d490d38fd9e50a710dadaa494e1c092b3d7be"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "f45d9064-b5dd-46f6-bd75-00ab3cb806c9",
+          "receipt_sha256": "0a77c8c7c86d8a3e1b53ce72f2db29a8072b629fefd198c58404a3dfaa9bd8b0"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "63aa8e2a-1a77-487f-84e8-22c1e230a9bb",
+          "receipt_sha256": "7f43c1d0bcb02812ef978a202ec89123262422bc6a06af560cdbcbe08a8fdf73"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18462": true,
+        "13462": true
+      },
+      "case": "real-http54ab-catalog-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_catalog_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-catalog-r1/closedfinal.json",
+          "sha256": "1d8b5687d4b927fe60b37dd88378dc464620bf53d0d7ac7700cac4e0ce2f390d"
+        },
+        {
+          "path": "real-http54ab-catalog-r1/execution.json",
+          "sha256": "a2ac9afd862569ea8a3566fee48e1abb4e4307d53d4b58e9dbe6cd1f414b6e57"
+        }
+      ]
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "1c4466d4-db2f-45c9-a607-772ae9fa3f5d",
+          "receipt_sha256": "76b555b14cea2f30a0760388116f48fbdc56fe13b4b1ff1288159fe814a38092"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "72e5c5aa-89f7-4f60-a75c-21ff32897f92",
+          "receipt_sha256": "a105df2a54f4fd3d2bf8847e8bc1018519c0f317806f3f719191efd0fa5b6eea"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "db9ba03e-a0b7-4c2e-aada-aff6b7c94ec4",
+          "receipt_sha256": "d65cd7b6b41f29b57c0f58217c1a13c580af35c7ff4d9152220d336dc75aaa10"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18463": true,
+        "13463": true
+      },
+      "case": "real-http54ab-csv-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_csv_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-csv-r1/closedfinal.json",
+          "sha256": "c2358c23c9c64567baca21a8b443cf75c5b8b1878c24223638cea117d81d6b3f"
+        },
+        {
+          "path": "real-http54ab-csv-r1/execution.json",
+          "sha256": "a87025a02fca1ae366cba13608ddbef367adaffcd9ef6d74c548bd45068866b5"
+        }
+      ]
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "dc065a9f-9524-42e8-a28a-174a201738a7",
+          "receipt_sha256": "f41378c6c153c281af164f27def3de92cb43def95bca120795697b69ba5992c4"
+        },
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "450f3e23-263d-457d-9191-22c2e7f029d1",
+          "receipt_sha256": "90728d8ea245bc84565bdb65543f41c6e500321527292a4cb7e0c2b4f7b0d7ff"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "a5c0b6fb-c633-4c85-9a8d-d62e40f9206a",
+          "receipt_sha256": "72f763b626067cd256a272c32b12d853b0134abecbfe49a015fc50c01344b873"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18464": true,
+        "13464": true
+      },
+      "case": "real-http54ab-xlsx-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_xlsx_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-xlsx-r1/closedfinal.json",
+          "sha256": "2a1cb5d2558021fa396d31c4d894b3a53b21aff890a2451c4ffa44af670f74b0"
+        },
+        {
+          "path": "real-http54ab-xlsx-r1/execution.json",
+          "sha256": "5a47434abd8791e71086a0fdac9e1ce181e005dbd2b308585f6c9bb7308b4a46"
+        }
+      ]
     }
   ],
   "mock_ui": {
@@ -359,7 +563,7 @@
   },
   "full_engineering": "NOT_RUN",
   "full_paired_postgresql": "NOT_RUN",
-  "real_http_api_web": "partial",
+  "real_http_api_web": "pass",
   "hosted": "NOT_RUN",
   "external_business_providers": "NOT_RUN",
   "production": "NOT_RUN",
@@ -376,13 +580,14 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": {
-    "case": "real-api-dashboard-r2",
-    "scope": "terminal_source_seal",
-    "new_source_fix_reviewed": "262d5d99de82cf8e82412c5e008c8d3e2ab5366d",
-    "new_source_actual_rerun": "NOT_RUN"
-  },
+  "current_failure": null,
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
-  "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY"
+  "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
+  "real_http_review": "ab278a4a775305758a749fd755b60a9607a005ef",
+  "real_browser": "NOT_RUN",
+  "native200": "NOT_RUN",
+  "native_source_review": "a3a823236255ae8b06c0b06595a35081cbb59270",
+  "browser_caller": "5237ed50b3c5a55c2060a068b0b94864d355505e under independent review",
+  "remaining_browser_steps": "real interaction, native capture and visual review, offline and visibility clearing"
 }
