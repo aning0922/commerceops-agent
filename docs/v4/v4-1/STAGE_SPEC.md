@@ -20,8 +20,9 @@
 ## 单 owner 和集成
 
 - ROOT：阶段范围、增量合同、路径／依赖、Gate 与普通集成提交；`docs/v4/v4-1/**`、`docs/v4/acceptance/v4-1/**`、必要状态索引。各 proposal 文档由对应 owner 独占。
-- API：`backend/src/commerceops/application/v41/**`、`infrastructure/v41_*.py`、`entrypoints/v41_*.py`、唯一共享 `entrypoints/api.py`、新 0025 迁移、`tests/v41/backend/**`。V4-0 共享身份／seed/reset 接点须先合同列明；旧 current-head PG 期望仅在新迁移明确后窄释放，历史迁移段不改。
+- API：`backend/src/commerceops/application/v41/**`、`infrastructure/v41_*.py`、`entrypoints/v41_*.py`、唯一共享 `entrypoints/api.py`、新 0025 迁移、`tests/v41/backend/**`（下列GC专门路径除外）。V4-0 共享身份／seed/reset 接点须先合同列明；旧 current-head PG 期望仅在新迁移明确后窄释放，历史迁移段不改。
 - WEB：`frontend/app/v4/**`、`components/v4/**`、`lib/v41-*`、`frontend/v41-tests/**`。生成 schema 从已审后端来源生成，旧根布局／锁／业务客户端不并行改。
+- GC 测试：`tests/v41/backend/test_gc_pg.py`、`tests/v41/backend/gc_fixture.py` 与 `proposals/GC_FIXTURE_PLAN.md` 单独由 GC owner 控制，API/QA 不并行编辑；只在新 owned fixture 测试，恢复和自然时间证据分账。
 - QA：`tests/e2e/v41/**`、`frontend/v41-e2e/**`、本阶段真实 API／PG／浏览器回执，不代写业务、共享 schema 或迁移。
 - GATES：工程工具／扫描和动态 Full PG 计划、私有执行包装器；共享正式脚本先由 Root 指定唯一 owner，不改原扫描规则或历史例外。
 - REVIEW：独立提交检查、权限／事务／导入专项和精确 SHA 核收；不代作者改 WIP。
