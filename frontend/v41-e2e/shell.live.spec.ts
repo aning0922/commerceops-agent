@@ -12,6 +12,7 @@ import {readBrowserCase,subjectWriter} from './browser-subjects';
 import {captureNative200} from './native-capture';
 
 const c=readBrowserCase(),api=`http://127.0.0.1:${c.api_port}`;
+const sessionCookieURL=api+'/api/v4/demo/session';
 const evidence=join(c.directory,'browser-shell');
 const ajv=new Ajv2020({strict:true,allErrors:true,allowUnionTypes:true});addFormats(ajv);
 async function envelope(r:Response|APIResponse,definition:'SessionEnvelope'|'CreateEnvelope'|'ControlEnvelope'){
@@ -73,7 +74,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   }
   // StageSpec clear gates use real browser lifecycle events and the existing visitor only.
   const identityFields=['tenant_id','organization_id','principal_id','reset_epoch','auth_generation'] as const;
-  const sameCookies=()=>context.cookies(api).then(items=>items.filter(item=>item.name==='commerceops_v4_demo').map(({name,value,domain,path})=>({name,value,domain,path})));
+  const sameCookies=()=>context.cookies(sessionCookieURL).then(items=>items.filter(item=>item.name==='commerceops_v4_demo').map(({name,value,domain,path})=>({name,value,domain,path})));
   const originalCookies=await sameCookies(),lifecyclePosts=apiPosts;
   expect(originalCookies).toHaveLength(1);
   await page.setViewportSize({width:1440,height:900});await page.goto('/v4/dashboard');
@@ -134,7 +135,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   const nativeShop=await page.getByRole('combobox',{name:'店铺',exact:true}).inputValue();
   expect(nativeSession.data.shops.some((shop:{shop_id:string})=>shop.shop_id===nativeShop)).toBe(true);
   let native200:Awaited<ReturnType<typeof captureNative200>>;
-  try{native200=await captureNative200(c,await context.cookies(api),nativeSession.context,nativeShop);}
+  try{native200=await captureNative200(c,await context.cookies(sessionCookieURL),nativeSession.context,nativeShop);}
   finally{await restoreOriginal();} // The native headed window may have hidden and cleared this Shell.
 
   // Network ACK delay injection: fetch a genuine read-context success, then hold its delivery.
@@ -197,7 +198,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     const loggedOut=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/logout'&&r.request().method()==='POST');
     await page.getByRole('button',{name:'退出',exact:true}).click();await envelope(await loggedOut,'ControlEnvelope');
     await expect(page.getByText('当前视角：',{exact:false})).toHaveCount(0);
-    expect((await context.cookies(api)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
+    expect((await context.cookies(sessionCookieURL)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
     const panel=page.getByRole('dialog',{name:'智能助手'});
     await assistant.click();await expect(panel).toBeVisible();
     await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toHaveCount(0);
@@ -214,7 +215,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
     await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toHaveCount(0);
     await expect(page.getByText('数据读取于 '+old.data.snapshot.read_at,{exact:true})).toHaveCount(0);
     await expect(panel.getByText('选择授权店铺，并打开驾驶舱或具体商品、订单后查看。',{exact:true})).toBeVisible();
-    expect((await context.cookies(api)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
+    expect((await context.cookies(sessionCookieURL)).filter(x=>x.name==='commerceops_v4_demo')).toHaveLength(0);
     delayedAck={tier:'NETWORK_ACK_DELAY_INJECTION_REAL_UPSTREAM',path:'/api/v4/read-context',upstream_status:200,delivered_status:200,upstream_sha256:originalHash,delivered_sha256:receivedHash,release_barrier:'LOGOUT_COMMITTED_AND_SENSITIVE_STATE_CLEARED',sensitive_state_after_delivery:'ABSENT'};
     await page.keyboard.press('Escape');
   }finally{
