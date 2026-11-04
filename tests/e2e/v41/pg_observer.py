@@ -30,6 +30,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("schema", "tenant"))
     parser.add_argument("--tenant")
+    parser.add_argument("--shop")
     parser.add_argument("--deadline", required=True)
     parser.add_argument("--final", action="store_true")
     args = parser.parse_args()
@@ -46,9 +47,9 @@ def main() -> None:
             db.execute("BEGIN READ ONLY")
             db.execute("SET LOCAL statement_timeout='5s'")
             db.execute("SET LOCAL lock_timeout='1s'")
-            revision = row(db.execute("SELECT version_num FROM alembic_version").fetchone())[
-                "version_num"
-            ]
+            revision = row(
+                db.execute("SELECT version_num FROM business.alembic_version").fetchone()
+            )["version_num"]
             if revision != "0025_v41_catalog_operations":
                 raise ValueError("V41_SCHEMA_REVISION_MISMATCH")
             rows = db.execute(
@@ -60,14 +61,15 @@ def main() -> None:
             value: dict[str, object] = {"revision": revision, "tables": sorted(TABLES)}
             if args.action == "tenant":
                 tenant = str(UUID(args.tenant))
+                shop = str(UUID(args.shop))
                 # Identifiers are the fixed contract set, tenant always parameterized.
                 value["counts"] = {
                     t: row(
                         db.execute(
-                            sql.SQL("SELECT count(*) AS count FROM {} WHERE tenant_id=%s").format(
-                                sql.Identifier("business", t)
-                            ),
-                            (tenant,),
+                            sql.SQL(
+                                "SELECT count(*) AS count FROM {} WHERE tenant_id=%s AND shop_id=%s"
+                            ).format(sql.Identifier("business", t)),
+                            (tenant, shop),
                         ).fetchone()
                     )["count"]
                     for t in TABLES

@@ -97,12 +97,25 @@ def import_bytes(kind: str, sku: str, currency: str) -> bytes:
     return stream.getvalue()
 
 
+def assert_context(actual: dict[str, Any], session: dict[str, Any], target_shop: str) -> None:
+    for key in ("tenant_id", "organization_id", "principal_id", "reset_epoch", "auth_generation"):
+        if actual.get(key) != session[key]:
+            raise AssertionError("V41_CONTEXT_DRIFT")
+    if actual.get("shop_id") != target_shop:
+        raise AssertionError("V41_SHOP_CONTEXT_DRIFT")
+
+
+def fulfillment_fields(order: dict[str, Any]) -> dict[str, Any]:
+    return {"expected_version": order["fulfillment_version"], "action": "mark_demo_fulfilled"}
+
+
 class Business:
     def __init__(
         self, visitor: Visitor, case: Case, compose: tuple[str, ...], budget: Budget
     ) -> None:
         self.visitor, self.case, self.compose, self.budget = visitor, case, compose, budget
         self.pending: dict[str, Any] | None = None
+        self.unique_product_id: str | None = None
         if visitor.current is None:
             raise ValueError("actual current demo identity required")
         self.shop = visitor.current["data"]["shops"][0]
@@ -180,11 +193,11 @@ class Business:
             raise AssertionError("V41_STRICT_HTTP_RESPONSE_FAILED")
         if response.headers.get("cache-control") != "no-store":
             raise AssertionError("V41_NO_STORE_REQUIRED")
-        if response.status_code < 400 and reply["context"] != context:
-            # Context is server authority; never accept a cross tenant/shop/epoch response.
-            for key in ("tenant_id", "principal_id", "reset_epoch", "auth_generation"):
-                if reply["context"][key] != context[key]:
-                    raise AssertionError("V41_CONTEXT_DRIFT")
+        if response.status_code < 400:
+            target_shop = (
+                str(payload["shop_id"]) if method == "POST" and payload else params["shop_id"]
+            )
+            assert_context(reply["context"], context, target_shop)
         if method == "POST" and self.pending is not None:
             self.pending["state"] = "ACK_" + reply["status"]
             persist(Path(self.case.directory) / "pending.private.json", self.pending)
@@ -214,6 +227,8 @@ class Business:
                 "tenant",
                 "--tenant",
                 current["context"]["tenant_id"],
+                "--shop",
+                self.shop["shop_id"],
                 "--deadline",
                 self.case.deadline,
             ],
@@ -317,6 +332,7 @@ def import_flow(business: Business, kind: str) -> None:
     found = business.call("products", query={"q": sku})["data"]
     if len(found["items"]) != 1 or found["items"][0]["skus"][0]["label"] != sku:
         raise AssertionError("V41_IMPORTED_SKU_NOT_QUERYABLE")
+    business.unique_product_id = found["items"][0]["product_id"]
     dashboard = business.call("dashboard")["data"]
     seed_dashboard_golden(dashboard, currency, imported=1)
     metric = next(m for m in dashboard["metrics"] if m["metric"] == "product_count")
@@ -372,6 +388,10 @@ def catalog_flow(business: Business) -> None:
         or current["tags"] != ["QA reviewed"]
     ):
         raise AssertionError("V41_TAG_DETAIL_LIST_VERSION_MISMATCH")
+    after_tags = business.facts()
+    for table in ("v41_product_tags", "v41_action_receipts", "v41_action_events"):
+        if after_tags[table] != before[table] + 1:
+            raise AssertionError("V41_TAG_DB_EFFECT_NOT_ONCE")
     orders = business.call("orders", query={"payment": "recorded"})["data"]
     order = next(o for o in orders["items"] if o["demo_fulfillment"] == "demo_unfulfilled")
     linked = business.call("order", ids={"order_id": order["order_id"]})["data"]["order"]
@@ -381,9 +401,9 @@ def catalog_flow(business: Business) -> None:
             raise AssertionError("V41_ORDER_PRODUCT_LINK_WRONG")
     effect = business.write(
         orders["snapshot"]["data_revision"],
-        expected_version=order["version"],
-        action="mark_demo_fulfilled",
+        **fulfillment_fields(order),
     )
+    before_fulfill = business.facts()
     committed = business.call("fulfill", ids={"order_id": order["order_id"]}, payload=effect)[
         "data"
     ]["receipt"]
@@ -392,6 +412,33 @@ def catalog_flow(business: Business) -> None:
     )["data"]
     if found["status"] != "COMMITTED" or found["receipt"] != committed:
         raise AssertionError("V41_FULFILLMENT_ORIGINAL_KEY_UNVERIFIED")
+
+    for _ in range(10):
+        if (
+            business.call("fulfill", ids={"order_id": order["order_id"]}, payload=effect)["data"][
+                "receipt"
+            ]
+            != committed
+        ):
+            raise AssertionError("V41_FULFILLMENT_REPLAY_CHANGED_RECEIPT")
+    final = business.call("order", ids={"order_id": order["order_id"]})["data"]["order"]
+    if (
+        final["fulfillment_version"] != order["fulfillment_version"] + 1
+        or final["demo_fulfillment"] != "demo_fulfilled"
+    ):
+        raise AssertionError("V41_FULFILLMENT_STATE_VERSION_MISMATCH")
+
+    def immutable(row: dict[str, Any]) -> dict[str, Any]:
+        return {
+            k: v for k, v in row.items() if k not in {"fulfillment_version", "demo_fulfillment"}
+        }
+
+    if immutable(final) != immutable(linked):
+        raise AssertionError("V41_FULFILLMENT_CHANGED_MONEY_OR_ORDER")
+    after_fulfill = business.facts()
+    for table in ("v41_order_fulfillments", "v41_action_receipts", "v41_action_events"):
+        if after_fulfill[table] != before_fulfill[table] + 1:
+            raise AssertionError("V41_FULFILLMENT_DB_EFFECT_NOT_ONCE")
 
 
 def invalid_import_is_atomic(business: Business) -> None:
@@ -433,7 +480,6 @@ def invalid_import_is_atomic(business: Business) -> None:
 
 
 def isolate_other_visitor(business: Business, budget: Budget) -> None:
-    product = business.call("products")["data"]["items"][0]
     observer = OwnedAdapter(
         business.compose,
         business.case.project,
@@ -444,7 +490,15 @@ def isolate_other_visitor(business: Business, budget: Budget) -> None:
     try:
         other.create()
         isolated = Business(other, business.case, business.compose, budget)
-        isolated.call("product", ids={"product_id": product["product_id"]}, expected=(404,))
+        # Shared fixture IDs are intentionally legal in each visitor's own authorized shop.
+        own_product = isolated.call("products")["data"]["items"][0]
+        isolated.call("product", ids={"product_id": own_product["product_id"]})
+        isolated.call("products", query={"shop_id": business.shop["shop_id"]}, expected=(404,))
+        if business.unique_product_id is not None:
+            # Only an explicitly registered tenant-owned upload is a foreign-object negative.
+            isolated.call(
+                "product", ids={"product_id": business.unique_product_id}, expected=(404,)
+            )
     finally:
         other.close()
 

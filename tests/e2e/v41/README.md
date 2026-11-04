@@ -66,3 +66,11 @@ confirm预检，preview保存值/请求值/当前fresh读取三方一致；已�
 候选recipe接入fixture摘要、同源类型、八指标及导入仅增加商品/未知库存的金标检查。金标纯测
 覆盖TWD/CNY、未知付款、退款事件非结算、空分母、跨本地午夜/来源窗口、导入不造销量。
 这是金标代码与静态输入验证，真实HTTP/SQL及并发、权限竞争/事务中断等专项仍待实际来源接线。
+
+针对GATES9eb/Astra7954的recipes增量：成功响应核tenant/org/principal/epoch/generation及实际请求shop，
+不拿session的null shop比较业务shop；PG计数增加shop参数，版本表明确business.alembic_version。
+跨访客先证明自己店铺正向读取，再拒原tenant shop；只有明确登记的tenant独有上传商品作为
+foreign-object404，合法共享fixture ID不再一律期望404。履约使用合同fulfillment_version、
+十次同键/读回状态版本/不变订单字段，标签和履约均额外核当前scope三表各一次增量。按原
+operation/key关联到具体receipt/event的更细SQL、库存末态、runtime来源/监听/保卷等HOLD仍
+需后续切片和最终API SQL对齐，不能以本片纯测试或总scope计数声明全部runtime审查关闭。
