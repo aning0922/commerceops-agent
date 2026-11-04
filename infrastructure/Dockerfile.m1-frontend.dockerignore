@@ -12,3 +12,4 @@ frontend/evidence
 !docs/contracts/p3-openapi.json
 !docs/contracts/p4-n01-openapi.json
 !docs/contracts/p5-m2-openapi.json
+!docs/contracts/p6-daily-read-v1.schema.json

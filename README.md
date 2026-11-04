@@ -188,7 +188,7 @@ PATH="$PWD/.tools/node/bin:$PATH" \
 
 | 目标 | 运行指引 |
 | --- | --- |
-| M1 Mock 数据完整闭环 | [M1 Compose](docs/M1_OFFLINE_COMPOSE.md)：PG + API + 单 Worker + Web；生成测试账号、分析、审批、内部项与 Fake 投影 |
+| 历史 M1 Mock 数据完整闭环 | [M1 Compose](docs/M1_OFFLINE_COMPOSE.md)：仅适用于已验 `8ad436595794ef83f3a99bc80bd9ad4948b7117e` 的 0018 环境；PG + API + 单 Worker + Web，包含分析、审批、内部项与 Fake 投影。当前源码不能直接照搬 stock PG 与旧迁移预期 |
 | M3 本地应用与向量库 | [M3 配置与启动](docs/M3_LOCAL_DELIVERY.md)：固定 PG17.11／pgvector0.8.7、显式应用开关及 owner 授权；当前无公开一键联合 seed CLI |
 | V4-1 当前产品与验收复现 | [最终复现说明](docs/v4/v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md)：新 owned 资源、0025、policy、真实浏览器与关闭采集 |
 | 外部集成合同 | [飞书集成](docs/FEISHU_INTEGRATION.md) · [电商适配](docs/COMMERCE_INTEGRATION.md)，接入材料不代表外部验收已完成 |
