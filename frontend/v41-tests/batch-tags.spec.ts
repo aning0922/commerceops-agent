@@ -107,7 +107,11 @@ test('UI_MOCK batch: 390px dialog exposes replacement, empty-clear, focus and Es
  expect(await dialog.evaluate(element=>element.contains(document.activeElement))).toBe(true);
  const input=dialog.getByLabel('标签（逗号分隔，最多 8 项）');await input.fill('重复,重复');await expect(dialog.getByRole('button',{name:'确认逐项替换'})).toBeDisabled();await input.fill('');await expect(dialog.getByRole('button',{name:'确认逐项替换'})).toBeEnabled();
  const bounds=await dialog.boundingBox();expect(bounds).not.toBeNull();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(390);
- await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();expect(await dialog.evaluate(element=>element.contains(document.activeElement))).toBe(false);await expect(page.locator('tbody input[type=checkbox]:checked')).toHaveCount(0);expect(f.requests).toHaveLength(0);expect(await f.pending()).toBeNull();
+ await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();
+ const selectPage=page.getByRole('checkbox',{name:'选择当前页商品',exact:true});
+ await expect(selectPage).toBeFocused();await expect(selectPage).not.toBeChecked();await expect(page.locator('tbody input[type=checkbox]:checked')).toHaveCount(0);
+ await page.keyboard.press('Space');await expect(selectPage).toBeChecked();await expect(page.locator('tbody input[type=checkbox]:checked')).toHaveCount(2);
+ expect(f.requests).toHaveLength(0);expect(await f.pending()).toBeNull();
 });
 
 for(const status of [409,403] as const)test(`UI_MOCK batch: COMMITTED POST followed by readback ${status} remains pending, never a rejected write`,async({page})=>{
