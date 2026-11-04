@@ -18,6 +18,7 @@ import {matchesExportSnapshot} from '../../lib/v41-export.mjs';
 import {isSafeReadContext} from '../../lib/v41-read-context.mjs';
 import {buildCatalogQuery} from '../../lib/v41-query.mjs';
 import {isSafeDrilldown} from '../../lib/v41-drilldown.mjs';
+import {isDashboardView,isOrderListView,fixedOrderFilters} from '../../lib/v41-view-data.mjs';
 import {saveShopPreference,loadShopPreference} from '../../lib/v41-shop-preference.mjs';
 import {resolveV41Route} from '../../lib/v41-routes';
 import {sameIdentityContext,matchesControlBoundary,matchesControlReadback,matchesCreateBoundary,matchesRecoveredControl,shouldClearSummaryFailure} from '../../lib/v4-context.mjs';
@@ -60,7 +61,7 @@ export function Demo({origin}:{origin:string|null}){
  useEffect(()=>{const p=loadPending();setPending(p);if(!p)void refresh();else setMessage(p.operation==='storage_unavailable'?'无法读取待核对记录；为避免重复操作，请先恢复浏览器会话存储。':'上次操作结果未知，请使用原操作核对。');try {channel.current=new BroadcastChannel('commerceops-v4-invalidate');channel.current.onmessage=()=>{clear();if(!document.hidden&&navigator.onLine&&!loadPending())void refresh();};}catch {} const check=()=>{if(document.hidden||!navigator.onLine){clear();return;}if(shouldRevalidate(activeKnown.current,true,true,!!loadPending()))void refresh();};document.addEventListener('visibilitychange',check);window.addEventListener('focus',check);window.addEventListener('online',check);window.addEventListener('offline',check);const timer=window.setInterval(()=>{if(shouldRevalidate(activeKnown.current,!document.hidden,navigator.onLine,!!loadPending()))void refresh();},5000);return()=>{window.clearInterval(timer);channel.current?.close();document.removeEventListener('visibilitychange',check);window.removeEventListener('focus',check);window.removeEventListener('online',check);window.removeEventListener('offline',check);};},[clear,refresh]);
  async function chooseShop(id:string){businessGate.current.invalidate();recoveryGate.current.invalidate();drillGate.current.invalidate();setDrill(null);setDrillState('idle');assistantGate.current.invalidate();setAssistantData(null);setAssistantState('idle');setDashboard(null);setDashboardState('idle');setCatalog(null);setCatalogState('idle');setExportState('idle');setCatalogQuery('');setCatalogFilters({});setCatalogCursor('');setCatalogHistory([]);previewHold.current=null;setImportPreview(null);setDetail(null);setDetailState('idle');setShop(id);selected.current=id;setSummary(null);seq.current++;const base=current.current;try{if(!id)saveShopPreference(sessionStorage,base,'');else if(base&&base.data.shops.some(item=>item.shop_id===id))saveShopPreference(sessionStorage,base,id);}catch{}if(!base||!id||!base.data.shops.some(item=>item.shop_id===id))return;const n=++seq.current;try{const result=await request<Envelope<Summary>>(origin,`/seed-summary?shop_id=${encodeURIComponent(id)}`,'SeedSummaryEnvelope',{headers:{'X-Demo-Epoch':String(base.context.reset_epoch),'X-Demo-Generation':String(base.context.auth_generation)}});if(n!==seq.current){if(result.status!=='OK'&&shouldClearSummaryFailure(base.context,current.current?.context,selected.current,id)){clear();setMessage('当前身份或店铺无法验证，请重新核对会话。');}return;}if(result.status==='OK'&&current.current&&sameIdentityContext(base.context,current.current.context)&&sameIdentityContext(base.context,result.context)&&result.context.shop_id===id&&selected.current===id){setSummary(result.data);}else{clear();setMessage('当前身份或店铺无法验证，请重新核对会话。');}}catch(error){if(n===seq.current||shouldClearSummaryFailure(base.context,current.current?.context,selected.current,id)){if(error instanceof ApiError&&(error.status===401||error.status===403)){activeKnown.current=false;channel.current?.postMessage('invalidate');}clear();setMessage('当前身份或店铺无法验证，请重新核对会话。');}}}
  useEffect(()=>{
-  if(pathname!=='/v4/dashboard'||!origin||!session||!shop||!businessGate.current.establish(session,shop)){businessGate.current.invalidate();setDashboard(null);setDashboardState('idle');return;}
+  if(!isDashboardView(pathname)||!origin||!session||!shop||!businessGate.current.establish(session,shop)){businessGate.current.invalidate();setDashboard(null);setDashboardState('idle');return;}
   const gate=businessGate.current, ticket=gate.begin('dashboard'), controller=new AbortController();
   const query=new URLSearchParams({shop_id:shop,days:String(dashboardDays)});if(dashboardRange){query.set('from_date',dashboardRange.from_date);query.set('to_date',dashboardRange.to_date);}
   if(!ticket)return;
@@ -78,12 +79,12 @@ export function Demo({origin}:{origin:string|null}){
   return ()=>{controller.abort();gate.invalidate();};
  },[origin,pathname,shop,session,dashboardDays,dashboardRange,clear]);
  useEffect(()=>{
-  const product=['/v4/products','/v4/products/variants','/v4/products/categories','/v4/products/import'].includes(pathname), order=pathname==='/v4/orders';
+  const product=['/v4/products','/v4/products/variants','/v4/products/categories','/v4/products/import'].includes(pathname), order=isOrderListView(pathname);
   if((!product&&!order)||!origin||!session||!shop||!businessGate.current.establish(session,shop)){setCatalog(null);setCatalogState('idle');return;}
   const gate=businessGate.current,ticket=gate.begin('catalog'),controller=new AbortController();
   if(!ticket)return;
   setCatalog(null);setCatalogState('loading');
-  const query=buildCatalogQuery(shop,product?'product':'order',catalogQuery,catalogFilters,catalogCursor);if(!query){setCatalogState('error');return;}
+  const query=buildCatalogQuery(shop,product?'product':'order',catalogQuery,product?catalogFilters:{...catalogFilters,...fixedOrderFilters(pathname)},catalogCursor);if(!query){setCatalogState('error');return;}
   void readV41<CatalogData>(origin,`/api/v4/${product?'products':'orders'}?${query}`,'BusinessEnvelope_Page_'+(product?'Product':'Order')+'__',session.context,controller.signal).then(value=>{
    if(gate.accepts(ticket,value)&&isSafeCatalog(value.data,product?'product':'order')){setCatalog(value.data);setCatalogState('idle');}
    else if(gate.accepts(ticket,{...value,status:'OK'})){setCatalog(null);setCatalogState('error');}
@@ -120,7 +121,7 @@ export function Demo({origin}:{origin:string|null}){
  function catalogNext(){if(!catalog?.next_cursor)return;businessGate.current.invalidate();setExportState('idle');setCatalogHistory(history=>[...history,catalogCursor]);setCatalogCursor(catalog.next_cursor);setCatalog(null);}
  function catalogPrevious(){if(!catalogHistory.length)return;businessGate.current.invalidate();setExportState('idle');setCatalogCursor(catalogHistory[catalogHistory.length-1]);setCatalogHistory(history=>history.slice(0,-1));setCatalog(null);}
  async function openAssistant(){
-  const base=current.current,route=resolveV41Route(pathname),kind=pathname==='/v4/dashboard'?'dashboard':route?.title==='商品详情'?'product':route?.title==='订单详情'?'order':null;
+  const base=current.current,route=resolveV41Route(pathname),kind=isDashboardView(pathname)?'dashboard':route?.title==='商品详情'?'product':route?.title==='订单详情'?'order':null;
   setAssistantData(null);setAssistantState('idle');if(!origin||!base||!shop||!kind)return;
   const id=kind==='dashboard'?null:pathname.split('/')[3],gate=assistantGate.current;
   if(!gate.establish(base,shop))return;const ticket=gate.begin('assistant');if(!ticket)return;
@@ -145,10 +146,10 @@ export function Demo({origin}:{origin:string|null}){
   }catch{if(gate.accepts(ticket,{status:'OK',context:{...ticket.context,shop_id:ticket.shop}})){setDrill(null);setDrillState('error');}}
  }
  async function catalogExport(){
-  const base=current.current,page=catalog,kind=pathname==='/v4/orders'?'order':pathname.startsWith('/v4/products')?'product':null;
+  const base=current.current,page=catalog,kind=isOrderListView(pathname)?'order':pathname.startsWith('/v4/products')?'product':null;
   if(!origin||!base||!page||!kind||!catalogEnabled||exportState==='loading')return;
   const gate=businessGate.current,ticket=gate.begin('export');if(!ticket)return;
-  const query=buildCatalogQuery(shop,kind,catalogQuery,catalogFilters);if(!query){setExportState('error');return;}
+  const query=buildCatalogQuery(shop,kind,catalogQuery,kind==='order'?{...catalogFilters,...fixedOrderFilters(pathname)}:catalogFilters);if(!query){setExportState('error');return;}
   setExportState('loading');
   try {
    const result=await readV41<{snapshot:CatalogData['snapshot'];format:string;filename:string;csv_text:string;row_count:number}>(origin,`/api/v4/${kind==='product'?'products':'orders'}/export?${query}`,'BusinessEnvelope_ExportData_',base.context);
