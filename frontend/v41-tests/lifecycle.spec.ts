@@ -33,13 +33,13 @@ async function fixture(page:Page,handler:(route:Route)=>Promise<void>|void){
  }));
  await page.route('**/api/v4/**',cors(async route=>{if(new URL(route.request().url()).pathname.startsWith('/api/v4/demo/'))return route.fallback();await handler(route);}));
 }
-async function openDetail(page:Page){await page.goto(`/v4/products/${product}`);await expect(page.getByLabel('店铺')).toBeVisible();await page.getByLabel('店铺').selectOption(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();}
+async function openDetail(page:Page){await page.goto(`/v4/products/${product}`);await expect(page.getByRole('combobox',{name:'店铺',exact:true})).toBeVisible();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();}
 
 test('UI_FIXTURE: late denied write cannot clear a newly selected shop',async({page})=>{
  let release!:()=>void;const wait=new Promise<void>(resolve=>{release=resolve;});let dispatched!:()=>void;const sent=new Promise<void>(resolve=>{dispatched=resolve;});
  await fixture(page,async route=>{const url=new URL(route.request().url());if(url.pathname.endsWith('/tags')){dispatched();await wait;return route.fulfill({status:401,json:failure});}return route.fulfill({json:{...business,context:{...identity,shop_id:url.searchParams.get('shop_id')},data:detail}});});
  await openDetail(page);await page.getByRole('button',{name:'编辑标签'}).click();await page.getByLabel('标签（逗号分隔，最多 8 项）').fill('新标签');await page.getByRole('button',{name:'确认保存'}).click();await sent;
- await page.getByLabel('详情店铺').selectOption(other);await expect(page.getByLabel('详情店铺')).toHaveValue(other);release();await expect(page.getByLabel('详情店铺')).toHaveValue(other);await expect(page.getByRole('button',{name:'退出演示'})).toBeVisible();
+ await page.getByRole('dialog',{name:'商品详情'}).getByRole('combobox',{name:'详情店铺',exact:true}).selectOption(other);await expect(page.getByRole('dialog',{name:'商品详情'}).getByRole('combobox',{name:'详情店铺',exact:true})).toHaveValue(other);release();await expect(page.getByRole('dialog',{name:'商品详情'}).getByRole('combobox',{name:'详情店铺',exact:true})).toHaveValue(other);await expect(page.getByRole('button',{name:'退出演示'})).toBeVisible();
 });
 
 for(const stage of ['lookup','readback'] as const)test(`UI_FIXTURE: current recovery ${stage} denial clears and retains original key`,async({page})=>{
@@ -70,7 +70,7 @@ test('UI_FIXTURE: nonprinting tag is rejected before a write key or request exis
 
 test('UI_FIXTURE: a shop selection is restored only after a fresh matching session',async({page})=>{
  await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
- await openDetail(page);await page.reload();await expect(page.getByLabel('详情店铺')).toHaveValue(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();
+ await openDetail(page);await page.reload();await expect(page.getByRole('dialog',{name:'商品详情'}).getByRole('combobox',{name:'详情店铺',exact:true})).toHaveValue(id);await expect(page.getByRole('heading',{name:'测试商品'})).toBeVisible();
 });
 
 for(const width of [390,1440])test(`UI_FIXTURE: detail drawer opens and Escape returns to list at ${width}px`,async({page})=>{
@@ -99,6 +99,6 @@ test('UI_FIXTURE: old UNKNOWN survives logout while a verified new tenant can wr
   return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
  }));
  await openDetail(page);const preserved=await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'));await page.getByRole('button',{name:'退出演示'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
- await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByLabel('店铺').selectOption(id);
+ await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);
  await expect(page.getByRole('button',{name:'编辑标签'})).toBeEnabled();await expect(page.getByRole('dialog',{name:'商品详情'}).getByText('其他演示空间的未确认记录已保留；当前空间独立核对。')).toBeVisible();expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBe(preserved);expect(oldLookups).toBe(0);
 });

@@ -39,10 +39,10 @@ for(const format of ['csv','xlsx'] as const)test(`UI_FIXTURE: ${format} discover
   if(path.includes('/actions/import_confirm/')){lookupCount++;expect(path.endsWith(confirmKey)).toBe(true);return route.fulfill({json:{...business,data:{operation:'import_confirm',request_key:confirmKey,status:'COMMITTED',receipt:{receipt_id:id,operation:'import_confirm',request_key:confirmKey,payload_digest:before,resource_id:second,resource_version:2,committed_at:now,before_revision:before,after_revision:after}}}});}
   return route.fulfill({status:404});
  }));
- await page.goto('/v4/products/import');await page.getByLabel('店铺').selectOption(id);await expect(page.getByRole('button',{name:'上传并预览'})).toBeDisabled();
+ await page.goto('/v4/products/import');await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);await expect(page.getByRole('button',{name:'上传并预览'})).toBeDisabled();
  const input=page.getByLabel('文件');if(format==='csv')await input.setInputFiles({name:'sample.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\nSKU-1,Demo,12,TWD\n')});else await input.setInputFiles(fileURLToPath(new URL('./fixtures/sample.xlsx',import.meta.url)));
  await page.getByRole('button',{name:'上传并预览'}).click();await expect(page.getByText(/状态 DISCOVERED/)).toBeVisible();
- await page.reload();await page.getByLabel('店铺').selectOption(id);await page.getByRole('button',{name:'读取已保存预览'}).click();await expect(page.getByText(/状态 DISCOVERED/)).toBeVisible();
+ await page.reload();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);await page.getByRole('button',{name:'读取已保存预览'}).click();await expect(page.getByText(/状态 DISCOVERED/)).toBeVisible();
  if(format==='csv')await input.setInputFiles({name:'sample.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\nSKU-1,Demo,12,TWD\n')});else await input.setInputFiles(fileURLToPath(new URL('./fixtures/sample.xlsx',import.meta.url)));
  for(const [label,value] of [['SKU','sku'],['商品名称','title'],['价格','price'],['币种','currency']]){const field=page.getByRole('combobox',{name:label,exact:true});await expect(field).toBeEnabled();await field.selectOption(value);await expect(field).toHaveValue(value);}
  await input.setInputFiles({name:`different.${format}`,mimeType:'application/octet-stream',buffer:Buffer.from('different')});await page.getByRole('button',{name:'确认映射并重新预览'}).click();await expect(page.getByText('文件或预览状态无法核验，未发送操作。')).toBeVisible();expect(previewCount).toBe(1);
