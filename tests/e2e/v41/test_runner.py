@@ -75,7 +75,8 @@ def test_real_process_failure_accounting(tmp_path: Path, recipe: str, exit_code:
         assert checks["required"]["probe"]["native_exit"] == 3
     if recipe == "timeout":
         assert checks["required"]["probe"]["timed_out"]
-        assert checks["required"]["probe"]["native_exit"] in {-15, -9}
+        assert checks["required"]["probe"]["native_exit"] == -9
+        assert "simulation-ready" in Path(checks["required"]["probe"]["log"]["path"]).read_text()
     if recipe == "observer_missing":
         assert checks["required"]["observer"]["native_exit"] == 0
         assert not checks["required"]["observer"]["observation_present"]

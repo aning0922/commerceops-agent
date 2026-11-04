@@ -2,6 +2,7 @@
 
 import json
 import os
+import signal
 import sys
 import time
 from pathlib import Path
@@ -14,6 +15,8 @@ def main() -> int:
         raise ValueError("fixed simulation mode required")
     mode, directory = sys.argv[1], Path(sys.argv[2])
     if mode == "sleep":
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        print("simulation-ready", flush=True)
         time.sleep(30)
     if mode == "observer":
         fd = os.open(directory / "observation.json", os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
