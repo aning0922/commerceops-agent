@@ -41,3 +41,34 @@ r2 有独立 worker-uid-evidence 与四组 uid-evidence 原件。逐一核采样
 ignored `frontend/next-env.d.ts` 生成变化单列：build 前 296 字节，摘要 `0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc`，引用 .next/dev/types；生产 build 后 288 字节，摘要 `1862ac4bbbc5192d4bf562161df66ea547ed3e67173100656ab606ae9797db2b`，引用 .next/types。原记录证明未 tracked、被既有 frontend/.gitignore 排除；不得把 tracked unchanged 写成工作树所有字节不变，也没有为通过校验删改 tracked 内容。
 
 两次都是本地 React Mock UI。原 dummy-counts 均 total=0、status=503、DUMMY_ONLY_NO_BUSINESS_API；不因此升级为真实业务 API/权限/PG/provider 证据。原 real business/PG/provider/Native200 均 NOT_RUN。此次核收接受失败关闭记录及明确更正边界，Mock suite 仍未验收；不签真实移动端、完整 Full/FullPG、阶段完成或新窗口授权。等待后续新运行的精确原件后，在本文件独立追加。
+
+## r3 失败补记与 r4 完整 Mock 运行核收
+
+2026-11-04 同日追加。当前结论：`R4_MOCK_UI_33_PASS_CLOSED_ACCEPTED / R1_R2_R3_FAILURES_PRESERVED`。仅接纳 r4 本地 React Mock 层实际运行及其关闭记录；上文 r1/r2 的所有失败、NOT_RUN、UID 缺口及分类更正保持原文，不用 r4 覆盖。独立读原件，没有重跑测试、启动服务/浏览器/DB、探测端口或重消费 registry。
+
+| 项目 | r3（保留失败） | r4（本轮接纳的 Mock 运行） |
+| --- | --- | --- |
+| Source | `f0c6551e420801d790720a502967fe0ae0160008` | `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e` |
+| Tree | `0666dbc18f3a4d5bdf55b22f08527c4d94bfd6b3` | `34da95131e04d7360ea8aa5250ea40215bcb0713` |
+| closedfinal SHA-256 | `e0cdb733b8297b5777b7b67e6a2de829251875a8dce63f56fea209ad08a5dd72` | `1e0681b8a170b25511927111b924fa7dae886b9b074de504230ff681338245d1` |
+| 检查开始 UTC | 10:16:18.081881 | 10:45:16.100754 |
+| worker 结束 UTC | 10:17:07.892619 | 10:46:05.071165 |
+| 独立关闭采集结束 UTC | 10:17:40.018565 | 10:46:35.692180 |
+| 实际测试 | 29 PASS / 1 FAIL / 3 NOT_RUN | 33 PASS / 0 FAIL / 0 NOT_RUN |
+| Playwright 实际耗时 | 36753.791 ms | 33321.905 ms |
+| build / probe / worker | 0 / 1 / 1 | 0 / 0 / 0 |
+| 原案端口 | 13489 / 18489 | 13490 / 18490 |
+
+原件分别位于 commerceops-v41-ui-fixture-batch-r3/r4 的 commerceops-agent/.audit/v4-1/ui-fixture-batch-r3/r4（共同 worktree 根与上文相同）。逐 hash 核 r3 closedfinal 引用的全部 29 件、r4 全部 28 件原 artifacts，全部匹配。r4 playwright.json hash `7b9b657408d337bd1f93bc77afa82eef3db3e0c73aa9275798fd224e461e98a8`，checks.json hash `3c176478d209c1e4bf9332194775b450a5864bc9c033d7b42416995d32a52a09`；r3 对应为 `40f39af67787b0c92da29d7153159c599d0e393aa29372f5f3337cfb520a6cd4` 与 `5d5c5136cb9564fbd63d4b1157dd76c0e7122729ac5e3f5a5dd275f32c98e63f`。
+
+独立逐条核 r4 的 33 个唯一 file/title，与本案 collect.final.json 全集精确相同；每项恰好一个实际 result，status=passed、retry=0、expectedStatus=passed。分布为 batch-tags 9、import-flow 2、lifecycle 19、shell 3；stats expected=33/unexpected=0/skipped=0/flaky=0，原 errors 空。四 spec 原命令保留 workers1/retries0/repeatEach1/max-failures1/forbid-only/fullyParallel=false。本次是实际执行，区别于此前 261 离线包的 33 collect；九个 batch 包括两项顺序成功、UNKNOWN/409 停止与原键恢复、shop/close/query 中止、390 焦点/Escape 及 COMMITTED 后 409/403 readback 两分支，均有各自真实 passed result。不是把 r3 的九项通过拼到 r4。
+
+r3 同样独立核到 33 项集合，其中九个 batch、两 import-flow、18 lifecycle 通过，lifecycle 的 changed identity generation clears the prior edit draft 失败，三个 shell results 为空，按 NOT_RUN 保留。实际失败定位 lifecycle.spec.ts:170：身份 generation 更新并重选店铺后，等待“编辑标签”按钮可见 5 秒超时。Root 转交修复 `af033e00dba80353d21e545b3e58809b9869eadd` 的冻结差分只改该 Mock：seed-summary 返回刷新后的 generation，严格核 GET/path/shop/header，并等待对应 summary，原草稿清除断言保留。r4 source 中该 spec 字节与 af033 相同，仓库落地记录为 `d6dff815bdd222269b66925b469380c77d6fe172`；不要求二者具有直接祖先关系。此说明源码修复及新 r4 运行通过，原 r3 仍 failed，不改原回执，也不把静态解释升级成捕获了唯一网络动态根因。
+
+r4 probe-command 原 native_exit=0、signal/error 均 null，worker outer-receipt 原 native_exit=0、parent_timeout=false、notes=[]；build 原 native0 与编译完成日志对应。Root 回报 outer 原 native0，冻结 runner 的失败传播返回表达式与这些原记录一致；outer-receipt 的字段仍只称 worker native，不伪装另一份独立 outer wait 原件。r3 同层 probe/worker 为 1，保留失败传播。两案 web cleanup=143、dummy api=0，r4 probe cleanup=0、r3 probe cleanup=1；web143 不改写为正常业务 exit0，也不覆盖 probe 结果。
+
+两案四个 api/build/probe/web registration 与 uid-evidence 逐一匹配 identity：运行时 worker 与各组 actual_uid=collector_euid=501、原 ps_native=0/输出501。关闭原件对四组、worker/outer 均记录 absent、native1、空 stdout/stderr，原端口检查也为 native1/空输出/closed=true。r4 的 13490/18490 与 r3 的 13489/18489 全关闭，independent_resources_closed=true；known profile paths 为空，task-private transform cache 保留。browser_exit_native 仍 `NOT_EXPOSED_SEPARATELY`，不因 probe0 或组消失造 browser native0。本轮没有新 ps/lsof 或端口 probe。
+
+两案 source-before/after 与 build-source-before/after 四份原快照一致；按各自原 state 算法独立只读重算当前源码和 Git 状态，也与四份一致。r4 tracked digest `fa0fad1ab3c3cedf5dfc7f880bbda18c596457039d3912a9aee36108bde8ad12`；r3 为 `a166672a197dbd5b2cf3e4ecd94893ced1c1049df35079582a7d5f6adb98b872`。读取各自冻结 prep plan/pins/runner，未读 sourcepending/WIP；每案 4815 个工具/helper pin、12178 个完整依赖文件清单/hash 均独立重算匹配。原启动与 finally 的 verify_pins、checks.pins_unchanged=true 与 closedfinal 空 mismatch 相互吻合。ignored next-env.d.ts 仍按原件单列 296 字节 dev 引用→288 字节 production 引用，前后 hash 与上文相同，不混进 tracked unchanged 声明。
+
+r4 dummy-counts 记录 6 次 GET /api/v4/demo/session，固定 dummy status503、DUMMY_ONLY_NO_BUSINESS_API；不误报该案 dummy 请求为 0，也不把它写成真实 API。r3 dummy total0 单列保留。r4 的 33 PASS 仅证明这组本地 Mock UI 路径，真实业务权限/API/PG/provider/Native200 仍 NOT_RUN，真实产品 Native、运行/PNG审查和阶段验收另由其原件证明。旧 r1/r2/r3 失败不被删除或重命名为通过；未借本回执复活旧窗口或授权下一次运行。
