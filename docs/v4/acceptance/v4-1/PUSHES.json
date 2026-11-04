@@ -75,5 +75,56 @@
       "push_native_exit": 0,
       "remote_head": "d4bdfad8458f5a8452014654a1e436ea66043a0a"
     }
+  ],
+  "incremental_batches": [
+    {
+      "private_receipt": "v41-checkpoint-r6/results.json",
+      "checkpoints": [
+        {
+          "branch": "codex/v41-control-20261104",
+          "source": "4acba0ccc97477b94d624c3a5a68ff930957f4e0",
+          "base": "847f43bb9c029371962b8c147b6e996a6ab1d02f",
+          "native_exit": 0,
+          "findings": 0,
+          "push_native_exit": 0,
+          "remote_head": "4acba0ccc97477b94d624c3a5a68ff930957f4e0",
+          "actions_runs": [],
+          "functional_status": "PARTIAL_GATE"
+        },
+        {
+          "branch": "codex/v41-api-20261104",
+          "source": "74342e19a6a4a04dc37dc1d664c4b0b82031d524",
+          "base": "8707c0ca47d688bad9618574e3cf7088c7413574",
+          "native_exit": 0,
+          "findings": 0,
+          "push_native_exit": 0,
+          "remote_head": "74342e19a6a4a04dc37dc1d664c4b0b82031d524",
+          "actions_runs": [],
+          "functional_status": "CANDIDATE_HOLD"
+        },
+        {
+          "branch": "codex/v41-web-20261104",
+          "source": "622ee6e021b4fa33efc6a5fe4ffff436f429ad9a",
+          "base": "51cfe60cddd4cb3307dd87fdd5b44cf891e95f99",
+          "native_exit": 0,
+          "findings": 0,
+          "push_native_exit": 0,
+          "remote_head": "622ee6e021b4fa33efc6a5fe4ffff436f429ad9a",
+          "actions_runs": [],
+          "functional_status": "CANDIDATE_HOLD"
+        },
+        {
+          "branch": "codex/v41-qa-20261104",
+          "source": "e427c82c251fcba4e1b658167ffc1ccad9c9c712",
+          "base": "d4bdfad8458f5a8452014654a1e436ea66043a0a",
+          "native_exit": 0,
+          "findings": 0,
+          "push_native_exit": 0,
+          "remote_head": "e427c82c251fcba4e1b658167ffc1ccad9c9c712",
+          "actions_runs": [],
+          "functional_status": "CANDIDATE_HOLD"
+        }
+      ]
+    }
   ]
 }

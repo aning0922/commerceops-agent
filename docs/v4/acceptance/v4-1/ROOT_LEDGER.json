@@ -36,6 +36,27 @@
         13442,
         18442
       ]
+    },
+    {
+      "scope": "ui_mock_fixture_r3",
+      "source": "622ee6e021b4fa33efc6a5fe4ffff436f429ad9a",
+      "status": "closed_failed",
+      "dynamic_collection": 11,
+      "tests_executed": 3,
+      "tests_passed": 2,
+      "tests_failed": 1,
+      "tests_not_run": 8,
+      "passed_scope": [
+        "CSV_mock_flow",
+        "XLSX_mock_flow"
+      ],
+      "failure": "lifecycle_shop_locator_ambiguous_before_write",
+      "actual_api_postgresql": false,
+      "native_exit": 1,
+      "ports_closed": [
+        13443,
+        18443
+      ]
     }
   ],
   "hosted": "not_run",
@@ -61,19 +82,21 @@
     "mode": "push",
     "ci": "no_runs_observed",
     "pull_request": "not_created",
-    "last_actual_head": "847f43bb9c029371962b8c147b6e996a6ab1d02f"
+    "last_actual_head": "4acba0ccc97477b94d624c3a5a68ff930957f4e0"
   },
   "full_audit": {
-    "status": "hold_current_row_location_repair_in_progress",
+    "status": "development_scan_pass_not_final_stage_source",
+    "full_native_exit": 0,
+    "current_native_findings": 0,
+    "index_native_findings": 0,
+    "row_guard_blocks": 0,
     "git_raw_findings": 1759,
     "git_classified_findings": 1759,
     "git_blocking_findings": 0,
-    "current_index_row_guard_blocks": 4,
-    "raw_current_native_findings": 0,
-    "raw_index_native_findings": 0,
-    "full_native_exit": 1,
-    "stash_preserved": "65959a543abab123614da2ee6c9722e24c9c6386",
-    "remote_reachable": false
+    "source_at_start": "c8988fb",
+    "source_at_end": "4acba0c",
+    "scope_note": "Root public documentation commits occurred during scan; final exact source audit remains required",
+    "log_sha256": "ee067350f3f7e51613bfc9a8af9a13a107b1887c0466944bddb57805a4d187d9"
   },
   "business_runtime": {
     "status": "HOLD",
@@ -81,7 +104,8 @@
     "review_receipt": "6208ba90588c443fe70ddef74c59961891a7f81d",
     "blockers": [
       "S02_current_permission_lock_order",
-      "S04_low_privilege_parser_stop_authority"
+      "S04_low_privilege_parser_stop_authority",
+      "S05_demo_principal_rebind"
     ],
     "postgresql_executed": false,
     "runtime_grant_executed": false

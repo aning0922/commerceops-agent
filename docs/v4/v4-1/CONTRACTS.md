@@ -1,6 +1,6 @@
 # V4-1 增量实施合同
 
-Root 冻结版本：V41-1d（独立调用能力与撤权栅栏候选）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
+Root 冻结版本：V41-1e（独立调用能力与Demo绑定不可变候选）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
 
 ## 1. 已有与新增
 
@@ -67,3 +67,9 @@ V41私有binding保留旧bound-session校验并增加独立V41调用MAC，采用
 允许候选以标准HMAC-SHA256固定block实现避免新增extension，但必须提供Python金标、PG实际向量、错误长度/分段/跨session/跨version拒绝。低权组合攻击必须覆盖改写旧csrf_digest、自选binding/lease、未bind假stop、活child假reap与伪输出，证明无slot释放或数据发布。owner能力保密ACL、rotation及同版本换secret拒绝均需实际验证；源码或纯测试通过不能授runtime。
 
 S02最小修复限定V41私有permission/write_guard，不修改原p3撤权trigger、旧lock_p3_permission或原Resolver。完整当前身份/凭据/角色/店铺及auth_version谓词必须保留；principal共享锁作为旧强制撤权trigger提交栅栏，不反向锁credential/scope/grant tuple，identity仍显式锁。必须用真实PG屏障证明业务先/撤权先两种ordering，deadlock、lock-timeout、503或撤权回滚均FAIL，不能当正常线性化。最终代码精确SHA仍须独审，runtime继续HOLD。
+
+## S05 Demo绑定不可变补充（候选准入）
+
+Root准入0025新增专用BEFORE UPDATE函数与trigger，保护v4_demo_personas所属旧Demo行的权威绑定。web_credentials的organization/principal/identity/login以及scope/grant的organization/principal/shop/role绑定不得原地改绑；按OLD归属判断，不能以改成非Demo规避。enabled/password的同主体更新继续旧principal提交栅栏，INSERT和GC DELETE不拦。合法换绑必须显式DELETE旧行再INSERT新行，原撤权trigger保护OLD主体；系统不自动执行替代操作。归属判断、GC竞争和新trigger顺序须给完整锁图与真实PG负例，不能靠app仅有SELECT就代签owner撤权线性化。
+
+此触点仅限Demo行，不修改旧P3函数、历史迁移或非Demo M3行为；新增函数默认PUBLIC/app全撤权，独审精确SHA后才执行运行Gate。须保留旧业务回归、低权改绑42501、owner改绑明确拒绝、同主体enabled撤权两种ordering及GC清理。S02/S05源码候选不等于真实数据库核收。
