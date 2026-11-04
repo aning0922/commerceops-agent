@@ -53,8 +53,9 @@ function validBatchTags(text:string){const parts=text.split(','),tags=parts.map(
 function CatalogPending({kind,detail,title,view,catalog}:{kind:'product'|'order';detail:boolean;title:string;view:string;catalog:CatalogProps}) {
   const [selectedProducts,setSelectedProducts]=useState<string[]>([]),[batchOpen,setBatchOpen]=useState(false),[batchDraft,setBatchDraft]=useState<TagDraft|null>(null);
   const batchDialog=useRef<HTMLDialogElement>(null),selectPage=useRef<HTMLInputElement>(null),searchProduct=useRef<HTMLInputElement>(null),listTitle=useRef<HTMLHeadingElement>(null);
-  const openedBatchScope=useRef(''),currentBatchScope=useRef(catalog.editScope),focusFrame=useRef<number|null>(null);
-  currentBatchScope.current=catalog.editScope;
+  const focusBinding=catalog.editScope?JSON.stringify([catalog.editScope,view]):'';
+  const openedBatchScope=useRef(''),currentBatchScope=useRef(focusBinding),focusFrame=useRef<number|null>(null);
+  currentBatchScope.current=focusBinding;
   useEffect(()=>()=>{if(focusFrame.current!==null)cancelAnimationFrame(focusFrame.current);},[catalog.editScope,view]);
   const returnBatchFocus=()=>{
    const scope=openedBatchScope.current;
@@ -68,7 +69,7 @@ function CatalogPending({kind,detail,title,view,catalog}:{kind:'product'|'order'
    });
   };
   useEffect(()=>{setSelectedProducts([]);setBatchDraft(null);},[catalog.batchSelectionEpoch]);
-  useEffect(()=>{const d=batchDialog.current;if(!d)return;if(batchOpen&&!d.open){openedBatchScope.current=catalog.editScope;d.showModal();}else if(!batchOpen&&d.open)d.close();},[batchOpen]);
+  useEffect(()=>{const d=batchDialog.current;if(!d)return;if(batchOpen&&!d.open){openedBatchScope.current=focusBinding;d.showModal();}else if(!batchOpen&&d.open)d.close();},[batchOpen]);
   useEffect(()=>{setBatchOpen(false);},[catalog.editScope,view]);
   const closeBatch=()=>{catalog.onStopBatch();setSelectedProducts([]);setBatchDraft(null);setBatchOpen(false);};
   const progress=catalog.batchProgress;
