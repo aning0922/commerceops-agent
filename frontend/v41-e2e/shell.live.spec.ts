@@ -1,4 +1,5 @@
-import {test,expect,type Response,type APIResponse,type Request,type Route,type Frame} from '@playwright/test';
+import {test,expect,verifyOwnedShellPage} from './owned-cdp.fixture';
+import {type Response,type APIResponse,type Request,type Route,type Frame} from '@playwright/test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import {mkdirSync,writeFileSync} from 'node:fs';
@@ -32,7 +33,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   let creates=0,apiPosts=0;
   page.on('request',r=>{const u=new URL(r.url());if(u.origin===api&&r.method()==='POST')apiPosts++;if(u.origin===api&&u.pathname==='/api/v4/demo/sessions'&&r.method()==='POST')creates++;});
   await page.setViewportSize({width:1440,height:900});
-  await page.goto('/v4');
+  await page.goto(`http://127.0.0.1:${c.web_port}/v4`);
   const first=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/session'&&r.request().method()==='GET'&&r.ok());
   const created=page.waitForResponse(r=>r.url()===api+'/api/v4/demo/sessions'&&r.request().method()==='POST');
   await page.getByRole('button',{name:'一键体验 →',exact:true}).click();
@@ -77,7 +78,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   const sameCookies=()=>context.cookies(sessionCookieURL).then(items=>items.filter(item=>item.name==='commerceops_v4_demo').map(({name,value,domain,path})=>({name,value,domain,path})));
   const originalCookies=await sameCookies(),lifecyclePosts=apiPosts;
   expect(originalCookies).toHaveLength(1);
-  await page.setViewportSize({width:1440,height:900});await page.goto('/v4/dashboard');
+  await page.setViewportSize({width:1440,height:900});await page.goto(`http://127.0.0.1:${c.web_port}/v4/dashboard`);
   await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
   await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
   async function restoreOriginal(){
@@ -140,17 +141,21 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   const windowSession=await context.newCDPSession(page);
   let hiddenWindowRestored=false;
   try{
+    await verifyOwnedShellPage(page,windowSession);
     const {targetInfo:ownedTarget}=await windowSession.send('Target.getTargetInfo');
     expect(ownedTarget.type).toBe('page');
     expect(typeof ownedTarget.targetId).toBe('string');expect(ownedTarget.targetId.length).toBeGreaterThan(0);
-    if(typeof ownedTarget.browserContextId!=='string'||!ownedTarget.browserContextId.length)throw new Error('Owned browser context identity required');
+    const contextIdPresent=Object.hasOwn(ownedTarget,'browserContextId');
+    if(contextIdPresent&&(typeof ownedTarget.browserContextId!=='string'||!ownedTarget.browserContextId.length))throw new Error('Invalid owned context identity');
     expect(ownedTarget.url).toBe(page.url());expect(new URL(ownedTarget.url).origin).toBe(`http://127.0.0.1:${c.web_port}`);
     const ownedWindow=await windowSession.send('Browser.getWindowForTarget',{targetId:ownedTarget.targetId});
     expect(Number.isInteger(ownedWindow.windowId)).toBe(true);expect(ownedWindow.bounds.windowState).toBe('normal');
     async function verifyOwnedWindow(){
+      await verifyOwnedShellPage(page,windowSession);
       expect(page.context()).toBe(context);
       const {targetInfo:actual}=await windowSession.send('Target.getTargetInfo');
       expect(actual.type).toBe('page');expect(actual.targetId).toBe(ownedTarget.targetId);
+      expect(Object.hasOwn(actual,'browserContextId')).toBe(contextIdPresent);
       expect(actual.browserContextId).toBe(ownedTarget.browserContextId);
       expect(actual.url).toBe(ownedTarget.url);expect(page.url()).toBe(ownedTarget.url);
       const actualWindow=await windowSession.send('Browser.getWindowForTarget',{targetId:ownedTarget.targetId});
@@ -162,6 +167,9 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
       await expect.poll(async()=>(await windowSession.send('Browser.getWindowBounds',{windowId:ownedWindow.windowId})).bounds.windowState).toBe('minimized');
       await expect.poll(()=>page.evaluate(()=>document.visibilityState)).toBe('hidden');
       await sensitiveCleared(hiddenReadAt);expect(await sameCookies()).toEqual(originalCookies);
+      await verifyOwnedWindow();
+      expect((await windowSession.send('Browser.getWindowBounds',{windowId:ownedWindow.windowId})).bounds.windowState).toBe('minimized');
+      expect(await page.evaluate(()=>document.visibilityState)).toBe('hidden');
     }finally{
       await verifyOwnedWindow();
       await windowSession.send('Browser.setWindowBounds',{windowId:ownedWindow.windowId,bounds:{windowState:'normal'}});
@@ -185,7 +193,7 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
   // Network ACK delay injection: fetch a genuine read-context success, then hold its delivery.
   // read-context has no client AbortController; no signal, request, body or response is rewritten.
   await page.setViewportSize({width:1440,height:900});
-  await page.goto('/v4/dashboard');
+  await page.goto(`http://127.0.0.1:${c.web_port}/v4/dashboard`);
   await expect(page.getByText('当前视角：operator',{exact:false})).toBeVisible();
   await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(current.data.shops[0].shop_id);
   const assistant=page.getByRole('button',{name:'智能助手',exact:true});
