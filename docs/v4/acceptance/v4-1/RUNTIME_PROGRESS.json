@@ -1,0 +1,141 @@
+{
+  "stage": "V4-1",
+  "scope": "local_specialized_checks_not_full_stage_acceptance",
+  "runs": [
+    {
+      "case": "owner-ddl-pilot-r4",
+      "status": "DDL_ACL_PASS",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "tree": "80c68225bfa60d946abb8e1add5fbc4f5f92ded7",
+      "image_id": "sha256:f2ba3244b72fcf4a54bb4971437c9f1f9fee9b62c5b86dcb84b88f8775eda373",
+      "started_utc": "2026-11-04T03:30:32.340715+00:00",
+      "ended_utc": "2026-11-04T03:30:39.903812+00:00",
+      "stats": {
+        "tables": 7,
+        "functions": 29,
+        "policy_rows": 0
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41ddlrootr4_data",
+        "v41ddlrootr4_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "owner-ddl-pilot-r4/receipt.json",
+          "sha256": "911f5fb0f16af146ff1ab84d0f5b506ca46bff695c139ac5e0d688ebd5f4be00"
+        },
+        {
+          "path": "owner-ddl-pilot-r4/closedfinal.json",
+          "sha256": "0c14e72d2c5a39e744a8f0d0e22611fa293e316704ae54b0584a9f1f87878686"
+        },
+        {
+          "path": "owner-ddl-pilot-r4/final_owner_facts.json",
+          "sha256": "9b823bcea1496467944312b3566feb520921aa581d727c3d40d2ff09b79e153b"
+        }
+      ]
+    },
+    {
+      "case": "pg7-root-r1",
+      "status": "PG7_PASS",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "tree": "80c68225bfa60d946abb8e1add5fbc4f5f92ded7",
+      "image_id": "sha256:f2ba3244b72fcf4a54bb4971437c9f1f9fee9b62c5b86dcb84b88f8775eda373",
+      "started_utc": "2026-11-04T03:33:03.412527+00:00",
+      "ended_utc": "2026-11-04T03:33:23.630542+00:00",
+      "stats": {
+        "collected": 7,
+        "executed": 7,
+        "passed": 7,
+        "failed": 0,
+        "not_run": 0
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr1_data",
+        "v41pgrootr1_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg7-root-r1/receipt.json",
+          "sha256": "cb6e0a6daea8284b8f03debf66d85dcb160c47c10a33997e7d8a19b7cb90e3e3"
+        },
+        {
+          "path": "pg7-root-r1/closedfinal.json",
+          "sha256": "ca8923c784f65cc65e451a4047ba04dd9f03e90b949d3a640f18c1f2f662f119"
+        },
+        {
+          "path": "pg7-root-r1/final_owner_facts.json",
+          "sha256": "b648e16d08fd00e6321cb59df44ab873415cf8e1807ff6d6365d4d353c79e67e"
+        }
+      ]
+    },
+    {
+      "case": "pg22-root-r2",
+      "status": "PG22_FAILED_CLOSED",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "tree": "80c68225bfa60d946abb8e1add5fbc4f5f92ded7",
+      "image_id": "sha256:f2ba3244b72fcf4a54bb4971437c9f1f9fee9b62c5b86dcb84b88f8775eda373",
+      "started_utc": "2026-11-04T03:36:39.131359+00:00",
+      "ended_utc": "2026-11-04T03:36:54.092185+00:00",
+      "stats": {
+        "collected": 22,
+        "executed": 3,
+        "passed": 2,
+        "failed": 1,
+        "not_run": 19
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr2_data",
+        "v41pgrootr2_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg22-root-r2/receipt.json",
+          "sha256": "ce44dd57ac62e7fc8c016ae80c649c962ee58fa0557d89b7d5df711a968501c4"
+        },
+        {
+          "path": "pg22-root-r2/closedfinal.json",
+          "sha256": "2bf5adbfc9abf26aef1337bee126c059fc67246fbd3053ceb3d494b655f46540"
+        },
+        {
+          "path": "pg22-root-r2/final_owner_facts.json",
+          "sha256": "9b366a8c3d4e23297118f6cfbd1395e524062fcaa204a0edbb2188ff6a93c563"
+        }
+      ]
+    }
+  ],
+  "current_failure": {
+    "case": "pg22-root-r2",
+    "node": "test_golden_reads_tags_receipt_replay_original_after_later_effect",
+    "source_line": 221,
+    "sqlstate": "23514",
+    "safe_error": "V41_TAG_INVALID",
+    "phase": "second_tag_action",
+    "trigger_operation_not_captured": true,
+    "root_cause": "under_owner_investigation"
+  },
+  "mock_ui": {
+    "source": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "actual_http_business_api": false,
+    "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
+  },
+  "full_engineering": "NOT_RUN",
+  "full_paired_postgresql": "NOT_RUN",
+  "real_http_api_web": "NOT_RUN",
+  "hosted": "NOT_RUN",
+  "external_business_providers": "NOT_RUN",
+  "production": "NOT_RUN",
+  "previous_failed_cases": "PRESERVED_NOT_REPLACED"
+}

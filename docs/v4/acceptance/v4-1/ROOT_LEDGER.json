@@ -4,12 +4,12 @@
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
   "status": "implementing",
   "cards": {
-    "V41-01": "implementing_after_shell_fixture",
-    "V41-02": "query_candidate_under_review",
-    "V41-03": "ui_candidate_with_review_holds",
-    "V41-04": "sql_foundation_under_review",
-    "V41-05": "ui_candidate_with_review_holds",
-    "V41-06": "parser_policy_accepted_runtime_pending"
+    "V41-01": "implemented_mock_ui_accepted_real_http_pending",
+    "V41-02": "implemented_real_pg_partial",
+    "V41-03": "implemented_mock_ui_accepted_real_http_pending",
+    "V41-04": "implemented_pg7_accepted_tag_repeat_write_failure_open",
+    "V41-05": "implemented_mock_ui_accepted_real_http_pending",
+    "V41-06": "implemented_offline_mock_import_accepted_real_pg_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
@@ -57,6 +57,46 @@
         13443,
         18443
       ]
+    },
+    {
+      "case": "owner-ddl-pilot-r4",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "status": "DDL_ACL_PASS",
+      "stats": {
+        "tables": 7,
+        "functions": 29,
+        "policy_rows": 0
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg7-root-r1",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "status": "PG7_PASS",
+      "stats": {
+        "collected": 7,
+        "executed": 7,
+        "passed": 7,
+        "failed": 0,
+        "not_run": 0
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg22-root-r2",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "status": "PG22_FAILED_CLOSED",
+      "stats": {
+        "collected": 22,
+        "executed": 3,
+        "passed": 2,
+        "failed": 1,
+        "not_run": 19
+      },
+      "closed": true,
+      "volumes_preserved": true
     }
   ],
   "hosted": "not_run",
@@ -64,17 +104,19 @@
   "model_cost": "unknown",
   "next_stage": "not_started",
   "owner_slices": {
-    "backend_contract": "eb73a5eda3e94368009882ce437dc9e8760cec75",
+    "backend_contract": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
     "qa_supervisor": "c5b00f13e32eaf8538b0386dca374fa78d17cbb0",
     "review": "ongoing_exact_slices",
-    "web_shell": "c343516e78d4d227a7f705aef4dc3b73469b0e99"
+    "web_shell": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
+    "qa_candidate": "f667d099857f69fef0938bc077953b5e05769e25"
   },
   "models": {
-    "api": "Sol high",
+    "api": "Astra high temporary database runtime repair",
     "web": "Terra high",
     "qa": "Sol high",
     "review": "Astra high",
-    "gates": "Sol high"
+    "gates": "Sol high",
+    "ui_review": "Astra high UI accepted and GC evidence scope review"
   },
   "remote_checkpoint": {
     "branch": "codex/v41-control-20261104",
@@ -82,7 +124,7 @@
     "mode": "push",
     "ci": "no_runs_observed",
     "pull_request": "not_created",
-    "last_actual_head": "4acba0ccc97477b94d624c3a5a68ff930957f4e0"
+    "last_actual_head": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf"
   },
   "full_audit": {
     "status": "development_scan_pass_not_final_stage_source",
@@ -99,15 +141,15 @@
     "log_sha256": "ee067350f3f7e51613bfc9a8af9a13a107b1887c0466944bddb57805a4d187d9"
   },
   "business_runtime": {
-    "status": "HOLD",
-    "reviewed_candidate": "772ecc6d423e06351c8cdeb78c23a9382d47d466",
-    "review_receipt": "6208ba90588c443fe70ddef74c59961891a7f81d",
-    "blockers": [
-      "S02_current_permission_lock_order",
-      "S04_low_privilege_parser_stop_authority",
-      "S05_demo_principal_rebind"
-    ],
-    "postgresql_executed": false,
-    "runtime_grant_executed": false
+    "status": "HOLD_ACTUAL_TAG_REPEAT_WRITE_FAILURE",
+    "reviewed_business_source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+    "postgresql_executed": true,
+    "owned_fixture_runtime_grants_executed": true,
+    "public_http_runtime_started": false,
+    "S02_same_principal_ordering": "PG7_ACCEPTED",
+    "S04": "CODE_ACCEPTED_REMAINING_PG_PENDING",
+    "S05_live_rebind": "CODE_ACCEPTED_REMAINING_PG_PENDING",
+    "current_defect": "23514_V41_TAG_INVALID_second_tag_action",
+    "owner_cli_archive_route": "HOLD_C01_USE_REVIEWED_HELPER_CANDIDATE"
   }
 }

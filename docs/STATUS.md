@@ -1,3 +1,5 @@
+2026-11-04 V4-1最新运行增量：精确source4907756已通过新owned 0025迁移/七表初始空/29函数ACL默认拒绝及7项撤权顺序与policy真实PG测试；Mock UI冻结3342968的24项全部通过。扩大到V41专项22项时实际2PASS/1FAIL/19NOT_RUN，第二次标签写入23514/V41_TAG_INVALID正由独占owner修复；所有案资源已清容器网络、保卷。当前阶段仍IMPLEMENTING，HTTP/API/Web、全仓Full工程/严格双PG配对、最终截图等未验；不进入V4-2/Hosted/外部业务/生产。精确分层见[当前运行回执](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下导航保留此前时点。
+
 2026-11-04 V4-1本地托管进行中：完整V41-01—06已进入独立阶段工作树，按V41-1d增量合同实施，未进入V4-2。已审查询/安全导出及默认撤权SQL候选分批推至阶段集成分支；三owner已提交候选另分支备份，不代表运行验收。真实Shell浏览器切片通过，导入Mock R2执行1例失败、5例未跑，资源已清理；修复准备新case。当前业务runtime GRANT受S02撤权锁序与S04解析停止权威独审阻断，真实V41 PG/API尚未执行；只准备新owned空库DDL/ACL pilot。Hosted、真实模型/embedding、Woo/飞书与生产未运行。见[阶段范围](v4/v4-1/STAGE_SPEC.md)、[增量合同](v4/v4-1/CONTRACTS.md)和[分批推送回执](v4/acceptance/v4-1/PUSHES.json)。以下旧导航按记录时点保留。
 
 # 阶段状态与主控交接

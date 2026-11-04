@@ -1,6 +1,6 @@
 # V4-1 增量实施合同
 
-Root 冻结版本：V41-1e（独立调用能力与Demo绑定不可变候选）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
+Root 冻结版本：V41-1f（固定owner测试接线与运行证据分层）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
 
 ## 1. 已有与新增
 
@@ -73,3 +73,9 @@ S02最小修复限定V41私有permission/write_guard，不修改原p3撤权trigg
 Root准入0025新增专用BEFORE UPDATE函数与trigger，仅禁止owned Demo关联行的organization/principal归属原地改绑；OLD或NEW任一为Demo均适用。同主体的identity/login/role/shop/password/enabled变动继续旧principal提交栅栏，INSERT和GC DELETE不拦。可信归属仅取私有v4_demo_personas live行；旧baseline对organizations/principals/identities存在app UPDATE，故公开组织marker/identity来源不能当不可改权威，本轮移除该兜底。helper仅MVCC读取，不新加principal或scope tuple锁。actor与支持的GC均先tenant/session锁，锁保持到提交，必须用双方屏障证明有效actor期间GC无法移除persona。GC先结束则tenant/session缺行，actor拒绝；不承诺GC后遗留disabled行永久不可改绑，不新增旧组织/identity保护或持久锚。合法换绑必须显式DELETE旧行再INSERT新行，原撤权trigger保护OLD主体；系统不自动执行替代操作。归属判断、GC竞争和新trigger顺序须给完整锁图与真实PG负例，不能靠app仅有SELECT就代签owner撤权线性化。
 
 此触点仅限Demo行，不修改旧P3函数、历史迁移或非Demo M3行为；新增函数默认PUBLIC/app全撤权，独审精确SHA后才执行运行Gate。须保留旧业务回归、低权改绑42501、owner改绑明确拒绝、同主体enabled撤权两种ordering及GC清理。S02/S05源码候选不等于真实数据库核收。
+
+## 固定owner测试接线（QA候选准入，非运行释放）
+
+旧903 owner CLI依赖checkout根与Git，在现有noneditable archive镜像不可执行，不能用假Git或改source_root绕过。允许QA在本阶段独占harness实现activate-policy、grant-runtime、verify-runtime三个固定动作，既有bootstrap固定序列不扩任意动作。仅调用已审业务helpers，Root私有operation manifest提前绑定原操作身份、真实source/tree、immutable image与完整copied/installed fileset实测摘要、新owned DB/角色/PG版本、配置及实际secret文件hash、绝对UTC与清理预留。导入和提交前复核；一次消费、UNKNOWN不换id重跑；实际COMMIT与ACK/汇总分账。verify只读真实表/列/函数ACL、当前policy/config及私有能力不可读，不把元数据READY或CLI inspect当成功。候选代码精确独审与新资源窗口通过后才可实际接线，不更改原M3/旧权限或自动外部调用。
+
+GC自然24h soak并非原六卡明确要求。新增六子表清理与live persona屏障仍须分层验证：有效session的actor/GC_NOT_READY锁屏障、历史retained fixture的真实删除/先GC后旧session拒绝不可混为同一活会话两方成功。可准备仅新owned的历史测试fixture restore方案，初始化权限、复合FK/CHECK/canonical/digest/interval与trigger实际恢复须独审和独立核验；被测GC运行必须原规则与原触发器全部启用，不改OS时钟、不将restore称runtime INSERT准入或自然24h。尚未核收具体fixture实现或释放恢复执行窗口，原过期INSERT被guard源码拒的方案继续保留SOURCE_REJECTED。
