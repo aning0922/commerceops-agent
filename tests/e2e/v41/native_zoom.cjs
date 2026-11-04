@@ -188,6 +188,9 @@ async function captureNativePng(page, filename, expected, observations, limited,
     pngGeometry(bytes, expected); // Reject this shot before another protocol read or capture.
     observation.after = captureMetrics(await work(session.send('Page.getLayoutMetrics')));
     observation.dom = numericFields(await work(geometry(page)), ['innerWidth', 'innerHeight', 'outerWidth', 'outerHeight', 'devicePixelRatio']);
+    check(['innerWidth', 'innerHeight', 'devicePixelRatio'].every(key => observation.dom[key] === expected[key]) && observation.dom.outerWidth === 1440 && observation.dom.outerHeight === 1000 && expected.outerWidth === 1440 && expected.outerHeight === 1000, 'NATIVE_CAPTURE_GEOMETRY_DRIFT');
+    const beforeZoom = observation.before.cssVisualViewport.zoom, afterZoom = observation.after.cssVisualViewport.zoom;
+    check(Number.isFinite(beforeZoom) && beforeZoom > 0 && beforeZoom === afterZoom, 'NATIVE_CAPTURE_ZOOM_DRIFT');
     pngGeometry(bytes, observation.dom);
     return bytes;
   } catch (error) {failure = error; throw error;}
@@ -259,7 +262,7 @@ async function selfTest() {
     assert.equal(safeFailure({name: 'untrusted type', message: 'raw error'}, cleanup).type, 'Error');
   });
   const header = (width, height) => {const bytes = Buffer.alloc(33); Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes); bytes.writeUInt32BE(13, 8); bytes.write('IHDR', 12); bytes.writeUInt32BE(width, 16); bytes.writeUInt32BE(height, 20); return bytes;};
-  const measured = {innerWidth: 720, innerHeight: 456, devicePixelRatio: 4};
+  const measured = {innerWidth: 720, innerHeight: 456, devicePixelRatio: 4, outerWidth: 1440, outerHeight: 1000};
   count(() => assert.deepEqual(pngGeometry(header(2880, 1826), measured), {pixelWidth: 2880, pixelHeight: 1826}));
   for (const bytes of [header(1440, 912), header(2883, 1824), header(2880, 1827), Buffer.alloc(24), Buffer.alloc(8000001)]) count(() => assert.throws(() => pngGeometry(bytes, measured)));
   count(() => assert.throws(() => pngGeometry(header(2880, 1824), {...measured, devicePixelRatio: NaN})));
@@ -283,6 +286,19 @@ async function selfTest() {
     assert.deepEqual(bounds.at(-1), {cap: 1000, cleanup: true});
     assert(bounds.slice(0, -1).every(item => item.cap > 0 && item.cap <= 10000 && item.cleanup === false));
     assert.equal(JSON.stringify(observations).includes('discard'), false);
+    checks++;
+  }
+  for (const drift of ['same_pixel_product', 'outer_window', 'cdp_zoom']) {
+    const bytes = header(2880, 1824), saved = [], observations = [];
+    let metricsReads = 0, detached = false;
+    const session = {send: async method => {
+      if (method === 'Page.getLayoutMetrics') return {cssVisualViewport: {zoom: ++metricsReads === 2 && drift === 'cdp_zoom' ? 1 : 2}};
+      assert.equal(method, 'Page.captureScreenshot'); return {data: bytes.toString('base64')};
+    }, detach: async () => {detached = true;}};
+    const dom = drift === 'same_pixel_product' ? {...measured, innerWidth: 1440, innerHeight: 912, devicePixelRatio: 2} : drift === 'outer_window' ? {...measured, outerWidth: 1441} : measured;
+    const page = {context: () => ({newCDPSession: async () => session}), evaluate: async () => dom};
+    await assert.rejects(captureNativePng(page, '/unused/products-200.png', measured, observations, async promise => promise, (_, raw) => saved.push(raw)), drift === 'cdp_zoom' ? /NATIVE_CAPTURE_ZOOM_DRIFT/ : /NATIVE_CAPTURE_GEOMETRY_DRIFT/);
+    assert.deepEqual(saved, [bytes]); assert.equal(detached, true);
     checks++;
   }
   return {status: 'PURE_COMPONENT_CHECKS_PASS', checks, browserLaunches: 0, profilesCreated: 0, nativeZoom: 'NOT_RUN', screenshots: 'NOT_RUN', S01: 'NOT_RUN'};
