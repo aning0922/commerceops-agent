@@ -31,3 +31,27 @@ export async function readV41<T>(origin:string|null, path:string, schemaName:str
   if (!validateV41(schemaName,value)) throw new V41Error(response.status,'UNKNOWN','INVALID_RESPONSE');
   return value as BusinessEnvelope<T>;
 }
+
+const uuidPath='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+const writes = [
+  {pattern:new RegExp(`^/api/v4/products/${uuidPath}/tags$`,'i'),request:'SetProductTags',response:'BusinessEnvelope_ActionResult_'},
+  {pattern:new RegExp(`^/api/v4/orders/${uuidPath}/fulfillment$`,'i'),request:'FulfillDemoOrder',response:'BusinessEnvelope_ActionResult_'},
+  {pattern:/^\/api\/v4\/imports\/previews$/,request:'ImportPreviewInput',response:'BusinessEnvelope_ImportPreviewData_'},
+  {pattern:new RegExp(`^/api/v4/imports/${uuidPath}/confirm$`,'i'),request:'ConfirmImport',response:'BusinessEnvelope_ActionResult_'},
+] as const;
+/** One dispatch only. The caller must persist a pending key before calling this function. */
+export async function postV41<T>(origin:string|null,path:string,body:unknown,csrf:string,signal?:AbortSignal):Promise<BusinessEnvelope<T>> {
+  if (!origin) throw new Error('API_NOT_CONFIGURED');
+  const operation=writes.find(item=>item.pattern.test(path));
+  if (!operation) throw new Error('INVALID_BUSINESS_PATH');
+  if (!csrf || !validateV41(operation.request,body)) throw new Error('INVALID_REQUEST');
+  const response=await fetch(`${origin}${path}`,{method:'POST',credentials:'include',cache:'no-store',signal:signal?AbortSignal.any([signal,AbortSignal.timeout(15000)]):AbortSignal.timeout(15000),headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify(body)});
+  let value:unknown;try{value=await response.json();}catch{throw new V41Error(response.status,'UNKNOWN','INVALID_RESPONSE');}
+  if (!response.ok) {
+    if (!validateV41('FailureEnvelope',value)) throw new V41Error(response.status,'UNKNOWN','INVALID_RESPONSE');
+    const failure=value as {status:string;error:{code:string}};
+    throw new V41Error(response.status,failure.status,failure.error.code);
+  }
+  if (!validateV41(operation.response,value)) throw new V41Error(response.status,'UNKNOWN','INVALID_RESPONSE');
+  return value as BusinessEnvelope<T>;
+}

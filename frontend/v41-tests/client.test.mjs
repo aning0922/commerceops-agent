@@ -12,7 +12,7 @@ let output=stripTypeScriptTypes(input,{mode:'transform'});
 output=output.replace("'ajv/dist/2020'",JSON.stringify(pathToFileURL(require.resolve('ajv/dist/2020')).href));
 output=output.replace("'ajv-formats'",JSON.stringify(pathToFileURL(require.resolve('ajv-formats')).href));
 output=output.replace("import schema from './v41-schema.json';",`const schema = ${schema};`);
-const {validateV41,readV41}=await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`);
+const {validateV41,readV41,postV41}=await import(`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`);
 test('schema exactly derives from the committed candidate source',()=>{
  const source=execFileSync('git',['show','b72331fa572d9d67ad176902283da721aeda4cf1:docs/v4/v4-1/API_CONTRACT.json'],{encoding:'utf8'});
  assert.deepEqual(JSON.parse(schema),JSON.parse(source).json_schema);
@@ -40,4 +40,16 @@ test('every committed route request and response schema compiles in strict Ajv',
   const name=ref.$ref.slice('#/$defs/'.length);
   assert.equal(validateV41(name,null),false,`${route.method} ${route.path} ${name}`);
  }
+});
+
+test('write accepts only frozen route and strict DTO and dispatches at most once',async()=>{
+ const original=globalThis.fetch;let calls=0;const resource=randomUUID();
+ const body={shop_id:randomUUID(),request_key:randomUUID(),expected_epoch:0,expected_generation:0,expected_data_revision:'a'.repeat(64),expected_version:0,tags:['checked']};
+ try {
+  globalThis.fetch=async(url,init)=>{calls++;assert.equal(init.method,'POST');assert.equal(init.credentials,'include');assert.equal(init.headers['X-CSRF-Token'],'csrf');assert.deepEqual(JSON.parse(init.body),body);throw new TypeError('network failure');};
+  await assert.rejects(postV41('https://example.invalid',`/api/v4/products/${resource}/tags`,body,'csrf'),/network failure/);assert.equal(calls,1);
+  await assert.rejects(postV41('https://example.invalid',`/api/v4/products/${resource}/tags`,{...body,role:'operator'},'csrf'),/INVALID_REQUEST/);
+  await assert.rejects(postV41('https://example.invalid',`/api/v4/products/${resource}/delete`,body,'csrf'),/INVALID_BUSINESS_PATH/);
+  await assert.rejects(postV41('https://example.invalid',`/api/v4/products/${resource}/tags`,body,''),/INVALID_REQUEST/);assert.equal(calls,1);
+ } finally {globalThis.fetch=original;}
 });
