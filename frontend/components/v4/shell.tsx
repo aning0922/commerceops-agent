@@ -31,7 +31,7 @@ export function Shell({pathname, children,assistantContent,onAssistantOpen,onAss
       <header className={styles.header}>
         <button className={styles.menuTrigger} ref={menuButton} type="button" aria-label="打开业务导航" onClick={()=>menu.current?.showModal()}>☰</button>
         <div className={styles.breadcrumb}><span>工作空间</span><span aria-hidden="true">/</span><strong>{route?.title ?? '演示'}</strong></div>
-        <div className={styles.headerActions}><span className={styles.demoBadge}><span/>合成演示</span><button ref={assistantButton} className={styles.assistantTrigger} type="button" onClick={()=>{assistant.current?.showModal();onAssistantOpen?.();}}>✧ <span>智能助手</span></button></div>
+        <div className={styles.headerActions}><span className={styles.demoBadge}><span/>合成演示</span><button ref={assistantButton} className={styles.assistantTrigger} type="button" aria-label="智能助手" onClick={()=>{assistant.current?.showModal();onAssistantOpen?.();}}>✧ <span>智能助手</span></button></div>
       </header>
       {children}
     </div>
