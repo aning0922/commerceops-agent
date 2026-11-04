@@ -23,7 +23,7 @@ test('static reserved routes win and only canonical UUID resource paths resolve'
   const sample=randomUUID();
   assert.equal(resolveV41Route(`/v4/products/${sample}`)?.title,'商品详情');
   assert.equal(resolveV41Route(`/v4/orders/${sample}`)?.title,'订单详情');
-  for (const path of ['/v4/products/unknown','/v4/orders/anything','/v4/products/import/extra','/v4/unknown','/v4/dashboard/','/v4/products/%2f']) {
+  for (const path of ['/v4/products/unknown','/v4/orders/anything','/v4/products/import/extra','/v4/unknown','/v4/dashboard/','/v4/products/%2f','/v4/products/:productId','/v4/orders/:orderId','/v4/products/%3AproductId','/v4/orders/%3AorderId']) {
     assert.equal(resolveV41Route(path),null,path);
   }
 });

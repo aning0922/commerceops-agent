@@ -15,7 +15,7 @@ export function resolveV41Route(pathname: string): ResolvedRoute | null {
   }
   const module = modules.find(item => item.href === pathname);
   if (module) return { title: module.name, module, auxiliary: false };
-  const staticView = manifest.stage_views.find(view => view.route === pathname);
+  const staticView = manifest.stage_views.find(view => !view.route.includes(':') && view.route === pathname);
   if (staticView) {
     const owner = modules.find(item => item.id === staticView.id.slice(4, 6));
     return owner ? { title: staticView.name, module: owner, auxiliary: false } : null;
