@@ -82,7 +82,7 @@ test('tenant scoped pending retains legacy UNKNOWN and isolates new verified ten
  const s=storage(),old=fixture(),other=fixture(),oldSession={context:old.context},newSession={context:other.context};
  assert.equal(reserveV41Pending(s,old),true);const original=s.getItem('commerceops-v41-pending');
  assert.equal(loadV41Pending(scopedV41Storage(s,oldSession)).value.request_key,old.request_key);
- const current=scopedV41Storage(s,newSession);assert.equal(loadV41Pending(current).state,'empty');
+ const current=scopedV41Storage(s,newSession);assert.equal(current.hasOtherPending,true);assert.equal(loadV41Pending(current).state,'empty');
  assert.equal(reserveV41Pending(current,{...old,request_key:randomUUID()}),false);assert.equal(loadV41Pending(current).state,'empty');
  assert.equal(reserveV41Pending(current,other),true);assert.equal(s.getItem('commerceops-v41-pending'),original);
  assert.equal(loadV41Pending(scopedV41Storage(s,oldSession)).value.request_key,old.request_key);

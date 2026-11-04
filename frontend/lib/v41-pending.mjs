@@ -112,6 +112,7 @@ export function scopedV41Storage(storage,session) {
   if(!isSessionContext(session?.context))throw new Error('SESSION_NOT_VALIDATED');
   const tenant=session.context.tenant_id.toLowerCase();
   const namespacedPending=`${slot}:${tenant}`,namespacedPreview=`${previewSlot}:${tenant}`;
+  let otherPending=false;
   if(!Number.isSafeInteger(storage.length)||storage.length<0||typeof storage.key!=='function')throw new Error('STORAGE_BLOCKED');
   for(let i=0;i<storage.length;i++){
     const key=storage.key(i);if(typeof key!=='string')throw new Error('STORAGE_BLOCKED');
@@ -119,6 +120,7 @@ export function scopedV41Storage(storage,session) {
     const owner=key.slice(base.length+1),raw=storage.getItem(key);let value;
     try{value=JSON.parse(raw);}catch{throw new Error('STORAGE_BLOCKED');}
     if(!uuid.test(owner)||owner!==owner.toLowerCase()||!(base===slot?valid(value):validPreviewRef(value))||value.context.tenant_id.toLowerCase()!==owner)throw new Error('STORAGE_BLOCKED');
+    if(base===slot&&owner!==tenant)otherPending=true;
   }
   const legacyPending=loadV41Pending(storage),legacyPreview=loadV41Preview(storage);
   if(legacyPending.state==='blocked'||legacyPreview.state==='blocked')throw new Error('STORAGE_BLOCKED');
@@ -130,11 +132,13 @@ export function scopedV41Storage(storage,session) {
   };
   const ownPending=inspect(namespacedPending,valid),ownPreview=inspect(namespacedPreview,validPreviewRef);
   const legacyOwnPending=legacyPending.state==='pending'&&legacyPending.value.context.tenant_id.toLowerCase()===tenant;
+  if(legacyPending.state==='pending'&&!legacyOwnPending)otherPending=true;
   const legacyOwnPreview=legacyPreview.state==='ready'&&legacyPreview.value.context.tenant_id.toLowerCase()===tenant;
   if((legacyOwnPending&&ownPending)||(legacyOwnPreview&&ownPreview))throw new Error('STORAGE_BLOCKED');
   const keys={[slot]:legacyOwnPending?slot:namespacedPending,[previewSlot]:legacyOwnPreview?previewSlot:namespacedPreview};
   const keyFor=key=>{if(!Object.hasOwn(keys,key))throw new Error('STORAGE_BLOCKED');return keys[key];};
   return {
+    hasOtherPending:otherPending,
     getItem(key){return storage.getItem(keyFor(key));},
     setItem(key,raw){
       const target=keyFor(key);let value;try{value=JSON.parse(raw);}catch{throw new Error('STORAGE_BLOCKED');}
