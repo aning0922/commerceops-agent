@@ -457,6 +457,14 @@ def test_parent_mapping_chain_supersedes_and_disallows_old_confirm(
 def test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation(demo: DemoPG) -> None:
     token, _, shop = session(demo)
     store = BusinessStore(demo.config)
+    # Separate an ungranted table from a readable-but-uninitialized policy authority.
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        page(store, token, shop)
+    with connect(demo.owner) as db:
+        db.execute(
+            "GRANT SELECT(active_version,config_digest) ON business.v41_security_policy "
+            "TO commerceops_app"
+        )
     with pytest.raises(WebFailure, match="SERVICE_UNAVAILABLE"):
         page(store, token, shop)
     with connect(demo.owner) as db:
