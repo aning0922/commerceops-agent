@@ -1024,3 +1024,155 @@ def test_demo_binding_reassignment_denied_before_original_new_principal_trigger(
         ).fetchall()
         assert after == before
     assert page(store, token, shop).total == 8
+
+
+def test_forged_unbound_and_live_child_stop_denied_real_reap_after_revocation(
+    business: tuple[DemoPG, BusinessStore],
+) -> None:
+    import os
+
+    from commerceops.application.v41.parse_protocol import ParseInput
+    from commerceops.infrastructure.v4_demo_sessions import bounded
+    from commerceops.infrastructure.v41_parse import run_parser
+    from psycopg.types.json import Jsonb
+
+    demo, store = business
+    token, current, shop = session(demo)
+    command = preview_command(shop, page(store, token, shop).snapshot.data_revision)
+    canonical = canonical_bytes(
+        dict(
+            command=command.model_dump(mode="json", exclude={"file_base64"}),
+            file_digest=hashlib.sha256(base64.b64decode(command.file_base64)).hexdigest(),
+        )
+    ).decode()
+    lease, process_ref = secrets.token_urlsafe(32), uuid4()
+    with connect(demo.app) as db:
+        subject = demo.store.sessions.resolve_locked(db, token)
+        private_binding = binding_proof(demo.config, subject.session["bound_web_session_id"])
+        row = db.execute(
+            "SELECT * FROM business.v41_reserve_preview(%s,%s,%s,%s,%s,%s)",
+            (
+                token,
+                current["data"]["csrf_token"],
+                private_binding,
+                canonical,
+                hashlib.sha256(lease.encode()).hexdigest(),
+                process_ref,
+            ),
+        ).fetchone()
+        assert row is not None
+        job = row["id"]
+    guessed = secrets.token_urlsafe(32)
+
+    def forged(pid: int) -> dict[str, Any]:
+        return dict(
+            process_ref=str(process_ref),
+            pid=pid,
+            native_exit=0,
+            timed_out=False,
+            reaped=True,
+            output_digest=hashlib.sha256(b"forged-output").hexdigest(),
+        )
+
+    # No bind or native handle exists yet. The reader knows job/digest/process_ref, not raw lease.
+    with (
+        pytest.raises(psycopg.errors.CheckViolation, match="V41_PARSE_LEASE_INVALID"),
+        connect(demo.app) as attacker,
+    ):
+        attacker.execute(
+            "SELECT business.v41_stop_parser(%s,%s,%s,%s)",
+            (job, guessed, process_ref, Jsonb(forged(1))),
+        )
+
+    def bind(pid: int) -> None:
+        with connect(demo.app) as db:
+            bounded(db)
+            db.execute(
+                "SELECT business.v41_bind_parser(%s,%s,%s,%s)", (job, lease, process_ref, pid)
+            )
+        os.kill(pid, 0)  # The exact newly bound native child is actually still alive.
+        for statement, values in (
+            ("SELECT business.v41_bind_parser(%s,%s,%s,%s)", (job, guessed, process_ref, pid)),
+            (
+                "SELECT business.v41_stop_parser(%s,%s,%s,%s)",
+                (job, guessed, process_ref, Jsonb(forged(pid))),
+            ),
+        ):
+            with (
+                pytest.raises(psycopg.errors.CheckViolation, match="V41_PARSE_LEASE_INVALID"),
+                connect(demo.app) as attacker,
+            ):
+                attacker.execute(statement, values)
+        # Guessing a digest and an output does not confer the independent invocation authority.
+        with (
+            pytest.raises(psycopg.errors.CheckViolation, match="SESSION_INVALID"),
+            connect(demo.app) as attacker,
+        ):
+            attacker.execute(
+                "SELECT business.v41_publish_preview(%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    token,
+                    current["data"]["csrf_token"],
+                    guessed + "." + guessed,
+                    job,
+                    guessed,
+                    "{}",
+                    "[]",
+                ),
+            )
+        with connect(demo.owner) as owner:
+            held = owner.execute(
+                "SELECT parse_state,parse_slot,stop_proof FROM business.v41_import_jobs "
+                "WHERE id=%s",
+                (job,),
+            ).fetchone()
+            assert (
+                held is not None
+                and held["parse_state"] == "RUNNING"
+                and held["parse_slot"] is not None
+            )
+            assert held["stop_proof"] is None
+            owner.execute(
+                "UPDATE business.web_credentials SET enabled=false WHERE identity_id=%s",
+                (subject.session["identity_id"],),
+            )
+
+    def stop(proof: dict[str, Any]) -> None:
+        with pytest.raises(ProcessLookupError):
+            os.kill(proof["pid"], 0)
+        with connect(demo.app) as db:
+            bounded(db)
+            db.execute(
+                "SELECT business.v41_stop_parser(%s,%s,%s,%s)",
+                (job, lease, process_ref, Jsonb(proof)),
+            )
+
+    native = run_parser(
+        ParseInput(
+            format=command.format,
+            file_base64=command.file_base64,
+            mapping=command.mapping,
+            currency="TWD",
+            existing_skus=(),
+        ),
+        process_ref,
+        bind,
+        stop,
+    )
+    assert native.proof["reaped"] is True and native.proof["native_exit"] == 0
+    with (
+        pytest.raises(psycopg.errors.CheckViolation, match="SESSION_INVALID"),
+        connect(demo.app) as db,
+    ):
+        db.execute(
+            "SELECT business.v41_publish_preview(%s,%s,%s,%s,%s,%s,%s)",
+            (token, current["data"]["csrf_token"], private_binding, job, lease, "{}", "[]"),
+        )
+    with connect(demo.owner) as owner:
+        row = owner.execute(
+            "SELECT parse_state,parse_slot,preview_data,stop_proof FROM business.v41_import_jobs "
+            "WHERE id=%s",
+            (job,),
+        ).fetchone()
+        assert row is not None and row["parse_state"] == "STOPPED" and row["parse_slot"] is None
+        assert row["preview_data"] is None and row["stop_proof"] == native.proof
