@@ -1,6 +1,7 @@
 import {resolveV41Route} from '../../lib/v41-routes';
 import styles from './business-pending.module.css';
 import {TagControls,FulfillmentControls} from './write-controls';
+import {ImportFlow} from './import-flow';
 
 export type DashboardData = {
   snapshot:{data_revision:string;read_at:string;source:{data_mode:string;fixture_version:string;baseline_snapshot_at:string}};
@@ -61,21 +62,17 @@ function DetailBody({data,kind,catalog}:{data:CatalogDetailData;kind:'product'|'
     <p className={styles.source}>来源 {item.source.data_mode==='demo_upload'?'演示导入':'合成基线'} · 读取时间 {data.snapshot.read_at}</p>
   </div>;
 }
-function ImportPending() {
+function ImportPending({catalog}:{catalog:CatalogProps}) {
   return <section className={styles.workspace} aria-label="商品导入">
     <PageHeader eyebrow="IMPORT · 数据导入" title="导入商品" description="上传文件后，先预览与映射字段，再确认导入当前演示店铺。"/>
-    <div className={styles.note}><strong>导入服务待接入</strong><span>当前不能上传或提交文件，不会创建任何商品。</span></div>
-    <article className={styles.panel}><div className={styles.panelHead}><div><h3>导入步骤</h3><p>服务接入后将提供服务端预览和质量校验</p></div></div>
-      <ol className={styles.steps}><li><strong>选择文件</strong><span>CSV 或 XLSX；格式与大小限制由服务端校验</span></li><li><strong>预览与映射</strong><span>核对表头、字段映射和质量问题</span></li><li><strong>确认导入</strong><span>确认后查看结果并核对当前店铺商品</span></li></ol>
-      <button className={styles.unavailableButton} type="button" disabled>选择文件</button>
-    </article>
+    <p role="status">导入服务待接入</p><ImportFlow key={catalog.scopeToken} enabled={false} busy={false} preview={null} hasReference={false} onDiscover={()=>{}} onMap={()=>{}} onRead={()=>{}} onConfirm={()=>{}}/>
   </section>;
 }
 export function BusinessPending({pathname,dashboard,dashboardState,catalog}:{pathname:string;dashboard:DashboardData|null;dashboardState:'idle'|'loading'|'error';catalog:CatalogProps}) {
   const route=resolveV41Route(pathname);
   if (!route || route.auxiliary || !route.module) return null;
   if (route.module.id==='01') return <DashboardPending data={pathname==='/v4/dashboard'?dashboard:null} state={pathname==='/v4/dashboard'?dashboardState:'idle'}/>;
-  if (pathname==='/v4/products/import') return <ImportPending/>;
+  if (pathname==='/v4/products/import') return <ImportPending catalog={catalog}/>;
   if (route.module.id==='04' || route.module.id==='05') {
     return <CatalogPending kind={route.module.id==='04'?'product':'order'} title={route.title} view={route.title} catalog={catalog} detail={route.title==='商品详情'||route.title==='订单详情'}/>;
   }
