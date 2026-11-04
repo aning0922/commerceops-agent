@@ -1,0 +1,372 @@
+{
+  "scope": "UNEDITED_ACTUAL_R10_PRODUCT_BROWSER_PNGS",
+  "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "count": 40,
+  "visual_review": "AI_ENGINEERING_REVIEW_ACCEPTED_WITH_RECORDED_LIMITATIONS",
+  "human_visual_review": "NOT_RUN",
+  "images": [
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/anonymous_empty-390.png",
+      "sha256": "bc3c2fe6113df55960e91e57804a2f230edcaf01ab98c7314b34eabb8f22c3db",
+      "pixel_width": 390,
+      "pixel_height": 1877,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/anonymous_empty-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/batch_confirm-390.png",
+      "sha256": "be3c708bd3b6f0240a1ec3293df2548f4332586e881dfc93dcf0f1c21de4c66b",
+      "pixel_width": 390,
+      "pixel_height": 2346,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/batch_confirm-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/batch_readback-390.png",
+      "sha256": "da6c3e2e814aaa2e3d2252eade19ca6c0ca55fa6c873976ab2abe9f5623e6813",
+      "pixel_width": 390,
+      "pixel_height": 2346,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/batch_readback-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/csv_mapping-1280.png",
+      "sha256": "ff23ef36f83d4d52f160cea88fb48c5378bec1892c1768558dd32e654d21f29d",
+      "pixel_width": 1280,
+      "pixel_height": 2621,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/csv_mapping-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/csv_mapping-1440.png",
+      "sha256": "7ea82ca672a50fc0f7d6c82b703812858fc779696606a65e91f12187f7f52ca2",
+      "pixel_width": 1440,
+      "pixel_height": 2621,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/csv_mapping-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/csv_mapping-390.png",
+      "sha256": "db525b126cc4743847a3469fb822e0bc6e2d20bb26453966de42606579e8ab58",
+      "pixel_width": 390,
+      "pixel_height": 2997,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/csv_mapping-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/csv_readback-390.png",
+      "sha256": "08c6903eba986a3cd09ca5e76791a8227a0900a81458f1a6876d8bbd0852e677",
+      "pixel_width": 390,
+      "pixel_height": 1806,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/csv_readback-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/fulfillment_confirm-1280.png",
+      "sha256": "b1e0323c905d121bc75948a449dd14619fe2284a44bc4c5f3a20dea20b99f9f2",
+      "pixel_width": 1280,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/fulfillment_confirm-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/fulfillment_confirm-1440.png",
+      "sha256": "b23330296bd56de68fde4e2326f3892125f4267a0f7fc411d2ed162dfa72e2a8",
+      "pixel_width": 1440,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/fulfillment_confirm-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/fulfillment_confirm-390.png",
+      "sha256": "ddf956a6d2d4ae74bd0eaa93f8a7ae47442f5539bbae11d4b4cb8a43d02b896e",
+      "pixel_width": 390,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/fulfillment_confirm-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/fulfillment_readback-390.png",
+      "sha256": "feee12b99117b2dcf56c7ec8a780ed68e9157305b9db31acaef2dfbc01c6c6b9",
+      "pixel_width": 390,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/fulfillment_readback-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_detail-1280.png",
+      "sha256": "3e624d79c49ceffe4711b7f8250a72c3d4da8f0bfc89b2d8d9d55e8abe2e85be",
+      "pixel_width": 1280,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/order_detail-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_detail-1440.png",
+      "sha256": "5f114c455eee58a10607812082c53c40a9115992abaa6881c754676700579ae8",
+      "pixel_width": 1440,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/order_detail-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_detail-390.png",
+      "sha256": "d0a12ae8611aaf7466662797fc71167a9ef64610ff03acdc9c6c7938231a2dc1",
+      "pixel_width": 390,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/order_detail-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_list-1280.png",
+      "sha256": "c8aaa4acc3bc0bcc6f5e0db2173078cc9bdbd02b96d5f0328426e6d03f890f67",
+      "pixel_width": 1280,
+      "pixel_height": 1465,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/order_list-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_list-1440.png",
+      "sha256": "48ed83dfbf48cf38bb81f199285606c250db4a26006bf54b98174487e12c6a81",
+      "pixel_width": 1440,
+      "pixel_height": 1465,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/order_list-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_list-390.png",
+      "sha256": "ef999ab418c351d5183dce9428fa8e73f05b68c36fc0fb9db3e6a873db0c6858",
+      "pixel_width": 390,
+      "pixel_height": 2283,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/order_list-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_detail-1280.png",
+      "sha256": "b8c0f68c268bda6914180df2ce3c916b379646b599daeb0e3b069315012717d4",
+      "pixel_width": 1280,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/product_detail-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_detail-1440.png",
+      "sha256": "1eb51813d11d1e59df5154eeb34dbece06ee026450034645839363026438600b",
+      "pixel_width": 1440,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/product_detail-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_detail-390.png",
+      "sha256": "cb2b02ce6410732d69639de9afbd2751f8bf7518b1cd7d81008b7c2da93ecc35",
+      "pixel_width": 390,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/product_detail-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_list-1280.png",
+      "sha256": "7835d64051427a19ddaef1f145f49b923e81521454d312d971b502eb69c153c1",
+      "pixel_width": 1280,
+      "pixel_height": 1695,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/product_list-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_list-1440.png",
+      "sha256": "cdba16a44d7f1ac68225bbd160b7301dbb6c0283b8a288fb3f031c35566b51cf",
+      "pixel_width": 1440,
+      "pixel_height": 1695,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/product_list-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_list-390.png",
+      "sha256": "2ffe1e262c82902582dafec5146f44f0012e20de176f783a5ccba5a5c700f26b",
+      "pixel_width": 390,
+      "pixel_height": 2346,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/product_list-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/second_visitor_empty-390.png",
+      "sha256": "bc3c2fe6113df55960e91e57804a2f230edcaf01ab98c7314b34eabb8f22c3db",
+      "pixel_width": 390,
+      "pixel_height": 1877,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/second_visitor_empty-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/tag_edit-1280.png",
+      "sha256": "7127199ad934e075123f77d21a4c079c03bfe9f4d38a66cdd5f1d3a2586d6537",
+      "pixel_width": 1280,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/tag_edit-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/tag_edit-1440.png",
+      "sha256": "02cb7f38f5739687592af96fded6b562cfb30c1e5bf2d9f9ccd0250f49c7077d",
+      "pixel_width": 1440,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/tag_edit-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/tag_edit-390.png",
+      "sha256": "cf8abf4fb613897374edfa7259d32afb2d824435c04ba434e38c7a4c80b28bad",
+      "pixel_width": 390,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/tag_edit-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/tag_readback-390.png",
+      "sha256": "969b471079e5780222478c415d835aca0cdeefb89e786e8bb205e882c87f8078",
+      "pixel_width": 390,
+      "pixel_height": 900,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/tag_readback-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/xlsx_mapping-1280.png",
+      "sha256": "4e1a144b7f07bc2dd571ab2a23c05b054f8eb5a6b311abf34fbd729e5036cab0",
+      "pixel_width": 1280,
+      "pixel_height": 1781,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/xlsx_mapping-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/xlsx_mapping-1440.png",
+      "sha256": "eefd6470bf0a17f9c8945d89d17b48d17e78b3b5b4254345bca0d4bd69cdb320",
+      "pixel_width": 1440,
+      "pixel_height": 1781,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/xlsx_mapping-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/xlsx_mapping-390.png",
+      "sha256": "9776dafc34fe35d8240a2e896a5602d7e25ee46bd749f4d88d18651bbf624df8",
+      "pixel_width": 390,
+      "pixel_height": 2158,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/xlsx_mapping-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/xlsx_readback-390.png",
+      "sha256": "9ee2266b5c327c1036ed3949805e9854bc52bf57b4def9797d8aab01dc2dd329",
+      "pixel_width": 390,
+      "pixel_height": 1806,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-business/xlsx_readback-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-shell/shell-1280.png",
+      "sha256": "03ff0d67eb90b387acf12f9e8db6c8055983a698d04a516a0a740db9bfee524e",
+      "pixel_width": 1280,
+      "pixel_height": 931,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-shell/shell-1280.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-shell/shell-1440.png",
+      "sha256": "d43bd1e0dda3a23db17929b69186cc23bff1da8afe4b83f98669ba142ac52c42",
+      "pixel_width": 1440,
+      "pixel_height": 931,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-shell/shell-1440.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-shell/shell-390.png",
+      "sha256": "833ec3763c86c9cd600d7ed8dc11ea72ca9026819e8c2ce95d86e876651b665c",
+      "pixel_width": 390,
+      "pixel_height": 1757,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "browser-shell/shell-390.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/native-zoom/screenshots/dashboard-100.png",
+      "sha256": "c3334c4eac1461abbd63b3a78206946974445b86faa807dbebe13bea464a970a",
+      "pixel_width": 2880,
+      "pixel_height": 1826,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "native-zoom/screenshots/dashboard-100.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/native-zoom/screenshots/dashboard-200.png",
+      "sha256": "8e2b40d602e86447b318fa5c717a8817b4625c634d4ce96f0e7bb6323c938785",
+      "pixel_width": 2880,
+      "pixel_height": 1826,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "native-zoom/screenshots/dashboard-200.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/native-zoom/screenshots/products-100.png",
+      "sha256": "5adf628d84dfe76e05b8631d7ccd9113ca170a349486da543f38afc054a6c5b6",
+      "pixel_width": 2880,
+      "pixel_height": 1826,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "native-zoom/screenshots/products-100.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/native-zoom/screenshots/products-200-bottom.png",
+      "sha256": "999fab5a49be96447beb93eed21760d27b7fb87e6e882bde641fd1e8492394fc",
+      "pixel_width": 2880,
+      "pixel_height": 1826,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "native-zoom/screenshots/products-200-bottom.png"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/native-zoom/screenshots/products-200.png",
+      "sha256": "f2e0e5650156889ac8b47c9e9af530b91bad902f2ca8667595bdff8d53928559",
+      "pixel_width": 2880,
+      "pixel_height": 1826,
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "case": "browser-final-r10",
+      "original_name": "native-zoom/screenshots/products-200.png"
+    }
+  ],
+  "review_source": "c7f508dc596878a327fbc8e175b4e9b369f538a6",
+  "review_path": "docs/v4/v4-1/reviews/BROWSER_VISUAL_R10.md"
+}
