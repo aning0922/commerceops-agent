@@ -1,0 +1,33 @@
+# V41 QA文件集、读取状态和末态对象采集复审
+
+日期：2026-11-04（台北）。source `676c4640943453e7feb85ad61b3c1c5aa28c4441`，tree `b7784dc2c8a83976b9a6a92e27fd5e46a8ef6287`，parent `e427c82c251fcba4e1b658167ffc1ccad9c9c712`。完整读取11文件增量及必要公共owner mount/监督器与精确772 SQL摘要格式。未读WIP、未审UI或后续API方案。
+
+结论：ACCEPT_D04_R05_PREPARATION_FIXES / ACCEPT_FINAL_FACTS_WIRING_CANDIDATE / HOLD_FINAL_PREVIEW_ASSERTION_AND_RUNTIME。D04/R05在准备源码层关闭；D02不再只有schema采集，已接真实对象SQL，但新增P2-F01使完整终态接受仍HOLD。runtime definition是带明确阻断的历史源码说明，不是可执行handoff。
+
+## D04/R05准备修复关闭
+
+source_seal在原tracked bytes/index/tool检查之外，前后遍历frontend/backend/tests/scripts真实文件集，拒不在HEAD清单的输入及非允许目录symlink。明确排除.next/node_modules、__pycache__与tsconfig.tsbuildinfo；原新增frontend/app/extra/page.tsx反例现被拒，正常.next输出不改变seal。范围是已声明源码目录与单独绑定工具，非全部依赖供应链审计。
+
+Business.call在成功GET的schema/context检查前要求普通业务读status=OK。仅receipt/preview_lookup豁免，保留原key UNKNOWN及既有按key/operation核验；POST仍各recipe核其COMMITTED结果，不误把UNKNOWN恢复路径全局禁掉。独立新增向量覆盖普通dashboard/product/order/job未知拒绝与lookup未知允许。
+
+## 最终对象SQL已接入，P2-F01预览承诺丢失未拒绝
+
+driver在stop_writers、API stop、owned oneoff stop完成后，锁定并导出原subjects，再于PG down之前调用固定subjects --final。导出逐级O_NOFOLLOW、常规文件/0600/当前UID、512KB上限；observer固定路径、READ ONLY、5秒statement/1秒lock与绝对deadline。采集失败仍继续scoped down/inventory，原始观察保留，不重发操作。
+
+collect用真实tenant/org/shop推导唯一session，再以tenant/org/shop/session/principal/epoch/gen及原operation/key查询。action核原request hash/key/scope/revision、唯一event、effect计数/摘要/身份/版本；import再核job版本/revision。后续tag覆盖旧行时按原请求重建历史payload摘要，并单列REPLACED_BY_LATER_TAG_VERSION。fixture按真实完整digest与固定generate_seed校验，采库存/订单金额/退款原件；这些读取不能当可信归属写权限或真实进程reap证明。
+
+但final_facts.py第230至247行的preview分支只检查同key不多于一行；即使observations已有COMMITTED_READBACK，最终缺job或job未published仍返回UNKNOWN且不抛错。相邻action分支第259至260行已经对同类承诺丢失明确失败。结果可能让最终采集exit0，且成功probe后driver进入SCENARIO_COMPLETED_PENDING_REVIEW，掩盖已读回成功预览在末态消失的矛盾。
+
+独立纯数据复现：私有registry登记preview ATTEMPT_STARTED→COMMITTED_READBACK；给collect固定内存查询替身，session/fixture合法、原key jobs为空。collect正常返回，db_state=UNKNOWN、jobs=[]，没有错误；repro exit0。该替身只证明分支接受逻辑，绝非真实PG发生丢失。
+
+最小修复：保留原观察和真实末态，不覆盖为已回滚；已COMMITTED_READBACK的preview必须有恰一已published job，否则标独立矛盾/失败并拒终态接受。未曾确认的UNKNOWN仍允许保留，不要求猜测提交；补缺行与存在但未发布两个负例及合法未确认UNKNOWN正例。实际运行还需核最终job版本/slot/停止原件与业务receipt/effect关系；不能以新增SQL代码或私有报告自洽签D02实际Gate完成。
+
+## runtime definition明确保持不可启动
+
+独立核runtime_definition的八条源码hash均与所声明772ecc6/treec3c2a797历史快照一致；state=HOLD、三个owner CLI=null、真实helper路径对应旧source。它没有声称最新c696修复已合入或实际ACL已验证。
+
+runtime_handoff.json在本提交不存在。即使人工补该文件及READY字段，driver.runtime_handoff第116行仍无条件抛OWNER_POLICY_GRANT_VERIFY_SEQUENCE_PENDING，位置在任何daemon调用前。已删除虚构v41_database grant/verify调用，没有用helper名称冒充CLI。将来解除HOLD必须提交真正owner activation/grant/verify顺序和最终精确源核验并再审；仅改metadata或删raise不足。当前接线不运行，不能替Root资源/UTC/安全Gate授权。
+
+## 验证
+
+精确git archive五模块source_seal/scope_semantics/final_facts/owned_driver/subjects独立执行：19 passed，native0，4.30秒，无warning。上述preview缺行反例native0；八源码hash只读核验通过。仅临时Git/私有metadata/本机stand-in与内存SQL替身；未执行Docker、PG、真实网络HTTP、native parser、服务、浏览器、Full扫描或远端操作。Root已指出的组织/principal/identity旧app DML权威边界保持，未以该metadata采集或本回执解除API S05。
