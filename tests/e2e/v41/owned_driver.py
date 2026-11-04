@@ -3,9 +3,11 @@
 import argparse
 import hashlib
 import json
+import os
 import socket
 import subprocess
 import sys
+import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -15,8 +17,16 @@ from tests.e2e.v4 import owned_driver as public
 from tests.e2e.v4.owned_adapter import OwnedAdapter, compose_environment, owner_run
 from tests.e2e.v4.supervisor import Budget, Supervisor
 
+from .image_provenance import probe_argv, runtime_files, validate_build, validate_measured
 from .owned_manifest import OwnedManifest
 from .runner import persist
+from .runtime_checks import (
+    reject_implicit_env,
+    reserve_ports,
+    verify_api_record,
+    verify_host_binding,
+    verify_web_listener,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 HANDOFF = "tests/e2e/v41/runtime_handoff.json"
@@ -46,12 +56,18 @@ def digest(path: Path) -> str:
 
 
 def config_files(directory: Path) -> list[Path]:
-    return [
-        directory / "case.json",
-        directory / "compose.env",
-        *sorted((directory / "owner").glob("*")),
-        *sorted((directory / "api").glob("*")),
+    names = [
+        "case.json",
+        "compose.env",
+        "owner/owner_password",
+        "owner/app_password",
+        "api/runtime-password",
+        "api/csrf-key",
+        "api/nonce-key",
+        "api/web.json",
+        "api/demo.json",
     ]
+    return [directory / name for name in names]
 
 
 def prepare(case: Case) -> None:
@@ -97,6 +113,23 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
     case.validate(prepared=True)
     runtime_handoff(case)  # No Docker command or resource creation before this binding.
     directory = Path(case.directory)
+    reject_implicit_env(ROOT)
+    reserve_ports(case.api_port, case.web_port)
+    expected_runtime = runtime_files(ROOT)
+    build_receipt_path = directory / "image-build.safe.json"
+    info = build_receipt_path.lstat()
+    if (
+        build_receipt_path.is_symlink()
+        or not build_receipt_path.is_file()
+        or info.st_uid != os.getuid()
+        or info.st_mode & 0o777 != 0o600
+    ):
+        raise ValueError("ROOT_PRIVATE_IMAGE_BUILD_RECEIPT_REQUIRED")
+    build_receipt = json.loads(build_receipt_path.read_text())
+    validate_build(
+        build_receipt, case.source_sha, case.source_tree, case.test_image, expected_runtime
+    )
+    build_receipt_digest = digest(build_receipt_path)
     public.private(directory / "execution.once", "V41 one new attempt; no replay\n")
     budget = Budget.bind(
         datetime.fromisoformat(case.starts_at), datetime.fromisoformat(case.deadline)
@@ -115,8 +148,18 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
     }
     command = public.compose(cast(Any, case))
     supervisor: Supervisor | None = None
+    volume_format = (
+        '{"name":{{json .Name}},"driver":{{json .Driver}},'
+        '"created_at":{{json .CreatedAt}},"labels":{{json .Labels}}}'
+    )
 
-    def checked(stage: str, argv: list[str], cap: float = 60, cleanup: bool = False) -> bytes:
+    def checked(
+        stage: str,
+        argv: list[str],
+        cap: float = 60,
+        cleanup: bool = False,
+        stdin: bytes | None = None,
+    ) -> bytes:
         start = datetime.now(UTC).isoformat()
         stdout, stderr = (
             directory / (stage + ".stdout.private.log"),
@@ -140,6 +183,7 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                     env=compose_environment(),
                     stdout=output,
                     stderr=error,
+                    input=stdin,
                     timeout=budget.timeout(cap, cleanup=cleanup),
                     check=False,
                 )
@@ -190,6 +234,59 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             ).strip():
                 raise ValueError("V41_NAMESPACE_NOT_EMPTY")
         report["information"]["namespace_initial_empty"] = True
+        context = checked("docker_context", [command[0], "context", "show"], 5).decode().strip()
+        endpoint = json.loads(
+            checked(
+                "docker_endpoint",
+                [
+                    command[0],
+                    "context",
+                    "inspect",
+                    context,
+                    "--format",
+                    "{{json .Endpoints.docker.Host}}",
+                ],
+                5,
+            )
+        )
+        if not endpoint.startswith("unix:///") or build_receipt.get("docker_endpoint") != endpoint:
+            raise ValueError("ROOT_LOCAL_DOCKER_ENDPOINT_UNPROVEN")
+        server = (
+            checked("docker_server", [command[0], "info", "--format", "{{.ID}}"], 5)
+            .decode()
+            .strip()
+        )
+        verify_host_binding(
+            build_receipt, context, endpoint, server, digest(Path(command[0]).resolve())
+        )
+        actual_source = checked(
+            "image_source",
+            probe_argv(command[0], case.project, case.test_image, ROOT, case.uid),
+            30,
+            stdin=json.dumps(sorted(expected_runtime)).encode(),
+        )
+        report["information"]["image_source"] = validate_measured(actual_source, expected_runtime)
+        volumes = model.get("volumes", {})
+        if (
+            set(volumes) != {"pg_data"}
+            or volumes["pg_data"].get("name") != case.project + "_pg_data"
+            or volumes["pg_data"].get("external")
+            or volumes["pg_data"].get("driver_opts")
+        ):
+            raise ValueError("NEW_OWNED_VOLUME_MODEL_REQUIRED")
+        if checked(
+            "empty_volume_name",
+            [
+                command[0],
+                "volume",
+                "ls",
+                "--quiet",
+                "--filter",
+                "name=^" + case.project + "_pg_data$",
+            ],
+            5,
+        ).strip():
+            raise ValueError("OWNED_VOLUME_NAME_PREEXISTS")
         supervisor = Supervisor(budget, ROOT, directory / "processes")
         checked(
             "pg_start",
@@ -207,6 +304,26 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             ],
             90,
         )
+        expected_volume = json.loads(
+            checked(
+                "volume_created",
+                [
+                    command[0],
+                    "volume",
+                    "inspect",
+                    case.project + "_pg_data",
+                    "--format",
+                    volume_format,
+                ],
+                5,
+            )
+        )
+        if (
+            expected_volume["name"] != case.project + "_pg_data"
+            or expected_volume["labels"].get("com.docker.compose.project") != case.project
+        ):
+            raise ValueError("CREATED_VOLUME_OWNERSHIP_UNPROVEN")
+        report["information"]["created_volume"] = expected_volume
         owner = list(owner_run(command))
         checked("migrate_0025", [*owner, "commerceops.entrypoints.database", "migrate"], 180)
         for label, module, action in [
@@ -223,6 +340,42 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             command, case.project, budget, evidence=directory / "observers"
         ).launch_spec("api")
         api = supervisor.start("api", api_argv, api_env)
+        api_format = (
+            '{"running":{{.State.Running}},"image":{{json .Image}},"project":{{js'
+            'on (index .Config.Labels "com.docker.compose.project")}},"service":{'
+            '{json (index .Config.Labels "com.docker.compose.service")}},"user":{'
+            '{json .Config.User}},"ports":{{json .NetworkSettings.Ports}},"mounts'
+            '":{{json .Mounts}}}'
+        )
+        for attempt in range(100):
+            if api.process.poll() is not None:
+                raise RuntimeError("OWNED_API_EXITED")
+            ids = (
+                checked(
+                    "api_owned_id_" + str(attempt),
+                    [*command, "ps", "--all", "--quiet", "v4-api"],
+                    5,
+                )
+                .decode()
+                .split()
+            )
+            if len(ids) == 1:
+                record = json.loads(
+                    checked(
+                        "api_owned_state_" + str(attempt),
+                        [command[0], "inspect", "--format", api_format, ids[0]],
+                        5,
+                    )
+                )
+                if record["running"]:
+                    verify_api_record(
+                        record, case.project, case.test_image, case.uid, case.api_port, directory
+                    )
+                    report["information"]["api_listener_ownership"] = record
+                    break
+            time.sleep(min(0.1, budget.timeout(0.1)))
+        else:
+            raise RuntimeError("API_LISTENER_OWNERSHIP_UNPROVEN")
         public.ready(case.api + "/health/live", budget, api)
         node = ROOT / ".tools/node/bin/node"
         web = supervisor.start(
@@ -239,6 +392,48 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             ),
             public.web_environment(cast(Any, case), node),
         )
+        for attempt in range(100):
+            if web.process.poll() is not None:
+                raise RuntimeError("OWNED_WEB_EXITED")
+            observed = subprocess.run(
+                [
+                    "/usr/sbin/lsof",
+                    "-nP",
+                    "-iTCP:" + str(case.web_port),
+                    "-sTCP:LISTEN",
+                    "-F",
+                    "pn",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=budget.timeout(2),
+                check=False,
+            )
+            if observed.stderr or observed.returncode not in (0, 1):
+                raise RuntimeError("WEB_LISTENER_PROBE_FAILED")
+            listeners = []
+            pid = None
+            for line in observed.stdout.splitlines():
+                if line.startswith("p"):
+                    pid = int(line[1:])
+                if line.startswith("n") and pid is not None:
+                    group = int(
+                        checked(
+                            "web_group_" + str(attempt) + "_" + str(pid),
+                            ["/bin/ps", "-p", str(pid), "-o", "pgid="],
+                            2,
+                        )
+                        .decode()
+                        .strip()
+                    )
+                    listeners.append({"pid": pid, "pgid": group, "endpoint": line[1:]})
+            if listeners:
+                verify_web_listener(listeners, web.process.pid, case.web_port)
+                report["information"]["web_listener_ownership"] = listeners
+                break
+            time.sleep(min(0.1, budget.timeout(0.1)))
+        else:
+            raise RuntimeError("WEB_LISTENER_OWNERSHIP_UNPROVEN")
         public.ready(case.web + "/v4", budget, web)
         probe = supervisor.start(
             "probe",
@@ -269,6 +464,32 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             failures.append({"stage": "writers", "type": type(error).__name__})
         if report["information"].get("namespace_initial_empty"):
             try:
+                check_ids = (
+                    checked(
+                        "sourcecheck_remaining",
+                        [
+                            command[0],
+                            "ps",
+                            "-aq",
+                            "--filter",
+                            "label=com.docker.compose.project=" + case.project,
+                            "--filter",
+                            "label=com.docker.compose.service=v41-sourcecheck",
+                        ],
+                        5,
+                        True,
+                    )
+                    .decode()
+                    .split()
+                )
+                for index, cid in enumerate(check_ids):
+                    checked(
+                        "sourcecheck_stop_" + str(index),
+                        [command[0], "stop", "--time", "5", cid],
+                        10,
+                        True,
+                    )
+                    checked("sourcecheck_rm_" + str(index), [command[0], "rm", cid], 5, True)
                 checked("api_stop", [*command, "stop", "--timeout", "5", "v4-api"], 15, True)
                 ids = (
                     checked(
@@ -355,6 +576,25 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                         .decode()
                         .split()
                     )
+                    final_volume = json.loads(
+                        checked(
+                            "volume_preserved_identity",
+                            [
+                                command[0],
+                                "volume",
+                                "inspect",
+                                case.project + "_pg_data",
+                                "--format",
+                                volume_format,
+                            ],
+                            5,
+                            True,
+                        )
+                    )
+                    if final_volume != report["information"].get("created_volume") or report[
+                        "cleanup"
+                    ]["volumes_preserved"] != [case.project + "_pg_data"]:
+                        raise ValueError("EXPECTED_CREATED_VOLUME_NOT_PRESERVED")
                     ports = {}
                     for port in (case.api_port, case.web_port):
                         with socket.socket() as sock:
@@ -368,6 +608,26 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
                 supervisor.close_pg()
         except Exception as error:
             failures.append({"stage": "close_pg", "type": type(error).__name__})
+        try:
+            current_source = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+            ).strip()
+            current_tree = subprocess.check_output(
+                ["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT, text=True
+            ).strip()
+            if (
+                (current_source, current_tree) != (case.source_sha, case.source_tree)
+                or runtime_files(ROOT) != expected_runtime
+                or digest(build_receipt_path) != build_receipt_digest
+            ):
+                raise ValueError("TERMINAL_SOURCE_OR_BUILD_BINDING_CHANGED")
+            if any(digest(ROOT / name) != value for name, value in case.inputs.items()):
+                raise ValueError("TERMINAL_PUBLIC_INPUT_CHANGED")
+            reject_implicit_env(ROOT)
+            runtime_handoff(case)
+            report["information"]["terminal_source_seal"] = "UNCHANGED"
+        except Exception as error:
+            failures.append({"stage": "terminal_source_seal", "type": type(error).__name__})
         report["cleanup"]["failures"] = failures
         report["cleanup"]["confirmed"] = bool(
             report["information"].get("namespace_initial_empty")

@@ -74,3 +74,21 @@ foreign-object404，合法共享fixture ID不再一律期望404。履约使用�
 十次同键/读回状态版本/不变订单字段，标签和履约均额外核当前scope三表各一次增量。按原
 operation/key关联到具体receipt/event的更细SQL、库存末态、runtime来源/监听/保卷等HOLD仍
 需后续切片和最终API SQL对齐，不能以本片纯测试或总scope计数声明全部runtime审查关闭。
+
+来源/监听/保卷HOLD的准备增量：execute在任何Docker调用前拒绝占用端口和Next隐式读取的
+四类.env文件（repo/frontend两处），并要求新case内0600/本UID的image-build.safe.json。
+Root必须提供真实build证据，至少source_sha/tree、test_image_id、test_build_native_exit=0、
+`runtime_files_sha256`（当前Git所有backend/tests/scripts及Python/锁输入文件）、实际本地
+Docker context/Unix endpoint/server ID/docker binary hash。不是用任意占位handoff解锁。
+
+driver在初始空namespace后、PG启动前，对exact image运行固定只读Python哈希程序（network
+none、read-only、drop caps、无host mounts），逐文件比对宿主/Root receipt/镜像真实bytes。
+sourcecheck有专属标签，timeout残余进入scoped cleanup；普通ID inspect不再等于同源证明。
+实际源镜像尚未准备或执行，此增量纯测不代签真实容器来源。
+
+首次API HTTP前要求实际运行容器、exact image、project/service/UID、loopback发布和只读runtime
+mount；首次Web HTTP前以lsof+ps核实际listener在本次process group且仅127.0.0.1端点。仅readiness
+200或ComposeCLI活着不能通过。PG卷模型拒external/改名，创建后保存名称/driver/CreatedAt/labels，
+结束时要求同一元数据、精确非空预期卷列表；Docker卷没有另一个不可变UUID，不将名称冒称UUID。
+终态重核HEAD/tree/runtime files、五输入、私配seal、build receipt及.env拒绝；seed导出是输出，
+不再被误作不可变配置。注册业务对象末态/按key关联SQL等剩余runtime HOLD仍需后续切片。
