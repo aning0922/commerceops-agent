@@ -153,11 +153,24 @@ status=OK；receipt/preview_lookup保留合法UNKNOWN语义。纯复现与断言
 
 固定真实SQL探针准备：sql_probes.py只支持binding-stop-attack和forced-action-rollback，必须在
 未来已审API容器内以该新API私配连接实际commerceops_app。当前definition HOLD在读取私配/连DB
-之前拒绝；未运行真实SQL。前者实际尝试改私有binding锚、自选lease reserve与无spawn伪stop，
-任何被接受都FAIL；finally rollback并新事务核原锚/六表恢复，不把任意异常当安全拒绝。后者
+之前拒绝；未运行真实SQL。前者实际记录legacy binding锚写入，再以合法格式伪造第二MAC尝试reserve；
+伪reserve被接受即FAIL，后续无spawn stop保留原利用链；finally rollback并新事务核原锚/六表恢复，不把任意异常当安全拒绝。后者
 只做固定商品tags action，确认同事务effect/receipt/event各1及延迟约束后主动rollback，再新
 事务核六表、fixture库存金额和私有锚摘要无变化。此故障点不是导入插行中断，后者仍单列未跑。
 transaction_recipes保存新原key/私有输入与实际native/start/end/日志hash，GET原key必须UNKNOWN，
 再追加SQL_ROLLBACK_VERIFIED；末态observer发现这些key持久行即FAIL。无POST/SQL自动重试。
 父亡、活child伪proof、真实wait释放、撤权交错的必需实际见证/失败判据见
 RUNTIME_REQUIRED_WITNESSES.md；它们仍NOT_RUN，需要最终S02/S04 fixture。客户端barrier不代签PG屏障。
+
+Root7f/后端55ce实际接缝主体盘点见RUNTIME_SUBJECTS.md及runtime_subjects.json：源码AST声明22PG
+实例，最小7与追加15分列；实际16路由中QA映射缺drilldown、两export、read-context四项，均未
+补造实跑。DDL旧失败/空SQLSTATE/回滚/资源关闭保卷按Root报告单列；405迁移fix与T01已按892/505源码核收，实际新回执另计。
+同时按已审c696校准SQL攻击：legacy csrf_digest可写仅信息，格式合法双段伪binding的reserve
+必须SESSION_INVALID、零新job；无EXECUTE或配额拒绝不能当攻击通过。正确私有lease持有者不冒
+无能力攻击者，SQL proof不冒独立OS证明。runtime_definition历史来源/三个CLI null、handoff缺失
+与old unconditionalHOLD均未改变；没有追加运行授权或服务启动。
+
+正式505审查补强：final preview将ACK_COMMITTED和COMMITTED_READBACK同视为承诺，缺行/未发布
+都失败，ACK_OK不升级。低权探针已去掉alembic_version直读；host先取得真实owner只读catalog
+回执，经source/tree/新DB/owner current_user/七表/policy与native0绑定后提供给受保护新输入，
+app只消费该绑定，不新授元数据SELECT。owner观察器仍实际查询版本并单独保存原件。

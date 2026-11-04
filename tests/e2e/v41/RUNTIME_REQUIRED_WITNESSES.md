@@ -1,15 +1,16 @@
 # V41 必需运行见证与失败判据
 
-准备绑定 API772ecc6/treec3c2a797、review6208、QA审查c334。全部尚未运行；这些判据不是
-Gate回执。S02/S04的最终修复可能改变受信parser能力/SQL调用签名，届时须按新精确提交更新
-source pins和fixture，不能把772旧helper参数套在新入口上。runtime_definition仍HOLD，
+准备已按Root7f1667a/后端55ce及c696、743、55ce三份审查校准；全部尚未运行，不能作
+Gate回执。runtime_definition仍保留772历史快照与HOLD，须等DDL修正、最终CLI/精确源
+重新核准后才可变更；本清单不更新这些启动输入。S04是私有invocation准入能力，正确私有
+lease授权的可信监督器不是无能力攻击者。runtime_definition仍HOLD，
 不存在可启动runtime_handoff。仅Root未来新owned对象/UTC可放行；不使用旧DB/凭据/进程。
 
 | 场景 | 必需实际见证 | FAIL或UNKNOWN条件 |
 | --- | --- | --- |
-| 低权binding组合攻击 | 实际current_user=commerceops_app；合法当前operator的正向业务路径；尝试改自己bound web_sessions.csrf_digest，再自选binding/lease/process调reserve与未bind forged stop；原始SQLSTATE与事务末态 | 锚可写、伪binding可reserve或未spawn/wait的proof可STOPPED/清slot，任何一项即FAIL。非分类SQL错误不是拒绝通过。探针最终必须实际ROLLBACK恢复原锚/六表。 |
-| 已bind、子进程仍活的伪stop | 可信最终fixture真实Popen child并COMMIT PID绑定；/proc存活身份与birth；另一路真实低权调用伪proof；读回同job/PID/slot | 伪proof被接受、slot变化、真实进程未存活、调用不属于app角色，均不可通过。fixture必须先证明正向身份/容量条件，避免“本来无权限/已满”伪装安全拒绝。 |
-| 父进程SIGKILL | reserve COMMIT、bind COMMIT、同process_ref与实际child在父死亡瞬间存活；实际父native -9或137，独立DB UTC快照 | 没有杀到真实parent、只杀Docker CLI、只模拟异常或直接写DB状态均无效。父死亡无可信wait，原slot必须保持占用；DB可保持RESERVED/RUNNING/UNKNOWN，业务只读lookup必须UNKNOWN，不能要求伪造字面parse_state=UNKNOWN。 |
+| 低权binding组合攻击 | 实际current_user=commerceops_app；合法当前operator的正向业务路径；尝试改自己bound web_sessions.csrf_digest，再自选binding/lease/process调reserve与未bind forged stop；原始SQLSTATE与事务末态 | 旧锚可写仅记信息；格式合法双段伪binding仍可reserve即FAIL，随后原利用链的伪stop也保留。非分类SQL错误不是拒绝通过。探针最终必须实际ROLLBACK恢复原锚/六表。 |
+| 已bind、子进程仍活的伪stop | 可信最终fixture真实Popen child并COMMIT PID绑定；/proc存活身份与birth；另一路真实低权调用仅获job/process/PID等公开行字段，不获正确lease，使用空/错误lease及伪proof；读回同job/PID/slot | 无正确lease的伪stop被接受、slot变化、真实进程未存活或角色错误均不可通过；不得把可信fixture正确lease交给攻击者后声称SQL应识别其谎言。fixture必须先证明正向身份/容量条件，避免“本来无权限/已满”伪装安全拒绝。 |
+| 父进程实际消失 | reserve COMMIT、bind COMMIT、同process_ref与实际child在父死亡瞬间存活；既有候选os._exit(17)与另行SIGKILL(-9/137)分别记原生模式，独立DB UTC快照 | 只杀Docker CLI、只模拟异常或直接写DB状态均无效；受控exit17不冒称SIGKILL。父死亡无可信wait，原slot必须保持占用；DB可保持RESERVED/RUNNING/UNKNOWN，业务只读lookup必须UNKNOWN，不能要求伪造字面parse_state=UNKNOWN。 |
 | 父亡后容量与清理 | child独立alarm/实际退出单记；原row/slot仍在；同tenant新准入在明确未来窗口内实际拒绝；保留新卷 | child到期/PID消失不等于原parent已wait；任何expiry/GC/重试自动释放slot即FAIL。不能SQL改STOPPED或删除job。清理停止owned服务并保卷，不抹原UNKNOWN。 |
 | 真实reap后释放 | 最终run_parser实际Popen handle communicate/wait/native；同父kernel wait事实；随后原stop事务COMMIT0、同job STOPPED/slot NULL；新准入另记 | 只有布尔reaped=true、stop_proof自洽摘要、异常捕获或cancel不构成见证；stop事务失败仍占槽且不自动重试。先放槽后wait即FAIL。 |
 | 撤权后可信reap | 实际child运行中；owner通过最终受支持撤权入口COMMIT；同父真实wait后窄cleanup stop可提交；publish/confirm仍重核拒绝且零业务增量 | 以撤权为由留下实际活进程、用stop权限扩大publish权限、失败回执当成功、无receipt/event/import零增量末态，均不可通过。具体fixture/角色权限必须等S04最终设计，当前未猜新角色名。 |
