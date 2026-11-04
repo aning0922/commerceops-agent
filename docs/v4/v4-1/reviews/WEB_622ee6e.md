@@ -81,3 +81,15 @@ Root 转交并允许只读的 R3：独立 `commerceops-v41-ui-fixture-r3` 工作
 三项 P2 由 WEB owner 修复后按新精确 SHA 复审。R3 未运行的异步/拒绝/退出/抽屉/跨租户例，以及新增编辑持久性、导入变更确认栅栏和业务深链例，须 Root 按新窗口实际验证，不能使用本报告或旧 Shell 成功代签。
 
 API 后端 S02/S04 runtime 继续 HOLD；本次真实 PG、真实 API 权限、真实导入事务、真实外部调用、完整工程/Full PG、Hosted、发布均 `NOT_RUN`。本报告只对上述冻结源码和已列 Mock/纯测证据负责。
+
+## R4 增量回执：测试修复与原十一例 Mock 动态集
+
+2026-11-04（台北）补记。精确 source `5cd587119e707d31c285424afaf9f74f2b421e6e`，tree `9eece9e8e9aa0f581641c638b26645d5d42a8967`。相对 622ee6e 仅两个 spec 共六行替换：全局店铺使用 exact combobox、详情店铺限定 dialog/exact；late-denied 例在释放延迟响应前登记 POST tags/401 的 response waiter，并在响应到达后检查新店选择与退出入口。业务源码无变化，原断言未删除，未增加重试。这里的 401 是实际浏览器收到的 Mock 响应，不是真实后端权限拒绝。
+
+只读核验 Root 转交的 `commerceops-v41-ui-fixture-r4/commerceops-agent/.audit/v4-1/ui-fixture-5cd5871-r4`：result、playwright、checks、outer-receipt、probe-command 及索引原件；result 中十四项 artifact SHA-256 全部匹配。逐例读取 Playwright results，恰十一例，各一次执行、status passed、retry0；未启动或重跑服务/浏览器。
+
+实际结果为 **11 PASS / 0 FAIL / 0 SKIP / 0 flaky**，worker1、retry0、maxfail1、forbid-only；Playwright 耗时 **8387.171 ms**，开始 `2026-11-04T03:03:20.753Z`。probe-command native0、checks probe0、outer worker0/parent_timeout=false；result 记录调用工具 native0。checks 前后 source/tree/status/内容摘要一致，groups_stopped=true、13444/18444 关闭、dummy请求0。result.groups 中的检查命令 native_exit1 与空 states 原样保留，不将其改写为子进程退出0。
+
+本轮可核收的 Mock 动态覆盖：CSV/XLSX discovery→映射→confirm503→原 key 恢复两例；迟到写401不清新店；当前 lookup/readback403清屏并保留原 key两例；reload后 pending不阻止退出；不可打印标签零派发；新鲜匹配会话后恢复店铺；390/1440抽屉焦点进入及 Esc 返回两例；旧 UNKNOWN 原字符串保留、新 tenant 可编辑且旧 key lookup0。最后一例只断言新 tenant 编辑按钮可用，没有验证新业务 POST 成功。
+
+据此补齐前次 W02/W03 对应的上述组件 Mock 证据，接受本次两 spec 窄修复与原十一例动态集；R3 的2PASS/1FAIL/8NOT_RUN历史不改写。**UI04、UI05、UI06仍为 P2/HOLD**：本轮没有轮询保草稿、四深链业务读取或改文件/映射后直接确认的新增用例，也没有相应业务修复。真实 API/PG 权限、S02/S04 runtime、原生200%、1280、完整移动菜单/Tab/reduced-motion与其余阶段 Gate 不由 R4 转签。等待 WEB 新精确修复 SHA 后再审。
