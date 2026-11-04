@@ -52,3 +52,19 @@ Ruff、格式、mypy及最后current/index原生检查均通过。
 真实首轮合并对象的51项发现原生退出1、分类后0阻断，旧原始失败未回写。
 
 当前无未闭合已报告P1/P2，允许对新候选运行正式Hosted；本段不预填该运行结果。
+
+## 第二轮实际结果与诊断范围
+
+[运行41852391468](https://github.com/aning0922/commerceops-agent/actions/runs/41852391468)
+head为`cbd5d5464b9e2b4a62463f2ba51d100125326e8c`，实际checkout为
+`de4d04db56e0de7f5f6df9eb740c84819ae554d7`，tree与候选一致。
+历史扫描1707项全部核收、0阻断，关闭首轮精确副本问题；本轮五项最终失败。
+四上游均停在M3镜像准备，只有固定generic诊断，底层原因UNKNOWN；
+Full、PG、Mock/legacy Web、N01均未到达，artifact为空，[Web原件核验](HOSTED_R2_WEB_RESULT.json)。
+不以旧本地通过替代，也不把镜像准备失败冒称业务断言失败或deadline已到。
+
+不盲重跑第三轮。先在新owned本机以独立新tag、明确linux/amd64、冻结原始源码上下文，
+执行一次最多300秒构建取证，固定新绝对截止和清理预留；不启动PG/业务服务、不覆盖正式镜像tag、
+不生成正式prepared receipt、不清理未知缓存或资源。原始构建日志私有保存，
+本机成功不能证明Hosted成功，新案错误也不追填原Hosted历史根因。
+若仍不能定位，再独审原helper的最小固定阶段诊断增强；所有版本、hash、权限、时限和保护不放宽。
