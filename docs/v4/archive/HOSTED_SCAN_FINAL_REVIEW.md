@@ -1,0 +1,25 @@
+# 8f03e90 可移植性修复独立增量审查
+
+2026-11-04（台北）。结论：`ACCEPTED_PORTABLE_NATIVE_MERGE_FIXTURE / P2_CLOSED / NO_OPEN_REPORTED_P1_P2`。与此前7ac已接纳的生产精确anchor合看，可以交Root集成并按授权触发新正式CI；不预签新CI结果。
+
+固定source8f03e90a35a7c2bffb38466133a468b1de05e8ea / tree95a224af27ad81089cdf1a60f3f94a43ea82ec55，parent7ac8fa660cea05af3afb9d300a4066e6525c2bf2。完整差异仅tests/test_pr53_scan_anchor.py。规则、生产scanner、vendor、JSON provenance、旧test_v4_scan_compat均不变，原222规则/96例外及精确261/blob anchor核收继续适用。
+
+## 临时真实merge及原生finding
+
+旧98ce常量已删除。fixture先确认261是当前HEAD祖先，使用当前对象目录作为alternates，在新临时repo独立创建base、side新增已审页面、main独立文件，再普通no-ff merge；明确断言两个parents与精确wholeblob。gitleaks扫描的是新merge^!，classification在该临时repo解析真实commit，而非伪造finding替代正例。代码无98ce/evidence-ref/audit路径、网络fetch或缺对象skip。
+
+指定原件目录：/Users/aipuli/.codex/worktrees/commerceops-pr53-scan-anchor/commerceops-agent/.audit/pr53-scan-anchor-portability-r2 。独立核DELIVERY列四项artifact与native report SHA256全部相符。实际保留临时repo的HEAD为bd7e4935b132a11998e36cc1ea4e0fe2546087b7，双亲为07d5d3a78fa10ca10e3c2ddb4e14258403004b5e和6504cccac2e7d816482ea01a2d016d639064497a；目标blob7e2b1229c4544eb751925f38df0ffd5a658cb060匹配已审anchor。
+
+native.json SHA256 807106775ac3d4869de1962e9bbec04101833fd0c09623963781e4bff1450c3e，仅一条finding，实际Commit为上述bd7，path为原页面，第9行/43–116，fingerprint精确绑定bd7；Match摘要独立复算896d3957535652b65e2eb532731f764c8b1d7f6eafe0bbc90df606658c4b367b。正例继续精确要求finding_source63a与旧spanhash，不用宽松来源集合。
+
+该原件repo通过alternates仍能访问本机已有98ce对象，因此本轮不宣称做过“物理删除98ce后再跑”的冷环境测试。闭合依据是冻结代码无该依赖、原生scan明确只扫描新bd7 merge、finding真实绑定bd7，以及所需261/63a/17f/a1fc对象均来自现有来源链。没有把本机可访问旧对象误当修复证明。
+
+## 12节点及原失败分账
+
+独立解析新tests.xml为12tests/0fail/0error/0skip，1.405秒；SHA256 b45a698b7f85c79eb6e3498ec42f3eb6091faf43b75ec2e95a897fb189e9b24b。比对上一轮recheck-final.xml：旧actual_pr53正例改名real_merge正例，原test_v4_scan_compat::test_final_enum_preserves_rules_and_all_previous_approvals未纳入本次命令；其文件未改、上一轮已通过，没有删除该测试。
+
+本模块仍为1精确正例+6行列/Match/Fingerprint篡改拒绝+2其他scope拒绝+1nonmerge拒绝+1保持原span但改变wholeblob的真实merge拒绝+1元数据只追加anchor且规则byte不变=12。原所有拒绝边界保留。checks.safe记录Ruff/check+format/mypy native0与current/index扫描0；本轮核原件，不重复执行这些命令。
+
+此前263的261/2、中间13的12/1、最后13/13和类型调整后2/2均保留；本轮12/12不包装成修后263全重跑。真实98ce一次原件继续独立保存，不再成为常规offline测试依赖。run41848095782的五fail及业务NOT_RUN不改变，下一次正式Hosted须核其实际checkout/run/attempt与完整artifacts。
+
+本轮只读Git冻结对象、指定JSON/JUnit/log摘要及临时repo元数据，独立比对native0；未运行测试/扫描器/服务/CI或修改业务，未push/merge。原REVIEW_7AC8FA6.md保留其发现与HOLD，本报告仅关闭可移植性P2。
