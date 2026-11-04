@@ -120,3 +120,17 @@ test('UI_FIXTURE: session revalidation preserves fulfillment confirmation',async
  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await reread;
  await expect(page.getByRole('button',{name:'确认演示履约'})).toBeVisible();
 });
+
+for(const [path,title] of [['/v4/insights','AI经营洞察'],['/v4/dashboard/drilldown','指标明细钻取']])test(`UI_FIXTURE: ${title} reads dashboard and opens metric detail`,async({page})=>{
+ const metric={metric:'created_order_count',value:'0',known_value:'0',unit:'count',currency:null,completeness:'COMPLETE',reason_codes:[],included_count:0,excluded_count:0,settlement_status:'NOT_APPLICABLE'};
+ const period={from_date:'2026-10-27',to_date:'2026-11-03',timezone:'Asia/Taipei',from_utc:'2026-10-26T16:00:00Z',to_utc:'2026-11-02T16:00:00Z'};
+ await fixture(page,route=>{const url=new URL(route.request().url());if(url.pathname.endsWith('/drilldown')){expect(url.searchParams.get('metric')).toBe('created_order_count');return route.fulfill({json:{...business,context:{...identity,shop_id:id},data:{snapshot,items:[],total:0,next_cursor:null}}});}return route.fulfill({json:{...business,context:{...identity,shop_id:id},data:{snapshot,period,metrics:[metric],trend:[],insights:[],model_mode:'not_used'}}});});
+ await page.goto(path);await expect(page.getByRole('heading',{name:title})).toBeVisible();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);
+ await page.getByRole('button',{name:'查看明细'}).click();await expect(page.getByRole('heading',{name:'指标明细',exact:true})).toBeVisible();await expect(page.getByText('当前范围没有明细。')).toBeVisible();
+});
+
+for(const [path,title,key,value] of [['/v4/orders/anomalies','异常订单','payment','unknown'],['/v4/orders/fulfillment-demo','履约模拟','fulfillment','demo_unfulfilled']])test(`UI_FIXTURE: ${title} reads its server-filtered order subset`,async({page})=>{
+ let observed=false;await fixture(page,route=>{const url=new URL(route.request().url());if(url.pathname==='/api/v4/orders'){expect(url.searchParams.get(key)).toBe(value);observed=true;}return route.fulfill({json:{...business,context:{...identity,shop_id:id},data:{snapshot,items:[],total:0,next_cursor:null}}});});
+ await page.goto(path);await expect(page.getByRole('heading',{name:title})).toBeVisible();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);
+ await expect(page.getByText('当前筛选没有结果')).toBeVisible();expect(observed).toBe(true);
+});
