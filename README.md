@@ -1,119 +1,180 @@
 <div align="center">
 
-![CommerceOps Agent — 从库存洞察到可追溯的运营行动](docs/assets/readme-cover.svg)
-
 # CommerceOps Agent
 
-**让库存分析、人工决策与运营执行，形成一个可追溯的闭环。**
+**从经营数据到运营行动，让分析有依据、决策有授权、执行有回执。**
 
-面向电商运营的 AI Agent 应用 · Web × 飞书 · 确定性分析 · 可恢复执行
+电商运营工作台 · 确定性分析 · 人工审批 · 可恢复执行
 
-[![M1 accepted](https://img.shields.io/badge/M1-Accepted-0F766E?style=flat-square)](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)
-![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
-![Next.js 16](https://img.shields.io/badge/Next.js-16-171717?style=flat-square&logo=nextdotjs&logoColor=white)
-![PostgreSQL 17](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![LangGraph](https://img.shields.io/badge/Workflow-LangGraph-14532D?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-16.4.2-171717?style=flat-square)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.11-4169E1?style=flat-square)
+![V4-1](https://img.shields.io/badge/V4--1-Local_Accepted-0F766E?style=flat-square)
 
-[产品体验](#产品体验) · [工程设计](#工程设计) · [快速开始](#快速开始) · [验收证据](#验收证据) · [文档导航](#文档导航)
+[产品展示](#产品展示) · [Agent 能力](#agent-能力) · [架构与技术栈](#架构与技术栈) · [本地体验与部署](#本地体验与部署) · [验证与交付](#验证与交付) · [文档导航](#文档导航)
 
 </div>
 
-CommerceOps Agent 把电商运营中分散的分析、审批和跟进连接起来：从一条库存分析请求开始，生成有数据依据的补货建议，由审批人确认完整计划，再创建内部补货工作项、同步飞书多维表格，并持续查询结果。
+CommerceOps Agent 面向电商运营中的三类工作：看清当前店铺的经营事实，管理商品与订单，将库存风险转成经过人工批准的内部补货工作项。项目把 Web 工作台、确定性规则、持久工作流和投递回执连接起来，也提供受限只读询单、日报和知识检索后的内部文案审核。
 
-**确定性代码计算事实，模型辅助解释，人决定是否执行。** 每次状态变化都能关联到数据快照、计划版本、真实操作者和执行回执。当前 M1 已完成真实飞书测试环境中的业务闭环验收；业务数据来自 MockCommerce，执行范围是内部工作项的创建、完成与关闭。
+**截至 2026-11-04，V4-1 六卡本地阶段已完成，当前暂停功能开发，进入阶段归档。** 当前产品展示使用合成店铺数据：经营看板、商品／订单管理、CSV／XLSX 商品导入、当前页批量标签及演示履约已经在自有本地 API、PostgreSQL 和浏览器中验证。正式范围与限制见 [V4-1 交付核收](docs/v4/acceptance/v4-1/REVIEW.md)。全部临时服务已关闭，当前没有常驻公网 Demo；V4-2 未启动。
 
-M2 的本地合成 Woo 只读接入、备份还原和当前 Mock 部署技术门槛已核收；文档冻结时最终审核/CI与发布收口仍待。完整分层证据见 [Phase5 验收](docs/PHASE5_ACCEPTANCE.md)，正式阶段状态以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际登记为准。
+## 产品展示
 
-2026-11-03 的 M3 本地实施与验证已获独立审查核收：日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与审核内部草稿。完整工程3684离线、完整PG719严格配对、M3真实本地浏览器及原Web回归已通过；真实资料、模型/embedding、飞书发送和正式发布仍未验收。见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)与[配置及准备步骤](docs/M3_LOCAL_DELIVERY.md)。
+### 经营驾驶舱：指标可以追到明细与来源
 
-## 产品体验
+![V4-1 经营驾驶舱：当前店铺、期间与指标质量](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/native-zoom/screenshots/dashboard-100.png)
 
-### 一条请求，贯穿分析、决策与跟进
+*真实本地运行原图，使用合成演示数据。图中是规定视口内的驾驶舱，保留了付款时间未知导致指标不完整的提示；不将已知小计包装成完整收入。*
+
+同一店铺、时区、币种、期间与数据版本贯穿看板、趋势、指标钻取、列表、详情和导出。金额使用 Decimal；TWD 与 CNY 分别核算，不跨币种相加。缺少付款时间、成本或库存时展示未知原因，不虚构毛利、真实结算或可售库存。
+
+“AI 经营洞察”当前由确定性规则产生，建议不直接创建正式任务。全局 Copilot 已有容器、上下文和状态边界，当前显示**模型未启用**；页面名称和助手入口不代表已接入真实模型。
+
+### 商品与订单：查找、关联、确认，再读回结果
+
+![V4-1 订单详情：商品关联、已知时间线与演示履约入口](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/order_detail-1440.png)
+
+*真实本地 API／PG／Web 截图；订单、金额与商品均为合成数据。时间线只展示已知创建、支付和退款事实，演示履约不生成真实物流记录。*
+
+商品中心支持名称／SKU 搜索、标签和来源筛选、稳定分页、SKU 规格、详情关联以及安全 CSV 导出。标签编辑使用版本校验，当前页可显式多选并串行完整替换标签，空集合表示清空。批量操作可能部分成功，首错、取消或未知结果会停止余下项目；已提交的单项不会随其他项目失败回滚，不提供跨页或全店批量操作。
+
+订单中心支持期间、支付与履约筛选、分页、导出和关联商品。异常订单页当前展示付款时间未知等事实筛选，未实现持久异常标记；付款时间未知不等同于真实未付款。履约操作只修改当前演示空间覆盖层，不写 Woo、不改库存、资金或真实物流。
+
+### CSV／XLSX：先检查，再明确确认导入
+
+上传商品文件后，系统依次执行格式发现、字段映射、安全样本和质量预览。用户核对后明确确认，才原子创建当前演示店铺的新商品与 SKU；随后可在列表、详情和同源商品数中读回。预览不产生正式商品，失败不部分导入。
+
+支持 CSV 和受支持的单 worksheet XLSX，当前不导入订单、客户、退款或库存，不做 upsert。商品与订单导出为安全 CSV，不是 XLSX 导出。标签、履约和导入的未知提交结果都保留原请求键，只读核对原操作，不自动换键重发。
+
+[商品列表原图](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/product_list-1440.png) · [CSV 映射原图](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/csv_mapping-1440.png) · [XLSX 映射原图](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/xlsx_mapping-1440.png) · [390px 批量确认](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/batch_confirm-390.png) · [390px 导入读回](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/browser-business/xlsx_readback-390.png)
+
+### 演示身份由服务端管理
+
+V4-0 建立了服务器 DemoSession：从 `/v4` 点击“一键体验”，访客获得自己的合成组织、两家店铺和演示身份。服务端管理 HttpOnly Cookie、当前身份、店铺授权与 30 分钟绝对期限；切换视角、重置和退出都有明确控制动作，重置不会延长期限。UI 角色选择不能自行授予权限，受限管理员没有默认业务店铺。
+
+不同访客的数据隔离；切店、身份变化、到期或退出时清除旧上下文。重置推进演示代次并清理覆盖层，旧请求不能写入新代次。演示空间不使用公共固定账号密码，也不复用历史验收会话。
+
+### 六卡交付与当前页面范围
+
+| V4-1 卡片 | 已完成的本地合同范围 |
+| --- | --- |
+| V41-01 · Shell | 14 模块导航、主题、加载／空／错误／恢复状态、菜单和焦点交互，未开放类别明确标注 |
+| V41-02 · 同源指标 | KPI、店铺时区／币种／期间、确定性金额口径与明细钻取 |
+| V41-03 · 经营工作台 | 经营首页、图表、规则洞察、异常待办展示和 Copilot 容器，模型关闭 |
+| V41-04 · 商品／订单接口 | 当前授权列表与详情、标签和演示履约覆盖层 |
+| V41-05 · 管理界面 | 详情关联、筛选分页、安全导出、当前页批量标签、身份与店铺切换清屏 |
+| V41-06 · 商品导入 | CSV／XLSX 发现、映射、质量预览、原子确认、原键恢复与来源读回 |
+
+当前 **12 个业务视图**：
+
+| 分区 | 路由 |
+| --- | --- |
+| 经营首页、规则洞察、指标钻取 | `/v4/dashboard` · `/v4/insights` · `/v4/dashboard/drilldown` |
+| 商品列表、详情 | `/v4/products` · `/v4/products/:productId` |
+| SKU 规格、分类标签、商品导入 | `/v4/products/variants` · `/v4/products/categories` · `/v4/products/import` |
+| 订单列表、详情、异常订单、履约模拟 | `/v4/orders` · `/v4/orders/:orderId` · `/v4/orders/anomalies` · `/v4/orders/fulfillment-demo` |
+
+详情 ID 须从当前授权列表取得；“分类标签”当前展示标签覆盖层，不代表提供完整分类树。14 个导航还包括演示设置入口 `/v4/settings/demo`，以及明确标为规划的 AI 智能工作台、经营分析中心、库存中心、采购供应商、客户与售后、智能客服、营销中心、自动化中心、知识中心、审批与任务。导航可见不等于其业务已实现；本阶段不宣称原规划 99 项功能或 66 个业务页面全部完成。完整路由与步骤见 [复现说明](docs/v4/v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md)。
+
+本节 V4-1 产品图均来自已公开的 [40 张运行原图](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json)，不是设计稿。已有 1440／1280／390 视口与规定页面的原生 200% 缩放证据；390px 是浏览器视口，真机触摸和用户人工视觉审批未运行，部分表格右列需横向滚动。截图不代表全部规划页面覆盖。
+
+## Agent 能力
+
+工作台之外，M1–M3 保留了从分析到人工决策、内部执行与查询的业务链。V4 导航中标为规划的类别，不意味着这些旧工作流已全部迁入 V4 页面。
 
 ```text
-Web / 飞书私聊 / 群 @
-        ↓
-库存分析 → 风险与补货报告 → 冻结计划 → 人工审批
-                                        ↓
-查询与解释 ← Web / Base 同步 ← 内部补货工作项
+Web / 飞书请求 → 参数确认 → 确定性库存分析 → 冻结报告与计划
+                                                    ↓
+进度与证据查询 ← 内部工作项与同步回执 ← 人工批准 / 拒绝
 ```
 
-| 环节 | 用户可以做什么 | 系统如何保证结果可信 |
+| 阶段 | 实现能力 | 已取得的证据与使用边界 |
 | --- | --- | --- |
-| 发起分析 | 通过 Web 确认参数，或在飞书提出库存分析请求、补齐澄清信息 | 有限意图与参数合同；确认完整后才创建正式任务 |
-| 阅读报告 | 查看 SKU 风险、建议数量、数据质量与未知在途 | 冻结数据快照与确定性金标；模型解释受事实约束 |
-| 作出决定 | 阅读完整计划，批准、拒绝或显式确认未知在途假设 | 校验当前角色、店铺、版本、hash、nonce 和有效期 |
-| 跟进执行 | 查看内部项，填写原因后完成或关闭 | 全计划事务、持久幂等键、终态保护与审计 |
-| 协同与查询 | 在飞书接收审批卡片、查询进度和报告解释，在 Base 跟进同步 | 业务状态与投递状态分别展示；未知结果先对账 |
+| M1 · 库存 Agent | 风险与补货报告、完整未知在途假设确认、人工审批、内部补货项完成／关闭、飞书查询及 Base 投影 | 2026-10-23 已验收，含当时真实飞书测试环境和真人业务链；电商数据为 MockCommerce，执行对象为内部工作项。历史平台证据不代表当前 V4-1 再次外发 |
+| M2 · Woo 只读与恢复 | 来源绑定的 Woo 只读采集、质量阻断、待审批备份恢复、恢复后显式批准与新周期 | 阶段已结案（Issue #49 closed/completed）；本地真实 Woo 合成测试店、PG／HTTP／浏览器及备份恢复证据，不代表商业实店、采购或库存写入。旧技术快照中的待收口文字保留其时点，当前以固定结案记录为准 |
+| M3 · 日报／询单／知识草稿 | 确定性日报、持久调度与 Fake 投递、模板追问和证据分页；受预算约束的只读工具；SOP 检索、引用和指定审核人批准内部草稿 | 本地实施与验证已核收；询单使用 `offline_stub`，知识使用本地 pgvector 与合成向量／资料。批准只保存内部草稿，不发布；真实资料、模型／embedding 和外发验收延后 |
 
-### 工作台预览
+![M1 库存报告：历史本地 PG／API／Web 业务流](frontend/evidence/b04-live/read/report-1440.png)
 
-![任务中心：任务概览、状态筛选与 Agent 入口](frontend/evidence/b01/tasks-1440.png)
+*补充展示 M1 报告流程：自有 Mock 数据的真实本地 PG／API／Web 联调原图，属于历史 M1 证据，不是 V4-1 页面或本轮飞书现场。*
 
-*已实现的任务中心界面，截图来自 B01 离线 Mock 模式，使用演示身份和数据；用于展示页面结构，不代表当前真实平台运行现场。*
+模型适配与事实约束是工程能力的一部分，当前 V4-1 运行不调用真实 provider。库存、金额、权限和状态变更由确定性代码负责；模型辅助解释不能修改业务数值或替代人工批准。
 
-更多界面：[库存报告](frontend/evidence/b04-live/read/report-1440.png) · [390px 窄屏报告](frontend/evidence/b04-live/read/report-390.png) · [20 SKU 审批页](frontend/evidence/b04-live/write/assumptions-1280.png) · [业务与同步状态](frontend/evidence/p4-c09-reviewfix/c2-sync-390.png)。报告与审批页来自自有 Mock 数据的真实 PostgreSQL/API/Web 联调；同步状态图为离线 Fake 场景，来源详见 [Web 交接记录](docs/ux/phase4-implementation.md)。
+[M1 交付与演示](docs/PHASE4_M1_DELIVERY.md) · [M1 验收](docs/PHASE4_ACCEPTANCE.md) · [M2 技术验收](docs/PHASE5_ACCEPTANCE.md) · [M2 固定结案入口](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354) · [M3 本地验收](docs/M3_LOCAL_ACCEPTANCE.md)
 
-想快速讲清项目，可以按 **发起请求 → 报告依据 → 完整审批 → 内部项 → 同步与轨迹** 演示，具体脚本见 [M1 交付与演示路线](docs/PHASE4_M1_DELIVERY.md)。
-
-## 工程设计
-
-### 把模型能力放在明确的业务边界内
-
-模型用于受限解释与辅助路由，库存、金额、权限、幂等及状态变更由确定性代码负责。解释链有结构化输入、事实约束、调用预算和模板降级；模型异常不会变成虚构的执行成功。
-
-### 让每一次批准都绑定明确的事实
-
-报告、快照与计划版本保持不可变。审批绑定 `plan_version`、`plan_hash`、`nonce` 和有效期，服务端重新核验当前操作者权限。未知在途需要确认**当前版本的完整假设集合**；普通批准无法跳过。审批意见已受理、内部项已创建、外部同步已核实，是三个独立结果。
-
-### 从持久化开始设计恢复
-
-PostgreSQL 保存业务事实、队列、回执和 outbox 意图；LangGraph checkpoint 保存工作流进度。单 Worker、全局单 Graph 执行槽配合事务、唯一约束与持久幂等键，处理重复、冲突和进程中断。外部成功未知时按原键核对，旧投影不能覆盖新版本。
+## 架构与技术栈
 
 ```mermaid
 flowchart LR
-    Web[Next.js 工作台] --> API[FastAPI]
-    Feishu[飞书私聊 / 群 @ / 卡片] --> Gateway[官方 SDK Gateway]
-    API --> App[应用服务 · 身份与权限]
-    Gateway --> App
-    App --> PG[(PostgreSQL<br/>业务事实 / 队列 / outbox / 回执)]
-    PG -->|领取任务| Worker[单 Worker · LangGraph]
-    Worker --> Rules[确定性规则 · CommercePort]
-    Rules --> Mock[MockCommerce]
-    Worker -. 受限解释 .-> Model[模型适配 · 模板降级]
-    Worker -->|业务事务| PG
-    Worker -. 工作流进度 .-> CP[(PG Checkpoint)]
-    Worker --> Delivery[受控投递与原键对账]
-    Delivery --> Channels[飞书通知 / Base 投影]
-    Delivery -->|投递结果| PG
+    Web[Next.js 工作台] --> API[FastAPI / 当前身份与店铺权限]
+    API --> Demo[服务器 DemoSession / V4 商品订单与导入]
+    Demo --> PG[(PostgreSQL 业务事实 / 回执 / 审计)]
+    API --> App[M1–M3 应用服务]
+    Gateway[飞书 Gateway · 历史集成] -. 显式启用 .-> App
+    App --> PG
+    PG --> Worker[唯一 Worker / 串行 LangGraph]
+    Worker --> Rules[确定性分析 / CommercePort]
+    Rules --> Source[MockCommerce / 受限 Woo 只读]
+    Worker --> PG
+    Worker --> CP[(PG Checkpoint)]
+    App --> Knowledge[pgvector 检索 / 引用 / 人工草稿审核]
+    Knowledge --> PG
+    Worker -. 显式配置 .-> Delivery[Fake / 受控平台投递与原键核对]
 ```
 
-Base 是业务状态的协作投影，PostgreSQL 是权威来源。当前运行模型使用单 Worker；图中的模块表示职责分工，不代表多个调度器。
+PostgreSQL 是业务权威，Base 是协作投影，LangGraph checkpoint 保存工作流进度。原业务采用单 Worker、全局单 Graph 串行槽；V4 演示读写是有限 API／PG 请求，不为每个访客启动 Worker 或 Graph。商品文件解析使用受限独立子进程与持久准入，不借此增加业务调度器。
 
-| 层次 | 技术选择 |
+权限、版本和幂等在提交前重新核对；业务效果、回执和事件同事务保存。提交结果未知时按原键读取，缺少回执不推断事务已回滚。审批还绑定不可变快照、计划版本／hash、nonce 和期限；版本变化不能沿用旧批准。M3 草稿审核与检索复用身份及来源约束，当前不产生发布任务。
+
+| 层 | 仓库锁定技术 |
 | --- | --- |
-| Web | Next.js 16 · React 19 · TypeScript · Playwright |
-| API 与领域 | Python 3.12 · FastAPI · Pydantic · 确定性库存规则 |
-| 工作流与持久化 | LangGraph · PostgreSQL 17 · psycopg · Alembic |
-| 集成边界 | CommercePort / MockCommerce · 飞书官方 SDK · Base 投影 |
-| 工程质量 | uv / npm 锁文件 · Ruff · mypy · pytest · Gitleaks · GitHub Actions |
+| 前端 | Next.js **16.4.2** · React **19.3.0** · TypeScript **7.0.2** · Playwright **1.64.0** |
+| API／领域 | Python **3.12.13** · FastAPI **0.142.4** · Pydantic **2.13.5** · Uvicorn |
+| 工作流／持久化 | LangGraph **1.2.14** · PostgreSQL **17.11** · psycopg · SQLAlchemy · Alembic |
+| 知识与集成 | pgvector **0.8.7** · CommercePort · MockCommerce · Woo 只读适配 · 飞书官方 SDK |
+| 工具链／质量 | uv **0.11.25** · Node.js **24.21.0** · npm **11.19.0** · Ruff · mypy · pytest · Gitleaks |
 
-设计依据：[架构](docs/ARCHITECTURE.md) · [数据模型](docs/DATA_MODEL.md) · [Agent 与恢复设计](docs/AGENT_DESIGN.md) · [架构决策](docs/DECISIONS.md)。
+依赖以 [Python 配置](pyproject.toml)、[前端配置](frontend/package.json)及锁文件为准。设计背景见 [架构](docs/ARCHITECTURE.md)、[数据模型](docs/DATA_MODEL.md)、[Agent 与恢复设计](docs/AGENT_DESIGN.md)。
 
-## 快速开始
+## 本地体验与部署
 
-### 方式一：预览 Web 工作台
+### 准备锁定依赖
 
-适合快速了解页面和角色流程。使用 **Python 3.12.13 / uv 0.11.25**；项目脚本将固定版本的 Node.js **24.21.0**、npm **11.19.0** 与 Gitleaks 准备到仓库 `.tools/`，不修改全局工具链。
+下面是依赖准备命令；冷缓存需要网络。需要 Python 3.12.13、uv 0.11.25，完整业务演示还需 Docker／Compose 和按运行指引准备的镜像、私有配置与浏览器工具。脚本将 Node／npm 等工具放入仓库 `.tools/`。
 
 ```sh
 git clone https://github.com/aning0922/commerceops-agent.git
 cd commerceops-agent
-
 uv sync --frozen
 uv run --frozen python -m scripts.bootstrap_tools
 PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend ci --ignore-scripts
+```
 
+### 体验当前 V4-1 业务
+
+当前提供受控本地复现流程，尚无公开一键常驻部署器。按 [V4-1 最终复现说明](docs/v4/v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md)准备新环境：
+
+1. 固定干净 checkout 的 source／tree 和工具摘要，准备同源镜像、新 PG／API／Web 资源、私有配置、端口、绝对 UTC 窗口与清理责任人。旧案 once、凭据、卷和过期窗口不能直接接续。
+2. 执行迁移至 `0025`、checkpointer 初始化、runtime 授权、V4 合成 fixture 初始化／授权／校验，再激活并核验 V4-1 policy。仅数据库健康不等于应用就绪。
+3. 在新案 API／Web 归属和 readiness 通过后，打开 `http://127.0.0.1:<本案web_port>/v4`，点击“一键体验”，显式选择当前授权店铺。端口取本案实际配置，无固定公共登录密码。
+4. 按“看板与钻取 → 商品详情与标签 → 订单关联与演示履约 → CSV／XLSX 映射、确认及来源读回”体验。批量标签只选当前页，退出或重置前先核实未决操作。
+5. 结束时停止全部 writers，采集逐键末态，再关闭本案容器、网络、端口和进程并核实保卷。自动验收 driver 完成后会关闭服务，不留下可持续访问 URL。
+
+公开入口的命令形状如下，路径须换成本次已核收的新案材料；`prepare` 不启动服务，`execute` 还需要实际窗口和外层监督，单个旗标不授予运行权限：
+
+```sh
+.venv/bin/python -m tests.e2e.v41.owned_driver prepare --case /ABS/ROOT_NEW_MANIFEST.json
+.venv/bin/python -m tests.e2e.v41.owned_driver execute --case /ABS/NEW_CASE/case.json --root-opened-window
+```
+
+主 API 通过 `COMMERCEOPS_V4_DEMO_CONFIG_FILE` 加载显式启用的 Demo 配置；V4 前端读取 `COMMERCEOPS_API_ORIGIN`，本机 loopback HTTP 还需显式 `COMMERCEOPS_WEB_TRANSPORT=local_http`。这些配置不替代数据库授权或私有密钥准备；完整字段、镜像与进程监督要求以复现说明为准。
+
+### 预览历史 M1 工作台
+
+如果只想快速看旧任务中心／角色样例，可运行独立 Mock UI，无需数据库或平台密钥：
+
+```sh
 PATH="$PWD/.tools/node/bin:$PATH" \
   COMMERCEOPS_UI_MODE=mock \
   COMMERCEOPS_MOCK_ROLE=operator \
@@ -121,114 +182,51 @@ PATH="$PWD/.tools/node/bin:$PATH" \
   npm --prefix frontend run dev
 ```
 
-打开 [http://127.0.0.1:3000](http://127.0.0.1:3000)。将 `COMMERCEOPS_MOCK_ROLE` 改为 `approver` 或 `admin` 并重启，可查看对应角色样例。
+打开 [http://127.0.0.1:3000](http://127.0.0.1:3000)。`approver`／`admin` 可替换上面的 Mock 角色后重启；这展示历史 M1 页面样例，不会启动 V4-1 后端或创建真实业务数据。
 
-此模式使用演示数据，无需数据库、模型密钥或飞书凭据，不产生业务写入。仓库当前为 Public，可直接克隆；工具安装和冷缓存依赖下载需要网络。
+### 完整业务与部署资料
 
-### M3本地PG诊断与应用配置
-
-M3迁移需要 **PG17.11 + pgvector0.8.7**。基础`compose.yml`继续保留stock镜像；显式使用`compose.m3.yml`只替换同一个postgres服务的image/build。默认M2镜像及其0018/60表备份合同不变。这里提供新自有PG诊断路径；主API、原单Worker及Web的明确配置关系见[本地启动说明](docs/M3_LOCAL_DELIVERY.md)，独立seed与owner联合装配须分别准备，不复用旧Secret。
-
-在Root登记的新构建/PG对象与绝对UTC截止内，先设置`COMMERCEOPS_M3_STOP_AT_UTC`为该截止，再执行以下命令形状。第一条有界显式构建并绑定当前SHA/tree、构建输入、native架构和image ID；第二条复用原完整PG集合/G1/G2及清理门禁，禁止隐式build/pull。两条共用截止，不因第一条耗时自动延长：
-
-```sh
-uv run --frozen python -m scripts.m3_pgvector --stop-at-utc "$COMMERCEOPS_M3_STOP_AT_UTC"
-uv run --frozen python -m scripts.pg_diagnostic --session initial --round 1 --combined --full-smoke --m3-pgvector --deadline "$COMMERCEOPS_M3_STOP_AT_UTC"
-```
-
-已有镜像回执或round登记会拒绝覆盖，需按Root新登记处理；上述诊断按其原合同清理新测试卷。单独Compose使用时固定顺序为`-f compose.yml -f compose.m3.yml`，有私有port overlay则最后追加；启动前需同源镜像准备和owner迁移/checkpointer/runtime授权，不能仅凭容器健康声称应用就绪。当前实现与未测项见[本地runtime合同](docs/contracts/p6-local-runtime-v1.md)；本机arm64完整PG/Web结果见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)；amd64冷构建、Hosted及生产容量未验。
-
-### 方式二：运行完整离线业务闭环
-
-使用 [M1 Compose 运行指引](docs/M1_OFFLINE_COMPOSE.md)，在新私有目录与独立 Compose 项目中启动 **PostgreSQL + API + 单 Worker + Next.js Web**：
-
-1. 准备私有配置，构建镜像，执行迁移、checkpoint 初始化与运行角色授权。
-2. 执行一次演示数据初始化，从本地受保护文件读取生成的测试账户。
-3. 在 Web 创建新分析任务，查看 20 SKU 报告，显式确认完整假设并审批。
-4. 核对内部补货项，完成或关闭同一工作项，再读取结果与操作轨迹。
-5. 按指引停止自有服务，保留数据卷与测试证据。
-
-这里的“离线”指关闭真实业务平台与模型调用：数据为 Mock、审批为模拟 Web 操作、投影为 `offline_fake`。需要 Docker/Compose 与 POSIX shell，完整命令和资源边界以运行指引为准；技术初始化数据不算一次新业务分析。
-
-飞书真实联调需另行配置专用测试应用、身份映射、测试群和 Base，配置说明见 [飞书集成](docs/FEISHU_INTEGRATION.md)。秘密只放在本地受保护配置中。
-
-## 验收证据
-
-**M1 已于 2026-10-23 正式验收。** 已验收业务基线为 [`90ef500`](https://github.com/aning0922/commerceops-agent/commit/90ef500534f501dde8bb3247e783462951dcdb88)，同提交[合后 CI 五项作业成功](https://github.com/aning0922/commerceops-agent/actions/runs/39939441733)，阶段及子任务 #39–#42 已关闭。以下数字对应这次验收快照。
-
-| 验证层次 | 已取得的证据 |
+| 目标 | 运行指引 |
 | --- | --- |
-| PostgreSQL 与恢复 | **567 项实际 PG 测试**（391 + 176），G1 三项、G2 六项；含中断恢复、提交间隙与进程终止保护 |
-| Web / API | 实际 PG/API 支撑的 read / write / items 测试及 N01 六项通过；覆盖权限、参数确认、页面操作、窄屏与规定的键盘检查 |
-| 真人飞书业务 | 私聊与群 @ 闭环、关联澄清、拒绝与联合批准、重复与冲突；群卡完整披露 **20 SKU 和全部未知在途假设** |
-| Base 与内部项 | 批准后 **20 个内部项 / 20 条 Base 记录**完整核对；独立拒绝零项；另有真人关闭同一工作项及同记录 v2 读回 |
-| 查询与解释 | 两条新群查询唯一接收并各回复一次；模型事实约束与降级沿用已核证据 |
-| 交付复现 | 干净 Compose 四场景的既有实际证据、源码影响核对、操作指引与演示资料 |
+| M1 Mock 数据完整闭环 | [M1 Compose](docs/M1_OFFLINE_COMPOSE.md)：PG + API + 单 Worker + Web；生成测试账号、分析、审批、内部项与 Fake 投影 |
+| M3 本地应用与向量库 | [M3 配置与启动](docs/M3_LOCAL_DELIVERY.md)：固定 PG17.11／pgvector0.8.7、显式应用开关及 owner 授权；当前无公开一键联合 seed CLI |
+| V4-1 当前产品与验收复现 | [最终复现说明](docs/v4/v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md)：新 owned 资源、0025、policy、真实浏览器与关闭采集 |
+| 外部集成合同 | [飞书集成](docs/FEISHU_INTEGRATION.md) · [电商适配](docs/COMMERCE_INTEGRATION.md)，接入材料不代表外部验收已完成 |
 
-验收采用分层证据：真人每卡一次重复，十次重复、并发与故障恢复由实际 PG/原生路径验证；受控故障注入与真实平台结果分开记录。客户端已读与 raw wire ACK 未采集，既有 Compose 证据不宣称本提交重新执行过冷 clone。完整来源、独立审核及保留风险见 [最终结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990)与 [Phase4 验收报告](docs/PHASE4_ACCEPTANCE.md)。
+基础 [compose.yml](compose.yml) 使用 stock PostgreSQL；M3 向量库显式叠加 [compose.m3.yml](compose.m3.yml)，先同源构建与绑定再使用，不是单独 `compose up` 即可运行完整应用。V4-1 当前真实 provider／embedding、飞书外发、Woo 写入、Hosted 和生产部署均 **NOT_RUN**。M1 历史飞书验收仍按原阶段来源保留；本 README 不将其转记为当前 V4-1 外部通过。
 
-## 里程碑
+## 验证与交付
 
-| 里程碑 | 范围 | 状态 |
-| --- | --- | --- |
-| **M1 · 核心 Agent 应用** | 库存分析、审批、内部工作项、Web、真实飞书与 Base 闭环 | **已验收** · Phase0–4 |
-| M2 · Woo 测试店只读接入 | 本地合成 Woo 对账、待审批备份恢复、当前 Mock Compose | 技术 Gate 已核收；[正式收口状态](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354) · Phase5 |
-| M3 · 完整求职版本 | 日报与调度、受限动态只读工具、SOP RAG、文案审核草稿 | 本地实施/验证已核收；真实资料/模型/外发等外部验收延后 · Phase6 |
+V4-1 的权威包为 [REVIEW](docs/v4/acceptance/v4-1/REVIEW.md)、[QA_RESULTS](docs/v4/acceptance/v4-1/QA_RESULTS.json) 和 [MANIFEST](docs/v4/acceptance/v4-1/MANIFEST.json)。业务代码冻结于 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e`，后续归档文档不改变测试来源。
 
-当前不执行真实采购、支付、退款或库存修改。商业实店数据、生产部署及后续阶段尚未验收。路线与依赖见 [ROADMAP](docs/ROADMAP.md)及 [30 天交付计划](docs/plans/30_DAY_EXECUTION.md)；阶段文档中的历史快照由对应结案回执补齐。
+| 证据层 | 精确源码与已核范围 |
+| --- | --- |
+| 完整工程 | `4fec4a7`：4601 离线通过；只属于该原源码，未在最终 261 重跑 Full |
+| 完整 PG | `e7aeeca`：596 + 177 = 773 实际通过，严格配对并集 773／交集 0；只属于 e7 |
+| 有限真实 HTTP | `54ab68f`：看板、商品订单、CSV、XLSX 四案；命令记录不计作测试数量 |
+| 最终影响检查 | `261f399`：235 Python、74 Node、40 Native 纯组件、TypeScript 与 33 Mock 交互通过；Native 组件不启动浏览器 |
+| 最终真实浏览器 | 同 `261f399` 的 r10：双 spec 通过、11 业务请求键（含 10 个移动端子集）、逐键 SQL 与独立清理核收；40 原图 AI 工程视觉审查通过 |
 
-## 开发与检查
+各层数量不相加，不把历史 Full／PG／HTTP 标为最终 SHA 的重跑。旧失败、UNKNOWN、清理退出和未采集字段保留：包括 r9 双 spec 通过但父失败、r10 API 清理 130、执行 summary 未写入、Native 独立 browser exit 未暴露。人工视觉、真机触摸、自然 24h GC 和外部／生产验收仍有明确未运行范围，详见 [风险](docs/v4/acceptance/v4-1/RISKS.md)。
+
+开发时可按变更范围执行：
 
 ```sh
-# Markdown 本地链接与差异空白
 uv run --frozen python -m scripts.check_docs
-
-# 离线测试
 uv run --frozen python -m pytest -m offline
-
-# 前端类型检查
 PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
-
-# 当前文件、暂存区与 Git 可达历史的敏感信息检查
 uv run --frozen python -m scripts.scan_secrets
 ```
 
-完整质量入口为 `uv run --frozen python -m scripts.check`。真实 PG、浏览器业务联调和平台测试分别准备环境、分别记录结果，详见 [开发说明](docs/DEVELOPMENT.md)、[测试计划](docs/TEST_PLAN.md)及 [CI 配置](.github/workflows/quality.yml)。
-
-<details>
-<summary><strong>仓库结构</strong></summary>
-
-```text
-commerceops-agent/
-├── backend/
-│   ├── src/commerceops/     # 领域规则、应用用例、工作流与适配器
-│   └── migrations/         # 数据库版本迁移
-├── frontend/               # Next.js 工作台、类型合同与界面证据
-├── tests/                  # 离线、真实 PG、恢复与 Web 测试
-├── scripts/                # 工具链、质量检查与隔离验证
-├── docs/                   # 产品、架构、接口、UX 与验收资料
-├── infrastructure/         # 固定版本的容器运行环境
-├── compose.yml             # PostgreSQL 与初始化
-└── compose.m1-offline.yml   # 完整离线业务演示装配
-```
-
-</details>
+完整质量入口为 `uv run --frozen python -m scripts.check`；PG、浏览器与平台验证分别准备环境和记账。本次 README 归档只做文档检查，不重跑运行 Gate。
 
 ## 文档导航
 
 | 阅读目的 | 入口 |
 | --- | --- |
-| 理解产品与演示 | [产品需求](docs/PRD.md) · [M1 交付与演示](docs/PHASE4_M1_DELIVERY.md) |
-| 本地运行 | [完整 Compose 指引](docs/M1_OFFLINE_COMPOSE.md) · [开发说明](docs/DEVELOPMENT.md) |
-| 理解业务一致性 | [架构](docs/ARCHITECTURE.md) · [数据模型](docs/DATA_MODEL.md) · [Agent 设计](docs/AGENT_DESIGN.md) |
-| 阅读页面与接口合同 | [UX 索引](docs/ux/README.md) · [Web 合同](docs/contracts/p3-web-v1.md) · [P4 Web 交接](docs/ux/phase4-implementation.md) |
-| 理解外部集成 | [飞书](docs/FEISHU_INTEGRATION.md) · [电商适配](docs/COMMERCE_INTEGRATION.md) |
-| 核验完成情况 | [最终结案回执](https://github.com/aning0922/commerceops-agent/issues/39#issuecomment-6360314990) · [M1 验收](docs/PHASE4_ACCEPTANCE.md) · [M2 验收](docs/PHASE5_ACCEPTANCE.md) · [项目状态](docs/STATUS.md) |
-
----
-
-<div align="center">
-
-**分析有依据 · 决策有授权 · 执行有回执 · 恢复可验证**
-
-</div>
+| 当前产品范围与操作 | [V4-1 六卡](docs/v4/v4-1/STAGE_SPEC.md) · [复现说明](docs/v4/v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md) · [逐功能状态](docs/v4/acceptance/v4-1/FEATURE_STATUS.json) |
+| 当前验收与真实截图 | [交付核收](docs/v4/acceptance/v4-1/REVIEW.md) · [质量结果](docs/v4/acceptance/v4-1/QA_RESULTS.json) · [40 图索引](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json) |
+| Agent 业务和演示 | [M1 交付](docs/PHASE4_M1_DELIVERY.md) · [M2 技术快照](docs/PHASE5_ACCEPTANCE.md) · [M3 本地交付](docs/M3_LOCAL_DELIVERY.md) |
+| 架构与一致性 | [架构](docs/ARCHITECTURE.md) · [数据模型](docs/DATA_MODEL.md) · [Agent 设计](docs/AGENT_DESIGN.md) · [决策记录](docs/DECISIONS.md) |
+| 本地开发 | [开发说明](docs/DEVELOPMENT.md) · [测试计划](docs/TEST_PLAN.md) · [M1 Compose](docs/M1_OFFLINE_COMPOSE.md) |
+| 阶段与历史 | [项目状态](docs/STATUS.md) · [路线图](docs/ROADMAP.md) · [M3 本地验收](docs/M3_LOCAL_ACCEPTANCE.md) |
