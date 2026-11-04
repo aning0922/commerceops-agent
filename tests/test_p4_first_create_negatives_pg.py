@@ -424,6 +424,13 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                     "business.v4_demo_events",
                     "business.v4_demo_overlays",
                     "business.v4_demo_rate_attempts",
+                    "business.v41_product_tags",
+                    "business.v41_order_fulfillments",
+                    "business.v41_import_jobs",
+                    "business.v41_import_products",
+                    "business.v41_action_receipts",
+                    "business.v41_action_events",
+                    "business.v41_security_policy",
                 }
                 assert {key: current[key] for key in before} == before
                 assert current["business.p3_template_results"][0] == 0
@@ -465,6 +472,13 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                         "v4_demo_events",
                         "v4_demo_overlays",
                         "v4_demo_rate_attempts",
+                        "v41_product_tags",
+                        "v41_order_fulfillments",
+                        "v41_import_jobs",
+                        "v41_import_products",
+                        "v41_action_receipts",
+                        "v41_action_events",
+                        "v41_security_policy",
                     )
                 )
                 stage = "grant-current"
@@ -540,17 +554,17 @@ def test_forward_0012_upgrade_preserves_original_c0_rows_and_checkpoint_bytes(
                 with connect(owner) as db:
                     assert db.execute(
                         "SELECT version_num FROM business.alembic_version"
-                    ).fetchone() == {"version_num": "0024_v4_demo_foundation"}
+                    ).fetchone() == {"version_num": "0025_v41_catalog_operations"}
                 emit(
                     "c0_migration_preserved",
                     source_sha="d97c6ae8007eb5b69024e514210860f42359673d",
                     original_tables=len(before),
                     original_rows=sum(v[0] for v in before.values()),
                     checkpoints=before["checkpoints.checkpoints"][0],
-                    new_tables_empty=36,
+                    new_tables_empty=43,
                     original_all_bytes_equal=True,
                     first_create_head="0013_p4_first_create",
-                    current_head="0024_v4_demo_foundation",
+                    current_head="0025_v41_catalog_operations",
                     current_grants_verified=True,
                 )
             except BaseException as error:

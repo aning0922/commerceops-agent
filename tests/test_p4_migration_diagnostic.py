@@ -201,6 +201,13 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         {"schemaname": "business", "tablename": "v4_demo_events"},
                         {"schemaname": "business", "tablename": "v4_demo_overlays"},
                         {"schemaname": "business", "tablename": "v4_demo_rate_attempts"},
+                        {"schemaname": "business", "tablename": "v41_product_tags"},
+                        {"schemaname": "business", "tablename": "v41_order_fulfillments"},
+                        {"schemaname": "business", "tablename": "v41_import_jobs"},
+                        {"schemaname": "business", "tablename": "v41_import_products"},
+                        {"schemaname": "business", "tablename": "v41_action_receipts"},
+                        {"schemaname": "business", "tablename": "v41_action_events"},
+                        {"schemaname": "business", "tablename": "v41_security_policy"},
                     ]
                 return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
@@ -243,6 +250,13 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         "v4_demo_events",
                         "v4_demo_overlays",
                         "v4_demo_rate_attempts",
+                        "v41_product_tags",
+                        "v41_order_fulfillments",
+                        "v41_import_jobs",
+                        "v41_import_products",
+                        "v41_action_receipts",
+                        "v41_action_events",
+                        "v41_security_policy",
                     )
                 ):
                     return SimpleNamespace(fetchall=lambda: [])
@@ -293,7 +307,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             return SimpleNamespace(
                 fetchone=lambda: {
                     "version_num": (
-                        "0013_p4_first_create" if snapshots == 2 else "0024_v4_demo_foundation"
+                        "0013_p4_first_create" if snapshots == 2 else "0025_v41_catalog_operations"
                     )
                 }
             )
@@ -449,6 +463,7 @@ def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Pat
                 "0022_",
                 "0023_",
                 "0024_",
+                "0025_",
             )
         )
     }

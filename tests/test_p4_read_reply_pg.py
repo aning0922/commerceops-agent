@@ -290,6 +290,7 @@ def test_carrier_identity_no_mutation_delete_truncate_and_scope_no_forgery(
             {"version_num": "0022"},
             {"version_num": "0023_p6_copy_drafts"},
             {"version_num": "0024_v4_demo_foundation"},
+            {"version_num": "0025_v41_catalog_operations"},
         ):
             assert related and related["t"] is not None
             before = db.execute(

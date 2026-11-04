@@ -746,6 +746,13 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
             "business.v4_demo_events",
             "business.v4_demo_overlays",
             "business.v4_demo_rate_attempts",
+            "business.v41_product_tags",
+            "business.v41_order_fulfillments",
+            "business.v41_import_jobs",
+            "business.v41_import_products",
+            "business.v41_action_receipts",
+            "business.v41_action_events",
+            "business.v41_security_policy",
         }
         assert set(after) <= set(current)
         assert all(
@@ -781,12 +788,19 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
                 "v4_demo_events",
                 "v4_demo_overlays",
                 "v4_demo_rate_attempts",
+                "v41_product_tags",
+                "v41_order_fulfillments",
+                "v41_import_jobs",
+                "v41_import_products",
+                "v41_action_receipts",
+                "v41_action_events",
+                "v41_security_policy",
             )
         )
         assert all(current[key] == value for key, value in after.items())
         with connect(owner) as db:
             assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
-                "version_num": "0024_v4_demo_foundation"
+                "version_num": "0025_v41_catalog_operations"
             }
         with connect(app) as db:
             assert (

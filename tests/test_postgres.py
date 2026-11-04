@@ -47,7 +47,7 @@ def runtime(settings: DatabaseSettings) -> DatabaseSettings:
 
 def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
     row = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    assert row and row["version_num"] == "0024_v4_demo_foundation"
+    assert row and row["version_num"] == "0025_v41_catalog_operations"
     assert db.execute("SHOW server_version").fetchone()["server_version"].startswith("17.11")  # type: ignore[index]
     tables = db.execute("""SELECT table_schema, table_name FROM information_schema.tables
         WHERE table_schema IN ('business','checkpoints','public')""").fetchall()
@@ -128,6 +128,13 @@ def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
         "v4_demo_events",
         "v4_demo_overlays",
         "v4_demo_rate_attempts",
+        "v41_product_tags",
+        "v41_order_fulfillments",
+        "v41_import_jobs",
+        "v41_import_products",
+        "v41_action_receipts",
+        "v41_action_events",
+        "v41_security_policy",
         "p4_base_links",
         "p4_sender_state",
         "p4_sdk_windows",
