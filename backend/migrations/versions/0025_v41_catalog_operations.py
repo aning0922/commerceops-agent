@@ -644,16 +644,22 @@ BEGIN
   version:=coalesce(prior.version,0)+1;
   payload:=jsonb_build_object('scope',business.v41_scope(s.tenant_id,shop,s.reset_epoch),
     'product_id',target,'version',version,'tags',body->'tags');
-  INSERT INTO business.v41_product_tags(tenant_id,organization_id,shop_id,owner_session_id,
-   principal_id,reset_epoch,auth_generation,product_id,version,tags,canonical_payload,
-  payload_digest,receipt_id)
-  VALUES(s.tenant_id,org,shop,s.id,s.principal_id,s.reset_epoch,s.auth_generation,target,version,
-   body->'tags',business.v41_canonical(payload),business.v41_hash(payload),rid)
-  ON CONFLICT ON CONSTRAINT v41_product_tags_pkey DO UPDATE SET
-   owner_session_id=EXCLUDED.owner_session_id,principal_id=EXCLUDED.principal_id,
-   auth_generation=EXCLUDED.auth_generation,version=EXCLUDED.version,tags=EXCLUDED.tags,
-   canonical_payload=EXCLUDED.canonical_payload,payload_digest=EXCLUDED.payload_digest,
-   receipt_id=EXCLUDED.receipt_id;
+  IF prior.product_id IS NULL THEN
+   INSERT INTO business.v41_product_tags(tenant_id,organization_id,shop_id,owner_session_id,
+    principal_id,reset_epoch,auth_generation,product_id,version,tags,canonical_payload,
+    payload_digest,receipt_id)
+   VALUES(s.tenant_id,org,shop,s.id,s.principal_id,s.reset_epoch,s.auth_generation,target,version,
+    body->'tags',business.v41_canonical(payload),business.v41_hash(payload),rid);
+  ELSE
+   UPDATE business.v41_product_tags p SET principal_id=s.principal_id,
+    auth_generation=s.auth_generation,version=prior.version+1,tags=body->'tags',
+    canonical_payload=business.v41_canonical(payload),payload_digest=business.v41_hash(payload),
+    receipt_id=rid
+   WHERE p.tenant_id=s.tenant_id AND p.organization_id=org AND p.shop_id=shop
+    AND p.reset_epoch=s.reset_epoch AND p.product_id=target AND p.owner_session_id=s.id
+    AND p.version=prior.version;
+   IF NOT FOUND THEN RAISE EXCEPTION 'VERSION_CONFLICT' USING ERRCODE='23514'; END IF;
+  END IF;
  ELSIF operation='order_fulfillment' THEN
   SELECT p INTO product FROM jsonb_array_elements(template->'orders') p WHERE
   p->'ref'->>'id'=target::text;
