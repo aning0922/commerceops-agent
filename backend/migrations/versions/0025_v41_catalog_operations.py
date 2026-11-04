@@ -777,19 +777,6 @@ CREATE FUNCTION business.v41_demo_principal(org uuid,actor uuid) RETURNS boolean
 LANGUAGE sql STABLE SET search_path=pg_catalog,business AS $$
  SELECT EXISTS(SELECT 1 FROM business.v4_demo_personas a
    WHERE a.organization_id=org AND a.principal_id=actor)
- OR EXISTS(SELECT 1 FROM business.principals p JOIN business.organizations o
-   ON o.id=p.organization_id JOIN business.identities i
-   ON i.organization_id=p.organization_id AND i.principal_id=p.id
-  WHERE p.id=actor AND p.organization_id=org AND i.provider='web'
-   AND o.feishu_app_id ~
-    '^v4-demo-app-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'
-   AND o.name='V4 synthetic demo '||substr(o.feishu_app_id,13)
-   AND o.feishu_tenant_key='v4-demo-tenant-'||substr(o.feishu_app_id,13)
-   AND (i.app_id,i.tenant_key) IS NOT DISTINCT FROM (o.feishu_app_id,o.feishu_tenant_key)
-   AND i.external_subject IN(
-    'v4.'||replace(substr(o.feishu_app_id,13),'-','')||'.operator',
-    'v4.'||replace(substr(o.feishu_app_id,13),'-','')||'.approver',
-    'v4.'||replace(substr(o.feishu_app_id,13),'-','')||'.restricted_admin'))
 $$;
 CREATE FUNCTION business.v41_demo_binding_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,business AS $$
