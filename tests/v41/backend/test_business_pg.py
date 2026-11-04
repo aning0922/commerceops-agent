@@ -462,7 +462,7 @@ def test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation(de
         page(store, token, shop)
     with connect(demo.owner) as db:
         db.execute(
-            "GRANT SELECT(active_version,config_digest) ON business.v41_security_policy "
+            "GRANT SELECT(singleton,active_version,config_digest) ON business.v41_security_policy "
             "TO commerceops_app"
         )
     with pytest.raises(WebFailure, match="SERVICE_UNAVAILABLE"):
