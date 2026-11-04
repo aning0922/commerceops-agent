@@ -218,7 +218,7 @@ PATH="$PWD/.tools/node/bin:$PATH" npm --prefix frontend run typecheck
 uv run --frozen python -m scripts.scan_secrets
 ```
 
-完整质量入口为 `uv run --frozen python -m scripts.check`；PG、浏览器与平台验证分别准备环境和记账。本次 README 归档只做文档检查，不重跑运行 Gate。
+完整质量入口为 `uv run --frozen python -m scripts.check`；PG、浏览器与平台验证分别准备环境和记账。本次归档复用上述运行 Gate，新增文档、交付哈希及前端镜像文件布局的离线 schema 检查；完整镜像构建未重跑，详见[主线集成说明](docs/v4/archive/V41_MAIN_INTEGRATION.md)。
 
 ## 文档导航
 
@@ -228,5 +228,5 @@ uv run --frozen python -m scripts.scan_secrets
 | 当前验收与真实截图 | [交付核收](docs/v4/acceptance/v4-1/REVIEW.md) · [质量结果](docs/v4/acceptance/v4-1/QA_RESULTS.json) · [40 图索引](docs/v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json) |
 | Agent 业务和演示 | [M1 交付](docs/PHASE4_M1_DELIVERY.md) · [M2 技术快照](docs/PHASE5_ACCEPTANCE.md) · [M3 本地交付](docs/M3_LOCAL_DELIVERY.md) |
 | 架构与一致性 | [架构](docs/ARCHITECTURE.md) · [数据模型](docs/DATA_MODEL.md) · [Agent 设计](docs/AGENT_DESIGN.md) · [决策记录](docs/DECISIONS.md) |
-| 本地开发 | [开发说明](docs/DEVELOPMENT.md) · [测试计划](docs/TEST_PLAN.md) · [M1 Compose](docs/M1_OFFLINE_COMPOSE.md) |
-| 阶段与历史 | [项目状态](docs/STATUS.md) · [路线图](docs/ROADMAP.md) · [M3 本地验收](docs/M3_LOCAL_ACCEPTANCE.md) |
+| 本地开发 | [开发说明](docs/DEVELOPMENT.md) · [测试计划](docs/TEST_PLAN.md) · [历史 0018 M1 Compose](docs/M1_OFFLINE_COMPOSE.md) |
+| 阶段与历史 | [V4 文档入口](docs/v4/README.md) · [主线集成说明](docs/v4/archive/V41_MAIN_INTEGRATION.md) · [项目状态](docs/STATUS.md) · [路线图](docs/ROADMAP.md) · [M3 本地验收](docs/M3_LOCAL_ACCEPTANCE.md) |
