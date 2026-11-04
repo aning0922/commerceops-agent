@@ -7,7 +7,12 @@ test('trend plots complete same-currency observations and retains original value
  assert.deepEqual(points.map(p=>p.value),['10','20']);assert.equal(points[0].y,100);assert.equal(points[1].y,20);
 });
 test('trend avoids inventing lines across missing, partial or mixed-currency data',()=>{
- assert.deepEqual(trendPoints([day('a','10'),day('b',null,'TWD','PARTIAL')],'paid_order_amount'),[]);
- assert.deepEqual(trendPoints([day('a','10'),day('b','20','CNY')],'paid_order_amount'),[]);
- assert.deepEqual(trendPoints([day('a','10'),{day:'b',metrics:[]}],'paid_order_amount'),[]);
+ assert.deepEqual(trendPoints([day('2026-10-01','10'),day('2026-10-02',null,'TWD','PARTIAL')],'paid_order_amount'),[]);
+ assert.deepEqual(trendPoints([day('2026-10-01','10'),day('2026-10-02','20','CNY')],'paid_order_amount'),[]);
+ assert.deepEqual(trendPoints([day('2026-10-01','10'),{day:'2026-10-02',metrics:[]}],'paid_order_amount'),[]);
+});
+
+test('missing or duplicate days do not imply a continuous trend',()=>{
+ assert.deepEqual(trendPoints([day('2026-10-01','10'),day('2026-10-03','20')],'paid_order_amount'),[]);
+ assert.deepEqual(trendPoints([day('2026-10-01','10'),day('2026-10-01','20')],'paid_order_amount'),[]);
 });
