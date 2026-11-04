@@ -4,11 +4,11 @@
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
   "status": "implementing",
   "cards": {
-    "V41-01": "implemented_mock_ui_accepted_real_http_pending",
+    "V41-01": "implemented_local_http_accepted_browser_full_pending",
     "V41-02": "implemented_local_http_accepted_browser_full_pending",
-    "V41-03": "implemented_mock_ui_accepted_real_http_pending",
+    "V41-03": "implemented_local_http_accepted_browser_full_pending",
     "V41-04": "implemented_local_http_accepted_browser_full_pending",
-    "V41-05": "implemented_mock_ui_accepted_real_http_pending",
+    "V41-05": "implemented_local_http_accepted_browser_full_pending",
     "V41-06": "implemented_local_http_accepted_browser_full_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
@@ -159,6 +159,72 @@
       },
       "closed": true,
       "volumes_preserved": true
+    },
+    {
+      "case": "engineering-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "duration_seconds": 145.723239,
+      "native_exit": 1,
+      "failure": "18 mypy errors in two new test files; downstream stages not run",
+      "source_fix": "496acbd8e2c8f172a2bba5724857d67abfab77bc",
+      "fix_review": "7cbf9d802a3fb86b1509016ee5fa8ab934afcb6a"
+    },
+    {
+      "case": "browser-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "failure": "non-root image source read denied before PostgreSQL start",
+      "artifacts": [
+        {
+          "path": "browser-e466-r1/closedfinal.json",
+          "sha256": "d0bf72cd9d24d8df0be3edde55301509de81c2ed28a2041fd3cadb0c25159575"
+        }
+      ]
+    },
+    {
+      "case": "browser-e466-r2",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T05:52:59.638931Z",
+      "ended_utc": "2026-11-04T05:57:49.290304Z",
+      "image_id": "sha256:5818e252fa7978e0c13469d34b0bd275e440e1bcc702737b10eaacaf22fe211e",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 8997,
+        "shell_failed": 1,
+        "shell_timeout_ms": 240036,
+        "business_post_count": 9,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "390px assistant button has no accessible name; focus timeout at Shell line 67",
+      "not_run": [
+        "390 screenshot",
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_e466_r2_pg_data"
+      ],
+      "ports_closed": [
+        18471,
+        13471
+      ],
+      "artifacts": [
+        {
+          "path": "browser-e466-r2/closedfinal.json",
+          "sha256": "d2ffbc5e15e0809a76f2cb5a5f0958af33d7d86d315e6aa033e9f081ec181271"
+        },
+        {
+          "path": "browser-e466-r2/execution.json",
+          "sha256": "fa71dff68d17b92842ac4da9c3b62d06f99bc2b52e21e7c955cc5d0494a81f79"
+        }
+      ]
     }
   ],
   "hosted": "not_run",
@@ -184,12 +250,11 @@
     "gc_tests": "Sol medium now engineering regression; GC source frozen"
   },
   "remote_checkpoint": {
+    "batch": "r25",
     "branch": "codex/v41-control-20261104",
-    "status": "pushed_partial",
-    "mode": "push",
-    "ci": "no_runs_observed",
-    "pull_request": "not_created",
-    "last_actual_head": "a96fb93d239b76a8b997e300e747aa673b485c7c"
+    "source": "c9fa44d513eda25018a36fbff6ba52e48b1b212c",
+    "push_native_exit": 0,
+    "actions_runs": []
   },
   "full_audit": {
     "status": "exact_development_source_scan_pass_not_final_stage",

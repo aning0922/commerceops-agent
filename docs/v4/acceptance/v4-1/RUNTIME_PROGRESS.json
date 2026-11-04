@@ -550,6 +550,79 @@
           "sha256": "5a47434abd8791e71086a0fdac9e1ce181e005dbd2b308585f6c9bb7308b4a46"
         }
       ]
+    },
+    {
+      "case": "engineering-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "duration_seconds": 145.723239,
+      "native_exit": 1,
+      "failure": "18 mypy errors in two new test files; downstream stages not run",
+      "source_fix": "496acbd8e2c8f172a2bba5724857d67abfab77bc",
+      "fix_review": "7cbf9d802a3fb86b1509016ee5fa8ab934afcb6a"
+    },
+    {
+      "case": "engineering-202807-r2",
+      "source": "202807fb05d6ec3cb1ac2010ee681f3992dfe56e",
+      "status": "running",
+      "window_end_utc": "2026-11-04T06:39:00Z",
+      "progress": "scanner, docs, Ruff, format, mypy 616 files, npm dependencies and preliminary checks passed; offline suite running with failure markers; details pending"
+    },
+    {
+      "case": "browser-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "failure": "non-root image source read denied before PostgreSQL start",
+      "artifacts": [
+        {
+          "path": "browser-e466-r1/closedfinal.json",
+          "sha256": "d0bf72cd9d24d8df0be3edde55301509de81c2ed28a2041fd3cadb0c25159575"
+        }
+      ]
+    },
+    {
+      "case": "browser-e466-r2",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T05:52:59.638931Z",
+      "ended_utc": "2026-11-04T05:57:49.290304Z",
+      "image_id": "sha256:5818e252fa7978e0c13469d34b0bd275e440e1bcc702737b10eaacaf22fe211e",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 8997,
+        "shell_failed": 1,
+        "shell_timeout_ms": 240036,
+        "business_post_count": 9,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "390px assistant button has no accessible name; focus timeout at Shell line 67",
+      "not_run": [
+        "390 screenshot",
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_e466_r2_pg_data"
+      ],
+      "ports_closed": [
+        18471,
+        13471
+      ],
+      "artifacts": [
+        {
+          "path": "browser-e466-r2/closedfinal.json",
+          "sha256": "d2ffbc5e15e0809a76f2cb5a5f0958af33d7d86d315e6aa033e9f081ec181271"
+        },
+        {
+          "path": "browser-e466-r2/execution.json",
+          "sha256": "fa71dff68d17b92842ac4da9c3b62d06f99bc2b52e21e7c955cc5d0494a81f79"
+        }
+      ]
     }
   ],
   "mock_ui": {
@@ -561,7 +634,7 @@
     "actual_http_business_api": false,
     "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
   },
-  "full_engineering": "NOT_RUN",
+  "full_engineering": "running_r2_after_failed_r1",
   "full_paired_postgresql": "NOT_RUN",
   "real_http_api_web": "pass",
   "hosted": "NOT_RUN",
@@ -585,9 +658,9 @@
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
   "real_http_review": "ab278a4a775305758a749fd755b60a9607a005ef",
-  "real_browser": "NOT_RUN",
+  "real_browser": "partial",
   "native200": "NOT_RUN",
   "native_source_review": "a3a823236255ae8b06c0b06595a35081cbb59270",
-  "browser_caller": "5237ed50b3c5a55c2060a068b0b94864d355505e under independent review",
-  "remaining_browser_steps": "real interaction, native capture and visual review, offline and visibility clearing"
+  "browser_caller": "source accepted at b9ecd4ee382792662db9c795cdb6c629fd7efeeb",
+  "remaining_browser_steps": "new-source mobile Shell, native capture and visual review, offline, hidden, late acknowledgement"
 }
