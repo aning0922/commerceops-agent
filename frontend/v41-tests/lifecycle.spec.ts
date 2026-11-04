@@ -58,3 +58,12 @@ test('UI_FIXTURE: pending business evidence does not disable logout after reload
  await openDetail(page);await page.reload();await expect(page.getByRole('button',{name:'退出'})).toBeEnabled();await page.getByRole('button',{name:'退出'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
  expect(JSON.parse((await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending')))!).request_key).toBe(key);
 });
+
+test('UI_FIXTURE: nonprinting tag is rejected before a write key or request exists',async({page})=>{
+ let posts=0;
+ await fixture(page,route=>{if(route.request().method()==='POST')posts++;return route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}});});
+ await openDetail(page);await page.getByRole('button',{name:'编辑标签'}).click();
+ await page.getByLabel('标签（逗号分隔，最多 8 项）').fill('bad\u200btag');
+ await expect(page.getByRole('button',{name:'确认保存'})).toBeDisabled();await expect(page.getByText(/标签须为可打印字符/)).toBeVisible();
+ expect(posts).toBe(0);expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBeNull();
+});
