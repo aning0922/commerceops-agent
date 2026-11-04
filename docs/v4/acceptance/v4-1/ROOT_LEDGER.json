@@ -225,6 +225,65 @@
           "sha256": "fa71dff68d17b92842ac4da9c3b62d06f99bc2b52e21e7c955cc5d0494a81f79"
         }
       ]
+    },
+    {
+      "case": "browser-final-r3",
+      "source": "8f6687560bb5c71804fd249068e2a9912fe35556",
+      "tree": "020b540b3684b277dd994752745a8b2779319671",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T06:11:47.616181Z",
+      "ended_utc": "2026-11-04T06:12:45.977542Z",
+      "image_id": "sha256:d621d4d63767178fbef80051d845e63896f46e7ae793db48ced68f4c5557ecbd",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9504,
+        "shell_failed": 1,
+        "shell_duration_ms": 7024,
+        "retries": 0,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "Shell cookie inspection URL has root path but actual authentication cookie path is /api/v4; expected length one, received zero",
+      "not_run": [
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "screenshots": [
+        {
+          "path": "browser-shell/shell-1440.png",
+          "sha256": "679089f7f24d460d590c3ee4638bc1d3509639fd1cd94d8fdec3921cdd1c6cb3"
+        },
+        {
+          "path": "browser-shell/shell-1280.png",
+          "sha256": "23e3a45de083c8775317e274a5b5ad6b1bb8418422e06149a438986e635ee677"
+        },
+        {
+          "path": "browser-shell/shell-390.png",
+          "sha256": "6d83593840dd71a6dcb0e15b05f6eb396dfb2ddaf51d58d1622aeed6622983d2"
+        }
+      ],
+      "visual_review": "Root viewed 1440 and 390; remaining images do not imply native or lifecycle acceptance",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r3_pg_data"
+      ],
+      "ports_closed": [
+        18472,
+        13472
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r3/execution.json",
+          "sha256": "92b96fb79036ccffc093ef2492144b5a254be71426fc19fc1410651e22872581"
+        },
+        {
+          "path": "browser-final-r3/closedfinal.json",
+          "sha256": "8a3662ac099ead3f5e6e2f261a23ac8dc53ecf4ccd1222f3ddbc8e041eeb857a"
+        }
+      ]
     }
   ],
   "hosted": "not_run",
@@ -268,7 +327,8 @@
     "source_at_start": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
     "source_at_end": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
     "scope_note": "Exact db5 scan; later commits require final exact audit",
-    "log_sha256": "a9a3bc4fe2fdac33434ceb0df69510a61bceea62123aecb5b6c4449523479471"
+    "log_sha256": "a9a3bc4fe2fdac33434ceb0df69510a61bceea62123aecb5b6c4449523479471",
+    "current_engineering": "failed_r2"
   },
   "business_runtime": {
     "status": "FOUR_REAL_LOCAL_HTTP_RECIPES_ACCEPTED_BROWSER_AND_FULL_PENDING",

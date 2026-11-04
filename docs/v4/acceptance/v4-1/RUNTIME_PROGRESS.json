@@ -564,9 +564,36 @@
     {
       "case": "engineering-202807-r2",
       "source": "202807fb05d6ec3cb1ac2010ee681f3992dfe56e",
-      "status": "running",
+      "status": "failed_closed",
       "window_end_utc": "2026-11-04T06:39:00Z",
-      "progress": "scanner, docs, Ruff, format, mypy 616 files, npm dependencies and preliminary checks passed; offline suite running with failure markers; details pending"
+      "started_utc": "2026-11-04T05:50:58.673766Z",
+      "ended_utc": "2026-11-04T06:11:42.015633Z",
+      "duration_seconds": 1243.341867,
+      "native_exit": 1,
+      "stats": {
+        "passed": 4585,
+        "failed": 16,
+        "deselected": 776,
+        "offline_duration_seconds": 1080.92
+      },
+      "failure_classes": [
+        {
+          "count": 9,
+          "cause": "Git discovery inherited real source from temporary directories inside worktree",
+          "repair": "new owned parent temporary directory outside all Git ancestors; no source weakening"
+        },
+        {
+          "count": 7,
+          "cause": "exact public history metadata expectations still contain ten previously approved entries",
+          "repair": "retain all ten exact entries and append explicitly approved eleventh object"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "engineering-202807-r2/engineering-owner-seal.json",
+          "sha256": "b6d2439e6b0825963196e1b5494ee8135fe16eb5cb5d80af8e0161583401688c"
+        }
+      ]
     },
     {
       "case": "browser-e466-r1",
@@ -623,6 +650,65 @@
           "sha256": "fa71dff68d17b92842ac4da9c3b62d06f99bc2b52e21e7c955cc5d0494a81f79"
         }
       ]
+    },
+    {
+      "case": "browser-final-r3",
+      "source": "8f6687560bb5c71804fd249068e2a9912fe35556",
+      "tree": "020b540b3684b277dd994752745a8b2779319671",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T06:11:47.616181Z",
+      "ended_utc": "2026-11-04T06:12:45.977542Z",
+      "image_id": "sha256:d621d4d63767178fbef80051d845e63896f46e7ae793db48ced68f4c5557ecbd",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9504,
+        "shell_failed": 1,
+        "shell_duration_ms": 7024,
+        "retries": 0,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "Shell cookie inspection URL has root path but actual authentication cookie path is /api/v4; expected length one, received zero",
+      "not_run": [
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "screenshots": [
+        {
+          "path": "browser-shell/shell-1440.png",
+          "sha256": "679089f7f24d460d590c3ee4638bc1d3509639fd1cd94d8fdec3921cdd1c6cb3"
+        },
+        {
+          "path": "browser-shell/shell-1280.png",
+          "sha256": "23e3a45de083c8775317e274a5b5ad6b1bb8418422e06149a438986e635ee677"
+        },
+        {
+          "path": "browser-shell/shell-390.png",
+          "sha256": "6d83593840dd71a6dcb0e15b05f6eb396dfb2ddaf51d58d1622aeed6622983d2"
+        }
+      ],
+      "visual_review": "Root viewed 1440 and 390; remaining images do not imply native or lifecycle acceptance",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r3_pg_data"
+      ],
+      "ports_closed": [
+        18472,
+        13472
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r3/execution.json",
+          "sha256": "92b96fb79036ccffc093ef2492144b5a254be71426fc19fc1410651e22872581"
+        },
+        {
+          "path": "browser-final-r3/closedfinal.json",
+          "sha256": "8a3662ac099ead3f5e6e2f261a23ac8dc53ecf4ccd1222f3ddbc8e041eeb857a"
+        }
+      ]
     }
   ],
   "mock_ui": {
@@ -634,7 +720,7 @@
     "actual_http_business_api": false,
     "review": "23b7f66172e48c1d2d74a2cf935e089218e25105"
   },
-  "full_engineering": "running_r2_after_failed_r1",
+  "full_engineering": "failed_r2",
   "full_paired_postgresql": "NOT_RUN",
   "real_http_api_web": "pass",
   "hosted": "NOT_RUN",
@@ -653,7 +739,7 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": null,
+  "current_failure": "Engineering offline 16 failures classified as Git-discovery fixture environment and exact metadata snapshot; browser r3 cookie URL path mismatch in probe",
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
@@ -662,5 +748,6 @@
   "native200": "NOT_RUN",
   "native_source_review": "a3a823236255ae8b06c0b06595a35081cbb59270",
   "browser_caller": "source accepted at b9ecd4ee382792662db9c795cdb6c629fd7efeeb",
-  "remaining_browser_steps": "new-source mobile Shell, native capture and visual review, offline, hidden, late acknowledgement"
+  "remaining_browser_steps": "new-source mobile Shell, native capture and visual review, offline, hidden, late acknowledgement",
+  "real_browser_partial_review": "46eacbf592982036f5e979c95171aa37f89dd831"
 }

@@ -383,6 +383,34 @@
       "functional_status": "TEST_TYPING_AND_PRIVATE_WRAPPER_REVIEW_ACCEPTED_FULL_GATES_PENDING",
       "checkpoint": "r25",
       "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "8f6687560bb5c71804fd249068e2a9912fe35556",
+      "base": "c9fa44d513eda25018a36fbff6ba52e48b1b212c",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "8f6687560bb5c71804fd249068e2a9912fe35556",
+      "actions_runs": [],
+      "functional_status": "REVIEWED_ARIA_FIX_NEW_BROWSER_AND_FULLPG_PENDING",
+      "checkpoint": "r26",
+      "full_stage_gate": "NOT_PASSED"
+    },
+    {
+      "branch": "codex/v41-web-20261104",
+      "source": "754e8796b88dca7c11c2d2956c8645486b2d55a2",
+      "base": "538665aebac7064c3d9b77bcbf65b4879b864123",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "754e8796b88dca7c11c2d2956c8645486b2d55a2",
+      "actions_runs": [],
+      "functional_status": "ARIA_SOURCE_ACCEPTED_RUNTIME_PENDING",
+      "checkpoint": "r26",
+      "full_stage_gate": "NOT_PASSED"
     }
   ],
   "owner_candidate_backups": [
