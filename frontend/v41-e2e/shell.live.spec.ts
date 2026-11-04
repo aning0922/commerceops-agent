@@ -1,5 +1,5 @@
 import {test,expect,verifyOwnedShellPage} from './owned-cdp.fixture';
-import {type Response,type APIResponse,type Request,type Route,type Frame} from '@playwright/test';
+import {type Page,type Response,type APIResponse,type Request,type Route,type Frame} from '@playwright/test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import {mkdirSync,writeFileSync} from 'node:fs';
@@ -11,6 +11,108 @@ import businessContract from '../../docs/v4/v4-1/API_CONTRACT.json' with {type:'
 const businessSchema=businessContract.json_schema;
 import {readBrowserCase,subjectWriter} from './browser-subjects';
 import {captureNative200} from './native-capture';
+
+// CURRENT_FACTS_CORRELATION_BEGIN: resource-free tests execute this exact helper.
+type FactsRecord={ordinal:number;query_match:boolean;stage:string;done:boolean;excluded_before_arm?:boolean;status?:number;read_at?:string;valid?:boolean};
+async function correlateCurrentFacts(options:{
+  page:Page;api:string;query:Record<string,string>;click:()=>Promise<void>;
+  validate:(body:any)=>string;readUI:()=>Promise<string[]>;
+  poll:(probe:()=>Promise<boolean>,timeout:number)=>Promise<void>;
+  exact:(text:string,timeout:number)=>Promise<void>;trace:(value:unknown)=>void;timeout?:number;
+}):Promise<string>{
+  const timeout=options.timeout??5000,deadline=performance.now()+timeout;
+  const records=new Map<Request,FactsRecord>(),tasks:Promise<void>[]=[];
+  let accepting=false,closed=false,arm=0,cutoff=0,ignoredBeforeArm=0,ignoredFrame=0;
+  let fatal:unknown=null,uiReadAt:string|null=null,matched:number|null=null;
+  const fail=(error:unknown)=>{fatal??=error;};
+  const requireFacts=(value:unknown,stage:string)=>{if(!value)throw new Error('CURRENT_FACTS_'+stage);};
+  const remaining=()=>Math.max(1,deadline-performance.now());
+  async function bounded<T>(promise:Promise<T>):Promise<T>{
+    const left=deadline-performance.now();
+    if(left<=0){void promise.catch(()=>{});throw new Error('CURRENT_FACTS_DEADLINE');}
+    let timer:ReturnType<typeof setTimeout>|undefined;
+    try{return await Promise.race([promise,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error('CURRENT_FACTS_DEADLINE')),left);})]);}
+    finally{clearTimeout(timer);}
+  }
+  function onRequest(request:Request){
+    if(!accepting)return;
+    try{
+      const url=new URL(request.url());
+      if(url.origin!==options.api||url.pathname!=='/api/v4/read-context'||request.method()!=='GET')return;
+      if(request.frame()!==options.page.mainFrame()){ignoredFrame++;return;}
+      if(records.has(request))return;
+      const expected=Object.entries(options.query).sort(),actual=[...url.searchParams.entries()].sort();
+      const queryMatch=JSON.stringify(actual)===JSON.stringify(expected);
+      const record:FactsRecord={ordinal:records.size+1,query_match:queryMatch,stage:'response',done:false};
+      records.set(request,record);
+      const task=(async()=>{
+        try{
+          const response=await bounded(request.response());
+          requireFacts(response&&response.request()===request,'RESPONSE_IDENTITY');
+          if(!response)throw new Error('CURRENT_FACTS_NO_RESPONSE');
+          // Public timing is populated when Response is constructed, not at request emission.
+          const began=request.timing().startTime;
+          requireFacts(Number.isFinite(began)&&began>0,'REQUEST_START_UNKNOWN');
+          if(began<arm){ignoredBeforeArm++;record.excluded_before_arm=true;record.stage='excluded_before_arm';return;}
+          if(!queryMatch)fail(new Error('CURRENT_FACTS_QUERY_MISMATCH'));
+          record.status=response.status();
+          record.stage='finished';requireFacts(await bounded(response.finished())===null,'FINISHED_FAILED');
+          record.stage='http';requireFacts(response.status()===200,'HTTP_STATUS');
+          requireFacts(response.headers()['cache-control']==='no-store','NO_STORE');
+          record.stage='json';const body=await bounded(response.json());
+          record.stage='validation';const readAt=options.validate(body);
+          requireFacts(typeof readAt==='string'&&Number.isFinite(Date.parse(readAt)),'READ_AT');
+          record.read_at=readAt;record.valid=queryMatch;record.stage='validated';
+        }catch(error){fail(error);}finally{record.done=true;}
+      })();
+      // Every captured Request owns one bounded, rejection-handled task, including failures.
+      tasks.push(task);
+    }catch(error){fail(error);}
+  }
+  function onFailed(request:Request){
+    const record=records.get(request);
+    if(record&&!record.excluded_before_arm){record.stage='request_failed';fail(new Error('CURRENT_FACTS_REQUEST_FAILED'));}
+  }
+  function unique(texts:string[]):FactsRecord|null{
+    const markers=texts.map(text=>/^数据读取于 ([^\s]+)$/.exec(text)).filter(value=>value!==null);
+    requireFacts(markers.length<=1,'UI_MARKER_AMBIGUOUS');
+    uiReadAt=markers[0]?.[1]??null;
+    if(uiReadAt===null)return null;
+    const candidates=[...records.values()].filter(record=>record.valid&&record.read_at===uiReadAt);
+    requireFacts(candidates.length<=1,'RESPONSE_TIME_AMBIGUOUS');
+    return candidates[0]??null;
+  }
+  options.page.on('request',onRequest);options.page.on('requestfailed',onFailed);
+  try{
+    arm=Date.now();accepting=true;
+    await bounded(options.click()); // Exactly one original click, never a retry or replay.
+    await options.poll(async()=>{
+      if(closed)throw new Error('CURRENT_FACTS_CLOSED');
+      if(fatal)throw fatal;
+      const candidate=unique(await bounded(options.readUI()));
+      if(fatal)throw fatal;
+      return !!candidate&&[...records.values()].every(record=>record.done);
+    },remaining());
+    // Stop admission, drain ALL captured tasks, then witness exact UI once more.
+    accepting=false;cutoff=Date.now();await Promise.all(tasks);
+    if(fatal)throw fatal;
+    const candidate=unique(await bounded(options.readUI()));
+    requireFacts(candidate&&candidate.read_at,'NO_UNIQUE_RENDERED_RESPONSE');
+    if(!candidate?.read_at)throw new Error('CURRENT_FACTS_NO_MATCH');
+    await bounded(options.exact('数据读取于 '+candidate.read_at,remaining()));
+    if(fatal)throw fatal;
+    matched=candidate.ordinal;
+    return candidate.read_at;
+  }catch(error){fail(error);throw error;}
+  finally{
+    accepting=false;cutoff=cutoff||Date.now();closed=true;
+    // Bounded tasks settle at the same deadline; no transport is aborted or retried.
+    await Promise.all(tasks);
+    options.page.off('request',onRequest);options.page.off('requestfailed',onFailed);
+    options.trace({scope:'CURRENT_FACTS_REQUEST_UI_ASSOCIATION',arm,cutoff,ignored_before_arm:ignoredBeforeArm,ignored_other_frame:ignoredFrame,requests:[...records.values()],ui_read_at:uiReadAt,matched_ordinal:matched,status:fatal?'FAILED_OR_UNKNOWN':'EXACT_RENDERED_RESPONSE_VALIDATED'});
+  }
+}
+// CURRENT_FACTS_CORRELATION_END
 
 const c=readBrowserCase(),api=`http://127.0.0.1:${c.api_port}`;
 const sessionCookieURL=api+'/api/v4/demo/session';
@@ -108,19 +210,25 @@ test('LIVE V41: shell identity navigation and responsive boundaries',async({page
       page.off('framenavigated',trackCommit);page.off('request',trackRequest);
     }
   }
+  let factsCall=0;
   async function currentFacts(){
-    const reply=page.waitForResponse(r=>new URL(r.url()).origin===api&&new URL(r.url()).pathname==='/api/v4/read-context'&&r.request().method()==='GET');
-    await page.getByRole('button',{name:'智能助手',exact:true}).click();
-    const response=await reply;expect(response.status()).toBe(200);
-    expect(response.headers()['cache-control']).toBe('no-store');
-    const body=await response.json();
-    expect(ajv.compile({...businessSchema,$ref:'#/$defs/BusinessEnvelope_ReadContextData_'})(body)).toBe(true);
-    for(const key of identityFields)expect(body.context[key]).toBe(current.context[key]);
-    expect(body.context.shop_id).toBe(current.data.shops[0].shop_id);
-    const panel=page.getByRole('dialog',{name:'智能助手'});
-    await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toBeVisible();
-    await expect(panel.getByText('数据读取于 '+body.data.snapshot.read_at,{exact:true})).toBeVisible();
-    return body.data.snapshot.read_at as string;
+    const call=++factsCall,panel=page.getByRole('dialog',{name:'智能助手'});
+    return correlateCurrentFacts({page,api,query:{shop_id:current.data.shops[0].shop_id,kind:'dashboard',days:'7'},
+      click:()=>page.getByRole('button',{name:'智能助手',exact:true}).click(),
+      validate:body=>{
+        expect(ajv.compile({...businessSchema,$ref:'#/$defs/BusinessEnvelope_ReadContextData_'})(body)).toBe(true);
+        for(const key of identityFields)expect(body.context[key]).toBe(current.context[key]);
+        expect(body.context.shop_id).toBe(current.data.shops[0].shop_id);
+        return body.data.snapshot.read_at as string;
+      },
+      readUI:()=>panel.locator('p').allTextContents(),
+      poll:async(probe,timeout)=>{await expect.poll(probe,{timeout}).toBe(true);},
+      exact:async(text,timeout)=>{
+        await expect(panel.getByRole('heading',{name:'当前事实',exact:true})).toBeVisible({timeout});
+        await expect(panel.getByText(text,{exact:true})).toBeVisible({timeout});
+      },
+      trace:value=>writeFileSync(join(evidence,`current-facts-${call}.safe.json`),JSON.stringify(value,null,2),{mode:0o600,flag:'wx'}),
+    });
   }
   async function sensitiveCleared(readAt:string){
     await expect(page.getByText('当前视角：',{exact:false})).toHaveCount(0);
