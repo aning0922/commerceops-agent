@@ -17,10 +17,12 @@ from tests.e2e.v4 import owned_driver as public
 from tests.e2e.v4.owned_adapter import OwnedAdapter, compose_environment, owner_run
 from tests.e2e.v4.supervisor import Budget, Supervisor
 
+from . import owner_bridge
 from .fixed_daemon import freeze as freeze_daemon
 from .fixed_daemon import load as load_daemon
 from .image_provenance import probe_argv, runtime_files, validate_build, validate_measured
 from .owned_manifest import OwnedManifest
+from .owner_setup import ACTIONS, PROGRAM_SHA256, private_bytes
 from .runner import persist
 from .runtime_checks import (
     reject_implicit_env,
@@ -32,7 +34,7 @@ from .source_seal import snapshot
 from .subjects import frozen_subjects
 
 ROOT = Path(__file__).resolve().parents[3]
-HANDOFF = "tests/e2e/v41/runtime_handoff.json"
+HANDOFF = "tests/e2e/v41/owner_recipe.json"
 DEFINITION = "tests/e2e/v41/runtime_definition.json"
 
 
@@ -68,7 +70,7 @@ def config_files(directory: Path) -> list[Path]:
         "api/web.json",
         "api/demo.json",
     ]
-    return [directory / name for name in names]
+    return [directory / name for name in names] + owner_bridge.config_paths(directory)
 
 
 def prepare(case: Case) -> None:
@@ -76,44 +78,41 @@ def prepare(case: Case) -> None:
     # No V40 Case, execute, migration diagnostic or prior runtime config is used.
     public.prepare(cast(Any, case))
     directory = Path(case.directory)
+    owner_bridge.prepare(directory, case.database)
     public.private(
         directory / "config.seal.json",
         json.dumps({str(p.relative_to(directory)): digest(p) for p in config_files(directory)}),
     )
 
 
-def runtime_handoff(case: Case) -> None:
-    """Block before Docker until API/SQL/probe seams are explicitly committed/aligned."""
+def runtime_handoff(case: Case, *, final: bool = False) -> dict[str, Any]:
+    """Require a concrete recipe plus Root's exact private window; no READY bypass."""
     path = ROOT / HANDOFF
     expected = {
-        "schema": "v41-qa-runtime-handoff-2",
+        "schema_version": "v41-fixed-owner-recipe-v1",
+        "helper": "tests/e2e/v41/owner_setup.py",
+        "actions": list(ACTIONS),
+        "inside_program_sha256": PROGRAM_SHA256,
         "factory": "commerceops.entrypoints.api.create_app",
         "revision": "0025_v41_catalog_operations",
     }
     if not path.is_file() or path.is_symlink() or json.loads(path.read_text()) != expected:
         raise ValueError("V41_RUNTIME_HANDOFF_PENDING")
-    definition = json.loads((ROOT / DEFINITION).read_text())
-    if definition["state"] != "READY" or any(
-        definition[n] is None for n in ("owner_policy_cli", "owner_grant_cli", "owner_verify_cli")
-    ):
-        raise ValueError("V41_RUNTIME_GRANT_HOLD_S02_S04_OR_OWNER_CLI_PENDING")
-    for name in [
-        "backend/src/commerceops/entrypoints/v41_http.py",
+    for name in (
         "backend/src/commerceops/infrastructure/v41_runtime.py",
         "backend/src/commerceops/infrastructure/v41_security.py",
-        "tests/e2e/v41/http_recipes.py",
-        "tests/e2e/v41/pg_observer.py",
-    ]:
+        "tests/e2e/v41/owner_setup.py",
+        "tests/e2e/v41/verify_inside.txt",
+    ):
         if not (ROOT / name).is_file():
             raise ValueError("V41_RUNTIME_IMPLEMENTATION_PENDING")
     directory = Path(case.directory)
-    seal = json.loads((directory / "config.seal.json").read_text())
+    seal = json.loads(private_bytes(directory / "config.seal.json"))
     if seal != {str(p.relative_to(directory)): digest(p) for p in config_files(directory)}:
         raise ValueError("V41_PRIVATE_INPUT_CHANGED")
-    if json.loads((directory / "case.json").read_text()) != asdict(case):
+    if json.loads(private_bytes(directory / "case.json")) != asdict(case):
         raise ValueError("V41_CASE_CHANGED")
-    # Actual owner helper exists; no reviewed activation/grant/verify CLI is committed.
-    raise ValueError("V41_OWNER_POLICY_GRANT_VERIFY_SEQUENCE_PENDING")
+    return owner_bridge.authorize_case(case, final=final)
 
 
 def fixed_compose(case: Case) -> tuple[str, ...]:
@@ -126,7 +125,7 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
     if not root_opened_window:
         raise ValueError("ROOT_EXACT_RUNTIME_WINDOW_REQUIRED")
     case.validate(prepared=True)
-    runtime_handoff(case)  # No Docker command or resource creation before this binding.
+    auth = runtime_handoff(case)  # No Docker/resource work before a concrete Root authorization.
     directory = Path(case.directory)
     reject_implicit_env(ROOT)
     reserve_ports(case.api_port, case.web_port)
@@ -140,20 +139,30 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         or info.st_mode & 0o777 != 0o600
     ):
         raise ValueError("ROOT_PRIVATE_IMAGE_BUILD_RECEIPT_REQUIRED")
-    build_receipt = json.loads(build_receipt_path.read_text())
+    build_receipt = json.loads(private_bytes(build_receipt_path))
+    raw_expected = private_bytes(directory / "expected-runtime.json")
+    host_path = directory / "docker-host.safe.json"
+    host_binding = json.loads(private_bytes(host_path, 32768))
+    host_digest = digest(host_path)
+    expected_file_digest = digest(directory / "expected-runtime.json")
     validate_build(
-        build_receipt, case.source_sha, case.source_tree, case.test_image, expected_runtime
+        build_receipt,
+        case.source_sha,
+        case.source_tree,
+        case.test_image,
+        expected_runtime,
+        raw_expected,
     )
     build_receipt_digest = digest(build_receipt_path)
     original = public.compose(cast(Any, case))
     # Static binding failure exits before the try/finally or any daemon query.
-    freeze_daemon(directory, original[0], build_receipt)
+    freeze_daemon(directory, original[0], host_binding)
     tool_paths = [
         Path(sys.executable).resolve(),
         ROOT / ".tools/node/bin/node",
         ROOT / "frontend/node_modules/next/dist/bin/next",
         Path(original[0]).resolve(),
-        Path(build_receipt["compose_plugin_path"]).resolve(),
+        Path(host_binding["compose_plugin_path"]).resolve(),
     ]
     source_before = snapshot(ROOT, tool_paths)
     persist(directory / "source-before.json", source_before)
@@ -235,10 +244,10 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         # The first daemon query is identity only; cleanup is not armed until
         # this fixed endpoint/server and the empty project have both passed.
         server = checked("docker_server", [command[0], "info", "--format", "{{.ID}}"], 5)
-        if server.decode().strip() != build_receipt["docker_server_id"]:
+        if server.decode().strip() != host_binding["docker_server_id"]:
             raise ValueError("ROOT_DOCKER_SERVER_MISMATCH")
         report["information"]["fixed_daemon"] = {
-            "endpoint": build_receipt["docker_endpoint"],
+            "endpoint": host_binding["docker_endpoint"],
             "server_id": server.decode().strip(),
         }
         public.verify_images(cast(Any, case), command[0], budget, records)
@@ -274,9 +283,10 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             "image_source",
             probe_argv(command[0], case.project, case.test_image, ROOT, case.uid),
             30,
-            stdin=json.dumps(sorted(expected_runtime)).encode(),
+            stdin=raw_expected,
         )
         report["information"]["image_source"] = validate_measured(actual_source, expected_runtime)
+        owner_bridge.bind_inputs(directory, auth)
         volumes = model.get("volumes", {})
         if (
             set(volumes) != {"pg_data"}
@@ -345,6 +355,13 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
         for action in ("init-fixture", "grant-runtime", "verify-fixture"):
             extra = ["--directory", "/run/v4_owner/export"] if action == "init-fixture" else []
             checked("seed_" + action, [*owner, "scripts.v4_demo_seed", action, *extra])
+        previous: dict[str, Any] | None = None
+        report["information"]["owner_setup"] = []
+        for action in ACTIONS:
+            _, spec = owner_bridge.operation_file(case, auth, action, previous)
+            output = checked("owner_" + action, owner_bridge.argv(command, case, spec), 60)
+            previous = owner_bridge.receipt(directory, auth, spec, output)
+            report["information"]["owner_setup"].append(previous)
         api_argv, api_env = OwnedAdapter(
             command, case.project, budget, evidence=directory / "observers"
         ).launch_spec("api")
@@ -638,7 +655,12 @@ def execute(case: Case, root_opened_window: bool) -> dict[str, Any]:
             if any(digest(ROOT / name) != value for name, value in case.inputs.items()):
                 raise ValueError("TERMINAL_PUBLIC_INPUT_CHANGED")
             reject_implicit_env(ROOT)
-            runtime_handoff(case)
+            runtime_handoff(case, final=True)
+            if (
+                digest(host_path) != host_digest
+                or digest(directory / "expected-runtime.json") != expected_file_digest
+            ):
+                raise ValueError("TERMINAL_ROOT_BUILD_OR_DAEMON_INPUT_CHANGED")
             load_daemon(directory)
             source_after = snapshot(ROOT, tool_paths)
             persist(directory / "source-after.json", source_after)

@@ -36,13 +36,29 @@ class ForcedRollback(Exception):
 def admission(opened: bool) -> None:
     if not opened:
         raise ValueError("ROOT_EXACT_SQL_PROBE_WINDOW_REQUIRED")
-    definition = json.loads((ROOT / "tests/e2e/v41/runtime_definition.json").read_text())
-    if definition["state"] != "READY" or definition["blocking_findings"]:
+    # Actual Root authorization and a successful standalone owner ACL verification replace
+    # the old historical HOLD metadata. No READY field or incompatible checkout CLI is used.
+    auth_path = Path("/run/v4_api/runtime-authorization.json")
+    verified_path = Path("/run/v4_api/owner-setup-verification.json")
+    if not auth_path.is_file() or not verified_path.is_file():
         raise ValueError("V41_SQL_PROBE_RUNTIME_HOLD")
-    for item in definition["source_files"]:
-        path = ROOT / item["path"]
-        if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != item["sha256"]:
-            raise ValueError("EXACT_BACKEND_PROBE_BINDING_CHANGED")
+    from .owner_setup import authorization
+
+    auth = json.loads(private_bytes(auth_path))
+    authorization(auth)
+    verified = json.loads(private_bytes(verified_path))
+    if (
+        verified.get("action") != "verify-runtime"
+        or verified.get("status") != "VERIFIED"
+        or verified.get("image_id") != auth["test_image"]
+        or any(
+            verified.get(n) != auth[n]
+            for n in ("source_sha", "source_tree", "database", "project", "authorization_id")
+        )
+        or verified["result"].get("fingerprint_matches") is not True
+        or verified["result"].get("private_verifier_app_read") is not False
+    ):
+        raise ValueError("V41_SQL_PROBE_OWNER_VERIFICATION_REQUIRED")
 
 
 def load_input() -> tuple[DemoConfig, dict[str, Any]]:

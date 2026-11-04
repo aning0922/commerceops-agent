@@ -1,0 +1,12 @@
+{
+  "schema_version": "v41-fixed-owner-recipe-v1",
+  "helper": "tests/e2e/v41/owner_setup.py",
+  "actions": [
+    "activate-policy",
+    "grant-runtime",
+    "verify-runtime"
+  ],
+  "inside_program_sha256": "20718b7cb02763253c453f6703687d45ceeb666f3d93b9149318a3822c24636e",
+  "factory": "commerceops.entrypoints.api.create_app",
+  "revision": "0025_v41_catalog_operations"
+}
