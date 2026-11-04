@@ -27,8 +27,15 @@
   "models": {
     "api": "Sol high",
     "web": "Terra high",
-    "qa": "Sol medium",
+    "qa": "Sol high",
     "review": "Astra high",
-    "gates": "Sol medium"
+    "gates": "Sol high"
+  },
+  "remote_checkpoint": {
+    "branch": "codex/v41-control-20261104",
+    "status": "pending_first_push",
+    "mode": "push",
+    "ci": "not_requested",
+    "pull_request": "not_created"
   }
 }
