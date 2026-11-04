@@ -16,7 +16,7 @@ function validator(schema:'session'|'business',name:string){
 }
 export async function validated(response:Response,schema:'session'|'business',name:string){
  if(!response.ok())throw new Error('OWNED_RESPONSE_NOT_OK');
- const body=await response.json();if(!validator(schema,name)(body))throw new Error('OWNED_RESPONSE_SCHEMA_MISMATCH');return body;
+ let body;try{body=await response.json();}catch{throw new Error('OWNED_RESPONSE_INVALID_JSON');}if(!validator(schema,name)(body))throw new Error('OWNED_RESPONSE_SCHEMA_MISMATCH');return body;
 }
 export function sameScope(actual:Identity,expected:Identity,shopId:string|null){
  return actual.tenant_id===expected.tenant_id&&actual.organization_id===expected.organization_id&&actual.principal_id===expected.principal_id&&actual.reset_epoch===expected.reset_epoch&&actual.auth_generation===expected.auth_generation&&actual.shop_id===shopId;
@@ -57,7 +57,7 @@ export async function installBusinessJournal(page:Page,api:string,writer:Subject
 export async function safeSession(page:Page,api:string){
  const safe=await page.evaluate(async endpoint=>{
   const response=await fetch(endpoint,{credentials:'include',cache:'no-store'});if(!response.ok)throw new Error('OWNED_SESSION_NOT_OK');
-  const value=await response.json(),data=value?.data,context=value?.context,source=data?.source;
+  let value;try{value=await response.json();}catch{throw new Error('OWNED_SESSION_INVALID');}const data=value?.data,context=value?.context,source=data?.source;
   if(!data||!context||!source||typeof data.csrf_token!=='string'||!Array.isArray(data.shops))throw new Error('OWNED_SESSION_INVALID');
   return {schema_version:value.schema_version,server_time:value.server_time,trace_id:value.trace_id,status:value.status,
    context:{tenant_id:context.tenant_id,organization_id:context.organization_id,principal_id:context.principal_id,shop_id:context.shop_id,reset_epoch:context.reset_epoch,auth_generation:context.auth_generation,authorized_at:context.authorized_at},
@@ -79,7 +79,7 @@ export async function installSessionRegistration(page:Page,api:string,writer:Sub
    const response=await original(...args),input=args[0],init=args[1],url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url,location.href);
    const method=(init?.method??(input instanceof Request?input.method:'GET')).toUpperCase();
    if(url.origin===origin&&url.pathname==='/api/v4/demo/sessions'&&method==='POST'&&response.ok){
-    const value=await response.clone().json(),ctx=value?.context,shops=value?.data?.session?.shops;
+    let value;try{value=await response.clone().json();}catch{throw new Error('SESSION_SUBJECT_INVALID');}const ctx=value?.context,shops=value?.data?.session?.shops;
     if(!ctx||!Array.isArray(shops)||shops.length>2)throw new Error('SESSION_SUBJECT_INVALID');
     const context={tenant_id:ctx.tenant_id,organization_id:ctx.organization_id,principal_id:ctx.principal_id,reset_epoch:ctx.reset_epoch,auth_generation:ctx.auth_generation};
     const record=(window as unknown as {__v41_record_actual_subject:(v:{context:typeof context;shops:string[]})=>Promise<void>}).__v41_record_actual_subject;
