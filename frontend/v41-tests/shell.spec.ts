@@ -19,7 +19,7 @@ test('mobile menu traps focus, closes on Escape and static routes stay honest',a
   await page.setViewportSize({width:390,height:844});
   await page.goto('/v4/products/import');
   await expect(page.getByText('商品导入',{exact:true})).toBeVisible();
-  await expect(page.getByText('导入服务待接入',{exact:true})).toBeVisible();
+  await expect(page.getByText('导入演示商品',{exact:true})).toBeVisible();
   const opener=page.getByRole('button',{name:'打开业务导航'});
   await opener.click();
   const menu=page.getByRole('dialog',{name:'业务导航菜单'});
@@ -45,5 +45,5 @@ test('business workspaces show clear pending states without invented data or act
   await expect(page.getByRole('button',{name:'筛选'})).toBeDisabled();
   await page.goto('/v4/products/import');
   await expect(page.getByRole('heading',{name:'导入商品'})).toBeVisible();
-  await expect(page.getByRole('button',{name:'选择文件'})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'上传并预览'})).toBeDisabled();
 });

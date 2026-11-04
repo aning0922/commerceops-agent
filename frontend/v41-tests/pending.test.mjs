@@ -42,3 +42,19 @@ test('preview reference survives a failed pending removal and can be reconciled 
  assert.equal(finishV41Preview(s,session,response),false);assert.equal(loadV41Pending(s).state,'pending');assert.equal(loadV41Preview(s).state,'ready');
  s.removeItem=remove;assert.equal(finishV41Preview(s,session,response),true);assert.equal(loadV41Pending(s).state,'empty');
 });
+test('mapping creates a bound next preview and stale revision or lineage cannot replace the previous reference',()=>{
+ const s=storage(),initial={...fixture(),operation:'import_preview',resource_id:null,file_digest:'c'.repeat(64),parent_job_id:null};
+ const session={context:initial.context,data:{shops:[{shop_id:initial.shop_id,grants:['operator']}]}};
+ const job={import_job_id:randomUUID(),version:1,parent_job_id:null,job_digest:'d'.repeat(64),data_revision:initial.revision,parser_version:'v41-parser-1',import_schema_version:'v41-import-1',expires_at:'2026-11-03T00:10:00Z'};
+ const preview={job,state:'DISCOVERED',file_digest:initial.file_digest,mapping:null,headers:['sku','title','price','currency'],sample:[],issues:[],row_count:1,issue_count:0,confirmable:false};
+ const response={status:'OK',server_time:'2026-11-03T00:00:00Z',context:{...initial.context,shop_id:initial.shop_id},data:preview};
+ assert.equal(reserveV41Pending(s,initial),true);assert.equal(finishV41Preview(s,session,response),true);
+ const next={...initial,request_key:randomUUID(),parent_job_id:job.import_job_id,version:1};assert.equal(reserveV41Pending(s,next),true);
+ const nextJob={...job,import_job_id:randomUUID(),parent_job_id:job.import_job_id,version:2};
+ const child={...preview,job:nextJob};
+ assert.equal(finishV41Preview(s,session,{...response,data:{...child,job:{...nextJob,data_revision:'f'.repeat(64)}}}),false);
+ assert.equal(loadV41Preview(s).value.job.import_job_id,job.import_job_id);
+ assert.equal(finishV41Preview(s,session,{...response,data:{...child,job:{...nextJob,parent_job_id:randomUUID()}}}),false);
+ assert.equal(finishV41Preview(s,session,{...response,data:child}),true);
+ assert.equal(loadV41Preview(s).value.job.import_job_id,nextJob.import_job_id);assert.equal(loadV41Pending(s).state,'empty');
+});

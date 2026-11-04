@@ -1,7 +1,7 @@
 import {resolveV41Route} from '../../lib/v41-routes';
 import styles from './business-pending.module.css';
 import {TagControls,FulfillmentControls} from './write-controls';
-import {ImportFlow} from './import-flow';
+import {ImportFlow,type ImportMapping,type ImportPreview} from './import-flow';
 
 export type DashboardData = {
   snapshot:{data_revision:string;read_at:string;source:{data_mode:string;fixture_version:string;baseline_snapshot_at:string}};
@@ -14,7 +14,7 @@ export type DashboardData = {
 export type CatalogData={snapshot:{data_revision:string;snapshot_id:string;source:{data_mode:string;fixture_version:string;baseline_snapshot_at:string};read_at:string};items:CatalogItem[];total:number;next_cursor:string|null};
 export type CatalogItem={product_id?:string;order_id?:string;version?:number;title?:string;tags?:string[];skus?:{sku_id:string;label:string;price:string;currency:string;available_units:number|null}[];created_at?:string;paid_at?:string|null;payment_status?:string;demo_fulfillment?:string;fulfillment_version?:number;lines?:{line_id:string;product_id:string;sku_id:string;quantity:number;net_amount:string;currency:string}[];refunds?:{refund_id:string;occurred_at:string;amount:string;currency:string;payment_gateway_status:string}[];source:{data_mode:string}};
 export type CatalogDetailData={snapshot:CatalogData['snapshot'];product?:CatalogItem;order?:CatalogItem;related_order_ids?:string[]};
-type CatalogProps={data:CatalogData|null;state:'idle'|'loading'|'error';enabled:boolean;scopeToken:string;canWrite:boolean;writeBusy:boolean;onTags:(tags:string[])=>void;onFulfill:()=>void;exportState:'idle'|'loading'|'error';onExport:()=>void;detail:CatalogDetailData|null;detailState:'idle'|'loading'|'error';previous:boolean;onSearch:(q:string)=>void;onNext:()=>void;onPrevious:()=>void};
+type CatalogProps={data:CatalogData|null;state:'idle'|'loading'|'error';enabled:boolean;scopeToken:string;preview:ImportPreview|null;hasPreviewReference:boolean;canConfirmImport:boolean;onDiscover:(file:File)=>void;onMap:(file:File,mapping:ImportMapping)=>void;onReadPreview:()=>void;onConfirmImport:()=>void;canWrite:boolean;writeBusy:boolean;onTags:(tags:string[])=>void;onFulfill:()=>void;exportState:'idle'|'loading'|'error';onExport:()=>void;detail:CatalogDetailData|null;detailState:'idle'|'loading'|'error';previous:boolean;onSearch:(q:string)=>void;onNext:()=>void;onPrevious:()=>void};
 const metricLabels:Record<string,string>={paid_order_amount:'已支付金额',paid_order_count:'已支付订单',created_order_count:'订单创建数',refund_event_amount:'退款事件金额'};
 
 function PageHeader({eyebrow,title,description,status="数据服务待接入"}:{eyebrow:string;title:string;description:string;status?:string}) {
@@ -65,7 +65,7 @@ function DetailBody({data,kind,catalog}:{data:CatalogDetailData;kind:'product'|'
 function ImportPending({catalog}:{catalog:CatalogProps}) {
   return <section className={styles.workspace} aria-label="商品导入">
     <PageHeader eyebrow="IMPORT · 数据导入" title="导入商品" description="上传文件后，先预览与映射字段，再确认导入当前演示店铺。"/>
-    <p role="status">导入服务待接入</p><ImportFlow key={catalog.scopeToken} enabled={false} busy={false} preview={null} hasReference={false} onDiscover={()=>{}} onMap={()=>{}} onRead={()=>{}} onConfirm={()=>{}}/>
+    <ImportFlow key={catalog.scopeToken} identityActive={!!catalog.scopeToken} enabled={catalog.canWrite&&!!catalog.data} busy={catalog.writeBusy} preview={catalog.preview} hasReference={catalog.hasPreviewReference} canConfirm={catalog.canConfirmImport} onDiscover={catalog.onDiscover} onMap={catalog.onMap} onRead={catalog.onReadPreview} onConfirm={catalog.onConfirmImport}/>
   </section>;
 }
 export function BusinessPending({pathname,dashboard,dashboardState,catalog}:{pathname:string;dashboard:DashboardData|null;dashboardState:'idle'|'loading'|'error';catalog:CatalogProps}) {

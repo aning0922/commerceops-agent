@@ -1,15 +1,16 @@
 'use client';
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {validMapping} from '../../lib/v41-import.mjs';
 import styles from './business-pending.module.css';
 
 export type ImportJob={import_job_id:string;version:number;parent_job_id:string|null;job_digest:string;data_revision:string;parser_version:'v41-parser-1';import_schema_version:'v41-import-1';expires_at:string};
 export type ImportMapping={sku:string;title:string;price:string;currency:string;tags:string|null};
 export type ImportPreview={job:ImportJob;state:'DISCOVERED'|'READY'|'INVALID'|'SUPERSEDED'|'COMMITTED';file_digest:string;mapping:ImportMapping|null;headers:string[];sample:{row:number;cells:string[]}[];row_count:number;issue_count:number;issues:{row:number;column:string|null;code:string}[];confirmable:boolean};
-export function ImportFlow({enabled,busy,preview,hasReference,onDiscover,onMap,onRead,onConfirm}:{enabled:boolean;busy:boolean;preview:ImportPreview|null;hasReference:boolean;onDiscover:(file:File)=>void;onMap:(file:File,mapping:ImportMapping)=>void;onRead:()=>void;onConfirm:()=>void}) {
+export function ImportFlow({enabled,identityActive,busy,preview,hasReference,canConfirm,onDiscover,onMap,onRead,onConfirm}:{enabled:boolean;identityActive:boolean;busy:boolean;preview:ImportPreview|null;hasReference:boolean;canConfirm:boolean;onDiscover:(file:File)=>void;onMap:(file:File,mapping:ImportMapping)=>void;onRead:()=>void;onConfirm:()=>void}) {
   const [file,setFile]=useState<File|null>(null),[mapping,setMapping]=useState<ImportMapping>({sku:'',title:'',price:'',currency:'',tags:null}),[confirm,setConfirm]=useState(false);
-  useEffect(()=>{setFile(null);setMapping({sku:'',title:'',price:'',currency:'',tags:null});setConfirm(false);},[enabled]);
-  useEffect(()=>{if(preview?.mapping)setMapping(preview.mapping);setConfirm(false);},[preview?.job.import_job_id]);
+  const previousJob=useRef<string|null>(null);
+  useEffect(()=>{if(!identityActive){setFile(null);setMapping({sku:'',title:'',price:'',currency:'',tags:null});setConfirm(false);previousJob.current=null;}},[identityActive]);
+  useEffect(()=>{if(preview && preview.job.import_job_id!==previousJob.current){if(preview.mapping)setMapping(preview.mapping);setConfirm(false);previousJob.current=preview.job.import_job_id;}},[preview]);
   const fieldLabels={sku:'SKU',title:'商品名称',price:'价格',currency:'币种',tags:'标签（可选）'};
   return <div>
     <div className={styles.note}><strong>导入演示商品</strong><span>先预览和校验，再明确确认；不会写入真实店铺。</span></div>
@@ -23,7 +24,7 @@ export function ImportFlow({enabled,busy,preview,hasReference,onDiscover,onMap,o
       {file&&<button type="button" disabled={!enabled||busy||!validMapping(mapping,preview.headers)||preview.state==='COMMITTED'||preview.state==='SUPERSEDED'} onClick={()=>onMap(file,mapping)}>确认映射并重新预览</button>}
       <h4>安全样本</h4><div className={styles.tableScroll}><table><thead><tr><th>行</th>{preview.headers.map(header=><th key={header}>{header}</th>)}</tr></thead><tbody>{preview.sample.map(sample=><tr key={sample.row}><td>{sample.row}</td>{sample.cells.map((cell,index)=><td key={index}>{cell}</td>)}</tr>)}</tbody></table></div>
       <h4>质量问题</h4>{preview.issues.length?<ul>{preview.issues.map((issue,index)=><li key={`${issue.row}-${index}`}>第 {issue.row} 行 · {issue.column??'整行'} · {issue.code}</li>)}</ul>:<p>当前预览没有返回问题明细。</p>}
-      {!confirm?<button type="button" disabled={!enabled||busy||!preview.confirmable} onClick={()=>setConfirm(true)}>准备确认导入</button>:<div><p>确认将本次有效预览原子导入当前演示店铺；失败不应留下部分商品。</p><div className={styles.writeActions}><button type="button" disabled={busy} onClick={()=>setConfirm(false)}>取消</button><button type="button" disabled={!enabled||busy||!preview.confirmable} onClick={onConfirm}>确认导入</button></div></div>}
+      {!confirm?<button type="button" disabled={!enabled||busy||!preview.confirmable||!canConfirm} onClick={()=>setConfirm(true)}>{canConfirm?'准备确认导入':'确认接口待接入'}</button>:<div><p>确认将本次有效预览原子导入当前演示店铺；失败不应留下部分商品。</p><div className={styles.writeActions}><button type="button" disabled={busy} onClick={()=>setConfirm(false)}>取消</button><button type="button" disabled={!enabled||busy||!preview.confirmable} onClick={onConfirm}>确认导入</button></div></div>}
     </article>}
   </div>;
 }
