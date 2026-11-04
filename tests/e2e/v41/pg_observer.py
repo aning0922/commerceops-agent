@@ -56,6 +56,11 @@ def main() -> None:
             db.execute("BEGIN READ ONLY")
             db.execute("SET LOCAL statement_timeout='5s'")
             db.execute("SET LOCAL lock_timeout='1s'")
+            execution_identity = row(
+                db.execute("SELECT current_user AS role,current_database() AS database").fetchone()
+            )
+            if execution_identity != {"role": "commerceops_owner", "database": settings.name}:
+                raise ValueError("ACTUAL_OWNED_CATALOG_ROLE_REQUIRED")
             revision = row(
                 db.execute("SELECT version_num FROM business.alembic_version").fetchone()
             )["version_num"]
@@ -67,7 +72,11 @@ def main() -> None:
             ).fetchall()
             if {r["table_name"] for r in rows} != set(SCHEMA_TABLES):
                 raise ValueError("V41_TABLE_SET_MISMATCH")
-            value: dict[str, object] = {"revision": revision, "tables": sorted(SCHEMA_TABLES)}
+            value: dict[str, object] = {
+                "revision": revision,
+                "tables": sorted(SCHEMA_TABLES),
+                "execution_identity": execution_identity,
+            }
             policy_count = row(
                 db.execute("SELECT count(*) AS count FROM business.v41_security_policy").fetchone()
             )["count"]

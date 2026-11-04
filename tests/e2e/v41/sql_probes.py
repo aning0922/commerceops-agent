@@ -7,6 +7,8 @@ import argparse
 import hashlib
 import importlib
 import json
+import re
+import secrets
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -21,7 +23,7 @@ from psycopg import sql
 from psycopg.types.json import Jsonb
 
 from .final_facts import IDENTITY
-from .pg_observer import TABLES
+from .pg_observer import SCHEMA_TABLES, TABLES
 
 ROOT = Path(__file__).resolve().parents[3]
 INPUT = Path("/run/v4_api/v41-probe.private.json")
@@ -47,6 +49,9 @@ def load_input() -> tuple[DemoConfig, dict[str, Any]]:
     value = json.loads(private_bytes(INPUT))
     fields = {
         "schema",
+        "owner_catalog",
+        "source_sha",
+        "source_tree",
         "scope",
         "resource_id",
         "body",
@@ -90,7 +95,32 @@ def load_input() -> tuple[DemoConfig, dict[str, Any]]:
         "v4_demo_v41_"
     ):
         raise ValueError("NEW_V41_APP_ROLE_REQUIRED")
+    validate_owner_catalog(
+        value["owner_catalog"], config.web.database.name, value["source_sha"], value["source_tree"]
+    )
     return config, dict(value)
+
+
+def validate_owner_catalog(catalog: dict[str, Any], database: str, source: str, tree: str) -> None:
+    if (
+        type(catalog.get("native_exit")) is not int
+        or catalog["native_exit"] != 0
+        or catalog.get("source_sha") != source
+        or catalog.get("source_tree") != tree
+        or re.fullmatch(r"[a-f0-9]{40}", source) is None
+        or re.fullmatch(r"[a-f0-9]{40}", tree) is None
+        or re.fullmatch(r"[a-f0-9]{64}", catalog.get("stdout_sha256", "")) is None
+    ):
+        raise ValueError("ROOT_OWNER_CATALOG_RECEIPT_REQUIRED")
+    result = catalog["result"]
+    if (
+        result.get("execution_identity") != {"role": "commerceops_owner", "database": database}
+        or result.get("revision") != "0025_v41_catalog_operations"
+        or result.get("tables") != sorted(SCHEMA_TABLES)
+        or type(result.get("global_policy_rows")) is not int
+        or result["global_policy_rows"] != 1
+    ):
+        raise ValueError("ROOT_OWNER_CATALOG_SCHEMA_BINDING_MISMATCH")
 
 
 def identity(db: Any, value: dict[str, Any]) -> dict[str, Any]:
@@ -100,10 +130,6 @@ def identity(db: Any, value: dict[str, Any]) -> dict[str, Any]:
         "v4_demo_v41_"
     ):
         raise ValueError("ACTUAL_APP_ROLE_REQUIRED")
-    if db.execute("SELECT version_num FROM business.alembic_version").fetchone() != {
-        "version_num": "0025_v41_catalog_operations"
-    }:
-        raise ValueError("V41_SQL_PROBE_SCHEMA_REQUIRED")
     scope = value["scope"]
     rows = db.execute(
         "SELECT s.id,s.bound_web_session_id,s.principal_id,s.reset_epoch,s.auth_generation,"
@@ -258,12 +284,12 @@ def binding_stop_attack(config: DemoConfig, value: dict[str, Any]) -> dict[str, 
         ).fetchone()
         if count(
             db,
-            "SELECT count(*) AS n FROM business.v41_import_jobs "
-            "WHERE tenant_id=%s AND parse_state<>'STOPPED'",
-            (scope["tenant_id"],),
+            "SELECT count(*) AS n FROM business.v41_import_jobs WHERE parse_state<>'STOPPED'",
+            (),
         ):
-            raise ValueError("EMPTY_NEW_TENANT_PARSER_CAPACITY_REQUIRED")
-        chosen = "qa-forged-binding-" + uuid4().hex
+            raise ValueError("EMPTY_NEW_OWNED_PARSER_CAPACITY_REQUIRED")
+        chosen = secrets.token_urlsafe(32)
+        forged = chosen + "." + secrets.token_urlsafe(32)
         lease, process_ref = uuid4().hex, uuid4()
         try:
             db.execute("SAVEPOINT anchor_attack")
@@ -274,14 +300,15 @@ def binding_stop_attack(config: DemoConfig, value: dict[str, Any]) -> dict[str, 
                 ).fetchall()
                 if len(changed) != 1:
                     raise ValueError("ATTACK_TARGET_NOT_PRESENT")
-                findings.append("LOW_PRIVILEGE_BINDING_ANCHOR_WRITABLE")
-                observations.append({"stage": "binding_anchor", "denied": False})
+                # The accepted S04 design retains this legacy permission; the second MAC
+                # must independently block a well-shaped forged invocation.
+                observations.append({"stage": "legacy_anchor", "writable": True})
             except psycopg.Error as error:
                 db.execute("ROLLBACK TO SAVEPOINT anchor_attack")
                 if error.sqlstate not in {"42501", "23514"}:
                     raise ValueError("ATTACK_DENIAL_UNCLASSIFIED") from None
                 observations.append(
-                    {"stage": "binding_anchor", "denied": True, "sqlstate": error.sqlstate}
+                    {"stage": "legacy_anchor", "writable": False, "sqlstate": error.sqlstate}
                 )
             db.execute("SAVEPOINT forged_reserve")
             try:
@@ -302,7 +329,7 @@ def binding_stop_attack(config: DemoConfig, value: dict[str, Any]) -> dict[str, 
                     (
                         value["bearer"],
                         value["csrf"],
-                        chosen,
+                        forged,
                         canonical,
                         hashlib.sha256(lease.encode()).hexdigest(),
                         process_ref,
@@ -311,7 +338,8 @@ def binding_stop_attack(config: DemoConfig, value: dict[str, Any]) -> dict[str, 
                 if job is None:
                     raise ValueError("ATTACK_RESERVE_RETURN_MISSING")
                 findings.append("FORGED_BINDING_RESERVED_JOB")
-                # No parser was spawned. Fabricated proof must never free capacity.
+                # Only reached after an unauthorized reserve: preserving the original
+                # exploit chain, not expecting SQL to detect a trusted lease holder lying.
                 fake = {
                     "process_ref": str(process_ref),
                     "pid": 2147480000,
@@ -341,7 +369,7 @@ def binding_stop_attack(config: DemoConfig, value: dict[str, Any]) -> dict[str, 
                     )
             except psycopg.Error as error:
                 db.execute("ROLLBACK TO SAVEPOINT forged_reserve")
-                if error.sqlstate not in {"42501", "23514"}:
+                if error.sqlstate != "23514" or error.diag.message_primary != "SESSION_INVALID":
                     raise ValueError("ATTACK_RESERVE_DENIAL_UNCLASSIFIED") from None
                 observations.append(
                     {"stage": "forged_reserve", "denied": True, "sqlstate": error.sqlstate}
@@ -360,7 +388,7 @@ def binding_stop_attack(config: DemoConfig, value: dict[str, Any]) -> dict[str, 
         "observations": observations,
         "before": before,
         "after": after,
-        "status": "REJECTED_ATTACKS_ONLY" if not findings else "FAILED_ATTACK_ACCEPTED",
+        "status": "FORGED_RESERVE_REJECTED" if not findings else "FAILED_ATTACK_ACCEPTED",
         "live_child_stop": "NOT_RUN_SEPARATE_FIXTURE_REQUIRED",
         "parent_death": "NOT_RUN_SEPARATE_FIXTURE_REQUIRED",
     }

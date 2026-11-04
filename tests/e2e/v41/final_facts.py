@@ -215,7 +215,9 @@ def preview_state(attempt: dict[str, Any], rows: list[dict[str, Any]]) -> str:
         raise ValueError("FINAL_PREVIEW_KEY_NOT_UNIQUE")
     if "SQL_ROLLBACK_VERIFIED" in attempt["observations"] and rows:
         raise ValueError("FINAL_ROLLED_BACK_PREVIEW_PERSISTED")
-    if "COMMITTED_READBACK" in attempt["observations"] and (not rows or not rows[0]["published"]):
+    if {"ACK_COMMITTED", "COMMITTED_READBACK"}.intersection(attempt["observations"]) and (
+        not rows or not rows[0]["published"]
+    ):
         raise ValueError("FINAL_PUBLISHED_PREVIEW_READBACK_MISSING")
     return "PUBLISHED" if rows and rows[0]["published"] else "UNKNOWN"
 

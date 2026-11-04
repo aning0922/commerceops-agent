@@ -52,10 +52,12 @@ def test_effect_summary_is_order_stable_and_binds_object_payload_and_operation()
 
 
 @pytest.mark.parametrize("rows", [[], [{"published": False}]])
+@pytest.mark.parametrize("commitment", ["ACK_COMMITTED", "COMMITTED_READBACK"])
 def test_committed_preview_readback_cannot_disappear_into_unknown(
     rows: list[dict[str, bool]],
+    commitment: str,
 ) -> None:
-    attempt = {"observations": ["ATTEMPT_STARTED", "ACK_OK", "COMMITTED_READBACK"]}
+    attempt = {"observations": ["ATTEMPT_STARTED", commitment]}
     original = copy.deepcopy(attempt)
     with pytest.raises(ValueError, match="FINAL_PUBLISHED_PREVIEW_READBACK_MISSING"):
         preview_state(attempt, rows)
@@ -64,6 +66,7 @@ def test_committed_preview_readback_cannot_disappear_into_unknown(
 
 def test_unconfirmed_preview_unknown_and_actual_published_stay_distinct() -> None:
     attempt = {"observations": ["ATTEMPT_STARTED", "ACK_UNKNOWN", "UNKNOWN_READBACK"]}
+    assert preview_state({"observations": ["ATTEMPT_STARTED", "ACK_OK"]}, []) == "UNKNOWN"
     assert preview_state(attempt, []) == "UNKNOWN"
     assert preview_state(attempt, [{"published": False}]) == "UNKNOWN"
     assert (

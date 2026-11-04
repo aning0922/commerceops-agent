@@ -2,6 +2,7 @@
 
 import argparse
 import base64
+import hashlib
 import io
 import json
 import subprocess
@@ -120,6 +121,7 @@ class Business:
     ) -> None:
         self.visitor, self.case, self.compose, self.budget = visitor, case, compose, budget
         self.unique_product_id: str | None = None
+        self.last_owner_observation: dict[str, Any] | None = None
         if visitor.current is None:
             raise ValueError("actual current demo identity required")
         self.shop = visitor.current["data"]["shops"][0]
@@ -299,6 +301,13 @@ class Business:
             type(n) is not int or n < 0 for n in counts.values()
         ):
             raise ValueError("V41_PG_COUNTS_INVALID")
+        self.last_owner_observation = {
+            "native_exit": result.returncode,
+            "source_sha": self.case.source_sha,
+            "source_tree": self.case.source_tree,
+            "stdout_sha256": hashlib.sha256(result.stdout.encode()).hexdigest(),
+            "result": value,
+        }
         return counts
 
 

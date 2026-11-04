@@ -44,6 +44,9 @@ def run_probes(business: Business) -> None:
         for n in ("tenant_id", "organization_id", "principal_id", "reset_epoch", "auth_generation")
     }
     scope["shop_id"] = business.shop["shop_id"]
+    business.facts()  # Owner-only actual catalog binding; app never reads alembic_version.
+    if business.last_owner_observation is None:
+        raise ValueError("ACTUAL_OWNER_CATALOG_BINDING_REQUIRED")
     directory = Path(business.case.directory)
     path = directory / "api/v41-probe.private.json"
     token = business.visitor.client.cookies.get("commerceops_v4_demo")
@@ -54,6 +57,9 @@ def run_probes(business: Business) -> None:
         json.dumps(
             {
                 "schema": "v41-sql-probe-1",
+                "owner_catalog": business.last_owner_observation,
+                "source_sha": business.case.source_sha,
+                "source_tree": business.case.source_tree,
                 "scope": scope,
                 "resource_id": product["product_id"],
                 "body": body,
@@ -114,7 +120,7 @@ def run_probes(business: Business) -> None:
             if facts["scope"] != scope or facts["before"] != facts["after"]:
                 raise AssertionError("SQL_PROBE_SCOPE_OR_ROLLBACK_MISMATCH")
             if action == "binding-stop-attack":
-                if facts["findings"] or facts["status"] != "REJECTED_ATTACKS_ONLY":
+                if facts["findings"] or facts["status"] != "FORGED_RESERVE_REJECTED":
                     raise AssertionError("SQL_ATTACK_ACCEPTED")
                 operation, original_key = "preview", preview["request_key"]
             else:
