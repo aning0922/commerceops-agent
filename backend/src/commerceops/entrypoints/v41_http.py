@@ -176,6 +176,15 @@ async def command_model[T: Contract](request: Request, model: type[T]) -> T:
     return model.model_validate_json(bytes(data))
 
 
+def query_parameters(model: type[Contract]) -> list[dict[str, Any]]:
+    schema = model.model_json_schema()
+    required = schema.get("required", [])
+    return [
+        dict(name=name, required=name in required, **{"in": "query"}, schema=field)
+        for name, field in schema["properties"].items()
+    ]
+
+
 def _router(store: BusinessStore) -> APIRouter:
     router = APIRouter(prefix="/api/v4", route_class=BusinessRoute)
 
@@ -211,7 +220,8 @@ def _router(store: BusinessStore) -> APIRouter:
                 methods=["GET"],
                 response_model=response,
                 openapi_extra={
-                    "parameters": [
+                    "parameters": query_parameters(query_type)
+                    + [
                         dict(
                             name=name,
                             required=True,
@@ -231,7 +241,13 @@ def _router(store: BusinessStore) -> APIRouter:
                 )
                 return reply(response, data)
 
-            router.add_api_route(path, get, methods=["GET"], response_model=response)
+            router.add_api_route(
+                path,
+                get,
+                methods=["GET"],
+                response_model=response,
+                openapi_extra={"parameters": query_parameters(query_type)},
+            )
 
     # Fixed export paths must precede UUID detail routes.
     get_route("/dashboard", "dashboard", dto.PeriodQuery, dto.BusinessEnvelope[dto.DashboardData])
@@ -323,6 +339,7 @@ def _router(store: BusinessStore) -> APIRouter:
     @router.get(
         "/imports/preview-requests/{request_key}",
         response_model=dto.BusinessEnvelope[dto.PreviewLookup],
+        openapi_extra={"parameters": query_parameters(dto.Query)},
     )
     async def preview_request(request: Request, request_key: UUID) -> JSONResponse:
         query = query_model(request, dto.Query)
@@ -333,7 +350,9 @@ def _router(store: BusinessStore) -> APIRouter:
         return reply(dto.BusinessEnvelope[dto.PreviewLookup], data)
 
     @router.get(
-        "/imports/{import_job_id}", response_model=dto.BusinessEnvelope[dto.ImportPreviewData]
+        "/imports/{import_job_id}",
+        response_model=dto.BusinessEnvelope[dto.ImportPreviewData],
+        openapi_extra={"parameters": query_parameters(dto.Query)},
     )
     async def import_job(request: Request, import_job_id: UUID) -> JSONResponse:
         query = query_model(request, dto.Query)

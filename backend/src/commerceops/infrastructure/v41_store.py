@@ -39,7 +39,7 @@ from commerceops.infrastructure.v4_demo_sessions import (
 )
 from commerceops.infrastructure.v41_parse import run_parser
 from commerceops.infrastructure.v41_security import assert_policy, binding_proof
-from commerceops.infrastructure.web_sessions import now, role_scope
+from commerceops.infrastructure.web_sessions import now
 
 ReadKind = Literal[
     "dashboard",
@@ -100,15 +100,18 @@ class BusinessStore:
         if s["auth_generation"] != generation:
             raise WebFailure("GENERATION_CHANGED", 409)
         binding = binding_proof(self.config, s["bound_web_session_id"])
-        row = db.execute(
-            "SELECT business.v41_read_guard(%s,%s,%s,%s,%s) AS data_revision",
-            (token, binding, shop, epoch, generation),
-        ).fetchone()
-        assert_policy(db, self.config)  # The SQL guard holds the current policy row SHARE lock.
         if writing:
             self.sessions.supplied_csrf(s, csrf)
-            if not role_scope(db, subject.actor, shop, "operator"):
-                raise WebFailure("ACCESS_DENIED", 403)
+            row = db.execute(
+                "SELECT business.v41_write_guard(%s,%s,%s,%s,%s,%s) AS data_revision",
+                (token, csrf, binding, shop, epoch, generation),
+            ).fetchone()
+        else:
+            row = db.execute(
+                "SELECT business.v41_read_guard(%s,%s,%s,%s,%s) AS data_revision",
+                (token, binding, shop, epoch, generation),
+            ).fetchone()
+        assert_policy(db, self.config)  # The SQL guard holds the current policy row SHARE lock.
         if row is None:
             raise WebFailure("SERVICE_UNAVAILABLE", 503)
         return LockedScope(subject, binding, row["data_revision"])
@@ -116,6 +119,8 @@ class BusinessStore:
     @staticmethod
     def _reply(db: DB, guard: LockedScope, shop: UUID, data: Contract) -> dict[str, Any]:
         stamp = now(db)
+        if stamp >= min(guard.identity.session["expires_at"], guard.identity.tenant["expires_at"]):
+            raise WebFailure("SESSION_INVALID", 401)
         return dict(server_time=stamp, context=guard.identity.context(stamp, shop), data=data)
 
     @staticmethod

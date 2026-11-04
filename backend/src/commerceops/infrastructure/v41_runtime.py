@@ -16,6 +16,7 @@ TABLES = (
     "import_jobs",
 )
 RUNTIME = (
+    "v41_write_guard(text,text,text,uuid,bigint,bigint)",
     "v41_read_guard(text,text,uuid,bigint,bigint)",
     "v41_apply_action(text,text,text,text,text,uuid)",
     "v41_reserve_preview(text,text,text,text,text,uuid)",

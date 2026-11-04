@@ -236,6 +236,25 @@ LANGUAGE sql STABLE SET search_path=pg_catalog,business AS $$
   ) e),'[]'::jsonb))) FROM business.v4_demo_tenants t WHERE t.id=tid AND t.reset_epoch=epoch
 $$;
 
+-- Caller holds the principal SHARE lock. The existing p3_revoke_scope trigger on
+-- credentials/scopes/grants must acquire principal UPDATE and advance auth_version before
+-- committing any change. Read their committed predicates here without taking reverse tuple
+-- locks: a pending revocation linearizes after this transaction; a committed one is rejected.
+CREATE FUNCTION business.v41_permission(actor uuid,org uuid,shop uuid,identity uuid,
+ auth bigint,requested_role text) RETURNS boolean LANGUAGE sql STABLE
+SET search_path=pg_catalog,business AS $$
+ SELECT EXISTS(SELECT 1 FROM business.principals p
+ JOIN business.identities i ON i.principal_id=p.id AND i.organization_id=p.organization_id
+ JOIN business.web_credentials c ON c.identity_id=i.id AND c.principal_id=p.id
+  AND c.organization_id=p.organization_id
+ JOIN business.principal_shop_scopes s ON s.principal_id=p.id
+  AND s.organization_id=p.organization_id
+ JOIN business.principal_role_shop_grants g ON g.principal_id=s.principal_id
+  AND g.organization_id=s.organization_id AND g.shop_id=s.shop_id
+ WHERE p.id=actor AND p.organization_id=org AND p.enabled AND p.auth_version=auth
+  AND requested_role=ANY(p.roles) AND i.id=identity AND i.provider='web' AND c.enabled
+  AND s.shop_id=shop AND s.enabled AND g.enabled AND g.role=requested_role)
+$$;
 CREATE FUNCTION business.v41_actor(bearer text,csrf text,binding text,shop uuid,epoch bigint,
  generation bigint,
  writing boolean) RETURNS business.v4_demo_sessions LANGUAGE plpgsql SECURITY DEFINER
@@ -282,7 +301,7 @@ BEGIN
   AND i.organization_id=t.organization_id AND i.principal_id=s.principal_id FOR SHARE;
  IF NOT FOUND THEN RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
  PERFORM 1 FROM business.web_credentials c WHERE c.identity_id=s.identity_id
-  AND c.organization_id=t.organization_id AND c.principal_id=s.principal_id AND c.enabled FOR SHARE;
+  AND c.organization_id=t.organization_id AND c.principal_id=s.principal_id AND c.enabled;
  IF NOT FOUND THEN RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
  SELECT * INTO policy FROM business.v41_security_policy WHERE singleton FOR SHARE;
  IF policy.singleton IS NULL THEN
@@ -294,9 +313,9 @@ BEGIN
   RAISE EXCEPTION 'CSRF_INVALID' USING ERRCODE='23514'; END IF;
  IF NOT EXISTS(SELECT 1 FROM business.v4_demo_shops m WHERE m.tenant_id=tid AND m.shop_id=shop)
  THEN RAISE EXCEPTION 'RESOURCE_NOT_FOUND' USING ERRCODE='23514'; END IF;
- allowed:=business.lock_p3_permission(p.id,t.organization_id,shop,s.identity_id,s.auth_version,
+ allowed:=business.v41_permission(p.id,t.organization_id,shop,s.identity_id,s.auth_version,
   'operator');
- IF NOT writing AND NOT allowed THEN allowed:=business.lock_p3_permission(p.id,t.organization_id,
+ IF NOT writing AND NOT allowed THEN allowed:=business.v41_permission(p.id,t.organization_id,
   shop,s.identity_id,s.auth_version,'approver'); END IF;
  IF NOT allowed THEN RAISE EXCEPTION 'ACCESS_DENIED' USING ERRCODE='23514'; END IF;
  RETURN s;
@@ -309,9 +328,19 @@ BEGIN
  s:=business.v41_actor(bearer,NULL,binding,shop,epoch,generation,false);
  RETURN business.v41_revision(s.tenant_id,shop,s.reset_epoch);
 END $$;
+CREATE FUNCTION business.v41_write_guard(bearer text,csrf text,binding text,shop uuid,epoch bigint,
+ generation bigint) RETURNS text LANGUAGE plpgsql SECURITY DEFINER
+SET search_path=pg_catalog,business AS $$
+DECLARE s business.v4_demo_sessions;
+BEGIN
+ s:=business.v41_actor(bearer,csrf,binding,shop,epoch,generation,true);
+ RETURN business.v41_revision(s.tenant_id,shop,s.reset_epoch);
+END $$;
 """
 
 SIGNATURES = (
+    "v41_permission(uuid,uuid,uuid,uuid,bigint,text)",
+    "v41_write_guard(text,text,text,uuid,bigint,bigint)",
     "v41_read_guard(text,text,uuid,bigint,bigint)",
     "v41_canonical(jsonb)",
     "v41_hash(jsonb)",
@@ -688,7 +717,7 @@ BEGIN
   effect_count,effect_digest)
  VALUES(gen_random_uuid(),s.tenant_id,org,shop,s.id,s.principal_id,s.reset_epoch,s.auth_generation,
   rid,operation,target,version,effect_count,summary->>'digest');
- IF NOT business.lock_p3_permission(s.principal_id,org,shop,s.identity_id,s.auth_version,
+ IF NOT business.v41_permission(s.principal_id,org,shop,s.identity_id,s.auth_version,
   'operator') THEN
   RAISE EXCEPTION 'ACCESS_DENIED' USING ERRCODE='23514'; END IF;
  IF clock_timestamp()>=s.expires_at THEN RAISE EXCEPTION 'SESSION_INVALID' USING
@@ -803,6 +832,9 @@ BEGIN
  IF TG_TABLE_NAME='v41_import_jobs' AND TG_OP='UPDATE' THEN
   IF NEW.preview_data IS NULL THEN RETURN NULL; END IF;
  END IF;
+ -- Also serialize owner-originated deferred checks with the same principal authority point.
+ PERFORM 1 FROM business.principals WHERE id=NEW.principal_id
+  AND organization_id=NEW.organization_id FOR SHARE;
  SELECT * INTO s FROM business.v4_demo_sessions WHERE id=NEW.owner_session_id AND
   tenant_id=NEW.tenant_id;
  SELECT * INTO t FROM business.v4_demo_tenants WHERE id=NEW.tenant_id;
@@ -825,7 +857,7 @@ BEGIN
    AND p.enabled AND c.enabled AND w.revoked_at IS NULL AND w.key_version=s.key_version
    AND least(w.absolute_expires_at,w.idle_expires_at)>clock_timestamp()
    AND greatest(w.absolute_expires_at,w.idle_expires_at)<=s.expires_at)
-  OR NOT business.lock_p3_permission(s.principal_id,t.organization_id,NEW.shop_id,
+  OR NOT business.v41_permission(s.principal_id,t.organization_id,NEW.shop_id,
    s.identity_id,s.auth_version,'operator') THEN
   RAISE EXCEPTION 'V41_COMMIT_AUTHORITY_INVALID' USING ERRCODE='23514'; END IF;
  IF TG_TABLE_NAME='v41_import_jobs' THEN
