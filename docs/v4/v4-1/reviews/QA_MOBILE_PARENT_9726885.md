@@ -45,3 +45,11 @@
 3. 父层只读核材料路径/权限/摘要及唯一对应关系，从原 POST key/bodyhash 和 readback resource/version/revision 找到同一对请求，再重算既有时间不等式，并与 summary 一致；缺失、重复、不同 scope/case、未知/非有限 timing 或无法唯一匹配一律不接纳。原始材料 hash 仅证明字节未漂移，真实性仍依赖精确受审的采样代码及后续真实 owned 运行，不称其为独立网络见证器。
 
 这是一份未实施方案，不自动扩展 QA 改动范围；待 Root/QA 确定精确材料契约。保持原 subjectWriter/registry 状态、journal 时点、业务 dispatch/读回、超时及运行窗口不变，不通过延迟、重放业务或改日志时点迎合校验。原 pending-before-POST 与批末 pending 为空继续保留；若另需逐项 pending 闭合证据，应另绑定实际边界采样，不能从事后 subject 事件推导。此次更正没有重跑组件或启动任何资源。
+
+## Root 最终核定：仅两项实证 P2，不新增串行 Gate
+
+2026-11-04 同日追加。当前有效结论为 `HOLD / TWO_CONFIRMED_P2_ONLY`：仅原第 2 项的原文件字节摘要/preview status 绑定和第 3 项的精确 scope/snapshot 来源绑定必须修复。原第 1 项的全局 journal 索引建议已正式撤回，不另立串行 Gate；前段 sidecar 提案未获采用、未实施，不再列为 pending、阻断或新增计划。保留前文仅为完整审查与纠错历史，不据其扩大验收范围。
+
+按 Root 核定，原 spec 的真实 Request/Response NativeTiming 严格不等式、精确受审采样代码、原 pending/CAS/fresh readback 以及最终逐 key PG 回执，共同作为本地串行证据。既有 NativeTiming 断言与父层字段校验继续保留，未知或不合法字段仍失败；不将这些证据表述为外部 wire 或独立网络抓包，也不以本次源码复核预签未来实际运行。原合同没有要求额外 raw sidecar，不能因已撤回的错误建议新增材料或门槛。
+
+QA 可专注第 2、3 项最小加固；未来实际运行如出现新的时序异常，再按新事实处理。本轮只追加这一核定记录，未更改组件、原 journal、既有 timing、业务流程或原始反例，未执行测试或启动资源。
