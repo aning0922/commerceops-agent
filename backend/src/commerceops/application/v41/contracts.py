@@ -460,6 +460,9 @@ class ImportJobRef(Contract):
     version: Annotated[int, Field(ge=1, le=5)]
     parent_job_id: UUID | None
     job_digest: Digest
+    data_revision: Digest
+    parser_version: Literal["v41-parser-1"] = "v41-parser-1"
+    import_schema_version: Literal["v41-import-1"] = "v41-import-1"
     expires_at: Timestamp
 
 
