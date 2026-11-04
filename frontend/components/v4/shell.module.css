@@ -8,3 +8,5 @@
 @media(max-width:760px){.sidebar{display:none}.header{height:60px;padding:0 16px;justify-content:flex-start}.menuTrigger{display:inline-block}.breadcrumb{min-width:0;flex:1}.breadcrumb span:first-child{display:none}.headerActions{gap:6px}.demoBadge{font-size:0;padding:8px}.assistantTrigger span{display:none}.assistantTrigger{font-size:17px;padding:7px 10px}}
 @media(prefers-reduced-motion:reduce){.shell *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .menuDialog .dialogHead strong{color:#f4f8ff}
+
+.assistantDialog{overflow-y:auto}.assistantBody a{color:#31598d}.assistantBody li{font-size:13px;line-height:1.6;overflow-wrap:anywhere}

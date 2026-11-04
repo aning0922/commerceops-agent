@@ -16,7 +16,7 @@ function Navigation({pathname, close}: {pathname:string; close?:()=>void}) {
     </a>)}
   </nav>;
 }
-export function Shell({pathname, children}:{pathname:string; children:ReactNode}) {
+export function Shell({pathname, children,assistantContent,onAssistantOpen,onAssistantClose}:{pathname:string; children:ReactNode;assistantContent?:ReactNode;onAssistantOpen?:()=>void;onAssistantClose?:()=>void}) {
   const menu = useRef<HTMLDialogElement>(null), assistant = useRef<HTMLDialogElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null), assistantButton = useRef<HTMLButtonElement>(null);
   const route = resolveV41Route(pathname);
@@ -31,7 +31,7 @@ export function Shell({pathname, children}:{pathname:string; children:ReactNode}
       <header className={styles.header}>
         <button className={styles.menuTrigger} ref={menuButton} type="button" aria-label="打开业务导航" onClick={()=>menu.current?.showModal()}>☰</button>
         <div className={styles.breadcrumb}><span>工作空间</span><span aria-hidden="true">/</span><strong>{route?.title ?? '演示'}</strong></div>
-        <div className={styles.headerActions}><span className={styles.demoBadge}><span/>合成演示</span><button ref={assistantButton} className={styles.assistantTrigger} type="button" onClick={()=>assistant.current?.showModal()}>✧ <span>智能助手</span></button></div>
+        <div className={styles.headerActions}><span className={styles.demoBadge}><span/>合成演示</span><button ref={assistantButton} className={styles.assistantTrigger} type="button" onClick={()=>{assistant.current?.showModal();onAssistantOpen?.();}}>✧ <span>智能助手</span></button></div>
       </header>
       {children}
     </div>
@@ -39,9 +39,9 @@ export function Shell({pathname, children}:{pathname:string; children:ReactNode}
       <div className={styles.dialogHead}><strong>业务导航</strong><button type="button" onClick={()=>menu.current?.close()} aria-label="关闭业务导航">×</button></div>
       <Navigation pathname={pathname} close={()=>menu.current?.close()}/>
     </dialog>
-    <dialog ref={assistant} className={styles.assistantDialog} onClose={()=>assistantButton.current?.focus()} aria-labelledby="v41-assistant-title">
+    <dialog ref={assistant} className={styles.assistantDialog} onClose={()=>{onAssistantClose?.();assistantButton.current?.focus();}} aria-labelledby="v41-assistant-title">
       <div className={styles.dialogHead}><div><span className={styles.assistantIcon}>✧</span><strong id="v41-assistant-title">智能助手</strong></div><button type="button" onClick={()=>assistant.current?.close()} aria-label="关闭智能助手">×</button></div>
-      <div className={styles.assistantBody}><span className={styles.label}>COPILOT</span><h2>在工作中获取帮助</h2><p>未来可在这里查看当前工作上下文与只读快捷入口。</p><div className={styles.disabledState}><strong>模型未启用</strong><p>此阶段尚未连接模型或工具。真实上下文接线后将在此显示。</p></div><p className={styles.helper}>演示数据仅供本地体验，不会发送至外部服务。</p></div>
+      <div className={styles.assistantBody}><span className={styles.label}>COPILOT</span><h2>在工作中获取帮助</h2><p>查看当前页面的授权事实与规则提示。</p><div className={styles.disabledState}><strong>模型未启用</strong><p>仅显示只读数据，不生成回答或执行操作。</p></div>{assistantContent}<p className={styles.helper}>演示数据仅供本地体验，不会发送至外部服务。</p></div>
     </dialog>
   </div>;
 }
