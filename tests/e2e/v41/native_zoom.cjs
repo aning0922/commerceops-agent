@@ -188,6 +188,7 @@ function selfTest() {
  *   currentShopId                      // that Shell's already selected/verified shop
  * });
  *
+ * Profile: <case.directory>/browser-tmp/playwright_chromiumdev_profile-native200
  * Fixed pages: /v4/dashboard and /v4/products. Fresh 0700 profile; no storage copy,
  * bootstrap, POST, logout or new visitor. The original Shell remains responsible
  * for logout AFTER this promise settles. Receipt:
@@ -312,7 +313,10 @@ async function run({case: ownedCase, browserRuntime, shell, currentShopId}) {
   const sourceBefore = sourceEvidence(ownedCase), toolsBefore = toolEvidence(browserRuntime);
   const directory = path.join(caseDir, 'native-zoom');
   fs.mkdirSync(directory, {mode: 0o700}); // EEXIST is a spent/new-case refusal, never replay.
-  const owned = paths(directory);
+  const browserTmp = path.join(caseDir, 'browser-tmp');
+  if (!fs.existsSync(browserTmp)) fs.mkdirSync(browserTmp, {mode: 0o700});
+  check(fs.realpathSync(browserTmp) === browserTmp && fs.statSync(browserTmp).isDirectory() && fs.statSync(browserTmp).uid === process.getuid() && (fs.statSync(browserTmp).mode & 0o777) === 0o700, 'NATIVE_OWNER_BROWSER_TMP_REQUIRED');
+  const owned = Object.freeze({...paths(directory), profile: path.join(browserTmp, 'playwright_chromiumdev_profile-native200')});
   for (const name of ['profile', 'extension', 'screenshots', 'processes']) fs.mkdirSync(owned[name], {mode: 0o700});
   writeNew(path.join(directory, 'execution.once'), 'ONE_NEW_SHELL_NATIVE_ZOOM_ATTEMPT\n');
   const extension = extensionFiles(webOrigin);
