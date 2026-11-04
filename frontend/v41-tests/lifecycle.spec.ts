@@ -102,3 +102,21 @@ test('UI_FIXTURE: old UNKNOWN survives logout while a verified new tenant can wr
  await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);
  await expect(page.getByRole('button',{name:'编辑标签'})).toBeEnabled();await expect(page.getByRole('dialog',{name:'商品详情'}).getByText('其他演示空间的未确认记录已保留；当前空间独立核对。')).toBeVisible();expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBe(preserved);expect(oldLookups).toBe(0);
 });
+
+test('UI_FIXTURE: session revalidation preserves unsaved tag input',async({page})=>{
+ await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:detail}}));
+ await openDetail(page);await page.getByRole('button',{name:'编辑标签'}).click();await page.getByLabel('标签（逗号分隔，最多 8 项）').fill('未提交的标签');
+ const reread=page.waitForResponse(response=>new URL(response.url()).pathname===`/api/v4/products/${product}`&&response.request().method()==='GET');
+ await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await reread;
+ await expect(page.getByLabel('标签（逗号分隔，最多 8 项）')).toHaveValue('未提交的标签');
+});
+
+test('UI_FIXTURE: session revalidation preserves fulfillment confirmation',async({page})=>{
+ const order={snapshot,order:{order_id:product,created_at:now,paid_at:now,payment_status:'payment_recorded',net_amount:'12',currency:'TWD',demo_fulfillment:'demo_unfulfilled',fulfillment_version:0,source:itemSource,lines:[{line_id:id,product_id:product,sku_id:id,quantity:1,net_amount:'12',currency:'TWD'}],refunds:[]}};
+ await fixture(page,route=>route.fulfill({json:{...business,context:{...identity,shop_id:id},data:order}}));
+ await page.goto(`/v4/orders/${product}`);await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);await page.getByRole('button',{name:'标记演示已履约'}).click();
+ await expect(page.getByRole('button',{name:'确认演示履约'})).toBeVisible();
+ const reread=page.waitForResponse(response=>new URL(response.url()).pathname===`/api/v4/orders/${product}`&&response.request().method()==='GET');
+ await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await reread;
+ await expect(page.getByRole('button',{name:'确认演示履约'})).toBeVisible();
+});
