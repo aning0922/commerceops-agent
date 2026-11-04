@@ -106,3 +106,41 @@ export function discardV41Preview(storage,session,shopId) {
     !Array.isArray(session?.data?.shops)||!session.data.shops.some(shop=>shop.shop_id===shopId&&Array.isArray(shop.grants)&&shop.grants.includes('operator')))return false;
   try{storage.removeItem(previewSlot);return storage.getItem(previewSlot)===null;}catch{return false;}
 }
+
+/** Bind business state to a freshly validated tenant without moving any legacy evidence. */
+export function scopedV41Storage(storage,session) {
+  if(!isSessionContext(session?.context))throw new Error('SESSION_NOT_VALIDATED');
+  const tenant=session.context.tenant_id.toLowerCase();
+  const namespacedPending=`${slot}:${tenant}`,namespacedPreview=`${previewSlot}:${tenant}`;
+  if(!Number.isSafeInteger(storage.length)||storage.length<0||typeof storage.key!=='function')throw new Error('STORAGE_BLOCKED');
+  for(let i=0;i<storage.length;i++){
+    const key=storage.key(i);if(typeof key!=='string')throw new Error('STORAGE_BLOCKED');
+    const base=key.startsWith(`${slot}:`)?slot:key.startsWith(`${previewSlot}:`)?previewSlot:null;if(!base)continue;
+    const owner=key.slice(base.length+1),raw=storage.getItem(key);let value;
+    try{value=JSON.parse(raw);}catch{throw new Error('STORAGE_BLOCKED');}
+    if(!uuid.test(owner)||owner!==owner.toLowerCase()||!(base===slot?valid(value):validPreviewRef(value))||value.context.tenant_id.toLowerCase()!==owner)throw new Error('STORAGE_BLOCKED');
+  }
+  const legacyPending=loadV41Pending(storage),legacyPreview=loadV41Preview(storage);
+  if(legacyPending.state==='blocked'||legacyPreview.state==='blocked')throw new Error('STORAGE_BLOCKED');
+  const inspect=(key,validator)=>{
+    const raw=storage.getItem(key);if(raw===null)return false;
+    let value;try{value=JSON.parse(raw);}catch{throw new Error('STORAGE_BLOCKED');}
+    if(!validator(value)||value.context.tenant_id.toLowerCase()!==tenant)throw new Error('STORAGE_BLOCKED');
+    return true;
+  };
+  const ownPending=inspect(namespacedPending,valid),ownPreview=inspect(namespacedPreview,validPreviewRef);
+  const legacyOwnPending=legacyPending.state==='pending'&&legacyPending.value.context.tenant_id.toLowerCase()===tenant;
+  const legacyOwnPreview=legacyPreview.state==='ready'&&legacyPreview.value.context.tenant_id.toLowerCase()===tenant;
+  if((legacyOwnPending&&ownPending)||(legacyOwnPreview&&ownPreview))throw new Error('STORAGE_BLOCKED');
+  const keys={[slot]:legacyOwnPending?slot:namespacedPending,[previewSlot]:legacyOwnPreview?previewSlot:namespacedPreview};
+  const keyFor=key=>{if(!Object.hasOwn(keys,key))throw new Error('STORAGE_BLOCKED');return keys[key];};
+  return {
+    getItem(key){return storage.getItem(keyFor(key));},
+    setItem(key,raw){
+      const target=keyFor(key);let value;try{value=JSON.parse(raw);}catch{throw new Error('STORAGE_BLOCKED');}
+      if(!(key===slot?valid(value):validPreviewRef(value))||value.context.tenant_id.toLowerCase()!==tenant)throw new Error('STORAGE_BLOCKED');
+      storage.setItem(target,raw);
+    },
+    removeItem(key){storage.removeItem(keyFor(key));},
+  };
+}

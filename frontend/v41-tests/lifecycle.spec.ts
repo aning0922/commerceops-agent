@@ -80,3 +80,25 @@ for(const width of [390,1440])test(`UI_FIXTURE: detail drawer opens and Escape r
  expect(await drawer.evaluate(element=>element.contains(document.activeElement))).toBe(true);
  await page.keyboard.press('Escape');await expect(page).toHaveURL(/\/v4\/products$/);
 });
+
+test('UI_FIXTURE: old UNKNOWN survives logout while a verified new tenant can write',async({page})=>{
+ const newTenant={...identity,tenant_id:other,organization_id:other,principal_id:other};let phase:'old'|'anonymous'|'new'='old',createdKey='',oldLookups=0;
+ await page.addInitScript(value=>sessionStorage.setItem('commerceops-v41-pending',JSON.stringify(value)),pending);
+ await fixture(page,route=>{
+  const path=new URL(route.request().url()).pathname;if(path.includes('/actions/'))oldLookups++;
+  return route.fulfill({json:{...business,context:{...(phase==='new'?newTenant:identity),shop_id:id},data:detail}});
+ });
+ await page.route('**/api/v4/demo/**',cors(async route=>{
+  const path=new URL(route.request().url()).pathname,current=phase==='new'?newTenant:identity;
+  const sessionData={creation_request_key:phase==='new'?createdKey:id,persona_id:'operator',expires_at:now,csrf_token:'csrf',shops:[shop(id)],source};
+  if(path.endsWith('/session')&&phase!=='anonymous')return route.fulfill({json:{...base,context:current,data:sessionData}});
+  if(path.endsWith('/seed-summary'))return route.fulfill({json:{...base,context:{...current,shop_id:id},data:{source,counts:{products:1,skus:1,orders:0,order_lines:0},snapshot_at:now}}});
+  if(path.endsWith('/logout')){const request=route.request().postDataJSON();phase='anonymous';return route.fulfill({json:{...base,status:'COMMITTED',context:identity,data:{receipt:{receipt_id:id,operation:'logout',request_key:request.request_key,payload_digest:digest,status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0},next_step:'LOGGED_OUT'}}});}
+  if(path.endsWith('/bootstrap'))return route.fulfill({json:{...base,data:{csrf_token:'csrf',expires_at:now,state:'anonymous_bootstrap'}}});
+  if(path.endsWith('/sessions')){createdKey=route.request().postDataJSON().request_key;phase='new';return route.fulfill({json:{...base,status:'COMMITTED',context:newTenant,data:{session:{...sessionData,creation_request_key:createdKey},receipt:{receipt_id:id,operation:'session_create',request_key:createdKey,payload_digest:digest,status:'COMMITTED',committed_at:now,reset_epoch:0,auth_generation:0}}}});}
+  return route.fulfill({status:401,json:{...base,status:'REJECTED',error:{code:'SESSION_INVALID',safe_message:'invalid',retryable:false,request_key:null}}});
+ }));
+ await openDetail(page);const preserved=await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'));await page.getByRole('button',{name:'退出演示'}).click();await expect(page.getByText('已退出演示。')).toBeVisible();
+ await page.getByRole('button',{name:'一键体验'}).click();await expect(page.getByText('演示空间已建立。')).toBeVisible();await page.getByLabel('店铺').selectOption(id);
+ await expect(page.getByRole('button',{name:'编辑标签'})).toBeEnabled();expect(await page.evaluate(()=>sessionStorage.getItem('commerceops-v41-pending'))).toBe(preserved);expect(oldLookups).toBe(0);
+});
