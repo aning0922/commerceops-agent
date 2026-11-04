@@ -38,6 +38,16 @@ RECEIPT_LINK = """
 """
 
 DDL = f"""
+CREATE TABLE business.v41_security_policy (
+ singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton),
+ active_version text NOT NULL CHECK(active_version ~ '^[A-Za-z0-9_.-]{{1,80}}$'),
+ config_digest text NOT NULL CHECK(config_digest ~ '^[a-f0-9]{{64}}$'),
+ generation bigint NOT NULL CHECK(generation>0),
+ activated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ retired_versions text[] NOT NULL DEFAULT '{{}}' CHECK(cardinality(retired_versions)<=64),
+ CHECK(array_position(retired_versions,active_version) IS NULL),
+ CHECK(array_position(retired_versions,NULL) IS NULL)
+);
 CREATE TABLE business.v41_action_receipts (
  id uuid PRIMARY KEY,
  {IDENTITY},
@@ -224,11 +234,13 @@ LANGUAGE sql STABLE SET search_path=pg_catalog,business AS $$
   ) e),'[]'::jsonb))) FROM business.v4_demo_tenants t WHERE t.id=tid AND t.reset_epoch=epoch
 $$;
 
-CREATE FUNCTION business.v41_actor(bearer text,csrf text,shop uuid,epoch bigint,generation bigint,
+CREATE FUNCTION business.v41_actor(bearer text,csrf text,binding text,shop uuid,epoch bigint,
+ generation bigint,
  writing boolean) RETURNS business.v4_demo_sessions LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,business AS $$
 DECLARE sid uuid; tid uuid; t business.v4_demo_tenants; s business.v4_demo_sessions;
  p business.principals; w business.web_sessions; token_digest text; allowed boolean;
+ policy business.v41_security_policy;
 BEGIN
  IF writing IS NULL THEN RAISE EXCEPTION 'INVALID_REQUEST' USING ERRCODE='23514'; END IF;
  IF bearer IS NULL OR bearer !~ '^v4d_[A-Za-z0-9_-]{43}$' THEN
@@ -248,12 +260,9 @@ BEGIN
   RAISE EXCEPTION 'EPOCH_CHANGED' USING ERRCODE='23514'; END IF;
  IF generation IS DISTINCT FROM s.auth_generation THEN
   RAISE EXCEPTION 'GENERATION_CHANGED' USING ERRCODE='23514'; END IF;
- SELECT a.* INTO p FROM business.principals a JOIN business.identities i
-  ON i.principal_id=a.id AND i.organization_id=a.organization_id
-  JOIN business.web_credentials c ON c.identity_id=i.id AND c.principal_id=a.id
-  AND c.organization_id=a.organization_id WHERE a.id=s.principal_id
-  AND a.organization_id=t.organization_id AND i.id=s.identity_id AND i.provider='web'
-  AND c.enabled FOR SHARE OF a;
+ -- Match the V40 resolver's principal/bound-session order, then hold identity and credential.
+ SELECT a.* INTO p FROM business.principals a WHERE a.id=s.principal_id
+  AND a.organization_id=t.organization_id FOR SHARE;
  IF p.id IS NULL OR NOT p.enabled OR p.auth_version<>s.auth_version THEN
   RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
  SELECT * INTO w FROM business.web_sessions WHERE id=s.bound_web_session_id FOR UPDATE;
@@ -263,6 +272,20 @@ BEGIN
   OR w.key_version<>s.key_version OR w.token_hash=token_digest
   OR least(w.absolute_expires_at,w.idle_expires_at)<=clock_timestamp()
   OR greatest(w.absolute_expires_at,w.idle_expires_at)>s.expires_at THEN
+  RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
+ IF binding IS NULL OR octet_length(binding)>256 OR w.csrf_digest IS DISTINCT FROM
+  encode(sha256(convert_to(binding,'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
+ PERFORM 1 FROM business.identities i WHERE i.id=s.identity_id AND i.provider='web'
+  AND i.organization_id=t.organization_id AND i.principal_id=s.principal_id FOR SHARE;
+ IF NOT FOUND THEN RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
+ PERFORM 1 FROM business.web_credentials c WHERE c.identity_id=s.identity_id
+  AND c.organization_id=t.organization_id AND c.principal_id=s.principal_id AND c.enabled FOR SHARE;
+ IF NOT FOUND THEN RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
+ SELECT * INTO policy FROM business.v41_security_policy WHERE singleton FOR SHARE;
+ IF policy.singleton IS NULL THEN
+  RAISE EXCEPTION 'SERVICE_UNAVAILABLE' USING ERRCODE='23514'; END IF;
+ IF s.key_version IS DISTINCT FROM policy.active_version THEN
   RAISE EXCEPTION 'SESSION_INVALID' USING ERRCODE='23514'; END IF;
  IF writing AND (csrf IS NULL OR octet_length(csrf)>256 OR s.csrf_digest<>
   encode(sha256(convert_to(csrf,'UTF8')),'hex')) THEN
@@ -284,7 +307,7 @@ SIGNATURES = (
     "v41_utc(timestamptz)",
     "v41_scope(uuid,uuid,bigint)",
     "v41_revision(uuid,uuid,bigint)",
-    "v41_actor(text,text,uuid,bigint,bigint,boolean)",
+    "v41_actor(text,text,text,uuid,bigint,bigint,boolean)",
 )
 
 ACTION_FUNCTIONS = r"""
@@ -397,7 +420,8 @@ LANGUAGE sql STABLE SET search_path=pg_catalog,business AS $$
   'mapping_digest',(job).mapping_digest))
  FROM business.v4_demo_sessions s WHERE s.id=(job).owner_session_id
 $$;
-CREATE FUNCTION business.v41_apply_action(bearer text,csrf text,canonical text,operation text,
+CREATE FUNCTION business.v41_apply_action(bearer text,csrf text,binding text,canonical text,
+ operation text,
   target uuid)
 RETURNS business.v41_action_receipts LANGUAGE plpgsql SECURITY DEFINER
 SET search_path=pg_catalog,business AS $$
@@ -410,7 +434,7 @@ DECLARE body jsonb; s business.v4_demo_sessions; t business.v4_demo_tenants;
 BEGIN
  body:=business.v41_request_body(canonical,operation,target);
  shop:=(body->>'shop_id')::uuid;
- s:=business.v41_actor(bearer,csrf,shop,(body->>'expected_epoch')::bigint,
+ s:=business.v41_actor(bearer,csrf,binding,shop,(body->>'expected_epoch')::bigint,
   (body->>'expected_generation')::bigint,true);
  SELECT * INTO t FROM business.v4_demo_tenants WHERE id=s.tenant_id;
  org:=t.organization_id;
@@ -566,10 +590,29 @@ ACTION_SIGNATURES = (
     "v41_template(uuid,uuid)",
     "v41_effect_summary(uuid)",
     "v41_preview_digest(business.v41_import_jobs)",
-    "v41_apply_action(text,text,text,text,uuid)",
+    "v41_apply_action(text,text,text,text,text,uuid)",
 )
 
 GUARDS = r"""
+CREATE FUNCTION business.v41_policy_guard() RETURNS trigger LANGUAGE plpgsql
+SET search_path=pg_catalog,business AS $$
+BEGIN
+ IF TG_OP IN('DELETE','TRUNCATE') THEN
+  RAISE EXCEPTION 'V41_POLICY_IMMUTABLE' USING ERRCODE='23514'; END IF;
+ IF current_user<>pg_get_userbyid((SELECT relowner FROM pg_class WHERE oid=TG_RELID)) THEN
+  RAISE EXCEPTION 'V41_OWNER_REQUIRED' USING ERRCODE='23514'; END IF;
+ IF TG_OP='INSERT' THEN
+  IF NEW.generation<>1 OR cardinality(NEW.retired_versions)<>0 THEN
+   RAISE EXCEPTION 'V41_POLICY_TRANSITION' USING ERRCODE='23514'; END IF;
+ ELSE
+  IF NEW.generation<>OLD.generation+1 OR NEW.active_version=OLD.active_version
+   OR NEW.active_version=ANY(OLD.retired_versions)
+   OR NEW.retired_versions IS DISTINCT FROM OLD.retired_versions||OLD.active_version
+   OR NEW.activated_at<OLD.activated_at THEN
+   RAISE EXCEPTION 'V41_POLICY_TRANSITION' USING ERRCODE='23514'; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
 CREATE FUNCTION business.v41_mutation_guard() RETURNS trigger LANGUAGE plpgsql
 SET search_path=pg_catalog,business AS $$
 DECLARE n jsonb; o jsonb; deadline timestamptz; payload jsonb; j business.v41_import_jobs;
@@ -639,6 +682,7 @@ SET search_path=pg_catalog,business AS $$
 DECLARE s business.v4_demo_sessions; t business.v4_demo_tenants;
  r business.v41_action_receipts; e business.v41_action_events; summary jsonb; body jsonb;
  template jsonb; product jsonb; j business.v41_import_jobs;
+ active_version text;
 BEGIN
  -- Lease-authenticated cleanup after actual reap must remain possible after identity expiry.
  IF TG_TABLE_NAME='v41_import_jobs' AND TG_OP='UPDATE' THEN
@@ -647,11 +691,13 @@ BEGIN
  SELECT * INTO s FROM business.v4_demo_sessions WHERE id=NEW.owner_session_id AND
   tenant_id=NEW.tenant_id;
  SELECT * INTO t FROM business.v4_demo_tenants WHERE id=NEW.tenant_id;
+ SELECT p.active_version INTO active_version FROM business.v41_security_policy p WHERE p.singleton;
  IF s.id IS NULL OR t.id IS NULL OR s.principal_id<>NEW.principal_id
   OR s.reset_epoch<>NEW.reset_epoch OR s.auth_generation<>NEW.auth_generation
   OR s.revoked_at IS NOT NULL OR t.revoked_at IS NOT NULL OR s.expires_at<>t.expires_at
   OR t.organization_id<>NEW.organization_id OR t.reset_epoch<>NEW.reset_epoch
   OR clock_timestamp()>=least(s.expires_at,t.expires_at)
+  OR active_version IS DISTINCT FROM s.key_version
   OR NOT EXISTS(SELECT 1 FROM business.web_sessions w JOIN business.principals p ON
   p.id=s.principal_id
    AND p.organization_id=t.organization_id JOIN business.identities i ON i.id=s.identity_id
@@ -729,6 +775,14 @@ def upgrade() -> None:
     op.execute(FUNCTIONS)
     op.execute(ACTION_FUNCTIONS)
     op.execute(GUARDS)
+    op.execute("REVOKE ALL ON business.v41_security_policy FROM PUBLIC")
+    op.execute("""DO $$ BEGIN IF to_regrole('commerceops_app') IS NOT NULL THEN
+     REVOKE ALL ON business.v41_security_policy FROM commerceops_app; END IF; END $$""")
+    op.execute("""CREATE TRIGGER v41_policy_write BEFORE INSERT OR UPDATE OR DELETE
+     ON business.v41_security_policy FOR EACH ROW EXECUTE FUNCTION business.v41_policy_guard()""")
+    op.execute("""CREATE TRIGGER v41_policy_truncate BEFORE TRUNCATE
+     ON business.v41_security_policy FOR EACH STATEMENT
+     EXECUTE FUNCTION business.v41_policy_guard()""")
     op.execute("""ALTER TABLE business.v41_action_receipts ADD CONSTRAINT v41_request_canonical
      CHECK(canonical_request=business.v41_canonical(canonical_request::jsonb))""")
     for suffix in ("product_tags", "order_fulfillments", "import_products"):
@@ -748,6 +802,7 @@ def upgrade() -> None:
     for signature in (
         *SIGNATURES,
         *ACTION_SIGNATURES,
+        "v41_policy_guard()",
         "v41_mutation_guard()",
         "v41_commit_guard()",
     ):

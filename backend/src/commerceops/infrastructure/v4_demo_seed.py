@@ -26,7 +26,10 @@ PROVISION = "v4_demo_provision(uuid,uuid,text,text,text,uuid,uuid,text,uuid,text
 
 def require_owner(db: DB) -> None:
     revision = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    if revision != {"version_num": "0024_v4_demo_foundation"}:
+    if revision not in (
+        {"version_num": "0024_v4_demo_foundation"},
+        {"version_num": "0025_v41_catalog_operations"},
+    ):
         raise ValueError("V4_SCHEMA_REVISION")
     environment = db.execute("""SELECT current_setting('server_version') AS version,
     (SELECT extversion FROM pg_extension WHERE extname='vector') AS vector""").fetchone()
