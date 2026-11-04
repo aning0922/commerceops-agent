@@ -1,0 +1,63 @@
+{
+  "stage": "V4-1",
+  "case": "full-existing-8f668-r1",
+  "source": "8f6687560bb5c71804fd249068e2a9912fe35556",
+  "tree": "020b540b3684b277dd994752745a8b2779319671",
+  "status": "failed_closed",
+  "reason": "global deadline truncated current command; no completed assertion failure observed",
+  "selected": 596,
+  "helper_actual_node_ids": 577,
+  "helper_actual_is_not_executed_count": true,
+  "actual_call_started": 568,
+  "actual_call_passed": 567,
+  "actual_call_incomplete": 1,
+  "not_started": 28,
+  "v41_call_passed": 28,
+  "g1": "NOT_RUN",
+  "g2_scenarios_actual": 6,
+  "native": {
+    "helper": 1,
+    "worker": 1,
+    "outer": 1,
+    "cleanup": 0
+  },
+  "wrapper_timeout": false,
+  "source_unchanged": true,
+  "command": {
+    "name": "create-and-template",
+    "started_utc": "2026-11-04T06:40:11.153350Z",
+    "ended_utc": "2026-11-04T06:41:49.908085Z",
+    "native_exit": 137,
+    "timed_out": true,
+    "nominal_cap_seconds": 300,
+    "effective_global_business_budget_seconds": 93.84665,
+    "timeout_trigger_utc": "2026-11-04T06:41:45.018179Z"
+  },
+  "helper_started_utc": "2026-11-04T06:11:12.807789Z",
+  "helper_ended_utc": "2026-11-04T06:41:54.629716Z",
+  "helper_duration_seconds": 1841.821927,
+  "resources": {
+    "project": "p123-1c0b9b89188c",
+    "containers_remaining": 0,
+    "networks_remaining": 0,
+    "temporary_volumes_remaining": 0,
+    "registered_containers_absent": 30,
+    "registered_process_groups_absent": 35,
+    "other_assets_untouched": true
+  },
+  "artifacts": [
+    {
+      "path": "full-existing-8f668-r1/EXECUTION_RESULT.safe.json",
+      "sha256": "a6e53a6140de8c15f0b7da03fce50734d58540951e125a6b2d7a6a6f3c9a242b"
+    },
+    {
+      "path": "full-existing-8f668-r1/independent-cleanup.safe.json",
+      "sha256": "d2b6897158fd0f4009cd94756cf2ff199d5ec1da9a851e628771ba3e8760f3eb"
+    },
+    {
+      "path": "existing-r1/.audit/ci-evidence-existing.json",
+      "sha256": "09a76c527785a23d9284b15784246ef8c456640af0ba992e334492fc820b3d01"
+    }
+  ],
+  "recovery": "new owned complete run only after source, capacity, resource and UTC binding; no extension or partial union"
+}

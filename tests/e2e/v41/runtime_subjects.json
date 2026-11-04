@@ -1,0 +1,313 @@
+{
+  "schema": "v41-runtime-subjects-1",
+  "state": "PREPARATION_ONLY_RUNTIME_HOLD",
+  "source": {
+    "root": "7f1667a14059a2ea4ae00dcc19811d6a22a06526",
+    "tree": "e568e1834af10a41f9d82b92885584fda646a9d2",
+    "backend": "55ce78b841df0513e09d4e013d2857475fe64bf7",
+    "matrix_path": "tests/v41/backend/test_business_pg.py",
+    "matrix_sha256": "95220204088a75e1bd8a9039d381d7ac858a3b33a3e9a14947523f5a57a604e4",
+    "inventory_method": "AST_ONLY_NO_PYTEST_OR_FIXTURE_EXECUTION",
+    "t01_candidate": "9f10c8c5ad1a44fd487159b9f19955cab24af9b2",
+    "t01_state": "ACCEPTED_CODE_ONLY_50590A5_NOT_IN_INVENTORY_SNAPSHOT",
+    "t01_matrix_sha256": "87bbae0351b8ec08fc21636b73d0f018bc7f4fc70cadefab6373ba0a5d9f8e56",
+    "t01_review": "50590a574ab185fcd4f4258e75d61975d629cbb8",
+    "ddl_fix": "405f5e336bb58f84563e441f350e9b2a2968a0d2",
+    "ddl_fix_review": "8928830b819508217cb5cd53545888eb9bd63710"
+  },
+  "ddl_failure_root_report": {
+    "receipt_read_here": false,
+    "migration": "0025_v41_catalog_operations",
+    "failure": "JSONB reaped:true colon interpreted as SQLAlchemy bindtrue",
+    "sqlstate": "",
+    "sqlstate_capture": "NOT_CAPTURED",
+    "transaction": "ROLLED_BACK",
+    "alembic_version": null,
+    "v41_tables": 0,
+    "resources": "CLOSED",
+    "volumes": "PRESERVED",
+    "next_fix": "405F5E3_CODE_ACCEPTED_RUNTIME_RECEIPT_NOT_RECEIVED",
+    "original_source": "772ecc6d423e06351c8cdeb78c23a9382d47d466"
+  },
+  "pg_existing": [
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_seven_tables_private_helpers_and_low_role_no_dml",
+      "line": 97,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_sql_python_canonical_text_corpus",
+      "line": 148,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_golden_reads_tags_receipt_replay_original_after_later_effect",
+      "line": 187,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_paid_unknown_fulfillment_and_atomic_rollback_on_audit_failure",
+      "line": 245,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_real_native_preview_confirm_same_job_version_sources_and_all_result_export",
+      "line": 299,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_changed_revision_cannot_confirm_old_preview_and_reset_hides_effects",
+      "line": 372,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_parent_mapping_chain_supersedes_and_disallows_old_confirm",
+      "line": 430,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation",
+      "line": 457,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_durable_reservation_survives_connection_release_without_expiry_reuse",
+      "line": 483,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_actual_parent_death_keeps_running_unknown_slot_without_auto_replay",
+      "line": 555,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_two_actual_children_global_slots_and_reap_before_next_admission",
+      "line": 601,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_revocation_commit_order_and_tuple_principal_crossing_no_deadlock",
+      "line": 700,
+      "parameters": [
+        {
+          "parameter": "table",
+          "values": [
+            "web_credentials",
+            "principal_shop_scopes",
+            "principal_role_shop_grants"
+          ]
+        },
+        {
+          "parameter": "revoke_first",
+          "values": [
+            false,
+            true
+          ]
+        }
+      ],
+      "declared_instances": 6,
+      "batch": "ROOT_MINIMUM_7",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_sql_current_policy_rejects_two_old_consistent_session_rows",
+      "line": 803,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "ROOT_MINIMUM_7",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_private_verifier_hmac_goldens_and_forged_writable_binding_no_admission",
+      "line": 843,
+      "parameters": [],
+      "declared_instances": 1,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "selector": "tests/v41/backend/test_business_pg.py::test_demo_binding_reassignment_denied_before_original_new_principal_trigger",
+      "line": 963,
+      "parameters": [
+        {
+          "parameter": "table",
+          "values": [
+            "web_credentials",
+            "principal_shop_scopes",
+            "principal_role_shop_grants"
+          ]
+        }
+      ],
+      "declared_instances": 3,
+      "batch": "EXISTING_ADDITIONAL_15",
+      "runtime": "NOT_RUN"
+    }
+  ],
+  "declared_instances": 22,
+  "root_minimum_instances": 7,
+  "existing_additional_instances": 15,
+  "http_routes": [
+    {
+      "method": "GET",
+      "path": "/api/v4/dashboard",
+      "qa_route_alias": "dashboard",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/dashboard/drilldown",
+      "qa_route_alias": "drilldown",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/products",
+      "qa_route_alias": "products",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/products/export",
+      "qa_route_alias": "products_export",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/products/{product_id}",
+      "qa_route_alias": "product",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v4/products/{product_id}/tags",
+      "qa_route_alias": "tags",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/orders",
+      "qa_route_alias": "orders",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/orders/export",
+      "qa_route_alias": "orders_export",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/orders/{order_id}",
+      "qa_route_alias": "order",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v4/orders/{order_id}/fulfillment",
+      "qa_route_alias": "fulfill",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/read-context",
+      "qa_route_alias": "read_context",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v4/imports/previews",
+      "qa_route_alias": "preview",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/imports/preview-requests/{request_key}",
+      "qa_route_alias": "preview_lookup",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/imports/{import_job_id}",
+      "qa_route_alias": "job",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v4/imports/{import_job_id}/confirm",
+      "qa_route_alias": "confirm",
+      "runtime": "NOT_RUN"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v4/actions/{operation}/{request_key}",
+      "qa_route_alias": "receipt",
+      "runtime": "NOT_RUN"
+    }
+  ],
+  "http_routes_total": 16,
+  "qa_map_entries": 16,
+  "qa_missing_route_definitions": [],
+  "runtime_handoff_changed": false,
+  "services_started": false,
+  "runtime_status_scope": "THIS_QA_PACKAGE_NO_RUNTIME_EVIDENCE",
+  "historical_definition_gap": {
+    "source": "95deb3943d53f444bb63e48b5245deb3d19ea3fe",
+    "qa_map_entries": 12,
+    "missing": [
+      "/api/v4/dashboard/drilldown",
+      "/api/v4/products/export",
+      "/api/v4/orders/export",
+      "/api/v4/read-context"
+    ],
+    "scope": "HISTORICAL_DEFINITION_ONLY_NOT_EXECUTION"
+  },
+  "route_method_totals": {
+    "GET": 12,
+    "POST": 4
+  },
+  "current_preparation": {
+    "http_source": "ca69b83404c4270bfd9cef09a58a343c148769fb",
+    "route_mapping_is_not_execution": true,
+    "browser_titles": [
+      "LIVE V41: shell identity navigation and responsive boundaries",
+      "LIVE V41: business reads writes and import roundtrip"
+    ],
+    "browser_required_passed": 2,
+    "browser_runtime": "NOT_RUN",
+    "late_success_after_logout": "NETWORK_ACK_DELAY_INJECTION_DEFINED_NOT_RUN",
+    "native200": "GATES_651CAC31_FIXED_CALLER_DEFINED_NOT_RUN"
+  }
+}

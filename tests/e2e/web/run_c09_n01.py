@@ -12,6 +12,14 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
+from scripts.m3_pgvector import (
+    INPUTS,
+    compose_flags,
+    prepared_image,
+    up_flags,
+    validate_binding,
+    validate_container,
+)
 from scripts.prepare_pg import prepare
 from tests.e2e.web.run_live_batches import free_port, listener_output, save
 
@@ -34,12 +42,14 @@ REQUIRED_SOURCE_FILES = (
 )
 
 
-def source_manifest() -> dict[str, str]:
+def source_manifest(m3_pgvector: bool = False) -> dict[str, str]:
     """仅排除三个本段派生输出；其他tracked/关键源缺失仍失败。"""
     tracked = subprocess.check_output(
         ["git", "ls-files", "frontend", "tests/e2e/web"], cwd=ROOT, text=True
     ).splitlines()
     sources = (set(tracked) | set(REQUIRED_SOURCE_FILES)) - MUTABLE_N01_OUTPUTS
+    if m3_pgvector:
+        sources.update(INPUTS)
     return {
         name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(sources)
     }
@@ -50,12 +60,17 @@ def clear_n01_failure_sample() -> None:
     (ROOT / "frontend/evidence/p4-c09/n01/failure-diagnostic.safe.json").unlink(missing_ok=True)
 
 
-def main(private: Path, deadline: datetime) -> None:
+def main(private: Path, deadline: datetime, m3_pgvector: bool = False) -> None:
     now = datetime.now(UTC)
     if deadline.tzinfo is None or not now + timedelta(seconds=75) < deadline <= now + timedelta(
         minutes=30
     ):
         raise ValueError("fixed C09 deadline required")
+    m3_binding = (
+        prepared_image(ROOT, min(5, (deadline - datetime.now(UTC)).total_seconds() - 75))
+        if m3_pgvector
+        else None
+    )
     if private.exists():
         raise ValueError("new private directory required")
     clear_n01_failure_sample()
@@ -93,12 +108,9 @@ def main(private: Path, deadline: datetime) -> None:
         str(empty),
         "-p",
         project,
-        "-f",
-        str(ROOT / "compose.yml"),
-        "-f",
-        str(override),
+        *compose_flags(ROOT, m3_pgvector, override),
     ]
-    manifest = source_manifest()
+    manifest = source_manifest(m3_pgvector)
     save(private / "source-files.safe.json", manifest)
     window = {
         "owner": "phase4-C09-Web",
@@ -123,6 +135,8 @@ def main(private: Path, deadline: datetime) -> None:
         "sdk_provider_started": False,
         "max_new_cycle_requests": 1,
     }
+    if m3_binding is not None:
+        window["m3_pgvector"] = m3_binding
     save(private / "window.json", window)
     print(
         json.dumps({"event": "registered", "project": project, "deadline": deadline.isoformat()}),
@@ -175,7 +189,25 @@ def main(private: Path, deadline: datetime) -> None:
     try:
         window["stage"] = "compose_start"
         save(private / "window.json", window)
-        run(compose + ["up", "-d", "postgres"], 60)
+        run(compose + ["up", *up_flags(m3_pgvector), "-d", "postgres"], 60)
+        if m3_binding is not None:
+            cid = subprocess.check_output(
+                compose + ["ps", "-q", "postgres"],
+                cwd=ROOT,
+                env=env,
+                text=True,
+                timeout=min(5, remaining()),
+            ).strip()
+            info = json.loads(
+                subprocess.check_output(
+                    ["docker", "inspect", cid],
+                    text=True,
+                    timeout=min(5, remaining()),
+                )
+            )[0]
+            validate_container(
+                ROOT, info, m3_binding, project, override, timeout=min(5, remaining())
+            )
         for _ in range(60):
             ready = subprocess.run(
                 compose
@@ -301,6 +333,11 @@ def main(private: Path, deadline: datetime) -> None:
             if container
             else {"Running": False, "Pid": 0}
         )
+        if m3_binding is not None:
+            try:
+                validate_binding(ROOT, m3_binding)
+            except (ValueError, OSError):
+                passed = False
         window["pg_container_created"] = bool(container)
         listeners = False
         for port in (api_port, web_port, pg_port):
@@ -359,8 +396,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--private-directory", type=Path, required=True)
     parser.add_argument("--stop-at-utc", required=True)
+    parser.add_argument("--m3-pgvector", action="store_true")
     args = parser.parse_args()
     main(
         args.private_directory.resolve(),
         datetime.fromisoformat(args.stop_at_utc.replace("Z", "+00:00")),
+        args.m3_pgvector,
     )

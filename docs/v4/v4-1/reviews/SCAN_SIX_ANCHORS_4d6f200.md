@@ -1,0 +1,11 @@
+# V41 六whole-blob anchor精确候选审查
+
+日期：2026-11-04（台北）。source `4d6f20005bd8fbc4f65a385b510e7f9a4f259f73`，tree `842620205bac330753155e8c802182449a762f24`。结论ACCEPT_SIX_ANCHOR_CANDIDATE_ONLY；page11尚阻断，非Full通过或合入/push许可。
+
+完整读取三文件增量：vendor/生成JSON仅追加六anchor，旧34条为精确前缀，其他metadata逐项相等；算法与.gitleaks配置字节不变。vendor AST常量与生成JSON全部40项精确相等，candidate-check-receipt两metadata文件hash与本提交相等。五个fa96764文档blob及一个f949页面blob/原生span来源先前已独立核实，本次候选与提案一致。
+
+独立从4d6f200载入原分类函数与vendor，在内存重放已有完整659 native报告（未重新扫描）：51条中50classified、1blocking，唯一阻断为page11；51条在dir/index共102项均拒绝。原报告native1/hash与37+14旧分类保留。作者原件记载459字段负例、41实际单父、50新blob及50源span负例；已读取其检查实现和回执，本次不冒称全部独立重跑。
+
+明确允许按已核page11提案SHA256 `581df5fc0799d1c477518f905564ebb6a2904372b37d51182ec3f405c005cf82`新增第8条copy-only位置绑定供最终代码复审；范围详见SCAN_PAGE11_PROPOSAL.md。该许可不是f949作者批准：f949为单父，原>=2parent与整blob/位置/Match/span守卫必须保留。152作者/96目录/45native历史/222规则不增，禁止659SHA白名单、删refs或改算法。
+
+提案文档中的page尚未获准是提交时点事实，保留不回写。最终7→8实现后完整51条及全部相关反例仍须核验，随后Root另行准入Full；不把部分候选、先前公开推送或stash不可达混同为allrefs通过。本次只读git/原件与纯分类，不触gitleaks/native扫描、资源或远端。

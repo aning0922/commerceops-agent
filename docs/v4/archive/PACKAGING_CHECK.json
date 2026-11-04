@@ -1,0 +1,59 @@
+{
+  "source_before_packaging_fix": "41c34e2b54f5410172fa609cc3519fe05df3bbaa",
+  "at_utc": "2026-11-04T14:20:48.856346+00:00",
+  "scope": "DETERMINISTIC_DOCKER_COPY_LAYOUT_AND_FULL_OFFLINE_READ_SCHEMA",
+  "checks": [
+    {
+      "variant": "before",
+      "native_exit": 1,
+      "copied_contracts": [
+        {
+          "source": "docs/contracts/p3-openapi.json",
+          "target": "/app/docs/contracts/p3-openapi.json",
+          "sha256": "4ee713f30fcd052be78eb6497a72323ace81f2c9bda5d7c0bb1510d9a2a537c2"
+        },
+        {
+          "source": "docs/contracts/p4-n01-openapi.json",
+          "target": "/app/docs/contracts/p4-n01-openapi.json",
+          "sha256": "b9dd7f6175489899b6a69a2109dd2116e637c326d098e041e63e71cab2ca06ef"
+        },
+        {
+          "source": "docs/contracts/p5-m2-openapi.json",
+          "target": "/app/docs/contracts/p5-m2-openapi.json",
+          "sha256": "aa2f8dda49fc267fe2c5bc754010270b0e264e2c4fad0f51f3e999e92193c8ea"
+        }
+      ],
+      "log_sha256": "75d837a8323d33ae49f3ca6d4ed203f6cdf584d4faa3b1caa7a5fbe4a4236647"
+    },
+    {
+      "variant": "after",
+      "native_exit": 0,
+      "copied_contracts": [
+        {
+          "source": "docs/contracts/p3-openapi.json",
+          "target": "/app/docs/contracts/p3-openapi.json",
+          "sha256": "4ee713f30fcd052be78eb6497a72323ace81f2c9bda5d7c0bb1510d9a2a537c2"
+        },
+        {
+          "source": "docs/contracts/p4-n01-openapi.json",
+          "target": "/app/docs/contracts/p4-n01-openapi.json",
+          "sha256": "b9dd7f6175489899b6a69a2109dd2116e637c326d098e041e63e71cab2ca06ef"
+        },
+        {
+          "source": "docs/contracts/p5-m2-openapi.json",
+          "target": "/app/docs/contracts/p5-m2-openapi.json",
+          "sha256": "aa2f8dda49fc267fe2c5bc754010270b0e264e2c4fad0f51f3e999e92193c8ea"
+        },
+        {
+          "source": "docs/contracts/p6-daily-read-v1.schema.json",
+          "target": "/app/docs/contracts/p6-daily-read-v1.schema.json",
+          "sha256": "fe108320d164496558f73fbbe0698c9c9ae9800182db82d03fce51da5a12954c"
+        }
+      ],
+      "log_sha256": "1cdfef2dbf7cec92bd5f41356c314b96a9bb5643dd064175bce41d98990ff1e1"
+    }
+  ],
+  "p2_missing_schema": "CLOSED_BY_TARGETED_CHECK",
+  "full_docker_build": "NOT_RUN",
+  "services_started": false
+}

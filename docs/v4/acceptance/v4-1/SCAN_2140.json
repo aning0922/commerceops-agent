@@ -1,0 +1,32 @@
+{
+  "source": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+  "tree": "2c49fb436eb0df55b9487e1b0276a456774acc10",
+  "command_native": 0,
+  "timed_out": false,
+  "started_utc": "2026-11-04T08:10:32.752014+00:00",
+  "ended_utc": "2026-11-04T08:12:59.457676+00:00",
+  "log_sha256": "bdff4f08ebaab9dd59f7e424a76dedb9a8e0fe11603c690f9d28a00b4fcadf7d",
+  "same_source_tree_tracked": true,
+  "refs_same": false,
+  "history_findings": 1760,
+  "classification_counts": {
+    "reviewed_public_false_positive": 153,
+    "reviewed_public_merge_copy": 1607,
+    "blocking": 0
+  },
+  "scope_summaries": [
+    "dir: findings=0, exit=0",
+    "index: findings=0, exit=0",
+    "git: findings=1760, exit=0",
+    "git: native_exit=1, reviewed_false_positives=1760, blocking_findings=0"
+  ],
+  "registered_group_ps_exit": 1,
+  "registered_group_remaining": [],
+  "stage": "V4-1",
+  "scope": "exact_2140_complete_scanner_not_full_engineering",
+  "outer_tool_native": 0,
+  "history_native": 1,
+  "dir_native": 0,
+  "index_native": 0,
+  "refs_limit": "refs changed during scan; before/after snapshots persisted; no frozen-all-refs claim"
+}

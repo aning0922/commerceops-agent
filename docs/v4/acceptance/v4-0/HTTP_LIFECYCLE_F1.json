@@ -1,0 +1,147 @@
+{
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+  "project": "v4qa_lifecycle_20261104e",
+  "scope": "actual local HTTP/PG lifecycle with real API and Web startup; not browser",
+  "status": "PASSED_LOCAL_LIFECYCLE",
+  "driver_native_exit": 0,
+  "cleanup_confirmed": true,
+  "forced": false,
+  "stages": [
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "subnet_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "subnet_inspect",
+      "native_exit": 0
+    },
+    {
+      "stage": "subnet_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "freeze_compose",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_container",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_network",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "pg_start",
+      "native_exit": 0
+    },
+    {
+      "stage": "migrate",
+      "native_exit": 0
+    },
+    {
+      "stage": "setup-checkpointer",
+      "native_exit": 0
+    },
+    {
+      "stage": "grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_init-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_verify-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "scenario",
+      "native_exit": 0
+    },
+    {
+      "stage": "writers_stopped",
+      "native_exits": {
+        "probe": 0,
+        "web": 0,
+        "api": 130
+      }
+    },
+    {
+      "stage": "api_container_stopped",
+      "native_exit": 0
+    },
+    {
+      "stage": "owner_oneoffs_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "final_pg_read_only",
+      "tenants": 2
+    },
+    {
+      "stage": "owned_down_keep_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "containers_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "networks_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volume_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volumes",
+      "names": [
+        "v4qa_lifecycle_20261104e_pg_data"
+      ]
+    }
+  ],
+  "final_pg_facts": [
+    {
+      "tenant_id": "7f61131d-a63f-4e49-86d6-6ac289bb74a9",
+      "epoch": 0,
+      "generation": 0,
+      "digest": "282540725296b4d083116176b862a61c8ad3af0fbb1e88291cb4fb6c365a4d96",
+      "receipts": 1,
+      "tombstones": 1,
+      "db_utc": "2026-11-03T17:30:55.200991+00:00"
+    },
+    {
+      "tenant_id": "fbee4888-5d59-4483-9555-6fa7196584ba",
+      "epoch": 1,
+      "generation": 2,
+      "digest": "1c53665f223519adab4ca44aafda46f39f3f512b6ec021a0d3c28ca9be02795b",
+      "receipts": 4,
+      "tombstones": 4,
+      "db_utc": "2026-11-03T17:30:56.282740+00:00"
+    }
+  ],
+  "retained_volumes": "v4qa_lifecycle_20261104e_pg_data",
+  "hosted": "NOT_RUN",
+  "full": "NOT_RUN",
+  "external_calls": 0,
+  "recorded_at": "2026-11-03T17:37:09.749975+00:00"
+}

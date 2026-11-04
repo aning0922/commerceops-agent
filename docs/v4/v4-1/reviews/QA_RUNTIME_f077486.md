@@ -1,0 +1,27 @@
+# V41 runtime绑定准备增量复审
+
+日期：2026-11-04（台北）。source `f077486a220dabfc6415c616b4b9c8db071bf2dc`，tree `75385ebbf76ac29fe251155b656f728dccd5d8f4`。读取六文件增量及复用public compose/ready、Dockerfile；没有调用prepare/execute/Docker/socket真实绑定。
+
+结论：ACCEPT_D01_PREPARATION_FIX / HOLD_RUNTIME_D02_D03。D01在准备源码层已补首次HTTP前归属检查，真实运行仍未验；D02终态来源/业务事实未全关闭，另有P2-D03先触daemon再核host的问题。Root真实build receipt/最终镜像与已审SQL/router仍是必需前置，不能用占位文件解锁。
+
+## 已核改进
+
+启动前尝试独占bind两loopback端口，拒Root/frontend隐式Next环境文件；实际API running/project/service/image/UID/published-loopback与唯一只读私配mount核对后才健康请求，Web lsof实际listener endpoint/pgid匹配自建进程组后才HTTP。端口试绑虽会立即释放，后置实际归属校验补了竞争窗口，不能单靠试绑称运行归属已验。
+
+build receipt绑定source/tree/image/native0/runtime manifest；固定无网络/只读/无hostmount的image程序测量公开文件hash，声明的镜像ID不再单独代替源码。创建及结束核同一卷name/driver/created_at/labels和非空精确列表，scoped cleanup保留。私配seal改为固定输入列表，避免owner生成export被误认输入变化。上述均是代码设计，实际image/容器测量未执行。
+
+## P2-D03：Docker host准入顺序仍偏晚
+
+execute的public.verify_images、verify_existing_subnets及namespace查询先于docker context/endpoint/server/tool与Root receipt匹配。在当前Docker context误指其他daemon时，已经发生未绑定daemon访问；更严重的是namespace_initial_empty在host验证前置true，host不符进入finally仍可能对该未获准daemon执行stop/down。
+
+最小修复：任何daemon调用前先用本地context配置核Root期望的本地Unix endpoint及CLI identity；再对已绑定endpoint取得server identity，之后才允许镜像/IPAM/namespace/资源命令。未通过host准入的失败路径不得执行daemon cleanup；只清理确已在受信host创建的本批对象。补错误/remote context在verify_images与cleanup前拒绝的控制流测试。
+
+## D02仍有两项未闭合
+
+末态重新核HEAD/tree、backend/tests/scripts runtime manifest、五项case输入与私配seal有进展，但runtime_files不含实际启动的frontend源码，结束也未核完整tracked dirty/index状态。前端组件工作字节在run中改变而HEAD/tree不变时，仍可报告terminal_source_seal UNCHANGED。应对host实际运行的frontend及其锁/工具输入留前后绑定，或对冻结全tracked输入做精确不变核验，不能只核frontend schema。
+
+stopwriters后final_facts仍仅schema观察；registered tenant/原operation/key的终态效果/receipt/版本事实尚未实现。必须补到PG关闭前，或明确不接纳为完整scenario终态，不以中途counts和probe0代签。此前D02保持，作者已列其未完成，不要求当前准备片伪造结果。
+
+## 有限验证
+
+精确f077486 git archive的scope/runtime_checks/image_provenance/kpi_reference四模块独立执行18pure、native0、0.34秒；四项隔离marker warning保留。测试使用mock socket/record和临时公开文件，image读取程序在本机短Python子进程上验证，不是Docker运行。未验证实际build/image/volume/listener、不签任何runtime Gate；原监督Q01关闭仍只属于固定模拟路径。

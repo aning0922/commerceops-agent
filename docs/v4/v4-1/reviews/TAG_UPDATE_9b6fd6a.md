@@ -1,0 +1,15 @@
+# V41第二次标签写入最小分支修复复审
+
+日期：2026-11-04（台北）。patch source `9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad`，tree `04fe1c4333eb4c8fdc44b3b7f50a1527b53905aa`，parent `70995ddf1be0fda16d643a5ecabd106b9bd20f33`。
+
+结论：ACCEPT_EXACT_TAG_INSERT_UPDATE_PATCH_CODE_ONLY。仅接受该commit的0025单文件增量，可由Root窄cherry-pick到实际490组合，冻结新Root source/tree/image后开独立新PG22案；不包含CLI/e8祖先、不重放旧PG22、不预填新通过结果。
+
+独立逐字节核父0025与实际运行Root490完全相同。新分支复用原tenant/session与prior行锁：prior不存在时INSERT，计算version仍0+1；存在时对原tenant/org/shop/epoch/product/owner-session及prior.version做UPDATE，未命中明确VERSION_CONFLICT。UPDATE不尝试改变owner_session_id，principal/auth_generation更新仍在原允许字段内；版本为prior+1且与canonical payload一致。
+
+原SELECT prior与expected_version检查、共同身份/当前权限/CSRF/policy、原key同文receipt先于新效果CAS、tenant级串行、before/after revision、receipt/event同事务及deferred核验均保持。独立AST核DDL、GUARDS、FUNCTIONS、PARSE_FUNCTIONS常量完全未改；INSERT必须version1、UPDATE必须old+1、不可变上下文与history保护未放宽。新行并发仍受tenant锁和唯一键保护，不增加重试、upsert兜底或吞零行更新。
+
+独立比较精确Root490与修片树的原失败golden测试函数，源码完全一致：仍测试首次写/同key十次、第二次expected_version1→结果2、后续效果后重读旧receipt及两receipt/event。没有删断言、改金标或把旧失败变成预期拒绝。
+
+运行事实与解释分开：Root490旧PG22已核2pass/1fail/19NOT_RUN；第二次store.action实际V41_TAG_INVALID/23514，guard line43与INSERT ON CONFLICT调用context已捕获。但旧TG_OP、NEW.version及OR具体分支未捕获。“冲突处理前触发INSERT guard”仍是与源码相符的解释，不改写成旧wire实测。本修片通过显式已锁prior分支避免让已有行走INSERT路径；是否真实完成1→2仍需新案。
+
+独立精确archive执行完整Alembic/SQLAlchemy迁移传输编译回归：1 passed，native0，1.16秒，无warning；未连接PG，不签实际DDL/事务/并发。旧运行与清理原件已另以RUNTIME_ROOT490_R4_PG7_PG22核收。本轮无Docker/PG/GRANT/服务/浏览器/Full扫描或远端操作。

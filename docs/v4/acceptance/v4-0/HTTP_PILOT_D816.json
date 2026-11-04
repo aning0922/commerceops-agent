@@ -1,0 +1,127 @@
+{
+  "source_sha": "d81638997dca94c2f084913f2ff2ccfa4f3c8d80",
+  "source_tree": "65322c3e5d6976b765074031261016f09e073b2d",
+  "project": "v4qa_lifecycle_20261104b",
+  "mode": "ACTUAL_OWNED_STARTUP_FAILED_BEFORE_HTTP_WEB",
+  "driver_native_exit": 1,
+  "stage_records": [
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "freeze_compose",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_container",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_network",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "pg_start",
+      "native_exit": 0
+    },
+    {
+      "stage": "migrate",
+      "native_exit": 0
+    },
+    {
+      "stage": "setup-checkpointer",
+      "native_exit": 0
+    },
+    {
+      "stage": "grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_init-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_verify-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "writers_stopped",
+      "native_exits": {
+        "api": 1
+      }
+    },
+    {
+      "stage": "api_container_stopped",
+      "native_exit": 0
+    },
+    {
+      "stage": "owner_oneoffs_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "final_pg_read_only",
+      "tenants": 0
+    },
+    {
+      "stage": "owned_down_keep_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "containers_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "networks_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volume_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volumes",
+      "names": [
+        "v4qa_lifecycle_20261104b_pg_data"
+      ]
+    }
+  ],
+  "export": {
+    "content.json": {
+      "bytes": 60412,
+      "sha256": "59eaeab0006af3421fb3432d2c1c199d3064eb823dc0b5a4a8b18354822211e8"
+    },
+    "manifest.json": {
+      "bytes": 32389,
+      "sha256": "5596fbf7a9e3499f47c39b45936d9f1066d4210a176e845523764bd738a9ad54"
+    },
+    "INDEX.json": {
+      "bytes": 164,
+      "sha256": "a9940490d2409f74cf60dffe346c42aea6c5649063b0350720e74e842ab63c19"
+    }
+  },
+  "api_log_fixed_message": "startup config invalid; host/port/log_level",
+  "confirmed_source_issue": "owned overlay sets host0.0.0.0 but old Settings.host allows only loopback",
+  "responsibility": "ROOT topology plan omitted this preexisting constraint",
+  "web_http": "NOT_STARTED",
+  "cleanup_confirmed": true,
+  "ports_closed": {
+    "18440": true,
+    "13440": true
+  },
+  "retained_volumes": "v4qa_lifecycle_20261104b_pg_data",
+  "repair": "new owned-only programmatic real create_app test entry, old Settings/API CLI constraints unchanged; not yet implemented or accepted",
+  "evidence_index": ".audit/v4-0/live-pilot-d816"
+}

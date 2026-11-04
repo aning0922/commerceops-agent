@@ -1,0 +1,29 @@
+{
+  "run": 41861157096,
+  "head": "4a329d577debfb397ae88d2c4f23a628fd16e04f",
+  "actual_checkout": "e973c64f1f4c99596a177e10fe2c62433744cb5c",
+  "tree": "690514887b2c205bfaf32d50c81c43367cf0d08a",
+  "status": "FAIL_PUBLIC_SNAPSHOT_LINE_BINDING",
+  "failures": [
+    {
+      "scope": "dir",
+      "code": "reviewed-public-row-changed",
+      "path": "tests/test_m3_local_runtime.py",
+      "frozen_line": 191,
+      "shifted_line": 192,
+      "expected_row_sha256": "1560f72d6e586424aa2a01bccb1c4de0a4aadbe00a4740c4b55c8b1d2f2e2a68"
+    },
+    {
+      "scope": "index",
+      "code": "reviewed-public-row-changed",
+      "path": "tests/test_m3_local_runtime.py",
+      "frozen_line": 191,
+      "shifted_line": 192,
+      "expected_row_sha256": "1560f72d6e586424aa2a01bccb1c4de0a4aadbe00a4740c4b55c8b1d2f2e2a68"
+    }
+  ],
+  "native_history": "1707_REVIEWED_ZERO_BLOCKING",
+  "image_build": "NOT_REACHED",
+  "full_pg_web": "NOT_REACHED",
+  "original_review_sha256": "f06e10855f92e63f01b7565c17e9e62a92c338a09a9e89f0cf3cccbf67ec59ad"
+}

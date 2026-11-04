@@ -1,0 +1,149 @@
+{
+  "source_sha": "3606e5bd1eff972e946cd71c6313f1e25979ffdb",
+  "source_tree": "4515850adedd0f86621fd8b3a5202d3bdc452f8d",
+  "same_tree_root_sha": "c89cdfe4c814b844a343dcbeabdac8405cd709f2",
+  "mode": "NATIVE_PG_IDENTITY_COMPONENT_ONLY",
+  "native_exit": 0,
+  "project": "p123-a4c633f273ac",
+  "actual_call_results": [
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466416.63330094,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_real_current_scope_summary_and_v1_renamed_cookie_refusal",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.9354898328892887
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466421.118857443,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_persona_reset_revoke_old_actor_and_keep_current_persona_deadline",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.4279670419637114
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466425.96848082,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_unbound_reuse_bound_429_restart_and_original_unknown_recovery",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.4980256259441376
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466430.763529947,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_lost_create_cookie_only_minimal_bootstrap_recovery_and_no_active_post",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.39928495790809393
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466435.246819408,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[credential_disabled]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.4031316249165684
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466440.049617785,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[identity_provider]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.4258335418999195
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466444.655279787,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[principal_disabled]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.36787312501110137
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466449.216501872,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[bound_csrf]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.34762029093690217
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466454.0549165,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[bound_key]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.389361415989697
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466458.850362544,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[bound_revoked]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.36425979202613235
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466463.417483129,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_complete_credential_and_bound_checks[bound_expired]",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.3515666669700295
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466469.350684257,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_cap_three_rejects_fourth_and_fifth_without_evicting_other_tenants",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 1.7236642090138048
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466474.000190008,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_logout_receipt_commits_and_then_has_no_recovery_privilege",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.3802799570839852
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1466478.890770552,
+      "nodeid": "tests/v4/test_demo_sessions_pg.py::test_reset_clears_only_current_overlay_and_preserves_other_tenant",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.8325121670495719
+    }
+  ],
+  "started_at": "2026-11-03T15:49:48.814004+00:00",
+  "finished_at": "2026-11-03T15:51:33.970378+00:00",
+  "cleanup_exit": 0,
+  "stopping_confirmed": true,
+  "live_http_web": "NOT_RUN",
+  "full_pg": "NOT_RUN",
+  "known_limits": [
+    "capacity serial only",
+    "rate admission failure uses explicit author fault injection",
+    "no natural TTL wait",
+    "no provision mid-transaction rollback in these14"
+  ],
+  "evidence_index": ".audit/v4-0/identity-fourteen-3606"
+}

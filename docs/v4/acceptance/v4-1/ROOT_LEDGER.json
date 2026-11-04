@@ -1,0 +1,431 @@
+{
+  "stage": "V4-1",
+  "mode": "local_implementation_with_incremental_branch_backups",
+  "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
+  "status": "complete_local_stage",
+  "cards": {
+    "V41-01": "implemented_controlled_scope_local_gate_accepted",
+    "V41-02": "implemented_controlled_scope_local_gate_accepted",
+    "V41-03": "implemented_controlled_scope_local_gate_accepted",
+    "V41-04": "implemented_controlled_scope_local_gate_accepted",
+    "V41-05": "implemented_controlled_scope_local_gate_accepted",
+    "V41-06": "implemented_controlled_scope_local_gate_accepted"
+  },
+  "started_utc": "2026-11-04T00:35:24.287533+00:00",
+  "implementation_release": "84db1ba",
+  "runtime_resources": [
+    {
+      "scope": "shell_fixture",
+      "source": "3b25d1185c990d12ad67bb23073d36b67a611d60",
+      "status": "closed",
+      "port": 13441,
+      "tests": 3,
+      "screenshots": 5
+    },
+    {
+      "scope": "ui_mock_fixture_r2",
+      "source": "51cfe60cddd4cb3307dd87fdd5b44cf891e95f99",
+      "status": "closed_failed",
+      "tests_executed": 1,
+      "tests_passed": 0,
+      "tests_not_run": 5,
+      "failure": "CSV_mapping_locator_timeout",
+      "actual_api_postgresql": false,
+      "native_exit": 1,
+      "ports_closed": [
+        13442,
+        18442
+      ]
+    },
+    {
+      "scope": "ui_mock_fixture_r3",
+      "source": "622ee6e021b4fa33efc6a5fe4ffff436f429ad9a",
+      "status": "closed_failed",
+      "dynamic_collection": 11,
+      "tests_executed": 3,
+      "tests_passed": 2,
+      "tests_failed": 1,
+      "tests_not_run": 8,
+      "passed_scope": [
+        "CSV_mock_flow",
+        "XLSX_mock_flow"
+      ],
+      "failure": "lifecycle_shop_locator_ambiguous_before_write",
+      "actual_api_postgresql": false,
+      "native_exit": 1,
+      "ports_closed": [
+        13443,
+        18443
+      ]
+    },
+    {
+      "case": "owner-ddl-pilot-r4",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "status": "DDL_ACL_PASS",
+      "stats": {
+        "tables": 7,
+        "functions": 29,
+        "policy_rows": 0
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg7-root-r1",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "status": "PG7_PASS",
+      "stats": {
+        "collected": 7,
+        "executed": 7,
+        "passed": 7,
+        "failed": 0,
+        "not_run": 0
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg22-root-r2",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "status": "PG22_FAILED_CLOSED",
+      "stats": {
+        "collected": 22,
+        "executed": 3,
+        "passed": 2,
+        "failed": 1,
+        "not_run": 19
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg22-root-r3",
+      "source": "0d5f848dc9ce78cdc6cb47f6a7feccee8412ba33",
+      "status": "CLOSED_PG22_FAILED_NO_RETRY",
+      "stats": {
+        "collected": 22,
+        "executed": 8,
+        "passed": 7,
+        "failed": 1,
+        "not_run": 14,
+        "skipped": 0,
+        "failed_node": "test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation",
+        "sqlstate": "42501",
+        "error": "permission denied for table v41_security_policy",
+        "test_source_line": 469,
+        "helper_source_line": 52,
+        "package_source_lines": {
+          "v41_security.py": 75,
+          "v41_store.py": [
+            190,
+            96
+          ]
+        }
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "pg22-root-r4",
+      "source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
+      "status": "CLOSED_PG22_PASS_OWNED_SPECIALIST_SCOPE_ONLY",
+      "stats": {
+        "collected": 22,
+        "executed": 22,
+        "passed": 22,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "19.764"
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "additional6-root-r1",
+      "source": "e54c603b267c06bff851822b8c2fdaef8fad3230",
+      "status": "CLOSED_ADDITIONAL6_PASS_OWNED_SCOPE_ONLY",
+      "stats": {
+        "collected": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "12.812",
+        "live_child": 1,
+        "live_gc_orderings": 2,
+        "synthetic_historical_gc_outcomes": 3
+      },
+      "closed": true,
+      "volumes_preserved": true
+    },
+    {
+      "case": "engineering-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "duration_seconds": 145.723239,
+      "native_exit": 1,
+      "failure": "18 mypy errors in two new test files; downstream stages not run",
+      "source_fix": "496acbd8e2c8f172a2bba5724857d67abfab77bc",
+      "fix_review": "7cbf9d802a3fb86b1509016ee5fa8ab934afcb6a"
+    },
+    {
+      "case": "browser-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "failure": "non-root image source read denied before PostgreSQL start",
+      "artifacts": [
+        {
+          "path": "browser-e466-r1/closedfinal.json",
+          "sha256": "d0bf72cd9d24d8df0be3edde55301509de81c2ed28a2041fd3cadb0c25159575"
+        }
+      ]
+    },
+    {
+      "case": "browser-e466-r2",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T05:52:59.638931Z",
+      "ended_utc": "2026-11-04T05:57:49.290304Z",
+      "image_id": "sha256:5818e252fa7978e0c13469d34b0bd275e440e1bcc702737b10eaacaf22fe211e",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 8997,
+        "shell_failed": 1,
+        "shell_timeout_ms": 240036,
+        "business_post_count": 9,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "390px assistant button has no accessible name; focus timeout at Shell line 67",
+      "not_run": [
+        "390 screenshot",
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_e466_r2_pg_data"
+      ],
+      "ports_closed": [
+        18471,
+        13471
+      ],
+      "artifacts": [
+        {
+          "path": "browser-e466-r2/closedfinal.json",
+          "sha256": "d2ffbc5e15e0809a76f2cb5a5f0958af33d7d86d315e6aa033e9f081ec181271"
+        },
+        {
+          "path": "browser-e466-r2/execution.json",
+          "sha256": "fa71dff68d17b92842ac4da9c3b62d06f99bc2b52e21e7c955cc5d0494a81f79"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r3",
+      "source": "8f6687560bb5c71804fd249068e2a9912fe35556",
+      "tree": "020b540b3684b277dd994752745a8b2779319671",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T06:11:47.616181Z",
+      "ended_utc": "2026-11-04T06:12:45.977542Z",
+      "image_id": "sha256:d621d4d63767178fbef80051d845e63896f46e7ae793db48ced68f4c5557ecbd",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9504,
+        "shell_failed": 1,
+        "shell_duration_ms": 7024,
+        "retries": 0,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "Shell cookie inspection URL has root path but actual authentication cookie path is /api/v4; expected length one, received zero",
+      "not_run": [
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "screenshots": [
+        {
+          "path": "browser-shell/shell-1440.png",
+          "sha256": "679089f7f24d460d590c3ee4638bc1d3509639fd1cd94d8fdec3921cdd1c6cb3"
+        },
+        {
+          "path": "browser-shell/shell-1280.png",
+          "sha256": "23e3a45de083c8775317e274a5b5ad6b1bb8418422e06149a438986e635ee677"
+        },
+        {
+          "path": "browser-shell/shell-390.png",
+          "sha256": "6d83593840dd71a6dcb0e15b05f6eb396dfb2ddaf51d58d1622aeed6622983d2"
+        }
+      ],
+      "visual_review": "Root viewed 1440 and 390; remaining images do not imply native or lifecycle acceptance",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r3_pg_data"
+      ],
+      "ports_closed": [
+        18472,
+        13472
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r3/execution.json",
+          "sha256": "92b96fb79036ccffc093ef2492144b5a254be71426fc19fc1410651e22872581"
+        },
+        {
+          "path": "browser-final-r3/closedfinal.json",
+          "sha256": "8a3662ac099ead3f5e6e2f261a23ac8dc53ecf4ccd1222f3ddbc8e041eeb857a"
+        }
+      ]
+    }
+  ],
+  "hosted": "not_run",
+  "external_business_calls": "not_run",
+  "model_cost": "unknown",
+  "next_stage": "not_started",
+  "owner_slices": {
+    "backend_contract": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
+    "qa_supervisor": "c5b00f13e32eaf8538b0386dca374fa78d17cbb0",
+    "review": "ongoing_exact_slices",
+    "web_shell": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
+    "qa_candidate": "c154777f8689da589a25a253a6c234bfb7891444",
+    "owner_helper": "7358880dfb82c72da899d02f133d0ff3462f0042",
+    "current_head_compatibility": "827f21c5f22b2343febede1fb6c336bddfe8a214"
+  },
+  "models": {
+    "api": "Sol high after temporary Astra SQL repair",
+    "web": "Terra high",
+    "qa": "Sol high",
+    "review": "Astra high",
+    "gates": "Sol high",
+    "ui_review": "Astra high UI accepted and GC evidence scope review",
+    "gc_tests": "Sol medium now engineering regression; GC source frozen"
+  },
+  "remote_checkpoint": {
+    "branch": "codex/v41-control-20261104",
+    "source": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "base": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "raw_native_exit": 0,
+    "raw_findings": 0,
+    "blocking_findings": 0,
+    "push_native_exit": 0,
+    "remote_head": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "actions_runs": [],
+    "functional_status": "R10_AND_MOCK_ACCEPTED_FORTY_RAW_IMAGES_AND_INDEPENDENT_REVIEWS_DELIVERED_DOCUMENT_PACKAGING_PENDING",
+    "batch": "r57"
+  },
+  "full_audit": {
+    "status": "exact_development_source_scan_pass_not_final_stage",
+    "full_native_exit": 0,
+    "current_native_findings": 0,
+    "index_native_findings": 0,
+    "row_guard_blocks": 0,
+    "git_raw_findings": 1760,
+    "git_classified_findings": 1760,
+    "git_blocking_findings": 0,
+    "source_at_start": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
+    "source_at_end": "db5b2f9016ac56e8a96b7b7c51038169f5868bd6",
+    "scope_note": "Exact db5 scan; later commits require final exact audit",
+    "log_sha256": "a9a3bc4fe2fdac33434ceb0df69510a61bceea62123aecb5b6c4449523479471",
+    "current_engineering": {
+      "status": "pass",
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "receipt": "ENGINEERING_R3.json"
+    },
+    "latest_exact_scanner": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "receipt": "SCAN_261F399.json",
+      "wrapper_native": 0,
+      "history_native": 1,
+      "reviewed": 1760,
+      "blocking": 0,
+      "refs_frozen": false
+    }
+  },
+  "business_runtime": {
+    "status": "LOCAL_RUNTIME_AND_FULL_BROWSER_ACCEPTED",
+    "reviewed_business_source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
+    "postgresql_executed": true,
+    "owned_fixture_runtime_grants_executed": true,
+    "public_http_runtime_started": true,
+    "S02_same_principal_ordering": "PG7_ACCEPTED",
+    "S04": "PG22_PLUS_SEPARATE_LIVE_CHILD_ACCEPTED_BOUNDED_SCOPE",
+    "S05_live_rebind": "PG22_ACCEPTED",
+    "current_defect": "NONE_IN_ACCEPTED_V41_CONTROLLED_SCOPE; recorded limitations in RISKS.md",
+    "owner_cli_archive_route": "735_FIXED_HELPER_REAL_COMMITTED_COMMITTED_VERIFIED_R2",
+    "browser_parent": "E20_GROUP_FIX_SOURCE_ACCEPTED",
+    "source_accepted_http": "54ab68f054a136f98dac0a50986caced11362fbd",
+    "source_accepted_business_browser": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "native_source": "c8e817a587c6b65df520f8171e418c1637bf5822",
+    "full_pg": "accepted_exact_e7_full_pair_773",
+    "real_browser": "r8_business_pass_shell_native_timeout_closed",
+    "combined_candidate": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+      "status": "SOURCE_OFFLINE_MOCK_REAL_BROWSER_SQL_AND_AI_VISUAL_ACCEPTED"
+    },
+    "final_receipt": "BROWSER_R10.json"
+  },
+  "code_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "code_tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "runtime_accepted_utc": "2026-11-04T11:02:44.309511+00:00",
+  "final_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+  "latest_normal_push": {
+    "branch": "codex/v41-control-20261104",
+    "source": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "base": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "raw_native_exit": 0,
+    "raw_findings": 0,
+    "blocking_findings": 0,
+    "push_native_exit": 0,
+    "remote_head": "75a8f43933ecb624b091d01430d2b5949cfcbbeb",
+    "actions_runs": [],
+    "functional_status": "R10_AND_MOCK_ACCEPTED_FORTY_RAW_IMAGES_AND_INDEPENDENT_REVIEWS_DELIVERED_DOCUMENT_PACKAGING_PENDING"
+  },
+  "models_closeout": {
+    "api": "Sol medium execution; Sol high targeted diagnosis",
+    "web": "Terra high UI; Sol high repair; Sol medium fixed execution",
+    "qa": "Sol high consumer; Sol medium pin; Terra high actual visuals",
+    "gates": "Sol high native protocol repair; Sol medium fixed checks",
+    "main_review": "Astra high performed independent audit; Sol medium froze the completed report",
+    "evidence_review": "Astra high",
+    "documentation": "Sol medium",
+    "quota": "UNKNOWN_NOT_EXPOSED",
+    "cost": "UNKNOWN_NOT_EXPOSED",
+    "paid_fallback": "NOT_USED"
+  },
+  "prior_remote_checkpoint_records": [
+    {
+      "branch": "codex/v41-control-20261104",
+      "source": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
+      "base": "5acf03ae30807c160aa110035127a4e308e95da9",
+      "raw_native_exit": 0,
+      "raw_findings": 0,
+      "blocking_findings": 0,
+      "push_native_exit": 0,
+      "remote_head": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
+      "actions_runs": [],
+      "functional_status": "MOBILE_AND_BATCH_SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING"
+    }
+  ],
+  "record_interpretation": "status/cards/code_source/final_receipt are current local-stage facts; earlier source-bound ledger entries remain historical and are not relabeled.",
+  "delivery_completed_utc": "2026-11-04T11:18:38.885044+00:00",
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f",
+  "delivery_review_path": "docs/v4/v4-1/reviews/DELIVERY_PACKAGE_746FB18.md",
+  "goal_usage_snapshot": {
+    "observed_utc": "2026-11-04T11:12:31Z",
+    "tokens_used_reported": 5277477,
+    "elapsed_seconds_reported": 38471,
+    "source": "get_goal live tool response",
+    "budget": "UNBUDGETED",
+    "billing_cost": "UNKNOWN",
+    "note": "Aggregate goal telemetry, not Agent effective minutes or provider billing; all historical budgets and unknowns retained."
+  }
+}

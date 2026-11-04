@@ -1,0 +1,80 @@
+{
+  "source_sha": "46164111b7ae3760f4b274dfe951403400b04e68",
+  "source_tree": "4175d5ba0b554327f7cf28e5fca502572f1c40b8",
+  "mode": "NATIVE_PG_COMPONENT_ONLY",
+  "native_exit": 0,
+  "result": "passed_no_hang_reproduced",
+  "project": "p123-7e54b47ffc2a",
+  "started_at": "2026-11-03T15:41:59.175315+00:00",
+  "finished_at": "2026-11-03T15:42:47.486757+00:00",
+  "actual_call_results": [
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1465933.433167512,
+      "nodeid": "tests/v4/test_demo_seed_pg.py::test_correct_creation_and_single_transition_are_linked",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.03327162517234683
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1465937.870179722,
+      "nodeid": "tests/v4/test_demo_seed_pg.py::test_receipt_without_effect_and_effect_without_receipt_are_rejected",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.026273833122104406
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1465942.220867557,
+      "nodeid": "tests/v4/test_demo_seed_pg.py::test_wrong_before_old_receipt_and_two_controls_in_one_transaction_are_rejected",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.0266058340203017
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1465946.447586434,
+      "nodeid": "tests/v4/test_demo_seed_pg.py::test_event_cross_tenant_kind_and_generation_are_rejected",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.045632374938577414
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1465950.343559228,
+      "nodeid": "tests/v4/test_demo_seed_pg.py::test_sql_request_validator_rejects_missing_null_extra_wrong_types_and_cas",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.006655709119513631
+    },
+    {
+      "event": "phase_end",
+      "pid": 1,
+      "monotonic": 1465953.420276938,
+      "nodeid": "tests/test_postgres.py::test_revision_and_schema",
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.002302000066265464
+    }
+  ],
+  "collection_counts": [
+    79,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "cleanup_exit": 0,
+  "stopping_confirmed": true,
+  "full_pg_gate": "NOT_RUN",
+  "api_web_runtime": "NOT_RUN",
+  "evidence_index": ".audit/v4-0/schema-six-461"
+}

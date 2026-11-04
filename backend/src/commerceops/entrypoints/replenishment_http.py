@@ -116,7 +116,24 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
     preflights = WebPreflightStore(store)
     router = APIRouter(prefix="/api/v1")
 
-    def failure_response_for(code: str, status: int) -> JSONResponse:
+    def inquiry_failure(path: str | None, code: str, status: int) -> JSONResponse | None:
+        if (
+            hasattr(app.state, "inquiry_openapi")
+            and path is not None
+            and (
+                path == "/api/v1/readonly-inquiries"
+                or path.startswith("/api/v1/readonly-inquiries/")
+            )
+        ):
+            from commerceops.entrypoints.inquiry_http import failure
+
+            return failure(code, status)
+        return None
+
+    def failure_response_for(code: str, status: int, path: str | None = None) -> JSONResponse:
+        dedicated = inquiry_failure(path, code, status)
+        if dedicated is not None:
+            return dedicated
         try:
             with connect(store.settings) as db:
                 timestamp = utc_time(now(db)).isoformat().replace("+00:00", "Z")
@@ -177,14 +194,16 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
             return response
         except WebFailure as failure:
             failure_response = await run_in_threadpool(
-                failure_response_for, failure.code, failure.status
+                failure_response_for, failure.code, failure.status, request.url.path
             )
             if request.headers.get("origin") in config.origins:
                 failure_response.headers["Access-Control-Allow-Origin"] = request.headers["origin"]
                 failure_response.headers["Access-Control-Allow-Credentials"] = "true"
             return failure_response
         except (psycopg.Error, OSError, ValueError):
-            failure_response = error_response("SERVICE_UNAVAILABLE", 503)
+            failure_response = inquiry_failure(
+                request.url.path, "SERVICE_UNAVAILABLE", 503
+            ) or error_response("SERVICE_UNAVAILABLE", 503)
             if request.headers.get("origin") in config.origins:
                 failure_response.headers["Access-Control-Allow-Origin"] = request.headers["origin"]
                 failure_response.headers["Access-Control-Allow-Credentials"] = "true"
@@ -192,19 +211,25 @@ def install_web(app: FastAPI, config: WebConfig, store: ReplenishmentStore) -> N
 
     @app.exception_handler(WebFailure)
     async def invalid_web(request: Request, failure: WebFailure) -> JSONResponse:
-        return await run_in_threadpool(failure_response_for, failure.code, failure.status)
+        return await run_in_threadpool(
+            failure_response_for, failure.code, failure.status, request.url.path
+        )
 
     @app.exception_handler(HTTPException)
     async def http_failure(request: Request, failure: HTTPException) -> Any:
         if request.url.path.startswith("/api/v1/"):
             code = "RESOURCE_NOT_FOUND" if failure.status_code == 404 else "INVALID_REQUEST"
-            return await run_in_threadpool(failure_response_for, code, failure.status_code)
+            return await run_in_threadpool(
+                failure_response_for, code, failure.status_code, request.url.path
+            )
         return await http_exception_handler(request, failure)
 
     @app.exception_handler(ValidationError)
     async def invalid_shape(request: Request, failure: ValidationError) -> JSONResponse:
         if request.url.path.startswith("/api/v1/"):
-            return await run_in_threadpool(failure_response_for, "INVALID_REQUEST", 422)
+            return await run_in_threadpool(
+                failure_response_for, "INVALID_REQUEST", 422, request.url.path
+            )
         return error_response("INVALID_REQUEST", 400)
 
     def actor(request: Request) -> WebActor:

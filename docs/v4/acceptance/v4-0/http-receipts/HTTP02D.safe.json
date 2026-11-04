@@ -1,0 +1,86 @@
+{
+  "status": "SCENARIO_COMPLETED_PENDING_REVIEW",
+  "source_stage": "F1",
+  "case": "HTTP02D",
+  "scenario": "capacity",
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+  "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+  "test_image": "sha256:958ead1d2c7c4e049e340786d9b9944cefccc47e76dcf5ff99abb2b79b2e73e1",
+  "project": "v4qa_http02d_capacity_20261104",
+  "database": "v4_demo_http02d_capacity_20261104",
+  "starts_at": "2026-11-03T17:48:47.036400+00:00",
+  "deadline": "2026-11-03T18:08:30+00:00",
+  "closed_at": "2026-11-03T17:49:27.262172+00:00",
+  "elapsed_seconds": 40.248,
+  "native_exit": {
+    "prepare": 0,
+    "scenario": 0,
+    "driver": 0,
+    "outer": 0
+  },
+  "cleanup": {
+    "cleanup_confirmed": true,
+    "forced": false,
+    "final_containers": "",
+    "final_networks": "",
+    "ports_closed": {
+      "18444": true,
+      "13444": true
+    },
+    "retained_volumes": "v4qa_http02d_capacity_20261104_pg_data"
+  },
+  "registered_live_process_count": 0,
+  "final_pg_tenant_rows": 3,
+  "final_pg_safe_counts": [
+    {
+      "epoch": 0,
+      "generation": 0,
+      "receipts": 1,
+      "tombstones": 1,
+      "db_utc": "2026-11-03T17:49:22.935840+00:00"
+    },
+    {
+      "epoch": 0,
+      "generation": 0,
+      "receipts": 1,
+      "tombstones": 1,
+      "db_utc": "2026-11-03T17:49:24.220681+00:00"
+    },
+    {
+      "epoch": 0,
+      "generation": 0,
+      "receipts": 1,
+      "tombstones": 1,
+      "db_utc": "2026-11-03T17:49:25.574349+00:00"
+    }
+  ],
+  "active_count": {
+    "tenants": 3,
+    "sessions": 3,
+    "creation_receipts": 3,
+    "basis": "Original successful capacity_facts equality assertion"
+  },
+  "originals": [
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP02D/case.json",
+      "sha256": "eb6c677b5bbc9293666887e6d937ce18de8173995da2a58a50dd8625bffb6197"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP02D/ROOT_OUTER.json",
+      "sha256": "d4098c697c9ca90f4f57638c9b6d76d24edc6e2eecdd18b85f26338b23a35d96"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP02D/driver.outer.log",
+      "sha256": "af8a3ab2a907417fc5219ec8f43a1a36a62b59d4189e6ab19e438a0468321fcd"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP02D/final_pg.safe.json",
+      "sha256": "d1dd20581c0637cba257cabe23c9beccae2b4b9237b96526dc47d34be30a1652"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/HTTP02D_EXECUTION.safe.json",
+      "sha256": "d79d5552c19d0769a5324c4a4b1da76c826183c86e2859ca20f2ba4b8ee9239b"
+    }
+  ]
+}

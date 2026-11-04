@@ -1,0 +1,1369 @@
+{
+  "schema_version": "commerceops-readonly-shared-files-v1",
+  "date": "2026-11-03",
+  "status": "READ_ONLY_AUDIT; NO_IMPLEMENTATION_AUTHORIZED",
+  "repository": "/Users/aipuli/Documents/Projects/commerceops-agent",
+  "source_policy": "git show exact supplied remote commits; remote HEAD observation supplied by ROOT, not independently re-fetched; local Harness b9ceaf3/WIP excluded",
+  "refs": {
+    "main": {
+      "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+      "tree": "ac92562c26d24eb183143e52de64e5a51282948c"
+    },
+    "M3": {
+      "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "tree": "43e4e732824e23b991660a4f7882ba8f5a265df1"
+    },
+    "Harness": {
+      "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+      "tree": "7d063bad82294de006f38a520ef84a435f1fd215"
+    }
+  },
+  "merge_base": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+  "changed_path_counts": {
+    "M3": 224,
+    "Harness": 69
+  },
+  "shared_path_count": 8,
+  "shared_files": [
+    {
+      "path": ".github/workflows/quality.yml",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "risk": "M3 pgvector preparation/binding in PG, Web and N01 vs Harness six shards/aggregators/cache/final merge-gate; semantic integration required.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "baa936b035e5da255731d33104a224a5ad114df6",
+          "sha256": "3efa8298e0393c4291c67b272c1c950e4b5d5fa09748e6bcb5ae123e4d65720e",
+          "line_count": 801
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "1d02d91d9c2cbb40023b9b61742b311980f71d4a",
+          "sha256": "108e1a7a97dcbb58989c84fc61eb576bfec8cc4ac352ebe5bbc859c239695619",
+          "line_count": 860,
+          "changed_hunks_from_merge_base": [
+            "@@ -46,0 +47,4 @@ jobs:",
+            "@@ -51 +55 @@ jobs:",
+            "@@ -108,0 +113 @@ jobs:",
+            "@@ -162 +167 @@ jobs:",
+            "@@ -203,0 +209,3 @@ jobs:",
+            "@@ -205 +213 @@ jobs:",
+            "@@ -213 +221,3 @@ jobs:",
+            "@@ -317,0 +328,17 @@ jobs:",
+            "@@ -365,0 +393,4 @@ jobs:",
+            "@@ -449,0 +481,4 @@ jobs:",
+            "@@ -453 +488 @@ jobs:",
+            "@@ -537,0 +573 @@ jobs:",
+            "@@ -605 +641 @@ jobs:",
+            "@@ -696,0 +733,17 @@ jobs:",
+            "@@ -757 +810,2 @@ jobs:",
+            "@@ -770 +824,6 @@ jobs:"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "faccd41cf1e9d5429500a844fb7b9edaf3a9041f",
+          "sha256": "97064e7410c9bb6e915c0da7bc3c04006ec753292d91e9da02e297870b17d6b1",
+          "line_count": 996,
+          "changed_hunks_from_merge_base": [
+            "@@ -15 +15 @@ jobs:",
+            "@@ -17 +17 @@ jobs:",
+            "@@ -22,2 +22,54 @@ jobs:",
+            "@@ -25,0 +78 @@ jobs:",
+            "@@ -28,5 +81,3 @@ jobs:",
+            "@@ -34 +85,6 @@ jobs:",
+            "@@ -37 +93 @@ jobs:",
+            "@@ -41,7 +97,10 @@ jobs:",
+            "@@ -49,0 +109,13 @@ jobs:",
+            "@@ -51,3 +123,17 @@ jobs:",
+            "@@ -55 +140,0 @@ jobs:",
+            "@@ -57,2 +142,2 @@ jobs:",
+            "@@ -61,0 +147,3 @@ jobs:",
+            "@@ -89,0 +178,29 @@ jobs:",
+            "@@ -105,0 +223 @@ jobs:",
+            "@@ -113,0 +232 @@ jobs:",
+            "@@ -115,3 +233,0 @@ jobs:",
+            "@@ -416,0 +533,7 @@ jobs:",
+            "@@ -417,0 +541,2 @@ jobs:",
+            "@@ -419 +544 @@ jobs:",
+            "@@ -421 +546 @@ jobs:",
+            "@@ -426,12 +551 @@ jobs:",
+            "@@ -440 +554 @@ jobs:",
+            "@@ -444,14 +558,4 @@ jobs:",
+            "@@ -459,4 +563,25 @@ jobs:",
+            "@@ -464 +588,0 @@ jobs:",
+            "@@ -465,0 +590 @@ jobs:",
+            "@@ -469 +594 @@ jobs:",
+            "@@ -471,0 +597 @@ jobs:",
+            "@@ -473 +599 @@ jobs:",
+            "@@ -475,3 +601,2 @@ jobs:",
+            "@@ -479,3 +604,19 @@ jobs:",
+            "@@ -483,5 +624,14 @@ jobs:",
+            "@@ -516,0 +667,29 @@ jobs:",
+            "@@ -534,0 +714 @@ jobs:",
+            "@@ -801,0 +982,15 @@ jobs:"
+          ]
+        }
+      }
+    },
+    {
+      "path": "AGENTS.md",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "ROOT",
+      "risk": "M3 current local acceptance vs Harness historical snapshot/archive; preserve dated authority, do not adopt stale M3-unapproved state.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "26b169e478ea237e02ceea4cadc01b718bf9f12c",
+          "sha256": "121290e12d2e4349e3c90f685058c4c359bcb1251872d87d0de280f7bcde2837",
+          "line_count": 122
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "32deac37417e921fcf3ffac59e120b4f76f7f216",
+          "sha256": "1f77ba8953b459e1b823dc6d54ad1a4249a04d36a0e506626f66ecfcacdbf0ec",
+          "line_count": 128,
+          "changed_hunks_from_merge_base": [
+            "@@ -2,0 +3,6 @@"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "0a5d3525b7ac1abbdc82eb755ce91f465db07737",
+          "sha256": "772bad51144673d53b34d9d72d399bfbe050f7f2c3de7b3a359bda95100e7fb8",
+          "line_count": 17,
+          "changed_hunks_from_merge_base": [
+            "@@ -1 +1 @@",
+            "@@ -3 +3 @@",
+            "@@ -5 +5 @@ Phase5/M2最后事实合批（2026-10-27，台北D18）：Root及原Reviewer已",
+            "@@ -7 +7,5 @@ Phase5/M2最后事实合批（2026-10-27，台北D18）：Root及原Reviewer已",
+            "@@ -9 +13 @@ Phase5/M2统一合同（2026-10-26，台北D17）：用户已批准持续托管",
+            "@@ -11,112 +15,3 @@ Phase5/M2首批（2026-10-26，台北）：用户已明确开始，仅[Issue49]("
+          ]
+        }
+      }
+    },
+    {
+      "path": "scripts/gitleaks_rules.json",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "risk": "M3 45 exact exceptions/20 historical findings vs Harness 17/10; keep generator/TOML/validator/provenance coherent.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "dc1d323b707a0cf71a994a27bdcb11f226dabddf",
+          "sha256": "bbcd9a06b50df22591a3072ba2e8f00f585ac3ced3ae2e72f536885b986ba6a0",
+          "line_count": 191
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "ceef03021dd7335b8faab20ec13b54763f27b456",
+          "sha256": "72e41092a9ccb24f73327000fde93ed44eaca3b051bba9dfd4c03dbbc5ec12b7",
+          "line_count": 631,
+          "changed_hunks_from_merge_base": [
+            "@@ -5 +5 @@",
+            "@@ -153,0 +154,253 @@",
+            "@@ -188,0 +442,187 @@"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "63ed93f85a786bb5c04118b179c7b0c128ae57f5",
+          "sha256": "e3801457001d2faef883a718b1b6c7f020f03aae1679b4c46caf4ed49b9683be",
+          "line_count": 268,
+          "changed_hunks_from_merge_base": [
+            "@@ -188,0 +189,77 @@"
+          ]
+        }
+      }
+    },
+    {
+      "path": "scripts/pg_ci_evidence.py",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "risk": "M3 LOCK_FILES image inputs plus Harness v2 plan/native/aggregate schema; base PG descriptor is not M3 image binding.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "ba27a3a3f8eb363640b7ccb02d4fc2c573a62881",
+          "sha256": "4adf9a3a569cb23d948c1da1c8b6a8e535ebf915d35558585100d8ea22103867",
+          "line_count": 393
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "0c4b8974e2f69ada8d5274f3d50fb1a9ef19e74e",
+          "sha256": "379c302ca0e57163740a37f5bba2034aaf2f878ef3a2c96f9ec01f0bdbfb7b7d",
+          "line_count": 398,
+          "changed_hunks_from_merge_base": [
+            "@@ -89,0 +90,5 @@ LOCK_FILES = ("
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "2fe8c2936dd3571dabfb48a816748c87ef31bcff",
+          "sha256": "55282eb3b3785842f6522e9cd94cd91042ea0e724e51800d8ec6a5d494ce4a82",
+          "line_count": 918,
+          "changed_hunks_from_merge_base": [
+            "@@ -376,0 +377,520 @@ def verify_pair(existing: dict[str, Any], phase3: dict[str, Any]) -> None:",
+            "@@ -377,0 +898,5 @@ def main() -> None:"
+          ]
+        }
+      }
+    },
+    {
+      "path": "scripts/pg_diagnostic.py",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "risk": "M3 module family/owned subnet/image lifecycle plus Harness shard selection/native image/native exit evidence and timer switch.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "282ea6b2c7840eaa21dffa89fa166ae320457216",
+          "sha256": "23ca447b7b783d9793be2cf66b68b8236ed0f66c84c765c6791c36c7f3fa4601",
+          "line_count": 969
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "d8326f88753b7cd707a222707082006a12457170",
+          "sha256": "5256f926724113f9cfb7efc138551492fd4a09f57b9ec530fa404fb0ba46dfe8",
+          "line_count": 1153,
+          "changed_hunks_from_merge_base": [
+            "@@ -3,0 +4,2 @@ import argparse",
+            "@@ -6,0 +9 @@ import re",
+            "@@ -13,0 +17 @@ from pathlib import Path",
+            "@@ -15,0 +20,8 @@ from uuid import uuid4",
+            "@@ -62,0 +75,5 @@ def collected_nodes(records: list[dict[str, object]]) -> list[str]:",
+            "@@ -69 +86 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:",
+            "@@ -78 +95,4 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:",
+            "@@ -80 +100 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:",
+            "@@ -292,0 +313,86 @@ def run_combined(",
+            "@@ -297,0 +404,2 @@ def cleanup_registered_containers(",
+            "@@ -328,0 +437,4 @@ def cleanup_registered_containers(",
+            "@@ -356,0 +469,2 @@ def main() -> None:",
+            "@@ -366,0 +481,7 @@ def main() -> None:",
+            "@@ -453 +574,18 @@ def main() -> None:",
+            "@@ -539,0 +678,6 @@ def main() -> None:",
+            "@@ -551,0 +696 @@ def main() -> None:",
+            "@@ -650,0 +796,15 @@ def main() -> None:",
+            "@@ -690,0 +851,4 @@ def main() -> None:",
+            "@@ -692,0 +857,7 @@ def main() -> None:",
+            "@@ -870,0 +1042,2 @@ def main() -> None:",
+            "@@ -895,0 +1069,2 @@ def main() -> None:",
+            "@@ -900,0 +1076,5 @@ def main() -> None:",
+            "@@ -902,0 +1083,2 @@ def main() -> None:",
+            "@@ -913,0 +1096,2 @@ def main() -> None:"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "15ff9334054d94492d8f556432dc5bbaa4d43b0f",
+          "sha256": "3d910162e33ae88232cfa7142b35617aa91742d22b86c4548376a9fab344d082",
+          "line_count": 1089,
+          "changed_hunks_from_merge_base": [
+            "@@ -18,0 +19,2 @@ from scripts.pg_ci_evidence import (",
+            "@@ -21,0 +24 @@ from scripts.pg_ci_evidence import (",
+            "@@ -22,0 +26,3 @@ from scripts.pg_ci_evidence import (",
+            "@@ -193,0 +200,2 @@ def run_combined(",
+            "@@ -207,0 +216,7 @@ def run_combined(",
+            "@@ -353,0 +369,35 @@ def cleanup_registered_containers(",
+            "@@ -365,0 +416,2 @@ def main() -> None:",
+            "@@ -366,0 +419,18 @@ def main() -> None:",
+            "@@ -385 +455,13 @@ def main() -> None:",
+            "@@ -683 +765 @@ def main() -> None:",
+            "@@ -694,0 +777,4 @@ def main() -> None:",
+            "@@ -762,0 +849,2 @@ def main() -> None:",
+            "@@ -875 +963,7 @@ def main() -> None:",
+            "@@ -912,0 +1007,18 @@ def main() -> None:",
+            "@@ -939 +1051,9 @@ def main() -> None:"
+          ]
+        }
+      }
+    },
+    {
+      "path": "scripts/scan_secrets.py",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "risk": "M3 exact line/span guards and historical records vs Harness include_history/current-only API used by Fast.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "8691d4511e61d108a835a566e949df64fe9fe8d9",
+          "sha256": "753c69b2861087676c00b9032f9e71e70a24de64114b4858184d09c4f29a96d5",
+          "line_count": 455
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "31a10df256ccade26dbb67b9ab513d93147b2bf4",
+          "sha256": "1ce54aaeb003d430941f02004c8790a8608be8b5f483809bea4773ee77be80fc",
+          "line_count": 737,
+          "changed_hunks_from_merge_base": [
+            "@@ -22,0 +23,2 @@ from scripts.vendor_gitleaks_rules import (",
+            "@@ -33,0 +36,2 @@ from scripts.vendor_gitleaks_rules import (",
+            "@@ -93,0 +98,233 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (",
+            "@@ -98 +335 @@ def validate_rules() -> None:",
+            "@@ -110 +347 @@ def validate_rules() -> None:",
+            "@@ -116 +353 @@ def validate_rules() -> None:",
+            "@@ -120 +357 @@ def validate_rules() -> None:",
+            "@@ -125 +362 @@ def validate_rules() -> None:",
+            "@@ -222,0 +460,23 @@ def validate_rules() -> None:",
+            "@@ -269 +529 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s",
+            "@@ -279,0 +540,4 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s",
+            "@@ -291,0 +556,15 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s",
+            "@@ -384 +663 @@ def scan(root: Path) -> int:",
+            "@@ -400 +679,4 @@ def scan(root: Path) -> int:"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "32c03fddd372d90db2804cb42e0fe7361e9bf573",
+          "sha256": "54aad1dd65309c7961aaa9b5a03552cccd3dfe91aa6180a930cec70d6414cd8e",
+          "line_count": 559,
+          "changed_hunks_from_merge_base": [
+            "@@ -93,0 +94,96 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (",
+            "@@ -295 +391 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s",
+            "@@ -379,0 +476,3 @@ def scan(root: Path) -> int:",
+            "@@ -443,0 +543,5 @@ def main() -> None:",
+            "@@ -446 +550 @@ def main() -> None:"
+          ]
+        }
+      }
+    },
+    {
+      "path": "tests/diagnostic_plugin.py",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "risk": "M3 sanitized diagnostic allowlists plus Harness 45s Python Timer with cancel/join; must remain paired with timeout0.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "d418facf1055f87c960f2aa91c03975691446f57",
+          "sha256": "119bb03fc66ffdd48c1f4fe9eab24cb2636537c7cf7d547f9fb74e915f6de82b",
+          "line_count": 212
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "9096da9e30f6a3c7dfb51d90eef8102ae25d8b76",
+          "sha256": "1354209b3f13218bab566161f186ea1b64ddbcfc7b51320fd0248beb1d22ce5a",
+          "line_count": 237,
+          "changed_hunks_from_merge_base": [
+            "@@ -68,0 +69,5 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:",
+            "@@ -93,0 +99,4 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:",
+            "@@ -122,0 +132,16 @@ def pytest_runtest_makereport(item: Any, call: Any) -> Any:"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "36b8daebd61f048765992b74a13d122f351674ac",
+          "sha256": "9aa74c153669032fc840b47ac24f365b852c986fdfe6f38c03f4cb5c0ec4e251",
+          "line_count": 255,
+          "changed_hunks_from_merge_base": [
+            "@@ -6,0 +7,2 @@ import stat",
+            "@@ -21,0 +24,39 @@ def emit(event: str, **fields: Any) -> None:",
+            "@@ -175,0 +217,2 @@ def pytest_configure(config: Any) -> None:"
+          ]
+        }
+      }
+    },
+    {
+      "path": "tests/test_quality_gates.py",
+      "status": "EXISTING_SHARED_MODIFICATION",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "risk": "Both branches alter exact history assertions; no blanket skip/allowlist or deletion.",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "1011cff32abea151747b10a6bb85cd644f17d2c1",
+          "sha256": "2252b9e78d5075bd6a2d3233736e372b099ad0cce60150ad692e49a7d208b508",
+          "line_count": 714
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "5f93c8a09628479dc485c511a1e8ebd8cd37c973",
+          "sha256": "e726d145aa168106d42d16622e7a4a8a49502f77cb98fa6a5ead66ddf5b99f06",
+          "line_count": 762,
+          "changed_hunks_from_merge_base": [
+            "@@ -562 +562,39 @@ def test_public_test_declaration_in_another_commit_is_not_approved(repository: P",
+            "@@ -586 +624,11 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->"
+          ]
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "831fd7d9504b747590efde00352c0be6c19b7ea3",
+          "sha256": "0d0c1a0212e3e7bb0dfcabf03e72ed03f413f2881823ccf55644f1b83489056d",
+          "line_count": 747,
+          "changed_hunks_from_merge_base": [
+            "@@ -47 +47 @@ def repository(tmp_path: Path) -> Path:",
+            "@@ -49 +49,2 @@ def run_scan(repo: Path) -> subprocess.CompletedProcess[str]:",
+            "@@ -58 +59,4 @@ def run_scan(repo: Path) -> subprocess.CompletedProcess[str]:",
+            "@@ -78 +82 @@ def test_synthetic_scanner_blocks_and_redacts(repository: Path, scope: str) -> N",
+            "@@ -81,0 +86,7 @@ def test_synthetic_scanner_blocks_and_redacts(repository: Path, scope: str) -> N",
+            "@@ -86 +97,2 @@ def test_synthetic_scanner_blocks_and_redacts(repository: Path, scope: str) -> N",
+            "@@ -562 +574 @@ def test_public_test_declaration_in_another_commit_is_not_approved(repository: P",
+            "@@ -586 +598,18 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->",
+            "@@ -590,0 +620,4 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->"
+          ]
+        }
+      }
+    }
+  ],
+  "semantic_dependencies": [
+    {
+      "path": ".github/workflows/harness-pg-shadow.yml",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "29d0cc83bf8252986ae2a45a8e945fe14525ddb7",
+          "line_count": 189
+        }
+      }
+    },
+    {
+      "path": "scripts/m3_pgvector.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "ae8a57cdffe788ae26d4cf38e45508e3d252b402",
+          "line_count": 231
+        }
+      }
+    },
+    {
+      "path": "compose.yml",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "8daed553517e181ff7c604d5dec41852fab82ccd",
+          "line_count": 55
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "8daed553517e181ff7c604d5dec41852fab82ccd",
+          "line_count": 55
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "8daed553517e181ff7c604d5dec41852fab82ccd",
+          "line_count": 55
+        }
+      }
+    },
+    {
+      "path": "compose.m3.yml",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "f4a176235a54fea6d1b49c81a466918c14893e35",
+          "line_count": 7
+        }
+      }
+    },
+    {
+      "path": ".dockerignore",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "7d7a9438cb16e456c44b1b823e64800cc8e703f4",
+          "line_count": 11
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "7d7a9438cb16e456c44b1b823e64800cc8e703f4",
+          "line_count": 11
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "7d7a9438cb16e456c44b1b823e64800cc8e703f4",
+          "line_count": 11
+        }
+      }
+    },
+    {
+      "path": "infrastructure/Dockerfile",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "f6fa8371dc1b5841b1cf08ee78fb3dfe665d8560",
+          "line_count": 15
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "f6fa8371dc1b5841b1cf08ee78fb3dfe665d8560",
+          "line_count": 15
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "f099ddb48b4eadf3857d3ffe331007ee283edb34",
+          "line_count": 15
+        }
+      }
+    },
+    {
+      "path": "infrastructure/knowledge_pgvector.Dockerfile",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "95bafe014084c5df292cf02df9d104daa89bdfa8",
+          "line_count": 57
+        }
+      }
+    },
+    {
+      "path": "infrastructure/knowledge_pgvector.pins.json",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "e84150f015d8e220d7b499ac3a40649176749e47",
+          "line_count": 120
+        }
+      }
+    },
+    {
+      "path": "scripts/check.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "0d068bf326c2fffb60d3d356f2b89ce614a2d607",
+          "line_count": 80
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "79f804dfb1561be29dafeb35a9202926709b8623",
+          "line_count": 82
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "0d068bf326c2fffb60d3d356f2b89ce614a2d607",
+          "line_count": 80
+        }
+      }
+    },
+    {
+      "path": "scripts/check_m3_contracts.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "ae6410de652283a25a2465768bffcdc7f9b58b9b",
+          "line_count": 130
+        }
+      }
+    },
+    {
+      "path": "scripts/verify.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "ba2510558139450db80b9238fff10544ac091a57",
+          "line_count": 316
+        }
+      }
+    },
+    {
+      "path": "scripts/check_workflows.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "9fa4282405e4e3bcb414c4f1f52f8e2bddf8e0ba",
+          "line_count": 52
+        }
+      }
+    },
+    {
+      "path": "scripts/merge_gate.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "ad95f402d9da0378aafc18d7a0cd556bf4414f1f",
+          "line_count": 51
+        }
+      }
+    },
+    {
+      "path": "docs/harness/h2/weights.json",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "5d72675c1c6a8598a0fc1bdb8f7a988c82ec66e9",
+          "line_count": 592
+        }
+      }
+    },
+    {
+      "path": "tests/test_pg_diag_partition.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "04435cf2492ff74604fe70300e0c222b415a93cb",
+          "line_count": 573
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "04435cf2492ff74604fe70300e0c222b415a93cb",
+          "line_count": 573
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "c03824af506b0652b41ad2c7152c5682488dcb58",
+          "line_count": 710
+        }
+      }
+    },
+    {
+      "path": "tests/test_pg_diag_shutdown.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "e74ed9597a0a1ff9c1e328f0e56ae48e3ccdd25f",
+          "line_count": 411
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "e74ed9597a0a1ff9c1e328f0e56ae48e3ccdd25f",
+          "line_count": 411
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "89440f0993d96856ac1c61dd46f38cfab1284fba",
+          "line_count": 436
+        }
+      }
+    },
+    {
+      "path": "tests/test_pg_shard_evidence.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "9973ac325585404630626d4483afd8aa5c727e2d",
+          "line_count": 1008
+        }
+      }
+    },
+    {
+      "path": "tests/test_n01_ci_gate.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "e185afbfb37fca97794ddd9250d09fca6e88291c",
+          "line_count": 364
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "e185afbfb37fca97794ddd9250d09fca6e88291c",
+          "line_count": 364
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "5084b9a3ebc9387ac54b52b7c1f70971c48d0633",
+          "line_count": 495
+        }
+      }
+    },
+    {
+      "path": "tests/test_live_failure_ci_gate.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "1d2f8e8c88680ca45f7ad5c67d13819b0ec5389c",
+          "line_count": 283
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "c0941928f8037d55b68f61d0c0bbe4f19829c804",
+          "line_count": 317
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "1d2f8e8c88680ca45f7ad5c67d13819b0ec5389c",
+          "line_count": 283
+        }
+      }
+    },
+    {
+      "path": "tests/test_pg_owned_subnet.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "07820d6f4ba32778e248ad66d97d29d932124a7c",
+          "line_count": 173
+        }
+      }
+    },
+    {
+      "path": "tests/test_m3_gate_coverage.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "638f8652fd81d751974f7f94e9902261c0709ad2",
+          "line_count": 215
+        }
+      }
+    },
+    {
+      "path": "tests/test_m3_local_runtime.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "95022c2b4333fc84298651edd5c5d9febc8c67a3",
+          "line_count": 310
+        }
+      }
+    },
+    {
+      "path": "tests/test_harness_verify.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "9f1f57f063bb6087644d40de077d1615908ad33a",
+          "line_count": 166
+        }
+      }
+    },
+    {
+      "path": "tests/test_merge_gate.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "CI_INTEGRATION",
+      "versions": {
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "85343f90b41370e17f711be1f5fcd307794330fa",
+          "line_count": 117
+        }
+      }
+    },
+    {
+      "path": ".gitleaks.toml",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "aa68c112b4ac061c5f2f07084bf48904dfd5040e",
+          "line_count": 2169
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "32aa4e3ccdc96f9b297a78b61d73c1e9266e7d6e",
+          "line_count": 2477
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "aa68c112b4ac061c5f2f07084bf48904dfd5040e",
+          "line_count": 2169
+        }
+      }
+    },
+    {
+      "path": "scripts/vendor_gitleaks_rules.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "dcca6f878e9e236275a22d2ec0c49077fda2f057",
+          "line_count": 413
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "dfbc82d35e72593dfb6523f54323f11cfc6306a3",
+          "line_count": 685
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "dcca6f878e9e236275a22d2ec0c49077fda2f057",
+          "line_count": 413
+        }
+      }
+    },
+    {
+      "path": "tests/test_m3_scan_compat.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "338b10563c62351a815bc65f5cd065463e4f784a",
+          "line_count": 214
+        }
+      }
+    },
+    {
+      "path": "tests/test_m3_scan_public_delta.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SECURITY_SCAN",
+      "versions": {
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "e29455503bdfefeaae7546147467756701310fdb",
+          "line_count": 211
+        }
+      }
+    },
+    {
+      "path": "tests/e2e/web/run_c09_n01.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "WEB",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "0c03481f15be691708b3d12ef887926147b9fe78",
+          "line_count": 366
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "edebdb19561da2d97c54d995790f8ed8cdb755b9",
+          "line_count": 405
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "0c03481f15be691708b3d12ef887926147b9fe78",
+          "line_count": 366
+        }
+      }
+    },
+    {
+      "path": "tests/e2e/web/run_live_batches.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "WEB",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "160f2b9a5c6818f7be5a7eecdc131e7e1487456c",
+          "line_count": 749
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "6ec3f8cb499606d2aa0a1555cd8137cf98a53e32",
+          "line_count": 787
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "160f2b9a5c6818f7be5a7eecdc131e7e1487456c",
+          "line_count": 749
+        }
+      }
+    },
+    {
+      "path": "frontend/package.json",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "WEB",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "e938347a696e935f981b48148f4ce499fb8bc1bb",
+          "line_count": 41
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "a6c06fd4cfcf470e96d7eaa97f31b24679256d78",
+          "line_count": 41
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "e938347a696e935f981b48148f4ce499fb8bc1bb",
+          "line_count": 41
+        }
+      }
+    },
+    {
+      "path": "frontend/components/live-console.tsx",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "WEB",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "830dbcc9ac069352a0c8b1960716034c9aa3a23f",
+          "line_count": 1355
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "e4d64f21cbfd76df4ff89169c2fae65785901b3c",
+          "line_count": 1401
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "830dbcc9ac069352a0c8b1960716034c9aa3a23f",
+          "line_count": 1355
+        }
+      }
+    },
+    {
+      "path": "frontend/app/[[...path]]/page.tsx",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "WEB",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "12452246c2b47460a891520b994a316d1ed757d6",
+          "line_count": 169
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "cea7e85dd1b03d8e9b24f8fe7676e572ba3c84b0",
+          "line_count": 171
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "12452246c2b47460a891520b994a316d1ed757d6",
+          "line_count": 169
+        }
+      }
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/api.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SCHEMA_API",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "e250bd8d210e6fca88025fc39e282629a7b42f6c",
+          "line_count": 104
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "61df6ff3e11732d94ddea9757197d8333ddd15e5",
+          "line_count": 203
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "e250bd8d210e6fca88025fc39e282629a7b42f6c",
+          "line_count": 104
+        }
+      }
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/database.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SCHEMA_API",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "02e2e2d2fd708ce73b4f96256210e2fe7a22d696",
+          "line_count": 216
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "c4dfaae12729c011f762b600d156471e6587d1b9",
+          "line_count": 306
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "02e2e2d2fd708ce73b4f96256210e2fe7a22d696",
+          "line_count": 216
+        }
+      }
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/replenishment_http.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SCHEMA_API",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "242c8e07dfae435cb1dd78d45ba9e7e54feb7088",
+          "line_count": 436
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "615278c30b1b91f448543c818f8a6b31f541f518",
+          "line_count": 461
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "242c8e07dfae435cb1dd78d45ba9e7e54feb7088",
+          "line_count": 436
+        }
+      }
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/web_sessions.py",
+      "status": "EXISTING_SEMANTIC_DEPENDENCY",
+      "proposed_single_writer": "SCHEMA_API",
+      "versions": {
+        "main": {
+          "commit": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+          "git_blob": "3e1d8f09505e99a2499c740de0e143ad6aab9b96",
+          "line_count": 428
+        },
+        "M3": {
+          "commit": "952e6246deb01ec763f2541d9f316753987744f3",
+          "git_blob": "3e1d8f09505e99a2499c740de0e143ad6aab9b96",
+          "line_count": 428
+        },
+        "Harness": {
+          "commit": "684e645feb1dbe0a27864ca2308fe1afd9fa948d",
+          "git_blob": "3e1d8f09505e99a2499c740de0e143ad6aab9b96",
+          "line_count": 428
+        }
+      }
+    }
+  ],
+  "complete_changed_paths_from_merge_base": {
+    "M3": [
+      ".github/workflows/quality.yml",
+      ".gitleaks.toml",
+      "AGENTS.md",
+      "README.md",
+      "backend/migrations/versions/0019_p6_daily_reports.py",
+      "backend/migrations/versions/0020_p6_knowledge_copy.py",
+      "backend/migrations/versions/0021_p6_readonly_inquiries.py",
+      "backend/migrations/versions/0022_p6_daily_operations.py",
+      "backend/migrations/versions/0023_p6_copy_drafts.py",
+      "backend/src/commerceops/adapters/commerce/daily.py",
+      "backend/src/commerceops/application/commerce/readonly_inquiry_contracts.py",
+      "backend/src/commerceops/application/commerce/readonly_inquiry_executor.py",
+      "backend/src/commerceops/application/commerce/readonly_inquiry_render.py",
+      "backend/src/commerceops/application/commerce/readonly_inquiry_service_contracts.py",
+      "backend/src/commerceops/application/commerce/readonly_inquiry_service_demo.py",
+      "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py",
+      "backend/src/commerceops/application/daily/__init__.py",
+      "backend/src/commerceops/application/daily/aggregation.py",
+      "backend/src/commerceops/application/daily/contracts.py",
+      "backend/src/commerceops/application/daily/cursors.py",
+      "backend/src/commerceops/application/daily/http_models.py",
+      "backend/src/commerceops/application/daily/questions.py",
+      "backend/src/commerceops/application/daily/read_models.py",
+      "backend/src/commerceops/application/daily/scheduling.py",
+      "backend/src/commerceops/application/daily/source.py",
+      "backend/src/commerceops/application/knowledge_copy/__init__.py",
+      "backend/src/commerceops/application/knowledge_copy/citations.py",
+      "backend/src/commerceops/application/knowledge_copy/commands.py",
+      "backend/src/commerceops/application/knowledge_copy/contracts.py",
+      "backend/src/commerceops/application/knowledge_copy/http_models.py",
+      "backend/src/commerceops/application/knowledge_copy/prompt.py",
+      "backend/src/commerceops/application/knowledge_copy/ranking.py",
+      "backend/src/commerceops/assets/p6-copy-web-v1.openapi.json",
+      "backend/src/commerceops/assets/p6-daily-read-v1.openapi.json",
+      "backend/src/commerceops/assets/p6-inquiry-web-v1.openapi.json",
+      "backend/src/commerceops/entrypoints/api.py",
+      "backend/src/commerceops/entrypoints/daily_http.py",
+      "backend/src/commerceops/entrypoints/daily_schedule.py",
+      "backend/src/commerceops/entrypoints/daily_source.py",
+      "backend/src/commerceops/entrypoints/database.py",
+      "backend/src/commerceops/entrypoints/inquiry_http.py",
+      "backend/src/commerceops/entrypoints/knowledge_copy_http.py",
+      "backend/src/commerceops/entrypoints/knowledge_copy_openapi.py",
+      "backend/src/commerceops/entrypoints/replenishment_http.py",
+      "backend/src/commerceops/entrypoints/worker.py",
+      "backend/src/commerceops/infrastructure/daily_delivery.py",
+      "backend/src/commerceops/infrastructure/daily_operations.py",
+      "backend/src/commerceops/infrastructure/daily_questions.py",
+      "backend/src/commerceops/infrastructure/daily_read.py",
+      "backend/src/commerceops/infrastructure/daily_schedules.py",
+      "backend/src/commerceops/infrastructure/daily_sources.py",
+      "backend/src/commerceops/infrastructure/daily_store.py",
+      "backend/src/commerceops/infrastructure/knowledge_copy_config.py",
+      "backend/src/commerceops/infrastructure/knowledge_copy_draft_store.py",
+      "backend/src/commerceops/infrastructure/knowledge_copy_drafts.py",
+      "backend/src/commerceops/infrastructure/knowledge_copy_repository.py",
+      "backend/src/commerceops/infrastructure/knowledge_copy_values.py",
+      "backend/src/commerceops/infrastructure/readonly_inquiry_config.py",
+      "backend/src/commerceops/infrastructure/readonly_inquiry_runtime.py",
+      "backend/src/commerceops/infrastructure/readonly_inquiry_store.py",
+      "backend/src/commerceops/infrastructure/worker_lock.py",
+      "backend/src/commerceops/workflows/daily_report.py",
+      "backend/src/commerceops/workflows/readonly_inquiry.py",
+      "backend/src/commerceops/workflows/report_explanation.py",
+      "compose.m3.yml",
+      "docs/M3_LOCAL_ACCEPTANCE.md",
+      "docs/M3_LOCAL_DELIVERY.md",
+      "docs/M3_SCAN_COMPAT.md",
+      "docs/M3_SCAN_PUBLIC_DELTA.md",
+      "docs/ROADMAP.md",
+      "docs/STATUS.md",
+      "docs/contracts/p6-copy-application-wiring-v1.md",
+      "docs/contracts/p6-copy-web-v1.openapi.json",
+      "docs/contracts/p6-copy-web-v1.schema.json",
+      "docs/contracts/p6-daily-local-demo-v1.md",
+      "docs/contracts/p6-daily-operations-v1.md",
+      "docs/contracts/p6-daily-read-v1.openapi.json",
+      "docs/contracts/p6-daily-read-v1.schema.json",
+      "docs/contracts/p6-daily-receipts-v1.md",
+      "docs/contracts/p6-daily-storage-v1.md",
+      "docs/contracts/p6-inquiry-application-wiring-v1.md",
+      "docs/contracts/p6-inquiry-existing-demo-export-v1.md",
+      "docs/contracts/p6-inquiry-local-demo-v1.md",
+      "docs/contracts/p6-inquiry-service-v1.md",
+      "docs/contracts/p6-k2-immutable-negative-v1.md",
+      "docs/contracts/p6-knowledge-copy-v1.md",
+      "docs/contracts/p6-knowledge-storage-v1.md",
+      "docs/contracts/p6-knowledge-wiring-v1.md",
+      "docs/contracts/p6-local-runtime-v1.md",
+      "docs/contracts/p6-m3-v1.md",
+      "docs/contracts/p6-readonly-inquiry-v1.md",
+      "docs/contracts/p6-readonly-tools-v1.md",
+      "docs/plans/M3_MANAGED_DEVELOPMENT.md",
+      "docs/ux/m3-report-inquiry.md",
+      "frontend/app/[[...path]]/page.tsx",
+      "frontend/app/globals.css",
+      "frontend/components/copy.tsx",
+      "frontend/components/daily-report.tsx",
+      "frontend/components/daily-s3-read.tsx",
+      "frontend/components/daily-write.tsx",
+      "frontend/components/inquiry.tsx",
+      "frontend/components/live-console.tsx",
+      "frontend/lib/m3-read-client.ts",
+      "frontend/lib/m3-read-schema.generated.json",
+      "frontend/lib/m3-types.generated.ts",
+      "frontend/lib/p3-live-client.ts",
+      "frontend/lib/p3-transport.ts",
+      "frontend/lib/p6-copy-client.ts",
+      "frontend/lib/p6-copy-openapi.generated.json",
+      "frontend/lib/p6-copy-types.generated.ts",
+      "frontend/lib/p6-daily-s3-openapi.generated.json",
+      "frontend/lib/p6-daily-s3-read-schema.generated.json",
+      "frontend/lib/p6-daily-s3-read.ts",
+      "frontend/lib/p6-daily-s3-types.generated.ts",
+      "frontend/lib/p6-daily-write.ts",
+      "frontend/lib/p6-inquiry-client.ts",
+      "frontend/lib/p6-inquiry-openapi.generated.json",
+      "frontend/lib/p6-inquiry-types.generated.ts",
+      "frontend/m3-live/OPERATIONS-INPUT.md",
+      "frontend/m3-live/bounded-network.ts",
+      "frontend/m3-live/daily-live.spec.ts",
+      "frontend/m3-live/drop-response.ts",
+      "frontend/m3-live/network-guard.ts",
+      "frontend/m3-live/owned-copy-preview.ts",
+      "frontend/m3-live/owned-home-ready.ts",
+      "frontend/m3-live/owned-m3-harness.ts",
+      "frontend/m3-live/owned-m3-input.ts",
+      "frontend/m3-live/owned-m3.flow.ts",
+      "frontend/m3-tests/bounded-network.spec.ts",
+      "frontend/m3-tests/copy.fixture.json",
+      "frontend/m3-tests/copy.spec.ts",
+      "frontend/m3-tests/daily-empty.fixture.json",
+      "frontend/m3-tests/daily-partial.fixture.json",
+      "frontend/m3-tests/daily-read.fixture.json",
+      "frontend/m3-tests/daily-read.spec.ts",
+      "frontend/m3-tests/daily-s3-read.spec.ts",
+      "frontend/m3-tests/daily-s3.fixture.json",
+      "frontend/m3-tests/daily-ui.spec.ts",
+      "frontend/m3-tests/daily-write.spec.ts",
+      "frontend/m3-tests/inquiry-completed-external-shop.fixture.json",
+      "frontend/m3-tests/inquiry-failed-known-usage.fixture.json",
+      "frontend/m3-tests/inquiry-failed.fixture.json",
+      "frontend/m3-tests/live-network-guard.spec.ts",
+      "frontend/m3-tests/operations-collection.spec.ts",
+      "frontend/m3-tests/owned-copy-preview.spec.ts",
+      "frontend/m3-tests/owned-shop-scopes.spec.ts",
+      "frontend/m3-tests/p6-inquiry.spec.ts",
+      "frontend/m3-tests/page-zoom.mjs",
+      "frontend/package.json",
+      "frontend/playwright.m3.contract.config.ts",
+      "frontend/playwright.m3.live.config.ts",
+      "frontend/playwright.m3.noserver.config.ts",
+      "frontend/playwright.m3.operations.live.config.ts",
+      "frontend/tooling/check-p6-copy-schema.mjs",
+      "frontend/tooling/check-p6-daily-s3-schema.mjs",
+      "frontend/tooling/check-p6-inquiry-schema.mjs",
+      "frontend/tooling/sync-m3-read-schema.mjs",
+      "infrastructure/knowledge_pgvector.Dockerfile",
+      "infrastructure/knowledge_pgvector.pins.json",
+      "scripts/check.py",
+      "scripts/check_copy_schema.py",
+      "scripts/check_daily_schema.py",
+      "scripts/check_m3_contracts.py",
+      "scripts/export_copy_schema.py",
+      "scripts/export_daily_schema.py",
+      "scripts/gitleaks_rules.json",
+      "scripts/m3_copy_demo.py",
+      "scripts/m3_daily_demo.py",
+      "scripts/m3_inquiry_demo.py",
+      "scripts/m3_pgvector.py",
+      "scripts/pg_ci_evidence.py",
+      "scripts/pg_diagnostic.py",
+      "scripts/scan_secrets.py",
+      "scripts/vendor_gitleaks_rules.py",
+      "tests/daily_worker_process.py",
+      "tests/diagnostic_plugin.py",
+      "tests/e2e/web/run_c09_n01.py",
+      "tests/e2e/web/run_live_batches.py",
+      "tests/p6_inquiry_process.py",
+      "tests/p6_inquiry_sql_probe.py",
+      "tests/test_daily_operations_pg.py",
+      "tests/test_daily_pg.py",
+      "tests/test_daily_questions.py",
+      "tests/test_daily_read_models.py",
+      "tests/test_daily_receipts.py",
+      "tests/test_daily_receipts_pg.py",
+      "tests/test_daily_report.py",
+      "tests/test_daily_scheduling.py",
+      "tests/test_daily_source.py",
+      "tests/test_live_failure_ci_gate.py",
+      "tests/test_m3_copy_app_pg.py",
+      "tests/test_m3_copy_demo.py",
+      "tests/test_m3_copy_wiring.py",
+      "tests/test_m3_demo_owner.py",
+      "tests/test_m3_gate_coverage.py",
+      "tests/test_m3_inquiry_demo.py",
+      "tests/test_m3_inquiry_wiring.py",
+      "tests/test_m3_local_runtime.py",
+      "tests/test_m3_scan_compat.py",
+      "tests/test_m3_scan_public_delta.py",
+      "tests/test_p4_f02_pg.py",
+      "tests/test_p4_first_create_negatives_pg.py",
+      "tests/test_p4_history_pg.py",
+      "tests/test_p4_migration_diagnostic.py",
+      "tests/test_p4_read_reply_pg.py",
+      "tests/test_p5_m2_backup_pg.py",
+      "tests/test_p6_copy_config.py",
+      "tests/test_p6_copy_decision_conflict.py",
+      "tests/test_p6_copy_drafts.py",
+      "tests/test_p6_copy_http.py",
+      "tests/test_p6_copy_pg.py",
+      "tests/test_p6_copy_web_models.py",
+      "tests/test_p6_inquiry_http.py",
+      "tests/test_p6_inquiry_pg.py",
+      "tests/test_p6_inquiry_service.py",
+      "tests/test_p6_inquiry_sql_probe.py",
+      "tests/test_p6_knowledge_copy_contracts.py",
+      "tests/test_p6_knowledge_copy_pg.py",
+      "tests/test_p6_knowledge_copy_values.py",
+      "tests/test_p6_readonly_inquiry.py",
+      "tests/test_p6_readonly_tools.py",
+      "tests/test_pg_owned_subnet.py",
+      "tests/test_postgres.py",
+      "tests/test_quality_gates.py"
+    ],
+    "Harness": [
+      ".codex/config.toml",
+      ".github/workflows/harness-pg-shadow.yml",
+      ".github/workflows/quality.yml",
+      "AGENTS.history-20261028.md",
+      "AGENTS.md",
+      "CURRENT_STATE.md",
+      "docs/harness/H1_RESULT.md",
+      "docs/harness/HANDOFF.md",
+      "docs/harness/README.md",
+      "docs/harness/archive.json",
+      "docs/harness/attempt.schema.json",
+      "docs/harness/evidence/error.json",
+      "docs/harness/evidence/fast-freeze-1.json",
+      "docs/harness/evidence/fast-freeze-2.json",
+      "docs/harness/evidence/impacted-freeze.json",
+      "docs/harness/evidence/impacted-not-run.json",
+      "docs/harness/evidence/interrupted-freeze.json",
+      "docs/harness/evidence/interruption-driver-failure.json",
+      "docs/harness/evidence/project-config-probe.json",
+      "docs/harness/evidence/project-config-strict-failure.json",
+      "docs/harness/h2/README.md",
+      "docs/harness/h2/RESULTS.md",
+      "docs/harness/h2/bytecode-local-optimization.json",
+      "docs/harness/h2/collection-fix-full-scan.json",
+      "docs/harness/h2/current-collection.json",
+      "docs/harness/h2/environment-contract-proposal.json",
+      "docs/harness/h2/fast-secret-first-normal-failed.json",
+      "docs/harness/h2/fast-secret-negative.json",
+      "docs/harness/h2/fast-secret-positive.json",
+      "docs/harness/h2/fifth-hosted-receipt.json",
+      "docs/harness/h2/final-corrective-source-scan.json",
+      "docs/harness/h2/first-hosted-receipt.json",
+      "docs/harness/h2/fourth-hosted-receipt.json",
+      "docs/harness/h2/native139-local-repair.json",
+      "docs/harness/h2/second-hosted-receipt.json",
+      "docs/harness/h2/secret-gate-repair-scan.json",
+      "docs/harness/h2/seventh-hosted-receipt.json",
+      "docs/harness/h2/sixth-hosted-receipt.json",
+      "docs/harness/h2/third-hosted-receipt.json",
+      "docs/harness/h2/weights.json",
+      "docs/harness/h3/README.md",
+      "docs/harness/h3/context-repair-local.json",
+      "docs/harness/h3/first-hosted-receipt.json",
+      "docs/harness/h3/full-local-preparation.json",
+      "docs/harness/h3/npm-local-experiment.json",
+      "docs/harness/h3/second-hosted-receipt.json",
+      "docs/harness/h3/warm-hosted-receipt.json",
+      "docs/harness/state_snapshot.json",
+      "docs/harness/task.example.json",
+      "docs/harness/task.schema.json",
+      "infrastructure/Dockerfile",
+      "scripts/check_workflows.py",
+      "scripts/current_state.py",
+      "scripts/gitleaks_rules.json",
+      "scripts/harness_contract.py",
+      "scripts/merge_gate.py",
+      "scripts/pg_ci_evidence.py",
+      "scripts/pg_diagnostic.py",
+      "scripts/scan_secrets.py",
+      "scripts/verify.py",
+      "tests/diagnostic_plugin.py",
+      "tests/test_harness_contract.py",
+      "tests/test_harness_verify.py",
+      "tests/test_merge_gate.py",
+      "tests/test_n01_ci_gate.py",
+      "tests/test_pg_diag_partition.py",
+      "tests/test_pg_diag_shutdown.py",
+      "tests/test_pg_shard_evidence.py",
+      "tests/test_quality_gates.py"
+    ]
+  },
+  "proposed_owners_are_roles_not_assignments": true,
+  "execution": {
+    "tests": "NOT_RUN",
+    "collection": "NOT_RUN",
+    "toolchain": "NOT_RUN",
+    "services": "NOT_STARTED",
+    "git_mutations": false,
+    "remote_writes": false
+  },
+  "static_scan_comparison": {
+    "M3": {
+      "rule_count": 222,
+      "exact_exceptions": 45,
+      "historical_findings": 20
+    },
+    "Harness": {
+      "rule_count": 222,
+      "exact_exceptions": 17,
+      "historical_findings": 10
+    },
+    "Harness_history_is_exact_subset_of_M3": true,
+    "scope": "AST/JSON only; scanner NOT_RUN; local Harness WIP fingerprints not compared"
+  },
+  "decision": "PROPOSED: keep M3 product baseline; defer Harness adoption to separately authorized compatibility candidate"
+}

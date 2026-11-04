@@ -1,0 +1,86 @@
+{
+  "services": {
+    "postgres": {
+      "image": "${V4_PG_IMAGE:?Root-bound image required}",
+      "environment": {
+        "POSTGRES_DB": "${V4_DATABASE:?new V4 database required}"
+      },
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U commerceops_owner -d \"$${POSTGRES_DB}\""
+        ]
+      },
+      "networks": [
+        "default"
+      ]
+    },
+    "pg-test": {
+      "image": "${V4_TEST_IMAGE:?Root-bound test image required}",
+      "user": "${V4_UID:?new config owner UID required}",
+      "environment": {
+        "COMMERCEOPS_DB_NAME": "${V4_DATABASE}"
+      },
+      "volumes": [
+        "${V4_OWNER_DIR:?new owner directory required}:/run/v4_owner"
+      ],
+      "networks": [
+        "default"
+      ]
+    },
+    "v4-api": {
+      "image": "${V4_TEST_IMAGE}",
+      "user": "${V4_UID}",
+      "working_dir": "/app",
+      "command": [
+        "python",
+        "-m",
+        "tests.e2e.v4.owned_api"
+      ],
+      "environment": {
+        "COMMERCEOPS_PORT": "${V4_API_PORT:?Root API port required}",
+        "COMMERCEOPS_P3_CONFIG_FILE": "/run/v4_api/web.json",
+        "COMMERCEOPS_V4_DEMO_CONFIG_FILE": "/run/v4_api/demo.json",
+        "LANGSMITH_TRACING": "false"
+      },
+      "volumes": [
+        "${V4_API_DIR:?new runtime-only directory required}:/run/v4_api:ro"
+      ],
+      "ports": [
+        "127.0.0.1:${V4_API_PORT}:${V4_API_PORT}"
+      ],
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      },
+      "networks": [
+        "default",
+        "host_facing"
+      ]
+    }
+  },
+  "networks": {
+    "default": {
+      "internal": true,
+      "ipam": {
+        "config": [
+          {
+            "subnet": "${V4_PG_SUBNET:?Root explicit PG subnet required}"
+          }
+        ]
+      }
+    },
+    "host_facing": {
+      "driver": "bridge",
+      "internal": false,
+      "ipam": {
+        "config": [
+          {
+            "subnet": "${V4_HOST_SUBNET:?Root explicit host subnet required}"
+          }
+        ]
+      }
+    }
+  }
+}

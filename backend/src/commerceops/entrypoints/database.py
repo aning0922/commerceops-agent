@@ -72,6 +72,72 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
  business.jobs TO commerceops_app
 """)
         connection.execute("GRANT SELECT ON business.principal_shop_scopes TO commerceops_app")
+        inquiry_table = connection.execute(
+            "SELECT to_regclass('business.readonly_inquiries') AS name"
+        ).fetchone()
+        if inquiry_table and inquiry_table["name"] is not None:
+            connection.execute("REVOKE ALL ON business.readonly_inquiries FROM commerceops_app")
+            connection.execute(
+                "GRANT SELECT,INSERT ON business.readonly_inquiries TO commerceops_app"
+            )
+            connection.execute(
+                "GRANT UPDATE(state,result,result_canonical,result_hash,version,updated_at) "
+                "ON business.readonly_inquiries TO commerceops_app"
+            )
+        daily_table = connection.execute(
+            "SELECT to_regclass('business.p6_daily_source_bindings') AS name"
+        ).fetchone()
+        if daily_table and daily_table["name"] is not None:
+            connection.execute(
+                "REVOKE ALL ON business.p6_daily_source_bindings, "
+                "business.p6_daily_snapshots,business.p6_daily_reports FROM commerceops_app"
+            )
+            connection.execute(
+                "GRANT SELECT ON business.p6_daily_source_bindings TO commerceops_app"
+            )
+            connection.execute(
+                "GRANT SELECT,INSERT ON business.p6_daily_snapshots, "
+                "business.p6_daily_reports TO commerceops_app"
+            )
+            for function in (
+                "p6_json_hash(text,jsonb,text)",
+                "p6_keys(jsonb,text[])",
+                "p6_source_valid(uuid,uuid,uuid,jsonb)",
+                "p6_current_permission(uuid,uuid,uuid,bigint)",
+            ):
+                connection.execute(
+                    sql.SQL("GRANT EXECUTE ON FUNCTION business.{} TO commerceops_app").format(
+                        sql.SQL(function)
+                    )
+                )
+
+        daily_ops = connection.execute(
+            "SELECT to_regclass('business.p6_daily_schedules') AS name"
+        ).fetchone()
+        if daily_ops and daily_ops["name"] is not None:
+            connection.execute(r"""
+REVOKE ALL ON business.p6_daily_schedules,business.p6_daily_destinations,
+business.p6_daily_schedule_runs,business.p6_daily_questions,business.p6_daily_deliveries,
+business.p6_daily_fake_receipts FROM commerceops_app""")
+            connection.execute(
+                r"""GRANT SELECT ON business.p6_daily_schedules,business.p6_daily_destinations TO
+commerceops_app"""
+            )
+            connection.execute(r"""
+GRANT SELECT,INSERT ON business.p6_daily_schedule_runs,business.p6_daily_questions,
+business.p6_daily_deliveries,business.p6_daily_fake_receipts TO commerceops_app""")
+            connection.execute(
+                r"""GRANT UPDATE(enabled,pause_reason,last_created_day,updated_at) ON
+business.p6_daily_schedules TO commerceops_app"""
+            )
+            connection.execute(
+                r"""GRANT UPDATE(status,attempts,external_id,failure_code,claimed_by,updated_at) ON
+business.p6_daily_deliveries TO commerceops_app"""
+            )
+            connection.execute(
+                "GRANT EXECUTE ON FUNCTION business.p6_schedule_current(uuid) TO commerceops_app"
+            )
+
         source_table = connection.execute(
             "SELECT to_regclass('business.p5_commerce_source_bindings') AS name"
         ).fetchone()
@@ -181,10 +247,32 @@ GRANT SELECT, INSERT, UPDATE ON business.organizations, business.shops, business
         )
 
 
+def grant_knowledge_copy_runtime(settings: DatabaseSettings) -> None:
+    """Explicit owner action; base runtime bootstrap does not silently enable copy writes."""
+    from commerceops.infrastructure.knowledge_copy_draft_store import grant_copy_runtime
+    from commerceops.infrastructure.knowledge_copy_repository import grant_knowledge_runtime
+
+    with connect(settings) as connection:
+        # The grant helpers independently require the real owner and exact existing entities.
+        grant_knowledge_runtime(connection)
+        present = connection.execute(
+            "SELECT to_regclass('business.p6_copy_candidates') AS name"
+        ).fetchone()
+        if present and present["name"] is not None:
+            grant_copy_runtime(connection)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="PG initialization (separate deploy tasks)")
     parser.add_argument(
-        "action", choices=["migrate", "setup-checkpointer", "grant-runtime", "revision"]
+        "action",
+        choices=[
+            "migrate",
+            "setup-checkpointer",
+            "grant-runtime",
+            "grant-knowledge-copy-runtime",
+            "revision",
+        ],
     )
     arguments = parser.parse_args()
     try:
@@ -196,6 +284,8 @@ def main() -> None:
                 asyncio.run(setup_checkpointer(settings))
             case "grant-runtime":
                 grant_runtime(settings)
+            case "grant-knowledge-copy-runtime":
+                grant_knowledge_copy_runtime(settings)
             case "revision":
                 with connect(settings) as connection:
                     row = connection.execute(

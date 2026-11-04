@@ -87,6 +87,11 @@ LOCK_FILES = (
     "scripts/gitleaks_rules.json",
     ".gitleaks.toml",
     "compose.yml",
+    "compose.m3.yml",
+    ".dockerignore",
+    "infrastructure/knowledge_pgvector.Dockerfile",
+    "infrastructure/knowledge_pgvector.pins.json",
+    "scripts/m3_pgvector.py",
     "infrastructure/Dockerfile",
 )
 G2_REQUIRED = frozenset(

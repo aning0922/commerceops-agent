@@ -1,0 +1,58 @@
+{
+  "scope": "PR53_RAW_AMD64_IMAGE_BUILD_DIAGNOSTIC_ONLY",
+  "started_utc": "2026-11-04T15:08:05.978920+00:00",
+  "absolute_deadline": "2026-11-04T15:18:05.978920+00:00",
+  "case_cap_seconds": 600,
+  "build_cap_seconds": 300,
+  "cleanup_reserve_seconds": 180,
+  "status": "FAILED_OR_UNKNOWN",
+  "build_attempts": 1,
+  "failure": {
+    "type": "AssertionError",
+    "code": "COMMAND_FAILED_build"
+  },
+  "ended_utc": "2026-11-04T15:13:08.488769+00:00",
+  "elapsed_seconds": 302.509866,
+  "formal_receipt_created": false,
+  "runtime_started": false,
+  "cache_start": "UNKNOWN",
+  "qemu_mechanism": "UNKNOWN",
+  "closure": {
+    "utc": "2026-11-04T15:14:34.111419+00:00",
+    "inventory": {
+      "containers": [],
+      "networks": [],
+      "volumes": []
+    },
+    "diagnostic_tag_absent": true,
+    "source_unchanged": true,
+    "git_clean": true,
+    "formal_receipt_absent": true,
+    "buildkit_internal_resources": "UNKNOWN_NOT_INDEPENDENTLY_EXPOSED; all identified client groups and labeled resources absent",
+    "no_unknown_resources_stopped": true,
+    "builds": 1,
+    "services_started": false
+  },
+  "client_groups_absent_count": 17,
+  "attribution": "CLIENT_300S_TIMEOUT; precise Hosted cause UNKNOWN; package/build stage only as observed; emulator mechanism UNKNOWN",
+  "original_receipt_sha256": "8ad64dbbe7da33acb571766f1bdec2157f318225f1da81c2910ba344570874ee",
+  "raw_stderr_sha256": "f45ae10e72f7f090b45bb480717212db5af4a806c020e11502048d8c26a9ba78",
+  "frozen_source": "cbd5d5464b9e2b4a62463f2ba51d100125326e8c",
+  "frozen_tree": "3a4012db569a1ecee0b13df8071f0b570d68aa1d",
+  "build_result": [
+    {
+      "stage": "build",
+      "started_utc": "2026-11-04T15:08:07.416217+00:00",
+      "ended_utc": "2026-11-04T15:13:07.701165+00:00",
+      "elapsed_seconds": 300.28741604089737,
+      "native_exit": 130,
+      "timed_out": true,
+      "signals": [
+        15
+      ],
+      "reaped": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f45ae10e72f7f090b45bb480717212db5af4a806c020e11502048d8c26a9ba78"
+    }
+  ]
+}

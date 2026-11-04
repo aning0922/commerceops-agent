@@ -1,0 +1,40 @@
+# V41 746fb18 交付包独立一致性审查
+
+2026-11-04（台北）。结论：`ACCEPTED_BOUNDED_LOCAL_STAGE_DELIVERY_PACKAGE / NO_OPEN_PACKAGE_BLOCKER`。本结论固定于 `746fb181411f14720d4ca22173769f36e5675fbf` / tree `ad51c35d35c730fc3c7c372a968631917c100639`，接纳六卡合同受控本地阶段的交付包。后续新增审查记录、状态、实际push回执及manifest刷新须由Root对最终提交再做一致性检查；不预签这些尚未发生的变更。
+
+## 精确来源与包内完整性
+
+独立读取冻结Git对象及已授权原件，不读取作者WIP。功能/runtime来源仍为 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e` / tree `34da95131e04d7360ea8aa5250ea40215bcb0713`。261到746的差异全部位于docs或AGENTS.md；backend、frontend、tests、scripts、infrastructure及.github子树逐项相同。
+
+MANIFEST的业务基线为 `1730194028a01ddea0bbc573774d740ea4a29d55`，branch为codex/v41-control-20261104，包装前集成HEAD为 `d489f39adc8508917db0e93fb0f4fac3ac344d81`。六卡V41-01至06及七项required deliverables齐全；25项artifact SHA256全部与746文件字节相符。161项changed_code_paths_since_v40的路径、状态精确等于业务基线到261的backend/frontend/tests/scripts差分，各文件hash同时匹配261与746。manifest自身hash排除是明确避免递归，不是漏验。
+
+本冻结MANIFEST字节SHA256为 `02be8524321eca51ca7a4737f3548c7909167cc62aa1557da329ffcc1c330717`；截图INDEX为 `4aecb88dbbacd56522bd98c0e4bb59dfc20b7872e82c8d8810ad74a65503c625`。全部24份交付JSON解析成功；包内Markdown及STATUS/AGENTS所查156个本地链接均在冻结树中可解析。没有联网验证外部URL，也未以本地解析推断远端可访问。
+
+## 计数、原件及证据层级
+
+QA_RESULTS、REVIEW、ROOT_LEDGER、RUNTIME_PROGRESS、BROWSER_R10及UI_MOCK_BATCH_R4的关键来源和计数与冻结审查一致：
+
+- Full工程4601属于 `4fec4a7416d7b9434d979f461d5da78508cfb850`；PG596+177=773、交集0属于 `e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6`；四个有界HTTP case属于 `54ab68f054a136f98dac0a50986caced11362fbd`，每case37命令不改称148个测试。
+- 261受影响检查为Python235、Node74、Native纯组件40及其静态检查；Mock r4为33通过、失败/跳过/flaky/retry均0。各批次数不可相加为一个新Full总数，261未重跑Full工程或完整PG的事实保留。
+- r10同261/image e834：两spec、11唯一业务key、10mobile子集、最终SQL0，40原图为32业务+3Shell+5Native。包中FINAL_RUNTIME_R10.md与本Main冻结 `4e4741ad56e5ee8d3a22bc9f4ac6564715d92955` 字节相同，使用其后续完整运行核收段，保留早期build-only/pending历史。
+- 本轮重新核BROWSER_R10所列10项原件hash；40张交付PNG与本案browser-final-r10原目录逐字节相等，路径唯一、来源261、SHA256及IHDR尺寸匹配INDEX。未生成、编辑或重新截取图片。
+- runtime原API清理130、Native browser exit NOT_EXPOSED、execution原summary NOT_WRITTEN及source-before/after中唯一批准的next-env生成差异均保留；未把它们改成全部native0或原快照字节完全相同。Mock早期失败、Web143/browser exit未单独暴露及dev/prod next-env差异也分账保留。
+- 扫描当前/索引0与history native1、wrapper0、1760 reviewed/0 blocking及refs变化分列，没有把包装后的refs假称为261原扫描范围。
+
+r10实际运行、逐key SQL及关闭依据[本Main原件审查](FINAL_RUNTIME_R10.md)；Mock与受影响检查依据交付包内已冻结的独立审查，本轮不重跑其测试体或全量原日志验证。40图的AI工程视觉依据Terra `c7f508dc596878a327fbc8e175b4e9b369f538a6`，本轮只核图片字节与几何。390右侧列静态画面局限、真机/touch未证明、human NOT_RUN不被包内ACCEPTED提升为人工视觉通过。
+
+## 内容专项、阶段范围与push事实
+
+已读取UI专项冻结 `39a26af98d85ccb15e796e60e4ce0ac9aa1bcf53` 的DELIVERY_CONTENT_D5E4B14.md，其最终结论为 `ACCEPTED_BOUNDED_FIVE_DOCUMENT_CONTENT / NO_OPEN_CONTENT_BLOCKER`。该专项覆盖五份内容文档及d5到746的四处相对链接、两处当前pending文字修正；本轮不重复全文内容审查，也不将尚由Root集成的该review假称已在746包内。
+
+本轮独立核FEATURE_STATUS的99唯一ID、19项本阶段合同范围、80项未重评、accepted_original_feature_completion_count=null及no_19_of_19_or_99_of_99_claim=true。14导航和12阶段视图分列；六卡本地阶段接受不表示19/19原规划完整功能或99/99完成。历史snapshot_source/schema名称仍保留，final_code_source明确261，不因历史标识误换最终来源。
+
+PUSHES有64条跨历史/分支checkpoint记录，不混称主线64次push。最后实际登记为r57，source=remote_head=`75a8f43933ecb624b091d01430d2b5949cfcbbeb`，base261、扫描raw0/findings0/blocking0、push0、Actions空；ROOT_LEDGER.latest_normal_push与其一致。75a8是746的本地Git祖先；746尚未作为已完成push写入checkpoint。本轮没有查询远端HEAD或执行push，登记事实不冒称现场远端核验。
+
+STATUS及AGENTS新导航准确限定本地Gate已接纳、交付文档审查收尾；旧段落按各自时点保留。MANIFEST/QA中document review pending符合746冻结时点，应由Root在集成本审查后按实际更新。包内使用仓库相对review链接，未将未发布的原review SHA外链冒称已可访问；复现文档没有承诺现役演示URL。
+
+Hosted、真实模型/embedding、Woo写入、飞书发送、生产、真机/touch、人工视觉及自然24h GC均未由本包核收；V4-2保持NOT_STARTED。全功能、外部业务与生产完成不在本结论范围。
+
+## 收尾范围
+
+以上独立静态/原件比对均native0，没有未闭合包内阻断。本轮不联网、不启动服务/Docker/PG/浏览器、不重跑Full或运行窗口、不读取private auth，不改变功能。仅本审查文档经固定changed-file/index预检后普通提交，保留全部原审查历史且不push。Root可继续授权范围内的审查集成、状态更新、实际push回执及manifest刷新，并核对最终组合；无需因本审查重开已接纳运行Gate。

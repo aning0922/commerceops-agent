@@ -715,13 +715,92 @@ def test_0016_upgrade_preserves_original_rows_payload_and_unknown_attempt(
         migrate(owner)
         grant_runtime(owner)
         current = snapshot()
-        assert set(current) - set(after) == {"business.p5_commerce_source_bindings"}
+        assert set(current) - set(after) == {
+            "business.p5_commerce_source_bindings",
+            "business.p6_daily_source_bindings",
+            "business.p6_daily_snapshots",
+            "business.p6_daily_reports",
+            "business.p6_knowledge_documents",
+            "business.p6_knowledge_authorizations",
+            "business.p6_knowledge_chunks",
+            "business.p6_knowledge_embeddings",
+            "business.p6_knowledge_registries",
+            "business.readonly_inquiries",
+            "business.p6_daily_destinations",
+            "business.p6_daily_schedules",
+            "business.p6_daily_schedule_runs",
+            "business.p6_daily_questions",
+            "business.p6_daily_deliveries",
+            "business.p6_daily_fake_receipts",
+            "business.p6_copy_products",
+            "business.p6_copy_candidates",
+            "business.p6_copy_decisions",
+            "business.p6_copy_drafts",
+            "business.v4_demo_fixture_versions",
+            "business.v4_demo_tenants",
+            "business.v4_demo_shops",
+            "business.v4_demo_personas",
+            "business.v4_demo_bootstraps",
+            "business.v4_demo_sessions",
+            "business.v4_demo_receipts",
+            "business.v4_demo_events",
+            "business.v4_demo_overlays",
+            "business.v4_demo_rate_attempts",
+            "business.v41_product_tags",
+            "business.v41_order_fulfillments",
+            "business.v41_import_jobs",
+            "business.v41_import_products",
+            "business.v41_action_receipts",
+            "business.v41_action_events",
+            "business.v41_security_policy",
+        }
         assert set(after) <= set(current)
-        assert not current["business.p5_commerce_source_bindings"]
+        assert all(
+            not current["business." + table]
+            for table in (
+                "p5_commerce_source_bindings",
+                "p6_daily_source_bindings",
+                "p6_daily_snapshots",
+                "p6_daily_reports",
+                "p6_knowledge_documents",
+                "p6_knowledge_authorizations",
+                "p6_knowledge_chunks",
+                "p6_knowledge_embeddings",
+                "p6_knowledge_registries",
+                "readonly_inquiries",
+                "p6_daily_destinations",
+                "p6_daily_schedules",
+                "p6_daily_schedule_runs",
+                "p6_daily_questions",
+                "p6_daily_deliveries",
+                "p6_daily_fake_receipts",
+                "p6_copy_products",
+                "p6_copy_candidates",
+                "p6_copy_decisions",
+                "p6_copy_drafts",
+                "v4_demo_fixture_versions",
+                "v4_demo_tenants",
+                "v4_demo_shops",
+                "v4_demo_personas",
+                "v4_demo_bootstraps",
+                "v4_demo_sessions",
+                "v4_demo_receipts",
+                "v4_demo_events",
+                "v4_demo_overlays",
+                "v4_demo_rate_attempts",
+                "v41_product_tags",
+                "v41_order_fulfillments",
+                "v41_import_jobs",
+                "v41_import_products",
+                "v41_action_receipts",
+                "v41_action_events",
+                "v41_security_policy",
+            )
+        )
         assert all(current[key] == value for key, value in after.items())
         with connect(owner) as db:
             assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
-                "version_num": "0018_p5_commerce_sources"
+                "version_num": "0025_v41_catalog_operations"
             }
         with connect(app) as db:
             assert (

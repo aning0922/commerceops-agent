@@ -1,0 +1,7 @@
+# Explicit current-M3 PG selection. Use after compose.yml; stock/M2 remain unchanged.
+services:
+  postgres:
+    image: commerceops-m3-pgvector:8ee1df0-v1
+    build:
+      context: .
+      dockerfile: infrastructure/knowledge_pgvector.Dockerfile

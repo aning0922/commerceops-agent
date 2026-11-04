@@ -1,0 +1,122 @@
+{
+  "scope": "EXACT_261F399_OWNED_REAL_API_PG_WEB_BROWSER_R10",
+  "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "case": "browser-final-r10",
+  "image": "sha256:e834528d433acaf8ab9c3214d775670e0602d42b906a12ea02ea186b4a783798",
+  "status": "ACCEPTED_EXACT_LOCAL_RUNTIME_AND_CLOSURE",
+  "driver_status": "SCENARIO_COMPLETED_PENDING_REVIEW",
+  "raw_driver_summary": "NOT_WRITTEN",
+  "started_utc": "2026-11-04T10:48:49.477572+00:00",
+  "ended_utc": "2026-11-04T10:49:58.636838+00:00",
+  "parent_native": 0,
+  "probe_native": 0,
+  "node_native": 0,
+  "specs": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "business_ms": 15929,
+    "shell_ms": 14301
+  },
+  "business_mobile": {
+    "confirmed_keys": 11,
+    "mobile_keys": 10,
+    "actual_pngs": 32,
+    "journal_sha256": "ba4d5765924d08ad1b79f2e5ebc49b66e808872e7a9ec88e6f5aacec279f64a4"
+  },
+  "journal_import": {
+    "shell": 2,
+    "business": 37,
+    "errors": []
+  },
+  "final_sql_native": 0,
+  "native": {
+    "status": "NATIVE_ZOOM_CAPTURED_PENDING_VISUAL_REVIEW",
+    "browser_native_exit": "NOT_EXPOSED",
+    "human_visual_acceptance": "NOT_RUN",
+    "pages": 2,
+    "pngs": 5,
+    "requests": {
+      "allowedReads": 51,
+      "refused": []
+    },
+    "cleanup_confirmed": true
+  },
+  "pngs": {
+    "business": 32,
+    "shell": 3,
+    "native": 5,
+    "total": 40,
+    "index": "BROWSER_SCREENSHOTS/INDEX.json",
+    "ai_review": "BROWSER_VISUAL_R10.md; Root inspected three native200 raw PNGs",
+    "human_review": "NOT_RUN"
+  },
+  "cleanup": {
+    "writers": {
+      "probe": 0,
+      "web": 0,
+      "api": 130
+    },
+    "browser_forced": [],
+    "browser_remaining": [],
+    "confirmed": true,
+    "independent_containers": 0,
+    "independent_networks": 0,
+    "independent_ports_closed": [
+      18479,
+      13479
+    ],
+    "preserved_volume": "v41qa_browser_final_r10_pg_data",
+    "identity_matches_original": true,
+    "failures": []
+  },
+  "source_tool_terminal_seal": "TRACKED_SOURCE_AND_TOOLS_UNCHANGED",
+  "raw_before_after_hashes_differ": "Only generated_inputs differs (allowed next-env generation); head/tree/tracked_sha256/tool_sha256 equal. Both original raw snapshots retained.",
+  "artifacts": [
+    {
+      "path": "browser-final-r10/execution.json",
+      "sha256": "9038347e0018be56370388a156b32f6a4be172fce1ffe77b2af81244c1992357"
+    },
+    {
+      "path": "browser-final-r10/closedfinal.json",
+      "sha256": "0df4a06b87110816d449415bd5ad416b885de5d2f8191f10bf5781770462a192"
+    },
+    {
+      "path": "browser-final-r10/parent-native.json",
+      "sha256": "1351fb0dd0a74fcc77cd2d11ac0c9e2d971bb19379902ce8342a45b17315e707"
+    },
+    {
+      "path": "browser-final-r10/processes/probe.raw.log",
+      "sha256": "aeba52c845aa9efcc7d6bb9fb9f00fe32a2823b8ff1fb5a93139f129e8a77c84"
+    },
+    {
+      "path": "browser-final-r10/browser-shell/shell.safe.json",
+      "sha256": "a53290c74aa5ed36e5d2c045d4386cbbe4c17881ab0cb56cee111b604d8662c4"
+    },
+    {
+      "path": "browser-final-r10/browser-business/business.safe.json",
+      "sha256": "5a268291b1883bcc7d95c2b7ff82d450967cd83b5396df1f69c18b9142752216"
+    },
+    {
+      "path": "browser-final-r10/native-zoom/receipt.json",
+      "sha256": "1fddab51b1c0809d3dd9c7335577526b2ee2951b279305bcc8283c17f533b15e"
+    },
+    {
+      "path": "browser-final-r10/source-before.json",
+      "sha256": "124a48617b95b0cdee68415c8baa743cd8413cddf152f8b26d377c71dd9e2f61"
+    },
+    {
+      "path": "browser-final-r10/source-after.json",
+      "sha256": "735995d03acfa18c5e1c204b2a58d619acbca8e5659ae2d369bd86cd74f4a089"
+    },
+    {
+      "path": "browser-final-r10/final_facts.stdout.private.log",
+      "sha256": "0e4b6bd35794fbb040a4515f821d6c8ca3a66eba6846f4bfc84605542620dad7"
+    }
+  ],
+  "review_source": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+  "review_path": "docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md"
+}

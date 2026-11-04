@@ -1,0 +1,444 @@
+{
+  "evidence_source": "c6abe0528f05b458331f270d758317c1d7b38843",
+  "candidate_source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
+  "pg_test_module_count": 62,
+  "pg_inputs": [
+    {
+      "path": "compose.m3.yml",
+      "sha256": "d9e9c18a432fc1b99cc5b51cce312863f09e416ce1539fcb9e8a97e337688836",
+      "same_as_r2": true
+    },
+    {
+      "path": "compose.yml",
+      "sha256": "b98e9df399df9865b6da7e250eebe9cc83da1fd2754f50c41593991b35ee0ac9",
+      "same_as_r2": true
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "86eeb1914eec7188f6cf9fc1e9ef24dad41bfdc20e8afc7f8d2dbbed3ad80ac4",
+      "same_as_r2": true
+    },
+    {
+      "path": "scripts/pg_ci_evidence.py",
+      "sha256": "379c302ca0e57163740a37f5bba2034aaf2f878ef3a2c96f9ec01f0bdbfb7b7d",
+      "same_as_r2": true
+    },
+    {
+      "path": "scripts/pg_diagnostic.py",
+      "sha256": "5256f926724113f9cfb7efc138551492fd4a09f57b9ec530fa404fb0ba46dfe8",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/feishu_probe_harness/conftest.py",
+      "sha256": "cf685673c31bc1d343c3aad0fff349c23ae97e800a68dd409e11953be00c669e",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_checkpoint_pg.py",
+      "sha256": "46d15f6180f895b626f1a6ceb84608585a08864d4d355775cfe11f8fe7bc948f",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_daily_operations_pg.py",
+      "sha256": "01fd31b62adeb262c413cd2de905bbf28239fba981692d459fe31ecebcb075f0",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_daily_pg.py",
+      "sha256": "9bb5fbb2d7b012403e1661b778aa1830fc978ca6871a45dc2c1ff43e53c2884b",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_daily_receipts_pg.py",
+      "sha256": "ff434e77964f3339f4b857d986b3da3c22462f5d234852ba9077cfc7ec58900d",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_feishu_postgres.py",
+      "sha256": "eb743e73d23ee2c84f68dd5e24dd1a172c99d073e5ef9044783c30852f8efa32",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_inventory_pg.py",
+      "sha256": "97ba8f7667cf277ce2bde44217bce5d558ccd6680d8e99db38cb4f19eb4e7dcd",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_m3_copy_app_pg.py",
+      "sha256": "2ffe5adcd49153d56e6f9cca4d792dd5c10ac970cebefa922d5331e79399f957",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p204_pg.py",
+      "sha256": "c929d992c66d96b206ed62b6b502c65e626b4c0f6fe2f5c02330fc4bd9f07ccd",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_approval_pg.py",
+      "sha256": "b96079e5135328fc479933fee603c4409641e1f34fa5b43cd781f33d1861df65",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_evidence_pg.py",
+      "sha256": "a74aaf794628f5357d18b4d4aecdaf5a9252b11532379b3ef7a1f0e2e99a04ac",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_execution_authority_pg.py",
+      "sha256": "abfd7b22f4affecdc2751e5883860e5db3253428c2c83bc28dbeeffebe9c48a6",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_execution_pg.py",
+      "sha256": "c782610dd3bf88e62530dfc043767ea518db857dc935412d9bb182f36dc596d4",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_execution_recovery_pg.py",
+      "sha256": "6926dcb9aa0b7dfc9f5d899cdf9d95d8f65d2c348d6251bc1452b12cdd9a35af",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_items_authority_pg.py",
+      "sha256": "31cb77b51c3c4b9aaece7db6c9fb4059823e934bfaf2c7fdc5c01ffc35d91a4c",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_migration_pg.py",
+      "sha256": "e5a9c615c2a5f014d24899113fa9dd58c0526c36a1ef28295972f0f08386a016",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_pg.py",
+      "sha256": "2815dbf23b022cf43dd20d3aa19c2f4ea39a3216075650581199fd3195e5c9d1",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_pool_pg.py",
+      "sha256": "2e8f53bbe3d7315f37d4119586c778ab854aec1ee2e6ea9851cb6ac3afcd9548",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_projection_pg.py",
+      "sha256": "f2aabde45fb8571e70092467447a64f7209a8a7fb17ddec8c52e1a31d2e0f0bb",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p3_revalidation_pg.py",
+      "sha256": "8ec0ad32de26b9c3a6fb7a0f94ae4c948202c55fc0c74eacc650116c4436a2ae",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_a08_group_pg.py",
+      "sha256": "69ec28971b35eca8eb2140910100c494fc940c869b5d519a482f5c4fd3f1d95a",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_a08_identity_pg.py",
+      "sha256": "563b5b5620ea30fbaa0dca776c3a12c7de3b28a0c1ac50923931a828a9d2b6b5",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_a08_recovery_pg.py",
+      "sha256": "0783508202b7c89e787f3835d68d2c0c38d0c9d16349df7872cf719f3669dca6",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_a08_scope_pg.py",
+      "sha256": "e05f37c7526eea7c571c530d822ee41ecd30af4759713b9ff6a02aceace6d911",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_a08_workflow_pg.py",
+      "sha256": "fada55acbe9250867dda0c88c16587813257d970097c8388b933a70e9da325bd",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_a09_workflow_pg.py",
+      "sha256": "0d687a333c207259fb53ad9fd5903864755276e41cb113ef9f4561a8de9db516",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_acceptance_pg.py",
+      "sha256": "3a562c01acf662b559d68e235468ce4c09a8fda19be76197c1e0ad4ec3d11a2b",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_clarification_pg.py",
+      "sha256": "885afb3342596d95b1fb5b8ec0e7b465cc5fd6d49a55334fbe6da4c6537b96e4",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_controlled_worker_pg.py",
+      "sha256": "deb7c4142b1a7c1164a32e0ac1b333a3957b135ed46501a5ea8f54e41ce110cb",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_delivery_pg.py",
+      "sha256": "3f9cd3df9ad77a8e0a2f2fc579e18da883a04336571f263f4ed42e69cab76d53",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_explicit_ro_pg.py",
+      "sha256": "d7e7afa8a48909a3ea17a2aa8c8259997760871d8b9543dc1cb2699beaa5a44c",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_f02_parent_pg.py",
+      "sha256": "08b041a9e934b3a047b0c9a6dc18c693692066255ddc0e9e538b36e40bc0adac",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_f02_pg.py",
+      "sha256": "c1e6545d7ce521e855bbf9f652faccc13a13b9c9ec3a5cfc72ec14acafaf6513",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_first_create_negatives_pg.py",
+      "sha256": "30df43cc1e9353f225caf965a552e12d08e9a39eeda56b644781530571c14693",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_first_create_pg.py",
+      "sha256": "62ad3594756bfadb16ae3a4ea82895e4aaa1e8fa76c823d9c8b892c911c03561",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_gateway_pg.py",
+      "sha256": "3bfca5c220ea3d8acf066e03f73508399118c1755ffac058159f865f2ce03e0b",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_gateway_window_pg.py",
+      "sha256": "92d04368ba63d47cfa63bbe4611b22f4db6e9898888105cf58933a5299fd2a74",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_group_read_operation_pg.py",
+      "sha256": "e3852088fbcf704389f6ceb6686dabc135bd94bc2e4ececfd689a9045ec5fcb5",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_history_forensics_pg.py",
+      "sha256": "e304d92e391934fc1b3920d34e9d38c6ee404f1a98b0e14f761815d410d08005",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_history_pg.py",
+      "sha256": "c234357f951afb7c045914f84ce5a425f81274ad7b9af89642072695b507d848",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_im_delivery_pg.py",
+      "sha256": "855a64c83e9b5c84024738912c8e76ae4fb5ff5aa4c0d4720fc2c65f2f474c45",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_n01_preflight_pg.py",
+      "sha256": "d5ee502c6c540144858e523c7bd55e4a226710fab751ea9aeebd00641fd12e87",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_new_cycle_source_pg.py",
+      "sha256": "e17fdb1d307304ed19b5053efc6467f1ec98f29612fa6c3f3761573378cbe4e0",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_queued_start_pg.py",
+      "sha256": "1d42110820a95408aa6bc17f97e67071ba95bae87f56833db98ab9b4c10638e3",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_queued_terminal_pg.py",
+      "sha256": "a33c5784a1dcb404e02f06f0d9c2356f8db18c543da9615f3be4512b8a789376",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_read_reply_parent_pg.py",
+      "sha256": "f4c9d71d9b95eec724dc1f9d07a715ffc09b9ceb13f5586c0564fe3bdf61c5f4",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_read_reply_pg.py",
+      "sha256": "2f27da879356eeb7b12e2f09c00c98da9a266c465c6668bea2fb82774f4f8413",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_sdk_ledger_pg.py",
+      "sha256": "188ec7a61f00a218ef2cfcdd449421a7ea8786752b44ceef9d8fa00b977ab427",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_sender_recovery_pg.py",
+      "sha256": "c4c0d0410b3b8801303546cbc9290a3bae5e6a8730f3bc67fbded8137dd9b6a9",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_template_results_pg.py",
+      "sha256": "513b494ba1beaf951f8517ada1ba3cfc9c34655f5e30c7a8413b87b97a92feec",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p4_terminal_recovery_pg.py",
+      "sha256": "f2adb2b70ebd972cf6c0874e5a442877043f3f2b432a4135c3389a2dfbf06c2a",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p5_feishu_pg.py",
+      "sha256": "4e42a88fa0064fef7cc197618db30f0e82d9b72c89120c3b79e9988421be395b",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p5_m2_backup_pg.py",
+      "sha256": "49680ad7b35225b5c22f8b2292a3ab972ae52760a88030b29808a5e13fc115a0",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p5_m2_mixed_pg.py",
+      "sha256": "721d07dbc6493014091fa0db144b78049678891d657c1694067c9bb93120ff01",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p5_m2_pending_pg.py",
+      "sha256": "20c8e6e8172fe881c676a5152d0977e0cb5d67a9ae0dd479fd02d383a3f3ae36",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p5_sources_pg.py",
+      "sha256": "bbd0d438dbbcba596ce5deb84f74e3c9f82f69760ddf62a60f90f7d9d315b90d",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p6_copy_pg.py",
+      "sha256": "e6a6d5f250a47bd0b18c656f9182cd3d67e06299e2ca2d7435d937d6c27d68ed",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p6_inquiry_pg.py",
+      "sha256": "989fd58ddd2f442ca876365db88e2ab2044d4aabdb4d8a2ab472c16907d3cb54",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_p6_knowledge_copy_pg.py",
+      "sha256": "b970c9a80ed0245a7c891d5d54ec2abc059b01c4745a1219e9c6344257f03f2d",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_postgres.py",
+      "sha256": "23e5e4b0e60edc245b09664168f133548aab0e1fbd1b393b21507dd2f0b55b39",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/test_worker_pg.py",
+      "sha256": "29ef64cf72149454a467285420fc87379984706da3de71ce8620d5805b380ec5",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/v4/test_demo_seed_pg.py",
+      "sha256": "ca2142492c14641d535d880ad6bd2aa1cc48c701f254d669df8fc5ef4409ddeb",
+      "same_as_r2": true
+    },
+    {
+      "path": "tests/v4/test_demo_sessions_pg.py",
+      "sha256": "7dab9d922c87d45cdebf8a8054e7726bd04fcb7bc0e7b0142c9a8b1d563c3bfc",
+      "same_as_r2": true
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "0ede5493b5d35fb2f4e50f4d8691579e99934787422a8d715e3562024c0cfa42",
+      "same_as_r2": true
+    }
+  ],
+  "changed_strict_fingerprint_files": [
+    "scripts/gitleaks_rules.json",
+    ".gitleaks.toml"
+  ],
+  "reuse_boundary": "R2-only exact strict pair; final candidate not represented as same-SHA PG execution. Changed scanner configuration is validated in candidate engineering Gate.",
+  "candidate_delta_from_r2": [
+    {
+      "path": ".gitleaks.toml",
+      "old_blob": "565e8487d0ab0dff35824eec2ae55787635b6e1e",
+      "new_blob": "b6906416af5e8eb9464b2b43bb0327359d545de5"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/LOCAL_RUN.md",
+      "old_blob": null,
+      "new_blob": "3d681b05a67e03c59392052a9cf08e1e96db580d"
+    },
+    {
+      "path": "docs/v4/acceptance/v4-0/SCAN_COMPAT.md",
+      "old_blob": "a5721dba41ec242d74e244d359543f220a262848",
+      "new_blob": "05824a7a1152708da8a1627e37e30189e64a283d"
+    },
+    {
+      "path": "docs/v4/review/BOOTSTRAP_SNAPSHOT_9727.md",
+      "old_blob": null,
+      "new_blob": "0c3b81396b889c4b016d6449a643a3211d1586ea"
+    },
+    {
+      "path": "docs/v4/review/CAPTURE_GEOMETRY_5cc.md",
+      "old_blob": null,
+      "new_blob": "1ff81f91968b6abc2cafb2df52b835bb7025844b"
+    },
+    {
+      "path": "docs/v4/review/FINAL_TUPLE_PIN_ROOT.md",
+      "old_blob": null,
+      "new_blob": "8dc7842a492bde5f7119885c8dc18330f8ee08d3"
+    },
+    {
+      "path": "docs/v4/review/LOCAL_RUN_ROOT.md",
+      "old_blob": null,
+      "new_blob": "97ebd7a2d900c0428acc4af56bf39d6569f1b193"
+    },
+    {
+      "path": "docs/v4/review/SCAN_e096.md",
+      "old_blob": null,
+      "new_blob": "c385352a66c48c90622de49f09a2fe3e5f318e29"
+    },
+    {
+      "path": "frontend/v4-tests/lifecycle.live.ts",
+      "old_blob": "7886099a4c3bbc4f3fdbc1b4ec53b402d63936ce",
+      "new_blob": "2ad9fcad7b6736d6c55de8d5e482d0369ea129c3"
+    },
+    {
+      "path": "scripts/gitleaks_rules.json",
+      "old_blob": "a94ff37c561b746b7cb2d03b5c10170bd2d210ee",
+      "new_blob": "5faa61d1969d5f7cfd27a3f3530446ef683e3b84"
+    },
+    {
+      "path": "scripts/scan_secrets.py",
+      "old_blob": "e209051d831549591f4e50253701e3b3bbc839d9",
+      "new_blob": "870fed0e63fb80bf57ea4bf338c37b8211be9e6c"
+    },
+    {
+      "path": "scripts/vendor_gitleaks_rules.py",
+      "old_blob": "d962348a428723ce3729ce8ae690c072bb49f31b",
+      "new_blob": "b710c5354dfd00cbebcb63dd00410bcbb1a9ebb2"
+    },
+    {
+      "path": "tests/e2e/v4/browser_lifecycle.py",
+      "old_blob": "aba379bb471f98eeee8d94a501d71508b2d5dced",
+      "new_blob": "c6b828c04c8e2604f597f8d18306541c93868912"
+    },
+    {
+      "path": "tests/e2e/v4/owned_negatives.py",
+      "old_blob": "7b161c41af7bc21bd52cbe28574adfdcefc967ce",
+      "new_blob": "f56afab50f937a6d6da724660e08d4e8c15fa2e2"
+    },
+    {
+      "path": "tests/e2e/v4/test_cookie_snapshot.py",
+      "old_blob": "ff809ec02502bdb539a268b4df4a7f5b4cc0c2f9",
+      "new_blob": "b403ae259b12b0c7823e2401a8c891ab5d156c2b"
+    },
+    {
+      "path": "tests/test_quality_gates.py",
+      "old_blob": "92abb616239365cb9aee14ad83d21b2f0f557f57",
+      "new_blob": "752bb6542ede94c91e242002009d0dba561655e0"
+    },
+    {
+      "path": "tests/test_v4_scan_compat.py",
+      "old_blob": "967d79e5856f0c97623babe89086e7c2a36201a2",
+      "new_blob": "596d682a26270213b5b03a4c2a1868d7e52fed92"
+    }
+  ]
+}

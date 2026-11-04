@@ -1,0 +1,114 @@
+{
+  "source_sha": "27f26e11aae2c927a31ae1b051563d25a06c0b25",
+  "source_tree": "0c8b0a5b8ac364315218b5dddabc26ff8e434c60",
+  "project": "v4qa_lifecycle_20261104a",
+  "mode": "ACTUAL_OWNED_STARTUP_FAILED_BEFORE_HTTP_WEB",
+  "driver_native_exit": 1,
+  "stage_records": [
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "freeze_compose",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_container",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_network",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "pg_start",
+      "native_exit": 0
+    },
+    {
+      "stage": "migrate",
+      "native_exit": 0
+    },
+    {
+      "stage": "setup-checkpointer",
+      "native_exit": 0
+    },
+    {
+      "stage": "grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_init-fixture",
+      "native_exit": 1
+    },
+    {
+      "stage": "writers_stopped",
+      "native_exits": {}
+    },
+    {
+      "stage": "api_container_stopped",
+      "native_exit": 0
+    },
+    {
+      "stage": "owner_oneoffs_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "final_pg_read_only",
+      "tenants": 0
+    },
+    {
+      "stage": "owned_down_keep_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "containers_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "networks_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volume_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volumes",
+      "names": [
+        "v4qa_lifecycle_20261104a_pg_data"
+      ]
+    }
+  ],
+  "api_web_http": "NOT_STARTED",
+  "full": "NOT_RUN",
+  "outer_cleanup_confirmed": true,
+  "ports_closed": {
+    "18440": true,
+    "13440": true
+  },
+  "retained_volumes": "v4qa_lifecycle_20261104a_pg_data",
+  "observed_export_files": [
+    "content.json",
+    "manifest.json",
+    ".MANIFEST.pending"
+  ],
+  "original_cli_error": "NOT_CAPTURED_FIXED_ERROR_ONLY",
+  "new_filesystem_reproduction": {
+    "lower_upper_samefile": true,
+    "stage": "atomic_index_link",
+    "errno": 17,
+    "exception_type": "FileExistsError"
+  },
+  "repair": "pending reviewed rename of package index only; seed content/digest unchanged",
+  "original_case_retry": "NOT_ALLOWED_NOT_PERFORMED",
+  "evidence_index": ".audit/v4-0/live-pilot-27f"
+}

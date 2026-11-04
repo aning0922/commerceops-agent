@@ -1,0 +1,63 @@
+{
+  "stage": "V4-1",
+  "scope": "complete_engineering_only",
+  "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+  "tree": "20044a26fe39850cc31943bf4e328abba3936f3e",
+  "status": "pass",
+  "started_utc": "2026-11-04T07:01:34.918236Z",
+  "ended_utc": "2026-11-04T07:27:04.485508Z",
+  "duration_seconds": 1529.567272,
+  "native": {
+    "command": 0,
+    "worker": 0,
+    "outer": 0
+  },
+  "timeout": false,
+  "offline": {
+    "passed": 4601,
+    "failed": 0,
+    "deselected": 776,
+    "warnings": 4,
+    "duration_seconds": 1346.64
+  },
+  "mypy_files": 616,
+  "markdown_files": 312,
+  "npm_audit_vulnerabilities": 0,
+  "pip_audit": {
+    "packages": 95,
+    "vulnerabilities": 0,
+    "skipped": 0,
+    "strict": true
+  },
+  "scanner": {
+    "wrapper_native": 0,
+    "dir_native": 0,
+    "index_native": 0,
+    "history_native": 1,
+    "reviewed_findings": 1760,
+    "reviewed_false_positive": 153,
+    "reviewed_merge_copy": 1607,
+    "blocking_findings": 0
+  },
+  "source_before_after_equal": true,
+  "registered_groups_stopped": true,
+  "evidence_limits": [
+    "after tool, installed-package and wrapper equality checks are owner seal statements without separately persisted raw maps",
+    "post-exit ps is an owner observation; wrapper native and registered-group closure are independently auditable receipts"
+  ],
+  "review": "935448fb4ef7bfbb8f6703f7a2dbb857c2d4895d",
+  "artifacts": [
+    {
+      "path": "engineering-4fec-r3/engineering-owner-seal.json",
+      "sha256": "c9f9e7218238fd86cec52e4e3fdd844bb5e48e4a45e5fccd3ff9f0454cd6486b"
+    },
+    {
+      "path": "engineering-4fec-r3/checks.json",
+      "sha256": "c10ba9417b65903bc4e1fc63e9f2e5737f764aaf193e919b3d6a37085c523b58"
+    },
+    {
+      "path": "engineering-4fec-r3/outer-receipt.json",
+      "sha256": "9ee1866e5ddf2906bcc7e35743bde7dc8aa53592069a4fa33769ec9b7aaaa2d3"
+    }
+  ]
+}

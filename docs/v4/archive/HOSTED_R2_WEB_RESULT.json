@@ -1,0 +1,111 @@
+{
+  "run": 41852391468,
+  "head_sha": "cbd5d5464b9e2b4a62463f2ba51d100125326e8c",
+  "actual_checkout": "de4d04db56e0de7f5f6df9eb740c84819ae554d7",
+  "status": "BOTH_WEB_PREPARATION_FAILED_NO_ACCEPTANCE_ARTIFACTS",
+  "jobs": [
+    {
+      "name": "frontend",
+      "job_id": 126651839733,
+      "conclusion": "failure",
+      "started_at": "2026-11-04T14:55:19Z",
+      "completed_at": "2026-11-04T14:59:11Z",
+      "failed_steps": [
+        {
+          "number": 6,
+          "name": "Locked tools schema contracts build and headless Mock pages"
+        }
+      ],
+      "checkout": "de4d04db56e0de7f5f6df9eb740c84819ae554d7",
+      "failure_diagnostics": [
+        {
+          "line": 2193,
+          "message": "M3 bounded image preparation failed (raw output withheld)"
+        },
+        {
+          "line": 2194,
+          "message": "##[error]Process completed with exit code 1."
+        }
+      ],
+      "scanner_summary": [
+        "dir: findings=0, exit=0",
+        "index: findings=0, exit=0",
+        "git: findings=1707, exit=0",
+        "git: native_exit=1, reviewed_false_positives=1707, blocking_findings=0"
+      ],
+      "skipped_steps": [
+        "All real PG API headless read write and items batches",
+        "Validate only current-source closed failure diagnostic",
+        "Upload only verified failure sidecar and minimal binding",
+        "Require source-bound M3 image receipt for every current PG segment",
+        "Require complete current-source live results and stopped resources",
+        "Upload only four verified safe live metadata files",
+        "Post Run astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7",
+        "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
+      ],
+      "build_underlying_cause": "UNKNOWN_RAW_OUTPUT_WITHHELD",
+      "engineering_full_or_web_execution": "NOT_REACHED",
+      "test_pass_skip_retry_counts": "NOT_AVAILABLE_NO_TEST_REPORT",
+      "owned_application_cleanup": "NOT_REACHED_NO_LIVE_STAGE_OR_CLEANUP_REPORT",
+      "runner_post_cleanup": "Cleaning up orphan processes log observed; not a substitute for owned stop proof",
+      "log": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-pr53-scan-anchor/commerceops-agent/.audit/ci-41852391468-web-review/frontend.raw.log",
+        "bytes": 1181628,
+        "sha256": "28441baf6633a9ce25d9b8f0dea3cc09574d16b7213e8832ccbb104ffc5897e5"
+      }
+    },
+    {
+      "name": "n01-web",
+      "job_id": 126651840500,
+      "conclusion": "failure",
+      "started_at": "2026-11-04T14:55:19Z",
+      "completed_at": "2026-11-04T14:58:41Z",
+      "failed_steps": [
+        {
+          "number": 6,
+          "name": "Prepare locked N01 production build and Chromium within deadline"
+        }
+      ],
+      "checkout": "de4d04db56e0de7f5f6df9eb740c84819ae554d7",
+      "failure_diagnostics": [
+        {
+          "line": 2186,
+          "message": "M3 bounded image preparation failed (raw output withheld)"
+        },
+        {
+          "line": 2187,
+          "message": "##[error]Process completed with exit code 1."
+        }
+      ],
+      "scanner_summary": [
+        "dir: findings=0, exit=0",
+        "index: findings=0, exit=0",
+        "git: findings=1707, exit=0",
+        "git: native_exit=1, reviewed_false_positives=1707, blocking_findings=0"
+      ],
+      "skipped_steps": [
+        "Run the fixed six actual N01 PG API Web cases",
+        "Remove only this registered stopped N01 project and preserve volume",
+        "Validate only current-source closed failure diagnostic",
+        "Upload only verified failure sidecar and minimal binding",
+        "Require source-bound M3 image receipt for every current PG segment",
+        "Require current source six passes PG invariants and complete stop proof",
+        "Upload only three verified safe N01 reports",
+        "Post Run astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7",
+        "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
+      ],
+      "build_underlying_cause": "UNKNOWN_RAW_OUTPUT_WITHHELD",
+      "engineering_full_or_web_execution": "NOT_REACHED",
+      "test_pass_skip_retry_counts": "NOT_AVAILABLE_NO_TEST_REPORT",
+      "owned_application_cleanup": "NOT_REACHED_NO_LIVE_STAGE_OR_CLEANUP_REPORT",
+      "runner_post_cleanup": "Cleaning up orphan processes log observed; not a substitute for owned stop proof",
+      "log": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-pr53-scan-anchor/commerceops-agent/.audit/ci-41852391468-web-review/n01-web.raw.log",
+        "bytes": 1180757,
+        "sha256": "debf811334da9348fc6f1b07092f35cfefb5922c89429e8c71a03e4e2cd4234e"
+      }
+    }
+  ],
+  "artifacts": [],
+  "no_rerun_or_local_tests_or_mutation": true
+}

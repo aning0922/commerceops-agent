@@ -1,0 +1,39 @@
+{
+  "evidence_mode": "UI_FIXTURE_ONLY_NOT_API_PG",
+  "source_sha": "cf7af10abf21318121fe23d0e1c8a7ca9d039b49",
+  "source_tree": "7acab89771c0def2047f1a12bef9b47b663e13a5",
+  "window_start_utc": "2026-11-03T14:50:35.764241+00:00",
+  "window_stop_utc": "2026-11-03T15:10:35.764241+00:00",
+  "actual_browser_tests": {
+    "startTime": "2026-11-03T14:50:39.513Z",
+    "duration": 19219.723,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "native_exit": 1,
+  "failed_titles": [
+    "anonymous page does not poll or create sessions",
+    "explicit cross-tab invalidation permits one anonymous recheck"
+  ],
+  "failure_observation": "expected initial current reads 1; observed 2; root cause under author investigation, not predeclared fixed",
+  "cleanup": {
+    "playwright-ui-fixture": {
+      "native_exit": 1,
+      "no_live_owned_group": true,
+      "signal_errors": []
+    },
+    "next-web": {
+      "native_exit": 0,
+      "no_live_owned_group": true,
+      "signal_errors": []
+    }
+  },
+  "web_port_closed": true,
+  "ended_at_utc": "2026-11-03T14:50:59.303181+00:00",
+  "evidence_index": ".audit/v4-0/ui-fixture-cf7",
+  "actual_pg": "NOT_RUN",
+  "full": "NOT_RUN",
+  "hosted": "NOT_RUN"
+}

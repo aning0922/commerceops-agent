@@ -1,0 +1,54 @@
+{
+  "schema": "v41-runtime-definition-2",
+  "backend_source": "772ecc6d423e06351c8cdeb78c23a9382d47d466",
+  "backend_tree": "c3c2a797df43b4af1c3e9d713a1e8aa03762b3b1",
+  "state": "HOLD",
+  "blocking_findings": [
+    "P2-S02",
+    "P1-S04"
+  ],
+  "review_source": "6208ba90588c443fe70ddef74c59961891a7f81d",
+  "revision": "0025_v41_catalog_operations",
+  "router_installer": "commerceops.entrypoints.v41_http.install_business",
+  "owner_policy_cli": null,
+  "owner_grant_cli": null,
+  "owner_verify_cli": null,
+  "policy_helper": "commerceops.infrastructure.v41_security.activate_policy(db,config)",
+  "grant_helper": "commerceops.infrastructure.v41_runtime.grant_runtime(db,config)",
+  "factory": "commerceops.entrypoints.api.create_app",
+  "process_module": "tests.e2e.v4.owned_api",
+  "source_files": [
+    {
+      "path": "backend/src/commerceops/entrypoints/api.py",
+      "sha256": "ea094fb6b6e7fd3b5cfba947ac0d8658e74decfce1207371107e14e5e15d4f1a"
+    },
+    {
+      "path": "backend/src/commerceops/entrypoints/v41_http.py",
+      "sha256": "8f0d3e731972df0fc63abaf48641ebc2e26e5921296aa31c9fd403329fd988f7"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v41_runtime.py",
+      "sha256": "efbad1d7da4b770e38bfde678e156c7b80baa3dc1bacaa78c826d8e0c244a3d8"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v41_security.py",
+      "sha256": "3e2850c65585dae0d9bed485bb56f9dc2f15055532257fa0859b0bd17512b868"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v41_parse.py",
+      "sha256": "dfd51aeacc45688711f2ab2e5363f70fc58f6cb542a5c18009bd17de35e43e0c"
+    },
+    {
+      "path": "backend/src/commerceops/infrastructure/v41_store.py",
+      "sha256": "3ed27aa14fd63671b48e7b594ee86c09434eb0c2f04e623bceae8e7f69053b18"
+    },
+    {
+      "path": "backend/migrations/versions/0025_v41_catalog_operations.py",
+      "sha256": "3c1c2e3349eb7ff87674f740db0ed3545b75682fcaec6e59156a93edd3402bb5"
+    },
+    {
+      "path": "tests/e2e/v4/owned_api.py",
+      "sha256": "ae37751adafa5151a8143153b884c30251694269673cb4955e30ee5dd193dbbf"
+    }
+  ]
+}

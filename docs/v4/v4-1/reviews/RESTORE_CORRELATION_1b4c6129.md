@@ -1,0 +1,15 @@
+# V41 Shell restore请求关联窄修独审
+
+日期：2026-11-04（台北）。source `1b4c6129b2d8600c2f071ed248c212eee21467f3`，tree `b7ea36617aa43e4bb10fd5dc149bce63ad24f87a`，parent `f7743310ff7a0808694efb40990b5a29ed251224`。唯一Shell spec +24/-9，restoreOriginal与Frame type。
+
+结论：ACCEPT_RESTORE_REQUEST_CORRELATION_SOURCE，未见P1/P2。源码关联缺口已补；r4原件没有request/document关联，具体是否选中过旧响应仍UNKNOWN，不将该修复写成实际失败唯一根因或runtime通过。
+
+每次restore在bringToFront/visible后建立新的committed=false与Request Set，只有主frame的framenavigated打开准入；随后同主frame、精确sessionCookieURL、GET请求事件才入Set。response必须引用该Set中的同一Request对象，不能以相同URL或字段替代，也不会追溯接纳提交前已观察的请求。listener在reload前安装，await reload完成后才await选定response，核finished()为null，再走原严格session envelope/status/schema/cache验证、五项身份/creation key/operator、同Cookie、UI恢复、原shop和create=1；全部完成前不开始后续导航。finally移除同两个listener；没有catch正文/失败、重试、skip、timeout放宽、page.request旁路或禁用产品refresh。
+
+独立验证：精确Git文件SHA256 `97d335be322d2e002d7342edb5157ba3e4a9fbb4a9c1e0720f4a10241b9adcea` 与postcommit pure.safe绑定相同。直接从该文件提取原trackCommit/trackRequest及response predicate，以Node内置TS擦除后运行纯callback模型：提交前、foreign commit、旧response、错误frame/method/URL、同字段不同Request对象均拒绝，仅新mainframe Request选中1；native0，browser/service0。精确archive strict TS noEmit独立native0，未运行测试体或真实浏览器。
+
+补证核对：pure.safe SHA `ce217242284e9ce3ab34905cff82cffcffc71b98b1e167cf33a93c557a368dd2`，source_commit及文件hash精确绑定1b，native0；collect.safe SHA `50b4b25763721501c254067e8af68e827ad088104bf919b5a90d06a0acd14376`，同commit/native0/固定2titles/执行0，Node sentinel仅collect。本轮未重跑collect，也不把其结果当实际恢复证明。
+
+过程偏差原样保留：Root转交的作者过程为precommit TS/diff0，但首次纯组件私有装载器require不存在的TypeScript CJS入口，native1且关联断言未执行；set-e设置过晚仍继续preflight0并提交1b。未reset/amend；之后只改私有装载器，对同一已提交1b补做纯callbacks、collect和type成功。initial-validation-failure.safe SHA `ab2064e3a182aa879e6c29c2a84330533d3140b532cd29db09c115e8d82ca7da` 是事后说明，不冒原始stderr；首次原stderr仅保留在作者原chat工具原件，本轮未独立读取该原chat，不补造日志或将首次失败改成通过。当前source接受依据精确diff、同SHA补证及独立组件/TS，不追溯替代precommit门槛。
+
+无WIP读取、cookie/auth/session/headers原件、HTTP、服务、PG、Docker、browser/Native、Full/CI或远端写入。新实际lifecycle按Root新冻结source与窗口另验；不重写旧失败历史。

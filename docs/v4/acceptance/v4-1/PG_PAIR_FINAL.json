@@ -1,0 +1,55 @@
+{
+  "source_sha": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+  "source_tree": "4e8349cfeec323668be316426871bc310b6ce53d",
+  "existing_selected_actual_passed": 596,
+  "phase3_selected_actual_passed": 177,
+  "union_count": 773,
+  "intersection_count": 0,
+  "full_nodes_sha256": "b18a4b06e28581e521f5c5aa13741679b47b1a7c6d9dd17daff161fc61c4933f",
+  "strict_checker_native": 0,
+  "strict_checker_timeout": false,
+  "strict_checker_stdout_sha256": "1127cf7170df42e078288667e5f87faa8d113c055efb57a1982962b09f06fc17",
+  "strict_checker_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "strict_checker_utc_elapsed_seconds": 0.132131,
+  "existing_g1_complete": true,
+  "existing_g1_verified_count": 3,
+  "existing_g2_scenarios": [
+    "checkpoint_db_failure_recovered",
+    "cross_process_resume",
+    "graph_lock_loss_cancel",
+    "graph_noncooperative_exit",
+    "receipt_commit_checkpoint_gap",
+    "retired_probe_version_refused"
+  ],
+  "existing_unavailable_expected_native": 1,
+  "phase3_g1_complete": false,
+  "phase3_g1_verified_count": 0,
+  "phase3_g2_scenarios": [],
+  "source_tree_14locks_4runtime_3binaries_equal_and_unchanged": true,
+  "stage": "V4-1",
+  "status": "accepted_for_exact_e7_fullpg_only",
+  "review": "7fc12c2125f931293addff379ab9302bc5f01be8",
+  "phase3_helper_seconds": 1788.936021,
+  "phase3_outer_seconds": 1791.667416,
+  "canonical_cleanup_native": 0,
+  "phase3_registered_groups_stopped": 28,
+  "post_pair_unique_registered_groups_stopped": 77,
+  "project_containers_networks_temporary_volumes_remaining": 0,
+  "temporary_pg_volumes_deleted": true,
+  "container_filesystem_byte_check": "NOT_RUN",
+  "old_failed_first_existing": "PRESERVED_NOT_SPLICED",
+  "artifacts": [
+    {
+      "path": "fullpg-e7ae-final/FULL_PAIR_DELIVERY.safe.json",
+      "sha256": "ebc519001553adb1b4f5af54c2207f71cbbd8eefeb24088043c46fb3436953ff"
+    },
+    {
+      "path": "fullpg-e7ae-strict-pair/PAIR_RESULT.safe.json",
+      "sha256": "b1b1da9daac869caa34bfd23c46a8acf38c9708ace057ae8221042fc22026aaf"
+    },
+    {
+      "path": "full-phase3-e7ae-r1/EXECUTION_RESULT.safe.json",
+      "sha256": "e0e49ad2f26f0bab51dc23ee1261305360ca17aeace757059af8e8140794a5a6"
+    }
+  ]
+}

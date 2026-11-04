@@ -1,0 +1,35 @@
+{
+  "status": "PROPOSED_NOT_GENERATED",
+  "fixture_version": "v4-demo-seed-1",
+  "business_data": "synthetic_only",
+  "tenant_mapping": "one_demo_tenant_to_one_new_organization_two_unique_shops",
+  "baseline": "immutable_shared_template_with_tenant_scoped_overlay",
+  "clock": "fixed_explicit_anchor_not_browser_today",
+  "shop_templates": [
+    {
+      "key": "v4-shop-a",
+      "timezone": "Asia/Taipei",
+      "currency": "TWD"
+    },
+    {
+      "key": "v4-shop-b",
+      "timezone": "Asia/Shanghai",
+      "currency": "CNY"
+    }
+  ],
+  "shop_parameters_status": "PROPOSED_PENDING_ACCEPTANCE",
+  "expected_counts": null,
+  "content_digest": null,
+  "actual_generated": false,
+  "scenario_refs": [
+    "stockout",
+    "high_refund",
+    "slow_moving",
+    "purchase_pending",
+    "support_escalation",
+    "marketing_draft"
+  ],
+  "scenario_ref_status": "fixture_links_only_not_functional_flows",
+  "reset": "transactional_tenant_epoch_CAS",
+  "external_calls": 0
+}

@@ -1,6 +1,7 @@
 """New-owned PG checks of M2 read/empty-target guards, not the actual Woo restore gate."""
 
 import asyncio
+from collections.abc import Iterator
 from copy import deepcopy
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -22,13 +23,53 @@ from scripts.m2_state import (
     stopped_business_facts,
     validate_waiting_checkpoint,
 )
-from tests.p3_support import P3Fixture, P3Process
+from tests.p3_support import P3Fixture, P3Process, initialize_p3
 from tests.test_p3_approval_pg import checkpoint_state, payload
-from tests.test_p3_pg import fixture as fixture
 from tests.test_p4_acceptance_pg import database as database
 from tests.test_p4_acceptance_pg import initialize_schema
 
 pytestmark = pytest.mark.integration
+
+
+@pytest.fixture
+def m2_fixture(
+    database: tuple[DatabaseSettings, DatabaseSettings], tmp_path: Path
+) -> Iterator[P3Fixture]:
+    """M2合同专属0018空库；不继承默认migrate(head)的通用P3 fixture。"""
+    owner, app = database
+    initialize_schema(owner, "0018")
+    f = initialize_p3(owner, app, tmp_path)
+    try:
+        with connect(owner) as db:
+            assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
+                "version_num": "0018_p5_commerce_sources"
+            }
+            assert db.execute("""SELECT count(*) AS n FROM pg_tables
+            WHERE schemaname IN ('business','checkpoints')""").fetchone() == {"n": 60}
+        yield f
+    finally:
+        f.client.close()
+
+
+def test_current_m3_head_is_not_an_m2_backup_schema(
+    database: tuple[DatabaseSettings, DatabaseSettings],
+) -> None:
+    owner, _ = database
+    initialize_schema(owner, "head")
+    with connect(owner) as db:
+        assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
+            "version_num": "0025_v41_catalog_operations"
+        }
+    # snapshot首句设置事务隔离/只读；此新连接之前不能已有SELECT。
+    with connect(owner) as db:
+        with pytest.raises(BackupFailure, match="^M2_SCHEMA_REVISION$"):
+            quiescent_snapshot(db)
+        assert db.execute("SHOW transaction_read_only").fetchone() == {
+            "transaction_read_only": "on"
+        }
+        assert db.execute("SELECT version_num FROM business.alembic_version").fetchone() == {
+            "version_num": "0025_v41_catalog_operations"
+        }
 
 
 def test_exact_0018_snapshot_reads_every_table_and_preserves_read_only(
@@ -101,9 +142,9 @@ def test_source_active_client_is_not_treated_as_stopped(
 
 
 def test_official_stopped_pending_checkpoint_binding_and_initial_wrong_thread_plan_rejected(
-    fixture: P3Fixture,
+    m2_fixture: P3Fixture,
 ) -> None:
-    f = fixture
+    f = m2_fixture
     task_id = UUID(f.create(f.new_cycle())["task_id"])
     child = P3Process(f, "worker", {"task_id": str(task_id)}, "never")
     try:

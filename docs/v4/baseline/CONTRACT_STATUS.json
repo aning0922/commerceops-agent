@@ -1,0 +1,28 @@
+{
+  "status": "CANDIDATE_FROZEN_INDEPENDENT_REVIEW_ACCEPTED_PENDING_USER",
+  "implementation": "V4-0_CODE_NOT_STARTED",
+  "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
+  "contracts": [
+    "DOMAIN_SOURCE_CONTRACT.md",
+    "PERMISSION_DEMO_CONTRACT.md",
+    "UI_ROUTES_CONTRACT.md",
+    "API_EVENTS_CONTRACT.md"
+  ],
+  "business_code_changed": false,
+  "remote_write_authorized": false,
+  "independent_review": {
+    "architecture_permissions": "reviews/CONTRACT_REVIEW_FINAL.md",
+    "ui": "reviews/UI_CONTRACT_FREEZE_ACK.md",
+    "result": "ACCEPT_CANDIDATE",
+    "unclosed_candidate_P1_P2": 0
+  },
+  "user_acceptance": "PENDING",
+  "implementation_authorization_B": "NOT_GRANTED",
+  "cards": {
+    "V40-01": "READ_ONLY_AUDIT_DELIVERED",
+    "V40-02": "CANDIDATE_DOCS_FROZEN_PENDING_USER",
+    "V40-03": "NOT_STARTED",
+    "V40-04": "NOT_STARTED",
+    "V40-05": "NOT_STARTED"
+  }
+}

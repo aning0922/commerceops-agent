@@ -1,0 +1,162 @@
+{
+  "schema_version": "commerceops-v41-qa-results-v1",
+  "stage": "V4-1",
+  "status": "LOCAL_STAGE_ACCEPTED",
+  "code_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "code_tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "generated_utc": "2026-11-04T11:08:14.672230+00:00",
+  "scope": "V41-01 through V41-06 authorized local stage only; controlled feature scope, not all original 99 features",
+  "gates": [
+    {
+      "id": "engineering_full",
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "result": "PASS_EXACT_ORIGINAL_SOURCE",
+      "offline_passed": 4601,
+      "receipt": "ENGINEERING_R3.json",
+      "limitation": "No final-SHA Full rerun; bounded original after216/identity/ps raw proof limitations retained."
+    },
+    {
+      "id": "full_pg_pair",
+      "source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+      "result": "PASS_EXACT_ORIGINAL_SOURCE",
+      "existing": 596,
+      "phase3": 177,
+      "union": 773,
+      "intersection": 0,
+      "receipt": "PG_PAIR_FINAL.json",
+      "limitation": "Canonical PG containerFS byte proof NOT_RUN; not relabeled the strong browser image proof."
+    },
+    {
+      "id": "real_http",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "result": "ACCEPTED_BOUNDED_FOUR_CASES",
+      "cases": [
+        "dash",
+        "catalog",
+        "csv",
+        "xlsx"
+      ],
+      "required_commands_per_case": 37,
+      "review": "../../v4-1/reviews/HTTP54AB_FOUR_CASES.md",
+      "limitation": "148 command records are not 148 tests."
+    },
+    {
+      "id": "final_offline_impact",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "result": "PASS",
+      "python": 235,
+      "node": 74,
+      "native_pure_components": 40,
+      "typescript": 0,
+      "ruff": 0,
+      "format": 0,
+      "mypy": 0,
+      "receipt": "COMBINATION_261F399.json"
+    },
+    {
+      "id": "mock_ui",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "result": "PASS_MOCK_ONLY",
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "retries": 0,
+      "receipt": "UI_MOCK_BATCH_R4.json"
+    },
+    {
+      "id": "owned_real_browser",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "result": "ACCEPTED_EXACT_LOCAL_RUNTIME_AND_CLOSURE",
+      "parent_native": 0,
+      "specs_passed": 2,
+      "consumer_business_keys": 11,
+      "mobile_keys": 10,
+      "final_sql_native": 0,
+      "receipt": "BROWSER_R10.json",
+      "review": "docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md"
+    },
+    {
+      "id": "screenshots",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "result": "AI_ENGINEERING_REVIEW_ACCEPTED_WITH_LIMITATIONS",
+      "business": 32,
+      "shell": 3,
+      "native": 5,
+      "total": 40,
+      "index": "BROWSER_SCREENSHOTS/INDEX.json",
+      "viewports": [
+        1440,
+        1280,
+        390
+      ],
+      "native_zoom": 2,
+      "human_visual": "NOT_RUN",
+      "review": "../../v4-1/reviews/BROWSER_VISUAL_R10.md"
+    },
+    {
+      "id": "canonical_secret_scan",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "result": "PASS_CLASSIFIED_WRAPPER",
+      "current_native": 0,
+      "index_native": 0,
+      "history_native": 1,
+      "wrapper_native": 0,
+      "history_reviewed": 1760,
+      "blocking": 0,
+      "receipt": "SCAN_261F399.json",
+      "limitations": [
+        "Refs changed during run; both raw snapshots retained.",
+        "Original rules and exact exceptions unchanged."
+      ]
+    }
+  ],
+  "source_reuse": {
+    "proof": "Root private .audit/v41-final-r10/incremental-source-proof.json",
+    "backend_tree": "db79f2b4669ed1ead0e41adcf251768d8d635dca",
+    "scripts_tree": "0fbdd1aa4c909975f1a6e5a0c1b1788b066c00b0",
+    "pg_tests_tree": "6c68da0a4d85e9570840740e3c00574e9ab3c9da",
+    "note": "Final integration changes Native/parent/Mock evidence paths; backend/scripts/PG tests/locks unchanged; current product app/components/lib match fbb business source. Older Full/HTTP/PG remain exact old SHA."
+  },
+  "test_counts_not_additive": true,
+  "resources": {
+    "owned_services": "CLOSED",
+    "r10_containers": 0,
+    "r10_networks": 0,
+    "r10_ports_closed": [
+      18479,
+      13479
+    ],
+    "r10_volume": "v41qa_browser_final_r10_pg_data preserved with original identity",
+    "full_pg_temp_volumes": "Deleted by canonical helper per original contract; base image and historical failed volumes retained",
+    "unrelated_resources": "Not changed"
+  },
+  "preserved_failures": [
+    "All original engineering/PG/HTTP/browser development failures and UNKNOWN retained",
+    "Browser r1-r9 independent histories retained, including r9 two passing specs with failed parent",
+    "Mock batch r1 1PASS/1FAIL/31NOTRUN, r2 same, r3 29PASS/1FAIL/3NOTRUN retained",
+    "Push r39 non-ancestor and r51 GitHub server rejection retained; no force/rewrite",
+    "Static loader/Node-path and Root document conversion failures retained; not counted as product tests"
+  ],
+  "not_run": {
+    "hosted_ci": "NOT_RUN",
+    "full_engineering_at_final_sha": "NOT_RUN_UNCHANGED_BACKEND_WITH_AFFECTED_CHECKS",
+    "full_pg_at_final_sha": "NOT_RUN_UNCHANGED_PG_WITH_EXACT_E7_ACCEPTANCE",
+    "real_model_embedding": "NOT_RUN",
+    "woocommerce_write": "NOT_RUN",
+    "feishu_send": "NOT_RUN",
+    "production": "NOT_RUN",
+    "physical_mobile_touch_hardware": "NOT_RUN",
+    "human_visual_approval": "NOT_RUN",
+    "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
+    "V4-2": "NOT_STARTED"
+  },
+  "final_runtime_review": {
+    "source": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+    "path": "docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md"
+  },
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f",
+  "delivery_review_candidate": "746fb181411f14720d4ca22173769f36e5675fbf",
+  "delivery_review_path": "docs/v4/v4-1/reviews/DELIVERY_PACKAGE_746FB18.md",
+  "delivery_accepted_utc": "2026-11-04T11:18:38.885044+00:00"
+}

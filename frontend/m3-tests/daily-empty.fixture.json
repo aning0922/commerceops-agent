@@ -1,0 +1,150 @@
+{
+  "schema_version": "p3-web-v1",
+  "identity_mode": "session",
+  "server_time": "2026-11-02T17:00:00+00:00",
+  "trace_id": "00000000-0000-0000-0000-00000000000b",
+  "daily": {
+    "schema_version": "p6-m3-web-v1",
+    "task_id": "00000000-0000-0000-0000-00000000000c",
+    "shop_id": "00000000-0000-0000-0000-000000000002",
+    "kind": "daily_report",
+    "workflow_version": "p6-daily-report-v1",
+    "created_at": "2026-11-02T16:00:00+00:00",
+    "updated_at": "2026-11-02T16:00:00+00:00",
+    "question_creation_enabled": false,
+    "question_kinds": [
+      "metric_definition",
+      "metric_evidence",
+      "finding_reason",
+      "data_quality"
+    ],
+    "schedule_enabled": false,
+    "delivery_enabled": false,
+    "state": "completed",
+    "failure_code": null,
+    "report": {
+      "report_id": "00000000-0000-0000-0000-00000000000d",
+      "snapshot_id": "00000000-0000-0000-0000-000000000004",
+      "content_hash": "3cb19f3b61b6ba6541899c0864a74ff5d29e17bc92ff914ed34b5e1caa4e51cf",
+      "facts_hash": "576c2619060f2fb6adcaa66bc4d763564fa2d2df6ea32817d1e8d21e4ba7020e",
+      "business_day": "2026-11-02",
+      "window": {
+        "start": "2026-11-01T16:00:00Z",
+        "end": "2026-11-02T16:00:00Z"
+      },
+      "source": {
+        "source_kind": "mock",
+        "source_config_version": "daily-fixture-1",
+        "fixture_version": "daily-gold-1",
+        "currency": "CNY",
+        "timezone": "Asia/Taipei",
+        "coverage_scope": "controlled_test_dataset"
+      },
+      "collection_started_at": "2026-11-02T16:00:00Z",
+      "collected_at": "2026-11-02T16:01:00Z",
+      "quality_flags": [],
+      "findings": [
+        {
+          "finding_id": "0cb37695ac1d4ec0166c6ccfcf129b0cd81ea440a0b73d19709a7c03106df4a7",
+          "code": "NO_RECORDED_PAYMENTS",
+          "severity": "info",
+          "metric_key": "paid_order_count",
+          "evidence_ids": [
+            "83f98d2438e654be2c4ae65a79f7e8e51928b8dae0754b7201ecaead255962b1"
+          ],
+          "rule_version": "daily-rules-v1",
+          "rule_config_hash": "80b66cf87c9e4299b37622195b44db23024805e045a74055ac883dea3599a9f0"
+        },
+        {
+          "finding_id": "79f130b594c63ff1596836cfaf016261aa6ed68b65866e0ed50af364d1414a76",
+          "code": "RULE_NOT_CONFIGURED",
+          "severity": "info",
+          "metric_key": null,
+          "evidence_ids": [
+            "07c8ff0faf2a66ff3c7235f640301a38c094b6f178268b564c0e9dfb651d38c1"
+          ],
+          "rule_version": "daily-rules-v1",
+          "rule_config_hash": "80b66cf87c9e4299b37622195b44db23024805e045a74055ac883dea3599a9f0"
+        }
+      ],
+      "evidence_count": 2,
+      "complete": true,
+      "metrics": {
+        "created_order_count": 0,
+        "paid_order_count": 0,
+        "paid_product_net": "0",
+        "paid_product_tax": "0",
+        "paid_shipping_net": "0",
+        "paid_shipping_tax": "0",
+        "paid_fee_net": "0",
+        "paid_fee_tax": "0",
+        "paid_order_total": "0",
+        "refund_count": 0,
+        "refunded_order_count": 0,
+        "refund_amount": "0",
+        "orders_without_payment_timestamp": 0,
+        "status_counts": [],
+        "average_paid_order_value": null,
+        "average_reason": "ZERO_DENOMINATOR"
+      },
+      "display": [
+        {
+          "metric_key": "created_order_count",
+          "value": "0"
+        },
+        {
+          "metric_key": "paid_order_count",
+          "value": "0"
+        },
+        {
+          "metric_key": "paid_product_net",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "paid_product_tax",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "paid_shipping_net",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "paid_shipping_tax",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "paid_fee_net",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "paid_fee_tax",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "paid_order_total",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "refund_count",
+          "value": "0"
+        },
+        {
+          "metric_key": "refunded_order_count",
+          "value": "0"
+        },
+        {
+          "metric_key": "refund_amount",
+          "value": "0.00"
+        },
+        {
+          "metric_key": "orders_without_payment_timestamp",
+          "value": "0"
+        },
+        {
+          "metric_key": "average_paid_order_value",
+          "value": null
+        }
+      ]
+    }
+  }
+}

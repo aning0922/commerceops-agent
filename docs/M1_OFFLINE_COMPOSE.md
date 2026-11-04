@@ -1,5 +1,15 @@
 # M1 离线 Compose 装配与运行
 
+## 历史运行版本与当前适用范围（2026-11-04）
+
+本文下方的 stock PostgreSQL、`0018`、Mock20 与完整 Compose 操作属于已验证历史源码
+`8ad436595794ef83f3a99bc80bd9ad4948b7117e`，不是当前 V4-1 checkout 的直接启动指令。
+需要复现该历史案时，应在独立干净工作树固定该完整 SHA，并另建获准的新资源；不能复用旧库、身份或窗口。
+当前源码已增加 M3 的 pgvector 迁移及 V4 的 `0024`、`0025`，`migrate` 会升级至实际 head，
+在 stock PostgreSQL 上照搬下方步骤会因缺少 vector 扩展失败，不能仍预期 `0018`。
+当前向量库装配见 [M3 启动说明](M3_LOCAL_DELIVERY.md)，当前产品复现见
+[V4-1 复现说明](v4/v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md)。下方原命令与回执保留历史原貌。
+
 ## 当前 0018 Mock 装配与公开复现（2026-10-27）
 
 Root 与原 Reviewer 已核收当前 clean Compose 技术/业务范围，无 P1/P2。精确 source 为 `8ad436595794ef83f3a99bc80bd9ad4948b7117e`，tree 为 `ea86b637190ec0ec42da771638a6c72b2853e82b`；新自有项目 `m1off-1a7caa29aa654335bfa682a7d82ff207` 在本机以新数据完成复现，**不是新机器、全冷缓存或断网安装证明**。当前已验事实不等于正式 M2 结案；最终文档、精确 CI、main 与合后 CI 由 [固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)的后续实际记录收口，不预填未来 SHA 或成功。

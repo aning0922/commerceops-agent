@@ -1,0 +1,969 @@
+{
+  "stage": "V4-1",
+  "scope": "CLOSED_ACCEPTED_LOCAL_V41_CONTROLLED_STAGE",
+  "runs": [
+    {
+      "case": "owner-ddl-pilot-r4",
+      "status": "DDL_ACL_PASS",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "tree": "80c68225bfa60d946abb8e1add5fbc4f5f92ded7",
+      "image_id": "sha256:f2ba3244b72fcf4a54bb4971437c9f1f9fee9b62c5b86dcb84b88f8775eda373",
+      "started_utc": "2026-11-04T03:30:32.340715+00:00",
+      "ended_utc": "2026-11-04T03:30:39.903812+00:00",
+      "stats": {
+        "tables": 7,
+        "functions": 29,
+        "policy_rows": 0
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41ddlrootr4_data",
+        "v41ddlrootr4_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "owner-ddl-pilot-r4/receipt.json",
+          "sha256": "911f5fb0f16af146ff1ab84d0f5b506ca46bff695c139ac5e0d688ebd5f4be00"
+        },
+        {
+          "path": "owner-ddl-pilot-r4/closedfinal.json",
+          "sha256": "0c14e72d2c5a39e744a8f0d0e22611fa293e316704ae54b0584a9f1f87878686"
+        },
+        {
+          "path": "owner-ddl-pilot-r4/final_owner_facts.json",
+          "sha256": "9b823bcea1496467944312b3566feb520921aa581d727c3d40d2ff09b79e153b"
+        }
+      ]
+    },
+    {
+      "case": "pg7-root-r1",
+      "status": "PG7_PASS",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "tree": "80c68225bfa60d946abb8e1add5fbc4f5f92ded7",
+      "image_id": "sha256:f2ba3244b72fcf4a54bb4971437c9f1f9fee9b62c5b86dcb84b88f8775eda373",
+      "started_utc": "2026-11-04T03:33:03.412527+00:00",
+      "ended_utc": "2026-11-04T03:33:23.630542+00:00",
+      "stats": {
+        "collected": 7,
+        "executed": 7,
+        "passed": 7,
+        "failed": 0,
+        "not_run": 0
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr1_data",
+        "v41pgrootr1_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg7-root-r1/receipt.json",
+          "sha256": "cb6e0a6daea8284b8f03debf66d85dcb160c47c10a33997e7d8a19b7cb90e3e3"
+        },
+        {
+          "path": "pg7-root-r1/closedfinal.json",
+          "sha256": "ca8923c784f65cc65e451a4047ba04dd9f03e90b949d3a640f18c1f2f662f119"
+        },
+        {
+          "path": "pg7-root-r1/final_owner_facts.json",
+          "sha256": "b648e16d08fd00e6321cb59df44ab873415cf8e1807ff6d6365d4d353c79e67e"
+        }
+      ]
+    },
+    {
+      "case": "pg22-root-r2",
+      "status": "PG22_FAILED_CLOSED",
+      "source": "49077566c9ad8f3b1696aa3d8fc46b7ef1d57fbf",
+      "tree": "80c68225bfa60d946abb8e1add5fbc4f5f92ded7",
+      "image_id": "sha256:f2ba3244b72fcf4a54bb4971437c9f1f9fee9b62c5b86dcb84b88f8775eda373",
+      "started_utc": "2026-11-04T03:36:39.131359+00:00",
+      "ended_utc": "2026-11-04T03:36:54.092185+00:00",
+      "stats": {
+        "collected": 22,
+        "executed": 3,
+        "passed": 2,
+        "failed": 1,
+        "not_run": 19
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr2_data",
+        "v41pgrootr2_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg22-root-r2/receipt.json",
+          "sha256": "ce44dd57ac62e7fc8c016ae80c649c962ee58fa0557d89b7d5df711a968501c4"
+        },
+        {
+          "path": "pg22-root-r2/closedfinal.json",
+          "sha256": "2bf5adbfc9abf26aef1337bee126c059fc67246fbd3053ceb3d494b655f46540"
+        },
+        {
+          "path": "pg22-root-r2/final_owner_facts.json",
+          "sha256": "9b366a8c3d4e23297118f6cfbd1395e524062fcaa204a0edbb2188ff6a93c563"
+        }
+      ]
+    },
+    {
+      "case": "pg22-root-r3",
+      "status": "CLOSED_PG22_FAILED_NO_RETRY",
+      "source": "0d5f848dc9ce78cdc6cb47f6a7feccee8412ba33",
+      "tree": "2255ac42683ecf0e75eee69e0c37cb2ff9811311",
+      "image_id": "sha256:44678112de37b12d163c5abc6c1a0298959f8f51cd2ea74da53052aef00dc2cf",
+      "started_utc": "2026-11-04T03:52:33.772579+00:00",
+      "ended_utc": "2026-11-04T03:52:53.990529+00:00",
+      "stats": {
+        "collected": 22,
+        "executed": 8,
+        "passed": 7,
+        "failed": 1,
+        "not_run": 14,
+        "skipped": 0,
+        "failed_node": "test_missing_policy_wrong_config_old_version_and_no_implicit_reactivation",
+        "sqlstate": "42501",
+        "error": "permission denied for table v41_security_policy",
+        "test_source_line": 469,
+        "helper_source_line": 52,
+        "package_source_lines": {
+          "v41_security.py": 75,
+          "v41_store.py": [
+            190,
+            96
+          ]
+        }
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr3_data",
+        "v41pgrootr3_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg22-root-r3/receipt.json",
+          "sha256": "fbd23e47802ded75a0c6e59638261f9983462e5645bfb5a5754f3ae86f864394"
+        },
+        {
+          "path": "pg22-root-r3/closedfinal.json",
+          "sha256": "7a589137e1caac8323bd5445d5cbaf915eff1a1746e21e98fcaddb65ec5c65d5"
+        },
+        {
+          "path": "pg22-root-r3/final_owner_facts.json",
+          "sha256": "ddc8e10d654648b948f4fd0d664851fca9ee834bebc3e1e2d06bf5ca1abc39ae"
+        }
+      ]
+    },
+    {
+      "case": "pg22-root-r4",
+      "status": "CLOSED_PG22_PASS_OWNED_SPECIALIST_SCOPE_ONLY",
+      "source": "dc22be3aaad58cec54e9b3cac76c6213003a25f4",
+      "tree": "0a8f25a18942c0c49c45e988af8733cb7b9a7ff1",
+      "image_id": "sha256:6b61ec7c7d638ead5d94fcff15b515c9be6b8b7417db1178025f7e89f38968aa",
+      "started_utc": "2026-11-04T04:02:37.276564+00:00",
+      "ended_utc": "2026-11-04T04:03:07.461961+00:00",
+      "stats": {
+        "collected": 22,
+        "executed": 22,
+        "passed": 22,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "19.764"
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pgrootr4_data",
+        "v41pgrootr4_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "pg22-root-r4/receipt.json",
+          "sha256": "93fdd0bac43088e6dfcfe21137085a06e67310afd7acff06a869e572ee913014"
+        },
+        {
+          "path": "pg22-root-r4/closedfinal.json",
+          "sha256": "08382b6d7c6041d4cd94f8369facb20a10fc94bc9c890d636127c28f4554922e"
+        },
+        {
+          "path": "pg22-root-r4/final_owner_facts.json",
+          "sha256": "e3ec87ed1049aca9c0d831401e45168d671febecc7da937976eeab370ae52e47"
+        }
+      ]
+    },
+    {
+      "case": "additional6-root-r1",
+      "status": "CLOSED_ADDITIONAL6_PASS_OWNED_SCOPE_ONLY",
+      "source": "e54c603b267c06bff851822b8c2fdaef8fad3230",
+      "tree": "f5cb64a2309d4fbe1ed8b35fa861bb49ba890eed",
+      "image_id": "sha256:a9aab23bed7c42674b55c5bc5abefa65dff59552612bbfce8932413e2ef5751d",
+      "started_utc": "2026-11-04T04:19:48.091570+00:00",
+      "ended_utc": "2026-11-04T04:20:11.704419+00:00",
+      "stats": {
+        "collected": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "not_run": 0,
+        "skipped": 0,
+        "junit_duration_seconds": "12.812",
+        "live_child": 1,
+        "live_gc_orderings": 2,
+        "synthetic_historical_gc_outcomes": 3
+      },
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41pggcliver1_data",
+        "v41pggcliver1_socket"
+      ],
+      "source_unchanged": true,
+      "artifacts": [
+        {
+          "path": "additional6-root-r1/receipt.json",
+          "sha256": "8357e958d35d595a2214e45a4001b8a6d12f99fa78ce9c8ea88acb20a655f093"
+        },
+        {
+          "path": "additional6-root-r1/closedfinal.json",
+          "sha256": "20bdec92dbb8da932da5cd748777f447619852bfc61188f79a808dae8653c22e"
+        },
+        {
+          "path": "additional6-root-r1/final_owner_facts.json",
+          "sha256": "47213c17007ece43bd4d9d0375c01537d57c8129b8dc06dfc8f3aced34f306a7"
+        }
+      ]
+    },
+    {
+      "case": "real-api-dashboard-r1",
+      "status": "CLOSED_FAILED_BEFORE_NAMESPACE_OR_PG_API_START",
+      "source": "9e1beb0e967553a8d9dc24484f1d5845fee2e8ed",
+      "tree": "97bd376738e6fd03e7bc5ba91935891adc6ea98d",
+      "image_id": "sha256:4cca6d7cabddcfed0c62d29ef45a7cf8e7fae51086692cceb06f740a39d4369d",
+      "driver_native_exit": 1,
+      "outer_native_exit": 1,
+      "original_driver_status": "FAILED_OR_UNKNOWN",
+      "original_cleanup_confirmed": false,
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "ports_free": {
+        "18460": true,
+        "13460": true
+      },
+      "once_preserved": true,
+      "artifacts": [
+        {
+          "path": "real-api-dashboard-r1/closedfinal.json",
+          "sha256": "0081e53bcf0af73986031700fbe2135f35daeb308863db0f0bed1427ddaefe0b"
+        },
+        {
+          "path": "real-api-dashboard-r1/execution.json",
+          "sha256": "844a3657ca8cf1b1fa174f3cd0398212b6fd3abe7eadc7398f48b2af854b9276"
+        }
+      ],
+      "actual_pg_api_started": false,
+      "original_exception_message": "NOT_CAPTURED",
+      "fresh_diagnostic": "Requested 172.29.176/24 and 177/24 overlap existing 172.29.0/16; old network unchanged"
+    },
+    {
+      "case": "real-api-dashboard-r2",
+      "status": "CLOSED_RESOURCES_HTTP_COMPLETED_TERMINAL_SOURCE_SEAL_FAILED",
+      "source": "9e1beb0e967553a8d9dc24484f1d5845fee2e8ed",
+      "tree": "97bd376738e6fd03e7bc5ba91935891adc6ea98d",
+      "image_id": "sha256:4cca6d7cabddcfed0c62d29ef45a7cf8e7fae51086692cceb06f740a39d4369d",
+      "driver_native_exit": 1,
+      "outer_native_exit": 1,
+      "original_driver_status": "SCENARIO_COMPLETED_PENDING_CLEANUP",
+      "original_cleanup_confirmed": false,
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "ports_free": {
+        "18460": true,
+        "13460": true
+      },
+      "once_preserved": true,
+      "artifacts": [
+        {
+          "path": "real-api-dashboard-r2/closedfinal.json",
+          "sha256": "90ca4f09c28b531680d78701c518055c40fc858170a7618bca03b76d36723deb"
+        },
+        {
+          "path": "real-api-dashboard-r2/execution.json",
+          "sha256": "dd527bfbd17c2e455bf04a5db04864ea1303a45976230bd56837ea2a834db24e"
+        }
+      ],
+      "actual_pg_api_web_started": true,
+      "probe_native_exit": 0,
+      "required_commands": 37,
+      "required_nonzero": [],
+      "owner_actions": [
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "d09f14cb-c5ee-4d91-9315-51dfe00bd214",
+          "receipt_sha256": "0b381bf47d9fb8fb16bc68f84032a67daf746cbab3064ba398c298aa01a70d2a"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "1ec40b48-3e20-4edf-a444-e1b4a6e52797",
+          "receipt_sha256": "029f2394784c9b9e2432a9a06f7a31c033c1d90917f28fea35d1536a58733b90"
+        },
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "f36a334b-0a94-466b-885d-0f44cae1c4a5",
+          "receipt_sha256": "8c21f8e2a4c0c8512f1125c9cb26d3e49d613520451be277ff2536db721e100e"
+        }
+      ],
+      "writers_native_exits": {
+        "probe": 0,
+        "web": 0,
+        "api": 130
+      },
+      "preserved_volumes": [
+        "v41qa_dashboard_9e1_r2_pg_data"
+      ],
+      "tracked_drift": [],
+      "tool_drift": [],
+      "generated_untracked": {
+        "path": "frontend/next-env.d.ts",
+        "head_entry": "ABSENT",
+        "bytes": 296,
+        "mode": 384,
+        "sha256": "0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc",
+        "preserved": true
+      },
+      "original_exception_message": "NOT_CAPTURED",
+      "fresh_diagnostic": "UNAPPROVED_UNTRACKED_RUNTIME_INPUT",
+      "new_fix": "1794fc7d5e87f252ad16fa54c5594a6c704ef3ac",
+      "fix_not_applied_retroactively": true
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "17bce5e5-f722-414f-8f83-78340f886072",
+          "receipt_sha256": "063919f2ad4babfdf5c8f67e5af365c2cbf35fe46ab126dc45dfbc22bcd9aeee"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "869997b0-56b0-4e5f-8e2b-9aeca21fad87",
+          "receipt_sha256": "f0b134456846d45a8a01618e4c79a9b54addab2f5aa3b3e6391357fdde6eb872"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "f394d168-4a3e-4eee-bb2d-c9bd035896aa",
+          "receipt_sha256": "74fbbb48aa6ea743238f418a3eb35e24cdc936ee3610bd02328c4d2906951c6a"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18461": true,
+        "13461": true
+      },
+      "case": "real-http54ab-dash-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_dash_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-dash-r1/closedfinal.json",
+          "sha256": "b3c0e41b48ac8c82525e320d8e284e1997b108cef001763e79348cba81373f08"
+        },
+        {
+          "path": "real-http54ab-dash-r1/execution.json",
+          "sha256": "729bb0054e90eb44145d0a4a7fbe5444d09abbf1ce9d979489ef80b078eaddec"
+        }
+      ]
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "7526184a-bafc-45b8-9439-256d0b95f514",
+          "receipt_sha256": "31203e1fba2696d581cf21a2759d490d38fd9e50a710dadaa494e1c092b3d7be"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "f45d9064-b5dd-46f6-bd75-00ab3cb806c9",
+          "receipt_sha256": "0a77c8c7c86d8a3e1b53ce72f2db29a8072b629fefd198c58404a3dfaa9bd8b0"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "63aa8e2a-1a77-487f-84e8-22c1e230a9bb",
+          "receipt_sha256": "7f43c1d0bcb02812ef978a202ec89123262422bc6a06af560cdbcbe08a8fdf73"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18462": true,
+        "13462": true
+      },
+      "case": "real-http54ab-catalog-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_catalog_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-catalog-r1/closedfinal.json",
+          "sha256": "1d8b5687d4b927fe60b37dd88378dc464620bf53d0d7ac7700cac4e0ce2f390d"
+        },
+        {
+          "path": "real-http54ab-catalog-r1/execution.json",
+          "sha256": "a2ac9afd862569ea8a3566fee48e1abb4e4307d53d4b58e9dbe6cd1f414b6e57"
+        }
+      ]
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "1c4466d4-db2f-45c9-a607-772ae9fa3f5d",
+          "receipt_sha256": "76b555b14cea2f30a0760388116f48fbdc56fe13b4b1ff1288159fe814a38092"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "72e5c5aa-89f7-4f60-a75c-21ff32897f92",
+          "receipt_sha256": "a105df2a54f4fd3d2bf8847e8bc1018519c0f317806f3f719191efd0fa5b6eea"
+        },
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "db9ba03e-a0b7-4c2e-aada-aff6b7c94ec4",
+          "receipt_sha256": "d65cd7b6b41f29b57c0f58217c1a13c580af35c7ff4d9152220d336dc75aaa10"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18463": true,
+        "13463": true
+      },
+      "case": "real-http54ab-csv-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_csv_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-csv-r1/closedfinal.json",
+          "sha256": "c2358c23c9c64567baca21a8b443cf75c5b8b1878c24223638cea117d81d6b3f"
+        },
+        {
+          "path": "real-http54ab-csv-r1/execution.json",
+          "sha256": "a87025a02fca1ae366cba13608ddbef367adaffcd9ef6d74c548bd45068866b5"
+        }
+      ]
+    },
+    {
+      "status": "CLOSED_SCENARIO_COMPLETED_PENDING_REVIEW",
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "tree": "3b1ed40d717f7c0ed7fa7e85d626b9a9ca272990",
+      "driver_native_exit": 0,
+      "outer_native_exit": 0,
+      "owner_actions": [
+        {
+          "action": "verify-runtime",
+          "status": "VERIFIED",
+          "operation_id": "dc065a9f-9524-42e8-a28a-174a201738a7",
+          "receipt_sha256": "f41378c6c153c281af164f27def3de92cb43def95bca120795697b69ba5992c4"
+        },
+        {
+          "action": "grant-runtime",
+          "status": "COMMITTED",
+          "operation_id": "450f3e23-263d-457d-9191-22c2e7f029d1",
+          "receipt_sha256": "90728d8ea245bc84565bdb65543f41c6e500321527292a4cb7e0c2b4f7b0d7ff"
+        },
+        {
+          "action": "activate-policy",
+          "status": "COMMITTED",
+          "operation_id": "a5c0b6fb-c633-4c85-9a8d-d62e40f9206a",
+          "receipt_sha256": "72f763b626067cd256a272c32b12d853b0134abecbfe49a015fc50c01344b873"
+        }
+      ],
+      "probe_native_exit": 0,
+      "required_command_count": 37,
+      "required_nonzero": [],
+      "ports_free": {
+        "18464": true,
+        "13464": true
+      },
+      "case": "real-http54ab-xlsx-r1",
+      "image_id": "sha256:e7e2344c51dfbf16fd7b4fdbd5b070cd95412826cafa1d915990f452432cd418",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_http54ab_xlsx_r1_pg_data"
+      ],
+      "artifacts": [
+        {
+          "path": "real-http54ab-xlsx-r1/closedfinal.json",
+          "sha256": "2a1cb5d2558021fa396d31c4d894b3a53b21aff890a2451c4ffa44af670f74b0"
+        },
+        {
+          "path": "real-http54ab-xlsx-r1/execution.json",
+          "sha256": "5a47434abd8791e71086a0fdac9e1ce181e005dbd2b308585f6c9bb7308b4a46"
+        }
+      ]
+    },
+    {
+      "case": "engineering-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "duration_seconds": 145.723239,
+      "native_exit": 1,
+      "failure": "18 mypy errors in two new test files; downstream stages not run",
+      "source_fix": "496acbd8e2c8f172a2bba5724857d67abfab77bc",
+      "fix_review": "7cbf9d802a3fb86b1509016ee5fa8ab934afcb6a"
+    },
+    {
+      "case": "engineering-202807-r2",
+      "source": "202807fb05d6ec3cb1ac2010ee681f3992dfe56e",
+      "status": "failed_closed",
+      "window_end_utc": "2026-11-04T06:39:00Z",
+      "started_utc": "2026-11-04T05:50:58.673766Z",
+      "ended_utc": "2026-11-04T06:11:42.015633Z",
+      "duration_seconds": 1243.341867,
+      "native_exit": 1,
+      "stats": {
+        "passed": 4585,
+        "failed": 16,
+        "deselected": 776,
+        "offline_duration_seconds": 1080.92
+      },
+      "failure_classes": [
+        {
+          "count": 9,
+          "cause": "Git discovery inherited real source from temporary directories inside worktree",
+          "repair": "new owned parent temporary directory outside all Git ancestors; no source weakening"
+        },
+        {
+          "count": 7,
+          "cause": "exact public history metadata expectations still contain ten previously approved entries",
+          "repair": "retain all ten exact entries and append explicitly approved eleventh object"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "engineering-202807-r2/engineering-owner-seal.json",
+          "sha256": "b6d2439e6b0825963196e1b5494ee8135fe16eb5cb5d80af8e0161583401688c"
+        }
+      ]
+    },
+    {
+      "case": "browser-e466-r1",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "failure": "non-root image source read denied before PostgreSQL start",
+      "artifacts": [
+        {
+          "path": "browser-e466-r1/closedfinal.json",
+          "sha256": "d0bf72cd9d24d8df0be3edde55301509de81c2ed28a2041fd3cadb0c25159575"
+        }
+      ]
+    },
+    {
+      "case": "browser-e466-r2",
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T05:52:59.638931Z",
+      "ended_utc": "2026-11-04T05:57:49.290304Z",
+      "image_id": "sha256:5818e252fa7978e0c13469d34b0bd275e440e1bcc702737b10eaacaf22fe211e",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 8997,
+        "shell_failed": 1,
+        "shell_timeout_ms": 240036,
+        "business_post_count": 9,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "390px assistant button has no accessible name; focus timeout at Shell line 67",
+      "not_run": [
+        "390 screenshot",
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_e466_r2_pg_data"
+      ],
+      "ports_closed": [
+        18471,
+        13471
+      ],
+      "artifacts": [
+        {
+          "path": "browser-e466-r2/closedfinal.json",
+          "sha256": "d2ffbc5e15e0809a76f2cb5a5f0958af33d7d86d315e6aa033e9f081ec181271"
+        },
+        {
+          "path": "browser-e466-r2/execution.json",
+          "sha256": "fa71dff68d17b92842ac4da9c3b62d06f99bc2b52e21e7c955cc5d0494a81f79"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r3",
+      "source": "8f6687560bb5c71804fd249068e2a9912fe35556",
+      "tree": "020b540b3684b277dd994752745a8b2779319671",
+      "status": "failed_closed",
+      "started_utc": "2026-11-04T06:11:47.616181Z",
+      "ended_utc": "2026-11-04T06:12:45.977542Z",
+      "image_id": "sha256:d621d4d63767178fbef80051d845e63896f46e7ae793db48ced68f4c5557ecbd",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9504,
+        "shell_failed": 1,
+        "shell_duration_ms": 7024,
+        "retries": 0,
+        "business_journal_commands": 31,
+        "final_sql_facts": 0
+      },
+      "failure": "Shell cookie inspection URL has root path but actual authentication cookie path is /api/v4; expected length one, received zero",
+      "not_run": [
+        "native200",
+        "offline clearing",
+        "hidden clearing",
+        "late acknowledgement"
+      ],
+      "screenshots": [
+        {
+          "path": "browser-shell/shell-1440.png",
+          "sha256": "679089f7f24d460d590c3ee4638bc1d3509639fd1cd94d8fdec3921cdd1c6cb3"
+        },
+        {
+          "path": "browser-shell/shell-1280.png",
+          "sha256": "23e3a45de083c8775317e274a5b5ad6b1bb8418422e06149a438986e635ee677"
+        },
+        {
+          "path": "browser-shell/shell-390.png",
+          "sha256": "6d83593840dd71a6dcb0e15b05f6eb396dfb2ddaf51d58d1622aeed6622983d2"
+        }
+      ],
+      "visual_review": "Root viewed 1440 and 390; remaining images do not imply native or lifecycle acceptance",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r3_pg_data"
+      ],
+      "ports_closed": [
+        18472,
+        13472
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r3/execution.json",
+          "sha256": "92b96fb79036ccffc093ef2492144b5a254be71426fc19fc1410651e22872581"
+        },
+        {
+          "path": "browser-final-r3/closedfinal.json",
+          "sha256": "8a3662ac099ead3f5e6e2f261a23ac8dc53ecf4ccd1222f3ddbc8e041eeb857a"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r4",
+      "source": "f7743310ff7a0808694efb40990b5a29ed251224",
+      "status": "failed_closed",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9077,
+        "shell_failed": 1,
+        "shell_duration_ms": 7560,
+        "retries": 0
+      },
+      "observed_failure": "CDP response body unavailable during first offline restore; exact original request identity unknown",
+      "root_cause": "UNKNOWN",
+      "native200": "NOT_RUN",
+      "delayed_acknowledgement": "NOT_RUN",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volume_policy": "original owned volume preserved and independently checked",
+      "artifacts": [
+        {
+          "path": "browser-final-r4/execution.json",
+          "sha256": "e0f4cd4a8e139b8bd463171c2c1535f3438580ef18710082dc1769609912f5c9"
+        },
+        {
+          "path": "browser-final-r4/closedfinal.json",
+          "sha256": "76240a7e5d42621540e75f54a3ddafcdadd13edceeeac2fff475b310949322af"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r5",
+      "source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+      "status": "failed_closed",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 8793,
+        "shell_failed": 1,
+        "shell_duration_ms": 11911,
+        "retries": 0
+      },
+      "observed_failure": "Actual hidden predicate remained visible after cover-page activation; window topology unknown",
+      "root_cause": "UNKNOWN",
+      "native200": "NOT_RUN",
+      "delayed_acknowledgement": "NOT_RUN",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volume_policy": "original owned volume preserved and independently checked",
+      "artifacts": [
+        {
+          "path": "browser-final-r5/execution.json",
+          "sha256": "e118f3ca00040158d8f55a46e65c146c50db03bff55a021eb693305e687b4ec8"
+        },
+        {
+          "path": "browser-final-r5/closedfinal.json",
+          "sha256": "06f474bd8937cd496259dbae4595254b9f634501d45d76bd4f200cf9892fc7f8"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r6",
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "status": "failed_closed",
+      "stats": {
+        "business_passed": 1,
+        "business_duration_ms": 9619,
+        "shell_failed": 1,
+        "shell_duration_ms": 13626,
+        "retries": 0
+      },
+      "observed_failure": "Actual window bounds read minimized but document visibility remained visible; cause unconfirmed",
+      "root_cause": "UNKNOWN",
+      "native200": "NOT_RUN",
+      "delayed_acknowledgement": "NOT_RUN",
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "volume_policy": "original owned volume preserved and independently checked",
+      "artifacts": [
+        {
+          "path": "browser-final-r6/execution.json",
+          "sha256": "922d4dfcc2cd59f24ad70498e8805979bac0e51852b06f052dd32372507bc1b1"
+        },
+        {
+          "path": "browser-final-r6/closedfinal.json",
+          "sha256": "ec292c151b176c22aaf0914f91458d9c032835636867c879fc7b380ba301a094"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r7",
+      "source": "2140fe22a97850a1c312393198b78a0225ff3b9a",
+      "tree": "2c49fb436eb0df55b9487e1b0276a456774acc10",
+      "status": "failed_closed",
+      "business_spec_passed": true,
+      "business_duration_ms": 10087,
+      "shell_spec_passed": false,
+      "shell_duration_ms": 13594,
+      "failure": "first currentFacts exact read_at visibility; pre offline gate",
+      "retry": 0,
+      "native200": "NOT_RUN",
+      "hidden": "NOT_RUN",
+      "delayed_ack": "NOT_RUN",
+      "shell_owned_cft_native_exit": 0,
+      "node_native_exit": 1,
+      "browser_forced": [],
+      "browser_remaining": [],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r7_pg_data"
+      ],
+      "ports_closed": [
+        18476,
+        13476
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r7/execution.json",
+          "sha256": "b7107568bc0032a324cf57cff54bf80f3443be040edbb76fd4c4fccaefee9bf9"
+        },
+        {
+          "path": "browser-final-r7/closedfinal.json",
+          "sha256": "cc6b96bf6f7214955d4f92f4298188d355e7f355805316fcc133e5ea3984aae4"
+        },
+        {
+          "path": "browser-final-r7/browser-shell-cdp/endpoint-ack.safe.json",
+          "sha256": "17d35c770f31c2cc1fcb52f60caaca196b3c2497b6e6be12974b16694b60d318"
+        }
+      ]
+    },
+    {
+      "case": "browser-final-r8",
+      "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+      "tree": "c4283496c3546169e4f24037731aa0fea949eb9e",
+      "status": "failed_closed",
+      "business_spec_passed": true,
+      "business_duration_ms": 10120,
+      "shell_spec_passed": false,
+      "shell_duration_ms": 22330,
+      "failure": "Native TimeoutError before first native PNG; exact original await not captured",
+      "facts_correlations_passed": 3,
+      "native200": "FAILED_OR_UNKNOWN_NO_IMAGES",
+      "delayed_ack": "NOT_RUN",
+      "shell_owned_cft_native_exit": 0,
+      "node_native_exit": 1,
+      "browser_forced": [],
+      "browser_remaining": [],
+      "containers_remaining": 0,
+      "networks_remaining": 0,
+      "preserved_volumes": [
+        "v41qa_browser_final_r8_pg_data"
+      ],
+      "ports_closed": [
+        18477,
+        13477
+      ],
+      "artifacts": [
+        {
+          "path": "browser-final-r8/execution.json",
+          "sha256": "51bc0d0a270bfff918dff4b143cd1ca6a11ec79947793e056899f2e0d54aeac4"
+        },
+        {
+          "path": "browser-final-r8/closedfinal.json",
+          "sha256": "ce996b8cb82262988e581bfe264c5ab04ad46485e49a8ad683509a0e192c39cb"
+        },
+        {
+          "path": "browser-final-r8/native-zoom/receipt.json",
+          "sha256": "d132f7b46da2fc75ed23bd4630b5658ee5bd34fe3a6fe3b39582d111ae751a4a"
+        }
+      ]
+    },
+    {
+      "case": "ui-fixture-batch-r1",
+      "source": "5acf03ae30807c160aa110035127a4e308e95da9",
+      "tree": "9c967e247d24a2acc36f1e4f6d827763e3d13a47",
+      "status": "failed_closed",
+      "receipt": "UI_MOCK_BATCH_R1.json",
+      "stats": {
+        "passed": 1,
+        "failed": 1,
+        "not_run": 31,
+        "flaky": 0,
+        "retries": 0
+      }
+    },
+    {
+      "case": "browser-final-r10",
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+      "status": "accepted_closed",
+      "parent_native": 0,
+      "specs_passed": 2,
+      "mobile_keys": 10,
+      "business_keys": 11,
+      "pngs": 40,
+      "final_sql_native": 0,
+      "receipt": "BROWSER_R10.json",
+      "review_source": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    }
+  ],
+  "mock_ui": {
+    "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "tests": 33,
+    "passed": 33,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "actual_http_business_api": false,
+    "review": "ac0a18ac089b86b40252a9b687c5b985c70b05a1",
+    "receipt": "UI_MOCK_BATCH_R4.json"
+  },
+  "full_engineering": "pass",
+  "full_paired_postgresql": "accepted_exact_e7_full_pair_773",
+  "real_http_api_web": "pass",
+  "hosted": "NOT_RUN",
+  "external_business_providers": "NOT_RUN",
+  "production": "NOT_RUN",
+  "previous_failed_cases": "PRESERVED_NOT_REPLACED",
+  "previous_failure": {
+    "case": "pg22-root-r2",
+    "node": "test_golden_reads_tags_receipt_replay_original_after_later_effect",
+    "source_line": 221,
+    "sqlstate": "23514",
+    "safe_error": "V41_TAG_INVALID",
+    "phase": "second_tag_action",
+    "trigger_operation_not_captured": true,
+    "root_cause": "under_owner_investigation",
+    "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
+    "verified_in_case": "pg22-root-r4"
+  },
+  "current_failure": "NONE_CURRENT; prior failures and UNKNOWN preserved in runs and linked receipts",
+  "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
+  "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
+  "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
+  "real_http_review": "ab278a4a775305758a749fd755b60a9607a005ef",
+  "real_browser": "accepted_exact_261_owned_r10",
+  "native200": "CAPTURE_GEOMETRY_AND_AI_VISUAL_ACCEPTED_WITH_ORIGINAL_LIMITS",
+  "native_source_review": "aba7c1609a95af6d19d924b521fba039b677a523",
+  "browser_caller": "source accepted at b9ecd4ee382792662db9c795cdb6c629fd7efeeb",
+  "remaining_browser_steps": "NONE_WITHIN_ORIGINAL_LOCAL_STAGE_SCOPE; human/physical touch not run",
+  "real_browser_partial_review": "46eacbf592982036f5e979c95171aa37f89dd831",
+  "full_pg_failed_receipt": "FULLPG_R1_FAILURE.json",
+  "full_engineering_current_source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+  "full_pg_current_source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+  "full_pg_capacity_review": "a4a49da0d3f66102e991f8c031530434657fc47f",
+  "closed_first_pg_review": "57138461431d38e883fc69de384e747ce39b4656",
+  "full_engineering_receipt": "ENGINEERING_R3.json",
+  "full_engineering_review": "935448fb4ef7bfbb8f6703f7a2dbb857c2d4895d",
+  "existing_pg_receipt": "PG_EXISTING_R2.json",
+  "existing_pg_review": "8d870f3c27d67b90ccefee1086e8ea5ae9fcc951",
+  "browser_focus_ab_experiment": "observed both minimized with visible; no product pass",
+  "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed",
+  "full_pg_pair_receipt": "PG_PAIR_FINAL.json",
+  "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8",
+  "remaining_product_steps": "NONE_WITHIN_AUTHORIZED_V41; V4-2 NOT_STARTED",
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f"
+}

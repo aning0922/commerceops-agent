@@ -1,0 +1,179 @@
+{
+  "source": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+  "project": "v4qa_browser_20261104c",
+  "driver_native_exit": 0,
+  "forced": false,
+  "cleanup_confirmed": true,
+  "retained_volumes": "v4qa_browser_20261104c_pg_data",
+  "ports_closed": {
+    "18471": true,
+    "13471": true
+  },
+  "closed_at": "2026-11-03T18:51:06.886617+00:00",
+  "stats": {
+    "startTime": "2026-11-03T18:50:51.701Z",
+    "duration": 8181.1179999999995,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "images": [
+    {
+      "name": "live-session-native-200-segment-04.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "e354a6f33f013401b6131a6d13ebe7c37119c5f025a9738bad51a164aab66962"
+    },
+    {
+      "name": "live-session-native-200-segment-05.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "7bcd8da7f55e8fd0f5708839d246a93f088575021586797eeb565bb75dbaddd3"
+    },
+    {
+      "name": "live-mobile-reset-dialog-390.png",
+      "dimensions": [
+        390,
+        1731
+      ],
+      "sha256": "87aa43189c39f9fae40cfea1d4d363b62f9e7015d8e5829800e33c64b0028c0f"
+    },
+    {
+      "name": "live-dialog-native-200.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "36b671f26d9c306542ccfe8cb975421b3ee1f831798d7acc9fd695f2f5330060"
+    },
+    {
+      "name": "live-session-native-200-segment-02.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "c45f975985c51521ecda3a406448569f4d22cfe007a7f773ace3aacf9e8299c6"
+    },
+    {
+      "name": "live-session-native-200-segment-03.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "6b047ce9aa1eee052570cd1b59ec6efa098b9431e85ee2a989d928cf2b53176c"
+    },
+    {
+      "name": "live-session-native-200-segment-01.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "35f2ab4976aa5e1172777dd38c03295e47d58e652d38dc1f23210764e4380d61"
+    },
+    {
+      "name": "live-native-settings-200.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "2cf1bf0994cf58d335bd3e2c8a619fbab8c6b8d8d55bfbf807d1309bcc1d2ece"
+    },
+    {
+      "name": "live-welcome-390.png",
+      "dimensions": [
+        390,
+        1435
+      ],
+      "sha256": "e56a67bda39627610412b1f4ed37bdedbde3adf422045ccfe54b13d9854affad"
+    },
+    {
+      "name": "live-welcome-1280.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "13f4317bbb0df51d8c690fdf660b5f172eab92f9e99f254fd3c4130b4667b199"
+    },
+    {
+      "name": "live-welcome-1440.png",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sha256": "b8755de9202df30b3292f1abe6107a9b31a0afad7855828864a87b084635a1df"
+    },
+    {
+      "name": "live-mobile-session-390.png",
+      "dimensions": [
+        390,
+        1883
+      ],
+      "sha256": "fb402eac5367e87b4f0d7dd2f02136314d5e27572ac54b5d980700488c86def4"
+    }
+  ],
+  "original_path": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_browser_20261104c",
+  "status": "PASS_REAL_BROWSER",
+  "source_tree": "dd0c81bb5928219d87c713c8956b05aadb1fec9c",
+  "native_capture": {
+    "method": "CDP Page.captureScreenshot fromSurface false; native Chrome zoom 200%; original viewport segments; no stitching or image editing",
+    "coverage": {
+      "originalScrollY": 0,
+      "segments": [
+        {
+          "y": 0,
+          "width": 720,
+          "height": 456.5,
+          "layoutHeight": 456,
+          "documentHeight": 1577,
+          "pngWidth": 2880,
+          "pngHeight": 1826
+        },
+        {
+          "y": 365,
+          "width": 720,
+          "height": 456.5,
+          "layoutHeight": 456,
+          "documentHeight": 1577,
+          "pngWidth": 2880,
+          "pngHeight": 1826
+        },
+        {
+          "y": 730,
+          "width": 720,
+          "height": 456.5,
+          "layoutHeight": 456,
+          "documentHeight": 1577,
+          "pngWidth": 2880,
+          "pngHeight": 1826
+        },
+        {
+          "y": 1095,
+          "width": 720,
+          "height": 456.5,
+          "layoutHeight": 456,
+          "documentHeight": 1577,
+          "pngWidth": 2880,
+          "pngHeight": 1826
+        },
+        {
+          "y": 1120.5,
+          "width": 720,
+          "height": 456.5,
+          "layoutHeight": 456,
+          "documentHeight": 1577,
+          "pngWidth": 2880,
+          "pngHeight": 1826
+        }
+      ]
+    },
+    "root_visual_inspection": "First and last segments viewed. Full width and document bottom visible; five measured overlapping viewports cover whole document. Partial middle-segment PNGs are viewport captures, not one full-page image."
+  },
+  "strict_single_fixed_test_report": "ROOT_VALIDATED",
+  "hosted": "NOT_RUN",
+  "external_business_calls": 0
+}

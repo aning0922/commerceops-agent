@@ -1,0 +1,13 @@
+# V41 H01/H02 GET读取候选独立审查
+
+日期：2026-11-04（台北）。source `05d208636d90e43c4b43bf7c27dcba3a902ec84b`，tree `f54a7f49189f147b62faf1901732e98220176bc4`，parent `95deb3943d53f444bb63e48b5245deb3d19ea3fe`。只审http_recipes.py、read_recipes.py、test_read_recipes.py及精确已审依赖，不读S01 WIP、不跑资源。
+
+结论：HOLD_READ_ORACLE_AND_ROUTE_EXECUTION，两项P2。新增四GET有实际调用路径，分页/CSV/KPI比较可以保留；尚不能签16路由执行覆盖和原source金标完整保持。这里的16是12GET+4POST，不是16GET；旧F02表数H01与本片读取任务编号无关。
+
+P2 R01：`http_recipes.py:396-406` 的import_flow在preview/preview_lookup之后直接取preview中的job并继续confirm，未调用独立 `job` GET。精确源码全量QA调用搜索确认 `/api/v4/imports/{import_job_id}` 只存在ROUTES登记和runtime_subjects元数据；main各场景、readback_shop及其他配方没有执行该别名。`test_read_recipes.py:46-49` 只证明16项映射与契约相等，无法发现未调用路由。这是原覆盖遗漏在本片仍未关闭，不是声称本片删除过该调用。建议在成功preview/lookup取得原job ID后通过Business.call实际GET job，并将返回job与原job、revision/parser/schema字段核对；加调用轨迹断言，避免再用注册表存在性签执行覆盖。
+
+P2 R02：`read_recipes.py:247-257` 独立KPI检查只验证指标和fixture_digest，遗漏旧seed_dashboard_golden的预期data_mode判断；main的dashboard_same_source已改用readback_both_shops，不再调用旧检查。所有响应一致错标source时same_source仍通过。独立内存复现使用Root590精确生产纯查询作为观测值、05d精确读取配方作为判据：正常TWD seed的readback_shop执行38次内存调用通过；仅把每个snapshot.source.data_mode统一改成demo_mixed后，38次同样通过，而旧seed_dashboard_golden拒绝 `V41_KPI_WRONG_EFFECTIVE_SOURCE`。另用该精确契约的Ajv DatasetSource验证，demo_mixed+空uploads仍被schema接受，故不能依赖JSON schema补上此语义。建议恢复与imported参数绑定的demo_fixture/demo_mixed断言及错mode负例；不修改服务端生产代码来迁就测试。
+
+已核保留：新增drilldown、两export、read-context确实从dashboard/catalog/import实际main路径调用；两shop遍历恢复原shop并登记scope，14/7/1日独立raw seed/Decimal/店铺民用日reference不调用生产analytics制造期望。指标逐字段比较八项，trend逐日六项；固定seed全部订单created/paid均在14日窗口内，因此本案用14日订单集推导paid/refund drill成员有效。分页跟随原过滤条件与cursor，核source/revision/snapshot_id/total、重复对象、缺项、循环和500界限；read_at变化允许。CSV与完整分页对象的全部列/行/顺序比较，并用limit1和空过滤检验完整/仅表头导出；非打印字符/公式单元格规则保持。detail与list、read-context资源/指标/局部insight scope有明确失败判据。Business.call保留strict response/status/context和no-store，并新增Vary Cookie/Origin及安全HTTP结果文件；访客跨shop和导入专有product的负例要求404，不共享会话。
+
+独立验证：精确05d archive上test_read_recipes、test_kpi_reference、test_scope_semantics共28 passed，0.24s，nativeexit0。上述38调用正例/错mode反例均为内存组件，nativeexit0；Ajv语义缺口复现nativeexit0。未跑作者全部43节点，不冒实际HTTP、服务、PG或端到端结果。没有Docker/owner/SDK/CI/Full/远端操作。Root9e1实际API案与本片候选分开，不能混签。

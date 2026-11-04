@@ -1,0 +1,73 @@
+{
+  "schema_version": "v4-db-cap-component-result-v1",
+  "owner": "BACKEND_CAP_VALIDATION",
+  "result": "PASS_BOUNDED_DB_PROVISION_CAP_COMPONENT",
+  "source_sha": "761b64bd62c2183de29989f8f24a450beb3ce800",
+  "source_tree": "618542b249fd899e63b46c11623236ea4b19206d",
+  "node": "tests/v4/test_demo_sessions_pg.py::test_five_runtime_provisions_commit_three_and_reject_two_at_db_capacity",
+  "node_count": 1,
+  "helper_native_exit": 0,
+  "helper_elapsed_seconds": 28.172,
+  "started_at": "2026-11-03T16:48:46.393716+00:00",
+  "finished_at": "2026-11-03T16:49:14.502971+00:00",
+  "deadline": "2026-11-03T17:05:27Z",
+  "phases": [
+    {
+      "phase": "setup",
+      "outcome": "passed",
+      "duration": 0.3230382080655545
+    },
+    {
+      "phase": "call",
+      "outcome": "passed",
+      "duration": 0.5095118752215058
+    },
+    {
+      "phase": "teardown",
+      "outcome": "passed",
+      "duration": 0.04453729186207056
+    }
+  ],
+  "pytest_summaries": [
+    "============================== 1 passed in 1.45s ==============================="
+  ],
+  "pg_evidence": {
+    "kind": "fixed_source_node_assertions_passed_not_raw_sql_snapshot",
+    "distinct_runtime_connections": 5,
+    "commits": 3,
+    "capacity_rejections": 2,
+    "rejection_sqlstate": "23514",
+    "rejection_message": "demo capacity limit",
+    "expected_physical_counts_asserted": {
+      "organizations": 3,
+      "shops": 6,
+      "principals": 9,
+      "identities": 9,
+      "principal_shop_scopes": 9,
+      "principal_role_shop_grants": 9,
+      "web_credentials": 9,
+      "web_sessions": 3,
+      "v4_demo_tenants": 3,
+      "v4_demo_shops": 6,
+      "v4_demo_personas": 9,
+      "v4_demo_sessions": 3,
+      "v4_demo_receipts": 3,
+      "v4_demo_events": 6,
+      "v4_demo_overlays": 0
+    },
+    "failed_owner_original_key_unconsumed_unknown_asserted": true,
+    "successful_sessions_live_asserted": true
+  },
+  "project": "p123-ced12277e148",
+  "volume": "p123-ced12277e148_pg_data",
+  "cleanup_exit": 0,
+  "stopping_confirmed": true,
+  "cleanup_elapsed_seconds": 1.464,
+  "independent_inventory_all_absent": true,
+  "image_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-cap-validation/commerceops-agent/.audit/m3-pgvector-image.safe.json",
+  "helper_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-cap-validation/commerceops-agent/.audit/issue23/round-1.json",
+  "native_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-cap-validation/commerceops-agent/.audit/db-cap-native.safe.json",
+  "inventory_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-cap-validation/commerceops-agent/.audit/db-cap-inventory.safe.json",
+  "boundary": "DB provision capacity only; not full create HTTP throughput, Full or production",
+  "verified_at": "2026-11-03T16:50:47.733058+00:00"
+}

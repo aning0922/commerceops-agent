@@ -1,5 +1,26 @@
 # 分阶段路线图与外部配置
 
+## 当前状态：V4-1 本地完成，归档待 main 集成（2026-11-04，台北）
+
+V41-01—06 六卡在合同受控合成本地范围内已完成并独审核收，业务代码冻结为
+`261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e`。当前暂停后续开发；归档集成 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53) 已创建为 Draft，等待用户合并确认。
+main 尚未合入，实际合并结果另记。
+主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)。权威事实见 [V4文档入口](v4/README.md)、
+[V4-1交付核收](v4/acceptance/v4-1/REVIEW.md) 与 [分层测试结果](v4/acceptance/v4-1/QA_RESULTS.json)。
+
+40 原图的 AI 工程视觉已核收；用户人工视觉、真机触摸、真实模型/embedding、外部业务、Hosted与生产
+仍按各自未验边界保留。所有临时验收服务已关闭。用户尚未交付新的研究输入，V4-2及以后没有获定的新阶段计划，
+不自动启动。原任务包中的后续路线仅为历史参考；旧日期、预算、失败、UNKNOWN及证据来源不重置。
+
+## 历史快照：2026-11-04 V4-1 授权前
+
+下段为当时的原始接单建议，其中“V4-1 NOT_STARTED”和前三卡建议已由上方当前六卡核收状态取代；
+以下其余阶段规划也按各自记录日期阅读，不作为当前下一阶段执行计划。
+
+2026-11-04 V4 当前边界：V40-01—V40-05 的本地实现与必要运行 Gate 已完成，本地交付与来源边界见 [V4-0交付](v4/acceptance/v4-0/DELIVERY.md)。下一阶段 V41-01导航/Shell、V41-02经营查询、V41-03首页/Copilot仅为待授权接单建议，V4-1 NOT_STARTED；不重置原阶段日期、预算或旧失败记录。
+
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
 Phase5/M2最终事实快照（2026-10-27，台北D18）：必要业务及部署技术Gate已核收，状态为`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。本地实际合成Woo只读/原待审批新卷恢复/权限与到期负例、当前Mock20 Compose/原key与T6v2/恢复/隐藏只读Web均通过；证据层级及AC01–11有限复用见[Phase5验收](PHASE5_ACCEPTANCE.md)和[STATUS72](STATUS.md#72-phase5m2业务与部署已核收的最终事实合批)。原M1真人/模型证据不升级为新Woo真人或生产证据。
 
 剩余仅最后事实文档合批、原Reviewer增量审核、Root精确完整CI/正常main/同main合后CI。正式阶段状态以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际登记为准，本快照不预填未来SHA/通过/complete。M2总1800 Agent有效分钟含全部旧用量，现A823/B307/Review370/Root300；Root历史精确净用量与人工H/L UNKNOWN、机器等待另计。D1=2026-10-10/D30=2026-11-08、D18–20目标/原300h及18页设计冻结不重置，不自动进入Phase6/M3。以下旧导航、未授权和工期均保留其历史时点。

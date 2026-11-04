@@ -1,0 +1,153 @@
+{
+  "observed_at_utc": "2026-11-03T13:38:32.607759+00:00",
+  "command": [
+    "gh",
+    "issue",
+    "list",
+    "--repo",
+    "aning0922/commerceops-agent",
+    "--state",
+    "all",
+    "--limit",
+    "30",
+    "--json",
+    "number,title,state,updatedAt,url"
+  ],
+  "exit": 0,
+  "data": [
+    {
+      "number": 51,
+      "state": "OPEN",
+      "title": "Harness V2｜长期 AI 托管开发、模型预算路由与全量 CI 提速（M2 后独立工程整改）",
+      "updatedAt": "2026-10-27T22:42:28Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/51"
+    },
+    {
+      "number": 49,
+      "state": "CLOSED",
+      "title": "Phase5 / M2：Woo只读业务接线、备份恢复与完整交付",
+      "updatedAt": "2026-10-27T02:19:43Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/49"
+    },
+    {
+      "number": 46,
+      "state": "OPEN",
+      "title": "CI 首批：单 Mac ARM64 隔离环境与独立本地五项验收",
+      "updatedAt": "2026-10-13T04:07:28Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/46"
+    },
+    {
+      "number": 42,
+      "state": "CLOSED",
+      "title": "P4-C：M1 交付接线、干净复现与逐 AC 正式验收",
+      "updatedAt": "2026-10-23T11:15:19Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/42"
+    },
+    {
+      "number": 41,
+      "state": "CLOSED",
+      "title": "P4-B：Base 单向投影、原键对账与外部失败恢复",
+      "updatedAt": "2026-10-23T11:15:16Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/41"
+    },
+    {
+      "number": 40,
+      "state": "CLOSED",
+      "title": "P4-A：飞书正式入口、审批卡片与异步业务结果",
+      "updatedAt": "2026-10-23T11:15:13Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/40"
+    },
+    {
+      "number": 39,
+      "state": "CLOSED",
+      "title": "Phase4 / M1：真实飞书业务闭环与完整首个可面试版本",
+      "updatedAt": "2026-10-23T11:18:00Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/39"
+    },
+    {
+      "number": 35,
+      "state": "CLOSED",
+      "title": "P3-B：冻结 M1 Next.js 操作台与真实 Web 集成验收",
+      "updatedAt": "2026-10-10T23:28:10Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/35"
+    },
+    {
+      "number": 34,
+      "state": "CLOSED",
+      "title": "P3-A：正式 plan/approval、单 Graph 恢复、T4/T6 与受鉴权 API",
+      "updatedAt": "2026-10-10T23:28:05Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/34"
+    },
+    {
+      "number": 33,
+      "state": "CLOSED",
+      "title": "Phase 3：正式审批、恢复与冻结 Web 操作台（D7–D12）",
+      "updatedAt": "2026-10-10T23:28:15Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/33"
+    },
+    {
+      "number": 29,
+      "state": "CLOSED",
+      "title": "[Phase 2] 确定性库存垂直切片（持续托管执行）",
+      "updatedAt": "2026-10-10T09:48:22Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/29"
+    },
+    {
+      "number": 23,
+      "state": "CLOSED",
+      "title": "[Phase 1 / G1-G2] 调查真实 PostgreSQL 组合 CI 的 25 分钟超时",
+      "updatedAt": "2026-10-09T12:21:45Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/23"
+    },
+    {
+      "number": 20,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-02 follow-up] 凭据准备路径、权限与保留行为补强",
+      "updatedAt": "2026-10-08T19:07:57Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/20"
+    },
+    {
+      "number": 7,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-06] 阶段集成、Gate 证据与外部验收",
+      "updatedAt": "2026-10-09T17:35:12Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/7"
+    },
+    {
+      "number": 6,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-05] 飞书官方 SDK 消息、卡片与 Base 技术探针（G3）",
+      "updatedAt": "2026-10-09T17:35:00Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/6"
+    },
+    {
+      "number": 5,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-04] PostgreSQL Checkpoint 中断、恢复与崩溃探针（G2）",
+      "updatedAt": "2026-10-08T15:45:19Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/5"
+    },
+    {
+      "number": 4,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-03] 持久任务与单 Worker / 单 Graph 执行基础",
+      "updatedAt": "2026-10-08T14:24:18Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/4"
+    },
+    {
+      "number": 3,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-02] Docker、PostgreSQL 与最小业务迁移（G1）",
+      "updatedAt": "2026-10-08T13:18:04Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/3"
+    },
+    {
+      "number": 2,
+      "state": "CLOSED",
+      "title": "[Phase 1 / P1-01] 工程骨架、依赖锁定与基础 CI/敏感检查",
+      "updatedAt": "2026-10-08T10:53:43Z",
+      "url": "https://github.com/aning0922/commerceops-agent/issues/2"
+    }
+  ],
+  "error": null
+}

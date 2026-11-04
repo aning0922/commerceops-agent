@@ -1,0 +1,61 @@
+{
+  "scope": "SYNTHETIC_ABOUTBLANK_ENGINEERING_CAPTURE_ONLY",
+  "source": "c8e817a587c6b65df520f8171e418c1637bf5822",
+  "tree": "890cfe12a06d36e42e8fd23206981c7082c88d6c",
+  "module_sha256": "0023672bfb9f648a5df2deac397fd7159dfbbc4c1cb385c5cab9d3c97396c538",
+  "status": "ENGINEERING_CAPTURE_AND_ROOT_PNG_REVIEW_ACCEPTED",
+  "parent_native": 0,
+  "child_native": 0,
+  "forced": false,
+  "remaining": [],
+  "profile_roots": [],
+  "pipe_observed": true,
+  "owned_tcp_listeners": [],
+  "real_product_api_pg_provider": "NOT_RUN",
+  "root_view_image": "All three raw images inspected: TOP/checker at 100 and 200; complete BOTTOM marker at 200; no blank or right crop. Engineering images never relabeled product screenshots.",
+  "actual_before": {
+    "inner_width": 1440,
+    "inner_height": 913,
+    "dpr": 2
+  },
+  "actual_after": {
+    "inner_width": 720,
+    "inner_height": 456,
+    "dpr": 4
+  },
+  "png_pixels": [
+    2880,
+    1826
+  ],
+  "visual_acceptance_scope": "AI\u5de5\u7a0b\u68c0\u67e5; \u7528\u6237\u4eba\u5de5\u89c6\u89c9NOT_RUN",
+  "artifacts": [
+    {
+      "path": "native-capture-lab-r4/manifest.safe.json",
+      "sha256": "ccd32af681d492ff134bb02270b795e8c66819783e731676e81aecb7a735c331"
+    },
+    {
+      "path": "native-capture-lab-r4/parent.safe.json",
+      "sha256": "6a44a0712f2701ada42349a0661e24c6304b39a907cfd97e3f4668907257461a"
+    },
+    {
+      "path": "native-capture-lab-r4/case/receipt.safe.json",
+      "sha256": "83e2116c62f64956db1380b41c95c1e103a62dbc6ca98e3ff8267258bd5c7a07"
+    },
+    {
+      "path": "native-capture-lab-r4/delivery.safe.json",
+      "sha256": "080469a8c416bcab197234265b3108be49e814dbe181e11f76878e34cb0f0773"
+    },
+    {
+      "path": "native-capture-lab-r4/case/screenshots/products-100.png",
+      "sha256": "a0c228550b5d06aa17f37b41ccd2a6b5a351283fc0b3b2c17434869b2186ae14"
+    },
+    {
+      "path": "native-capture-lab-r4/case/screenshots/products-200.png",
+      "sha256": "b576925cfd23c97e06db1ae0cb63227767521791c8499ac4bc1b5995c8a0d029"
+    },
+    {
+      "path": "native-capture-lab-r4/case/screenshots/products-200-bottom.png",
+      "sha256": "4672cbe58437d73d6c9f4668eab721bcfd06bdaf7a7ac677a6b1d60322a23044"
+    }
+  ]
+}

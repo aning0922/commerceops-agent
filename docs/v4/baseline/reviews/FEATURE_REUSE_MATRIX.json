@@ -1,0 +1,1703 @@
+{
+  "schema": "v4-readonly-feature-audit-1",
+  "baseline_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+  "classification_definition": {
+    "available_primitive": "本表字段描述已核到的局部基础，不作为完整功能结论",
+    "extension": "有相关基础但产品目标仍须扩展",
+    "new": "本次审查未证明同域能力，可建立新域；不是全仓不存在的证明"
+  },
+  "count": 99,
+  "features": [
+    {
+      "feature_id": "V4-F01-01",
+      "title": "经营KPI卡",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/entrypoints/daily_http.py:45 install_daily",
+        "frontend/components/daily-report.tsx:1"
+      ],
+      "remaining_gap": "跨时段、多指标首页查询和钻取",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F01-02",
+      "title": "销售订单趋势",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/entrypoints/daily_http.py:45 install_daily",
+        "frontend/components/daily-report.tsx:1"
+      ],
+      "remaining_gap": "订单销售多时段趋势",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F01-03",
+      "title": "店铺/时间筛选",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/entrypoints/daily_http.py:45 install_daily",
+        "frontend/components/daily-report.tsx:1"
+      ],
+      "remaining_gap": "统一店铺/日期上下文与迟到响应保护",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F01-04",
+      "title": "库存风险洞察",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/entrypoints/daily_http.py:45 install_daily",
+        "frontend/components/daily-report.tsx:1"
+      ],
+      "remaining_gap": "跨模块库存风险摘要",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F01-05",
+      "title": "运营待办",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/entrypoints/daily_http.py:45 install_daily",
+        "frontend/components/daily-report.tsx:1"
+      ],
+      "remaining_gap": "跨域待办聚合",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F01-06",
+      "title": "跨模块指标钻取",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "按指标进入授权详情",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-01",
+      "title": "多轮上下文",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "持久多轮上下文",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-02",
+      "title": "会话搜索恢复",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "会话索引、搜索及恢复",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-03",
+      "title": "结构化业务结果",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/entrypoints/inquiry_http.py:62 inquiry_router",
+        "frontend/components/inquiry.tsx:1",
+        "backend/src/commerceops/entrypoints/daily_http.py:98 questions"
+      ],
+      "remaining_gap": "通用结构化业务答案",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-04",
+      "title": "绑定上下文工具调用",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/entrypoints/inquiry_http.py:62 inquiry_router",
+        "frontend/components/inquiry.tsx:1",
+        "backend/src/commerceops/entrypoints/daily_http.py:98 questions"
+      ],
+      "remaining_gap": "跨域授权对象与工具绑定",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-05",
+      "title": "多步骤计划预览",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "多步骤计划持久预览",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-06",
+      "title": "操作草稿确认",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/entrypoints/inquiry_http.py:62 inquiry_router",
+        "frontend/components/inquiry.tsx:1",
+        "backend/src/commerceops/entrypoints/daily_http.py:98 questions"
+      ],
+      "remaining_gap": "跨域动作草稿确认",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-07",
+      "title": "执行轨迹和证据",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/entrypoints/inquiry_http.py:62 inquiry_router",
+        "frontend/components/inquiry.tsx:1",
+        "backend/src/commerceops/entrypoints/daily_http.py:98 questions"
+      ],
+      "remaining_gap": "统一运行轨迹及来源绑定",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-08",
+      "title": "偏好记忆管理",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "受限可撤销偏好记忆",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F02-09",
+      "title": "业务Skill启停",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "业务技能配置与版本",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-01",
+      "title": "指标组合",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "统一多指标组合",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-02",
+      "title": "业务时间对比",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "时间窗与同口径对比",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-03",
+      "title": "销售趋势",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "多周期销售趋势",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-04",
+      "title": "商品排名与ABC",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "商品贡献及ABC计算",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-05",
+      "title": "退款分析",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/aggregation.py:126 aggregate_daily",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "退款发生日口径分析",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-06",
+      "title": "有成本依据的毛利",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "成本来源和毛利计算",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-07",
+      "title": "保存自定义报表",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "报表定义持久化",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F03-08",
+      "title": "导出CSV/PDF",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "授权导出CSV/PDF",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-01",
+      "title": "商品筛选搜索",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:115 MockReadFacade"
+      ],
+      "remaining_gap": "授权商品列表筛选搜索API",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-02",
+      "title": "商品详情和来源",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:115 MockReadFacade"
+      ],
+      "remaining_gap": "商品详情和来源的产品视图",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-03",
+      "title": "SKU/变体浏览",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:115 MockReadFacade"
+      ],
+      "remaining_gap": "SKU及变体产品视图",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-04",
+      "title": "演示商品编辑",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "演示覆盖层编辑及版本",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-05",
+      "title": "商品分类标签",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "分类标签维护",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-06",
+      "title": "批量标记",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "批量标记和租户隔离",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F04-07",
+      "title": "CSV/XLSX商品导入",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "安全上传、映射、原子导入",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F05-01",
+      "title": "订单筛选搜索",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "授权订单列表筛选搜索API",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F05-02",
+      "title": "订单证据详情",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "订单证据详情产品视图",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F05-03",
+      "title": "订单状态时间线",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce",
+        "backend/src/commerceops/application/commerce/readonly_inquiry_tools.py:94 order_eligibility"
+      ],
+      "remaining_gap": "完整订单状态时间线",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F05-04",
+      "title": "异常订单标记",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "异常标记演示持久化",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F05-05",
+      "title": "订单数据导出",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "授权导出",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F05-06",
+      "title": "演示履约状态操作",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "内部模拟履约及回执",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-01",
+      "title": "库存风险总览",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/app/[[...path]]/page.tsx:94 mock route allowlist",
+        "frontend/components/live-console.tsx:105 replenishment-item route"
+      ],
+      "remaining_gap": "跨SKU库存风险产品总览",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-02",
+      "title": "库存池及SKU详情",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/app/[[...path]]/page.tsx:94 mock route allowlist",
+        "frontend/components/live-console.tsx:105 replenishment-item route"
+      ],
+      "remaining_gap": "库存池与SKU关联视图",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-03",
+      "title": "预警认领",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/app/[[...path]]/page.tsx:94 mock route allowlist",
+        "frontend/components/live-console.tsx:105 replenishment-item route"
+      ],
+      "remaining_gap": "风险认领的服务端状态",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-04",
+      "title": "补货建议",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/app/[[...path]]/page.tsx:94 mock route allowlist",
+        "frontend/components/live-console.tsx:105 replenishment-item route"
+      ],
+      "remaining_gap": "多场景补货建议",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-05",
+      "title": "采购交期模拟",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "可调提前期计算及未知在途",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-06",
+      "title": "补货方案对比",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/app/[[...path]]/page.tsx:94 mock route allowlist",
+        "frontend/components/live-console.tsx:105 replenishment-item route"
+      ],
+      "remaining_gap": "多方案比较",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-07",
+      "title": "演示库存流水",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "演示库存事件账本",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F06-08",
+      "title": "到货关联库存变动",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "收货事务关联库存事件",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-01",
+      "title": "供应商增改查",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "供应商领域及CRUD",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-02",
+      "title": "报价/提前期比较",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "报价有效期与提前期比较",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-03",
+      "title": "补货需求关联",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approval routes",
+        "frontend/components/live-console.tsx:105 replenishment-item routes"
+      ],
+      "remaining_gap": "采购需求与库存池关联",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-04",
+      "title": "起订量MOQ校验",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "MOQ及报价版本校验",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-05",
+      "title": "采购草稿审批",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approval routes",
+        "frontend/components/live-console.tsx:105 replenishment-item routes"
+      ],
+      "remaining_gap": "采购草稿专用审批状态机",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-06",
+      "title": "分批到货",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "分批收货和上限约束",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F07-07",
+      "title": "采购审计与幂等",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approval routes",
+        "frontend/components/live-console.tsx:105 replenishment-item routes"
+      ],
+      "remaining_gap": "采购事务审计与同键回执",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F08-01",
+      "title": "客户筛选与脱敏",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "客户域及脱敏检索",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F08-02",
+      "title": "客户订单画像",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce"
+      ],
+      "remaining_gap": "授权客户与订单画像",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F08-03",
+      "title": "复购分析",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "复购指标和口径",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F08-04",
+      "title": "RFM分群",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "RFM模型与分群",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F08-05",
+      "title": "售后工单创建",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "订单绑定售后工单",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F08-06",
+      "title": "工单流转",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "工单状态机",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F09-01",
+      "title": "模拟会话消息",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "隔离模拟会话及消息",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F09-02",
+      "title": "订单关联",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "客服会话授权订单关联",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F09-03",
+      "title": "客服AI草稿建议",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/knowledge_copy/citations.py:44 SopCitation",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router"
+      ],
+      "remaining_gap": "客服上下文回复草稿",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F09-04",
+      "title": "可定位知识引用",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/knowledge_copy/citations.py:44 SopCitation",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router"
+      ],
+      "remaining_gap": "客服回复至知识来源引用",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F09-05",
+      "title": "人工发送确认",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "模拟发送确认及回执",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F09-06",
+      "title": "转人工与工单",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "转人工工单和幂等",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-01",
+      "title": "活动列表日历",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "活动域、列表与日历",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-02",
+      "title": "活动草稿创建",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "演示活动草稿及状态",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-03",
+      "title": "营销商品选品",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "活动与商品来源绑定",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-04",
+      "title": "促销预算模拟",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "可解释预算模拟",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-05",
+      "title": "AI候选文案",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router",
+        "frontend/components/live-console.tsx:664 copy route"
+      ],
+      "remaining_gap": "活动上下文绑定候选文案",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-06",
+      "title": "文案人工审核",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router",
+        "frontend/components/live-console.tsx:664 copy route"
+      ],
+      "remaining_gap": "活动版本与文案审核绑定",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-07",
+      "title": "模拟活动效果",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "活动效果的确定性模拟",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F10-08",
+      "title": "活动复盘",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "活动结果与复盘口径",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-01",
+      "title": "规则模版",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "可配置规则模板",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-02",
+      "title": "规则条件编排",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "条件与动作编排",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-03",
+      "title": "时间/事件触发",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/scheduling.py:1 daily scheduling module",
+        "backend/src/commerceops/infrastructure/daily_delivery.py:1 daily delivery module"
+      ],
+      "remaining_gap": "事件触发和跨域定时规则",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-04",
+      "title": "启停和版本",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "规则启停及版本",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-05",
+      "title": "沙箱试运行",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "无副作用试运行",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-06",
+      "title": "执行日志与故障",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/scheduling.py:1 daily scheduling module",
+        "backend/src/commerceops/infrastructure/daily_delivery.py:1 daily delivery module"
+      ],
+      "remaining_gap": "按规则关联日志及故障",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F11-07",
+      "title": "通知接收与状态",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/daily/scheduling.py:1 daily scheduling module",
+        "backend/src/commerceops/infrastructure/daily_delivery.py:1 daily delivery module"
+      ],
+      "remaining_gap": "模拟通知收件和状态",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F12-01",
+      "title": "知识库分类",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "知识分类管理产品入口",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F12-02",
+      "title": "文件上传解析",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "受控文件上传与解析",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F12-03",
+      "title": "文档版本追溯",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/knowledge_copy/citations.py:20 Chunk",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router"
+      ],
+      "remaining_gap": "用户可见文档版本追溯",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F12-04",
+      "title": "资料批准撤销",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/knowledge_copy/citations.py:20 Chunk",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router"
+      ],
+      "remaining_gap": "资料批准撤销产品流程",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F12-05",
+      "title": "检索测试",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/knowledge_copy/citations.py:20 Chunk",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router"
+      ],
+      "remaining_gap": "可交互检索测试",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F12-06",
+      "title": "引用定位评测",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/application/knowledge_copy/citations.py:20 Chunk",
+        "backend/src/commerceops/entrypoints/knowledge_copy_http.py:113 knowledge_copy_router"
+      ],
+      "remaining_gap": "引用定位与质量评测",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-01",
+      "title": "待办聚合",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "跨域待办聚合",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-02",
+      "title": "按角色审批",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "新业务域角色审批策略",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-03",
+      "title": "拒绝和冲突",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "跨域拒绝与冲突处理",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-04",
+      "title": "工作项流转",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "跨域工作项状态流转",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-05",
+      "title": "审批回执查询",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "按新域原键读取回执",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-06",
+      "title": "筛选操作审计",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "统一可筛选审计",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F13-07",
+      "title": "跨模块草稿关联",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "frontend/components/live-console.tsx:99 approvals",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "审批与各域草稿版本关联",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-01",
+      "title": "数据源只读连接",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce"
+      ],
+      "remaining_gap": "数据源连接管理体验及授权",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-02",
+      "title": "导入字段映射",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "导入映射和预览",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-03",
+      "title": "完整性告警",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce"
+      ],
+      "remaining_gap": "跨域数据完整性告警",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-04",
+      "title": "成员店铺授权",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce"
+      ],
+      "remaining_gap": "成员与店铺授权管理UI",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-05",
+      "title": "模型工具配置",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce"
+      ],
+      "remaining_gap": "受限模型和工具配置",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-06",
+      "title": "演示初始化/重置",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "服务端租户种子/重置/失效",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-07",
+      "title": "用量审计",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "extension",
+      "available_primitive": "仅相关基础，须核对应对象、权限与口径；不等于该功能完成",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/adapters/commerce/woocommerce.py:61 WooCommerce"
+      ],
+      "remaining_gap": "跨域实际及UNKNOWN用量审计",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    },
+    {
+      "feature_id": "V4-F14-08",
+      "title": "导入历史记录",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "classification": "new",
+      "available_primitive": "未在本次所核入口证明存在可直接复用的同域能力；可复用通用安全基础",
+      "existing_evidence": [
+        "backend/src/commerceops/infrastructure/web_sessions.py:59 actor_guard",
+        "backend/src/commerceops/infrastructure/web_sessions.py:113 role_scope"
+      ],
+      "remaining_gap": "导入作业持久历史",
+      "evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+      "verification": "STATIC_REVIEW_ONLY",
+      "completion": "NOT_ESTABLISHED"
+    }
+  ]
+}

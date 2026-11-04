@@ -1,0 +1,11 @@
+# Shell owned窗口hidden候选独审
+
+2026-11-04（台北）。结论：`SOURCE_INCREMENT_ACCEPTED / NO_P1_P2_FOUND`。冻结提交 `e706d550dd1b8678eb92e4e863f124bd8007d2f2`，parent `e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6`，tree `8da9c78785e1fe1ed2911ede93872872deaf0210`；唯一Shell spec +35/-6。独立Git blob摘要 `a0289a28ef02d9c387ec2d2f5e77aefa2696fe163ad5ef935541bdad5a52a5a9` 与作者pure/collect安全回执一致。
+
+新块从既有owned page和同一Playwright context建立CDPSession，读取attached Target而非枚举系统窗口。初次核page类型、非空target/context标识、URL等于当前page且origin为本案Web，绑定整数windowId及原normal状态。minimized和normal操作前均重新核同Target/context/URL/window，并只向该绑定window发送setWindowBounds。没有改flags、Emulation、派发伪事件或覆盖document属性，也不以其他页面bringToFront冒充隐藏。
+
+隐藏必须同时通过实际window bounds=minimized和document.visibilityState=hidden，之后仍核includeHidden敏感DOM移除及同Cookie。finally先重核归属再恢复normal，实际读回normal、bringToFront、visible后才记恢复完成；恢复和归属错误不吞，外层finally执行detach。后续原restoreOriginal五身份字段、creation_request_key、同Cookie/GET reload、0新增POST/create1、Native和late ACK检查未改。新增lifecycleClear安全输出仅含状态字面量和布尔值，不加入Target/window/context ID、URL或Cookie值。
+
+独立截取精确冻结代码块，以固定Node24和模拟依赖验证4分支：正常完成minimized→normal；归属变化在窗口操作前失败；document仍visible时失败但尝试normal恢复；恢复错误保持失败。四分支均detach，失败不会返回恢复成功。CLI exit0，实际浏览器/CDP/窗口变化均0。该纯验证不证明headless/headful运行的真实visibility行为。作者collect回执为两标题、executed_tests=0，只保留收集成功；本Reviewer未重跑collect或读取旧Cookie/private原件。
+
+Root转交r5已过offline/restore但hidden仍visible超时属于原实际失败，窗口拓扑/flags具体根因UNKNOWN，不由本次源码审查改写。本候选需后续新冻结组合的真实hidden和Native证据；没有启动服务、资源或新窗口，不签浏览器通过、Full或阶段完成，也不将独立PG证据转记到该spec提交。

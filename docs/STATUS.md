@@ -1,4 +1,53 @@
+## 当前归档状态（2026-11-04，台北）
+
+本次新增核对：远端 main 为 `6d3a8f7`、原 V4-1 最终交付为 `6bf38bf`，提交关系仍为 main 领先0/落后912；旧 main 已正常推送归档分支 `codex/archive-main-before-v41-20261104`。保护要求四项最新检查，当前沿 PR #53 处理 Hosted 镜像准备阻断，不直接推 main、不改已验业务。当前及后续合并结果以 PR 实时回执为准；后续阶段必须从完成本次集成与合后核验后的最新 main 新建分支，本次不启动。
+
+用户已明确授权 PR #53 的必要 Hosted CI、检查通过后的受保护正常合并及合后核对。
+当前正在执行该接单；[实时 PR 与检查](https://github.com/aning0922/commerceops-agent/pull/53)为运行和合并结果来源，
+不预填成功。下方等待确认/不 Hosted 是此前归档快照，已由本次授权覆盖；后续功能继续暂停，等待新研究包。
+
+V41-01—06 六卡的合同受控本地实现、运行、AI工程视觉及交付文档已核收，V4-1本地阶段完成。
+当前暂停后续开发，归档集成 [PR #53](https://github.com/aning0922/commerceops-agent/pull/53) 已创建为 Draft，等待用户合并确认；main 尚未合入。
+主控本次核 main 仍为 `6d3a8f7`；归档使用独立新分支。合并须用户后续确认与必要CI授权，并满足原保护检查，不绕过pending checks。 归档记录见[主控集成说明](v4/archive/V41_MAIN_INTEGRATION.md)。
+以 [V4文档入口](v4/README.md)、[V4-1交付核收](v4/acceptance/v4-1/REVIEW.md)、
+[分层测试矩阵](v4/acceptance/v4-1/QA_RESULTS.json) 与 [原图索引](v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json) 为导航。
+本地六卡完成不代表原99功能/66页全部完成；人工视觉、真机touch、外部业务、Hosted与生产边界保留。
+用户尚未交新研究，V4-2未启动，旧V4-2及以后路线仅作历史参考，不作为下阶段计划。
+原预算、失败/UNKNOWN、各来源Gate及保留资源不改写；下文均保留其记录时点，旧“未PR/main”等不预填本次归档结果。
+
+2026-11-04 V4-1 六卡本地 Gate 已核收：统一业务/QA源码 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e` / tree `34da95131e04d7360ea8aa5250ea40215bcb0713`，已正常推送阶段分支。当前同源 235 Python、74 Node、Native40纯组件、完整TS及33项Mock通过；r10新owned API/PG/Web双spec、11业务key/10手机子集、最终SQL0、Native五图原几何及独立清理已由Main `4e4741a` 核收。40原图（32业务/3Shell/5Native）经Root/Terra实际AI视觉核查无P1/P2，人工审批/真机触摸未验；部分手机表格右列需横滚的静态证据限制保留。4fec完整工程4601、e7严格FullPG773、54ab四HTTP案按各自原source保留，不改挂最终SHA。最新canonical scanner261 wrapper0、history原生1/已审1760/阻断0；refs变化与允许生成文件差异写实。所有临时验收服务关闭，业务验收卷保留，旧失败/UNKNOWN不覆盖。交付文档一致性已独审核收，V4-1本地阶段完成，详见[阶段交付](v4/acceptance/v4-1/REVIEW.md)、[测试矩阵](v4/acceptance/v4-1/QA_RESULTS.json)、[原图索引](v4/acceptance/v4-1/BROWSER_SCREENSHOTS/INDEX.json)。未进入V4-2，未PR/main/Hosted/真实provider/Woo写/飞书外发/生产。下方为各自历史时点。
+
+2026-11-04 V4-1收口范围补齐：scope审查确认原规划批量标记未交付、真实业务手机Gate不足，Root已冻结当前页串行标签与1440/1280/390真实业务补充合同；ef0ae澄清reserved pending仅严格COMMITTED+fresh读回才清，a66cb独审核收，原accepted库/后端/权限不改。WEB/QA分路径并行实施，不能签六卡complete。r8业务10120ms通过、3次currentFacts精确关联通过，完整Shell在Native采集前首图超时失败；全资源关闭保卷，原具体await仍UNKNOWN，Native定位器已证源码缺陷并窄修。完整工程4fec/FullPG e7双线773已核，eb30完整scanner0/历史native1已审1760无阻断，第40批已推且Actions[]。阶段继续不V4-2。见[补充合同](v4/v4-1/BATCH_AND_MOBILE_ADDENDUM.md)、[范围审查](v4/v4-1/reviews/SCOPE_GAPS_eb30.md)。以下按历史时点保留。
+
+2026-11-04 V4-1完整PG已核收：e7新双线596+177实际773/交集0、原strictchecker0、G1三/G2六、原helper清理及postpair77组退出，7fc12独审仅签精确e7。2140候选完整scanner0，history原生1/1760已审/阻断0，refs前后变化写实。NoDefaults六路径c154已eb34独审且第37批推送；r7业务10087ms通过，Shell在首次当前事实read_at精确匹配失败，早于offline/hidden/Native/lateACK，整案已关闭保卷。正在窄诊断响应归属，不改产品权限或降低断言。阶段仍IMPLEMENTING。见[PG配对](v4/acceptance/v4-1/PG_PAIR_FINAL.json)、[扫描](v4/acceptance/v4-1/SCAN_2140.json)。以下按历史时点保留。
+
+2026-11-04 V4-1双核心进展：4fec完整工程r3已935448独审核收，原scripts.check三层0、4601offlinePASS、616mypy、完整npm/pip审计零漏洞；after/ps仅owner封存声明的层级明确保留。e7新existing-r2已8d870独审核收596/596/596、24组0、G1三/G2六齐、三层0、独立资源全空/临时卷已删；不是Fullpair，phase3已在新project p123-2b7aa87837bc实际运行，strictpair尚未执行。浏览器隐藏独立A/B反例保留；C确曾真实hidden四采样但2000ms提前normal而整案FAIL，不能签产品Gate。正式NoDefaults验收入口仅方案中，不降hidden/Native/lateACK门槛。阶段仍IMPLEMENTING，不进入V4-2。见[工程](v4/acceptance/v4-1/ENGINEERING_R3.json)与[PG单线](v4/acceptance/v4-1/PG_EXISTING_R2.json)。以下按历史时点保留。
+
+2026-11-04 V4-1持续验收：新e7 FullPG existing-r2按独审45/55总窗完整运行（07:36helper/07:46outer），原300/30/75/60及所有Gate不变；phase3仅准备。4fec完整工程r3在Git外私有HOME/TMP于07:01窗启动，已过完整mypy616和前置检查，offline运行中。browser-r4/r5/r6业务各通过而Shell分别在恢复响应body、真实hidden、实际minimized后仍visible处失败；原件/once/卷保留，容器网络和端口全部已独立关闭，Native/lateACK仍未到。暂停完整业务browser重复运行，准备两个新aboutblank窗口最小A/B来检验PW默认focus仿真影响，不冒充产品Gate。第32批已推控制/QA且Actions[]，阶段仍IMPLEMENTING。见[运行分层](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下按历史时点保留。
+
+2026-11-04 V4-1：首条FullPG按原总截止中断，selected596/helperactual577不可作执行数；真实call568=567PASS+1中断、28未开始，G1未跑/G2六有实际记录，V41全28本源通过仅局部。组启动剩余93.85s而非名义300耗尽，helper/worker/outer1、cleanup0，独立资源全空/临时卷删除；旧失败原件保留，不拼partial。Root新总窗方案独审中，只准备新owned源e7ae。r5浏览器业务8793ms通过、offline恢复已越过，hidden仍visible导致整案FAIL，Native/lateACK未到，旧案关闭保卷。扫描期望04b547与恢复关联1b4c均独审集成，第30批控制/QA正常推送且Actions[]；阶段仍IMPLEMENTING。见[Full失败分账](v4/acceptance/v4-1/FULLPG_R1_FAILURE.json)。以下保留历史时点。
+
+2026-11-04 V4-1当前：202807完整工程第二轮实际4585PASS/16FAIL/776deselected，offline1080.92s；根因分9项工作树内TMPDIR继承Git与7项旧精确metadata预期，修复不改scanner规则。新8f668浏览器r3业务9504ms通过，ARIA与390交互已越过并生成三宽截图；整案因cookie检查URL根路径不匹配服务端/api/v4 Path而失败，Native/生命周期未到，资源关闭保卷。e466/r2业务partial已46eac独审核收，整案FAIL保留。FullPG第一existing已在新owned项目运行、第二phase3仅准备，尚无Full通过声明。r26正常推送控制/前端且Actions[]；阶段继续，不进入V4-2。见[精确分层](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下按历史保留。
+
+2026-11-04 V4-1运行更新：浏览器e466/r2业务单项真实通过（8997ms、9次业务POST、31条journal命令、末态SQL事实0），整案因390px助手按钮无可访问名称而Shell超时失败；1440/1280截图存在，390/原生200/隐藏/断网/迟到ACK未到达。资源已独立核空容器网络、关端口并保留卷。754e单行ARIA修复已提交独审，原失败不改写。完整工程e466/r1在两测试文件18项mypy错误处失败并闭合；已审类型修正202807/r2正在完整回归，offline失败标记待原生详情。双FullPG仅准备/collect773=596+177、交集0，未执行。r25已正常推送c9fa且Actions[]；阶段继续IMPLEMENTING，不进入V4-2。见[分层回执](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下保留历史时点。
+
+2026-11-04 V4-1最新核收：54ab同源四个新owned HTTP案（dash、catalog、CSV、XLSX）driver/probe/outer全部0，各37required命令全0，三owner有序提交核验、最终source/tool seal、逐原键末态与资源闭环通过，ab278独审已接受。148为命令记录非测试数。每案容器网络/进程组空、端口关、一卷保留；旧9e1失败与dash私有清单误分类保留。Native651源码P2关闭并Root集成/分批推a96，实际browser/原生200/最终完整工程与严格双PG配对仍NOT_RUN；5237最后caller独审及既定隐藏/断网步骤收口中，不进入V4-2。见[运行分层](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)与[四HTTP独审](v4/v4-1/reviews/HTTP54AB_FOUR_CASES.md)。以下按历史时点保留。
+
+2026-11-04 V4-1真实API首轮：9e1新owned案r2已实际完成0025/旧ACL/种子与三个owner动作（COMMITTED、COMMITTED、VERIFIED）、API/Web和dashboard隔离probe0，37required命令全0；终态因唯一Next自动生成声明封存拒绝，整体driver/outer1、失败保留。已核资源关闭保卷；1794精确模板窄修经独审后cherry至4c4，组合27组件通过，新案实跑待验。ca69全GET配方和538真实业务browser源码已核收，187浏览器PGID清理P2仍修复中。已分批推送4c4及owner候选，Actions[]。Full/最终browser/原生200仍NOT_RUN，不进入V4-2。见[精确运行记录](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下保留历史时点。
+
+2026-11-04 V4-1运行增量：标签重复写入与policy夹具权限修复后，dc22专项22PG全部通过；另e54新增live-child1与GC5共6PG通过并完成独审。两批按各自SHA记录，不拼同源28；所有案容器/网络关闭、卷保留。Mock UI24通过。固定owner启动helper735及当前head兼容827已独审集成，真实HTTP/API/Web、完整工程与严格双PG配对、最终截图仍待验。阶段继续IMPLEMENTING；分批推送已到590eb5c，无PR/Actions，不进入V4-2或生产。见[运行分层](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)与[推送回执](v4/acceptance/v4-1/PUSHES.json)。以下导航保留此前时点。
+
+2026-11-04 V4-1最新运行增量：精确source4907756已通过新owned 0025迁移/七表初始空/29函数ACL默认拒绝及7项撤权顺序与policy真实PG测试；Mock UI冻结3342968的24项全部通过。扩大到V41专项22项时实际2PASS/1FAIL/19NOT_RUN，第二次标签写入23514/V41_TAG_INVALID正由独占owner修复；所有案资源已清容器网络、保卷。当前阶段仍IMPLEMENTING，HTTP/API/Web、全仓Full工程/严格双PG配对、最终截图等未验；不进入V4-2/Hosted/外部业务/生产。精确分层见[当前运行回执](v4/acceptance/v4-1/RUNTIME_PROGRESS.json)。以下导航保留此前时点。
+
+2026-11-04 V4-1本地托管进行中：完整V41-01—06已进入独立阶段工作树，按V41-1d增量合同实施，未进入V4-2。已审查询/安全导出及默认撤权SQL候选分批推至阶段集成分支；三owner已提交候选另分支备份，不代表运行验收。真实Shell浏览器切片通过，导入Mock R2执行1例失败、5例未跑，资源已清理；修复准备新case。当前业务runtime GRANT受S02撤权锁序与S04解析停止权威独审阻断，真实V41 PG/API尚未执行；只准备新owned空库DDL/ACL pilot。Hosted、真实模型/embedding、Woo/飞书与生产未运行。见[阶段范围](v4/v4-1/STAGE_SPEC.md)、[增量合同](v4/v4-1/CONTRACTS.md)和[分批推送回执](v4/acceptance/v4-1/PUSHES.json)。以下旧导航按记录时点保留。
+
 # 阶段状态与主控交接
+
+2026-11-04 V4-0 本地托管：状态 `LOCAL_IMPLEMENTATION_ACCEPTED`：本地实施、必要运行 Gate 与最终独审已核收；最终文档的冻结提交扫描另有 source-bound 回执。服务器 DemoSession、双店合成种子、身份/店铺边界、重置回滚和三条欢迎辅助路由已实现；完整 PG745 严格配对、工程4316 offline、HTTP11、自然30分钟TTL、真实浏览器和旧Web/N01证据分别绑定实际源码。交付与未验范围见 [V4-0本地交付](v4/acceptance/v4-0/DELIVERY.md)。V4-1未启动，Hosted/外部真实业务调用/远端写/生产未运行；下方旧导航保留其历史时点。
+
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
+详见[第73节](#73-m3本地实施与验证交付核收外部验收延后)。
 
 Phase5/M2最终事实入口（2026-10-27，台北D18）：必要业务及部署技术Gate已由Root与原Reviewer核收，当前`business_and_deployment_gates_passed / awaiting_final_review_and_CI`。实际运行source8ad/treeea86，2778offline/590PG排除、实际本地合成Woo/备份恢复/两负例及当前Mock20 Compose均通过；最终完整CI、main与合后CI尚待。详见[第72节](#72-phase5m2业务与部署已核收的最终事实合批)及[Phase5验收](PHASE5_ACCEPTANCE.md)。本文件为文档合批时点快照，后续正式结案统一以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)实际更新为准，不预填未来SHA或complete。第71节及下方旧导航按原日期保留。
 
@@ -1461,3 +1510,10 @@ NOT_CAPTURED、七份旧日志非敏感原字节不可恢复、Issue23未知风�
 总1800 Agent有效分钟不增，A823/B307/Review370/Root300；本批开始前A累计估595–778，旧用量保留，
 Root历史精确净用量/人工H-L/历史净余UNKNOWN，机器等待另记。D1/D30/300h/D18–20及18页冻结不重置，
 不自动进入M3/Phase6。
+
+
+## 73. M3本地实施与验证交付核收外部验收延后
+
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](M3_LOCAL_ACCEPTANCE.md)和[启动说明](M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
+功能浏览器实跑3a184e9；工程/完整719PG与配对实跑532eefd。二者业务/前端/基础设施/PG helper/浏览器源码逐字节一致，仅扫描精确公开例外及K2不可变负例/说明不同；证据不改写source。工程3684offline/719排除、46无server；真实本地M3三场景七POST原键恢复、原离线145、原live24与N01六均独审核收。失败0A000、native139根因UNKNOWN、旧失败及全部NOT_CAPTURED按验收表保留。未扩大M2备份0018合同，M3备份扩展未实现。原预算/日期/人工UNKNOWN/once及18页冻结不重置；本阶段不自动进入生产或P2。

@@ -1,5 +1,25 @@
 # 工程约束
 
+main 更新与后续基线规则（2026-11-04，台北）：用户再次限定本次只做 V4-1 到 main 的版本集成与必要核验，先正常备份旧 main；优先 Fast-forward，受保护限制则走现有 PR #53，禁止强推、hard reset、重写历史、删除分支或工作树。main 严格必需检查未满足时不得更新；沿本会话已授权的必要 Hosted CI 处理实际合前阻断，不改已验业务、架构或权限，不生产或其他付费操作。后续 V4-2 只有新阶段授权后，才能在实时 fetch、核准本次集成及合后验收的最新 main 后新建独立阶段分支；不得从旧 main 或过期候选开始。本次完成即停止，等待新研究包。旧 main 归档分支 codex/archive-main-before-v41-20261104 精确保留 6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265；保护与原分支保持。
+
+PR #53 主线合并新授权（2026-11-04，台北）：用户明确确认合并 PR #53，授权本次必要 Hosted CI；检查通过后 Root 正常合入 main 并核对合后结果，不绕过保护，不强推或删除原始分支。该授权覆盖下方旧等待确认/不 Hosted/不 merge 的历史边界，不授予真实模型、embedding、飞书外发、Woo 写或生产发布。仅为本次精确候选运行既有质量门禁，保留失败/UNKNOWN与原证据分层；不合独立 Harness，不启动后续功能开发。完成后继续暂停，等待用户提供新研究包。实时 PR 与运行结果见 https://github.com/aning0922/commerceops-agent/pull/53；本次不预填未来 CI 或合并成功。
+
+V4-1 独立归档与 main 集成授权（2026-11-04，台北）：用户确认 V4-1 本地阶段已完成，暂停后续功能开发。Root 仅核对已核收 codex/v41-control-20261104、更新 README/状态/导航、复用可信验收证据并审查 main 累计差异，检查后创建面向 main 的 PR，等待用户合并确认。新研究包尚未交付，接收/差异分析/重新排期属下一个独立任务；不按旧路线自动 V4-2。本次明确 PR 授权覆盖下方旧“不 PR”的历史边界，普通分批提交推送继续；不新增业务功能/重设计/合未经核收的实验分支，不强推/删原分支，不自动 merge、Hosted、真实外部调用或生产。PR 使用带跳过标记的最终 HEAD，保留 required checks 待满足与保护规则；当前归档依据见 docs/v4/archive/V41_MAIN_INTEGRATION.md。
+
+V4-1 本地 Gate 核收与交付收口（2026-11-04，台北）：V41-01—06 合同内实现、同源235/74/Native40纯组件/33Mock、r10真实业务/Shell/手机/Native/逐key SQL及独立清理已经冻结独审核收，代码源261f399/tree34da。40原图AI工程审查已通过，human/真机touch NOT_RUN，正式包文档一致性已独审核收，V4-1本地阶段完成；旧Full/PG/HTTP/失败/UNKNOWN分层不改标签。当前不新增功能或资源，不自动V4-2、不PR/main/Hosted/真实模型embedding/Woo写/飞书发送/生产。允许Root在已授权阶段分支继续普通短提交和及时push，保留所有原refs与历史预算。权威交付见 docs/v4/acceptance/v4-1/REVIEW.md、QA_RESULTS.json、MANIFEST.json；下方“当前”各按原时点保留。
+
+V4-1 增量推送授权（2026-11-04，台北）：用户新增明确要求及时推送仓库，不累积到阶段末。Root 可将已独审、自检及敏感扫描通过的切片常规推至 codex/v41-control-20261104；不创建 PR、不合 main、不改保护/工作流、不触 Hosted、不发布生产。各作者仍本地短提交；Root也可将敏感预检通过的已提交候选按同名owner分支备份，HOLD/NOT_RUN不解除，独审后才集成；每批核远端 SHA 和实际 Actions，未知推送结果先只读核对，不 force 或盲重试。以 docs/v4/v4-1/PUSH_POLICY.md 为当前增量合同；下方旧不 push/远端写仅保留其原授权时点。
+
+V4-1 本地托管新授权（2026-11-04，台北）：用户已明确继续托管直到上一轮指定的下一阶段完成。原任务包 V4-1 是 V41-01—06 六卡，不能仅做摘要前三卡。唯一阶段起点为已核 V4-0 1730194，所有 V4-0／M3／Harness 工作树和历史证据保留。本阶段规则、单 owner 与 Gate 见 docs/v4/v4-1/STAGE_SPEC.md；旧“不进 V4-1”仅保留原日期，不覆盖本次用户授权。不自动 V4-2，不 Hosted／远端写／真实外部业务调用或生产。
+
+V4-0 B 本地托管实施（2026-11-03，台北）：用户已明确审核接受A推荐方案/四合同并授权V40-01—05。仅新V4工作树从实时核准M3 952e6246/tree43e4e7接续；旧M3/Harness树不动。以docs/v4/IMPLEMENTATION_AUTHORIZATION.md、docs/v4/baseline/TASK_PLAN.md和冻结八文件为范围。A原件PENDING/NOT_STARTED保留其时点，当前实现状态按本批实际证据填写。先身份桥接SQL/ACL/锁序专项审查，SCHEMA/API单owner管理迁移/API/seed/reset，WEB/QA不重叠独占路径，Reviewer独审精确SHA，Root统筹及时普通commit/merge。只新owned本地PG/API/Web与必要完整旧M3回归，不进V4-1、不Harness合并/Hosted/push/真实外部/生产，不动旧窗口/密钥/账本。模型可按任务调整Sol/Terra/Astra与推理，不自动付费fallback。所有旧导航仅为其日期历史。
+
+托管开发提交节奏（2026-11-03，台北）：每个独立可审切片在必要检查通过后及时普通 commit，并向主控转交精确 SHA；等待依赖、移交或结束会话前核对已完成改动的提交状态。主控及时普通合入已核收提交。远端 push、PR 和 main 操作继续由主控按具体授权统一执行。
+
+2026-11-03 M3 本地托管门禁：状态 `LOCAL_IMPLEMENTATION_ACCEPTED / EXTERNAL_ACCEPTANCE_DEFERRED_BY_USER`。日报/持久调度与Fake投递/证据追问、受限只读询单、合成SOP向量检索与指定审核内部草稿的本地实现、必要本地验证与事实交付已获独立审查核收；真实资料、provider/embedding质量、飞书实际外发、人工质量、Hosted/amd64、main与发布均未由本批核收。完整来源与限制见[本地验收](docs/M3_LOCAL_ACCEPTANCE.md)和[启动说明](docs/M3_LOCAL_DELIVERY.md)。以下旧导航均保留其记录时点。
+
+Phase6/M3 托管开发新授权（2026-11-03，台北）：用户在主控会话 `01a19f1b-f4c0-75c1-a9f0-8f8b88db72d5` 明确要求“现在开始，你就是主控，采用托管开发，主要负责各个会话开发的协调，采用侧边可见会话，不同的会话要根据所开发的内容动态调整模型，以及推理强度”。本阶段从已核远端 main `6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265` 开始；Issue49 已 closed/completed。Root 统筹 M3 合同、分工、集成、发布与验收；开发者仅在各自独立工作树提交，Reviewer 独立审查精确提交。第一交付切片为日报、持久调度/推送与证据追问，后续动态只读工具、SOP RAG/审核草稿按原产品范围推进。用户允许主控按任务调整可见会话模型及推理强度；不自动转付费 API，额度不可用须报告。历史预算/失败/UNKNOWN/证据不重置，原计划日期是历史目标，不保证仍可达到。真实业务资源、凭据、真人窗口及实际外发不从旧授权继承；先完成可审代码和本地替身验证，缺少外部资源时继续独立工作并集中列出依赖。不得削减原安全/恢复/权限/完整 CI Gate。Harness 分支、账本、SPENT/UNKNOWN 预留与旧窗口不动，M3 不依赖未验 H4。下方旧“不进入 M3”等保留其原批次时点，本次授权覆盖 M3 开发启动。详见 docs/plans/M3_MANAGED_DEVELOPMENT.md。
+
 Phase5/M2最后事实合批（2026-10-27，台北D18）：Root及原Reviewer已核收必要业务与部署Gate，当前`business_and_deployment_gates_passed / awaiting_final_review_and_CI`；正式M2以[固定权威回执](https://github.com/aning0922/commerceops-agent/issues/49#issuecomment-6430237354)后续实际main/同SHA合后CI及结案记录为准。已验source8ad436595794ef83f3a99bc80bd9ad4948b7117e/treeea86b637190ec0ec42da771638a6c72b2853e82b，完整2778offline/590integration排除/native0；实际本地合成Woo/新卷dump-restore/原审批10重放/撤权403及真实到期410、当前Mock20 Compose/T6v2/恢复/隐藏只读Web/清理均已核，详见[Phase5验收](docs/PHASE5_ACCEPTANCE.md)与[STATUS72](docs/STATUS.md#72-phase5m2业务与部署已核收的最终事实合批)。当前不预造最终CI/pass/main SHA/complete。
 
 本批A仅AGENTS/STATUS/ROADMAP/PHASE5验收及必要事实引用/README最小状态，B独占M2_DELIVERY/M2_BACKUP_RESTORE/M1_OFFLINE_COMPOSE，等Root转交精确commit后普通merge；不读B未提交WIP，不改业务/测试/锁/workflow，不新资源、不push/改PR正文/触CI/main。总1800 Agent有效分钟不增，现A823/B307/Review370/Root300；旧用量保留，Root历史精确净用量与人工H/L UNKNOWN、机器等待另记。D1=10-10/D30=11-08、D18–20/300h与18页冻结不重置。保留mixed一日与七日PGFake分层、AST不等于字节、所有旧失败/HOLD/缺失日志、egress与冷缓存未知、browser PID值未单独归档；不进入M3。下方旧授权/配额/当前/待验均为各自登记时点。

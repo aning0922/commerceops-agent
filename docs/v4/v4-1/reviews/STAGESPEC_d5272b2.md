@@ -1,0 +1,15 @@
+# V41 StageSpec offline/hidden窄增量审查
+
+日期：2026-11-04（台北）。source `d5272b203e950f365f8736e712b2837189631473`，tree `5ce3c6fcc3bd995358bcb5260943eb09ff0d9b31`，parent `5237ed50b3c5a55c2060a068b0b94864d355505e`。仅Shell spec和playwright.config.ts两文件，未读WIP；不重复UI Reviewer已接受的Native caller/651审查。
+
+结论：ACCEPT_STAGESPEC_LIFECYCLE_SOURCE，增量未见P1/P2。Root可合入并冻结最终组合source/tree/image；该结论仅源码、TS和联合collect，不签offline/hidden、Native或任何浏览器运行通过。
+
+真实predicate与防假阳性：保留Root指定executable，固定headless=false让真实后台页状态可观测；不新增browser profile、运行授权或任意执行接口。offline通过context.setOffline(true)触发并poll navigator.onLine=false；hidden通过同context的about:blank cover页bringToFront并poll原页visibilityState=hidden，均不人工派发事件或伪造状态。每段前先取得真实read-context 200/schema/no-store/原身份与shop，确认“当前事实”和原read_at可见；清空时以节点数量为零核身份、事实标题和原read_at，标题显式includeHidden:true。因此仅页面不可见或样式隐藏不能替代DOM清除。
+
+恢复与权限：offline在finally恢复网络；hidden在finallybring原页前台并关闭cover。restoreOriginal先实际visible、再GET/reload严格session响应，核原tenant/org/principal/reset_epoch/auth_generation、creation_request_key、operator和同一cookie，重新选择原授权shop；每段不创建新访客。lifecycle段以apiPosts前后相等及creates=1拒绝隐式POST/重建；safe receipt只保存tier与结果状态，不保存cookie。原生产visibility/offline clear和visible/online GET复核路径与这些触发一致，不修改组件或授权规则。
+
+Native衔接仅把既有capture调用包在try/finally恢复原Shell，避免独立headed窗口使Shell隐藏清空后直接进入lateACK；异常仍向外传播，不因恢复成功改写Native失败。原延迟ACK、双标题/no retries、Native权限/cleanup判据未放宽。此片仍不能替代完整浏览器权限矩阵或证明所有迟到回调交错。
+
+独立验证：用精确Root `08efc228d1ff02a10f0a5e6b741e0e1a1fcae4e6` 完整archive加d527两文件overlay，核prepared package-lock同字节，以已准备只读Node/TypeScript/Playwright依赖执行strict noEmit native0；联合Playwright --list --reporter=json native0，errors=[]，固定Shell/business恰好2titles、results=0、stderr空。只提供临时合成collect case供模块解析，没有Root runtime authorization，未调用测试体/Native helper或启动浏览器/服务。旧失败收集原件未修改，本轮是独立新临时collect，不将旧失败改成通过。
+
+overlay SHA256：Shell `179896f0aeca90713da8859a968b8270aa080d2148440cc52c7bba1429a3970c`；config `8b5e91eb0769cc2ce89b59917e835fb538229578b44f604f9ef4090102da1101`。无HTTP、PG、Docker、SDK、截图、Full/CI或远端写入；实际offline/hidden仍NOT_RUN。
