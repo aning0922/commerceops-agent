@@ -9,10 +9,11 @@ import re
 import signal
 import stat
 import subprocess
+import tempfile
 import time
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE = "commerceops-m3-pgvector:8ee1df0-v1"
@@ -157,74 +158,214 @@ def validate_container(
         raise ValueError("M3 PG container identity refused")
 
 
-def prepare_image(root: Path, stop: datetime) -> None:
-    if stop.tzinfo is None:
-        raise ValueError("M3 timezone-aware deadline required")
-    # The caller's immutable preparation window includes this build. Keep 85s for exit/cleanup.
-    expires = time.monotonic() + (stop - datetime.now(UTC)).total_seconds()
-    duration = min(300, expires - time.monotonic() - 85)
-    if duration <= 0:
-        raise ValueError("M3 build has no cleanup reserve")
-    inputs, identity = source_hashes(root), source_identity(root, min(5, duration))
-    path = root / RECEIPT
-    if path.exists() or path.is_symlink() or (root / ".audit").is_symlink():
-        raise ValueError("M3 fresh image receipt required")
-    duration = min(300, expires - time.monotonic() - 85)
-    if duration <= 0:
-        raise ValueError("M3 build has no cleanup reserve")
-    child = subprocess.Popen(
-        [
-            "docker",
-            "build",
-            "-f",
-            str(root / "infrastructure/knowledge_pgvector.Dockerfile"),
-            "-t",
-            IMAGE,
-            str(root),
-        ],
-        cwd=root,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        start_new_session=True,
+STAGES = (
+    "BASE_PACKAGE",
+    "APT_UPDATE",
+    "APT_INSTALL",
+    "DEV_HEADERS",
+    "LIBPQ",
+    "PGVECTOR",
+    "COMPILE",
+    "INSTALL",
+)
+
+
+def build_output_facts(paths: list[Path]) -> dict[str, Any]:
+    """Only actual standalone output lines; an echoed RUN program is never execution proof."""
+    entered = completed = "NOT_RUN"
+    observed_error = "UNKNOWN"
+    http_status = None
+    for path in paths:
+        for raw in read_private_log(path).decode(errors="replace").splitlines():
+            line = re.sub(r"^#[0-9]+ [0-9]+(?:\.[0-9]+)? ", "", raw)
+            marker = re.fullmatch(r"M3_IMAGE_STAGE (ENTER|DONE) ([A-Z_]+)", line)
+            if marker and marker[2] in STAGES:
+                if marker[1] == "ENTER":
+                    entered = marker[2]
+                else:
+                    completed = marker[2]
+            if re.fullmatch(r"E: Version '[^'\n]+' for '[^'\n]+' was not found", line):
+                observed_error = "APT_PIN_UNAVAILABLE"
+            elif line == "E: Unable to correct problems, you have held broken packages.":
+                observed_error = "DEPENDENCY_CONFLICT"
+            elif re.fullmatch(r"curl: \(6\) .+", line):
+                observed_error = "DNS"
+            elif re.fullmatch(r"curl: \((?:35|60)\) .+", line):
+                observed_error = "TLS"
+            elif match := re.fullmatch(
+                r"curl: \(22\) The requested URL returned error: ([1-5][0-9]{2})", line
+            ):
+                observed_error, http_status = "CURL_HTTP_STATUS", int(match[1])
+            elif re.fullmatch(
+                r"/t[m]p/(?:pg-server-dev.deb|libpq-dev.deb|pgvector.tar.gz): FAILED", line
+            ):
+                observed_error = "DIGEST"
+            elif entered == "COMPILE" and re.fullmatch(r"make(?:\[[0-9]+\])?: \*\*\* .+", line):
+                observed_error = "COMPILE"
+    return {
+        "last_entered": entered,
+        "last_completed": completed,
+        "observed_error": observed_error,
+        "curl_http_status": http_status,
+    }
+
+
+def read_private_log(path: Path) -> bytes:
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(fd, "rb") as stream:
+        info = os.fstat(stream.fileno())
+        if (
+            not stat.S_ISREG(info.st_mode)
+            or info.st_uid != os.getuid()
+            or stat.S_IMODE(info.st_mode) != 0o600
+        ):
+            raise ValueError("M3 private diagnostic log refused")
+        return stream.read()
+
+
+def private_log(path: Path) -> BinaryIO:
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    info = os.fstat(fd)
+    if (
+        not stat.S_ISREG(info.st_mode)
+        or info.st_uid != os.getuid()
+        or stat.S_IMODE(info.st_mode) != 0o600
+    ):
+        os.close(fd)
+        raise ValueError("M3 private diagnostic log refused")
+    return os.fdopen(fd, "wb")
+
+
+def prepare_image(root: Path, stop: datetime, *, diagnostic: dict[str, Any] | None = None) -> None:
+    facts: dict[str, Any] = diagnostic if diagnostic is not None else {}
+    facts.update(
+        stage="ADMISSION",
+        code="FAILED",
+        returncode="NOT_RUN",
+        timedout=False,
+        reaped="NOT_RUN",
+        source_commit="UNKNOWN",
+        source_tree="UNKNOWN",
+        inputs={},
     )
+    directory: Path | None = None
+    logs: list[Path] = []
     try:
-        child.wait(timeout=duration)
-    finally:
-        if child.poll() is None:
-            os.killpg(child.pid, signal.SIGTERM)
+        if stop.tzinfo is None:
+            raise ValueError("M3 timezone-aware deadline required")
+        expires = time.monotonic() + (stop - datetime.now(UTC)).total_seconds()
+        duration = min(300, expires - time.monotonic() - 85)
+        if duration <= 0:
+            raise ValueError("M3 build has no cleanup reserve")
+        facts["stage"] = "SOURCE_REVALIDATION"
+        inputs, identity = source_hashes(root), source_identity(root, min(5, duration))
+        facts.update(inputs=inputs, **identity)
+        path = root / RECEIPT
+        if path.exists() or path.is_symlink() or (root / ".audit").is_symlink():
+            raise ValueError("M3 fresh image receipt required")
+        facts["stage"] = "LOGGING"
+        audit = root / ".audit"
+        audit.mkdir(mode=0o700, exist_ok=True)
+        info = audit.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+            raise ValueError("M3 private diagnostic directory refused")
+        directory = Path(tempfile.mkdtemp(prefix="m3-image-", dir=audit))
+        info = directory.lstat()
+        if stat.S_IMODE(info.st_mode) != 0o700 or info.st_uid != os.getuid():
+            raise ValueError("M3 private diagnostic directory refused")
+        logs = [directory / "stdout.private.log", directory / "stderr.private.log"]
+        with private_log(logs[0]) as output, private_log(logs[1]) as error:
+            duration = min(300, expires - time.monotonic() - 85)
+            if duration <= 0:
+                raise ValueError("M3 build has no cleanup reserve")
+            facts["stage"] = "BUILD"
+            child = subprocess.Popen(
+                [
+                    "docker",
+                    "build",
+                    "--progress=plain",
+                    "-f",
+                    str(root / "infrastructure/knowledge_pgvector.Dockerfile"),
+                    "-t",
+                    IMAGE,
+                    str(root),
+                ],
+                cwd=root,
+                stdout=output,
+                stderr=error,
+                start_new_session=True,
+            )
+            facts["reaped"] = False
             try:
-                child.wait(timeout=5)
+                child.wait(timeout=duration)
             except subprocess.TimeoutExpired:
-                os.killpg(child.pid, signal.SIGKILL)
-                child.wait(timeout=5)
-    left = expires - time.monotonic() - 75
-    if child.returncode or left <= 0 or inputs != source_hashes(root):
-        raise ValueError("M3 bounded image build failed")
-    if identity != source_identity(root, min(5, left)):
-        raise ValueError("M3 image build source changed")
-    left = expires - time.monotonic() - 75
-    if left <= 0:
-        raise ValueError("M3 build exhausted preparation window")
-    binding = {**inspect_image(min(5, left)), "inputs": inputs, **identity}
-    left = expires - time.monotonic() - 75
-    if left <= 0:
-        raise ValueError("M3 build exhausted preparation window")
-    validate_binding(root, binding, min(5, left))
-    path.parent.mkdir(mode=0o700, exist_ok=True)
-    with path.open("x") as stream:
-        path.chmod(0o600)
-        json.dump(binding, stream, sort_keys=True)
-    print("M3 image built and source/architecture/metadata bound; SQL extension remains unverified")
+                facts["timedout"] = True
+                facts["code"] = "BUILD_TIMEOUT"
+                raise
+            finally:
+                facts["stage"] = "BUILD_CLEANUP"
+                if child.poll() is None:
+                    os.killpg(child.pid, signal.SIGTERM)
+                    try:
+                        child.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        os.killpg(child.pid, signal.SIGKILL)
+                        child.wait(timeout=5)
+                facts.update(returncode=child.returncode, reaped=child.poll() is not None)
+                facts["stage"] = "BUILD"
+        left = expires - time.monotonic() - 75
+        if child.returncode or left <= 0:
+            facts["code"] = "BUILD_NONZERO" if child.returncode else "DEADLINE"
+            raise ValueError("M3 bounded image build failed")
+        facts["stage"] = "SOURCE_REVALIDATION"
+        if inputs != source_hashes(root):
+            facts["code"] = "SOURCE_CHANGED"
+            raise ValueError("M3 bounded image build failed")
+        if identity != source_identity(root, min(5, left)):
+            facts["code"] = "SOURCE_CHANGED"
+            raise ValueError("M3 image build source changed")
+        left = expires - time.monotonic() - 75
+        if left <= 0:
+            raise ValueError("M3 build exhausted preparation window")
+        facts["stage"] = "INSPECT_METADATA"
+        binding = {**inspect_image(min(5, left)), "inputs": inputs, **identity}
+        left = expires - time.monotonic() - 75
+        if left <= 0:
+            raise ValueError("M3 build exhausted preparation window")
+        facts["stage"] = "BINDING"
+        validate_binding(root, binding, min(5, left))
+        with private_log(path) as stream:
+            stream.write(json.dumps(binding, sort_keys=True).encode())
+        facts.update(stage="COMPLETE", code="OK")
+        print(
+            "M3 image built and source/architecture/metadata bound; "
+            "SQL extension remains unverified"
+        )
+    finally:
+        if directory is not None:
+            try:
+                facts.update(build_output_facts(logs))
+                facts["logs_sha256"] = {
+                    p.name: hashlib.sha256(read_private_log(p)).hexdigest() for p in logs
+                }
+                with private_log(directory / "diagnostic.safe.json") as stream:
+                    stream.write(json.dumps(facts, sort_keys=True).encode())
+            except (OSError, ValueError):
+                facts.update(stage="LOGGING", code="FAILED")
+                raise
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stop-at-utc", required=True)
     args = parser.parse_args()
+    diagnostic: dict[str, Any] = {}
     try:
-        prepare_image(ROOT, datetime.fromisoformat(args.stop_at_utc))
+        prepare_image(ROOT, datetime.fromisoformat(args.stop_at_utc), diagnostic=diagnostic)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
-        raise SystemExit("M3 bounded image preparation failed (raw output withheld)") from None
+        raise SystemExit(
+            json.dumps(diagnostic or {"stage": "UNKNOWN", "code": "FAILED"}, sort_keys=True)
+        ) from None
 
 
 if __name__ == "__main__":
