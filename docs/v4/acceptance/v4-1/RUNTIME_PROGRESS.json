@@ -1,6 +1,6 @@
 {
   "stage": "V4-1",
-  "scope": "ACCEPTED_LOCAL_V41_CONTROLLED_STAGE_GATES",
+  "scope": "CLOSED_ACCEPTED_LOCAL_V41_CONTROLLED_STAGE",
   "runs": [
     {
       "case": "owner-ddl-pilot-r4",
@@ -964,5 +964,6 @@
   "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed",
   "full_pg_pair_receipt": "PG_PAIR_FINAL.json",
   "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8",
-  "remaining_product_steps": "NONE_IN_V41_LOCAL_STAGE_SCOPE; formal delivery document review and final pushes pending"
+  "remaining_product_steps": "NONE_WITHIN_AUTHORIZED_V41; V4-2 NOT_STARTED",
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f"
 }

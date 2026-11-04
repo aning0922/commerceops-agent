@@ -1,6 +1,6 @@
 # V4-1 本地交付核收
 
-当前状态：六卡本地 Gate 与 AI 工程视觉已核收，正式交付文档一致性审查收口中。
+当前状态：V41-01—06 六卡本地 Gate、AI 工程视觉及交付文档一致性均已核收，V4-1 本地阶段完成。
 业务代码冻结为 `261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e` / tree
 `34da95131e04d7360ea8aa5250ea40215bcb0713`。后续仅文档、回执和原图包装。
 
@@ -25,3 +25,6 @@ Native 浏览器单独 native exit 未暴露，未补造成 0；正式 Shell CFT
 临时验收服务已关闭，无常驻或生产 Demo 链接；按 [复现流程](../../v4-1/proposals/LOCAL_DEMO_REPRODUCTION.md)
 重新建立新 owned 资源，不重用旧 once 或过期窗口。真实模型/embedding、Woo 写、飞书外发、
 Hosted、生产及 V4-2 均未启动。
+
+最终交付包的[独立一致性审查](../../v4-1/reviews/DELIVERY_PACKAGE_746FB18.md)已核收。
+审查目标为746fb18；之后仅追加本审查回执、关闭状态与哈希索引，不更改已验代码261f399。

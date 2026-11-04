@@ -1,7 +1,7 @@
 {
   "schema_version": "commerceops-v41-delivery-manifest-v1",
   "stage": "V4-1",
-  "status": "FROZEN_DELIVERY_CANDIDATE_PENDING_DOCUMENT_REVIEW",
+  "status": "LOCAL_STAGE_ACCEPTED",
   "code_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
   "code_tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
   "business_base": "1730194028a01ddea0bbc573774d740ea4a29d55",
@@ -75,11 +75,11 @@
     },
     {
       "path": "QA_RESULTS.json",
-      "sha256": "9702c61c32e3de384b193197dac0d54c1b15f8888c9e02b5f53007403d3be349"
+      "sha256": "30ce0d1384d77b617e680550ff14ffcdba980d2063e7102ec7d82ffacf70f3c0"
     },
     {
       "path": "REVIEW.md",
-      "sha256": "f5b8919cdf337bbde7e9d56dcc3bbdbe468ad84ea83ec9338bc75dc1c61f7b63"
+      "sha256": "f0cc937150676935add5bd1ef114945daf7ad47b22149c46f09c1c4fb83aac20"
     },
     {
       "path": "RISKS.md",
@@ -87,11 +87,11 @@
     },
     {
       "path": "ROOT_LEDGER.json",
-      "sha256": "2a47f0638444a321e136632d701761a92f795fadd31b39d25190494455181644"
+      "sha256": "c8474aca6c1e4b515bcb6c79a63d66bd6eb7dc5410b0f2c3d8d95e9bba814536"
     },
     {
       "path": "RUNTIME_PROGRESS.json",
-      "sha256": "4915901a0166815d0dbdd9098c870258bd00f91d01a6ec1104e2f4e557afa5db"
+      "sha256": "d495d30698f4c51dac67e31fb2944a22e90422fc6f8498daad4234f3c9aab1fd"
     },
     {
       "path": "SCAN_2140.json",
@@ -953,5 +953,9 @@
   ],
   "local_stage_gate": "ACCEPTED",
   "final_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
-  "ai_visual_review": "c7f508dc596878a327fbc8e175b4e9b369f538a6"
+  "ai_visual_review": "c7f508dc596878a327fbc8e175b4e9b369f538a6",
+  "delivery_completed_utc": "2026-11-04T11:18:38.885044+00:00",
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f",
+  "delivery_review_candidate": "746fb181411f14720d4ca22173769f36e5675fbf",
+  "delivery_review_path": "docs/v4/v4-1/reviews/DELIVERY_PACKAGE_746FB18.md"
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": "commerceops-v41-qa-results-v1",
   "stage": "V4-1",
-  "status": "LOCAL_STAGE_GATE_ACCEPTED_DELIVERY_DOCUMENT_REVIEW_PENDING",
+  "status": "LOCAL_STAGE_ACCEPTED",
   "code_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
   "code_tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
   "generated_utc": "2026-11-04T11:08:14.672230+00:00",
@@ -154,5 +154,9 @@
   "final_runtime_review": {
     "source": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
     "path": "docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md"
-  }
+  },
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f",
+  "delivery_review_candidate": "746fb181411f14720d4ca22173769f36e5675fbf",
+  "delivery_review_path": "docs/v4/v4-1/reviews/DELIVERY_PACKAGE_746FB18.md",
+  "delivery_accepted_utc": "2026-11-04T11:18:38.885044+00:00"
 }

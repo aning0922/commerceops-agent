@@ -1,6 +1,6 @@
 # 工程约束
 
-V4-1 本地 Gate 核收与交付收口（2026-11-04，台北）：V41-01—06 合同内实现、同源235/74/Native40纯组件/33Mock、r10真实业务/Shell/手机/Native/逐key SQL及独立清理已经冻结独审核收，代码源261f399/tree34da。40原图AI工程审查已通过，human/真机touch NOT_RUN，正式包文档一致性收口中；旧Full/PG/HTTP/失败/UNKNOWN分层不改标签。当前不新增功能或资源，不自动V4-2、不PR/main/Hosted/真实模型embedding/Woo写/飞书发送/生产。允许Root在已授权阶段分支继续普通短提交和及时push，保留所有原refs与历史预算。权威交付见 docs/v4/acceptance/v4-1/REVIEW.md、QA_RESULTS.json、MANIFEST.json；下方“当前”各按原时点保留。
+V4-1 本地 Gate 核收与交付收口（2026-11-04，台北）：V41-01—06 合同内实现、同源235/74/Native40纯组件/33Mock、r10真实业务/Shell/手机/Native/逐key SQL及独立清理已经冻结独审核收，代码源261f399/tree34da。40原图AI工程审查已通过，human/真机touch NOT_RUN，正式包文档一致性已独审核收，V4-1本地阶段完成；旧Full/PG/HTTP/失败/UNKNOWN分层不改标签。当前不新增功能或资源，不自动V4-2、不PR/main/Hosted/真实模型embedding/Woo写/飞书发送/生产。允许Root在已授权阶段分支继续普通短提交和及时push，保留所有原refs与历史预算。权威交付见 docs/v4/acceptance/v4-1/REVIEW.md、QA_RESULTS.json、MANIFEST.json；下方“当前”各按原时点保留。
 
 V4-1 增量推送授权（2026-11-04，台北）：用户新增明确要求及时推送仓库，不累积到阶段末。Root 可将已独审、自检及敏感扫描通过的切片常规推至 codex/v41-control-20261104；不创建 PR、不合 main、不改保护/工作流、不触 Hosted、不发布生产。各作者仍本地短提交；Root也可将敏感预检通过的已提交候选按同名owner分支备份，HOLD/NOT_RUN不解除，独审后才集成；每批核远端 SHA 和实际 Actions，未知推送结果先只读核对，不 force 或盲重试。以 docs/v4/v4-1/PUSH_POLICY.md 为当前增量合同；下方旧不 push/远端写仅保留其原授权时点。
 

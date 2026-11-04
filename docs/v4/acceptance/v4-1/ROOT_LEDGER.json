@@ -2,7 +2,7 @@
   "stage": "V4-1",
   "mode": "local_implementation_with_incremental_branch_backups",
   "base_source": "1730194028a01ddea0bbc573774d740ea4a29d55",
-  "status": "local_stage_gates_accepted_delivery_review_pending",
+  "status": "complete_local_stage",
   "cards": {
     "V41-01": "implemented_controlled_scope_local_gate_accepted",
     "V41-02": "implemented_controlled_scope_local_gate_accepted",
@@ -394,7 +394,7 @@
     "web": "Terra high UI; Sol high repair; Sol medium fixed execution",
     "qa": "Sol high consumer; Sol medium pin; Terra high actual visuals",
     "gates": "Sol high native protocol repair; Sol medium fixed checks",
-    "main_review": "Astra high",
+    "main_review": "Astra high performed independent audit; Sol medium froze the completed report",
     "evidence_review": "Astra high",
     "documentation": "Sol medium",
     "quota": "UNKNOWN_NOT_EXPOSED",
@@ -415,5 +415,17 @@
       "functional_status": "MOBILE_AND_BATCH_SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING"
     }
   ],
-  "record_interpretation": "status/cards/code_source/final_receipt are current local-stage facts; earlier source-bound ledger entries remain historical and are not relabeled."
+  "record_interpretation": "status/cards/code_source/final_receipt are current local-stage facts; earlier source-bound ledger entries remain historical and are not relabeled.",
+  "delivery_completed_utc": "2026-11-04T11:18:38.885044+00:00",
+  "delivery_review_source": "a52210240cc47a3087c79cacdc5b7d729480f98f",
+  "delivery_review_path": "docs/v4/v4-1/reviews/DELIVERY_PACKAGE_746FB18.md",
+  "goal_usage_snapshot": {
+    "observed_utc": "2026-11-04T11:12:31Z",
+    "tokens_used_reported": 5277477,
+    "elapsed_seconds_reported": 38471,
+    "source": "get_goal live tool response",
+    "budget": "UNBUDGETED",
+    "billing_cost": "UNKNOWN",
+    "note": "Aggregate goal telemetry, not Agent effective minutes or provider billing; all historical budgets and unknowns retained."
+  }
 }
