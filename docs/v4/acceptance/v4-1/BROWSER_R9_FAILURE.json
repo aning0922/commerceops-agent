@@ -1,0 +1,77 @@
+{
+  "scope": "EXACT_R9_BROWSER_FAILED_AFTER_TWO_PASSING_SPECS",
+  "source": "fbb29a429b7f680328ab4451a717adb3ad2d99c1",
+  "tree": "ef6d8230ac4b58401af2771d722064aadacc5eed",
+  "image": "sha256:07e5483491f36f795ae6bd22e0fd764d8e69090842127887054a93e2a68f2ca6",
+  "status": "FAILED_OR_UNKNOWN_PRESERVED",
+  "parent_native": 1,
+  "node_native": 0,
+  "specs": {
+    "passed": 2,
+    "failed": 0,
+    "not_run": 0,
+    "flaky": 0,
+    "retries": 0,
+    "business_ms": 16982,
+    "shell_ms": 14951
+  },
+  "pngs": {
+    "business": 32,
+    "shell": 3,
+    "native": 5,
+    "total": 40
+  },
+  "original_failure": {
+    "type": "ValueError",
+    "original_code_or_stack": "NOT_CAPTURED"
+  },
+  "read_only_copy_diagnostic": {
+    "code": "NATIVE_PNG_BYTES_OR_GEOMETRY_MISMATCH",
+    "source_line": 353,
+    "scope": "No original registry/once reconsumption; copied evidence and read-only Case; no SQL/services/network/producer",
+    "baseline_100_png": "2880x1826 for inner1440x913 DPR2",
+    "native_200_png": "Actual1440x912 versus inner720x456 DPR4 expected2880x1824"
+  },
+  "closure": {
+    "containers": 0,
+    "networks": 0,
+    "ports_closed": [
+      18478,
+      13478
+    ],
+    "preserved_volume": "v41qa_browser_final_r9_pg_data",
+    "groups_absent": true,
+    "final_sql_native": 0
+  },
+  "visual_review": "BROWSER_VISUAL_R9.md: native200 rejected; AI image review is not human approval",
+  "artifacts": [
+    {
+      "path": "browser-final-r9/execution.json",
+      "sha256": "0e326fe7a080e1bde577ad8a667c1c3dc3827db898a1e36133afdecb980457d9"
+    },
+    {
+      "path": "browser-final-r9/closedfinal.json",
+      "sha256": "102cc67e56a10066ad6555c36c3bea9880fcdd07ffc639e5061f738b80b95319"
+    },
+    {
+      "path": "browser-final-r9/native-zoom/receipt.json",
+      "sha256": "173af9bf4effff0fda0dbb8dbeb3863f4bd509822772450236988d8753c23077"
+    },
+    {
+      "path": "browser-final-r9/browser-shell/shell.safe.json",
+      "sha256": "18a21cdfb4cb4027698fe36bf4073d34d2f45499f28053c29545e377f39d7c3d"
+    },
+    {
+      "path": "browser-final-r9/browser-business/business.safe.json",
+      "sha256": "cf347e2e4cb4ef3bc431f39f9a83d89dbd8aecde94334231a98ab7fe0ac0dd2e"
+    },
+    {
+      "path": "browser-r9-receipt-diagnostic/result.safe.json",
+      "sha256": "1d3e82854ac7a88ccfe2d5bb2d717cc3277e1c6a06d85bd909e903ec194a010d"
+    },
+    {
+      "path": "browser-r9-receipt-diagnostic/png-geometry.safe.json",
+      "sha256": "d619bc547460ff936e94cd02dc3c4620bab31989077252f025c906e3476d428e"
+    }
+  ]
+}
