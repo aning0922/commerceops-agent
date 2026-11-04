@@ -13,6 +13,7 @@ import time
 import unicodedata
 import xml.etree.ElementTree as ET
 import zipfile
+import zlib
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from decimal import Decimal, localcontext
@@ -378,7 +379,7 @@ def _archive(data: bytes, budget: ParseBudget) -> dict[str, bytes]:
                             raise FileRejected("XLSX_EXPANSION_LIMIT")
                         chunks.extend(block)
                 parts[info.filename] = bytes(chunks)
-    except (zipfile.BadZipFile, NotImplementedError, RuntimeError, OSError, EOFError):
+    except (zipfile.BadZipFile, zlib.error, NotImplementedError, RuntimeError, OSError, EOFError):
         raise FileRejected("XLSX_ARCHIVE") from None
     if not REQUIRED_PARTS.issubset(parts):
         raise FileRejected("XLSX_REQUIRED_PART")
@@ -534,7 +535,77 @@ def _shared_strings(parts: dict[str, bytes], budget: ParseBudget) -> list[str]:
     return result
 
 
-def _sheet(data: bytes, strings: list[str], budget: ParseBudget) -> list[tuple[str, ...]]:
+def _styles(parts: dict[str, bytes], budget: ParseBudget) -> int:
+    """Only General number formatting is supported, even at style index zero."""
+    if "xl/styles.xml" not in parts:
+        return 1  # OOXML's implicit General style; nonzero references still fail below.
+    parents: list[str] = []
+    groups: dict[str, list[dict[str, str]]] = {
+        "fonts": [],
+        "fills": [],
+        "borders": [],
+        "cellStyleXfs": [],
+        "cellXfs": [],
+    }
+    entry_names = {
+        "fonts": "font",
+        "fills": "fill",
+        "borders": "border",
+        "cellStyleXfs": "xf",
+        "cellXfs": "xf",
+    }
+    counts: dict[str, int] = {}
+    for event, element in _xml_events(parts["xl/styles.xml"], "xl/styles.xml", budget):
+        if not element.tag.startswith("{" + SHEET_NS + "}"):
+            raise FileRejected("XLSX_STYLE_NAMESPACE")
+        name = _local(element.tag)
+        if event == "start":
+            if not parents and name != "styleSheet":
+                raise FileRejected("XLSX_STYLE_STRUCTURE")
+            if name == "numFmt":
+                raise FileRejected("UNSUPPORTED_CELL_FORMAT")
+            if name == "xf" and element.get("numFmtId", "0") != "0":
+                raise FileRejected("UNSUPPORTED_CELL_FORMAT")
+            if name in groups:
+                if parents != ["styleSheet"] or name in counts:
+                    raise FileRejected("XLSX_STYLE_STRUCTURE")
+                value = element.get("count")
+                if value is not None and re.fullmatch(r"(0|[1-9][0-9]{0,2})", value) is None:
+                    raise FileRejected("XLSX_STYLE_LIMIT")
+                counts[name] = int(value) if value is not None else -1
+            elif parents and parents[-1] in groups:
+                parent = parents[-1]
+                if name != entry_names[parent] or len(groups[parent]) >= 128:
+                    raise FileRejected("XLSX_STYLE_STRUCTURE")
+                groups[parent].append(dict(element.attrib))
+            parents.append(name)
+        else:
+            if not parents or parents.pop() != name:
+                raise FileRejected("XLSX_STYLE_STRUCTURE")
+    for name, declared in counts.items():
+        if declared != -1 and declared != len(groups[name]):
+            raise FileRejected("XLSX_STYLE_REFERENCE")
+    if not groups["cellXfs"]:
+        raise FileRejected("XLSX_STYLE_STRUCTURE")
+    for group in ("cellStyleXfs", "cellXfs"):
+        for attrs in groups[group]:
+            for attribute, target in (
+                ("fontId", "fonts"),
+                ("fillId", "fills"),
+                ("borderId", "borders"),
+                ("xfId", "cellStyleXfs"),
+            ):
+                value = attrs.get(attribute, "0")
+                if re.fullmatch(r"(0|[1-9][0-9]{0,2})", value) is None or int(value) >= max(
+                    1, len(groups[target])
+                ):
+                    raise FileRejected("XLSX_STYLE_REFERENCE")
+    return len(groups["cellXfs"])
+
+
+def _sheet(
+    data: bytes, strings: list[str], styles: int, budget: ParseBudget
+) -> list[tuple[str, ...]]:
     result: list[tuple[str, ...]] = []
     cells: dict[int, str] = {}
     row_number = 0
@@ -588,6 +659,9 @@ def _sheet(data: bytes, strings: list[str], budget: ParseBudget) -> list[tuple[s
             if column in cells:
                 raise FileRejected("CELL_REFERENCE")
             kind = element.get("t", "n")
+            style = element.get("s", "0")
+            if re.fullmatch(r"(0|[1-9][0-9]{0,2})", style) is None or int(style) >= styles:
+                raise FileRejected("XLSX_STYLE_REFERENCE")
             values = [child.text or "" for child in element if _local(child.tag) == "v"]
             if len(values) > 1:
                 raise FileRejected("CELL_VALUE")
@@ -607,10 +681,16 @@ def _sheet(data: bytes, strings: list[str], budget: ParseBudget) -> list[tuple[s
                 if not 0 <= index < len(strings):
                     raise FileRejected("SHARED_STRING_INDEX")
                 value = strings[index]
-            elif kind not in ("n", "str") or element.get("s", "0") != "0":
+            elif kind not in ("n", "str"):
                 raise FileRejected("UNSUPPORTED_CELL_FORMAT")
             elif any(_local(child.tag) == "is" for child in element):
                 raise FileRejected("CELL_VALUE")
+            if (
+                kind == "n"
+                and values
+                and re.fullmatch(r"(0|[1-9][0-9]{0,13})(\.[0-9]{1,6})?", value) is None
+            ):
+                raise FileRejected("INVALID_NUMERIC_CELL")
             cells[column] = _cell(value)
             element.clear()
         elif event == "end" and tag == "row":
@@ -634,7 +714,8 @@ def parse_file(
     parts = _archive(data, budget)
     _metadata(parts, budget)
     strings = _shared_strings(parts, budget)
-    return _table(_sheet(parts["xl/worksheets/sheet1.xml"], strings, budget), data)
+    styles = _styles(parts, budget)
+    return _table(_sheet(parts["xl/worksheets/sheet1.xml"], strings, styles, budget), data)
 
 
 def quality_preview(

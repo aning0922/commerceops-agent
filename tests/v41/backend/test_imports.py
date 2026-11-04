@@ -2,6 +2,7 @@
 
 import base64
 import io
+import struct
 import time
 import zipfile
 from xml.sax.saxutils import escape
@@ -101,6 +102,79 @@ def test_actual_xlsx_shared_string_and_decimal_cells() -> None:
         .replace('<c r="C2" t="inlineStr"><is><t>0.10</t></is></c>', '<c r="C2"><v>0.10</v></c>')
     )
     assert quality_preview(parse_file(archive(parts), "xlsx"), MAPPING, "TWD").state == "READY"
+
+
+def add_styles(parts: dict[str, str], formats: tuple[int, ...]) -> None:
+    xfs = "".join(f'<xf numFmtId="{number}"/>' for number in formats)
+    parts["xl/styles.xml"] = (
+        f'<styleSheet xmlns="{NS}"><cellXfs count="{len(formats)}">{xfs}</cellXfs></styleSheet>'
+    )
+    parts["xl/_rels/workbook.xml.rels"] = parts["xl/_rels/workbook.xml.rels"].replace(
+        "</Relationships>",
+        f'<Relationship Id="style" Type="{DOC}/styles" Target="styles.xml"/></Relationships>',
+    )
+
+
+@pytest.mark.parametrize("number", [14, 9, 165])
+def test_style_zero_is_not_assumed_general(number: int) -> None:
+    parts = xlsx_parts()
+    add_styles(parts, (number,))
+    parts["xl/worksheets/sheet1.xml"] = parts["xl/worksheets/sheet1.xml"].replace(
+        '<c r="C2" t="inlineStr"><is><t>0.10</t></is></c>', '<c r="C2" s="0"><v>45200</v></c>'
+    )
+    with pytest.raises(FileRejected, match="UNSUPPORTED_CELL_FORMAT"):
+        parse_file(archive(parts), "xlsx")
+
+
+def test_general_style_references_and_numeric_lexical_validation() -> None:
+    parts = xlsx_parts()
+    add_styles(parts, (0, 0))
+    parts["xl/worksheets/sheet1.xml"] = parts["xl/worksheets/sheet1.xml"].replace(
+        '<c r="C2" t="inlineStr"><is><t>0.10</t></is></c>', '<c r="C2" s="1"><v>0.10</v></c>'
+    )
+    data = archive(parts, compression=zipfile.ZIP_DEFLATED)
+    assert quality_preview(parse_file(data, "xlsx"), MAPPING, "TWD").products[0].price == "0.1"
+    for value in ("NEW-1", "1e2", "NaN", "1.0000001"):
+        invalid = dict(parts)
+        invalid["xl/worksheets/sheet1.xml"] = invalid["xl/worksheets/sheet1.xml"].replace(
+            '<c r="A2" t="inlineStr"><is><t>NEW-1</t></is></c>', f'<c r="A2"><v>{value}</v></c>'
+        )
+        with pytest.raises(FileRejected, match="INVALID_NUMERIC_CELL"):
+            parse_file(archive(invalid), "xlsx")
+    invalid = dict(parts)
+    invalid["xl/worksheets/sheet1.xml"] = invalid["xl/worksheets/sheet1.xml"].replace(
+        'r="C2" s="1"', 'r="C2" s="2"'
+    )
+    with pytest.raises(FileRejected, match="XLSX_STYLE_REFERENCE"):
+        parse_file(archive(invalid), "xlsx")
+    invalid = dict(parts)
+    invalid["xl/styles.xml"] = invalid["xl/styles.xml"].replace(
+        '<xf numFmtId="0"/>', '<xf numFmtId="0" fontId="4"/>', 1
+    )
+    with pytest.raises(FileRejected, match="XLSX_STYLE_REFERENCE"):
+        parse_file(archive(invalid), "xlsx")
+
+
+@pytest.mark.parametrize("corruption", ["deflate", "crc", "truncated"])
+def test_bad_compression_and_crc_are_fixed_file_rejections(corruption: str) -> None:
+    data = archive(xlsx_parts(), compression=zipfile.ZIP_DEFLATED)
+    with zipfile.ZipFile(io.BytesIO(data)) as container:
+        info = container.getinfo("xl/worksheets/sheet1.xml")
+        name_size, extra_size = struct.unpack_from("<HH", data, info.header_offset + 26)
+        start = info.header_offset + 30 + name_size + extra_size
+    broken = bytearray(data)
+    if corruption == "deflate":
+        broken[start] = (
+            broken[start] & 0xF8
+        ) | 7  # Reserved DEFLATE BTYPE, preserving the directory.
+    elif corruption == "crc":
+        offset = data.find(b"PK\x01\x02")
+        broken[offset + 16] ^= 1
+    else:
+        del broken[-5:]
+    with pytest.raises(FileRejected, match="XLSX_ARCHIVE") as caught:
+        parse_file(bytes(broken), "xlsx")
+    assert caught.value.__suppress_context__ is True or corruption == "truncated"
 
 
 @pytest.mark.parametrize("cell", ["=1+1", "+1", "-1", "@SUM(A1)", "  =HYPERLINK()"])
