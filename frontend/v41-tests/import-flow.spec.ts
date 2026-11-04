@@ -54,6 +54,8 @@ for(const format of ['csv','xlsx'] as const)test(`UI_FIXTURE: ${format} discover
  await expect(page.getByRole('button',{name:'准备确认导入'})).toBeEnabled();await page.getByRole('button',{name:'准备确认导入'}).click();await expect(page.getByRole('button',{name:'确认导入',exact:true})).toBeVisible();
  await input.setInputFiles({name:`changed.${format}`,mimeType:'application/octet-stream',buffer:Buffer.from('changed')});await expect(page.getByRole('button',{name:'确认导入',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'准备确认导入'})).toBeDisabled();expect(confirmCount).toBe(0);expect(await references()).toEqual(saved);
  if(format==='csv')await input.setInputFiles({name:'sample.csv',mimeType:'text/csv',buffer:Buffer.from('sku,title,price,currency\nSKU-1,Demo,12,TWD\n')});else await input.setInputFiles(fileURLToPath(new URL('./fixtures/sample.xlsx',import.meta.url)));
+ await expect(page.getByRole('button',{name:'准备确认导入'})).toBeEnabled();
+ await page.reload();await page.getByRole('combobox',{name:'店铺',exact:true}).selectOption(id);await page.getByRole('button',{name:'读取已保存预览'}).click();await expect(page.getByText('当前未选择本地文件；确认将使用已保存的预览。')).toBeVisible();expect(await references()).toEqual(saved);
  await expect(page.getByRole('button',{name:'准备确认导入'})).toBeEnabled();await page.getByRole('button',{name:'准备确认导入'}).click();await page.getByRole('button',{name:'确认导入',exact:true}).click();
  await expect(page.getByText(/导入未确认或结果未知/)).toBeVisible();await page.getByRole('button',{name:'核对原业务操作'}).click();await expect(page.getByText('已核对原导入回执和来源。')).toBeVisible();expect(previewCount).toBe(2);expect(confirmCount).toBe(1);expect(lookupCount).toBe(1);
 });
