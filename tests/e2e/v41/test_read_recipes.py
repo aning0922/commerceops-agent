@@ -9,11 +9,12 @@ from typing import Any, cast
 
 import pytest
 
-from .http_recipes import ROUTES, Business
+from .http_recipes import ROUTES, Business, read_original_job
 from .process import ROOT
 from .read_recipes import (
     PRODUCT_COLUMNS,
     all_pages,
+    assert_expected_source,
     assert_export,
     assert_read_context,
     expected_drill,
@@ -214,3 +215,47 @@ def test_drill_membership_distinguishes_created_paid_unknown_refund_and_low_stoc
     assert safe_cell(" @formula") == "' @formula"
     with pytest.raises(AssertionError):
         safe_cell("tab\tvalue")
+
+
+@pytest.mark.parametrize("imported", [0, 1])
+def test_uniform_wrong_source_mode_cannot_pass_independent_source_oracle(imported: int) -> None:
+    expected = "demo_mixed" if imported else "demo_fixture"
+    data = {"source": {"fixture_digest": "a" * 64, "data_mode": expected}}
+    assert_expected_source(data, "a" * 64, imported)
+    # Agreement between responses cannot replace the independent source expectation.
+    data["source"]["data_mode"] = "demo_fixture" if imported else "demo_mixed"
+    with pytest.raises(AssertionError, match="WRONG_EFFECTIVE_SOURCE"):
+        assert_expected_source(data, "a" * 64, imported)
+
+
+def test_original_job_is_really_read_with_original_id_before_confirmation() -> None:
+    from types import SimpleNamespace
+
+    job = {
+        "import_job_id": "original-job",
+        "version": 2,
+        "data_revision": "same",
+        "parser_version": "v41-parser-1",
+        "import_schema_version": "v41-import-1",
+    }
+    preview: dict[str, Any] = {
+        "job": job,
+        "state": "READY",
+        "row_count": 1,
+        "file_digest": "a" * 64,
+    }
+    calls: list[tuple[str, dict[str, str]]] = []
+    observed = copy.deepcopy(preview)
+
+    def call(name: str, *, ids: dict[str, str]) -> dict[str, Any]:
+        calls.append((name, ids))
+        return {"data": observed}
+
+    business = cast(Business, SimpleNamespace(call=call))
+    assert read_original_job(business, preview) == job
+    assert calls == [("job", {"import_job_id": "original-job"})]
+    for field in ("version", "data_revision", "parser_version", "import_schema_version"):
+        observed["job"][field] = "drift"
+        with pytest.raises(AssertionError, match="JOB_GET_PREVIEW"):
+            read_original_job(business, preview)
+        observed = copy.deepcopy(preview)

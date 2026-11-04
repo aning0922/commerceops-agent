@@ -381,6 +381,13 @@ def assert_import_receipt(
         raise AssertionError("V41_IMPORT_RECEIPT_JOB_VERSION_REVISION_MISMATCH")
 
 
+def read_original_job(business: Business, preview: dict[str, Any]) -> dict[str, Any]:
+    current = business.call("job", ids={"import_job_id": preview["job"]["import_job_id"]})["data"]
+    if current != preview:
+        raise AssertionError("V41_JOB_GET_PREVIEW_VERSION_SOURCE_MISMATCH")
+    return dict(current["job"])
+
+
 def import_flow(business: Business, kind: str) -> None:
     before = business.call("products")["data"]
     original_counts = business.facts()
@@ -402,7 +409,7 @@ def import_flow(business: Business, kind: str) -> None:
     counts = business.facts()
     if counts["v41_import_products"] != original_counts["v41_import_products"]:
         raise AssertionError("V41_PREVIEW_WROTE_PRODUCT")
-    job = preview["job"]
+    job = read_original_job(business, preview)
     current_revision = business.call("products")["data"]["snapshot"]["data_revision"]
     confirm = business.write(
         current_revision,

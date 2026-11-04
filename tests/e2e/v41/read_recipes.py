@@ -213,6 +213,14 @@ def assert_read_context(
         raise AssertionError("V41_READ_CONTEXT_RESOURCE_OR_METRICS_DRIFT")
 
 
+def assert_expected_source(snapshot: dict[str, Any], fixture_digest: str, imported: int) -> None:
+    source = snapshot["source"]
+    if source["fixture_digest"] != fixture_digest:
+        raise AssertionError("V41_KPI_SEED_DIGEST_DRIFT")
+    if source["data_mode"] != ("demo_mixed" if imported else "demo_fixture"):
+        raise AssertionError("V41_KPI_WRONG_EFFECTIVE_SOURCE")
+
+
 def readback_shop(business: "Business", *, imported: int = 0, golden: bool = True) -> None:
     from commerceops.application.v4_demo.seed_contract import generate_seed
 
@@ -253,8 +261,7 @@ def readback_shop(business: "Business", *, imported: int = 0, golden: bool = Tru
                 imported=imported,
             )
             assert_metrics(dashboard, expected)
-            if dashboard["snapshot"]["source"]["fixture_digest"] != seed.manifest.content_digest:
-                raise AssertionError("V41_KPI_SEED_DIGEST_DRIFT")
+            assert_expected_source(dashboard["snapshot"], seed.manifest.content_digest, imported)
         if [r["day"] for r in dashboard["trend"]] != [
             (end - timedelta(days=days) + timedelta(days=n)).isoformat() for n in range(days)
         ]:
