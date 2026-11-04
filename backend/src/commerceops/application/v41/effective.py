@@ -43,6 +43,13 @@ class ImportedProduct(Contract):
     product: dto.NormalizedProduct
 
 
+class EffectDigest(Contract):
+    kind: Literal["product_tags", "order_fulfillment", "import_confirm"]
+    object_id: UUID
+    version: Annotated[int, Field(ge=1)]
+    payload_digest: Digest
+
+
 class EffectiveView(Contract):
     scope: ViewScope
     source: dto.DatasetSource
@@ -52,10 +59,17 @@ class EffectiveView(Contract):
     latest_business_day: date
     products: tuple[dto.Product, ...] = Field(max_length=508)
     orders: tuple[dto.Order, ...] = Field(max_length=12)
+    effects: tuple[EffectDigest, ...] = Field(max_length=1020)
 
     def revision(self) -> str:
         # Identity generation/read clock deliberately do not replace business revision.
-        return facts_hash(self.model_dump(mode="json"))
+        return facts_hash(
+            dict(
+                fixture_digest=self.source.fixture_digest,
+                scope=self.scope.model_dump(mode="json"),
+                effects=[row.model_dump(mode="json") for row in self.effects],
+            )
+        )
 
 
 def build_view(
@@ -226,6 +240,40 @@ def build_view(
         latest_business_day=fixture.latest_business_day,
         products=tuple(sorted(products.values(), key=lambda item: item.product_id)),
         orders=tuple(sorted(orders, key=lambda item: item.order_id)),
+        effects=tuple(
+            sorted(
+                (
+                    *(
+                        EffectDigest(
+                            kind="product_tags",
+                            object_id=item.product_id,
+                            version=item.version,
+                            payload_digest=facts_hash(item.model_dump(mode="json")),
+                        )
+                        for item in tags
+                    ),
+                    *(
+                        EffectDigest(
+                            kind="order_fulfillment",
+                            object_id=item.order_id,
+                            version=item.version,
+                            payload_digest=facts_hash(item.model_dump(mode="json")),
+                        )
+                        for item in fulfillments
+                    ),
+                    *(
+                        EffectDigest(
+                            kind="import_confirm",
+                            object_id=item.product_id,
+                            version=1,
+                            payload_digest=facts_hash(item.model_dump(mode="json")),
+                        )
+                        for item in imports
+                    ),
+                ),
+                key=lambda item: (item.kind, item.object_id),
+            )
+        ),
     )
 
 
