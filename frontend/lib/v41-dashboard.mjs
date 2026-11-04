@@ -29,10 +29,17 @@ export function isSafeDashboard(data) {
 }
 
 // Compare calendar dates, without applying the browser's timezone.
-export function matchesDashboardPeriod(period,days,timezone) {
+/** @param {{from_date:string,to_date:string}|null} range */
+export function matchesDashboardPeriod(period,days,timezone,range=null) {
   if(!period || ![7,14].includes(days) || period.timezone!==timezone ||
      !/^\d{4}-\d{2}-\d{2}$/.test(period.from_date) || !/^\d{4}-\d{2}-\d{2}$/.test(period.to_date)) return false;
   const from=Date.parse(`${period.from_date}T00:00:00Z`),to=Date.parse(`${period.to_date}T00:00:00Z`);
-  return Number.isFinite(from)&&Number.isFinite(to)&&to-from===days*86400000 &&
+  return Number.isFinite(from)&&Number.isFinite(to)&&(range ? period.from_date===range.from_date && period.to_date===range.to_date && to-from>=86400000 && to-from<=90*86400000 : to-from===days*86400000) &&
     new Date(from).toISOString().slice(0,10)===period.from_date && new Date(to).toISOString().slice(0,10)===period.to_date;
+}
+
+export function validDashboardRange(from,to) {
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||!/^\d{4}-\d{2}-\d{2}$/.test(to))return false;
+ const a=Date.parse(`${from}T00:00:00Z`),b=Date.parse(`${to}T00:00:00Z`);
+ return Number.isFinite(a)&&Number.isFinite(b)&&new Date(a).toISOString().slice(0,10)===from&&new Date(b).toISOString().slice(0,10)===to&&b-a>=86400000&&b-a<=90*86400000;
 }

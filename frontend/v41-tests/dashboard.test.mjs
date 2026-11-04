@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {matchesDashboardPeriod,isSafeDashboard} from '../lib/v41-dashboard.mjs';
+import {validDashboardRange,matchesDashboardPeriod,isSafeDashboard} from '../lib/v41-dashboard.mjs';
 function sample(){return {model_mode:'not_used',snapshot:{source:{data_mode:'demo_fixture',fixture_digest:'same',baseline_snapshot_at:'same',uploads:[]}},metrics:[{metric:'paid_order_amount',completeness:'PARTIAL',value:null,known_value:'2140',unit:'money',currency:'TWD',reason_codes:['UNKNOWN_PAYMENT_TIME']}],trend:[]};}
 test('partial metrics remain unknown and invalid semantic combinations are rejected',()=>{
  const value=sample();assert.equal(isSafeDashboard(value),true);
@@ -22,4 +22,12 @@ test('dashboard response period must match selected days and authorized shop tim
  assert.equal(matchesDashboardPeriod(p,14,'Asia/Taipei'),false);
  assert.equal(matchesDashboardPeriod(p,7,'Asia/Shanghai'),false);
  assert.equal(matchesDashboardPeriod({...p,from_date:'2026-02-30'},7,'Asia/Taipei'),false);
+});
+
+test('custom dashboard ranges validate calendar days and returned bounds',()=>{
+ assert.equal(validDashboardRange('2026-10-01','2026-11-02'),true);
+ for(const [from,to] of [['2026-02-30','2026-03-02'],['2026-01-01','2026-05-01'],['2026-10-01','2026-10-01']])assert.equal(validDashboardRange(from,to),false);
+ const period={from_date:'2026-10-01',to_date:'2026-11-02',timezone:'Asia/Taipei'},range={from_date:'2026-10-01',to_date:'2026-11-02'};
+ assert.equal(matchesDashboardPeriod(period,7,'Asia/Taipei',range),true);
+ assert.equal(matchesDashboardPeriod({...period,to_date:'2026-11-01'},7,'Asia/Taipei',range),false);
 });
