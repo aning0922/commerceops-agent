@@ -8,8 +8,8 @@
     "V41-02": "implemented_local_http_accepted_browser_full_pending",
     "V41-03": "implemented_local_http_accepted_browser_full_pending",
     "V41-04": "implemented_local_http_accepted_browser_full_pending",
-    "V41-05": "batch_tags_and_real_business_mobile_implementing",
-    "V41-06": "import_http_pg_business_pass_mobile_mapping_pending"
+    "V41-05": "batch_and_real_mobile_source_accepted_final_runtime_pending",
+    "V41-06": "import_http_pg_accepted_mobile_source_accepted_final_runtime_pending"
   },
   "started_utc": "2026-11-04T00:35:24.287533+00:00",
   "implementation_release": "84db1ba",
@@ -310,16 +310,15 @@
   },
   "remote_checkpoint": {
     "branch": "codex/v41-control-20261104",
-    "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
-    "base": "bec4291636f31218bee7e9b6fca1211680cfc940",
+    "source": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
+    "base": "5acf03ae30807c160aa110035127a4e308e95da9",
     "raw_native_exit": 0,
     "raw_findings": 0,
     "blocking_findings": 0,
     "push_native_exit": 0,
-    "remote_head": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+    "remote_head": "c9fd4b9ea388665efabbb9a8447534eaf50e4ba9",
     "actions_runs": [],
-    "functional_status": "REVIEWED_EXACT_CURRENT_FACTS_CORRELATION_NEW_BROWSER_PENDING",
-    "batch": "r40"
+    "functional_status": "MOBILE_AND_BATCH_SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING"
   },
   "full_audit": {
     "status": "exact_development_source_scan_pass_not_final_stage",
@@ -362,6 +361,11 @@
     "source_accepted_business_browser": "538665aebac7064c3d9b77bcbf65b4879b864123",
     "native_source": "651_SOURCE_ACCEPTED_ACTUAL_CAPTURE_NOT_RUN",
     "full_pg": "accepted_exact_e7_full_pair_773",
-    "real_browser": "r8_business_pass_shell_native_timeout_closed"
+    "real_browser": "r8_business_pass_shell_native_timeout_closed",
+    "combined_candidate": {
+      "source": "fbb29a429b7f680328ab4451a717adb3ad2d99c1",
+      "tree": "ef6d8230ac4b58401af2771d722064aadacc5eed",
+      "status": "SOURCE_REVIEWED_RUNTIME_PENDING"
+    }
   }
 }

@@ -879,6 +879,20 @@
           "sha256": "d132f7b46da2fc75ed23bd4630b5658ee5bd34fe3a6fe3b39582d111ae751a4a"
         }
       ]
+    },
+    {
+      "case": "ui-fixture-batch-r1",
+      "source": "5acf03ae30807c160aa110035127a4e308e95da9",
+      "tree": "9c967e247d24a2acc36f1e4f6d827763e3d13a47",
+      "status": "failed_closed",
+      "receipt": "UI_MOCK_BATCH_R1.json",
+      "stats": {
+        "passed": 1,
+        "failed": 1,
+        "not_run": 31,
+        "flaky": 0,
+        "retries": 0
+      }
     }
   ],
   "mock_ui": {
@@ -909,14 +923,14 @@
     "resolution_source": "9b6fd6afd2fa3dcc9a1eddbe3a514506881520ad",
     "verified_in_case": "pg22-root-r4"
   },
-  "current_failure": "Native actual r8 timed out before first PNG; module locator defect proven from source but original exact await UNKNOWN",
+  "current_failure": "Original Mock r1 synchronization failure and browser r8 Native timeout preserved; reviewed source fixes integrated at fbb29a4; fresh runtime pending",
   "additional6_review": "3249e74a66f3afe105270dc69a128e03d4140379",
   "source_tiers": "22 at dc22 and 6 at e54 are separate runs; no same-SHA full28 claim",
   "natural_24h_gc": "NOT_RUN_SYNTHETIC_OWNED_FIXTURE_ONLY",
   "real_http_review": "ab278a4a775305758a749fd755b60a9607a005ef",
   "real_browser": "partial",
   "native200": "NOT_RUN",
-  "native_source_review": "a3a823236255ae8b06c0b06595a35081cbb59270",
+  "native_source_review": "b23d47ff35daa04353e465c282031f8678f721f9",
   "browser_caller": "source accepted at b9ecd4ee382792662db9c795cdb6c629fd7efeeb",
   "remaining_browser_steps": "actual hidden, native 200 capture and visual review, delayed acknowledgement",
   "real_browser_partial_review": "46eacbf592982036f5e979c95171aa37f89dd831",
@@ -933,5 +947,5 @@
   "browser_no_defaults_c_experiment": "four hidden observations then unexpected normal at 2000ms; experiment failed and closed",
   "full_pg_pair_receipt": "PG_PAIR_FINAL.json",
   "full_pg_pair_review": "7fc12c2125f931293addff379ab9302bc5f01be8",
-  "remaining_product_steps": "current-page batch labels and real business mobile gate per BATCH_AND_MOBILE_ADDENDUM; Native/lateACK and final evidence"
+  "remaining_product_steps": "Product batch/mobile/Native implementation and source review accepted; final combination static, Mock33, real browser mobile/Native/lateACK, visual and receipts pending"
 }
