@@ -492,14 +492,14 @@
         "title": "BusinessEnvelope[Page[Product]]",
         "type": "object"
       },
-      "BusinessEnvelope_Page_Union_Order__Product__RefundEvent___": {
+      "BusinessEnvelope_Page_Union_Order__Product__RefundReference___": {
         "additionalProperties": false,
         "properties": {
           "context": {
             "$ref": "#/$defs/Context"
           },
           "data": {
-            "$ref": "#/$defs/Page_Union_Order__Product__RefundEvent__"
+            "$ref": "#/$defs/Page_Union_Order__Product__RefundReference__"
           },
           "schema_version": {
             "const": "v4-business-v1",
@@ -534,7 +534,7 @@
           "context",
           "data"
         ],
-        "title": "BusinessEnvelope[Page[Union[Order, Product, RefundEvent]]]",
+        "title": "BusinessEnvelope[Page[Union[Order, Product, RefundReference]]]",
         "type": "object"
       },
       "BusinessEnvelope_PreviewLookup_": {
@@ -2043,7 +2043,7 @@
         "title": "Page[Product]",
         "type": "object"
       },
-      "Page_Union_Order__Product__RefundEvent__": {
+      "Page_Union_Order__Product__RefundReference__": {
         "additionalProperties": false,
         "properties": {
           "items": {
@@ -2056,7 +2056,7 @@
                   "$ref": "#/$defs/Product"
                 },
                 {
-                  "$ref": "#/$defs/RefundEvent"
+                  "$ref": "#/$defs/RefundReference"
                 }
               ]
             },
@@ -2091,7 +2091,7 @@
           "total",
           "next_cursor"
         ],
-        "title": "Page[Union[Order, Product, RefundEvent]]",
+        "title": "Page[Union[Order, Product, RefundReference]]",
         "type": "object"
       },
       "Period": {
@@ -2601,6 +2601,64 @@
         "title": "RefundEvent",
         "type": "object"
       },
+      "RefundReference": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "pattern": "^(0|[1-9][0-9]{0,19})(\\.[0-9]{0,5}[1-9])?$",
+            "title": "Amount",
+            "type": "string"
+          },
+          "currency": {
+            "enum": [
+              "TWD",
+              "CNY"
+            ],
+            "title": "Currency",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "payment_gateway_status": {
+            "const": "UNKNOWN",
+            "default": "UNKNOWN",
+            "title": "Payment Gateway Status",
+            "type": "string"
+          },
+          "quantity": {
+            "default": null,
+            "title": "Quantity",
+            "type": "null"
+          },
+          "refund_id": {
+            "format": "uuid",
+            "title": "Refund Id",
+            "type": "string"
+          },
+          "restocked": {
+            "default": null,
+            "title": "Restocked",
+            "type": "null"
+          }
+        },
+        "required": [
+          "refund_id",
+          "occurred_at",
+          "amount",
+          "currency",
+          "order_id"
+        ],
+        "title": "RefundReference",
+        "type": "object"
+      },
       "RuleInsight": {
         "additionalProperties": false,
         "properties": {
@@ -2992,7 +3050,7 @@
         "$ref": "#/$defs/DrilldownQuery"
       },
       "response": {
-        "$ref": "#/$defs/BusinessEnvelope_Page_Union_Order__Product__RefundEvent___"
+        "$ref": "#/$defs/BusinessEnvelope_Page_Union_Order__Product__RefundReference___"
       }
     },
     {

@@ -20,7 +20,7 @@ def contract() -> dict[str, Any]:
             "GET",
             "/api/v4/dashboard/drilldown",
             dto.DrilldownQuery,
-            dto.BusinessEnvelope[dto.Page[dto.Order | dto.Product | dto.RefundEvent]],
+            dto.BusinessEnvelope[dto.Page[dto.Order | dto.Product | dto.RefundReference]],
         ),
         ("GET", "/api/v4/products", dto.ProductQuery, dto.BusinessEnvelope[dto.Page[dto.Product]]),
         (

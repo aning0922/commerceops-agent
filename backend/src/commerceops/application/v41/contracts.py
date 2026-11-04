@@ -268,6 +268,10 @@ class RefundEvent(Contract):
     restocked: None = None
 
 
+class RefundReference(RefundEvent):
+    order_id: UUID
+
+
 class Order(Contract):
     order_id: UUID
     created_at: Timestamp
