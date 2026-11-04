@@ -78,6 +78,8 @@ test('UI_MOCK batch: two selected rows use distinct durable keys and sequential 
 
 for(const mode of ['unknown','conflict'] as const)test(`UI_MOCK batch: first ${mode} stops the second row and retains its original pending key`,async({page})=>{
  const f=await setup(page,mode),dialog=await selectTwo(page);await dialog.getByLabel('标签（逗号分隔，最多 8 项）').fill('替换标签');await dialog.getByRole('button',{name:'确认逐项替换'}).click();
+ // Dispatch already publishes pending; observe POST and completed UI write lock before final assertions.
+ await f.sent.promise;await expect(dialog.getByRole('button',{name:'取消',exact:true})).toBeVisible();
  await expect(dialog.getByRole('status',{name:'批量标签进度'})).toHaveText(mode==='unknown'?'已核成功 0 · 明确拒绝 0 · 待核对 1 · 未发送 1':'已核成功 0 · 明确拒绝 1 · 待核对 0 · 未发送 1');
  expect(f.requests).toHaveLength(1);expect((await f.pending()).request_key).toBe(f.requests[0].request_key);
  await dialog.getByRole('button',{name:'取消',exact:true}).click();await page.getByRole('button',{name:'核对原业务操作',exact:true}).click();
