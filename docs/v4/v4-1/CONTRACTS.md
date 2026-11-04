@@ -1,14 +1,16 @@
 # V4-1 增量实施合同
 
-Root 冻结版本：V41-1b（独审 P2 与导入回执补充）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
+Root 冻结版本：V41-1c（独审 P2、导入回执与当前 key policy）。依据用户完整阶段授权、已批准四合同、API_PLAN / WEB_PLAN / QA_PLAN / REVIEW_PLAN / GATE_PLAN 及 UI_SLICE_01。旧四合同原文和权限 CSV 的归一化回执保留。本文件是本阶段可实施的增量；具体 SQL、DTO 和生成 schema 的代码需精确提交独审，运行证据仍待实测。
 
 ## 1. 已有与新增
 
-V4-0 认证、两店 fixture、四种控制 receipt、旧 overlay 窄权限、M3 单 Worker/Graph 及旧路由是已有能力。V41 不扩旧控制操作枚举、不假装已有 overlay 可业务写。新增经营/商品/订单/导入数据域、六张窄业务表及新 API，均只在演示租户生效，外部 Woo/飞书/模型/embedding 调用为零。完整范围为 V41-01—06；V4-2 不启动。
+V4-0 认证、两店 fixture、四种控制 receipt、旧 overlay 窄权限、M3 单 Worker/Graph 及旧路由是已有能力。V41 不扩旧控制操作枚举、不假装已有 overlay 可业务写。新增经营/商品/订单/导入数据域、六张窄业务表、一张窄安全 policy 表及新 API，均只在演示租户生效，外部 Woo/飞书/模型/embedding 调用为零。完整范围为 V41-01—06；V4-2 不启动。
 
 ## 2. 领域、权限与事务
 
 采纳 API_PLAN 六表：v41_product_tags、v41_order_fulfillments、v41_import_jobs、v41_import_products、v41_action_receipts、v41_action_events；版本串行 0024→0025，不修改旧迁移。tenant/shop/owner-session/receipt 的复合关联，来源不可变、版本/状态/金额/效果数约束以及低权固定 apply 函数由唯一 API owner实现，必须 SQL 独审后才准入真实 PG。不能仅靠 Python 检查而让低权直写或直调绕过。
+
+新增第七张 singleton business.v41_security_policy，只存当前 active key_version、可信 config_fingerprint、单调 policy_generation 和 DB activated_at。仅 owner/migration 初始化或原子轮换可写，PUBLIC/app 无 DML；未激活缺行、配置 fingerprint 不一致及同 key_version 换 secret 必须拒绝，调用者传入的 expected key 不是权威。Python V41 guard 与 SQL actor 都核 DB 已激活 policy，磁盘更换配置不等于激活。owner 初始化在 API 启动前完成；轮换先以稳定顺序锁所有 owned demo tenant/session，再更新 policy 并永久撤销旧 demo bound sessions，同事务，不能修改旧 M3 非 demo 身份。actor 读取 policy 的共享锁保持到提交，credential/identity/principal/permission 参与路径必须提供统一锁图与真实并发证明，不能以单独重复 SELECT 代替线性化。owner GC 不删除 singleton，current-head 精确新增集合改为七表；迁移后初始无 policy，owner 激活后恰一行，原固定历史升级段不改。此增量关闭方案层 S01，实际 SQL、低权拒绝、旧会话两行同 key 而 policy 已切换及并发轮换/撤权仍待独审与真实测试。
 
 完整沿用当前 DemoSessions.resolve_locked、旧 bound WebSession 及 credential/identity/principal/auth_version/current grant核验。新 business API 不能靠 URL 前缀默认受旧 demo middleware 保护，需显式安全边界。单店 read/export/read-context 允许当前 operator 或 approver grant，tags/fulfillment/import 要当前 operator；restricted_admin 无默认业务读写。所有对象、cursor、job、receipt均先 current shop/tenant 归属和权限，不把 UUID 当凭据。客户端不得提供 role/tenant/principal/auth_version/server_time 权威字段。
 
