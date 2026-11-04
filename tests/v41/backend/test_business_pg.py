@@ -955,3 +955,64 @@ def test_private_verifier_hmac_goldens_and_forged_writable_binding_no_admission(
                 (original["csrf_digest"], bound),
             )
     assert page(store, token, shop).total == 8
+
+
+@pytest.mark.parametrize(
+    "table", ["web_credentials", "principal_shop_scopes", "principal_role_shop_grants"]
+)
+def test_demo_binding_reassignment_denied_before_original_new_principal_trigger(
+    business: tuple[DemoPG, BusinessStore],
+    table: str,
+) -> None:
+    demo, store = business
+    token, _, shop = session(demo)
+    with connect(demo.owner) as owner:
+        personas = owner.execute(
+            "SELECT * FROM business.v4_demo_personas WHERE tenant_id="
+            "(SELECT tenant_id FROM business.v4_demo_sessions WHERE token_hash=%s)",
+            (hashlib.sha256(token.encode()).hexdigest(),),
+        ).fetchall()
+        original = next(p for p in personas if p["persona_id"] == "operator")
+        target = next(p for p in personas if p["persona_id"] == "approver")
+        before = owner.execute(
+            "SELECT id,auth_version FROM business.principals WHERE organization_id=%s ORDER BY id",
+            (original["organization_id"],),
+        ).fetchall()
+        trigger = owner.execute(
+            "SELECT tgname FROM pg_trigger WHERE tgrelid=%s::regclass "
+            "AND NOT tgisinternal AND tgname IN('a_v41_demo_binding','p3_scope_principal_lock') "
+            "ORDER BY tgname",
+            ("business." + table,),
+        ).fetchall()
+        assert [r["tgname"] for r in trigger] == ["a_v41_demo_binding", "p3_scope_principal_lock"]
+    where = "principal_id=%s" + (" AND shop_id=%s" if table != "web_credentials" else "")
+    where += " AND role='operator'" if table == "principal_role_shop_grants" else ""
+    values = (
+        (original["principal_id"], shop)
+        if table != "web_credentials"
+        else (original["principal_id"],)
+    )
+    statement = sql.SQL("UPDATE {} SET principal_id=%s {} WHERE {}").format(
+        sql.Identifier("business", table),
+        sql.SQL(",identity_id=%s" if table == "web_credentials" else ""),
+        sql.SQL(where),
+    )
+    assigned = (
+        (target["principal_id"], target["identity_id"])
+        if table == "web_credentials"
+        else (target["principal_id"],)
+    )
+    with (
+        pytest.raises(psycopg.errors.CheckViolation, match="V41_DEMO_BINDING_IMMUTABLE"),
+        connect(demo.owner) as owner,
+    ):
+        owner.execute(statement, assigned + values)
+    with pytest.raises(psycopg.errors.InsufficientPrivilege), connect(demo.app) as app:
+        app.execute(statement, assigned + values)
+    with connect(demo.owner) as owner:
+        after = owner.execute(
+            "SELECT id,auth_version FROM business.principals WHERE organization_id=%s ORDER BY id",
+            (original["organization_id"],),
+        ).fetchall()
+        assert after == before
+    assert page(store, token, shop).total == 8
