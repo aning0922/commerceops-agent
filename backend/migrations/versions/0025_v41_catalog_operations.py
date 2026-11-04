@@ -113,7 +113,7 @@ CREATE TABLE business.v41_import_jobs (
  CHECK(retain_until>expires_at),
  CHECK((parse_state='STOPPED')=(parse_slot IS NULL)),
  CHECK(stop_proof IS NULL OR jsonb_typeof(stop_proof)='object'),
- CHECK(parse_state<>'STOPPED' OR coalesce(stop_proof @> '{{"reaped":true}}'::jsonb,false)),
+ CHECK(parse_state<>'STOPPED' OR coalesce(stop_proof @> '{{"reaped": true}}'::jsonb,false)),
  CHECK(preview_data IS NULL OR (parse_state='STOPPED'
   AND canonical_preview IS NOT NULL AND normalized_rows IS NOT NULL
   AND canonical_normalized IS NOT NULL
