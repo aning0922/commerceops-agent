@@ -1075,7 +1075,7 @@ BEGIN
    SELECT 1 FROM business.v41_import_jobs child WHERE child.parent_job_id=j.id) AND NOT EXISTS(
    SELECT 1 FROM business.v41_action_receipts r WHERE r.operation='import_confirm'
    AND r.resource_id=j.id);
- IF active-CASE WHEN parent.id IS NULL THEN 0 ELSE 1 END>=3 THEN
+ IF active-(CASE WHEN parent.id IS NULL THEN 0 ELSE 1 END)>=3 THEN
   RAISE EXCEPTION 'LIMIT_EXCEEDED' USING ERRCODE='23514'; END IF;
  IF NOT pg_try_advisory_xact_lock(1446261845,1) OR EXISTS(
    SELECT 1 FROM business.v41_import_jobs j WHERE j.tenant_id=s.tenant_id AND
@@ -1222,7 +1222,7 @@ BEGIN
    SELECT 1 FROM business.v41_import_jobs child WHERE child.parent_job_id=i.id) AND NOT EXISTS(
    SELECT 1 FROM business.v41_action_receipts r WHERE r.operation='import_confirm' AND
   r.resource_id=i.id);
- IF active-CASE WHEN parent.id IS NULL THEN 0 ELSE 1 END>=3 THEN
+ IF active-(CASE WHEN parent.id IS NULL THEN 0 ELSE 1 END)>=3 THEN
   RAISE EXCEPTION 'LIMIT_EXCEEDED' USING ERRCODE='23514'; END IF;
  candidate:=j;
  candidate.preview_data:=data; candidate.normalized_rows:=rows;
