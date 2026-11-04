@@ -604,6 +604,9 @@ def main() -> None:
             if products["snapshot"]["data_revision"] != dashboard["snapshot"]["data_revision"]:
                 raise AssertionError("V41_READS_MIXED_REVISION")
         elif case.scenario == "catalog_orders":
+            from .transaction_recipes import run_probes
+
+            run_probes(business)
             catalog_flow(business)
             from .concurrency_recipes import catalog_concurrency
 

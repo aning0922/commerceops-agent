@@ -50,6 +50,7 @@ def registry(
         "ACK_UNKNOWN",
         "COMMITTED_READBACK",
         "UNKNOWN_READBACK",
+        "SQL_ROLLBACK_VERIFIED",
     }:
         raise ValueError("FIXED_OBSERVATION_STATE_REQUIRED")
     fd = os.open(directory / "subjects.lock", os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)

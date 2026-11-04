@@ -150,3 +150,14 @@ receipt/event/effect与job版本/parse_state/slot/pid/process/proof，不用中�
 的新源码/目录symlink；只明确排除frontend/.next、frontend/node_modules、__pycache__与
 frontend/tsconfig.tsbuildinfo，根.audit/.venv/.tools不作为运行源码目录。普通业务GET要求顶层
 status=OK；receipt/preview_lookup保留合法UNKNOWN语义。纯复现与断言测试不代签浏览器/HTTP实跑。
+
+固定真实SQL探针准备：sql_probes.py只支持binding-stop-attack和forced-action-rollback，必须在
+未来已审API容器内以该新API私配连接实际commerceops_app。当前definition HOLD在读取私配/连DB
+之前拒绝；未运行真实SQL。前者实际尝试改私有binding锚、自选lease reserve与无spawn伪stop，
+任何被接受都FAIL；finally rollback并新事务核原锚/六表恢复，不把任意异常当安全拒绝。后者
+只做固定商品tags action，确认同事务effect/receipt/event各1及延迟约束后主动rollback，再新
+事务核六表、fixture库存金额和私有锚摘要无变化。此故障点不是导入插行中断，后者仍单列未跑。
+transaction_recipes保存新原key/私有输入与实际native/start/end/日志hash，GET原key必须UNKNOWN，
+再追加SQL_ROLLBACK_VERIFIED；末态observer发现这些key持久行即FAIL。无POST/SQL自动重试。
+父亡、活child伪proof、真实wait释放、撤权交错的必需实际见证/失败判据见
+RUNTIME_REQUIRED_WITNESSES.md；它们仍NOT_RUN，需要最终S02/S04 fixture。客户端barrier不代签PG屏障。

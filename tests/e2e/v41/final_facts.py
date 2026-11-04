@@ -79,6 +79,7 @@ def decode_subjects(raw: bytes) -> dict[str, Any]:
                 "ACK_UNKNOWN",
                 "COMMITTED_READBACK",
                 "UNKNOWN_READBACK",
+                "SQL_ROLLBACK_VERIFIED",
             }
             if (
                 not isinstance(history, list)
@@ -231,6 +232,7 @@ def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
                 rows = db.execute(
                     sql.SQL(
                         "SELECT id,preview_key,chain_version,parent_job_id,parse_state,parse_slot,"
+                        "data_revision,parser_version,import_schema_version,job_digest,normalized_digest,"
                         "parse_pid,process_ref,stop_proof,preview_data IS NOT NULL AS published,"
                         "created_at,expires_at FROM business.v41_import_jobs "
                         "WHERE {} AND preview_key=%s"
@@ -239,6 +241,12 @@ def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
                 ).fetchall()
                 if len(rows) > 1:
                     raise ValueError("FINAL_PREVIEW_KEY_NOT_UNIQUE")
+                if "SQL_ROLLBACK_VERIFIED" in attempt["observations"] and rows:
+                    raise ValueError("FINAL_ROLLED_BACK_PREVIEW_PERSISTED")
+                if "COMMITTED_READBACK" in attempt["observations"] and (
+                    not rows or not rows[0]["published"]
+                ):
+                    raise ValueError("FINAL_PUBLISHED_PREVIEW_READBACK_MISSING")
                 actions.append(
                     {
                         "attempt": attempt,
@@ -256,6 +264,8 @@ def collect(db: Any, subjects: dict[str, Any]) -> dict[str, Any]:
                 ).fetchall()
                 if len(rows) > 1:
                     raise ValueError("FINAL_ACTION_KEY_NOT_UNIQUE")
+                if "SQL_ROLLBACK_VERIFIED" in attempt["observations"] and rows:
+                    raise ValueError("FINAL_ROLLED_BACK_ACTION_PERSISTED")
                 if "COMMITTED_READBACK" in attempt["observations"] and not rows:
                     raise ValueError("FINAL_COMMITTED_READBACK_RECEIPT_MISSING")
                 actions.append(
