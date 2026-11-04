@@ -31,6 +31,21 @@ from scripts.vendor_gitleaks_rules import (
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.offline
 
+# Exact author-only increment accepted by SCAN_METADATA_d6fb87b.md; no copy/dir/index grant.
+APPROVED_V41_ADDITIONAL_HISTORY: dict[str, object] = {
+    "rule": "generic-api-key",
+    "path": "docs/v4/acceptance/v4-1/UI_MOCK_R4.json",
+    "source_commit": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1",
+    "reported_line": 41,
+    "end_line": 41,
+    "start_column": 17,
+    "end_column": 96,
+    "exact_span_sha256": "ef2044b08ac81ab8c2608eff2d3eb913e9eb96245d7ac374e57f928035828ecd",
+    "match_sha256": "3cd7e8955b0d42fea60694c8c2de19889f771ce5bf0f7c65febcf6d5d7c40270",
+    "fingerprint": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1:"
+    "docs/v4/acceptance/v4-1/UI_MOCK_R4.json:generic-api-key:41",
+}
+
 
 def git(repo: Path, *arguments: str) -> None:
     subprocess.run(["git", *arguments], cwd=repo, check=True, capture_output=True)
@@ -634,7 +649,17 @@ def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path)
     )
     assert len(secret_scan.APPROVED_TEST_HISTORY) == 20
     assert len(v4_history_findings()) == 13
-    assert len(v4_additional_history_findings()) == 10
+    assert len(v4_additional_history_findings()) == 11
+    old_metadata = json.loads(
+        subprocess.check_output(
+            ["git", "show", "9cd019a32527350fedd9710f2bd9d9a4546fae4a:scripts/gitleaks_rules.json"],
+            cwd=ROOT,
+        )
+    )
+    assert len(old_metadata["v4_additional_historical_findings"]) == 10
+    assert v4_additional_history_findings() == (
+        old_metadata["v4_additional_historical_findings"] + [APPROVED_V41_ADDITIONAL_HISTORY]
+    )
     assert len(v4_preflight_history_findings()) == 109
     reachable = set(
         subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()

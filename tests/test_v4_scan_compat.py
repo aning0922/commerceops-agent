@@ -24,6 +24,70 @@ from scripts.vendor_gitleaks_rules import (
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.offline
 
+ADDITIONAL_HISTORY_FIELD = "v4_additional_historical_findings"
+
+# Exact author-only increment accepted by SCAN_METADATA_d6fb87b.md; no copy/dir/index grant.
+APPROVED_V41_ADDITIONAL_HISTORY: dict[str, object] = {
+    "rule": "generic-api-key",
+    "path": "docs/v4/acceptance/v4-1/UI_MOCK_R4.json",
+    "source_commit": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1",
+    "reported_line": 41,
+    "end_line": 41,
+    "start_column": 17,
+    "end_column": 96,
+    "exact_span_sha256": "ef2044b08ac81ab8c2608eff2d3eb913e9eb96245d7ac374e57f928035828ecd",
+    "match_sha256": "3cd7e8955b0d42fea60694c8c2de19889f771ce5bf0f7c65febcf6d5d7c40270",
+    "fingerprint": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1:"
+    "docs/v4/acceptance/v4-1/UI_MOCK_R4.json:generic-api-key:41",
+}
+
+
+# Fixed objects accepted by SCAN_SIX_ANCHORS_4d6f200 and SCAN_PAGE11_835afa5.
+APPROVED_V41_COPY_ANCHORS: list[dict[str, str]] = [
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/API_EVENTS_CONTRACT.md",
+        "blob": "c0375ea6f87ca3c6c77fdc1ebcb91c258916b7b0",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/evidence/A_EXECUTION_RECEIPT.json",
+        "blob": "6f557ffb294209637a0293f5b310d3477edb6435",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+        "blob": "992581f35dec4fa94b1dc2fdb5ac79a4211909b6",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/reviews/M3_API_INVENTORY.json",
+        "blob": "4120a447bf26812585d40ea81fc156cfdfa7400a",
+    },
+    {
+        "source_commit": "fa96764cf2b8e3ab9adbb579b764f600a7d17e60",
+        "path": "docs/v4/baseline/v4-public-openapi.json",
+        "blob": "58ad090b39b70954065b9613b53a8fe65f19e193",
+    },
+    {
+        "source_commit": "f949781fa0b9958fedeaf3303c4cf6cefdef8322",
+        "path": "frontend/app/v4/[[...path]]/page.tsx",
+        "blob": "6fe538b6de6f6532a8198476a0ca8a2dd9ca05ee",
+    },
+]
+APPROVED_V41_PAGE11_BINDING: dict[str, object] = {
+    "rule": "generic-api-key",
+    "path": "frontend/app/v4/[[...path]]/page.tsx",
+    "source_commit": "f949781fa0b9958fedeaf3303c4cf6cefdef8322",
+    "reported_line": 11,
+    "end_line": 11,
+    "start_column": 43,
+    "end_column": 116,
+    "exact_span_sha256": "87405b72cf4ecad5f2e883918142fa6809f7b0c973fc89881eb429f190a5b64b",
+    "match_sha256": "896d3957535652b65e2eb532731f764c8b1d7f6eafe0bbc90df606658c4b367b",
+    "binding_kind": "copy_only",
+}
+
 
 @cache
 def public_sources() -> dict[str, bytes]:
@@ -395,12 +459,14 @@ def test_preflight_all_exact_snapshots_and_preserved_config(tmp_path: Path) -> N
     )
     current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     assert current["exceptions"][:58] == old["exceptions"]
-    for key in (
+    for field in (
         "historical_findings",
         "v4_historical_findings",
         "v4_additional_historical_findings",
     ):
-        assert current[key] == old[key]
+        assert current[field] == old[field] + (
+            [APPROVED_V41_ADDITIONAL_HISTORY] if field == ADDITIONAL_HISTORY_FIELD else []
+        )
     assert len(v4_preflight_history_findings()) == 109
     config = tomllib.loads(scanner.history_config().decode())
     baseline = tomllib.loads(
@@ -671,12 +737,14 @@ def test_discovery_metadata_preserves_exact_history_and_only_moves_fixed_spans()
         subprocess.check_output(["git", "show", "47bfcba:scripts/gitleaks_rules.json"], cwd=ROOT)
     )
     current = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
-    for key in (
+    for field in (
         "historical_findings",
         "v4_historical_findings",
         "v4_additional_historical_findings",
     ):
-        assert current[key] == before[key]
+        assert current[field] == before[field] + (
+            [APPROVED_V41_ADDITIONAL_HISTORY] if field == ADDITIONAL_HISTORY_FIELD else []
+        )
     assert (
         current["v4_preflight_historical_findings"][:94]
         == before["v4_preflight_historical_findings"]
@@ -832,7 +900,9 @@ def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
         "v4_historical_findings",
         "v4_additional_historical_findings",
     ):
-        assert current[field] == previous[field]
+        assert current[field] == previous[field] + (
+            [APPROVED_V41_ADDITIONAL_HISTORY] if field == ADDITIONAL_HISTORY_FIELD else []
+        )
     assert current["v4_merge_copy_bindings"][:2] == previous["v4_merge_copy_bindings"]
     assert (
         current["v4_preflight_historical_findings"][:103]
@@ -840,7 +910,17 @@ def test_legacy_single_delta_preserves_all_existing_bindings() -> None:
     )
     assert current["v4_merge_copy_anchors"][:27] == previous["v4_merge_copy_anchors"]
     assert len(current["exceptions"]) == 96
-    assert len(current["v4_merge_copy_anchors"]) == 34
+    final_metadata = json.loads(
+        subprocess.check_output(
+            ["git", "show", "44633302af915358771c32875d27a1b8ac3e7860:scripts/gitleaks_rules.json"],
+            cwd=ROOT,
+        )
+    )
+    assert len(final_metadata["v4_merge_copy_anchors"]) == 34
+    assert current["v4_merge_copy_anchors"] == (
+        final_metadata["v4_merge_copy_anchors"] + APPROVED_V41_COPY_ANCHORS
+    )
+    assert len(current["v4_merge_copy_anchors"]) == 40
 
 
 @pytest.mark.parametrize("which", [2, 3, 4, 5, 36, 37])
@@ -917,12 +997,14 @@ def test_r2_old_exact_metadata_and_copy_bindings_preserved() -> None:
         subprocess.check_output(["git", "show", "f341a89:scripts/gitleaks_rules.json"], cwd=ROOT)
     )
     new = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
-    for key in (
+    for field in (
         "historical_findings",
         "v4_historical_findings",
         "v4_additional_historical_findings",
     ):
-        assert new[key] == old[key]
+        assert new[field] == old[field] + (
+            [APPROVED_V41_ADDITIONAL_HISTORY] if field == ADDITIONAL_HISTORY_FIELD else []
+        )
     assert new["v4_preflight_historical_findings"][:104] == old["v4_preflight_historical_findings"]
     assert new["v4_merge_copy_anchors"][:28] == old["v4_merge_copy_anchors"]
     assert new["v4_merge_copy_bindings"][:2] == old["v4_merge_copy_bindings"]
@@ -937,7 +1019,17 @@ def test_r2_old_exact_metadata_and_copy_bindings_preserved() -> None:
             assert current["source_line"] == previous["source_line"] + offset
             moved.append(previous["source_line"])
     assert moved == [147, 259, 364, 394, 44]
-    assert len(new["v4_merge_copy_bindings"]) == 7
+    final_metadata = json.loads(
+        subprocess.check_output(
+            ["git", "show", "44633302af915358771c32875d27a1b8ac3e7860:scripts/gitleaks_rules.json"],
+            cwd=ROOT,
+        )
+    )
+    assert len(final_metadata["v4_merge_copy_bindings"]) == 7
+    assert new["v4_merge_copy_bindings"] == (
+        final_metadata["v4_merge_copy_bindings"] + [APPROVED_V41_PAGE11_BINDING]
+    )
+    assert len(new["v4_merge_copy_bindings"]) == 8
 
 
 def test_9727_existing_literal_negative_boundaries(tmp_path: Path) -> None:
@@ -1002,12 +1094,14 @@ def test_9727_metadata_is_one_position_and_one_blob_only() -> None:
         subprocess.check_output(["git", "show", "e096a59:scripts/gitleaks_rules.json"], cwd=ROOT)
     )
     new = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
-    for key in (
+    for field in (
         "historical_findings",
         "v4_historical_findings",
         "v4_additional_historical_findings",
     ):
-        assert new[key] == old[key]
+        assert new[field] == old[field] + (
+            [APPROVED_V41_ADDITIONAL_HISTORY] if field == ADDITIONAL_HISTORY_FIELD else []
+        )
     assert new["v4_preflight_historical_findings"][:106] == old["v4_preflight_historical_findings"]
     changed = []
     for previous, current in zip(old["exceptions"], new["exceptions"], strict=True):
@@ -1023,8 +1117,20 @@ def test_9727_metadata_is_one_position_and_one_blob_only() -> None:
             changed.append(current)
     assert len(changed) == 1
     assert new["v4_merge_copy_anchors"][:31] == old["v4_merge_copy_anchors"]
-    assert new["v4_merge_copy_bindings"][:-1] == old["v4_merge_copy_bindings"]
-    assert new["v4_merge_copy_bindings"][-1]["reported_line"] == 44
+    final_metadata = json.loads(
+        subprocess.check_output(
+            ["git", "show", "44633302af915358771c32875d27a1b8ac3e7860:scripts/gitleaks_rules.json"],
+            cwd=ROOT,
+        )
+    )
+    assert len(old["v4_merge_copy_bindings"]) == 6
+    assert len(final_metadata["v4_merge_copy_bindings"]) == 7
+    assert final_metadata["v4_merge_copy_bindings"][:6] == old["v4_merge_copy_bindings"]
+    assert new["v4_merge_copy_bindings"] == old["v4_merge_copy_bindings"] + [
+        final_metadata["v4_merge_copy_bindings"][6],
+        APPROVED_V41_PAGE11_BINDING,
+    ]
+    assert new["v4_merge_copy_bindings"][6]["reported_line"] == 44
     assert len(new["exceptions"]) == len(old["exceptions"]) == 96
 
 
@@ -1124,13 +1230,26 @@ def test_final_enum_preserves_rules_and_all_previous_approvals() -> None:
         subprocess.check_output(["git", "show", base + ":scripts/gitleaks_rules.json"], cwd=ROOT)
     )
     new = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
+    final_metadata = json.loads(
+        subprocess.check_output(
+            ["git", "show", "44633302af915358771c32875d27a1b8ac3e7860:scripts/gitleaks_rules.json"],
+            cwd=ROOT,
+        )
+    )
     for field in old:
         if field == "v4_preflight_historical_findings":
             assert new[field][:-3] == old[field]
             assert len(new[field]) == 109
         elif field == "v4_merge_copy_anchors":
-            assert new[field][:-2] == old[field]
-            assert len(new[field]) == 34
+            assert len(old[field]) == 32 and len(final_metadata[field]) == 34
+            assert final_metadata[field][:32] == old[field]
+            assert new[field] == old[field] + final_metadata[field][32:] + APPROVED_V41_COPY_ANCHORS
+            assert len(new[field]) == 40
+        elif field == "v4_merge_copy_bindings":
+            assert len(old[field]) == 7
+            assert new[field] == old[field] + [APPROVED_V41_PAGE11_BINDING]
+        elif field == ADDITIONAL_HISTORY_FIELD:
+            assert new[field] == old[field] + [APPROVED_V41_ADDITIONAL_HISTORY]
         else:
             assert new[field] == old[field]
     native = tomllib.loads(scanner.history_config().decode())
