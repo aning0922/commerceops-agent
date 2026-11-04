@@ -1,0 +1,76 @@
+{
+  "scope": "EXACT_261F399_MOCK_UI_ONLY",
+  "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "case": "ui-fixture-batch-r4",
+  "status": "MOCK_33_PASSED_CLOSED_PENDING_INDEPENDENT_REVIEW",
+  "stats": {
+    "passed": 33,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "retries": 0,
+    "duration_ms": 33321.905000000006
+  },
+  "required_natives": {
+    "build_native": 0,
+    "probe_native": 0
+  },
+  "worker_native_exit": 0,
+  "outer_native_exit": 0,
+  "cleanup": {
+    "build_native": {
+      "probe": 0
+    },
+    "build_stopped": true,
+    "native": {
+      "probe": 0,
+      "web": 143,
+      "api": 0
+    },
+    "groups_stopped": true,
+    "elapsed_seconds": 0.022901874966919422,
+    "ports_closed": {
+      "13490": true,
+      "18490": true
+    }
+  },
+  "source_unchanged": true,
+  "pins_unchanged": true,
+  "running_uid": 501,
+  "browser_native_exit": "NOT_EXPOSED_SEPARATELY",
+  "real_business_api_pg_provider_native200": "NOT_RUN_IN_MOCK",
+  "ignored_generated_file": {
+    "tracked": false,
+    "before_sha256": "0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc",
+    "after_sha256": "1862ac4bbbc5192d4bf562161df66ea547ed3e67173100656ab606ae9797db2b",
+    "normalization": false
+  },
+  "old_failures": "r1/r2/r3 preserved, not replayed or relabeled",
+  "artifacts": [
+    {
+      "path": "ui-fixture-batch-r4/checks.json",
+      "sha256": "3c176478d209c1e4bf9332194775b450a5864bc9c033d7b42416995d32a52a09"
+    },
+    {
+      "path": "ui-fixture-batch-r4/outer-receipt.json",
+      "sha256": "3635ae74628ba62e27e9ef581585ee02ed3b4bbc6955a61af62f4a21b1c91eea"
+    },
+    {
+      "path": "ui-fixture-batch-r4/closedfinal.json",
+      "sha256": "1e0681b8a170b25511927111b924fa7dae886b9b074de504230ff681338245d1"
+    },
+    {
+      "path": "ui-fixture-batch-r4/playwright.json",
+      "sha256": "7b9b657408d337bd1f93bc77afa82eef3db3e0c73aa9275798fd224e461e98a8"
+    },
+    {
+      "path": "ui-fixture-batch-r4/source-before.raw.json",
+      "sha256": "cb89309ea07d302b2c7d83af9cdb92d718d8eb76d6591f82ab399c136b19f011"
+    },
+    {
+      "path": "ui-fixture-batch-r4/source-after.raw.json",
+      "sha256": "cb89309ea07d302b2c7d83af9cdb92d718d8eb76d6591f82ab399c136b19f011"
+    }
+  ]
+}
