@@ -583,10 +583,12 @@ V4_COMPLETE_MODULES = (
 
 @pytest.mark.parametrize("scope", ["all", "existing", "phase3"])
 @pytest.mark.parametrize("reverse_modules", [False, True])
-def test_complete_v4_modules_keep_order_coverage_legacy_groups_and_caps(
+def test_standalone_existing_modules_keep_order_coverage_and_caps(
     scope: str, reverse_modules: bool
 ) -> None:
-    modules = list(reversed(V4_COMPLETE_MODULES)) if reverse_modules else list(V4_COMPLETE_MODULES)
+    modules = [("tests/test_p204_pg.py", "combined-existing-test_p204_pg"), *V4_COMPLETE_MODULES]
+    if reverse_modules:
+        modules.reverse()
     additions = [
         path + "::" + suffix
         for path, _ in modules
@@ -604,7 +606,7 @@ def test_complete_v4_modules_keep_order_coverage_legacy_groups_and_caps(
     nodes = legacy + additions
     groups = pg_diagnostic.combined_groups(nodes)
     labels = [label for _, label in modules]
-    assert list(groups)[:5] == ["combined-existing", *labels]
+    assert list(groups)[: 1 + len(labels)] == ["combined-existing", *labels]
     assert [(name, group) for name, group in groups.items() if name not in labels] == list(
         pg_diagnostic.combined_groups(legacy).items()
     )
@@ -631,8 +633,10 @@ def test_complete_v4_modules_keep_order_coverage_legacy_groups_and_caps(
     assert sorted(actual) == partition(nodes, scope)
     assert len(actual) == len(set(actual))
     assert all(cap == 300 for _, _, cap in calls)
-    v4_calls = [(label, paths) for label, paths, _ in calls if label in labels]
-    assert v4_calls == ([] if scope == "phase3" else [(label, [path]) for path, label in modules])
+    standalone_calls = [(label, paths) for label, paths, _ in calls if label in labels]
+    assert standalone_calls == (
+        [] if scope == "phase3" else [(label, [path]) for path, label in modules]
+    )
 
 
 def test_v4_only_collection_still_splits_complete_modules() -> None:
