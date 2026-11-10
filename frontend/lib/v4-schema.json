@@ -1,0 +1,648 @@
+{
+  "$defs": {
+    "Context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tenant_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "principal_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "shop_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "reset_epoch": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "auth_generation": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "authorized_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "tenant_id",
+        "organization_id",
+        "principal_id",
+        "shop_id",
+        "reset_epoch",
+        "auth_generation",
+        "authorized_at"
+      ]
+    },
+    "Shop": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "shop_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "grants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "shop_id",
+        "display_name",
+        "timezone",
+        "currency",
+        "grants"
+      ]
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data_mode": {
+          "const": "demo_fixture"
+        },
+        "evidence_mode": {
+          "const": "synthetic_demo"
+        },
+        "fixture_version": {
+          "const": "v4-demo-seed-1"
+        },
+        "fixture_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "data_mode",
+        "evidence_mode",
+        "fixture_version",
+        "fixture_digest"
+      ]
+    },
+    "Receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "operation": {
+          "enum": [
+            "session_create",
+            "persona",
+            "reset",
+            "logout"
+          ]
+        },
+        "request_key": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "payload_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "status": {
+          "const": "COMMITTED"
+        },
+        "committed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reset_epoch": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "auth_generation": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "receipt_id",
+        "operation",
+        "request_key",
+        "payload_digest",
+        "status",
+        "committed_at",
+        "reset_epoch",
+        "auth_generation"
+      ]
+    },
+    "BootstrapData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "csrf_token": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "const": "anonymous_bootstrap"
+        }
+      },
+      "required": [
+        "csrf_token",
+        "expires_at",
+        "state"
+      ]
+    },
+    "SessionData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "creation_request_key": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "persona_id": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "csrf_token": {
+          "type": "string"
+        },
+        "shops": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/Shop"
+          },
+          "description": "0–2 currently authorized shops; seed contains two registered shops but admin has no implicit business grants."
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        }
+      },
+      "required": [
+        "creation_request_key",
+        "persona_id",
+        "expires_at",
+        "csrf_token",
+        "shops",
+        "source"
+      ]
+    },
+    "CreateData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/SessionData"
+        },
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        }
+      },
+      "required": [
+        "session",
+        "receipt"
+      ]
+    },
+    "SeedSummaryData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "products": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "skus": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "orders": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "order_lines": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "products",
+            "skus",
+            "orders",
+            "order_lines"
+          ]
+        },
+        "snapshot_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "source",
+        "counts",
+        "snapshot_at"
+      ]
+    },
+    "ControlData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        },
+        "next_step": {
+          "enum": [
+            "READ_CURRENT_SESSION",
+            "LOGGED_OUT"
+          ]
+        }
+      },
+      "required": [
+        "receipt",
+        "next_step"
+      ]
+    },
+    "OperationData": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "receipt": {
+              "$ref": "#/$defs/Receipt"
+            }
+          },
+          "required": [
+            "receipt"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "const": "session_create"
+            },
+            "request_key": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "status": {
+              "enum": [
+                "COMMITTED",
+                "UNKNOWN"
+              ]
+            },
+            "recovery": {
+              "enum": [
+                "OWNER_RECOVERY_REQUIRED",
+                "WAIT_READ_ONLY"
+              ]
+            }
+          },
+          "required": [
+            "operation",
+            "request_key",
+            "status",
+            "recovery"
+          ]
+        }
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SESSION_INVALID",
+            "EXPIRED",
+            "ORIGIN_DENIED",
+            "CSRF_INVALID",
+            "ACCESS_DENIED",
+            "RESOURCE_NOT_FOUND",
+            "EPOCH_CHANGED",
+            "GENERATION_CHANGED",
+            "IDEMPOTENCY_CONFLICT",
+            "INVALID_REQUEST",
+            "CAPACITY_LIMIT",
+            "RATE_LIMITED",
+            "SERVICE_UNAVAILABLE",
+            "OWNER_RECOVERY_REQUIRED"
+          ]
+        },
+        "safe_message": {
+          "type": "string"
+        },
+        "retryable": {
+          "const": false
+        },
+        "request_key": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "code",
+        "safe_message",
+        "retryable",
+        "request_key"
+      ]
+    },
+    "FailureEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "DB UTC if observed; null when DB unreadable. Never invent DB time from host clock."
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "REJECTED",
+            "UNKNOWN"
+          ]
+        },
+        "error": {
+          "$ref": "#/$defs/Error"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "error"
+      ]
+    },
+    "BootstrapEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "COMMITTED",
+            "UNKNOWN"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/BootstrapData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "data"
+      ]
+    },
+    "SessionEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "COMMITTED",
+            "UNKNOWN"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/SessionData"
+        },
+        "context": {
+          "$ref": "#/$defs/Context"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "data",
+        "context"
+      ]
+    },
+    "CreateEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "COMMITTED",
+            "UNKNOWN"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/CreateData"
+        },
+        "context": {
+          "$ref": "#/$defs/Context"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "data",
+        "context"
+      ]
+    },
+    "SeedSummaryEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "COMMITTED",
+            "UNKNOWN"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/SeedSummaryData"
+        },
+        "context": {
+          "$ref": "#/$defs/Context"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "data",
+        "context"
+      ]
+    },
+    "ControlEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "COMMITTED",
+            "UNKNOWN"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/ControlData"
+        },
+        "context": {
+          "$ref": "#/$defs/Context"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "data",
+        "context"
+      ]
+    },
+    "OperationEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "v4-demo-v1"
+        },
+        "server_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "COMMITTED",
+            "UNKNOWN"
+          ]
+        },
+        "data": {
+          "$ref": "#/$defs/OperationData"
+        }
+      },
+      "required": [
+        "schema_version",
+        "server_time",
+        "trace_id",
+        "status",
+        "data"
+      ]
+    }
+  }
+}

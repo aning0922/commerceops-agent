@@ -1,0 +1,43 @@
+{
+  "source": "7a2be64def01044baba9606846c24f2544f2b6fb",
+  "tree": "bc10a1455481dbcab2e4729b1aca92fadc3c5c4f",
+  "at_utc": "2026-11-04T14:25:22.250933+00:00",
+  "accepted_delivery": "6bf38bf5bc04f48903b695e4d843210ae1c7dbc1",
+  "business_code": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "checks": {
+    "main_is_ancestor": true,
+    "accepted_is_ancestor": true,
+    "archive_paths_only": true,
+    "post261_paths_are_archive_or_packaging": true,
+    "business_code_unchanged_since_261": true,
+    "delivery_artifacts": true,
+    "changed_code_manifest": true,
+    "screenshots_40": true,
+    "archive_json": true,
+    "whitespace": true
+  },
+  "archive_changed_paths": [
+    "AGENTS.md",
+    "README.md",
+    "docs/M1_OFFLINE_COMPOSE.md",
+    "docs/ROADMAP.md",
+    "docs/STATUS.md",
+    "docs/ux/README.md",
+    "docs/v4/README.md",
+    "docs/v4/archive/INTEGRATION_REVIEW_FIX.md",
+    "docs/v4/archive/INTEGRATION_REVIEW_INITIAL.md",
+    "docs/v4/archive/PACKAGING_CHECK.json",
+    "docs/v4/archive/PREMERGE_CHECKS.json",
+    "docs/v4/archive/V41_BASELINE.json",
+    "docs/v4/archive/V41_MAIN_INTEGRATION.md",
+    "infrastructure/Dockerfile.m1-frontend",
+    "infrastructure/Dockerfile.m1-frontend.dockerignore"
+  ],
+  "artifacts_verified": 25,
+  "code_paths_verified": 161,
+  "screenshots_verified": 40,
+  "all_pass": true,
+  "new_full_tests": "NOT_RUN_REUSED_EXACT_SOURCE_EVIDENCE",
+  "hosted_ci": "NOT_RUN",
+  "services_started": false
+}

@@ -1,0 +1,145 @@
+{
+  "root": "/Users/aipuli/Downloads/CommerceOps_V4_Codex_Development_Package",
+  "files": [
+    {
+      "path": "00_README_开始阅读.md",
+      "bytes": 4434,
+      "sha256": "18f5368c72a61c9e2b3a7d12a719768ac942631c5af0c40620bc63a54b441ba7"
+    },
+    {
+      "path": "01_product/PAGE_AND_FEATURE_REGISTER.csv",
+      "bytes": 15125,
+      "sha256": "0ceec9876f3d654fd59b0cd270b7d8a60850bc67d1211fee51bbcf2bacb1959d"
+    },
+    {
+      "path": "01_product/PRODUCT_REVIEW.md",
+      "bytes": 6010,
+      "sha256": "9e1c17d9b1226fbd270cf3f03dc4afc062d2d5345669a679dabbfcc57d74cbfd"
+    },
+    {
+      "path": "01_product/PRODUCT_SCOPE.json",
+      "bytes": 19584,
+      "sha256": "529ac5775cadf9af6864eab1f6565a9346c1880ada0c40708f553a93e35a0da9"
+    },
+    {
+      "path": "01_product/PROPOSED_ROUTES_AND_ROLES.md",
+      "bytes": 6629,
+      "sha256": "33ea673a1b687783f79a8f00b3ae5008644087675b81aa732ae5c0a0659ce4b3"
+    },
+    {
+      "path": "01_product/PROPOSED_ROUTE_MAP.csv",
+      "bytes": 10444,
+      "sha256": "ed8100833fb87011f6e602d2e32a2d1a9d4d9463dd533ff046479344927ca9e7"
+    },
+    {
+      "path": "01_product/PROPOSED_ROUTE_MAP.json",
+      "bytes": 24269,
+      "sha256": "8b0ae3b27ad20d3ce8cedf7926f41f027a244163f079126ccd766f7bf3f1385a"
+    },
+    {
+      "path": "01_product/SCOPE_AND_PAGES.md",
+      "bytes": 8545,
+      "sha256": "5f68594ffb2759504d7472bcccec2e732fc623a6c4f96b6292f059a7b3d35a68"
+    },
+    {
+      "path": "02_architecture/AGENT_AND_AUTOMATION.md",
+      "bytes": 6470,
+      "sha256": "544900a9a4dfe09b57e529b46b4404f9316312e0e7fb218c0578fbcbfc8b91a1"
+    },
+    {
+      "path": "02_architecture/BASELINE_AND_INTEGRATION.md",
+      "bytes": 4256,
+      "sha256": "e43af0177b828ae3e14008eb84f8fbd7f25b692110fcb4e8bd56393bed24938f"
+    },
+    {
+      "path": "02_architecture/DATA_AND_API_CONTRACTS.md",
+      "bytes": 8709,
+      "sha256": "1611ac6f363996f1eb7933be3b86f975629dd6faa979d79ccc0b88148defbaeb"
+    },
+    {
+      "path": "02_architecture/SECURITY_AND_DEMO.md",
+      "bytes": 4513,
+      "sha256": "f7c31767f2836545ea357aeeb1a7cbef9e85a881e289e75b24e7b2077051c803"
+    },
+    {
+      "path": "03_delivery/OWNER_AND_PARALLELISM.md",
+      "bytes": 3541,
+      "sha256": "e25265cbe341d0be1752618e6a3a5e99aedd81a0dc0d5c42a6aa6fcf86968492"
+    },
+    {
+      "path": "03_delivery/PHASE_ROADMAP.md",
+      "bytes": 7122,
+      "sha256": "54c65e513a418ba2e2bde62df6048550b086d46c7b7da0d4257189f769ec74e4"
+    },
+    {
+      "path": "03_delivery/RISK_AND_DECISION_REGISTER.md",
+      "bytes": 2681,
+      "sha256": "60f9b96df4bbec2913a5d34c6fff64f37e29f88311b1f65b64dafb72e5f702f7"
+    },
+    {
+      "path": "03_delivery/TASK_CARDS.json",
+      "bytes": 15479,
+      "sha256": "7aa2da8c979fcd35d3746e01b3c64db569767745e7b9377dc2c5fb087e137440"
+    },
+    {
+      "path": "03_delivery/TASK_CARDS.md",
+      "bytes": 8756,
+      "sha256": "b39f1c893f98f9f195e97b1207c93752967aa87031f987b2bf4cdad91bf51a03"
+    },
+    {
+      "path": "04_codex/REVIEWER_AND_TASK_TEMPLATE.md",
+      "bytes": 2573,
+      "sha256": "411eba16b168a0db7fab4b8aeadc78909f2bf9f7b31251d25b29b12fbd9e1be3"
+    },
+    {
+      "path": "04_codex/START_HERE_ROOT_PROMPT.md",
+      "bytes": 5177,
+      "sha256": "f181aca149f271a2c3ef9bbfbfbd331cba4f4efea3411e6f665c7400ed0e2394"
+    },
+    {
+      "path": "05_quality/FEATURE_ACCEPTANCE_MATRIX.csv",
+      "bytes": 14172,
+      "sha256": "280ff86b8b7f7ffd3acc6a9278fbcd711a5ef6941d820cefc126ecbc142c7828"
+    },
+    {
+      "path": "05_quality/FEATURE_ACCEPTANCE_MATRIX.json",
+      "bytes": 35898,
+      "sha256": "648872707c6f2791073384505ea14a5b24bdb639757c11cbed625c966d269ce5"
+    },
+    {
+      "path": "05_quality/TEST_AND_ACCEPTANCE.md",
+      "bytes": 6038,
+      "sha256": "c4ed70d461d0101e2db00b58231f151fad523511d415bd52158ea6ca59ae6e28"
+    },
+    {
+      "path": "06_deployment/DEMO_DEPLOYMENT.md",
+      "bytes": 5162,
+      "sha256": "618f341f427f0518613f02882b26596b86dff3368b476788bb9542cb6f4cc3fd"
+    },
+    {
+      "path": "07_MANIFEST_SHA256.txt",
+      "bytes": 2759,
+      "sha256": "0c197059f7b1912be036150cc6cf0d31b529225edd4aca863e4566c43204f053"
+    },
+    {
+      "path": "prototype/CommerceOps_AI_V4_5_Interactive_Prototype.zip",
+      "bytes": 3725901,
+      "sha256": "6e695533a3225ff4a79eef1de5721fe94f5d02979621af585f8a13ad9ebd4cac"
+    },
+    {
+      "path": "prototype/CommerceOps_AI_V4_5_Standalone.html",
+      "bytes": 364817,
+      "sha256": "09abe08361468f319fea039c284fae669c94ddc1ca162751611ef4e5b045d3cb"
+    },
+    {
+      "path": "prototype/PROVENANCE.json",
+      "bytes": 450,
+      "sha256": "0701b87543cd3769fa62ad933b48d42b837a58d9b829295bb82d4ee6014c91a2"
+    },
+    {
+      "path": "prototype/preview-v45-overview.png",
+      "bytes": 491987,
+      "sha256": "2946fde330fc54408386a03c38c71ab01dff13734c2d8e29477ee6fd54a48d73"
+    }
+  ]
+}

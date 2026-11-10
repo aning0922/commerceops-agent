@@ -1,0 +1,521 @@
+{
+  "owner": "ROOT_READ_ONLY_FINAL_CLOSED_CASE_SWEEP",
+  "recorded_at": "2026-11-03T19:26:06.455891+00:00",
+  "scope": "Only exact new B-owned HTTP/browser/TTL manifests and legacy24/N01 namespaces. Not a global Docker inventory or PG final-pair claim. No mutation or deletion performed.",
+  "project_count": 28,
+  "all_containers_networks_absent": true,
+  "all_registered_ports_closed": true,
+  "registered_process_closure": "Prior per-case supervisor ownership/birth/group receipts; no PID number reuse used as ownership proof.",
+  "cases": [
+    {
+      "project": "p3b04-items-b77c59fd72",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/docs/v4/acceptance/v4-0/LEGACY_WEB24.safe.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        53116,
+        53118,
+        53117
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "p3b04-items-b77c59fd72_pg_data"
+      ],
+      "ports_closed": {
+        "53116": true,
+        "53118": true,
+        "53117": true
+      }
+    },
+    {
+      "project": "p3b04-read-cb6e067862",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/docs/v4/acceptance/v4-0/LEGACY_WEB24.safe.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        49777,
+        49779,
+        49778
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "p3b04-read-cb6e067862_pg_data"
+      ],
+      "ports_closed": {
+        "49777": true,
+        "49779": true,
+        "49778": true
+      }
+    },
+    {
+      "project": "p3b04-write-6626bf5853",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/docs/v4/acceptance/v4-0/LEGACY_WEB24.safe.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        50748,
+        50750,
+        50749
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "p3b04-write-6626bf5853_pg_data"
+      ],
+      "ports_closed": {
+        "50748": true,
+        "50750": true,
+        "50749": true
+      }
+    },
+    {
+      "project": "p4c09-n01-51914bfc03",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/docs/v4/acceptance/v4-0/N01_SIX.safe.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        55589,
+        55590,
+        55591
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "p4c09-n01-51914bfc03_pg_data"
+      ],
+      "ports_closed": {
+        "55589": true,
+        "55590": true,
+        "55591": true
+      }
+    },
+    {
+      "project": "v4qa_browser_20261104a",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_browser_20261104a/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18443,
+        13443
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_browser_20261104a_pg_data"
+      ],
+      "ports_closed": {
+        "18443": true,
+        "13443": true
+      }
+    },
+    {
+      "project": "v4qa_browser_20261104b",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_browser_20261104b/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18470,
+        13470
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_browser_20261104b_pg_data"
+      ],
+      "ports_closed": {
+        "18470": true,
+        "13470": true
+      }
+    },
+    {
+      "project": "v4qa_browser_20261104c",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_browser_20261104c/case.json",
+      "source": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "ports": [
+        18471,
+        13471
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_browser_20261104c_pg_data"
+      ],
+      "ports_closed": {
+        "18471": true,
+        "13471": true
+      }
+    },
+    {
+      "project": "v4qa_http01_20261104_047a43d",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP01/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18442,
+        13442
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http01_20261104_047a43d_pg_data"
+      ],
+      "ports_closed": {
+        "18442": true,
+        "13442": true
+      }
+    },
+    {
+      "project": "v4qa_http02_20261104_047a43d",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP02/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18442,
+        13442
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http02_20261104_047a43d_pg_data"
+      ],
+      "ports_closed": {
+        "18442": true,
+        "13442": true
+      }
+    },
+    {
+      "project": "v4qa_http02d_capacity_20261104",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP02D/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18444,
+        13444
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http02d_capacity_20261104_pg_data"
+      ],
+      "ports_closed": {
+        "18444": true,
+        "13444": true
+      }
+    },
+    {
+      "project": "v4qa_http03b_20261104_c6abe05",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r2/HTTP03B/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18460,
+        13460
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http03b_20261104_c6abe05_pg_data"
+      ],
+      "ports_closed": {
+        "18460": true,
+        "13460": true
+      }
+    },
+    {
+      "project": "v4qa_http03r_20261104_047a43d",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases/HTTP03R/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18445,
+        13445
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http03r_20261104_047a43d_pg_data"
+      ],
+      "ports_closed": {
+        "18445": true,
+        "13445": true
+      }
+    },
+    {
+      "project": "v4qa_http04b_20261104_c6abe05",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r2/HTTP04B/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18461,
+        13461
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http04b_20261104_c6abe05_pg_data"
+      ],
+      "ports_closed": {
+        "18461": true,
+        "13461": true
+      }
+    },
+    {
+      "project": "v4qa_http05b_20261104_c6abe05",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r2/HTTP05B/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18462,
+        13462
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http05b_20261104_c6abe05_pg_data"
+      ],
+      "ports_closed": {
+        "18462": true,
+        "13462": true
+      }
+    },
+    {
+      "project": "v4qa_http06b_20261104_c6abe05",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r2/HTTP06B/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18463,
+        13463
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http06b_20261104_c6abe05_pg_data"
+      ],
+      "ports_closed": {
+        "18463": true,
+        "13463": true
+      }
+    },
+    {
+      "project": "v4qa_http07b_20261104_c6abe05",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r2/HTTP07B/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18464,
+        13464
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http07b_20261104_c6abe05_pg_data"
+      ],
+      "ports_closed": {
+        "18464": true,
+        "13464": true
+      }
+    },
+    {
+      "project": "v4qa_http08b_20261104_c6abe05",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r2/HTTP08B/case.json",
+      "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "ports": [
+        18465,
+        13465
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http08b_20261104_c6abe05_pg_data"
+      ],
+      "ports_closed": {
+        "18465": true,
+        "13465": true
+      }
+    },
+    {
+      "project": "v4qa_http08c_20261104_0636d3c",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP08C/case.json",
+      "source": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "ports": [
+        18480,
+        13480
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http08c_20261104_0636d3c_pg_data"
+      ],
+      "ports_closed": {
+        "18480": true,
+        "13480": true
+      }
+    },
+    {
+      "project": "v4qa_http09c_20261104_0636d3c",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP09C/case.json",
+      "source": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "ports": [
+        18481,
+        13481
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http09c_20261104_0636d3c_pg_data"
+      ],
+      "ports_closed": {
+        "18481": true,
+        "13481": true
+      }
+    },
+    {
+      "project": "v4qa_http10c_20261104_0636d3c",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP10C/case.json",
+      "source": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "ports": [
+        18482,
+        13482
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http10c_20261104_0636d3c_pg_data"
+      ],
+      "ports_closed": {
+        "18482": true,
+        "13482": true
+      }
+    },
+    {
+      "project": "v4qa_http11c_20261104_0636d3c",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-http-20261104-047a43d/commerceops-agent/.audit/cases-r3/HTTP11C/case.json",
+      "source": "0636d3c9c70500f12b5f73de45217513ff38e93a",
+      "ports": [
+        18483,
+        13483
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_http11c_20261104_0636d3c_pg_data"
+      ],
+      "ports_closed": {
+        "18483": true,
+        "13483": true
+      }
+    },
+    {
+      "project": "v4qa_lifecycle_20261104a",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_lifecycle_20261104a/case.json",
+      "source": "27f26e11aae2c927a31ae1b051563d25a06c0b25",
+      "ports": [
+        18440,
+        13440
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_lifecycle_20261104a_pg_data"
+      ],
+      "ports_closed": {
+        "18440": true,
+        "13440": true
+      }
+    },
+    {
+      "project": "v4qa_lifecycle_20261104b",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_lifecycle_20261104b/case.json",
+      "source": "d81638997dca94c2f084913f2ff2ccfa4f3c8d80",
+      "ports": [
+        18440,
+        13440
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_lifecycle_20261104b_pg_data"
+      ],
+      "ports_closed": {
+        "18440": true,
+        "13440": true
+      }
+    },
+    {
+      "project": "v4qa_lifecycle_20261104c",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_lifecycle_20261104c/case.json",
+      "source": "4b3caa9d7e63a7e5d3abfc25f7ec7b8b36a32b76",
+      "ports": [
+        18440,
+        13440
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_lifecycle_20261104c_pg_data"
+      ],
+      "ports_closed": {
+        "18440": true,
+        "13440": true
+      }
+    },
+    {
+      "project": "v4qa_lifecycle_20261104d",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_lifecycle_20261104d/case.json",
+      "source": "2330bca2e657a236ba5355b940e2f641763d026d",
+      "ports": [
+        18440,
+        13440
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_lifecycle_20261104d_pg_data"
+      ],
+      "ports_closed": {
+        "18440": true,
+        "13440": true
+      }
+    },
+    {
+      "project": "v4qa_lifecycle_20261104e",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_lifecycle_20261104e/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18440,
+        13440
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_lifecycle_20261104e_pg_data"
+      ],
+      "ports_closed": {
+        "18440": true,
+        "13440": true
+      }
+    },
+    {
+      "project": "v4qa_naturalttl_20261104a",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_naturalttl_20261104a/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18441,
+        13441
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [],
+      "ports_closed": {
+        "18441": true,
+        "13441": true
+      }
+    },
+    {
+      "project": "v4qa_naturalttl_20261104b",
+      "origin": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_naturalttl_20261104b/case.json",
+      "source": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+      "ports": [
+        18441,
+        13441
+      ],
+      "containers": [],
+      "networks": [],
+      "retained_volumes": [
+        "v4qa_naturalttl_20261104b_pg_data"
+      ],
+      "ports_closed": {
+        "18441": true,
+        "13441": true
+      }
+    }
+  ]
+}

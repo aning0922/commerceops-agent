@@ -1,0 +1,112 @@
+{
+  "owner": "ROOT_FINAL_ENGINEERING_GATE",
+  "source_sha": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
+  "source_tree": "68efd8feb282430e5eb950661bae07a19db6f0d9",
+  "starts_at": "2026-11-03T18:53:32.256265+00:00",
+  "deadline": "2026-11-03T19:23:32.256265+00:00",
+  "scope": "unchanged full scripts.check; empty config overrides avoid historical tool credentials",
+  "environment_keys": [
+    "DO_NOT_TRACK",
+    "HOME",
+    "LANG",
+    "LC_ALL",
+    "NETRC",
+    "NEXT_TELEMETRY_DISABLED",
+    "NPM_CONFIG_GLOBALCONFIG",
+    "NPM_CONFIG_USERCONFIG",
+    "PATH",
+    "PIP_CONFIG_FILE",
+    "TMPDIR",
+    "UV_NO_CONFIG"
+  ],
+  "pid": 27448,
+  "native_exit": 0,
+  "seconds": 1389.861,
+  "ended_at": "2026-11-03T19:16:42.182434+00:00",
+  "source_unchanged": true,
+  "status": "PASS_UNCHANGED_FULL_SCRIPTS_CHECK",
+  "log_path": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/.audit/v4-0/full-check-cbd1c4e/output.log",
+  "log_sha256": "9e08c432c7852dba123e2a6957393b6279ba19eec36cbdb76784a179f84d90f1",
+  "checks": {
+    "secret_scan": {
+      "wrapper_exit": 0,
+      "scope": "dir/index/all reachable full history",
+      "native_history_exit": 1,
+      "native_history_findings": 1555,
+      "classified_reviewed_findings": 1555,
+      "blocking_findings": 0,
+      "note": "Native findings remain visible and are individually classified by reviewed exact provenance; no blanket history exclusion."
+    },
+    "lock": "PASS",
+    "markdown_files": 204,
+    "markdown_errors": 0,
+    "ruff": "PASS",
+    "format_files": 752,
+    "mypy_source_files": 544,
+    "npm_ci": "PASS",
+    "node_toolchain": "PASS",
+    "copy_ajv_strict": "PASS",
+    "m3_no_server": {
+      "files": 10,
+      "collected": 46,
+      "executed": 46,
+      "skipped": 0,
+      "retries": 0
+    },
+    "offline": {
+      "passed": 4316,
+      "deselected": 748,
+      "warnings": 4,
+      "seconds": 1232.79
+    },
+    "frontend_typecheck": "PASS",
+    "npm_audit_known_vulnerabilities": 0,
+    "python_audit_packages": 95,
+    "python_audit_known_vulnerabilities": 0
+  },
+  "scope_note": "Engineering dependency vulnerability lookups; no model/embedding/Feishu/Woo business calls. PG/browser are separate source-specific Gates.",
+  "prior_attempts": [
+    {
+      "owner": "ROOT_ENGINEERING_GATE",
+      "source_sha": "6e98399fb485d7a852d0e4c92923af0ef005782c",
+      "source_tree": "4551b714c6f098a6d9edbf80f5c826239f7981ef",
+      "starts_at": "2026-11-03T17:45:05.781598+00:00",
+      "deadline": "2026-11-03T18:15:05.781598+00:00",
+      "scope": "full existing scripts.check; no PG/provider/Hosted services",
+      "pid": 88399,
+      "native_exit": 1,
+      "seconds": 100.164,
+      "ended_at": "2026-11-03T17:46:45.997118+00:00",
+      "source_unchanged": true,
+      "cause": "Stopped at scanner; exact public legacy type span and merge copies; all later stages NOT_RUN."
+    },
+    {
+      "owner": "ROOT_R2_ENGINEERING_GATE",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "starts_at": "2026-11-03T18:20:55.399465+00:00",
+      "deadline": "2026-11-03T18:50:55.399465+00:00",
+      "scope": "unchanged full scripts.check; new empty tool config files avoid historical credentials",
+      "environment_keys": [
+        "DO_NOT_TRACK",
+        "HOME",
+        "LANG",
+        "LC_ALL",
+        "NETRC",
+        "NEXT_TELEMETRY_DISABLED",
+        "NPM_CONFIG_GLOBALCONFIG",
+        "NPM_CONFIG_USERCONFIG",
+        "PATH",
+        "PIP_CONFIG_FILE",
+        "TMPDIR",
+        "UV_NO_CONFIG"
+      ],
+      "pid": 8972,
+      "native_exit": 1,
+      "seconds": 110.962,
+      "ended_at": "2026-11-03T18:22:46.420587+00:00",
+      "source_unchanged": true,
+      "cause": "Stopped at scanner; exact public documentation spans and fixed blob/line anchor drift; all later stages NOT_RUN."
+    }
+  ]
+}

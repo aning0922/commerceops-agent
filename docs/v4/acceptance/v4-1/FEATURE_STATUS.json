@@ -1,0 +1,2434 @@
+{
+  "schema_version": "v41-feature-status-draft-1",
+  "status": "LOCAL_STAGE_GATE_ACCEPTED",
+  "snapshot_source": "f7e037680844fbcf93e0efb34d4c4dfc85b909f9",
+  "date": "2026-11-04",
+  "timezone": "Asia/Taipei",
+  "assessment_level": "19阶段项只按合同内受控范围记录实现/执行；不是原规划19/19或99/99全覆盖，80项不重评，最终运行独审4e4741ad已核收（仅合同受控本地范围）",
+  "baseline": {
+    "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+    "sha256": "ea2ad65df9c15b3010f788eccf47bd03afbb621352e98cc2f00f979354376283",
+    "original_baseline_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+    "rows_preserved": 99,
+    "original_baseline_unchanged": true
+  },
+  "counts": {
+    "baseline_features": 99,
+    "target_v4_1": 19,
+    "not_reassessed_in_this_stage": 80,
+    "accepted_original_feature_completion_count": null,
+    "no_19_of_19_or_99_of_99_claim": true
+  },
+  "navigation_and_pages": {
+    "source": "9a11b305bb68f8a7069347110be406b232884ef7",
+    "path": "docs/v4/v4-1/UI_ROUTES.json",
+    "sha256": "43ef769019a1bcad09b03c1e7db3daead7005b0bd8fc10504dfa26a8bdefb067",
+    "navigation_count": 14,
+    "stage_view_count": 12,
+    "stage_views": [
+      {
+        "id": "V4-P01-01",
+        "name": "经营首页",
+        "route": "/v4/dashboard"
+      },
+      {
+        "id": "V4-P01-02",
+        "name": "AI经营洞察",
+        "route": "/v4/insights"
+      },
+      {
+        "id": "V4-P01-03",
+        "name": "指标明细钻取",
+        "route": "/v4/dashboard/drilldown"
+      },
+      {
+        "id": "V4-P04-01",
+        "name": "商品列表",
+        "route": "/v4/products"
+      },
+      {
+        "id": "V4-P04-02",
+        "name": "商品详情",
+        "route": "/v4/products/:productId"
+      },
+      {
+        "id": "V4-P04-03",
+        "name": "SKU规格",
+        "route": "/v4/products/variants"
+      },
+      {
+        "id": "V4-P04-04",
+        "name": "分类标签",
+        "route": "/v4/products/categories"
+      },
+      {
+        "id": "V4-P04-05",
+        "name": "商品导入",
+        "route": "/v4/products/import"
+      },
+      {
+        "id": "V4-P05-01",
+        "name": "订单列表",
+        "route": "/v4/orders"
+      },
+      {
+        "id": "V4-P05-02",
+        "name": "订单详情",
+        "route": "/v4/orders/:orderId"
+      },
+      {
+        "id": "V4-P05-03",
+        "name": "异常订单",
+        "route": "/v4/orders/anomalies"
+      },
+      {
+        "id": "V4-P05-04",
+        "name": "履约模拟",
+        "route": "/v4/orders/fulfillment-demo"
+      }
+    ],
+    "auxiliary": [
+      "/v4",
+      "/v4/demo",
+      "/v4/settings/demo"
+    ],
+    "interpretation": "真实路由清单，不是12页均已真实操作/视觉验收；辅助入口与可进入category不计业务功能完成"
+  },
+  "contracts": [
+    "docs/v4/v4-1/STAGE_SPEC.md",
+    "docs/v4/v4-1/CONTRACTS.md",
+    "docs/v4/v4-1/BATCH_AND_MOBILE_ADDENDUM.md"
+  ],
+  "evidence_catalog": {
+    "contract": {
+      "source": "9a11b305bb68f8a7069347110be406b232884ef7",
+      "path": "docs/v4/v4-1/CONTRACTS.md",
+      "level": "FROZEN_IMPLEMENTATION_CONTRACT_NOT_ACCEPTANCE",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "addendum": {
+      "source": "9a11b305bb68f8a7069347110be406b232884ef7",
+      "path": "docs/v4/v4-1/BATCH_AND_MOBILE_ADDENDUM.md",
+      "level": "FROZEN_REMAINING_WORK_CONTRACT_NOT_DELIVERY",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "scope_eb30": {
+      "source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+      "path": "docs/v4/v4-1/reviews/SCOPE_GAPS_eb30.md",
+      "level": "BATCH_UNDELIVERED_AND_REAL_MOBILE_GAP",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "engineering4fec": {
+      "source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+      "path": "docs/v4/acceptance/v4-1/ENGINEERING_R3.json",
+      "level": "COMPLETE_ENGINEERING_ONLY",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "pg_e7": {
+      "source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+      "path": "docs/v4/acceptance/v4-1/PG_PAIR_FINAL.json",
+      "level": "EXACT_E7_PAIRED_PG_ONLY_596_PLUS_177_UNION773_INTERSECTION0",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "http54ab": {
+      "source": "54ab68f054a136f98dac0a50986caced11362fbd",
+      "path": "docs/v4/v4-1/reviews/HTTP54AB_FOUR_CASES.md",
+      "level": "BOUNDED_REAL_HTTP_FOUR_RECIPES_ONLY",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "browser_e466_partial": {
+      "source": "e466f03436ba726b6050b10e879da68d80c7e372",
+      "path": "docs/v4/v4-1/reviews/BROWSER_E466_R2_BUSINESS_PARTIAL.md",
+      "level": "BUSINESS_SINGLE_SPEC_ACCEPTED_SHELL_AND_WHOLE_CASE_FAILED",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "mock334": {
+      "source": "3342968ba893a83d4a2b5ab99e832e6808097ab0",
+      "path": "docs/v4/v4-1/reviews/WEB_3342968_R6.md",
+      "level": "24_MOCK_UI_CASES_ONLY_NOT_REAL_API_OR_PG",
+      "interpretation": "仅支持所列source与实际范围，不自动签当前/未来候选或完整feature"
+    },
+    "impact261": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "path": "docs/v4/acceptance/v4-1/COMBINATION_261F399.json",
+      "level": "AFFECTED_OFFLINE_PASS_235_PYTHON_74_NODE_40_NATIVE_COMPONENT_TS_NOT_NEW_FULL"
+    },
+    "mock261": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "path": "docs/v4/acceptance/v4-1/UI_MOCK_BATCH_R4.json",
+      "level": "33_MOCK_PASS_NOT_REAL_BUSINESS_FINAL_REVIEW_ACCEPTED_SEPARATELY"
+    },
+    "scan261": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "path": "docs/v4/acceptance/v4-1/SCAN_261F399.json",
+      "level": "CANONICAL_WRAPPER0_HISTORY_NATIVE1_1760_REVIEWED_0_BLOCKING_REFS_CHANGED"
+    },
+    "r10": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "level": "INDEPENDENTLY_ACCEPTED_BOUNDED_LOCAL_RUNTIME_SQL_NATIVE_CAPTURE_CLOSED",
+      "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+      "closedfinal_sha256": "0df4a06b87110816d449415bd5ad416b885de5d2f8191f10bf5781770462a192",
+      "parent_native": 0,
+      "probe_native": 0,
+      "specs_passed": 2,
+      "consumer_keys": 11,
+      "mobile_keys": 10,
+      "mobile_pngs": 32,
+      "total_pngs": 40,
+      "png_partition": {
+        "business": 32,
+        "shell": 3,
+        "native": 5
+      },
+      "final_sql_native": 0,
+      "independent_closure_reported": true,
+      "runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+      "interpretation": "Main按261原件分层核收；11key中10mobile，4preview/7receipt，26当前effects及2历史替换tag分记；不是feature原规划全覆盖",
+      "review_path": "docs/v4/v4-1/reviews/FINAL_RUNTIME_R10.md",
+      "image": "sha256:e834528d433acaf8ab9c3214d775670e0602d42b906a12ea02ea186b4a783798",
+      "execution_sha256": "9038347e0018be56370388a156b32f6a4be172fce1ffe77b2af81244c1992357",
+      "preview_jobs": 4,
+      "nonpreview_receipts": 7,
+      "current_effect_rows": 26,
+      "replaced_historical_tags": 2,
+      "api_cleanup_native": 130,
+      "original_execution_summary": "NOT_WRITTEN",
+      "native_browser_exit": "NOT_EXPOSED",
+      "human_visual_approval": "NOT_RUN"
+    },
+    "visual_r10": {
+      "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "review_commit": "c7f508dc596878a327fbc8e175b4e9b369f538a6",
+      "path": "docs/v4/v4-1/reviews/BROWSER_VISUAL_R10.md",
+      "level": "AI_ENGINEERING_VISUAL_40_ORIGINAL_PNG_HASH_IHDR_VIEW_NO_P1_P2",
+      "human_visual_approval": "NOT_RUN",
+      "limits": [
+        "手机表右侧需横向滚动；静态图不能证明图外列与滚动发现性",
+        "390为真实浏览器viewport，不是真机/触摸手势已验",
+        "200%顶部仅视口范围，不证明全部页面完整覆盖"
+      ]
+    }
+  },
+  "engineering_and_pg": {
+    "engineering_source": "4fec4a7416d7b9434d979f461d5da78508cfb850",
+    "engineering_offline": {
+      "passed": 4601,
+      "failed": 0,
+      "deselected": 776,
+      "warnings": 4
+    },
+    "history_scan": {
+      "native_exit": 1,
+      "wrapper_exit": 0,
+      "reviewed": 1760,
+      "blocking": 0
+    },
+    "engineering_after_package216_identity_wrapper_and_ps": "仅owner当时封存声明，没有独立after map/停后ps原始文件",
+    "pg_source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+    "existing": 596,
+    "phase3": 177,
+    "union": 773,
+    "intersection": 0,
+    "strict_checker_native": 0,
+    "pg_scope": "精确e7双线已核，不转签新增批量UI/未来source",
+    "source_filesystem_byte_check": "NOT_RUN_FOR_PG_CONTAINER"
+  },
+  "batch_gap": {
+    "baseline_source": "eb30d7b7ad26da95dcf1c03ea55c5b424fbd536d",
+    "feature_id": "V4-F04-06",
+    "baseline_delivery": "NOT_DELIVERED",
+    "addendum_path": "docs/v4/v4-1/BATCH_AND_MOBILE_ADDENDUM.md",
+    "candidate_source": "a7e5f9ff4b53a956390c0807c3efcad135c9047a",
+    "candidate_status": "COMPONENT_PASS_REPORTED_INDEPENDENT_REVIEW_MOCK_REAL_PENDING",
+    "historical_candidate_status": "COMPONENT_PASS_REPORTED_INDEPENDENT_REVIEW_MOCK_REAL_PENDING",
+    "current_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "current_scope": "当前授权页显式多选、规范标签完整替换/清空、逐项CAS和原键严格读回、首错停止/取消/UNKNOWN原键恢复不自动续行",
+    "current_status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED"
+  },
+  "final_pending": {
+    "final_integrated_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "runtime_sql_closure_final_independent_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+    "ai_visual_review": "c7f508dc596878a327fbc8e175b4e9b369f538a6;40原图已核无P1/P2",
+    "real_business_mobile_1440_1280_390": "LOCAL_CONTROLLED_UI_ACTIONS_ACCEPTED;390viewport非真机",
+    "native_200_capture": "NATIVE_CAPTURE_AND_AI_VISUAL_ACCEPTED;NativeBrowserExitNOT_EXPOSED",
+    "controlled_late_ack": "ACCEPTED_BOUNDED_R10_ORIGINAL_UPSTREAM_ACK_AFTER_LOGOUT_NO_SCOPE_REPOPULATION",
+    "human_visual_approval": "NOT_RUN",
+    "physical_mobile_device_and_touch": "NOT_RUN",
+    "old_browser_and_mock_failures": "PRESERVED_NOT_RELABELED",
+    "external_business_providers": "NOT_RUN",
+    "model_quality_platform_quality": "NOT_VERIFIED_MODEL_DISABLED",
+    "production_hosted": "NOT_RUN",
+    "v4_2": "NOT_STARTED",
+    "continuous_url": "NONE_ALL_TEMPORARY_SERVICES_CLOSED",
+    "model_cost": "UNKNOWN",
+    "local_stage_gate": "LOCAL_STAGE_GATE_ACCEPTED",
+    "remaining_pending_only": "人工视觉审批/真机触摸/外部/Hosted/生产/V4-2分账，非本次已核本地Gate重新pending"
+  },
+  "features": [
+    {
+      "feature_id": "V4-F01-01",
+      "title": "经营KPI卡",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F01-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "同一演示租户/当前店铺/epoch的商品数、创建订单、已知支付额/数、退款事件及低库存指标；Decimal与币种独立，不跨币种求和。缺支付时间/成本/来源窗口时保留known_value、质量与排除数，不输出已证毛利。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/dashboard"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终真实三尺寸KPI可读性与来源标记",
+        "原规划多指标/任意跨模块口径不据现有KPI全量完成"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F01-02",
+      "title": "销售订单趋势",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F01-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "按店铺时区与固定fixture窗口计算日趋势；created_at、已知paid_at、退款occurred_at分口径，未知支付日不放到创建日。不是实时外部销量或无证据增长率。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/dashboard"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终真实图表/钻取交互与移动端",
+        "超来源窗口质量标记的最终UI核验"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F01-03",
+      "title": "店铺/时间筛选",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F01-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "服务端授权店铺与日期上下文；默认7完整自然日，14日或显式不超过90日，超14日来源窗口标不足；分页绑定筛选/revision/snapshot。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/dashboard",
+        "/v4/products",
+        "/v4/orders"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终身份/店铺/期间切换的真实迟到响应保护",
+        "真实390业务筛选与恢复"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F01-04",
+      "title": "库存风险洞察",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F01-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "仅对有已知available_units的SKU按明示阈值统计low_stock并列对象；unknown inventory保留UNKNOWN_STOCK/排除数，不当作0或安全库存。不是跨模块预测、补货决策或AI库存分析。",
+      "evidence_refs": [
+        "http54ab",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/insights",
+        "/v4/dashboard"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终规则/未知库存显示和可读性",
+        "原规划跨模块库存风险只保留当前受控规则层级"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F01-05",
+      "title": "运营待办",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F01-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "首页按支付时间未知、低库存、退款事件等规则提供提示/已授权详情跳转；缺成本与到账未知显式标记。不是创建正式Task、审批或跨域持久待办聚合，也不是模型建议。",
+      "evidence_refs": [
+        "http54ab",
+        "mock334",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/dashboard",
+        "/v4/insights"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "规则待办最终真实点击/移动端",
+        "原规划跨域正式待办聚合不在当前证据内"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F01-06",
+      "title": "跨模块指标钻取",
+      "module_id": "01",
+      "module": "经营驾驶舱",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F01-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "同一已核KPI/规则来源的成员列表与授权详情/read-context跳转；固定revision和scope。不是任意模块指标、跨店跨币种汇总或自动工具执行。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/dashboard/drilldown",
+        "/v4/products/:productId",
+        "/v4/orders/:orderId"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终详情关联逐项真实浏览器验证",
+        "未来其他模块钻取不得由本条推定已交付"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F02-01",
+      "title": "多轮上下文",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-02",
+      "title": "会话搜索恢复",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-03",
+      "title": "结构化业务结果",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-04",
+      "title": "绑定上下文工具调用",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-05",
+      "title": "多步骤计划预览",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-06",
+      "title": "操作草稿确认",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-07",
+      "title": "执行轨迹和证据",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-08",
+      "title": "偏好记忆管理",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-08",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F02-09",
+      "title": "业务Skill启停",
+      "module_id": "02",
+      "module": "AI智能工作台",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F02-09",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-01",
+      "title": "指标组合",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-02",
+      "title": "业务时间对比",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-03",
+      "title": "销售趋势",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-04",
+      "title": "商品排名与ABC",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-05",
+      "title": "退款分析",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-06",
+      "title": "有成本依据的毛利",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-07",
+      "title": "保存自定义报表",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F03-08",
+      "title": "导出CSV/PDF",
+      "module_id": "03",
+      "module": "经营分析中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F03-08",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F04-01",
+      "title": "商品筛选搜索",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "当前授权商品有效视图的关键词/SKU、排序、筛选、分页及稳定cursor；数据变更明确冲突/重读，不能混页。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终真实390列表/筛选/表格滚动",
+        "最终源码与新批量选择的交互回归"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F04-02",
+      "title": "商品详情和来源",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "严格商品DTO详情及fixture/upload/mixed来源，导入对象保job/row/file digest关联；来源标记不授予权限。商品与订单关系只能按已知来源显示。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products/:productId"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "详情关联与来源最终真实点击/三尺寸核验",
+        "不从标签回读partial推断完整详情路由所有行为通过"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F04-03",
+      "title": "SKU/变体浏览",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "浏览fixture既有SKU/规格与price/currency/已知或未知库存；导入每行只新product+SKU，不生成多变体、不推库存/销量。",
+      "evidence_refs": [
+        "http54ab",
+        "mock334",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products/variants"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "独立SKU规格页面最终真实浏览器操作",
+        "原规划任意变体管理不由当前只读范围替代"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F04-04",
+      "title": "演示商品编辑",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "演示编辑只完整替换单商品0至8个规范去重标签，expected_version/data_revision CAS、原键/回执/读回闭合；不修改价格、成本或外部Woo商品。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "pg_e7",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products/:productId"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终移动端标签确认与原单项pending恢复",
+        "新批量候选不自动扩大本项已核范围"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F04-05",
+      "title": "商品分类标签",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "现有分类标签页面及商品标签读/完整替换；分类树未提供，类别来源未知时保持未知。不是完整分类树维护、层级迁移、外部taxonomy同步或标签批处理已交付证明。",
+      "evidence_refs": [
+        "http54ab",
+        "mock334",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products/categories"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终真实分类标签页面/单项编辑验证",
+        "分类树未提供的范围限制必须可见，不能声称原名称全覆盖"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F04-06",
+      "title": "批量标记",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "历史eb30规划批量标记未交付；261已实现并本地执行当前补充合同范围，最终独审4e4741ad已核收（仅合同受控本地范围）。新增合同限定当前授权页去重IDs显式多选，规范标签完整替换，逐项原key/版本与revision串行接续；首错/UNKNOWN/持久化失败/取消即停，不跨页/全店，不承诺整批原子性。",
+      "evidence_refs": [
+        "scope_eb30",
+        "addendum",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "UNDELIVERED_AT_EB30_COMPONENT_CANDIDATE_ONLY",
+      "historical_pending_at_prior_snapshot": [
+        "a7e5f9ff独立源码审查PENDING",
+        "独立Mock回归PENDING",
+        "同案至少两个商品真实API/PG/Web串行journal+最终SQL对账PENDING",
+        "390实际批量操作及中止/迟到/原键恢复验证PENDING"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "historical_candidate": {
+        "source": "a7e5f9ff4b53a956390c0807c3efcad135c9047a",
+        "component": "ROOT_REPORTED_PASS_ONLY",
+        "independent_source_review": "PENDING",
+        "mock_ui": "PENDING",
+        "real_api_pg_browser": "PENDING",
+        "evidence_basis": "Root本次任务转交的冻结候选状态；未读取WEB新WIP、未独立重跑或核收该候选",
+        "accepted_delivery": false
+      },
+      "current_delivery": {
+        "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+        "scope": "当前页串行标签完整替换，首错/取消停止，逐项原键/版本/revision读回，不跨页/全店或全批原子事务",
+        "state": "LOCAL_CONTRACT_SCOPE_ACCEPTED"
+      },
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F04-07",
+      "title": "CSV/XLSX商品导入",
+      "module_id": "04",
+      "module": "商品中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F04-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "仅CSV/XLSX受限商品导入，闭集sku/title/price/currency/tags；发现/映射/质量preview、原键lookup和job GET、原子confirm与来源读回。拒恶意/超限输入，不导订单/客户/库存/多变体；失败/UNKNOWN保留原键。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "pg_e7",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/products/import"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "真实390 CSV/XLSX映射控件/确认/读回",
+        "最终scope变化/迟到ACK与解析子进程停止边界按实际回执逐项核"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F05-01",
+      "title": "订单筛选搜索",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F05-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "当前授权订单视图关键词/支付状态/演示履约筛选、排序与revision绑定分页；仅fixture已知与演示效果，不是真实Woo全量订单同步。",
+      "evidence_refs": [
+        "http54ab",
+        "mock334",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/orders"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "真实390订单列表筛选/详情",
+        "订单列表独立路由最终验收，不据商品分页partial推定通过"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F05-02",
+      "title": "订单证据详情",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F05-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "订单严格DTO、支付时间/商品关联/退款事件来源可追，未知字段不推断。HTTP详情与单订单履约partial不代表完整订单证据中心或外部raw wire已验。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/orders/:orderId"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "最终订单关联商品及来源实际点击",
+        "真实三尺寸详情/异常空态"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F05-03",
+      "title": "订单状态时间线",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F05-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "时间线只派生实际存在的created_at、paid_at和退款事件occurred_at，并排序；支付缺时不造事件，退款到账状态未知。不是物流、发货、签收或全部订单状态时间线。",
+      "evidence_refs": [
+        "http54ab",
+        "mock334",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/orders/:orderId"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "独立时间线最终真实浏览器/移动端核验",
+        "不把缺失外部生命周期补成原规划完整时间线"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F05-04",
+      "title": "异常订单标记",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F05-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "异常订单页当前仅固定payment=unknown筛选支付时间未知对象；不推断该订单支付失败，不持久化人工异常标记，不冒更广异常引擎或正式处置任务。",
+      "evidence_refs": [
+        "http54ab",
+        "mock334",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/orders/anomalies"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "异常页最终真实路由/筛选/移动端",
+        "原规划异常标记持久化未由现有支付未知筛选全覆盖"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F05-05",
+      "title": "订单数据导出",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F05-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "当前授权scope/筛选/snapshot的严格JSON ExportEnvelope含安全CSV，至多500行、超限拒绝，按Decimal与币种输出、防公式；已下载文件不能承诺撤回。",
+      "evidence_refs": [
+        "http54ab",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/orders"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "订单CSV实际浏览器下载bytes核验",
+        "不以商品下载partial推成订单导出browser通过"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F05-06",
+      "title": "演示履约状态操作",
+      "module_id": "05",
+      "module": "订单中心",
+      "target_phase": "V4-1",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F05-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "LOCAL_CONTRACT_SCOPE_IMPLEMENTED_AND_ACCEPTED",
+      "assessment_basis": "IMPLEMENTATION_CONTRACT_LEVEL_ONLY_NOT_FULL_ORIGINAL_FEATURE_COVERAGE",
+      "controlled_scope": "仅已记录paid_at订单的demo_unfulfilled到demo_fulfilled演示覆盖层；原键/版本/回执闭合。未知支付HTTP409，旧browser仅核按钮禁用；不扣库存/钱，不代表发货或真实Woo物流写入。",
+      "evidence_refs": [
+        "http54ab",
+        "browser_e466_partial",
+        "pg_e7",
+        "impact261",
+        "mock261",
+        "r10",
+        "visual_r10"
+      ],
+      "stage_view_routes": [
+        "/v4/orders/:orderId",
+        "/v4/orders/fulfillment-demo"
+      ],
+      "pending": [
+        "用户人工视觉审批NOT_RUN；原规划更广范围不由标题自动推为已验",
+        "390viewport非实体手机/touch证明，静态表右侧列/横滚发现性限制保留"
+      ],
+      "common_final_pending_ref": "final_pending",
+      "original_planning_feature_complete": "NOT_ESTABLISHED",
+      "historical_status": "CONTROLLED_STAGE_SCOPE_EVIDENCED_FINAL_PENDING",
+      "historical_pending_at_prior_snapshot": [
+        "真实390列表/详情/履约实际操作",
+        "履约独立页面及最终异常/权限矩阵待核"
+      ],
+      "implementation_source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+      "verification_level": "19阶段项在合同内受控实现及本地运行范围已核；非原规划完整覆盖",
+      "new_runtime_evidence_scope": "r10只支持冻结两个spec实际覆盖的路径/行为，不能由总counts推断本项原规划全覆盖或独立页面全部状态通过",
+      "accepted_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+    },
+    {
+      "feature_id": "V4-F06-01",
+      "title": "库存风险总览",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-02",
+      "title": "库存池及SKU详情",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-03",
+      "title": "预警认领",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-04",
+      "title": "补货建议",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-05",
+      "title": "采购交期模拟",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-06",
+      "title": "补货方案对比",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-07",
+      "title": "演示库存流水",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F06-08",
+      "title": "到货关联库存变动",
+      "module_id": "06",
+      "module": "库存中心",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F06-08",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-01",
+      "title": "供应商增改查",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-02",
+      "title": "报价/提前期比较",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-03",
+      "title": "补货需求关联",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-04",
+      "title": "起订量MOQ校验",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-05",
+      "title": "采购草稿审批",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-06",
+      "title": "分批到货",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F07-07",
+      "title": "采购审计与幂等",
+      "module_id": "07",
+      "module": "采购供应商",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F07-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F08-01",
+      "title": "客户筛选与脱敏",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F08-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F08-02",
+      "title": "客户订单画像",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F08-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F08-03",
+      "title": "复购分析",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F08-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F08-04",
+      "title": "RFM分群",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F08-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F08-05",
+      "title": "售后工单创建",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F08-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F08-06",
+      "title": "工单流转",
+      "module_id": "08",
+      "module": "客户与售后",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F08-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F09-01",
+      "title": "模拟会话消息",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F09-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F09-02",
+      "title": "订单关联",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F09-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F09-03",
+      "title": "客服AI草稿建议",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F09-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F09-04",
+      "title": "可定位知识引用",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F09-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F09-05",
+      "title": "人工发送确认",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F09-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F09-06",
+      "title": "转人工与工单",
+      "module_id": "09",
+      "module": "智能客服",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F09-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-01",
+      "title": "活动列表日历",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-02",
+      "title": "活动草稿创建",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-03",
+      "title": "营销商品选品",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-04",
+      "title": "促销预算模拟",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-05",
+      "title": "AI候选文案",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-06",
+      "title": "文案人工审核",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-07",
+      "title": "模拟活动效果",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F10-08",
+      "title": "活动复盘",
+      "module_id": "10",
+      "module": "营销中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F10-08",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-01",
+      "title": "规则模版",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-02",
+      "title": "规则条件编排",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-03",
+      "title": "时间/事件触发",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-04",
+      "title": "启停和版本",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-05",
+      "title": "沙箱试运行",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-06",
+      "title": "执行日志与故障",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F11-07",
+      "title": "通知接收与状态",
+      "module_id": "11",
+      "module": "自动化中心",
+      "target_phase": "V4-4",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F11-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F12-01",
+      "title": "知识库分类",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F12-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F12-02",
+      "title": "文件上传解析",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F12-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F12-03",
+      "title": "文档版本追溯",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F12-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F12-04",
+      "title": "资料批准撤销",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F12-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F12-05",
+      "title": "检索测试",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F12-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F12-06",
+      "title": "引用定位评测",
+      "module_id": "12",
+      "module": "知识中心",
+      "target_phase": "V4-3",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F12-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-01",
+      "title": "待办聚合",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-02",
+      "title": "按角色审批",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-03",
+      "title": "拒绝和冲突",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-04",
+      "title": "工作项流转",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-05",
+      "title": "审批回执查询",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-06",
+      "title": "筛选操作审计",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F13-07",
+      "title": "跨模块草稿关联",
+      "module_id": "13",
+      "module": "审批与任务",
+      "target_phase": "V4-2",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F13-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-01",
+      "title": "数据源只读连接",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-01",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-02",
+      "title": "导入字段映射",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-02",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-03",
+      "title": "完整性告警",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-03",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-04",
+      "title": "成员店铺授权",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-04",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-05",
+      "title": "模型工具配置",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-05",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-06",
+      "title": "演示初始化/重置",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-06",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-07",
+      "title": "用量审计",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-07",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "extension",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    },
+    {
+      "feature_id": "V4-F14-08",
+      "title": "导入历史记录",
+      "module_id": "14",
+      "module": "数据与系统管理",
+      "target_phase": "V4-0/V4-5",
+      "baseline_reference": {
+        "path": "docs/v4/baseline/reviews/FEATURE_REUSE_MATRIX.json",
+        "feature_id": "V4-F14-08",
+        "baseline_evidence_commit": "952e6246deb01ec763f2541d9f316753987744f3",
+        "original_classification": "new",
+        "original_completion": "NOT_ESTABLISHED"
+      },
+      "status": "NOT_REASSESSED_IN_THIS_STAGE",
+      "assessment": "仅保留原基线与后续target_phase规划；本阶段未重评，不推断旧M3/V4-0能力不存在、未开发、已交付或已验。"
+    }
+  ],
+  "document_generation_scope": "仅更新指定五份收口文档；无测试/资源/网络/身份读取；历史source与证据层级不换标签",
+  "root_checkpoint_addendum": {
+    "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "status": "LOCAL_STAGE_GATE_ACCEPTED",
+    "old_p2_and_failed_runs": "原a7/4427缺口与修复过程保留，已审修片不覆盖旧失败",
+    "phantom_api_count_authority": "公开ActionReceipt无effect_count；consumer必须为显式None，缺字段/伪造0或1拒绝；import取真实readback.row_count；最终逐原key SQL receipt/event/effects/digest为权威，不把API None称效果UNKNOWN",
+    "final_runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955"
+  },
+  "final_code": {
+    "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+    "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+    "status": "LOCAL_STAGE_GATE_ACCEPTED",
+    "runtime_independent_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+    "ai_visual_review": "c7f508dc596878a327fbc8e175b4e9b369f538a6",
+    "human_visual_approval": "NOT_RUN",
+    "review_tree": "85f0293eb07d3d648949df47674d7965c6294f18"
+  },
+  "historical_root_checkpoint_addendum": {
+    "status": "IMPLEMENTING_NOT_COMPLETE",
+    "batch_product_candidate": "a7e5f9ff4b53a956390c0807c3efcad135c9047a",
+    "batch_product_review": "7fea316a9999cf6413fbcee11199ac83d5138038",
+    "batch_product_blocker": "COMMITTED POST followed by rejected fresh readback must remain pending, not rejected",
+    "mock_candidate": "4427f347206bf55250d847d3fffcf76051006d29",
+    "mock_review": "bfd9e5476072c15f9c473470ccb0a74ba65f390d",
+    "mock_blocker": "original request key lookup predicate missing",
+    "mobile_spec_candidate": "2ae73562effbabbee2092a1ff249fc43fe5f288c",
+    "native_fix_candidate": "217baea74687490fb4a45f108f62841f57d2f931",
+    "final_browser": "NOT_RUN_FOR_NEW_COMBINATION"
+  },
+  "local_stage_acceptance": {
+    "cards": [
+      "V41-01",
+      "V41-02",
+      "V41-03",
+      "V41-04",
+      "V41-05",
+      "V41-06"
+    ],
+    "status": "LOCAL_STAGE_GATE_ACCEPTED",
+    "scope": "V4-1受控合成本地阶段完成；不是原规划19/19或99/99全功能、外部/发布或人类审批",
+    "runtime_review": "4e4741ad56e5ee8d3a22bc9f4ac6564715d92955",
+    "ai_visual_review": "c7f508dc596878a327fbc8e175b4e9b369f538a6",
+    "human_approval": "NOT_RUN"
+  }
+}

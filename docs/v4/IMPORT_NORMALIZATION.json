@@ -1,0 +1,11 @@
+{
+  "purpose": "Portable LF import of approved CSV, no semantic row changes",
+  "path": "docs/v4/baseline/v4-permission-matrix.csv",
+  "approved_original_sha256": "139e04d028aae19b6f476e0f2f16c93f15ab9e649801c5138b96a896c9ab6cdd",
+  "repository_lf_sha256": "8c88490d92a704378e268122d0e8c0786d3f4519a5f543e1a96f3a03b15f71a3",
+  "original_preserved_at_commit": "fa96764",
+  "original_external_file": "/Users/aipuli/Documents/Codex/2026-11-03/commerceops-v4-readonly-review/v4-permission-matrix.csv",
+  "csv_rows_exact_equal": true,
+  "other_seven_approved_files": "byte_identical",
+  "reason": "Git whitespace check treats CRLF CSV line endings as trailing whitespace; import changes only line terminators, not the check or authority"
+}

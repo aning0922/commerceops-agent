@@ -6,7 +6,7 @@ import sys
 from typing import Any
 from uuid import UUID, uuid4
 
-from psycopg import AsyncConnection
+from psycopg import AsyncConnection, sql
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
@@ -103,8 +103,39 @@ def require_process_absent(process: Any) -> None:
 
 
 async def mark_attention(db: AsyncConnection[dict[str, Any]], owner: str) -> None:
+    daily = await db.execute("SELECT to_regclass('business.p6_daily_reports') AS name")
+    daily_row = await daily.fetchone()
+    daily_guard = (
+        " AND NOT (t.kind='daily_report' AND EXISTS (SELECT 1 FROM "
+        "business.p6_daily_reports d WHERE d.task_id=t.id AND d.organization_id=t.organization_id "
+        "AND d.shop_id=t.shop_id AND d.complete))"
+        if daily_row and daily_row["name"] is not None
+        else ""
+    )
+    questions = await (
+        await db.execute("SELECT to_regclass('business.p6_daily_questions') AS name")
+    ).fetchone()
+    if questions and questions["name"] is not None:
+        daily_guard += (
+            " AND NOT (t.kind='daily_question' AND t.state='completed' AND EXISTS "
+            "(SELECT 1 FROM business.p6_daily_questions q WHERE q.task_id=t.id "
+            "AND q.organization_id=t.organization_id AND q.shop_id=t.shop_id))"
+        )
+    inquiry = await (
+        await db.execute(
+            "SELECT to_regprocedure('business.valid_readonly_inquiry_result(uuid,uuid,uuid,text)') "
+            "AS name"
+        )
+    ).fetchone()
+    if inquiry and inquiry["name"] is not None:
+        daily_guard += (
+            " AND NOT (t.kind='readonly_inquiry' "
+            "AND t.workflow_version='p6-readonly-inquiry-v1' AND t.state IN ('completed','failed') "
+            "AND business.valid_readonly_inquiry_result(t.id,t.organization_id,"
+            "t.shop_id,t.workflow_version) IS TRUE)"
+        )
     await db.execute(
-        """UPDATE business.business_tasks t SET state='needs_attention',
+        sql.SQL("""UPDATE business.business_tasks t SET state='needs_attention',
         failure_code='WORKER_TERMINATION_UNCONFIRMED',version=version+1,updated_at=clock_timestamp()
         WHERE EXISTS (SELECT 1 FROM business.jobs j WHERE j.task_id=t.id
         AND j.status='running' AND j.lease_owner=%s)
@@ -115,7 +146,8 @@ async def mark_attention(db: AsyncConnection[dict[str, Any]], owner: str) -> Non
         AND NOT (t.kind='inventory_intent_only' AND t.state='completed'
         AND business.valid_inventory_intent(t.id,t.organization_id,t.shop_id,t.workflow_version))
         AND NOT (t.kind='inventory_replenishment' AND t.state IN ('completed','rejected','expired'))
-        AND t.failure_code IS DISTINCT FROM 'WORKER_TERMINATION_UNCONFIRMED'""",
+        AND t.failure_code IS DISTINCT FROM 'WORKER_TERMINATION_UNCONFIRMED'""")
+        + sql.SQL(daily_guard),
         (owner,),
     )
 

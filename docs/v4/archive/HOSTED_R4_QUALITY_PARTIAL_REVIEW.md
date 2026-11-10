@@ -1,0 +1,17 @@
+# R4 quality首组300秒失败独核
+
+2026-11-05（台北）。结论：`QUALITY_FAILED_COMMAND_LIMIT / STRICT_PAIR_PENDING`。run41864322517 attempt1；quality job126694464596 completed/failure。本报告冻结此job实际证据，phase3仍执行，尚无最终pair结论。
+
+实际checkout日志305d0d2e3547c3d11cc42ca8da4bb2b51485cd5e（Merge bcebf10 into main6d3a）；artifact同source，tree8f62a8a5e443916f55bf552e52276f641a8c3eab等于候选树。M3镜像准备本案UTC16:10:19输出built/source/architecture/metadata bound，随后迁移/checkpointer/grant/revision与collection实际0；不追填旧R2失败根因。
+
+本run actual pg-existing artifact id13341103593，文件ci-evidence-existing.json hash2cd0893bfd2a4f37def2917987c7162de286da06d4df4c01ae71743b06caabf5。完整collection773、existing选择596；首combined-existing expected/actual collection均290，记录passed268，exit137/resultfalse。actual表示收集集合，不等于290项全部执行。动态首组构成为legacy236、V40 seed7/session19、V41 business23/GC5。实际通过236+7+19+6=268，其余22无通过证明。
+
+原log逐pytest事件核setup通过269/call通过268/teardown通过268，无已记录failed outcome；269个node_start中最后test_parent_mapping_chain_supersedes_and_disallows_old_confirm没有call通过，另外21个首组节点尚未开始。existing余下306选择节点未进入后续组。不能把22项写成断言失败，也不能据此断言最后用例挂死。
+
+明确command_start UTC16:11:27.579739、limit_seconds300；command_timeout16:16:27.583620。随后container_stop exit0、container_wait confirmedtrue/container_exit137；command_end timed_outtrue/stopping_confirmedtrue/sample_errortrue。原sample_error事件code JSONDecodeError在timeout后出现，保留而不猜根因。日志显示超时前测试持续推进、超时后已有用例继续完成，属于整个合批命令容量边界，不是证明单项业务错误或OOM。
+
+artifact cleanup_exit0/stopping_confirmedtrue，原最终cleanup stagecomplete、errornull、elapsed3.498s、remaining52.774s、owned_verified10/removed10。G1completefalse/verified0；G2记录六项现有场景，但不抵G1或完整existing覆盖。清理按本job原helper回执核收，不额外宣称全主机资产审计。
+
+quality.log独立下载hashdf5d948362776446a743af13e0e21639e23a22fc5d3d001fdb369c104895d0ef。首组不足导致本existing不能通过严格checker；待phase3终态后才核其完整覆盖与pair实际结果，不把旧773结果改标签。本轮未执行测试、rerun、PG或修改源码。
+
+最小后续候选应优先审查新增V40/V41完整自然模块是否仍全部挤入legacy combined-existing的原300秒命令；保持完整collection、分区并集/交集与每命令300秒、原job绝对截止及清理要求，不直接延长超时或减少节点。是否修改及新运行由Root决定，本报告不实施。

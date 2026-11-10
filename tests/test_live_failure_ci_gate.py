@@ -65,6 +65,40 @@ def test_original_success_gate_and_upload_bytes_preserved_with_separate_failure_
                         original,
                         names + ',\n    "failure-diagnostic.safe.json")}\n',
                     )
+                if old.get("id") == "n01_evidence":
+                    original = "assert set(manifest) == sources\n"
+                    addition = (
+                        'if "m3_pgvector" in window:\n'
+                        "    from scripts.m3_pgvector import INPUTS, validate_binding\n"
+                        '    validate_binding(root, window["m3_pgvector"])\n'
+                        "    sources.update(INPUTS)\n"
+                    )
+                    assert expected["run"].count(original) == 1
+                    expected["run"] = expected["run"].replace(original, addition + original)
+                elif old.get("id") == "frontend_evidence":
+                    original = (
+                        "    assert set(window) == window_fields | "
+                        '({"native_zoom"} if stage == "items" else set())\n'
+                    )
+                    replacement = (
+                        '    m3 = "m3_pgvector" in window\n'
+                        "    assert set(window) == window_fields | "
+                        '({"native_zoom"} if stage == "items" else set()) | '
+                        '({"m3_pgvector"} if m3 else set())\n'
+                    )
+                    assert expected["run"].count(original) == 1
+                    expected["run"] = expected["run"].replace(original, replacement)
+                    original = '    assert set(window["source_files_sha256"]) == source_files\n'
+                    replacement = (
+                        "    expected_sources = set(source_files)\n"
+                        "    if m3:\n"
+                        "        from scripts.m3_pgvector import INPUTS, validate_binding\n"
+                        '        validate_binding(root, window["m3_pgvector"])\n'
+                        "        expected_sources.update(INPUTS)\n"
+                        '    assert set(window["source_files_sha256"]) == expected_sources\n'
+                    )
+                    assert expected["run"].count(original) == 1
+                    expected["run"] = expected["run"].replace(original, replacement)
                 assert expected in new_steps
         failure = step(
             name, "n01_failure_evidence" if name == "n01-web" else "frontend_failure_evidence"

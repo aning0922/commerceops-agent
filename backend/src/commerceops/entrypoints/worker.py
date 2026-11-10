@@ -16,6 +16,10 @@ from commerceops.application.feishu_business.contracts import BaseProjectionAdap
 from commerceops.application.feishu_business.delivery import DeliveryGate
 from commerceops.application.feishu_business.im_delivery import BusinessMessageSender
 from commerceops.application.runner import RunnerPort, RunRequest, RunResult
+from commerceops.infrastructure.daily_delivery import DailyFakeDelivery
+from commerceops.infrastructure.daily_schedules import DailyScheduler
+from commerceops.infrastructure.daily_sources import DailyDeployment
+from commerceops.infrastructure.daily_store import DailyStore
 from commerceops.infrastructure.database import DatabaseSettings
 from commerceops.infrastructure.explanation_repository import ExplanationStore
 from commerceops.infrastructure.feishu_base_delivery import BaseDeliveryStore
@@ -23,13 +27,17 @@ from commerceops.infrastructure.feishu_clarification import ClarificationDeliver
 from commerceops.infrastructure.feishu_im_delivery import IMDeliveryStore
 from commerceops.infrastructure.intent_repository import IntentStore
 from commerceops.infrastructure.inventory_repository import InventoryStore
+from commerceops.infrastructure.readonly_inquiry_config import InquiryDeployment
+from commerceops.infrastructure.readonly_inquiry_store import InquiryConfig, InquiryStore
 from commerceops.infrastructure.replenishment_repository import ApprovalStore
 from commerceops.infrastructure.web_config import WebConfig
 from commerceops.infrastructure.woo_collection import BoundWooCollectorFactory
 from commerceops.infrastructure.worker import UnsafeShutdown, Worker
 from commerceops.infrastructure.worker_lock import WorkerSession, confirm_termination
+from commerceops.workflows.daily_report import DailyRunner
 from commerceops.workflows.inventory_analysis import InventoryRunner, MockCollectorFactory
 from commerceops.workflows.inventory_routing import IntentRunner
+from commerceops.workflows.readonly_inquiry import ReadonlyInquiryRunner, runtime_factory
 from commerceops.workflows.replenishment import ApprovalRunner
 from commerceops.workflows.report_explanation import (
     ExplanationRunner,
@@ -64,8 +72,12 @@ async def serve(
     delivery_gate: DeliveryGate | None = None,
     message_sender: BusinessMessageSender | None = None,
     message_gate: DeliveryGate | None = None,
+    daily_files: DailyDeployment | None = None,
+    inquiry_config: InquiryConfig | None = None,
 ) -> None:
     stop = asyncio.Event()
+    if inquiry_config is not None and web_config is None:
+        raise ValueError("inquiry requires explicit Web session configuration")
     if web_config is not None and (allow_actual or key_file is not None):
         raise ValueError("P3 model requests are disabled")
     if (clarification_sender is not None or message_sender is not None) != (
@@ -105,7 +117,33 @@ async def serve(
             if web_config is not None
             else None
         )
-        if fixture is not None or woo_factory is not None:
+        daily = DailyRunner(DailyStore(settings, session, daily_files)) if daily_files else None
+        scheduler = (
+            DailyScheduler(settings, session, daily_files)
+            if daily_files and daily_files.schedules_enabled
+            else None
+        )
+        daily_delivery = (
+            DailyFakeDelivery(session, daily_files)
+            if daily_files and daily_files.fake_delivery_enabled
+            else None
+        )
+        inquiry_store = (
+            InquiryStore(web_config, inquiry_config)
+            if web_config is not None and inquiry_config is not None and inquiry_config.enabled
+            else None
+        )
+        inquiry = (
+            ReadonlyInquiryRunner(inquiry_store, session, runtime_factory(inquiry_store, session))
+            if inquiry_store is not None
+            else None
+        )
+        if (
+            fixture is not None
+            or woo_factory is not None
+            or daily is not None
+            or inquiry is not None
+        ):
             factory = ProviderFactory(allow_actual=allow_actual, key_file=key_file)
             runner = InventoryCompositeRunner(
                 InventoryRunner(
@@ -116,6 +154,8 @@ async def serve(
                 ExplanationRunner(ExplanationStore(settings, session), factory),
                 IntentRunner(IntentStore(settings, session), factory),
                 approval,
+                daily,
+                inquiry,
             )
         else:
             runner = TechnicalRunner()
@@ -149,12 +189,21 @@ async def serve(
                 await im_delivery.reconcile()
             if base_delivery is not None:
                 await base_delivery.reconcile()
+            if scheduler is not None:
+                await scheduler.reconcile()
+            if daily_delivery is not None:
+                await daily_delivery.reconcile()
 
         await Worker(
             session,
             runner,
             reconcile=maintenance
-            if approval or clarification or im_delivery or base_delivery
+            if approval
+            or clarification
+            or im_delivery
+            or base_delivery
+            or scheduler
+            or daily_delivery
             else None,
             recovery_scan_seconds=web_config.recovery_scan_seconds if web_config else 30,
         ).run(stop)
@@ -179,6 +228,12 @@ def main() -> None:
         config_path = os.environ.get("COMMERCEOPS_P3_CONFIG_FILE")
         web_config = WebConfig.from_file(Path(config_path)) if config_path else None
         settings = web_config.database if web_config else DatabaseSettings()
+        daily_path = os.environ.get("COMMERCEOPS_M3_DAILY_CONFIG_FILE")
+        daily_files = DailyDeployment.load(Path(daily_path)) if daily_path else None
+        inquiry_path = os.environ.get("COMMERCEOPS_M3_INQUIRY_CONFIG_FILE")
+        inquiry_config = (
+            InquiryDeployment.load(Path(inquiry_path)).runtime() if inquiry_path else None
+        )
         if args.action in ("test-run", "inventory-test-run"):
             if os.environ.get("COMMERCEOPS_MODE") != "test" or args.organization is None:
                 raise ValueError("explicit test mode and organization required")
@@ -196,6 +251,8 @@ def main() -> None:
                     allow_actual=args.allow_actual_model_probe,
                     key_file=args.model_key_file,
                     web_config=web_config,
+                    daily_files=daily_files,
+                    inquiry_config=inquiry_config,
                 )
             )
         else:

@@ -1,0 +1,112 @@
+{
+  "source_sha": "2330bca2e657a236ba5355b940e2f641763d026d",
+  "source_tree": "ddc4d00cc92f4b878e03cd170f8067af7e3aaf88",
+  "project": "v4qa_lifecycle_20261104d",
+  "status": "FAILED_OR_UNKNOWN",
+  "business_http": "NOT_STARTED",
+  "web": "NOT_STARTED",
+  "api_process_native_exit": 1,
+  "exact_docker_error": "all predefined address pools have been fully subnetted",
+  "stage": "creation of API-only host_facing network",
+  "records": [
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "freeze_compose",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_container",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_network",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "pg_start",
+      "native_exit": 0
+    },
+    {
+      "stage": "migrate",
+      "native_exit": 0
+    },
+    {
+      "stage": "setup-checkpointer",
+      "native_exit": 0
+    },
+    {
+      "stage": "grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_init-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_verify-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "writers_stopped",
+      "native_exits": {
+        "api": 1
+      }
+    },
+    {
+      "stage": "api_container_stopped",
+      "native_exit": 0
+    },
+    {
+      "stage": "owner_oneoffs_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "final_pg_read_only",
+      "tenants": 0
+    },
+    {
+      "stage": "owned_down_keep_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "containers_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "networks_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volume_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volumes",
+      "names": [
+        "v4qa_lifecycle_20261104d_pg_data"
+      ]
+    }
+  ],
+  "driver_native_exit": 1,
+  "cleanup_confirmed": true,
+  "forced": false,
+  "retained_volumes": "v4qa_lifecycle_20261104d_pg_data",
+  "resolution": "Pending explicit canonical RFC1918 /24 case contract with actual network non-overlap preflight. No old networks touched; no daemon or global pool changes.",
+  "full": "NOT_RUN",
+  "hosted": "NOT_RUN"
+}

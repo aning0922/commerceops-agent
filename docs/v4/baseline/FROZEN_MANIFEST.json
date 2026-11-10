@@ -1,0 +1,188 @@
+{
+  "status": "A_READ_ONLY_DELIVERED_CANDIDATE_FROZEN_PENDING_USER",
+  "implementation": "V4-0_CODE_NOT_STARTED",
+  "frozen_at_utc": "2026-11-03T13:56:48.282414+00:00",
+  "manifest_self_excluded": true,
+  "files": [
+    {
+      "path": "API_EVENTS_CONTRACT.md",
+      "bytes": 8444,
+      "sha256": "03712031fea631c115af4a6c1c3efae053d5785f89adc3d62bba9a99baeb9711"
+    },
+    {
+      "path": "BASELINE_REPORT.md",
+      "bytes": 14167,
+      "sha256": "284a0bc5fbcec3aebbe0282fee93a393d0e9205bc89feb33f8c67ae05804af69"
+    },
+    {
+      "path": "CONTRACT_STATUS.json",
+      "bytes": 893,
+      "sha256": "b8427a8a0a4550245059c988fcbc06b7c392a87718c796c41c6f8d98f282f890"
+    },
+    {
+      "path": "DOMAIN_SOURCE_CONTRACT.md",
+      "bytes": 4681,
+      "sha256": "303f187bf0acd604f5eb8260894bf57c2f739cfa9ae314e11fed3bbeaae4d0aa"
+    },
+    {
+      "path": "PERMISSION_DEMO_CONTRACT.md",
+      "bytes": 7530,
+      "sha256": "66d59617a8315111e70de5377b49ed4504960e103442d4449e374d57a81de885"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2161,
+      "sha256": "357a52b55413ca8d672cff0419bb97899f8f5215e8c4f7752b4bc01e5c955e5a"
+    },
+    {
+      "path": "TASK_PLAN.md",
+      "bytes": 7010,
+      "sha256": "76660c9adf71e4aff7165f9a8fa0fa140c4bd1ce67467c3f369024827d41dc60"
+    },
+    {
+      "path": "UI_ROUTES_CONTRACT.md",
+      "bytes": 5235,
+      "sha256": "79dccfd7285d5f9f35b8c12c2c940888db87480c97387eb9bffc16ee7f19ee7d"
+    },
+    {
+      "path": "evidence/A_EXECUTION_RECEIPT.json",
+      "bytes": 1141,
+      "sha256": "18967c198a64a024e2e393c02c410c1acdb3286b7725ddc8283d43e3b1957d17"
+    },
+    {
+      "path": "evidence/CONTRACT_REVIEW_CANDIDATE_HASHES.json",
+      "bytes": 774,
+      "sha256": "655c7e1f99fbc604752f0a84348e307cf193294603aeb9f69e25552985373640"
+    },
+    {
+      "path": "evidence/DOCUMENT_VALIDATION.json",
+      "bytes": 641,
+      "sha256": "0d9510a55bf1beb7ed2963680b23ce6c8d700a50dda6d398a0a783fb64f6d67e"
+    },
+    {
+      "path": "evidence/FINAL_INTEGRITY.json",
+      "bytes": 1342,
+      "sha256": "51a4d2966b1cb13edeb104c90aaef253d0c5c750f459c85d46436580b8ab3ef1"
+    },
+    {
+      "path": "evidence/GITHUB_BASELINE.json",
+      "bytes": 35899,
+      "sha256": "a7a93c5a0fb04258cf789d130b6a7a55e2cbced3a19aa2a73d1382cbc72e66d0"
+    },
+    {
+      "path": "evidence/GITHUB_FINAL_VERIFY.json",
+      "bytes": 433,
+      "sha256": "7a7955afd213a872f37dd52cc2e710142cc1fbe74d1ad6be5bed2fe5653874c7"
+    },
+    {
+      "path": "evidence/GITHUB_ISSUES.json",
+      "bytes": 5257,
+      "sha256": "fc7e7ec666e3ae182977334344c9921a8b3340abf37a3ae541a818f764fbc262"
+    },
+    {
+      "path": "evidence/GITHUB_PR52.json",
+      "bytes": 8643,
+      "sha256": "f7b9a2d5b852b051d5e44b5291db9fe3ed79db2cda7abc649383fd0678513c57"
+    },
+    {
+      "path": "evidence/GITHUB_PRS.json",
+      "bytes": 13120,
+      "sha256": "e10af3a0e36b0bcb30dbb70d63a3965b098ff333011461aee1d96f2ae548f985"
+    },
+    {
+      "path": "evidence/GITHUB_WORKFLOWS.json",
+      "bytes": 1524,
+      "sha256": "799ed866f3ae5da18e505816cebd3d0853fb421d63cf8af24097aaa96fd25cbb"
+    },
+    {
+      "path": "evidence/LOCAL_START_STATE.json",
+      "bytes": 811,
+      "sha256": "bf69381cb12b7ab65a9e75336de4f5275dfa2aee73f49f0b7f33115bace4cb16"
+    },
+    {
+      "path": "evidence/PACKAGE_MANIFEST_OBSERVED.json",
+      "bytes": 4863,
+      "sha256": "a5453d7c1082597f02edf7e6a461f86ad2ba077a280669869ca59ce12581c9c2"
+    },
+    {
+      "path": "evidence/PACKAGE_VALIDATION.json",
+      "bytes": 38,
+      "sha256": "918eca79a2cb7544f82fc4cbd9522a10a41e4de52ee98ba469f3d20edc012685"
+    },
+    {
+      "path": "reviews/CONTRACT_REVIEW.md",
+      "bytes": 15178,
+      "sha256": "61fa7631321b7b3b8df84d44ee4860a5300353b5a3691247c69a4013dba5315d"
+    },
+    {
+      "path": "reviews/CONTRACT_REVIEW_FINAL.md",
+      "bytes": 7648,
+      "sha256": "f55adbd5e127d610dee3c65bf674fbf89fbe4b32c812506eb18bce9cf1268341"
+    },
+    {
+      "path": "reviews/FEATURE_REUSE_MATRIX.json",
+      "bytes": 73442,
+      "sha256": "ea2ad65df9c15b3010f788eccf47bd03afbb621352e98cc2f00f979354376283"
+    },
+    {
+      "path": "reviews/HARNESS_INTEGRATION_AUDIT.md",
+      "bytes": 20788,
+      "sha256": "47a81ccb8e22bdd083090e45537db50837d1b0c4c15c8c42e8c0820360f0b4bd"
+    },
+    {
+      "path": "reviews/M3_API_INVENTORY.json",
+      "bytes": 1146931,
+      "sha256": "e452ce3a4014c9c84f56c405c739a00fb3bcc8e4caafbcb54a04ecfee1efc1d5"
+    },
+    {
+      "path": "reviews/M3_BACKEND_AUDIT.md",
+      "bytes": 45229,
+      "sha256": "2351c7b4662e8c6f88a04d7927007e0df047493c29615e738a9798bd65b59376"
+    },
+    {
+      "path": "reviews/PAGE_ROUTE_MATRIX.json",
+      "bytes": 42980,
+      "sha256": "11ab23e48969ca1fed997db34c1380cc16c503341887a36924688b42dd05c930"
+    },
+    {
+      "path": "reviews/PRODUCT_GAP_AUDIT.md",
+      "bytes": 10590,
+      "sha256": "77a3468dec930ca6f678142bb9ff6f17e57e5754b95bb50f23ece13fa6c024b2"
+    },
+    {
+      "path": "reviews/SHARED_FILES.json",
+      "bytes": 55369,
+      "sha256": "fbe03ac123f4f108735dbe7aef4f30ff7c26ac9f80bf80f793c62ca6c01c65e8"
+    },
+    {
+      "path": "reviews/UI_CONTRACT_FREEZE_ACK.md",
+      "bytes": 1114,
+      "sha256": "5bcdafc232787c95697fd8556ba68f2d3a312d8e653d27ccf804a28ec99dcf4a"
+    },
+    {
+      "path": "reviews/UI_CONTRACT_REVIEW.md",
+      "bytes": 4012,
+      "sha256": "484fd138662465e0dde467ecb1417836220d970fa40ec96f9247d7ecd81ec6bd"
+    },
+    {
+      "path": "reviews/UI_CONTRACT_REVIEW_FINAL.md",
+      "bytes": 3520,
+      "sha256": "4104bf76cc58d6db56d1f23cb038c24ba5ca7975f83c2813345322465c854a1a"
+    },
+    {
+      "path": "v4-demo-seed-manifest.json",
+      "bytes": 970,
+      "sha256": "24fd9041ef6beae75a161b9fd9243bf085bcf4a2bae6fc2eed79307d56f0896e"
+    },
+    {
+      "path": "v4-permission-matrix.csv",
+      "bytes": 656,
+      "sha256": "139e04d028aae19b6f476e0f2f16c93f15ab9e649801c5138b96a896c9ab6cdd"
+    },
+    {
+      "path": "v4-public-openapi.json",
+      "bytes": 47859,
+      "sha256": "1bc8800309a52ecab119c0f202e1386c2393c301e7b91249bb47c7f9421d28be"
+    }
+  ]
+}

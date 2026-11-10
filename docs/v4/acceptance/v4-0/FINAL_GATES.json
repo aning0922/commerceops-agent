@@ -1,0 +1,207 @@
+{
+  "status": "REQUIRED_LOCAL_RUNTIME_GATES_ACCEPTED",
+  "prepared_from_source": "08afc157b9921a9264fd6b0c0f1aeaa7713d4399",
+  "recorded_at_utc": "2026-11-03T19:31:00.097917+00:00",
+  "engineering": {
+    "receipt": "ENGINEERING_CBD.json",
+    "source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
+    "native_exit": 0
+  },
+  "pg": {
+    "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+    "pair": {
+      "checked_at": "2026-11-03T19:30:10.642045+00:00",
+      "argv": [
+        "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.venv/bin/python",
+        "-m",
+        "scripts.pg_ci_evidence",
+        "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-existing.json",
+        "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-phase3.json"
+      ],
+      "native_exit": 0,
+      "elapsed_seconds": 0.085,
+      "stdout": "paired exact source/tool/lock/collection, all actual PG modules/G1/G2/cleanup verified",
+      "stderr": "",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "full_node_ids_sha256": "d1311c12dd85f55aa8bb32b27bfae736677bb8fa345798833c70c36af9aefe3f",
+      "fingerprints_equal": true,
+      "existing_count": 568,
+      "phase3_count": 177,
+      "union_count": 745,
+      "intersection_count": 0,
+      "existing_evidence": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-existing.json",
+      "phase3_evidence": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-phase3.json",
+      "scope": "LOCAL_PG_PAIR_ONLY",
+      "result": "PASS_EXACT_R2_PG_PAIR"
+    },
+    "existing": {
+      "schema_version": "v4-full-pg-line-result-v1",
+      "owner": "BACKEND_R2_FULL_EXISTING",
+      "scope": "existing",
+      "result": "PASS_R2_EXISTING_NOT_YET_PAIRED",
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "project": "p123-a68a4a7f99a9",
+      "owned_subnet": "10.242.33.0/24",
+      "image_mode": "REUSE_F1_BUILT_EXTENSION_NOT_NEW_BUILD",
+      "image_id": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+      "native_exit": 0,
+      "native_elapsed_seconds": 1947.5,
+      "started_at": "2026-11-03T18:26:01.884386+00:00",
+      "finished_at": "2026-11-03T18:58:26.504460+00:00",
+      "full_count": 745,
+      "full_node_ids_sha256": "d1311c12dd85f55aa8bb32b27bfae736677bb8fa345798833c70c36af9aefe3f",
+      "selected_count": 568,
+      "actual_count": 568,
+      "passed_count": 568,
+      "module_count": 24,
+      "all_modules_expected_actual_passed_equal": true,
+      "all_module_exit_zero": true,
+      "g1_complete": true,
+      "g1_verified_count": 3,
+      "g2_scenarios": [
+        "checkpoint_db_failure_recovered",
+        "cross_process_resume",
+        "graph_lock_loss_cancel",
+        "graph_noncooperative_exit",
+        "receipt_commit_checkpoint_gap",
+        "retired_probe_version_refused"
+      ],
+      "cleanup_exit": 0,
+      "stopping_confirmed": true,
+      "cleanup_elapsed_seconds": 5.227,
+      "independent_inventory_all_absent": true,
+      "existing_artifact_validation": "PASS",
+      "phase3_and_pair": "NOT_RUN",
+      "expected_nonzero_commands": [
+        {
+          "label": "unavailable",
+          "exit": 1,
+          "timed_out": false,
+          "stopping_confirmed": true
+        }
+      ],
+      "raw_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/issue23-ci/round-1.json",
+      "safe_ci_artifact": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-existing.json",
+      "native_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/full-existing-native.safe.json",
+      "inventory_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/full-existing-inventory.safe.json",
+      "runtime_binding_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/full-existing-runtime-bind.safe.json",
+      "reuse_proof": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/image-reuse.safe.json",
+      "private_log": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/full-existing-helper.private.log",
+      "F1_failure": "PRESERVED_NO_RETROACTIVE_CHANGE",
+      "recorded_at": "2026-11-03T18:59:00.280879+00:00"
+    },
+    "phase3": {
+      "source_sha": "c6abe0528f05b458331f270d758317c1d7b38843",
+      "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0",
+      "full_count": 745,
+      "selected_count": 177,
+      "actual_count": 177,
+      "passed_count": 177,
+      "groups": 18,
+      "all_group_exit_zero": true,
+      "native_exit": 0,
+      "elapsed_seconds": 1684.853,
+      "g1_complete": false,
+      "g1_verified_count": 0,
+      "g2_scenarios": [],
+      "cleanup_exit": 0,
+      "stopping_confirmed": true,
+      "cleanup_elapsed_seconds": 4.87,
+      "independent_inventory": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/full-phase3-inventory.safe.json",
+      "result": "PASS_BOUNDED_R2_FULL_PHASE3"
+    },
+    "originals": [
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/full-existing-result.safe.json",
+        "sha256": "ea9d56d3354428368db88dfb1d1f4d13b9bcc81f8e33550439caedaa541a4616"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-existing.json",
+        "sha256": "afd349ed5dfab5c43ff0d83169c68bfda57b34f783816b2823f17e5f0ea4b7d5"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-existing-r2-20261104-c6abe05/commerceops-agent/.audit/full-existing-inventory.safe.json",
+        "sha256": "c2431878695e8b06e9f2dada382d71759a205f9aa494d4558a37b6a4fcbdbe28"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/full-phase3-result.safe.json",
+        "sha256": "22f4da96baff2997c06095ab42b11fe156ebf47400aa38b11aef621157f03718"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/ci-evidence-phase3.json",
+        "sha256": "3ef265ba14c847078bbe8c7944d52c3aa2a1c85faa4b64745a400e149d4e815b"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/full-phase3-inventory.safe.json",
+        "sha256": "0bc38f3233603b762680f62c4f9128e87c921e106334c32f5c83dedeb015ebf4"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/full-pair-result.safe.json",
+        "sha256": "4acd2c9c93048069d4088ff49dd6241b5d7fcf4f63fc06048610412f4afb1e03"
+      },
+      {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-pg-phase3-r2-20261104-c6abe05/commerceops-agent/.audit/reconciliation.safe.json",
+        "sha256": "73b2c3b5af639f7adbc23c51e4eaf34f7fc9cd2c2d44edefd365d2d8a24616ca"
+      }
+    ],
+    "source_reuse": "PG_REUSE_INPUTS.json; actual strict pair only at R2, separate candidate engineering source.",
+    "resources": "Both lines canonical cleanup0/stopping true, independent owned containers/networks/volumes/helper absent. Frozen PG ID retained."
+  },
+  "other_gates": {
+    "components": "23 source-specific native checks",
+    "fixture": "UI_FIXTURE_363_FULL.json",
+    "http": "HTTP_FINAL_MATRIX.json",
+    "ttl": "TTL_F1.json",
+    "browser": "BROWSER_R3.json",
+    "legacy": "LEGACY_WEB24.safe.json",
+    "n01": "N01_SIX.safe.json",
+    "closed_cases": "CLOSED_CASE_SWEEP.json"
+  },
+  "current_runtime_resources": [],
+  "future_stages": "V4-1 NOT_STARTED; no Hosted/remote write/real business providers/production.",
+  "contract_import_normalization": {
+    "receipt": "../../IMPORT_NORMALIZATION.json",
+    "path": "docs/v4/baseline/v4-permission-matrix.csv",
+    "repository_lf": {
+      "bytes": 649,
+      "sha256": "8c88490d92a704378e268122d0e8c0786d3f4519a5f543e1a96f3a03b15f71a3"
+    },
+    "approved_crlf": {
+      "bytes": 656,
+      "sha256": "139e04d028aae19b6f476e0f2f16c93f15ab9e649801c5138b96a896c9ab6cdd"
+    },
+    "semantic_rows_unchanged": true
+  },
+  "final_independent_review": "8ed368d268cf3ea1f09e02abc0671a4ab9c589ec",
+  "final_document_gate": {
+    "receipt_pattern": ".audit/v4-0/final-document-gate-<source7>/receipt.json",
+    "scope": "Final source/JSON/file-map/Markdown/diff/dir/index/full-history verification; separate from the runtime evidence sources."
+  },
+  "final_history_compatibility": {
+    "source": "609cdb3eed2b21199247e7ee8ef56c7ab797062b",
+    "independent_review": "Astra high ACCEPT exact candidate via review chat",
+    "original_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-scan/commerceops-agent/.audit/v4-0/final-enum-correction/receipt.json",
+    "original_receipt_sha256": "31d99c4fc5a4c0c4d9dc5152f1b8ad98cc270f58768344f7520e63ff6d2b94cb",
+    "new_exact_author_records": 3,
+    "new_whole_blob_snapshots": 2,
+    "unchanged_rule_count": 222,
+    "unchanged_directory_records": 96,
+    "unchanged_native_history_allowlist": 45,
+    "unchanged_copy_only_records": 7,
+    "old_149_history_records_preserved": true,
+    "exact_history_total": 152,
+    "targeted_tests": {
+      "passed": 10,
+      "deselected": 241,
+      "seconds": 4.46
+    },
+    "proposal_native_dir_index": "0 findings / exit 0 each",
+    "corrective_commit_native_increment": "0 findings / exit 0",
+    "scanner_algorithm_and_detection_config": "BYTE_UNCHANGED",
+    "failed_candidate_preserved": "44633302af915358771c32875d27a1b8ac3e7860",
+    "failed_final_document_gate": "FINAL_DOC_031_FAILURE.json",
+    "scope": "Historical finding provenance and compatibility tests only; no backend, product UI or PG input change."
+  }
+}

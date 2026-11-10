@@ -56,6 +56,14 @@ EXISTING_REBALANCED_GROUPS = {
     ),
     "combined-existing-p4-verified-history": frozenset({"tests/test_p4_history_pg.py"}),
     "combined-existing-p4-read-reply-parent": frozenset({"tests/test_p4_read_reply_parent_pg.py"}),
+    # 41864322517 phase3 exhausted its total window. Move these three complete modules.
+    "combined-existing-p4-group-f02-sender": frozenset(
+        {
+            "tests/test_p4_a08_group_pg.py",
+            "tests/test_p4_f02_parent_pg.py",
+            "tests/test_p4_sender_recovery_pg.py",
+        }
+    ),
 }
 EXISTING_MODULES = EXISTING_BUSINESS_MODULES.union(*EXISTING_REBALANCED_GROUPS.values())
 FIELDS = frozenset(
@@ -87,6 +95,11 @@ LOCK_FILES = (
     "scripts/gitleaks_rules.json",
     ".gitleaks.toml",
     "compose.yml",
+    "compose.m3.yml",
+    ".dockerignore",
+    "infrastructure/knowledge_pgvector.Dockerfile",
+    "infrastructure/knowledge_pgvector.pins.json",
+    "scripts/m3_pgvector.py",
     "infrastructure/Dockerfile",
 )
 G2_REQUIRED = frozenset(

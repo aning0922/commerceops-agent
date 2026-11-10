@@ -47,7 +47,7 @@ def runtime(settings: DatabaseSettings) -> DatabaseSettings:
 
 def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
     row = db.execute("SELECT version_num FROM business.alembic_version").fetchone()
-    assert row and row["version_num"] == "0018_p5_commerce_sources"
+    assert row and row["version_num"] == "0025_v41_catalog_operations"
     assert db.execute("SHOW server_version").fetchone()["server_version"].startswith("17.11")  # type: ignore[index]
     tables = db.execute("""SELECT table_schema, table_name FROM information_schema.tables
         WHERE table_schema IN ('business','checkpoints','public')""").fetchall()
@@ -99,6 +99,42 @@ def test_revision_and_schema(db: psycopg.Connection[dict[str, Any]]) -> None:
         "p4_clarification_replies",
         "p4_base_deliveries",
         "p5_commerce_source_bindings",
+        "p6_daily_source_bindings",
+        "p6_daily_snapshots",
+        "p6_daily_reports",
+        "p6_knowledge_documents",
+        "p6_knowledge_authorizations",
+        "p6_knowledge_chunks",
+        "p6_knowledge_embeddings",
+        "p6_knowledge_registries",
+        "readonly_inquiries",
+        "p6_daily_destinations",
+        "p6_daily_schedules",
+        "p6_daily_schedule_runs",
+        "p6_daily_questions",
+        "p6_daily_deliveries",
+        "p6_daily_fake_receipts",
+        "p6_copy_products",
+        "p6_copy_candidates",
+        "p6_copy_decisions",
+        "p6_copy_drafts",
+        "v4_demo_fixture_versions",
+        "v4_demo_tenants",
+        "v4_demo_shops",
+        "v4_demo_personas",
+        "v4_demo_bootstraps",
+        "v4_demo_sessions",
+        "v4_demo_receipts",
+        "v4_demo_events",
+        "v4_demo_overlays",
+        "v4_demo_rate_attempts",
+        "v41_product_tags",
+        "v41_order_fulfillments",
+        "v41_import_jobs",
+        "v41_import_products",
+        "v41_action_receipts",
+        "v41_action_events",
+        "v41_security_policy",
         "p4_base_links",
         "p4_sender_state",
         "p4_sdk_windows",

@@ -1,0 +1,42 @@
+{
+  "project": "p123-ddf996f8a1c1",
+  "round": 1,
+  "started_at": "2026-11-03T15:19:06.797447+00:00",
+  "deadline": "2026-11-03T15:46:26.496238+00:00",
+  "volume": "p123-ddf996f8a1c1_pg_data",
+  "result": "failed",
+  "source_mode": "postgres_technical",
+  "model_mode": "not_used",
+  "approval_mode": "simulated",
+  "session": "initial",
+  "m3_pgvector": {
+    "architecture": "arm64",
+    "image": "commerceops-m3-pgvector:8ee1df0-v1",
+    "image_id": "sha256:983fc3d71d61376b1cf9bedeb249aeb2aa294feafb47fdd0a0b59fee1671b34c",
+    "inputs": {
+      ".dockerignore": "af399770ecc79aec90e12b7869f1d560db3803c59367a45d290fd3eb50c6f731",
+      "compose.m3.yml": "d9e9c18a432fc1b99cc5b51cce312863f09e416ce1539fcb9e8a97e337688836",
+      "compose.yml": "b98e9df399df9865b6da7e250eebe9cc83da1fd2754f50c41593991b35ee0ac9",
+      "infrastructure/knowledge_pgvector.Dockerfile": "15a2ee58e0dfbd67356477e822df6628ea07cf6f97729010a0a1ef8c9d42e92b",
+      "infrastructure/knowledge_pgvector.pins.json": "49fe55f6d07a641befcae98a2a9391d5f17af99b3b852bd7c1f6c41feea0a2ba",
+      "scripts/m3_pgvector.py": "b786d7a789b9b7f1b6b5a2cb3ad5c475be35e1c8243c033a4c8fa3d468dd84fd"
+    },
+    "source_commit": "ea48a13943d269484a4ebe59ca75803bcafe429f",
+    "source_tree": "4c9b6a4721510e631a8e76484890c163e482d5c8"
+  },
+  "error_class": "RuntimeError",
+  "cleanup_exit": 0,
+  "stopping_confirmed": true,
+  "cleanup_stage": "complete",
+  "cleanup_elapsed_seconds": 1.252,
+  "cleanup_remaining_seconds": 58.748,
+  "cleanup_owned_verified": 1,
+  "cleanup_owned_removed": 1,
+  "finished_at": "2026-11-03T15:19:30.148495+00:00",
+  "native_exit": 1,
+  "intended_nodes": 6,
+  "tests_executed": 0,
+  "cause": "UNKNOWN: initialization migrate exit1; shared diagnostic intentionally discards original database stderr",
+  "independent_cleanup_inventory": "docker ps -a, network ls, volume ls exact p123-ddf996f8a1c1 filters all empty",
+  "scope": "targeted schema component only; not Full or API/Web"
+}

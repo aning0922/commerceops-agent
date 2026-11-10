@@ -1,0 +1,343 @@
+{
+  "pending": {
+    "schema_version": "p6-copy-web-v1",
+    "data": {
+      "candidate": {
+        "schema_version": "p6-copy-candidate-v1",
+        "candidate_id": "00000000-0000-0000-0000-000000000007",
+        "candidate_version": "v1",
+        "owner_id": "00000000-0000-0000-0000-000000000002",
+        "reviewer_id": "00000000-0000-0000-0000-000000000002",
+        "product_source_id": "00000000-0000-0000-0000-000000000008",
+        "retrieval": {
+          "schema_version": "p6-pg-retrieval-v1",
+          "registry_id": "00000000-0000-0000-0000-000000000001",
+          "registry_version": "fixture-v1",
+          "scope": {
+            "organization_id": "00000000-0000-0000-0000-000000000004",
+            "shop_id": "00000000-0000-0000-0000-000000000005"
+          },
+          "registry_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "profile": {
+            "origin_profile_digest": "e3e04d98a86da08584056a4a52860e48d4a66c0f78f633d50de083673afe1f2c",
+            "dimension": 2,
+            "encoding_version": "knowledge-vector-pg-f32-v1",
+            "numeric_policy": "bounded-components-1e-6-1e6-normsq-1e-12-1e12-v1",
+            "distance_version": "cosine-pgvector-0.8.7-f32-v1",
+            "profile_digest": "88478e9913f85ec89b25a9864aa1587df67186faa601772aa6c46d9233b30f56"
+          },
+          "query": {
+            "text": "如何核对商品名称？",
+            "query_hash": "17e3eba440637ab51a8e43f89d52c22430033c90fdc306114c63ad6c6b87ad13",
+            "profile": {
+              "profile_id": "synthetic-profile",
+              "profile_version": "v1",
+              "provider": "synthetic",
+              "model": "hand-authored-vector",
+              "model_version": "fixture-v1",
+              "dimension": 2,
+              "preprocessing_version": "unchanged-codepoints-v1",
+              "distance_version": "cosine-f64-v1",
+              "profile_digest": "e3e04d98a86da08584056a4a52860e48d4a66c0f78f633d50de083673afe1f2c"
+            },
+            "vector": [
+              1.0,
+              0.0
+            ],
+            "vector_sha256": "01f84a881a40673ed314ebd7c593a6483dd44b15ff8572b5583c4663f257ce5b",
+            "evidence_mode": "synthetic_vector"
+          },
+          "as_of": "2026-11-03T08:00:00Z",
+          "evidence_mode": "synthetic_vector",
+          "complete": true,
+          "exhaustive": true,
+          "eligible_count": 1,
+          "pool": [
+            {
+              "origin": {
+                "citation": {
+                  "source_kind": "sop",
+                  "chunk": {
+                    "document": {
+                      "scope": {
+                        "organization_id": "00000000-0000-0000-0000-000000000004",
+                        "shop_id": "00000000-0000-0000-0000-000000000005"
+                      },
+                      "document_id": "doc-a",
+                      "document_version": "v1",
+                      "source_kind": "synthetic",
+                      "title": "自创合成操作规范",
+                      "source_ref": "synthetic:sop",
+                      "license_ref": "self-authored-synthetic",
+                      "license_digest": "7eb7beab802492a59082c23e4fcdd41568edd495aee7e59e7265729c3164fb1c",
+                      "approved_by": "synthetic-author",
+                      "approved_at": "2026-11-01T08:00:00Z",
+                      "valid_from": "2026-11-02T08:00:00Z",
+                      "expires_at": "2026-11-04T08:00:00Z",
+                      "approved": true,
+                      "revoked": false,
+                      "body": "自创合成SOP\n咖啡👩🏽‍💻é：核对名称。\n结束",
+                      "content_sha256": "56de3dd9ef44982a915576406158285b054fe90bf47634dd4cef70f2d3ba5ca9"
+                    },
+                    "chunk_id": "chunk-1",
+                    "chunk_version": "v1",
+                    "chunker_version": "fixture-v1",
+                    "section": "名称核对",
+                    "start": 8,
+                    "end": 22,
+                    "text": "咖啡👩🏽‍💻é：核对名称。",
+                    "text_sha256": "5c63282d77b0967548e01a131536b8b20ed49253c2c07075c980e2afcc4debd1"
+                  },
+                  "evidence_id": "7f5ecf546c2a36c072e30e3aaa09a1c78ab2dda236d4138705ae91694ac39af6"
+                },
+                "profile": {
+                  "profile_id": "synthetic-profile",
+                  "profile_version": "v1",
+                  "provider": "synthetic",
+                  "model": "hand-authored-vector",
+                  "model_version": "fixture-v1",
+                  "dimension": 2,
+                  "preprocessing_version": "unchanged-codepoints-v1",
+                  "distance_version": "cosine-f64-v1",
+                  "profile_digest": "e3e04d98a86da08584056a4a52860e48d4a66c0f78f633d50de083673afe1f2c"
+                },
+                "vector": [
+                  1.0,
+                  0.0
+                ],
+                "vector_sha256": "b6c9ed5802d0099f097e5efcede0fb0ceb5ad739e3acf3cbcd2eb726243fbb3a",
+                "evidence_mode": "synthetic_vector"
+              },
+              "profile": {
+                "origin_profile_digest": "e3e04d98a86da08584056a4a52860e48d4a66c0f78f633d50de083673afe1f2c",
+                "dimension": 2,
+                "encoding_version": "knowledge-vector-pg-f32-v1",
+                "numeric_policy": "bounded-components-1e-6-1e6-normsq-1e-12-1e12-v1",
+                "distance_version": "cosine-pgvector-0.8.7-f32-v1",
+                "profile_digest": "88478e9913f85ec89b25a9864aa1587df67186faa601772aa6c46d9233b30f56"
+              },
+              "stored_hex": "000200003f80000000000000",
+              "stored_sha256": "cffd78a25aca89bfead83f8d0879c768f0d80e06957c90ee12ba38ebd9f3e03c",
+              "distance": 0.0,
+              "query": {
+                "text": "如何核对商品名称？",
+                "query_hash": "17e3eba440637ab51a8e43f89d52c22430033c90fdc306114c63ad6c6b87ad13",
+                "profile": {
+                  "profile_id": "synthetic-profile",
+                  "profile_version": "v1",
+                  "provider": "synthetic",
+                  "model": "hand-authored-vector",
+                  "model_version": "fixture-v1",
+                  "dimension": 2,
+                  "preprocessing_version": "unchanged-codepoints-v1",
+                  "distance_version": "cosine-f64-v1",
+                  "profile_digest": "e3e04d98a86da08584056a4a52860e48d4a66c0f78f633d50de083673afe1f2c"
+                },
+                "vector": [
+                  1.0,
+                  0.0
+                ],
+                "vector_sha256": "01f84a881a40673ed314ebd7c593a6483dd44b15ff8572b5583c4663f257ce5b",
+                "evidence_mode": "synthetic_vector"
+              },
+              "reference_distance": 0.0
+            }
+          ],
+          "hits": [
+            {
+              "source_kind": "sop",
+              "chunk": {
+                "document": {
+                  "scope": {
+                    "organization_id": "00000000-0000-0000-0000-000000000004",
+                    "shop_id": "00000000-0000-0000-0000-000000000005"
+                  },
+                  "document_id": "doc-a",
+                  "document_version": "v1",
+                  "source_kind": "synthetic",
+                  "title": "自创合成操作规范",
+                  "source_ref": "synthetic:sop",
+                  "license_ref": "self-authored-synthetic",
+                  "license_digest": "7eb7beab802492a59082c23e4fcdd41568edd495aee7e59e7265729c3164fb1c",
+                  "approved_by": "synthetic-author",
+                  "approved_at": "2026-11-01T08:00:00Z",
+                  "valid_from": "2026-11-02T08:00:00Z",
+                  "expires_at": "2026-11-04T08:00:00Z",
+                  "approved": true,
+                  "revoked": false,
+                  "body": "自创合成SOP\n咖啡👩🏽‍💻é：核对名称。\n结束",
+                  "content_sha256": "56de3dd9ef44982a915576406158285b054fe90bf47634dd4cef70f2d3ba5ca9"
+                },
+                "chunk_id": "chunk-1",
+                "chunk_version": "v1",
+                "chunker_version": "fixture-v1",
+                "section": "名称核对",
+                "start": 8,
+                "end": 22,
+                "text": "咖啡👩🏽‍💻é：核对名称。",
+                "text_sha256": "5c63282d77b0967548e01a131536b8b20ed49253c2c07075c980e2afcc4debd1"
+              },
+              "evidence_id": "7f5ecf546c2a36c072e30e3aaa09a1c78ab2dda236d4138705ae91694ac39af6"
+            }
+          ],
+          "max_distance": 0.35,
+          "reason": "OK",
+          "result_hash": "ade41c0c6a26509ed89aec743ec9290ae30189414679764dbf7cf1f75261024f"
+        },
+        "product": {
+          "source_kind": "product",
+          "snapshot": {
+            "scope": {
+              "organization_id": "00000000-0000-0000-0000-000000000004",
+              "shop_id": "00000000-0000-0000-0000-000000000005"
+            },
+            "snapshot_id": "synthetic-product-v1",
+            "source_kind": "synthetic",
+            "source_binding_id": "synthetic-product-source",
+            "source_version": "v1",
+            "source_digest": "88850a88f6a356b5eb4e4be1fa2ccc95de2733368c80d5756c24b2853280cdd8",
+            "sku": "SYNTHETIC-COFFEE",
+            "captured_at": "2026-11-03T07:59:00Z",
+            "expires_at": "2026-11-03T08:10:00Z",
+            "revoked": false,
+            "title": "合成咖啡杯",
+            "facts_hash": "1f11dcbd3b2fcf0f9f5bbecb107684b6434ef7be88396bbeda9ae28f046d6c8a"
+          },
+          "field_path": "title",
+          "text": "合成咖啡杯",
+          "evidence_id": "7cceb6100a0b086eea2399148dc59c2ef266940f956fd82413a7087312cabf60"
+        },
+        "as_of": "2026-11-03T08:00:00Z",
+        "expires_at": "2026-11-03T08:10:00Z",
+        "claims": [
+          {
+            "kind": "product_title",
+            "product": {
+              "source_kind": "product",
+              "snapshot": {
+                "scope": {
+                  "organization_id": "00000000-0000-0000-0000-000000000004",
+                  "shop_id": "00000000-0000-0000-0000-000000000005"
+                },
+                "snapshot_id": "synthetic-product-v1",
+                "source_kind": "synthetic",
+                "source_binding_id": "synthetic-product-source",
+                "source_version": "v1",
+                "source_digest": "88850a88f6a356b5eb4e4be1fa2ccc95de2733368c80d5756c24b2853280cdd8",
+                "sku": "SYNTHETIC-COFFEE",
+                "captured_at": "2026-11-03T07:59:00Z",
+                "expires_at": "2026-11-03T08:10:00Z",
+                "revoked": false,
+                "title": "合成咖啡杯",
+                "facts_hash": "1f11dcbd3b2fcf0f9f5bbecb107684b6434ef7be88396bbeda9ae28f046d6c8a"
+              },
+              "field_path": "title",
+              "text": "合成咖啡杯",
+              "evidence_id": "7cceb6100a0b086eea2399148dc59c2ef266940f956fd82413a7087312cabf60"
+            },
+            "sop": null,
+            "text": "商品名称：合成咖啡杯",
+            "claim_id": "66501cf57203f279273642b3e5e16dd96f86bbe44ddcbfcbc22e33e07f3ce3bb"
+          },
+          {
+            "kind": "sop_excerpt",
+            "product": null,
+            "sop": {
+              "source_kind": "sop",
+              "chunk": {
+                "document": {
+                  "scope": {
+                    "organization_id": "00000000-0000-0000-0000-000000000004",
+                    "shop_id": "00000000-0000-0000-0000-000000000005"
+                  },
+                  "document_id": "doc-a",
+                  "document_version": "v1",
+                  "source_kind": "synthetic",
+                  "title": "自创合成操作规范",
+                  "source_ref": "synthetic:sop",
+                  "license_ref": "self-authored-synthetic",
+                  "license_digest": "7eb7beab802492a59082c23e4fcdd41568edd495aee7e59e7265729c3164fb1c",
+                  "approved_by": "synthetic-author",
+                  "approved_at": "2026-11-01T08:00:00Z",
+                  "valid_from": "2026-11-02T08:00:00Z",
+                  "expires_at": "2026-11-04T08:00:00Z",
+                  "approved": true,
+                  "revoked": false,
+                  "body": "自创合成SOP\n咖啡👩🏽‍💻é：核对名称。\n结束",
+                  "content_sha256": "56de3dd9ef44982a915576406158285b054fe90bf47634dd4cef70f2d3ba5ca9"
+                },
+                "chunk_id": "chunk-1",
+                "chunk_version": "v1",
+                "chunker_version": "fixture-v1",
+                "section": "名称核对",
+                "start": 8,
+                "end": 22,
+                "text": "咖啡👩🏽‍💻é：核对名称。",
+                "text_sha256": "5c63282d77b0967548e01a131536b8b20ed49253c2c07075c980e2afcc4debd1"
+              },
+              "evidence_id": "7f5ecf546c2a36c072e30e3aaa09a1c78ab2dda236d4138705ae91694ac39af6"
+            },
+            "text": "SOP 操作说明：咖啡👩🏽‍💻é：核对名称。",
+            "claim_id": "44e96bea8e2f813a32f41c695541facf7b4e7351839e958cfaadff076906a116"
+          }
+        ],
+        "text": "商品名称：合成咖啡杯\nSOP 操作说明：咖啡👩🏽‍💻é：核对名称。",
+        "candidate_hash": "a27693bbb51c911cccd43bd7f2403204eb9075c816f17293a63ec2567abb9162",
+        "narrative_mode": "template",
+        "model_evidence_mode": "not_used",
+        "publication_allowed": false
+      },
+      "state": "awaiting_review",
+      "source_current": true,
+      "draft_id": null,
+      "publication_allowed": false
+    }
+  },
+  "unknown_create": {
+    "schema_version": "p6-copy-web-v1",
+    "data": {
+      "state": "UNKNOWN",
+      "request_key": "00000000-0000-0000-0000-00000000000a",
+      "publication_allowed": false
+    }
+  },
+  "decision_saved": {
+    "schema_version": "p6-copy-web-v1",
+    "data": {
+      "schema_version": "p6-copy-receipt-v1",
+      "state": "saved",
+      "request_key": "00000000-0000-0000-0000-00000000000a",
+      "candidate_id": "00000000-0000-0000-0000-000000000007",
+      "candidate_hash": "a27693bbb51c911cccd43bd7f2403204eb9075c816f17293a63ec2567abb9162",
+      "decision_id": "00000000-0000-0000-0000-00000000000b",
+      "draft_id": "00000000-0000-0000-0000-00000000000c",
+      "publication_allowed": false
+    }
+  },
+  "decision_rejected": {
+    "schema_version": "p6-copy-web-v1",
+    "data": {
+      "schema_version": "p6-copy-receipt-v1",
+      "state": "rejected",
+      "request_key": "00000000-0000-0000-0000-00000000000a",
+      "candidate_id": "00000000-0000-0000-0000-000000000007",
+      "candidate_hash": "a27693bbb51c911cccd43bd7f2403204eb9075c816f17293a63ec2567abb9162",
+      "decision_id": "00000000-0000-0000-0000-00000000000b",
+      "draft_id": null,
+      "publication_allowed": false
+    }
+  },
+  "decision_UNKNOWN": {
+    "schema_version": "p6-copy-web-v1",
+    "data": {
+      "schema_version": "p6-copy-receipt-v1",
+      "state": "UNKNOWN",
+      "request_key": "00000000-0000-0000-0000-00000000000a",
+      "candidate_id": "00000000-0000-0000-0000-000000000007",
+      "candidate_hash": "a27693bbb51c911cccd43bd7f2403204eb9075c816f17293a63ec2567abb9162",
+      "decision_id": null,
+      "draft_id": null,
+      "publication_allowed": false
+    }
+  }
+}

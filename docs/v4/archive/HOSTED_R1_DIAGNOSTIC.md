@@ -1,0 +1,17 @@
+# PR53 Hosted run 41848095782 独立失败诊断
+
+2026-11-04（台北），attempt1，event=pull_request，终态failure。PR head为a1fc837d5e8ce161eb220edfb78295608a8ebdcb；N01实际checkout日志为98ce4a1e523de5bae3eac683728d43f5c6a1c694。GitHub只读commit API核其parents为main6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265与a1fc837，tree897a625c2399abe1fa1bcc825c4339f5fb8819ba等于a1fc837本地tree。不是把run API headSha当作checkout SHA。
+
+五job终态均failure：phase3/126636830366、frontend/126636830805、n01-web/126636830903、quality/126636831050、pg-pair/126637601654。metadata显示quality/phase3的Secrets gate失败且safe PG artifact上传也失败；frontend/N01准备步骤失败；pair下载artifact失败。独立查询本run artifacts total_count=0，因此无法严格配对，不签PG、Full、Web或清理通过。除N01外本轮依据job/step metadata，未假称逐读全部其他job原日志。
+
+N01日志本轮独立下载，SHA256 6f4cebfe8f83ebb5a77fea392af1511c8f0b8332459d7b63fb52d40a7de97f23，与Root下载原件逐字节相同。该job第6步Prepare locked N01 production build and Chromium within deadline实际在scan_secrets失败；未到依赖安装、镜像构建、PG/浏览器步骤。第7—13步包括原registered-project cleanup均skipped，post-checkout/Complete job成功仅是runner清理，不冒称运行资源独立关闭证据。
+
+唯一blocking在日志第369行：scope git / generic-api-key / frontend/app/v4/[[...path]]/page.tsx:9 / commit98ce4a1e523de5bae3eac683728d43f5c6a1c694。fingerprint为98ce4a1e523de5bae3eac683728d43f5c6a1c694:frontend/app/v4/[[...path]]/page.tsx:generic-api-key:9。扫描分类实际1563 reviewed_public_merge_copy +143 reviewed_public_false_positive +1 blocking，末native1/reviewed1706/blocking1。
+
+该行是approvedApiOrigin读取公开COMMERCEOPS_API_ORIGIN/COMMERCEOPS_WEB_TRANSPORT配置的JSX，无凭据字面量。其完整行SHA256在63a5a4f、c8988fb及a1fc837均为87405b72cf4ecad5f2e883918142fa6809f7b0c973fc89881eb429f190a5b64b。当前整文件blob为7e2b1229c4544eb751925f38df0ffd5a658cb060，来自c8988fb92974147387749de4200f053c0d1f0381恢复已审行位置；旧63a blob60e878cab70e13abc4e827af83eebdb3ad159ad7，f949 blob6fe538b6de6f6532a8198476a0ca8a2dd9ca05ee。
+
+scripts/gitleaks_rules.json只给该路径登记63a/f949两种merge-copy anchor；f949绑定行11，旧snapshot绑定行9。approved_v4_merge_copy先要求实际merge commit与指定source整文件blob均匹配anchor，再验证line/columns/match/span；当前7e2b blob没有anchor，因此拒绝。这是具体未登记的已改路由文件版本，不能泛称Hosted差异或自动放宽merge规则。
+
+最小修复候选：经owner独审当前完整文件后，补c898精确整blob anchor及必要第9行精确binding，仍绑定rule/path/commit/blob/行列/full-span/match hash，不按路径通配、不降低原分类条件、不删除旧记录。若衍生constants/provenance有同步契约须一并精确同步。新候选应验证真实merge-copy接受以及变更blob/行/匹配值仍拒绝；任何扫描/CI运行仍由Root授权，不自动重试本失败run。
+
+旧本地验收不被本失败改写，本次Hosted也不因旧证据转绿。review WT不变，无服务/测试/CI触发或代码修改。原尝试对未在本地的merge对象读取产生空输出后索引错误，未据此作source结论；随后改用只读GitHub commit API完成上述tree/parents核验。

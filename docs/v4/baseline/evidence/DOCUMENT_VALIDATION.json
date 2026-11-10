@@ -1,0 +1,22 @@
+{
+  "validation_kind": "DOCUMENT_STRUCTURE_ONLY_NOT_APPLICATION_TESTS",
+  "checks": {
+    "feature_ids_exact": true,
+    "page_ids_exact": true,
+    "features_99_unique": true,
+    "pages_66_unique": true,
+    "existing_46_unique_method_path": true,
+    "proposed_8_paths": true,
+    "all_proposed_paths_labeled": true,
+    "openapi_local_refs_resolve": true,
+    "openapi_failure_db_clock_nullable": true,
+    "final_frozen_hashes_match": true,
+    "authorized_shops_zero_to_two": true,
+    "all_json_parse": true
+  },
+  "all_pass": true,
+  "application_tests": "NOT_RUN",
+  "pg": "NOT_RUN",
+  "browser": "NOT_RUN",
+  "hosted": "NOT_RUN"
+}

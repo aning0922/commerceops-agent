@@ -1,0 +1,16 @@
+{
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "case": "v4qa_naturalttl_20261104a",
+  "status": "FAILED_BEFORE_RESOURCES",
+  "execute_native_exit": 1,
+  "stage": "local_image_exists",
+  "native_exit": 1,
+  "old_pg_image_id": "sha256:1e17b371d6c3833bc985e61cb2d655bb9e87e69779821b7abcb849ccad24b5f1",
+  "actual_docker_error": "No such image",
+  "business_api_pg_web": "NOT_STARTED",
+  "cleanup_confirmed": true,
+  "containers_networks_volumes_created": 0,
+  "underlying_image_disappearance_cause": "UNKNOWN",
+  "subsequent_action": "New current same-F1 image source/six-input/metadata binding validated; custom owned alias pinned without rebuilding; original consumed case preserved; new independent TTL-B uses its own window.",
+  "ttl_acceptance": "NOT_RUN_ON_THIS_CASE"
+}

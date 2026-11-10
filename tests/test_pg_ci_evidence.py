@@ -386,3 +386,45 @@ def test_six_complete_business_modules_move_with_approval_shards_and_exact_pair(
             bad["modules"].append(copy.deepcopy(bad["modules"][1]))
         with pytest.raises(ValueError):
             verify_pair(bad, b)
+
+
+@pytest.mark.parametrize(
+    ("damage", "error"),
+    [
+        ("missing_pass", "all actual nodes must pass and terminate"),
+        ("wrong_membership", "module label binding required"),
+        ("old_partition", "exact actual partition required"),
+    ],
+)
+def test_three_phase3_modules_move_as_one_complete_strict_existing_group(
+    monkeypatch: pytest.MonkeyPatch, damage: str, error: str
+) -> None:
+    from scripts.pg_diagnostic import combined_groups
+
+    paths = (
+        "tests/test_p4_a08_group_pg.py",
+        "tests/test_p4_f02_parent_pg.py",
+        "tests/test_p4_sender_recovery_pg.py",
+    )
+    moved = [f"{path}::{case}" for path in paths for case in ("later", "first", "future")]
+    nodes = FULL + moved
+    label = "combined-existing-p4-group-f02-sender"
+    assert combined_groups(nodes)[label] == moved
+    monkeypatch.setitem(globals(), "FULL", nodes)
+    existing, phase3 = report("existing"), report("phase3")
+    assert existing["actual_node_ids"] == sorted(OLD + moved)
+    assert phase3["actual_node_ids"] == sorted(P3)
+    assert sorted(existing["actual_node_ids"] + phase3["actual_node_ids"]) == sorted(nodes)
+    module = next(m for m in existing["modules"] if m["label"] == label)
+    assert module["actual_node_ids"] == sorted(moved)
+    verify_pair(existing, phase3)
+
+    if damage == "missing_pass":
+        module["passed_node_ids"].pop()
+    elif damage == "wrong_membership":
+        for key in ("expected_node_ids", "actual_node_ids", "passed_node_ids"):
+            module[key] = sorted([*moved[:-1], OLD[0]])
+    else:
+        existing["selected_node_ids"] = existing["actual_node_ids"] = sorted(OLD)
+    with pytest.raises(ValueError, match=error):
+        verify_pair(existing, phase3)

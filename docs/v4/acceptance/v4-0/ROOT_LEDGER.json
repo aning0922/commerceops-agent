@@ -1,0 +1,98 @@
+{
+  "stage": "V4-0",
+  "status": "LOCAL_IMPLEMENTATION_AND_RUNTIME_GATES_ACCEPTED",
+  "authorization": "B / local",
+  "started_at_utc": "2026-11-03T14:04:33Z",
+  "base_sha": "952e6246deb01ec763f2541d9f316753987744f3",
+  "base_tree": "43e4e732824e23b991660a4f7882ba8f5a265df1",
+  "integration_branch": "codex/v4-control-20261103",
+  "cards": {
+    "V40-01": "BASELINE_RECONFIRMED_REUSED",
+    "V40-02": "USER_ACCEPTED_FOUR_CONTRACTS_REUSED",
+    "V40-03": "IMPLEMENTED_COMPONENT_HTTP_TTL_ACCEPTED",
+    "V40-04": "IMPLEMENTED_SEED_RESET_ROLLBACK_NATIVE_ACCEPTED",
+    "V40-05": "IMPLEMENTED_LOCAL_REQUIRED_RUNTIME_GATES_ACCEPTED"
+  },
+  "owner_worktrees": {
+    "ROOT": "commerceops-v4-control",
+    "WEB": "commerceops-v4-web",
+    "QA": "commerceops-v4-qa",
+    "REVIEW": "commerceops-v4-review",
+    "BACKEND": "commerceops-v4-foundation",
+    "SECURITY_SCAN": "commerceops-v4-scan"
+  },
+  "model_policy": {
+    "backend": "gpt-6.1-sol/high; temporarily xhigh for SQL transaction repair, returned high after component freeze",
+    "web": "gpt-6.1-terra/high",
+    "review": "gpt-6-astra/high for critical; bounded increments may reduce effort",
+    "qa": "gpt-6.1-sol/high for safe migration diagnosis; medium for mechanical handoff"
+  },
+  "actual_model_token_cost": "UNKNOWN",
+  "agent_effective_time": "NOT_METERED_UNKNOWN",
+  "engineering": {
+    "source": "cbd1c4e31569bf84f065fd38dd18448d438f6225",
+    "native_exit": 0,
+    "seconds": 1389.861,
+    "receipt": "ENGINEERING_CBD.json"
+  },
+  "gates": {
+    "native_components": "23_PASS_SOURCE_SPECIFIC",
+    "ui_fixture": "35_PASS_MOCK_RESPONSE",
+    "http": "11_PASS_F1_R2_R3_SOURCE_SPECIFIC",
+    "natural_ttl": "PASS_F1_NATURAL_FIXED_30_MINUTES",
+    "browser": "PASS_R3_ONE_FIXED_LIFECYCLE_AND_NATIVE_200",
+    "legacy_web": "24_PASS_F1",
+    "n01": "6_PASS_F1",
+    "full_pg_existing": "568_PASS_R2_G1_THREE_G2_SIX_CLEANUP_0",
+    "full_pg_phase3": "177_PASS_R2_CLEANUP_0",
+    "strict_pair": "PASS_R2_568_PLUS_177_EQUALS_745_INTERSECTION_ZERO",
+    "final_independent_review": "ACCEPTED_8ed368d268cf3ea1f09e02abc0671a4ab9c589ec"
+  },
+  "source_reuse": "Actual evidence sources remain F1/R2/R3/cbd. Unchanged product subtrees and 69 PG inputs checked. R2 strict fingerprints differ from candidate in two scanner files; pair is only signed at R2. See PG_REUSE_INPUTS.json and independent review.",
+  "protected_worktree_heads": {
+    "M3": "952e6246deb01ec763f2541d9f316753987744f3",
+    "Harness": "b9ceaf3b7cf510a4eaae47f64eb982b5a172ea4b",
+    "original": "e06b66580d49866888c3ef11ccc8afb2df9a236b"
+  },
+  "current_runtime_resources": [],
+  "failure_policy": "Historical failures and UNKNOWN remain in Git and original .audit receipts. New success cases do not overwrite or replay failed resources/operation identity.",
+  "failure_receipts": [
+    "SCHEMA_FIRST_PG.json",
+    "MIGRATION_DIAGNOSTIC_AE4.json",
+    "UI_FIXTURE_FIRST.json",
+    "HTTP_PILOT_27F.json",
+    "HTTP_PILOT_D816.json",
+    "HTTP_PILOT_4B3C.json",
+    "HTTP_PILOT_2330.json",
+    "TTL_FIRST_F1.json",
+    "HTTP_FINAL_MATRIX.json",
+    "BROWSER_R2.json",
+    "FULL_EXISTING_FIRST_F1.json",
+    "ENGINEERING_CBD.json"
+  ],
+  "unverified": [
+    "M3 daily/inquiry/copy separate live browser flows",
+    "physical retention GC native flow",
+    "full accessibility and manual visual acceptance",
+    "Hosted/3865U/amd64",
+    "real models/embedding/Feishu/Woo/production"
+  ],
+  "V4-1": "NOT_AUTHORIZED_NOT_STARTED",
+  "remote_writes": "NOT_AUTHORIZED_NOT_RUN",
+  "updated_at_utc": "2026-11-03T20:01:06.076468+00:00",
+  "remaining_runtime_gates": [],
+  "final_document_gate": {
+    "scope": "Separate frozen-source release check, actual result is in its source-bound local receipt.",
+    "receipt_pattern": ".audit/v4-0/final-document-gate-<source7>/receipt.json"
+  },
+  "runtime_accepted_at_utc": "2026-11-03T19:42:15.271286+00:00",
+  "final_history_compatibility": {
+    "source": "609cdb3eed2b21199247e7ee8ef56c7ab797062b",
+    "review": "Astra high accepted exact candidate",
+    "scope": "Only exact historical metadata, generated provenance, count assertions and rejection tests; no runtime business change.",
+    "original_failure": "FINAL_DOC_031_FAILURE.json",
+    "new_exact_records": 3,
+    "whole_blob_snapshots": 2,
+    "targeted_tests_passed": 10
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "at_utc": "2026-11-04T15:30:13.798059+00:00",
+  "branch": "codex/archive-main-before-v41-20261104",
+  "sha": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+  "remote_verified": true,
+  "operation": "NORMAL_NEW_REF_PUSH_NO_FORCE",
+  "main_unchanged": true
+}

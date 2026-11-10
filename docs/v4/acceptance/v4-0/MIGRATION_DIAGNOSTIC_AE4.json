@@ -1,0 +1,29 @@
+{
+  "source_sha": "ae4dd8114b98304005898afe0788d4f2ebda50f9",
+  "source_tree": "91fdf5c5e32e96164d3772e6d86b3b352b9ee1b2",
+  "mode": "NATIVE_OWNED_PG_DIAGNOSTIC_NOT_FULL",
+  "native_exit": 1,
+  "tests_executed": 0,
+  "safe_error": {
+    "stage": "ORIGINAL_MIGRATE",
+    "sqlstate": "42601",
+    "statement_position": 565,
+    "statement": "public FUNCTIONS literal in 0024",
+    "location": "v4_demo_request_valid path CASE expression"
+  },
+  "inference": "syntax near top-level CASE in PLpgSQL IF; exact code correction and retest pending",
+  "original_cleanup_complete": false,
+  "cleanup_reconciliation": {
+    "at_utc": "2026-11-03T15:36:59.626260+00:00",
+    "reason": "compose down omitted registered one-off pg-test probe; original cleanup false retained",
+    "container_id": "ba7b9208795919f60829bfaea1cab9659e70e27e603db810103c24bc36f01ea2",
+    "native_rm_exit": 0,
+    "final_inventory": {
+      "container": "",
+      "network": "",
+      "volume": ""
+    },
+    "cleanup_complete": true
+  },
+  "evidence_index": ".audit/v4-0/migration-diagnostic-ae4"
+}

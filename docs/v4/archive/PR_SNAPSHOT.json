@@ -1,0 +1,23 @@
+{
+  "autoMergeRequest": null,
+  "baseRefName": "main",
+  "baseRefOid": "6d3a8f7bf3d36c6c1dcfd5072a3297be4cc88265",
+  "headRefName": "codex/v41-archive-main-20261104",
+  "headRefOid": "7a2be64def01044baba9606846c24f2544f2b6fb",
+  "isDraft": true,
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 53,
+  "state": "OPEN",
+  "statusCheckRollup": [],
+  "url": "https://github.com/aning0922/commerceops-agent/pull/53",
+  "snapshot_utc": "2026-11-04T14:25:21.300370+00:00",
+  "actions_runs": [],
+  "required_checks": [
+    "quality",
+    "phase3",
+    "frontend",
+    "pg-pair"
+  ],
+  "not_final_self_referencing_head": "Metadata commits may follow this exact observed snapshot; use live PR head for current state."
+}

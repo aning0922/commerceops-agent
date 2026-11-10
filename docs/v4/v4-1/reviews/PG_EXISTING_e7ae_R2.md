@@ -1,0 +1,17 @@
+# e7 existing-r2实际单线闭合独审
+
+2026-11-04（台北）。结论：`EXISTING_SCOPE_ACCEPTED / FULL_PAIR_PENDING`。source `e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6`，tree `4e8349cfeec323668be316426871bc310b6ce53d`；实际树commerceops-v41-full-existing-r2，project `p123-78bb025ea6d1`、subnet `10.243.198.0/24`。只核收该existing单线，不签phase3、工程、browser或阶段完成。
+
+独立核GATES case full-existing-e7ae-r2的EXECUTION_RESULT.safe.json摘要 `aa6bbabf6868e2ddc55ca75975076c61594885ce2d0ce55040aa89cc09ebea66`、independent-cleanup.safe.json摘要 `fa2a015068e72dbbec7c33e6b39c49c72a293af580a0417f581e6ebbdef7ffd3`。官方ci-evidence-existing.json摘要 `8aba0edf2e6548c66c5851a8f12b8725097411b4abce869530fcef4cc26df372`，原round-1.json摘要 `69ce500ee64b869adae660ae0717658c35b9ce438d547f09c96a3c08d5c97e73`；wrapper checks、outer及实际镜像回执摘要均与封存provenance一致。
+
+从精确e7 Git对象载入原pg_ci_evidence，仅对已有JSON运行纯validate及safe_report重建，重建结果与官方证据完全相等，未执行测试/命令或调用identity。完整collection773，hash `b18a4b06e28581e521f5c5aa13741679b47b1a7c6d9dd17daff161fc61c4933f`；existing selected=actual=passed596。独立重算原pytest_progress：596唯一node_start、1788 phase_end，setup/call/teardown各596且全passed，call集合与官方actual及封存passed列表精确相等，无失败、skip、中断或未开始项。24原分组expected/actual/passed全相等且各native0。原partition纯计算另177节点与existing交集0、计划union773；这只是分区计划，尚非两线实际union或strict pair通过。
+
+G1为同task/thread的三条verified且count_one=true，restart/recreate/outage三次核验对应命令0；原fixture committed记录另列。45命令中唯一非零为预期unavailable exit1，之后recover与verify-outage均0；全部timed_out=false/stopping_confirmed=true/sample_error=false，不能写所有命令0。G2六实际记录为cross_process_resume、receipt_commit_checkpoint_gap、graph_lock_loss_cancel、graph_noncooperative_exit、checkpoint_db_failure_recovered、retired_probe_version_refused，均保持postgres_technical/not_used/simulated；其old_exit包含0/-9/2/75等预期故障事实，不改成全零。
+
+实际helper UTC06:53:30.071381至07:29:12.103300，2142.031919秒；parent结束07:29:12.630354。Root本次窗口06:51起、helper stop07:36、outer stop07:46/reserve300；helper业务截止07:34:45。原每命令300、退出30、helper reserve75、cleanup60未放宽；最长测试组259.134441秒，helper结束距其截止407.8967秒，仅证明本次容量。helper/worker/调用方outer均0、wrapper/parent无timeout及failure、notes空。checks保留source双快照相同和clean；14文件指纹逐项核精确e7 Git blob，4 runtime/3 binary与官方证据、Root raw identity绑定相同；daemon raw绑定摘要及独立清理server ID相符。
+
+实际服务镜像安全回执绑定同project、工作树和Compose文件，无host port bindings：pg-test为 `sha256:87498ea582cbf98aeeee0c730d8ad1e3e1f61fb8710d3cb5aa4ae25543d34f3c`，db-init为 `sha256:743bf29b6500c8f168ad3cb21a9812d68b16451a5f05ab5b25f5269303a17ce7`；postgres沿用 `sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f`，与原prepared image、helper及清理后tag inspect一致。原build命令0与冻结source上下文单列；容器文件系统逐字节检查NOT_RUN，不从镜像metadata推成该检查通过。
+
+canonical cleanup native0/stopping_confirmed=true，33登记容器verified=removed=33，5.58秒完成。后续独立回执记录同project容器/网络/卷查询native0空；精确临时卷inspect native1/no-such-volume，33原登记容器逐名inspect native1/no-such-object。48组ps探测均native1且stdout/stderr空，独立比对恰为45 helper CLI组加parent/worker/probe，无漏换；原OS/container/reader退出确认均true。runtime项目目录消失、临时卷删除与本canonical路线相符，不套用HTTP保卷约束。PGbase清理后仍bb26；other-assets未动为回执限定声明，未扩大为全机资产审计。
+
+原r1全局截止失败保持，不拼接到r2；phase3状态按该封存时点保留。后续实际phase3与strict pair须在同源、同工具及同773集合下另审。本Reviewer只读原件、精确源及纯JSON集合验证，未运行ps、Docker、网络、PG或任何测试，未重取资源状态。独立计算摘要保存在Reviewer私有 `.audit/v4-1/existing-e7-r2-review/independent.json`。

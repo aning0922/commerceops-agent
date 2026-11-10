@@ -1,5 +1,11 @@
 "use client";
 import { CreateTaskDialog, DecisionActions } from "./live-actions";
+import { DailyReport } from "./daily-report";
+import { DailyWrite } from "./daily-write";
+import { Copy } from "./copy";
+import { Inquiry } from "./inquiry";
+import { DailyFailure, readDaily } from "../lib/m3-read-client";
+import type { DailyRead } from "../lib/m3-types.generated";
 import { ExecutionFacts, ItemListFacts, ItemDetails } from "./item-views";
 import { itemConsistent } from "../lib/p3-item-contract";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -28,6 +34,10 @@ import {
 } from "./live-readviews";
 type Query = { version?: string; report_id?: string; operation?: string };
 type PageData =
+  | { kind: "inquiry" }
+  | { kind: "daily-create" }
+  | { kind: "copy" }
+  | { kind: "daily"; read: DailyRead }
   | { kind: "tasks"; read: DTO["TaskList"] }
   | {
       kind: "task";
@@ -63,9 +73,18 @@ const taskRoute = new RegExp(
 const approvalRoute = new RegExp(`^/approvals/(${uuid})$`, "i");
 const receiptRoute = new RegExp(`^/requests/(${uuid})$`, "i");
 const itemRoute = new RegExp(`^/replenishment-items/(${uuid})$`, "i");
+const dailyRoute = new RegExp(`^/daily-reports/(${uuid})$`, "i");
 const uuidOnly = new RegExp(`^${uuid}$`, "i");
 const titleOf = (path: string) =>
-  path.endsWith("/report")
+  path === "/copy"
+    ? "内部文案"
+    : path === "/daily-reports"
+    ? "创建经营日报"
+    : path === "/inquiries"
+    ? "只读查询"
+    : dailyRoute.test(path)
+    ? "经营日报"
+    : path.endsWith("/report")
     ? "库存分析报告"
     : path.endsWith("/events")
       ? "Agent 执行轨迹"
@@ -89,7 +108,7 @@ const titleOf = (path: string) =>
                         ? "内部补货"
                         : "访问限制与会话过期";
 const messageOf = (error: unknown) =>
-  error instanceof P3Failure ? error.message : "暂时无法安全读取。";
+  error instanceof P3Failure || error instanceof DailyFailure ? error.message : "暂时无法安全读取。";
 export function LiveConsole({
   path,
   query,
@@ -97,6 +116,8 @@ export function LiveConsole({
   localHttp,
   fixtureMode = false,
   fixtureClient,
+  inquiryEnabled = false,
+  copyEnabled = false,
 }: {
   path: string;
   query: Query;
@@ -105,6 +126,8 @@ export function LiveConsole({
   // Only the server-gated explicit Mock wrapper supplies this in-memory adapter.
   fixtureMode?: boolean;
   fixtureClient?: (invalidate: () => void) => A01ReadClient;
+  inquiryEnabled?: boolean;
+  copyEnabled?: boolean;
 }) {
   const router = useRouter();
   const epoch = useRef(0);
@@ -150,10 +173,12 @@ export function LiveConsole({
       fixtureMode && fixtureClient
         ? fixtureClient(invalidate)
         : origin
-          ? createReadClient(origin, localHttp, invalidate)
+          ? createReadClient(origin, localHttp, invalidate, inquiryEnabled)
           : null,
-    [origin, localHttp, invalidate, fixtureMode, fixtureClient],
+    [origin, localHttp, invalidate, fixtureMode, fixtureClient, inquiryEnabled],
   );
+  const currentPage = useRef({ path, session, client });
+  currentPage.current = { path, session, client };
   useEffect(() => {
     if (!client) {
       setChecking(false);
@@ -211,7 +236,17 @@ export function LiveConsole({
       const cap = session!.principal.capabilities;
       let page: PageData;
       let shop: string | null = null;
-      if (path === "/admin/operations") {
+      if (path === "/copy" && !fixtureMode && copyEnabled) {
+        page = { kind: "copy" };
+      } else if (path === "/daily-reports" && !fixtureMode) {
+        page = { kind: "daily-create" };
+      } else if (path === "/inquiries" && !fixtureMode) {
+        page = { kind: "inquiry" };
+      } else if (dailyRoute.test(path)) {
+        if (fixtureMode || !origin) throw new P3Failure("RESOURCE_NOT_FOUND");
+        const id = path.match(dailyRoute)![1];
+        page = { kind: "daily", read: await readDaily(origin, id, () => client!.clearSession(), undefined, accept) };
+      } else if (path === "/admin/operations") {
         if (!cap.can_read_operations) throw new P3Failure("ACCESS_DENIED");
         page = { kind: "operations", read: await client!.operations() };
       } else if (path === "/tasks") {
@@ -359,7 +394,7 @@ export function LiveConsole({
       setConfig(null);
       setError(messageOf(error));
       if (
-        error instanceof P3Failure &&
+        (error instanceof P3Failure || error instanceof DailyFailure) &&
         ["ACCESS_DENIED", "RESOURCE_NOT_FOUND", "INVALID_REQUEST"].includes(
           error.code,
         )
@@ -374,6 +409,8 @@ export function LiveConsole({
     client,
     session,
     path,
+    fixtureMode,
+    origin,
     query.report_id,
     query.version,
     query.operation,
@@ -480,6 +517,7 @@ export function LiveConsole({
     data?.path === path && data.client === client && data.session === session
       ? data.value
       : null;
+  const renderedEpoch = epoch.current;
   const operatorShops =
     session?.principal.role_shop_grants
       .filter((grant) => grant.role === "operator")
@@ -623,6 +661,9 @@ export function LiveConsole({
               任务中心
             </a>
           )}
+          {copyEnabled && !fixtureMode && (operatorShops.length > 0 || session.principal.role_shop_grants.some(x => x.role === "approver")) && <a href="/copy" aria-current={path === "/copy" ? "page" : undefined}>内部文案</a>}
+          {!fixtureMode && operatorShops.length > 0 && <a href="/daily-reports" aria-current={path === "/daily-reports" ? "page" : undefined}>经营日报</a>}
+          {inquiryEnabled && !fixtureMode && operatorShops.length > 0 && <a href="/inquiries" aria-current={path === "/inquiries" ? "page" : undefined}>只读查询</a>}
           {capabilities!.can_read_approvals && (
             <a
               href="/approvals"
@@ -675,7 +716,7 @@ export function LiveConsole({
           </div>
         </header>
         <main id="main">
-          <div className="mock-banner">
+          {page?.kind !== "daily" && page?.kind !== "inquiry" && <div className="mock-banner">
             <BusinessSourceNotice
               fixtureMode={fixtureMode}
               kind={
@@ -684,7 +725,7 @@ export function LiveConsole({
                   : null
               }
             />
-          </div>
+          </div>}
           <div className="page-heading">
             <div>
               <h1>{title}</h1>
@@ -727,6 +768,11 @@ export function LiveConsole({
             </Card>
           ) : (
             <>
+              {page.kind === "copy" && <Copy client={client!} principal={session.principal.principal_id} operators={operatorShops} approvers={session.principal.role_shop_grants.filter(x => x.role === "approver").map(x => x.shop_id)} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
+              {page.kind === "daily-create" && origin && <DailyWrite client={client!} origin={origin} shops={operatorShops} principal={session.principal.principal_id} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
+              {page.kind === "daily" && origin && !fixtureMode && <DailyWrite key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? ""}:${page.read.daily.report?.facts_hash ?? ""}:${page.read.daily.report?.content_hash ?? ""}`} read={page.read} client={client!} origin={origin} shops={operatorShops} principal={session.principal.principal_id} current={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
+              {page.kind === "inquiry" && <Inquiry client={client} enabled={inquiryEnabled} shops={operatorShops} holdWrite={holdWrite} />}
+              {page.kind === "daily" && origin && <DailyReport key={`${page.read.daily.task_id}:${page.read.daily.report?.report_id ?? page.read.daily.updated_at}:${page.read.daily.report?.facts_hash ?? ""}:${page.read.daily.report?.content_hash ?? ""}`} read={page.read} origin={origin} invalidate={() => client.clearSession()} parentCurrent={() => epoch.current === renderedEpoch && currentPage.current.path === path && currentPage.current.session === session && currentPage.current.client === client} />}
               {page.kind === "tasks" && (
                 <>
                   <div className="metrics">

@@ -1,0 +1,82 @@
+{
+  "scope": "MOCK_UI_ONLY_FAILED_CLOSED",
+  "case": "ui-fixture-batch-r1",
+  "source": "5acf03ae30807c160aa110035127a4e308e95da9",
+  "tree": "9c967e247d24a2acc36f1e4f6d827763e3d13a47",
+  "status": "FAILED_PRESERVED_NO_RETRY",
+  "started_utc": "2026-11-04T09:45:21.900524+00:00",
+  "ended_utc": "2026-11-04T09:45:36.612547+00:00",
+  "stats": {
+    "passed": 1,
+    "failed": 1,
+    "not_run": 31,
+    "flaky": 0,
+    "retries": 0
+  },
+  "required_natives": {
+    "build_native": 0,
+    "probe_native": 1
+  },
+  "worker_native_exit": 1,
+  "outer_native_exit": 1,
+  "parent_timeout": false,
+  "cleanup": {
+    "build_native": {
+      "probe": 0
+    },
+    "build_stopped": true,
+    "native": {
+      "probe": 1,
+      "web": 143,
+      "api": 0
+    },
+    "groups_stopped": true,
+    "elapsed_seconds": 0.021403750171884894,
+    "ports_closed": {
+      "13487": true,
+      "18487": true
+    }
+  },
+  "independent_groups_worker_outer_absent": true,
+  "source_unchanged": true,
+  "tool_dependency_pins_unchanged": true,
+  "generated_ignored_file": {
+    "before_sha256": "0f70629890b72a0a82e91972cc032c04b658b26c265373cb711cf576bfbf8fcc",
+    "after_sha256": "1862ac4bbbc5192d4bf562161df66ea547ed3e67173100656ab606ae9797db2b",
+    "before_bytes": 296,
+    "after_bytes": 288,
+    "tracked": false,
+    "source_guard_normalization": false
+  },
+  "failure": "Final assertions observed pending progress before completed write lock; requests array length was zero. Exact original route timeline UNKNOWN.",
+  "source_fix": "99a48b54eff83733aa805465acc68c2619ffd91c",
+  "fix_review": "c5fc10f3c44415c5c99b11bdce1d0f5f339edc61",
+  "fix_scope": "Wait observed original POST and restored Cancel control before unchanged final assertions; later run pending.",
+  "limitations": {
+    "running_uid": "NOT_CAPTURED_IN_ORIGINAL_REGISTRATION",
+    "browser_native_exit": "NOT_EXPOSED_SEPARATELY",
+    "business_api_pg_provider_native200": "NOT_RUN"
+  },
+  "artifacts": [
+    {
+      "path": "ui-fixture-batch-r1/checks.json",
+      "sha256": "fc705e80d952dc93ad7a18117bc6476e181d3fd12bcc232ce74f513ac56f5caf"
+    },
+    {
+      "path": "ui-fixture-batch-r1/outer-receipt.json",
+      "sha256": "5fad49dd4405f6bdbfd0905dc2c2e326cd53f7e9ac8601d469d6c7730688a0a3"
+    },
+    {
+      "path": "ui-fixture-batch-r1/playwright.json",
+      "sha256": "e2bd871eb8d43e036107b7d698322ee371c5c588eb62442d3372f6e3eae41373"
+    },
+    {
+      "path": "ui-fixture-batch-r1/closedfinal.json",
+      "sha256": "666ffe6a875c08d7dcb27113c348956d1b65f8a39342333ee3c91c22fbbcea42"
+    },
+    {
+      "path": "ui-fixture-batch-r1/closedfinal-profile-classification.json",
+      "sha256": "2998fe171a7307f598901c147f102b1b3dc91956536204a2d8d41c67aba19256"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "source": "c6abe0528f05b458331f270d758317c1d7b38843",
+  "project": "v4qa_browser_20261104b",
+  "driver_native_exit": 1,
+  "forced": false,
+  "cleanup_confirmed": true,
+  "retained_volumes": "v4qa_browser_20261104b_pg_data",
+  "ports_closed": {
+    "18470": true,
+    "13470": true
+  },
+  "closed_at": "2026-11-03T18:24:58.834889+00:00",
+  "stats": {
+    "startTime": "2026-11-03T18:24:44.439Z",
+    "duration": 7431.321,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "images": [
+    {
+      "name": "live-session-native-200-segment-04.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "aadc0b8fc4f6851841858e13da27edd76dc099699eadf1a729514d0f93c84064"
+    },
+    {
+      "name": "live-session-native-200-segment-05.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "8e09f0bba1375f67a9ea2cce6cd86f261550e25feceac4dd69fa01729eec2c0c"
+    },
+    {
+      "name": "live-mobile-reset-dialog-390.png",
+      "dimensions": [
+        390,
+        1706
+      ],
+      "sha256": "ce4dee074a74f80bd2921f7d906261ef414c6fdad5953fd6715d45e7b4eccece"
+    },
+    {
+      "name": "live-session-native-200-segment-02.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "77ac99362deaebfc308ad225c2474677f88664a889048c70b00a2665484c303d"
+    },
+    {
+      "name": "live-session-native-200-segment-03.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "523d193fd40c39f39fce11111fdc18e0aba60bb081d5ac82d432a1a59cbc9040"
+    },
+    {
+      "name": "live-session-native-200-segment-01.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "bcdc9b06fddfa6648ce816fd716bdbaf952ad1e9df92253203a4fee36dfa5034"
+    },
+    {
+      "name": "live-native-settings-200.png",
+      "dimensions": [
+        2880,
+        1826
+      ],
+      "sha256": "2cf1bf0994cf58d335bd3e2c8a619fbab8c6b8d8d55bfbf807d1309bcc1d2ece"
+    },
+    {
+      "name": "live-welcome-390.png",
+      "dimensions": [
+        390,
+        1435
+      ],
+      "sha256": "e56a67bda39627610412b1f4ed37bdedbde3adf422045ccfe54b13d9854affad"
+    },
+    {
+      "name": "live-welcome-1280.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "13f4317bbb0df51d8c690fdf660b5f172eab92f9e99f254fd3c4130b4667b199"
+    },
+    {
+      "name": "live-welcome-1440.png",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sha256": "b8755de9202df30b3292f1abe6107a9b31a0afad7855828864a87b084635a1df"
+    },
+    {
+      "name": "live-mobile-session-390.png",
+      "dimensions": [
+        390,
+        1857
+      ],
+      "sha256": "77653668a2a2f6ae033aa61f3147a8012c17157956a689172a025eb7f87a9e90"
+    }
+  ],
+  "original_path": "/Users/aipuli/.codex/worktrees/commerceops-v4-live/commerceops-agent/.audit/v4qa_browser_20261104b",
+  "status": "FAIL_NATIVE_CAPTURE_GAP",
+  "source_tree": "73e987375e2b6a2f06ac5aabaaab1499d78207d0"
+}

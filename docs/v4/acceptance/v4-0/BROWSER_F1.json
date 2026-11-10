@@ -1,0 +1,137 @@
+{
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+  "project": "v4qa_browser_20261104a",
+  "status": "PASSED_REAL_BROWSER_LIFECYCLE",
+  "stats": {
+    "startTime": "2026-11-03T17:36:41.311Z",
+    "duration": 6359.862,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "strict_single_fixed_test_report": "ACCEPTED",
+  "native_zoom": {
+    "nativeZoomSelection": "2",
+    "before": {
+      "outerWidth": 1440,
+      "innerWidth": 1440,
+      "dpr": 2,
+      "visualScale": 1,
+      "cssZoom": "1",
+      "scrollWidth": 1440
+    },
+    "after": {
+      "outerWidth": 1440,
+      "innerWidth": 720,
+      "dpr": 4,
+      "visualScale": 1,
+      "cssZoom": "1",
+      "scrollWidth": 720
+    }
+  },
+  "driver_native_exit": 0,
+  "cleanup_confirmed": true,
+  "forced": false,
+  "retained_volumes": "v4qa_browser_20261104a_pg_data",
+  "final_pg": [
+    {
+      "tenant_id": "3b27e10e-e476-45f8-a683-989763176074",
+      "epoch": 0,
+      "generation": 0,
+      "digest": "d65236b4bcfe56166ef460b09ac83e6f8dcdffd5a3feede47d5171d3be2bf021",
+      "receipts": 2,
+      "tombstones": 2,
+      "db_utc": "2026-11-03T17:36:50.705879+00:00"
+    },
+    {
+      "tenant_id": "8f0f4646-0dc0-432f-a643-b31347f1a850",
+      "epoch": 0,
+      "generation": 0,
+      "digest": "3e115293a5f1d67d24f0d6a9c35c5bc47ea9362e076bc6fb3653887f79d24df1",
+      "receipts": 2,
+      "tombstones": 2,
+      "db_utc": "2026-11-03T17:36:51.893069+00:00"
+    },
+    {
+      "tenant_id": "e29cc573-4059-4622-8a8b-639a5f095287",
+      "epoch": 1,
+      "generation": 4,
+      "digest": "92b7205cb42887689e8b2ea3d776a6476b257f4eb51d1e40da9783a37174ada4",
+      "receipts": 6,
+      "tombstones": 6,
+      "db_utc": "2026-11-03T17:36:53.079452+00:00"
+    }
+  ],
+  "images": [
+    {
+      "name": "live-dialog-native-200.png",
+      "dimensions": [
+        1440,
+        2910
+      ],
+      "sha256": "c5469de7b2fa49e65772fedf4bdafc25dffedc9c9320502ed669a2543567ab45"
+    },
+    {
+      "name": "live-mobile-reset-dialog-390.png",
+      "dimensions": [
+        390,
+        1731
+      ],
+      "sha256": "87aa43189c39f9fae40cfea1d4d363b62f9e7015d8e5829800e33c64b0028c0f"
+    },
+    {
+      "name": "live-mobile-session-390.png",
+      "dimensions": [
+        390,
+        1883
+      ],
+      "sha256": "64f70102e12b024bf71cf2598ec24fe7583babf2e6a003f2de675d5d8830a857"
+    },
+    {
+      "name": "live-native-settings-200.png",
+      "dimensions": [
+        1440,
+        912
+      ],
+      "sha256": "9dede66ec89361e020c462fa5f020bd425b31bfedbf7b3581a2a3b239b65fef4"
+    },
+    {
+      "name": "live-session-native-200.png",
+      "dimensions": [
+        1440,
+        3154
+      ],
+      "sha256": "6f4ae997c42d0538470837507200ee0209b379ccc483cc3414d8b5e435c34ad5"
+    },
+    {
+      "name": "live-welcome-1280.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "sha256": "13f4317bbb0df51d8c690fdf660b5f172eab92f9e99f254fd3c4130b4667b199"
+    },
+    {
+      "name": "live-welcome-1440.png",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sha256": "b8755de9202df30b3292f1abe6107a9b31a0afad7855828864a87b084635a1df"
+    },
+    {
+      "name": "live-welcome-390.png",
+      "dimensions": [
+        390,
+        1435
+      ],
+      "sha256": "e56a67bda39627610412b1f4ed37bdedbde3adf422045ccfe54b13d9854affad"
+    }
+  ],
+  "visual_inspection": "Root viewed signed-in390 and native200 exports.390 readable and wrapped; native200 fullPage export has clipping artifacts despite actual browser layout metrics/no-overflow and successful navigation/dialog/focus. Preserve raw exports; do not claim the native200 PNG itself is uncropped.",
+  "hosted": "NOT_RUN",
+  "full_pg": "SEPARATE_GATE",
+  "external_calls": 0
+}

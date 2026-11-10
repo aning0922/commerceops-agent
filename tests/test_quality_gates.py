@@ -23,10 +23,28 @@ from scripts.vendor_gitleaks_rules import (
     P3_PUBLIC_ROW,
     RO_PUBLIC_ROW,
     WOO_PUBLIC_EXCEPTIONS,
+    v4_additional_history_findings,
+    v4_history_findings,
+    v4_preflight_history_findings,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.offline
+
+# Exact author-only increment accepted by SCAN_METADATA_d6fb87b.md; no copy/dir/index grant.
+APPROVED_V41_ADDITIONAL_HISTORY: dict[str, object] = {
+    "rule": "generic-api-key",
+    "path": "docs/v4/acceptance/v4-1/UI_MOCK_R4.json",
+    "source_commit": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1",
+    "reported_line": 41,
+    "end_line": 41,
+    "start_column": 17,
+    "end_column": 96,
+    "exact_span_sha256": "ef2044b08ac81ab8c2608eff2d3eb913e9eb96245d7ac374e57f928035828ecd",
+    "match_sha256": "3cd7e8955b0d42fea60694c8c2de19889f771ce5bf0f7c65febcf6d5d7c40270",
+    "fingerprint": "8d1f3fc971f2e62cfa2ff948808c4e1d28cec2b1:"
+    "docs/v4/acceptance/v4-1/UI_MOCK_R4.json:generic-api-key:41",
+}
 
 
 def git(repo: Path, *arguments: str) -> None:
@@ -559,15 +577,55 @@ def test_public_test_declaration_in_another_commit_is_not_approved(repository: P
     assert '"rule": "generic-api-key"' in result.stdout
 
 
-def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
+@pytest.mark.parametrize("index", range(3, 20))
+def test_harness_history_approval_is_bound_to_committed_lines(index: int) -> None:
+    row = secret_scan.APPROVED_TEST_HISTORY[index]
+    # A full-history clone may legitimately omit another local branch. Such an
+    # approval must not require importing that branch merely to run this suite.
+    # The complete scanner test below still requires every reachable finding.
+    reachable = set(
+        subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()
+    )
+    if row["source_commit"] in reachable:
+        result = subprocess.run(
+            ["git", "show", f"{row['source_commit']}:{row['path']}"],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        )
+        lines = result.stdout.splitlines()
+        for line_field, digest_field in (
+            ("declaration_line", "declaration_sha256"),
+            ("reported_line", "reported_line_sha256"),
+        ):
+            assert hashlib.sha256(lines[row[line_field] - 1]).hexdigest() == row[digest_field]
+    assert row["fingerprint"] == (
+        f"{row['source_commit']}:{row['path']}:{row['rule']}:{row['reported_line']}"
+    )
+    finding = {
+        "RuleID": row["rule"],
+        "File": row["path"],
+        "StartLine": row["reported_line"],
+        "Commit": row["source_commit"],
+        "Fingerprint": row["fingerprint"],
+        "Match": "unapproved",
+    }
+    assert not secret_scan.approved_history_finding("git", finding)
+    assert not secret_scan.approved_history_finding("dir", finding)
+    assert not secret_scan.approved_history_finding("index", finding)
+
+
+def test_approved_actual_history_findings_are_exact_and_git_only(tmp_path: Path) -> None:
     report = tmp_path / "native-report.json"
+    config = tmp_path / "history-config.toml"
+    config.write_bytes(secret_scan.history_config())
     result = subprocess.run(
         [
             str(ROOT / ".tools/gitleaks"),
             "git",
             str(ROOT),
             "--config",
-            str(ROOT / ".gitleaks.toml"),
+            str(config),
             "--redact=100",
             "--no-banner",
             "--log-level=error",
@@ -583,9 +641,41 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->
     )
     assert result.returncode == 1
     rows = json.loads(report.read_text())
-    assert len(rows) == 3
+    approved = (
+        *secret_scan.APPROVED_TEST_HISTORY,
+        *v4_history_findings(),
+        *v4_additional_history_findings(),
+        *v4_preflight_history_findings(),
+    )
+    assert len(secret_scan.APPROVED_TEST_HISTORY) == 20
+    assert len(v4_history_findings()) == 13
+    assert len(v4_additional_history_findings()) == 11
+    old_metadata = json.loads(
+        subprocess.check_output(
+            ["git", "show", "9cd019a32527350fedd9710f2bd9d9a4546fae4a:scripts/gitleaks_rules.json"],
+            cwd=ROOT,
+        )
+    )
+    assert len(old_metadata["v4_additional_historical_findings"]) == 10
+    assert v4_additional_history_findings() == (
+        old_metadata["v4_additional_historical_findings"] + [APPROVED_V41_ADDITIONAL_HISTORY]
+    )
+    assert len(v4_preflight_history_findings()) == 109
+    reachable = set(
+        subprocess.check_output(["git", "rev-list", "--all"], cwd=ROOT, text=True).splitlines()
+    )
+    active_approvals = [row for row in approved if row["source_commit"] in reachable]
+    assert len(rows) >= len(active_approvals)
+    assert {(row["Commit"], row["File"], row["StartLine"], row["Fingerprint"]) for row in rows} >= {
+        (row["source_commit"], row["path"], row["reported_line"], row["fingerprint"])
+        for row in active_approvals
+    }
     for row in rows:
-        assert secret_scan.approved_history_finding("git", row)
+        assert (
+            secret_scan.approved_history_finding("git", row)
+            or secret_scan.approved_v4_history_finding("git", row)
+            or secret_scan.approved_v4_merge_copy("git", row)
+        )
         assert not secret_scan.approved_history_finding("dir", row)
         assert not secret_scan.approved_history_finding("index", row)
         for field in ("RuleID", "File", "StartLine", "Commit", "Fingerprint", "Match"):
@@ -596,6 +686,8 @@ def test_three_actual_history_findings_are_exact_and_git_only(tmp_path: Path) ->
                 else changed[field] + "changed"
             )
             assert not secret_scan.approved_history_finding("git", changed)
+            assert not secret_scan.approved_v4_history_finding("git", changed)
+            assert not secret_scan.approved_v4_merge_copy("git", changed)
 
 
 @pytest.mark.parametrize("which", [0, 1])

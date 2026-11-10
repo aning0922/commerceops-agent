@@ -1,0 +1,118 @@
+{
+  "scope": "failed new-owned HTTP lifecycle startup; no scenario or browser started",
+  "source_sha": "4b3caa9d7e63a7e5d3abfc25f7ec7b8b36a32b76",
+  "source_tree": "08e657eaea0585164c7a271db8eaa15fcf0730ff",
+  "project": "v4qa_lifecycle_20261104c",
+  "status": "FAILED_OR_UNKNOWN",
+  "stages": [
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "local_image_exists",
+      "native_exit": 0
+    },
+    {
+      "stage": "freeze_compose",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_container",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_network",
+      "native_exit": 0
+    },
+    {
+      "stage": "empty_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "pg_start",
+      "native_exit": 0
+    },
+    {
+      "stage": "migrate",
+      "native_exit": 0
+    },
+    {
+      "stage": "setup-checkpointer",
+      "native_exit": 0
+    },
+    {
+      "stage": "grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_init-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_grant-runtime",
+      "native_exit": 0
+    },
+    {
+      "stage": "v4_verify-fixture",
+      "native_exit": 0
+    },
+    {
+      "stage": "writers_stopped",
+      "native_exits": {
+        "api": 130
+      }
+    },
+    {
+      "stage": "api_container_stopped",
+      "native_exit": 0
+    },
+    {
+      "stage": "owner_oneoffs_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "final_pg_read_only",
+      "tenants": 0
+    },
+    {
+      "stage": "owned_down_keep_volume",
+      "native_exit": 0
+    },
+    {
+      "stage": "containers_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "networks_gone",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volume_inventory",
+      "native_exit": 0
+    },
+    {
+      "stage": "retained_volumes",
+      "names": [
+        "v4qa_lifecycle_20261104c_pg_data"
+      ]
+    }
+  ],
+  "observations": {
+    "container_local_health_http_status": 200,
+    "container_local_probe_native": 0,
+    "host_loopback_health": "ConnectError",
+    "configured_host_port_binding": "127.0.0.1:18440 -> 18440/tcp",
+    "actual_network_settings_port_bindings": [],
+    "only_network_internal": true,
+    "network_gateway": ""
+  },
+  "cause_scope": "Container API is reachable internally; current internal-only Docker Desktop topology does not publish host port. Do not infer a business API result. Pending narrowly reviewed test-network repair.",
+  "driver_native_exit": 1,
+  "cleanup_confirmed": true,
+  "forced": false,
+  "retained_volumes": "v4qa_lifecycle_20261104c_pg_data",
+  "full": "NOT_RUN",
+  "hosted": "NOT_RUN",
+  "external_calls": 0
+}

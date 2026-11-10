@@ -1,0 +1,36 @@
+{
+  "phase": "A_READ_ONLY",
+  "implementation": "V4-0_CODE_NOT_STARTED",
+  "date_taipei": "2026-11-03",
+  "cost_usage": "UNKNOWN; app tools do not expose actual tokens or charged cost",
+  "paid_provider_fallback": false,
+  "visible_tasks": [
+    {
+      "thread_id": "01a1a1a0-b652-7670-9c70-1250280bdf3c",
+      "purpose": "M3 backend/API/schema/permission audit",
+      "model": "gpt-6.1-sol",
+      "reasoning": "high"
+    },
+    {
+      "thread_id": "01a1a1a0-bc42-73d2-b651-1c3a6792e20d",
+      "purpose": "prototype/product audit then UI contract review",
+      "model": "gpt-6.1-terra",
+      "reasoning_history": [
+        "high audit",
+        "medium bounded incremental reviews"
+      ]
+    },
+    {
+      "thread_id": "01a1a1a0-c0af-72e0-a550-e3cf4865f2b7",
+      "purpose": "Harness integration audit and independent permission contract review",
+      "model": "gpt-6-astra",
+      "reasoning": "high"
+    }
+  ],
+  "no_application_tests": true,
+  "no_services": true,
+  "no_credentials_or_private_runtime": true,
+  "git_writes": false,
+  "remote_writes": false,
+  "scope_transition": "A complete does not authorize B or V4-1"
+}

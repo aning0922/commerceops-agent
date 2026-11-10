@@ -1,0 +1,22 @@
+{
+  "source_sha": "031e3e1b4b3c4fc20f836d05737d0edac532be27",
+  "source_tree": "c79a1672a965f461328273a250016c87469f4912",
+  "status": "BLOCKING_PUBLIC_PHASE_ENUM_PENDING_EXACT_HISTORY_REVIEW",
+  "original_receipt": "/Users/aipuli/.codex/worktrees/commerceops-v4-control/commerceops-agent/.audit/v4-0/final-document-gate-031e3e1/receipt.json",
+  "original_sha256": "da3ab78a4ec6ad5f492fd721a1f8ae1fada8a7e2dd117f33025f12db479f97f3",
+  "scan_wrapper_exit": 1,
+  "scan_seconds": 117.649,
+  "blocking": {
+    "dir": 1,
+    "index": 1,
+    "git": 4,
+    "path": "docs/v4/acceptance/v4-0/ROOT_LEDGER.json",
+    "line": 4,
+    "rule": "generic-api-key"
+  },
+  "git_native_findings": 1706,
+  "already_reviewed_classified": 1702,
+  "other_document_checks": "PASS_215_MARKDOWN_68_JSON_231_FILE_MAP_CSV_PROTECTED_HEADS_SOURCE_UNCHANGED",
+  "repair_scope": "Only public authorization mode formatting plus exact historical provenance; no change to business, original detection rules or full history scope.",
+  "historical_failure": "PRESERVED_NOT_REPLAYED"
+}

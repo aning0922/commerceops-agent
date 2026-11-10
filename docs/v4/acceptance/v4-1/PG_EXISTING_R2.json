@@ -1,0 +1,49 @@
+{
+  "stage": "V4-1",
+  "scope": "complete_existing_scope_only",
+  "source": "e7aeeca90e98cc4af5b5f8f8ba0faddd33182bd6",
+  "tree": "4e8349cfeec323668be316426871bc310b6ce53d",
+  "status": "pass",
+  "project": "p123-78bb025ea6d1",
+  "full_collection": 773,
+  "selected": 596,
+  "actual": 596,
+  "call_passed": 596,
+  "failed": 0,
+  "skipped": 0,
+  "not_started": 0,
+  "test_groups_passed": 24,
+  "g1_verified": 3,
+  "g2_scenarios": 6,
+  "helper_duration_seconds": 2142.031919,
+  "native": {
+    "helper": 0,
+    "worker": 0,
+    "outer": 0,
+    "cleanup": 0
+  },
+  "expected_unavailable_native": 1,
+  "timeout": false,
+  "stopping_confirmed": true,
+  "containers_remaining": 0,
+  "networks_remaining": 0,
+  "temporary_volumes_remaining": 0,
+  "registered_process_groups_absent": 48,
+  "container_filesystem_byte_check": "NOT_RUN",
+  "pair": "NOT_RUN",
+  "review": "8d870f3c27d67b90ccefee1086e8ea5ae9fcc951",
+  "artifacts": [
+    {
+      "path": "full-existing-e7ae-r2/EXECUTION_RESULT.safe.json",
+      "sha256": "aa6bbabf6868e2ddc55ca75975076c61594885ce2d0ce55040aa89cc09ebea66"
+    },
+    {
+      "path": "full-existing-e7ae-r2/independent-cleanup.safe.json",
+      "sha256": "fa2a015068e72dbbec7c33e6b39c49c72a293af580a0417f581e6ebbdef7ffd3"
+    },
+    {
+      "path": "existing-r2/.audit/ci-evidence-existing.json",
+      "sha256": "8aba0edf2e6548c66c5851a8f12b8725097411b4abce869530fcef4cc26df372"
+    }
+  ]
+}

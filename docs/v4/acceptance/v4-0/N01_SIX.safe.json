@@ -1,0 +1,118 @@
+{
+  "status": "SOURCE_SPECIFIC_N01SIX_COMPLETED_PENDING_INDEPENDENT_REVIEW",
+  "source_sha": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+  "source_tree": "5c0699edb2d30889ce770ca9b05b56dab957ce10",
+  "pg_image": "sha256:bb26ccd46218e47cd66abecb2fc6ea36f3815584743b60e9b9eb9f7c1072d91f",
+  "test_count": 6,
+  "report": {
+    "original": {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-n01-20261104-047a43d/commerceops-agent/frontend/evidence/p4-c09/n01/live-results.json",
+      "sha256": "fb2cb8aa7c28e7ecf66bf72ba49e0a8fd28a3f268147498e00ecb0bb6fb302e8"
+    },
+    "status": "passed",
+    "count": 6,
+    "passed": 6,
+    "nonpassed": 0,
+    "duration_ms": 45293.356,
+    "modes": {
+      "source_mode": "live-api",
+      "commerce_source_mode": "mock-fixture",
+      "identity_mode": "session"
+    },
+    "tests": [
+      {
+        "test": "N01 actual ready来源/冻结window/390键盘；解析取消零业务增量",
+        "status": "passed",
+        "duration_ms": 4450,
+        "location": "e2e/web/live/n01.spec.ts:176"
+      },
+      {
+        "test": "N01 两原PRD句/MISSING人工缺项非demo，编辑撤确认，准备取消仍零增量",
+        "status": "passed",
+        "duration_ms": 4597,
+        "location": "e2e/web/live/n01.spec.ts:191"
+      },
+      {
+        "test": "N01 invalid/unsupported不静默ready；修原句或明确取消，CSRF/异店实际拒绝",
+        "status": "passed",
+        "duration_ms": 4562,
+        "location": "e2e/web/live/n01.spec.ts:216"
+      },
+      {
+        "test": "N01 actual迟到解析不复活旧原句/店铺/fixture；参数编辑清候选及确认",
+        "status": "passed",
+        "duration_ms": 4639,
+        "location": "e2e/web/live/n01.spec.ts:232"
+      },
+      {
+        "test": "N01 显式唯一创建实际一pair，受控ACKunknown原键读取/同字节去重及真实409",
+        "status": "passed",
+        "duration_ms": 8212,
+        "location": "e2e/web/live/n01.spec.ts:269"
+      },
+      {
+        "test": "N01 actual无operator403；迟到响应遇真实撤权401清身份/草稿/业务缓存",
+        "status": "passed",
+        "duration_ms": 7872,
+        "location": "e2e/web/live/n01.spec.ts:296"
+      }
+    ],
+    "retry_count": "NOT_CAPTURED in custom report"
+  },
+  "parent_result": {
+    "passed": true,
+    "source_commit": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+    "build_id": "TKxhNcVTNflXqqOIR4SdZ",
+    "test_exit": 0,
+    "failure_category": null,
+    "pg_running": false,
+    "pg_pid": 0,
+    "owned_listeners_remaining": false,
+    "volume_preserved": true,
+    "worker_started": false,
+    "sdk_provider_started": false,
+    "started_at_utc": "2026-11-03T18:20:42.627620+00:00",
+    "stop_at_utc": "2026-11-03T18:46:48+00:00",
+    "stopped_at_utc": "2026-11-03T18:21:38.595551+00:00"
+  },
+  "cleanup": {
+    "recorded_at_utc": "2026-11-03T18:21:49.290325+00:00",
+    "project": "p4c09-n01-51914bfc03",
+    "source_commit": "047a43dafef90edea2eb532c2a03b6f850da0b9a",
+    "containers_remaining": 0,
+    "networks_remaining": 0,
+    "volumes_preserved": 1,
+    "registered_pids_alive": [],
+    "ports": [
+      55589,
+      55590,
+      55591
+    ],
+    "ports_still_listening": [],
+    "pg_running": false,
+    "pg_pid": 0,
+    "child_exit_codes": [
+      0,
+      0,
+      -15,
+      143,
+      0
+    ]
+  },
+  "originals": [
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-n01-20261104-047a43d/commerceops-agent/.audit/n01-parent.safe.log",
+      "sha256": "14498df4e3c1dc663ec035b215560445abb42bdd6ee6a9f5c098a3517928c528"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-n01-20261104-047a43d/commerceops-agent/.audit/n01-cleanup.safe.json",
+      "sha256": "876b1aac1a2c9507eaf6db94ae3cee5f684a07fbd88818481b84127baf7e54f7"
+    },
+    {
+      "path": "/Users/aipuli/.codex/worktrees/commerceops-v4-n01-20261104-047a43d/commerceops-agent/.audit/m3-pgvector-image.safe.json",
+      "sha256": "f899efd96c72e269dc8edb41296f10744368120a3f876f3bea3e595010622557"
+    }
+  ],
+  "parent_native_exit": "NOT_CAPTURED in these receipts; test_exit=0",
+  "cleanup_exit_meaning": "child_exit_codes include expected stopped service -15/143; not reclassified as all child exits zero"
+}

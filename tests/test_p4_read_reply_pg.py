@@ -284,6 +284,13 @@ def test_carrier_identity_no_mutation_delete_truncate_and_scope_no_forgery(
         if revision in (
             {"version_num": "0017_p4_verified_history"},
             {"version_num": "0018_p5_commerce_sources"},
+            {"version_num": "0019_p6_daily_reports"},
+            {"version_num": "0020_p6_knowledge_copy"},
+            {"version_num": "0021"},
+            {"version_num": "0022"},
+            {"version_num": "0023_p6_copy_drafts"},
+            {"version_num": "0024_v4_demo_foundation"},
+            {"version_num": "0025_v41_catalog_operations"},
         ):
             assert related and related["t"] is not None
             before = db.execute(

@@ -1,0 +1,13 @@
+# 扫描历史测试期望04b547c独审
+
+2026-11-04（台北）。结论：`TEST_EXPECTATIONS_SOURCE_ACCEPTED / NO_P1_P2_FOUND`。冻结提交 `04b547c5f9496fc803b445b5aaa856669b05bae1`，parent `8f6687560bb5c71804fd249068e2a9912fe35556`，tree `7f99122b64b39a0460bdaa90f942894bf9a0fcc8`。仅tests/test_quality_gates.py、tests/test_v4_scan_compat.py两文件+160/-16；生产scanner/vendor/metadata JSON/config、CI、锁及业务均无差分。
+
+独立解析冻结AST中的完整literal，对照不可变d6fb87b60c63616f18c268f58bc0754507fc3eed、4d6f20005bd8fbc4f65a385b510e7f9a4f259f73和835afa54dfa7d9b708f47112bd0c7b1974369e06及各parent的精确JSON增量，所有字段相等。第11additional仅8d1f3fc的UI_MOCK_R4.json第41行/列17–96，完整fingerprint、Match和span摘要保持作者历史限定；六anchor的source/path/blob逐项匹配并对实际Git blob ID复核；page11为f949页面第11行/列43–116，完整Match/span及copy_only保持。两处真实来源span摘要另独立重算相等，不从当前vendor派生expected，不新增批准来源或规则。
+
+旧additional十项以固定9cd019a来源全序列保留；旧34 anchors、旧7 bindings以固定44633302来源全序列保留，之后只追加上述六/一完整literal。四个旧计数相关函数已读完整保护：legacy仍核原例外变化及96；r2仍核固定offset和moved=[147,259,364,394,44]；9727仍只允许owned_negatives从44→41的一项变化，原第7 binding固定index6且reported_line=44，第8页11不挤占该位置；final_enum保持原32+历史2+新增6精确等式、旧7+新增1，并保留222规则、45 allowlists、96 exceptions、109 preflight及ROOT_LEDGER授权断言。没有只修改计数或接受任意尾项。
+
+独立AST范围核验恰七个原函数改变，其余60个函数AST与parent完全相等，所有函数装饰器/参数化保持。原全历史finding逐项批准、dir/index拒绝及字段变更负例、immutable source缺失、copy/merge和其他负例未删改。循环key→field及字段名常量仅避免预检字面误报，不改变分支语义。两文件语法编译通过；独立证据为Reviewer私有 `.audit/v4-1/scan-expectations-review/independent.json`。
+
+读取作者scope-proof及两轮safe receipt，首轮native1、第二轮native0及Git外临时目录rev-parse128事实保持。Root转交首17节点13PASS/4FAIL、补后17PASS、最终6metadata PASS及两次预检误报属于作者证据，本Reviewer未重跑这些测试或读取其未提交WIP。9项缺源fixture的Git祖先环境问题不由本补丁改源码解决；本次未运行新的native扫描、Full、PG、browser或网络，当前运行中的其他SHA结果不转记到04b547c。
+
+本结论只接受测试期望与既有审定范围同步，供Root普通集成；不代表最终组合工程Full或扫描通过，不放宽现有豁免边界，也不授予新资源窗口。

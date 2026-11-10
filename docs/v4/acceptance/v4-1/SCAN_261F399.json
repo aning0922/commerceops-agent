@@ -1,0 +1,52 @@
+{
+  "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "command_native": 0,
+  "timed_out": false,
+  "started_utc": "2026-11-04T10:43:09.340752+00:00",
+  "ended_utc": "2026-11-04T10:45:42.092900+00:00",
+  "log_sha256": "8ad74261175db5fb843d6c0855728848b9cd6ebde6a9f96dab505221415547a0",
+  "same_source_tree_tracked": true,
+  "refs_same": false,
+  "history_findings": 1760,
+  "classification_counts": {
+    "reviewed_public_false_positive": 153,
+    "reviewed_public_merge_copy": 1607,
+    "blocking": 0
+  },
+  "scope_summaries": [
+    "dir: findings=0, exit=0",
+    "index: findings=0, exit=0",
+    "git: findings=1760, exit=0",
+    "git: native_exit=1, reviewed_false_positives=1760, blocking_findings=0"
+  ],
+  "registered_group_ps_exit": 1,
+  "registered_group_remaining": [],
+  "scope": "EXACT_261F399_CANONICAL_SCANNER_NOT_FULL_ENGINEERING",
+  "history_native_exit": 1,
+  "reviewed": 1760,
+  "blocking": 0,
+  "scope_note": "Reviewer refs changed and both raw ref snapshots preserved; source/tree/tracked/index unchanged. No frozen all-ref claim.",
+  "artifacts": [
+    {
+      "path": "scan-261/receipt.json",
+      "sha256": "bfd318db735cab51d372e30da54aff4a305a7869e7167dbe4d6516bdb5733eb3"
+    },
+    {
+      "path": "scan-261/before.json",
+      "sha256": "698b441e346d3c5a069fcd790a59198ea918d058e56c81aa9b5d1e7cac66ac70"
+    },
+    {
+      "path": "scan-261/after.json",
+      "sha256": "111f70d705928b742821ae2b838f08a56342977782a3bf5fe3b8c869ff50fbdd"
+    },
+    {
+      "path": "scan-261/after-ps.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "scan-261/after-ps.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

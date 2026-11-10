@@ -18,6 +18,14 @@ from uuid import uuid4
 
 from commerceops.infrastructure.database import DatabaseSettings, connect
 
+from scripts.m3_pgvector import (
+    INPUTS,
+    compose_flags,
+    prepared_image,
+    up_flags,
+    validate_binding,
+    validate_container,
+)
 from scripts.prepare_pg import prepare
 from tests.e2e.web.live_batch_owner import OWNERS, verify
 
@@ -256,6 +264,7 @@ def main(
     deadline: datetime,
     stages: str = "read,write,items",
     owner: str = "b",
+    m3_pgvector: bool = False,
 ) -> None:
     if root != Path(__file__).resolve().parents[3] or owner not in OWNERS:
         raise ValueError("current exact checkout and closed test owner required")
@@ -265,6 +274,11 @@ def main(
         seconds=75
     ) < deadline <= datetime.now(UTC) + timedelta(minutes=90):
         raise ValueError("bounded immutable deadline required")
+    m3_binding = (
+        prepared_image(root, min(5, (deadline - datetime.now(UTC)).total_seconds() - 75))
+        if m3_pgvector
+        else None
+    )
     if private.exists():
         if (
             private.is_symlink()
@@ -308,10 +322,7 @@ def main(
             str(empty),
             "-p",
             project,
-            "-f",
-            str(root / "compose.yml"),
-            "-f",
-            str(override),
+            *compose_flags(root, m3_pgvector, override),
         ]
         ledger = {
             "project": project,
@@ -332,9 +343,11 @@ def main(
             "status": "registered-before-start",
             "source_files_sha256": {
                 path: hashlib.sha256((root / path).read_bytes()).hexdigest()
-                for path in LIVE_SOURCE_FILES
+                for path in (*LIVE_SOURCE_FILES, *(INPUTS if m3_pgvector else ()))
             },
         }
+        if m3_binding is not None:
+            ledger["m3_pgvector"] = m3_binding
         verify(directory, ledger, stage)
         children: list[subprocess.Popen[bytes]] = []
 
@@ -378,7 +391,25 @@ def main(
         passed = False
         read_reporter_current = False
         try:
-            run(compose + ["up", "-d", "postgres"], 60)
+            run(compose + ["up", *up_flags(m3_pgvector), "-d", "postgres"], 60)
+            if m3_binding is not None:
+                cid = subprocess.check_output(
+                    compose + ["ps", "-q", "postgres"],
+                    cwd=root,
+                    env=env,
+                    text=True,
+                    timeout=min(5, remaining()),
+                ).strip()
+                info = json.loads(
+                    subprocess.check_output(
+                        ["docker", "inspect", cid],
+                        text=True,
+                        timeout=min(5, remaining()),
+                    )
+                )[0]
+                validate_container(
+                    root, info, m3_binding, project, override, timeout=min(5, remaining())
+                )
             for _ in range(60):
                 result = subprocess.run(
                     compose
@@ -695,6 +726,11 @@ def main(
                 except subprocess.CalledProcessError:
                     observed = []
                 owned_listeners_remaining |= str(pid) in observed
+            if m3_binding is not None:
+                try:
+                    validate_binding(root, m3_binding)
+                except (ValueError, OSError):
+                    passed = False
             passed &= not state["Running"] and state["Pid"] == 0 and not owned_listeners_remaining
             ledger.update(
                 status="stopped",
@@ -738,6 +774,7 @@ if __name__ == "__main__":
     parser.add_argument("--private-directory", type=Path, required=True)
     parser.add_argument("--stop-at-utc", required=True)
     parser.add_argument("--stages", default="read,write,items")
+    parser.add_argument("--m3-pgvector", action="store_true")
     parser.add_argument("--owner", choices=tuple(OWNERS), default="b")
     args = parser.parse_args()
     main(
@@ -746,4 +783,5 @@ if __name__ == "__main__":
         datetime.fromisoformat(args.stop_at_utc.replace("Z", "+00:00")),
         args.stages,
         args.owner,
+        args.m3_pgvector,
     )

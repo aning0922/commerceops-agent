@@ -172,6 +172,42 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         {"schemaname": "business", "tablename": "p4_history_messages"},
                         {"schemaname": "business", "tablename": "p4_read_message_sources"},
                         {"schemaname": "business", "tablename": "p5_commerce_source_bindings"},
+                        {"schemaname": "business", "tablename": "p6_daily_source_bindings"},
+                        {"schemaname": "business", "tablename": "p6_daily_snapshots"},
+                        {"schemaname": "business", "tablename": "p6_daily_reports"},
+                        {"schemaname": "business", "tablename": "p6_knowledge_documents"},
+                        {"schemaname": "business", "tablename": "p6_knowledge_authorizations"},
+                        {"schemaname": "business", "tablename": "p6_knowledge_chunks"},
+                        {"schemaname": "business", "tablename": "p6_knowledge_embeddings"},
+                        {"schemaname": "business", "tablename": "p6_knowledge_registries"},
+                        {"schemaname": "business", "tablename": "readonly_inquiries"},
+                        {"schemaname": "business", "tablename": "p6_daily_destinations"},
+                        {"schemaname": "business", "tablename": "p6_daily_schedules"},
+                        {"schemaname": "business", "tablename": "p6_daily_schedule_runs"},
+                        {"schemaname": "business", "tablename": "p6_daily_questions"},
+                        {"schemaname": "business", "tablename": "p6_daily_deliveries"},
+                        {"schemaname": "business", "tablename": "p6_daily_fake_receipts"},
+                        {"schemaname": "business", "tablename": "p6_copy_products"},
+                        {"schemaname": "business", "tablename": "p6_copy_candidates"},
+                        {"schemaname": "business", "tablename": "p6_copy_decisions"},
+                        {"schemaname": "business", "tablename": "p6_copy_drafts"},
+                        {"schemaname": "business", "tablename": "v4_demo_fixture_versions"},
+                        {"schemaname": "business", "tablename": "v4_demo_tenants"},
+                        {"schemaname": "business", "tablename": "v4_demo_shops"},
+                        {"schemaname": "business", "tablename": "v4_demo_personas"},
+                        {"schemaname": "business", "tablename": "v4_demo_bootstraps"},
+                        {"schemaname": "business", "tablename": "v4_demo_sessions"},
+                        {"schemaname": "business", "tablename": "v4_demo_receipts"},
+                        {"schemaname": "business", "tablename": "v4_demo_events"},
+                        {"schemaname": "business", "tablename": "v4_demo_overlays"},
+                        {"schemaname": "business", "tablename": "v4_demo_rate_attempts"},
+                        {"schemaname": "business", "tablename": "v41_product_tags"},
+                        {"schemaname": "business", "tablename": "v41_order_fulfillments"},
+                        {"schemaname": "business", "tablename": "v41_import_jobs"},
+                        {"schemaname": "business", "tablename": "v41_import_products"},
+                        {"schemaname": "business", "tablename": "v41_action_receipts"},
+                        {"schemaname": "business", "tablename": "v41_action_events"},
+                        {"schemaname": "business", "tablename": "v41_security_policy"},
                     ]
                 return SimpleNamespace(fetchall=lambda: names)
             if "row_to_json" in text:
@@ -185,6 +221,42 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
                         "p4_history_messages",
                         "p4_read_message_sources",
                         "p5_commerce_source_bindings",
+                        "p6_daily_source_bindings",
+                        "p6_daily_snapshots",
+                        "p6_daily_reports",
+                        "p6_knowledge_documents",
+                        "p6_knowledge_authorizations",
+                        "p6_knowledge_chunks",
+                        "p6_knowledge_embeddings",
+                        "p6_knowledge_registries",
+                        "readonly_inquiries",
+                        "p6_daily_destinations",
+                        "p6_daily_schedules",
+                        "p6_daily_schedule_runs",
+                        "p6_daily_questions",
+                        "p6_daily_deliveries",
+                        "p6_daily_fake_receipts",
+                        "p6_copy_products",
+                        "p6_copy_candidates",
+                        "p6_copy_decisions",
+                        "p6_copy_drafts",
+                        "v4_demo_fixture_versions",
+                        "v4_demo_tenants",
+                        "v4_demo_shops",
+                        "v4_demo_personas",
+                        "v4_demo_bootstraps",
+                        "v4_demo_sessions",
+                        "v4_demo_receipts",
+                        "v4_demo_events",
+                        "v4_demo_overlays",
+                        "v4_demo_rate_attempts",
+                        "v41_product_tags",
+                        "v41_order_fulfillments",
+                        "v41_import_jobs",
+                        "v41_import_products",
+                        "v41_action_receipts",
+                        "v41_action_events",
+                        "v41_security_policy",
                     )
                 ):
                     return SimpleNamespace(fetchall=lambda: [])
@@ -235,7 +307,7 @@ def test_last_test_stages_cleanup_and_original_failures_with_fake_only(
             return SimpleNamespace(
                 fetchone=lambda: {
                     "version_num": (
-                        "0013_p4_first_create" if snapshots == 2 else "0018_p5_commerce_sources"
+                        "0013_p4_first_create" if snapshots == 2 else "0025_v41_catalog_operations"
                     )
                 }
             )
@@ -378,5 +450,20 @@ def test_fixed_d97_closure_hashes_and_isolated_imports_are_offline(tmp_path: Pat
     assert {p.name for p in (source / "backend/migrations/versions").glob("*.py")} == {
         p.name
         for p in Path("backend/migrations/versions").glob("*.py")
-        if not p.name.startswith(("0014_", "0015_", "0016_", "0017_", "0018_"))
+        if not p.name.startswith(
+            (
+                "0014_",
+                "0015_",
+                "0016_",
+                "0017_",
+                "0018_",
+                "0019_",
+                "0020_",
+                "0021_",
+                "0022_",
+                "0023_",
+                "0024_",
+                "0025_",
+            )
+        )
     }

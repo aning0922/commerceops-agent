@@ -1,0 +1,136 @@
+{
+  "source": "261f39904d8cd5a3d6ae070cdca4a7ae5cde4d6e",
+  "tree": "34da95131e04d7360ea8aa5250ea40215bcb0713",
+  "git_clean": true,
+  "three_pins_match": "0023672bfb9f648a5df2deac397fd7159dfbbc4c1cb385c5cab9d3c97396c538",
+  "status": "OFFLINE_CHECKS_PASS_LIVE_COLLECT_NOT_RUN",
+  "started_utc": "2026-11-04T10:42:20.364593+00:00",
+  "ended_utc": "2026-11-04T10:42:58.856904+00:00",
+  "elapsed_seconds": 38.49173058383167,
+  "checks": [
+    {
+      "label": "import-origin",
+      "native_exit": 0,
+      "elapsed_seconds": 0.5123677919618785
+    },
+    {
+      "label": "python-offline",
+      "native_exit": 0,
+      "elapsed_seconds": 20.281117541948333,
+      "counts": {
+        "tests": 235,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "label": "node-v41-pure",
+      "native_exit": 0,
+      "elapsed_seconds": 0.5063800420612097,
+      "summary": [
+        "\u2139 tests 74",
+        "\u2139 pass 74",
+        "\u2139 fail 0",
+        "\u2139 cancelled 0",
+        "\u2139 skipped 0"
+      ]
+    },
+    {
+      "label": "native-syntax",
+      "native_exit": 0,
+      "elapsed_seconds": 0.04063350008800626
+    },
+    {
+      "label": "native-selftest",
+      "native_exit": 0,
+      "elapsed_seconds": 0.04152412503026426,
+      "component_result": {
+        "status": "PURE_COMPONENT_CHECKS_PASS",
+        "checks": 40,
+        "browserLaunches": 0,
+        "profilesCreated": 0,
+        "nativeZoom": "NOT_RUN",
+        "screenshots": "NOT_RUN",
+        "S01": "NOT_RUN"
+      }
+    },
+    {
+      "label": "typescript",
+      "native_exit": 0,
+      "elapsed_seconds": 0.6175171250943094
+    },
+    {
+      "label": "ruff",
+      "native_exit": 0,
+      "elapsed_seconds": 0.49919550004415214
+    },
+    {
+      "label": "ruff-format",
+      "native_exit": 0,
+      "elapsed_seconds": 0.03843229217454791
+    },
+    {
+      "label": "mypy",
+      "native_exit": 0,
+      "elapsed_seconds": 3.216508040903136
+    },
+    {
+      "label": "mock-collect",
+      "native_exit": 0,
+      "elapsed_seconds": 0.46171145886182785,
+      "collected_count": 33,
+      "test_bodies_executed": 0
+    }
+  ],
+  "fingerprints_equal": true,
+  "artifacts": [
+    {
+      "path": "result.safe.json",
+      "sha256": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-combination-check-r2/commerceops-agent/.audit/v4-1/combination-check-r2/result.safe.json",
+        "sha256": "e37f8af9fed24b307e4bad38e2b6c090be8607c8b9a6de5ae34845c48c1404e6"
+      }
+    },
+    {
+      "path": "before.safe.json",
+      "sha256": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-combination-check-r2/commerceops-agent/.audit/v4-1/combination-check-r2/before.safe.json",
+        "sha256": "c2182a77e4fc834d3568f8d04f003e57ba17feceff86d3ddcfbccf19b340e7fe"
+      }
+    },
+    {
+      "path": "after.safe.json",
+      "sha256": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-combination-check-r2/commerceops-agent/.audit/v4-1/combination-check-r2/after.safe.json",
+        "sha256": "c2182a77e4fc834d3568f8d04f003e57ba17feceff86d3ddcfbccf19b340e7fe"
+      }
+    },
+    {
+      "path": "python.xml",
+      "sha256": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-combination-check-r2/commerceops-agent/.audit/v4-1/combination-check-r2/python.xml",
+        "sha256": "dc14c163da239acf41aeb1548593cc19e4eae5bb7c1744cf367c8935656d6906"
+      }
+    },
+    {
+      "path": "mock-collected.safe.json",
+      "sha256": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-combination-check-r2/commerceops-agent/.audit/v4-1/combination-check-r2/mock-collected.safe.json",
+        "sha256": "0ce643f27c0f458adb1ee6f7c4a7eca718b4d70ee600a1b393ed56aac8213109"
+      }
+    },
+    {
+      "path": "run_checks.py",
+      "sha256": {
+        "path": "/Users/aipuli/.codex/worktrees/commerceops-v41-combination-check-r2/commerceops-agent/.audit/v4-1/combination-check-r2/run_checks.py",
+        "sha256": "bfa2464abcf7b5deda29019d9ce14537fa80ea26de9384f3822fdb558a836f03"
+      }
+    }
+  ],
+  "live_specs_collect": "NOT_RUN_PENDING_NEW_ROOT_MANIFEST",
+  "services_PG_browser_install_network": "NOT_RUN",
+  "lab": "CLOSED_NOT_REEXECUTED",
+  "scope": "EXACT_261F399_OFFLINE_IMPACT_CHECKS_NOT_FULL_REEXECUTION",
+  "original_delivery_sha256": "1ce367215b440707d0bdd680da6ed86588e94a95020fa5619b806ce5c3caa876"
+}

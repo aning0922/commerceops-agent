@@ -20,6 +20,8 @@ from scripts.vendor_gitleaks_rules import (
     M2_CONSUMER_SOURCE_COMMIT,
     M2_PUBLIC_EXCEPTIONS,
     M2_SOURCE_COMMIT,
+    M3_PUBLIC_EXCEPTIONS,
+    M3_SPAN_PUBLIC_EXCEPTIONS,
     P3_PUBLIC_PATH,
     P3_PUBLIC_ROW,
     P3_ROW_DIGEST,
@@ -27,10 +29,23 @@ from scripts.vendor_gitleaks_rules import (
     RO_PUBLIC_ROW,
     RO_ROW_DIGEST,
     RO_SOURCE_COMMIT,
+    V4_MERGE_COPY_ANCHORS,
+    V4_MERGE_COPY_BINDINGS,
+    V4_PREFLIGHT_SNAPSHOTS,
+    V4_PUBLIC_EXCEPTIONS,
+    V4_SOURCE_COMMIT,
     WOO_PUBLIC_EXCEPTIONS,
     WOO_SOURCE_COMMIT,
     m2_consumer_rows,
     m2_public_rows,
+    m3_public_line_regex,
+    m3_public_rows,
+    v4_additional_history_findings,
+    v4_history_findings,
+    v4_preflight_history_findings,
+    v4_preflight_public_rows,
+    v4_public_line_regex,
+    v4_public_rows,
     validate_woo_public_sources,
 )
 
@@ -91,11 +106,244 @@ APPROVED_TEST_HISTORY: tuple[dict[str, Any], ...] = (
         "rule": "generic-api-key",
         "source_commit": "7499f7cf08b4058951783a78a9e89ff076cd2ae5",
     },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/README.md",
+        "source_commit": "17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4",
+        "declaration_line": 5,
+        "reported_line": 5,
+        "declaration_sha256": "7fb7b089bf7a186b1d899d98ce077c5ceea8046e61945cdfbcf07c60ce9e61d1",
+        "reported_line_sha256": "7fb7b089bf7a186b1d899d98ce077c5ceea8046e61945cdfbcf07c60ce9e61d1",
+        "fingerprint": (
+            "17e2e1af5e77b1c09b1de45d51c357a8e4da1dd4:docs/harness/README.md:generic-api-key:5"
+        ),
+        "match_sha256": "b66fffddb3d01e37a69baf244f796eb534d67eb5156c6c23aca6ded2974e5f9a",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_pg_shard_evidence.py",
+        "source_commit": "14c901437de6004875974e9a0fd49d8aa666e2a4",
+        "declaration_line": 67,
+        "reported_line": 67,
+        "declaration_sha256": "fc894ab938ba1295dd896a960a696ec9ca1b9eecb5fd0a5ec6749774de5689e6",
+        "reported_line_sha256": "fc894ab938ba1295dd896a960a696ec9ca1b9eecb5fd0a5ec6749774de5689e6",
+        "fingerprint": (
+            "14c901437de6004875974e9a0fd49d8aa666e2a4:"
+            "tests/test_pg_shard_evidence.py:generic-api-key:67"
+        ),
+        "match_sha256": "f8507c677b67b012ebf2fcd7b3f369680952f3d3a81120b9b6c0c3a7f7138f9e",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_pg_shard_evidence.py",
+        "source_commit": "14c901437de6004875974e9a0fd49d8aa666e2a4",
+        "declaration_line": 288,
+        "reported_line": 288,
+        "declaration_sha256": "b6b33496a27937046b987ef1e4f2859727b42d30f4fce6b00024c817f852dedb",
+        "reported_line_sha256": "b6b33496a27937046b987ef1e4f2859727b42d30f4fce6b00024c817f852dedb",
+        "fingerprint": (
+            "14c901437de6004875974e9a0fd49d8aa666e2a4:"
+            "tests/test_pg_shard_evidence.py:generic-api-key:288"
+        ),
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_harness_verify.py",
+        "source_commit": "fc65bfbefc068f1c726dac37350dd6f901d7d785",
+        "declaration_line": 19,
+        "reported_line": 19,
+        "declaration_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        "reported_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        "fingerprint": (
+            "fc65bfbefc068f1c726dac37350dd6f901d7d785:"
+            "tests/test_harness_verify.py:generic-api-key:19"
+        ),
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_harness_verify.py",
+        "source_commit": "fc65bfbefc068f1c726dac37350dd6f901d7d785",
+        "declaration_line": 83,
+        "reported_line": 83,
+        "declaration_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        "reported_line_sha256": "41c11ee208d8c300f6f27de3e3265c6c3899daf4244e6d1abd925aab4c240ada",
+        "fingerprint": (
+            "fc65bfbefc068f1c726dac37350dd6f901d7d785:"
+            "tests/test_harness_verify.py:generic-api-key:83"
+        ),
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/h3/README.md",
+        "source_commit": "893de472f670cad4fe56735c66db8e70083accc5",
+        "declaration_line": 152,
+        "reported_line": 152,
+        "declaration_sha256": "acf6c3ead7d1fb55d77d52d3cb7bad159faf1685b29bcf2c327e247d32f4d7dd",
+        "reported_line_sha256": "acf6c3ead7d1fb55d77d52d3cb7bad159faf1685b29bcf2c327e247d32f4d7dd",
+        "fingerprint": (
+            "893de472f670cad4fe56735c66db8e70083accc5:docs/harness/h3/README.md:generic-api-key:152"
+        ),
+        "match_sha256": "e80c03884d7197a25aa45b5404207aba793d2e9fb1a683b8627ab4edf8d804eb",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/h3/context-repair-local.json",
+        "source_commit": "66762bb100d329e5865d519cd5f23057071984ee",
+        "declaration_line": 6,
+        "reported_line": 6,
+        "declaration_sha256": "78616ca151b5eaa5bc1dd8c16d7992f8a646e6522fbd2c856fc7f343ba2690a8",
+        "reported_line_sha256": "78616ca151b5eaa5bc1dd8c16d7992f8a646e6522fbd2c856fc7f343ba2690a8",
+        "fingerprint": (
+            "66762bb100d329e5865d519cd5f23057071984ee:"
+            "docs/harness/h3/context-repair-local.json:generic-api-key:6"
+        ),
+        "match_sha256": "f55291da6f7942502293c0ac57d09f92ad901f351c602adb08db72a9ade55c59",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_harness_runner_system.py",
+        "source_commit": "d150d473072092315141055b02066951bedb9a79",
+        "declaration_line": 130,
+        "reported_line": 130,
+        "declaration_sha256": "f9a71c844129329c711b5b5714282e0e8ee80592eb9c733b3336db74831920e1",
+        "reported_line_sha256": "f9a71c844129329c711b5b5714282e0e8ee80592eb9c733b3336db74831920e1",
+        "fingerprint": (
+            "d150d473072092315141055b02066951bedb9a79:"
+            "tests/test_harness_runner_system.py:generic-api-key:130"
+        ),
+        "match_sha256": "3e30dc548fa00aeff59c404812e19b35af458cca4ad9f5b9dbc9714adfedfbe1",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_harness_runner_system.py",
+        "source_commit": "7672a46f166d3ad128a5879d771354588d1a5624",
+        "declaration_line": 130,
+        "reported_line": 130,
+        "declaration_sha256": "f9a71c844129329c711b5b5714282e0e8ee80592eb9c733b3336db74831920e1",
+        "reported_line_sha256": "f9a71c844129329c711b5b5714282e0e8ee80592eb9c733b3336db74831920e1",
+        "fingerprint": (
+            "7672a46f166d3ad128a5879d771354588d1a5624:"
+            "tests/test_harness_runner_system.py:generic-api-key:130"
+        ),
+        "match_sha256": "3e30dc548fa00aeff59c404812e19b35af458cca4ad9f5b9dbc9714adfedfbe1",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "scripts/harness_runner/journal.py",
+        "source_commit": "7672a46f166d3ad128a5879d771354588d1a5624",
+        "declaration_line": 263,
+        "reported_line": 263,
+        "declaration_sha256": "77c31906041eb4e85fbf9579329065c7c58788798b76d777bf43bca6d6dbc185",
+        "reported_line_sha256": "77c31906041eb4e85fbf9579329065c7c58788798b76d777bf43bca6d6dbc185",
+        "fingerprint": (
+            "7672a46f166d3ad128a5879d771354588d1a5624:"
+            "scripts/harness_runner/journal.py:generic-api-key:263"
+        ),
+        "match_sha256": "1b0eefe9e27172ff4a4d548e7b86d145128147f273c90de2ec584f76c4a7970f",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "scripts/harness_runner/journal.py",
+        "source_commit": "d150d473072092315141055b02066951bedb9a79",
+        "declaration_line": 263,
+        "reported_line": 263,
+        "declaration_sha256": "77c31906041eb4e85fbf9579329065c7c58788798b76d777bf43bca6d6dbc185",
+        "reported_line_sha256": "77c31906041eb4e85fbf9579329065c7c58788798b76d777bf43bca6d6dbc185",
+        "fingerprint": (
+            "d150d473072092315141055b02066951bedb9a79:"
+            "scripts/harness_runner/journal.py:generic-api-key:263"
+        ),
+        "match_sha256": "1b0eefe9e27172ff4a4d548e7b86d145128147f273c90de2ec584f76c4a7970f",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/HANDOFF.md",
+        "source_commit": "d1229b2149f7fa4105f1abe4a0a81ea089bc40fe",
+        "declaration_line": 450,
+        "reported_line": 451,
+        "declaration_sha256": "433dc24e39676cafe26524da69d296fb18f80a37a341758ac9d3a22c868836b8",
+        "reported_line_sha256": "c922c908c43322991a07e01f0edde15da6ea70eed7ffd7b3c69eafab5aab1c39",
+        "fingerprint": (
+            "d1229b2149f7fa4105f1abe4a0a81ea089bc40fe:docs/harness/HANDOFF.md:generic-api-key:451"
+        ),
+        "match_sha256": "3117fb7cca59e74439ba306754c2ad76bf082dc93f233e104086295e5ad33ab6",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "CURRENT_STATE.md",
+        "source_commit": "01d1d9b3a74f3fccc3c4fef85657ed0eadd1b860",
+        "declaration_line": 20,
+        "reported_line": 20,
+        "declaration_sha256": "6aaa4df3b174b537e711713abaf978edac40fe660061d7dc2b3c569a94436bba",
+        "reported_line_sha256": "6aaa4df3b174b537e711713abaf978edac40fe660061d7dc2b3c569a94436bba",
+        "fingerprint": (
+            "01d1d9b3a74f3fccc3c4fef85657ed0eadd1b860:CURRENT_STATE.md:generic-api-key:20"
+        ),
+        "match_sha256": "97583e0f66dc3867d18bc66a7f3bf3a245e2ad74c0d9cc008e4658b82d0c6bed",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "CURRENT_STATE.md",
+        "source_commit": "de741a08b168c48b19241acbc4235fccef9d9307",
+        "declaration_line": 20,
+        "reported_line": 20,
+        "declaration_sha256": "6aaa4df3b174b537e711713abaf978edac40fe660061d7dc2b3c569a94436bba",
+        "reported_line_sha256": "6aaa4df3b174b537e711713abaf978edac40fe660061d7dc2b3c569a94436bba",
+        "fingerprint": (
+            "de741a08b168c48b19241acbc4235fccef9d9307:CURRENT_STATE.md:generic-api-key:20"
+        ),
+        "match_sha256": "97583e0f66dc3867d18bc66a7f3bf3a245e2ad74c0d9cc008e4658b82d0c6bed",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/state_snapshot.json",
+        "source_commit": "01d1d9b3a74f3fccc3c4fef85657ed0eadd1b860",
+        "declaration_line": 33,
+        "reported_line": 33,
+        "declaration_sha256": "97f5dcab2737ae71629c1fc9b7ecd24d6b81e551f73907f47c2593800a986d93",
+        "reported_line_sha256": "97f5dcab2737ae71629c1fc9b7ecd24d6b81e551f73907f47c2593800a986d93",
+        "fingerprint": (
+            "01d1d9b3a74f3fccc3c4fef85657ed0eadd1b860:"
+            "docs/harness/state_snapshot.json:generic-api-key:33"
+        ),
+        "match_sha256": "97583e0f66dc3867d18bc66a7f3bf3a245e2ad74c0d9cc008e4658b82d0c6bed",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "docs/harness/state_snapshot.json",
+        "source_commit": "de741a08b168c48b19241acbc4235fccef9d9307",
+        "declaration_line": 33,
+        "reported_line": 33,
+        "declaration_sha256": "97f5dcab2737ae71629c1fc9b7ecd24d6b81e551f73907f47c2593800a986d93",
+        "reported_line_sha256": "97f5dcab2737ae71629c1fc9b7ecd24d6b81e551f73907f47c2593800a986d93",
+        "fingerprint": (
+            "de741a08b168c48b19241acbc4235fccef9d9307:"
+            "docs/harness/state_snapshot.json:generic-api-key:33"
+        ),
+        "match_sha256": "97583e0f66dc3867d18bc66a7f3bf3a245e2ad74c0d9cc008e4658b82d0c6bed",
+    },
+    {
+        "rule": "generic-api-key",
+        "path": "tests/test_harness_preproduction.py",
+        "source_commit": "2c109a979749313808a9c6e42fc4e7cc0adf4ac5",
+        "declaration_line": 1018,
+        "reported_line": 1019,
+        "declaration_sha256": "5cd05515eb67ae889e6e32e268cc54739b284d2d3162b291ff5adab85af2d7b1",
+        "reported_line_sha256": "5b7854c8b9bc60ca9a7c78596763ce2fa937adcb2420835ee10144e57784b534",
+        "fingerprint": (
+            "2c109a979749313808a9c6e42fc4e7cc0adf4ac5:"
+            "tests/test_harness_preproduction.py:generic-api-key:1019"
+        ),
+        "match_sha256": "617581412b474fb36e60639d980eddc44cbfa5a220bf98433eac96cd8e59f7e4",
+    },
 )
 
 
 def validate_rules() -> None:
-    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及十七处精确行豁免。"""
+    """不能依靠覆盖 extend 的空 allowlist；校验完整配置及固定精确行豁免。"""
     content = (ROOT / ".gitleaks.toml").read_bytes()
     provenance = json.loads((ROOT / "scripts/gitleaks_rules.json").read_text())
     config = tomllib.loads(content.decode())
@@ -107,22 +355,22 @@ def validate_rules() -> None:
         or hashlib.sha256(inventory).hexdigest() != provenance["rule_ids_sha256"]
         or any(key in config for key in {"extend", "allowlist", "allowlists"})
         or any("allowlist" in rule for rule in rules)
-        or sum(len(rule.get("allowlists", [])) for rule in rules) != 17
+        or sum(len(rule.get("allowlists", [])) for rule in rules) != 96
         or {rule["id"] for rule in rules if rule.get("allowlists")}
         != {
             "generic-api-key",
             "aws-amazon-bedrock-api-key-short-lived",
         }
-        or len(provenance["exceptions"]) != 17
+        or len(provenance["exceptions"]) != 96
     ):
         raise ValueError("invalid scanner rules")
     generic = next(rule for rule in rules if rule["id"] == "generic-api-key")
-    if len(generic.get("allowlists", [])) != 16:
+    if len(generic.get("allowlists", [])) != 95:
         raise ValueError("invalid scanner rules")
     public_line = generic["allowlists"][1]
     evidence = provenance["exceptions"][2]
     if (
-        len(generic["allowlists"]) != 16
+        len(generic["allowlists"]) != 95
         or public_line["condition"] != "AND"
         or public_line["regexTarget"] != "line"
         or public_line["paths"] != [P3_PUBLIC_PATH]
@@ -220,7 +468,245 @@ def validate_rules() -> None:
         ):
             raise ValueError("invalid scanner rules")
 
+    for offset, (commit, source_path, path, row, digest, line) in enumerate(m3_public_rows(ROOT)):
+        allowance = generic["allowlists"][16 + offset]
+        evidence = provenance["exceptions"][17 + offset]
+        if (
+            allowance
+            != {
+                "description": evidence.get("reason"),
+                "condition": "AND",
+                "regexTarget": "line",
+                "paths": [path],
+                "regexes": [m3_public_line_regex(row)],
+            }
+            or evidence.get("rule") != "generic-api-key"
+            or evidence.get("path") != path
+            or evidence.get("exact_line_sha256") != digest
+            or evidence.get("source_commit") != commit
+            or evidence.get("source_path") != source_path
+            or evidence.get("source_line") != line
+            or ("source_end_line" in evidence) != ("\n" in row)
+            or evidence.get("source_end_line") != (line + row.count("\n") if "\n" in row else None)
+        ):
+            raise ValueError("invalid scanner rules")
+
+    if provenance.get("v4_historical_findings") != v4_history_findings():
+        raise ValueError("invalid V4 historical scanner finding")
+    if provenance.get("v4_additional_historical_findings") != v4_additional_history_findings():
+        raise ValueError("invalid V4 additional historical scanner finding")
+    for offset, (source_path, path, row, digest, line, end) in enumerate(v4_public_rows(ROOT)):
+        evidence = provenance["exceptions"][45 + offset]
+        if (
+            generic["allowlists"][44 + offset]
+            != {
+                "description": evidence.get("reason"),
+                "condition": "AND",
+                "regexTarget": "line",
+                "paths": [path],
+                "regexes": [v4_public_line_regex(row)],
+            }
+            or evidence.get("rule") != "generic-api-key"
+            or evidence.get("path") != path
+            or evidence.get("exact_line_sha256") != digest
+            or evidence.get("source_commit") != V4_SOURCE_COMMIT
+            or evidence.get("source_path") != source_path
+            or evidence.get("source_line") != line
+            or evidence.get("source_end_line") != end
+        ):
+            raise ValueError("invalid V4 scanner rules")
+
+    if provenance.get("v4_preflight_historical_findings") != v4_preflight_history_findings():
+        raise ValueError("invalid V4 preflight historical scanner finding")
+    for offset, (record, row) in enumerate(v4_preflight_public_rows(ROOT)):
+        evidence = provenance["exceptions"][58 + offset]
+        path = "^" + re.escape(record["path"]) + "$"
+        if generic["allowlists"][57 + offset] != {
+            "description": evidence.get("reason"),
+            "condition": "AND",
+            "regexTarget": "line",
+            "paths": [path],
+            "regexes": [v4_public_line_regex(row)],
+        } or evidence != {
+            "rule": "generic-api-key",
+            "path": path,
+            "reason": evidence.get("reason"),
+            "exact_line_sha256": record["exact_span_sha256"],
+            "source_commit": record["source_commit"],
+            "source_path": record["path"],
+            "source_line": record["reported_line"],
+            "source_end_line": record["end_line"],
+            "start_column": record["start_column"],
+            "end_column": record["end_column"],
+            "match_sha256": record["match_sha256"],
+        }:
+            raise ValueError("invalid V4 preflight scanner rules")
+
+    if provenance.get("v4_merge_copy_anchors") != list(V4_MERGE_COPY_ANCHORS):
+        raise ValueError("invalid V4 merge anchors")
+    if provenance.get("v4_merge_copy_bindings") != list(V4_MERGE_COPY_BINDINGS):
+        raise ValueError("invalid V4 copy-only bindings")
     validate_woo_public_sources(ROOT)
+
+
+def history_config() -> bytes:
+    """Retain native V4 historical findings for exact fingerprint classification.
+
+    Remove only the generated V4 blocks; all old configuration bytes are preserved.
+    This keeps the scan independent of tomli_w before dependency installation.
+    """
+    content = (ROOT / ".gitleaks.toml").read_text()
+    pattern = (
+        r"(?m)^\[\[rules\.allowlists\]\]\n"
+        r'description = "(?:V4公开合同/字段/摘要；仅固定来源path与完整行/span|'
+        r'V4预检候选；仅固定来源path与完整行/span)"\n'
+        r"(?:(?!^\[\[rules(?:\.allowlists)?\]\]).*\n)*"
+    )
+    derived, removed = re.subn(pattern, "", content)
+    config = tomllib.loads(content)
+    expected = tomllib.loads(content)
+    generic = next(rule for rule in expected["rules"] if rule["id"] == "generic-api-key")
+    generic["allowlists"] = generic["allowlists"][:44]
+    if removed != 51 or tomllib.loads(derived) != expected or len(config["rules"]) != 222:
+        raise ValueError("invalid V4 history config derivation")
+    return derived.encode()
+
+
+def approved_v4_history_finding(scope: str, item: dict[str, Any]) -> bool:
+    if scope != "git":
+        return False
+    for row in (
+        *v4_history_findings(),
+        *v4_additional_history_findings(),
+        *v4_preflight_history_findings(),
+    ):
+        if any(
+            item.get(key) != row[field]
+            for key, field in (
+                ("RuleID", "rule"),
+                ("File", "path"),
+                ("Commit", "source_commit"),
+                ("StartLine", "reported_line"),
+                ("EndLine", "end_line"),
+                ("StartColumn", "start_column"),
+                ("EndColumn", "end_column"),
+                ("Fingerprint", "fingerprint"),
+            )
+        ):
+            continue
+        match = item.get("Match")
+        if (
+            not isinstance(match, str)
+            or hashlib.sha256(match.encode()).hexdigest() != row["match_sha256"]
+        ):
+            return False
+        source = subprocess.run(
+            ["git", "show", str(row["source_commit"]) + ":" + str(row["path"])],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+        )
+        lines = source.stdout.splitlines()
+        line, end = int(str(row["reported_line"])), int(str(row["end_line"]))
+        return (
+            source.returncode == 0
+            and len(lines) >= end
+            and hashlib.sha256(b"\n".join(lines[line - 1 : end])).hexdigest()
+            == row["exact_span_sha256"]
+        )
+    return False
+
+
+def approved_v4_merge_copy(scope: str, item: dict[str, Any]) -> dict[str, str] | None:
+    """Only real merges copying an explicitly frozen, whole-file reviewed blob."""
+    commit = item.get("Commit")
+    if scope != "git" or not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        return None
+    if (
+        item.get("Fingerprint")
+        != f"{commit}:{item.get('File')}:{item.get('RuleID')}:{item.get('StartLine')}"
+    ):
+        return None
+    parents = subprocess.run(
+        ["git", "rev-list", "--parents", "-n", "1", commit],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if parents.returncode or len(parents.stdout.split()) < 3 or parents.stdout.split()[0] != commit:
+        return None
+    for anchor in V4_MERGE_COPY_ANCHORS:
+        if item.get("File") != anchor["path"]:
+            continue
+        valid_blob = True
+        for source in (commit, anchor["source_commit"]):
+            blob = subprocess.run(
+                ["git", "rev-parse", source + ":" + anchor["path"]],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if blob.returncode or blob.stdout.strip() != anchor["blob"]:
+                valid_blob = False
+                break
+        if not valid_blob:
+            continue
+        for row in (
+            *v4_history_findings(),
+            *v4_additional_history_findings(),
+            *v4_preflight_history_findings(),
+            *V4_PREFLIGHT_SNAPSHOTS,
+            *V4_MERGE_COPY_BINDINGS,
+        ):
+            if row["path"] != anchor["path"]:
+                continue
+            if any(
+                item.get(key) != row[field]
+                for key, field in (
+                    ("RuleID", "rule"),
+                    ("File", "path"),
+                    ("StartLine", "reported_line"),
+                    ("EndLine", "end_line"),
+                    ("StartColumn", "start_column"),
+                    ("EndColumn", "end_column"),
+                )
+            ):
+                continue
+            match = item.get("Match")
+            if (
+                not isinstance(match, str)
+                or hashlib.sha256(match.encode()).hexdigest() != row["match_sha256"]
+            ):
+                continue
+            anchored_source = subprocess.run(
+                ["git", "show", anchor["source_commit"] + ":" + anchor["path"]],
+                cwd=ROOT,
+                capture_output=True,
+                check=False,
+            )
+            lines = anchored_source.stdout.splitlines()
+            line, end = int(str(row["reported_line"])), int(str(row["end_line"]))
+            if (
+                anchored_source.returncode
+                or len(lines) < end
+                or hashlib.sha256(b"\n".join(lines[line - 1 : end])).hexdigest()
+                != row["exact_span_sha256"]
+            ):
+                continue
+            return {
+                "source_commit": anchor["source_commit"],
+                "blob": anchor["blob"],
+                "finding_source": str(row["source_commit"]),
+                "binding_kind": str(
+                    row.get("binding_kind", "history" if "fingerprint" in row else "snapshot")
+                ),
+                "finding_fingerprint": (
+                    f"{row['source_commit']}:{row['path']}:{row['rule']}:{row['reported_line']}"
+                ),
+            }
+    return None
 
 
 def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
@@ -266,8 +752,23 @@ def approved_history_finding(scope: str, item: dict[str, Any]) -> bool:
 
 
 def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[str]:
-    """核Woo和M2公开例外的固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
+    """核Woo/M2/M3公开例外的固定相对路径/行位/整行hash，低熵改动同样fail closed。"""
     violations = []
+    v4_entries = (
+        *V4_PUBLIC_EXCEPTIONS,
+        *(
+            (
+                r["path"],
+                r["exact_span_sha256"],
+                r["reported_line"],
+                r["end_line"],
+                r["match_sha256"],
+                r["start_column"],
+                r["end_column"],
+            )
+            for r in V4_PREFLIGHT_SNAPSHOTS
+        ),
+    )
     for candidate in paths:
         relative = candidate.as_posix()
         for source_path, pattern, _, digest, line in (
@@ -276,6 +777,10 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s
             *(
                 (p, pattern, "", digest, line)
                 for p, pattern, digest, line in M2_CONSUMER_EXCEPTIONS
+            ),
+            *(
+                (p, pattern, "", digest, line)
+                for _, p, pattern, digest, line in M3_PUBLIC_EXCEPTIONS
             ),
         ):
             if re.search(pattern, relative) is None:
@@ -288,6 +793,47 @@ def woo_public_snapshot_violations(directory: Path, paths: list[Path]) -> list[s
                 continue
             rows = path.read_bytes().splitlines()
             if len(rows) < line or hashlib.sha256(rows[line - 1]).hexdigest() != digest:
+                violations.append(relative)
+        for source_path, pattern, digest, line, end in (
+            *(
+                (p, pattern, digest, line, end)
+                for _, p, pattern, digest, line, end in M3_SPAN_PUBLIC_EXCEPTIONS
+            ),
+            *(
+                (p, "^" + re.escape(p) + "$", digest, line, end)
+                for p, digest, line, end, _, _, _ in v4_entries
+            ),
+        ):
+            if re.search(pattern, relative) is None:
+                continue
+            if relative != source_path:
+                violations.append(relative)
+                continue
+            path = directory / candidate
+            if not path.is_file():
+                continue
+            rows = path.read_bytes().splitlines()
+            if (
+                len(rows) < end
+                or hashlib.sha256(b"\n".join(rows[line - 1 : end])).hexdigest() != digest
+            ):
+                violations.append(relative)
+    # A duplicated approved row at a new line must not inherit the native line allowance.
+    for candidate in paths:
+        relative = candidate.as_posix()
+        entries = [x for x in v4_entries if x[0] == relative]
+        path = directory / candidate
+        if not entries or not path.is_file():
+            continue
+        rows = path.read_bytes().splitlines()
+        for _, digest, line, end, _, _, _ in entries:
+            width = end - line + 1
+            allowed = {x[2] for x in entries if x[1] == digest and x[3] - x[2] + 1 == width}
+            if any(
+                number + 1 not in allowed
+                and hashlib.sha256(b"\n".join(rows[number : number + width])).hexdigest() == digest
+                for number in range(len(rows) - width + 1)
+            ):
                 violations.append(relative)
     return violations
 
@@ -370,6 +916,8 @@ def scan(root: Path) -> int:
             check=True,
         ).stdout.strip()
         (history / ".git").write_text(f"gitdir: {gitdir}\n")
+        git_config = staging / "history-config.toml"
+        git_config.write_bytes(history_config())
         ignore = staging / "empty-ignore"
         ignore.touch()
         for scope, mode, source in [
@@ -381,9 +929,9 @@ def scan(root: Path) -> int:
             command = [
                 str(SCANNER),
                 mode,
-                str(source),
+                "." if mode == "dir" else str(source),
                 "--config",
-                str(ROOT / ".gitleaks.toml"),
+                str(git_config if mode == "git" else ROOT / ".gitleaks.toml"),
                 "--redact=100",
                 "--no-banner",
                 "--log-level=error",
@@ -397,7 +945,10 @@ def scan(root: Path) -> int:
             ]
             if mode == "git":
                 command += ["--log-opts=--all --full-history -m --text --no-textconv --no-ext-diff"]
-            process = subprocess.run(command, cwd=staging, capture_output=True)
+            # Relative dir paths permit exact repository-path allowlists, including in Git.
+            process = subprocess.run(
+                command, cwd=source if mode == "dir" else staging, capture_output=True
+            )
             if process.returncode not in (0, 1) or not report.exists():
                 print(f"ERROR {scope}: 扫描器未成功完成（原始输出已抑制）")
                 return 2
@@ -407,7 +958,11 @@ def scan(root: Path) -> int:
                 return 2
             reviewed = 0
             for item in findings:
-                approved = approved_history_finding(scope, item)
+                approved = approved_history_finding(scope, item) or approved_v4_history_finding(
+                    scope, item
+                )
+                merge_anchor = None if approved else approved_v4_merge_copy(scope, item)
+                approved = approved or merge_anchor is not None
                 reviewed += int(approved)
                 # 永远不输出 Secret/Match/整条报告，也不输出原始 stdout/stderr。
                 print(
@@ -419,9 +974,14 @@ def scan(root: Path) -> int:
                             "line": item["StartLine"],
                             "commit": item.get("Commit", ""),
                             "fingerprint": item.get("Fingerprint", ""),
-                            "classification": "reviewed_public_false_positive"
-                            if approved
-                            else "blocking",
+                            "classification": (
+                                "reviewed_public_merge_copy"
+                                if merge_anchor
+                                else "reviewed_public_false_positive"
+                                if approved
+                                else "blocking"
+                            ),
+                            **({"merge_anchor": merge_anchor} if merge_anchor else {}),
                         },
                         ensure_ascii=False,
                     )
