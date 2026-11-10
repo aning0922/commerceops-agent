@@ -104,18 +104,24 @@ def combined_groups(nodes: list[str]) -> dict[str, list[str]]:
     m3_paths = sorted(
         {node.split("::", 1)[0] for node in existing if m3_pg_module(node.split("::", 1)[0])}
     )
-    # 41864322517: legacy + complete V40/V41 modules exhausted one 300s command.
-    # Keep natural module/inner-node collection order; no cardinality or deadline changes.
-    v4_paths = list(
+    # V40/V41 already run separately. Both post-main attempts of 42806020298
+    # hit 300s in the legacy batch, so also isolate the complete P204 module.
+    # Preserve module/inner-node collection order, coverage, and command deadlines.
+    standalone_modules = (*v4_modules, "tests/test_p204_pg.py")
+    standalone_paths = list(
         dict.fromkeys(
-            node.split("::", 1)[0] for node in existing if node.split("::", 1)[0] in v4_modules
+            node.split("::", 1)[0]
+            for node in existing
+            if node.split("::", 1)[0] in standalone_modules
         )
     )
     ordinary = [
-        node for node in existing if node.split("::", 1)[0] not in {*v4_paths, *p5_paths, *m3_paths}
+        node
+        for node in existing
+        if node.split("::", 1)[0] not in {*standalone_paths, *p5_paths, *m3_paths}
     ]
     groups = {"combined-existing": ordinary} if ordinary else {}
-    for path in [*v4_paths, *p5_paths, *m3_paths]:
+    for path in [*standalone_paths, *p5_paths, *m3_paths]:
         label = "combined-existing-" + path.removeprefix("tests/").removesuffix(".py").replace(
             "/", "-"
         )
